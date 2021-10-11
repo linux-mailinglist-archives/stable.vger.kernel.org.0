@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5928142904C
+	by mail.lfdr.de (Postfix) with ESMTP id E7F4E42904D
 	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:05:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240724AbhJKOHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:07:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57620 "EHLO mail.kernel.org"
+        id S240772AbhJKOHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:07:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57621 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237996AbhJKOFA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237698AbhJKOFA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 11 Oct 2021 10:05:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3A61611CE;
-        Mon, 11 Oct 2021 13:59:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C7BB611F2;
+        Mon, 11 Oct 2021 13:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960771;
-        bh=4ZuKaxt9DmrfB/UDHzyV2kWzu915lcEmuOr1QnS+O7I=;
+        s=korg; t=1633960773;
+        bh=ctfe0Z8/2YtB7NkTBvaGIbKBy95xDYC8PyDDwW+MqGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ps7X6o6BPuq4Wrv9aRXqwkfbN29MR0u8iIdB8U4rJUMTdXuWSXmNdj1mTpjfJwF4x
-         jBGBKGjb53ywc1bTql/ggSXVM1MwI9Zh+04fBwpOfUkJAxTZpWFknRGOYZSSCfykjg
-         gaQj+aMAaWtyr5E9Y7wmQPD212ucHNNcG83AJcy8=
+        b=SbD9RWZgmZCS1rTOm0qkPpStFvKdxjTQBVNOz3wj+OKv7gC+o8nzWpn7N8YXFxjuv
+         iuokws+CpOo6wU4wx0cgN7KdH0AYwTE5vfgRPjlgj5pHyXy6sgdeNGtfCxSdx6mxOW
+         QglooB8GNPnWcN0VSAtVv9fCC6cGrSXUQhB+3zgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 068/151] libbpf: Fix memory leak in strset
-Date:   Mon, 11 Oct 2021 15:45:40 +0200
-Message-Id: <20211011134520.045865698@linuxfoundation.org>
+Subject: [PATCH 5.14 069/151] net_sched: fix NULL deref in fifo_set_limit()
+Date:   Mon, 11 Oct 2021 15:45:41 +0200
+Message-Id: <20211011134520.075055280@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,34 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit b0e875bac0fab3e7a7431c2eee36a8ccc0c712ac ]
+[ Upstream commit 560ee196fe9e5037e5015e2cdb14b3aecb1cd7dc ]
 
-Free struct strset itself, not just its internal parts.
+syzbot reported another NULL deref in fifo_set_limit() [1]
 
-Fixes: 90d76d3ececc ("libbpf: Extract internal set-of-strings datastructure APIs")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20211001185910.86492-1-andrii@kernel.org
+I could repro the issue with :
+
+unshare -n
+tc qd add dev lo root handle 1:0 tbf limit 200000 burst 70000 rate 100Mbit
+tc qd replace dev lo parent 1:0 pfifo_fast
+tc qd change dev lo root handle 1:0 tbf limit 300000 burst 70000 rate 100Mbit
+
+pfifo_fast does not have a change() operation.
+Make fifo_set_limit() more robust about this.
+
+[1]
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+PGD 1cf99067 P4D 1cf99067 PUD 7ca49067 PMD 0
+Oops: 0010 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 14443 Comm: syz-executor959 Not tainted 5.15.0-rc3-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:0x0
+Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+RSP: 0018:ffffc9000e2f7310 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffffffff8d6ecc00 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff888024c27910 RDI: ffff888071e34000
+RBP: ffff888071e34000 R08: 0000000000000001 R09: ffffffff8fcfb947
+R10: 0000000000000001 R11: 0000000000000000 R12: ffff888024c27910
+R13: ffff888071e34018 R14: 0000000000000000 R15: ffff88801ef74800
+FS:  00007f321d897700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffffd6 CR3: 00000000722c3000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ fifo_set_limit net/sched/sch_fifo.c:242 [inline]
+ fifo_set_limit+0x198/0x210 net/sched/sch_fifo.c:227
+ tbf_change+0x6ec/0x16d0 net/sched/sch_tbf.c:418
+ qdisc_change net/sched/sch_api.c:1332 [inline]
+ tc_modify_qdisc+0xd9a/0x1a60 net/sched/sch_api.c:1634
+ rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
+ netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
+ netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:724
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: fb0305ce1b03 ("net-sched: consolidate default fifo qdisc setup")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20210930212239.3430364-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/strset.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/sched/sch_fifo.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/lib/bpf/strset.c b/tools/lib/bpf/strset.c
-index 1fb8b49de1d6..ea655318153f 100644
---- a/tools/lib/bpf/strset.c
-+++ b/tools/lib/bpf/strset.c
-@@ -88,6 +88,7 @@ void strset__free(struct strset *set)
+diff --git a/net/sched/sch_fifo.c b/net/sched/sch_fifo.c
+index a579a4131d22..e1040421b797 100644
+--- a/net/sched/sch_fifo.c
++++ b/net/sched/sch_fifo.c
+@@ -233,6 +233,9 @@ int fifo_set_limit(struct Qdisc *q, unsigned int limit)
+ 	if (strncmp(q->ops->id + 1, "fifo", 4) != 0)
+ 		return 0;
  
- 	hashmap__free(set->strs_hash);
- 	free(set->strs_data);
-+	free(set);
- }
- 
- size_t strset__data_size(const struct strset *set)
++	if (!q->ops->change)
++		return 0;
++
+ 	nla = kmalloc(nla_attr_size(sizeof(struct tc_fifo_qopt)), GFP_KERNEL);
+ 	if (nla) {
+ 		nla->nla_type = RTM_NEWQDISC;
 -- 
 2.33.0
 
