@@ -2,41 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCD28429012
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:04:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46C1A429013
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:04:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237116AbhJKOEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:04:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55318 "EHLO mail.kernel.org"
+        id S237890AbhJKOEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:04:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238327AbhJKOCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:02:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6BAE611BF;
-        Mon, 11 Oct 2021 13:58:04 +0000 (UTC)
+        id S238069AbhJKOCl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:02:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D1DD60F38;
+        Mon, 11 Oct 2021 13:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960685;
-        bh=Tj7sLuridhwWepG5JvXi+SbE7as1HZoyo8i1lx/lhzg=;
+        s=korg; t=1633960689;
+        bh=4FxJVdVhKieCEydt0c2Cf/EXCXYWRYaRt97o9ypkH2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fK7tdbu/FmHjyPV/j+JT1aSd9Ha86zOzpX8tI+9tFpjUYVwIKOAO/Pf7zJsnIz0q+
-         ncT2C0C7cpDuhmGddUVIBMIstte1e9HCLoZuQ4CQVPC2PLYa9RpYHdss92WvlwDVuj
-         wzfhl6pWwpPWmBtfOOsuq/8j/0tEgGAcNLRdi+Wk=
+        b=zYCMsXescROLJpzkY5ytXkfEB3zf5E9gt7kBN1vlFCAZIhiqCGix/IgFtQEPrHnVl
+         WhJlmLoXrqHFq+EsU/00cFktx0zjHLtUnqZcomfsdbWp68vsAve7CtCBcBB3WuNv1a
+         QyzBXapwa9b2RGON3oUlyNLlUoyeF09aczaieY24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Long Li <longli@microsoft.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 046/151] PCI: hv: Fix sleep while in non-sleep context when removing child devices from the bus
-Date:   Mon, 11 Oct 2021 15:45:18 +0200
-Message-Id: <20211011134519.333377318@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 047/151] ath5k: fix building with LEDS=m
+Date:   Mon, 11 Oct 2021 15:45:19 +0200
+Message-Id: <20211011134519.364261890@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -48,72 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Long Li <longli@microsoft.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 41608b64b10b80fe00dd253cd8326ec8ad85930f ]
+[ Upstream commit fb8c3a3c52400512fc8b3b61150057b888c30b0d ]
 
-In hv_pci_bus_exit, the code is holding a spinlock while calling
-pci_destroy_slot(), which takes a mutex.
+Randconfig builds still show a failure for the ath5k driver,
+similar to the one that was fixed for ath9k earlier:
 
-This is not safe for spinlock. Fix this by moving the children to be
-deleted to a list on the stack, and removing them after spinlock is
-released.
+WARNING: unmet direct dependencies detected for MAC80211_LEDS
+  Depends on [n]: NET [=y] && WIRELESS [=y] && MAC80211 [=y] && (LEDS_CLASS [=m]=y || LEDS_CLASS [=m]=MAC80211 [=y])
+  Selected by [m]:
+  - ATH5K [=m] && NETDEVICES [=y] && WLAN [=y] && WLAN_VENDOR_ATH [=y] && (PCI [=y] || ATH25) && MAC80211 [=y]
+net/mac80211/led.c: In function 'ieee80211_alloc_led_names':
+net/mac80211/led.c:34:22: error: 'struct led_trigger' has no member named 'name'
+   34 |         local->rx_led.name = kasprintf(GFP_KERNEL, "%srx",
+      |                      ^
 
-Fixes: 94d22763207a ("PCI: hv: Fix a race condition when removing the device")
+Copying the same logic from my ath9k patch makes this one work
+as well, stubbing out the calls to the LED subsystem.
 
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Wei Liu <wei.liu@kernel.org>
-Cc: Dexuan Cui <decui@microsoft.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: "Krzysztof Wilczyński" <kw@linux.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Michael Kelley <mikelley@microsoft.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/linux-hyperv/20210823152130.GA21501@kili/
-Signed-off-by: Long Li <longli@microsoft.com>
-Reviewed-by: Wei Liu <wei.liu@kernel.org>
-Link: https://lore.kernel.org/r/1630365207-20616-1-git-send-email-longli@linuxonhyperv.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: b64acb28da83 ("ath9k: fix build error with LEDS_CLASS=m")
+Fixes: 72cdab808714 ("ath9k: Do not select MAC80211_LEDS by default")
+Fixes: 3a078876caee ("ath5k: convert LED code to use mac80211 triggers")
+Link: https://lore.kernel.org/all/20210722105501.1000781-1-arnd@kernel.org/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210920122359.353810-1-arnd@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-hyperv.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath5k/Kconfig |  4 +---
+ drivers/net/wireless/ath/ath5k/led.c   | 10 ++++++----
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index a53bd8728d0d..fc1a29acadbb 100644
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -3229,9 +3229,17 @@ static int hv_pci_bus_exit(struct hv_device *hdev, bool keep_devs)
+diff --git a/drivers/net/wireless/ath/ath5k/Kconfig b/drivers/net/wireless/ath/ath5k/Kconfig
+index f35cd8de228e..6914b37bb0fb 100644
+--- a/drivers/net/wireless/ath/ath5k/Kconfig
++++ b/drivers/net/wireless/ath/ath5k/Kconfig
+@@ -3,9 +3,7 @@ config ATH5K
+ 	tristate "Atheros 5xxx wireless cards support"
+ 	depends on (PCI || ATH25) && MAC80211
+ 	select ATH_COMMON
+-	select MAC80211_LEDS
+-	select LEDS_CLASS
+-	select NEW_LEDS
++	select MAC80211_LEDS if LEDS_CLASS=y || LEDS_CLASS=MAC80211
+ 	select ATH5K_AHB if ATH25
+ 	select ATH5K_PCI if !ATH25
+ 	help
+diff --git a/drivers/net/wireless/ath/ath5k/led.c b/drivers/net/wireless/ath/ath5k/led.c
+index 6a2a16856763..33e9928af363 100644
+--- a/drivers/net/wireless/ath/ath5k/led.c
++++ b/drivers/net/wireless/ath/ath5k/led.c
+@@ -89,7 +89,8 @@ static const struct pci_device_id ath5k_led_devices[] = {
+ 
+ void ath5k_led_enable(struct ath5k_hw *ah)
+ {
+-	if (test_bit(ATH_STAT_LEDSOFT, ah->status)) {
++	if (IS_ENABLED(CONFIG_MAC80211_LEDS) &&
++	    test_bit(ATH_STAT_LEDSOFT, ah->status)) {
+ 		ath5k_hw_set_gpio_output(ah, ah->led_pin);
+ 		ath5k_led_off(ah);
+ 	}
+@@ -104,7 +105,8 @@ static void ath5k_led_on(struct ath5k_hw *ah)
+ 
+ void ath5k_led_off(struct ath5k_hw *ah)
+ {
+-	if (!test_bit(ATH_STAT_LEDSOFT, ah->status))
++	if (!IS_ENABLED(CONFIG_MAC80211_LEDS) ||
++	    !test_bit(ATH_STAT_LEDSOFT, ah->status))
+ 		return;
+ 	ath5k_hw_set_gpio(ah, ah->led_pin, !ah->led_on);
+ }
+@@ -146,7 +148,7 @@ ath5k_register_led(struct ath5k_hw *ah, struct ath5k_led *led,
+ static void
+ ath5k_unregister_led(struct ath5k_led *led)
+ {
+-	if (!led->ah)
++	if (!IS_ENABLED(CONFIG_MAC80211_LEDS) || !led->ah)
+ 		return;
+ 	led_classdev_unregister(&led->led_dev);
+ 	ath5k_led_off(led->ah);
+@@ -169,7 +171,7 @@ int ath5k_init_leds(struct ath5k_hw *ah)
+ 	char name[ATH5K_LED_MAX_NAME_LEN + 1];
+ 	const struct pci_device_id *match;
+ 
+-	if (!ah->pdev)
++	if (!IS_ENABLED(CONFIG_MAC80211_LEDS) || !ah->pdev)
  		return 0;
  
- 	if (!keep_devs) {
--		/* Delete any children which might still exist. */
-+		struct list_head removed;
-+
-+		/* Move all present children to the list on stack */
-+		INIT_LIST_HEAD(&removed);
- 		spin_lock_irqsave(&hbus->device_list_lock, flags);
--		list_for_each_entry_safe(hpdev, tmp, &hbus->children, list_entry) {
-+		list_for_each_entry_safe(hpdev, tmp, &hbus->children, list_entry)
-+			list_move_tail(&hpdev->list_entry, &removed);
-+		spin_unlock_irqrestore(&hbus->device_list_lock, flags);
-+
-+		/* Remove all children in the list */
-+		list_for_each_entry_safe(hpdev, tmp, &removed, list_entry) {
- 			list_del(&hpdev->list_entry);
- 			if (hpdev->pci_slot)
- 				pci_destroy_slot(hpdev->pci_slot);
-@@ -3239,7 +3247,6 @@ static int hv_pci_bus_exit(struct hv_device *hdev, bool keep_devs)
- 			put_pcichild(hpdev);
- 			put_pcichild(hpdev);
- 		}
--		spin_unlock_irqrestore(&hbus->device_list_lock, flags);
- 	}
- 
- 	ret = hv_send_resources_released(hdev);
+ #ifdef CONFIG_ATH5K_AHB
 -- 
 2.33.0
 
