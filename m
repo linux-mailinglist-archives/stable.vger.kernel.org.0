@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB1F8428FD8
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52166428FD9
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:01:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236985AbhJKOBn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237680AbhJKOBn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 11 Oct 2021 10:01:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50384 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237698AbhJKN7k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:59:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2FFA60F4B;
-        Mon, 11 Oct 2021 13:56:28 +0000 (UTC)
+        id S237947AbhJKN7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:59:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFBCD61040;
+        Mon, 11 Oct 2021 13:56:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960589;
-        bh=uI2EKXIyFDiJCiGwG1SAnACv0IYFDOjalJyNNkJ8fzk=;
+        s=korg; t=1633960592;
+        bh=07zuXDl2yZKFGkwixI//zv85eW7rTXGOHY9Ec52sMGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NToKh69dqV6ZUqtdHNy0qc9rrtu0wsO4ej9uc7bIb+/Xtp1sh4dFUqeAcw6TGWByM
-         bhIM9QJ3/Y6N9ske3nVVZzGbOIr4S2H3yFKaNEhRZldZIDPMeoXnpGitdz5dhippf8
-         mH8xRY2nQ04pp7EEmwYzQjSjrMydHXVBjsPQ6txc=
+        b=UO9v7yCXszZZrYODaV9JutRrnoebflE8pxSElptlwt6B0cYOAXziNt01CEGnNz84J
+         TG/pp/0FzsMf6T8LxNfVVbLHMAutb5YRK12E68jP49Yn+2LvTqMxntLDsKzLrqTGLG
+         rPhnhevExCM6C9z4Uc6OHHONLWAd9f5Vp8AWciTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Charlene Liu <charlene.liu@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Zhan Liu <Zhan.Liu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.14 017/151] drm/amd/display: Fix DCN3 B0 DP Alt Mapping
-Date:   Mon, 11 Oct 2021 15:44:49 +0200
-Message-Id: <20211011134518.411527068@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.14 018/151] drm/i915: Fix runtime pm handling in i915_gem_shrink
+Date:   Mon, 11 Oct 2021 15:44:50 +0200
+Message-Id: <20211011134518.441865089@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,41 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu, Zhan <Zhan.Liu@amd.com>
+From: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 
-commit 2fe9a0e1173f4805669e7af34ea25af835274426 upstream.
+commit 0c94777386495d6e0a9735d48ffd2abb8d680d7f upstream.
 
-[Why]
-DCN3 B0 has a mux, which redirects PHYC and PHYD to PHYF and PHYG.
+We forgot to call intel_runtime_pm_put on error, fix it!
 
-[How]
-Fix DIG mapping.
-
-Reviewed-by: Charlene Liu <charlene.liu@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Zhan Liu <Zhan.Liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-(cherry picked from commit 4b7786d87fb3adf3e534c4f1e4f824d8700b786b)
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Fixes: cf41a8f1dc1e ("drm/i915: Finally remove obj->mm.lock.")
+Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: <stable@vger.kernel.org> # v5.13+
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Reviewed-by: Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210830121006.2978297-9-maarten.lankhorst@linux.intel.com
+(cherry picked from commit 239f3c2ee18376587026efecaea5250fa5926d20)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/i915/gem/i915_gem_shrinker.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-@@ -1284,6 +1284,12 @@ static struct stream_encoder *dcn31_stre
- 	if (!enc1 || !vpg || !afmt)
- 		return NULL;
+--- a/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
+@@ -118,7 +118,7 @@ i915_gem_shrink(struct i915_gem_ww_ctx *
+ 	intel_wakeref_t wakeref = 0;
+ 	unsigned long count = 0;
+ 	unsigned long scanned = 0;
+-	int err;
++	int err = 0;
  
-+	if (ctx->asic_id.chip_family == FAMILY_YELLOW_CARP &&
-+			ctx->asic_id.hw_internal_rev == YELLOW_CARP_B0) {
-+		if ((eng_id == ENGINE_ID_DIGC) || (eng_id == ENGINE_ID_DIGD))
-+			eng_id = eng_id + 3; // For B0 only. C->F, D->G.
-+	}
+ 	/* CHV + VTD workaround use stop_machine(); need to trylock vm->mutex */
+ 	bool trylock_vm = !ww && intel_vm_no_concurrent_access_wa(i915);
+@@ -242,12 +242,15 @@ skip:
+ 		list_splice_tail(&still_in_list, phase->list);
+ 		spin_unlock_irqrestore(&i915->mm.obj_lock, flags);
+ 		if (err)
+-			return err;
++			break;
+ 	}
+ 
+ 	if (shrink & I915_SHRINK_BOUND)
+ 		intel_runtime_pm_put(&i915->runtime_pm, wakeref);
+ 
++	if (err)
++		return err;
 +
- 	dcn30_dio_stream_encoder_construct(enc1, ctx, ctx->dc_bios,
- 					eng_id, vpg, afmt,
- 					&stream_enc_regs[eng_id],
+ 	if (nr_scanned)
+ 		*nr_scanned += scanned;
+ 	return count;
 
 
