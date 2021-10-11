@@ -2,187 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B687D4286E7
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 08:36:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DF9A428775
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 09:10:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234221AbhJKGiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 02:38:01 -0400
-Received: from mga06.intel.com ([134.134.136.31]:20294 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234213AbhJKGiB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 02:38:01 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10133"; a="287686772"
-X-IronPort-AV: E=Sophos;i="5.85,364,1624345200"; 
-   d="scan'208";a="287686772"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Oct 2021 23:36:01 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.85,364,1624345200"; 
-   d="scan'208";a="441319462"
-Received: from ahunter-desktop.fi.intel.com ([10.237.72.76])
-  by orsmga003.jf.intel.com with ESMTP; 10 Oct 2021 23:36:00 -0700
-From:   Adrian Hunter <adrian.hunter@intel.com>
-To:     stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH v5.10] scsi: ufs: core: Fix task management completion
-Date:   Mon, 11 Oct 2021 09:35:59 +0300
-Message-Id: <20211011063559.357128-1-adrian.hunter@intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S234104AbhJKHMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 03:12:41 -0400
+Received: from smtpout4.mo529.mail-out.ovh.net ([217.182.185.173]:51783 "EHLO
+        smtpout4.mo529.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234100AbhJKHMk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 03:12:40 -0400
+X-Greylist: delayed 508 seconds by postgrey-1.27 at vger.kernel.org; Mon, 11 Oct 2021 03:12:39 EDT
+Received: from mxplan5.mail.ovh.net (unknown [10.109.156.216])
+        by mo529.mail-out.ovh.net (Postfix) with ESMTPS id 0EC30C3BBB9B;
+        Mon, 11 Oct 2021 09:02:09 +0200 (CEST)
+Received: from kaod.org (37.59.142.95) by DAG4EX1.mxp5.local (172.16.2.31)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.14; Mon, 11 Oct
+ 2021 09:02:09 +0200
+Authentication-Results: garm.ovh; auth=pass (GARM-95G0010762b5aa-8db3-4685-afb6-69febc946e19,
+                    044DEDDE8B0E05FD49EE52B84AFD98BA54CEE260) smtp.auth=clg@kaod.org
+X-OVh-ClientIp: 82.64.250.170
+From:   =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>
+To:     <linuxppc-dev@lists.ozlabs.org>
+CC:     Michael Ellerman <mpe@ellerman.id.au>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        <stable@vger.kernel.org>
+Subject: [PATCH] powerpc/xive: Discard disabled interrupts in get_irqchip_state()
+Date:   Mon, 11 Oct 2021 09:02:03 +0200
+Message-ID: <20211011070203.99726-1-clg@kaod.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
+X-Originating-IP: [37.59.142.95]
+X-ClientProxiedBy: DAG3EX1.mxp5.local (172.16.2.21) To DAG4EX1.mxp5.local
+ (172.16.2.31)
+X-Ovh-Tracer-GUID: 1fcd0286-05cf-4e09-8d7f-6cb5e00e2edd
+X-Ovh-Tracer-Id: 16244765333835647968
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: 0
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvtddrvddthedgudduvdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecunecujfgurhephffvufffkffogggtgfhisehtkeertdertdejnecuhfhrohhmpeevrogurhhitgcunfgvucfiohgrthgvrhcuoegtlhhgsehkrghougdrohhrgheqnecuggftrfgrthhtvghrnhepfedvuedtvdeikeekuefhkedujeejgffggffhtefglefgveevfeeghfdvgedtleevnecukfhppedtrddtrddtrddtpdefjedrheelrddugedvrdelheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehmgihplhgrnhehrdhmrghilhdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomheptghlgheskhgrohgurdhorhhgpdhrtghpthhtoheptghlgheskhgrohgurdhorhhg
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit f5ef336fd2e4c36dedae4e7ca66cf5349d6fda62 upstream.
+When an interrupt is passed through, the KVM XIVE device calls the
+set_vcpu_affinity() handler which raises the P bit to mask the
+interrupt and to catch any in-flight interrupts while routing the
+interrupt to the guest.
 
-The UFS driver uses blk_mq_tagset_busy_iter() when identifying task
-management requests to complete, however blk_mq_tagset_busy_iter() doesn't
-work.
+On the guest side, drivers (like some Intels) can request at probe
+time some MSIs and call synchronize_irq() to check that there are no
+in flight interrupts. This will call the XIVE get_irqchip_state()
+handler which will always return true as the interrupt P bit has been
+set on the host side and lock the CPU in an infinite loop.
 
-blk_mq_tagset_busy_iter() only iterates requests dispatched by the block
-layer. That appears as if it might have started since commit 37f4a24c2469
-("blk-mq: centralise related handling into blk_mq_get_driver_tag") which
-removed 'data->hctx->tags->rqs[rq->tag] = rq' from blk_mq_rq_ctx_init()
-which gets called:
+Fix that by discarding disabled interrupts in get_irqchip_state().
 
-	blk_get_request
-		blk_mq_alloc_request
-			__blk_mq_alloc_request
-				blk_mq_rq_ctx_init
-
-Since UFS task management requests are not dispatched by the block layer,
-hctx->tags->rqs[rq->tag] remains NULL, and since blk_mq_tagset_busy_iter()
-relies on finding requests using hctx->tags->rqs[rq->tag], UFS task
-management requests are never found by blk_mq_tagset_busy_iter().
-
-By using blk_mq_tagset_busy_iter(), the UFS driver was relying on internal
-details of the block layer, which was fragile and subsequently got
-broken. Fix by removing the use of blk_mq_tagset_busy_iter() and having the
-driver keep track of task management requests.
-
-Link: https://lore.kernel.org/r/20210922091059.4040-1-adrian.hunter@intel.com
-Fixes: 1235fc569e0b ("scsi: ufs: core: Fix task management request completion timeout")
-Fixes: 69a6c269c097 ("scsi: ufs: Use blk_{get,put}_request() to allocate and free TMFs")
-Cc: stable@vger.kernel.org
-Tested-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: da15c03b047d ("powerpc/xive: Implement get_irqchip_state method for XIVE to fix shutdown race")
+Cc: stable@vger.kernel.org#v5.4+
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 54 ++++++++++++++++++---------------------
- drivers/scsi/ufs/ufshcd.h |  1 +
- 2 files changed, 26 insertions(+), 29 deletions(-)
+ arch/powerpc/sysdev/xive/common.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 3139d9df6f32..ccabee8bfbc8 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6105,27 +6105,6 @@ static irqreturn_t ufshcd_check_errors(struct ufs_hba *hba)
- 	return retval;
- }
- 
--struct ctm_info {
--	struct ufs_hba	*hba;
--	unsigned long	pending;
--	unsigned int	ncpl;
--};
--
--static bool ufshcd_compl_tm(struct request *req, void *priv, bool reserved)
--{
--	struct ctm_info *const ci = priv;
--	struct completion *c;
--
--	WARN_ON_ONCE(reserved);
--	if (test_bit(req->tag, &ci->pending))
--		return true;
--	ci->ncpl++;
--	c = req->end_io_data;
--	if (c)
--		complete(c);
--	return true;
--}
--
- /**
-  * ufshcd_tmc_handler - handle task management function completion
-  * @hba: per adapter instance
-@@ -6136,14 +6115,24 @@ static bool ufshcd_compl_tm(struct request *req, void *priv, bool reserved)
-  */
- static irqreturn_t ufshcd_tmc_handler(struct ufs_hba *hba)
- {
--	struct request_queue *q = hba->tmf_queue;
--	struct ctm_info ci = {
--		.hba	 = hba,
--		.pending = ufshcd_readl(hba, REG_UTP_TASK_REQ_DOOR_BELL),
--	};
-+	unsigned long flags, pending, issued;
-+	irqreturn_t ret = IRQ_NONE;
-+	int tag;
- 
--	blk_mq_tagset_busy_iter(q->tag_set, ufshcd_compl_tm, &ci);
--	return ci.ncpl ? IRQ_HANDLED : IRQ_NONE;
-+	pending = ufshcd_readl(hba, REG_UTP_TASK_REQ_DOOR_BELL);
-+
-+	spin_lock_irqsave(hba->host->host_lock, flags);
-+	issued = hba->outstanding_tasks & ~pending;
-+	for_each_set_bit(tag, &issued, hba->nutmrs) {
-+		struct request *req = hba->tmf_rqs[tag];
-+		struct completion *c = req->end_io_data;
-+
-+		complete(c);
-+		ret = IRQ_HANDLED;
-+	}
-+	spin_unlock_irqrestore(hba->host->host_lock, flags);
-+
-+	return ret;
- }
- 
- /**
-@@ -6273,9 +6262,9 @@ static int __ufshcd_issue_tm_cmd(struct ufs_hba *hba,
- 	ufshcd_hold(hba, false);
- 
- 	spin_lock_irqsave(host->host_lock, flags);
--	blk_mq_start_request(req);
- 
- 	task_tag = req->tag;
-+	hba->tmf_rqs[req->tag] = req;
- 	treq->req_header.dword_0 |= cpu_to_be32(task_tag);
- 
- 	memcpy(hba->utmrdl_base_addr + task_tag, treq, sizeof(*treq));
-@@ -6319,6 +6308,7 @@ static int __ufshcd_issue_tm_cmd(struct ufs_hba *hba,
- 	}
- 
- 	spin_lock_irqsave(hba->host->host_lock, flags);
-+	hba->tmf_rqs[req->tag] = NULL;
- 	__clear_bit(task_tag, &hba->outstanding_tasks);
- 	spin_unlock_irqrestore(hba->host->host_lock, flags);
- 
-@@ -9246,6 +9236,12 @@ int ufshcd_init(struct ufs_hba *hba, void __iomem *mmio_base, unsigned int irq)
- 		err = PTR_ERR(hba->tmf_queue);
- 		goto free_tmf_tag_set;
- 	}
-+	hba->tmf_rqs = devm_kcalloc(hba->dev, hba->nutmrs,
-+				    sizeof(*hba->tmf_rqs), GFP_KERNEL);
-+	if (!hba->tmf_rqs) {
-+		err = -ENOMEM;
-+		goto free_tmf_queue;
-+	}
- 
- 	/* Reset the attached device */
- 	ufshcd_vops_device_reset(hba);
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index 812aa348751e..c9291f6cbff9 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -731,6 +731,7 @@ struct ufs_hba {
- 
- 	struct blk_mq_tag_set tmf_tag_set;
- 	struct request_queue *tmf_queue;
-+	struct request **tmf_rqs;
- 
- 	struct uic_command *active_uic_cmd;
- 	struct mutex uic_cmd_mutex;
+diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
+index c732ce5a3e1a..c5d75c02ad8b 100644
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -945,7 +945,8 @@ static int xive_get_irqchip_state(struct irq_data *data,
+ 		 * interrupt to be inactive in that case.
+ 		 */
+ 		*state = (pq != XIVE_ESB_INVALID) && !xd->stale_p &&
+-			(xd->saved_p || !!(pq & XIVE_ESB_VAL_P));
++			(xd->saved_p || (!!(pq & XIVE_ESB_VAL_P) &&
++			 !irqd_irq_disabled(data)));
+ 		return 0;
+ 	default:
+ 		return -EINVAL;
 -- 
-2.25.1
+2.31.1
 
