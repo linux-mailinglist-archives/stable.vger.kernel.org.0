@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A887A429070
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 101D9429188
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:18:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238315AbhJKOJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:09:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56886 "EHLO mail.kernel.org"
+        id S237800AbhJKOTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:19:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239545AbhJKOGW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:06:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7951361213;
-        Mon, 11 Oct 2021 14:00:14 +0000 (UTC)
+        id S243246AbhJKORS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:17:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3275A60E74;
+        Mon, 11 Oct 2021 14:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960815;
-        bh=bagx2nx3wKOH0nF8fIb2G5ZwBEltcy86rwjCAz0DixI=;
+        s=korg; t=1633961409;
+        bh=2Uizkls3Ogb2nJx7RLxry1IbAk/+co37me2s+vYy/yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUPu+93YsBbG1JkRqfOnj8bcop7t11eSmgTsC1a87fS59Pm3fkGoDeqGgrgBsyDO1
-         FsqNRrCx7K58wRKopB5ZHae3o3jN/fcE7FEXpchYyyoetqbH/Y2Mg+G7JIccJNpaKy
-         INW1t/Ird5uml47ia0ww6MBRtgm7cOEJP/ahKqLA=
+        b=oPhr7hel00zHOhmVFeRluh5KIuFUMog3yIveoRAqiVY3OCKEHA9mY2eYDJm6rCeMf
+         0gxw/A4RZM9tUoMgj9T2ioEz9tWSLcdPgC+eUTWfptswkzhMx80wZ4JFJu/TIDkYCw
+         pqhwgmWdnzBt37tMplUBJqEZL6UCwd08Qo/RYeLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>,
+        Imre Deak <imre.deak@intel.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 082/151] drm/i915/audio: Use BIOS provided value for RKL HDA link
-Date:   Mon, 11 Oct 2021 15:45:54 +0200
-Message-Id: <20211011134520.496267065@linuxfoundation.org>
+Subject: [PATCH 5.14 083/151] drm/i915/jsl: Add W/A 1409054076 for JSL
+Date:   Mon, 11 Oct 2021 15:45:55 +0200
+Message-Id: <20211011134520.528122802@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -42,43 +42,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>
 
-[ Upstream commit ffac30be2a06b2516b2ce2afa2dcb2cf8af65a52 ]
+[ Upstream commit 544021e3f2aa3c4c6c5aabc58907e8bab69b3762 ]
 
-Commit 989634fb49ad ("drm/i915/audio: set HDA link parameters in
-driver") makes HDMI audio on Lenovo P350 disappear.
+When pipe A is disabled and MIPI DSI is enabled on pipe B,
+the AMT KVMR feature will incorrectly see pipe A as enabled.
+Set 0x42080 bit 23=1 before enabling DSI on pipe B and leave
+it set while DSI is enabled on pipe B. No impact to setting
+it all the time.
 
-So in addition to TGL, extend the logic to RKL to use BIOS provided
-value to fix the regression.
+Changes since V5:
+	- Added reviewed-by
+	- Removed redundant braces and debug message format - Imre
+Changes since V4:
+        - Modified function comment Wa_<number>:icl,jsl,ehl - Lucas
+        - Modified debug message in sync state - Imre
+Changes since V3:
+        - More meaningful name to workaround - Imre
+        - Remove boolean check clear flag
+        - Add WA_verify hook in dsi sync_state
+Changes since V2:
+        - Used REG_BIT, ignored pipe A and used sw state check - Jani
+        - Made function wrapper - Jani
+Changes since V1:
+        - ./dim checkpatch errors addressed
 
-Fixes: 989634fb49ad ("drm/i915/audio: set HDA link parameters in driver")
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210906041300.508458-1-kai.heng.feng@canonical.com
-(cherry picked from commit c6b40ee330fe09b332715bb7ec1467e4fcbe2e65)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Tejas Upadhyay <tejaskumarx.surendrakumar.upadhyay@intel.com>
+Reviewed-by: Imre Deak <imre.deak@intel.com>
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210615105613.851491-1-tejaskumarx.surendrakumar.upadhyay@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_audio.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/display/icl_dsi.c | 42 ++++++++++++++++++++++++++
+ drivers/gpu/drm/i915/i915_reg.h        |  1 +
+ 2 files changed, 43 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_audio.c b/drivers/gpu/drm/i915/display/intel_audio.c
-index 5f4f316b3ab5..4e4429535f9e 100644
---- a/drivers/gpu/drm/i915/display/intel_audio.c
-+++ b/drivers/gpu/drm/i915/display/intel_audio.c
-@@ -1308,8 +1308,9 @@ static void i915_audio_component_init(struct drm_i915_private *dev_priv)
- 		else
- 			aud_freq = aud_freq_init;
+diff --git a/drivers/gpu/drm/i915/display/icl_dsi.c b/drivers/gpu/drm/i915/display/icl_dsi.c
+index 16812488c5dd..970ba9e7f84e 100644
+--- a/drivers/gpu/drm/i915/display/icl_dsi.c
++++ b/drivers/gpu/drm/i915/display/icl_dsi.c
+@@ -1253,15 +1253,36 @@ static void gen11_dsi_pre_enable(struct intel_atomic_state *state,
+ 	gen11_dsi_set_transcoder_timings(encoder, pipe_config);
+ }
  
--		/* use BIOS provided value for TGL unless it is a known bad value */
--		if (IS_TIGERLAKE(dev_priv) && aud_freq_init != AUD_FREQ_TGL_BROKEN)
-+		/* use BIOS provided value for TGL and RKL unless it is a known bad value */
-+		if ((IS_TIGERLAKE(dev_priv) || IS_ROCKETLAKE(dev_priv)) &&
-+		    aud_freq_init != AUD_FREQ_TGL_BROKEN)
- 			aud_freq = aud_freq_init;
++/*
++ * Wa_1409054076:icl,jsl,ehl
++ * When pipe A is disabled and MIPI DSI is enabled on pipe B,
++ * the AMT KVMR feature will incorrectly see pipe A as enabled.
++ * Set 0x42080 bit 23=1 before enabling DSI on pipe B and leave
++ * it set while DSI is enabled on pipe B
++ */
++static void icl_apply_kvmr_pipe_a_wa(struct intel_encoder *encoder,
++				     enum pipe pipe, bool enable)
++{
++	struct drm_i915_private *dev_priv = to_i915(encoder->base.dev);
++
++	if (DISPLAY_VER(dev_priv) == 11 && pipe == PIPE_B)
++		intel_de_rmw(dev_priv, CHICKEN_PAR1_1,
++			     IGNORE_KVMR_PIPE_A,
++			     enable ? IGNORE_KVMR_PIPE_A : 0);
++}
+ static void gen11_dsi_enable(struct intel_atomic_state *state,
+ 			     struct intel_encoder *encoder,
+ 			     const struct intel_crtc_state *crtc_state,
+ 			     const struct drm_connector_state *conn_state)
+ {
+ 	struct intel_dsi *intel_dsi = enc_to_intel_dsi(encoder);
++	struct intel_crtc *crtc = to_intel_crtc(conn_state->crtc);
  
- 		drm_dbg_kms(&dev_priv->drm, "use AUD_FREQ_CNTRL of 0x%x (init value 0x%x)\n",
+ 	drm_WARN_ON(state->base.dev, crtc_state->has_pch_encoder);
+ 
++	/* Wa_1409054076:icl,jsl,ehl */
++	icl_apply_kvmr_pipe_a_wa(encoder, crtc->pipe, true);
++
+ 	/* step6d: enable dsi transcoder */
+ 	gen11_dsi_enable_transcoder(encoder);
+ 
+@@ -1415,6 +1436,7 @@ static void gen11_dsi_disable(struct intel_atomic_state *state,
+ 			      const struct drm_connector_state *old_conn_state)
+ {
+ 	struct intel_dsi *intel_dsi = enc_to_intel_dsi(encoder);
++	struct intel_crtc *crtc = to_intel_crtc(old_conn_state->crtc);
+ 
+ 	/* step1: turn off backlight */
+ 	intel_dsi_vbt_exec_sequence(intel_dsi, MIPI_SEQ_BACKLIGHT_OFF);
+@@ -1423,6 +1445,9 @@ static void gen11_dsi_disable(struct intel_atomic_state *state,
+ 	/* step2d,e: disable transcoder and wait */
+ 	gen11_dsi_disable_transcoder(encoder);
+ 
++	/* Wa_1409054076:icl,jsl,ehl */
++	icl_apply_kvmr_pipe_a_wa(encoder, crtc->pipe, false);
++
+ 	/* step2f,g: powerdown panel */
+ 	gen11_dsi_powerdown_panel(encoder);
+ 
+@@ -1548,6 +1573,22 @@ static void gen11_dsi_get_config(struct intel_encoder *encoder,
+ 		pipe_config->mode_flags |= I915_MODE_FLAG_DSI_PERIODIC_CMD_MODE;
+ }
+ 
++static void gen11_dsi_sync_state(struct intel_encoder *encoder,
++				 const struct intel_crtc_state *crtc_state)
++{
++	struct drm_i915_private *dev_priv = to_i915(encoder->base.dev);
++	struct intel_crtc *intel_crtc = to_intel_crtc(crtc_state->uapi.crtc);
++	enum pipe pipe = intel_crtc->pipe;
++
++	/* wa verify 1409054076:icl,jsl,ehl */
++	if (DISPLAY_VER(dev_priv) == 11 && pipe == PIPE_B &&
++	    !(intel_de_read(dev_priv, CHICKEN_PAR1_1) & IGNORE_KVMR_PIPE_A))
++		drm_dbg_kms(&dev_priv->drm,
++			    "[ENCODER:%d:%s] BIOS left IGNORE_KVMR_PIPE_A cleared with pipe B enabled\n",
++			    encoder->base.base.id,
++			    encoder->base.name);
++}
++
+ static int gen11_dsi_dsc_compute_config(struct intel_encoder *encoder,
+ 					struct intel_crtc_state *crtc_state)
+ {
+@@ -1966,6 +2007,7 @@ void icl_dsi_init(struct drm_i915_private *dev_priv)
+ 	encoder->post_disable = gen11_dsi_post_disable;
+ 	encoder->port = port;
+ 	encoder->get_config = gen11_dsi_get_config;
++	encoder->sync_state = gen11_dsi_sync_state;
+ 	encoder->update_pipe = intel_panel_update_backlight;
+ 	encoder->compute_config = gen11_dsi_compute_config;
+ 	encoder->get_hw_state = gen11_dsi_get_hw_state;
+diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
+index 7dc58ad08fbb..5aa5ddefd22d 100644
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -8113,6 +8113,7 @@ enum {
+ # define CHICKEN3_DGMG_DONE_FIX_DISABLE		(1 << 2)
+ 
+ #define CHICKEN_PAR1_1			_MMIO(0x42080)
++#define  IGNORE_KVMR_PIPE_A		REG_BIT(23)
+ #define  KBL_ARB_FILL_SPARE_22		REG_BIT(22)
+ #define  DIS_RAM_BYPASS_PSR2_MAN_TRACK	(1 << 16)
+ #define  SKL_DE_COMPRESSED_HASH_MODE	(1 << 15)
 -- 
 2.33.0
 
