@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72F3D428F6B
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6652C428EFC
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:52:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235150AbhJKN6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:58:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40390 "EHLO mail.kernel.org"
+        id S237607AbhJKNxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:53:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237380AbhJKN4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:56:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D94761100;
-        Mon, 11 Oct 2021 13:53:30 +0000 (UTC)
+        id S237762AbhJKNwl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:52:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2620F60EB4;
+        Mon, 11 Oct 2021 13:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960413;
-        bh=NS9LfDd6rwPe/bYgnHEpp/+ziDyP1MFKsMFrr8R572M=;
+        s=korg; t=1633960241;
+        bh=8l+86mA8f/Pj/aaw1ZvtDnwOPQ/GdpXSPFXhN2VXvKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=baHA4eOtG+9LWZ2JwJBc9xp1S526iLMnE3e70jkNfqhtZRqxsxESXY40mAjZZEIQv
-         OHZhFPJOFlVAf+aumeo/Pf7J+1CJAP6SN0wtc/vvMrpGLwZtQmjZEZstMLeJr2x+bs
-         hekjXBT6+bdw7XLHgRSrIeutPnKq/c5MwpsDE84k=
+        b=ygckLMdT23Ln9D/qMBgvTjXemiRWnsWB4GbtXHBLWBYQiho5laxV0vChPLVJV+7Oj
+         qL5j/CTUhFGbpGsYG2sP8FpAXy23SJV6+Uj9Lt98HMsOkhkdLrVa9jQExsixnQP5N7
+         HMqGDut/Uocnl4sLUaCm7hnLcGGGpDNmoEA384Fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 35/83] bpf, arm: Fix register clobbering in div/mod implementation
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 26/52] phy: mdio: fix memory leak
 Date:   Mon, 11 Oct 2021 15:45:55 +0200
-Message-Id: <20211011134509.592252683@linuxfoundation.org>
+Message-Id: <20211011134504.630661637@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,92 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 79e3445b38e0cab94264a3894c0c3d57c930b97e ]
+[ Upstream commit ca6e11c337daf7925ff8a2aac8e84490a8691905 ]
 
-On ARM CPUs that lack div/mod instructions, ALU32 BPF_DIV and BPF_MOD are
-implemented using a call to a helper function. Before, the emitted code
-for those function calls failed to preserve caller-saved ARM registers.
-Since some of those registers happen to be mapped to BPF registers, it
-resulted in eBPF register values being overwritten.
+Syzbot reported memory leak in MDIO bus interface, the problem was in
+wrong state logic.
 
-This patch emits code to push and pop the remaining caller-saved ARM
-registers r2-r3 into the stack during the div/mod function call. ARM
-registers r0-r1 are used as arguments and return value, and those were
-already saved and restored correctly.
+MDIOBUS_ALLOCATED indicates 2 states:
+	1. Bus is only allocated
+	2. Bus allocated and __mdiobus_register() fails, but
+	   device_register() was called
 
-Fixes: 39c13c204bb1 ("arm: eBPF JIT compiler")
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+In case of device_register() has been called we should call put_device()
+to correctly free the memory allocated for this device, but mdiobus_free()
+calls just kfree(dev) in case of MDIOBUS_ALLOCATED state
+
+To avoid this behaviour we need to set bus->state to MDIOBUS_UNREGISTERED
+_before_ calling device_register(), because put_device() should be
+called even in case of device_register() failure.
+
+Link: https://lore.kernel.org/netdev/YVMRWNDZDUOvQjHL@shell.armlinux.org.uk/
+Fixes: 46abc02175b3 ("phylib: give mdio buses a device tree presence")
+Reported-and-tested-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/eceae1429fbf8fa5c73dd2a0d39d525aa905074d.1633024062.git.paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/net/bpf_jit_32.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/net/phy/mdio_bus.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
-index ce8b04326352..1214e39aad5e 100644
---- a/arch/arm/net/bpf_jit_32.c
-+++ b/arch/arm/net/bpf_jit_32.c
-@@ -36,6 +36,10 @@
-  *                        +-----+
-  *                        |RSVD | JIT scratchpad
-  * current ARM_SP =>      +-----+ <= (BPF_FP - STACK_SIZE + SCRATCH_SIZE)
-+ *                        | ... | caller-saved registers
-+ *                        +-----+
-+ *                        | ... | arguments passed on stack
-+ * ARM_SP during call =>  +-----|
-  *                        |     |
-  *                        | ... | Function call stack
-  *                        |     |
-@@ -63,6 +67,12 @@
-  *
-  * When popping registers off the stack at the end of a BPF function, we
-  * reference them via the current ARM_FP register.
-+ *
-+ * Some eBPF operations are implemented via a call to a helper function.
-+ * Such calls are "invisible" in the eBPF code, so it is up to the calling
-+ * program to preserve any caller-saved ARM registers during the call. The
-+ * JIT emits code to push and pop those registers onto the stack, immediately
-+ * above the callee stack frame.
-  */
- #define CALLEE_MASK	(1 << ARM_R4 | 1 << ARM_R5 | 1 << ARM_R6 | \
- 			 1 << ARM_R7 | 1 << ARM_R8 | 1 << ARM_R9 | \
-@@ -70,6 +80,8 @@
- #define CALLEE_PUSH_MASK (CALLEE_MASK | 1 << ARM_LR)
- #define CALLEE_POP_MASK  (CALLEE_MASK | 1 << ARM_PC)
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index 5bf06eac04ba..bec73f0640d0 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -385,6 +385,13 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
+ 	bus->dev.groups = NULL;
+ 	dev_set_name(&bus->dev, "%s", bus->id);
  
-+#define CALLER_MASK	(1 << ARM_R0 | 1 << ARM_R1 | 1 << ARM_R2 | 1 << ARM_R3)
++	/* We need to set state to MDIOBUS_UNREGISTERED to correctly release
++	 * the device in mdiobus_free()
++	 *
++	 * State will be updated later in this function in case of success
++	 */
++	bus->state = MDIOBUS_UNREGISTERED;
 +
- enum {
- 	/* Stack layout - these are offsets from (top of stack - 4) */
- 	BPF_R2_HI,
-@@ -464,6 +476,7 @@ static inline int epilogue_offset(const struct jit_ctx *ctx)
- 
- static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
- {
-+	const int exclude_mask = BIT(ARM_R0) | BIT(ARM_R1);
- 	const s8 *tmp = bpf2a32[TMP_REG_1];
- 
- #if __LINUX_ARM_ARCH__ == 7
-@@ -495,11 +508,17 @@ static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
- 		emit(ARM_MOV_R(ARM_R0, rm), ctx);
- 	}
- 
-+	/* Push caller-saved registers on stack */
-+	emit(ARM_PUSH(CALLER_MASK & ~exclude_mask), ctx);
-+
- 	/* Call appropriate function */
- 	emit_mov_i(ARM_IP, op == BPF_DIV ?
- 		   (u32)jit_udiv32 : (u32)jit_mod32, ctx);
- 	emit_blx_r(ARM_IP, ctx);
- 
-+	/* Restore caller-saved registers from stack */
-+	emit(ARM_POP(CALLER_MASK & ~exclude_mask), ctx);
-+
- 	/* Save return value */
- 	if (rd != ARM_R0)
- 		emit(ARM_MOV_R(rd, ARM_R0), ctx);
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
 -- 
 2.33.0
 
