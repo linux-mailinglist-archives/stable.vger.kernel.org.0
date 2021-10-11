@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FE294290AB
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:09:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B110C4290AA
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:09:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243428AbhJKOLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:11:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33640 "EHLO mail.kernel.org"
+        id S243421AbhJKOLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:11:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243067AbhJKOJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:09:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1CE761139;
-        Mon, 11 Oct 2021 14:01:53 +0000 (UTC)
+        id S243087AbhJKOJW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:09:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0C5D60E94;
+        Mon, 11 Oct 2021 14:01:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960914;
-        bh=HByJSIeXDIJ1Cu7sUGka5/gyd0gF0+2CKd/JvAcXB0k=;
+        s=korg; t=1633960918;
+        bh=S5OD57ZrO44kCfw/8Csb51bWcOjZtEUui71tDsh5ZDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTi0zgp6tYFsjVMkWTvMckPx2jBRJcOvmHy/VnTuUrYmHjGnQHgrJ9V1BCyyTBDf0
-         3ALYDPm4NqFAW4UTD4m1xlv1V7aUGCGfXC4JdErbGYe/8UfwWOFINBb5p53D3V1OzY
-         fOsNv1hoCbwUAbcHLSR41yNiw9Hi+7PIMj4drBZ4=
+        b=XnQuL69OyI9Tbb+UIm0PoOeLKUi1RaYo7Vv9TJSbrT6UECe6K/m5cQ1L3VsHgum0Y
+         e9tSLy+7lNk5lzXhdQePK9IiDVLtmC14MIZM+TqsUs+F0Emay+L4lJviriHg2YdIDw
+         Fo858ROQvsaW+OkwPyytIBviM95mvbMCRpAD7GrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 079/151] arm64: dts: ls1028a: fix eSDHC2 node
-Date:   Mon, 11 Oct 2021 15:45:51 +0200
-Message-Id: <20211011134520.399866932@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 080/151] dt-bindings: drm/bridge: ti-sn65dsi86: Fix reg value
+Date:   Mon, 11 Oct 2021 15:45:52 +0200
+Message-Id: <20211011134520.430707145@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -40,41 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 8b94aa318aa746fbbc668d6b9b3ad812c835230c ]
+[ Upstream commit b2d70c0dbf2731a37d1c7bcc86ab2387954d5f56 ]
 
-On the LS1028A this instance of the eSDHC controller is intended for
-either an eMMC or eSDIO card. It doesn't provide a card detect pin and
-its IO voltage is fixed at 1.8V.
+make dtbs_check:
 
-Remove the bogus broken-cd property, instead add the non-removable
-property. Fix the voltage-ranges property and set it to 1.8V only.
+    arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dt.yaml: bridge@2c: reg:0:0: 45 was expected
 
-Fixes: 491d3a3fc113 ("arm64: dts: ls1028a: Add esdhc node in dts")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+According to the datasheet, the I2C address can be either 0x2c or 0x2d,
+depending on the ADDR control input.
+
+Fixes: e3896e6dddf0b821 ("dt-bindings: drm/bridge: Document sn65dsi86 bridge bindings")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Link: https://lore.kernel.org/r/08f73c2aa0d4e580303357dfae107d084d962835.1632486753.git.geert+renesas@glider.be
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../devicetree/bindings/display/bridge/ti,sn65dsi86.yaml        | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-index 343ecf0e8973..06b36cc65865 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-@@ -405,9 +405,9 @@
- 			interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
- 			clock-frequency = <0>; /* fixed up by bootloader */
- 			clocks = <&clockgen QORIQ_CLK_HWACCEL 1>;
--			voltage-ranges = <1800 1800 3300 3300>;
-+			voltage-ranges = <1800 1800>;
- 			sdhci,auto-cmd12;
--			broken-cd;
-+			non-removable;
- 			little-endian;
- 			bus-width = <4>;
- 			status = "disabled";
+diff --git a/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml b/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml
+index 26932d2e86ab..8608b9dd8e9d 100644
+--- a/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml
++++ b/Documentation/devicetree/bindings/display/bridge/ti,sn65dsi86.yaml
+@@ -18,7 +18,7 @@ properties:
+     const: ti,sn65dsi86
+ 
+   reg:
+-    const: 0x2d
++    enum: [ 0x2c, 0x2d ]
+ 
+   enable-gpios:
+     maxItems: 1
 -- 
 2.33.0
 
