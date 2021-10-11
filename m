@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFBD6429041
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:05:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 906FB429059
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239946AbhJKOGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55318 "EHLO mail.kernel.org"
+        id S238123AbhJKOH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:07:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241191AbhJKOEg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:04:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF6D66112D;
-        Mon, 11 Oct 2021 13:59:12 +0000 (UTC)
+        id S238787AbhJKOF1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:05:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D16C610EA;
+        Mon, 11 Oct 2021 13:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960753;
-        bh=uwUIXGxiDLIDhQxOlH79AvyoGLWVLFei4bA9ZLBR03Q=;
+        s=korg; t=1633960780;
+        bh=BNX4EXfjjaZr44YUYPfN2wif3E1Q8SQH3KTnvFVee/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IyqnGHoIUwyL9plHh3Nw0LqoPQcQlElX+ldnmpAUkw7bqGZ3CNMMCcjbHBrWkemsP
-         wUFWbc0h2miESeHE2k8AbxZ5vrmPQh1rEETB5B/mUFHtQFHMZzf6Us6TJAX+Eyp6AF
-         ufyGjJQcXbxJWtkWPi8KBJWSOBEk3TpgAWb3vF2w=
+        b=l0WT77qQubLw16Rwve3pGXiWrhffH1euatSETlCQQ8BbdB+8rtRinVzJgEDQG8dn6
+         l8pAULJZp9y7dA5yK8rSTcHKJLc7HDBhJoiknXlOzlleANVc6395mavLMMTt5FACGB
+         11SawtvKq3WD0oj5lrAXRoGoyyVIrBXToOF/Xx2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 038/151] ARM: dts: qcom: apq8064: Use 27MHz PXO clock as DSI PLL reference
-Date:   Mon, 11 Oct 2021 15:45:10 +0200
-Message-Id: <20211011134519.077336435@linuxfoundation.org>
+Subject: [PATCH 5.14 039/151] Revert "arm64: dts: qcom: sc7280: Fixup the cpufreq node"
+Date:   Mon, 11 Oct 2021 15:45:11 +0200
+Message-Id: <20211011134519.116235410@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -42,51 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit f1db21c315f4b4f8c3fbea56aac500673132d317 ]
+[ Upstream commit a48c730a4e0bf480bcde12d795a9cd6f9ef14d1e ]
 
-The 28NM DSI PLL driver for msm8960 calculates with a 27MHz reference
-clock and should hence use PXO, not CXO which runs at 19.2MHz.
+This reverts commit 11e03d692101e484df9322f892a8b6e111a82bfd.
 
-Note that none of the DSI PHY/PLL drivers currently use this "ref"
-clock; they all rely on (sometimes inexistant) global clock names and
-usually function normally without a parent clock.  This discrepancy will
-be corrected in a future patch, for which this change needs to be in
-place first.
+As per discussion [1] the patch shouldn't have landed. Let's revert.
 
-Fixes: 6969d1d9c615 ("ARM: dts: qcom-apq8064: Set 'cxo_board' as ref clock of the DSI PHY")
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Link: https://lore.kernel.org/r/20210829203027.276143-2-marijn.suijten@somainline.org
+[1] https://lore.kernel.org/r/fde7bac239f796b039b9be58b391fb77@codeaurora.org/
+
+Fixes: 11e03d692101 ("arm64: dts: qcom: sc7280: Fixup the cpufreq node")
+Reported-by: Matthias Kaehlcke <mka@chromium.org>
+Cc: Sibi Sankar <sibis@codeaurora.org>
+Cc: Matthias Kaehlcke <mka@chromium.org>
+Cc: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210907121220.1.I08460f490473b70de0d768db45f030a4d5c17828@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-apq8064.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7280.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
-index 01ea4590ffce..72c4a9fc41a2 100644
---- a/arch/arm/boot/dts/qcom-apq8064.dtsi
-+++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
-@@ -198,7 +198,7 @@
- 			clock-frequency = <19200000>;
- 		};
+diff --git a/arch/arm64/boot/dts/qcom/sc7280.dtsi b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+index c08f07410699..188c5768a55a 100644
+--- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+@@ -1437,9 +1437,9 @@
  
--		pxo_board {
-+		pxo_board: pxo_board {
- 			compatible = "fixed-clock";
- 			#clock-cells = <0>;
- 			clock-frequency = <27000000>;
-@@ -1305,7 +1305,7 @@
- 			reg-names = "dsi_pll", "dsi_phy", "dsi_phy_regulator";
- 			clock-names = "iface_clk", "ref";
- 			clocks = <&mmcc DSI_M_AHB_CLK>,
--				 <&cxo_board>;
-+				 <&pxo_board>;
- 		};
- 
- 
+ 		cpufreq_hw: cpufreq@18591000 {
+ 			compatible = "qcom,cpufreq-epss";
+-			reg = <0 0x18591100 0 0x900>,
+-			      <0 0x18592100 0 0x900>,
+-			      <0 0x18593100 0 0x900>;
++			reg = <0 0x18591000 0 0x1000>,
++			      <0 0x18592000 0 0x1000>,
++			      <0 0x18593000 0 0x1000>;
+ 			clocks = <&rpmhcc RPMH_CXO_CLK>, <&gcc GCC_GPLL0>;
+ 			clock-names = "xo", "alternate";
+ 			#freq-domain-cells = <1>;
 -- 
 2.33.0
 
