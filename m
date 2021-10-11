@@ -2,216 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63A68428E7F
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:46:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B5F6428EC3
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234217AbhJKNsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:48:04 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32410 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233144AbhJKNsD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 09:48:03 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19BDg5qN010407;
-        Mon, 11 Oct 2021 09:46:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=KNCbvxOv4HZOMGLoYWRwmVJ86+IBx86BffwVvgZzZfM=;
- b=acxv02kMMcwO68CNwY5tUrc8w7xMPAxFL0gd8arDEBjoMjyZzm4yCw7Vf9Q25pCcZcZF
- 4mrQdT/maMBBkbTSo8vVYqMdNFd2CwGUxSrWCeYe93nxZXK004WSGvzk7aGjEXKZEmVS
- 8GXvOgsjEB9Ycbgt61Gf1w2NWn/yJFe6qGPZDpLYsQdzrrok8FafTBR7GMfw9cyieTDB
- FuQq1CoIMSUuqlhy1JU1V7hYYSZC/PR99BWTzrpS8aPY3jMpwRBkgXKJ/mGUi2uve+ZE
- P4Ahz0WPUKN6Bahixtl0cxifm5tIe6ZpyNm9uQW9CmsJNYfoFDLJIVriRM7FZZ86ZRo6 0w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bmpcm037f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Oct 2021 09:46:03 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19BDgVuE010992;
-        Mon, 11 Oct 2021 09:46:02 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bmpcm036q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Oct 2021 09:46:02 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19BDcf6s004391;
-        Mon, 11 Oct 2021 13:46:01 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma05fra.de.ibm.com with ESMTP id 3bk2q9d3mq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Oct 2021 13:46:00 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19BDjufC3146446
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 11 Oct 2021 13:45:56 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2CA8BAE061;
-        Mon, 11 Oct 2021 13:45:56 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9D99DAE058;
-        Mon, 11 Oct 2021 13:45:55 +0000 (GMT)
-Received: from oc3016276355.ibm.com (unknown [9.145.40.188])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 11 Oct 2021 13:45:55 +0000 (GMT)
-Subject: Re: [RFC PATCH 1/1] s390/cio: make ccw_device_dma_* more robust
-To:     Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, bfu@redhat.com
-References: <20211011115955.2504529-1-pasic@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <466de207-e88d-ea93-beec-fbfe10e63a26@linux.ibm.com>
-Date:   Mon, 11 Oct 2021 15:45:55 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
-In-Reply-To: <20211011115955.2504529-1-pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: IWzA1ARGY-O7cWGTjfAacpDTC4wcb-Og
-X-Proofpoint-GUID: nOqrVsdteWAgsF5pMM1XMuIR6dxFFz9B
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S237499AbhJKNvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:51:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39364 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234554AbhJKNvJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:51:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 068AA61076;
+        Mon, 11 Oct 2021 13:49:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1633960146;
+        bh=nJzm6felbQbB77kpND/Ybv6QH0x69L5kWWmuGZmgC1s=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=BaTwGWH4wYUQIife5Q+d/S9rEShOOnAwkdNrqctcHImtst4KZ+RNgO809ixg/3iak
+         LxPcvFO7qO9B1EVeGAd8GQQgdpF6V2SdirhaQCRicMa5U3Ok/xvHwjO7EIaTY2duW9
+         s9EKzzefXGvBQQMG1GWIZKbyuueW6pZue08P5PHc=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 27/52] net_sched: fix NULL deref in fifo_set_limit()
+Date:   Mon, 11 Oct 2021 15:45:56 +0200
+Message-Id: <20211011134504.667688134@linuxfoundation.org>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-10-11_04,2021-10-07_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
- impostorscore=0 suspectscore=0 lowpriorityscore=0 spamscore=0
- clxscore=1011 adultscore=0 priorityscore=1501 mlxlogscore=999
- malwarescore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110110078
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Eric Dumazet <edumazet@google.com>
 
+[ Upstream commit 560ee196fe9e5037e5015e2cdb14b3aecb1cd7dc ]
 
-On 10/11/21 1:59 PM, Halil Pasic wrote:
-> Since commit 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
-> classic notifiers") we were supposed to make sure that
-> virtio_ccw_release_dev() completes before the ccw device and the
-> attached dma pool are torn down, but unfortunately we did not.  Before
-> that commit it used to be OK to delay cleaning up the memory allocated
-> by virtio-ccw indefinitely (which isn't really intuitive for guys used
-> to destruction happens in reverse construction order), but now we
-> trigger a BUG_ON if the genpool is destroyed before all memory allocated
-> form it. Which brings down the guest. We can observe this problem, when
-> unregister_virtio_device() does not give up the last reference to the
-> virtio_device (e.g. because a virtio-scsi attached scsi disk got removed
-> without previously unmounting its previously mounted  partition).
-> 
-> To make sure that the genpool is only destroyed after all the necessary
-> freeing is done let us take a reference on the ccw device on each
-> ccw_device_dma_zalloc() and give it up on each ccw_device_dma_free().
-> 
-> Actually there are multiple approaches to fixing the problem at hand
-> that can work. The upside of this one is that it is the safest one while
-> remaining simple. We don't crash the guest even if the driver does not
-> pair allocations and frees. The downside is the reference counting
-> overhead, that the reference counting for ccw devices becomes more
-> complex, in a sense that we need to pair the calls to the aforementioned
-> functions for it to be correct, and that if we happen to leak, we leak
-> more than necessary (the whole ccw device instead of just the genpool).
-> 
-> Some alternatives to this approach are taking a reference in
-> virtio_ccw_online() and giving it up in virtio_ccw_release_dev() or
-> making sure virtio_ccw_release_dev() completes its work before
-> virtio_ccw_remove() returns. The downside of these approaches is that
-> these are less safe against programming errors.
-> 
-> Cc: <stable@vger.kernel.org> # v5.3
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Fixes: 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
-> classic notifiers")
-> Reported-by: bfu@redhat.com
-> 
-> ---
-> 
-> FYI I've proposed a different fix to this very same problem:
-> https://lore.kernel.org/lkml/20210915215742.1793314-1-pasic@linux.ibm.com/
-> 
-> This patch is more or less a result of that discussion.
-> ---
->   drivers/s390/cio/device_ops.c | 12 +++++++++++-
->   1 file changed, 11 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
-> index 0fe7b2f2e7f5..c533d1dadc6b 100644
-> --- a/drivers/s390/cio/device_ops.c
-> +++ b/drivers/s390/cio/device_ops.c
-> @@ -825,13 +825,23 @@ EXPORT_SYMBOL_GPL(ccw_device_get_chid);
->    */
->   void *ccw_device_dma_zalloc(struct ccw_device *cdev, size_t size)
->   {
-> -	return cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
-> +	void *addr;
-> +
-> +	if (!get_device(&cdev->dev))
-> +		return NULL;
-> +	addr = cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
-> +	if (IS_ERR_OR_NULL(addr))
+syzbot reported another NULL deref in fifo_set_limit() [1]
 
-I can be wrong but it seems that only dma_alloc_coherent() used in 
-cio_gp_dma_zalloc() report an error but the error is ignored and used as 
-a valid pointer.
+I could repro the issue with :
 
-So shouldn't we modify this function and just test for a NULL address here?
+unshare -n
+tc qd add dev lo root handle 1:0 tbf limit 200000 burst 70000 rate 100Mbit
+tc qd replace dev lo parent 1:0 pfifo_fast
+tc qd change dev lo root handle 1:0 tbf limit 300000 burst 70000 rate 100Mbit
 
-here what I mean:---------------------------------
+pfifo_fast does not have a change() operation.
+Make fifo_set_limit() more robust about this.
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 2bc55ccf3f23..b45fbaa7131b 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -1176,7 +1176,7 @@ void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, 
-struct device *dma_dev,
-                 chunk_size = round_up(size, PAGE_SIZE);
-                 addr = (unsigned long) dma_alloc_coherent(dma_dev,
-                                          chunk_size, &dma_addr, 
-CIO_DMA_GFP);
--               if (!addr)
-+               if (IS_ERR_OR_NULL(addr))
-                         return NULL;
-                 gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
-                 addr = gen_pool_alloc(gp_dma, size);
+[1]
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+PGD 1cf99067 P4D 1cf99067 PUD 7ca49067 PMD 0
+Oops: 0010 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 14443 Comm: syz-executor959 Not tainted 5.15.0-rc3-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:0x0
+Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+RSP: 0018:ffffc9000e2f7310 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffffffff8d6ecc00 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff888024c27910 RDI: ffff888071e34000
+RBP: ffff888071e34000 R08: 0000000000000001 R09: ffffffff8fcfb947
+R10: 0000000000000001 R11: 0000000000000000 R12: ffff888024c27910
+R13: ffff888071e34018 R14: 0000000000000000 R15: ffff88801ef74800
+FS:  00007f321d897700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffffd6 CR3: 00000000722c3000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ fifo_set_limit net/sched/sch_fifo.c:242 [inline]
+ fifo_set_limit+0x198/0x210 net/sched/sch_fifo.c:227
+ tbf_change+0x6ec/0x16d0 net/sched/sch_tbf.c:418
+ qdisc_change net/sched/sch_api.c:1332 [inline]
+ tc_modify_qdisc+0xd9a/0x1a60 net/sched/sch_api.c:1634
+ rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
+ netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
+ netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:724
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
----------------------------------
+Fixes: fb0305ce1b03 ("net-sched: consolidate default fifo qdisc setup")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20210930212239.3430364-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/sched/sch_fifo.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-> +		put_device(&cdev->dev);
-
-addr is not null if addr is ERR.
-
-> +	return addr;
-
-may be return IS_ERR_OR_NULL(addr)? NULL : addr;
-
->   }
->   EXPORT_SYMBOL(ccw_device_dma_zalloc);
->   
->   void ccw_device_dma_free(struct ccw_device *cdev, void *cpu_addr, size_t size)
->   {
-> +	if (!cpu_addr)
-> +		return;
-
-no need, cpu_addr is already tested in cio_gp_dma_free()
-
->   	cio_gp_dma_free(cdev->private->dma_pool, cpu_addr, size);
-> +	put_device(&cdev->dev);
->   }
->   EXPORT_SYMBOL(ccw_device_dma_free);
->   
-> 
-> base-commit: 64570fbc14f8d7cb3fe3995f20e26bc25ce4b2cc
-> 
-
+diff --git a/net/sched/sch_fifo.c b/net/sched/sch_fifo.c
+index 37c8aa75d70c..56f4c1621e44 100644
+--- a/net/sched/sch_fifo.c
++++ b/net/sched/sch_fifo.c
+@@ -148,6 +148,9 @@ int fifo_set_limit(struct Qdisc *q, unsigned int limit)
+ 	if (strncmp(q->ops->id + 1, "fifo", 4) != 0)
+ 		return 0;
+ 
++	if (!q->ops->change)
++		return 0;
++
+ 	nla = kmalloc(nla_attr_size(sizeof(struct tc_fifo_qopt)), GFP_KERNEL);
+ 	if (nla) {
+ 		nla->nla_type = RTM_NEWQDISC;
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+2.33.0
+
+
+
