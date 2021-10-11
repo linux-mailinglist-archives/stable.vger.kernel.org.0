@@ -2,100 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F852428AED
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 12:42:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD77428B3E
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 12:53:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235913AbhJKKoG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 06:44:06 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:57300 "EHLO m43-7.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235901AbhJKKoF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 06:44:05 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1633948925; h=Content-Transfer-Encoding: Content-Type:
- MIME-Version: Message-ID: In-Reply-To: Date: References: Subject: Cc:
- To: From: Sender; bh=yQEeqerf7Ei3Xw3vldPBO/PbPsJ5X9qa47bE01NgrCM=; b=gqGoWw/prRx1zi9V6fhpXLHewP2VQKfNxf0KNMX2pnzjWuiryWNwKNm8FHBckWE+NScq2Mtw
- FUp11iguZeLj1wlzGo+wZJ8Ew/PRpK/tdNciYh1LleK6Gho9mdHMsJdqcFb0e2XPzT8ZsxYb
- 9WSX2urFfgd1cNoh2WeoG14GIcQ=
-X-Mailgun-Sending-Ip: 69.72.43.7
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n01.prod.us-east-1.postgun.com with SMTP id
- 616414f522fe3a98e5846f62 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 11 Oct 2021 10:41:57
- GMT
-Sender: kvalo=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 7A5E8C4360C; Mon, 11 Oct 2021 10:41:56 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
-        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
-Received: from tynnyri.adurom.net (tynnyri.adurom.net [51.15.11.48])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: kvalo)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 8BD32C4338F;
-        Mon, 11 Oct 2021 10:41:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 smtp.codeaurora.org 8BD32C4338F
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=codeaurora.org
-From:   Kalle Valo <kvalo@codeaurora.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Pali =?utf-8?Q?Roh=C3=A1r?= <pali@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        linux-wireless@vger.kernel.org
-Subject: Re: Drivers for Qualcomm wifi chips (ath*k) and security issues
-References: <20210823140844.q3kx6ruedho7jen5@pali>
-        <YSPxO+VGnSopgn5G@kroah.com>
-Date:   Mon, 11 Oct 2021 13:41:50 +0300
-In-Reply-To: <YSPxO+VGnSopgn5G@kroah.com> (Greg KH's message of "Mon, 23 Aug
-        2021 21:04:27 +0200")
-Message-ID: <87czob3ksx.fsf@tynnyri.adurom.net>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S236070AbhJKKzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 06:55:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50568 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236086AbhJKKyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 06:54:45 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F765C06177F
+        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 03:52:45 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id r18so54859169wrg.6
+        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 03:52:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=DOxN63QWnl4dBNWQl+LufsBrewR+8VuPJnGph7ijSeE=;
+        b=qVMs/kU3+MDx4D+fIrX5Emb5cfmQP1eN3L5IzF4V/iOiVQEbxvH4AIbvOLl2NTXxCY
+         gIfDznnb62lkr0sXt/MiQd9kM0HcppSyy6sALf7e8WOwrOhCu0tO4nqn1Ek+Ovldc8h7
+         OTdwap/LjCmuK9AL1kNtUGiwPmqD3bNrOX83JkF+jUjIJUZvdjF8Udsf7GXnmNyYBIDH
+         t9nfMrogckH6f4yeLVjLRL0+2vmzVVUEFIpHet1P8TaXPrw0sMZBOTBby+HasEuyGjsS
+         5DL999pdBbMfrDTiFDR9QEB4fs6o51qRYv4PBwij57s3G/xYAaW0gJYLADXHQ6h8+e7M
+         TBPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=DOxN63QWnl4dBNWQl+LufsBrewR+8VuPJnGph7ijSeE=;
+        b=K1Z4HIPiPyzqD3Pmw/EuDZDRAcWpDqng08zKOPFTN7vjdNCqIa8VOQUTJKsUk4Vw95
+         WKyBlLOLunO84zL/gVQI/qvdcn9NF/m91FJcVciSSbE39iNfgwZ2jhVqsp6cHUuot7AO
+         M/wyoHWoHJEDABQvizP70xsEmR4cklPpBqUlF9T8HDdqMQyjMqVI8grgx583OLWKNGzo
+         vGE+JZHb1fMtUSGSwET69u8Cw7HF3kLxCIb+VbeZ+bxer4kVOgdhA1yV4Hi93YCWVX2n
+         bPSJbFF9thBpC27PBXCLy7qip6D+A7fPKb/57wrF2EcHwymeX7eYXM/wZ9DDG1UCC5D+
+         iMYg==
+X-Gm-Message-State: AOAM531pdbcqYch+K/Qzj0QlC6yzO1m2B6fqsp5TvseQY8Nm/lbvWEH9
+        3fwOhA8A8iIW4+mSN7qQ1Fu0HYkkrS9hPYrG2Og=
+X-Google-Smtp-Source: ABdhPJw9Q//lBdBk4QH0xI1qOc/8d89IeVyp+hmXRniX3W3Lx+B7Zm9kFhVQ7QcM6QPt8OBeK99lxg4ykMNbAPp55po=
+X-Received: by 2002:a05:600c:ac2:: with SMTP id c2mr20509812wmr.194.1633949563595;
+ Mon, 11 Oct 2021 03:52:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Received: by 2002:adf:dd8c:0:0:0:0:0 with HTTP; Mon, 11 Oct 2021 03:52:43
+ -0700 (PDT)
+Reply-To: ramcharan9910@outlook.com
+From:   "Cr.David Ramcharan" <convy0101@gmail.com>
+Date:   Mon, 11 Oct 2021 03:52:43 -0700
+Message-ID: <CADDRs97w9AQbpgpzD5yVWqJMGk1pzAXXKH2QPsEgwiUdCOfhJA@mail.gmail.com>
+Subject: Thank You
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greg KH <gregkh@linuxfoundation.org> writes:
+Please I am writing to notify you again on my intention to list your
+name as a beneficiary to the total sum of GBP6.350 million (Six
+million, Three hundred and fifty thousand British Pounds Sterlings) in
+the intent of the deceased (name now withheld since this is my second
+letter to you).
 
-> On Mon, Aug 23, 2021 at 04:08:44PM +0200, Pali Roh=C3=A1r wrote:
->> Hello Sasha and Greg!
->>=20
->> Last week I sent request for backporting ath9k wifi fixes for security
->> issue CVE-2020-3702 into stable LTS kernels because Qualcomm/maintainers
->> did not it for more months... details are in email:
->> https://lore.kernel.org/stable/20210818084859.vcs4vs3yd6zetmyt@pali/t/#u
->>=20
->> And now I got reports that in stable LTS kernels (4.14, 4.19) are
->> missing also other fixes for other Qualcomm wifi security issues,
->> covered by FragAttacks codename: CVE-2020-26145 CVE-2020-26139
->> CVE-2020-26141
->
-> Then someone needs to provide us backports if they care about these
-> very old kernels and these issues.  Just like any other driver subsystem
-> where patches are not able to be easily backported.
->
-> Or just use a newer kernel, that's almost always a better idea.
+I contacted you because you bear the surname identity and therefore
+can present you as the beneficiary to inherit the account proceeds of
+the deceased since there is no written "WILL" or trace to the deceased
+family relatives. My aim is to present you to my Bank Authorities as
+the Next of Kin to our deceased client. I will guide you all through
+the Claim procedure by providing all relevant Information and guiding
+you in your decisions and response to the Bank Management. All the
+papers will be processed after your acceptance.
 
-Sorry for the delay in my answer. But like Greg said, use of a newer
-kernel is the best option. I don't have the bandwith to maintain ath[1]
-drivers in stable releases, but I do try to make sure bugfixes have a
-Fixes tag when approriate and I do add cc stable whenever people ask me
-to. That's about it from stable releases point of view, my focus is on
-Linus' releases.
+In your acceptance of this deal, I request that you kindly forward to
+me your letter of acceptance; your current telephone and fax numbers
+,age, occupational status and a forwarding address to enable me submit
+to the Bank Management the details as the Next of Kin to their
+deceased customer. Reply strictly through: ramcharancrdavid@gmail.com
 
-Help with the stable releases is very welcome.
-
-[1] ath9k, ath10k, ath11k etc
-
---=20
-https://patchwork.kernel.org/project/linux-wireless/list/
-
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatc=
-hes
+Yours faithfully,
+Cr.David Ramcharan
