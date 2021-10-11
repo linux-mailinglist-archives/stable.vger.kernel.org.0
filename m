@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E9EE429077
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 730E142907B
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:07:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237539AbhJKOJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:09:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55468 "EHLO mail.kernel.org"
+        id S238180AbhJKOJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:09:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239272AbhJKOGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:06:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3F8E61214;
-        Mon, 11 Oct 2021 14:00:23 +0000 (UTC)
+        id S240156AbhJKOGn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:06:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 138B861050;
+        Mon, 11 Oct 2021 14:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960824;
-        bh=50oME831S3Wg+JzgZ5JeOp45VWeZ+pM3vP9xiNjtWNk=;
+        s=korg; t=1633960827;
+        bh=w7x9mFqiFd5Zyfxp9xbNc30nBdw8VSQASUqtHIGY/3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wZqTxlRiBGbc5UDUhm/2VYFvoNcPqasJiUDU2TSf9U2WnPp+CEQTZBMBBVsSmpc27
-         loCHOegMolWHoibcV1lXhszxQQ9q1gb48al9axrK9YK6HUdM4oT5k2dfD3y1shRuvT
-         jhgkqEjuHy3cniWhuqFJMmCTktigYwq7lfSdbLjw=
+        b=Q3ocXysu2+W7AbWMIKg8W2rNF8Y3IZjRLqFpbCg0zZxBHRfYs3VWUQg+KWFxeAcUp
+         NRDzqQHz+nhP+OmNpRgcXziDR1eBpPC5+IZS8GAsnNBdXNQrhC7jDGIkWOSr2zmrk7
+         HhD2A2YSFHQ1TAzCHvyuO7f/RSQSGa4g+nklhOWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>, linux-cachefs@redhat.com,
-        linux-afs@lists.infradead.org, ceph-devel@vger.kernel.org,
-        linux-cifs@vger.kernel.org, linux-nfs@vger.kernel.org,
-        v9fs-developer@lists.sourceforge.net,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 086/151] netfs: Fix READ/WRITE confusion when calling iov_iter_xarray()
-Date:   Mon, 11 Oct 2021 15:45:58 +0200
-Message-Id: <20211011134520.620511034@linuxfoundation.org>
+        Jeffrey Altman <jaltman@auristor.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 087/151] afs: Fix afs_launder_page() to set correct start file position
+Date:   Mon, 11 Oct 2021 15:45:59 +0200
+Message-Id: <20211011134520.651294738@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -46,44 +43,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 330de47d14af0c3995db81cc03cf5ca683d94d81 ]
+[ Upstream commit 5c0522484eb54b90f2e46a5db8d7a4ff3ff86e5d ]
 
-Fix netfs_clear_unread() to pass READ to iov_iter_xarray() instead of WRITE
-(the flag is about the operation accessing the buffer, not what sort of
-access it is doing to the buffer).
+Fix afs_launder_page() to set the starting position of the StoreData RPC at
+the offset into the page at which the modified data starts instead of at
+the beginning of the page (the iov_iter is correctly offset).
 
-Fixes: 3d3c95046742 ("netfs: Provide readahead and readpage netfs helpers")
+The offset got lost during the conversion to passing an iov_iter into
+afs_store_data().
+
+Changes:
+ver #2:
+ - Use page_offset() rather than manually calculating it[1].
+
+Fixes: bd80d8a80e12 ("afs: Use ITER_XARRAY for writing")
 Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-cc: linux-cachefs@redhat.com
+Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
+cc: Marc Dionne <marc.dionne@auristor.com>
 cc: linux-afs@lists.infradead.org
-cc: ceph-devel@vger.kernel.org
-cc: linux-cifs@vger.kernel.org
-cc: linux-nfs@vger.kernel.org
-cc: v9fs-developer@lists.sourceforge.net
-cc: linux-fsdevel@vger.kernel.org
-cc: linux-mm@kvack.org
-Link: https://lore.kernel.org/r/162729351325.813557.9242842205308443901.stgit@warthog.procyon.org.uk/
-Link: https://lore.kernel.org/r/162886603464.3940407.3790841170414793899.stgit@warthog.procyon.org.uk
-Link: https://lore.kernel.org/r/163239074602.1243337.14154704004485867017.stgit@warthog.procyon.org.uk
+Link: https://lore.kernel.org/r/YST/0e92OdSH0zjg@casper.infradead.org/ [1]
+Link: https://lore.kernel.org/r/162880783179.3421678.7795105718190440134.stgit@warthog.procyon.org.uk/ # v1
+Link: https://lore.kernel.org/r/162937512409.1449272.18441473411207824084.stgit@warthog.procyon.org.uk/ # v1
+Link: https://lore.kernel.org/r/162981148752.1901565.3663780601682206026.stgit@warthog.procyon.org.uk/ # v1
+Link: https://lore.kernel.org/r/163005741670.2472992.2073548908229887941.stgit@warthog.procyon.org.uk/ # v2
+Link: https://lore.kernel.org/r/163221839087.3143591.14278359695763025231.stgit@warthog.procyon.org.uk/ # v2
+Link: https://lore.kernel.org/r/163292980654.4004896.7134735179887998551.stgit@warthog.procyon.org.uk/ # v2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/netfs/read_helper.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/afs/write.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/netfs/read_helper.c b/fs/netfs/read_helper.c
-index 0b6cd3b8734c..994ec22d4040 100644
---- a/fs/netfs/read_helper.c
-+++ b/fs/netfs/read_helper.c
-@@ -150,7 +150,7 @@ static void netfs_clear_unread(struct netfs_read_subrequest *subreq)
- {
- 	struct iov_iter iter;
+diff --git a/fs/afs/write.c b/fs/afs/write.c
+index 2dfe3b3a53d6..f24370f5c774 100644
+--- a/fs/afs/write.c
++++ b/fs/afs/write.c
+@@ -974,8 +974,7 @@ int afs_launder_page(struct page *page)
+ 		iov_iter_bvec(&iter, WRITE, bv, 1, bv[0].bv_len);
  
--	iov_iter_xarray(&iter, WRITE, &subreq->rreq->mapping->i_pages,
-+	iov_iter_xarray(&iter, READ, &subreq->rreq->mapping->i_pages,
- 			subreq->start + subreq->transferred,
- 			subreq->len   - subreq->transferred);
- 	iov_iter_zero(iov_iter_count(&iter), &iter);
+ 		trace_afs_page_dirty(vnode, tracepoint_string("launder"), page);
+-		ret = afs_store_data(vnode, &iter, (loff_t)page->index * PAGE_SIZE,
+-				     true);
++		ret = afs_store_data(vnode, &iter, page_offset(page) + f, true);
+ 	}
+ 
+ 	trace_afs_page_dirty(vnode, tracepoint_string("laundered"), page);
 -- 
 2.33.0
 
