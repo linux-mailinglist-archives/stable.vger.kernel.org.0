@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52BF9428F83
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29AF5428EF4
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236548AbhJKN7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:59:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47528 "EHLO mail.kernel.org"
+        id S236663AbhJKNxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:53:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238050AbhJKN6P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:58:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C99CE61105;
-        Mon, 11 Oct 2021 13:54:38 +0000 (UTC)
+        id S237702AbhJKNw1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:52:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76E1A61054;
+        Mon, 11 Oct 2021 13:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960479;
-        bh=5j3Deu0c6EsoGoCN0WWehsfjrLouSlTkZlGLA1NTIJ0=;
+        s=korg; t=1633960226;
+        bh=HMGOh2oX7veNBFCwQLk8o1QGgyi0j6kuVTndegKyO9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RP2DN7nk2tsJWyj2OxOcH07pZQba9fu3PL++QITOwpaWPFxtTnlLvCISoXEdDlPjn
-         89q0lbWZqxQlDEwMKcoGPQFXA4b6q4TopvKFrLdQgVSNBTkkkRu9W1bLCuiNuWZ63F
-         OtrByDjlT0oesTankKSR99hraWz2QSmQx2zGxCJY=
+        b=FlZtnjACPrARu0TwwH0KNZzzkcCNL6ZRifzugexOitRyXFrBTNt9gwJyqijt0rcsI
+         XDfzvq7ETmmmAX1du+XzPVNdmkE14PdOR5OffSqaa1Fn6g/1m2D+5eFQXrlOb5ZEBT
+         X0x/ro0xT5nYUO8loFW8t4q76NwGXbQ7Qpo8k8lI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 39/83] net/mlx5: E-Switch, Fix double allocation of acl flow counter
-Date:   Mon, 11 Oct 2021 15:45:59 +0200
-Message-Id: <20211011134509.741545505@linuxfoundation.org>
+Subject: [PATCH 5.4 31/52] arm64: dts: ls1028a: add missing CAN nodes
+Date:   Mon, 11 Oct 2021 15:46:00 +0200
+Message-Id: <20211011134504.805513142@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,81 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@nvidia.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit a586775f83bd729ad60b56352dbe067f4bb0beee ]
+[ Upstream commit 04fa4f03e3533f51b4db19cb487435f5862a0514 ]
 
-Flow counter is allocated in eswitch legacy acl setting functions
-without checking if already allocated by previous setting. Add a check
-to avoid such double allocation.
+The LS1028A has two FlexCAN controller. These are compatible with
+the ones from the LX2160A. Add the nodes.
 
-Fixes: 07bab9502641 ("net/mlx5: E-Switch, Refactor eswitch ingress acl codes")
-Fixes: ea651a86d468 ("net/mlx5: E-Switch, Refactor eswitch egress acl codes")
-Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+The first controller was tested on the Kontron sl28 board.
+
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../mellanox/mlx5/core/esw/acl/egress_lgcy.c         | 12 ++++++++----
- .../mellanox/mlx5/core/esw/acl/ingress_lgcy.c        |  4 +++-
- 2 files changed, 11 insertions(+), 5 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
-index 3e19b1721303..b00c7d47833f 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
-@@ -79,12 +79,16 @@ int esw_acl_egress_lgcy_setup(struct mlx5_eswitch *esw,
- 	int dest_num = 0;
- 	int err = 0;
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+index 963091069ab3..02ae6bfff565 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+@@ -287,6 +287,24 @@
+ 			status = "disabled";
+ 		};
  
--	if (MLX5_CAP_ESW_EGRESS_ACL(esw->dev, flow_counter)) {
-+	if (vport->egress.legacy.drop_counter) {
-+		drop_counter = vport->egress.legacy.drop_counter;
-+	} else if (MLX5_CAP_ESW_EGRESS_ACL(esw->dev, flow_counter)) {
- 		drop_counter = mlx5_fc_create(esw->dev, false);
--		if (IS_ERR(drop_counter))
-+		if (IS_ERR(drop_counter)) {
- 			esw_warn(esw->dev,
- 				 "vport[%d] configure egress drop rule counter err(%ld)\n",
- 				 vport->vport, PTR_ERR(drop_counter));
-+			drop_counter = NULL;
-+		}
- 		vport->egress.legacy.drop_counter = drop_counter;
- 	}
- 
-@@ -123,7 +127,7 @@ int esw_acl_egress_lgcy_setup(struct mlx5_eswitch *esw,
- 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_DROP;
- 
- 	/* Attach egress drop flow counter */
--	if (!IS_ERR_OR_NULL(drop_counter)) {
-+	if (drop_counter) {
- 		flow_act.action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
- 		drop_ctr_dst.type = MLX5_FLOW_DESTINATION_TYPE_COUNTER;
- 		drop_ctr_dst.counter_id = mlx5_fc_id(drop_counter);
-@@ -162,7 +166,7 @@ void esw_acl_egress_lgcy_cleanup(struct mlx5_eswitch *esw,
- 	esw_acl_egress_table_destroy(vport);
- 
- clean_drop_counter:
--	if (!IS_ERR_OR_NULL(vport->egress.legacy.drop_counter)) {
-+	if (vport->egress.legacy.drop_counter) {
- 		mlx5_fc_destroy(esw->dev, vport->egress.legacy.drop_counter);
- 		vport->egress.legacy.drop_counter = NULL;
- 	}
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
-index d64fad2823e7..45570d0a58d2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
-@@ -160,7 +160,9 @@ int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
- 
- 	esw_acl_ingress_lgcy_rules_destroy(vport);
- 
--	if (MLX5_CAP_ESW_INGRESS_ACL(esw->dev, flow_counter)) {
-+	if (vport->ingress.legacy.drop_counter) {
-+		counter = vport->ingress.legacy.drop_counter;
-+	} else if (MLX5_CAP_ESW_INGRESS_ACL(esw->dev, flow_counter)) {
- 		counter = mlx5_fc_create(esw->dev, false);
- 		if (IS_ERR(counter)) {
- 			esw_warn(esw->dev,
++		can0: can@2180000 {
++			compatible = "fsl,ls1028ar1-flexcan", "fsl,lx2160ar1-flexcan";
++			reg = <0x0 0x2180000 0x0 0x10000>;
++			interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&sysclk>, <&clockgen 4 1>;
++			clock-names = "ipg", "per";
++			status = "disabled";
++		};
++
++		can1: can@2190000 {
++			compatible = "fsl,ls1028ar1-flexcan", "fsl,lx2160ar1-flexcan";
++			reg = <0x0 0x2190000 0x0 0x10000>;
++			interrupts = <GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&sysclk>, <&clockgen 4 1>;
++			clock-names = "ipg", "per";
++			status = "disabled";
++		};
++
+ 		duart0: serial@21c0500 {
+ 			compatible = "fsl,ns16550", "ns16550a";
+ 			reg = <0x00 0x21c0500 0x0 0x100>;
 -- 
 2.33.0
 
