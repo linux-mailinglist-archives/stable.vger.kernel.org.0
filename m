@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2909C428E91
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:47:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 165F6428F23
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236398AbhJKNts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:49:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38058 "EHLO mail.kernel.org"
+        id S237853AbhJKNzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:55:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236014AbhJKNth (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:49:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8FD660C49;
-        Mon, 11 Oct 2021 13:47:36 +0000 (UTC)
+        id S237955AbhJKNxi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:53:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72CC060F4B;
+        Mon, 11 Oct 2021 13:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960057;
-        bh=VhVdJO++/fA/CrMBT1l2MTIpN+N+tBrIikvMt4s0sPs=;
+        s=korg; t=1633960288;
+        bh=O4t1blipEXtA6PklmgI0he90SEvJj0aWMpJhp/1WgSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a4AwN+i0qs/yxUHOh518RKdXfpUBpglRC4+fAVaackjKN7ZZFPWCykgUJ/1XL0FyB
-         e0/mfInIA2sVNpMk6NyljYxVsxbDG2S0Ymx4TxweN/mj1TsZJmcmB+GAKw6Zmf/c+c
-         rEHudL/sJwcqNaNQ2qmI8hn0GFf9jtYVaHETY7cY=
+        b=vFsEln+7+4z6sUM3/CDoF9gLtjLmqo9ejqNE9e1b68VL/WRe7+ajPZJlkIWUMEkzr
+         F/m6afy0B0S7d1JzW/O9IXO3d5LHTUHFZCp8wgTjOSMI3y0BlZjYHpvvRpKK54V5EE
+         k6Y298jR1bI1Potg+vCFN/HZtAgXVwiSCADGPQos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Juergen Gross <jgross@suse.com>,
-        Jason Andryuk <jandryuk@gmail.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.4 10/52] xen/balloon: fix cancelled balloon action
-Date:   Mon, 11 Oct 2021 15:45:39 +0200
-Message-Id: <20211011134504.064748100@linuxfoundation.org>
+        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.10 20/83] riscv: Flush current cpu icache before other cpus
+Date:   Mon, 11 Oct 2021 15:45:40 +0200
+Message-Id: <20211011134509.059155260@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,70 +39,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Alexandre Ghiti <alex@ghiti.fr>
 
-commit 319933a80fd4f07122466a77f93e5019d71be74c upstream.
+commit bb8958d5dc79acbd071397abb57b8756375fe1ce upstream.
 
-In case a ballooning action is cancelled the new kernel thread handling
-the ballooning might end up in a busy loop.
+On SiFive Unmatched, I recently fell onto the following BUG when booting:
 
-Fix that by handling the cancelled action gracefully.
+[    0.000000] ftrace: allocating 36610 entries in 144 pages
+[    0.000000] Oops - illegal instruction [#1]
+[    0.000000] Modules linked in:
+[    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.13.1+ #5
+[    0.000000] Hardware name: SiFive HiFive Unmatched A00 (DT)
+[    0.000000] epc : riscv_cpuid_to_hartid_mask+0x6/0xae
+[    0.000000]  ra : __sbi_rfence_v02+0xc8/0x10a
+[    0.000000] epc : ffffffff80007240 ra : ffffffff80009964 sp : ffffffff81803e10
+[    0.000000]  gp : ffffffff81a1ea70 tp : ffffffff8180f500 t0 : ffffffe07fe30000
+[    0.000000]  t1 : 0000000000000004 t2 : 0000000000000000 s0 : ffffffff81803e60
+[    0.000000]  s1 : 0000000000000000 a0 : ffffffff81a22238 a1 : ffffffff81803e10
+[    0.000000]  a2 : 0000000000000000 a3 : 0000000000000000 a4 : 0000000000000000
+[    0.000000]  a5 : 0000000000000000 a6 : ffffffff8000989c a7 : 0000000052464e43
+[    0.000000]  s2 : ffffffff81a220c8 s3 : 0000000000000000 s4 : 0000000000000000
+[    0.000000]  s5 : 0000000000000000 s6 : 0000000200000100 s7 : 0000000000000001
+[    0.000000]  s8 : ffffffe07fe04040 s9 : ffffffff81a22c80 s10: 0000000000001000
+[    0.000000]  s11: 0000000000000004 t3 : 0000000000000001 t4 : 0000000000000008
+[    0.000000]  t5 : ffffffcf04000808 t6 : ffffffe3ffddf188
+[    0.000000] status: 0000000200000100 badaddr: 0000000000000000 cause: 0000000000000002
+[    0.000000] [<ffffffff80007240>] riscv_cpuid_to_hartid_mask+0x6/0xae
+[    0.000000] [<ffffffff80009474>] sbi_remote_fence_i+0x1e/0x26
+[    0.000000] [<ffffffff8000b8f4>] flush_icache_all+0x12/0x1a
+[    0.000000] [<ffffffff8000666c>] patch_text_nosync+0x26/0x32
+[    0.000000] [<ffffffff8000884e>] ftrace_init_nop+0x52/0x8c
+[    0.000000] [<ffffffff800f051e>] ftrace_process_locs.isra.0+0x29c/0x360
+[    0.000000] [<ffffffff80a0e3c6>] ftrace_init+0x80/0x130
+[    0.000000] [<ffffffff80a00f8c>] start_kernel+0x5c4/0x8f6
+[    0.000000] ---[ end trace f67eb9af4d8d492b ]---
+[    0.000000] Kernel panic - not syncing: Attempted to kill the idle task!
+[    0.000000] ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
 
-While at it introduce a short wait for the BP_WAIT case.
+While ftrace is looping over a list of addresses to patch, it always failed
+when patching the same function: riscv_cpuid_to_hartid_mask. Looking at the
+backtrace, the illegal instruction is encountered in this same function.
+However, patch_text_nosync, after patching the instructions, calls
+flush_icache_range. But looking at what happens in this function:
 
+flush_icache_range -> flush_icache_all
+                   -> sbi_remote_fence_i
+                   -> __sbi_rfence_v02
+                   -> riscv_cpuid_to_hartid_mask
+
+The icache and dcache of the current cpu are never synchronized between the
+patching of riscv_cpuid_to_hartid_mask and calling this same function.
+
+So fix this by flushing the current cpu's icache before asking for the other
+cpus to do the same.
+
+Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+Fixes: fab957c11efe ("RISC-V: Atomic and Locking Code")
 Cc: stable@vger.kernel.org
-Fixes: 8480ed9c2bbd56 ("xen/balloon: use a kernel thread instead a workqueue")
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Tested-by: Jason Andryuk <jandryuk@gmail.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20211005133433.32008-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/balloon.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ arch/riscv/mm/cacheflush.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -508,12 +508,12 @@ static enum bp_state decrease_reservatio
- }
+--- a/arch/riscv/mm/cacheflush.c
++++ b/arch/riscv/mm/cacheflush.c
+@@ -16,6 +16,8 @@ static void ipi_remote_fence_i(void *inf
  
- /*
-- * Stop waiting if either state is not BP_EAGAIN and ballooning action is
-- * needed, or if the credit has changed while state is BP_EAGAIN.
-+ * Stop waiting if either state is BP_DONE and ballooning action is
-+ * needed, or if the credit has changed while state is not BP_DONE.
-  */
- static bool balloon_thread_cond(enum bp_state state, long credit)
+ void flush_icache_all(void)
  {
--	if (state != BP_EAGAIN)
-+	if (state == BP_DONE)
- 		credit = 0;
- 
- 	return current_credit() != credit || kthread_should_stop();
-@@ -533,10 +533,19 @@ static int balloon_thread(void *unused)
- 
- 	set_freezable();
- 	for (;;) {
--		if (state == BP_EAGAIN)
--			timeout = balloon_stats.schedule_delay * HZ;
--		else
-+		switch (state) {
-+		case BP_DONE:
-+		case BP_ECANCELED:
- 			timeout = 3600 * HZ;
-+			break;
-+		case BP_EAGAIN:
-+			timeout = balloon_stats.schedule_delay * HZ;
-+			break;
-+		case BP_WAIT:
-+			timeout = HZ;
-+			break;
-+		}
++	local_flush_icache_all();
 +
- 		credit = current_credit();
- 
- 		wait_event_freezable_timeout(balloon_thread_wq,
+ 	if (IS_ENABLED(CONFIG_RISCV_SBI))
+ 		sbi_remote_fence_i(NULL);
+ 	else
 
 
