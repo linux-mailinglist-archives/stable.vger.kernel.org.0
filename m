@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A67A7428FB0
+	by mail.lfdr.de (Postfix) with ESMTP id 5B13A428FAF
 	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238306AbhJKOAi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:00:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49804 "EHLO mail.kernel.org"
+        id S238295AbhJKOAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:00:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237773AbhJKN7C (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237787AbhJKN7C (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 11 Oct 2021 09:59:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1A74610E7;
-        Mon, 11 Oct 2021 13:55:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7AC2611C3;
+        Mon, 11 Oct 2021 13:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960530;
-        bh=8QyFRXt1ty+bSfUAH28UXsajU+uxYWy1fQ7W42jAeDE=;
+        s=korg; t=1633960533;
+        bh=k/rFIUyOkql9VEApBtg14qShAinv3cD69+Va4UWDdvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8WOYvVb+Nx87O5y7Kzu7fmll/ipxP1sPGPPYZngsmCHqazSWE3vnb9GGhgFwdU/L
-         wvcYrV/Ox4esz3eVtU2yqlsZmSIDnj3JrZSDxQDDjLYyIJrARphW7LWPL8KHXEn3oL
-         IxKvvjcdLx/xjIzKqw2a1+GxvMdsai/xcKohva38=
+        b=vzL+ET1j49FPaIIMvfJXrdtS2yvp31b8W/BssTLhoZPfB7HZ/Lrbk6LaH5IanZGF8
+         2H2E7mL+cbnB8EssCaAq/ifNW/VCD4vM4VMsXegVB3AvkB9T9sOfd/bxZ2FRW1FQ34
+         br7CxpqW520QNHfz3MTUAAPeornhVrvXvPUSVTEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Song Liu <songliubraving@fb.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 73/83] powerpc/bpf: Fix BPF_MOD when imm == 1
-Date:   Mon, 11 Oct 2021 15:46:33 +0200
-Message-Id: <20211011134510.897297770@linuxfoundation.org>
+Subject: [PATCH 5.10 74/83] powerpc/bpf: Fix BPF_SUB when imm == 0x80000000
+Date:   Mon, 11 Oct 2021 15:46:34 +0200
+Message-Id: <20211011134510.938865273@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
 References: <20211011134508.362906295@linuxfoundation.org>
@@ -46,44 +44,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit 8bbc9d822421d9ac8ff9ed26a3713c9afc69d6c8 ]
+[ Upstream commit 5855c4c1f415ca3ba1046e77c0b3d3dfc96c9025 ]
 
-Only ignore the operation if dividing by 1.
+We aren't handling subtraction involving an immediate value of
+0x80000000 properly. Fix the same.
 
 Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
 Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Tested-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
 Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Song Liu <songliubraving@fb.com>
-Acked-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+[mpe: Fold in fix from Naveen to use imm <= 32768]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c674ca18c3046885602caebb326213731c675d06.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/fc4b1276eb10761fd7ce0814c8dd089da2815251.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/net/bpf_jit_comp64.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/powerpc/net/bpf_jit_comp64.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
 diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
-index 658ca2bab13c..e79f9eae2bc0 100644
+index e79f9eae2bc0..a2750d6ffd0f 100644
 --- a/arch/powerpc/net/bpf_jit_comp64.c
 +++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -408,8 +408,14 @@ static int bpf_jit_build_body(struct bpf_prog *fp, u32 *image,
- 		case BPF_ALU64 | BPF_DIV | BPF_K: /* dst /= imm */
- 			if (imm == 0)
- 				return -EINVAL;
--			else if (imm == 1)
--				goto bpf_alu32_trunc;
-+			if (imm == 1) {
-+				if (BPF_OP(code) == BPF_DIV) {
-+					goto bpf_alu32_trunc;
-+				} else {
-+					EMIT(PPC_RAW_LI(dst_reg, 0));
-+					break;
-+				}
+@@ -347,18 +347,25 @@ static int bpf_jit_build_body(struct bpf_prog *fp, u32 *image,
+ 			EMIT(PPC_RAW_SUB(dst_reg, dst_reg, src_reg));
+ 			goto bpf_alu32_trunc;
+ 		case BPF_ALU | BPF_ADD | BPF_K: /* (u32) dst += (u32) imm */
+-		case BPF_ALU | BPF_SUB | BPF_K: /* (u32) dst -= (u32) imm */
+ 		case BPF_ALU64 | BPF_ADD | BPF_K: /* dst += imm */
++			if (!imm) {
++				goto bpf_alu32_trunc;
++			} else if (imm >= -32768 && imm < 32768) {
++				EMIT(PPC_RAW_ADDI(dst_reg, dst_reg, IMM_L(imm)));
++			} else {
++				PPC_LI32(b2p[TMP_REG_1], imm);
++				EMIT(PPC_RAW_ADD(dst_reg, dst_reg, b2p[TMP_REG_1]));
 +			}
- 
- 			PPC_LI32(b2p[TMP_REG_1], imm);
- 			switch (BPF_CLASS(code)) {
++			goto bpf_alu32_trunc;
++		case BPF_ALU | BPF_SUB | BPF_K: /* (u32) dst -= (u32) imm */
+ 		case BPF_ALU64 | BPF_SUB | BPF_K: /* dst -= imm */
+-			if (BPF_OP(code) == BPF_SUB)
+-				imm = -imm;
+-			if (imm) {
+-				if (imm >= -32768 && imm < 32768)
+-					EMIT(PPC_RAW_ADDI(dst_reg, dst_reg, IMM_L(imm)));
+-				else {
+-					PPC_LI32(b2p[TMP_REG_1], imm);
+-					EMIT(PPC_RAW_ADD(dst_reg, dst_reg, b2p[TMP_REG_1]));
+-				}
++			if (!imm) {
++				goto bpf_alu32_trunc;
++			} else if (imm > -32768 && imm <= 32768) {
++				EMIT(PPC_RAW_ADDI(dst_reg, dst_reg, IMM_L(-imm)));
++			} else {
++				PPC_LI32(b2p[TMP_REG_1], imm);
++				EMIT(PPC_RAW_SUB(dst_reg, dst_reg, b2p[TMP_REG_1]));
+ 			}
+ 			goto bpf_alu32_trunc;
+ 		case BPF_ALU | BPF_MUL | BPF_X: /* (u32) dst *= (u32) src */
 -- 
 2.33.0
 
