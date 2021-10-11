@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87DA7428FFC
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D516E429009
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:02:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238984AbhJKODD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:03:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50198 "EHLO mail.kernel.org"
+        id S238502AbhJKOEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:04:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236853AbhJKOBC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:01:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED67761074;
-        Mon, 11 Oct 2021 13:57:17 +0000 (UTC)
+        id S238665AbhJKOBl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:01:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD92061139;
+        Mon, 11 Oct 2021 13:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960638;
-        bh=r71fn1N77qRTbPyvZTU0sgvBwA9NqUXpG3rwpTP7M4U=;
+        s=korg; t=1633960657;
+        bh=CFd8EFEfmviIBDk9D8vzZm+qxmDdTNd1iyP/6ftIbBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQfFH/Ip4y76YRHgLdWramdf2CSxpXalSO3oqGO7d6rcSQh/lGDk9wLp1szRSYqhb
-         TLqX7ygMcmBErvJJNQeLL63nLjQAStyiiYmIl2F5D+JKp7VuZKgEOgNdOmnVtQfIlf
-         IGtvJi0CbK/pRoyPD+TLrLoSQZVeUGX3KfDLsCDs=
+        b=Wre/7qmJv56lrUlB20+RySzOmja7iT66HM/vaKfJZOHYMkAq7j1DQzVnYmwZ79Rv6
+         nwfCM/aRiuhSM13qK660Uxp3Nc+GtCWOgz81NuagUW65OmxIsvCzlib7C4POL1cOrg
+         U78MK5ELpnZobPIp7RDPQj46XxqanF+qlgwvP8Wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Thiery <heiko.thiery@gmail.com>,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Peter Chen <peter.chen@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 5.14 003/151] usb: chipidea: ci_hdrc_imx: Also search for phys phandle
-Date:   Mon, 11 Oct 2021 15:44:35 +0200
-Message-Id: <20211011134517.943587267@linuxfoundation.org>
+        stable@vger.kernel.org, Henrik Enquist <henrik.enquist@gmail.com>,
+        Jack Pham <jackp@codeaurora.org>,
+        Pavel Hofman <pavel.hofman@ivitera.com>
+Subject: [PATCH 5.14 004/151] usb: gadget: f_uac2: fixed EP-IN wMaxPacketSize
+Date:   Mon, 11 Oct 2021 15:44:36 +0200
+Message-Id: <20211011134517.973808230@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,82 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Pavel Hofman <pavel.hofman@ivitera.com>
 
-commit 8253a34bfae3278baca52fc1209b7c29270486ca upstream.
+commit 0560c9c552c1815e7b480bc11fd785fefc82bb27 upstream.
 
-When passing 'phys' in the devicetree to describe the USB PHY phandle
-(which is the recommended way according to
-Documentation/devicetree/bindings/usb/ci-hdrc-usb2.txt) the
-following NULL pointer dereference is observed on i.MX7 and i.MX8MM:
+Async feedback patches broke enumeration on Windows 10 previously fixed
+by commit 789ea77310f0 ("usb: gadget: f_uac2: always increase endpoint
+max_packet_size by one audio slot").
 
-[    1.489344] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000098
-[    1.498170] Mem abort info:
-[    1.500966]   ESR = 0x96000044
-[    1.504030]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    1.509356]   SET = 0, FnV = 0
-[    1.512416]   EA = 0, S1PTW = 0
-[    1.515569]   FSC = 0x04: level 0 translation fault
-[    1.520458] Data abort info:
-[    1.523349]   ISV = 0, ISS = 0x00000044
-[    1.527196]   CM = 0, WnR = 1
-[    1.530176] [0000000000000098] user address but active_mm is swapper
-[    1.536544] Internal error: Oops: 96000044 [#1] PREEMPT SMP
-[    1.542125] Modules linked in:
-[    1.545190] CPU: 3 PID: 7 Comm: kworker/u8:0 Not tainted 5.14.0-dirty #3
-[    1.551901] Hardware name: Kontron i.MX8MM N801X S (DT)
-[    1.557133] Workqueue: events_unbound deferred_probe_work_func
-[    1.562984] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
-[    1.568998] pc : imx7d_charger_detection+0x3f0/0x510
-[    1.573973] lr : imx7d_charger_detection+0x22c/0x510
+While the existing calculation for EP OUT capture for async mode yields
+size+1 frame due to uac2_opts->fb_max > 0, playback side lost the +1
+feature.  Therefore the +1 frame addition must be re-introduced for
+playback. Win10 enumerates the device only when both EP IN and EP OUT
+max packet sizes are (at least) +1 frame.
 
-This happens because the charger functions check for the phy presence
-inside the imx_usbmisc_data structure (data->usb_phy), but the chipidea
-core populates the usb_phy passed via 'phys' inside 'struct ci_hdrc'
-(ci->usb_phy) instead.
-
-This causes the NULL pointer dereference inside imx7d_charger_detection().
-
-Fix it by also searching for 'phys' in case 'fsl,usbphy' is not found.
-
-Tested on a imx7s-warp board.
-
-Fixes: 746f316b753a ("usb: chipidea: introduce imx7d USB charger detection")
-Cc: stable@vger.kernel.org
-Reported-by: Heiko Thiery <heiko.thiery@gmail.com>
-Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Reviewed-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20210921113754.767631-1-festevam@gmail.com
+Fixes: e89bb4288378 ("usb: gadget: u_audio: add real feedback implementation")
+Cc: stable <stable@vger.kernel.org>
+Tested-by: Henrik Enquist <henrik.enquist@gmail.com>
+Tested-by: Jack Pham <jackp@codeaurora.org>
+Signed-off-by: Pavel Hofman <pavel.hofman@ivitera.com>
+Link: https://lore.kernel.org/r/20210924080027.5362-1-pavel.hofman@ivitera.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/chipidea/ci_hdrc_imx.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/usb/gadget/function/f_uac2.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/chipidea/ci_hdrc_imx.c
-+++ b/drivers/usb/chipidea/ci_hdrc_imx.c
-@@ -420,11 +420,16 @@ static int ci_hdrc_imx_probe(struct plat
- 	data->phy = devm_usb_get_phy_by_phandle(dev, "fsl,usbphy", 0);
- 	if (IS_ERR(data->phy)) {
- 		ret = PTR_ERR(data->phy);
--		/* Return -EINVAL if no usbphy is available */
--		if (ret == -ENODEV)
--			data->phy = NULL;
--		else
--			goto err_clk;
-+		if (ret == -ENODEV) {
-+			data->phy = devm_usb_get_phy_by_phandle(dev, "phys", 0);
-+			if (IS_ERR(data->phy)) {
-+				ret = PTR_ERR(data->phy);
-+				if (ret == -ENODEV)
-+					data->phy = NULL;
-+				else
-+					goto err_clk;
-+			}
-+		}
+--- a/drivers/usb/gadget/function/f_uac2.c
++++ b/drivers/usb/gadget/function/f_uac2.c
+@@ -593,11 +593,17 @@ static int set_ep_max_packet_size(const
+ 		ssize = uac2_opts->c_ssize;
  	}
  
- 	pdata.usb_phy = data->phy;
+-	if (!is_playback && (uac2_opts->c_sync == USB_ENDPOINT_SYNC_ASYNC))
++	if (!is_playback && (uac2_opts->c_sync == USB_ENDPOINT_SYNC_ASYNC)) {
++	  // Win10 requires max packet size + 1 frame
+ 		srate = srate * (1000 + uac2_opts->fb_max) / 1000;
+-
+-	max_size_bw = num_channels(chmask) * ssize *
+-		DIV_ROUND_UP(srate, factor / (1 << (ep_desc->bInterval - 1)));
++		// updated srate is always bigger, therefore DIV_ROUND_UP always yields +1
++		max_size_bw = num_channels(chmask) * ssize *
++			(DIV_ROUND_UP(srate, factor / (1 << (ep_desc->bInterval - 1))));
++	} else {
++		// adding 1 frame provision for Win10
++		max_size_bw = num_channels(chmask) * ssize *
++			(DIV_ROUND_UP(srate, factor / (1 << (ep_desc->bInterval - 1))) + 1);
++	}
+ 	ep_desc->wMaxPacketSize = cpu_to_le16(min_t(u16, max_size_bw,
+ 						    max_size_ep));
+ 
 
 
