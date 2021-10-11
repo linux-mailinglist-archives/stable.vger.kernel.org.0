@@ -2,131 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8C504287C3
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 09:38:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC244287C5
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 09:39:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234192AbhJKHkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 03:40:42 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:55942 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234449AbhJKHkl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 03:40:41 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 0C48D22034;
-        Mon, 11 Oct 2021 07:38:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1633937915;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=dW7+2eJDZzMMtGdCNOgIHEUM067pLA4d6dFLRywGPD4=;
-        b=WFTse2hZYIoIjFqfZjv5PAgWCWFgooCkIozWjsupLGm8SoHvXBWPHGWwh7HqUxmw80B8ka
-        Bg5SDMGYYsqw468ebe5l8SDICoARIXFr63Cfek2bsTsW2LzPp68jDjW4PNbON5EXLjXKC/
-        ze0L4ImmtO0CAQ56GSCSjyNUKghsQfU=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1633937915;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=dW7+2eJDZzMMtGdCNOgIHEUM067pLA4d6dFLRywGPD4=;
-        b=61KZEbecF+I9JeDAnm9cLH1zoJ9jX5+xCpAI6DjZKezXCtQqoslXtMlRc6196AP2reGulR
-        INHvCFmFFQo43eAQ==
-Received: from g78 (unknown [10.163.24.38])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 0EA24A3B83;
-        Mon, 11 Oct 2021 07:38:34 +0000 (UTC)
-References: <20211008112714.601107695@linuxfoundation.org>
- <CA+G9fYvOK+5qPEU7RMfD1O5O3EwTfThoh3Le9Rx8GDhY3nY1Ww@mail.gmail.com>
-User-agent: mu4e 1.6.5; emacs 27.2
-From:   Richard Palethorpe <rpalethorpe@suse.de>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LTP List <ltp@lists.linux.it>, Cyril Hrubis <chrubis@suse.cz>,
-        Li Wang <liwang@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>, mkoutny@suse.cz
-Subject: Re: [PATCH 4.19 00/12] 4.19.210-rc1 review
-Date:   Mon, 11 Oct 2021 08:28:31 +0100
-Reply-To: rpalethorpe@suse.de
-In-reply-to: <CA+G9fYvOK+5qPEU7RMfD1O5O3EwTfThoh3Le9Rx8GDhY3nY1Ww@mail.gmail.com>
-Message-ID: <875yu4au4n.fsf@suse.de>
+        id S234518AbhJKHl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 03:41:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38450 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234129AbhJKHl1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 03:41:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3614060D07;
+        Mon, 11 Oct 2021 07:39:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1633937968;
+        bh=2RNsxjZ/968K6JKJtcLCC8bnjSiWKsaTT+aEqq4eCYQ=;
+        h=Subject:To:Cc:From:Date:From;
+        b=gVxU4792Ls+XX260PvHLG4nrwKfBh5cVl+9Ut7huu4h2HN2WzBkKZA2g6kFysUeix
+         l9CxgrRL/v/oHSCCPPYEx/1uqZTb/HZWg3QX+RVfxIhDMBlb5o9Ig9PzF3c3KRCqov
+         E6/bPY1vFEoy5Y72Jk0KGCzrXEZlZjHVk47nTeU4=
+Subject: FAILED: patch "[PATCH] x86/Kconfig: Correct reference to MWINCHIP3D" failed to apply to 5.4-stable tree
+To:     lukas.bulwahn@gmail.com, bp@suse.de, rdunlap@infradead.org,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 11 Oct 2021 09:39:24 +0200
+Message-ID: <163393796424292@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Naresh,
 
-Naresh Kamboju <naresh.kamboju@linaro.org> writes:
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> On Fri, 8 Oct 2021 at 17:00, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
->>
->> This is the start of the stable review cycle for the 4.19.210 release.
->> There are 12 patches in this series, all will be posted as a response
->> to this one.  If anyone has any issues with these being applied, please
->> let me know.
->>
->> Responses should be made by Sun, 10 Oct 2021 11:27:07 +0000.
->> Anything received after that time might be too late.
->>
->> The whole patch series can be found in one patch at:
->>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch=
--4.19.210-rc1.gz
->> or in the git tree and branch at:
->>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git linux-4.19.y
->> and the diffstat can be found below.
->>
->> thanks,
->>
->> greg k-h
->
-> Results from Linaro=E2=80=99s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
->
-> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
->
-> NOTE:
-> LTP version upgrade to LTP 20210927.
-> The new case "cfs_bandwidth01" found the following warning.
-> Since it is a new test case that found this warning can not be considered=
- as
-> regression.
-> This warning is only seen on stable rc 4.19
-> but not found on 4.14, 5.4, 5.10 and 5.14.
->
-> Test output log:
-> ----------------
-> cfs_bandwidth01.c:57: TINFO: Set 'worker1/cpu.max' =3D '3000 10000'
-> cfs_bandwidth01.c:57: TINFO: Set 'worker2/cpu.max' =3D '2000 10000'
-> cfs_bandwidth01.c:57: TINFO: Set 'worker3/cpu.max' =3D '3000 10000'
-> cfs_bandwidth01.c:118: TPASS: Scheduled bandwidth constrained workers
-> cfs_bandwidth01.c:57: TINFO: Set 'level2/cpu.max' =3D '5000 10000'
-> cfs_bandwidth01.c:130: TPASS: Workers exited
-> cfs_bandwidth01.c:118: TPASS: Scheduled bandwidth constrained workers
-> cfs_bandwidth01.c:57: TINFO: Set 'level2/cpu.max' =3D '5000 10000'
-> cfs_bandwidth01.c:130: TPASS: Workers exited
-> cfs_bandwidth01.c:118: TPASS: Scheduled bandwidth constrained work[
-> 56.624213] ------------[ cut here ]------------
-> [   56.629421] rq->tmp_alone_branch !=3D &rq->leaf_cfs_rq_list
+thanks,
 
-FWIW this appears to be the bug the test is intended to
-reproduce. Originally seen on a SUSE enterprise 4.12 kernel.
+greg k-h
 
---=20
-Thank you,
-Richard.
+------------------ original commit in Linus's tree ------------------
+
+From 225bac2dc5d192e55f2c50123ee539b1edf8a411 Mon Sep 17 00:00:00 2001
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Date: Tue, 3 Aug 2021 13:35:25 +0200
+Subject: [PATCH] x86/Kconfig: Correct reference to MWINCHIP3D
+
+Commit in Fixes intended to exclude the Winchip series and referred to
+CONFIG_WINCHIP3D, but the config symbol is called CONFIG_MWINCHIP3D.
+
+Hence, scripts/checkkconfigsymbols.py warns:
+
+WINCHIP3D
+Referencing files: arch/x86/Kconfig
+
+Correct the reference to the intended config symbol.
+
+Fixes: 69b8d3fcabdc ("x86/Kconfig: Exclude i586-class CPUs lacking PAE support from the HIGHMEM64G Kconfig group")
+Suggested-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20210803113531.30720-4-lukas.bulwahn@gmail.com
+
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index ab83c22d274e..8055da49f1c0 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1405,7 +1405,7 @@ config HIGHMEM4G
+ 
+ config HIGHMEM64G
+ 	bool "64GB"
+-	depends on !M486SX && !M486 && !M586 && !M586TSC && !M586MMX && !MGEODE_LX && !MGEODEGX1 && !MCYRIXIII && !MELAN && !MWINCHIPC6 && !WINCHIP3D && !MK6
++	depends on !M486SX && !M486 && !M586 && !M586TSC && !M586MMX && !MGEODE_LX && !MGEODEGX1 && !MCYRIXIII && !MELAN && !MWINCHIPC6 && !MWINCHIP3D && !MK6
+ 	select X86_PAE
+ 	help
+ 	  Select this if you have a 32-bit processor and more than 4
+
