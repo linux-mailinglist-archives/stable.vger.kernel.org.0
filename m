@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D90A742911B
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:13:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E46A429172
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:17:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244463AbhJKOPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:15:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34262 "EHLO mail.kernel.org"
+        id S245062AbhJKOS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:18:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244125AbhJKONj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:13:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C649F6128C;
-        Mon, 11 Oct 2021 14:04:32 +0000 (UTC)
+        id S241233AbhJKOQF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:16:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4B8761076;
+        Mon, 11 Oct 2021 14:05:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961073;
-        bh=H2wGtonXRQ3ezGksb3GjljlWURjnBFJHwrubRUy7DTw=;
+        s=korg; t=1633961152;
+        bh=PgHwjF3wtrbnQbGkUF54xuFzIv4x4wSDnP6YuNA+2gU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOb+JHv7Q7b+urTJnvZkCeXJvy6wxZAdD3D3TxkGlFQQDXn2pkQt9XdOsadraJsny
-         YlQezrCMQMbYWeiisV7YorRTUD4jx4nfQojOfuRcLHXgVmjUI5Bg7r81fx1GBph1lk
-         KgAdSAQlAX2UlmNWJbo6Za2rcyR1/5cqqBrnasG4=
+        b=eYYUNnwFBe1HHUlczi7W3Cf7dVnm9v3zrTMAoixFJCahYjSY2BpG495Jgh/QIZgRO
+         6bbcvCkcv5OQrpLFTyu2HZgU06ll708Zwo4Rnmi1t5bUOV8XvnHOvUvRKglcq20wJz
+         1YerMkYH/QIhfB+Mr5sRYIyFrGR76R+Gac2kXswI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 151/151] dsa: tag_dsa: Fix mask for trunked packets
-Date:   Mon, 11 Oct 2021 15:47:03 +0200
-Message-Id: <20211011134522.723553019@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 14/28] phy: mdio: fix memory leak
+Date:   Mon, 11 Oct 2021 15:47:04 +0200
+Message-Id: <20211011134641.172882204@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
-References: <20211011134517.833565002@linuxfoundation.org>
+In-Reply-To: <20211011134640.711218469@linuxfoundation.org>
+References: <20211011134640.711218469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit b44d52a50bc6f191f0ae03f65de8401f3ef039b3 upstream.
+[ Upstream commit ca6e11c337daf7925ff8a2aac8e84490a8691905 ]
 
-A packet received on a trunk will have bit 2 set in Forward DSA tagged
-frame. Bit 1 can be either 0 or 1 and is otherwise undefined and bit 0
-indicates the frame CFI. Masking with 7 thus results in frames as
-being identified as being from a trunk when in fact they are not. Fix
-the mask to just look at bit 2.
+Syzbot reported memory leak in MDIO bus interface, the problem was in
+wrong state logic.
 
-Fixes: 5b60dadb71db ("net: dsa: tag_dsa: Support reception of packets from LAG devices")
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+MDIOBUS_ALLOCATED indicates 2 states:
+	1. Bus is only allocated
+	2. Bus allocated and __mdiobus_register() fails, but
+	   device_register() was called
+
+In case of device_register() has been called we should call put_device()
+to correctly free the memory allocated for this device, but mdiobus_free()
+calls just kfree(dev) in case of MDIOBUS_ALLOCATED state
+
+To avoid this behaviour we need to set bus->state to MDIOBUS_UNREGISTERED
+_before_ calling device_register(), because put_device() should be
+called even in case of device_register() failure.
+
+Link: https://lore.kernel.org/netdev/YVMRWNDZDUOvQjHL@shell.armlinux.org.uk/
+Fixes: 46abc02175b3 ("phylib: give mdio buses a device tree presence")
+Reported-and-tested-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/eceae1429fbf8fa5c73dd2a0d39d525aa905074d.1633024062.git.paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_dsa.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/mdio_bus.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/dsa/tag_dsa.c
-+++ b/net/dsa/tag_dsa.c
-@@ -176,7 +176,7 @@ static struct sk_buff *dsa_rcv_ll(struct
- 	case DSA_CMD_FORWARD:
- 		skb->offload_fwd_mark = 1;
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index 08c81d4cfca8..3207da2224f6 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -378,6 +378,13 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
+ 	bus->dev.groups = NULL;
+ 	dev_set_name(&bus->dev, "%s", bus->id);
  
--		trunk = !!(dsa_header[1] & 7);
-+		trunk = !!(dsa_header[1] & 4);
- 		break;
- 
- 	case DSA_CMD_TO_CPU:
++	/* We need to set state to MDIOBUS_UNREGISTERED to correctly release
++	 * the device in mdiobus_free()
++	 *
++	 * State will be updated later in this function in case of success
++	 */
++	bus->state = MDIOBUS_UNREGISTERED;
++
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
+-- 
+2.33.0
+
 
 
