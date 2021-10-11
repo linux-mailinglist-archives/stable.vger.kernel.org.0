@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 007E8428E93
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:47:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC85428E92
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:47:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236206AbhJKNt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:49:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38112 "EHLO mail.kernel.org"
+        id S231551AbhJKNtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:49:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236433AbhJKNtk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:49:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04D1360E78;
-        Mon, 11 Oct 2021 13:47:39 +0000 (UTC)
+        id S236341AbhJKNtn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:49:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB84B60E8B;
+        Mon, 11 Oct 2021 13:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960060;
-        bh=zwkOwrPVj08MvLBRWoOT0iHEztYImtGdyqK9eiq5oEQ=;
+        s=korg; t=1633960063;
+        bh=gsexvnMN9s7xab4M4vz2o2WB5X2KN+CWivJf3f+Tr/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rinUrqldGoekO4wsAQ8a7OrkSdvfbU/UU8D4nNfd1/Y3IOnf5gMZ0VVsOK6tsEDGS
-         ecsupfdTva2hTzuC7Nf54xba6jQLfXzURMXeNSunI4TTNqCj1SvLcna/zKemVsOgcD
-         TK8XRxAZxv2wxK/SxaLsmUWwO4cVljz3N/s4P+bo=
+        b=GvqJeJkpiHGyRqxqKLsoosilZlZ/7dW+xjoiO9Wkndc86kG85CYgfy4adWWJdVAG1
+         geBtQdRFhg2g0EfUIKUJubHDS9lRxwmennar7XNszHuq1Akcfyfr6p5E2b7lAp17Cd
+         uCXDiTVxUH8rcJSAeE1t94fB5SQyZRnhtavaTlak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roger Quadros <rogerq@kernel.org>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.4 11/52] ARM: dts: omap3430-sdp: Fix NAND device node
-Date:   Mon, 11 Oct 2021 15:45:40 +0200
-Message-Id: <20211011134504.096525188@linuxfoundation.org>
+        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.4 12/52] ARM: dts: qcom: apq8064: use compatible which contains chipid
+Date:   Mon, 11 Oct 2021 15:45:41 +0200
+Message-Id: <20211011134504.127859364@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
 References: <20211011134503.715740503@linuxfoundation.org>
@@ -39,31 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@kernel.org>
+From: David Heidelberg <david@ixit.cz>
 
-commit 80d680fdccba214e8106dc1aa33de5207ad75394 upstream.
+commit f5c03f131dae3f06d08464e6157dd461200f78d9 upstream.
 
-Nand is on CS1 so reg properties first field should be 1 not 0.
+Also resolves these kernel warnings for APQ8064:
+adreno 4300000.adreno-3xx: Using legacy qcom,chipid binding!
+adreno 4300000.adreno-3xx: Use compatible qcom,adreno-320.2 instead.
 
-Fixes: 44e4716499b8 ("ARM: dts: omap3: Fix NAND device nodes")
-Cc: stable@vger.kernel.org # v4.6+
-Signed-off-by: Roger Quadros <rogerq@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Tested on Nexus 7 2013, no functional changes.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210818065317.19822-1-david@ixit.cz
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/omap3430-sdp.dts |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom-apq8064.dtsi |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/omap3430-sdp.dts
-+++ b/arch/arm/boot/dts/omap3430-sdp.dts
-@@ -101,7 +101,7 @@
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1147,7 +1147,7 @@
+ 		};
  
- 	nand@1,0 {
- 		compatible = "ti,omap2-nand";
--		reg = <0 0 4>; /* CS0, offset 0, IO size 4 */
-+		reg = <1 0 4>; /* CS1, offset 0, IO size 4 */
- 		interrupt-parent = <&gpmc>;
- 		interrupts = <0 IRQ_TYPE_NONE>, /* fifoevent */
- 			     <1 IRQ_TYPE_NONE>;	/* termcount */
+ 		gpu: adreno-3xx@4300000 {
+-			compatible = "qcom,adreno-3xx";
++			compatible = "qcom,adreno-320.2", "qcom,adreno";
+ 			reg = <0x04300000 0x20000>;
+ 			reg-names = "kgsl_3d0_reg_memory";
+ 			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1162,7 +1162,6 @@
+ 			    <&mmcc GFX3D_AHB_CLK>,
+ 			    <&mmcc GFX3D_AXI_CLK>,
+ 			    <&mmcc MMSS_IMEM_AHB_CLK>;
+-			qcom,chipid = <0x03020002>;
+ 
+ 			iommus = <&gfx3d 0
+ 				  &gfx3d 1
 
 
