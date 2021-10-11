@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D808428EB5
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16502428EC0
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236026AbhJKNvX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:51:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38992 "EHLO mail.kernel.org"
+        id S237488AbhJKNvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:51:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237307AbhJKNus (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:50:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FB0960F6E;
-        Mon, 11 Oct 2021 13:48:37 +0000 (UTC)
+        id S237242AbhJKNvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:51:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C8CE60F38;
+        Mon, 11 Oct 2021 13:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960118;
-        bh=HCXI20stdnuzkb0h743Yz6YpahZGpyo7fxgJ+6Gz6No=;
+        s=korg; t=1633960121;
+        bh=v+dY2MuQxZmqnXrELfYOYo3g30WZSiidau+1ykncHWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LCS1bsUgqoOtiyr9gnZppWBuKZALYZKL4RRC08PrfzRAoZxzlTLfJRDFne7tIuGps
-         Jpfj09jCwUYJziGB59vAUpp1cbJG2vdXnuqT+112APdIhGJ3bCt/yKBvl7FGiaWu4b
-         XrNKeXU+Ue61YZjS6GB5WAViaZrTjo63ft5e+t9Q=
+        b=TnGOMaqxw7A/xQ8gUyqNOOup8OeJVmNib6++JOI/BGumq4mx51WyCKq599wmZzTRv
+         q898WTWz7qJMRrqiNfe5rv2bVBwMxL4R4G2UFO6xUekpGGWrUn0wYbbp57Brs08aXr
+         g8aLGuAgdHPxPPguhPAOJ92USL+bhWkJRINjhxJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 03/52] USB: cdc-acm: fix break reporting
-Date:   Mon, 11 Oct 2021 15:45:32 +0200
-Message-Id: <20211011134503.841581146@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Xu Yang <xu.yang_2@nxp.com>
+Subject: [PATCH 5.4 04/52] usb: typec: tcpm: handle SRC_STARTUP state if cc changes
+Date:   Mon, 11 Oct 2021 15:45:33 +0200
+Message-Id: <20211011134503.872744015@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
 References: <20211011134503.715740503@linuxfoundation.org>
@@ -39,36 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Xu Yang <xu.yang_2@nxp.com>
 
-commit 58fc1daa4d2e9789b9ffc880907c961ea7c062cc upstream.
+commit 6d91017a295e9790eec02c4e43f020cdb55f5d98 upstream.
 
-A recent change that started reporting break events forgot to push the
-event to the line discipline, which meant that a detected break would
-not be reported until further characters had been receive (the port
-could even have been closed and reopened in between).
+TCPM for DRP should do the same action as SRC_ATTACHED when cc changes in
+SRC_STARTUP state. Otherwise, TCPM will transition to SRC_UNATTACHED state
+which is not satisfied with the Type-C spec.
 
-Fixes: 08dff274edda ("cdc-acm: fix BREAK rx code path adding necessary calls")
-Cc: stable@vger.kernel.org
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210929090937.7410-3-johan@kernel.org
+Per Type-C spec:
+DRP port should move to Unattached.SNK instead of Unattached.SRC if sink
+removed.
+
+Fixes: 4b4e02c83167 ("typec: tcpm: Move out of staging")
+cc: <stable@vger.kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
+Link: https://lore.kernel.org/r/20210928111639.3854174-1-xu.yang_2@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/typec/tcpm/tcpm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -339,6 +339,9 @@ static void acm_process_notification(str
- 			acm->iocount.overrun++;
- 		spin_unlock_irqrestore(&acm->read_lock, flags);
- 
-+		if (newctrl & ACM_CTRL_BRK)
-+			tty_flip_buffer_push(&acm->port);
-+
- 		if (difference)
- 			wake_up_all(&acm->wioctl);
- 
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -3679,6 +3679,7 @@ static void _tcpm_cc_change(struct tcpm_
+ 			tcpm_set_state(port, SRC_ATTACH_WAIT, 0);
+ 		break;
+ 	case SRC_ATTACHED:
++	case SRC_STARTUP:
+ 	case SRC_SEND_CAPABILITIES:
+ 	case SRC_READY:
+ 		if (tcpm_port_is_disconnected(port) ||
 
 
