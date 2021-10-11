@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4D3B4290F5
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:12:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D18F429136
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:15:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241471AbhJKOOP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:14:15 -0400
+        id S238075AbhJKOQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:16:21 -0400
 Received: from mail.kernel.org ([198.145.29.99]:34548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241398AbhJKOMX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:12:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D134D611C3;
-        Mon, 11 Oct 2021 14:03:36 +0000 (UTC)
+        id S238732AbhJKOOD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:14:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 797C5611F0;
+        Mon, 11 Oct 2021 14:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961017;
-        bh=NOGSNji1o8kG1g3XIXYxkdGf31q50X9+8naDMWaz/Zc=;
+        s=korg; t=1633961085;
+        bh=HCXI20stdnuzkb0h743Yz6YpahZGpyo7fxgJ+6Gz6No=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E2us64Jl5/O18W0/NlVJeSlHXlrKh6jc/yEnNuTPpQEA4orA9zjm52qE6G88xoMBd
-         lN2Pv4a5lK6M6HMmhiykOGXligtwVCzA/RfXY4V7vuas/wnNXKH1ZUm+HiTvxNERTF
-         RU9yr0mrugI1aQQBhZwHs/LnHXK+aoKiZ/dS0Ke0=
+        b=kw7Dz2f6nOKAYP+pjJlhVprEAPU3PwDS0P2BEzyx5qV4QaLenUi8pw1YPcJFQ6Ec3
+         WJVmV+0a/mPn9ZXvq9f+ejh9iZp/oh3996uaRer+bzF7Idif7PNfK1CTTAc8PgEZfN
+         SuJziyFrdRske10PZ7UwKm0D/A+dNcBv0HnsZQAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 141/151] powerpc/64s: Fix unrecoverable MCE calling async handler from NMI
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 03/28] USB: cdc-acm: fix break reporting
 Date:   Mon, 11 Oct 2021 15:46:53 +0200
-Message-Id: <20211011134522.371374641@linuxfoundation.org>
+Message-Id: <20211011134640.825082949@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
-References: <20211011134517.833565002@linuxfoundation.org>
+In-Reply-To: <20211011134640.711218469@linuxfoundation.org>
+References: <20211011134640.711218469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,144 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit f08fb25bc66986b0952724530a640d9970fa52c1 ]
+commit 58fc1daa4d2e9789b9ffc880907c961ea7c062cc upstream.
 
-The machine check handler is not considered NMI on 64s. The early
-handler is the true NMI handler, and then it schedules the
-machine_check_exception handler to run when interrupts are enabled.
+A recent change that started reporting break events forgot to push the
+event to the line discipline, which meant that a detected break would
+not be reported until further characters had been receive (the port
+could even have been closed and reopened in between).
 
-This works fine except the case of an unrecoverable MCE, where the true
-NMI is taken when MSR[RI] is clear, it can not recover, so it calls
-machine_check_exception directly so something might be done about it.
-
-Calling an async handler from NMI context can result in irq state and
-other things getting corrupted. This can also trigger the BUG at
-  arch/powerpc/include/asm/interrupt.h:168
-  BUG_ON(!arch_irq_disabled_regs(regs) && !(regs->msr & MSR_EE));
-
-Fix this by making an _async version of the handler which is called
-in the normal case, and a NMI version that is called for unrecoverable
-interrupts.
-
-Fixes: 2b43dd7653cc ("powerpc/64: enable MSR[EE] in irq replay pt_regs")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Tested-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211004145642.1331214-6-npiggin@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 08dff274edda ("cdc-acm: fix BREAK rx code path adding necessary calls")
+Cc: stable@vger.kernel.org
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210929090937.7410-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/interrupt.h |  5 ++---
- arch/powerpc/kernel/exceptions-64s.S |  8 +++++--
- arch/powerpc/kernel/traps.c          | 31 ++++++++++++++++------------
- 3 files changed, 26 insertions(+), 18 deletions(-)
+ drivers/usb/class/cdc-acm.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/interrupt.h b/arch/powerpc/include/asm/interrupt.h
-index 6b800d3e2681..a925dbc5833c 100644
---- a/arch/powerpc/include/asm/interrupt.h
-+++ b/arch/powerpc/include/asm/interrupt.h
-@@ -525,10 +525,9 @@ static __always_inline long ____##func(struct pt_regs *regs)
- /* kernel/traps.c */
- DECLARE_INTERRUPT_HANDLER_NMI(system_reset_exception);
- #ifdef CONFIG_PPC_BOOK3S_64
--DECLARE_INTERRUPT_HANDLER_ASYNC(machine_check_exception);
--#else
--DECLARE_INTERRUPT_HANDLER_NMI(machine_check_exception);
-+DECLARE_INTERRUPT_HANDLER_ASYNC(machine_check_exception_async);
- #endif
-+DECLARE_INTERRUPT_HANDLER_NMI(machine_check_exception);
- DECLARE_INTERRUPT_HANDLER(SMIException);
- DECLARE_INTERRUPT_HANDLER(handle_hmi_exception);
- DECLARE_INTERRUPT_HANDLER(unknown_exception);
-diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
-index 024d9231f88c..eaf1f72131a1 100644
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -1243,7 +1243,7 @@ EXC_COMMON_BEGIN(machine_check_common)
- 	li	r10,MSR_RI
- 	mtmsrd 	r10,1
- 	addi	r3,r1,STACK_FRAME_OVERHEAD
--	bl	machine_check_exception
-+	bl	machine_check_exception_async
- 	b	interrupt_return_srr
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -339,6 +339,9 @@ static void acm_process_notification(str
+ 			acm->iocount.overrun++;
+ 		spin_unlock_irqrestore(&acm->read_lock, flags);
  
- 
-@@ -1303,7 +1303,11 @@ END_FTR_SECTION_IFSET(CPU_FTR_HVMODE)
- 	subi	r12,r12,1
- 	sth	r12,PACA_IN_MCE(r13)
- 
--	/* Invoke machine_check_exception to print MCE event and panic. */
-+	/*
-+	 * Invoke machine_check_exception to print MCE event and panic.
-+	 * This is the NMI version of the handler because we are called from
-+	 * the early handler which is a true NMI.
-+	 */
- 	addi	r3,r1,STACK_FRAME_OVERHEAD
- 	bl	machine_check_exception
- 
-diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-index 4ac85ab15ad7..08356ec9bfed 100644
---- a/arch/powerpc/kernel/traps.c
-+++ b/arch/powerpc/kernel/traps.c
-@@ -797,24 +797,22 @@ void die_mce(const char *str, struct pt_regs *regs, long err)
- 	 * do_exit() checks for in_interrupt() and panics in that case, so
- 	 * exit the irq/nmi before calling die.
- 	 */
--	if (IS_ENABLED(CONFIG_PPC_BOOK3S_64))
--		irq_exit();
--	else
-+	if (in_nmi())
- 		nmi_exit();
-+	else
-+		irq_exit();
- 	die(str, regs, err);
- }
- 
- /*
-- * BOOK3S_64 does not call this handler as a non-maskable interrupt
-+ * BOOK3S_64 does not usually call this handler as a non-maskable interrupt
-  * (it uses its own early real-mode handler to handle the MCE proper
-  * and then raises irq_work to call this handler when interrupts are
-- * enabled).
-+ * enabled). The only time when this is not true is if the early handler
-+ * is unrecoverable, then it does call this directly to try to get a
-+ * message out.
-  */
--#ifdef CONFIG_PPC_BOOK3S_64
--DEFINE_INTERRUPT_HANDLER_ASYNC(machine_check_exception)
--#else
--DEFINE_INTERRUPT_HANDLER_NMI(machine_check_exception)
--#endif
-+static void __machine_check_exception(struct pt_regs *regs)
- {
- 	int recover = 0;
- 
-@@ -848,12 +846,19 @@ DEFINE_INTERRUPT_HANDLER_NMI(machine_check_exception)
- 	/* Must die if the interrupt is not recoverable */
- 	if (!(regs->msr & MSR_RI))
- 		die_mce("Unrecoverable Machine check", regs, SIGBUS);
-+}
- 
- #ifdef CONFIG_PPC_BOOK3S_64
--	return;
--#else
--	return 0;
-+DEFINE_INTERRUPT_HANDLER_ASYNC(machine_check_exception_async)
-+{
-+	__machine_check_exception(regs);
-+}
- #endif
-+DEFINE_INTERRUPT_HANDLER_NMI(machine_check_exception)
-+{
-+	__machine_check_exception(regs);
++		if (newctrl & ACM_CTRL_BRK)
++			tty_flip_buffer_push(&acm->port);
 +
-+	return 0;
- }
+ 		if (difference)
+ 			wake_up_all(&acm->wioctl);
  
- DEFINE_INTERRUPT_HANDLER(SMIException) /* async? */
--- 
-2.33.0
-
 
 
