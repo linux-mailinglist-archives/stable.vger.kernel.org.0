@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66ADF4290DB
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F97B4290E6
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:12:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243513AbhJKOND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:13:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35160 "EHLO mail.kernel.org"
+        id S239545AbhJKOOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:14:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243105AbhJKOLB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:11:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54F1A6120A;
-        Mon, 11 Oct 2021 14:02:54 +0000 (UTC)
+        id S243363AbhJKOLP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:11:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 873A761167;
+        Mon, 11 Oct 2021 14:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960974;
-        bh=GsOKpLZbNKyk0oRTidppXS/3zJVsgtJu4Wv25N74IPA=;
+        s=korg; t=1633960979;
+        bh=tylNBaavHTGJxRQcOsHD4fN9b4EwM6+jOO0m7Z2pCno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qPemtAiJ3NpNsgNNOc9ruQ1th7I+wki51Nvk7DwfrQMhd8C6/AJ/+uGnO8kcmerW/
-         0Y8/62+Bp+sw4mtF8iitSmprkEyzQ/EpBccuKX/0idRh0wE56nxW1RzKuEM146DeAK
-         S5B4XXJc8R592AgZb3l9j0C/EpG8JJo/vTHlUgk4=
+        b=L8k7B83oIxStjzXL8qJxPw0yyefGOaDjlb05n2Eg/5NxElgk4yvkKl6jvlzTDyNHd
+         tLNUlgI1O6LySUR8q4ab4e0OoCrUE/5tXaduJYTnc8GMKSy3svOCZSHytEzYNyAltg
+         FwaRoxvCYo7vngFFSyY+MV+Wi9hyD93+iP6CRQPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Palmer Dabbelt <palmerdabbelt@google.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 129/151] RISC-V: Include clone3() on rv32
-Date:   Mon, 11 Oct 2021 15:46:41 +0200
-Message-Id: <20211011134521.976822927@linuxfoundation.org>
+Subject: [PATCH 5.14 130/151] scsi: iscsi: Fix iscsi_task use after free
+Date:   Mon, 11 Oct 2021 15:46:42 +0200
+Message-Id: <20211011134522.008274880@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,40 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmerdabbelt@google.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 59a4e0d5511ba61353ea9a4efdb1b86c23ecf134 ]
+[ Upstream commit 258aad75c62146453d03028a44f2f1590d58e1f6 ]
 
-As far as I can tell this should be enabled on rv32 as well, I'm not
-sure why it's rv64-only.  checksyscalls is complaining about our lack of
-clone3() on rv32.
+Commit d39df158518c ("scsi: iscsi: Have abort handler get ref to conn")
+added iscsi_get_conn()/iscsi_put_conn() calls during abort handling but
+then also changed the handling of the case where we detect an already
+completed task where we now end up doing a goto to the common put/cleanup
+code. This results in a iscsi_task use after free, because the common
+cleanup code will do a put on the iscsi_task.
 
-Fixes: 56ac5e213933 ("riscv: enable sys_clone3 syscall for rv64")
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+This reverts the goto and moves the iscsi_get_conn() to after we've checked
+if the iscsi_task is valid.
+
+Link: https://lore.kernel.org/r/20211004210608.9962-1-michael.christie@oracle.com
+Fixes: d39df158518c ("scsi: iscsi: Have abort handler get ref to conn")
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/uapi/asm/unistd.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/libiscsi.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/riscv/include/uapi/asm/unistd.h b/arch/riscv/include/uapi/asm/unistd.h
-index 4b989ae15d59..8062996c2dfd 100644
---- a/arch/riscv/include/uapi/asm/unistd.h
-+++ b/arch/riscv/include/uapi/asm/unistd.h
-@@ -18,9 +18,10 @@
- #ifdef __LP64__
- #define __ARCH_WANT_NEW_STAT
- #define __ARCH_WANT_SET_GET_RLIMIT
--#define __ARCH_WANT_SYS_CLONE3
- #endif /* __LP64__ */
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index 4683c183e9d4..5bc91d34df63 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -2281,11 +2281,6 @@ int iscsi_eh_abort(struct scsi_cmnd *sc)
+ 		return FAILED;
+ 	}
  
-+#define __ARCH_WANT_SYS_CLONE3
+-	conn = session->leadconn;
+-	iscsi_get_conn(conn->cls_conn);
+-	conn->eh_abort_cnt++;
+-	age = session->age;
+-
+ 	spin_lock(&session->back_lock);
+ 	task = (struct iscsi_task *)sc->SCp.ptr;
+ 	if (!task || !task->sc) {
+@@ -2293,8 +2288,16 @@ int iscsi_eh_abort(struct scsi_cmnd *sc)
+ 		ISCSI_DBG_EH(session, "sc completed while abort in progress\n");
+ 
+ 		spin_unlock(&session->back_lock);
+-		goto success;
++		spin_unlock_bh(&session->frwd_lock);
++		mutex_unlock(&session->eh_mutex);
++		return SUCCESS;
+ 	}
 +
- #include <asm-generic/unistd.h>
- 
- /*
++	conn = session->leadconn;
++	iscsi_get_conn(conn->cls_conn);
++	conn->eh_abort_cnt++;
++	age = session->age;
++
+ 	ISCSI_DBG_EH(session, "aborting [sc %p itt 0x%x]\n", sc, task->itt);
+ 	__iscsi_get_task(task);
+ 	spin_unlock(&session->back_lock);
 -- 
 2.33.0
 
