@@ -2,141 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32BDA42861F
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 07:10:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E7DE428653
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 07:39:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230261AbhJKFML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 01:12:11 -0400
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:35949 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230152AbhJKFML (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 01:12:11 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=rongwei.wang@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0UrKrhCr_1633929008;
-Received: from localhost.localdomain(mailfrom:rongwei.wang@linux.alibaba.com fp:SMTPD_---0UrKrhCr_1633929008)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 11 Oct 2021 13:10:09 +0800
-From:   Rongwei Wang <rongwei.wang@linux.alibaba.com>
-To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, akpm@linux-foundation.org,
-        willy@infradead.org, song@kernel.org, william.kucharski@oracle.com,
-        hughd@google.com, shy828301@gmail.com
-Subject: [PATCH v4 RESEND 2/2] mm, thp: bail out early in collapse_file for writeback page
-Date:   Mon, 11 Oct 2021 13:08:07 +0800
-Message-Id: <20211011050807.1732-1-rongwei.wang@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211011022241.97072-3-rongwei.wang@linux.alibaba.com>
-References: <20211011022241.97072-3-rongwei.wang@linux.alibaba.com>
+        id S233998AbhJKFll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 01:41:41 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52194 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234011AbhJKFll (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 01:41:41 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19B4482n036941;
+        Mon, 11 Oct 2021 01:39:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=4HW4pQ25GO1K6URUKRqS+7ujDcAMEDeHj0XORmuOSA8=;
+ b=Fr4eXMe4OkDkyiQmqrBL1+8IzDGUg+4XlH/GOfVLDc05Wz+GqSmqX4QCgQgoN2InZsqQ
+ 9al/6cazEusi2dieO+HhlZuuf94GIhONYgfFzw5/5SMHmBlarli8aWimkPx89jIVeGzp
+ ORvIT7fpybLJ9ukJmQg6goAyXjRgxa85YzgQUapdX9TEfLXzAaTpFlSlHsYQwaH4EMSg
+ zrCOfr22XNXArC6wQiTrcN+Cb7nEF5aWwvfW7BFqUHghCYQ2YMPoYRIHNKdqk+oH94b1
+ GrBXyX5RKK/jG3gxcA8lMO6fcssgShwVAfL090RY1H7sL140D6AeZ8s0iguk/wV4DDYq qQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bm25mugj6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Oct 2021 01:39:32 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19B5K9pm038567;
+        Mon, 11 Oct 2021 01:39:32 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bm25mughk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Oct 2021 01:39:32 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19B5VlGF019479;
+        Mon, 11 Oct 2021 05:39:30 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3bk2bht3y9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Oct 2021 05:39:30 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19B5dQCl5440160
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 11 Oct 2021 05:39:27 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D9F3442045;
+        Mon, 11 Oct 2021 05:39:26 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 445CB42041;
+        Mon, 11 Oct 2021 05:39:26 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 11 Oct 2021 05:39:26 +0000 (GMT)
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xie Yongji <xieyongji@bytedance.com>,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org
+Cc:     Halil Pasic <pasic@linux.ibm.com>, stable@vger.kernel.org,
+        markver@us.ibm.com, Cornelia Huck <cohuck@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, stefanha@redhat.com,
+        Raphael Norwitz <raphael.norwitz@nutanix.com>,
+        qemu-devel@nongnu.org
+Subject: [PATCH v3 1/1] virtio: write back F_VERSION_1 before validate
+Date:   Mon, 11 Oct 2021 07:39:21 +0200
+Message-Id: <20211011053921.1198936-1-pasic@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: MkvVeVrmStp-ePltWRF4RTURcd9rcOLa
+X-Proofpoint-GUID: nhX1dJtH4R_VgKXe83_52DJi-xKWhRzH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-10_07,2021-10-07_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ clxscore=1015 spamscore=0 suspectscore=0 lowpriorityscore=0 phishscore=0
+ mlxlogscore=999 adultscore=0 impostorscore=0 malwarescore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110110032
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently collapse_file does not explicitly check PG_writeback, instead,
-page_has_private and try_to_release_page are used to filter writeback
-pages. This does not work for xfs with blocksize equal to or larger
-than pagesize, because in such case xfs has no page->private.
+The virtio specification virtio-v1.1-cs01 states: "Transitional devices
+MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
+been acknowledged by the driver."  This is exactly what QEMU as of 6.1
+has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
 
-This makes collapse_file bail out early for writeback page. Otherwise,
-xfs end_page_writeback will panic as follows.
+However, the specification also says: "... the driver MAY read (but MUST
+NOT write) the device-specific configuration fields to check that it can
+support the device ..." before setting FEATURES_OK.
 
-page:fffffe00201bcc80 refcount:0 mapcount:0 mapping:ffff0003f88c86a8 index:0x0 pfn:0x84ef32
-aops:xfs_address_space_operations [xfs] ino:30000b7 dentry name:"libtest.so"
-flags: 0x57fffe0000008027(locked|referenced|uptodate|active|writeback)
-raw: 57fffe0000008027 ffff80001b48bc28 ffff80001b48bc28 ffff0003f88c86a8
-raw: 0000000000000000 0000000000000000 00000000ffffffff ffff0000c3e9a000
-page dumped because: VM_BUG_ON_PAGE(((unsigned int) page_ref_count(page) + 127u <= 127u))
-page->mem_cgroup:ffff0000c3e9a000
-------------[ cut here ]------------
-kernel BUG at include/linux/mm.h:1212!
-Internal error: Oops - BUG: 0 [#1] SMP
-Modules linked in:
-BUG: Bad page state in process khugepaged  pfn:84ef32
- xfs(E)
-page:fffffe00201bcc80 refcount:0 mapcount:0 mapping:0 index:0x0 pfn:0x84ef32
- libcrc32c(E) rfkill(E) aes_ce_blk(E) crypto_simd(E) ...
-CPU: 25 PID: 0 Comm: swapper/25 Kdump: loaded Tainted: ...
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-pc : end_page_writeback+0x1c0/0x214
-lr : end_page_writeback+0x1c0/0x214
-sp : ffff800011ce3cc0
-x29: ffff800011ce3cc0 x28: 0000000000000000
-x27: ffff000c04608040 x26: 0000000000000000
-x25: ffff000c04608040 x24: 0000000000001000
-x23: ffff0003f88c8530 x22: 0000000000001000
-x21: ffff0003f88c8530 x20: 0000000000000000
-x19: fffffe00201bcc80 x18: 0000000000000030
-x17: 0000000000000000 x16: 0000000000000000
-x15: ffff000c018f9760 x14: ffffffffffffffff
-x13: ffff8000119d72b0 x12: ffff8000119d6ee3
-x11: ffff8000117b69b8 x10: 00000000ffff8000
-x9 : ffff800010617534 x8 : 0000000000000000
-x7 : ffff8000114f69b8 x6 : 000000000000000f
-x5 : 0000000000000000 x4 : 0000000000000000
-x3 : 0000000000000400 x2 : 0000000000000000
-x1 : 0000000000000000 x0 : 0000000000000000
-Call trace:
- end_page_writeback+0x1c0/0x214
- iomap_finish_page_writeback+0x13c/0x204
- iomap_finish_ioend+0xe8/0x19c
- iomap_writepage_end_bio+0x38/0x50
- bio_endio+0x168/0x1ec
- blk_update_request+0x278/0x3f0
- blk_mq_end_request+0x34/0x15c
- virtblk_request_done+0x38/0x74 [virtio_blk]
- blk_done_softirq+0xc4/0x110
- __do_softirq+0x128/0x38c
- __irq_exit_rcu+0x118/0x150
- irq_exit+0x1c/0x30
- __handle_domain_irq+0x8c/0xf0
- gic_handle_irq+0x84/0x108
- el1_irq+0xcc/0x180
- arch_cpu_idle+0x18/0x40
- default_idle_call+0x4c/0x1a0
- cpuidle_idle_call+0x168/0x1e0
- do_idle+0xb4/0x104
- cpu_startup_entry+0x30/0x9c
- secondary_start_kernel+0x104/0x180
-Code: d4210000 b0006161 910c8021 94013f4d (d4210000)
----[ end trace 4a88c6a074082f8c ]---
-Kernel panic - not syncing: Oops - BUG: Fatal exception in interrupt
+In that case, any transitional device relying solely on
+VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
+legacy format.  In particular, this implies that it is in big endian
+format for big endian guests. This naturally confuses the driver which
+expects little endian in the modern mode.
 
-Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
-Suggested-by: Yang Shi <shy828301@gmail.com>
-Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
-Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
+It is probably a good idea to amend the spec to clarify that
+VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
+is complete. Before validate callback existed, config space was only
+read after FEATURES_OK. However, we already have two regressions, so
+let's address this here as well.
+
+The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
+the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
+virtio 1.0 is used on both sides. The latter renders virtio-blk unusable
+with DASD backing, because things simply don't work with the default.
+See Fixes tags for relevant commits.
+
+For QEMU, we can work around the issue by writing out the feature bits
+with VIRTIO_F_VERSION_1 bit set.  We (ab)use the finalize_features
+config op for this. This isn't enough to address all vhost devices since
+these do not get the features until FEATURES_OK, however it looks like
+the affected devices actually never handled the endianness for legacy
+mode correctly, so at least that's not a regression.
+
+No devices except virtio net and virtio blk seem to be affected.
+
+Long term the right thing to do is to fix the hypervisors.
+
+Cc: <stable@vger.kernel.org> #v4.11
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
+Reported-by: markver@us.ibm.com
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- mm/khugepaged.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 045cc579f724..48de4e1b0783 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1763,6 +1763,10 @@ static void collapse_file(struct mm_struct *mm,
- 				filemap_flush(mapping);
- 				result = SCAN_FAIL;
- 				goto xa_unlocked;
-+			} else if (PageWriteback(page)) {
-+				xas_unlock_irq(&xas);
-+				result = SCAN_FAIL;
-+				goto xa_unlocked;
- 			} else if (trylock_page(page)) {
- 				get_page(page);
- 				xas_unlock_irq(&xas);
-@@ -1798,7 +1802,8 @@ static void collapse_file(struct mm_struct *mm,
- 			goto out_unlock;
- 		}
+@Connie: I made some more commit message changes to accommodate Michael's
+requests. I just assumed these will work or you as well and kept your
+r-b. Please shout at me if it needs to be dropped :)
+---
+ drivers/virtio/virtio.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 0a5b54034d4b..236081afe9a2 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -239,6 +239,17 @@ static int virtio_dev_probe(struct device *_d)
+ 		driver_features_legacy = driver_features;
+ 	}
  
--		if (!is_shmem && PageDirty(page)) {
-+		if (!is_shmem && (PageDirty(page) ||
-+				  PageWriteback(page))) {
- 			/*
- 			 * khugepaged only works on read-only fd, so this
- 			 * page is dirty because it hasn't been flushed
++	/*
++	 * Some devices detect legacy solely via F_VERSION_1. Write
++	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
++	 * these when needed.
++	 */
++	if (drv->validate && !virtio_legacy_is_little_endian()
++			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
++		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
++		dev->config->finalize_features(dev);
++	}
++
+ 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+ 		dev->features = driver_features & device_features;
+ 	else
+
+base-commit: 60a9483534ed0d99090a2ee1d4bb0b8179195f51
 -- 
-2.27.0
+2.25.1
 
