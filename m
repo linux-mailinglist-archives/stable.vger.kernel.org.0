@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE02428F6A
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E224428EE5
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238098AbhJKN6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:58:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47528 "EHLO mail.kernel.org"
+        id S236794AbhJKNxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:53:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237070AbhJKN43 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:56:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4C826112D;
-        Mon, 11 Oct 2021 13:53:26 +0000 (UTC)
+        id S237472AbhJKNvn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:51:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C3956108F;
+        Mon, 11 Oct 2021 13:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960407;
-        bh=SzGh1Rg94Y+qKrv3/B+mC5SIKGHpGzNVCR/AXa86xLE=;
+        s=korg; t=1633960175;
+        bh=PW2HD1wpq1gDM2nzdxFQXrVs8rLdTE007zrXojCAEL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JS3Q26TUMwC9zc60vUYkPqthcVQ21jERp51Fu2PfOb00Cr5aMNFkN2GQnDNjikvc0
-         7Bl0vOGn7JGGo+JJ0gKo/h/5Wotya8BAxmyIpvBa6JpvYx7i2t+nQa52GnGsFNRZC0
-         Kiflo7mBRxYhChnRfNeYbSY6iD2Sd8LDYAy6T7mw=
+        b=gaiSN0OSt3ill2qeb7km2gEv1yTWJ4Y4Nd+83bOlYvHogZeeF58v2Oggp1h/Lkx53
+         7mOY2jtp7/AnsTHZ39eldkQ81ia58kbh1x40plmDAfkxgJ3+lgNEIpUAbmNRiQsa/6
+         JIe7EgUUktLt0SIhknoLGGhbsOoSZBOuF2WSdZ3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Kajol Jain <kjain@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        PJ Waskiewicz <pwaskiewicz@jumptrading.com>,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Dave Switzer <david.switzer@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 52/83] perf jevents: Tidy error handling
-Date:   Mon, 11 Oct 2021 15:46:12 +0200
-Message-Id: <20211011134510.196249945@linuxfoundation.org>
+Subject: [PATCH 5.4 44/52] i40e: Fix freeing of uninitialized misc IRQ vector
+Date:   Mon, 11 Oct 2021 15:46:13 +0200
+Message-Id: <20211011134505.231451483@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,160 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
 
-[ Upstream commit fa1b41a74d1136cbdd6960f36d7b9c7aa35c8139 ]
+[ Upstream commit 2e5a20573a926302b233b0c2e1077f5debc7ab2e ]
 
-There is much duplication in the error handling for directory transvering
-for prcessing JSONs.
+When VSI set up failed in i40e_probe() as part of PF switch set up
+driver was trying to free misc IRQ vectors in
+i40e_clear_interrupt_scheme and produced a kernel Oops:
 
-Factor out the common code to tidy a bit.
+   Trying to free already-free IRQ 266
+   WARNING: CPU: 0 PID: 5 at kernel/irq/manage.c:1731 __free_irq+0x9a/0x300
+   Workqueue: events work_for_cpu_fn
+   RIP: 0010:__free_irq+0x9a/0x300
+   Call Trace:
+   ? synchronize_irq+0x3a/0xa0
+   free_irq+0x2e/0x60
+   i40e_clear_interrupt_scheme+0x53/0x190 [i40e]
+   i40e_probe.part.108+0x134b/0x1a40 [i40e]
+   ? kmem_cache_alloc+0x158/0x1c0
+   ? acpi_ut_update_ref_count.part.1+0x8e/0x345
+   ? acpi_ut_update_object_reference+0x15e/0x1e2
+   ? strstr+0x21/0x70
+   ? irq_get_irq_data+0xa/0x20
+   ? mp_check_pin_attr+0x13/0xc0
+   ? irq_get_irq_data+0xa/0x20
+   ? mp_map_pin_to_irq+0xd3/0x2f0
+   ? acpi_register_gsi_ioapic+0x93/0x170
+   ? pci_conf1_read+0xa4/0x100
+   ? pci_bus_read_config_word+0x49/0x70
+   ? do_pci_enable_device+0xcc/0x100
+   local_pci_probe+0x41/0x90
+   work_for_cpu_fn+0x16/0x20
+   process_one_work+0x1a7/0x360
+   worker_thread+0x1cf/0x390
+   ? create_worker+0x1a0/0x1a0
+   kthread+0x112/0x130
+   ? kthread_flush_work_fn+0x10/0x10
+   ret_from_fork+0x1f/0x40
 
-Signed-off-by: John Garry <john.garry@huawei.com>
-Reviewed-By: Kajol Jain<kjain@linux.ibm.com>
-Link: https://lore.kernel.org/r/1603364547-197086-2-git-send-email-john.garry@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+The problem is that at that point misc IRQ vectors
+were not allocated yet and we get a call trace
+that driver is trying to free already free IRQ vectors.
+
+Add a check in i40e_clear_interrupt_scheme for __I40E_MISC_IRQ_REQUESTED
+PF state before calling i40e_free_misc_vector. This state is set only if
+misc IRQ vectors were properly initialized.
+
+Fixes: c17401a1dd21 ("i40e: use separate state bit for miscellaneous IRQ setup")
+Reported-by: PJ Waskiewicz <pwaskiewicz@jumptrading.com>
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Dave Switzer <david.switzer@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/pmu-events/jevents.c | 83 ++++++++++++++-------------------
- 1 file changed, 35 insertions(+), 48 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
-index dcfdf6a322dc..c679a79aef51 100644
---- a/tools/perf/pmu-events/jevents.c
-+++ b/tools/perf/pmu-events/jevents.c
-@@ -1100,12 +1100,13 @@ static int process_one_file(const char *fpath, const struct stat *sb,
-  */
- int main(int argc, char *argv[])
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 8434067566db..917be10a5cf5 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -4817,7 +4817,8 @@ static void i40e_clear_interrupt_scheme(struct i40e_pf *pf)
  {
--	int rc, ret = 0;
-+	int rc, ret = 0, empty_map = 0;
- 	int maxfds;
- 	char ldirname[PATH_MAX];
- 	const char *arch;
- 	const char *output_file;
- 	const char *start_dirname;
-+	char *err_string_ext = "";
- 	struct stat stbuf;
+ 	int i;
  
- 	prog = basename(argv[0]);
-@@ -1133,7 +1134,8 @@ int main(int argc, char *argv[])
- 	/* If architecture does not have any event lists, bail out */
- 	if (stat(ldirname, &stbuf) < 0) {
- 		pr_info("%s: Arch %s has no PMU event lists\n", prog, arch);
--		goto empty_map;
-+		empty_map = 1;
-+		goto err_close_eventsfp;
- 	}
+-	i40e_free_misc_vector(pf);
++	if (test_bit(__I40E_MISC_IRQ_REQUESTED, pf->state))
++		i40e_free_misc_vector(pf);
  
- 	/* Include pmu-events.h first */
-@@ -1150,75 +1152,60 @@ int main(int argc, char *argv[])
- 	 */
- 
- 	maxfds = get_maxfds();
--	mapfile = NULL;
- 	rc = nftw(ldirname, preprocess_arch_std_files, maxfds, 0);
--	if (rc && verbose) {
--		pr_info("%s: Error preprocessing arch standard files %s\n",
--			prog, ldirname);
--		goto empty_map;
--	} else if (rc < 0) {
--		/* Make build fail */
--		fclose(eventsfp);
--		free_arch_std_events();
--		return 1;
--	} else if (rc) {
--		goto empty_map;
--	}
-+	if (rc)
-+		goto err_processing_std_arch_event_dir;
- 
- 	rc = nftw(ldirname, process_one_file, maxfds, 0);
--	if (rc && verbose) {
--		pr_info("%s: Error walking file tree %s\n", prog, ldirname);
--		goto empty_map;
--	} else if (rc < 0) {
--		/* Make build fail */
--		fclose(eventsfp);
--		free_arch_std_events();
--		ret = 1;
--		goto out_free_mapfile;
--	} else if (rc) {
--		goto empty_map;
--	}
-+	if (rc)
-+		goto err_processing_dir;
- 
- 	sprintf(ldirname, "%s/test", start_dirname);
- 
- 	rc = nftw(ldirname, process_one_file, maxfds, 0);
--	if (rc && verbose) {
--		pr_info("%s: Error walking file tree %s rc=%d for test\n",
--			prog, ldirname, rc);
--		goto empty_map;
--	} else if (rc < 0) {
--		/* Make build fail */
--		free_arch_std_events();
--		ret = 1;
--		goto out_free_mapfile;
--	} else if (rc) {
--		goto empty_map;
--	}
-+	if (rc)
-+		goto err_processing_dir;
- 
- 	if (close_table)
- 		print_events_table_suffix(eventsfp);
- 
- 	if (!mapfile) {
- 		pr_info("%s: No CPU->JSON mapping?\n", prog);
--		goto empty_map;
-+		empty_map = 1;
-+		goto err_close_eventsfp;
- 	}
- 
--	if (process_mapfile(eventsfp, mapfile)) {
-+	rc = process_mapfile(eventsfp, mapfile);
-+	fclose(eventsfp);
-+	if (rc) {
- 		pr_info("%s: Error processing mapfile %s\n", prog, mapfile);
- 		/* Make build fail */
--		fclose(eventsfp);
--		free_arch_std_events();
- 		ret = 1;
-+		goto err_out;
- 	}
- 
-+	free_arch_std_events();
-+	free(mapfile);
-+	return 0;
- 
--	goto out_free_mapfile;
--
--empty_map:
-+err_processing_std_arch_event_dir:
-+	err_string_ext = " for std arch event";
-+err_processing_dir:
-+	if (verbose) {
-+		pr_info("%s: Error walking file tree %s%s\n", prog, ldirname,
-+			err_string_ext);
-+		empty_map = 1;
-+	} else if (rc < 0) {
-+		ret = 1;
-+	} else {
-+		empty_map = 1;
-+	}
-+err_close_eventsfp:
- 	fclose(eventsfp);
--	create_empty_mapping(output_file);
-+	if (empty_map)
-+		create_empty_mapping(output_file);
-+err_out:
- 	free_arch_std_events();
--out_free_mapfile:
- 	free(mapfile);
- 	return ret;
- }
+ 	i40e_put_lump(pf->irq_pile, pf->iwarp_base_vector,
+ 		      I40E_IWARP_IRQ_PILE_ID);
 -- 
 2.33.0
 
