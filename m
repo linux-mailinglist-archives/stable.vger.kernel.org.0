@@ -2,259 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 528F64292A9
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:56:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C100A4292E5
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 17:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234554AbhJKO6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:58:34 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32326 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234614AbhJKO6d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 10:58:33 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19BEgrkL028129;
-        Mon, 11 Oct 2021 10:56:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=+AATJ5GXTXk00tph6WBcZxBnMigz2j/9JbHpy1RyT8M=;
- b=NRG5BHqgJiYfBLH3Z9lUiU/AF1ZKxNriVedhN9o+F5AowLNRuvvGU2ffKOVJZnUmTXd2
- AJ2zBMxd+GZGzheCIqS5W5hLfcabPRFgDP80ghz/vBn1KQK/4PhuXnPrCnNQ2RPUxAzQ
- hFnd1kkZ4HoAvSL9AYSulT60LhlbkpdA/pTu4yvBDa6ZdzfEBwmHFbXQiraJM3J1I3pr
- nI2vSn+bYFNtAnErpJpf5tNHBDB+arkAfGrBLnpZr9AWseiw9o0/2kXsUHtfrrsemz8I
- 7/avf3IosdRNMVOpg3uLErtg8mwdCrpRNrxTJmGi6VpUuYmqcpcFuc/RCnb94v+oMt61 Ow== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bmhhv15ay-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Oct 2021 10:56:32 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19BEqfqE005560;
-        Mon, 11 Oct 2021 14:56:29 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06fra.de.ibm.com with ESMTP id 3bk2bj5uad-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Oct 2021 14:56:29 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19BEuPT453805480
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 11 Oct 2021 14:56:25 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6C7D0A4064;
-        Mon, 11 Oct 2021 14:56:25 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C64D0A405B;
-        Mon, 11 Oct 2021 14:56:24 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 11 Oct 2021 14:56:24 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     gregkh@linuxfoundation.org
-Cc:     gor@linux.ibm.com, schnelle@linux.ibm.com, stable@vger.kernel.org
-Subject: [PATCH 5.14 STABLE] s390/pci: fix zpci_zdev_put() on reserve
-Date:   Mon, 11 Oct 2021 16:56:24 +0200
-Message-Id: <20211011145624.3316395-1-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <16338613385253@kroah.com>
-References: <16338613385253@kroah.com>
+        id S233757AbhJKPRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 11:17:36 -0400
+Received: from mga04.intel.com ([192.55.52.120]:47654 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233488AbhJKPRg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 11:17:36 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10134"; a="225666052"
+X-IronPort-AV: E=Sophos;i="5.85,364,1624345200"; 
+   d="scan'208";a="225666052"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Oct 2021 08:04:03 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.85,364,1624345200"; 
+   d="scan'208";a="479886228"
+Received: from irsmsx601.ger.corp.intel.com ([163.33.146.7])
+  by orsmga007.jf.intel.com with ESMTP; 11 Oct 2021 08:04:00 -0700
+Received: from irsmsx604.ger.corp.intel.com (163.33.146.137) by
+ irsmsx601.ger.corp.intel.com (163.33.146.7) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2242.12; Mon, 11 Oct 2021 16:03:59 +0100
+Received: from irsmsx604.ger.corp.intel.com ([163.33.146.137]) by
+ IRSMSX604.ger.corp.intel.com ([163.33.146.137]) with mapi id 15.01.2242.012;
+ Mon, 11 Oct 2021 16:03:59 +0100
+From:   "Hunter, Adrian" <adrian.hunter@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: RE: [PATCH 5.10 83/83] scsi: ufs: core: Fix task management
+ completion
+Thread-Topic: [PATCH 5.10 83/83] scsi: ufs: core: Fix task management
+ completion
+Thread-Index: AQHXvqegHY5BU+KliUCTrpRZqKMAK6vN4n7w
+Date:   Mon, 11 Oct 2021 15:03:59 +0000
+Message-ID: <8dc0e077af3f4fd5a0887784f65bd722@intel.com>
+References: <20211011134508.362906295@linuxfoundation.org>
+ <20211011134511.235071707@linuxfoundation.org>
+In-Reply-To: <20211011134511.235071707@linuxfoundation.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-reaction: no-action
+dlp-version: 11.6.200.16
+x-originating-ip: [163.33.253.164]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: SpygO2CkSS7aUWcZfCQGj7PR_RJ6AkwA
-X-Proofpoint-GUID: SpygO2CkSS7aUWcZfCQGj7PR_RJ6AkwA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-11_05,2021-10-11_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- mlxscore=0 malwarescore=0 adultscore=0 impostorscore=0 mlxlogscore=999
- priorityscore=1501 clxscore=1011 bulkscore=0 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110110082
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit a46044a92add6a400f4dada7b943b30221f7cc80 upstream.
-
-Backport note: The original commit conflicted with the upstream commit
-023cc3cb1e4b ("s390/pci: cleanup resources only if necessary") instead
-of separately backporting that its change is subsumed in this backport
-patch.
-
-Since commit 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
-the reference count of a zpci_dev is incremented between
-pcibios_add_device() and pcibios_release_device() which was supposed to
-prevent the zpci_dev from being freed while the common PCI code has
-access to it. It was missed however that the handling of zPCI
-availability events assumed that once zpci_zdev_put() was called no
-later availability event would still see the device. With the previously
-mentioned commit however this assumption no longer holds and we must
-make sure that we only drop the initial long-lived reference the zPCI
-subsystem holds exactly once.
-
-Do so by introducing a zpci_device_reserved() function that handles when
-a device is reserved. Here we make sure the zpci_dev will not be
-considered for further events by removing it from the zpci_list.
-
-This also means that the device actually stays in the
-ZPCI_FN_STATE_RESERVED state between the time we know it has been
-reserved and the final reference going away. We thus need to consider it
-a real state instead of just a conceptual state after the removal. The
-final cleanup of PCI resources, removal from zbus, and destruction of
-the IOMMU stays in zpci_release_device() to make sure holders of the
-reference do see valid data until the release.
-
-Fixes: 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
-Cc: stable@vger.kernel.org
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
----
- arch/s390/include/asm/pci.h        |  2 ++
- arch/s390/pci/pci.c                | 48 ++++++++++++++++++++++++++----
- arch/s390/pci/pci_event.c          |  4 +--
- drivers/pci/hotplug/s390_pci_hpc.c |  9 +-----
- 4 files changed, 47 insertions(+), 16 deletions(-)
-
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 5509b224c2ec..abe4d45c2f47 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -207,6 +207,8 @@ int zpci_enable_device(struct zpci_dev *);
- int zpci_disable_device(struct zpci_dev *);
- int zpci_scan_configured_device(struct zpci_dev *zdev, u32 fh);
- int zpci_deconfigure_device(struct zpci_dev *zdev);
-+void zpci_device_reserved(struct zpci_dev *zdev);
-+bool zpci_is_device_configured(struct zpci_dev *zdev);
- 
- int zpci_register_ioat(struct zpci_dev *, u8, u64, u64, u64);
- int zpci_unregister_ioat(struct zpci_dev *, u8);
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 34839bad33e4..d7ef98218c80 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -92,7 +92,7 @@ void zpci_remove_reserved_devices(void)
- 	spin_unlock(&zpci_list_lock);
- 
- 	list_for_each_entry_safe(zdev, tmp, &remove, entry)
--		zpci_zdev_put(zdev);
-+		zpci_device_reserved(zdev);
- }
- 
- int pci_domain_nr(struct pci_bus *bus)
-@@ -744,6 +744,14 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
- 	return ERR_PTR(rc);
- }
- 
-+bool zpci_is_device_configured(struct zpci_dev *zdev)
-+{
-+	enum zpci_state state = zdev->state;
-+
-+	return state != ZPCI_FN_STATE_RESERVED &&
-+		state != ZPCI_FN_STATE_STANDBY;
-+}
-+
- /**
-  * zpci_scan_configured_device() - Scan a freshly configured zpci_dev
-  * @zdev: The zpci_dev to be configured
-@@ -810,6 +818,31 @@ int zpci_deconfigure_device(struct zpci_dev *zdev)
- 	return 0;
- }
- 
-+/**
-+ * zpci_device_reserved() - Mark device as resverved
-+ * @zdev: the zpci_dev that was reserved
-+ *
-+ * Handle the case that a given zPCI function was reserved by another system.
-+ * After a call to this function the zpci_dev can not be found via
-+ * get_zdev_by_fid() anymore but may still be accessible via existing
-+ * references though it will not be functional anymore.
-+ */
-+void zpci_device_reserved(struct zpci_dev *zdev)
-+{
-+	if (zdev->has_hp_slot)
-+		zpci_exit_slot(zdev);
-+	/*
-+	 * Remove device from zpci_list as it is going away. This also
-+	 * makes sure we ignore subsequent zPCI events for this device.
-+	 */
-+	spin_lock(&zpci_list_lock);
-+	list_del(&zdev->entry);
-+	spin_unlock(&zpci_list_lock);
-+	zdev->state = ZPCI_FN_STATE_RESERVED;
-+	zpci_dbg(3, "rsv fid:%x\n", zdev->fid);
-+	zpci_zdev_put(zdev);
-+}
-+
- void zpci_release_device(struct kref *kref)
- {
- 	struct zpci_dev *zdev = container_of(kref, struct zpci_dev, kref);
-@@ -829,17 +862,20 @@ void zpci_release_device(struct kref *kref)
- 	case ZPCI_FN_STATE_STANDBY:
- 		if (zdev->has_hp_slot)
- 			zpci_exit_slot(zdev);
--		zpci_cleanup_bus_resources(zdev);
-+		spin_lock(&zpci_list_lock);
-+		list_del(&zdev->entry);
-+		spin_unlock(&zpci_list_lock);
-+		zpci_dbg(3, "rsv fid:%x\n", zdev->fid);
-+		fallthrough;
-+	case ZPCI_FN_STATE_RESERVED:
-+		if (zdev->has_resources)
-+			zpci_cleanup_bus_resources(zdev);
- 		zpci_bus_device_unregister(zdev);
- 		zpci_destroy_iommu(zdev);
- 		fallthrough;
- 	default:
- 		break;
- 	}
--
--	spin_lock(&zpci_list_lock);
--	list_del(&zdev->entry);
--	spin_unlock(&zpci_list_lock);
- 	zpci_dbg(3, "rem fid:%x\n", zdev->fid);
- 	kfree(zdev);
- }
-diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-index cd447b96b4b1..9b26617ca1c5 100644
---- a/arch/s390/pci/pci_event.c
-+++ b/arch/s390/pci/pci_event.c
-@@ -137,7 +137,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 			/* The 0x0304 event may immediately reserve the device */
- 			if (!clp_get_state(zdev->fid, &state) &&
- 			    state == ZPCI_FN_STATE_RESERVED) {
--				zpci_zdev_put(zdev);
-+				zpci_device_reserved(zdev);
- 			}
- 		}
- 		break;
-@@ -148,7 +148,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 	case 0x0308: /* Standby -> Reserved */
- 		if (!zdev)
- 			break;
--		zpci_zdev_put(zdev);
-+		zpci_device_reserved(zdev);
- 		break;
- 	default:
- 		break;
-diff --git a/drivers/pci/hotplug/s390_pci_hpc.c b/drivers/pci/hotplug/s390_pci_hpc.c
-index 014868752cd4..dcefdb42ac46 100644
---- a/drivers/pci/hotplug/s390_pci_hpc.c
-+++ b/drivers/pci/hotplug/s390_pci_hpc.c
-@@ -62,14 +62,7 @@ static int get_power_status(struct hotplug_slot *hotplug_slot, u8 *value)
- 	struct zpci_dev *zdev = container_of(hotplug_slot, struct zpci_dev,
- 					     hotplug_slot);
- 
--	switch (zdev->state) {
--	case ZPCI_FN_STATE_STANDBY:
--		*value = 0;
--		break;
--	default:
--		*value = 1;
--		break;
--	}
-+	*value = zpci_is_device_configured(zdev) ? 1 : 0;
- 	return 0;
- }
- 
--- 
-2.25.1
-
+SGkNCg0KVGhpcyBkb2Vzbid0IHdvcmsuICBQbGVhc2UgZHJvcC4gIFNvcnJ5LCBubyBpZGVhIHdo
+eSBJIHNlbnQgaXQgYmVmb3JlIHRlc3RpbmcuDQoNClNwZWNpZmljYWxseSwgaW4gdjUuMTAsIHVm
+c2hjZF90bWNfaGFuZGxlcigpIGNhbiBiZSBjYWxsZWQgdW5kZXIgdGhlIHNhbWUgc3BpbmxvY2sN
+Cml0IGlzIHVzaW5nLCB3aGljaCBkZWFkbG9ja3MuDQoNClJlZ2FyZHMNCkFkcmlhbg0KDQo+IC0t
+LS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IEdyZWcgS3JvYWgtSGFydG1hbiA8Z3Jl
+Z2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+DQo+IFNlbnQ6IE1vbmRheSwgT2N0b2JlciAxMSwgMjAy
+MSA0OjQ3IFBNDQo+IFRvOiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+IENjOiBHcmVn
+IEtyb2FoLUhhcnRtYW4gPGdyZWdraEBsaW51eGZvdW5kYXRpb24ub3JnPjsNCj4gc3RhYmxlQHZn
+ZXIua2VybmVsLm9yZzsgQmFydCBWYW4gQXNzY2hlIDxidmFuYXNzY2hlQGFjbS5vcmc+OyBIdW50
+ZXIsDQo+IEFkcmlhbiA8YWRyaWFuLmh1bnRlckBpbnRlbC5jb20+OyBNYXJ0aW4gSy4gUGV0ZXJz
+ZW4NCj4gPG1hcnRpbi5wZXRlcnNlbkBvcmFjbGUuY29tPg0KPiBTdWJqZWN0OiBbUEFUQ0ggNS4x
+MCA4My84M10gc2NzaTogdWZzOiBjb3JlOiBGaXggdGFzayBtYW5hZ2VtZW50IGNvbXBsZXRpb24N
+Cj4gDQo+IEZyb206IEFkcmlhbiBIdW50ZXIgPGFkcmlhbi5odW50ZXJAaW50ZWwuY29tPg0KPiAN
+Cj4gY29tbWl0IGY1ZWYzMzZmZDJlNGMzNmRlZGFlNGU3Y2E2NmNmNTM0OWQ2ZmRhNjIgdXBzdHJl
+YW0uDQo+IA0KPiBUaGUgVUZTIGRyaXZlciB1c2VzIGJsa19tcV90YWdzZXRfYnVzeV9pdGVyKCkg
+d2hlbiBpZGVudGlmeWluZyB0YXNrDQo+IG1hbmFnZW1lbnQgcmVxdWVzdHMgdG8gY29tcGxldGUs
+IGhvd2V2ZXIgYmxrX21xX3RhZ3NldF9idXN5X2l0ZXIoKQ0KPiBkb2Vzbid0DQo+IHdvcmsuDQo+
+IA0KPiBibGtfbXFfdGFnc2V0X2J1c3lfaXRlcigpIG9ubHkgaXRlcmF0ZXMgcmVxdWVzdHMgZGlz
+cGF0Y2hlZCBieSB0aGUgYmxvY2sNCj4gbGF5ZXIuIFRoYXQgYXBwZWFycyBhcyBpZiBpdCBtaWdo
+dCBoYXZlIHN0YXJ0ZWQgc2luY2UgY29tbWl0IDM3ZjRhMjRjMjQ2OQ0KPiAoImJsay1tcTogY2Vu
+dHJhbGlzZSByZWxhdGVkIGhhbmRsaW5nIGludG8gYmxrX21xX2dldF9kcml2ZXJfdGFnIikgd2hp
+Y2gNCj4gcmVtb3ZlZCAnZGF0YS0+aGN0eC0+dGFncy0+cnFzW3JxLT50YWddID0gcnEnIGZyb20g
+YmxrX21xX3JxX2N0eF9pbml0KCkNCj4gd2hpY2ggZ2V0cyBjYWxsZWQ6DQo+IA0KPiAJYmxrX2dl
+dF9yZXF1ZXN0DQo+IAkJYmxrX21xX2FsbG9jX3JlcXVlc3QNCj4gCQkJX19ibGtfbXFfYWxsb2Nf
+cmVxdWVzdA0KPiAJCQkJYmxrX21xX3JxX2N0eF9pbml0DQo+IA0KPiBTaW5jZSBVRlMgdGFzayBt
+YW5hZ2VtZW50IHJlcXVlc3RzIGFyZSBub3QgZGlzcGF0Y2hlZCBieSB0aGUgYmxvY2sgbGF5ZXIs
+DQo+IGhjdHgtPnRhZ3MtPnJxc1tycS0+dGFnXSByZW1haW5zIE5VTEwsIGFuZCBzaW5jZQ0KPiBi
+bGtfbXFfdGFnc2V0X2J1c3lfaXRlcigpDQo+IHJlbGllcyBvbiBmaW5kaW5nIHJlcXVlc3RzIHVz
+aW5nIGhjdHgtPnRhZ3MtPnJxc1tycS0+dGFnXSwgVUZTIHRhc2sNCj4gbWFuYWdlbWVudCByZXF1
+ZXN0cyBhcmUgbmV2ZXIgZm91bmQgYnkgYmxrX21xX3RhZ3NldF9idXN5X2l0ZXIoKS4NCj4gDQo+
+IEJ5IHVzaW5nIGJsa19tcV90YWdzZXRfYnVzeV9pdGVyKCksIHRoZSBVRlMgZHJpdmVyIHdhcyBy
+ZWx5aW5nIG9uIGludGVybmFsDQo+IGRldGFpbHMgb2YgdGhlIGJsb2NrIGxheWVyLCB3aGljaCB3
+YXMgZnJhZ2lsZSBhbmQgc3Vic2VxdWVudGx5IGdvdA0KPiBicm9rZW4uIEZpeCBieSByZW1vdmlu
+ZyB0aGUgdXNlIG9mIGJsa19tcV90YWdzZXRfYnVzeV9pdGVyKCkgYW5kIGhhdmluZw0KPiB0aGUN
+Cj4gZHJpdmVyIGtlZXAgdHJhY2sgb2YgdGFzayBtYW5hZ2VtZW50IHJlcXVlc3RzLg0KPiANCj4g
+TGluazogaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvci8yMDIxMDkyMjA5MTA1OS40MDQwLTEtDQo+
+IGFkcmlhbi5odW50ZXJAaW50ZWwuY29tDQo+IEZpeGVzOiAxMjM1ZmM1NjllMGIgKCJzY3NpOiB1
+ZnM6IGNvcmU6IEZpeCB0YXNrIG1hbmFnZW1lbnQgcmVxdWVzdA0KPiBjb21wbGV0aW9uIHRpbWVv
+dXQiKQ0KPiBGaXhlczogNjlhNmMyNjljMDk3ICgic2NzaTogdWZzOiBVc2UgYmxrX3tnZXQscHV0
+fV9yZXF1ZXN0KCkgdG8gYWxsb2NhdGUgYW5kDQo+IGZyZWUgVE1GcyIpDQo+IENjOiBzdGFibGVA
+dmdlci5rZXJuZWwub3JnDQo+IFRlc3RlZC1ieTogQmFydCBWYW4gQXNzY2hlIDxidmFuYXNzY2hl
+QGFjbS5vcmc+DQo+IFJldmlld2VkLWJ5OiBCYXJ0IFZhbiBBc3NjaGUgPGJ2YW5hc3NjaGVAYWNt
+Lm9yZz4NCj4gU2lnbmVkLW9mZi1ieTogQWRyaWFuIEh1bnRlciA8YWRyaWFuLmh1bnRlckBpbnRl
+bC5jb20+DQo+IFNpZ25lZC1vZmYtYnk6IE1hcnRpbiBLLiBQZXRlcnNlbiA8bWFydGluLnBldGVy
+c2VuQG9yYWNsZS5jb20+DQo+IFNpZ25lZC1vZmYtYnk6IEdyZWcgS3JvYWgtSGFydG1hbiA8Z3Jl
+Z2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+DQo+IA0KPiAtLS0NCj4gIGRyaXZlcnMvc2NzaS91ZnMv
+dWZzaGNkLmMgfCAgIDU0ICsrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0NCj4gLS0tDQo+ICBkcml2ZXJzL3Njc2kvdWZzL3Vmc2hjZC5oIHwgICAgMQ0KPiAgMiBmaWxl
+cyBjaGFuZ2VkLCAyNiBpbnNlcnRpb25zKCspLCAyOSBkZWxldGlvbnMoLSkNCj4gDQo+IC0tLSBh
+L2RyaXZlcnMvc2NzaS91ZnMvdWZzaGNkLmMNCj4gKysrIGIvZHJpdmVycy9zY3NpL3Vmcy91ZnNo
+Y2QuYw0KPiBAQCAtNjEwNSwyNyArNjEwNSw2IEBAIHN0YXRpYyBpcnFyZXR1cm5fdCB1ZnNoY2Rf
+Y2hlY2tfZXJyb3JzKHMNCj4gIAlyZXR1cm4gcmV0dmFsOw0KPiAgfQ0KPiANCj4gLXN0cnVjdCBj
+dG1faW5mbyB7DQo+IC0Jc3RydWN0IHVmc19oYmEJKmhiYTsNCj4gLQl1bnNpZ25lZCBsb25nCXBl
+bmRpbmc7DQo+IC0JdW5zaWduZWQgaW50CW5jcGw7DQo+IC19Ow0KPiAtDQo+IC1zdGF0aWMgYm9v
+bCB1ZnNoY2RfY29tcGxfdG0oc3RydWN0IHJlcXVlc3QgKnJlcSwgdm9pZCAqcHJpdiwgYm9vbCBy
+ZXNlcnZlZCkNCj4gLXsNCj4gLQlzdHJ1Y3QgY3RtX2luZm8gKmNvbnN0IGNpID0gcHJpdjsNCj4g
+LQlzdHJ1Y3QgY29tcGxldGlvbiAqYzsNCj4gLQ0KPiAtCVdBUk5fT05fT05DRShyZXNlcnZlZCk7
+DQo+IC0JaWYgKHRlc3RfYml0KHJlcS0+dGFnLCAmY2ktPnBlbmRpbmcpKQ0KPiAtCQlyZXR1cm4g
+dHJ1ZTsNCj4gLQljaS0+bmNwbCsrOw0KPiAtCWMgPSByZXEtPmVuZF9pb19kYXRhOw0KPiAtCWlm
+IChjKQ0KPiAtCQljb21wbGV0ZShjKTsNCj4gLQlyZXR1cm4gdHJ1ZTsNCj4gLX0NCj4gLQ0KPiAg
+LyoqDQo+ICAgKiB1ZnNoY2RfdG1jX2hhbmRsZXIgLSBoYW5kbGUgdGFzayBtYW5hZ2VtZW50IGZ1
+bmN0aW9uIGNvbXBsZXRpb24NCj4gICAqIEBoYmE6IHBlciBhZGFwdGVyIGluc3RhbmNlDQo+IEBA
+IC02MTM2LDE0ICs2MTE1LDI0IEBAIHN0YXRpYyBib29sIHVmc2hjZF9jb21wbF90bShzdHJ1Y3Qg
+cmVxdWUNCj4gICAqLw0KPiAgc3RhdGljIGlycXJldHVybl90IHVmc2hjZF90bWNfaGFuZGxlcihz
+dHJ1Y3QgdWZzX2hiYSAqaGJhKQ0KPiAgew0KPiAtCXN0cnVjdCByZXF1ZXN0X3F1ZXVlICpxID0g
+aGJhLT50bWZfcXVldWU7DQo+IC0Jc3RydWN0IGN0bV9pbmZvIGNpID0gew0KPiAtCQkuaGJhCSA9
+IGhiYSwNCj4gLQkJLnBlbmRpbmcgPSB1ZnNoY2RfcmVhZGwoaGJhLA0KPiBSRUdfVVRQX1RBU0tf
+UkVRX0RPT1JfQkVMTCksDQo+IC0JfTsNCj4gKwl1bnNpZ25lZCBsb25nIGZsYWdzLCBwZW5kaW5n
+LCBpc3N1ZWQ7DQo+ICsJaXJxcmV0dXJuX3QgcmV0ID0gSVJRX05PTkU7DQo+ICsJaW50IHRhZzsN
+Cj4gDQo+IC0JYmxrX21xX3RhZ3NldF9idXN5X2l0ZXIocS0+dGFnX3NldCwgdWZzaGNkX2NvbXBs
+X3RtLCAmY2kpOw0KPiAtCXJldHVybiBjaS5uY3BsID8gSVJRX0hBTkRMRUQgOiBJUlFfTk9ORTsN
+Cj4gKwlwZW5kaW5nID0gdWZzaGNkX3JlYWRsKGhiYSwgUkVHX1VUUF9UQVNLX1JFUV9ET09SX0JF
+TEwpOw0KPiArDQo+ICsJc3Bpbl9sb2NrX2lycXNhdmUoaGJhLT5ob3N0LT5ob3N0X2xvY2ssIGZs
+YWdzKTsNCj4gKwlpc3N1ZWQgPSBoYmEtPm91dHN0YW5kaW5nX3Rhc2tzICYgfnBlbmRpbmc7DQo+
+ICsJZm9yX2VhY2hfc2V0X2JpdCh0YWcsICZpc3N1ZWQsIGhiYS0+bnV0bXJzKSB7DQo+ICsJCXN0
+cnVjdCByZXF1ZXN0ICpyZXEgPSBoYmEtPnRtZl9ycXNbdGFnXTsNCj4gKwkJc3RydWN0IGNvbXBs
+ZXRpb24gKmMgPSByZXEtPmVuZF9pb19kYXRhOw0KPiArDQo+ICsJCWNvbXBsZXRlKGMpOw0KPiAr
+CQlyZXQgPSBJUlFfSEFORExFRDsNCj4gKwl9DQo+ICsJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSho
+YmEtPmhvc3QtPmhvc3RfbG9jaywgZmxhZ3MpOw0KPiArDQo+ICsJcmV0dXJuIHJldDsNCj4gIH0N
+Cj4gDQo+ICAvKioNCj4gQEAgLTYyNzMsOSArNjI2Miw5IEBAIHN0YXRpYyBpbnQgX191ZnNoY2Rf
+aXNzdWVfdG1fY21kKHN0cnVjdA0KPiAgCXVmc2hjZF9ob2xkKGhiYSwgZmFsc2UpOw0KPiANCj4g
+IAlzcGluX2xvY2tfaXJxc2F2ZShob3N0LT5ob3N0X2xvY2ssIGZsYWdzKTsNCj4gLQlibGtfbXFf
+c3RhcnRfcmVxdWVzdChyZXEpOw0KPiANCj4gIAl0YXNrX3RhZyA9IHJlcS0+dGFnOw0KPiArCWhi
+YS0+dG1mX3Jxc1tyZXEtPnRhZ10gPSByZXE7DQo+ICAJdHJlcS0+cmVxX2hlYWRlci5kd29yZF8w
+IHw9IGNwdV90b19iZTMyKHRhc2tfdGFnKTsNCj4gDQo+ICAJbWVtY3B5KGhiYS0+dXRtcmRsX2Jh
+c2VfYWRkciArIHRhc2tfdGFnLCB0cmVxLCBzaXplb2YoKnRyZXEpKTsNCj4gQEAgLTYzMTksNiAr
+NjMwOCw3IEBAIHN0YXRpYyBpbnQgX191ZnNoY2RfaXNzdWVfdG1fY21kKHN0cnVjdA0KPiAgCX0N
+Cj4gDQo+ICAJc3Bpbl9sb2NrX2lycXNhdmUoaGJhLT5ob3N0LT5ob3N0X2xvY2ssIGZsYWdzKTsN
+Cj4gKwloYmEtPnRtZl9ycXNbcmVxLT50YWddID0gTlVMTDsNCj4gIAlfX2NsZWFyX2JpdCh0YXNr
+X3RhZywgJmhiYS0+b3V0c3RhbmRpbmdfdGFza3MpOw0KPiAgCXNwaW5fdW5sb2NrX2lycXJlc3Rv
+cmUoaGJhLT5ob3N0LT5ob3N0X2xvY2ssIGZsYWdzKTsNCj4gDQo+IEBAIC05MjQ2LDYgKzkyMzYs
+MTIgQEAgaW50IHVmc2hjZF9pbml0KHN0cnVjdCB1ZnNfaGJhICpoYmEsIHZvaQ0KPiAgCQllcnIg
+PSBQVFJfRVJSKGhiYS0+dG1mX3F1ZXVlKTsNCj4gIAkJZ290byBmcmVlX3RtZl90YWdfc2V0Ow0K
+PiAgCX0NCj4gKwloYmEtPnRtZl9ycXMgPSBkZXZtX2tjYWxsb2MoaGJhLT5kZXYsIGhiYS0+bnV0
+bXJzLA0KPiArCQkJCSAgICBzaXplb2YoKmhiYS0+dG1mX3JxcyksIEdGUF9LRVJORUwpOw0KPiAr
+CWlmICghaGJhLT50bWZfcnFzKSB7DQo+ICsJCWVyciA9IC1FTk9NRU07DQo+ICsJCWdvdG8gZnJl
+ZV90bWZfcXVldWU7DQo+ICsJfQ0KPiANCj4gIAkvKiBSZXNldCB0aGUgYXR0YWNoZWQgZGV2aWNl
+ICovDQo+ICAJdWZzaGNkX3ZvcHNfZGV2aWNlX3Jlc2V0KGhiYSk7DQo+IC0tLSBhL2RyaXZlcnMv
+c2NzaS91ZnMvdWZzaGNkLmgNCj4gKysrIGIvZHJpdmVycy9zY3NpL3Vmcy91ZnNoY2QuaA0KPiBA
+QCAtNzMxLDYgKzczMSw3IEBAIHN0cnVjdCB1ZnNfaGJhIHsNCj4gDQo+ICAJc3RydWN0IGJsa19t
+cV90YWdfc2V0IHRtZl90YWdfc2V0Ow0KPiAgCXN0cnVjdCByZXF1ZXN0X3F1ZXVlICp0bWZfcXVl
+dWU7DQo+ICsJc3RydWN0IHJlcXVlc3QgKip0bWZfcnFzOw0KPiANCj4gIAlzdHJ1Y3QgdWljX2Nv
+bW1hbmQgKmFjdGl2ZV91aWNfY21kOw0KPiAgCXN0cnVjdCBtdXRleCB1aWNfY21kX211dGV4Ow0K
+PiANCg0K
