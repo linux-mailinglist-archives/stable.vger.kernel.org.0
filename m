@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 602BF429025
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:04:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24DC142902A
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236419AbhJKOF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:05:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56434 "EHLO mail.kernel.org"
+        id S238233AbhJKOFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:05:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239951AbhJKODk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:03:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72899611C3;
-        Mon, 11 Oct 2021 13:58:39 +0000 (UTC)
+        id S239985AbhJKODl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:03:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4397461183;
+        Mon, 11 Oct 2021 13:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960720;
-        bh=5fxxvaCQRKP5ohIyN0z88A414hPSPn2MpjvHHLPRgSg=;
+        s=korg; t=1633960724;
+        bh=tz/vC2e5iGU9nZ91R78mNzModj6zuiZWf1hXdOPm3Vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ypOSc/rGLTm7+NW2rjMUszZ206Yo6+8JofgN6oeXjT4dowh66wslsby9Q9Ulx08q
-         RuofZnS1c9wo1c8xeaG/ol0/thWQbAjv4VdKiHLS84JGK8+uFziycWYhKlESjZ3sr9
-         3e0BAeeMXYeqaFvUG5r3LU3gQczbc68Cjd5XLUAc=
+        b=CG63utfr/Q4C0L9R+M4fyGKa0sgymgDDjMpwSi3Qjhj4pg1iFfFcbal8rvfhzRhGT
+         RcVbWYgPDqhXZXvymCIrxFhTBC6iSCMg2PR0rhyWlecLijXPIzDlcxz+Xc461pCbcY
+         /kYdaTo13hto4uiQ47+OVwLiCb1xRIatb0LjXb9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Drew Fustini <pdp7pdp7@gmail.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Robert Nelson <robertcnelson@gmail.com>,
+        Yongqin Liu <yongqin.liu@linaro.org>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 055/151] bpf, arm: Fix register clobbering in div/mod implementation
-Date:   Mon, 11 Oct 2021 15:45:27 +0200
-Message-Id: <20211011134519.627661257@linuxfoundation.org>
+Subject: [PATCH 5.14 056/151] soc: ti: omap-prm: Fix external abort for am335x pruss
+Date:   Mon, 11 Oct 2021 15:45:28 +0200
+Message-Id: <20211011134519.657891500@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,92 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 79e3445b38e0cab94264a3894c0c3d57c930b97e ]
+[ Upstream commit b232537074fcaf0c2837abbb217429c097bb7598 ]
 
-On ARM CPUs that lack div/mod instructions, ALU32 BPF_DIV and BPF_MOD are
-implemented using a call to a helper function. Before, the emitted code
-for those function calls failed to preserve caller-saved ARM registers.
-Since some of those registers happen to be mapped to BPF registers, it
-resulted in eBPF register values being overwritten.
+Starting with v5.15-rc1, we may now see some am335x beaglebone black
+device produce the following error on pruss probe:
 
-This patch emits code to push and pop the remaining caller-saved ARM
-registers r2-r3 into the stack during the div/mod function call. ARM
-registers r0-r1 are used as arguments and return value, and those were
-already saved and restored correctly.
+Unhandled fault: external abort on non-linefetch (0x1008) at 0xe0326000
 
-Fixes: 39c13c204bb1 ("arm: eBPF JIT compiler")
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+This has started with the enabling of pruss for am335x in the dts files.
+
+Turns out the is caused by the PRM reset handling not waiting for the
+reset bit to clear. To fix the issue, let's always wait for the reset
+bit to clear, even if there is a separate reset status register.
+
+We attempted to fix a similar issue for dra7 iva with a udelay() in
+commit effe89e40037 ("soc: ti: omap-prm: Fix occasional abort on reset
+deassert for dra7 iva"). There is no longer a need for the udelay()
+for dra7 iva reset either with the check added for reset bit clearing.
+
+Cc: Drew Fustini <pdp7pdp7@gmail.com>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Robert Nelson <robertcnelson@gmail.com>
+Cc: Yongqin Liu <yongqin.liu@linaro.org>
+Fixes: effe89e40037 ("soc: ti: omap-prm: Fix occasional abort on reset deassert for dra7 iva")
+Reported-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Tested-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/net/bpf_jit_32.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/soc/ti/omap_prm.c | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
-index a951276f0547..a903b26cde40 100644
---- a/arch/arm/net/bpf_jit_32.c
-+++ b/arch/arm/net/bpf_jit_32.c
-@@ -36,6 +36,10 @@
-  *                        +-----+
-  *                        |RSVD | JIT scratchpad
-  * current ARM_SP =>      +-----+ <= (BPF_FP - STACK_SIZE + SCRATCH_SIZE)
-+ *                        | ... | caller-saved registers
-+ *                        +-----+
-+ *                        | ... | arguments passed on stack
-+ * ARM_SP during call =>  +-----|
-  *                        |     |
-  *                        | ... | Function call stack
-  *                        |     |
-@@ -63,6 +67,12 @@
-  *
-  * When popping registers off the stack at the end of a BPF function, we
-  * reference them via the current ARM_FP register.
-+ *
-+ * Some eBPF operations are implemented via a call to a helper function.
-+ * Such calls are "invisible" in the eBPF code, so it is up to the calling
-+ * program to preserve any caller-saved ARM registers during the call. The
-+ * JIT emits code to push and pop those registers onto the stack, immediately
-+ * above the callee stack frame.
-  */
- #define CALLEE_MASK	(1 << ARM_R4 | 1 << ARM_R5 | 1 << ARM_R6 | \
- 			 1 << ARM_R7 | 1 << ARM_R8 | 1 << ARM_R9 | \
-@@ -70,6 +80,8 @@
- #define CALLEE_PUSH_MASK (CALLEE_MASK | 1 << ARM_LR)
- #define CALLEE_POP_MASK  (CALLEE_MASK | 1 << ARM_PC)
+diff --git a/drivers/soc/ti/omap_prm.c b/drivers/soc/ti/omap_prm.c
+index ea64e187854e..f32e1cbbe8c5 100644
+--- a/drivers/soc/ti/omap_prm.c
++++ b/drivers/soc/ti/omap_prm.c
+@@ -825,25 +825,28 @@ static int omap_reset_deassert(struct reset_controller_dev *rcdev,
+ 	writel_relaxed(v, reset->prm->base + reset->prm->data->rstctrl);
+ 	spin_unlock_irqrestore(&reset->lock, flags);
  
-+#define CALLER_MASK	(1 << ARM_R0 | 1 << ARM_R1 | 1 << ARM_R2 | 1 << ARM_R3)
-+
- enum {
- 	/* Stack layout - these are offsets from (top of stack - 4) */
- 	BPF_R2_HI,
-@@ -464,6 +476,7 @@ static inline int epilogue_offset(const struct jit_ctx *ctx)
+-	if (!has_rstst)
+-		goto exit;
++	/* wait for the reset bit to clear */
++	ret = readl_relaxed_poll_timeout_atomic(reset->prm->base +
++						reset->prm->data->rstctrl,
++						v, !(v & BIT(id)), 1,
++						OMAP_RESET_MAX_WAIT);
++	if (ret)
++		pr_err("%s: timedout waiting for %s:%lu\n", __func__,
++		       reset->prm->data->name, id);
  
- static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
- {
-+	const int exclude_mask = BIT(ARM_R0) | BIT(ARM_R1);
- 	const s8 *tmp = bpf2a32[TMP_REG_1];
+ 	/* wait for the status to be set */
+-	ret = readl_relaxed_poll_timeout_atomic(reset->prm->base +
++	if (has_rstst) {
++		ret = readl_relaxed_poll_timeout_atomic(reset->prm->base +
+ 						 reset->prm->data->rstst,
+ 						 v, v & BIT(st_bit), 1,
+ 						 OMAP_RESET_MAX_WAIT);
+-	if (ret)
+-		pr_err("%s: timedout waiting for %s:%lu\n", __func__,
+-		       reset->prm->data->name, id);
++		if (ret)
++			pr_err("%s: timedout waiting for %s:%lu\n", __func__,
++			       reset->prm->data->name, id);
++	}
  
- #if __LINUX_ARM_ARCH__ == 7
-@@ -495,11 +508,17 @@ static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
- 		emit(ARM_MOV_R(ARM_R0, rm), ctx);
- 	}
+-exit:
+-	if (reset->clkdm) {
+-		/* At least dra7 iva needs a delay before clkdm idle */
+-		if (has_rstst)
+-			udelay(1);
++	if (reset->clkdm)
+ 		pdata->clkdm_allow_idle(reset->clkdm);
+-	}
  
-+	/* Push caller-saved registers on stack */
-+	emit(ARM_PUSH(CALLER_MASK & ~exclude_mask), ctx);
-+
- 	/* Call appropriate function */
- 	emit_mov_i(ARM_IP, op == BPF_DIV ?
- 		   (u32)jit_udiv32 : (u32)jit_mod32, ctx);
- 	emit_blx_r(ARM_IP, ctx);
- 
-+	/* Restore caller-saved registers from stack */
-+	emit(ARM_POP(CALLER_MASK & ~exclude_mask), ctx);
-+
- 	/* Save return value */
- 	if (rd != ARM_R0)
- 		emit(ARM_MOV_R(rd, ARM_R0), ctx);
+ 	return ret;
+ }
 -- 
 2.33.0
 
