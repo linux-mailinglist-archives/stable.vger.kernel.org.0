@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1551242912B
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:15:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83DDB42913A
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:15:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243476AbhJKOP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:15:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34544 "EHLO mail.kernel.org"
+        id S241590AbhJKOQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:16:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244280AbhJKONx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:13:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3490061164;
-        Mon, 11 Oct 2021 14:04:35 +0000 (UTC)
+        id S236716AbhJKOOc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:14:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 153D961352;
+        Mon, 11 Oct 2021 14:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961075;
-        bh=+r+a5Dn2X+NIxEfAYDVknaY59vrhDkNcoblzP+o/9ik=;
+        s=korg; t=1633961087;
+        bh=8fezxCJFjDsKvW5ukJWrJsfQPh+RcvRx3k2yBB2rrpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3AIa1VhxbueQTVTLqhDHQyttNerxG/GXKdhCd/DiwFPfUt+45u07XijiAwmHPP9Z
-         Mx1po7bQT5E0E0FmszllvXfpPmTalmu1O5/CwnmCQkAMLpmPUQmo5QnLBOBA2t7eb1
-         nIysLIvNDr3mpHCytv2rVQxfilRFAMKDTyc9XQHk=
+        b=tulRX9fDnjzP6Ny+2mXdtS63bIvjZN9w8VYIt27aZBlmKDf2a6V3lXoBaDsyO8T7O
+         krhfoCdNGnvK747hXFXkxm7X/A6dAXN+YX78oLyTm1ENWkIELmlrKeYlr+EFG30WXr
+         GrdG2dhmYIKuyi1p3yT6gN6YYeZXqWf3aXsaw8UQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stan Johnson <userm57@yahoo.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 142/151] powerpc/32s: Fix kuap_kernel_restore()
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.19 04/28] xen/privcmd: fix error handling in mmap-resource processing
 Date:   Mon, 11 Oct 2021 15:46:54 +0200
-Message-Id: <20211011134522.402251226@linuxfoundation.org>
+Message-Id: <20211011134640.856296875@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
-References: <20211011134517.833565002@linuxfoundation.org>
+In-Reply-To: <20211011134640.711218469@linuxfoundation.org>
+References: <20211011134640.711218469@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit d93f9e23744b7bf11a98b2ddb091d129482ae179 ]
+commit e11423d6721dd63b23fb41ade5e8d0b448b17780 upstream.
 
-At interrupt exit, kuap_kernel_restore() calls kuap_unlock() with the
-value contained in regs->kuap. However, when regs->kuap contains
-0xffffffff it means that KUAP was not unlocked so calling kuap_unlock()
-is unrelevant and results in jeopardising the contents of kernel space
-segment registers.
+xen_pfn_t is the same size as int only on 32-bit builds (and not even
+on Arm32). Hence pfns[] can't be used directly to read individual error
+values returned from xen_remap_domain_mfn_array(); every other error
+indicator would be skipped/ignored on 64-bit.
 
-So check that regs->kuap doesn't contain KUAP_NONE before calling
-kuap_unlock(). In the meantime it also means that if KUAP has not
-been correcly locked back at interrupt exit, it must be locked
-before continuing. This is done by checking the content of
-current->thread.kuap which was returned by kuap_get_and_assert_locked()
+Fixes: 3ad0876554ca ("xen/privcmd: add IOCTL_PRIVCMD_MMAP_RESOURCE")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 16132529cee5 ("powerpc/32s: Rework Kernel Userspace Access Protection")
-Reported-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/0d0c4d0f050a637052287c09ba521bad960a2790.1631715131.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/aa6d6a67-6889-338a-a910-51e889f792d5@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/powerpc/include/asm/book3s/32/kup.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/xen/privcmd.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/book3s/32/kup.h b/arch/powerpc/include/asm/book3s/32/kup.h
-index d4b145b279f6..9f38040f0641 100644
---- a/arch/powerpc/include/asm/book3s/32/kup.h
-+++ b/arch/powerpc/include/asm/book3s/32/kup.h
-@@ -136,6 +136,14 @@ static inline void kuap_kernel_restore(struct pt_regs *regs, unsigned long kuap)
- 	if (kuap_is_disabled())
- 		return;
+--- a/drivers/xen/privcmd.c
++++ b/drivers/xen/privcmd.c
+@@ -835,11 +835,12 @@ static long privcmd_ioctl_mmap_resource(
+ 		unsigned int domid =
+ 			(xdata.flags & XENMEM_rsrc_acq_caller_owned) ?
+ 			DOMID_SELF : kdata.dom;
+-		int num;
++		int num, *errs = (int *)pfns;
  
-+	if (unlikely(kuap != KUAP_NONE)) {
-+		current->thread.kuap = KUAP_NONE;
-+		kuap_lock(kuap, false);
-+	}
-+
-+	if (likely(regs->kuap == KUAP_NONE))
-+		return;
-+
- 	current->thread.kuap = regs->kuap;
++		BUILD_BUG_ON(sizeof(*errs) > sizeof(*pfns));
+ 		num = xen_remap_domain_mfn_array(vma,
+ 						 kdata.addr & PAGE_MASK,
+-						 pfns, kdata.num, (int *)pfns,
++						 pfns, kdata.num, errs,
+ 						 vma->vm_page_prot,
+ 						 domid,
+ 						 vma->vm_private_data);
+@@ -849,7 +850,7 @@ static long privcmd_ioctl_mmap_resource(
+ 			unsigned int i;
  
- 	kuap_unlock(regs->kuap, false);
--- 
-2.33.0
-
+ 			for (i = 0; i < num; i++) {
+-				rc = pfns[i];
++				rc = errs[i];
+ 				if (rc < 0)
+ 					break;
+ 			}
 
 
