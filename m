@@ -2,90 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEE804294AF
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 18:43:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3417B4294CF
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 18:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230352AbhJKQpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 12:45:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47766 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229544AbhJKQpL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 12:45:11 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BE57C061570;
-        Mon, 11 Oct 2021 09:43:11 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id h125so5339420pfe.0;
-        Mon, 11 Oct 2021 09:43:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=/0i5k6aKisDUE+9IIy4WbounRGjdngVpSCYlq3tcyfs=;
-        b=F5g+k8CwuG0tYqeLQKpOObY+2GJe4s3fiI8e+wK4ym6Jfn7WcHt1xiHfUpcp9p/+ZS
-         QRZt1kqtqFylzGFscDg5EOkwJdr0gH0GOWOanJRNYLIqD6/gxnC+OwFd1vItdk2AW5g4
-         65zQ3WiK+SbkiJ7P0O/JEvv+sgBY2yYL859gokRHNGJd4M2h880psTdxO0pL3/rYitM9
-         D1O4VQGaX0FHqRvxUypgH3zMg3btPoXis8bow3D52phUujmeIVvHhVy0QbmNvsvTTU/J
-         q+lP2NGBQ7kNgHD0zt4F+oE37cxdGTcn1Wb9SuH/mbq6B7F08e6TI06SLhtgPYMvYXug
-         q9mA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=/0i5k6aKisDUE+9IIy4WbounRGjdngVpSCYlq3tcyfs=;
-        b=74S9FGkNNPOBhFFy9BisfICzIZN+Kfc7v6y2Uki1y2nqpuztceF/9fIePgYVum6m72
-         raAdn5nV3N3Pb651/j7bmLX0p/VkKx1I/T4TNd6jrIpktAecFtbVBn/hAW6kIoFIqPjT
-         U3jE/FXUPpsOgFWdHOwtNNflwt8p+6tG2QOEI37p5eL16hh4j9itzmAPZCYl44YuT02f
-         SyPtYg39EUKpN+P1eONbDRwxxj80wtJgMMhABAQgQ2cWHO1UjpSB1p+pkQPljo3MO53C
-         bNLTks+3sb3J+4m00T/QuVyPmiARof6LLhK/gaveh3iFKJhyig1bEeIka1MgfQtz/cAw
-         24Zg==
-X-Gm-Message-State: AOAM532EIUOagMm0qL0voXSdlXKRoch9Vtr+TyBig9p2k7RwPTqEMUEb
-        5r7myh/68nZLqn9N92jYh8/uhZ7b2x2NgaHNoVI=
-X-Google-Smtp-Source: ABdhPJwwZ25lGQlqvdtL90uSW3R0bBR6XRixp7aC9KdMamTO6mbJQjuOpGF+YsJQ+foSGfC6BKTlog==
-X-Received: by 2002:a63:b34a:: with SMTP id x10mr18966406pgt.473.1633970590618;
-        Mon, 11 Oct 2021 09:43:10 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id x7sm8378190pfj.164.2021.10.11.09.43.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Oct 2021 09:43:10 -0700 (PDT)
-Message-ID: <6164699e.1c69fb81.170a2.6b79@mx.google.com>
-Date:   Mon, 11 Oct 2021 09:43:10 -0700 (PDT)
-X-Google-Original-Date: Mon, 11 Oct 2021 16:43:08 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
-Subject: RE: [PATCH 5.14 000/151] 5.14.12-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S231448AbhJKQx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 12:53:57 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:35132 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229816AbhJKQx4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 12:53:56 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 4AC881C0B82; Mon, 11 Oct 2021 18:51:55 +0200 (CEST)
+Date:   Mon, 11 Oct 2021 18:51:54 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/28] 4.19.211-rc1 review
+Message-ID: <20211011165154.GA4773@duo.ucw.cz>
+References: <20211011134640.711218469@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
+Content-Disposition: inline
+In-Reply-To: <20211011134640.711218469@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 11 Oct 2021 15:44:32 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.14.12 release.
-> There are 151 patches in this series, all will be posted as a response
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+> This is the start of the stable review cycle for the 4.19.211 release.
+> There are 28 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
-> Responses should be made by Wed, 13 Oct 2021 13:44:51 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.12-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
 
-5.14.12-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+CIP testing did not find any problems here:                                =
+           =20
+                                                                           =
+           =20
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+4.19.y     =20
+                                                                           =
+           =20
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>                              =
+           =20
+                                                                           =
+           =20
+Best regards,                                                              =
+           =20
+                                                                Pavel      =
+           =20
 
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYWRrqgAKCRAw5/Bqldv6
+8kDWAJ9b9pH3QLOPLzXtP33jRgvI6g4e2wCgn7kX65EiVCU0qlx3C0yF51lYfNg=
+=kTtj
+-----END PGP SIGNATURE-----
+
+--NzB8fVQJ5HfG6fxh--
