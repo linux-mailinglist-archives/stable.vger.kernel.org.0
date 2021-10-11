@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B5F6428EC3
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6CD9428F81
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237499AbhJKNvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:51:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39364 "EHLO mail.kernel.org"
+        id S237483AbhJKN7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:59:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234554AbhJKNvJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:51:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 068AA61076;
-        Mon, 11 Oct 2021 13:49:05 +0000 (UTC)
+        id S238192AbhJKN5c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:57:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2712C60555;
+        Mon, 11 Oct 2021 13:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960146;
-        bh=nJzm6felbQbB77kpND/Ybv6QH0x69L5kWWmuGZmgC1s=;
+        s=korg; t=1633960450;
+        bh=t/0bX0SbVyZbJc1kDZCfPr7Bm/ITs/34zUpEui1W42U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BaTwGWH4wYUQIife5Q+d/S9rEShOOnAwkdNrqctcHImtst4KZ+RNgO809ixg/3iak
-         LxPcvFO7qO9B1EVeGAd8GQQgdpF6V2SdirhaQCRicMa5U3Ok/xvHwjO7EIaTY2duW9
-         s9EKzzefXGvBQQMG1GWIZKbyuueW6pZue08P5PHc=
+        b=bf42dsyZfcTaRHZzUr4piAxF+5Rqzzl+9faDgr5pJ76Jb/QtytkRYadvug+c0/7qF
+         z7j1wmGygsL6XudgJiKBg+0YPirVSL2ICRplK6CihpJBYFPfKlSe7sgjvrRcNc3k4z
+         UYu3CY9LQpU7Z8Et9oDIA2KWVzshqHI6HitQiPq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Drew Fustini <pdp7pdp7@gmail.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Robert Nelson <robertcnelson@gmail.com>,
+        Yongqin Liu <yongqin.liu@linaro.org>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 27/52] net_sched: fix NULL deref in fifo_set_limit()
+Subject: [PATCH 5.10 36/83] soc: ti: omap-prm: Fix external abort for am335x pruss
 Date:   Mon, 11 Oct 2021 15:45:56 +0200
-Message-Id: <20211011134504.667688134@linuxfoundation.org>
+Message-Id: <20211011134509.631730661@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 560ee196fe9e5037e5015e2cdb14b3aecb1cd7dc ]
+[ Upstream commit b232537074fcaf0c2837abbb217429c097bb7598 ]
 
-syzbot reported another NULL deref in fifo_set_limit() [1]
+Starting with v5.15-rc1, we may now see some am335x beaglebone black
+device produce the following error on pruss probe:
 
-I could repro the issue with :
+Unhandled fault: external abort on non-linefetch (0x1008) at 0xe0326000
 
-unshare -n
-tc qd add dev lo root handle 1:0 tbf limit 200000 burst 70000 rate 100Mbit
-tc qd replace dev lo parent 1:0 pfifo_fast
-tc qd change dev lo root handle 1:0 tbf limit 300000 burst 70000 rate 100Mbit
+This has started with the enabling of pruss for am335x in the dts files.
 
-pfifo_fast does not have a change() operation.
-Make fifo_set_limit() more robust about this.
+Turns out the is caused by the PRM reset handling not waiting for the
+reset bit to clear. To fix the issue, let's always wait for the reset
+bit to clear, even if there is a separate reset status register.
 
-[1]
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PGD 1cf99067 P4D 1cf99067 PUD 7ca49067 PMD 0
-Oops: 0010 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 14443 Comm: syz-executor959 Not tainted 5.15.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:0x0
-Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-RSP: 0018:ffffc9000e2f7310 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: ffffffff8d6ecc00 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffff888024c27910 RDI: ffff888071e34000
-RBP: ffff888071e34000 R08: 0000000000000001 R09: ffffffff8fcfb947
-R10: 0000000000000001 R11: 0000000000000000 R12: ffff888024c27910
-R13: ffff888071e34018 R14: 0000000000000000 R15: ffff88801ef74800
-FS:  00007f321d897700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 00000000722c3000 CR4: 00000000003506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- fifo_set_limit net/sched/sch_fifo.c:242 [inline]
- fifo_set_limit+0x198/0x210 net/sched/sch_fifo.c:227
- tbf_change+0x6ec/0x16d0 net/sched/sch_tbf.c:418
- qdisc_change net/sched/sch_api.c:1332 [inline]
- tc_modify_qdisc+0xd9a/0x1a60 net/sched/sch_api.c:1634
- rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
- netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
- netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:724
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+We attempted to fix a similar issue for dra7 iva with a udelay() in
+commit effe89e40037 ("soc: ti: omap-prm: Fix occasional abort on reset
+deassert for dra7 iva"). There is no longer a need for the udelay()
+for dra7 iva reset either with the check added for reset bit clearing.
 
-Fixes: fb0305ce1b03 ("net-sched: consolidate default fifo qdisc setup")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20210930212239.3430364-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Drew Fustini <pdp7pdp7@gmail.com>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Robert Nelson <robertcnelson@gmail.com>
+Cc: Yongqin Liu <yongqin.liu@linaro.org>
+Fixes: effe89e40037 ("soc: ti: omap-prm: Fix occasional abort on reset deassert for dra7 iva")
+Reported-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Tested-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_fifo.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/soc/ti/omap_prm.c | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/net/sched/sch_fifo.c b/net/sched/sch_fifo.c
-index 37c8aa75d70c..56f4c1621e44 100644
---- a/net/sched/sch_fifo.c
-+++ b/net/sched/sch_fifo.c
-@@ -148,6 +148,9 @@ int fifo_set_limit(struct Qdisc *q, unsigned int limit)
- 	if (strncmp(q->ops->id + 1, "fifo", 4) != 0)
- 		return 0;
+diff --git a/drivers/soc/ti/omap_prm.c b/drivers/soc/ti/omap_prm.c
+index fb067b5e4a97..4a782bfd753c 100644
+--- a/drivers/soc/ti/omap_prm.c
++++ b/drivers/soc/ti/omap_prm.c
+@@ -509,25 +509,28 @@ static int omap_reset_deassert(struct reset_controller_dev *rcdev,
+ 	writel_relaxed(v, reset->prm->base + reset->prm->data->rstctrl);
+ 	spin_unlock_irqrestore(&reset->lock, flags);
  
-+	if (!q->ops->change)
-+		return 0;
-+
- 	nla = kmalloc(nla_attr_size(sizeof(struct tc_fifo_qopt)), GFP_KERNEL);
- 	if (nla) {
- 		nla->nla_type = RTM_NEWQDISC;
+-	if (!has_rstst)
+-		goto exit;
++	/* wait for the reset bit to clear */
++	ret = readl_relaxed_poll_timeout_atomic(reset->prm->base +
++						reset->prm->data->rstctrl,
++						v, !(v & BIT(id)), 1,
++						OMAP_RESET_MAX_WAIT);
++	if (ret)
++		pr_err("%s: timedout waiting for %s:%lu\n", __func__,
++		       reset->prm->data->name, id);
+ 
+ 	/* wait for the status to be set */
+-	ret = readl_relaxed_poll_timeout_atomic(reset->prm->base +
++	if (has_rstst) {
++		ret = readl_relaxed_poll_timeout_atomic(reset->prm->base +
+ 						 reset->prm->data->rstst,
+ 						 v, v & BIT(st_bit), 1,
+ 						 OMAP_RESET_MAX_WAIT);
+-	if (ret)
+-		pr_err("%s: timedout waiting for %s:%lu\n", __func__,
+-		       reset->prm->data->name, id);
++		if (ret)
++			pr_err("%s: timedout waiting for %s:%lu\n", __func__,
++			       reset->prm->data->name, id);
++	}
+ 
+-exit:
+-	if (reset->clkdm) {
+-		/* At least dra7 iva needs a delay before clkdm idle */
+-		if (has_rstst)
+-			udelay(1);
++	if (reset->clkdm)
+ 		pdata->clkdm_allow_idle(reset->clkdm);
+-	}
+ 
+ 	return ret;
+ }
 -- 
 2.33.0
 
