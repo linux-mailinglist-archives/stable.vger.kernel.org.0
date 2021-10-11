@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F97B4290E6
+	by mail.lfdr.de (Postfix) with ESMTP id 02DD74290E5
 	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:12:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239545AbhJKOOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239037AbhJKOOE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 11 Oct 2021 10:14:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35276 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243363AbhJKOLP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243357AbhJKOLP (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 11 Oct 2021 10:11:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 873A761167;
-        Mon, 11 Oct 2021 14:02:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64C9F6108F;
+        Mon, 11 Oct 2021 14:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960979;
-        bh=tylNBaavHTGJxRQcOsHD4fN9b4EwM6+jOO0m7Z2pCno=;
+        s=korg; t=1633960982;
+        bh=vmB9cTWWIwuK4nCLY9E66RHiGvgHjoJwABq4pRAy71A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L8k7B83oIxStjzXL8qJxPw0yyefGOaDjlb05n2Eg/5NxElgk4yvkKl6jvlzTDyNHd
-         tLNUlgI1O6LySUR8q4ab4e0OoCrUE/5tXaduJYTnc8GMKSy3svOCZSHytEzYNyAltg
-         FwaRoxvCYo7vngFFSyY+MV+Wi9hyD93+iP6CRQPk=
+        b=osyEqvPMfHrD4O/qUyyfNimhqb27GioIW3gUSnl50dFwd7KNiw+bqGzvqo7gUwfRD
+         N8gEIEbTNsDAYxWkDifWmz0Cp7ar7l2HraB0cfvEeA3gDvl+g84lMTS2nWV9ZXPCZp
+         0p0t87S8xsTbPzdVuwIAM4gp9CuKdZ+y2nnOL5IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>, x86@kernel.org,
+        Miroslav Benes <mbenes@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 130/151] scsi: iscsi: Fix iscsi_task use after free
-Date:   Mon, 11 Oct 2021 15:46:42 +0200
-Message-Id: <20211011134522.008274880@linuxfoundation.org>
+Subject: [PATCH 5.14 131/151] objtool: Remove reloc symbol type checks in get_alt_entry()
+Date:   Mon, 11 Oct 2021 15:46:43 +0200
+Message-Id: <20211011134522.038399207@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -41,63 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 258aad75c62146453d03028a44f2f1590d58e1f6 ]
+[ Upstream commit 4d8b35968bbf9e42b6b202eedb510e2c82ad8b38 ]
 
-Commit d39df158518c ("scsi: iscsi: Have abort handler get ref to conn")
-added iscsi_get_conn()/iscsi_put_conn() calls during abort handling but
-then also changed the handling of the case where we detect an already
-completed task where we now end up doing a goto to the common put/cleanup
-code. This results in a iscsi_task use after free, because the common
-cleanup code will do a put on the iscsi_task.
+Converting a special section's relocation reference to a symbol is
+straightforward.  No need for objtool to complain that it doesn't know
+how to handle it.  Just handle it.
 
-This reverts the goto and moves the iscsi_get_conn() to after we've checked
-if the iscsi_task is valid.
+This fixes the following warning:
 
-Link: https://lore.kernel.org/r/20211004210608.9962-1-michael.christie@oracle.com
-Fixes: d39df158518c ("scsi: iscsi: Have abort handler get ref to conn")
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  arch/x86/kvm/emulate.o: warning: objtool: __ex_table+0x4: don't know how to handle reloc symbol type: kvm_fastop_exception
+
+Fixes: 24ff65257375 ("objtool: Teach get_alt_entry() about more relocation types")
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lore.kernel.org/r/feadbc3dfb3440d973580fad8d3db873cbfe1694.1633367242.git.jpoimboe@redhat.com
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: x86@kernel.org
+Cc: Miroslav Benes <mbenes@suse.cz>
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libiscsi.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ tools/objtool/special.c | 36 +++++++-----------------------------
+ 1 file changed, 7 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 4683c183e9d4..5bc91d34df63 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -2281,11 +2281,6 @@ int iscsi_eh_abort(struct scsi_cmnd *sc)
- 		return FAILED;
- 	}
+diff --git a/tools/objtool/special.c b/tools/objtool/special.c
+index f1428e32a505..83d5f969bcb0 100644
+--- a/tools/objtool/special.c
++++ b/tools/objtool/special.c
+@@ -58,22 +58,11 @@ void __weak arch_handle_alternative(unsigned short feature, struct special_alt *
+ {
+ }
  
--	conn = session->leadconn;
--	iscsi_get_conn(conn->cls_conn);
--	conn->eh_abort_cnt++;
--	age = session->age;
+-static bool reloc2sec_off(struct reloc *reloc, struct section **sec, unsigned long *off)
++static void reloc_to_sec_off(struct reloc *reloc, struct section **sec,
++			     unsigned long *off)
+ {
+-	switch (reloc->sym->type) {
+-	case STT_FUNC:
+-		*sec = reloc->sym->sec;
+-		*off = reloc->sym->offset + reloc->addend;
+-		return true;
 -
- 	spin_lock(&session->back_lock);
- 	task = (struct iscsi_task *)sc->SCp.ptr;
- 	if (!task || !task->sc) {
-@@ -2293,8 +2288,16 @@ int iscsi_eh_abort(struct scsi_cmnd *sc)
- 		ISCSI_DBG_EH(session, "sc completed while abort in progress\n");
+-	case STT_SECTION:
+-		*sec = reloc->sym->sec;
+-		*off = reloc->addend;
+-		return true;
+-
+-	default:
+-		return false;
+-	}
++	*sec = reloc->sym->sec;
++	*off = reloc->sym->offset + reloc->addend;
+ }
  
- 		spin_unlock(&session->back_lock);
--		goto success;
-+		spin_unlock_bh(&session->frwd_lock);
-+		mutex_unlock(&session->eh_mutex);
-+		return SUCCESS;
+ static int get_alt_entry(struct elf *elf, struct special_entry *entry,
+@@ -109,13 +98,8 @@ static int get_alt_entry(struct elf *elf, struct special_entry *entry,
+ 		WARN_FUNC("can't find orig reloc", sec, offset + entry->orig);
+ 		return -1;
  	}
+-	if (!reloc2sec_off(orig_reloc, &alt->orig_sec, &alt->orig_off)) {
+-		WARN_FUNC("don't know how to handle reloc symbol type %d: %s",
+-			   sec, offset + entry->orig,
+-			   orig_reloc->sym->type,
+-			   orig_reloc->sym->name);
+-		return -1;
+-	}
 +
-+	conn = session->leadconn;
-+	iscsi_get_conn(conn->cls_conn);
-+	conn->eh_abort_cnt++;
-+	age = session->age;
-+
- 	ISCSI_DBG_EH(session, "aborting [sc %p itt 0x%x]\n", sc, task->itt);
- 	__iscsi_get_task(task);
- 	spin_unlock(&session->back_lock);
++	reloc_to_sec_off(orig_reloc, &alt->orig_sec, &alt->orig_off);
+ 
+ 	if (!entry->group || alt->new_len) {
+ 		new_reloc = find_reloc_by_dest(elf, sec, offset + entry->new);
+@@ -133,13 +117,7 @@ static int get_alt_entry(struct elf *elf, struct special_entry *entry,
+ 		if (arch_is_retpoline(new_reloc->sym))
+ 			return 1;
+ 
+-		if (!reloc2sec_off(new_reloc, &alt->new_sec, &alt->new_off)) {
+-			WARN_FUNC("don't know how to handle reloc symbol type %d: %s",
+-				  sec, offset + entry->new,
+-				  new_reloc->sym->type,
+-				  new_reloc->sym->name);
+-			return -1;
+-		}
++		reloc_to_sec_off(new_reloc, &alt->new_sec, &alt->new_off);
+ 
+ 		/* _ASM_EXTABLE_EX hack */
+ 		if (alt->new_off >= 0x7ffffff0)
 -- 
 2.33.0
 
