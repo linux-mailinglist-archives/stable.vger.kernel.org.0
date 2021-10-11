@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC90E428F37
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:54:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D41B9428EA6
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236670AbhJKN4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:56:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41744 "EHLO mail.kernel.org"
+        id S237256AbhJKNvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:51:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235228AbhJKNyH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:54:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FE6960555;
-        Mon, 11 Oct 2021 13:52:06 +0000 (UTC)
+        id S237273AbhJKNuf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:50:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7081C60E78;
+        Mon, 11 Oct 2021 13:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960327;
-        bh=2sxTtuvRTNg8nj8gTOBizQ3DzjYaIZI9y9Fch4FbnZo=;
+        s=korg; t=1633960101;
+        bh=TlsljXNSGTRmUJEi2e28lyCPPXlU3cElKlNwMKMhxEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2oGxgV4fyAMQ5gMr8eP6uG46J0xS2Y+8b1WN2Nem7pZxYl+qctc+aEX8ygK0kbkL
-         KhkAKSD7HDU0VV3OoIICODLo/ZBy3ZNwjI+a35IMSpTVT3juIOkMgTs9I3wxsoYjWS
-         PLHwmbpK3u60rvl+NPFooGTkpmYK4wY3PnsHyyqY=
+        b=RakoWLwfTtBYiZUybaHzehihISxE/nwEev+0Sb4zbkVt3VDWr2gS7LsqXyHLe3OfZ
+         Yso/2yJonhGueg3PaRl1SyLmhYrPahDjYqDe/EVncXJqHCPk8dpZeTcXhh/+jXlzlr
+         NFfbZG0d+Gy5PhJKaznFDUmwJU1h79zRPG41cPXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Long Li <longli@microsoft.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 29/83] PCI: hv: Fix sleep while in non-sleep context when removing child devices from the bus
-Date:   Mon, 11 Oct 2021 15:45:49 +0200
-Message-Id: <20211011134509.375350818@linuxfoundation.org>
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 21/52] xtensa: move XCHAL_KIO_* definitions to kmem_layout.h
+Date:   Mon, 11 Oct 2021 15:45:50 +0200
+Message-Id: <20211011134504.449751617@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,72 +39,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Long Li <longli@microsoft.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit 41608b64b10b80fe00dd253cd8326ec8ad85930f ]
+[ Upstream commit 6591685d50043f615a1ad7ddd5bb263ef54808fc ]
 
-In hv_pci_bus_exit, the code is holding a spinlock while calling
-pci_destroy_slot(), which takes a mutex.
+These address and size definitions define xtensa kernel memory layout,
+move them from vectors.h to the kmem_layout.h
 
-This is not safe for spinlock. Fix this by moving the children to be
-deleted to a list on the stack, and removing them after spinlock is
-released.
-
-Fixes: 94d22763207a ("PCI: hv: Fix a race condition when removing the device")
-
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Wei Liu <wei.liu@kernel.org>
-Cc: Dexuan Cui <decui@microsoft.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: "Krzysztof Wilczyński" <kw@linux.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Michael Kelley <mikelley@microsoft.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/linux-hyperv/20210823152130.GA21501@kili/
-Signed-off-by: Long Li <longli@microsoft.com>
-Reviewed-by: Wei Liu <wei.liu@kernel.org>
-Link: https://lore.kernel.org/r/1630365207-20616-1-git-send-email-longli@linuxonhyperv.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-hyperv.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/xtensa/include/asm/kmem_layout.h | 29 ++++++++++++++++++
+ arch/xtensa/include/asm/vectors.h     | 42 ++-------------------------
+ 2 files changed, 32 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index 44e15f0e3a2e..ad3e3cde1c20 100644
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -3259,9 +3259,17 @@ static int hv_pci_bus_exit(struct hv_device *hdev, bool keep_devs)
- 		return 0;
+diff --git a/arch/xtensa/include/asm/kmem_layout.h b/arch/xtensa/include/asm/kmem_layout.h
+index 9c12babc016c..7cbf68ca7106 100644
+--- a/arch/xtensa/include/asm/kmem_layout.h
++++ b/arch/xtensa/include/asm/kmem_layout.h
+@@ -11,6 +11,7 @@
+ #ifndef _XTENSA_KMEM_LAYOUT_H
+ #define _XTENSA_KMEM_LAYOUT_H
  
- 	if (!keep_devs) {
--		/* Delete any children which might still exist. */
-+		struct list_head removed;
-+
-+		/* Move all present children to the list on stack */
-+		INIT_LIST_HEAD(&removed);
- 		spin_lock_irqsave(&hbus->device_list_lock, flags);
--		list_for_each_entry_safe(hpdev, tmp, &hbus->children, list_entry) {
-+		list_for_each_entry_safe(hpdev, tmp, &hbus->children, list_entry)
-+			list_move_tail(&hpdev->list_entry, &removed);
-+		spin_unlock_irqrestore(&hbus->device_list_lock, flags);
-+
-+		/* Remove all children in the list */
-+		list_for_each_entry_safe(hpdev, tmp, &removed, list_entry) {
- 			list_del(&hpdev->list_entry);
- 			if (hpdev->pci_slot)
- 				pci_destroy_slot(hpdev->pci_slot);
-@@ -3269,7 +3277,6 @@ static int hv_pci_bus_exit(struct hv_device *hdev, bool keep_devs)
- 			put_pcichild(hpdev);
- 			put_pcichild(hpdev);
- 		}
--		spin_unlock_irqrestore(&hbus->device_list_lock, flags);
- 	}
++#include <asm/core.h>
+ #include <asm/types.h>
  
- 	ret = hv_send_resources_released(hdev);
+ #ifdef CONFIG_MMU
+@@ -65,6 +66,34 @@
+ 
+ #endif
+ 
++/* KIO definition */
++
++#if XCHAL_HAVE_PTP_MMU
++#define XCHAL_KIO_CACHED_VADDR		0xe0000000
++#define XCHAL_KIO_BYPASS_VADDR		0xf0000000
++#define XCHAL_KIO_DEFAULT_PADDR		0xf0000000
++#else
++#define XCHAL_KIO_BYPASS_VADDR		XCHAL_KIO_PADDR
++#define XCHAL_KIO_DEFAULT_PADDR		0x90000000
++#endif
++#define XCHAL_KIO_SIZE			0x10000000
++
++#if (!XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY) && defined(CONFIG_OF)
++#define XCHAL_KIO_PADDR			xtensa_get_kio_paddr()
++#ifndef __ASSEMBLY__
++extern unsigned long xtensa_kio_paddr;
++
++static inline unsigned long xtensa_get_kio_paddr(void)
++{
++	return xtensa_kio_paddr;
++}
++#endif
++#else
++#define XCHAL_KIO_PADDR			XCHAL_KIO_DEFAULT_PADDR
++#endif
++
++/* KERNEL_STACK definition */
++
+ #ifndef CONFIG_KASAN
+ #define KERNEL_STACK_SHIFT	13
+ #else
+diff --git a/arch/xtensa/include/asm/vectors.h b/arch/xtensa/include/asm/vectors.h
+index 79fe3007919e..4220c6dac44f 100644
+--- a/arch/xtensa/include/asm/vectors.h
++++ b/arch/xtensa/include/asm/vectors.h
+@@ -21,50 +21,14 @@
+ #include <asm/core.h>
+ #include <asm/kmem_layout.h>
+ 
+-#if XCHAL_HAVE_PTP_MMU
+-#define XCHAL_KIO_CACHED_VADDR		0xe0000000
+-#define XCHAL_KIO_BYPASS_VADDR		0xf0000000
+-#define XCHAL_KIO_DEFAULT_PADDR		0xf0000000
+-#else
+-#define XCHAL_KIO_BYPASS_VADDR		XCHAL_KIO_PADDR
+-#define XCHAL_KIO_DEFAULT_PADDR		0x90000000
+-#endif
+-#define XCHAL_KIO_SIZE			0x10000000
+-
+-#if (!XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY) && defined(CONFIG_OF)
+-#define XCHAL_KIO_PADDR			xtensa_get_kio_paddr()
+-#ifndef __ASSEMBLY__
+-extern unsigned long xtensa_kio_paddr;
+-
+-static inline unsigned long xtensa_get_kio_paddr(void)
+-{
+-	return xtensa_kio_paddr;
+-}
+-#endif
+-#else
+-#define XCHAL_KIO_PADDR			XCHAL_KIO_DEFAULT_PADDR
+-#endif
+-
+-#if defined(CONFIG_MMU)
+-
+-#if XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY
+-/* Image Virtual Start Address */
+-#define KERNELOFFSET			(XCHAL_KSEG_CACHED_VADDR + \
+-					 CONFIG_KERNEL_LOAD_ADDRESS - \
++#if defined(CONFIG_MMU) && XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY
++#define KERNELOFFSET			(CONFIG_KERNEL_LOAD_ADDRESS + \
++					 XCHAL_KSEG_CACHED_VADDR - \
+ 					 XCHAL_KSEG_PADDR)
+ #else
+ #define KERNELOFFSET			CONFIG_KERNEL_LOAD_ADDRESS
+ #endif
+ 
+-#else /* !defined(CONFIG_MMU) */
+-  /* MMU Not being used - Virtual == Physical */
+-
+-/* Location of the start of the kernel text, _start */
+-#define KERNELOFFSET			CONFIG_KERNEL_LOAD_ADDRESS
+-
+-
+-#endif /* CONFIG_MMU */
+-
+ #define RESET_VECTOR1_VADDR		(XCHAL_RESET_VECTOR1_VADDR)
+ #ifdef CONFIG_VECTORS_OFFSET
+ #define VECBASE_VADDR			(KERNELOFFSET - CONFIG_VECTORS_OFFSET)
 -- 
 2.33.0
 
