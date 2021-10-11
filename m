@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11DA2428F97
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 596A5428F9A
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237942AbhJKN7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:59:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50384 "EHLO mail.kernel.org"
+        id S237990AbhJKN7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:59:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238380AbhJKN6i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:58:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F71A610F8;
-        Mon, 11 Oct 2021 13:55:10 +0000 (UTC)
+        id S238401AbhJKN6j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:58:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED6BF60FD7;
+        Mon, 11 Oct 2021 13:55:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960511;
-        bh=sP/k0sPMtXGbC4p13c1Boye9VVTcVoWXLD4I77BSL9I=;
+        s=korg; t=1633960514;
+        bh=MZmTPfvdL1jgmGfz6AdivD9uR40KFBFihT2ynFZbIho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OK5ruXQmFqkIY09k4vDcR3cobqfU4G18v9ngQTDJvD22iioVmnzzaQHsoNdbSSfOk
-         tY+bHM1BG3KhdtETOULKfiCbZL86kN5vR+hdsTajtwSQqrUhf3sDcOSfdQGG4tLq0w
-         FX9lmzm7Ut5xVbVt8QD5ym/7D1PJ+UOJwCWib9kE=
+        b=rNtuRPxHZ/MiF6Y1HrFBo0QI+WgtDWCkbvNs2LcPFc4ZT6QUIGz56qCnm6uLcHCw1
+         9ksAfs9uIPlmRa0YlPFr/dunZoG9LhiHvvGP+w18bSCC4gLWz4FFgY2XDcPOz7Jjij
+         yv59TdxrEW4QzXvF+a5pwCvvlG7owL0WTmmBeDF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 81/83] x86/entry: Clear X86_FEATURE_SMAP when CONFIG_X86_SMAP=n
-Date:   Mon, 11 Oct 2021 15:46:41 +0200
-Message-Id: <20211011134511.168199120@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.10 82/83] x86/hpet: Use another crystalball to evaluate HPET usability
+Date:   Mon, 11 Oct 2021 15:46:42 +0200
+Message-Id: <20211011134511.197929357@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
 References: <20211011134508.362906295@linuxfoundation.org>
@@ -39,69 +42,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 3958b9c34c2729597e182cc606cc43942fd19f7c upstream.
+commit 6e3cd95234dc1eda488f4f487c281bac8fef4d9b upstream.
 
-Commit
+On recent Intel systems the HPET stops working when the system reaches PC10
+idle state.
 
-  3c73b81a9164 ("x86/entry, selftests: Further improve user entry sanity checks")
+The approach of adding PCI ids to the early quirks to disable HPET on
+these systems is a whack a mole game which makes no sense.
 
-added a warning if AC is set when in the kernel.
+Check for PC10 instead and force disable HPET if supported. The check is
+overbroad as it does not take ACPI, intel_idle enablement and command
+line parameters into account. That's fine as long as there is at least
+PMTIMER available to calibrate the TSC frequency. The decision can be
+overruled by adding "hpet=force" on the kernel command line.
 
-Commit
+Remove the related early PCI quirks for affected Ice Cake and Coffin Lake
+systems as they are not longer required. That should also cover all
+other systems, i.e. Tiger Rag and newer generations, which are most
+likely affected by this as well.
 
-  662a0221893a3d ("x86/entry: Fix AC assertion")
-
-changed the warning to only fire if the CPU supports SMAP.
-
-However, the warning can still trigger on a machine that supports SMAP
-but where it's disabled in the kernel config and when running the
-syscall_nt selftest, for example:
-
-  ------------[ cut here ]------------
-  WARNING: CPU: 0 PID: 49 at irqentry_enter_from_user_mode
-  CPU: 0 PID: 49 Comm: init Tainted: G                T 5.15.0-rc4+ #98 e6202628ee053b4f310759978284bd8bb0ce6905
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-  RIP: 0010:irqentry_enter_from_user_mode
-  ...
-  Call Trace:
-   ? irqentry_enter
-   ? exc_general_protection
-   ? asm_exc_general_protection
-   ? asm_exc_general_protectio
-
-IS_ENABLED(CONFIG_X86_SMAP) could be added to the warning condition, but
-even this would not be enough in case SMAP is disabled at boot time with
-the "nosmap" parameter.
-
-To be consistent with "nosmap" behaviour, clear X86_FEATURE_SMAP when
-!CONFIG_X86_SMAP.
-
-Found using entry-fuzz + satrandconfig.
-
- [ bp: Massage commit message. ]
-
-Fixes: 3c73b81a9164 ("x86/entry, selftests: Further improve user entry sanity checks")
-Fixes: 662a0221893a ("x86/entry: Fix AC assertion")
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Fixes: Yet another hardware trainwreck
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Rafael J. Wysocki <rafael@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20211003223423.8666-1-vegard.nossum@oracle.com
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/common.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/early-quirks.c |    6 ---
+ arch/x86/kernel/hpet.c         |   81 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 81 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -320,6 +320,7 @@ static __always_inline void setup_smap(s
- #ifdef CONFIG_X86_SMAP
- 		cr4_set_bits(X86_CR4_SMAP);
- #else
-+		clear_cpu_cap(c, X86_FEATURE_SMAP);
- 		cr4_clear_bits(X86_CR4_SMAP);
- #endif
- 	}
+--- a/arch/x86/kernel/early-quirks.c
++++ b/arch/x86/kernel/early-quirks.c
+@@ -711,12 +711,6 @@ static struct chipset early_qrk[] __init
+ 	 */
+ 	{ PCI_VENDOR_ID_INTEL, 0x0f00,
+ 		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+-	{ PCI_VENDOR_ID_INTEL, 0x3e20,
+-		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+-	{ PCI_VENDOR_ID_INTEL, 0x3ec4,
+-		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+-	{ PCI_VENDOR_ID_INTEL, 0x8a12,
+-		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+ 	{ PCI_VENDOR_ID_BROADCOM, 0x4331,
+ 	  PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
+ 	{}
+--- a/arch/x86/kernel/hpet.c
++++ b/arch/x86/kernel/hpet.c
+@@ -9,6 +9,7 @@
+ 
+ #include <asm/hpet.h>
+ #include <asm/time.h>
++#include <asm/mwait.h>
+ 
+ #undef  pr_fmt
+ #define pr_fmt(fmt) "hpet: " fmt
+@@ -806,6 +807,83 @@ static bool __init hpet_counting(void)
+ 	return false;
+ }
+ 
++static bool __init mwait_pc10_supported(void)
++{
++	unsigned int eax, ebx, ecx, mwait_substates;
++
++	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
++		return false;
++
++	if (!cpu_feature_enabled(X86_FEATURE_MWAIT))
++		return false;
++
++	if (boot_cpu_data.cpuid_level < CPUID_MWAIT_LEAF)
++		return false;
++
++	cpuid(CPUID_MWAIT_LEAF, &eax, &ebx, &ecx, &mwait_substates);
++
++	return (ecx & CPUID5_ECX_EXTENSIONS_SUPPORTED) &&
++	       (ecx & CPUID5_ECX_INTERRUPT_BREAK) &&
++	       (mwait_substates & (0xF << 28));
++}
++
++/*
++ * Check whether the system supports PC10. If so force disable HPET as that
++ * stops counting in PC10. This check is overbroad as it does not take any
++ * of the following into account:
++ *
++ *	- ACPI tables
++ *	- Enablement of intel_idle
++ *	- Command line arguments which limit intel_idle C-state support
++ *
++ * That's perfectly fine. HPET is a piece of hardware designed by committee
++ * and the only reasons why it is still in use on modern systems is the
++ * fact that it is impossible to reliably query TSC and CPU frequency via
++ * CPUID or firmware.
++ *
++ * If HPET is functional it is useful for calibrating TSC, but this can be
++ * done via PMTIMER as well which seems to be the last remaining timer on
++ * X86/INTEL platforms that has not been completely wreckaged by feature
++ * creep.
++ *
++ * In theory HPET support should be removed altogether, but there are older
++ * systems out there which depend on it because TSC and APIC timer are
++ * dysfunctional in deeper C-states.
++ *
++ * It's only 20 years now that hardware people have been asked to provide
++ * reliable and discoverable facilities which can be used for timekeeping
++ * and per CPU timer interrupts.
++ *
++ * The probability that this problem is going to be solved in the
++ * forseeable future is close to zero, so the kernel has to be cluttered
++ * with heuristics to keep up with the ever growing amount of hardware and
++ * firmware trainwrecks. Hopefully some day hardware people will understand
++ * that the approach of "This can be fixed in software" is not sustainable.
++ * Hope dies last...
++ */
++static bool __init hpet_is_pc10_damaged(void)
++{
++	unsigned long long pcfg;
++
++	/* Check whether PC10 substates are supported */
++	if (!mwait_pc10_supported())
++		return false;
++
++	/* Check whether PC10 is enabled in PKG C-state limit */
++	rdmsrl(MSR_PKG_CST_CONFIG_CONTROL, pcfg);
++	if ((pcfg & 0xF) < 8)
++		return false;
++
++	if (hpet_force_user) {
++		pr_warn("HPET force enabled via command line, but dysfunctional in PC10.\n");
++		return false;
++	}
++
++	pr_info("HPET dysfunctional in PC10. Force disabled.\n");
++	boot_hpet_disable = true;
++	return true;
++}
++
+ /**
+  * hpet_enable - Try to setup the HPET timer. Returns 1 on success.
+  */
+@@ -819,6 +897,9 @@ int __init hpet_enable(void)
+ 	if (!is_hpet_capable())
+ 		return 0;
+ 
++	if (hpet_is_pc10_damaged())
++		return 0;
++
+ 	hpet_set_mapping();
+ 	if (!hpet_virt_address)
+ 		return 0;
 
 
