@@ -2,74 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3AC3428E2D
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:38:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 410D5428E75
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:44:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236133AbhJKNk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:40:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60602 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235897AbhJKNk4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 09:40:56 -0400
-Received: from mail-ua1-x92f.google.com (mail-ua1-x92f.google.com [IPv6:2607:f8b0:4864:20::92f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21A8BC061570
-        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 06:38:56 -0700 (PDT)
-Received: by mail-ua1-x92f.google.com with SMTP id h19so1360491uax.5
-        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 06:38:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=2sGT8lJdtpFUGX275ypVfZGOdclotOfqng+xZM9vXtI=;
-        b=XIGjlaQAn0hzGP5ayymqhRrN0iU+NP5vjQw8vf2+31M/L1A02ZlzJjlhMhF6Wu7WUf
-         JBpn9qKY+/u4EZtXVoL9lAE71WPvsjKHElcD41qWycZf5PdjwsP16gGVQ2tLdw1DohlF
-         r0cZgTLiXGMBu9nqfOem7S/oQnLNUPDYJ+0JVfDMGguUsqZ+FXtvriWmCvdk73tctwf+
-         WTbZ8Z6+GZcSGIdPseMDjFjBOD+nyMYBDwZq5aGA90xDspidQjIGJb43eQwD73Or/Cdb
-         IoBOnKaItYAth7OLE7s74Y0KYEq25LWQwgwemv6D3geDF0QPWHTTnRziB9mZC9gqLqgy
-         7pQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=2sGT8lJdtpFUGX275ypVfZGOdclotOfqng+xZM9vXtI=;
-        b=gog4q1vtJBevLreDKNhfrlL17dy/zC4pmao1gRXGVGxnG2g+8ggIe76h/UoZ+BF1A9
-         0SjF9CQAwW2UHfGzV+rhbN2TpOceyCL+DrI/kwYvOHhId3Myc+uUtiHzFnZvhHpfV0nW
-         yKDq7mj1dD/jPeaOSUWmCJ5GuOrL2wgYQFhp722+VNyaYBqQuPD0CpgNGJUhB3hCJii7
-         75Dts05Latol8Qmgw4VZGi4AwrEb/XnLRHYNWZ3Tsp+sUWAdlMbQHpceQAcWH+0J1UbK
-         ZN3be6gzgOYe0aenav8B1xOtuI3JP7jcSyfKWEgak5zdk2beetSkd/QM8IwneAn/+Z2z
-         k+xg==
-X-Gm-Message-State: AOAM533FZ8vzFKpP/SIYbS8nkK0IOqy8b9W4ayVOCaJ60cnEFghiMnJj
-        1YIbiNhLrLUol70T9mgvqgp0RB358loTlZOvqk0=
-X-Google-Smtp-Source: ABdhPJwzMhV2fWHY1WJBQ+T3dQ3BhcVmYiNQBy0LgIYFWnDtUFou1ILKUgfsq+3WW/7Xg1zJxPav5d/KjT9bn1S17rU=
-X-Received: by 2002:a67:c31c:: with SMTP id r28mr23305547vsj.10.1633959535174;
- Mon, 11 Oct 2021 06:38:55 -0700 (PDT)
+        id S233789AbhJKNqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:46:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35226 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233144AbhJKNqr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:46:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED16560E8B;
+        Mon, 11 Oct 2021 13:44:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1633959887;
+        bh=agOywIb9aX8k3b55nl5aiCjBMrVgHxyoD/oZ32pw97A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CpepD43OnreIyuUNdYXrhc/pBDQbGtGLZ7JOhNJYl2JBDLmjSKeRHPNM4x3NnNXdi
+         EhdhwangxgJWqOFkPKPyWDKwW4FXCqbySQGU37IR3FOmkLOYu8pvySPm8grDlwnY9p
+         E72SWb4wZ8Yw3pFKUyxpptTiTa5+bskvkjvo8Hs8=
+Date:   Mon, 11 Oct 2021 15:43:53 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     John Garry <john.garry@huawei.com>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
+        Like Xu <like.xu.linux@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: Re: pmu-events/jevents.c:1188:9: warning: implicit declaration of
+ function 'free_sys_event_tables' [-Wimplicit-function-declaration]
+Message-ID: <YWQ/mZMqAKNJT32l@kroah.com>
+References: <CA+G9fYvfWNnBEpgzSQrh8AocmJVcTRtRT3uhJCG__js7aEWwjg@mail.gmail.com>
+ <3385c786-625c-6d4d-cf2e-09b0422e9fef@huawei.com>
 MIME-Version: 1.0
-Received: by 2002:a59:c36d:0:b0:237:ac9:43f5 with HTTP; Mon, 11 Oct 2021
- 06:38:54 -0700 (PDT)
-Reply-To: lydiawright836@gmail.com
-From:   LYDIA WRIGHT <jacobbarney58@gmail.com>
-Date:   Mon, 11 Oct 2021 16:38:54 +0300
-Message-ID: <CAEfbTU+FwM2e+qP-OnSutkWbJW9Xze73fOiUpyRHNuwjbJAB1Q@mail.gmail.com>
-Subject: Greetings to You
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3385c786-625c-6d4d-cf2e-09b0422e9fef@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings dear,
+On Mon, Oct 11, 2021 at 01:48:44PM +0100, John Garry wrote:
+> On 11/10/2021 13:17, Naresh Kamboju wrote:
+> > stable-rc 5.10 perf build failed due to these warnings  / errors.
+> > 
+> 
+> It seems that the Fixes tag was incorrect for commit b94729919db2 ("perf
+> jevents: Fix sys_event_tables to be freed like arch_std_events").
+> 
+> It should really have fixed 4689f56796f8, not e9d32c1bf0cd7a98.
 
-My name is Lydia A. Wright, and I'm from Akron, Ohio. The U.S.A, This
-message will most likely surprise you. I'm dying of cancer, which I
-was diagnosed with around two years ago, and I'm recovering from a
-stroke that has made walking difficult.
-Mr. L=C3=A9vi Wright, my husband, passed away in mid-March 2011 from a
-heart attack. I'll be having surgery soon.  I only have a few years
-left in this world, my late spouse has  $10.5 million as a family
-valuable , which I intend to gift to charity.
+Thanks for the info, now dropped.
 
-For more information, please contact me at (lydiawright836@gmail.com)
-. Thank you sincerely!
-
-Mrs. Lydia A. Wright
+greg k-h
