@@ -2,90 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4475A429724
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 20:51:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44F28429758
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 21:11:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231482AbhJKSxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 14:53:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49100 "EHLO
+        id S234533AbhJKTNT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 15:13:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229824AbhJKSxs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 14:53:48 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75BBBC061570;
-        Mon, 11 Oct 2021 11:51:48 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id q12so10924375pgq.12;
-        Mon, 11 Oct 2021 11:51:48 -0700 (PDT)
+        with ESMTP id S234489AbhJKTNT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 15:13:19 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576B5C061570
+        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 12:11:18 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id g10so70877459edj.1
+        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 12:11:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=71INiUyhWvoA2WMrc2l4AqiYkSvh3djM1g7dHtmJm8E=;
-        b=gpxLQOGV3N0JsifWbFaYzoaWbN2UkxAD/TXIYF1U+F0I6i70PLvZCRMyfyyX/GjIsa
-         xZzfxp++HIgX/bp3a5X0q53B0nZ2zkR3blyWF14MoPNDSrhxas/QyxkVTHRW/mFWwsg5
-         pEAF5dz/pAaU0Am1Xns4za2SHFrQwnOE2cGSLjWl1gAk8FV03tglesp2ahjvtNOU3izk
-         4416VKsiE4l1ayp7eUgOgmgEKFJP/8QdYhWst6mM8nmhesMjeszoDAi3akQ327xLjBzv
-         nC2V1RyW3+dv0JLiNSiiHAVwu2ix2HPQHngKtzzuiXmLj8isA/GgpxDe7c5RWF42qlxw
-         sr4Q==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=HLnB0UKJBywsOE8RYieHcM9J99STUr3x8CGLTaGZ7rg=;
+        b=IbSzotG/gn+bOgJdVHqaoqeGcTECqlVlr8e4zZIiIerhvDXx07DhhDVP0kuBYtb5+b
+         pPN5SMAhRMuJPhNqO7xqyu3qAxkL4JPb4iHrnpcsYsdQCl8U5cm2YR5UQSy+ibh0UrRI
+         CjBTye/93zB5t2AFWScnyeaR3Sp2MrQI3yTVx8CDI66GmyXYeL8yRBPNREY13v9aBv8G
+         LGn8wFb4iF/8ylqnQY1b+1sGTdqBqhEdcnwtqUTxoD2gMY/qcEN87IFjDmuGqUp1dIfm
+         /A5+g6LV00pnIGVOv0SOV2XFuvd7xmm+XpzY6fWt0yd9CUh7m+fEZG/JKU5ZWaunD0ih
+         pYVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=71INiUyhWvoA2WMrc2l4AqiYkSvh3djM1g7dHtmJm8E=;
-        b=UGx3r6Ei0D3PBlSxjLagehzq6kD+OQWoJ5E0tdPBZDxhArpCT/u7n/Fw2FOSJrYRxB
-         AGNNi7OCdW9kk2SvHswne+m7HrysnLml7S8Jc31QShormHsJcKdLl0FbEC2puD41mKtD
-         pKShkINA/RJNCEnxPPv7jsnt7xanGwCyJrw3cv+DjCWW4rp2YmHlCSj7V1TNyVtYdvxo
-         rbNo0rqb9g9kiJqqy5cmkXeprQp/m0gQcddX0XWqqNkY/ZNOahp2EaF5uOSTXBidixPR
-         B0ikmAKAAR2cc+5vshLJgPA2AKf4y/HccjEKcEY2ET+zPou7TKVnKheJu1JXJqNVv21j
-         QwqQ==
-X-Gm-Message-State: AOAM531of7w0n6+2UxL60BKR7Er9WMEv4q0/AcZuEUdPkau10laVi/RF
-        yIsM1ktwq0fhQfIVjwQw5jLCvQG0RCev1XtFY9Q=
-X-Google-Smtp-Source: ABdhPJxXf3DNp1AvT3jMFAvcdd/qgIShlphFfsi4ojd3KmlwzYe/MFocMY35W4xknBw/5F/LPJgeSg==
-X-Received: by 2002:a05:6a00:16d2:b029:300:200b:6572 with SMTP id l18-20020a056a0016d2b0290300200b6572mr27354855pfc.62.1633978307450;
-        Mon, 11 Oct 2021 11:51:47 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id u2sm184868pji.30.2021.10.11.11.51.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Oct 2021 11:51:47 -0700 (PDT)
-Message-ID: <616487c3.1c69fb81.b594e.0f26@mx.google.com>
-Date:   Mon, 11 Oct 2021 11:51:47 -0700 (PDT)
-X-Google-Original-Date: Mon, 11 Oct 2021 18:51:45 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20211011153306.939942789@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 00/82] 5.10.73-rc2 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=HLnB0UKJBywsOE8RYieHcM9J99STUr3x8CGLTaGZ7rg=;
+        b=VF53ARY/6de5pnGzF9yxZAXNshqpvP3XNo/TEMaTQX6C7ro+X59yfZlwXhgXEJE+cL
+         C7gTQD8B5ujrwz957DxrDDreVohcVUX65lADFBzKoxi36bfyYSca8UObBbr6OR73ZSQg
+         HyTY5om2O0azHKIMEJUQpaJIpKvTwa54fpyor1ZbuIl+dYkHvHFW6niSDix9ERnRD+5A
+         KVPw3U9ylS3B9+5q+GrJvew9Bx7BU73hC0jCaElSUN1FpfauX0+Evg6Ypc3AY2c4wF3D
+         37+aik7yRIN1sKcyYljjix2kTwHHi1ZsdyklTjoLl19KHcUSig1xIfmTSBPSD4d4Bh7D
+         bOtA==
+X-Gm-Message-State: AOAM532dhxekkUjLP5jflA48JNeE2dG9WtbJ8CctRg/jLcjWumzdmCc7
+        mXN9Qo9fMU7xt23XsbYTJVjKJ1EXL6SpJAt7JW7vZA==
+X-Google-Smtp-Source: ABdhPJxif7+cQPoBU/ej9FKwJOZfnKScrvx+4/O3wCZshSb3yKi50AMF5pZDKCV3lgUGxkg4ROGmFKDOLuDEyU4og6c=
+X-Received: by 2002:a05:6402:5255:: with SMTP id t21mr42165596edd.103.1633979476782;
+ Mon, 11 Oct 2021 12:11:16 -0700 (PDT)
+MIME-Version: 1.0
+References: <20211011134517.833565002@linuxfoundation.org> <CA+G9fYutz0ZgJ=rrg8=Fd7vh9c7G-SJfF2YoH5wZyGzUHu4Dqw@mail.gmail.com>
+In-Reply-To: <CA+G9fYutz0ZgJ=rrg8=Fd7vh9c7G-SJfF2YoH5wZyGzUHu4Dqw@mail.gmail.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 12 Oct 2021 00:41:05 +0530
+Message-ID: <CA+G9fYsLnz89gHYWkJMgevCrUC3DbMS48TrY4CXge1y24f-iHg@mail.gmail.com>
+Subject: Re: [PATCH 5.14 000/151] 5.14.12-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 11 Oct 2021 17:34:39 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.73 release.
-> There are 82 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 13 Oct 2021 15:32:51 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.73-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Hi Greg,
 
-5.10.73-rc2 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+The reported crash on the arm x15 is an intermittent problem.
+Which is also noticed on Linux next and mainline.
 
+We are investigating this problem.
+
+This reported crash is not specific to this rc review.
+
+- Naresh
