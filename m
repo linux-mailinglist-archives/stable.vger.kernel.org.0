@@ -2,87 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8D9E428E2C
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D108428DFD
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235762AbhJKNkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:40:55 -0400
-Received: from bluehome.net ([96.66.250.149]:53004 "EHLO bluehome.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235602AbhJKNkz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:40:55 -0400
-X-Greylist: delayed 488 seconds by postgrey-1.27 at vger.kernel.org; Mon, 11 Oct 2021 09:40:55 EDT
-Received: from bellevue.lan (unknown [162.249.178.188])
-        by bluehome.net (Postfix) with ESMTPSA id 6382E4B4066D
-        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 06:30:46 -0700 (PDT)
-Date:   Mon, 11 Oct 2021 06:30:40 -0700
-From:   Jason Self <jason@bluehome.net>
-To:     stable@vger.kernel.org
-Subject: Re: Linux 5.14.11
-Message-ID: <20211011063040.7ab8c623@bellevue.lan>
-In-Reply-To: <163378600110591@kroah.com>
-References: <163378600110591@kroah.com>
+        id S236959AbhJKNey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:34:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59038 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235567AbhJKNev (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 09:34:51 -0400
+Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [IPv6:2001:67c:2050::465:202])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD6E2C061570;
+        Mon, 11 Oct 2021 06:32:51 -0700 (PDT)
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:105:465:1:1:0])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4HSfqj60cgzQkDy;
+        Mon, 11 Oct 2021 15:32:49 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+From:   =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+To:     Amitkumar Karwar <amitkarwar@gmail.com>,
+        Ganapathi Bhat <ganapathi017@gmail.com>,
+        Xinming Hu <huxinming820@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        Tsuchiya Yuto <kitakar@gmail.com>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Brian Norris <briannorris@chromium.org>,
+        David Laight <David.Laight@ACULAB.COM>, stable@vger.kernel.org
+Subject: [PATCH v3 1/2] mwifiex: Read a PCI register after writing the TX ring write pointer
+Date:   Mon, 11 Oct 2021 15:32:23 +0200
+Message-Id: <20211011133224.15561-2-verdre@v0yd.nl>
+In-Reply-To: <20211011133224.15561-1-verdre@v0yd.nl>
+References: <20211011133224.15561-1-verdre@v0yd.nl>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/b2ZYKzHm6Zep1GhtZjyHweJ";
- protocol="application/pgp-signature"; micalg=pgp-sha512
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 559ED1898
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---Sig_/b2ZYKzHm6Zep1GhtZjyHweJ
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On the 88W8897 PCIe+USB card the firmware randomly crashes after setting
+the TX ring write pointer. The issue is present in the latest firmware
+version 15.68.19.p21 of the PCIe+USB card.
 
-On Sat,  9 Oct 2021 15:26:41 +0200
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> I'm announcing the release of the 5.14.11 kernel.
+Those firmware crashes can be worked around by reading any PCI register
+of the card after setting that register, so read the PCI_VENDOR_ID
+register here. The reason this works is probably because we keep the bus
+from entering an ASPM state for a bit longer, because that's what causes
+the cards firmware to crash.
 
-Starting with 5.14.10 I get this when doing make bindeb-pkg when
-compiling for MIPS, for the Loongson 2F. I do have a sufficient
-version of binutils installed (2.37), which was working well until
-until 5.14.10 came out.
+This fixes a bug where during RX/TX traffic and with ASPM L1 substates
+enabled (the specific substates where the issue happens appear to be
+platform dependent), the firmware crashes and eventually a command
+timeout appears in the logs.
 
-  OBJCOPY arch/mips/boot/compressed/vmlinux.bin
-  GZIP    arch/mips/boot/compressed/vmlinux.bin.z
-  OBJCOPY arch/mips/boot/compressed/piggy.o
-  HOSTCC  arch/mips/boot/compressed/calc_vmlinuz_load_addr
-  LD      vmlinuz
-  STRIP   vmlinuz
-make KERNELRELEASE=3D5.14.11-gnu.loongson-2f ARCH=3Dmips
-  KBUILD_BUILD_VERSION=3D1.0 -f ./Makefile intdeb-pkg sh
-  ./scripts/package/builddeb arch/mips/loongson2ef//Platform:36: ***
-  only binutils >=3D 2.20.2 have needed option -mfix-loongson2f-nop.
-  Stop. cp: cannot stat '': No such file or directory
-  scripts/Makefile.package:87: recipe for target 'intdeb-pkg' failed
-  make[4]: *** [intdeb-pkg] Error 1 Makefile:1576: recipe for target
-  'intdeb-pkg' failed make[3]: *** [intdeb-pkg] Error 2
-debian/rules:13: recipe for target 'binary-arch' failed
-make[2]: *** [binary-arch] Error 2
-dpkg-buildpackage: error: debian/rules binary subprocess returned exit
-  status 2 scripts/Makefile.package:82: recipe for target 'bindeb-pkg'
-  failed make[1]: *** [bindeb-pkg] Error 2
-Makefile:1576: recipe for target 'bindeb-pkg' failed
-make: *** [bindeb-pkg] Error 2
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109681
+Cc: stable@vger.kernel.org
+Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
+---
+ drivers/net/wireless/marvell/mwifiex/pcie.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---Sig_/b2ZYKzHm6Zep1GhtZjyHweJ
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
+diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
+index c6ccce426b49..641fa539de1f 100644
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.c
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+@@ -1490,6 +1490,14 @@ mwifiex_pcie_send_data(struct mwifiex_adapter *adapter, struct sk_buff *skb,
+ 			ret = -1;
+ 			goto done_unmap;
+ 		}
++
++		/* The firmware (latest version 15.68.19.p21) of the 88W8897 PCIe+USB card
++		 * seems to crash randomly after setting the TX ring write pointer when
++		 * ASPM powersaving is enabled. A workaround seems to be keeping the bus
++		 * busy by reading a random register afterwards.
++		 */
++		mwifiex_read_reg(adapter, PCI_VENDOR_ID, &rx_val);
++
+ 		if ((mwifiex_pcie_txbd_not_full(card)) &&
+ 		    tx_param->next_pkt_len) {
+ 			/* have more packets and TxBD still can hold more */
+-- 
+2.31.1
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE9hGpCP+hZcaZWE7UnQ2zG1RaMZgFAmFkPIAACgkQnQ2zG1Ra
-MZhcjw//Rbx+koLm0BUBok9PNBZXrPt9E5We48qZSvoLo5BTz1WKglqcLaE5xP9O
-7IkEDdhC5HHlzEyceJgexxaMfPvecnv4I+qvA0zdN14C6Cv7lqscECg4T28TlZpb
-EFZCUS9n9U1eoqR4WBvdozfamh2t7P7Hdn32JBNCRVJ0CfisVMzNNSyvWv7v1mKH
-W+K5SZRQh27xU1J4HeL7VLNOSHBBnmOzeYCpO5OuNdYCTMvg2rruzhY2QzX9r+Eu
-qmChWHw+PP2rWe8SN56gXpsZhaX5Qbn38JvD+a0zRfZ/ELxs19lhRSKyelz/mZcW
-Xpzb/BwtfjF1wQgaeLAOPoYFJrpDPrn0qt1VApouMZumGP3iZMUX1aJUv1RWz5yY
-dTlylw/lZ91LHjCpUzmkpEKUzZFeC2/oRjn383FwCfn/O90S8shzgCM5fF4HcoQp
-62wZf8/2HY1dIYvnUlmyyoAEdYUQK5DV40MlrFn0U3kaO65Q6zNTXtceu6+73Qap
-2P/boiZ6lCaSpHcuTp6kZY5lU3e7zZeGHZygCW79ViPNifwz7FNz3bfizM2+3znP
-nzAxTX8Dgtw5zoPVA093AfUC4E1AOEpGfeDGEBEXKqZudR5C8aUqZYxv3j+7vnHl
-+VOar3s+Oo0H915Y+EQ/U3DHibRPpLk1w0BCF6PukzwzRXHGans=
-=zYpX
------END PGP SIGNATURE-----
-
---Sig_/b2ZYKzHm6Zep1GhtZjyHweJ--
