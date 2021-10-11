@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 116C7428F87
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21FF8428EAE
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234991AbhJKN7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:59:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50200 "EHLO mail.kernel.org"
+        id S237198AbhJKNvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:51:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238254AbhJKN6X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:58:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06E5A61078;
-        Mon, 11 Oct 2021 13:54:53 +0000 (UTC)
+        id S237281AbhJKNuf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:50:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA29C60EB4;
+        Mon, 11 Oct 2021 13:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960494;
-        bh=GgDRqfBeQMUhgmLcfjsJRYdlUheZeSWZePX/uUDmz4c=;
+        s=korg; t=1633960111;
+        bh=CsADNW/VQdXHAtAMJXv9pyTf2bMtmM4oBWaCL7N9MIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FOv59uLDEl6LnOSsOuLO4HwypJHLSgpUgYXKe7zBOW5gke6Niba7D5ijyCldQO4uz
-         GqH21qX6LYBdeYj90yf9STxEI9TFfpxNrGaBWjRwNPciaohBLWKNm9TVqT/Q8uv4Xt
-         yx1CyW9DI5AMz6FpYCgFE6at31h6sJ2AP8D/Pzzk=
+        b=A5jMfuaheVJRag08nlG3y5FPjICXzz4uxp8ryLT2ArPnyRHjqQnFj9LyLaAi/1+qk
+         4wlMfB071eY5AawhnrFu0FW1g81NI5fW2sapGMPUE8KzBqpJ7/TAbf1r33sacl3xkB
+         I4cZ6Hsq4M3Bxmd6Rp06QF0J/RWVjNL/gjQlg/VU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        stable@vger.kernel.org,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 33/83] xtensa: call irqchip_init only when CONFIG_USE_OF is selected
+Subject: [PATCH 5.4 24/52] bpf, arm: Fix register clobbering in div/mod implementation
 Date:   Mon, 11 Oct 2021 15:45:53 +0200
-Message-Id: <20211011134509.516979963@linuxfoundation.org>
+Message-Id: <20211011134504.558394971@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
 
-[ Upstream commit 6489f8d0e1d93a3603d8dad8125797559e4cf2a2 ]
+[ Upstream commit 79e3445b38e0cab94264a3894c0c3d57c930b97e ]
 
-During boot time kernel configured with OF=y but USE_OF=n displays the
-following warnings and hangs shortly after starting userspace:
+On ARM CPUs that lack div/mod instructions, ALU32 BPF_DIV and BPF_MOD are
+implemented using a call to a helper function. Before, the emitted code
+for those function calls failed to preserve caller-saved ARM registers.
+Since some of those registers happen to be mapped to BPF registers, it
+resulted in eBPF register values being overwritten.
 
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at kernel/irq/irqdomain.c:695 irq_create_mapping_affinity+0x29/0xc0
-irq_create_mapping_affinity(, 6) called with NULL domain
-CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.0-rc3-00001-gd67ed2510d28 #30
-Call Trace:
-  __warn+0x69/0xc4
-  warn_slowpath_fmt+0x6c/0x94
-  irq_create_mapping_affinity+0x29/0xc0
-  local_timer_setup+0x40/0x88
-  time_init+0xb1/0xe8
-  start_kernel+0x31d/0x3f4
-  _startup+0x13b/0x13b
----[ end trace 1e6630e1c5eda35b ]---
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at arch/xtensa/kernel/time.c:141 local_timer_setup+0x58/0x88
-error: can't map timer irq
-CPU: 0 PID: 0 Comm: swapper Tainted: G        W         5.15.0-rc3-00001-gd67ed2510d28 #30
-Call Trace:
-  __warn+0x69/0xc4
-  warn_slowpath_fmt+0x6c/0x94
-  local_timer_setup+0x58/0x88
-  time_init+0xb1/0xe8
-  start_kernel+0x31d/0x3f4
-  _startup+0x13b/0x13b
----[ end trace 1e6630e1c5eda35c ]---
-Failed to request irq 0 (timer)
+This patch emits code to push and pop the remaining caller-saved ARM
+registers r2-r3 into the stack during the div/mod function call. ARM
+registers r0-r1 are used as arguments and return value, and those were
+already saved and restored correctly.
 
-Fix that by calling irqchip_init only when CONFIG_USE_OF is selected and
-calling legacy interrupt controller init otherwise.
-
-Fixes: da844a81779e ("xtensa: add device trees support")
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Fixes: 39c13c204bb1 ("arm: eBPF JIT compiler")
+Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/irq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/net/bpf_jit_32.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/arch/xtensa/kernel/irq.c b/arch/xtensa/kernel/irq.c
-index a48bf2d10ac2..80cc9770a8d2 100644
---- a/arch/xtensa/kernel/irq.c
-+++ b/arch/xtensa/kernel/irq.c
-@@ -145,7 +145,7 @@ unsigned xtensa_get_ext_irq_no(unsigned irq)
+diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
+index b51a8c7b0111..1c6e57f1dbc4 100644
+--- a/arch/arm/net/bpf_jit_32.c
++++ b/arch/arm/net/bpf_jit_32.c
+@@ -36,6 +36,10 @@
+  *                        +-----+
+  *                        |RSVD | JIT scratchpad
+  * current ARM_SP =>      +-----+ <= (BPF_FP - STACK_SIZE + SCRATCH_SIZE)
++ *                        | ... | caller-saved registers
++ *                        +-----+
++ *                        | ... | arguments passed on stack
++ * ARM_SP during call =>  +-----|
+  *                        |     |
+  *                        | ... | Function call stack
+  *                        |     |
+@@ -63,6 +67,12 @@
+  *
+  * When popping registers off the stack at the end of a BPF function, we
+  * reference them via the current ARM_FP register.
++ *
++ * Some eBPF operations are implemented via a call to a helper function.
++ * Such calls are "invisible" in the eBPF code, so it is up to the calling
++ * program to preserve any caller-saved ARM registers during the call. The
++ * JIT emits code to push and pop those registers onto the stack, immediately
++ * above the callee stack frame.
+  */
+ #define CALLEE_MASK	(1 << ARM_R4 | 1 << ARM_R5 | 1 << ARM_R6 | \
+ 			 1 << ARM_R7 | 1 << ARM_R8 | 1 << ARM_R9 | \
+@@ -70,6 +80,8 @@
+ #define CALLEE_PUSH_MASK (CALLEE_MASK | 1 << ARM_LR)
+ #define CALLEE_POP_MASK  (CALLEE_MASK | 1 << ARM_PC)
  
- void __init init_IRQ(void)
++#define CALLER_MASK	(1 << ARM_R0 | 1 << ARM_R1 | 1 << ARM_R2 | 1 << ARM_R3)
++
+ enum {
+ 	/* Stack layout - these are offsets from (top of stack - 4) */
+ 	BPF_R2_HI,
+@@ -464,6 +476,7 @@ static inline int epilogue_offset(const struct jit_ctx *ctx)
+ 
+ static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
  {
--#ifdef CONFIG_OF
-+#ifdef CONFIG_USE_OF
- 	irqchip_init();
- #else
- #ifdef CONFIG_HAVE_SMP
++	const int exclude_mask = BIT(ARM_R0) | BIT(ARM_R1);
+ 	const s8 *tmp = bpf2a32[TMP_REG_1];
+ 
+ #if __LINUX_ARM_ARCH__ == 7
+@@ -495,11 +508,17 @@ static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
+ 		emit(ARM_MOV_R(ARM_R0, rm), ctx);
+ 	}
+ 
++	/* Push caller-saved registers on stack */
++	emit(ARM_PUSH(CALLER_MASK & ~exclude_mask), ctx);
++
+ 	/* Call appropriate function */
+ 	emit_mov_i(ARM_IP, op == BPF_DIV ?
+ 		   (u32)jit_udiv32 : (u32)jit_mod32, ctx);
+ 	emit_blx_r(ARM_IP, ctx);
+ 
++	/* Restore caller-saved registers from stack */
++	emit(ARM_POP(CALLER_MASK & ~exclude_mask), ctx);
++
+ 	/* Save return value */
+ 	if (rd != ARM_R0)
+ 		emit(ARM_MOV_R(rd, ARM_R0), ctx);
 -- 
 2.33.0
 
