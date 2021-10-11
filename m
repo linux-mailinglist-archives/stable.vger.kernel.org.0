@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E96D8428FC6
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DCD9428FCA
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:00:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237380AbhJKOBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:01:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50200 "EHLO mail.kernel.org"
+        id S237226AbhJKOBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:01:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234625AbhJKN7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:59:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D5EBC60C49;
-        Mon, 11 Oct 2021 13:56:10 +0000 (UTC)
+        id S237112AbhJKN7N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:59:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBA8B6112D;
+        Mon, 11 Oct 2021 13:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960572;
-        bh=FjsnDtrggRwGPAXemP/SeC+RtEGOVmRcjOrNEKPRu30=;
+        s=korg; t=1633960576;
+        bh=VxP1/+gjxSxxcdqztD8paRywrJMJk+wkvnIgRA9ejQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/Ge9jMBF/yxPtIk3HHNleplcVvgiC4LvLZulIfSy1BbMxoihDIolEgIy5PiEeYSx
-         SSmRV5OpLVqB5RNN4TGnEkOZYL2o2Kl08kcLfXDUK9hWojKsu3usxtFHJTuFo7w+wC
-         wHUdZLgFhnxa731wv7N9YiNN2AY1y+81WJHUug0s=
+        b=mdCaQyu+acJ1LccgjWZNEtb1036Z1lMSjceegSNBvDPv2LJbm/mQR10WsThymBXrX
+         gj/0JuGS5+cz1iLafwt2PIv/tWsROj3aJ5GwyCWLKy3nb9SvVWu5P1HYfW2dRd/BQB
+         XYy4ygdFigwk9tlXFCDhQptHKZuRdWCWYH8Tz9yI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Mario Limonciello <mario.limonciell@amd.com>
-Subject: [PATCH 5.14 012/151] drm/amdgpu: During s0ix dont wait to signal GFXOFF
-Date:   Mon, 11 Oct 2021 15:44:44 +0200
-Message-Id: <20211011134518.256868054@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: [PATCH 5.14 013/151] drm/nouveau/kms/tu102-: delay enabling cursor until after assign_windows
+Date:   Mon, 11 Oct 2021 15:44:45 +0200
+Message-Id: <20211011134518.287596839@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -40,64 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijo Lazar <lijo.lazar@amd.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-commit 1d617c029fd9c960f8ba7a8d1a10699d820bd6b9 upstream.
+commit f732e2e34aa08493fdd762f3daa4e5f16bbf1e45 upstream.
 
-In the rare event when GFX IP suspend coincides with a s0ix entry, don't
-schedule a delayed work, instead signal PMFW immediately to allow GFXOFF
-entry. GFXOFF is a prerequisite for s0ix entry. PMFW needs to be
-signaled about GFXOFF status before amd-pmc module passes OS HINT
-to PMFW telling that everything is ready for a safe s0ix entry.
+Prevent NVD core channel error code 67 occuring and hanging display,
+managed to reproduce on GA102 while testing suspend/resume scenarios.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1712
+Required extension of earlier commit to fix interactions with EFI.
 
-Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Mario Limonciello <mario.limonciell@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: e78b1b545c6c ("drm/nouveau/kms/nv50: workaround EFI GOP window channel format differences")
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Karol Herbst <kherbst@redhat.com>
+Cc: <stable@vger.kernel.org> # v5.12+
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210906005628.11499-2-skeggsb@gmail.com
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/nouveau/dispnv50/head.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
-@@ -31,6 +31,8 @@
- /* delay 0.1 second to enable gfx off feature */
- #define GFX_OFF_DELAY_ENABLE         msecs_to_jiffies(100)
- 
-+#define GFX_OFF_NO_DELAY 0
-+
- /*
-  * GPU GFX IP block helpers function.
-  */
-@@ -558,6 +560,8 @@ int amdgpu_gfx_enable_kcq(struct amdgpu_
- 
- void amdgpu_gfx_off_ctrl(struct amdgpu_device *adev, bool enable)
+--- a/drivers/gpu/drm/nouveau/dispnv50/head.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/head.c
+@@ -52,6 +52,7 @@ nv50_head_flush_clr(struct nv50_head *he
+ void
+ nv50_head_flush_set_wndw(struct nv50_head *head, struct nv50_head_atom *asyh)
  {
-+	unsigned long delay = GFX_OFF_DELAY_ENABLE;
-+
- 	if (!(adev->pm.pp_feature & PP_GFXOFF_MASK))
- 		return;
- 
-@@ -573,8 +577,14 @@ void amdgpu_gfx_off_ctrl(struct amdgpu_d
- 
- 		adev->gfx.gfx_off_req_count--;
- 
--		if (adev->gfx.gfx_off_req_count == 0 && !adev->gfx.gfx_off_state)
--			schedule_delayed_work(&adev->gfx.gfx_off_delay_work, GFX_OFF_DELAY_ENABLE);
-+		if (adev->gfx.gfx_off_req_count == 0 &&
-+		    !adev->gfx.gfx_off_state) {
-+			/* If going to s2idle, no need to wait */
-+			if (adev->in_s0ix)
-+				delay = GFX_OFF_NO_DELAY;
-+			schedule_delayed_work(&adev->gfx.gfx_off_delay_work,
-+					      delay);
-+		}
- 	} else {
- 		if (adev->gfx.gfx_off_req_count == 0) {
- 			cancel_delayed_work_sync(&adev->gfx.gfx_off_delay_work);
++	if (asyh->set.curs   ) head->func->curs_set(head, asyh);
+ 	if (asyh->set.olut   ) {
+ 		asyh->olut.offset = nv50_lut_load(&head->olut,
+ 						  asyh->olut.buffer,
+@@ -67,7 +68,6 @@ nv50_head_flush_set(struct nv50_head *he
+ 	if (asyh->set.view   ) head->func->view    (head, asyh);
+ 	if (asyh->set.mode   ) head->func->mode    (head, asyh);
+ 	if (asyh->set.core   ) head->func->core_set(head, asyh);
+-	if (asyh->set.curs   ) head->func->curs_set(head, asyh);
+ 	if (asyh->set.base   ) head->func->base    (head, asyh);
+ 	if (asyh->set.ovly   ) head->func->ovly    (head, asyh);
+ 	if (asyh->set.dither ) head->func->dither  (head, asyh);
 
 
