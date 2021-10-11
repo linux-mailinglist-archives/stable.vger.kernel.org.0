@@ -2,84 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A75D5428807
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 09:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2FBB428938
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 10:55:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234509AbhJKHsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 03:48:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40500 "EHLO mail.kernel.org"
+        id S235331AbhJKI5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 04:57:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234484AbhJKHsK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 03:48:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F193160184;
-        Mon, 11 Oct 2021 07:46:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633938371;
-        bh=hVUgTUVZtAs/m7ke6I5SxUm9Da6uKf6LbZUBs2saOQw=;
-        h=Subject:To:Cc:From:Date:From;
-        b=kGYz8pe12ewKYzFsodls5G8g6Omeml0IGwZsU3NG1ISnrBvfSftSnakfqI8q0ZocX
-         R3toig+OpNvWt8AdjSruQhMM6rWypNNL7SqZJLKLN6BQz/LoA5atAl5aYBzNjLAYMA
-         hFmuFZigUVWUXNyAlzQvOfn5vYfskCOqo24hlHo4=
-Subject: FAILED: patch "[PATCH] x86/resctrl: Free the ctrlval arrays when" failed to apply to 4.19-stable tree
-To:     james.morse@arm.com, bp@suse.de, reinette.chatre@intel.com,
+        id S235347AbhJKI47 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 04:56:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1939C60F38;
+        Mon, 11 Oct 2021 08:54:56 +0000 (UTC)
+Date:   Mon, 11 Oct 2021 10:54:54 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-fsdevel@vger.kernel.org, Hao Sun <sunhao.th@gmail.com>,
         stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Oct 2021 09:45:55 +0200
-Message-ID: <1633938355228173@kroah.com>
+Subject: Re: [PATCH] vfs: Check fd has read access in
+ kernel_read_file_from_fd()
+Message-ID: <20211011085454.63yjvaugzsgi6ubd@wittgenstein>
+References: <20211007220110.600005-1-willy@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20211007220110.600005-1-willy@infradead.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Oct 07, 2021 at 11:01:10PM +0100, Matthew Wilcox wrote:
+> If we open a file without read access and then pass the fd to a syscall
+> whose implementation calls kernel_read_file_from_fd(), we get a warning
+> from __kernel_read():
+> 
+>         if (WARN_ON_ONCE(!(file->f_mode & FMODE_READ)))
+> 
+> This currently affects both finit_module() and kexec_file_load(), but
+> it could affect other syscalls in the future.
+> 
+> Reported-by: Hao Sun <sunhao.th@gmail.com>
+> Fixes: b844f0ecbc56 ("vfs: define kernel_copy_file_from_fd()")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+> ---
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 64e87d4bd3201bf8a4685083ee4daf5c0d001452 Mon Sep 17 00:00:00 2001
-From: James Morse <james.morse@arm.com>
-Date: Fri, 17 Sep 2021 16:59:58 +0000
-Subject: [PATCH] x86/resctrl: Free the ctrlval arrays when
- domain_setup_mon_state() fails
-
-domain_add_cpu() is called whenever a CPU is brought online. The
-earlier call to domain_setup_ctrlval() allocates the control value
-arrays.
-
-If domain_setup_mon_state() fails, the control value arrays are not
-freed.
-
-Add the missing kfree() calls.
-
-Fixes: 1bd2a63b4f0de ("x86/intel_rdt/mba_sc: Add initialization support")
-Fixes: edf6fa1c4a951 ("x86/intel_rdt/cqm: Add RMID (Resource monitoring ID) management")
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20210917165958.28313-1-james.morse@arm.com
-
-diff --git a/arch/x86/kernel/cpu/resctrl/core.c b/arch/x86/kernel/cpu/resctrl/core.c
-index 4b8813bafffd..b5de5a6c115c 100644
---- a/arch/x86/kernel/cpu/resctrl/core.c
-+++ b/arch/x86/kernel/cpu/resctrl/core.c
-@@ -532,6 +532,8 @@ static void domain_add_cpu(int cpu, struct rdt_resource *r)
- 	}
- 
- 	if (r->mon_capable && domain_setup_mon_state(r, d)) {
-+		kfree(hw_dom->ctrl_val);
-+		kfree(hw_dom->mbps_val);
- 		kfree(d);
- 		return;
- 	}
-
+Thanks!
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
