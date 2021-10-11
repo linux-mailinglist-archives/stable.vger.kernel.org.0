@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 276B3428F09
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:52:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03B38428EA4
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237748AbhJKNyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:54:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39336 "EHLO mail.kernel.org"
+        id S237243AbhJKNvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:51:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236596AbhJKNxD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:53:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01A11610E7;
-        Mon, 11 Oct 2021 13:50:49 +0000 (UTC)
+        id S237246AbhJKNuO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:50:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70AF960F21;
+        Mon, 11 Oct 2021 13:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960250;
-        bh=mxWIgSPjwO4Pev4RGiDdug/jv5W4ZsfnbZBK68wu9pQ=;
+        s=korg; t=1633960094;
+        bh=90j3KqDcIJeIiJ/g/3FQopNbkD1LE4QJBm6HsNbOlU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y/po3rutYqa17/oIVYuIWv7mVsdlubmKbl2FE9kz9Plu9rYNM9z3165ml6ou+uiQ3
-         gHZ+C4CZ/VV86VCuPJihHWAtq4qWfFdHLoMJIx/DNKC3WjPXeDULEpCCK3GsckY73E
-         8AhIGJFko/OZQ/JwrMQbc0MX3G++qq3CAJ2tJJBQ=
+        b=FBMgW5JFwMmYYXXYlvNYtMcy5sSpFNXRf/s6ya90zzhGQ4tgPG9f1pc7kyuvPat3C
+         uSQ1IyUm3WQgqiXVOgBc9HgTQAcqi4LxFwmkVvaPNsYLEGU+wPgXn6KPqyGqNpyoys
+         9u9M+vgVko4krGe2zQAxy/f1bh4rRVcrz07fjLqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Liang <zhengliang6@huawei.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.10 11/83] ovl: fix missing negative dentry check in ovl_rename()
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 02/52] USB: cdc-acm: fix racy tty buffer accesses
 Date:   Mon, 11 Oct 2021 15:45:31 +0200
-Message-Id: <20211011134508.748956131@linuxfoundation.org>
+Message-Id: <20211011134503.803461169@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Liang <zhengliang6@huawei.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit a295aef603e109a47af355477326bd41151765b6 upstream.
+commit 65a205e6113506e69a503b61d97efec43fc10fd7 upstream.
 
-The following reproducer
+A recent change that started reporting break events to the line
+discipline caused the tty-buffer insertions to no longer be serialised
+by inserting events also from the completion handler for the interrupt
+endpoint.
 
-  mkdir lower upper work merge
-  touch lower/old
-  touch lower/new
-  mount -t overlay overlay -olowerdir=lower,upperdir=upper,workdir=work merge
-  rm merge/new
-  mv merge/old merge/new & unlink upper/new
+Completion calls for distinct endpoints are not guaranteed to be
+serialised. For example, in case a host-controller driver uses
+bottom-half completion, the interrupt and bulk-in completion handlers
+can end up running in parallel on two CPUs (high-and low-prio tasklets,
+respectively) thereby breaking the tty layer's single producer
+assumption.
 
-may result in this race:
+Fix this by holding the read lock also when inserting characters from
+the bulk endpoint.
 
-PROCESS A:
-  rename("merge/old", "merge/new");
-  overwrite=true,ovl_lower_positive(old)=true,
-  ovl_dentry_is_whiteout(new)=true -> flags |= RENAME_EXCHANGE
-
-PROCESS B:
-  unlink("upper/new");
-
-PROCESS A:
-  lookup newdentry in new_upperdir
-  call vfs_rename() with negative newdentry and RENAME_EXCHANGE
-
-Fix by adding the missing check for negative newdentry.
-
-Signed-off-by: Zheng Liang <zhengliang6@huawei.com>
-Fixes: e9be9d5e76e3 ("overlay filesystem")
-Cc: <stable@vger.kernel.org> # v3.18
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 08dff274edda ("cdc-acm: fix BREAK rx code path adding necessary calls")
+Cc: stable@vger.kernel.org
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210929090937.7410-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/overlayfs/dir.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/usb/class/cdc-acm.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -1214,9 +1214,13 @@ static int ovl_rename(struct inode *oldd
- 				goto out_dput;
- 		}
- 	} else {
--		if (!d_is_negative(newdentry) &&
--		    (!new_opaque || !ovl_is_whiteout(newdentry)))
--			goto out_dput;
-+		if (!d_is_negative(newdentry)) {
-+			if (!new_opaque || !ovl_is_whiteout(newdentry))
-+				goto out_dput;
-+		} else {
-+			if (flags & RENAME_EXCHANGE)
-+				goto out_dput;
-+		}
- 	}
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -474,11 +474,16 @@ static int acm_submit_read_urbs(struct a
  
- 	if (olddentry == trap)
+ static void acm_process_read_urb(struct acm *acm, struct urb *urb)
+ {
++	unsigned long flags;
++
+ 	if (!urb->actual_length)
+ 		return;
+ 
++	spin_lock_irqsave(&acm->read_lock, flags);
+ 	tty_insert_flip_string(&acm->port, urb->transfer_buffer,
+ 			urb->actual_length);
++	spin_unlock_irqrestore(&acm->read_lock, flags);
++
+ 	tty_flip_buffer_push(&acm->port);
+ }
+ 
 
 
