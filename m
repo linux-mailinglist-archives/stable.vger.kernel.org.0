@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E116F428FFA
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:02:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D07F4428FFD
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:02:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238451AbhJKOC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:02:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50192 "EHLO mail.kernel.org"
+        id S238480AbhJKODE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:03:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234554AbhJKOA5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:00:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6017560EB1;
-        Mon, 11 Oct 2021 13:57:13 +0000 (UTC)
+        id S238484AbhJKOBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:01:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35E3761056;
+        Mon, 11 Oct 2021 13:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960633;
-        bh=6HKDCx+ad9b/P5y/PaIadr5JJJ84ChOLIAYP/vJHqtU=;
+        s=korg; t=1633960642;
+        bh=BnucTzdgEn4MCV5ug8uOTdS2GahGemh+33cFkqVmIPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZM4qZxk5H68HydhYzoP+7/F+Q/6skIU0SFEg0Hg3nxSWcdFU7fa52tAZF0+12AdZy
-         4h/cG6Uw4fGB4HLSNfPpVSymbnbidM3BisuCBLqhknbmwuSxGIGKuk7lcqQsq9hXS0
-         cD7+sZz8e4bn+fxFcfGG+ZAYjhn/vTsoSnmDUaqc=
+        b=QUfbHzf3LKs1Fj/UZuwydOmfGPddXNjn0Sz3J6AcBiqI6Su7fBv0tjmEu/3Ss1KoD
+         9hb4dNtsksU5uLYZbSRW8rXsj2EdF7LyHlp3dgJ8d/a2/r2l4qWoh4C36WNvxPeU8h
+         Fx/KThRfsvWxdSHCzISjtEjpAFvTwbgcOXmQh4KA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.14 029/151] SUNRPC: fix sign error causing rpcsec_gss drops
-Date:   Mon, 11 Oct 2021 15:45:01 +0200
-Message-Id: <20211011134518.791983887@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>, Juergen Gross <jgross@suse.com>,
+        Jason Andryuk <jandryuk@gmail.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 5.14 030/151] xen/balloon: fix cancelled balloon action
+Date:   Mon, 11 Oct 2021 15:45:02 +0200
+Message-Id: <20211011134518.822924917@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -39,42 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 2ba5acfb34957e8a7fe47cd78c77ca88e9cc2b03 upstream.
+commit 319933a80fd4f07122466a77f93e5019d71be74c upstream.
 
-If sd_max is unsigned, then sd_max - GSS_SEQ_WIN is a very large number
-whenever sd_max is less than GSS_SEQ_WIN, and the comparison:
+In case a ballooning action is cancelled the new kernel thread handling
+the ballooning might end up in a busy loop.
 
-	seq_num <= sd->sd_max - GSS_SEQ_WIN
+Fix that by handling the cancelled action gracefully.
 
-in gss_check_seq_num is pretty much always true, even when that's
-clearly not what was intended.
+While at it introduce a short wait for the BP_WAIT case.
 
-This was causing pynfs to hang when using krb5, because pynfs uses zero
-as the initial gss sequence number.  That's perfectly legal, but this
-logic error causes knfsd to drop the rpc in that case.  Out-of-order
-sequence IDs in the first GSS_SEQ_WIN (128) calls will also cause this.
-
-Fixes: 10b9d99a3dbb ("SUNRPC: Augment server-side rpcgss tracepoints")
 Cc: stable@vger.kernel.org
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 8480ed9c2bbd56 ("xen/balloon: use a kernel thread instead a workqueue")
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Tested-by: Jason Andryuk <jandryuk@gmail.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20211005133433.32008-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/auth_gss/svcauth_gss.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/balloon.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -643,7 +643,7 @@ static bool gss_check_seq_num(const stru
- 		}
- 		__set_bit(seq_num % GSS_SEQ_WIN, sd->sd_win);
- 		goto ok;
--	} else if (seq_num <= sd->sd_max - GSS_SEQ_WIN) {
-+	} else if (seq_num + GSS_SEQ_WIN <= sd->sd_max) {
- 		goto toolow;
- 	}
- 	if (__test_and_set_bit(seq_num % GSS_SEQ_WIN, sd->sd_win))
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -491,12 +491,12 @@ static enum bp_state decrease_reservatio
+ }
+ 
+ /*
+- * Stop waiting if either state is not BP_EAGAIN and ballooning action is
+- * needed, or if the credit has changed while state is BP_EAGAIN.
++ * Stop waiting if either state is BP_DONE and ballooning action is
++ * needed, or if the credit has changed while state is not BP_DONE.
+  */
+ static bool balloon_thread_cond(enum bp_state state, long credit)
+ {
+-	if (state != BP_EAGAIN)
++	if (state == BP_DONE)
+ 		credit = 0;
+ 
+ 	return current_credit() != credit || kthread_should_stop();
+@@ -516,10 +516,19 @@ static int balloon_thread(void *unused)
+ 
+ 	set_freezable();
+ 	for (;;) {
+-		if (state == BP_EAGAIN)
+-			timeout = balloon_stats.schedule_delay * HZ;
+-		else
++		switch (state) {
++		case BP_DONE:
++		case BP_ECANCELED:
+ 			timeout = 3600 * HZ;
++			break;
++		case BP_EAGAIN:
++			timeout = balloon_stats.schedule_delay * HZ;
++			break;
++		case BP_WAIT:
++			timeout = HZ;
++			break;
++		}
++
+ 		credit = current_credit();
+ 
+ 		wait_event_freezable_timeout(balloon_thread_wq,
 
 
