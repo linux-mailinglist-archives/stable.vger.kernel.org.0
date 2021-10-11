@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 596A5428F9A
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30125428F98
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237990AbhJKN7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:59:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50396 "EHLO mail.kernel.org"
+        id S237979AbhJKN7l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:59:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238401AbhJKN6j (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238400AbhJKN6j (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 11 Oct 2021 09:58:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED6BF60FD7;
-        Mon, 11 Oct 2021 13:55:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E16386120C;
+        Mon, 11 Oct 2021 13:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960514;
-        bh=MZmTPfvdL1jgmGfz6AdivD9uR40KFBFihT2ynFZbIho=;
+        s=korg; t=1633960517;
+        bh=fPz+VdkX106Mduow8rVFHChVJKKfmkGnLlUVKAZAGZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rNtuRPxHZ/MiF6Y1HrFBo0QI+WgtDWCkbvNs2LcPFc4ZT6QUIGz56qCnm6uLcHCw1
-         9ksAfs9uIPlmRa0YlPFr/dunZoG9LhiHvvGP+w18bSCC4gLWz4FFgY2XDcPOz7Jjij
-         yv59TdxrEW4QzXvF+a5pwCvvlG7owL0WTmmBeDF4=
+        b=WfEvKsMjZooJOiGzj2msrC2i+GwxJMfLtq7VNVKc8uVtH/Y3pqRbOUOxpmqpE7vDO
+         jR3uSIF5gcDJ+24wT8Gsnh5FQbo1EUgdWMFvW0s+q8VfJuP4oZOehgvJtmgM6q9ia3
+         iDtsM9VBibKiFKGA//mgo5TdCyc0ZFkraZg/LIUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.10 82/83] x86/hpet: Use another crystalball to evaluate HPET usability
-Date:   Mon, 11 Oct 2021 15:46:42 +0200
-Message-Id: <20211011134511.197929357@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 83/83] scsi: ufs: core: Fix task management completion
+Date:   Mon, 11 Oct 2021 15:46:43 +0200
+Message-Id: <20211011134511.235071707@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
 References: <20211011134508.362906295@linuxfoundation.org>
@@ -42,159 +40,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 6e3cd95234dc1eda488f4f487c281bac8fef4d9b upstream.
+commit f5ef336fd2e4c36dedae4e7ca66cf5349d6fda62 upstream.
 
-On recent Intel systems the HPET stops working when the system reaches PC10
-idle state.
+The UFS driver uses blk_mq_tagset_busy_iter() when identifying task
+management requests to complete, however blk_mq_tagset_busy_iter() doesn't
+work.
 
-The approach of adding PCI ids to the early quirks to disable HPET on
-these systems is a whack a mole game which makes no sense.
+blk_mq_tagset_busy_iter() only iterates requests dispatched by the block
+layer. That appears as if it might have started since commit 37f4a24c2469
+("blk-mq: centralise related handling into blk_mq_get_driver_tag") which
+removed 'data->hctx->tags->rqs[rq->tag] = rq' from blk_mq_rq_ctx_init()
+which gets called:
 
-Check for PC10 instead and force disable HPET if supported. The check is
-overbroad as it does not take ACPI, intel_idle enablement and command
-line parameters into account. That's fine as long as there is at least
-PMTIMER available to calibrate the TSC frequency. The decision can be
-overruled by adding "hpet=force" on the kernel command line.
+	blk_get_request
+		blk_mq_alloc_request
+			__blk_mq_alloc_request
+				blk_mq_rq_ctx_init
 
-Remove the related early PCI quirks for affected Ice Cake and Coffin Lake
-systems as they are not longer required. That should also cover all
-other systems, i.e. Tiger Rag and newer generations, which are most
-likely affected by this as well.
+Since UFS task management requests are not dispatched by the block layer,
+hctx->tags->rqs[rq->tag] remains NULL, and since blk_mq_tagset_busy_iter()
+relies on finding requests using hctx->tags->rqs[rq->tag], UFS task
+management requests are never found by blk_mq_tagset_busy_iter().
 
-Fixes: Yet another hardware trainwreck
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Rafael J. Wysocki <rafael@kernel.org>
+By using blk_mq_tagset_busy_iter(), the UFS driver was relying on internal
+details of the block layer, which was fragile and subsequently got
+broken. Fix by removing the use of blk_mq_tagset_busy_iter() and having the
+driver keep track of task management requests.
+
+Link: https://lore.kernel.org/r/20210922091059.4040-1-adrian.hunter@intel.com
+Fixes: 1235fc569e0b ("scsi: ufs: core: Fix task management request completion timeout")
+Fixes: 69a6c269c097 ("scsi: ufs: Use blk_{get,put}_request() to allocate and free TMFs")
 Cc: stable@vger.kernel.org
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
+Tested-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/kernel/early-quirks.c |    6 ---
- arch/x86/kernel/hpet.c         |   81 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 81 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kernel/early-quirks.c
-+++ b/arch/x86/kernel/early-quirks.c
-@@ -711,12 +711,6 @@ static struct chipset early_qrk[] __init
- 	 */
- 	{ PCI_VENDOR_ID_INTEL, 0x0f00,
- 		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
--	{ PCI_VENDOR_ID_INTEL, 0x3e20,
--		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
--	{ PCI_VENDOR_ID_INTEL, 0x3ec4,
--		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
--	{ PCI_VENDOR_ID_INTEL, 0x8a12,
--		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
- 	{ PCI_VENDOR_ID_BROADCOM, 0x4331,
- 	  PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
- 	{}
---- a/arch/x86/kernel/hpet.c
-+++ b/arch/x86/kernel/hpet.c
-@@ -9,6 +9,7 @@
- 
- #include <asm/hpet.h>
- #include <asm/time.h>
-+#include <asm/mwait.h>
- 
- #undef  pr_fmt
- #define pr_fmt(fmt) "hpet: " fmt
-@@ -806,6 +807,83 @@ static bool __init hpet_counting(void)
- 	return false;
+---
+ drivers/scsi/ufs/ufshcd.c |   54 +++++++++++++++++++++-------------------------
+ drivers/scsi/ufs/ufshcd.h |    1 
+ 2 files changed, 26 insertions(+), 29 deletions(-)
+
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -6105,27 +6105,6 @@ static irqreturn_t ufshcd_check_errors(s
+ 	return retval;
  }
  
-+static bool __init mwait_pc10_supported(void)
-+{
-+	unsigned int eax, ebx, ecx, mwait_substates;
-+
-+	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
-+		return false;
-+
-+	if (!cpu_feature_enabled(X86_FEATURE_MWAIT))
-+		return false;
-+
-+	if (boot_cpu_data.cpuid_level < CPUID_MWAIT_LEAF)
-+		return false;
-+
-+	cpuid(CPUID_MWAIT_LEAF, &eax, &ebx, &ecx, &mwait_substates);
-+
-+	return (ecx & CPUID5_ECX_EXTENSIONS_SUPPORTED) &&
-+	       (ecx & CPUID5_ECX_INTERRUPT_BREAK) &&
-+	       (mwait_substates & (0xF << 28));
-+}
-+
-+/*
-+ * Check whether the system supports PC10. If so force disable HPET as that
-+ * stops counting in PC10. This check is overbroad as it does not take any
-+ * of the following into account:
-+ *
-+ *	- ACPI tables
-+ *	- Enablement of intel_idle
-+ *	- Command line arguments which limit intel_idle C-state support
-+ *
-+ * That's perfectly fine. HPET is a piece of hardware designed by committee
-+ * and the only reasons why it is still in use on modern systems is the
-+ * fact that it is impossible to reliably query TSC and CPU frequency via
-+ * CPUID or firmware.
-+ *
-+ * If HPET is functional it is useful for calibrating TSC, but this can be
-+ * done via PMTIMER as well which seems to be the last remaining timer on
-+ * X86/INTEL platforms that has not been completely wreckaged by feature
-+ * creep.
-+ *
-+ * In theory HPET support should be removed altogether, but there are older
-+ * systems out there which depend on it because TSC and APIC timer are
-+ * dysfunctional in deeper C-states.
-+ *
-+ * It's only 20 years now that hardware people have been asked to provide
-+ * reliable and discoverable facilities which can be used for timekeeping
-+ * and per CPU timer interrupts.
-+ *
-+ * The probability that this problem is going to be solved in the
-+ * forseeable future is close to zero, so the kernel has to be cluttered
-+ * with heuristics to keep up with the ever growing amount of hardware and
-+ * firmware trainwrecks. Hopefully some day hardware people will understand
-+ * that the approach of "This can be fixed in software" is not sustainable.
-+ * Hope dies last...
-+ */
-+static bool __init hpet_is_pc10_damaged(void)
-+{
-+	unsigned long long pcfg;
-+
-+	/* Check whether PC10 substates are supported */
-+	if (!mwait_pc10_supported())
-+		return false;
-+
-+	/* Check whether PC10 is enabled in PKG C-state limit */
-+	rdmsrl(MSR_PKG_CST_CONFIG_CONTROL, pcfg);
-+	if ((pcfg & 0xF) < 8)
-+		return false;
-+
-+	if (hpet_force_user) {
-+		pr_warn("HPET force enabled via command line, but dysfunctional in PC10.\n");
-+		return false;
-+	}
-+
-+	pr_info("HPET dysfunctional in PC10. Force disabled.\n");
-+	boot_hpet_disable = true;
-+	return true;
-+}
-+
+-struct ctm_info {
+-	struct ufs_hba	*hba;
+-	unsigned long	pending;
+-	unsigned int	ncpl;
+-};
+-
+-static bool ufshcd_compl_tm(struct request *req, void *priv, bool reserved)
+-{
+-	struct ctm_info *const ci = priv;
+-	struct completion *c;
+-
+-	WARN_ON_ONCE(reserved);
+-	if (test_bit(req->tag, &ci->pending))
+-		return true;
+-	ci->ncpl++;
+-	c = req->end_io_data;
+-	if (c)
+-		complete(c);
+-	return true;
+-}
+-
  /**
-  * hpet_enable - Try to setup the HPET timer. Returns 1 on success.
+  * ufshcd_tmc_handler - handle task management function completion
+  * @hba: per adapter instance
+@@ -6136,14 +6115,24 @@ static bool ufshcd_compl_tm(struct reque
   */
-@@ -819,6 +897,9 @@ int __init hpet_enable(void)
- 	if (!is_hpet_capable())
- 		return 0;
+ static irqreturn_t ufshcd_tmc_handler(struct ufs_hba *hba)
+ {
+-	struct request_queue *q = hba->tmf_queue;
+-	struct ctm_info ci = {
+-		.hba	 = hba,
+-		.pending = ufshcd_readl(hba, REG_UTP_TASK_REQ_DOOR_BELL),
+-	};
++	unsigned long flags, pending, issued;
++	irqreturn_t ret = IRQ_NONE;
++	int tag;
  
-+	if (hpet_is_pc10_damaged())
-+		return 0;
+-	blk_mq_tagset_busy_iter(q->tag_set, ufshcd_compl_tm, &ci);
+-	return ci.ncpl ? IRQ_HANDLED : IRQ_NONE;
++	pending = ufshcd_readl(hba, REG_UTP_TASK_REQ_DOOR_BELL);
 +
- 	hpet_set_mapping();
- 	if (!hpet_virt_address)
- 		return 0;
++	spin_lock_irqsave(hba->host->host_lock, flags);
++	issued = hba->outstanding_tasks & ~pending;
++	for_each_set_bit(tag, &issued, hba->nutmrs) {
++		struct request *req = hba->tmf_rqs[tag];
++		struct completion *c = req->end_io_data;
++
++		complete(c);
++		ret = IRQ_HANDLED;
++	}
++	spin_unlock_irqrestore(hba->host->host_lock, flags);
++
++	return ret;
+ }
+ 
+ /**
+@@ -6273,9 +6262,9 @@ static int __ufshcd_issue_tm_cmd(struct
+ 	ufshcd_hold(hba, false);
+ 
+ 	spin_lock_irqsave(host->host_lock, flags);
+-	blk_mq_start_request(req);
+ 
+ 	task_tag = req->tag;
++	hba->tmf_rqs[req->tag] = req;
+ 	treq->req_header.dword_0 |= cpu_to_be32(task_tag);
+ 
+ 	memcpy(hba->utmrdl_base_addr + task_tag, treq, sizeof(*treq));
+@@ -6319,6 +6308,7 @@ static int __ufshcd_issue_tm_cmd(struct
+ 	}
+ 
+ 	spin_lock_irqsave(hba->host->host_lock, flags);
++	hba->tmf_rqs[req->tag] = NULL;
+ 	__clear_bit(task_tag, &hba->outstanding_tasks);
+ 	spin_unlock_irqrestore(hba->host->host_lock, flags);
+ 
+@@ -9246,6 +9236,12 @@ int ufshcd_init(struct ufs_hba *hba, voi
+ 		err = PTR_ERR(hba->tmf_queue);
+ 		goto free_tmf_tag_set;
+ 	}
++	hba->tmf_rqs = devm_kcalloc(hba->dev, hba->nutmrs,
++				    sizeof(*hba->tmf_rqs), GFP_KERNEL);
++	if (!hba->tmf_rqs) {
++		err = -ENOMEM;
++		goto free_tmf_queue;
++	}
+ 
+ 	/* Reset the attached device */
+ 	ufshcd_vops_device_reset(hba);
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -731,6 +731,7 @@ struct ufs_hba {
+ 
+ 	struct blk_mq_tag_set tmf_tag_set;
+ 	struct request_queue *tmf_queue;
++	struct request **tmf_rqs;
+ 
+ 	struct uic_command *active_uic_cmd;
+ 	struct mutex uic_cmd_mutex;
 
 
