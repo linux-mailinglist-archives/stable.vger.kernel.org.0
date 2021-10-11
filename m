@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E46A429172
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:17:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76EE9429183
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:18:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245062AbhJKOS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:18:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39266 "EHLO mail.kernel.org"
+        id S239084AbhJKOTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:19:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241233AbhJKOQF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:16:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4B8761076;
-        Mon, 11 Oct 2021 14:05:51 +0000 (UTC)
+        id S243984AbhJKOQf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:16:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20FD861355;
+        Mon, 11 Oct 2021 14:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633961152;
-        bh=PgHwjF3wtrbnQbGkUF54xuFzIv4x4wSDnP6YuNA+2gU=;
+        s=korg; t=1633961155;
+        bh=6+hpLCmDMPDlEJ/N0DKOdBQmmakj6iEBnV9MuboD3uA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eYYUNnwFBe1HHUlczi7W3Cf7dVnm9v3zrTMAoixFJCahYjSY2BpG495Jgh/QIZgRO
-         6bbcvCkcv5OQrpLFTyu2HZgU06ll708Zwo4Rnmi1t5bUOV8XvnHOvUvRKglcq20wJz
-         1YerMkYH/QIhfB+Mr5sRYIyFrGR76R+Gac2kXswI=
+        b=DtXCKcV8LyfHdUVtnOKCtadcOHkwlory392axgobn+uj9PBNCc2x0yGsTMDmtkuNY
+         liLsh0JGU5OkUFMmkgAcBiiXC//c8JqC/Mv0yLhmfFgjhujI3CZdR0a0p5uRKRWFwm
+         no8rGvQSBGCTJP0gu2xIVMqaSOU5+PqQrFhNj1sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 14/28] phy: mdio: fix memory leak
-Date:   Mon, 11 Oct 2021 15:47:04 +0200
-Message-Id: <20211011134641.172882204@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 15/28] net_sched: fix NULL deref in fifo_set_limit()
+Date:   Mon, 11 Oct 2021 15:47:05 +0200
+Message-Id: <20211011134641.202860021@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134640.711218469@linuxfoundation.org>
 References: <20211011134640.711218469@linuxfoundation.org>
@@ -42,56 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ca6e11c337daf7925ff8a2aac8e84490a8691905 ]
+[ Upstream commit 560ee196fe9e5037e5015e2cdb14b3aecb1cd7dc ]
 
-Syzbot reported memory leak in MDIO bus interface, the problem was in
-wrong state logic.
+syzbot reported another NULL deref in fifo_set_limit() [1]
 
-MDIOBUS_ALLOCATED indicates 2 states:
-	1. Bus is only allocated
-	2. Bus allocated and __mdiobus_register() fails, but
-	   device_register() was called
+I could repro the issue with :
 
-In case of device_register() has been called we should call put_device()
-to correctly free the memory allocated for this device, but mdiobus_free()
-calls just kfree(dev) in case of MDIOBUS_ALLOCATED state
+unshare -n
+tc qd add dev lo root handle 1:0 tbf limit 200000 burst 70000 rate 100Mbit
+tc qd replace dev lo parent 1:0 pfifo_fast
+tc qd change dev lo root handle 1:0 tbf limit 300000 burst 70000 rate 100Mbit
 
-To avoid this behaviour we need to set bus->state to MDIOBUS_UNREGISTERED
-_before_ calling device_register(), because put_device() should be
-called even in case of device_register() failure.
+pfifo_fast does not have a change() operation.
+Make fifo_set_limit() more robust about this.
 
-Link: https://lore.kernel.org/netdev/YVMRWNDZDUOvQjHL@shell.armlinux.org.uk/
-Fixes: 46abc02175b3 ("phylib: give mdio buses a device tree presence")
-Reported-and-tested-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/eceae1429fbf8fa5c73dd2a0d39d525aa905074d.1633024062.git.paskripkin@gmail.com
+[1]
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+PGD 1cf99067 P4D 1cf99067 PUD 7ca49067 PMD 0
+Oops: 0010 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 14443 Comm: syz-executor959 Not tainted 5.15.0-rc3-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:0x0
+Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+RSP: 0018:ffffc9000e2f7310 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffffffff8d6ecc00 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff888024c27910 RDI: ffff888071e34000
+RBP: ffff888071e34000 R08: 0000000000000001 R09: ffffffff8fcfb947
+R10: 0000000000000001 R11: 0000000000000000 R12: ffff888024c27910
+R13: ffff888071e34018 R14: 0000000000000000 R15: ffff88801ef74800
+FS:  00007f321d897700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffffd6 CR3: 00000000722c3000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ fifo_set_limit net/sched/sch_fifo.c:242 [inline]
+ fifo_set_limit+0x198/0x210 net/sched/sch_fifo.c:227
+ tbf_change+0x6ec/0x16d0 net/sched/sch_tbf.c:418
+ qdisc_change net/sched/sch_api.c:1332 [inline]
+ tc_modify_qdisc+0xd9a/0x1a60 net/sched/sch_api.c:1634
+ rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
+ netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
+ netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:724
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: fb0305ce1b03 ("net-sched: consolidate default fifo qdisc setup")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20210930212239.3430364-1-eric.dumazet@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/sched/sch_fifo.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index 08c81d4cfca8..3207da2224f6 100644
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -378,6 +378,13 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
- 	bus->dev.groups = NULL;
- 	dev_set_name(&bus->dev, "%s", bus->id);
+diff --git a/net/sched/sch_fifo.c b/net/sched/sch_fifo.c
+index 24893d3b5d22..bcd3ca97caea 100644
+--- a/net/sched/sch_fifo.c
++++ b/net/sched/sch_fifo.c
+@@ -152,6 +152,9 @@ int fifo_set_limit(struct Qdisc *q, unsigned int limit)
+ 	if (strncmp(q->ops->id + 1, "fifo", 4) != 0)
+ 		return 0;
  
-+	/* We need to set state to MDIOBUS_UNREGISTERED to correctly release
-+	 * the device in mdiobus_free()
-+	 *
-+	 * State will be updated later in this function in case of success
-+	 */
-+	bus->state = MDIOBUS_UNREGISTERED;
++	if (!q->ops->change)
++		return 0;
 +
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
+ 	nla = kmalloc(nla_attr_size(sizeof(struct tc_fifo_qopt)), GFP_KERNEL);
+ 	if (nla) {
+ 		nla->nla_type = RTM_NEWQDISC;
 -- 
 2.33.0
 
