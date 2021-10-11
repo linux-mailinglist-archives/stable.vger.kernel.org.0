@@ -2,106 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A81B74298FE
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 23:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 191D5429901
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 23:34:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235281AbhJKVga (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 17:36:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57232 "EHLO
+        id S235339AbhJKVgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 17:36:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235317AbhJKVg3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 17:36:29 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07FEEC061749
-        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 14:34:28 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id y12so59962668eda.4
-        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 14:34:27 -0700 (PDT)
+        with ESMTP id S235315AbhJKVgt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Oct 2021 17:36:49 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 133EFC06161C
+        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 14:34:49 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id g10so72117650edj.1
+        for <stable@vger.kernel.org>; Mon, 11 Oct 2021 14:34:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=2ASvbaX4mULlaQ5VNPfAMnoxqnz/X2X3p0hluU+FIx0=;
-        b=GiaUqRzMzNZdxYScPjPe67tmbRfAkynuVW7jg+j+0HBDVYAZ68l2sqeWVWgHuZrcBU
-         k6U7oTLA4aSdUOyJNK92QwUQlGj8rxB0exbbQpz1TWi70ip96mgchR3g5BpCZXnQwRMz
-         H+lXteD9kB9UeLgfxAE/A7DZMwh4T1CLoYvQ1dSezaMFim857pG5rcZ1bH+r0wmceFAs
-         OEW87b2KDx+sdoXDzWliapO3EmyyxQbo1T2z2wDIuy0Gtu0fEuv8qmg2TBrLvCLBepJm
-         H01rmaiD2lU2pNAU2sCoIHLBayWlWbtQcGUzWQSuIyTIxd1ZozWZMrw6e8DPm6ydlhsF
-         fyGA==
+        bh=EiVrD2iDMBLBuofZXrBJ94/4zVuoaHiijnyH+PFPUI4=;
+        b=sUgkyZRXsMgRphN+3Cln7odpz9WBkA07Z7nSznDv7LyV8d71mGBfBYUgBlZe0lIRVA
+         Q1Yyy2I91YCTFRsqixHz2O0cXOKbPP/SXZXIwcFpIenOrn+5WHs+Hh3HPqDf9FF4YRp/
+         T6mfEor8mUi4tukIbLoifQQv2VW1GLxOJbheoCx+V7JWQQbT+EFGMhMUIy4EH74jiU5k
+         3GTDcQlRH4/1Nra5ghsU5kiWJBbK3A7vqOlAfDBQZKLQjbP/o0GUaEGB49OGax+67rqM
+         dBDS1wxgcG4mbdENUpPmlvDCJZIUxKFe+AMwkSz5kNlEa9/UXgr4HtjwyH526toiA7Mm
+         rsAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=2ASvbaX4mULlaQ5VNPfAMnoxqnz/X2X3p0hluU+FIx0=;
-        b=B+kno7avgLPZjbkibxqu9xEEmSS69SPEwCETE0ni26h76U8pYXC6D2UTtCpkmMZSVF
-         OJYAQCK5BfrITw6jdkXvax8btvEDjpLr7fSav/IyuNXN+fmYosz3zn01OZGIDWyL6ZdS
-         MHAAL0wqebnX/0e545EzvEGU6VCCDLOWfvkG0EbwDakCM58KAgr/N6tlOX1iXa0wasGx
-         HtsyRETzeDbSaamwvGCtAQp6ow6exOCrqqOfczETszkCS6sJAlrsn0oY0g2eLDMThNsv
-         Hv67fP2V2HXcZHZCUXOES2MyiQV3MtZccG50lBFjnAypxexn4U88+QAAMuILuWfE1d+n
-         SsaA==
-X-Gm-Message-State: AOAM532aI64RViOppOjaeNhbpKaCSNdInIsuW6VzSM7vvIwiv0tgan0C
-        8jCx+lLscSpwJN2Qi2K4g39/Vf8UCavokLKWHPqP
-X-Google-Smtp-Source: ABdhPJyO3wD+tHrVQmXHAZ7sE5WYEdQl0aKMJ//KoLlskSOmk+AfJORoEj9x9vQTLaFdFxfB1vfKy3dWfszaiXIkUn8=
-X-Received: by 2002:a17:906:2f16:: with SMTP id v22mr27539784eji.126.1633988066527;
- Mon, 11 Oct 2021 14:34:26 -0700 (PDT)
+        bh=EiVrD2iDMBLBuofZXrBJ94/4zVuoaHiijnyH+PFPUI4=;
+        b=P3pPit0IL2rnM6wepKpqhuEa/LKXZ14e10tHMAa7LIkkyeyfGfBCrXFlttlNoaHHRB
+         Hlxm0c6dw6/kWI7DsiHp/sEwX+XqBObnGTZtAkeAHqHstKcoWVnXO3ChOyTBI0ItKtuF
+         un+3n9OofisBYmgRJ7If2yxjmkk4Ge4ageyHhEJCNEEY1bP1aZaTn1WUgLk3se1E23Wy
+         xzmpBN9Hom6+rxkn5IxQzPf+ZTfofyf/JMu5sBs66AeFRvSw/m81ftzDKirNNmfLFT7G
+         /VMryqiKqyqcOVvFsQMPevdH0P2yrIdqojCbX7MYz59oRy3VkHJ+klLxrAlJb4YQTzm+
+         Dkzg==
+X-Gm-Message-State: AOAM533sqsS95zpL8uRDif06bFInYTI2sbSDOFptGQ3JfrUCXCJQv9gP
+        RlK/Ezqi83IID+PWm9EQe7fH/Ln9jbtygZk/61GSkQ==
+X-Google-Smtp-Source: ABdhPJwSiy6AaVg267aL3oPbb2eMX1xe0pHHXkjDBpG2vywKG9+bqelpJKF79VASCUvtV/kmN1sV++sHiqrEcRt1PAs=
+X-Received: by 2002:a05:6402:90c:: with SMTP id g12mr5946787edz.198.1633988087485;
+ Mon, 11 Oct 2021 14:34:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211007004629.1113572-1-tkjos@google.com> <20211007004629.1113572-4-tkjos@google.com>
- <CAHC9VhTRTcZW9eyXXvAN7T=ZCQ_zwH5iBz+d0h2ntf7=XHE-Vw@mail.gmail.com> <6dd3cdff-c4eb-6457-f04c-199263acd80b@schaufler-ca.com>
-In-Reply-To: <6dd3cdff-c4eb-6457-f04c-199263acd80b@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 11 Oct 2021 17:34:15 -0400
-Message-ID: <CAHC9VhQfPn88QZSMEw1d04V4f9MWwJxUDd-ibTd+6GTBiYLAPg@mail.gmail.com>
-Subject: Re: [PATCH v4 3/3] binder: use euid from cred instead of using task
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Todd Kjos <tkjos@google.com>, gregkh@linuxfoundation.org,
-        arve@android.com, tkjos@android.com, maco@android.com,
-        christian@brauner.io, James Morris <jmorris@namei.org>,
-        Serge Hallyn <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, keescook@chromium.org,
-        jannh@google.com, Jeffrey Vander Stoep <jeffv@google.com>,
-        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-kernel@vger.kernel.org, joel@joelfernandes.org,
-        kernel-team@android.com, stable@vger.kernel.org
+References: <20211011134517.833565002@linuxfoundation.org> <CA+G9fYutz0ZgJ=rrg8=Fd7vh9c7G-SJfF2YoH5wZyGzUHu4Dqw@mail.gmail.com>
+ <CAK8P3a3WYDbLm40OEMDcDfBJWRqfaWLvVQu4eD8W=UEjkBrpUw@mail.gmail.com>
+In-Reply-To: <CAK8P3a3WYDbLm40OEMDcDfBJWRqfaWLvVQu4eD8W=UEjkBrpUw@mail.gmail.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 12 Oct 2021 03:04:35 +0530
+Message-ID: <CA+G9fYubbNMtp9XX3AWb-7srT6D1B0rB8BLM8e1HSKeCM75u7g@mail.gmail.com>
+Subject: Re: [PATCH 5.14 000/151] 5.14.12-rc1 review
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        lkft-triage@lists.linaro.org,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 8, 2021 at 5:25 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> It looks like a really long backtrace, and there is something about stack
+> corruption, so I wonder if the stack is actually overflowing here. Can
+> you see if the same thing happens with Ard's vmap-stack branch from [1]
+> or if that shows a different output?
 >
-> On 10/8/2021 2:12 PM, Paul Moore wrote:
-> > On Wed, Oct 6, 2021 at 8:46 PM Todd Kjos <tkjos@google.com> wrote:
-> >> Set a transaction's sender_euid from the 'struct cred'
-> >> saved at binder_open() instead of looking up the euid
-> >> from the binder proc's 'struct task'. This ensures
-> >> the euid is associated with the security context that
-> >> of the task that opened binder.
-> >>
-> >> Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
-> >> Signed-off-by: Todd Kjos <tkjos@google.com>
-> >> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> >> Cc: stable@vger.kernel.org # 4.4+
-> >> ---
-> >> v3: added this patch to series
-> >>
-> >>  drivers/android/binder.c | 2 +-
-> >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> > This is an interesting ordering of the patches.  Unless I'm missing
-> > something I would have expected patch 3/3 to come first, followed by
-> > 2/3, with patch 1/3 at the end; basically the reverse of what was
-> > posted here.
-> >
-> > My reading of the previous thread was that Casey has made his peace
-> > with these changes
->
-> Yes. I will address the stacking concerns more directly.
-> I am still somewhat baffled by the intent of the hook, the data
-> passed to it, and the SELinux policy enforcement decisions, but
-> that's beyond my scope.
+> [1] https://git.kernel.org/pub/scm/linux/kernel/git/ardb/linux.git/log/?h=arm-vmap-stacks
 
-Okay, I just wanted to make sure there were no objections.
+I do not see any crash on this tree and arm-vmap-stacks branch.
 
--- 
-paul moore
-www.paul-moore.com
+- Naresh
