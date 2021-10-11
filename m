@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC214428EBD
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE01A428F10
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237481AbhJKNvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:51:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39338 "EHLO mail.kernel.org"
+        id S236915AbhJKNyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:54:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237349AbhJKNvI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:51:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02E8460FD7;
-        Mon, 11 Oct 2021 13:48:45 +0000 (UTC)
+        id S237814AbhJKNxN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:53:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82313610EA;
+        Mon, 11 Oct 2021 13:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960125;
-        bh=rO92xfwd8ztuQQ7QEWDlKv9RsldvGRVYJx0jTy55PWo=;
+        s=korg; t=1633960262;
+        bh=4Mpa3t6d3YPxBVYe91lMhmo3cMoVNduudfA61Q8tzT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cV/Yywemh2qla2jpbGT4M2Cp6+030NBJVMeONs1KViRbo1VzY1qVm9wGpRopbiYo/
-         mkkZQ+LAh4om/LIsXOhP64xgQVAdJ2YM1jVpvHs+bYQoQNU3SMBdbEYLp//SHXTTaf
-         iMyMg8M99ec7gVQwgm/jz+ads/FkonDlPcxiaOgY=
+        b=ZpXWBe84Ws1wsB0knZ8pQvIkEf4UgiWNjRnN+kmLAD+Mz6emOS5rhyv160Ahpdx+B
+         mz6fjjGoYLu9dPdFzA9NGuQCdeX7WfB8sFYNKRm4TpPM80JkKh5k0oV6G8sEpEQJhf
+         gRC+CV2kXcpt16bmJt7FG4Ey3Tpm/Uu2PRXw8sZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 05/52] xen/privcmd: fix error handling in mmap-resource processing
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.10 14/83] nfsd4: Handle the NFSv4 READDIR dircount hint being zero
 Date:   Mon, 11 Oct 2021 15:45:34 +0200
-Message-Id: <20211011134503.901978188@linuxfoundation.org>
+Message-Id: <20211011134508.846916958@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit e11423d6721dd63b23fb41ade5e8d0b448b17780 upstream.
+commit f2e717d655040d632c9015f19aa4275f8b16e7f2 upstream.
 
-xen_pfn_t is the same size as int only on 32-bit builds (and not even
-on Arm32). Hence pfns[] can't be used directly to read individual error
-values returned from xen_remap_domain_mfn_array(); every other error
-indicator would be skipped/ignored on 64-bit.
+RFC3530 notes that the 'dircount' field may be zero, in which case the
+recommendation is to ignore it, and only enforce the 'maxcount' field.
+In RFC5661, this recommendation to ignore a zero valued field becomes a
+requirement.
 
-Fixes: 3ad0876554ca ("xen/privcmd: add IOCTL_PRIVCMD_MMAP_RESOURCE")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: aee377644146 ("nfsd4: fix rd_dircount enforcement")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Link: https://lore.kernel.org/r/aa6d6a67-6889-338a-a910-51e889f792d5@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- drivers/xen/privcmd.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/nfsd/nfs4xdr.c |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -810,11 +810,12 @@ static long privcmd_ioctl_mmap_resource(
- 		unsigned int domid =
- 			(xdata.flags & XENMEM_rsrc_acq_caller_owned) ?
- 			DOMID_SELF : kdata.dom;
--		int num;
-+		int num, *errs = (int *)pfns;
+--- a/fs/nfsd/nfs4xdr.c
++++ b/fs/nfsd/nfs4xdr.c
+@@ -3427,15 +3427,18 @@ nfsd4_encode_dirent(void *ccdv, const ch
+ 		goto fail;
+ 	cd->rd_maxcount -= entry_bytes;
+ 	/*
+-	 * RFC 3530 14.2.24 describes rd_dircount as only a "hint", so
+-	 * let's always let through the first entry, at least:
++	 * RFC 3530 14.2.24 describes rd_dircount as only a "hint", and
++	 * notes that it could be zero. If it is zero, then the server
++	 * should enforce only the rd_maxcount value.
+ 	 */
+-	if (!cd->rd_dircount)
+-		goto fail;
+-	name_and_cookie = 4 + 4 * XDR_QUADLEN(namlen) + 8;
+-	if (name_and_cookie > cd->rd_dircount && cd->cookie_offset)
+-		goto fail;
+-	cd->rd_dircount -= min(cd->rd_dircount, name_and_cookie);
++	if (cd->rd_dircount) {
++		name_and_cookie = 4 + 4 * XDR_QUADLEN(namlen) + 8;
++		if (name_and_cookie > cd->rd_dircount && cd->cookie_offset)
++			goto fail;
++		cd->rd_dircount -= min(cd->rd_dircount, name_and_cookie);
++		if (!cd->rd_dircount)
++			cd->rd_maxcount = 0;
++	}
  
-+		BUILD_BUG_ON(sizeof(*errs) > sizeof(*pfns));
- 		num = xen_remap_domain_mfn_array(vma,
- 						 kdata.addr & PAGE_MASK,
--						 pfns, kdata.num, (int *)pfns,
-+						 pfns, kdata.num, errs,
- 						 vma->vm_page_prot,
- 						 domid,
- 						 vma->vm_private_data);
-@@ -824,7 +825,7 @@ static long privcmd_ioctl_mmap_resource(
- 			unsigned int i;
- 
- 			for (i = 0; i < num; i++) {
--				rc = pfns[i];
-+				rc = errs[i];
- 				if (rc < 0)
- 					break;
- 			}
+ 	cd->cookie_offset = cookie_offset;
+ skip_entry:
 
 
