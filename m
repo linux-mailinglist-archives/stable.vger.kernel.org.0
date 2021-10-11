@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3666428FEE
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A0F428FF1
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 16:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238346AbhJKOCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 10:02:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47528 "EHLO mail.kernel.org"
+        id S238872AbhJKOCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 10:02:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238371AbhJKOAr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 10:00:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9AA060F11;
-        Mon, 11 Oct 2021 13:57:03 +0000 (UTC)
+        id S238392AbhJKOAt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 10:00:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A263360D42;
+        Mon, 11 Oct 2021 13:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960624;
-        bh=C4Fazr0fXV39GkNP2BVdXuK8r82UtSZ2UYa7dAn69AI=;
+        s=korg; t=1633960630;
+        bh=Dlo3aCwdkLnQbCE8HPeM3kQ2Acdz+aR++eMNMz1rZJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CgUMQYbYZMYcA2MWft5n7HyEIolzENKWhJw3ippoRccaT/tEQIqJLrTJCH4kUMAko
-         yuaJDROBnQwA+L0nj576vkG6v23j7pR9MjHOcCrFal6hy42drVTyEgBHxdyp0PM9K3
-         Rj/HEjRNnqfXHbdVcgj1CGw0SPkazL2hfNM2tmtY=
+        b=Uf0QnbvHkn2m7/3tZ8u/bhweccOMax9LwOV12t+Dca/WMyHuX4mK5RzViwx5ECcrR
+         OX/WH71NYC/HBjaEfwKQ8Ddx+DY9DlLtPhUOMiGAOpf/g60jcLDWlllC5Ex6vKiyY9
+         A9ZJBJ0vgwTDRwMN6dtQv+YUbw3fQgZIkzJc13d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick Ho <Patrick.Ho@netapp.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.14 027/151] nfsd: fix error handling of register_pernet_subsys() in init_nfsd()
-Date:   Mon, 11 Oct 2021 15:44:59 +0200
-Message-Id: <20211011134518.723594008@linuxfoundation.org>
+Subject: [PATCH 5.14 028/151] nfsd4: Handle the NFSv4 READDIR dircount hint being zero
+Date:   Mon, 11 Oct 2021 15:45:00 +0200
+Message-Id: <20211011134518.761095766@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134517.833565002@linuxfoundation.org>
 References: <20211011134517.833565002@linuxfoundation.org>
@@ -40,43 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Ho <Patrick.Ho@netapp.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 1d625050c7c2dd877e108e382b8aaf1ae3cfe1f4 upstream.
+commit f2e717d655040d632c9015f19aa4275f8b16e7f2 upstream.
 
-init_nfsd() should not unregister pernet subsys if the register fails
-but should instead unwind from the last successful operation which is
-register_filesystem().
+RFC3530 notes that the 'dircount' field may be zero, in which case the
+recommendation is to ignore it, and only enforce the 'maxcount' field.
+In RFC5661, this recommendation to ignore a zero valued field becomes a
+requirement.
 
-Unregistering a failed register_pernet_subsys() call can result in
-a kernel GPF as revealed by programmatically injecting an error in
-register_pernet_subsys().
-
-Verified the fix handled failure gracefully with no lingering nfsd
-entry in /proc/filesystems.  This change was introduced by the commit
-bd5ae9288d64 ("nfsd: register pernet ops last, unregister first"),
-the original error handling logic was correct.
-
-Fixes: bd5ae9288d64 ("nfsd: register pernet ops last, unregister first")
-Cc: stable@vger.kernel.org
-Signed-off-by: Patrick Ho <Patrick.Ho@netapp.com>
-Acked-by: J. Bruce Fields <bfields@redhat.com>
+Fixes: aee377644146 ("nfsd4: fix rd_dircount enforcement")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfsctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs4xdr.c |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -1545,7 +1545,7 @@ static int __init init_nfsd(void)
- 		goto out_free_all;
- 	return 0;
- out_free_all:
--	unregister_pernet_subsys(&nfsd_net_ops);
-+	unregister_filesystem(&nfsd_fs_type);
- out_free_exports:
- 	remove_proc_entry("fs/nfs/exports", NULL);
- 	remove_proc_entry("fs/nfs", NULL);
+--- a/fs/nfsd/nfs4xdr.c
++++ b/fs/nfsd/nfs4xdr.c
+@@ -3544,15 +3544,18 @@ nfsd4_encode_dirent(void *ccdv, const ch
+ 		goto fail;
+ 	cd->rd_maxcount -= entry_bytes;
+ 	/*
+-	 * RFC 3530 14.2.24 describes rd_dircount as only a "hint", so
+-	 * let's always let through the first entry, at least:
++	 * RFC 3530 14.2.24 describes rd_dircount as only a "hint", and
++	 * notes that it could be zero. If it is zero, then the server
++	 * should enforce only the rd_maxcount value.
+ 	 */
+-	if (!cd->rd_dircount)
+-		goto fail;
+-	name_and_cookie = 4 + 4 * XDR_QUADLEN(namlen) + 8;
+-	if (name_and_cookie > cd->rd_dircount && cd->cookie_offset)
+-		goto fail;
+-	cd->rd_dircount -= min(cd->rd_dircount, name_and_cookie);
++	if (cd->rd_dircount) {
++		name_and_cookie = 4 + 4 * XDR_QUADLEN(namlen) + 8;
++		if (name_and_cookie > cd->rd_dircount && cd->cookie_offset)
++			goto fail;
++		cd->rd_dircount -= min(cd->rd_dircount, name_and_cookie);
++		if (!cd->rd_dircount)
++			cd->rd_maxcount = 0;
++	}
+ 
+ 	cd->cookie_offset = cookie_offset;
+ skip_entry:
 
 
