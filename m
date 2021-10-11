@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E60B0428EEB
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:51:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBDC7428F6E
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237824AbhJKNxN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:53:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
+        id S235476AbhJKN6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:58:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237527AbhJKNvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:51:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA55E60F21;
-        Mon, 11 Oct 2021 13:49:52 +0000 (UTC)
+        id S237871AbhJKN4n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:56:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E0F06113E;
+        Mon, 11 Oct 2021 13:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960193;
-        bh=FT8kaXscQ1VA2HwnfeQ8B32N5crSb2YYTsnin1OriAU=;
+        s=korg; t=1633960425;
+        bh=/0tBGpF2fMEpWCmF9dekE4Dd8i04Y0hi+ckxHaw3qD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyLNEM8OxHY0HHYjqVLUuCqFwETU/VEBKTWr4leR9yrakQKeiwxbfFWq0wPQes9sz
-         ICEwYEavVu1YooWtnkZanOspspFI1ew66mPZOqwJvBUgOyQirMJI8AXg5fIKEX/gSt
-         HD7vJSzMoNUJtGBP+/yweV1gFxDoXAPXZLNcfVdw=
+        b=cB9NLwVFu788WJD8iSxRhqhmgWUJPlOk2JsgpG/khFiEMsnHdKSYNPQ72aRd4ugUV
+         dTMG25UB5m0KpVszbdYsDyl693EDIMLLiTPlmoY7+rz2RvTtWMfBms/sP4SsGo8aB0
+         p8IDJsanqiOKSThrH75yNpXFEhNWjwTAaRemGsIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamie Iles <quic_jiles@quicinc.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 46/52] i2c: acpi: fix resource leak in reconfiguration device addition
-Date:   Mon, 11 Oct 2021 15:46:15 +0200
-Message-Id: <20211011134505.301785724@linuxfoundation.org>
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Jeremy Cline <jcline@redhat.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 56/83] drm/nouveau: avoid a use-after-free when BO init fails
+Date:   Mon, 11 Oct 2021 15:46:16 +0200
+Message-Id: <20211011134510.328120161@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamie Iles <quic_jiles@quicinc.com>
+From: Jeremy Cline <jcline@redhat.com>
 
-[ Upstream commit 6558b646ce1c2a872fe1c2c7cb116f05a2c1950f ]
+[ Upstream commit bcf34aa5082ee2343574bc3f4d1c126030913e54 ]
 
-acpi_i2c_find_adapter_by_handle() calls bus_find_device() which takes a
-reference on the adapter which is never released which will result in a
-reference count leak and render the adapter unremovable.  Make sure to
-put the adapter after creating the client in the same manner that we do
-for OF.
+nouveau_bo_init() is backed by ttm_bo_init() and ferries its return code
+back to the caller. On failures, ttm_bo_init() invokes the provided
+destructor which should de-initialize and free the memory.
 
-Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
-Signed-off-by: Jamie Iles <quic_jiles@quicinc.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-[wsa: fixed title]
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Thus, when nouveau_bo_init() returns an error the gem object has already
+been released and the memory freed by nouveau_bo_del_ttm().
+
+Fixes: 019cbd4a4feb ("drm/nouveau: Initialize GEM object before TTM object")
+Cc: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Jeremy Cline <jcline@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201203000220.18238-1-jcline@redhat.com
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-acpi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/nouveau/nouveau_gem.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index c70983780ae7..fe466ee4c49b 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -436,6 +436,7 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
- 			break;
+diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.c b/drivers/gpu/drm/nouveau/nouveau_gem.c
+index c2051380d18c..6504ebec1190 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_gem.c
++++ b/drivers/gpu/drm/nouveau/nouveau_gem.c
+@@ -196,10 +196,8 @@ nouveau_gem_new(struct nouveau_cli *cli, u64 size, int align, uint32_t domain,
+ 	}
  
- 		i2c_acpi_register_device(adapter, adev, &info);
-+		put_device(&adapter->dev);
- 		break;
- 	case ACPI_RECONFIG_DEVICE_REMOVE:
- 		if (!acpi_device_enumerated(adev))
+ 	ret = nouveau_bo_init(nvbo, size, align, domain, NULL, NULL);
+-	if (ret) {
+-		nouveau_bo_ref(NULL, &nvbo);
++	if (ret)
+ 		return ret;
+-	}
+ 
+ 	/* we restrict allowed domains on nv50+ to only the types
+ 	 * that were requested at creation time.  not possibly on
 -- 
 2.33.0
 
