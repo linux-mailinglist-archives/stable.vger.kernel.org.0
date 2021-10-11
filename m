@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD32428F85
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3315428EF6
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236901AbhJKN7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:59:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50128 "EHLO mail.kernel.org"
+        id S236891AbhJKNxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:53:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238082AbhJKN6S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:58:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3029E610A4;
-        Mon, 11 Oct 2021 13:54:44 +0000 (UTC)
+        id S237711AbhJKNw3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:52:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88A4A610CB;
+        Mon, 11 Oct 2021 13:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960485;
-        bh=jQdWEU3oinQkFh+ee4lCjDlbx/41xS4Q0nR3hEriURo=;
+        s=korg; t=1633960229;
+        bh=H8F+8Hj+yFKXVGC5pFRchuzNFWKWpsc8lzmY7msYOdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Im+J0U5e3WRssfpux0h+Ou2nh7W81FLQ4MP3Qb7cGVaZAM1sJaUFdVqjrWC/KvU5H
-         7lf6FtwnFxkh0rESAWekHdEoo1UyTuByrMaaZLbou8eTumcMLFFwrG1HiDPew3XN7o
-         6VKRqbbxFiRhDwjP2NU9MhxV6RfhJHVbd96Ztku8=
+        b=WLPE3vQBj44w8AzNYxDyL7JxAP7Vx58ThlTZXs+kU8jMn+JqM80dtIfqz10gPOtjV
+         hGLfKz0akKVEgkVT+0SpOUzSnbi6kryQBEDMSahsvpioWcnuAS4oPx/R4lNVTrgbYM
+         ZZG6Nw56EEOQFCgJc/8dkHR2DiS2VeKhF55Q8vVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 40/83] phy: mdio: fix memory leak
-Date:   Mon, 11 Oct 2021 15:46:00 +0200
-Message-Id: <20211011134509.779135625@linuxfoundation.org>
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 32/52] ARM: imx6: disable the GIC CPU interface before calling stby-poweroff sequence
+Date:   Mon, 11 Oct 2021 15:46:01 +0200
+Message-Id: <20211011134504.837543696@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit ca6e11c337daf7925ff8a2aac8e84490a8691905 ]
+[ Upstream commit 783f3db030563f7bcdfe2d26428af98ea1699a8e ]
 
-Syzbot reported memory leak in MDIO bus interface, the problem was in
-wrong state logic.
+Any pending interrupt can prevent entering standby based power off state.
+To avoid it, disable the GIC CPU interface.
 
-MDIOBUS_ALLOCATED indicates 2 states:
-	1. Bus is only allocated
-	2. Bus allocated and __mdiobus_register() fails, but
-	   device_register() was called
-
-In case of device_register() has been called we should call put_device()
-to correctly free the memory allocated for this device, but mdiobus_free()
-calls just kfree(dev) in case of MDIOBUS_ALLOCATED state
-
-To avoid this behaviour we need to set bus->state to MDIOBUS_UNREGISTERED
-_before_ calling device_register(), because put_device() should be
-called even in case of device_register() failure.
-
-Link: https://lore.kernel.org/netdev/YVMRWNDZDUOvQjHL@shell.armlinux.org.uk/
-Fixes: 46abc02175b3 ("phylib: give mdio buses a device tree presence")
-Reported-and-tested-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/eceae1429fbf8fa5c73dd2a0d39d525aa905074d.1633024062.git.paskripkin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8148d2136002 ("ARM: imx6: register pm_power_off handler if "fsl,pmic-stby-poweroff" is set")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/mach-imx/pm-imx6.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index b848439fa837..2645ca35103c 100644
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -534,6 +534,13 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
- 	bus->dev.groups = NULL;
- 	dev_set_name(&bus->dev, "%s", bus->id);
+diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
+index baf3b47601af..1b73e4e76310 100644
+--- a/arch/arm/mach-imx/pm-imx6.c
++++ b/arch/arm/mach-imx/pm-imx6.c
+@@ -9,6 +9,7 @@
+ #include <linux/io.h>
+ #include <linux/irq.h>
+ #include <linux/genalloc.h>
++#include <linux/irqchip/arm-gic.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/mfd/syscon/imx6q-iomuxc-gpr.h>
+ #include <linux/of.h>
+@@ -618,6 +619,7 @@ static void __init imx6_pm_common_init(const struct imx6_pm_socdata
  
-+	/* We need to set state to MDIOBUS_UNREGISTERED to correctly release
-+	 * the device in mdiobus_free()
-+	 *
-+	 * State will be updated later in this function in case of success
-+	 */
-+	bus->state = MDIOBUS_UNREGISTERED;
-+
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
+ static void imx6_pm_stby_poweroff(void)
+ {
++	gic_cpu_if_down(0);
+ 	imx6_set_lpm(STOP_POWER_OFF);
+ 	imx6q_suspend_finish(0);
+ 
 -- 
 2.33.0
 
