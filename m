@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E0A428F6F
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E60B0428EEB
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:51:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237070AbhJKN6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:58:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40614 "EHLO mail.kernel.org"
+        id S237824AbhJKNxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:53:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237863AbhJKN4l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:56:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E12866113D;
-        Mon, 11 Oct 2021 13:53:41 +0000 (UTC)
+        id S237527AbhJKNvx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:51:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA55E60F21;
+        Mon, 11 Oct 2021 13:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960422;
-        bh=sb6Z8opnOOKio5yqaSbWt+6ANeHcv8rWixoNds1Tfiw=;
+        s=korg; t=1633960193;
+        bh=FT8kaXscQ1VA2HwnfeQ8B32N5crSb2YYTsnin1OriAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=urY4GRHtyoJ7QOTq+Rkd/nehRMGt6uYU/gJUd6of+2clYBdaGTtIFk/mv1DhkQv4d
-         6RTkJI+h9QjfL9jonO0aooO2GhamUWJTcL7KmiUUvBem8IKhIbAVbdw+B03i8AkIJo
-         whAUOLcHVqJo/3JmtiRHKybxB587/HzmoWSqVSv4=
+        b=GyLNEM8OxHY0HHYjqVLUuCqFwETU/VEBKTWr4leR9yrakQKeiwxbfFWq0wPQes9sz
+         ICEwYEavVu1YooWtnkZanOspspFI1ew66mPZOqwJvBUgOyQirMJI8AXg5fIKEX/gSt
+         HD7vJSzMoNUJtGBP+/yweV1gFxDoXAPXZLNcfVdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 55/83] video: fbdev: gbefb: Only instantiate device when built for IP32
+        stable@vger.kernel.org, Jamie Iles <quic_jiles@quicinc.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 46/52] i2c: acpi: fix resource leak in reconfiguration device addition
 Date:   Mon, 11 Oct 2021 15:46:15 +0200
-Message-Id: <20211011134510.290610197@linuxfoundation.org>
+Message-Id: <20211011134505.301785724@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
-References: <20211011134508.362906295@linuxfoundation.org>
+In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
+References: <20211011134503.715740503@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Jamie Iles <quic_jiles@quicinc.com>
 
-[ Upstream commit 11b8e2bb986d23157e82e267fb8cc6b281dfdee9 ]
+[ Upstream commit 6558b646ce1c2a872fe1c2c7cb116f05a2c1950f ]
 
-The gbefb driver not only registers a driver but also the device for that
-driver. This is all well and good when run on the IP32 machines that are
-supported by the driver but since the driver supports building with
-COMPILE_TEST we might also be building on other platforms which do not have
-this hardware and will crash instantiating the driver. Add an IS_ENABLED()
-check so we compile out the device registration if we don't have the Kconfig
-option for the machine enabled.
+acpi_i2c_find_adapter_by_handle() calls bus_find_device() which takes a
+reference on the adapter which is never released which will result in a
+reference count leak and render the adapter unremovable.  Make sure to
+put the adapter after creating the client in the same manner that we do
+for OF.
 
-Fixes: 552ccf6b259d290c0c ("video: fbdev: gbefb: add COMPILE_TEST support")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210921212102.30803-1-broonie@kernel.org
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
+Signed-off-by: Jamie Iles <quic_jiles@quicinc.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+[wsa: fixed title]
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/gbefb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/i2c-core-acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/video/fbdev/gbefb.c b/drivers/video/fbdev/gbefb.c
-index 31270a8986e8..8f8ca1f88fe2 100644
---- a/drivers/video/fbdev/gbefb.c
-+++ b/drivers/video/fbdev/gbefb.c
-@@ -1269,7 +1269,7 @@ static struct platform_device *gbefb_device;
- static int __init gbefb_init(void)
- {
- 	int ret = platform_driver_register(&gbefb_driver);
--	if (!ret) {
-+	if (IS_ENABLED(CONFIG_SGI_IP32) && !ret) {
- 		gbefb_device = platform_device_alloc("gbefb", 0);
- 		if (gbefb_device) {
- 			ret = platform_device_add(gbefb_device);
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index c70983780ae7..fe466ee4c49b 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -436,6 +436,7 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
+ 			break;
+ 
+ 		i2c_acpi_register_device(adapter, adev, &info);
++		put_device(&adapter->dev);
+ 		break;
+ 	case ACPI_RECONFIG_DEVICE_REMOVE:
+ 		if (!acpi_device_enumerated(adev))
 -- 
 2.33.0
 
