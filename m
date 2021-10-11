@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21FF8428EAE
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 295C8428EA7
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:49:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237198AbhJKNvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38930 "EHLO mail.kernel.org"
+        id S237367AbhJKNvL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:51:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237281AbhJKNuf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237304AbhJKNuf (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 11 Oct 2021 09:50:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA29C60EB4;
-        Mon, 11 Oct 2021 13:48:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CBFB60F4B;
+        Mon, 11 Oct 2021 13:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960111;
-        bh=CsADNW/VQdXHAtAMJXv9pyTf2bMtmM4oBWaCL7N9MIw=;
+        s=korg; t=1633960114;
+        bh=GyG50fr79fb7WeWpeYdr6CJwKh94meE+AjAgXuX/L1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5jMfuaheVJRag08nlG3y5FPjICXzz4uxp8ryLT2ArPnyRHjqQnFj9LyLaAi/1+qk
-         4wlMfB071eY5AawhnrFu0FW1g81NI5fW2sapGMPUE8KzBqpJ7/TAbf1r33sacl3xkB
-         I4cZ6Hsq4M3Bxmd6Rp06QF0J/RWVjNL/gjQlg/VU=
+        b=GfQiW5DnkTmNm0gzsgBCOb6hTVKOj26uQQFcn3HKc3XwfETrHVz80OZnWXOEhrERZ
+         pEEHRPn0BTFqaEIxBaBVIDzDwfRd3R1R03pxyAwIabhOe/KNjnBuMq0eRjI3DVD3Vz
+         jBZHeAm/oO/Qgd7/pQKVQeMzZHSX5tHlhuMyLRn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/52] bpf, arm: Fix register clobbering in div/mod implementation
-Date:   Mon, 11 Oct 2021 15:45:53 +0200
-Message-Id: <20211011134504.558394971@linuxfoundation.org>
+Subject: [PATCH 5.4 25/52] bpf: Fix integer overflow in prealloc_elems_and_freelist()
+Date:   Mon, 11 Oct 2021 15:45:54 +0200
+Message-Id: <20211011134504.599505988@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
 References: <20211011134503.715740503@linuxfoundation.org>
@@ -41,92 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
 
-[ Upstream commit 79e3445b38e0cab94264a3894c0c3d57c930b97e ]
+[ Upstream commit 30e29a9a2bc6a4888335a6ede968b75cd329657a ]
 
-On ARM CPUs that lack div/mod instructions, ALU32 BPF_DIV and BPF_MOD are
-implemented using a call to a helper function. Before, the emitted code
-for those function calls failed to preserve caller-saved ARM registers.
-Since some of those registers happen to be mapped to BPF registers, it
-resulted in eBPF register values being overwritten.
+In prealloc_elems_and_freelist(), the multiplication to calculate the
+size passed to bpf_map_area_alloc() could lead to an integer overflow.
+As a result, out-of-bounds write could occur in pcpu_freelist_populate()
+as reported by KASAN:
 
-This patch emits code to push and pop the remaining caller-saved ARM
-registers r2-r3 into the stack during the div/mod function call. ARM
-registers r0-r1 are used as arguments and return value, and those were
-already saved and restored correctly.
+[...]
+[   16.968613] BUG: KASAN: slab-out-of-bounds in pcpu_freelist_populate+0xd9/0x100
+[   16.969408] Write of size 8 at addr ffff888104fc6ea0 by task crash/78
+[   16.970038]
+[   16.970195] CPU: 0 PID: 78 Comm: crash Not tainted 5.15.0-rc2+ #1
+[   16.970878] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+[   16.972026] Call Trace:
+[   16.972306]  dump_stack_lvl+0x34/0x44
+[   16.972687]  print_address_description.constprop.0+0x21/0x140
+[   16.973297]  ? pcpu_freelist_populate+0xd9/0x100
+[   16.973777]  ? pcpu_freelist_populate+0xd9/0x100
+[   16.974257]  kasan_report.cold+0x7f/0x11b
+[   16.974681]  ? pcpu_freelist_populate+0xd9/0x100
+[   16.975190]  pcpu_freelist_populate+0xd9/0x100
+[   16.975669]  stack_map_alloc+0x209/0x2a0
+[   16.976106]  __sys_bpf+0xd83/0x2ce0
+[...]
 
-Fixes: 39c13c204bb1 ("arm: eBPF JIT compiler")
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+The possibility of this overflow was originally discussed in [0], but
+was overlooked.
+
+Fix the integer overflow by changing elem_size to u64 from u32.
+
+  [0] https://lore.kernel.org/bpf/728b238e-a481-eb50-98e9-b0f430ab01e7@gmail.com/
+
+Fixes: 557c0c6e7df8 ("bpf: convert stackmap to pre-allocation")
+Signed-off-by: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210930135545.173698-1-th.yasumatsu@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/net/bpf_jit_32.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ kernel/bpf/stackmap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
-index b51a8c7b0111..1c6e57f1dbc4 100644
---- a/arch/arm/net/bpf_jit_32.c
-+++ b/arch/arm/net/bpf_jit_32.c
-@@ -36,6 +36,10 @@
-  *                        +-----+
-  *                        |RSVD | JIT scratchpad
-  * current ARM_SP =>      +-----+ <= (BPF_FP - STACK_SIZE + SCRATCH_SIZE)
-+ *                        | ... | caller-saved registers
-+ *                        +-----+
-+ *                        | ... | arguments passed on stack
-+ * ARM_SP during call =>  +-----|
-  *                        |     |
-  *                        | ... | Function call stack
-  *                        |     |
-@@ -63,6 +67,12 @@
-  *
-  * When popping registers off the stack at the end of a BPF function, we
-  * reference them via the current ARM_FP register.
-+ *
-+ * Some eBPF operations are implemented via a call to a helper function.
-+ * Such calls are "invisible" in the eBPF code, so it is up to the calling
-+ * program to preserve any caller-saved ARM registers during the call. The
-+ * JIT emits code to push and pop those registers onto the stack, immediately
-+ * above the callee stack frame.
-  */
- #define CALLEE_MASK	(1 << ARM_R4 | 1 << ARM_R5 | 1 << ARM_R6 | \
- 			 1 << ARM_R7 | 1 << ARM_R8 | 1 << ARM_R9 | \
-@@ -70,6 +80,8 @@
- #define CALLEE_PUSH_MASK (CALLEE_MASK | 1 << ARM_LR)
- #define CALLEE_POP_MASK  (CALLEE_MASK | 1 << ARM_PC)
+diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
+index fba2ade28fb3..49c7a09d688d 100644
+--- a/kernel/bpf/stackmap.c
++++ b/kernel/bpf/stackmap.c
+@@ -60,7 +60,8 @@ static inline int stack_map_data_size(struct bpf_map *map)
  
-+#define CALLER_MASK	(1 << ARM_R0 | 1 << ARM_R1 | 1 << ARM_R2 | 1 << ARM_R3)
-+
- enum {
- 	/* Stack layout - these are offsets from (top of stack - 4) */
- 	BPF_R2_HI,
-@@ -464,6 +476,7 @@ static inline int epilogue_offset(const struct jit_ctx *ctx)
- 
- static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
+ static int prealloc_elems_and_freelist(struct bpf_stack_map *smap)
  {
-+	const int exclude_mask = BIT(ARM_R0) | BIT(ARM_R1);
- 	const s8 *tmp = bpf2a32[TMP_REG_1];
+-	u32 elem_size = sizeof(struct stack_map_bucket) + smap->map.value_size;
++	u64 elem_size = sizeof(struct stack_map_bucket) +
++			(u64)smap->map.value_size;
+ 	int err;
  
- #if __LINUX_ARM_ARCH__ == 7
-@@ -495,11 +508,17 @@ static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
- 		emit(ARM_MOV_R(ARM_R0, rm), ctx);
- 	}
- 
-+	/* Push caller-saved registers on stack */
-+	emit(ARM_PUSH(CALLER_MASK & ~exclude_mask), ctx);
-+
- 	/* Call appropriate function */
- 	emit_mov_i(ARM_IP, op == BPF_DIV ?
- 		   (u32)jit_udiv32 : (u32)jit_mod32, ctx);
- 	emit_blx_r(ARM_IP, ctx);
- 
-+	/* Restore caller-saved registers from stack */
-+	emit(ARM_POP(CALLER_MASK & ~exclude_mask), ctx);
-+
- 	/* Save return value */
- 	if (rd != ARM_R0)
- 		emit(ARM_MOV_R(rd, ARM_R0), ctx);
+ 	smap->elems = bpf_map_area_alloc(elem_size * smap->map.max_entries,
 -- 
 2.33.0
 
