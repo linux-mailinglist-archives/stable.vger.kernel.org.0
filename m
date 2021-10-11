@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A176B428F20
-	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:54:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52BF9428F83
+	for <lists+stable@lfdr.de>; Mon, 11 Oct 2021 15:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237913AbhJKNzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Oct 2021 09:55:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41094 "EHLO mail.kernel.org"
+        id S236548AbhJKN7P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Oct 2021 09:59:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237695AbhJKNwX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Oct 2021 09:52:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B0D561040;
-        Mon, 11 Oct 2021 13:50:22 +0000 (UTC)
+        id S238050AbhJKN6P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Oct 2021 09:58:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C99CE61105;
+        Mon, 11 Oct 2021 13:54:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1633960223;
-        bh=IDH5rAR/xwr1/wV6d0ERH5mXAbpcnpjlMA9581omawc=;
+        s=korg; t=1633960479;
+        bh=5j3Deu0c6EsoGoCN0WWehsfjrLouSlTkZlGLA1NTIJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0cyPd1dm43HkDTHpUnfn6wPaHgJiGy1eqodZcXGmMpObvBLwthGmQX68NqDrA+srN
-         lP9X2R+RyBkaHr+q1TND+4PP9s2907MCyZlvY/nxen44CNRKDErk03AbYxQRXMlcKb
-         doOP/MuAup+dzzTqxYyrZen0jeI83VYNySJFWtpQ=
+        b=RP2DN7nk2tsJWyj2OxOcH07pZQba9fu3PL++QITOwpaWPFxtTnlLvCISoXEdDlPjn
+         89q0lbWZqxQlDEwMKcoGPQFXA4b6q4TopvKFrLdQgVSNBTkkkRu9W1bLCuiNuWZ63F
+         OtrByDjlT0oesTankKSR99hraWz2QSmQx2zGxCJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Moshe Shemesh <moshe@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 30/52] arm64: dts: freescale: Fix SP805 clock-names
+Subject: [PATCH 5.10 39/83] net/mlx5: E-Switch, Fix double allocation of acl flow counter
 Date:   Mon, 11 Oct 2021 15:45:59 +0200
-Message-Id: <20211011134504.776282939@linuxfoundation.org>
+Message-Id: <20211011134509.741545505@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211011134503.715740503@linuxfoundation.org>
-References: <20211011134503.715740503@linuxfoundation.org>
+In-Reply-To: <20211011134508.362906295@linuxfoundation.org>
+References: <20211011134508.362906295@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,185 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Moshe Shemesh <moshe@nvidia.com>
 
-[ Upstream commit f2dc2359b75e1fd345fd710862f73db20dc55864 ]
+[ Upstream commit a586775f83bd729ad60b56352dbe067f4bb0beee ]
 
-The SP805 binding sets the order of the clock-names to be: "wdog_clk",
-"apb_pclk" (in exactly that order).
+Flow counter is allocated in eswitch legacy acl setting functions
+without checking if already allocated by previous setting. Add a check
+to avoid such double allocation.
 
-Change the order in the DTs for Freescale platforms to match that. The
-two clocks given in all nodes are actually the same, so that does not
-change any behaviour.
-
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 07bab9502641 ("net/mlx5: E-Switch, Refactor eswitch ingress acl codes")
+Fixes: ea651a86d468 ("net/mlx5: E-Switch, Refactor eswitch egress acl codes")
+Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi |  4 ++--
- arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi | 16 ++++++++--------
- arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi | 16 ++++++++--------
- 3 files changed, 18 insertions(+), 18 deletions(-)
+ .../mellanox/mlx5/core/esw/acl/egress_lgcy.c         | 12 ++++++++----
+ .../mellanox/mlx5/core/esw/acl/ingress_lgcy.c        |  4 +++-
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-index 5716ac20bddd..963091069ab3 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-@@ -496,14 +496,14 @@
- 			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc000000 0x0 0x1000>;
- 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
+index 3e19b1721303..b00c7d47833f 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
+@@ -79,12 +79,16 @@ int esw_acl_egress_lgcy_setup(struct mlx5_eswitch *esw,
+ 	int dest_num = 0;
+ 	int err = 0;
  
- 		cluster1_core1_watchdog: watchdog@c010000 {
- 			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc010000 0x0 0x1000>;
- 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
+-	if (MLX5_CAP_ESW_EGRESS_ACL(esw->dev, flow_counter)) {
++	if (vport->egress.legacy.drop_counter) {
++		drop_counter = vport->egress.legacy.drop_counter;
++	} else if (MLX5_CAP_ESW_EGRESS_ACL(esw->dev, flow_counter)) {
+ 		drop_counter = mlx5_fc_create(esw->dev, false);
+-		if (IS_ERR(drop_counter))
++		if (IS_ERR(drop_counter)) {
+ 			esw_warn(esw->dev,
+ 				 "vport[%d] configure egress drop rule counter err(%ld)\n",
+ 				 vport->vport, PTR_ERR(drop_counter));
++			drop_counter = NULL;
++		}
+ 		vport->egress.legacy.drop_counter = drop_counter;
+ 	}
  
- 		sai1: audio-controller@f100000 {
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-index c676d0771762..407ebdb35cd2 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-@@ -640,56 +640,56 @@
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc000000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
+@@ -123,7 +127,7 @@ int esw_acl_egress_lgcy_setup(struct mlx5_eswitch *esw,
+ 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_DROP;
  
- 		cluster1_core1_watchdog: wdt@c010000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc010000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
+ 	/* Attach egress drop flow counter */
+-	if (!IS_ERR_OR_NULL(drop_counter)) {
++	if (drop_counter) {
+ 		flow_act.action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
+ 		drop_ctr_dst.type = MLX5_FLOW_DESTINATION_TYPE_COUNTER;
+ 		drop_ctr_dst.counter_id = mlx5_fc_id(drop_counter);
+@@ -162,7 +166,7 @@ void esw_acl_egress_lgcy_cleanup(struct mlx5_eswitch *esw,
+ 	esw_acl_egress_table_destroy(vport);
  
- 		cluster1_core2_watchdog: wdt@c020000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc020000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
+ clean_drop_counter:
+-	if (!IS_ERR_OR_NULL(vport->egress.legacy.drop_counter)) {
++	if (vport->egress.legacy.drop_counter) {
+ 		mlx5_fc_destroy(esw->dev, vport->egress.legacy.drop_counter);
+ 		vport->egress.legacy.drop_counter = NULL;
+ 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
+index d64fad2823e7..45570d0a58d2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
+@@ -160,7 +160,9 @@ int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
  
- 		cluster1_core3_watchdog: wdt@c030000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc030000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
+ 	esw_acl_ingress_lgcy_rules_destroy(vport);
  
- 		cluster2_core0_watchdog: wdt@c100000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc100000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster2_core1_watchdog: wdt@c110000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc110000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster2_core2_watchdog: wdt@c120000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc120000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster2_core3_watchdog: wdt@c130000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc130000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		fsl_mc: fsl-mc@80c000000 {
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-index cdb2fa47637d..82f0fe6acbfb 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-@@ -230,56 +230,56 @@
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc000000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster1_core1_watchdog: wdt@c010000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc010000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster2_core0_watchdog: wdt@c100000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc100000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster2_core1_watchdog: wdt@c110000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc110000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster3_core0_watchdog: wdt@c200000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc200000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster3_core1_watchdog: wdt@c210000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc210000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster4_core0_watchdog: wdt@c300000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc300000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		cluster4_core1_watchdog: wdt@c310000 {
- 			compatible = "arm,sp805-wdt", "arm,primecell";
- 			reg = <0x0 0xc310000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
--			clock-names = "apb_pclk", "wdog_clk";
-+			clock-names = "wdog_clk", "apb_pclk";
- 		};
- 
- 		crypto: crypto@8000000 {
+-	if (MLX5_CAP_ESW_INGRESS_ACL(esw->dev, flow_counter)) {
++	if (vport->ingress.legacy.drop_counter) {
++		counter = vport->ingress.legacy.drop_counter;
++	} else if (MLX5_CAP_ESW_INGRESS_ACL(esw->dev, flow_counter)) {
+ 		counter = mlx5_fc_create(esw->dev, false);
+ 		if (IS_ERR(counter)) {
+ 			esw_warn(esw->dev,
 -- 
 2.33.0
 
