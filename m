@@ -2,112 +2,246 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BD6742A106
-	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 11:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB98542A132
+	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 11:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235579AbhJLJak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 05:30:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46644 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232657AbhJLJak (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Oct 2021 05:30:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E16360F92;
-        Tue, 12 Oct 2021 09:28:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634030919;
-        bh=w6tJ0j7GZyF9EA8+IbdyJH2ct/ziottLxIdQqKTGRqU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Af/9zwXNiRPkvFTna55wceL8kexV3DRj4NlW8pN/pyovPyCs5nA2v/56fiiRDIU+c
-         HM3Yu00NmTQF5P/KOHjXwMKD/VP0O/X3b0SCsoNdDpQFnkr/DDBxo1KFcNTaVuCVAK
-         CleWg31dMcxiLmuLVt6pU/08nVbn/1ukk2C4m0v8=
-Date:   Tue, 12 Oct 2021 11:28:36 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Song Liu <songliubraving@fb.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        bpf <bpf@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
-Subject: Re: [PATCH 5.4 00/52] 5.4.153-rc2 review
-Message-ID: <YWVVRDEDdaIQYKlX@kroah.com>
-References: <20211012064436.577746139@linuxfoundation.org>
- <CA+G9fYt3vmhvuoFJ6p49DHiFE60oBeWUwuSLrh7vXwr=8_rpfg@mail.gmail.com>
+        id S235518AbhJLJgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 05:36:39 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10808 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232657AbhJLJgj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 05:36:39 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19C9CEKJ018407;
+        Tue, 12 Oct 2021 05:34:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=uW+qwlERX2PkfKojU6zGiaVoipYj2uj07pPDjYZ4eyQ=;
+ b=CyoJSWI9M7fTBf8NS8pnlrIMZ6qyATC5rSGo0P2r0zHES44HmMVLMQkUqHazbHdzUzhq
+ H7+bDqSulsVBWsPYaJVuUJIiXWcf6AJaQwXyqy2+vT6Q1z2v2iyFPBSK95rYITAurWwa
+ O5SsDUMF+TJTflZDQkMyCu7CKdfnkrmbEYOeTW6fDctWiZw2c8PR3V/sj/1VKePYCPUt
+ /e76D9ogJfsnYd1GA3WhGjvQWRC3uqTOeHJxDw3pY9eryvNWeS2SiJzD743nVNgKKuPm
+ ASN+3eACUWEl0YHlFds2//hrB8ZmFnA0mlkrWECgl4qkBev0Z9sRb6NbtisO67WrZf6S Fg== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bn7h38c3p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 05:34:37 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19C9XrmL002837;
+        Tue, 12 Oct 2021 09:34:35 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3bk2bj6rm9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 09:34:35 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19C9YS0e54460898
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Oct 2021 09:34:28 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F0E204C06F;
+        Tue, 12 Oct 2021 09:34:27 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B47134C050;
+        Tue, 12 Oct 2021 09:34:26 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Oct 2021 09:34:26 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     gor@linux.ibm.com, schnelle@linux.ibm.com
+Subject: [PATCH 5.10 STABLE] s390/pci: fix zpci_zdev_put() on reserve
+Date:   Tue, 12 Oct 2021 11:34:25 +0200
+Message-Id: <20211012093425.2247924-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <16338613396828@kroah.com>
+References: <16338613396828@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYt3vmhvuoFJ6p49DHiFE60oBeWUwuSLrh7vXwr=8_rpfg@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: l0yfB1kfdYpf91oj24_O-kGTPWZu3a9Y
+X-Proofpoint-ORIG-GUID: l0yfB1kfdYpf91oj24_O-kGTPWZu3a9Y
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-12_02,2021-10-11_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=997
+ suspectscore=0 malwarescore=0 priorityscore=1501 clxscore=1015 bulkscore=0
+ phishscore=0 impostorscore=0 lowpriorityscore=0 adultscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
+ definitions=main-2110120054
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 12, 2021 at 01:04:54PM +0530, Naresh Kamboju wrote:
-> On Tue, 12 Oct 2021 at 12:16, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.4.153 release.
-> > There are 52 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 14 Oct 2021 06:44:25 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.153-rc2.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> stable rc 5.4.153-rc2 Powerpc build failed.
-> 
-> In file included from arch/powerpc/net/bpf_jit64.h:11,
->                  from arch/powerpc/net/bpf_jit_comp64.c:19:
-> arch/powerpc/net/bpf_jit_comp64.c: In function 'bpf_jit_build_body':
-> arch/powerpc/net/bpf_jit.h:32:9: error: expected expression before 'do'
->    32 |         do { if (d) { (d)[idx] = instr; } idx++; } while (0)
->       |         ^~
-> arch/powerpc/net/bpf_jit.h:33:33: note: in expansion of macro 'PLANT_INSTR'
->    33 | #define EMIT(instr)             PLANT_INSTR(image, ctx->idx, instr)
->       |                                 ^~~~~~~~~~~
-> arch/powerpc/net/bpf_jit_comp64.c:415:41: note: in expansion of macro 'EMIT'
->   415 |                                         EMIT(PPC_LI(dst_reg, 0));
->       |                                         ^~~~
-> arch/powerpc/net/bpf_jit.h:33:33: note: in expansion of macro 'PLANT_INSTR'
->    33 | #define EMIT(instr)             PLANT_INSTR(image, ctx->idx, instr)
->       |                                 ^~~~~~~~~~~
-> arch/powerpc/net/bpf_jit.h:41:33: note: in expansion of macro 'EMIT'
->    41 | #define PPC_ADDI(d, a, i)       EMIT(PPC_INST_ADDI |
-> ___PPC_RT(d) |           \
->       |                                 ^~~~
-> arch/powerpc/net/bpf_jit.h:44:33: note: in expansion of macro 'PPC_ADDI'
->    44 | #define PPC_LI(r, i)            PPC_ADDI(r, 0, i)
->       |                                 ^~~~~~~~
-> arch/powerpc/net/bpf_jit_comp64.c:415:46: note: in expansion of macro 'PPC_LI'
->   415 |                                         EMIT(PPC_LI(dst_reg, 0));
->       |                                              ^~~~~~
-> make[3]: *** [scripts/Makefile.build:262:
-> arch/powerpc/net/bpf_jit_comp64.o] Error 1
-> make[3]: Target '__build' not remade because of errors.
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+[ Upstream commit a46044a92add6a400f4dada7b943b30221f7cc80 ]
 
-Ok, I'm just going to go delete this patch from the queue now...
+Since commit 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
+the reference count of a zpci_dev is incremented between
+pcibios_add_device() and pcibios_release_device() which was supposed to
+prevent the zpci_dev from being freed while the common PCI code has
+access to it. It was missed however that the handling of zPCI
+availability events assumed that once zpci_zdev_put() was called no
+later availability event would still see the device. With the previously
+mentioned commit however this assumption no longer holds and we must
+make sure that we only drop the initial long-lived reference the zPCI
+subsystem holds exactly once.
 
-Thanks for the quick report.
+Do so by introducing a zpci_device_reserved() function that handles when
+a device is reserved. Here we make sure the zpci_dev will not be
+considered for further events by removing it from the zpci_list.
 
-greg k-h
+This also means that the device actually stays in the
+ZPCI_FN_STATE_RESERVED state between the time we know it has been
+reserved and the final reference going away. We thus need to consider it
+a real state instead of just a conceptual state after the removal. The
+final cleanup of PCI resources, removal from zbus, and destruction of
+the IOMMU stays in zpci_release_device() to make sure holders of the
+reference do see valid data until the release.
+
+Fixes: 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
+Cc: stable@vger.kernel.org
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+---
+ arch/s390/include/asm/pci.h        |  3 ++
+ arch/s390/pci/pci.c                | 45 ++++++++++++++++++++++++++----
+ arch/s390/pci/pci_event.c          |  4 +--
+ drivers/pci/hotplug/s390_pci_hpc.c |  9 +-----
+ 4 files changed, 46 insertions(+), 15 deletions(-)
+
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index a75d94a9bcb2..1226971533fe 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -205,6 +205,9 @@ int zpci_create_device(u32 fid, u32 fh, enum zpci_state state);
+ void zpci_remove_device(struct zpci_dev *zdev, bool set_error);
+ int zpci_enable_device(struct zpci_dev *);
+ int zpci_disable_device(struct zpci_dev *);
++void zpci_device_reserved(struct zpci_dev *zdev);
++bool zpci_is_device_configured(struct zpci_dev *zdev);
++
+ int zpci_register_ioat(struct zpci_dev *, u8, u64, u64, u64);
+ int zpci_unregister_ioat(struct zpci_dev *, u8);
+ void zpci_remove_reserved_devices(void);
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index f5ddbc625c1a..e14e4a3a647a 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -92,7 +92,7 @@ void zpci_remove_reserved_devices(void)
+ 	spin_unlock(&zpci_list_lock);
+ 
+ 	list_for_each_entry_safe(zdev, tmp, &remove, entry)
+-		zpci_zdev_put(zdev);
++		zpci_device_reserved(zdev);
+ }
+ 
+ int pci_domain_nr(struct pci_bus *bus)
+@@ -787,6 +787,39 @@ int zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
+ 	return rc;
+ }
+ 
++bool zpci_is_device_configured(struct zpci_dev *zdev)
++{
++	enum zpci_state state = zdev->state;
++
++	return state != ZPCI_FN_STATE_RESERVED &&
++		state != ZPCI_FN_STATE_STANDBY;
++}
++
++/**
++ * zpci_device_reserved() - Mark device as resverved
++ * @zdev: the zpci_dev that was reserved
++ *
++ * Handle the case that a given zPCI function was reserved by another system.
++ * After a call to this function the zpci_dev can not be found via
++ * get_zdev_by_fid() anymore but may still be accessible via existing
++ * references though it will not be functional anymore.
++ */
++void zpci_device_reserved(struct zpci_dev *zdev)
++{
++	if (zdev->has_hp_slot)
++		zpci_exit_slot(zdev);
++	/*
++	 * Remove device from zpci_list as it is going away. This also
++	 * makes sure we ignore subsequent zPCI events for this device.
++	 */
++	spin_lock(&zpci_list_lock);
++	list_del(&zdev->entry);
++	spin_unlock(&zpci_list_lock);
++	zdev->state = ZPCI_FN_STATE_RESERVED;
++	zpci_dbg(3, "rsv fid:%x\n", zdev->fid);
++	zpci_zdev_put(zdev);
++}
++
+ void zpci_release_device(struct kref *kref)
+ {
+ 	struct zpci_dev *zdev = container_of(kref, struct zpci_dev, kref);
+@@ -802,6 +835,12 @@ void zpci_release_device(struct kref *kref)
+ 	case ZPCI_FN_STATE_STANDBY:
+ 		if (zdev->has_hp_slot)
+ 			zpci_exit_slot(zdev);
++		spin_lock(&zpci_list_lock);
++		list_del(&zdev->entry);
++		spin_unlock(&zpci_list_lock);
++		zpci_dbg(3, "rsv fid:%x\n", zdev->fid);
++		fallthrough;
++	case ZPCI_FN_STATE_RESERVED:
+ 		zpci_cleanup_bus_resources(zdev);
+ 		zpci_bus_device_unregister(zdev);
+ 		zpci_destroy_iommu(zdev);
+@@ -809,10 +848,6 @@ void zpci_release_device(struct kref *kref)
+ 	default:
+ 		break;
+ 	}
+-
+-	spin_lock(&zpci_list_lock);
+-	list_del(&zdev->entry);
+-	spin_unlock(&zpci_list_lock);
+ 	zpci_dbg(3, "rem fid:%x\n", zdev->fid);
+ 	kfree(zdev);
+ }
+diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
+index ac0c65cdd69d..b7cfde7e80a8 100644
+--- a/arch/s390/pci/pci_event.c
++++ b/arch/s390/pci/pci_event.c
+@@ -146,7 +146,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
+ 		zdev->state = ZPCI_FN_STATE_STANDBY;
+ 		if (!clp_get_state(ccdf->fid, &state) &&
+ 		    state == ZPCI_FN_STATE_RESERVED) {
+-			zpci_zdev_put(zdev);
++			zpci_device_reserved(zdev);
+ 		}
+ 		break;
+ 	case 0x0306: /* 0x308 or 0x302 for multiple devices */
+@@ -156,7 +156,7 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
+ 	case 0x0308: /* Standby -> Reserved */
+ 		if (!zdev)
+ 			break;
+-		zpci_zdev_put(zdev);
++		zpci_device_reserved(zdev);
+ 		break;
+ 	default:
+ 		break;
+diff --git a/drivers/pci/hotplug/s390_pci_hpc.c b/drivers/pci/hotplug/s390_pci_hpc.c
+index a047c421debe..93174f503464 100644
+--- a/drivers/pci/hotplug/s390_pci_hpc.c
++++ b/drivers/pci/hotplug/s390_pci_hpc.c
+@@ -109,14 +109,7 @@ static int get_power_status(struct hotplug_slot *hotplug_slot, u8 *value)
+ 	struct zpci_dev *zdev = container_of(hotplug_slot, struct zpci_dev,
+ 					     hotplug_slot);
+ 
+-	switch (zdev->state) {
+-	case ZPCI_FN_STATE_STANDBY:
+-		*value = 0;
+-		break;
+-	default:
+-		*value = 1;
+-		break;
+-	}
++	*value = zpci_is_device_configured(zdev) ? 1 : 0;
+ 	return 0;
+ }
+ 
+-- 
+2.25.1
+
