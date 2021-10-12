@@ -2,132 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E578042A4BF
-	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 14:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 951AF42A5D1
+	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 15:37:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236351AbhJLMoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 08:44:13 -0400
-Received: from mail-bn8nam08on2075.outbound.protection.outlook.com ([40.107.100.75]:61409
-        "EHLO NAM04-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232900AbhJLMoJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Oct 2021 08:44:09 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RD6vV040m1MPJOLAADMd+ENrlGaBBrev9L9Rpn7T7llrGFvgxbSQ5QZWUiqgLcD43WR2GczAYY/F/3GAzRmD1VkF4+gBVpXZ7PsEKEikCr/mU34B5MG2sY+W7XvmU6frhgwTeu8vPuTFOolxu2bEQGOV56P/I+z2QvXaXU0Lng7SSuiuCjVQ5zJFj14TYkTevvnIcLx0MOTokRIvPznN/CNitYcg8CF5CtLbd4lXjFGOPBsToc21K0fw5V/68zf6CktQT+Mb3DLLDD6HnwFbmgiFZdSStvhnVvtFqWu90w8LEoTnzPFTy+ymburjdvv7BSOKVGVc6kemhxPfp14L7w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=I3Jyvkf/NsqEYUc0rYF8E6+zARodCNXz2sD7rMbe0Ac=;
- b=ngiTkzv5WPEHCfSNG8DR1ZVBU4b9kR4EH4HremN97G5KYpladBeG60IAyDCIFMMw3RG4Q/LT3DvMgjZGM/f+QnkjM/cp0aKKEotkD5NNH+deeOWKxAjh5lpZ5PkhYYpaEDPHgwPtwM8+8v71+LBQpGd+Ygt4o3FATyoerLbGgeF31i0iLxOq5bqV3c/D5e/pr7MpYpwyw4vuJ3QxMYp6JpYebsmHxBDfwkXdAo1sgM8AMC9tyIgocbL1sjJIS+JIkCvLT3jcW8zZnJETiryFY3YwfDq5JnIw43cdkkkwIKbvDoJyAc5buWtLG3S1o0fWNyOsekR1FPhaeCJp828cAw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.35) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=nvidia.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=I3Jyvkf/NsqEYUc0rYF8E6+zARodCNXz2sD7rMbe0Ac=;
- b=AgqOfrDzYpV8hTY/66LV9bpnNvXDnYTcWxJGxFjoLb8j0YHs3SXQetlmkT1QPcymluFxk+vxRTDMwD/955rjmIjpx1hyTt8SF4sdbJl3v3KFhca1mXMUATVLgf9ot94QgSYWQ2MZkSdlTeYPKdxpm2xgVSBJ2YmvCvVJE/eqFqx5trDRhFPNkxP1AYMP8uR70LrCVvID3rsJM+fy/c6rHv5cx9dQQAYc4nRcu9OY5uojV6uIUR1e+ZQFXuky+9q3KICG9XCHcbrrf3KJJZShm+FXMRHrOrMSg8sO14JMcf+ojE/Ea7gUYjQCpM6tN6PqEPcdsJoyCCExH/ANf7KVQg==
-Received: from DM3PR08CA0010.namprd08.prod.outlook.com (2603:10b6:0:52::20) by
- MN2PR12MB4333.namprd12.prod.outlook.com (2603:10b6:208:1d3::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4587.24; Tue, 12 Oct
- 2021 12:42:06 +0000
-Received: from DM6NAM11FT042.eop-nam11.prod.protection.outlook.com
- (2603:10b6:0:52:cafe::78) by DM3PR08CA0010.outlook.office365.com
- (2603:10b6:0:52::20) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4608.14 via Frontend
- Transport; Tue, 12 Oct 2021 12:42:06 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.35)
- smtp.mailfrom=nvidia.com; denx.de; dkim=none (message not signed)
- header.d=none;denx.de; dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.35 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.35; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.35) by
- DM6NAM11FT042.mail.protection.outlook.com (10.13.173.165) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4587.18 via Frontend Transport; Tue, 12 Oct 2021 12:42:05 +0000
-Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 12 Oct
- 2021 12:42:05 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.187.5) by mail.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.18 via Frontend
- Transport; Tue, 12 Oct 2021 12:42:05 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.4 00/51] 5.4.153-rc3 review
-In-Reply-To: <20211012093344.002301190@linuxfoundation.org>
-References: <20211012093344.002301190@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
+        id S236636AbhJLNjG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 09:39:06 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21452 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232893AbhJLNjG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 09:39:06 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19CCaWHN025969;
+        Tue, 12 Oct 2021 09:37:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=WG15WcYuQXs6RQkmhoEJObFDOrJKXzFRAssgl9cooqU=;
+ b=nB1QX9Tl5BbbdWowbfS+mKPYPws4PtuAXumAsJTwqJMLyTbNL+kpZ6WklX2kv7kIF8/z
+ FgMbSeio6pBYBn+mM8SWHR3GJrdQQpTgC2qelTBfX9DT16lCOI87r6z96Z1z0kC85+jz
+ tO6HpmEJeUMMGjORbo0rO08llYBz3IXJ4gf0FePAwwCGfLI2t8w4uVD8jN3i+4vZ4G6m
+ vxi4HWxgb1dssuIiI8smqQQrJP90a09Jjv6g7NMg6rL89GUg+FKtEqN4AfsJfGq0LDi0
+ a0a8etAOpkwGWRpn8OHXQmvGoHr2CfGwIABo4Q6DIoFwSXJQjb33XwsVk/G3pYrQ0NiT yA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bn7h0duju-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 09:37:04 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19CCeSZk006810;
+        Tue, 12 Oct 2021 09:37:04 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bn7h0duhh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 09:37:03 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19CDROpI029859;
+        Tue, 12 Oct 2021 13:37:01 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma01fra.de.ibm.com with ESMTP id 3bk2q9ff0w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 13:37:00 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19CDaloT61669862
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Oct 2021 13:36:47 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 32B0F11C069;
+        Tue, 12 Oct 2021 13:36:47 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5686211C06C;
+        Tue, 12 Oct 2021 13:36:39 +0000 (GMT)
+Received: from li-748c07cc-28e5-11b2-a85c-e3822d7eceb3.ibm.com (unknown [9.171.57.92])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Oct 2021 13:36:38 +0000 (GMT)
+Message-ID: <13162b9e48402f306b3f50e6686d76a051138a75.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH 1/1]  s390/cio: make ccw_device_dma_* more robust
+From:   Vineeth Vijayan <vneethv@linux.ibm.com>
+To:     Halil Pasic <pasic@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, bfu@redhat.com
+Date:   Tue, 12 Oct 2021 15:36:36 +0200
+In-Reply-To: <20211011115955.2504529-1-pasic@linux.ibm.com>
+References: <20211011115955.2504529-1-pasic@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: g-gKyBT5ISQyVVspeO-V9jTx8KHwnqsJ
+X-Proofpoint-GUID: LSIZLlfdhXbLS2fLjgwWsk8pzAAI-jNl
 Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Message-ID: <a1a61e0fa93a4755887b534f50f12bea@HQMAIL111.nvidia.com>
-Date:   Tue, 12 Oct 2021 12:42:05 +0000
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 24ed5523-7c14-420a-ff68-08d98d7db298
-X-MS-TrafficTypeDiagnostic: MN2PR12MB4333:
-X-Microsoft-Antispam-PRVS: <MN2PR12MB4333705BA66D7716F2B90B57D9B69@MN2PR12MB4333.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: dzMBabO/LpElVq8LRZOR3n5TI/j1aqhajRHqlcdnnNP70fLM3OiA9+vix3IN4jtR1WyW306dGGIGDfES+kE4pOuBzMggYPJtttKxwgVNvZwUVyzHDEnBNPyUd43SLouQ07OmS8X8n1lJ4BmprHDFyQ9FiVWI/qLCfnnGBkHyrMBGTCZUu+wuLuJemHAgTtLWZVFd8p1vXNmP8OLFTPw7CcnFEBR95nio2qZ6R3V5DqsilfgwQ7t9OfBav/upVdtz2E6Q8d8iuFb+mCa8OasnTwmVyGOO8PI8+iLndUEAj8d5xXySEK8VO/mBl/eySuIDnmcy2REQp3jrrQm+CtfB4lVTFx770PfJ6Dlyb+e5uiGV/LGkq+V1v9j2KlP7NTEjqPSsG9zzNNcZXWOj86OqcrHkeoFmNBhfZYv0WVV4V8MbEVJnMxAe9s7yRQND4aHTXiCNRQ6ESQ4A1oOHViqIjhdE6TWOU5tcw8bCrm9OV6NsM85Y/9ptkjzMyHcFSA1dbP4OHvpYT017yfu0q3glwU7AZ/ibYjnCtkBteRO5IlEPCRU3ARonI3nBgSbCBSbhR0jORMx3x6F41Ry42brz2XJkt0G2nVkas/0S2/ya0B9ITKyUPKpB9qKzh7PkSQAzRuYHuDrvMhvSUXBSMz32nugwdwPMawUmOkTJjF8al3YpO03pLxmFZBAXQiX77ZLBReP93P//iqg86vMuOfztSS+jXdqvGLyNt3lsN/76OXsx5jaHMc+XB0DLLk+6adjiv5Yd2z38r5yAd1CHM9x16cptAyVRhDiDsMVPHgMpbQs=
-X-Forefront-Antispam-Report: CIP:216.228.112.35;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid04.nvidia.com;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(36860700001)(47076005)(54906003)(336012)(426003)(8936002)(86362001)(4326008)(186003)(8676002)(108616005)(26005)(316002)(24736004)(7416002)(82310400003)(6916009)(2906002)(508600001)(966005)(7636003)(5660300002)(70206006)(70586007)(356005);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Oct 2021 12:42:05.4886
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 24ed5523-7c14-420a-ff68-08d98d7db298
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.35];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT042.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4333
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-12_03,2021-10-12_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ phishscore=0 mlxlogscore=848 bulkscore=0 clxscore=1011 spamscore=0
+ mlxscore=0 priorityscore=1501 suspectscore=0 impostorscore=0
+ malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2109230001 definitions=main-2110120079
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 12 Oct 2021 11:37:04 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.153 release.
-> There are 51 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+Looks good. Thanks.
+Acked-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+
+Some minor questions below.
+
+On Mon, 2021-10-11 at 13:59 +0200, Halil Pasic wrote:
+> Since commit 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O
+> and
+> classic notifiers") we were supposed to make sure that
+> virtio_ccw_release_dev() completes before the ccw device and the
+> attached dma pool are torn down, but unfortunately we did
+> not.  Before
+> that commit it used to be OK to delay cleaning up the memory
+> allocated
+> by virtio-ccw indefinitely (which isn't really intuitive for guys
+> used
+> to destruction happens in reverse construction order), but now we
+> trigger a BUG_ON if the genpool is destroyed before all memory
+> allocated
+> form it.
+allocated from it ?
+>  Which brings down the guest. We can observe this problem, when
+> unregister_virtio_device() does not give up the last reference to the
+> virtio_device (e.g. because a virtio-scsi attached scsi disk got
+> removed
+> without previously unmounting its previously mounted  partition).
 > 
-> Responses should be made by Thu, 14 Oct 2021 09:33:32 +0000.
-> Anything received after that time might be too late.
+> To make sure that the genpool is only destroyed after all the
+> necessary
+> freeing is done let us take a reference on the ccw device on each
+> ccw_device_dma_zalloc() and give it up on each ccw_device_dma_free().
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.153-rc3.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+> Actually there are multiple approaches to fixing the problem at hand
+> that can work. The upside of this one is that it is the safest one
+> while
+> remaining simple. We don't crash the guest even if the driver does
+> not
+> pair allocations and frees. The downside is the reference counting
+> overhead, that the reference counting for ccw devices becomes more
+> complex, in a sense that we need to pair the calls to the
+> aforementioned
+> functions for it to be correct, and that if we happen to leak, we
+> leak
+> more than necessary (the whole ccw device instead of just the
+> genpool).
 > 
-> thanks,
+> Some alternatives to this approach are taking a reference in
+> virtio_ccw_online() and giving it up in virtio_ccw_release_dev() or
+> making sure virtio_ccw_release_dev() completes its work before
+> virtio_ccw_remove() returns. The downside of these approaches is that
+> these are less safe against programming errors.
 > 
-> greg k-h
+> Cc: <stable@vger.kernel.org> # v5.3
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Fixes: 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
+> classic notifiers")
+> Reported-by: bfu@redhat.com
+> 
+> ---
+> 
+> FYI I've proposed a different fix to this very same problem:
+> https://lore.kernel.org/lkml/20210915215742.1793314-1-pasic@linux.ibm.com/
+> 
+> This patch is more or less a result of that discussion.
+> 
 
-All tests passing for Tegra ...
-
-Test results for stable-v5.4:
-    10 builds:	10 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    59 tests:	59 pass, 0 fail
-
-Linux version:	5.4.153-rc3-gc20820e7fdea
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
-
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
