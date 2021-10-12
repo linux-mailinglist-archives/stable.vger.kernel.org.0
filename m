@@ -2,94 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 965C642AFAD
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 00:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39B3E42AFB4
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 00:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233594AbhJLWgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 18:36:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58344 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229588AbhJLWgr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 18:36:47 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC37C061570;
-        Tue, 12 Oct 2021 15:34:44 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id d13-20020a17090ad3cd00b0019e746f7bd4so2993764pjw.0;
-        Tue, 12 Oct 2021 15:34:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=zFBLAPiQSdahK9ydDDjVPJvs5EdfecbtRsUt+yKWNhA=;
-        b=eD0tO7KyebqEI5NLxPLPuD2hShU9D/tSZboF78St5+4w00ePhEjjJMgXh6mFFPuptU
-         dL1AOBiMV2mihXi+eAVolUBATncv47FNFU1XGbAuUL5BiVUDpCOgtKNtKB7+g4QSFWcu
-         J8GQ9t70gFvhk+EF/uZfVkYLqyO6WqcXod0XSS5r6NTvhvBZrDUxv85I9o6rYXVT59MV
-         A6UGuxL7i8ZXtPUyq9k3qyi9V2g2u3o2J4zNHV1JqMbVZmm/virn0iHCRxuYV4tD7O8k
-         nBMqHEZGZTENUjx55oYCISi/grm+oEVNP1d4Ruty/nJamyryhmcVR43gi3A+QJQNYhAO
-         sYOA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=zFBLAPiQSdahK9ydDDjVPJvs5EdfecbtRsUt+yKWNhA=;
-        b=Gv2HuSQvTSfShGTNZbfgSnDCfDWjediT3jfbhLvA6GGe3bSUUEOuo/ADKvqF2OpBc/
-         vAOHNi70JuDPLJFs3tG7dsGzyP98OG9NK6mEMQZHD7i+oWXXtSaliCcxpCej4lQ3mtzj
-         UFlWUolJ27AVz3WA5XEZt+wc1z9ucUGJeJx5rpWXn6cAQLKzdG9tUWKo16o67hR6HMou
-         NAGpoPgTDc3OmdmQWImcxMwswBKkTWQsybzuubbfDKMudQCqJwbzlywyzasBlWjEdxv/
-         bvcaAAJmOwd39Qygfi6gfoV6h2NooK4end2iofpmQob2Ls7VPDIBENBFSSJPn2Fl3fZn
-         Iaww==
-X-Gm-Message-State: AOAM531MxDEbx2Xnd45cHA3mzpQTIVveRazUIOMZM+Ca84yML/RFegvD
-        dNvI8nXGT4cFmdTli/7CMDy8OOHmO04=
-X-Google-Smtp-Source: ABdhPJzA/P05NWXAUJt0pIPyca9DSNS73C/sJBSyiM/LMe6OVbD5KAMqwyPUpk7LHzQBBqwmnpePQA==
-X-Received: by 2002:a17:90a:4483:: with SMTP id t3mr9090405pjg.44.1634078083842;
-        Tue, 12 Oct 2021 15:34:43 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id x10sm12238646pfn.172.2021.10.12.15.34.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 12 Oct 2021 15:34:43 -0700 (PDT)
-Subject: Re: [PATCH 5.10 00/81] 5.10.73-rc3 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20211012093348.134236881@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <4de747dd-af57-4bc1-3fda-54983c7aa5bb@gmail.com>
-Date:   Tue, 12 Oct 2021 15:34:38 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S233442AbhJLWjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 18:39:33 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55934 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232419AbhJLWjd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 18:39:33 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19CL1cdF010905;
+        Tue, 12 Oct 2021 18:37:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=sCeXo3dqmkP0/xhNkOSvbSYV07M3tvRrK4r1EnU84Cw=;
+ b=jmWXkZKLI5Zql9HD18VOCm80ynoGt/I550/eS1cYqrEZX31AOj8JITnikqhSiCGWQtJV
+ RPPx/50aPIEFqSiX8/nDCY1CFL82FY0glrUkm1l4etCnyUEZ6JMGPygdMOJFBOrIyRiC
+ 5BlXdaJJzEec78RSxld3Q10eWgfLO77KrCVA9nZtAUxB8ismy+675kVJXu3jHzb6OMlX
+ i6sSrVpHUD6LJOmNIeiYwTe3s6fCkurW9xtnmaKXo+2GqCsTC2FwsEZpRE+hntvKdOsZ
+ cME3ICWfELUNNkEE6zZkeWRnl7/XgJ0fwEobtjYY74DiJrvZ2fL6cGa3BwapKWwV0DHU OQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bnhwv9mbx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 18:37:30 -0400
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19CMbTWD025404;
+        Tue, 12 Oct 2021 18:37:29 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bnhwv9mbh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 18:37:29 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19CMXQSG029155;
+        Tue, 12 Oct 2021 22:37:27 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 3bk2q9mv53-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Oct 2021 22:37:27 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19CMbOpv45810034
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Oct 2021 22:37:24 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0325D52083;
+        Tue, 12 Oct 2021 22:37:24 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.29.112])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id DF42152082;
+        Tue, 12 Oct 2021 22:37:22 +0000 (GMT)
+Date:   Wed, 13 Oct 2021 00:37:14 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Cornelia Huck <cohuck@redhat.com>
+Cc:     Pierre Morel <pmorel@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, bfu@redhat.com,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [RFC PATCH 1/1] s390/cio: make ccw_device_dma_* more robust
+Message-ID: <20211013003714.1c411f0b.pasic@linux.ibm.com>
+In-Reply-To: <87pmsawdvr.fsf@redhat.com>
+References: <20211011115955.2504529-1-pasic@linux.ibm.com>
+ <466de207-e88d-ea93-beec-fbfe10e63a26@linux.ibm.com>
+ <874k9ny6k6.fsf@redhat.com>
+ <20211011204837.7617301b.pasic@linux.ibm.com>
+ <87pmsawdvr.fsf@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20211012093348.134236881@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: FnNmoyxqV9kzXznksfIDmwOd5XzzJui5
+X-Proofpoint-GUID: ALJzMp_pvrvA8cXvFjEHX09NUna6vrZG
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-12_06,2021-10-12_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ bulkscore=0 lowpriorityscore=0 phishscore=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 mlxlogscore=718 adultscore=0 spamscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110120119
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/12/21 2:37 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.73 release.
-> There are 81 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 14 Oct 2021 09:33:32 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.73-rc3.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels
+On Tue, 12 Oct 2021 15:50:48 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+> >> If I read cio_gp_dma_zalloc() correctly, we either get NULL or a valid
+> >> address, so yes.
+> >>   
+> >
+> > I don't think the extra care will hurt us too badly. I prefer to keep
+> > the IS_ERR_OR_NULL() check because it needs less domain specific
+> > knowledge to be understood, and because it is more robust.  
+> 
+> It feels weird, though -- I'd rather have a comment that tells me
+
+This way the change feels simpler and safer to me. I believe I explained
+the why above. But if you insist I can change it. I double checked the
+cio_gp_dma_zalloc() code, and more or less the code called by it. So
+now I don't feel uncomfortable with the simpler check.
+
+On the other hand, I'm not very happy doing changes solely based on
+somebody's feelings. It would feel much more comfortable with a reason
+based discussion.
+
+One reason to change this to a simple NULL check, is that the
+IS_ERR_OR_NULL() check could upset the reader of the client code,
+which only checks for NULL.
+
+On the other hand I do believe we have some risk of lumping together
+different errors here. E.g. dma_pool is NULL or dma ops are not set up
+properly. Currently we would communicate that kind of a problem as
+-ENOMEM, which wouldn't be a great match. But since dma_alloc_coherent()
+returns either NULL or a valid pointer, and furthermore this looks like
+a common thing in all the mm-api, I decided to be inline with that.
+
+TLDR; If you insist, I will change this to a simple null pointer check.
+
+> exactly what cio_gp_dma_zalloc() is supposed to return; I would have
+> expected that a _zalloc function always gives me a valid pointer or
+> NULL.
+
+I don't think we have such a comment for dma_alloc_coherent() or even
+kmalloc(). I agree, it would be nice to have this behavior documented
+in the apidoc all over the place. But IMHO that is a different issue.
+
+Regards,
+Halil
+
