@@ -2,116 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F2542A399
-	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 13:48:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 955B742A3B5
+	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 13:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236245AbhJLLuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 07:50:02 -0400
-Received: from smtp-relay-canonical-1.canonical.com ([185.125.188.121]:48372
-        "EHLO smtp-relay-canonical-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232665AbhJLLuC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 07:50:02 -0400
-Received: from localhost.localdomain (unknown [123.112.69.44])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id C958E40049;
-        Tue, 12 Oct 2021 11:47:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1634039279;
-        bh=2lpVt2XYiPkKaR75Uw0kkw/Xv64RqcoglShtc0fgqYs=;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
-        b=gY8lUY9uqGBLzXvHIxFi6J88GBgWs1Odma3VBuOTuv6b7qGPBXPnhu/yiKKQqGFeV
-         okYhQISjzNzgbcV6lCye7SbZE8lZI/pgdcHlmwa+gcgNToQUM1bx5HVGnFF2tgdGDb
-         gg/NjakwtFjOIAZFrE4PTQ7zaKKdVZ02hiodATJCWDncEQ+SDVhuVy2y4u28Tik/ai
-         n/ZC38FozqJ2R/B9sBmzgpfgJY2kkRn0ZQxm/Htpp/PNmXXtLtgHs2mUcz1bqD32f0
-         bx1kWsjgFOGPq10c/AkHoYLMNPzMO/OX1E8bivn/2JvHehhqKC/eM5YROFbUx++fqk
-         KEdo2p77/7z4w==
-From:   Hui Wang <hui.wang@canonical.com>
-To:     alsa-devel@alsa-project.org, tiwai@suse.de, stable@vger.kernel.org
-Cc:     msd.mmq@gmail.com
-Subject: [PATCH] ALSA: hda/realtek: Fix the mic type detection issue for ASUS G551JW
-Date:   Tue, 12 Oct 2021 19:47:48 +0800
-Message-Id: <20211012114748.5238-1-hui.wang@canonical.com>
-X-Mailer: git-send-email 2.25.1
+        id S236227AbhJLMAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 08:00:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52738 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232665AbhJLMAo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 08:00:44 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81BD4C061570
+        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 04:58:42 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id r7so66245921wrc.10
+        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 04:58:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=5aF13KUeOm2pIzPATvRG0B/rCqwCtM2yOqiLIhyhJ7A=;
+        b=vM7WHiMo1ORkhyrgGGUitHYJ2DzlJdh0GvlWeJugpyv4d5P/mfKPkCVUAZgBoAfeav
+         0lx1n2C5xwchPmYB/ZKW2TGESP9ptouYqUnF6YmwsPrOg54JKHCIsBN/5XgjbV+HYkdo
+         3blaYRakTB8C8CjG/vOqowYtc7MwMvotN6+9tKXt1CdREdS61qyJahSzUoIGSKALNdy8
+         RVM8bbBmsaeXUv4w7ry/MWHSZho+pMvMIN2H6DpZuAUyr+/rjy7gysEDfyxGSYx2NcY5
+         yTG4vfUpmoz7l6VndRQVW8xnuxZnPPzIqShAMGWEDS/Q1KZ5ksiib4K51/nPuhxwba0c
+         5f3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=5aF13KUeOm2pIzPATvRG0B/rCqwCtM2yOqiLIhyhJ7A=;
+        b=wIXA2u0bB6SbZlYn+mSC2WkWiNYWqJGhyUoplUDX0d2bxa6iBYGGNcRXauKfYj0u6/
+         TnhA5g0Ekx3IOQCI09+BaOOSZeBXLNLNsbbE/58lQMpTPAbPRbIl51vVDbrcHx6C464S
+         m9NOI0fu3nZF1jY0umNzfnsZYRuYS2jGljz9eMqDejQhKJCX0MUsyUwecdBev9Ju7+G/
+         gwLsk/x7oP5gLxE0eQk8cDf6pZnwi2kmdBRMXIrNJKpM8LV4gZ8vZGFJDHftCqiJuQBW
+         HYXRbMqkqFh3FWdAz1XFuV54Ox+3895CpZD6Emr0bGdGM70ydx83zNxSoLbtZpLF1jw1
+         vGfA==
+X-Gm-Message-State: AOAM533eXtcBnqxnBBJoqABDbqHFYrAVOPUzywkInGUe8dAO3+C6tN0q
+        gSELSlotZc4qvaGq4dHzg4LTBw==
+X-Google-Smtp-Source: ABdhPJwkFGylsLFLaLuMldSxBX7XHA10bOR8rOTbvgyuwYDD4Wo85IvacM12prPV8eApc0hHu7qSLA==
+X-Received: by 2002:a05:600c:4108:: with SMTP id j8mr5103043wmi.15.1634039921038;
+        Tue, 12 Oct 2021 04:58:41 -0700 (PDT)
+Received: from google.com ([95.148.6.175])
+        by smtp.gmail.com with ESMTPSA id v3sm10618100wrg.23.2021.10.12.04.58.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Oct 2021 04:58:40 -0700 (PDT)
+Date:   Tue, 12 Oct 2021 12:58:38 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Aditya Garg <gargaditya08@live.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        "andriy.shevchenko@linux.intel.com" 
+        <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCHv4] mfd: intel-lpss: Add support for MacBookPro16,2 ICL-N
+ UART
+Message-ID: <YWV4bnbn7VXjYWWy@google.com>
+References: <7E63F4C9-6AE9-4E97-9986-B13A397289C5@live.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <7E63F4C9-6AE9-4E97-9986-B13A397289C5@live.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We need to define the codec pin 0x1b to be the mic, but somehow
-the mic doesn't support hot plugging detection, and Windows also has
-this issue, so we set it to phantom headset-mic.
+On Tue, 05 Oct 2021, Aditya Garg wrote:
 
-Also the determine_headset_type() often returns the omtp type by a
-mistake when we plug a ctia headset, this makes the mic can't record
-sound at all. Because most of the headset are ctia type nowadays and
-some machines have the fixed ctia type audio jack, it is possible this
-machine has the fixed ctia jack too. Here we set this mic jack to
-fixed ctia type, this could avoid the mic type detection mistake and
-make the ctia headset work stable.
+> Added 8086:38a8 to the intel_lpss_pci driver. It is an Intel Ice Lake
+> PCH-N UART controler present on the MacBookPro16,2.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Orlando Chamberlain <redecorating@protonmail.com>
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214537
-Reported-and-tested-by: msd <msd.mmq@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
----
- sound/pci/hda/patch_realtek.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+Who is the author of this patch?
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index bca5830ff706..22d27b12c4e7 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -10197,6 +10197,9 @@ enum {
- 	ALC671_FIXUP_HP_HEADSET_MIC2,
- 	ALC662_FIXUP_ACER_X2660G_HEADSET_MODE,
- 	ALC662_FIXUP_ACER_NITRO_HEADSET_MODE,
-+	ALC668_FIXUP_ASUS_NO_HEADSET_MIC,
-+	ALC668_FIXUP_HEADSET_MIC,
-+	ALC668_FIXUP_MIC_DET_COEF,
- };
- 
- static const struct hda_fixup alc662_fixups[] = {
-@@ -10580,6 +10583,29 @@ static const struct hda_fixup alc662_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC662_FIXUP_USI_FUNC
- 	},
-+	[ALC668_FIXUP_ASUS_NO_HEADSET_MIC] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x1b, 0x04a1112c },
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC668_FIXUP_HEADSET_MIC
-+	},
-+	[ALC668_FIXUP_HEADSET_MIC] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc269_fixup_headset_mic,
-+		.chained = true,
-+		.chain_id = ALC668_FIXUP_MIC_DET_COEF
-+	},
-+	[ALC668_FIXUP_MIC_DET_COEF] = {
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x15 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0d60 },
-+			{}
-+		},
-+	},
- };
- 
- static const struct snd_pci_quirk alc662_fixup_tbl[] = {
-@@ -10615,6 +10641,7 @@ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1043, 0x15a7, "ASUS UX51VZH", ALC662_FIXUP_BASS_16),
- 	SND_PCI_QUIRK(0x1043, 0x177d, "ASUS N551", ALC668_FIXUP_ASUS_Nx51),
- 	SND_PCI_QUIRK(0x1043, 0x17bd, "ASUS N751", ALC668_FIXUP_ASUS_Nx51),
-+	SND_PCI_QUIRK(0x1043, 0x185d, "ASUS G551JW", ALC668_FIXUP_ASUS_NO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1963, "ASUS X71SL", ALC662_FIXUP_ASUS_MODE8),
- 	SND_PCI_QUIRK(0x1043, 0x1b73, "ASUS N55SF", ALC662_FIXUP_BASS_16),
- 	SND_PCI_QUIRK(0x1043, 0x1bf3, "ASUS N76VZ", ALC662_FIXUP_BASS_MODE4_CHMAP),
+Why hasn't the submitter signed it off?
+
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+> v3->v4: reviewed-by line
+>  
+> drivers/mfd/intel-lpss-pci.c
+>  | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> 
+> diff
+
+This is not a format I recognise.
+
+Did you use `git send-email` to submit this?
+
+>  --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
+> index c54d19fb184c..a872b4485eac 100644
+> --- a/drivers/mfd/intel-lpss-pci.c
+> +++ b/drivers/mfd/intel-lpss-pci.c
+> 
+> @@ -253,6 +253,8 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
+> 
+>  	{ PCI_VDEVICE(INTEL, 0x34ea), (kernel_ulong_t)&bxt_i2c_info },
+>  	{ PCI_VDEVICE(INTEL, 0x34eb), (kernel_ulong_t)&bxt_i2c_info },
+>  	{ PCI_VDEVICE(INTEL, 0x34fb), (kernel_ulong_t)&spt_info },
+> 
+> +	/* ICL-N */
+> +	{ PCI_VDEVICE(INTEL, 0x38a8), (kernel_ulong_t)&bxt_uart_info },
+> 
+>  	/* TGL-H */
+>  	{ PCI_VDEVICE(INTEL, 0x43a7), (kernel_ulong_t)&bxt_uart_info },
+>  	{ PCI_VDEVICE(INTEL, 0x43a8), (kernel_ulong_t)&bxt_uart_info },
+
 -- 
-2.25.1
-
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
