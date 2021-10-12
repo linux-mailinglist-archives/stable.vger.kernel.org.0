@@ -2,113 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA36242A66B
-	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 15:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0745442A673
+	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 15:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236983AbhJLNvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 09:51:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37596 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236678AbhJLNvS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Oct 2021 09:51:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A9D560E94;
-        Tue, 12 Oct 2021 13:49:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634046557;
-        bh=9Rof50k2Sv02JNsI7ZJJR3+5T9qYRDelDKQP/S/zH/o=;
-        h=From:To:Cc:Subject:Date:From;
-        b=N7khJdh2SD8SIFM31pTXxRaPkvWkLgO9qBRqcQYgdhVQRk7r2WDjFS0rS/cIjWP6W
-         lEsckCCNWn0ztyCT90EYe64Z/w8AddmbYOnbLudmzvCaAG44lvNFpjMH2SeZVct/iO
-         nZSLJJD4qotDkrvmQLm4+ImTKmlZpj/c71OAGxJwg33axG9RbF7ot4Cfq/94NooJxG
-         HNzs+6TJnSl5KHfCMao3WboN3BdyfUPO000P6imPzOodWFNNxggK5C0SmuvCm45JjQ
-         IlEimGGIOtkQjaXl3tU9j05suuYCtgEdnOUXArB1imPTp93li+pq0g1JnjTN2cTJwa
-         TGT4swk8RZg/g==
-From:   Jeff Layton <jlayton@kernel.org>
-To:     ceph-devel@vger.kernel.org
-Cc:     idryomov@gmail.com, Patrick Donnelly <pdonnell@redhat.com>,
-        Niels de Vos <ndevos@redhat.com>,
-        "Yan, Zheng" <ukernel@gmail.com>, stable@vger.kernel.org,
-        Xiubo Li <xiubli@redhat.com>
-Subject: [PATCH v3] ceph: skip existing superblocks that are blocklisted or shut down when mounting
-Date:   Tue, 12 Oct 2021 09:49:15 -0400
-Message-Id: <20211012134915.38994-1-jlayton@kernel.org>
-X-Mailer: git-send-email 2.31.1
+        id S233296AbhJLNw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 09:52:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:53165 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237040AbhJLNw6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 09:52:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1634046655;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Lpesmbio9FZ09q7H/hgYyh50fUJ7X8y/Z2CXk6CH2Hw=;
+        b=TZ15TkeoCTw1fAFIxz+QMCLkYYi4vCxa8UJ8KLEujFZFO3hRee1BNLsnZvG+L2GsL1VBPZ
+        jT+tB9sw02kpCWMm8Jvekq3gbulRXPcXMQusgSuZGfMEPK5oHq2fTRvKJ5V9NumtSKlFBz
+        6feLgvjV0UmrR/2j0Ug7JhhEsmcZjs8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-353-7pqmE2CPNr-Jp9MqPCNWFg-1; Tue, 12 Oct 2021 09:50:52 -0400
+X-MC-Unique: 7pqmE2CPNr-Jp9MqPCNWFg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BBEE29126B;
+        Tue, 12 Oct 2021 13:50:50 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.61])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4468760BF4;
+        Tue, 12 Oct 2021 13:50:50 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     Pierre Morel <pmorel@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, bfu@redhat.com,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [RFC PATCH 1/1] s390/cio: make ccw_device_dma_* more robust
+In-Reply-To: <20211011204837.7617301b.pasic@linux.ibm.com>
+Organization: Red Hat GmbH
+References: <20211011115955.2504529-1-pasic@linux.ibm.com>
+ <466de207-e88d-ea93-beec-fbfe10e63a26@linux.ibm.com>
+ <874k9ny6k6.fsf@redhat.com> <20211011204837.7617301b.pasic@linux.ibm.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Tue, 12 Oct 2021 15:50:48 +0200
+Message-ID: <87pmsawdvr.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently when mounting, we may end up finding an existing superblock
-that corresponds to a blocklisted MDS client. This means that the new
-mount ends up being unusable.
+On Mon, Oct 11 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
 
-If we've found an existing superblock with a client that is already
-blocklisted, and the client is not configured to recover on its own,
-fail the match. Ditto if the superblock has been forcibly unmounted.
+> On Mon, 11 Oct 2021 16:33:45 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
+>
+>> On Mon, Oct 11 2021, Pierre Morel <pmorel@linux.ibm.com> wrote:
+>> 
+>> > On 10/11/21 1:59 PM, Halil Pasic wrote:  
+>> >> diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
+>> >> index 0fe7b2f2e7f5..c533d1dadc6b 100644
+>> >> --- a/drivers/s390/cio/device_ops.c
+>> >> +++ b/drivers/s390/cio/device_ops.c
+>> >> @@ -825,13 +825,23 @@ EXPORT_SYMBOL_GPL(ccw_device_get_chid);
+>> >>    */
+>> >>   void *ccw_device_dma_zalloc(struct ccw_device *cdev, size_t size)
+>> >>   {
+>> >> -	return cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
+>> >> +	void *addr;
+>> >> +
+>> >> +	if (!get_device(&cdev->dev))
+>> >> +		return NULL;
+>> >> +	addr = cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
+>> >> +	if (IS_ERR_OR_NULL(addr))  
+>> >
+>> > I can be wrong but it seems that only dma_alloc_coherent() used in 
+>> > cio_gp_dma_zalloc() report an error but the error is ignored and used as 
+>> > a valid pointer.  
+>> 
+>> Hm, I thought dma_alloc_coherent() returned either NULL or a valid
+>> address?
+>
+> Yes, that is what is documented.
+>
+>> 
+>> >
+>> > So shouldn't we modify this function and just test for a NULL address here?  
+>> 
+>> If I read cio_gp_dma_zalloc() correctly, we either get NULL or a valid
+>> address, so yes.
+>> 
+>
+> I don't think the extra care will hurt us too badly. I prefer to keep
+> the IS_ERR_OR_NULL() check because it needs less domain specific
+> knowledge to be understood, and because it is more robust.
 
-While we're in here, also rename "other" to the more conventional "fsc".
-
-Cc: Patrick Donnelly <pdonnell@redhat.com>
-Cc: Niels de Vos <ndevos@redhat.com>
-Cc: "Yan, Zheng" <ukernel@gmail.com>
-Cc: stable@vger.kernel.org
-URL: https://bugzilla.redhat.com/show_bug.cgi?id=1901499
-Reviewed-by: Xiubo Li <xiubli@redhat.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-
-ceph: when comparing superblocks, skip ones that have been forcibly unmounted
-
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
----
- fs/ceph/super.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
-
-v3: also handle the case where we have a forcibly unmounted superblock
-    that is detached but still extant
-
-diff --git a/fs/ceph/super.c b/fs/ceph/super.c
-index f517ad9eeb26..b9ba50c9dc95 100644
---- a/fs/ceph/super.c
-+++ b/fs/ceph/super.c
-@@ -1123,16 +1123,16 @@ static int ceph_compare_super(struct super_block *sb, struct fs_context *fc)
- 	struct ceph_fs_client *new = fc->s_fs_info;
- 	struct ceph_mount_options *fsopt = new->mount_options;
- 	struct ceph_options *opt = new->client->options;
--	struct ceph_fs_client *other = ceph_sb_to_client(sb);
-+	struct ceph_fs_client *fsc = ceph_sb_to_client(sb);
- 
- 	dout("ceph_compare_super %p\n", sb);
- 
--	if (compare_mount_options(fsopt, opt, other)) {
-+	if (compare_mount_options(fsopt, opt, fsc)) {
- 		dout("monitor(s)/mount options don't match\n");
- 		return 0;
- 	}
- 	if ((opt->flags & CEPH_OPT_FSID) &&
--	    ceph_fsid_compare(&opt->fsid, &other->client->fsid)) {
-+	    ceph_fsid_compare(&opt->fsid, &fsc->client->fsid)) {
- 		dout("fsid doesn't match\n");
- 		return 0;
- 	}
-@@ -1140,6 +1140,17 @@ static int ceph_compare_super(struct super_block *sb, struct fs_context *fc)
- 		dout("flags differ\n");
- 		return 0;
- 	}
-+	/* Exclude any blocklisted superblocks */
-+	if (fsc->blocklisted && !ceph_test_mount_opt(fsc, CLEANRECOVER)) {
-+		dout("client is blocklisted (and CLEANRECOVER is not set)\n");
-+		return 0;
-+	}
-+
-+	if (fsc->mount_state == CEPH_MOUNT_SHUTDOWN) {
-+		dout("client has been forcibly unmounted\n");
-+		return 0;
-+	}
-+
- 	return 1;
- }
- 
--- 
-2.31.1
+It feels weird, though -- I'd rather have a comment that tells me
+exactly what cio_gp_dma_zalloc() is supposed to return; I would have
+expected that a _zalloc function always gives me a valid pointer or
+NULL.
 
