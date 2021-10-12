@@ -2,128 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1908E42A170
-	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 11:55:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4CC442A1A8
+	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 12:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235789AbhJLJ5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 05:57:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53080 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235437AbhJLJ5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 05:57:47 -0400
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C90C061570
-        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 02:55:46 -0700 (PDT)
-Received: by mail-pf1-x42c.google.com with SMTP id q19so16691053pfl.4
-        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 02:55:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=16cv3m+x5jIRdcVlu61EPbc54laQulyW/ryGagqIp9k=;
-        b=B40Z3VGMsH2FMhr/eUFIwROZ7+CECqjHpk9l3Es9bySRBCUr5x7kjZgbuYZTPdIcXB
-         FFAncDvoq8kEzTBePUEUYAeilJ+G6u3oH3Z5XNz3oq3jGvdDyDuJ8hWykf+gLDWG9Veh
-         3sqKkxj0tQS1/Vl4SEmFeGQaxdUsjBcWO1tpE2MZCzZ6TI99P0u76ypH4Vg0slIN/e4y
-         cXX37+RXiNhYfWpOTrLw4M0bsuZlL7yRf3jNRxMch9im0Snv4kayaDcvMYLisGMEqJ1q
-         Fwc/eqSxnIgQjctcwkikDnTv8cUulpuw2REG85lPiASy6JlMl0GlfK4UB+n5LywwBxIG
-         s6+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=16cv3m+x5jIRdcVlu61EPbc54laQulyW/ryGagqIp9k=;
-        b=CU03/KVrAWBZjEtaPAPHjm7PaIqmHxuxux4B9mB4RN2pWCBNyE4EyRBkPGlyRWwv8R
-         BpSldp93CeRyG52dNdqBoRn0xUjPillQ1kS9Knrr9S6RNPR96ZbVmb12GElFi7D+HGNW
-         /5nkBfmF9a1FBAyNSypwLdDDlrQkaYgugY5+ibCmDQCWHkCay12t4BMYodvc2GIE7V63
-         0Rrm+8U6frU6t4b5MPwor/Gh0x4kaETOZQ75wEeUSrT8D1ZdIDfbftDWSveLiwqrRVRM
-         RN+5aXTzN9TFrp2eiusw33qJbVCnPPbRE3pvJZRPnemLAVHR8TlUNlthxlmp8vxwZD7S
-         2I+g==
-X-Gm-Message-State: AOAM533Of2NXtJJZSgA4cba8PnwcWSUK0wR2S9FeutA04fInE2tFM3hF
-        GOu4nG5ezYUlQN+8O2Y8DnK3OmapuDu3kHwV
-X-Google-Smtp-Source: ABdhPJxiAVex3DC3Ltru6SA5zSUmAwE240u8Ngu+tmK+qX8YTdFTgCVSoNj4gchl0hzE9vLnlROc/g==
-X-Received: by 2002:a62:3287:0:b0:439:bfec:8374 with SMTP id y129-20020a623287000000b00439bfec8374mr30448273pfy.15.1634032545608;
-        Tue, 12 Oct 2021 02:55:45 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p2sm1981549pja.51.2021.10.12.02.55.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Oct 2021 02:55:45 -0700 (PDT)
-Message-ID: <61655ba1.1c69fb81.1979a.64ad@mx.google.com>
-Date:   Tue, 12 Oct 2021 02:55:45 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S235567AbhJLKIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 06:08:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33722 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235534AbhJLKIZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Oct 2021 06:08:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D487360698;
+        Tue, 12 Oct 2021 10:06:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1634033183;
+        bh=afRaiB2x46Dy5EwPdZ0GaOyJyMOe/U1RoFhf+sQW94k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=1CdakWEr955c3rxOuGkNsleaaeIP4jvOURkXyKGQ16kXeHMi1IT07zKNSblMHbJLW
+         y1/rppdbRKcWEjGQtBQVm9JrY9SSSVYlhhNCli9m4i6LNUBa+10tkPiE9D1rxzWUtM
+         U9vIuE2/exPIfXhX/zREsXLN7fov6zO63Yxgsw88=
+Date:   Tue, 12 Oct 2021 12:06:21 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Suren Baghdasaryan <surenb@google.com>
+Cc:     stable@vger.kernel.org, jannh@google.com,
+        torvalds@linux-foundation.org, vbabka@suse.cz, peterx@redhat.com,
+        aarcange@redhat.com, david@redhat.com, jgg@ziepe.ca,
+        ktkhai@virtuozzo.com, shli@fb.com, namit@vmware.com, hch@lst.de,
+        oleg@redhat.com, kirill@shutemov.name, jack@suse.cz,
+        willy@infradead.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, kernel-team@android.com
+Subject: Re: [PATCH 1/1] gup: document and work around "COW can break either
+ way" issue
+Message-ID: <YWVeHbWp3kqf7Hyj@kroah.com>
+References: <20211012015244.693594-1-surenb@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.14.11-151-gbc5a3fbd8294
-Subject: stable-rc/queue/5.14 baseline: 103 runs,
- 1 regressions (v5.14.11-151-gbc5a3fbd8294)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211012015244.693594-1-surenb@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 103 runs, 1 regressions (v5.14.11-151-gbc5a3=
-fbd8294)
+On Mon, Oct 11, 2021 at 06:52:44PM -0700, Suren Baghdasaryan wrote:
+> From: Linus Torvalds <torvalds@linux-foundation.org>
+> 
+> From: Linus Torvalds <torvalds@linux-foundation.org>
+> 
+> commit 17839856fd588f4ab6b789f482ed3ffd7c403e1f upstream.
 
-Regressions Summary
--------------------
+Both backports now queued up, thanks.
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.11-151-gbc5a3fbd8294/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.11-151-gbc5a3fbd8294
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      bc5a3fbd8294c3ee0bd908f6e35589ec54d70a6f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61652456c8e78fb3f808fab8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.11-=
-151-gbc5a3fbd8294/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.11-=
-151-gbc5a3fbd8294/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61652456c8e78fb3f808f=
-ab9
-        failing since 3 days (last pass: v5.14.10-44-gcee0088c496d, first f=
-ail: v5.14.10-48-g292b9f8998a9) =
-
- =20
+greg k-h
