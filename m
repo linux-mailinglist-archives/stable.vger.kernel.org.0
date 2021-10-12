@@ -2,135 +2,302 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE41F429F0B
-	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 09:53:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1B07429F5E
+	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 10:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234353AbhJLHzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 03:55:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52912 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234260AbhJLHzh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 03:55:37 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8108FC061570
-        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 00:53:35 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id g13-20020a17090a3c8d00b00196286963b9so1274797pjc.3
-        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 00:53:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Y8rwFVgpmbmz9iHq7Ty2VJHYqKNufP22ef728+lV9Xw=;
-        b=Ye5KMAiCZ9p5m5sFhK9rEyICBA1ZncrYnKAnluotvf1fzSLztIEkrq82Q8WTFkOU12
-         UtFQHyty6Qz3sextoE7GQin28EzUGtjo0dWC05spjXBrWrnsPsnRK1Uw6cMB3o4rM/g2
-         eD/OAkC0I6/hK6e1Tk2zodYmg8dIzvz0K4KoTKuVeOs6WawrPg6JfLZDDafZNaik34SU
-         CHqyCJBt7/xqNcOCfmfLAyONGJsnXthViW2v4Jg24A+gixmolOPvNKG6G8TWqKLi+3TT
-         DxuY7Pj+vVKI0tX98D6ibvXz5Pz0z3gT1t1ZQcVhDRIOsLBdipRrcuaGum3A7Z6Lf9wY
-         qf0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Y8rwFVgpmbmz9iHq7Ty2VJHYqKNufP22ef728+lV9Xw=;
-        b=XgAqoYQZmGd6CJ28Q3p28FKSoz1KxjotHY6jZDgy8ZTNkaIsHQXIexbVmp87ws+ukz
-         m6scZkUo2KRkHS1RT6ztmaiqf6PGwqOFpUyt/qbHDxQ37gyaxZs1OofkLWQJp73owa5V
-         7sfRh57eAr1LInSf2U9oopNZqqwmZK0E/w7+DYe/oiym34xastSSNIflFO9WUHlmJKwj
-         DxpFAY2IJt0dSRoos/nVMUwLEte5MQb9teGdJWP1NLjMzk91Dh5jE5rFeF8l0XvJs+Ic
-         wdtvpBI//CE7nx2JA0G/S2xFTfK9LhQH2pQhdfLPZGOVzzWh7SsLTt4v3pLymyPKXobZ
-         FUsw==
-X-Gm-Message-State: AOAM531QHpQj7MaRKFlT3kPh9bEUpYhdX36EWh86B6gBSk/gPNC7J+RF
-        03Vq+a3eQYM5in6JWfQBqK53xzBp1K2QDBr2
-X-Google-Smtp-Source: ABdhPJweHLnDLPX/izL/hMeytsz+/0JnJQB4sH7xHOKnEpN2uFAYUPpbBSryaT7ukNp0N2bgPGkSWw==
-X-Received: by 2002:a17:90a:db14:: with SMTP id g20mr4254165pjv.43.1634025214824;
-        Tue, 12 Oct 2021 00:53:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b23sm10280229pfi.135.2021.10.12.00.53.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Oct 2021 00:53:34 -0700 (PDT)
-Message-ID: <61653efe.1c69fb81.fbc86.cef5@mx.google.com>
-Date:   Tue, 12 Oct 2021 00:53:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S234264AbhJLII4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 04:08:56 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:43846 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234368AbhJLIIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 04:08:55 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id EA98420189;
+        Tue, 12 Oct 2021 08:06:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1634026010; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=C2AhIPiypQlFYvBRtPJow7c46TmArxAHhVqeRJSr764=;
+        b=1OFzVo4xbpngDBGGbdpcrG7ua6UsKiGufqo4Ddk5DSJZvBiRwM5T7iz/C0ZJrDVT2lIANn
+        zP3kvI4ixcpGPNP37WsyDkp+zplH9NN6J4z82xe52o7iYG/JkJWgJwyehNYCJ1Cg8K9gee
+        DCXMw8DHcyG7fgL3YzksVD1lW38xYP0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1634026010;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=C2AhIPiypQlFYvBRtPJow7c46TmArxAHhVqeRJSr764=;
+        b=sHMnCTRTT6CjObMoSlWKSEYUUa54Rtct18vBKUjBQtqOZATUosZKpWcjQs3ebE+MSg5WB1
+        lkYqbC/wCzmAROCQ==
+Received: from quack2.suse.cz (unknown [10.100.224.230])
+        by relay2.suse.de (Postfix) with ESMTP id AF254A3B84;
+        Tue, 12 Oct 2021 08:06:50 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 87DBB1E1409; Tue, 12 Oct 2021 10:06:49 +0200 (CEST)
+Date:   Tue, 12 Oct 2021 10:06:49 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Suren Baghdasaryan <surenb@google.com>
+Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
+        jannh@google.com, torvalds@linux-foundation.org, vbabka@suse.cz,
+        peterx@redhat.com, aarcange@redhat.com, david@redhat.com,
+        jgg@ziepe.ca, ktkhai@virtuozzo.com, shli@fb.com, namit@vmware.com,
+        hch@lst.de, oleg@redhat.com, kirill@shutemov.name, jack@suse.cz,
+        willy@infradead.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, kernel-team@android.com
+Subject: Re: [PATCH 1/1] gup: document and work around "COW can break either
+ way" issue
+Message-ID: <20211012080649.GE9697@quack2.suse.cz>
+References: <20211012015244.693594-1-surenb@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.250-24-g0c04723a59cf
-Subject: stable-rc/queue/4.14 baseline: 91 runs,
- 1 regressions (v4.14.250-24-g0c04723a59cf)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211012015244.693594-1-surenb@google.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 91 runs, 1 regressions (v4.14.250-24-g0c0472=
-3a59cf)
+On Mon 11-10-21 18:52:44, Suren Baghdasaryan wrote:
+> From: Linus Torvalds <torvalds@linux-foundation.org>
+> 
+> From: Linus Torvalds <torvalds@linux-foundation.org>
+> 
+> commit 17839856fd588f4ab6b789f482ed3ffd7c403e1f upstream.
+> 
+> Doing a "get_user_pages()" on a copy-on-write page for reading can be
+> ambiguous: the page can be COW'ed at any time afterwards, and the
+> direction of a COW event isn't defined.
+> 
+> Yes, whoever writes to it will generally do the COW, but if the thread
+> that did the get_user_pages() unmapped the page before the write (and
+> that could happen due to memory pressure in addition to any outright
+> action), the writer could also just take over the old page instead.
+> 
+> End result: the get_user_pages() call might result in a page pointer
+> that is no longer associated with the original VM, and is associated
+> with - and controlled by - another VM having taken it over instead.
+> 
+> So when doing a get_user_pages() on a COW mapping, the only really safe
+> thing to do would be to break the COW when getting the page, even when
+> only getting it for reading.
+> 
+> At the same time, some users simply don't even care.
+> 
+> For example, the perf code wants to look up the page not because it
+> cares about the page, but because the code simply wants to look up the
+> physical address of the access for informational purposes, and doesn't
+> really care about races when a page might be unmapped and remapped
+> elsewhere.
+> 
+> This adds logic to force a COW event by setting FOLL_WRITE on any
+> copy-on-write mapping when FOLL_GET (or FOLL_PIN) is used to get a page
+> pointer as a result.
+> 
+> The current semantics end up being:
+> 
+>  - __get_user_pages_fast(): no change. If you don't ask for a write,
+>    you won't break COW. You'd better know what you're doing.
+> 
+>  - get_user_pages_fast(): the fast-case "look it up in the page tables
+>    without anything getting mmap_sem" now refuses to follow a read-only
+>    page, since it might need COW breaking.  Which happens in the slow
+>    path - the fast path doesn't know if the memory might be COW or not.
+> 
+>  - get_user_pages() (including the slow-path fallback for gup_fast()):
+>    for a COW mapping, turn on FOLL_WRITE for FOLL_GET/FOLL_PIN, with
+>    very similar semantics to FOLL_FORCE.
+> 
+> If it turns out that we want finer granularity (ie "only break COW when
+> it might actually matter" - things like the zero page are special and
+> don't need to be broken) we might need to push these semantics deeper
+> into the lookup fault path.  So if people care enough, it's possible
+> that we might end up adding a new internal FOLL_BREAK_COW flag to go
+> with the internal FOLL_COW flag we already have for tracking "I had a
+> COW".
+> 
+> Alternatively, if it turns out that different callers might want to
+> explicitly control the forced COW break behavior, we might even want to
+> make such a flag visible to the users of get_user_pages() instead of
+> using the above default semantics.
+> 
+> But for now, this is mostly commentary on the issue (this commit message
+> being a lot bigger than the patch, and that patch in turn is almost all
+> comments), with that minimal "enable COW breaking early" logic using the
+> existing FOLL_WRITE behavior.
+> 
+> [ It might be worth noting that we've always had this ambiguity, and it
+>   could arguably be seen as a user-space issue.
+> 
+>   You only get private COW mappings that could break either way in
+>   situations where user space is doing cooperative things (ie fork()
+>   before an execve() etc), but it _is_ surprising and very subtle, and
+>   fork() is supposed to give you independent address spaces.
+> 
+>   So let's treat this as a kernel issue and make the semantics of
+>   get_user_pages() easier to understand. Note that obviously a true
+>   shared mapping will still get a page that can change under us, so this
+>   does _not_ mean that get_user_pages() somehow returns any "stable"
+>   page ]
+> 
+> [surenb: backport notes
+>         Since gup_pgd_range does not exist, made appropriate changes on
+>         the the gup_huge_pgd, gup_huge_pd and gup_pud_range calls instead.
+> 	Replaced (gup_flags | FOLL_WRITE) with write=1 in gup_huge_pgd,
+>         gup_huge_pd and gup_pud_range.
+> 	Removed FOLL_PIN usage in should_force_cow_break since it's missing in
+> 	the earlier kernels.]
 
-Regressions Summary
--------------------
+I'd be really careful with backporting this to stable. There was a lot of
+userspace breakage caused by this change if I remember right which needed
+to be fixed up later. There is a nice summary at
+https://lwn.net/Articles/849638/ and https://lwn.net/Articles/849876/ and
+some problems are still being found...
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+								Honza
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.250-24-g0c04723a59cf/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.250-24-g0c04723a59cf
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0c04723a59cf12fd181f0525a928b13b31fb3a94 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6165055ada90c4cc5008fad5
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.250=
--24-g0c04723a59cf/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.250=
--24-g0c04723a59cf/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6165055ada90c4c=
-c5008fad8
-        new failure (last pass: v4.14.250-10-g360a25ea0f96)
-        2 lines
-
-    2021-10-12T03:47:17.681838  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/105
-    2021-10-12T03:47:17.690585  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-10-12T03:47:17.707126  [   20.571258] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+> 
+> Reported-by: Jann Horn <jannh@google.com>
+> Tested-by: Christoph Hellwig <hch@lst.de>
+> Acked-by: Oleg Nesterov <oleg@redhat.com>
+> Acked-by: Kirill Shutemov <kirill@shutemov.name>
+> Acked-by: Jan Kara <jack@suse.cz>
+> Cc: Andrea Arcangeli <aarcange@redhat.com>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> [surenb: backport to 4.4 kernel]
+> Cc: stable@vger.kernel.org # 4.4.x
+> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+> ---
+>  mm/gup.c         | 48 ++++++++++++++++++++++++++++++++++++++++--------
+>  mm/huge_memory.c |  7 +++----
+>  2 files changed, 43 insertions(+), 12 deletions(-)
+> 
+> diff --git a/mm/gup.c b/mm/gup.c
+> index 4c5857889e9d..c80cdc408228 100644
+> --- a/mm/gup.c
+> +++ b/mm/gup.c
+> @@ -59,13 +59,22 @@ static int follow_pfn_pte(struct vm_area_struct *vma, unsigned long address,
+>  }
+>  
+>  /*
+> - * FOLL_FORCE can write to even unwritable pte's, but only
+> - * after we've gone through a COW cycle and they are dirty.
+> + * FOLL_FORCE or a forced COW break can write even to unwritable pte's,
+> + * but only after we've gone through a COW cycle and they are dirty.
+>   */
+>  static inline bool can_follow_write_pte(pte_t pte, unsigned int flags)
+>  {
+> -	return pte_write(pte) ||
+> -		((flags & FOLL_FORCE) && (flags & FOLL_COW) && pte_dirty(pte));
+> +	return pte_write(pte) || ((flags & FOLL_COW) && pte_dirty(pte));
+> +}
+> +
+> +/*
+> + * A (separate) COW fault might break the page the other way and
+> + * get_user_pages() would return the page from what is now the wrong
+> + * VM. So we need to force a COW break at GUP time even for reads.
+> + */
+> +static inline bool should_force_cow_break(struct vm_area_struct *vma, unsigned int flags)
+> +{
+> +	return is_cow_mapping(vma->vm_flags) && (flags & FOLL_GET);
+>  }
+>  
+>  static struct page *follow_page_pte(struct vm_area_struct *vma,
+> @@ -509,12 +518,18 @@ long __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
+>  			if (!vma || check_vma_flags(vma, gup_flags))
+>  				return i ? : -EFAULT;
+>  			if (is_vm_hugetlb_page(vma)) {
+> +				if (should_force_cow_break(vma, foll_flags))
+> +					foll_flags |= FOLL_WRITE;
+>  				i = follow_hugetlb_page(mm, vma, pages, vmas,
+>  						&start, &nr_pages, i,
+> -						gup_flags);
+> +						foll_flags);
+>  				continue;
+>  			}
+>  		}
+> +
+> +		if (should_force_cow_break(vma, foll_flags))
+> +			foll_flags |= FOLL_WRITE;
+> +
+>  retry:
+>  		/*
+>  		 * If we have a pending SIGKILL, don't keep faulting pages and
+> @@ -1346,6 +1361,10 @@ static int gup_pud_range(pgd_t pgd, unsigned long addr, unsigned long end,
+>  /*
+>   * Like get_user_pages_fast() except it's IRQ-safe in that it won't fall back to
+>   * the regular GUP. It will only return non-negative values.
+> + *
+> + * Careful, careful! COW breaking can go either way, so a non-write
+> + * access can get ambiguous page results. If you call this function without
+> + * 'write' set, you'd better be sure that you're ok with that ambiguity.
+>   */
+>  int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
+>  			  struct page **pages)
+> @@ -1375,6 +1394,12 @@ int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
+>  	 *
+>  	 * We do not adopt an rcu_read_lock(.) here as we also want to
+>  	 * block IPIs that come from THPs splitting.
+> +	 *
+> +	 * NOTE! We allow read-only gup_fast() here, but you'd better be
+> +	 * careful about possible COW pages. You'll get _a_ COW page, but
+> +	 * not necessarily the one you intended to get depending on what
+> +	 * COW event happens after this. COW may break the page copy in a
+> +	 * random direction.
+>  	 */
+>  
+>  	local_irq_save(flags);
+> @@ -1385,15 +1410,22 @@ int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
+>  		next = pgd_addr_end(addr, end);
+>  		if (pgd_none(pgd))
+>  			break;
+> +		/*
+> +		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
+> +		 * because get_user_pages() may need to cause an early COW in
+> +		 * order to avoid confusing the normal COW routines. So only
+> +		 * targets that are already writable are safe to do by just
+> +		 * looking at the page tables.
+> +		 */
+>  		if (unlikely(pgd_huge(pgd))) {
+> -			if (!gup_huge_pgd(pgd, pgdp, addr, next, write,
+> +			if (!gup_huge_pgd(pgd, pgdp, addr, next, 1,
+>  					  pages, &nr))
+>  				break;
+>  		} else if (unlikely(is_hugepd(__hugepd(pgd_val(pgd))))) {
+>  			if (!gup_huge_pd(__hugepd(pgd_val(pgd)), addr,
+> -					 PGDIR_SHIFT, next, write, pages, &nr))
+> +					 PGDIR_SHIFT, next, 1, pages, &nr))
+>  				break;
+> -		} else if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
+> +		} else if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
+>  			break;
+>  	} while (pgdp++, addr = next, addr != end);
+>  	local_irq_restore(flags);
+> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+> index 6404e4fcb4ed..fae45c56e2ee 100644
+> --- a/mm/huge_memory.c
+> +++ b/mm/huge_memory.c
+> @@ -1268,13 +1268,12 @@ out_unlock:
+>  }
+>  
+>  /*
+> - * FOLL_FORCE can write to even unwritable pmd's, but only
+> - * after we've gone through a COW cycle and they are dirty.
+> + * FOLL_FORCE or a forced COW break can write even to unwritable pmd's,
+> + * but only after we've gone through a COW cycle and they are dirty.
+>   */
+>  static inline bool can_follow_write_pmd(pmd_t pmd, unsigned int flags)
+>  {
+> -	return pmd_write(pmd) ||
+> -	       ((flags & FOLL_FORCE) && (flags & FOLL_COW) && pmd_dirty(pmd));
+> +	return pmd_write(pmd) || ((flags & FOLL_COW) && pmd_dirty(pmd));
+>  }
+>  
+>  struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
+> -- 
+> 2.33.0.882.g93a45727a2-goog
+> 
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
