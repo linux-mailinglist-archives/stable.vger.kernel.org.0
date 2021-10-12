@@ -2,114 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B51B342A904
-	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 18:01:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4A342A932
+	for <lists+stable@lfdr.de>; Tue, 12 Oct 2021 18:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233428AbhJLQDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 12:03:40 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:55042 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232848AbhJLQDj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 12:03:39 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: sre)
-        with ESMTPSA id D1D361F43D5D
-Received: by earth.universe (Postfix, from userid 1000)
-        id 2A7FC3C0CA8; Tue, 12 Oct 2021 18:01:35 +0200 (CEST)
-Date:   Tue, 12 Oct 2021 18:01:35 +0200
-From:   Sebastian Reichel <sebastian.reichel@collabora.com>
-To:     Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Dirk Brandewie <dirk.brandewie@gmail.com>, kernel@puri.sm,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] power: supply: max17042_battery: Clear status
- bits in interrupt handler
-Message-ID: <20211012160135.ldmhwkpmijkziuob@earth.universe>
-References: <20210914121806.1301131-1-sebastian.krzyszkowiak@puri.sm>
- <11303414.9r73sBlGM0@pliszka>
+        id S230003AbhJLQSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 12:18:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55998 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229496AbhJLQSf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 12:18:35 -0400
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEAB6C061570
+        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 09:16:33 -0700 (PDT)
+Received: by mail-yb1-xb2f.google.com with SMTP id s4so47801954ybs.8
+        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 09:16:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=C7BD6wccAPTIincdVGpFvmdfRHDmwKN+1690ABm9BSo=;
+        b=JqLMGsZLZwo/26rWcaEEkpSVhFFH+OlC7Yh11GjQMJWOAoOEo/OS8FiYJ5PtD0RSgu
+         bw2Oaz49oFivA3bMB30OQaVH0PdMQz/7iIH4kMs9baD9eYeXd9So5SfKEEYlUTfc2qcD
+         HT3wOwyZgSR1V7t810RRtL1MXXX35IhRsm/EuWIwMK/mEJvehfsBPcASE5FwzWW3dvZ0
+         Eujw94ZLfnXjnkcl/a6DwpOks65BXP0jcO9OZjvoujG2wstFXydhSxouo0Wu9jvUKwXg
+         Vbpuu1oBONXEWtc/vqY0EwF07tAMyG+Ci2f3vBafl2B/0xBfTrbbWXItiFFqvhaxMb2E
+         ChfA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=C7BD6wccAPTIincdVGpFvmdfRHDmwKN+1690ABm9BSo=;
+        b=G0IvNYgp/Qv2c6AEp8JPd+n/bHsBhmzf/Ukww1NujIbOlulkn7//2WJ+Zm70qGPVr2
+         vds9ZQ69jiHc6BJKyzdnjX2yFEWJgpYTszH3GDZCUiQuznL5k8jmN0R3WxyR/UyGVlKW
+         WumWkwfldTsQ9eaKdphe/bx9HnEuTkXlNi0pWSlnD+f+oqSZBWrMm599dxfCkNk8cmAQ
+         Qjzuhdi9d+gpkzZmVBGNg8MTKCpC/gMg0jLzHiv7VuTyOu/Si/PIzlcwyDvKbzmgaM0N
+         j40XGWhgRBkE5hP8Wvn9zZo6gR46lQLIKOzgWX9L6YGZAnGVnnQVt8ELi1GQ7sFsDLuf
+         7/5g==
+X-Gm-Message-State: AOAM532XofSKjlpRzkPOtQhwOKJ6G4OnM6P4uvQmNzVrRqGFmgKZdUhA
+        mY6xiN0SIr7swBqQxEWJN0uEEBiAP4f7Qk6HYN4P+w==
+X-Google-Smtp-Source: ABdhPJxDSDLnCeRzy63ns5goD4U+AUKCvcseSMV+6HMnU+P37cXoMGJA5SHu3pcghaRwcNAyK6MR7qNNOaWzyLCiEhg=
+X-Received: by 2002:a25:5b04:: with SMTP id p4mr28429328ybb.34.1634055392729;
+ Tue, 12 Oct 2021 09:16:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="xvqbm6c6fc54g2fj"
-Content-Disposition: inline
-In-Reply-To: <11303414.9r73sBlGM0@pliszka>
+References: <20211012015244.693594-1-surenb@google.com> <YWVeHbWp3kqf7Hyj@kroah.com>
+In-Reply-To: <YWVeHbWp3kqf7Hyj@kroah.com>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Tue, 12 Oct 2021 09:16:21 -0700
+Message-ID: <CAJuCfpHg9fs5XoyY26ZQbLuPHo0-HLoE8FPFF7CcTy1OLpSveQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] gup: document and work around "COW can break either
+ way" issue
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>, Jann Horn <jannh@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>, Peter Xu <peterx@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>, Shaohua Li <shli@fb.com>,
+        Nadav Amit <namit@vmware.com>, Christoph Hellwig <hch@lst.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>, jack@suse.cz,
+        Matthew Wilcox <willy@infradead.org>,
+        linux-mm <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Oct 12, 2021 at 3:06 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Oct 11, 2021 at 06:52:44PM -0700, Suren Baghdasaryan wrote:
+> > From: Linus Torvalds <torvalds@linux-foundation.org>
+> >
+> > From: Linus Torvalds <torvalds@linux-foundation.org>
+> >
+> > commit 17839856fd588f4ab6b789f482ed3ffd7c403e1f upstream.
+>
+> Both backports now queued up, thanks.
 
---xvqbm6c6fc54g2fj
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks!
 
-Hi,
-
-On Mon, Oct 11, 2021 at 05:32:30AM +0200, Sebastian Krzyszkowiak wrote:
-> On wtorek, 14 wrze=C5=9Bnia 2021 14:18:05 CEST Sebastian Krzyszkowiak wro=
-te:
-> > The gauge requires us to clear the status bits manually for some alerts
-> > to be properly dismissed. Previously the IRQ was configured to react on=
-ly
-> > on falling edge, which wasn't technically correct (the ALRT line is act=
-ive
-> > low), but it had a happy side-effect of preventing interrupt storms
-> > on uncleared alerts from happening.
-> >=20
-> > Fixes: 7fbf6b731bca ("power: supply: max17042: Do not enforce (incorrec=
-t)
-> > interrupt trigger type") Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-> > ---
-> > v2: added a comment on why it clears all alert bits
-> > ---
-> >  drivers/power/supply/max17042_battery.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> >=20
-> > diff --git a/drivers/power/supply/max17042_battery.c
-> > b/drivers/power/supply/max17042_battery.c index 8dffae76b6a3..da78ffe6a=
-3ec
-> > 100644
-> > --- a/drivers/power/supply/max17042_battery.c
-> > +++ b/drivers/power/supply/max17042_battery.c
-> > @@ -876,6 +876,10 @@ static irqreturn_t max17042_thread_handler(int id,=
- void
-> > *dev) max17042_set_soc_threshold(chip, 1);
-> >  	}
-> >=20
-> > +	/* we implicitly handle all alerts via power_supply_changed */
-> > +	regmap_clear_bits(chip->regmap, MAX17042_STATUS,
-> > +			  0xFFFF & ~(STATUS_POR_BIT |=20
-> STATUS_BST_BIT));
-> > +
-> >  	power_supply_changed(chip->battery);
-> >  	return IRQ_HANDLED;
-> >  }
->=20
-> Ping? Seems this didn't get applied yet.
-
-Thanks, both queued now.
-
--- Sebastian
-
---xvqbm6c6fc54g2fj
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmFlsVoACgkQ2O7X88g7
-+pqAdhAAkmAkbekB6xd9dau2QCUIctjPFmP9zA+Zi4l2ZWEaq1pGVmfj2uHyOxkp
-R3kmp8oNIp24nW5LQWUYM/57HLKVLitr8wumuEZFGtW8pStex7T5UM/MhExLtwgU
-qoNmwX06TpToZQ7PYBPwko0CYtK8cXK2c0WwNe1fQ9ncaPZKBZYXdXggIKDpsg2q
-52B8JZ2JbQ0GvQ8ebtEg/DxlrhtEs67TCfZ0Z8bW+vA5xpuKOUf+MIo6sx2VtWk/
-P9vUVwMjU/VjsczJ5khI+WP1EEF74x2AAfX3iL82GCNvZQUqHJ9RrrRw2VT5onOl
-Sbytk4dYLLfX+8KJFd7PAHMqeWZhnUIgH+u9d2YnVpG1XXhU+lRvpoVfpiD9y1l6
-giJ/stBoicQ61iCwDfFN9sp8bRckWIFnTdpGw3AV3nzG4oTn/BaYmNrFMEKK/jwa
-/wFAYKegT4YTEDhxV48rwQ6zCJcq7uj8fjGbmoHmIE4/zoqptJhhbZgVDnsnL6N+
-Q7vCKL8PHJc8wyj8UmytfTtumRiRY+kYQKPbMA8O4byFeEqGub0GG0g1fNg+Gktv
-4BcZgfRSTCluAigfdYmtch1mQGz1eIiIx2qWrSI6YhCljhqXMkU421bSLGqYJgRk
-eihtlnivCkmT2dG6TOS8ZWXEtSqdqvx0f1sAEC7K+YACc2qKtpg=
-=qE2g
------END PGP SIGNATURE-----
-
---xvqbm6c6fc54g2fj--
+>
+> greg k-h
+>
+> --
+> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
+>
