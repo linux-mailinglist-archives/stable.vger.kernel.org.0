@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0023542C1CC
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 15:53:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01C4742C1CF
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 15:54:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230210AbhJMNzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Oct 2021 09:55:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41184 "EHLO
+        id S233226AbhJMN4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Oct 2021 09:56:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229611AbhJMNzt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 09:55:49 -0400
-Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 100C1C061570;
-        Wed, 13 Oct 2021 06:53:46 -0700 (PDT)
-Received: by mail-qt1-x833.google.com with SMTP id b12so2575695qtq.3;
-        Wed, 13 Oct 2021 06:53:46 -0700 (PDT)
+        with ESMTP id S229611AbhJMN4p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 09:56:45 -0400
+Received: from mail-qv1-xf30.google.com (mail-qv1-xf30.google.com [IPv6:2607:f8b0:4864:20::f30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AD82C061570;
+        Wed, 13 Oct 2021 06:54:41 -0700 (PDT)
+Received: by mail-qv1-xf30.google.com with SMTP id k19so1672358qvm.13;
+        Wed, 13 Oct 2021 06:54:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=qLP3FkcbQrP8905JiIIhkRnwbLSYE8OuU6XnZIgVhgQ=;
-        b=SOWXQL8zIN0bUKlCGxIRz0aBPBugYGip5SkaDuXBvQkB7k8Q1nCJPnz4kv6qw43T8i
-         9ldTcZzzJid7lwWlTWuolPKBJ72U8C0B7kDTMOt8a9CECdU0xiaqAxRWDqORqLARWVvT
-         DN0U/Lj447DNNakmK3Trs/idWtw9Cngl1PaKjqlVwsW8EEM6S65s9dskJGcSZQsf9WZd
-         CyoKn2fvV+F377UoDDfvj/8B4HAByebVYpf5E6l3CzFBbVWVKJzmTpDBJZ6WFs6ivM81
-         6du5WsmuA0uGGcyfif86CVuH0SCik4B6FvySAgkhWef2jTXUADYJJti0mO4y5HgSm0SZ
-         IZ2w==
+        bh=nb6TZ/DirMgCKWGn9hSLaRC0RwHZQPM9afRb8Z/8+wA=;
+        b=jHl2KvkmhZo2U/Ks4kWyBMzEYfFHUpj0pXfozMg38sGViBULXnf4jXAONpzh7q78Zf
+         NSZNv3DJjBKK1x7c9zpVfM841FzA8/Z/bW3rfourSUsNQ7QHz8lGaKMLi1HJdlSVoKz2
+         CNptzPQWdyutXFJHiNA9IZu74pfRbcdThxrLxgiOI9Y4Ug8CwRD2BJPMcrgD5Rz8fp3d
+         uob89xR1yQ+w1OYF1KbQRL4aCST9HVqf3VhoCLsJD+eRghztqmIe9rqIO1PMusIaGdH9
+         CiER9aBlpzfKrs32fAxAMyWZZbMIvFMVSb8jyG+R9BhPvM8/FIXJxVTzp/FDrVQj5yni
+         CTNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=qLP3FkcbQrP8905JiIIhkRnwbLSYE8OuU6XnZIgVhgQ=;
-        b=PJzeQc1Ub1CZL3Q41X7nVFT87GrRbdom2r6aRSv7mx/MHwwll3DwvPFK0aSkdhzyHx
-         ZwJuA20OWQYreSeSH9Gms3q6Keq4+kUDIwuCxFWKcA1A5Ae4AL0drvS5mhAmh05wClqU
-         h17e9nK9jPqhpRKYSE0lhif//2tPOkbHb1VcNPvAXW8HXwbfctNGQkBKigthbKpIKlNV
-         vepgQWH3wW4ZZEduhoW0tGvgUNCe7azu0dfwFBbObnM9ISMKBhodP8zhKCn4aHeOPzrx
-         hfRZPSkJbhbiEeJosgeI7JxgMBSgShH9pp8wtr6okXRIcM/znNSh1R5zpLJfbRvitVk2
-         ChDw==
-X-Gm-Message-State: AOAM5306T+6yWm/Pu1OlCKBQI8hDh1SUo0ESC55pcbxhBIvHPdIxHET6
-        RlGq/oJ1AtVLbdc7yq0tscywuorQWoM=
-X-Google-Smtp-Source: ABdhPJyRqUuY+40c/2sfXTq7HcSFjRh8SFIV+6zKi9eOi3PlnrYHLUO0ojek+lVIu5Xv8Yze7XyMaQ==
-X-Received: by 2002:ac8:5f82:: with SMTP id j2mr29995999qta.75.1634133225276;
-        Wed, 13 Oct 2021 06:53:45 -0700 (PDT)
+        bh=nb6TZ/DirMgCKWGn9hSLaRC0RwHZQPM9afRb8Z/8+wA=;
+        b=WmVUHrWOo8bRPyoTkAgJfXriFgnYJFbvhIDAH0yrBGqfOSg67u9XpctjM8yG6b8mGG
+         Ye4mfbhnXjd7iXk8JbyGNNYG4DnxnBaHDT4NKmqeBvmiaE4RmVKZPEzYh8K6vUkSMhaP
+         weyEiP0P7WieyObv7v9h+0kHSQ5Bux52WFPQuSulk7GZ+ykpbfEWSlfzggdZDiQh1VVv
+         hahQeN+IllPzHZKB+nZjivVbKVtZ4AWDtsvy2/Ky+joqgFEEp5Fn0BSIg/AnbABqX4Mr
+         UPpWxKn8kyrq4FAvey5wrHCslUxvDrSbdXazcHoXZwhypYWAB5y/a4DowsKwETTTyLuL
+         9DHw==
+X-Gm-Message-State: AOAM53344SMraHisPAqFxnXzt9XjIdmfzdbREc5PVRg+niJG+P0QRWoO
+        5rplDhfIP0LrO9Q+3ErPIVbZcuNtk44=
+X-Google-Smtp-Source: ABdhPJxzMeyo/Ni+iBHcKC4RQaqS/sO1vgoYOyLwzq7QyuyAkqpMXadSOUckteobtjIA91stjyd+bQ==
+X-Received: by 2002:ad4:4ee6:: with SMTP id dv6mr35707568qvb.5.1634133280400;
+        Wed, 13 Oct 2021 06:54:40 -0700 (PDT)
 Received: from localhost.localdomain (c-73-60-226-25.hsd1.nh.comcast.net. [73.60.226.25])
-        by smtp.gmail.com with ESMTPSA id k8sm5035844qkk.37.2021.10.13.06.53.44
+        by smtp.gmail.com with ESMTPSA id g1sm7353339qkd.89.2021.10.13.06.54.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Oct 2021 06:53:45 -0700 (PDT)
-Date:   Wed, 13 Oct 2021 09:53:43 -0400
+        Wed, 13 Oct 2021 06:54:40 -0700 (PDT)
+Date:   Wed, 13 Oct 2021 09:54:38 -0400
 From:   Eric Whitney <enwlinux@gmail.com>
 To:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
 Cc:     stable-commits@vger.kernel.org, enwlinux@gmail.com,
         Theodore Ts'o <tytso@mit.edu>,
         Andreas Dilger <adilger.kernel@dilger.ca>
 Subject: Re: Patch "ext4: enforce buffer head state assertion in
- ext4_da_map_blocks" has been added to the 5.14-stable tree
-Message-ID: <20211013135343.GA8994@localhost.localdomain>
-References: <20211013113653.726356-1-sashal@kernel.org>
+ ext4_da_map_blocks" has been added to the 5.10-stable tree
+Message-ID: <20211013135438.GB8994@localhost.localdomain>
+References: <20211013114005.728150-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211013113653.726356-1-sashal@kernel.org>
+In-Reply-To: <20211013114005.728150-1-sashal@kernel.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -71,19 +71,19 @@ X-Mailing-List: stable@vger.kernel.org
 > 
 >     ext4: enforce buffer head state assertion in ext4_da_map_blocks
 > 
-> to the 5.14-stable tree which can be found at:
+> to the 5.10-stable tree which can be found at:
 >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 > 
 > The filename of the patch is:
 >      ext4-enforce-buffer-head-state-assertion-in-ext4_da_.patch
-> and it can be found in the queue-5.14 subdirectory.
+> and it can be found in the queue-5.10 subdirectory.
 > 
 > If you, or anyone else, feels it should not be added to the stable tree,
 > please let <stable@vger.kernel.org> know about it.
 > 
 > 
 > 
-> commit b2838e02c515366e8452370fcda5baa2dcc8be68
+> commit 38c3015b3b8b3a977ca7fa0da8de65c9d8cab2d2
 > Author: Eric Whitney <enwlinux@gmail.com>
 > Date:   Thu Aug 19 10:49:27 2021 -0400
 > 
@@ -106,10 +106,10 @@ X-Mailing-List: stable@vger.kernel.org
 >     Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
 > diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-> index fc6ea56de77c..d204688b32a3 100644
+> index 317aa1b90fb9..fce4fccb8641 100644
 > --- a/fs/ext4/inode.c
 > +++ b/fs/ext4/inode.c
-> @@ -1726,13 +1726,16 @@ static int ext4_da_map_blocks(struct inode *inode, sector_t iblock,
+> @@ -1727,13 +1727,16 @@ static int ext4_da_map_blocks(struct inode *inode, sector_t iblock,
 >  		}
 >  
 >  		/*
@@ -133,7 +133,6 @@ X-Mailing-List: stable@vger.kernel.org
 >  		}
 >  
 
-
 This patch should not be added to the stable tree, as it will be reverted in
 5.15.
 
@@ -143,3 +142,4 @@ being until the root cause can be determined and corrected in a future release.
 
 Thanks,
 Eric
+
