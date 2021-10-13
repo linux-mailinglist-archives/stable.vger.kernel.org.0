@@ -2,38 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F79F42B150
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 02:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D99F842B158
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 02:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236888AbhJMA5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 20:57:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41270 "EHLO mail.kernel.org"
+        id S236965AbhJMA5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 20:57:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236935AbhJMA5Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Oct 2021 20:57:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A7C360FDA;
-        Wed, 13 Oct 2021 00:55:22 +0000 (UTC)
+        id S236543AbhJMA5d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Oct 2021 20:57:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3391160F21;
+        Wed, 13 Oct 2021 00:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634086523;
-        bh=NybbkMHmLslVYZonyQ/Hqo1Od3uUBAN4ZODuEQZ39jQ=;
+        s=k20201202; t=1634086531;
+        bh=qob3YSuRTRWNBYe/OSS+OKzkEfCDeLdA7hbMed4XBzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJAmGoWvgb+usewO7kYzLWlfwEG0WNIm19DG7gFibv4CEBtflS/qXiuSVWBYDpz9q
-         FmQVBQjhOKWF6Gw4nsN/IlP2xznn+IuSVDoDs+bLRGw1kKUiZQ2sWWRZxLP6XbAcPX
-         LTbYvh8voZTsBcSAUxx+Gx8a1WSWst6bxfADX3JdwR0463APvy6YBrbr9XG1yIU8qQ
-         rNW7BrvRH0czAtT5jZB+IqCAKL18zIETp78RZi2haz5ECqLOxEBYD2LvF468XJwh6d
-         N2Vs6Iek+BrRrNuj6Zd/cEOOeaGGVTslAWLXPRCVcq33zn/Zb8mhqxRngaT0QBnMpG
-         +2j8GPpsH2WQA==
+        b=pZyABUlFLPb7fXfRsra+fXsnHbDR4hhOFi+YccDD8ZOIloSIWweQGi8kviWVNTG2G
+         zRSkbGMyNGYFahhHpnwm9zaOuOdXU7ep+rRPg+gSomsIYnWL9zkIoSfwfKt7NEgnMP
+         aJEW7tYys8BjWx9Y3hcrAJ/83sz7v0XHhOLGhhdCHOnOGfTuWyyXswWEqfcyowsLMi
+         FdMR0nz5H+kihNhGPBws/pIclH7J935IBdG9CCG/y9vHpNkq2v+zA/rHe+S0+/NDnr
+         I+3slmNREKQx62XheiXYTcOPgz0kD8MoXe75erSmDtlW4unyAD4Txb6HCLmcDzfhzW
+         PYoMxINB8Cg7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Will Deacon <will@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Simon Trimmer <simont@opensource.cirrus.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, naveen.n.rao@linux.ibm.com,
-        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.14 16/17] powerpc/bpf: Emit stf barrier instruction sequences for BPF_NOSPEC
-Date:   Tue, 12 Oct 2021 20:54:40 -0400
-Message-Id: <20211013005441.699846-16-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        catalin.marinas@arm.com, tsbogend@alpha.franken.de,
+        James.Bottomley@HansenPartnership.com, deller@gmx.de,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, x86@kernel.org, geert+renesas@glider.be,
+        linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk,
+        akpm@linux-foundation.org, anshuman.khandual@arm.com,
+        rppt@kernel.org, ardb@kernel.org, u.kleine-koenig@pengutronix.de,
+        lukas.bulwahn@gmail.com, mark.rutland@arm.com,
+        wangkefeng.wang@huawei.com, slyfox@gentoo.org, axboe@kernel.dk,
+        rientjes@google.com, dan.j.williams@intel.com,
+        gregkh@linuxfoundation.org, linux-arm-kernel@lists.infradead.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.14 17/17] firmware: include drivers/firmware/Kconfig unconditionally
+Date:   Tue, 12 Oct 2021 20:54:41 -0400
+Message-Id: <20211013005441.699846-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211013005441.699846-1-sashal@kernel.org>
 References: <20211013005441.699846-1-sashal@kernel.org>
@@ -45,158 +61,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit b7540d62509453263604a155bf2d5f0ed450cba2 ]
+[ Upstream commit 951cd3a0866d29cb9c01ebc1d9c17590e598226e ]
 
-Emit similar instruction sequences to commit a048a07d7f4535
-("powerpc/64s: Add support for a store forwarding barrier at kernel
-entry/exit") when encountering BPF_NOSPEC.
+Compile-testing drivers that require access to a firmware layer
+fails when that firmware symbol is unavailable. This happened
+twice this week:
 
-Mitigations are enabled depending on what the firmware advertises. In
-particular, we do not gate these mitigations based on current settings,
-just like in x86. Due to this, we don't need to take any action if
-mitigations are enabled or disabled at runtime.
+ - My proposed to change to rework the QCOM_SCM firmware symbol
+   broke on ppc64 and others.
 
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/956570cbc191cd41f8274bed48ee757a86dac62a.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
+ - The cs_dsp firmware patch added device specific firmware loader
+   into drivers/firmware, which broke on the same set of
+   architectures.
+
+We should probably do the same thing for other subsystems as well,
+but fix this one first as this is a dependency for other patches
+getting merged.
+
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Acked-by: Will Deacon <will@kernel.org>
+Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc: Simon Trimmer <simont@opensource.cirrus.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/net/bpf_jit64.h      |  8 ++---
- arch/powerpc/net/bpf_jit_comp64.c | 55 ++++++++++++++++++++++++++++---
- 2 files changed, 55 insertions(+), 8 deletions(-)
+ arch/arm/Kconfig    | 2 --
+ arch/arm64/Kconfig  | 2 --
+ arch/ia64/Kconfig   | 2 --
+ arch/mips/Kconfig   | 2 --
+ arch/parisc/Kconfig | 2 --
+ arch/riscv/Kconfig  | 2 --
+ arch/x86/Kconfig    | 2 --
+ drivers/Kconfig     | 2 ++
+ 8 files changed, 2 insertions(+), 14 deletions(-)
 
-diff --git a/arch/powerpc/net/bpf_jit64.h b/arch/powerpc/net/bpf_jit64.h
-index 7b713edfa7e2..b63b35e45e55 100644
---- a/arch/powerpc/net/bpf_jit64.h
-+++ b/arch/powerpc/net/bpf_jit64.h
-@@ -16,18 +16,18 @@
-  * with our redzone usage.
-  *
-  *		[	prev sp		] <-------------
-- *		[   nv gpr save area	] 6*8		|
-+ *		[   nv gpr save area	] 5*8		|
-  *		[    tail_call_cnt	] 8		|
-- *		[    local_tmp_var	] 8		|
-+ *		[    local_tmp_var	] 16		|
-  * fp (r31) -->	[   ebpf stack space	] upto 512	|
-  *		[     frame header	] 32/112	|
-  * sp (r1) --->	[    stack pointer	] --------------
-  */
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 2fb7012c3246..1c6e03a350ca 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1994,8 +1994,6 @@ config ARCH_HIBERNATION_POSSIBLE
  
- /* for gpr non volatile registers BPG_REG_6 to 10 */
--#define BPF_PPC_STACK_SAVE	(6*8)
-+#define BPF_PPC_STACK_SAVE	(5*8)
- /* for bpf JIT code internal usage */
--#define BPF_PPC_STACK_LOCALS	16
-+#define BPF_PPC_STACK_LOCALS	24
- /* stack frame excluding BPF stack, ensure this is quadword aligned */
- #define BPF_PPC_STACKFRAME	(STACK_FRAME_MIN_SIZE + \
- 				 BPF_PPC_STACK_LOCALS + BPF_PPC_STACK_SAVE)
-diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
-index f06c62089b14..1a567c46730a 100644
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -15,6 +15,7 @@
- #include <linux/if_vlan.h>
- #include <asm/kprobes.h>
- #include <linux/bpf.h>
-+#include <asm/security_features.h>
+ endmenu
  
- #include "bpf_jit64.h"
+-source "drivers/firmware/Kconfig"
+-
+ if CRYPTO
+ source "arch/arm/crypto/Kconfig"
+ endif
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 62c3c1d2190f..01c682b8b8c7 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -1935,8 +1935,6 @@ source "drivers/cpufreq/Kconfig"
  
-@@ -35,9 +36,9 @@ static inline bool bpf_has_stack_frame(struct codegen_context *ctx)
-  *		[	prev sp		] <-------------
-  *		[	  ...       	] 		|
-  * sp (r1) --->	[    stack pointer	] --------------
-- *		[   nv gpr save area	] 6*8
-+ *		[   nv gpr save area	] 5*8
-  *		[    tail_call_cnt	] 8
-- *		[    local_tmp_var	] 8
-+ *		[    local_tmp_var	] 16
-  *		[   unused red zone	] 208 bytes protected
-  */
- static int bpf_jit_stack_local(struct codegen_context *ctx)
-@@ -45,12 +46,12 @@ static int bpf_jit_stack_local(struct codegen_context *ctx)
- 	if (bpf_has_stack_frame(ctx))
- 		return STACK_FRAME_MIN_SIZE + ctx->stack_size;
- 	else
--		return -(BPF_PPC_STACK_SAVE + 16);
-+		return -(BPF_PPC_STACK_SAVE + 24);
- }
+ endmenu
  
- static int bpf_jit_stack_tailcallcnt(struct codegen_context *ctx)
- {
--	return bpf_jit_stack_local(ctx) + 8;
-+	return bpf_jit_stack_local(ctx) + 16;
- }
+-source "drivers/firmware/Kconfig"
+-
+ source "drivers/acpi/Kconfig"
  
- static int bpf_jit_stack_offsetof(struct codegen_context *ctx, int reg)
-@@ -272,10 +273,33 @@ static int bpf_jit_emit_tail_call(u32 *image, struct codegen_context *ctx, u32 o
- 	return 0;
- }
+ source "arch/arm64/kvm/Kconfig"
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+index 4993c7ac7ff6..3f867225efc2 100644
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -386,8 +386,6 @@ config CRASH_DUMP
+ 	  help
+ 	    Generate crash dump after being started by kexec.
  
-+/*
-+ * We spill into the redzone always, even if the bpf program has its own stackframe.
-+ * Offsets hardcoded based on BPF_PPC_STACK_SAVE -- see bpf_jit_stack_local()
-+ */
-+void bpf_stf_barrier(void);
+-source "drivers/firmware/Kconfig"
+-
+ endmenu
+ 
+ menu "Power management and ACPI options"
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 6dfb27d531dd..a193b1440f88 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -3343,8 +3343,6 @@ source "drivers/cpuidle/Kconfig"
+ 
+ endmenu
+ 
+-source "drivers/firmware/Kconfig"
+-
+ source "arch/mips/kvm/Kconfig"
+ 
+ source "arch/mips/vdso/Kconfig"
+diff --git a/arch/parisc/Kconfig b/arch/parisc/Kconfig
+index 4f8c1fbf8f2f..f1c0ebd9d959 100644
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -385,6 +385,4 @@ config KEXEC_FILE
+ 
+ endmenu
+ 
+-source "drivers/firmware/Kconfig"
+-
+ source "drivers/parisc/Kconfig"
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 4f7b70ae7c31..b70e921af40d 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -558,5 +558,3 @@ menu "Power management options"
+ source "kernel/power/Kconfig"
+ 
+ endmenu
+-
+-source "drivers/firmware/Kconfig"
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 88fb922c23a0..ab3153ccecb9 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2854,8 +2854,6 @@ config HAVE_ATOMIC_IOMAP
+ 	def_bool y
+ 	depends on X86_32
+ 
+-source "drivers/firmware/Kconfig"
+-
+ source "arch/x86/kvm/Kconfig"
+ 
+ source "arch/x86/Kconfig.assembler"
+diff --git a/drivers/Kconfig b/drivers/Kconfig
+index 8bad63417a50..1f96367b4d98 100644
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -17,6 +17,8 @@ source "drivers/bus/Kconfig"
+ 
+ source "drivers/connector/Kconfig"
+ 
++source "drivers/firmware/Kconfig"
 +
-+asm (
-+"		.global bpf_stf_barrier		;"
-+"	bpf_stf_barrier:			;"
-+"		std	21,-64(1)		;"
-+"		std	22,-56(1)		;"
-+"		sync				;"
-+"		ld	21,-64(1)		;"
-+"		ld	22,-56(1)		;"
-+"		ori	31,31,0			;"
-+"		.rept 14			;"
-+"		b	1f			;"
-+"	1:					;"
-+"		.endr				;"
-+"		blr				;"
-+);
-+
- /* Assemble the body code between the prologue & epilogue */
- int bpf_jit_build_body(struct bpf_prog *fp, u32 *image, struct codegen_context *ctx,
- 		       u32 *addrs, bool extra_pass)
- {
-+	enum stf_barrier_type stf_barrier = stf_barrier_type_get();
- 	const struct bpf_insn *insn = fp->insnsi;
- 	int flen = fp->len;
- 	int i, ret;
-@@ -633,6 +657,29 @@ int bpf_jit_build_body(struct bpf_prog *fp, u32 *image, struct codegen_context *
- 		 * BPF_ST NOSPEC (speculation barrier)
- 		 */
- 		case BPF_ST | BPF_NOSPEC:
-+			if (!security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) ||
-+					!security_ftr_enabled(SEC_FTR_STF_BARRIER))
-+				break;
-+
-+			switch (stf_barrier) {
-+			case STF_BARRIER_EIEIO:
-+				EMIT(PPC_RAW_EIEIO() | 0x02000000);
-+				break;
-+			case STF_BARRIER_SYNC_ORI:
-+				EMIT(PPC_RAW_SYNC());
-+				EMIT(PPC_RAW_LD(b2p[TMP_REG_1], _R13, 0));
-+				EMIT(PPC_RAW_ORI(_R31, _R31, 0));
-+				break;
-+			case STF_BARRIER_FALLBACK:
-+				EMIT(PPC_RAW_MFLR(b2p[TMP_REG_1]));
-+				PPC_LI64(12, dereference_kernel_function_descriptor(bpf_stf_barrier));
-+				EMIT(PPC_RAW_MTCTR(12));
-+				EMIT(PPC_RAW_BCTRL());
-+				EMIT(PPC_RAW_MTLR(b2p[TMP_REG_1]));
-+				break;
-+			case STF_BARRIER_NONE:
-+				break;
-+			}
- 			break;
+ source "drivers/gnss/Kconfig"
  
- 		/*
+ source "drivers/mtd/Kconfig"
 -- 
 2.33.0
 
