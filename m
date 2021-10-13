@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 591A842B12B
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 02:55:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1743F42B132
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 02:55:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236320AbhJMA5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 20:57:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40550 "EHLO mail.kernel.org"
+        id S236480AbhJMA5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 20:57:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236254AbhJMA46 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Oct 2021 20:56:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 433E560FDA;
-        Wed, 13 Oct 2021 00:54:55 +0000 (UTC)
+        id S236338AbhJMA5C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Oct 2021 20:57:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6B2560EDF;
+        Wed, 13 Oct 2021 00:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634086496;
-        bh=rhCEe1YAL5L+0Vhv2XSfVCZXHV0jEo7p42ZhTme8rzA=;
+        s=k20201202; t=1634086500;
+        bh=r2/PJs0znIkT0ty4CiIasvQpyO9PStZ1x0WDDOEs0AU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nacIF5CJW/Pbz0pqNMB+pqUzuXPi75sfwqYy7d7uMMph+VXFQdSFUGV4elxUiLzOH
-         suIcFT5xKKR8ukI/2FwtxiuOllro0L9RqtNyfFxLy0e9f7PJh5JFsArcMmfY32SJzi
-         tErlqd0WxJCV+lHAJ1YYg1zmuGWTwc8/W0J1i4K39gUXj/+Pc5nNQ2Vz4YZL2PHxCD
-         k1jhyaqIRjzGs0klBS3jFT1I9xuI1naGy5wIMW+PQU3MMNDk+TvFXVYCBnMCkuZBx2
-         q61zu1fJRekvgodNsdoR6vnKsB80AigiuCaMl5KmeeGPOEAWl6aU+oUTFRDT+1l+gx
-         GySAupZ5GiyWw==
+        b=btfR2qI54yUmIEFqMOgmcfqJAlOXHyYynohPwWYHehJh+A7JytqLUthXPTMpQDSfe
+         G1pZILY6AbTV0nAccUwxcXCVa2ZuJmXOmrBmliDDmsJkNDQ0yrdm+LarAPHuvka5Mg
+         VpYbxf6+FjNvH6DLqtQfgMQ/HUb1XyIGo9cIae/vfrVVmO20oinzGOJlKG34EzkwbA
+         LO56OO9ri7GH33IH+ozf1JRnnGTu14KUCO7tUHpCL5GLTuL1nPVurw9xpn5foxCYy4
+         qwoC8E9DkTpmPUKmfLk9mwWkbDCSyNGDTM304FjKh3GNt6souMTurQENQ08eMtpryK
+         p9TgiSawX0TAw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Beulich <jbeulich@suse.com>, Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>, boris.ostrovsky@oracle.com,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
-        xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 5.14 06/17] xen/x86: prevent PVH type from getting clobbered
-Date:   Tue, 12 Oct 2021 20:54:30 -0400
-Message-Id: <20211013005441.699846-6-sashal@kernel.org>
+Cc:     Hayes Wang <hayeswang@realtek.com>,
+        Jason-ch Chen <jason-ch.chen@mediatek.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        matthias.bgg@gmail.com, tiwai@suse.de, lee.jones@linaro.org,
+        linux-usb@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.14 07/17] r8152: avoid to resubmit rx immediately
+Date:   Tue, 12 Oct 2021 20:54:31 -0400
+Message-Id: <20211013005441.699846-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211013005441.699846-1-sashal@kernel.org>
 References: <20211013005441.699846-1-sashal@kernel.org>
@@ -43,58 +47,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Hayes Wang <hayeswang@realtek.com>
 
-[ Upstream commit 9172b5c4a778da1f855b2e3780b1afabb3cfd523 ]
+[ Upstream commit baf33d7a75642b4b38a87fdf1cd96b506df4849f ]
 
-Like xen_start_flags, xen_domain_type gets set before .bss gets cleared.
-Hence this variable also needs to be prevented from getting put in .bss,
-which is possible because XEN_NATIVE is an enumerator evaluating to
-zero. Any use prior to init_hvm_pv_info() setting the variable again
-would lead to wrong decisions; one such case is xenboot_console_setup()
-when called as a result of "earlyprintk=xen".
+For the situation that the disconnect event comes very late when the
+device is unplugged, the driver would resubmit the RX bulk transfer
+after getting the callback with -EPROTO immediately and continually.
+Finally, soft lockup occurs.
 
-Use __ro_after_init as more applicable than either __section(".data") or
-__read_mostly.
+This patch avoids to resubmit RX immediately. It uses a workqueue to
+schedule the RX NAPI. And the NAPI would resubmit the RX. It let the
+disconnect event have opportunity to stop the submission before soft
+lockup.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-
-Link: https://lore.kernel.org/r/d301677b-6f22-5ae6-bd36-458e1f323d0b@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Reported-by: Jason-ch Chen <jason-ch.chen@mediatek.com>
+Tested-by: Jason-ch Chen <jason-ch.chen@mediatek.com>
+Signed-off-by: Hayes Wang <hayeswang@realtek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/enlighten.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/usb/r8152.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
-index c79bd0af2e8c..f252faf5028f 100644
---- a/arch/x86/xen/enlighten.c
-+++ b/arch/x86/xen/enlighten.c
-@@ -52,9 +52,6 @@ DEFINE_PER_CPU(struct vcpu_info, xen_vcpu_info);
- DEFINE_PER_CPU(uint32_t, xen_vcpu_id);
- EXPORT_PER_CPU_SYMBOL(xen_vcpu_id);
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 79832374f78d..92fca5e9ed03 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -767,6 +767,7 @@ enum rtl8152_flags {
+ 	PHY_RESET,
+ 	SCHEDULE_TASKLET,
+ 	GREEN_ETHERNET,
++	RX_EPROTO,
+ };
  
--enum xen_domain_type xen_domain_type = XEN_NATIVE;
--EXPORT_SYMBOL_GPL(xen_domain_type);
--
- unsigned long *machine_to_phys_mapping = (void *)MACH2PHYS_VIRT_START;
- EXPORT_SYMBOL(machine_to_phys_mapping);
- unsigned long  machine_to_phys_nr;
-@@ -69,9 +66,11 @@ __read_mostly int xen_have_vector_callback;
- EXPORT_SYMBOL_GPL(xen_have_vector_callback);
+ #define DEVICE_ID_THINKPAD_THUNDERBOLT3_DOCK_GEN2	0x3082
+@@ -1770,6 +1771,14 @@ static void read_bulk_callback(struct urb *urb)
+ 		rtl_set_unplug(tp);
+ 		netif_device_detach(tp->netdev);
+ 		return;
++	case -EPROTO:
++		urb->actual_length = 0;
++		spin_lock_irqsave(&tp->rx_lock, flags);
++		list_add_tail(&agg->list, &tp->rx_done);
++		spin_unlock_irqrestore(&tp->rx_lock, flags);
++		set_bit(RX_EPROTO, &tp->flags);
++		schedule_delayed_work(&tp->schedule, 1);
++		return;
+ 	case -ENOENT:
+ 		return;	/* the urb is in unlink state */
+ 	case -ETIME:
+@@ -2425,6 +2434,7 @@ static int rx_bottom(struct r8152 *tp, int budget)
+ 	if (list_empty(&tp->rx_done))
+ 		goto out1;
  
- /*
-- * NB: needs to live in .data because it's used by xen_prepare_pvh which runs
-- * before clearing the bss.
-+ * NB: These need to live in .data or alike because they're used by
-+ * xen_prepare_pvh() which runs before clearing the bss.
-  */
-+enum xen_domain_type __ro_after_init xen_domain_type = XEN_NATIVE;
-+EXPORT_SYMBOL_GPL(xen_domain_type);
- uint32_t xen_start_flags __section(".data") = 0;
- EXPORT_SYMBOL(xen_start_flags);
++	clear_bit(RX_EPROTO, &tp->flags);
+ 	INIT_LIST_HEAD(&rx_queue);
+ 	spin_lock_irqsave(&tp->rx_lock, flags);
+ 	list_splice_init(&tp->rx_done, &rx_queue);
+@@ -2441,7 +2451,7 @@ static int rx_bottom(struct r8152 *tp, int budget)
  
+ 		agg = list_entry(cursor, struct rx_agg, list);
+ 		urb = agg->urb;
+-		if (urb->actual_length < ETH_ZLEN)
++		if (urb->status != 0 || urb->actual_length < ETH_ZLEN)
+ 			goto submit;
+ 
+ 		agg_free = rtl_get_free_rx(tp, GFP_ATOMIC);
+@@ -6643,6 +6653,10 @@ static void rtl_work_func_t(struct work_struct *work)
+ 	    netif_carrier_ok(tp->netdev))
+ 		tasklet_schedule(&tp->tx_tl);
+ 
++	if (test_and_clear_bit(RX_EPROTO, &tp->flags) &&
++	    !list_empty(&tp->rx_done))
++		napi_schedule(&tp->napi);
++
+ 	mutex_unlock(&tp->control);
+ 
+ out1:
 -- 
 2.33.0
 
