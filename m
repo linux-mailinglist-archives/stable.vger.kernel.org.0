@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6063042BAC8
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 10:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3448B42BADC
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 10:50:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238907AbhJMItJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Oct 2021 04:49:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55018 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232692AbhJMItI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 04:49:08 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15F2EC061570
-        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 01:47:06 -0700 (PDT)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1maZtW-0006Qy-0W; Wed, 13 Oct 2021 10:45:50 +0200
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1maZtK-0005Ho-C7; Wed, 13 Oct 2021 10:45:38 +0200
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1maZtK-0006xh-90; Wed, 13 Oct 2021 10:45:38 +0200
-Date:   Wed, 13 Oct 2021 10:45:38 +0200
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        id S238879AbhJMIwl convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 13 Oct 2021 04:52:41 -0400
+Received: from mout.kundenserver.de ([212.227.126.130]:45551 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238783AbhJMIwk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 04:52:40 -0400
+Received: from mail-wr1-f41.google.com ([209.85.221.41]) by
+ mrelayeu.kundenserver.de (mreue011 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MkpKR-1n1gep0gnf-00mJUb; Wed, 13 Oct 2021 10:50:36 +0200
+Received: by mail-wr1-f41.google.com with SMTP id i12so5705485wrb.7;
+        Wed, 13 Oct 2021 01:50:35 -0700 (PDT)
+X-Gm-Message-State: AOAM532QreUSVeNB8db2BalVW4tVfsMqMW+JtXo7B0KgCpZgqLfujYS/
+        wt931CBGsVGGy80p37c49rPd/br75MtT+mD65ww=
+X-Google-Smtp-Source: ABdhPJy4ax2DOEenbhpvRSkuJ9CRdYTu4grvvOPn7yMQSLzLP/3xJn1PX15gLIrH87BwseWRBSVj7ZpEfl6RXEtn7Q0=
+X-Received: by 2002:a05:600c:4f42:: with SMTP id m2mr8654190wmq.82.1634115035568;
+ Wed, 13 Oct 2021 01:50:35 -0700 (PDT)
+MIME-Version: 1.0
+References: <20211013005532.700190-1-sashal@kernel.org> <20211013005532.700190-11-sashal@kernel.org>
+ <YWZ1om+pLmV3atTd@kroah.com> <CAK8P3a2AC9-ogoxi1q+NQyBqMwrFqSZtHvZVdJ9HF+OLB3O62g@mail.gmail.com>
+ <20211013084538.vitv6u5ahds7arpw@pengutronix.de>
+In-Reply-To: <20211013084538.vitv6u5ahds7arpw@pengutronix.de>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Wed, 13 Oct 2021 10:50:16 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a0HVJ6B8Mu8xS5FTvKncKyvz0bzR_NSdhGYp=syuORmCA@mail.gmail.com>
+Message-ID: <CAK8P3a0HVJ6B8Mu8xS5FTvKncKyvz0bzR_NSdhGYp=syuORmCA@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.10 11/11] firmware: include drivers/firmware/Kconfig
+ unconditionally
+To:     =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Greg KH <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         "# 3.4.x" <stable@vger.kernel.org>,
@@ -49,7 +55,7 @@ Cc:     Greg KH <gregkh@linuxfoundation.org>,
         Albert Ou <aou@eecs.berkeley.edu>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        the arch/x86 maintainers <x86@kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Geert Uytterhoeven <geert+renesas@glider.be>,
         Russell King <rmk+kernel@armlinux.org.uk>,
@@ -68,67 +74,50 @@ Cc:     Greg KH <gregkh@linuxfoundation.org>,
         "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
         Parisc List <linux-parisc@vger.kernel.org>,
         linux-riscv <linux-riscv@lists.infradead.org>
-Subject: Re: [PATCH AUTOSEL 5.10 11/11] firmware: include
- drivers/firmware/Kconfig unconditionally
-Message-ID: <20211013084538.vitv6u5ahds7arpw@pengutronix.de>
-References: <20211013005532.700190-1-sashal@kernel.org>
- <20211013005532.700190-11-sashal@kernel.org>
- <YWZ1om+pLmV3atTd@kroah.com>
- <CAK8P3a2AC9-ogoxi1q+NQyBqMwrFqSZtHvZVdJ9HF+OLB3O62g@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="gkwcmkxhwgtfgtae"
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a2AC9-ogoxi1q+NQyBqMwrFqSZtHvZVdJ9HF+OLB3O62g@mail.gmail.com>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Provags-ID: V03:K1:3aT1Lw1J7XBsLeFH+WJ/O9Gzn1o9G20iH9Ll3hyk/GBvXJXn1p4
+ 8tPl8MVFtGq09opg8EpkIu6eaJ96oKnpZvAkhMILIAqiVFCiWFU+iWAHlW407suW7ia9o7w
+ nG0GG8UJw23zjhPXstwTJNzk+vnzN6j+EA0VscmG/iXcRlMbRm/IuO4Jrm1PF4CF4QqCRPe
+ ZWcmeO1FTLtL8t3+rNI1Q==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:wgCDJdtsuF8=:OAXgxbIPvZftUytiQHC1wf
+ uVekZzTgmAYMrPnFbzxCYhE1G+O5AULB6yEG1dPfmaXRK1g6LGygCNyBtunsiyTCcjnw8DvoQ
+ x8po+/gOYneA76pmauEBi6P7OyoRXk0CMWNVjfDhMn0ZwpdU9aoqsdUnQ351u6255/ksbMgH4
+ Od1C9i4Fcaa3345aOzWQPNV2zCQSWXAwEceRGuKHoaZoIrBpnGtT0ASQCyFXs+lrXX6DKj2qI
+ eqOYWT+rAjJXqdujii7qgFMNnHikJ7bWMHTMCJYScbNC+k4JAGTZUUPctry2C/yqI3/pF5OsV
+ Uw/82Ai1qRS7Bi0nYVJ8BYYyeFXviQGCeQFhit8JpcmF9tKu8xjqaHzKfewvuBUlH87ngMCVG
+ NO4GqIAAKCSA5aP8AMRrphq5tpaH0At3Vs36Nh0eaGctAaKO9FqKFGdB1vm+G0jmhrGFoigjs
+ rtVk/oGJDqu1Ba7Tyz96dAiqkAMr18xigFwTRNX2YIM/QHbev2tnTeZowV8AS+chu1/xWVcQ+
+ j45FAIyc7oVI7hzx3zVxd7cgcF70eH80ZiaegdK0TLJJXxPv2iVFYY7Azgecao5y1IRMKn7Id
+ 3gB+K1lhCD60fcCsdQWz0wzwCx3XYnniSFITU13pI+heQ29ows07hC/kz3d2hzIrWQqIVtMA6
+ 3/kulhUluVDe3KL3FlR4oUtVbWTmU/M8YhcKQ3sS5ISxqR5S3zNlDYMXOfk4U7uAkUOAZw0Es
+ 2+7nrvR4zJ9UrdYK/5xWbqmXsHkQgpuyc14kL0rIkgPe+RHFcEfRdzVK8fsumz00ASH+SIG1B
+ kp7w3mBOb4guqAd06y4N1Kga7TlKxTS2T3CD0qtMsYdNEMpnerZIC8YW/CHYxahDRUbOkgABx
+ crKh+3Q7FThCwIU3zi1A==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---gkwcmkxhwgtfgtae
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Oct 13, 2021 at 10:38:01AM +0200, Arnd Bergmann wrote:
-> On Wed, Oct 13, 2021 at 7:58 AM Greg KH <gregkh@linuxfoundation.org> wrot=
-e:
-> > On Tue, Oct 12, 2021 at 08:55:31PM -0400, Sasha Levin wrote:
+On Wed, Oct 13, 2021 at 10:45 AM Uwe Kleine-König
+<u.kleine-koenig@pengutronix.de> wrote:
+> On Wed, Oct 13, 2021 at 10:38:01AM +0200, Arnd Bergmann wrote:
+> > On Wed, Oct 13, 2021 at 7:58 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> > > On Tue, Oct 12, 2021 at 08:55:31PM -0400, Sasha Levin wrote:
+> > >
+> > > This isn't for stable kernels, it should be dropped from all of your
+> > > AUTOSEL queues.
 > >
-> > This isn't for stable kernels, it should be dropped from all of your
-> > AUTOSEL queues.
->=20
-> Agreed. The second patch that depends on this does fix a (randconfig)
-> build issue in stable kernels as well, but that patch is currently broken,
+> > Agreed. The second patch that depends on this does fix a (randconfig)
+> > build issue in stable kernels as well, but that patch is currently broken,
+>
+> Fixing randconfig issues isn't important for stable, is it? The target
+> audience for 5.10.74 are people running a kernel between 5.10 and
+> 5.10.73, and those don't suffer from this type of build problem, right?
 
-Fixing randconfig issues isn't important for stable, is it? The target
-audience for 5.10.74 are people running a kernel between 5.10 and
-5.10.73, and those don't suffer from this type of build problem, right?
+In general, I think randconfig build testing is useful for validating stable
+kernels, to help avoid regressions, but there are a number of known
+randconfig problems that you hit much more frequently than this one,
+which only breaks once every few hundred kernel builds.
 
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---gkwcmkxhwgtfgtae
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmFmnK8ACgkQwfwUeK3K
-7And8Af+K7OLJ/QFBmWZbDMcrq5QGKfPWOm0ntnqP00EF6M9WuzDhXwYSRnkxrUL
-gB8rnQzNTAremhUgxxWWYf1b+jcy9McUcKiFrZFcFzI+Msu/lFoJs954A1A/LIwC
-gv2Yr2yfkJwro0nmnPonuaG6aBdO7hhuGbPcksgfQ822GDrckbS3WluAZcC3/j0O
-DzTBgBmlZEv7CdvM/DJbfxqV01oRg3C3zcn3tFY7c+3PUJs2oumNQRW6zfvUW1Bx
-NrWKG1K6REFzfJ1RJO8BBaK2qT7oEDecgCOrpsXClHm+08bxJ06CbZ3pcA2Qd9Kt
-40Yg+5KjHWr8vqioHLbH+w7bwi4d1w==
-=e2xG
------END PGP SIGNATURE-----
-
---gkwcmkxhwgtfgtae--
+      Arnd
