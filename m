@@ -2,165 +2,238 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9ABA42B3DA
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 05:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F41D42B3FD
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 06:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234904AbhJMDzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 23:55:15 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:28923 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229717AbhJMDzP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Oct 2021 23:55:15 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HTdmq3YwSzbn59;
-        Wed, 13 Oct 2021 11:48:43 +0800 (CST)
-Received: from kwepemm600015.china.huawei.com (7.193.23.52) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Wed, 13 Oct 2021 11:53:11 +0800
-Received: from huawei.com (10.175.101.6) by kwepemm600015.china.huawei.com
- (7.193.23.52) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Wed, 13 Oct
- 2021 11:53:09 +0800
-From:   ChenXiaoSong <chenxiaosong2@huawei.com>
-To:     <viro@zeniv.linux.org.uk>, <stable@vger.kernel.org>,
-        <gregkh@linuxfoundation.org>
-CC:     <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <dhowells@redhat.com>, <yukuai3@huawei.com>, <yi.zhang@huawei.com>,
-        <chenxiaosong2@huawei.com>
-Subject: [PATCH linux-4.19.y] VFS: Fix fuseblk memory leak caused by mount concurrency
-Date:   Wed, 13 Oct 2021 12:01:32 +0800
-Message-ID: <20211013040132.502406-1-chenxiaosong2@huawei.com>
-X-Mailer: git-send-email 2.25.4
+        id S229453AbhJMEXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Oct 2021 00:23:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50392 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229599AbhJMEXB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 00:23:01 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1021C061746
+        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 21:20:58 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id w19so4608325edd.2
+        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 21:20:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=MyPzgtbN2FRBRQB9+vczQucG7B5CsDm1YtOJZh2cUpY=;
+        b=aMnhcIkcj/2ZVv4MGK8CM87IvK5sbgWMHyq8a4MB0H44sqj0TcJn/Yd6n+4PPVA0oA
+         6mAqiEib4movIbqusc13qfpRpQ8yn8mpy24Q0O0RStRG9wwyWcZVdG0HCG6LVI5qjLNh
+         WEO5oR8KrGk6+/i1AtaNwth+f/EsVeqEDB3bH2QFHWnZtpB0C/HX+xxjFNocIILzGiqR
+         +/Lk7VveRsPRYFwzlfYeVOkM1W33906vDkRLc9E/1tIpCqD80G/79w6HbFAG7IkD63hs
+         Nx5/X/ajLyHj/3yHmwbphC9J4xV5PaU9pgvrueDtvAvHRPBSuo6MecxUUK3pqoaEnVhJ
+         b+ZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=MyPzgtbN2FRBRQB9+vczQucG7B5CsDm1YtOJZh2cUpY=;
+        b=ytKZZ0GYIUoQ8H4yrGuG3JpAaarC9eX9pxRXcsspUQJoPB/D1MVwX9JYXwvddYb0Lk
+         IN5+doga1fiLqkpa8qBVPsbMerXnvJsIVIBj+H0sGzYVVWKUHA8cqYMJYowh3Q49nFax
+         xkMZQnmComeV7uz76S9KlhsibNKNZa8e1z/APXKq4ITyRfOU3X4IwR84dbGSCymSjO6f
+         f1wLDNkxh2TKrHqUdBaxxmVATZJbjqsfAROdVHRNfNwBzrFpAyrE8U2ctVfE30jfb2mb
+         yNbOl81rQL8naJGNXOIPi227DhY9cYhEz/CHgFZgEQK3lUayuiP/Yitj+kFYj405Ue34
+         Xwhg==
+X-Gm-Message-State: AOAM5304k4vPHVGQf15hXRnibol2nuyCTH9yRQywDIgOY8oWASPlSzkR
+        s9col6IAYKvBqCJO751OhwCUXVuNENFbev5m3VSrrQ==
+X-Google-Smtp-Source: ABdhPJxfVwzl9WlQySbBO1qLYvXomRw3zNR2FI7w2vnGFOO+dpJaS61ip+TlmJveB7y83XfaV20uWDy8NEQL4x64KoY=
+X-Received: by 2002:a17:906:c7c1:: with SMTP id dc1mr39109688ejb.6.1634098857046;
+ Tue, 12 Oct 2021 21:20:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.101.6]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- kwepemm600015.china.huawei.com (7.193.23.52)
-X-CFilter-Loop: Reflected
+References: <20211012093340.313468813@linuxfoundation.org>
+In-Reply-To: <20211012093340.313468813@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 13 Oct 2021 09:50:45 +0530
+Message-ID: <CA+G9fYsr9gzYqdr+yB42TPBsMUX-FTUE9a+xwsyJmf-NhhGOXw@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/27] 4.19.211-rc3 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If two processes mount same superblock, memory leak occurs:
+On Tue, 12 Oct 2021 at 15:07, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.211 release.
+> There are 27 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 14 Oct 2021 09:33:32 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.211-rc3.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-CPU0               |  CPU1
-do_new_mount       |  do_new_mount
-  fs_set_subtype   |    fs_set_subtype
-    kstrdup        |
-                   |      kstrdup
-    memrory leak   |
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Fix this by moving fs_set_subtype to mount_fs before up_write(&sb->s_umount).
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Linus's tree already have refactoring patchset [1], one of them can fix this bug:
-	c30da2e981a7 (fuse: convert to use the new mount API)
+## Build
+* kernel: 4.19.211-rc3
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.19.y
+* git commit: 9d7f82841498fc2d3a1dcaa988257501521dc37a
+* git describe: v4.19.210-28-g9d7f82841498
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.210-28-g9d7f82841498
 
-Since we did not merge the refactoring patchset in this branch, I create this patch.
+## No regressions (compared to v4.19.210-29-gdd0ad52a3bb0)
 
-[1] https://patchwork.kernel.org/project/linux-fsdevel/patch/20190903113640.7984-3-mszeredi@redhat.com/
+## No fixes (compared to v4.19.210-29-gdd0ad52a3bb0)
 
-Fixes: 9d412a43c3b2 (vfs: split off vfsmount-related parts of vfs_kern_mount())
-Cc: David Howells <dhowells@redhat.com>
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
----
- fs/namespace.c | 26 --------------------------
- fs/super.c     | 30 ++++++++++++++++++++++++++++++
- 2 files changed, 30 insertions(+), 26 deletions(-)
+## Test result summary
+total: 82227, pass: 65751, fail: 811, skip: 13675, xfail: 1990
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 2f3c6a0350a8..556fdd3b6a4e 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -2402,29 +2402,6 @@ static int do_move_mount(struct path *path, const char *old_name)
- 	return err;
- }
- 
--static struct vfsmount *fs_set_subtype(struct vfsmount *mnt, const char *fstype)
--{
--	int err;
--	const char *subtype = strchr(fstype, '.');
--	if (subtype) {
--		subtype++;
--		err = -EINVAL;
--		if (!subtype[0])
--			goto err;
--	} else
--		subtype = "";
--
--	mnt->mnt_sb->s_subtype = kstrdup(subtype, GFP_KERNEL);
--	err = -ENOMEM;
--	if (!mnt->mnt_sb->s_subtype)
--		goto err;
--	return mnt;
--
-- err:
--	mntput(mnt);
--	return ERR_PTR(err);
--}
--
- /*
-  * add a mount into a namespace's mount tree
-  */
-@@ -2490,9 +2467,6 @@ static int do_new_mount(struct path *path, const char *fstype, int sb_flags,
- 		return -ENODEV;
- 
- 	mnt = vfs_kern_mount(type, sb_flags, name, data);
--	if (!IS_ERR(mnt) && (type->fs_flags & FS_HAS_SUBTYPE) &&
--	    !mnt->mnt_sb->s_subtype)
--		mnt = fs_set_subtype(mnt, fstype);
- 
- 	put_filesystem(type);
- 	if (IS_ERR(mnt))
-diff --git a/fs/super.c b/fs/super.c
-index 9fb4553c46e6..b181878753bb 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -1240,6 +1240,30 @@ struct dentry *mount_single(struct file_system_type *fs_type,
- }
- EXPORT_SYMBOL(mount_single);
- 
-+static int fs_set_subtype(struct super_block *sb)
-+{
-+	int err;
-+	const char *fstype = sb->s_type->name;
-+	const char *subtype = strchr(fstype, '.');
-+	if (subtype) {
-+		subtype++;
-+		err = -EINVAL;
-+		if (!subtype[0])
-+			goto err;
-+	} else {
-+		subtype = "";
-+	}
-+
-+	sb->s_subtype = kstrdup(subtype, GFP_KERNEL);
-+	err = -ENOMEM;
-+	if (!sb->s_subtype)
-+		goto err;
-+	return 0;
-+
-+err:
-+	return err;
-+}
-+
- struct dentry *
- mount_fs(struct file_system_type *type, int flags, const char *name, void *data)
- {
-@@ -1289,6 +1313,12 @@ mount_fs(struct file_system_type *type, int flags, const char *name, void *data)
- 	WARN((sb->s_maxbytes < 0), "%s set sb->s_maxbytes to "
- 		"negative value (%lld)\n", type->name, sb->s_maxbytes);
- 
-+	if ((sb->s_type->fs_flags & FS_HAS_SUBTYPE) && !sb->s_subtype) {
-+		error = fs_set_subtype(sb);
-+		if (error)
-+			goto out_sb;
-+	}
-+
- 	up_write(&sb->s_umount);
- 	free_secdata(secdata);
- 	return root;
--- 
-2.25.4
+## Build Summary
+* arm: 129 total, 129 passed, 0 failed
+* arm64: 37 total, 37 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 18 total, 18 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 29 total, 29 passed, 0 failed
+* s390: 12 total, 12 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 21 total, 21 passed, 0 failed
 
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
