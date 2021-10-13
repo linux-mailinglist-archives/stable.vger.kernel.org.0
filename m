@@ -2,96 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E8C742BCD5
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 12:30:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D91F42BD2D
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 12:38:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239259AbhJMKcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Oct 2021 06:32:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50502 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239036AbhJMKcw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 06:32:52 -0400
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50534C061570;
-        Wed, 13 Oct 2021 03:30:49 -0700 (PDT)
-Received: by mail-wr1-x433.google.com with SMTP id v17so6611306wrv.9;
-        Wed, 13 Oct 2021 03:30:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=zGInbL+PJQYpMOr1raJ7pJXi1nSy8DXAxDMHDzmS0O0=;
-        b=DKFNzwr1Lo5R4tVSGHvmocdC2aoh8sgC9FiaMRgKEVcZfYoqAtcb/gGRZemltj/AhW
-         w9K/wBsx3d1ex447aHR57z8USrwU8xJk/7ymQ1OF8YM7MiwgfSXqkIel9Jd6oujiWe9z
-         C7kS19BYfweD4npCMLm+N7ydadMlFu/ugYCrFr6zEBndhxKNF48yMjNmNQw7HgQHET+i
-         LVIq6TiGaI6gQr7iMiZRoNKk4K6oJ0+5yXsjaMq1fkzBdDbaN5UQqcQ+3q6EKDnJF7hA
-         gRF0Nb7gAHKcea0aX14zDY/h7RnJ819lgNAuxXNPwnE5R6gru+BNPktJf8ZA4FZAsFLL
-         AmbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=zGInbL+PJQYpMOr1raJ7pJXi1nSy8DXAxDMHDzmS0O0=;
-        b=sDxF0pqrxdip8JGRu6Fs0qZ8UShcvqbjg6inJxC+PRqhZ0TKxDoMrwwu3xLLBaufHe
-         DHADNGVki0f12tXt+luFi8EhvJRPQT1uaIccTH/hf6EuOc/E7fwLacIYQlPa1Ou0pbXS
-         dFGhnlNCJFHgdSFv0oTzSbT8G8/jA9o/5nNZjIt7sXUsgIVU+6CXSPsH5piNjZLxluS4
-         qDLDjCycu+m6M34q87f4aTEqoILn88M5OM52j21ZXMyJEMTQfXLZ0edCfOBxO/FvXwRf
-         5fLUJNkSrxNF9Kg11TozVTDIBm9WjRvefgtqw+pGkPFd50VkX0mixSyylfn/LyNExGs9
-         MopQ==
-X-Gm-Message-State: AOAM531ry925H3lZRFmc9kbnSofyILEMdnxdw0tWprjm0vxTZxyY9oem
-        uwkYwGzFIT1c01jX0h/1tXM=
-X-Google-Smtp-Source: ABdhPJw78G3tKjNnagGB2A04xXOmjJyJpJiq7bSBjovXQCwYfDfDJ7ykZSywcE3JmjM0XDrZbavkJA==
-X-Received: by 2002:a5d:6d51:: with SMTP id k17mr28923969wri.233.1634121047691;
-        Wed, 13 Oct 2021 03:30:47 -0700 (PDT)
-Received: from debian ([167.98.27.226])
-        by smtp.gmail.com with ESMTPSA id u5sm13545527wrg.57.2021.10.13.03.30.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Oct 2021 03:30:47 -0700 (PDT)
-Date:   Wed, 13 Oct 2021 11:30:45 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/27] 4.19.211-rc3 review
-Message-ID: <YWa1VYf/wxJsKFbz@debian>
-References: <20211012093340.313468813@linuxfoundation.org>
+        id S229657AbhJMKkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Oct 2021 06:40:24 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:24307 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229524AbhJMKkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 06:40:24 -0400
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.57])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HTpmH2fh6zYklJ;
+        Wed, 13 Oct 2021 18:33:51 +0800 (CST)
+Received: from kwepemm600015.china.huawei.com (7.193.23.52) by
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Wed, 13 Oct 2021 18:38:14 +0800
+Received: from [10.174.176.52] (10.174.176.52) by
+ kwepemm600015.china.huawei.com (7.193.23.52) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Wed, 13 Oct 2021 18:38:13 +0800
+Subject: Re: [PATCH 4.19,v2] VFS: Fix fuseblk memory leak caused by mount
+ concurrency
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <viro@zeniv.linux.org.uk>, <stable@vger.kernel.org>,
+        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <dhowells@redhat.com>, <yukuai3@huawei.com>, <yi.zhang@huawei.com>,
+        <zhangxiaoxu5@huawei.com>
+References: <20211013095101.641329-1-chenxiaosong2@huawei.com>
+ <YWawy0J9JfStEku0@kroah.com>
+From:   "chenxiaosong (A)" <chenxiaosong2@huawei.com>
+Message-ID: <429d87b0-3a53-052a-a304-0afa8d51900d@huawei.com>
+Date:   Wed, 13 Oct 2021 18:38:12 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211012093340.313468813@linuxfoundation.org>
+In-Reply-To: <YWawy0J9JfStEku0@kroah.com>
+Content-Type: text/plain; charset="gbk"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.176.52]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ kwepemm600015.china.huawei.com (7.193.23.52)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On Tue, Oct 12, 2021 at 11:36:57AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.211 release.
-> There are 27 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+ÔÚ 2021/10/13 18:11, Greg KH Ð´µÀ:
+> On Wed, Oct 13, 2021 at 05:51:01PM +0800, ChenXiaoSong wrote:
+>> If two processes mount same superblock, memory leak occurs:
+>>
+>> CPU0               |  CPU1
+>> do_new_mount       |  do_new_mount
+>>    fs_set_subtype   |    fs_set_subtype
+>>      kstrdup        |
+>>                     |      kstrdup
+>>      memrory leak   |
+>>
+>> Fix this by adding a write lock while calling fs_set_subtype.
+>>
+>> Linus's tree already have refactoring patchset [1], one of them can fix this bug:
+>>          c30da2e981a7 (fuse: convert to use the new mount API)
+>>
+>> Since we did not merge the refactoring patchset in this branch, I create this patch.
+>>
+>> [1] https://patchwork.kernel.org/project/linux-fsdevel/patch/20190903113640.7984-3-mszeredi@redhat.com/
+>>
+>> Fixes: 79c0b2df79eb (add filesystem subtype support)
+>> Cc: David Howells <dhowells@redhat.com>
+>> Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+>> ---
+>> v1: Can not mount sshfs ([PATCH linux-4.19.y] VFS: Fix fuseblk memory leak caused by mount concurrency)
+>> v2: Use write lock while writing superblock
+>>
+>>   fs/namespace.c | 9 ++++++---
+>>   1 file changed, 6 insertions(+), 3 deletions(-)
 > 
-> Responses should be made by Thu, 14 Oct 2021 09:33:32 +0000.
-> Anything received after that time might be too late.
+> As you are referring to a fuse-only patch above, why are you trying to
+> resolve this issue in the core namespace code instead?
+> 
+> How does fuse have anything to do with this?
+> 
+> confused,
+> 
+> greg k-h
+> .
+> 
 
-Build test:
-mips (gcc version 11.2.1 20211012): 63 configs -> no failure
-arm (gcc version 11.2.1 20211012): 116 configs -> no new failure
-arm64 (gcc version 11.2.1 20211012): 2 configs -> no failure
-x86_64 (gcc version 10.2.1 20210110): 4 configs -> no failure
-
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-
-[1]. https://openqa.qa.codethink.co.uk/tests/252
-
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
-
+Now, only `fuse_fs_type` and `fuseblk_fs_type` has `FS_HAS_SUBTYPE` flag 
+in kernel code, but maybe there is a filesystem module(`struct 
+file_system_type` has `FS_HAS_SUBTYPE` flag). And only mounting fuseblk 
+filesystem(e.g. ntfs) will occur memory leak now.
