@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1743F42B132
+	by mail.lfdr.de (Postfix) with ESMTP id CF44D42B134
 	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 02:55:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236480AbhJMA5E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 20:57:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40700 "EHLO mail.kernel.org"
+        id S236406AbhJMA5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 20:57:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236338AbhJMA5C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Oct 2021 20:57:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6B2560EDF;
-        Wed, 13 Oct 2021 00:54:58 +0000 (UTC)
+        id S236321AbhJMA5E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Oct 2021 20:57:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 881E660EBB;
+        Wed, 13 Oct 2021 00:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634086500;
-        bh=r2/PJs0znIkT0ty4CiIasvQpyO9PStZ1x0WDDOEs0AU=;
+        s=k20201202; t=1634086501;
+        bh=dilo0xnTgQMspiRmJhCZhv2NP+IgRvNKPOZfOjw0JUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btfR2qI54yUmIEFqMOgmcfqJAlOXHyYynohPwWYHehJh+A7JytqLUthXPTMpQDSfe
-         G1pZILY6AbTV0nAccUwxcXCVa2ZuJmXOmrBmliDDmsJkNDQ0yrdm+LarAPHuvka5Mg
-         VpYbxf6+FjNvH6DLqtQfgMQ/HUb1XyIGo9cIae/vfrVVmO20oinzGOJlKG34EzkwbA
-         LO56OO9ri7GH33IH+ozf1JRnnGTu14KUCO7tUHpCL5GLTuL1nPVurw9xpn5foxCYy4
-         qwoC8E9DkTpmPUKmfLk9mwWkbDCSyNGDTM304FjKh3GNt6souMTurQENQ08eMtpryK
-         p9TgiSawX0TAw==
+        b=bpvIjIxqjui9sDZNNbVfvVKkJft12uv0WeVWDizVgYm+DRw3IxFKfWT3DJ5Q20glm
+         CZnboqrR7fUOAzzjhMi256AvC5Qf28X5M5QI9cqfaONrmgTsr6sELer+1p/tSWZeHI
+         8KwzPMF43K9bIH4Betq7prZlb+TzDRmtRdYBrnOLp4euCGLT/yapCBq2y6CLGLQIwH
+         //gR+8EcWlkW0+OONd39XcLQE6mjDVlFmaO6cPDqgvBoFRQGnHblK3jaGeXenVo69p
+         DcAwUc3S6kHzusRfYinYgEVTaihM9t4p9pSkOoHV/AMQFZ8/6zBugprAFqY6NG+qDZ
+         lO2YWnjZWnaYA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hayes Wang <hayeswang@realtek.com>,
-        Jason-ch Chen <jason-ch.chen@mediatek.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        matthias.bgg@gmail.com, tiwai@suse.de, lee.jones@linaro.org,
-        linux-usb@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.14 07/17] r8152: avoid to resubmit rx immediately
-Date:   Tue, 12 Oct 2021 20:54:31 -0400
-Message-Id: <20211013005441.699846-7-sashal@kernel.org>
+Cc:     Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.14 08/17] drm/amdgpu/display: fix dependencies for DRM_AMD_DC_SI
+Date:   Tue, 12 Oct 2021 20:54:32 -0400
+Message-Id: <20211013005441.699846-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211013005441.699846-1-sashal@kernel.org>
 References: <20211013005441.699846-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,84 +46,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hayes Wang <hayeswang@realtek.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit baf33d7a75642b4b38a87fdf1cd96b506df4849f ]
+[ Upstream commit 4702b34d1de9582df9dfa0e583ea28fff7de29df ]
 
-For the situation that the disconnect event comes very late when the
-device is unplugged, the driver would resubmit the RX bulk transfer
-after getting the callback with -EPROTO immediately and continually.
-Finally, soft lockup occurs.
+Depends on DRM_AMDGPU_SI and DRM_AMD_DC
 
-This patch avoids to resubmit RX immediately. It uses a workqueue to
-schedule the RX NAPI. And the NAPI would resubmit the RX. It let the
-disconnect event have opportunity to stop the submission before soft
-lockup.
-
-Reported-by: Jason-ch Chen <jason-ch.chen@mediatek.com>
-Tested-by: Jason-ch Chen <jason-ch.chen@mediatek.com>
-Signed-off-by: Hayes Wang <hayeswang@realtek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 79832374f78d..92fca5e9ed03 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -767,6 +767,7 @@ enum rtl8152_flags {
- 	PHY_RESET,
- 	SCHEDULE_TASKLET,
- 	GREEN_ETHERNET,
-+	RX_EPROTO,
- };
+diff --git a/drivers/gpu/drm/amd/display/Kconfig b/drivers/gpu/drm/amd/display/Kconfig
+index 7dffc04a557e..127667e549c1 100644
+--- a/drivers/gpu/drm/amd/display/Kconfig
++++ b/drivers/gpu/drm/amd/display/Kconfig
+@@ -25,6 +25,8 @@ config DRM_AMD_DC_HDCP
  
- #define DEVICE_ID_THINKPAD_THUNDERBOLT3_DOCK_GEN2	0x3082
-@@ -1770,6 +1771,14 @@ static void read_bulk_callback(struct urb *urb)
- 		rtl_set_unplug(tp);
- 		netif_device_detach(tp->netdev);
- 		return;
-+	case -EPROTO:
-+		urb->actual_length = 0;
-+		spin_lock_irqsave(&tp->rx_lock, flags);
-+		list_add_tail(&agg->list, &tp->rx_done);
-+		spin_unlock_irqrestore(&tp->rx_lock, flags);
-+		set_bit(RX_EPROTO, &tp->flags);
-+		schedule_delayed_work(&tp->schedule, 1);
-+		return;
- 	case -ENOENT:
- 		return;	/* the urb is in unlink state */
- 	case -ETIME:
-@@ -2425,6 +2434,7 @@ static int rx_bottom(struct r8152 *tp, int budget)
- 	if (list_empty(&tp->rx_done))
- 		goto out1;
- 
-+	clear_bit(RX_EPROTO, &tp->flags);
- 	INIT_LIST_HEAD(&rx_queue);
- 	spin_lock_irqsave(&tp->rx_lock, flags);
- 	list_splice_init(&tp->rx_done, &rx_queue);
-@@ -2441,7 +2451,7 @@ static int rx_bottom(struct r8152 *tp, int budget)
- 
- 		agg = list_entry(cursor, struct rx_agg, list);
- 		urb = agg->urb;
--		if (urb->actual_length < ETH_ZLEN)
-+		if (urb->status != 0 || urb->actual_length < ETH_ZLEN)
- 			goto submit;
- 
- 		agg_free = rtl_get_free_rx(tp, GFP_ATOMIC);
-@@ -6643,6 +6653,10 @@ static void rtl_work_func_t(struct work_struct *work)
- 	    netif_carrier_ok(tp->netdev))
- 		tasklet_schedule(&tp->tx_tl);
- 
-+	if (test_and_clear_bit(RX_EPROTO, &tp->flags) &&
-+	    !list_empty(&tp->rx_done))
-+		napi_schedule(&tp->napi);
-+
- 	mutex_unlock(&tp->control);
- 
- out1:
+ config DRM_AMD_DC_SI
+ 	bool "AMD DC support for Southern Islands ASICs"
++	depends on DRM_AMDGPU_SI
++	depends on DRM_AMD_DC
+ 	default n
+ 	help
+ 	  Choose this option to enable new AMD DC support for SI asics
 -- 
 2.33.0
 
