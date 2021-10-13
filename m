@@ -2,136 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72D6842B6F8
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 08:19:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A005642B805
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 08:52:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237907AbhJMGVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Oct 2021 02:21:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48776 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237935AbhJMGV3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 02:21:29 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8E87C061746
-        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 23:19:26 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id f5so1292427pgc.12
-        for <stable@vger.kernel.org>; Tue, 12 Oct 2021 23:19:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WwT18MK2RyyhIPr0IBiYePoqw1Fe4egUzc5Lid8v4es=;
-        b=jtH1gu33k8306xjzqNCO2J1JV4KuBGfTQ+Wv0CK7wE9OU12yeYjl2D/ds9Dvjp/dRz
-         2XZhGapHEhBx05TPTTwEdk/NOgbVtJ5zbmHXMXkPWDAxPQ/AVdLI8jX4qcIdIy3qntNd
-         1UY1Bp/Ro/MxfZYc21n0KI6DRD+mincJ59Ix3095oquNes0jYSipVNkek4C/rkYwOLHK
-         kVaUaxD5PXAp7GyaRviBytcww5Qlqw3mMHnuU7du3wswYScospe3NDNG4bdP1fwnl4co
-         f36bmuYVpaW5/QRaCBbtcGUhla6eEewFrRhtxp4F+iuyIeUpshy+HP64PXbjjdJc4QyT
-         +pJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WwT18MK2RyyhIPr0IBiYePoqw1Fe4egUzc5Lid8v4es=;
-        b=MItK+8HKgN6tH0j4aOJ8DwmIfGv0Uh7Wmj3ek6XIRsI2x9aVDEN8AGtaatTbFYQx9o
-         LLieSJELBPSIbkxLHA2WCaSqlUnp8QHVBNuPtNe58pEWxdf70Bm5OamZVnjp/o+jLNSU
-         fy+Vd0gcbhGdQkQr4JNO6032Ym1g1vNDUKnJrDDPsRMLlitw+9zwsmtBuE0bKpb1XWRl
-         IB9oRRQZyocNGmu7A20n6vAsuTe7t345jfwmpdR0n2WJmLlhGqK+HuKS4pkBAYaKcU+p
-         uv4fOuceEGu7MKoJagru8Jhb83S2DIQ8EwAhrmEEC3hzIRhSwUBxmTv9IHtOQWqSKFkg
-         ss+w==
-X-Gm-Message-State: AOAM5310Veyz5NJZ3q2+2Kt7oH5ddUc30GzQu65y5LHDDH4KLQtJY5Hc
-        /2D2Pj07urce6LFP5N2Rd5UM8Z1zZ9LxgbYR
-X-Google-Smtp-Source: ABdhPJyhNBrPDsiyQowZqiAINAtgCxN60qUwg3Y+PD1I4j4+d5KBG9WaD1e5cf5b2AOEKYJX6x7X4w==
-X-Received: by 2002:a63:b94d:: with SMTP id v13mr26611621pgo.361.1634105966019;
-        Tue, 12 Oct 2021 23:19:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p17sm4705145pjg.54.2021.10.12.23.19.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Oct 2021 23:19:25 -0700 (PDT)
-Message-ID: <61667a6d.1c69fb81.f8fd4.e69a@mx.google.com>
-Date:   Tue, 12 Oct 2021 23:19:25 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S234403AbhJMGyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Oct 2021 02:54:09 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24402 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238132AbhJMGyG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 02:54:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1634107923;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=RpuzMnNyT7+4FRREcT2u3Kwwl8W2CVjy5nh9V497X+I=;
+        b=g0Yy/Bt9ngwHVuzNQ4Ca6yGKN+xFFOO44oGpCC1lnlRg07ey/cSv5WxMNNolUm7Y4ST/K3
+        vEP27wbTTvoBYP5qcVX8vYZM0KNo+ptnI3Gdh6dTQZ2nPVK7AoctyHzm41KXH1JwdVCk1U
+        to533BRRMjCLONmz/VhudL9OD0/C+cA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-458-p66QTA95N5O1G1m0Lg_AvA-1; Wed, 13 Oct 2021 02:51:58 -0400
+X-MC-Unique: p66QTA95N5O1G1m0Lg_AvA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6220079EDC;
+        Wed, 13 Oct 2021 06:51:56 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.85])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0844B4180;
+        Wed, 13 Oct 2021 06:51:55 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     Pierre Morel <pmorel@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, bfu@redhat.com,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [RFC PATCH 1/1] s390/cio: make ccw_device_dma_* more robust
+In-Reply-To: <20211013003714.1c411f0b.pasic@linux.ibm.com>
+Organization: Red Hat GmbH
+References: <20211011115955.2504529-1-pasic@linux.ibm.com>
+ <466de207-e88d-ea93-beec-fbfe10e63a26@linux.ibm.com>
+ <874k9ny6k6.fsf@redhat.com> <20211011204837.7617301b.pasic@linux.ibm.com>
+ <87pmsawdvr.fsf@redhat.com> <20211013003714.1c411f0b.pasic@linux.ibm.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Wed, 13 Oct 2021 08:51:54 +0200
+Message-ID: <87mtndwh6d.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.250-23-g671034283a62
-Subject: stable-rc/queue/4.14 baseline: 76 runs,
- 1 regressions (v4.14.250-23-g671034283a62)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 76 runs, 1 regressions (v4.14.250-23-g671034=
-283a62)
+On Wed, Oct 13 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Regressions Summary
--------------------
+> On Tue, 12 Oct 2021 15:50:48 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
+>
+>> >> If I read cio_gp_dma_zalloc() correctly, we either get NULL or a valid
+>> >> address, so yes.
+>> >>   
+>> >
+>> > I don't think the extra care will hurt us too badly. I prefer to keep
+>> > the IS_ERR_OR_NULL() check because it needs less domain specific
+>> > knowledge to be understood, and because it is more robust.  
+>> 
+>> It feels weird, though -- I'd rather have a comment that tells me
+>
+> This way the change feels simpler and safer to me. I believe I explained
+> the why above. But if you insist I can change it. I double checked the
+> cio_gp_dma_zalloc() code, and more or less the code called by it. So
+> now I don't feel uncomfortable with the simpler check.
+>
+> On the other hand, I'm not very happy doing changes solely based on
+> somebody's feelings. It would feel much more comfortable with a reason
+> based discussion.
+>
+> One reason to change this to a simple NULL check, is that the
+> IS_ERR_OR_NULL() check could upset the reader of the client code,
+> which only checks for NULL.
+>
+> On the other hand I do believe we have some risk of lumping together
+> different errors here. E.g. dma_pool is NULL or dma ops are not set up
+> properly. Currently we would communicate that kind of a problem as
+> -ENOMEM, which wouldn't be a great match. But since dma_alloc_coherent()
+> returns either NULL or a valid pointer, and furthermore this looks like
+> a common thing in all the mm-api, I decided to be inline with that.
+>
+> TLDR; If you insist, I will change this to a simple null pointer check.
+>
+>> exactly what cio_gp_dma_zalloc() is supposed to return; I would have
+>> expected that a _zalloc function always gives me a valid pointer or
+>> NULL.
+>
+> I don't think we have such a comment for dma_alloc_coherent() or even
+> kmalloc(). I agree, it would be nice to have this behavior documented
+> in the apidoc all over the place. But IMHO that is a different issue.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+So, I think that a function returning NULL/valid pointer is the more
+expected case, and functions that can return an error as well should
+document this. But it's not really worth arguing more about this, as
+this is not my code anyway, and your patch does look correct.
 
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.250-23-g671034283a62/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.250-23-g671034283a62
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      671034283a6256d80c1a5cd336c4778644c7ab17 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61663dfbd6b5f9c24308facd
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.250=
--23-g671034283a62/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.250=
--23-g671034283a62/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61663dfbd6b5f9c=
-24308fad0
-        failing since 0 day (last pass: v4.14.250-10-g360a25ea0f96, first f=
-ail: v4.14.250-24-g0c04723a59cf)
-        2 lines
-
-    2021-10-13T02:01:12.562817  [   20.554138] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-10-13T02:01:12.606793  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/98
-    2021-10-13T02:01:12.615696  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
