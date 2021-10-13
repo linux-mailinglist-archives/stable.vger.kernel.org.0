@@ -2,156 +2,701 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C77DC42BA7B
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 10:33:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ECC942BA79
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 10:31:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232620AbhJMIfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Oct 2021 04:35:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50140 "EHLO mail.kernel.org"
+        id S238239AbhJMIda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Oct 2021 04:33:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238450AbhJMIc7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 Oct 2021 04:32:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46299610CB;
-        Wed, 13 Oct 2021 08:30:56 +0000 (UTC)
+        id S239047AbhJMIdC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 Oct 2021 04:33:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6909F610C9;
+        Wed, 13 Oct 2021 08:30:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634113856;
-        bh=7RMZc1TMCdB19mYN2DUzEsOhq9zC/hxC5BfQeZadXDU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ujomPyJ8EupFd2pNHuz3iA4r4qkCcSBSpnZ8yzwUm1uNGlWq61Rb2Y4wjc5kl7r96
-         ktuudb7IXSfSWdii1eKS9FVSYk09DPKLmpyBsFaw1qB3+EIUCbZ129zxUcqdbAm/D9
-         vxsn6NngRGISCVG3YpdC1AyuV2C72bTKsLblyfkI=
+        s=korg; t=1634113860;
+        bh=2C+Ke32O+yqYSjewSzRmN0Pe8wAROGFBGVhKlk2m+DQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=MCawviijkwAjIt+w7iWwOBfmbDa148BEv6AIabbl82HDfP5KhICbouNR4Q/cgZ8sc
+         5rYX7I7yXvtgdJJiFRMOTU8N2Ue9eSgAZQWNrQRREDBXa7leGUxZ4ZRlIrY6ZHXV2s
+         eQ1/Ek+aH25UuMboKkvB3adBwTdA8nvsAkn653zY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.19.211
-Date:   Wed, 13 Oct 2021 10:30:53 +0200
-Message-Id: <1634113853177207@kroah.com>
+Subject: Re: Linux 4.19.211
+Date:   Wed, 13 Oct 2021 10:30:54 +0200
+Message-Id: <16341138534380@kroah.com>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <1634113853177207@kroah.com>
+References: <1634113853177207@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.19.211 kernel.
-
-All users of the 4.19 kernel series must upgrade.
-
-The updated 4.19.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                    |    2 
- arch/arm/boot/dts/omap3430-sdp.dts          |    2 
- arch/arm/boot/dts/qcom-apq8064.dtsi         |    3 -
- arch/arm/mach-imx/pm-imx6.c                 |    2 
- arch/arm/net/bpf_jit_32.c                   |   19 +++++++++
- arch/mips/net/bpf_jit.c                     |   57 +++++++++++++++++++++-------
- arch/powerpc/boot/dts/fsl/t1023rdb.dts      |    2 
- arch/x86/Kconfig                            |    2 
- arch/xtensa/kernel/irq.c                    |    2 
- drivers/gpu/drm/nouveau/nouveau_debugfs.c   |    1 
- drivers/i2c/i2c-core-acpi.c                 |    1 
- drivers/net/ethernet/intel/i40e/i40e_main.c |    5 +-
- drivers/net/phy/mdio_bus.c                  |    7 +++
- drivers/net/phy/sfp.c                       |    2 
- drivers/ptp/ptp_pch.c                       |    1 
- drivers/usb/Kconfig                         |    3 -
- drivers/usb/class/cdc-acm.c                 |    8 +++
- drivers/xen/balloon.c                       |   21 +++++++---
- drivers/xen/privcmd.c                       |    7 +--
- fs/nfsd/nfs4xdr.c                           |   19 +++++----
- fs/overlayfs/dir.c                          |   10 +++-
- kernel/bpf/stackmap.c                       |    3 -
- net/bridge/br_netlink.c                     |    2 
- net/core/rtnetlink.c                        |    2 
- net/netlink/af_netlink.c                    |   14 ++++--
- net/sched/sch_fifo.c                        |    3 +
- 26 files changed, 147 insertions(+), 53 deletions(-)
-
-Andy Shevchenko (1):
-      ptp_pch: Load module automatically if ID matches
-
-Ben Hutchings (1):
-      Partially revert "usb: Kconfig: using select for USB_COMMON dependency"
-
-David Heidelberg (1):
-      ARM: dts: qcom: apq8064: use compatible which contains chipid
-
-Eric Dumazet (4):
-      net_sched: fix NULL deref in fifo_set_limit()
-      net: bridge: use nla_total_size_64bit() in br_get_linkxstats_size()
-      netlink: annotate data races around nlk->bound
-      rtnetlink: fix if_nlmsg_stats_size() under estimation
-
-Greg Kroah-Hartman (1):
-      Linux 4.19.211
-
-Jamie Iles (1):
-      i2c: acpi: fix resource leak in reconfiguration device addition
-
-Jan Beulich (1):
-      xen/privcmd: fix error handling in mmap-resource processing
-
-Jiri Benc (1):
-      i40e: fix endless loop under rtnl
-
-Johan Almbladh (1):
-      bpf, arm: Fix register clobbering in div/mod implementation
-
-Johan Hovold (2):
-      USB: cdc-acm: fix racy tty buffer accesses
-      USB: cdc-acm: fix break reporting
-
-Juergen Gross (1):
-      xen/balloon: fix cancelled balloon action
-
-Lukas Bulwahn (1):
-      x86/Kconfig: Correct reference to MWINCHIP3D
-
-Max Filippov (1):
-      xtensa: call irqchip_init only when CONFIG_USE_OF is selected
-
-Oleksij Rempel (1):
-      ARM: imx6: disable the GIC CPU interface before calling stby-poweroff sequence
-
-Pali Rohár (1):
-      powerpc/fsl/dts: Fix phy-connection-type for fm1mac3
-
-Pavel Skripkin (1):
-      phy: mdio: fix memory leak
-
-Piotr Krysiuk (1):
-      bpf, mips: Validate conditional branch offsets
-
-Roger Quadros (1):
-      ARM: dts: omap3430-sdp: Fix NAND device node
-
-Sean Anderson (1):
-      net: sfp: Fix typo in state machine debug string
-
-Sylwester Dziedziuch (1):
-      i40e: Fix freeing of uninitialized misc IRQ vector
-
-Tatsuhiko Yasumatsu (1):
-      bpf: Fix integer overflow in prealloc_elems_and_freelist()
-
-Trond Myklebust (1):
-      nfsd4: Handle the NFSv4 READDIR 'dircount' hint being zero
-
-Yang Yingliang (1):
-      drm/nouveau/debugfs: fix file release memory leak
-
-Zheng Liang (1):
-      ovl: fix missing negative dentry check in ovl_rename()
-
+diff --git a/Makefile b/Makefile
+index d9c39b3c05d5..d4e6f5d326b0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 4
+ PATCHLEVEL = 19
+-SUBLEVEL = 210
++SUBLEVEL = 211
+ EXTRAVERSION =
+ NAME = "People's Front"
+ 
+diff --git a/arch/arm/boot/dts/omap3430-sdp.dts b/arch/arm/boot/dts/omap3430-sdp.dts
+index d652708f6bef..56e3db08e969 100644
+--- a/arch/arm/boot/dts/omap3430-sdp.dts
++++ b/arch/arm/boot/dts/omap3430-sdp.dts
+@@ -104,7 +104,7 @@
+ 
+ 	nand@1,0 {
+ 		compatible = "ti,omap2-nand";
+-		reg = <0 0 4>; /* CS0, offset 0, IO size 4 */
++		reg = <1 0 4>; /* CS1, offset 0, IO size 4 */
+ 		interrupt-parent = <&gpmc>;
+ 		interrupts = <0 IRQ_TYPE_NONE>, /* fifoevent */
+ 			     <1 IRQ_TYPE_NONE>;	/* termcount */
+diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
+index d0153bbbdbeb..00daa844bf8c 100644
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1182,7 +1182,7 @@
+ 		};
+ 
+ 		gpu: adreno-3xx@4300000 {
+-			compatible = "qcom,adreno-3xx";
++			compatible = "qcom,adreno-320.2", "qcom,adreno";
+ 			reg = <0x04300000 0x20000>;
+ 			reg-names = "kgsl_3d0_reg_memory";
+ 			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1197,7 +1197,6 @@
+ 			    <&mmcc GFX3D_AHB_CLK>,
+ 			    <&mmcc GFX3D_AXI_CLK>,
+ 			    <&mmcc MMSS_IMEM_AHB_CLK>;
+-			qcom,chipid = <0x03020002>;
+ 
+ 			iommus = <&gfx3d 0
+ 				  &gfx3d 1
+diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
+index 4bfefbec971a..c3ca6e2cf7ff 100644
+--- a/arch/arm/mach-imx/pm-imx6.c
++++ b/arch/arm/mach-imx/pm-imx6.c
+@@ -15,6 +15,7 @@
+ #include <linux/io.h>
+ #include <linux/irq.h>
+ #include <linux/genalloc.h>
++#include <linux/irqchip/arm-gic.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/mfd/syscon/imx6q-iomuxc-gpr.h>
+ #include <linux/of.h>
+@@ -622,6 +623,7 @@ static void __init imx6_pm_common_init(const struct imx6_pm_socdata
+ 
+ static void imx6_pm_stby_poweroff(void)
+ {
++	gic_cpu_if_down(0);
+ 	imx6_set_lpm(STOP_POWER_OFF);
+ 	imx6q_suspend_finish(0);
+ 
+diff --git a/arch/arm/net/bpf_jit_32.c b/arch/arm/net/bpf_jit_32.c
+index 79b12e744537..dade3a3ba666 100644
+--- a/arch/arm/net/bpf_jit_32.c
++++ b/arch/arm/net/bpf_jit_32.c
+@@ -39,6 +39,10 @@
+  *                        +-----+
+  *                        |RSVD | JIT scratchpad
+  * current ARM_SP =>      +-----+ <= (BPF_FP - STACK_SIZE + SCRATCH_SIZE)
++ *                        | ... | caller-saved registers
++ *                        +-----+
++ *                        | ... | arguments passed on stack
++ * ARM_SP during call =>  +-----|
+  *                        |     |
+  *                        | ... | Function call stack
+  *                        |     |
+@@ -66,6 +70,12 @@
+  *
+  * When popping registers off the stack at the end of a BPF function, we
+  * reference them via the current ARM_FP register.
++ *
++ * Some eBPF operations are implemented via a call to a helper function.
++ * Such calls are "invisible" in the eBPF code, so it is up to the calling
++ * program to preserve any caller-saved ARM registers during the call. The
++ * JIT emits code to push and pop those registers onto the stack, immediately
++ * above the callee stack frame.
+  */
+ #define CALLEE_MASK	(1 << ARM_R4 | 1 << ARM_R5 | 1 << ARM_R6 | \
+ 			 1 << ARM_R7 | 1 << ARM_R8 | 1 << ARM_R9 | \
+@@ -73,6 +83,8 @@
+ #define CALLEE_PUSH_MASK (CALLEE_MASK | 1 << ARM_LR)
+ #define CALLEE_POP_MASK  (CALLEE_MASK | 1 << ARM_PC)
+ 
++#define CALLER_MASK	(1 << ARM_R0 | 1 << ARM_R1 | 1 << ARM_R2 | 1 << ARM_R3)
++
+ enum {
+ 	/* Stack layout - these are offsets from (top of stack - 4) */
+ 	BPF_R2_HI,
+@@ -467,6 +479,7 @@ static inline int epilogue_offset(const struct jit_ctx *ctx)
+ 
+ static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
+ {
++	const int exclude_mask = BIT(ARM_R0) | BIT(ARM_R1);
+ 	const s8 *tmp = bpf2a32[TMP_REG_1];
+ 
+ #if __LINUX_ARM_ARCH__ == 7
+@@ -498,11 +511,17 @@ static inline void emit_udivmod(u8 rd, u8 rm, u8 rn, struct jit_ctx *ctx, u8 op)
+ 		emit(ARM_MOV_R(ARM_R0, rm), ctx);
+ 	}
+ 
++	/* Push caller-saved registers on stack */
++	emit(ARM_PUSH(CALLER_MASK & ~exclude_mask), ctx);
++
+ 	/* Call appropriate function */
+ 	emit_mov_i(ARM_IP, op == BPF_DIV ?
+ 		   (u32)jit_udiv32 : (u32)jit_mod32, ctx);
+ 	emit_blx_r(ARM_IP, ctx);
+ 
++	/* Restore caller-saved registers from stack */
++	emit(ARM_POP(CALLER_MASK & ~exclude_mask), ctx);
++
+ 	/* Save return value */
+ 	if (rd != ARM_R0)
+ 		emit(ARM_MOV_R(rd, ARM_R0), ctx);
+diff --git a/arch/mips/net/bpf_jit.c b/arch/mips/net/bpf_jit.c
+index 4d8cb9bb8365..43e6597c720c 100644
+--- a/arch/mips/net/bpf_jit.c
++++ b/arch/mips/net/bpf_jit.c
+@@ -662,6 +662,11 @@ static void build_epilogue(struct jit_ctx *ctx)
+ 	((int)K < 0 ? ((int)K >= SKF_LL_OFF ? func##_negative : func) : \
+ 	 func##_positive)
+ 
++static bool is_bad_offset(int b_off)
++{
++	return b_off > 0x1ffff || b_off < -0x20000;
++}
++
+ static int build_body(struct jit_ctx *ctx)
+ {
+ 	const struct bpf_prog *prog = ctx->skf;
+@@ -728,7 +733,10 @@ static int build_body(struct jit_ctx *ctx)
+ 			/* Load return register on DS for failures */
+ 			emit_reg_move(r_ret, r_zero, ctx);
+ 			/* Return with error */
+-			emit_b(b_imm(prog->len, ctx), ctx);
++			b_off = b_imm(prog->len, ctx);
++			if (is_bad_offset(b_off))
++				return -E2BIG;
++			emit_b(b_off, ctx);
+ 			emit_nop(ctx);
+ 			break;
+ 		case BPF_LD | BPF_W | BPF_IND:
+@@ -775,8 +783,10 @@ static int build_body(struct jit_ctx *ctx)
+ 			emit_jalr(MIPS_R_RA, r_s0, ctx);
+ 			emit_reg_move(MIPS_R_A0, r_skb, ctx); /* delay slot */
+ 			/* Check the error value */
+-			emit_bcond(MIPS_COND_NE, r_ret, 0,
+-				   b_imm(prog->len, ctx), ctx);
++			b_off = b_imm(prog->len, ctx);
++			if (is_bad_offset(b_off))
++				return -E2BIG;
++			emit_bcond(MIPS_COND_NE, r_ret, 0, b_off, ctx);
+ 			emit_reg_move(r_ret, r_zero, ctx);
+ 			/* We are good */
+ 			/* X <- P[1:K] & 0xf */
+@@ -855,8 +865,10 @@ static int build_body(struct jit_ctx *ctx)
+ 			/* A /= X */
+ 			ctx->flags |= SEEN_X | SEEN_A;
+ 			/* Check if r_X is zero */
+-			emit_bcond(MIPS_COND_EQ, r_X, r_zero,
+-				   b_imm(prog->len, ctx), ctx);
++			b_off = b_imm(prog->len, ctx);
++			if (is_bad_offset(b_off))
++				return -E2BIG;
++			emit_bcond(MIPS_COND_EQ, r_X, r_zero, b_off, ctx);
+ 			emit_load_imm(r_ret, 0, ctx); /* delay slot */
+ 			emit_div(r_A, r_X, ctx);
+ 			break;
+@@ -864,8 +876,10 @@ static int build_body(struct jit_ctx *ctx)
+ 			/* A %= X */
+ 			ctx->flags |= SEEN_X | SEEN_A;
+ 			/* Check if r_X is zero */
+-			emit_bcond(MIPS_COND_EQ, r_X, r_zero,
+-				   b_imm(prog->len, ctx), ctx);
++			b_off = b_imm(prog->len, ctx);
++			if (is_bad_offset(b_off))
++				return -E2BIG;
++			emit_bcond(MIPS_COND_EQ, r_X, r_zero, b_off, ctx);
+ 			emit_load_imm(r_ret, 0, ctx); /* delay slot */
+ 			emit_mod(r_A, r_X, ctx);
+ 			break;
+@@ -926,7 +940,10 @@ static int build_body(struct jit_ctx *ctx)
+ 			break;
+ 		case BPF_JMP | BPF_JA:
+ 			/* pc += K */
+-			emit_b(b_imm(i + k + 1, ctx), ctx);
++			b_off = b_imm(i + k + 1, ctx);
++			if (is_bad_offset(b_off))
++				return -E2BIG;
++			emit_b(b_off, ctx);
+ 			emit_nop(ctx);
+ 			break;
+ 		case BPF_JMP | BPF_JEQ | BPF_K:
+@@ -1056,12 +1073,16 @@ static int build_body(struct jit_ctx *ctx)
+ 			break;
+ 		case BPF_RET | BPF_A:
+ 			ctx->flags |= SEEN_A;
+-			if (i != prog->len - 1)
++			if (i != prog->len - 1) {
+ 				/*
+ 				 * If this is not the last instruction
+ 				 * then jump to the epilogue
+ 				 */
+-				emit_b(b_imm(prog->len, ctx), ctx);
++				b_off = b_imm(prog->len, ctx);
++				if (is_bad_offset(b_off))
++					return -E2BIG;
++				emit_b(b_off, ctx);
++			}
+ 			emit_reg_move(r_ret, r_A, ctx); /* delay slot */
+ 			break;
+ 		case BPF_RET | BPF_K:
+@@ -1075,7 +1096,10 @@ static int build_body(struct jit_ctx *ctx)
+ 				 * If this is not the last instruction
+ 				 * then jump to the epilogue
+ 				 */
+-				emit_b(b_imm(prog->len, ctx), ctx);
++				b_off = b_imm(prog->len, ctx);
++				if (is_bad_offset(b_off))
++					return -E2BIG;
++				emit_b(b_off, ctx);
+ 				emit_nop(ctx);
+ 			}
+ 			break;
+@@ -1133,8 +1157,10 @@ static int build_body(struct jit_ctx *ctx)
+ 			/* Load *dev pointer */
+ 			emit_load_ptr(r_s0, r_skb, off, ctx);
+ 			/* error (0) in the delay slot */
+-			emit_bcond(MIPS_COND_EQ, r_s0, r_zero,
+-				   b_imm(prog->len, ctx), ctx);
++			b_off = b_imm(prog->len, ctx);
++			if (is_bad_offset(b_off))
++				return -E2BIG;
++			emit_bcond(MIPS_COND_EQ, r_s0, r_zero, b_off, ctx);
+ 			emit_reg_move(r_ret, r_zero, ctx);
+ 			if (code == (BPF_ANC | SKF_AD_IFINDEX)) {
+ 				BUILD_BUG_ON(FIELD_SIZEOF(struct net_device, ifindex) != 4);
+@@ -1244,7 +1270,10 @@ void bpf_jit_compile(struct bpf_prog *fp)
+ 
+ 	/* Generate the actual JIT code */
+ 	build_prologue(&ctx);
+-	build_body(&ctx);
++	if (build_body(&ctx)) {
++		module_memfree(ctx.target);
++		goto out;
++	}
+ 	build_epilogue(&ctx);
+ 
+ 	/* Update the icache */
+diff --git a/arch/powerpc/boot/dts/fsl/t1023rdb.dts b/arch/powerpc/boot/dts/fsl/t1023rdb.dts
+index 5ba6fbfca274..f82f85c65964 100644
+--- a/arch/powerpc/boot/dts/fsl/t1023rdb.dts
++++ b/arch/powerpc/boot/dts/fsl/t1023rdb.dts
+@@ -154,7 +154,7 @@
+ 
+ 			fm1mac3: ethernet@e4000 {
+ 				phy-handle = <&sgmii_aqr_phy3>;
+-				phy-connection-type = "sgmii-2500";
++				phy-connection-type = "2500base-x";
+ 				sleep = <&rcpm 0x20000000>;
+ 			};
+ 
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index d994501d9179..3dd2949b2b35 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1387,7 +1387,7 @@ config HIGHMEM4G
+ 
+ config HIGHMEM64G
+ 	bool "64GB"
+-	depends on !M486 && !M586 && !M586TSC && !M586MMX && !MGEODE_LX && !MGEODEGX1 && !MCYRIXIII && !MELAN && !MWINCHIPC6 && !WINCHIP3D && !MK6
++	depends on !M486 && !M586 && !M586TSC && !M586MMX && !MGEODE_LX && !MGEODEGX1 && !MCYRIXIII && !MELAN && !MWINCHIPC6 && !MWINCHIP3D && !MK6
+ 	select X86_PAE
+ 	---help---
+ 	  Select this if you have a 32-bit processor and more than 4
+diff --git a/arch/xtensa/kernel/irq.c b/arch/xtensa/kernel/irq.c
+index a48bf2d10ac2..80cc9770a8d2 100644
+--- a/arch/xtensa/kernel/irq.c
++++ b/arch/xtensa/kernel/irq.c
+@@ -145,7 +145,7 @@ unsigned xtensa_get_ext_irq_no(unsigned irq)
+ 
+ void __init init_IRQ(void)
+ {
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ 	irqchip_init();
+ #else
+ #ifdef CONFIG_HAVE_SMP
+diff --git a/drivers/gpu/drm/nouveau/nouveau_debugfs.c b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
+index 4561a786fab0..cce4833a6083 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_debugfs.c
++++ b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
+@@ -185,6 +185,7 @@ static const struct file_operations nouveau_pstate_fops = {
+ 	.open = nouveau_debugfs_pstate_open,
+ 	.read = seq_read,
+ 	.write = nouveau_debugfs_pstate_set,
++	.release = single_release,
+ };
+ 
+ static struct drm_info_list nouveau_debugfs_list[] = {
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 8ba4122fb340..8288cfb44cb2 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -395,6 +395,7 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
+ 			break;
+ 
+ 		i2c_acpi_register_device(adapter, adev, &info);
++		put_device(&adapter->dev);
+ 		break;
+ 	case ACPI_RECONFIG_DEVICE_REMOVE:
+ 		if (!acpi_device_enumerated(adev))
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 246734be5177..062b94251782 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -4724,7 +4724,8 @@ static void i40e_clear_interrupt_scheme(struct i40e_pf *pf)
+ {
+ 	int i;
+ 
+-	i40e_free_misc_vector(pf);
++	if (test_bit(__I40E_MISC_IRQ_REQUESTED, pf->state))
++		i40e_free_misc_vector(pf);
+ 
+ 	i40e_put_lump(pf->irq_pile, pf->iwarp_base_vector,
+ 		      I40E_IWARP_IRQ_PILE_ID);
+@@ -9068,7 +9069,7 @@ static int i40e_get_capabilities(struct i40e_pf *pf,
+ 		if (pf->hw.aq.asq_last_status == I40E_AQ_RC_ENOMEM) {
+ 			/* retry with a larger buffer */
+ 			buf_len = data_size;
+-		} else if (pf->hw.aq.asq_last_status != I40E_AQ_RC_OK) {
++		} else if (pf->hw.aq.asq_last_status != I40E_AQ_RC_OK || err) {
+ 			dev_info(&pf->pdev->dev,
+ 				 "capability discovery failed, err %s aq_err %s\n",
+ 				 i40e_stat_str(&pf->hw, err),
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index 08c81d4cfca8..3207da2224f6 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -378,6 +378,13 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
+ 	bus->dev.groups = NULL;
+ 	dev_set_name(&bus->dev, "%s", bus->id);
+ 
++	/* We need to set state to MDIOBUS_UNREGISTERED to correctly release
++	 * the device in mdiobus_free()
++	 *
++	 * State will be updated later in this function in case of success
++	 */
++	bus->state = MDIOBUS_UNREGISTERED;
++
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
+diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
+index 47d518e6d5d4..71bafc8f5ed0 100644
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -113,7 +113,7 @@ static const char * const sm_state_strings[] = {
+ 	[SFP_S_LINK_UP] = "link_up",
+ 	[SFP_S_TX_FAULT] = "tx_fault",
+ 	[SFP_S_REINIT] = "reinit",
+-	[SFP_S_TX_DISABLE] = "rx_disable",
++	[SFP_S_TX_DISABLE] = "tx_disable",
+ };
+ 
+ static const char *sm_state_to_str(unsigned short sm_state)
+diff --git a/drivers/ptp/ptp_pch.c b/drivers/ptp/ptp_pch.c
+index 78ccf936d356..84feaa140f1b 100644
+--- a/drivers/ptp/ptp_pch.c
++++ b/drivers/ptp/ptp_pch.c
+@@ -695,6 +695,7 @@ static const struct pci_device_id pch_ieee1588_pcidev_id[] = {
+ 	 },
+ 	{0}
+ };
++MODULE_DEVICE_TABLE(pci, pch_ieee1588_pcidev_id);
+ 
+ static struct pci_driver pch_driver = {
+ 	.name = KBUILD_MODNAME,
+diff --git a/drivers/usb/Kconfig b/drivers/usb/Kconfig
+index 70e6c956c23c..a9f12a52f726 100644
+--- a/drivers/usb/Kconfig
++++ b/drivers/usb/Kconfig
+@@ -175,8 +175,7 @@ source "drivers/usb/roles/Kconfig"
+ 
+ config USB_LED_TRIG
+ 	bool "USB LED Triggers"
+-	depends on LEDS_CLASS && LEDS_TRIGGERS
+-	select USB_COMMON
++	depends on LEDS_CLASS && USB_COMMON && LEDS_TRIGGERS
+ 	help
+ 	  This option adds LED triggers for USB host and/or gadget activity.
+ 
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 6959231d63b3..0522bd2d9d3c 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -339,6 +339,9 @@ static void acm_process_notification(struct acm *acm, unsigned char *buf)
+ 			acm->iocount.overrun++;
+ 		spin_unlock_irqrestore(&acm->read_lock, flags);
+ 
++		if (newctrl & ACM_CTRL_BRK)
++			tty_flip_buffer_push(&acm->port);
++
+ 		if (difference)
+ 			wake_up_all(&acm->wioctl);
+ 
+@@ -474,11 +477,16 @@ static int acm_submit_read_urbs(struct acm *acm, gfp_t mem_flags)
+ 
+ static void acm_process_read_urb(struct acm *acm, struct urb *urb)
+ {
++	unsigned long flags;
++
+ 	if (!urb->actual_length)
+ 		return;
+ 
++	spin_lock_irqsave(&acm->read_lock, flags);
+ 	tty_insert_flip_string(&acm->port, urb->transfer_buffer,
+ 			urb->actual_length);
++	spin_unlock_irqrestore(&acm->read_lock, flags);
++
+ 	tty_flip_buffer_push(&acm->port);
+ }
+ 
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index 2459e2afd65e..19906020eb14 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -508,12 +508,12 @@ static enum bp_state decrease_reservation(unsigned long nr_pages, gfp_t gfp)
+ }
+ 
+ /*
+- * Stop waiting if either state is not BP_EAGAIN and ballooning action is
+- * needed, or if the credit has changed while state is BP_EAGAIN.
++ * Stop waiting if either state is BP_DONE and ballooning action is
++ * needed, or if the credit has changed while state is not BP_DONE.
+  */
+ static bool balloon_thread_cond(enum bp_state state, long credit)
+ {
+-	if (state != BP_EAGAIN)
++	if (state == BP_DONE)
+ 		credit = 0;
+ 
+ 	return current_credit() != credit || kthread_should_stop();
+@@ -533,10 +533,19 @@ static int balloon_thread(void *unused)
+ 
+ 	set_freezable();
+ 	for (;;) {
+-		if (state == BP_EAGAIN)
+-			timeout = balloon_stats.schedule_delay * HZ;
+-		else
++		switch (state) {
++		case BP_DONE:
++		case BP_ECANCELED:
+ 			timeout = 3600 * HZ;
++			break;
++		case BP_EAGAIN:
++			timeout = balloon_stats.schedule_delay * HZ;
++			break;
++		case BP_WAIT:
++			timeout = HZ;
++			break;
++		}
++
+ 		credit = current_credit();
+ 
+ 		wait_event_freezable_timeout(balloon_thread_wq,
+diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
+index a8486432be05..74ff28fda64d 100644
+--- a/drivers/xen/privcmd.c
++++ b/drivers/xen/privcmd.c
+@@ -835,11 +835,12 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
+ 		unsigned int domid =
+ 			(xdata.flags & XENMEM_rsrc_acq_caller_owned) ?
+ 			DOMID_SELF : kdata.dom;
+-		int num;
++		int num, *errs = (int *)pfns;
+ 
++		BUILD_BUG_ON(sizeof(*errs) > sizeof(*pfns));
+ 		num = xen_remap_domain_mfn_array(vma,
+ 						 kdata.addr & PAGE_MASK,
+-						 pfns, kdata.num, (int *)pfns,
++						 pfns, kdata.num, errs,
+ 						 vma->vm_page_prot,
+ 						 domid,
+ 						 vma->vm_private_data);
+@@ -849,7 +850,7 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
+ 			unsigned int i;
+ 
+ 			for (i = 0; i < num; i++) {
+-				rc = pfns[i];
++				rc = errs[i];
+ 				if (rc < 0)
+ 					break;
+ 			}
+diff --git a/fs/nfsd/nfs4xdr.c b/fs/nfsd/nfs4xdr.c
+index db0beefe65ec..f67c5de1aeb8 100644
+--- a/fs/nfsd/nfs4xdr.c
++++ b/fs/nfsd/nfs4xdr.c
+@@ -3124,15 +3124,18 @@ nfsd4_encode_dirent(void *ccdv, const char *name, int namlen,
+ 		goto fail;
+ 	cd->rd_maxcount -= entry_bytes;
+ 	/*
+-	 * RFC 3530 14.2.24 describes rd_dircount as only a "hint", so
+-	 * let's always let through the first entry, at least:
++	 * RFC 3530 14.2.24 describes rd_dircount as only a "hint", and
++	 * notes that it could be zero. If it is zero, then the server
++	 * should enforce only the rd_maxcount value.
+ 	 */
+-	if (!cd->rd_dircount)
+-		goto fail;
+-	name_and_cookie = 4 + 4 * XDR_QUADLEN(namlen) + 8;
+-	if (name_and_cookie > cd->rd_dircount && cd->cookie_offset)
+-		goto fail;
+-	cd->rd_dircount -= min(cd->rd_dircount, name_and_cookie);
++	if (cd->rd_dircount) {
++		name_and_cookie = 4 + 4 * XDR_QUADLEN(namlen) + 8;
++		if (name_and_cookie > cd->rd_dircount && cd->cookie_offset)
++			goto fail;
++		cd->rd_dircount -= min(cd->rd_dircount, name_and_cookie);
++		if (!cd->rd_dircount)
++			cd->rd_maxcount = 0;
++	}
+ 
+ 	cd->cookie_offset = cookie_offset;
+ skip_entry:
+diff --git a/fs/overlayfs/dir.c b/fs/overlayfs/dir.c
+index 0b4ee1ab25df..0578c15e1a67 100644
+--- a/fs/overlayfs/dir.c
++++ b/fs/overlayfs/dir.c
+@@ -1166,9 +1166,13 @@ static int ovl_rename(struct inode *olddir, struct dentry *old,
+ 				goto out_dput;
+ 		}
+ 	} else {
+-		if (!d_is_negative(newdentry) &&
+-		    (!new_opaque || !ovl_is_whiteout(newdentry)))
+-			goto out_dput;
++		if (!d_is_negative(newdentry)) {
++			if (!new_opaque || !ovl_is_whiteout(newdentry))
++				goto out_dput;
++		} else {
++			if (flags & RENAME_EXCHANGE)
++				goto out_dput;
++		}
+ 	}
+ 
+ 	if (olddentry == trap)
+diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
+index a47d623f59fe..92310b07cb98 100644
+--- a/kernel/bpf/stackmap.c
++++ b/kernel/bpf/stackmap.c
+@@ -63,7 +63,8 @@ static inline int stack_map_data_size(struct bpf_map *map)
+ 
+ static int prealloc_elems_and_freelist(struct bpf_stack_map *smap)
+ {
+-	u32 elem_size = sizeof(struct stack_map_bucket) + smap->map.value_size;
++	u64 elem_size = sizeof(struct stack_map_bucket) +
++			(u64)smap->map.value_size;
+ 	int err;
+ 
+ 	smap->elems = bpf_map_area_alloc(elem_size * smap->map.max_entries,
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index ec2b58a09f76..c00cb376263a 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1511,7 +1511,7 @@ static size_t br_get_linkxstats_size(const struct net_device *dev, int attr)
+ 	}
+ 
+ 	return numvls * nla_total_size(sizeof(struct bridge_vlan_xstats)) +
+-	       nla_total_size(sizeof(struct br_mcast_stats)) +
++	       nla_total_size_64bit(sizeof(struct br_mcast_stats)) +
+ 	       nla_total_size(0);
+ }
+ 
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 055fd09ac111..83de32e34bb5 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -4512,7 +4512,7 @@ static int rtnl_fill_statsinfo(struct sk_buff *skb, struct net_device *dev,
+ static size_t if_nlmsg_stats_size(const struct net_device *dev,
+ 				  u32 filter_mask)
+ {
+-	size_t size = 0;
++	size_t size = NLMSG_ALIGN(sizeof(struct if_stats_msg));
+ 
+ 	if (stats_attr_valid(filter_mask, IFLA_STATS_LINK_64, 0))
+ 		size += nla_total_size_64bit(sizeof(struct rtnl_link_stats64));
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index b0fd268ed65e..dd4e4289d0d2 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -599,7 +599,10 @@ static int netlink_insert(struct sock *sk, u32 portid)
+ 
+ 	/* We need to ensure that the socket is hashed and visible. */
+ 	smp_wmb();
+-	nlk_sk(sk)->bound = portid;
++	/* Paired with lockless reads from netlink_bind(),
++	 * netlink_connect() and netlink_sendmsg().
++	 */
++	WRITE_ONCE(nlk_sk(sk)->bound, portid);
+ 
+ err:
+ 	release_sock(sk);
+@@ -1018,7 +1021,8 @@ static int netlink_bind(struct socket *sock, struct sockaddr *addr,
+ 	else if (nlk->ngroups < 8*sizeof(groups))
+ 		groups &= (1UL << nlk->ngroups) - 1;
+ 
+-	bound = nlk->bound;
++	/* Paired with WRITE_ONCE() in netlink_insert() */
++	bound = READ_ONCE(nlk->bound);
+ 	if (bound) {
+ 		/* Ensure nlk->portid is up-to-date. */
+ 		smp_rmb();
+@@ -1104,8 +1108,9 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
+ 
+ 	/* No need for barriers here as we return to user-space without
+ 	 * using any of the bound attributes.
++	 * Paired with WRITE_ONCE() in netlink_insert().
+ 	 */
+-	if (!nlk->bound)
++	if (!READ_ONCE(nlk->bound))
+ 		err = netlink_autobind(sock);
+ 
+ 	if (err == 0) {
+@@ -1870,7 +1875,8 @@ static int netlink_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 		dst_group = nlk->dst_group;
+ 	}
+ 
+-	if (!nlk->bound) {
++	/* Paired with WRITE_ONCE() in netlink_insert() */
++	if (!READ_ONCE(nlk->bound)) {
+ 		err = netlink_autobind(sock);
+ 		if (err)
+ 			goto out;
+diff --git a/net/sched/sch_fifo.c b/net/sched/sch_fifo.c
+index 24893d3b5d22..bcd3ca97caea 100644
+--- a/net/sched/sch_fifo.c
++++ b/net/sched/sch_fifo.c
+@@ -152,6 +152,9 @@ int fifo_set_limit(struct Qdisc *q, unsigned int limit)
+ 	if (strncmp(q->ops->id + 1, "fifo", 4) != 0)
+ 		return 0;
+ 
++	if (!q->ops->change)
++		return 0;
++
+ 	nla = kmalloc(nla_attr_size(sizeof(struct tc_fifo_qopt)), GFP_KERNEL);
+ 	if (nla) {
+ 		nla->nla_type = RTM_NEWQDISC;
