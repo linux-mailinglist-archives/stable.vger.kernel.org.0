@@ -2,57 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 115C042BFDA
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 14:25:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D88C42C061
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 14:44:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232634AbhJMM1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Oct 2021 08:27:04 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:41213 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230196AbhJMM1D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 08:27:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634127900;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=3NtOzxvADTQDRxUqq39GhmNI5frCiu0QqcftxeM4E6Y=;
-        b=SFwK9pKjAHMDjMRTHhl+c0Xr1vH2exLwb6yUmMcmAK5JdK8r2vnVz90Res9Ve2SiXRcvSh
-        dZHH+MPuDKgIOmj40Rp3k8IJrTIROJ9+G0VitQXBF6Equ9QGobxGbIcLyqKDdz3VfQa9MD
-        OYWufBnUKCZHFRJxg1/1xKjaVdCHB3s=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-524-0aumTN7_MuiBrczFeu7xXQ-1; Wed, 13 Oct 2021 08:24:59 -0400
-X-MC-Unique: 0aumTN7_MuiBrczFeu7xXQ-1
-Received: by mail-wr1-f69.google.com with SMTP id a15-20020a056000188f00b00161068d8461so1839903wri.11
-        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 05:24:59 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=3NtOzxvADTQDRxUqq39GhmNI5frCiu0QqcftxeM4E6Y=;
-        b=GcoyhYpv0p7kjafmYIN4wqZLQcWrfWnom3MANfez5K4wg0NHMQLKVwtgB7YIFRcljK
-         bANtOk1PmZsyurcZTC+jx35JI6e1Znv5Ax/GPacyPaDo1geFX3BcfI/oUY4SG3wsnE+L
-         k7BOvhn2LihM8I0gHWIAIoGBVTh++VETgy7K6+EivabgeXYJkM4uxvq0z/m3AP6M6Hpy
-         f7BGoH7qpUSFbtpQGMKwPAXCxHNDLcJGn8RJP0SGIhRP3Jv6l6KrmBI6EeV365Crwqsl
-         Nmp5urHCq0n8MC422XODm+e+vzFrzUrZGRdBdVbnDsoluFDDH32Q809KLLNaZeHNNNEg
-         FdVA==
-X-Gm-Message-State: AOAM530Mg32PcEmYNDcM9TupAvFIPUC6UEkj1ZCbVLBXLvL9Y5mobQVp
-        0ZylU2iLocrcQM59xyZfq6TNgwSGAaHHqrrzq0ujrS2WSTLQHTrGRH+F0plTTjZkrrLGTzGRkWL
-        FwNJpUPe4OAzripa5
-X-Received: by 2002:adf:a455:: with SMTP id e21mr39490171wra.232.1634127898286;
-        Wed, 13 Oct 2021 05:24:58 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyDSFMe16ogpHVDRTaFOz/jIPakQIZOos3qRZcdyyohISEjdGqG71pBPixTxJCG6KjC1I5tyQ==
-X-Received: by 2002:adf:a455:: with SMTP id e21mr39490144wra.232.1634127898093;
-        Wed, 13 Oct 2021 05:24:58 -0700 (PDT)
-Received: from redhat.com ([2.55.30.112])
-        by smtp.gmail.com with ESMTPSA id r3sm6850548wrw.55.2021.10.13.05.24.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Oct 2021 05:24:57 -0700 (PDT)
-Date:   Wed, 13 Oct 2021 08:24:53 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        id S231330AbhJMMqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Oct 2021 08:46:47 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34420 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230219AbhJMMqq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 08:46:46 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19DCX8eM021026;
+        Wed, 13 Oct 2021 08:44:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=e4qeE39nNF63o3oTejjERAXSIzN7WFNAVqNCqaNZdS0=;
+ b=bXdKh2QI46h+HoWTks3D/B3G7row03b3rYVbT/nIgjaVQgeqX2JEEXuQUfWPRZFUUyoB
+ 55qM23TFN7JsXM9l/sPtCIDo7ycrFTvLVryj7J6PsdFITPsTcH0pd3N2j4HWSPhxMLxT
+ euwBaWLbYhVJE+9tbS3PiasNQfw3SZjVtDTVoFMfASgzvgRYyQ7QL/ICl75qsrhQAPvx
+ ZvoknCx3YXG8QvhQqnvvkofrNKgjCZWn7AFCa8Km27LzXzILVwnIHNWYRz19hM59Aasl
+ d7yuXRcAJUB3Jf3O+F80/Sojw7aJSsk/kq0ABs52Az04B0VFZec1P4qggAuOGdnWpUNx CA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bntpwxx85-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Oct 2021 08:44:36 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19DBUBAi030380;
+        Wed, 13 Oct 2021 08:44:35 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bntpwxx74-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Oct 2021 08:44:35 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19DCfUTe016216;
+        Wed, 13 Oct 2021 12:44:33 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma05fra.de.ibm.com with ESMTP id 3bk2qa0fa5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Oct 2021 12:44:32 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19DCiKMl59441428
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 13 Oct 2021 12:44:20 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6FB2BA406F;
+        Wed, 13 Oct 2021 12:44:20 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 727F2A407B;
+        Wed, 13 Oct 2021 12:44:13 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.29.112])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Wed, 13 Oct 2021 12:44:13 +0000 (GMT)
+Date:   Wed, 13 Oct 2021 14:44:08 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
         Jason Wang <jasowang@redhat.com>,
         Xie Yongji <xieyongji@bytedance.com>,
         virtualization@lists.linux-foundation.org,
@@ -60,117 +65,47 @@ Cc:     Halil Pasic <pasic@linux.ibm.com>,
         markver@us.ibm.com, Cornelia Huck <cohuck@redhat.com>,
         linux-s390@vger.kernel.org, stefanha@redhat.com,
         Raphael Norwitz <raphael.norwitz@nutanix.com>,
-        qemu-devel@nongnu.org
+        qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [PATCH v3 1/1] virtio: write back F_VERSION_1 before validate
-Message-ID: <20211013081836-mutt-send-email-mst@kernel.org>
+Message-ID: <20211013144408.2812d9bd.pasic@linux.ibm.com>
+In-Reply-To: <20211013081836-mutt-send-email-mst@kernel.org>
 References: <20211011053921.1198936-1-pasic@linux.ibm.com>
- <20211013060923-mutt-send-email-mst@kernel.org>
- <96561e29-e0d6-9a4d-3657-999bad59914e@de.ibm.com>
+        <20211013060923-mutt-send-email-mst@kernel.org>
+        <96561e29-e0d6-9a4d-3657-999bad59914e@de.ibm.com>
+        <20211013081836-mutt-send-email-mst@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <96561e29-e0d6-9a4d-3657-999bad59914e@de.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Jp0uxxHTXTE771ls4ramYMB1Oy-7C_gz
+X-Proofpoint-ORIG-GUID: AuiVxpbg965JdHptRviyaH---l1LWaGY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-13_05,2021-10-13_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 bulkscore=0 mlxlogscore=983 clxscore=1015 phishscore=0
+ spamscore=0 mlxscore=0 priorityscore=1501 suspectscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110130084
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 13, 2021 at 01:23:50PM +0200, Christian Borntraeger wrote:
-> 
-> 
-> Am 13.10.21 um 12:10 schrieb Michael S. Tsirkin:
-> > On Mon, Oct 11, 2021 at 07:39:21AM +0200, Halil Pasic wrote:
-> > > The virtio specification virtio-v1.1-cs01 states: "Transitional devices
-> > > MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
-> > > been acknowledged by the driver."  This is exactly what QEMU as of 6.1
-> > > has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
-> > > 
-> > > However, the specification also says: "... the driver MAY read (but MUST
-> > > NOT write) the device-specific configuration fields to check that it can
-> > > support the device ..." before setting FEATURES_OK.
-> > > 
-> > > In that case, any transitional device relying solely on
-> > > VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
-> > > legacy format.  In particular, this implies that it is in big endian
-> > > format for big endian guests. This naturally confuses the driver which
-> > > expects little endian in the modern mode.
-> > > 
-> > > It is probably a good idea to amend the spec to clarify that
-> > > VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
-> > > is complete. Before validate callback existed, config space was only
-> > > read after FEATURES_OK. However, we already have two regressions, so
-> > > let's address this here as well.
-> > > 
-> > > The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
-> > > the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
-> > > virtio 1.0 is used on both sides. The latter renders virtio-blk unusable
-> > > with DASD backing, because things simply don't work with the default.
-> > > See Fixes tags for relevant commits.
-> > > 
-> > > For QEMU, we can work around the issue by writing out the feature bits
-> > > with VIRTIO_F_VERSION_1 bit set.  We (ab)use the finalize_features
-> > > config op for this. This isn't enough to address all vhost devices since
-> > > these do not get the features until FEATURES_OK, however it looks like
-> > > the affected devices actually never handled the endianness for legacy
-> > > mode correctly, so at least that's not a regression.
-> > > 
-> > > No devices except virtio net and virtio blk seem to be affected.
-> > > 
-> > > Long term the right thing to do is to fix the hypervisors.
-> > > 
-> > > Cc: <stable@vger.kernel.org> #v4.11
-> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > > Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-> > > Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
-> > > Reported-by: markver@us.ibm.com
-> > > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+On Wed, 13 Oct 2021 08:24:53 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> > > OK this looks good! How about a QEMU patch to make it spec compliant on
+> > > BE?  
 > > 
-> > OK this looks good! How about a QEMU patch to make it spec compliant on
-> > BE?
+> > Who is going to do that? Halil? you? Conny?  
 > 
-> Who is going to do that? Halil? you? Conny?
+> Halil said he'll do it... Right, Halil?
 
-Halil said he'll do it... Right, Halil?
+I can do it but not right away. Maybe in a couple of weeks. I have some
+other bugs to hunt down, before proceeding to this. If somebody else
+wants to do it, I'm fine with that as well.
 
-> Can we get this kernel patch queued for 5.15 and stable without waiting for the QEMU patch
-> as we have a regression with 4.14?
-
-Probably. Still trying to decide between this and plain revert for 5.15
-and back. Maybe both?
-
-> > 
-> > > ---
-> > > 
-> > > @Connie: I made some more commit message changes to accommodate Michael's
-> > > requests. I just assumed these will work or you as well and kept your
-> > > r-b. Please shout at me if it needs to be dropped :)
-> > > ---
-> > >   drivers/virtio/virtio.c | 11 +++++++++++
-> > >   1 file changed, 11 insertions(+)
-> > > 
-> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > index 0a5b54034d4b..236081afe9a2 100644
-> > > --- a/drivers/virtio/virtio.c
-> > > +++ b/drivers/virtio/virtio.c
-> > > @@ -239,6 +239,17 @@ static int virtio_dev_probe(struct device *_d)
-> > >   		driver_features_legacy = driver_features;
-> > >   	}
-> > > +	/*
-> > > +	 * Some devices detect legacy solely via F_VERSION_1. Write
-> > > +	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
-> > > +	 * these when needed.
-> > > +	 */
-> > > +	if (drv->validate && !virtio_legacy_is_little_endian()
-> > > +			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
-> > > +		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
-> > > +		dev->config->finalize_features(dev);
-> > > +	}
-> > > +
-> > >   	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
-> > >   		dev->features = driver_features & device_features;
-> > >   	else
-> > > 
-> > > base-commit: 60a9483534ed0d99090a2ee1d4bb0b8179195f51
-> > > -- 
-> > > 2.25.1
-> > 
-
+Regards,
+Halil
