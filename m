@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B031A42B124
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 02:54:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5CAE42B127
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 02:54:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235867AbhJMA4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 20:56:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40390 "EHLO mail.kernel.org"
+        id S236110AbhJMA45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 20:56:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235820AbhJMA4y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Oct 2021 20:56:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96F2D60EDF;
-        Wed, 13 Oct 2021 00:54:50 +0000 (UTC)
+        id S235868AbhJMA44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Oct 2021 20:56:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B396160EB4;
+        Wed, 13 Oct 2021 00:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634086492;
-        bh=Z73Oda8sTnZXkA9aT6ot5ea3oc7DgfiCq8wolu/7kGs=;
+        s=k20201202; t=1634086493;
+        bh=hNKPR1W/BdbeYzaMSTdq90KGmz9/TnK9SOwxYNwWgnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ryOBx8DC5LrgqTlS01HpF/nZvOGBw3sc9mnDEtp3egsUuBSI2UpaZp/eMY2luHZ3d
-         w7k1zrI9/IDULhV2v46461za0f7ZCnKfdhZK+KIaszCbUekX01rSQRWAtA1vZJWktR
-         LpndKsdPY4ut6niMA8K2ITcmzCirUyYMGbQwZCIHQ+/DijFJVw6Tp7FcRN7onEkYVU
-         FSCO8XvA6DNgvitz6KDXhP10qbELY4R3Z2wpTEAtEKjxn9sVlRPW1uuD3/srsCnTBV
-         HelpagdKbZACnxnwSQwEXZBnQKsMDVcqQreXaQzLe93py3DpzgHijBf4pyD+y6gB04
-         oE7k/jDC8iCTQ==
+        b=gqfQsy6vAZnfwP59bRys764TsHEdA4pmi1Xs6cmuocXBonbHdkZ1JyIux1Qiy17MI
+         lH2PSekpY7ug8uzBBwKKR41vMyFiQydR0toYiwFdVkziSPyXO7m2zt8F/S/l0wX262
+         pGXtwO5oL5u8cGEzCSRySLwZgb1GORlO70z4h4O+uYAq6c0EBk7C61aHZWgJgXqBcc
+         l0vd9utVJMMqsgLxl+wu1mx1kUq+nA4x+LlXlylo7TZU3w2wWq1vPxfz8Wn7umLO39
+         Goz0ADoJi5BWZbxja/5p+J62NBaZszL3/oRbflPz9FScG/b7yIEvKwa3RN5242gm0k
+         ywN3DEIcLruIA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joel Stanley <joel@jms.id.au>, Arnd Bergmann <arnd@arndb.de>,
-        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
-        krzysztof.kozlowski@canonical.com, alexandre.torgue@foss.st.com,
-        digetx@gmail.com, treding@nvidia.com, m.szyprowski@samsung.com,
-        olivier.moysan@st.com, mani@kernel.org, grygorii.strashko@ti.com,
-        f.fainelli@gmail.com, stefan.wahren@i2se.com,
-        alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.14 03/17] ARM: config: mutli v7: Reenable FB dependency
-Date:   Tue, 12 Oct 2021 20:54:27 -0400
-Message-Id: <20211013005441.699846-3-sashal@kernel.org>
+Cc:     Eugen Hristev <eugen.hristev@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        alexandre.belloni@bootlin.com, ludovic.desroches@microchip.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.14 04/17] ARM: dts: at91: sama5d2_som1_ek: disable ISC node by default
+Date:   Tue, 12 Oct 2021 20:54:28 -0400
+Message-Id: <20211013005441.699846-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211013005441.699846-1-sashal@kernel.org>
 References: <20211013005441.699846-1-sashal@kernel.org>
@@ -46,42 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 8c1768967e2733d55abf449d8abd6f1915ba3539 ]
+[ Upstream commit 4348cc10da6377a86940beb20ad357933b8f91bb ]
 
-DRM_FBDEV_EMULATION previously selected FB and was default y as long as DRM
-was enabled. In commit f611b1e7624c ("drm: Avoid circular dependencies for
-CONFIG_FB") the select was replaced with a depends on FB, disabling the
-drivers that depended on it.
+Without a sensor node, the ISC will simply fail to probe, as the
+corresponding port node is missing.
+It is then logical to disable the node in the devicetree.
+If we add a port with a connection to a sensor endpoint, ISC can be enabled.
 
-Renable FB so we get back FB_EFI, FB_WM8505, FB_SH_MOBILE_LCDC, FB_SIMPLE and
-VIDEO_VIVID.
-
-It must be set to y and not a module as the test driver VIDEO_VIVID
-requires it to be built in.
-
-Link: https://lore.kernel.org/r/CAK8P3a18EdBKQdGDOZc9cPKsf=hY8==v2cO0DBE_tyd82Uq-Ng@mail.gmail.com
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20210902121358.503589-1-eugen.hristev@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/configs/multi_v7_defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/at91-sama5d27_som1_ek.dts | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/configs/multi_v7_defconfig b/arch/arm/configs/multi_v7_defconfig
-index bd5775184c03..707fb2c2fdda 100644
---- a/arch/arm/configs/multi_v7_defconfig
-+++ b/arch/arm/configs/multi_v7_defconfig
-@@ -721,6 +721,7 @@ CONFIG_DRM_PL111=m
- CONFIG_DRM_LIMA=m
- CONFIG_DRM_PANFROST=m
- CONFIG_DRM_ASPEED_GFX=m
-+CONFIG_FB=y
- CONFIG_FB_EFI=y
- CONFIG_FB_WM8505=y
- CONFIG_FB_SH_MOBILE_LCDC=y
+diff --git a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
+index 8034e5dacc80..949df688c5f1 100644
+--- a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
++++ b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
+@@ -71,7 +71,6 @@ apb {
+ 			isc: isc@f0008000 {
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_isc_base &pinctrl_isc_data_8bit &pinctrl_isc_data_9_10 &pinctrl_isc_data_11_12>;
+-				status = "okay";
+ 			};
+ 
+ 			qspi1: spi@f0024000 {
 -- 
 2.33.0
 
