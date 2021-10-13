@@ -2,151 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F290A42C077
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 14:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DF4942C07D
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 14:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233964AbhJMMra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Oct 2021 08:47:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53428 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234180AbhJMMrW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 08:47:22 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF1ECC061746
-        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 05:45:18 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id k7so7855958wrd.13
-        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 05:45:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=cuLResFeBhov2ygLcP+AxmAZAimwCmsD/hkXrTpy6fU=;
-        b=q3PdKKiohegrxncCCIs6X5z7HTKq5WPMYBbLiZ3P5pxGq0SnGyleFoQXwY/K2L/+Sm
-         Kay7ovqxiSUaa8QUPq3s3ssgSz/T7g/xtmlIReB8PaIwLskmvi4qbc6oKxlmOmEf7Mzq
-         d3+0DQLZ/FGxtPwN9wtJdRmkDZQARUtOan4je6akCIg55T+CCZNwlM1UqSDiGYWBPv+8
-         4/q82fkA2ohQGzDMwfmN8mPuFKuhNp3gr5Ah1SY7umGO48oiR94ubTo7TtBpRNAXQlIJ
-         Fx7QX9bwvZ9pQpbwrPHCshORs5GLcpL2GJ52NrtMrRHT3EOJG84ltJ6ucns+HfHZ9Pnd
-         XpCw==
+        id S232366AbhJMMsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Oct 2021 08:48:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:44546 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231294AbhJMMsR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 08:48:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1634129174;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=pio+Rp9lSXqTgcX0jd1ToQMieUTpIAr4Wm8ggp456+o=;
+        b=fDi80G8h49m015tHrzDRZ4dnqOQz0tumxczgdg4RqrZK9kUk+sxseASBtqJwMu98wFSVv+
+        S26k9vkQSgyDok8hhvjNtlVGQc+sWGXq9I+FCQzYrISs42izR6FhOYKkrFLxywRPClTBkd
+        yMxLe2DuDR0GAMUuJa0Ll+tDy/ZZCjw=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-495-ROu3zRRKMta2fW194hWj1w-1; Wed, 13 Oct 2021 08:46:13 -0400
+X-MC-Unique: ROu3zRRKMta2fW194hWj1w-1
+Received: by mail-wr1-f72.google.com with SMTP id d13-20020adf9b8d000000b00160a94c235aso1904582wrc.2
+        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 05:46:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=cuLResFeBhov2ygLcP+AxmAZAimwCmsD/hkXrTpy6fU=;
-        b=IlAI+7xaZKnxXXzg33MNlEigag7RJY7qCh+aOcGIDDYZiP2l27h3wdvPAnxH7BgjM4
-         4lDjI+SEZrcDyjaYXPD/pVDIirljqbOpzH6EI37MKVH1YtqCj4xhH7vcw7ky18/m8TOw
-         yY7iTXAjfPKGXWGIOya+DBWy7jLMaNvPNZVZ8keRsi35OS8LKEqX2KBKgU+S/vUiwj3L
-         XncdpJWmnzY3Z/0t7xy2eCZEYPVxZwpJ1+p596/laBt6kb8Xd1CDNgP1hFU808pm9/hH
-         qphfrRJDDUhM+3hEKwCNOrzsnKl1HYmkNLnD+Acloe9yftAsf1f+VT81OoJZqhs1xPaS
-         MGYg==
-X-Gm-Message-State: AOAM531HmECA8ohxDFoFCeySBNz11heDVhetoTckuZMFmJWpPELTFwea
-        vosP2tJMSZ0cvo4N7LppwS4ftA==
-X-Google-Smtp-Source: ABdhPJzOI5bvspQtVsAWHyHWMg5rqni6kGoUBe9neTzS77CFtoQ4hjLZaBN89wCpVkADKes3TC2pRg==
-X-Received: by 2002:a1c:1d8d:: with SMTP id d135mr12873312wmd.191.1634129117425;
-        Wed, 13 Oct 2021 05:45:17 -0700 (PDT)
-Received: from srini-hackbox.lan (cpc86377-aztw32-2-0-cust226.18-1.cable.virginm.net. [92.233.226.227])
-        by smtp.gmail.com with ESMTPSA id a2sm13594981wru.82.2021.10.13.05.45.16
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=pio+Rp9lSXqTgcX0jd1ToQMieUTpIAr4Wm8ggp456+o=;
+        b=YBIovqlfSGnpFyw6LPwxAqOEpiaqmbUock6Dlv1VIKKS7OV5gBFKJvM05PQwgAPD0L
+         an2lg1Acow/poNDwwUQhwIbNSyrMXFfDYfxPfFaEW3+nA9gikSo5DmvnKbVRKgC+hYTf
+         fqyGbnK/XjWjl71B5s+puGingxQc2lo+/eahhx2ndtY0Ha+PYvqArE4bYoMxv1oNXM53
+         0pGZWlHhgOPNxeCprek6KnmM6ieB9aubK0Qk0PGRRbIiO7xnNK2BdNisup5kCyG9q9fJ
+         Fgt7dUmxEV/b3AwLrYhH313+4FU7Qe3BwJ9xlHI87BuG//ydL+NHk6lrygU2dOac9fhN
+         sR2g==
+X-Gm-Message-State: AOAM530vtsJFNMtPQP3kczkrjRSWMElvZ+v/H430hhz8FLaWDYNmhXmg
+        qXH5WPrTS18E9VIo5o/YvgiWPUMV0ygEbQZYPnxbhifdi4QtyzhIXlvxVYYr3rkAEmg+oFCpEXs
+        qxjPy6Ingbcgc8p1h
+X-Received: by 2002:a1c:3586:: with SMTP id c128mr12804920wma.78.1634129172058;
+        Wed, 13 Oct 2021 05:46:12 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxWON28WQcyoAHS7/UuoGSQN5DfnmTJuEAcV0OBwnEccLiKLDK1QD4fr9pYUdKD+eXE6vI3mA==
+X-Received: by 2002:a1c:3586:: with SMTP id c128mr12804894wma.78.1634129171809;
+        Wed, 13 Oct 2021 05:46:11 -0700 (PDT)
+Received: from redhat.com ([2.55.30.112])
+        by smtp.gmail.com with ESMTPSA id s1sm5015348wmc.47.2021.10.13.05.46.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Oct 2021 05:45:16 -0700 (PDT)
-From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-To:     gregkh@linuxfoundation.org
-Cc:     linux-kernel@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH] nvmem: Fix shift-out-of-bound (UBSAN) with byte size cells
-Date:   Wed, 13 Oct 2021 13:45:11 +0100
-Message-Id: <20211013124511.18726-1-srinivas.kandagatla@linaro.org>
-X-Mailer: git-send-email 2.21.0
+        Wed, 13 Oct 2021 05:46:11 -0700 (PDT)
+Date:   Wed, 13 Oct 2021 08:46:08 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        virtualization@lists.linux-foundation.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH] Revert "virtio-blk: Add validation for block size in config
+ space"
+Message-ID: <20211013124553.23803-1-mst@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+It turns out that access to config space before completing the feature
+negotiation is broken for big endian guests at least with QEMU hosts up
+to 6.1 inclusive.  This affects any device that accesses config space in
+the validate callback: at the moment that is virtio-net with
+VIRTIO_NET_F_MTU but since 82e89ea077b9 ("virtio-blk: Add validation for
+block size in config space") that also started affecting virtio-blk with
+VIRTIO_BLK_F_BLK_SIZE. Further, unlike VIRTIO_NET_F_MTU which is off by
+default on QEMU, VIRTIO_BLK_F_BLK_SIZE is on by default, which resulted
+in lots of people not being able to boot VMs on BE.
 
-If a cell has 'nbits' equal to a multiple of BITS_PER_BYTE the logic
+The spec is very clear that what we are doing is legal so QEMU needs to
+be fixed, but given it's been broken for so many years and no one
+noticed, we need to give QEMU a bit more time before applying this.
 
- *p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
+Further, this patch is incomplete (does not check blk size is a power
+of two) and it duplicates the logic from nbd.
 
-will become undefined behavior because nbits modulo BITS_PER_BYTE is 0, and we
-subtract one from that making a large number that is then shifted more than the
-number of bits that fit into an unsigned long.
+Revert for now, and we'll reapply a cleaner logic in the next release.
 
-UBSAN reports this problem:
-
- UBSAN: shift-out-of-bounds in drivers/nvmem/core.c:1386:8
- shift exponent 64 is too large for 64-bit type 'unsigned long'
- CPU: 6 PID: 7 Comm: kworker/u16:0 Not tainted 5.15.0-rc3+ #9
- Hardware name: Google Lazor (rev3+) with KB Backlight (DT)
- Workqueue: events_unbound deferred_probe_work_func
- Call trace:
-  dump_backtrace+0x0/0x170
-  show_stack+0x24/0x30
-  dump_stack_lvl+0x64/0x7c
-  dump_stack+0x18/0x38
-  ubsan_epilogue+0x10/0x54
-  __ubsan_handle_shift_out_of_bounds+0x180/0x194
-  __nvmem_cell_read+0x1ec/0x21c
-  nvmem_cell_read+0x58/0x94
-  nvmem_cell_read_variable_common+0x4c/0xb0
-  nvmem_cell_read_variable_le_u32+0x40/0x100
-  a6xx_gpu_init+0x170/0x2f4
-  adreno_bind+0x174/0x284
-  component_bind_all+0xf0/0x264
-  msm_drm_bind+0x1d8/0x7a0
-  try_to_bring_up_master+0x164/0x1ac
-  __component_add+0xbc/0x13c
-  component_add+0x20/0x2c
-  dp_display_probe+0x340/0x384
-  platform_probe+0xc0/0x100
-  really_probe+0x110/0x304
-  __driver_probe_device+0xb8/0x120
-  driver_probe_device+0x4c/0xfc
-  __device_attach_driver+0xb0/0x128
-  bus_for_each_drv+0x90/0xdc
-  __device_attach+0xc8/0x174
-  device_initial_probe+0x20/0x2c
-  bus_probe_device+0x40/0xa4
-  deferred_probe_work_func+0x7c/0xb8
-  process_one_work+0x128/0x21c
-  process_scheduled_works+0x40/0x54
-  worker_thread+0x1ec/0x2a8
-  kthread+0x138/0x158
-  ret_from_fork+0x10/0x20
-
-Fix it by making sure there are any bits to mask out.
-
-Cc: Douglas Anderson <dianders@chromium.org>
-Fixes: 69aba7948cbe ("nvmem: Add a simple NVMEM framework for consumers")
 Cc: stable@vger.kernel.org
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+Cc: Xie Yongji <xieyongji@bytedance.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
-Hi Greg,
+ drivers/block/virtio_blk.c | 37 ++++++-------------------------------
+ 1 file changed, 6 insertions(+), 31 deletions(-)
 
-Could you pick this up for next possible 5.15 rc.
-
-Thanks,
---srini
-
- drivers/nvmem/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 3d87fadaa160..8976da38b375 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -1383,7 +1383,8 @@ static void nvmem_shift_read_buffer_in_place(struct nvmem_cell *cell, void *buf)
- 		*p-- = 0;
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 9b3bd083b411..303caf2d17d0 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -689,28 +689,6 @@ static const struct blk_mq_ops virtio_mq_ops = {
+ static unsigned int virtblk_queue_depth;
+ module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
  
- 	/* clear msb bits if any leftover in the last byte */
--	*p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
-+	if (cell->nbits % BITS_PER_BYTE)
-+		*p &= GENMASK((cell->nbits % BITS_PER_BYTE) - 1, 0);
- }
+-static int virtblk_validate(struct virtio_device *vdev)
+-{
+-	u32 blk_size;
+-
+-	if (!vdev->config->get) {
+-		dev_err(&vdev->dev, "%s failure: config access disabled\n",
+-			__func__);
+-		return -EINVAL;
+-	}
+-
+-	if (!virtio_has_feature(vdev, VIRTIO_BLK_F_BLK_SIZE))
+-		return 0;
+-
+-	blk_size = virtio_cread32(vdev,
+-			offsetof(struct virtio_blk_config, blk_size));
+-
+-	if (blk_size < SECTOR_SIZE || blk_size > PAGE_SIZE)
+-		__virtio_clear_bit(vdev, VIRTIO_BLK_F_BLK_SIZE);
+-
+-	return 0;
+-}
+-
+ static int virtblk_probe(struct virtio_device *vdev)
+ {
+ 	struct virtio_blk *vblk;
+@@ -722,6 +700,12 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	u8 physical_block_exp, alignment_offset;
+ 	unsigned int queue_depth;
  
- static int __nvmem_cell_read(struct nvmem_device *nvmem,
++	if (!vdev->config->get) {
++		dev_err(&vdev->dev, "%s failure: config access disabled\n",
++			__func__);
++		return -EINVAL;
++	}
++
+ 	err = ida_simple_get(&vd_index_ida, 0, minor_to_index(1 << MINORBITS),
+ 			     GFP_KERNEL);
+ 	if (err < 0)
+@@ -836,14 +820,6 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	else
+ 		blk_size = queue_logical_block_size(q);
+ 
+-	if (blk_size < SECTOR_SIZE || blk_size > PAGE_SIZE) {
+-		dev_err(&vdev->dev,
+-			"block size is changed unexpectedly, now is %u\n",
+-			blk_size);
+-		err = -EINVAL;
+-		goto out_cleanup_disk;
+-	}
+-
+ 	/* Use topology information if available */
+ 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_TOPOLOGY,
+ 				   struct virtio_blk_config, physical_block_exp,
+@@ -1009,7 +985,6 @@ static struct virtio_driver virtio_blk = {
+ 	.driver.name			= KBUILD_MODNAME,
+ 	.driver.owner			= THIS_MODULE,
+ 	.id_table			= id_table,
+-	.validate			= virtblk_validate,
+ 	.probe				= virtblk_probe,
+ 	.remove				= virtblk_remove,
+ 	.config_changed			= virtblk_config_changed,
 -- 
-2.21.0
+MST
 
