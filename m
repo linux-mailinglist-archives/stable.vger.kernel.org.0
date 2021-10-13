@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1298042B192
+	by mail.lfdr.de (Postfix) with ESMTP id EACF442B194
 	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 02:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236846AbhJMA7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 20:59:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42704 "EHLO mail.kernel.org"
+        id S237733AbhJMA7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 20:59:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237037AbhJMA62 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Oct 2021 20:58:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30AD560F92;
-        Wed, 13 Oct 2021 00:56:25 +0000 (UTC)
+        id S237111AbhJMA63 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Oct 2021 20:58:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6675E6101D;
+        Wed, 13 Oct 2021 00:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634086586;
-        bh=Kw7lkG9kOuWj0W+L7dSn2mt0ZsB27lwqqvz5rScPANU=;
+        s=k20201202; t=1634086587;
+        bh=5mM8GkEHYMUJjg/Px3DlT/KvNoDQPHUyWaTc1Okbq8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SiEX2gD5r5V4ewJA2KY47V8H/w3xlvTbX8SD2L2o5wIb+OA+iOmhSWglICug1cxJu
-         eKq8c0G9gerLO6EGm3HzICvRGAn4BLaYwcNaEuhQIqySeMNnSMQAvfdy3XJ5qFZmsN
-         8+XJ4hK+oZz6/NKhmydafkQOMYRI32rYUvlHgXwgcMZAs0duGKEoZ8++hv2BKhsRPK
-         qldd+Tyqbr00mqxL8TvY127mcHqKHv2WONx68bIR76HH8MqakLt6wFMrN0Ti4p4oCh
-         weo9KLsgpaj27Pu+xuaQ6ZMXLr/gLkqwTgGSwiQFFTtuPwxevF6HcJkmUZzjccUlRM
-         sEIV6AA9Wbs6A==
+        b=S52C3QHrBcth5X9Gd46cp/U++7+y6lUI7QYuACrQJrVFrOrMKB3ZioejDi7hnup2M
+         A2JFIk9T7Kb70InQDd+Nq56awEbNE06spBM1O9gTJ7j5hK/BXEzA825o/jNDMzBU0C
+         8A+hId7D7labN7L/MbhdI6KuCiDYdsohbFh/ty5b1yHCXapsD1NmwrkFmZDZxcKX2L
+         3+ExF1t72r/ta8dOruczdpRcQDbth36WQurX22b5HWOS9Mn/xw0NFRQsy2edUncf/e
+         qxifPxwvv9avahB+EMP/+kqA5mDhWu3gGfuT7fUK69UvnfRQ+VVt/68xisyz1B1Zxe
+         ZJCj37eMXnKtg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, chris@zankel.net,
-        linux-xtensa@linux-xtensa.org
-Subject: [PATCH AUTOSEL 4.19 3/5] xtensa: xtfpga: Try software restart before simulating CPU reset
-Date:   Tue, 12 Oct 2021 20:56:16 -0400
-Message-Id: <20211013005619.700553-3-sashal@kernel.org>
+Cc:     Benjamin Coddington <bcodding@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, bfields@fieldses.org,
+        linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 4/5] NFSD: Keep existing listeners on portlist error
+Date:   Tue, 12 Oct 2021 20:56:17 -0400
+Message-Id: <20211013005619.700553-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211013005619.700553-1-sashal@kernel.org>
 References: <20211013005619.700553-1-sashal@kernel.org>
@@ -43,54 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-[ Upstream commit 012e974501a270d8dfd4ee2039e1fdf7579c907e ]
+[ Upstream commit c20106944eb679fa3ab7e686fe5f6ba30fbc51e5 ]
 
-Rebooting xtensa images loaded with the '-kernel' option in qemu does
-not work. When executing a reboot command, the qemu session either hangs
-or experiences an endless sequence of error messages.
+If nfsd has existing listening sockets without any processes, then an error
+returned from svc_create_xprt() for an additional transport will remove
+those existing listeners.  We're seeing this in practice when userspace
+attempts to create rpcrdma transports without having the rpcrdma modules
+present before creating nfsd kernel processes.  Fix this by checking for
+existing sockets before calling nfsd_destroy().
 
-  Kernel panic - not syncing: Unrecoverable error in exception handler
-
-Reset code jumps to the CPU restart address, but Linux can not recover
-from there because code and data in the kernel init sections have been
-discarded and overwritten at this point.
-
-XTFPGA platforms have a means to reset the CPU by writing 0xdead into a
-specific FPGA IO address. When used in QEMU the kernel image loaded with
-the '-kernel' option gets restored to its original state allowing the
-machine to boot successfully.
-
-Use that mechanism to attempt a platform reset. If it does not work,
-fall back to the existing mechanism.
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/platforms/xtfpga/setup.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/nfsd/nfsctl.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/xtensa/platforms/xtfpga/setup.c b/arch/xtensa/platforms/xtfpga/setup.c
-index 982e7c22e7ca..db5122765f16 100644
---- a/arch/xtensa/platforms/xtfpga/setup.c
-+++ b/arch/xtensa/platforms/xtfpga/setup.c
-@@ -54,8 +54,12 @@ void platform_power_off(void)
- 
- void platform_restart(void)
- {
--	/* Flush and reset the mmu, simulate a processor reset, and
--	 * jump to the reset vector. */
-+	/* Try software reset first. */
-+	WRITE_ONCE(*(u32 *)XTFPGA_SWRST_VADDR, 0xdead);
-+
-+	/* If software reset did not work, flush and reset the mmu,
-+	 * simulate a processor reset, and jump to the reset vector.
-+	 */
- 	cpu_reset();
- 	/* control never gets here */
+diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
+index cb69660d0779..ff9899cc9913 100644
+--- a/fs/nfsd/nfsctl.c
++++ b/fs/nfsd/nfsctl.c
+@@ -788,7 +788,10 @@ static ssize_t __write_ports_addxprt(char *buf, struct net *net)
+ 		svc_xprt_put(xprt);
+ 	}
+ out_err:
+-	nfsd_destroy(net);
++	if (!list_empty(&nn->nfsd_serv->sv_permsocks))
++		nn->nfsd_serv->sv_nrthreads--;
++	 else
++		nfsd_destroy(net);
+ 	return err;
  }
+ 
 -- 
 2.33.0
 
