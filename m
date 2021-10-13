@@ -2,134 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C17042C164
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 15:27:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0023542C1CC
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 15:53:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232528AbhJMN3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Oct 2021 09:29:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35170 "EHLO
+        id S230210AbhJMNzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Oct 2021 09:55:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231644AbhJMN3a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 09:29:30 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DA1AC061570
-        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 06:27:27 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id s75so2339023pgs.5
-        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 06:27:27 -0700 (PDT)
+        with ESMTP id S229611AbhJMNzt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 09:55:49 -0400
+Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 100C1C061570;
+        Wed, 13 Oct 2021 06:53:46 -0700 (PDT)
+Received: by mail-qt1-x833.google.com with SMTP id b12so2575695qtq.3;
+        Wed, 13 Oct 2021 06:53:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=zr6GSWmrOUlAvT81+mNCi+lJnNdIOLdK8Wdhcfwapc0=;
-        b=GoFpRCY7lYDG0d2j08bT71438cAMeRlwZ0Klu0imCM1DpEyC/jv5KR7QZZSS6Mv7MB
-         YwWIdGINak92Cn8V3vd/YSEG/5tPc9MmellVV9cWcm08e+lZLyjAaH9t14/XW23yhxCP
-         865ILlYO1qGQCEbBGq6UBERdEaczBPL4dlf+efZdserJP/t7LayX6GEuSo/L02pUEGFm
-         ikqsrxViNNaqGEIAYJqdmhDLXwoB/KTl4obsa35ZgH0EMWdjdoVhnF7cwqrnBZXWFj7p
-         vgH+sTHz8lLDT7MFar781ENtnR+QoFDmFjSSQcw45Nd2rm9/vmlBLssM7ar4T5+0NMXX
-         ZN3Q==
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=qLP3FkcbQrP8905JiIIhkRnwbLSYE8OuU6XnZIgVhgQ=;
+        b=SOWXQL8zIN0bUKlCGxIRz0aBPBugYGip5SkaDuXBvQkB7k8Q1nCJPnz4kv6qw43T8i
+         9ldTcZzzJid7lwWlTWuolPKBJ72U8C0B7kDTMOt8a9CECdU0xiaqAxRWDqORqLARWVvT
+         DN0U/Lj447DNNakmK3Trs/idWtw9Cngl1PaKjqlVwsW8EEM6S65s9dskJGcSZQsf9WZd
+         CyoKn2fvV+F377UoDDfvj/8B4HAByebVYpf5E6l3CzFBbVWVKJzmTpDBJZ6WFs6ivM81
+         6du5WsmuA0uGGcyfif86CVuH0SCik4B6FvySAgkhWef2jTXUADYJJti0mO4y5HgSm0SZ
+         IZ2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=zr6GSWmrOUlAvT81+mNCi+lJnNdIOLdK8Wdhcfwapc0=;
-        b=uQ2Dj/d1kK3ScitVGy3T91tmvvQ/ortJTdUpbtN/xvdNPB0P8mMb4gArUTBptwmYDQ
-         A+ru6FD1QTzqX5V63mTAuqMM4EHUX+yVjKe7s5N0Ws1m8vGgDTLHBVAjVi1kjOei8lGi
-         T1TSYVK1fBeYPEGuyONoQp1SNo+39xcg9fP0D0lK7iKErinZ/8H3syZuhs1S4/iCYfeH
-         VtfQa5IxJe9YfheDNaQXbjATP1jd1VwkPDEMpnJpYuhkQCokafMMCyv+fxbTChjZZYPd
-         o54KAa4Jmr9gSzV2ju6H70OY6NX2XUDMbYJa6coXRgZ5QlO/ghdnzW4AzblVN5fSzCGk
-         TgSQ==
-X-Gm-Message-State: AOAM530Eh2Cl5iTmklLSEJ0bhzzEVFEx3AMPckuPj+y9ElBnuEzvGlYU
-        COMGopBucOQzFusjOJTDiqev65rcYSBJCr03
-X-Google-Smtp-Source: ABdhPJyhOfN2k3R7ZMiKuIcgrZk75/Y3DBwFjMIo+pqzQvcACYo4XUspRHIoniCJ13bBhDC77whLMQ==
-X-Received: by 2002:a63:f30c:: with SMTP id l12mr27806882pgh.360.1634131646899;
-        Wed, 13 Oct 2021 06:27:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x27sm14282753pfr.181.2021.10.13.06.27.25
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=qLP3FkcbQrP8905JiIIhkRnwbLSYE8OuU6XnZIgVhgQ=;
+        b=PJzeQc1Ub1CZL3Q41X7nVFT87GrRbdom2r6aRSv7mx/MHwwll3DwvPFK0aSkdhzyHx
+         ZwJuA20OWQYreSeSH9Gms3q6Keq4+kUDIwuCxFWKcA1A5Ae4AL0drvS5mhAmh05wClqU
+         h17e9nK9jPqhpRKYSE0lhif//2tPOkbHb1VcNPvAXW8HXwbfctNGQkBKigthbKpIKlNV
+         vepgQWH3wW4ZZEduhoW0tGvgUNCe7azu0dfwFBbObnM9ISMKBhodP8zhKCn4aHeOPzrx
+         hfRZPSkJbhbiEeJosgeI7JxgMBSgShH9pp8wtr6okXRIcM/znNSh1R5zpLJfbRvitVk2
+         ChDw==
+X-Gm-Message-State: AOAM5306T+6yWm/Pu1OlCKBQI8hDh1SUo0ESC55pcbxhBIvHPdIxHET6
+        RlGq/oJ1AtVLbdc7yq0tscywuorQWoM=
+X-Google-Smtp-Source: ABdhPJyRqUuY+40c/2sfXTq7HcSFjRh8SFIV+6zKi9eOi3PlnrYHLUO0ojek+lVIu5Xv8Yze7XyMaQ==
+X-Received: by 2002:ac8:5f82:: with SMTP id j2mr29995999qta.75.1634133225276;
+        Wed, 13 Oct 2021 06:53:45 -0700 (PDT)
+Received: from localhost.localdomain (c-73-60-226-25.hsd1.nh.comcast.net. [73.60.226.25])
+        by smtp.gmail.com with ESMTPSA id k8sm5035844qkk.37.2021.10.13.06.53.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Oct 2021 06:27:26 -0700 (PDT)
-Message-ID: <6166debe.1c69fb81.7727e.7719@mx.google.com>
-Date:   Wed, 13 Oct 2021 06:27:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Wed, 13 Oct 2021 06:53:45 -0700 (PDT)
+Date:   Wed, 13 Oct 2021 09:53:43 -0400
+From:   Eric Whitney <enwlinux@gmail.com>
+To:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
+Cc:     stable-commits@vger.kernel.org, enwlinux@gmail.com,
+        Theodore Ts'o <tytso@mit.edu>,
+        Andreas Dilger <adilger.kernel@dilger.ca>
+Subject: Re: Patch "ext4: enforce buffer head state assertion in
+ ext4_da_map_blocks" has been added to the 5.14-stable tree
+Message-ID: <20211013135343.GA8994@localhost.localdomain>
+References: <20211013113653.726356-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.250-23-g0fa274aa5a91
-Subject: stable-rc/queue/4.14 baseline: 36 runs,
- 1 regressions (v4.14.250-23-g0fa274aa5a91)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211013113653.726356-1-sashal@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 36 runs, 1 regressions (v4.14.250-23-g0fa274=
-aa5a91)
+* Sasha Levin <sashal@kernel.org>:
+> This is a note to let you know that I've just added the patch titled
+> 
+>     ext4: enforce buffer head state assertion in ext4_da_map_blocks
+> 
+> to the 5.14-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> 
+> The filename of the patch is:
+>      ext4-enforce-buffer-head-state-assertion-in-ext4_da_.patch
+> and it can be found in the queue-5.14 subdirectory.
+> 
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
+> 
+> 
+> 
+> commit b2838e02c515366e8452370fcda5baa2dcc8be68
+> Author: Eric Whitney <enwlinux@gmail.com>
+> Date:   Thu Aug 19 10:49:27 2021 -0400
+> 
+>     ext4: enforce buffer head state assertion in ext4_da_map_blocks
+>     
+>     [ Upstream commit 948ca5f30e1df0c11eb5b0f410b9ceb97fa77ad9 ]
+>     
+>     Remove the code that re-initializes a buffer head with an invalid block
+>     number and BH_New and BH_Delay bits when a matching delayed and
+>     unwritten block has been found in the extent status cache. Replace it
+>     with assertions that verify the buffer head already has this state
+>     correctly set.  The current code masked an inline data truncation bug
+>     that left stale entries in the extent status cache.  With this change,
+>     generic/130 can be used to reproduce and detect that bug.
+>     
+>     Signed-off-by: Eric Whitney <enwlinux@gmail.com>
+>     Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+>     Link: https://lore.kernel.org/r/20210819144927.25163-3-enwlinux@gmail.com
+>     Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+>     Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+> index fc6ea56de77c..d204688b32a3 100644
+> --- a/fs/ext4/inode.c
+> +++ b/fs/ext4/inode.c
+> @@ -1726,13 +1726,16 @@ static int ext4_da_map_blocks(struct inode *inode, sector_t iblock,
+>  		}
+>  
+>  		/*
+> -		 * Delayed extent could be allocated by fallocate.
+> -		 * So we need to check it.
+> +		 * the buffer head associated with a delayed and not unwritten
+> +		 * block found in the extent status cache must contain an
+> +		 * invalid block number and have its BH_New and BH_Delay bits
+> +		 * set, reflecting the state assigned when the block was
+> +		 * initially delayed allocated
+>  		 */
+> -		if (ext4_es_is_delayed(&es) && !ext4_es_is_unwritten(&es)) {
+> -			map_bh(bh, inode->i_sb, invalid_block);
+> -			set_buffer_new(bh);
+> -			set_buffer_delay(bh);
+> +		if (ext4_es_is_delonly(&es)) {
+> +			BUG_ON(bh->b_blocknr != invalid_block);
+> +			BUG_ON(!buffer_new(bh));
+> +			BUG_ON(!buffer_delay(bh));
+>  			return 0;
+>  		}
+>  
 
-Regressions Summary
--------------------
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+This patch should not be added to the stable tree, as it will be reverted in
+5.15.
 
+There have been two reports of unexpected kernel panics triggered by this code
+in kernels derived from 5.15-rc4, and the code will be removed for the time
+being until the root cause can be determined and corrected in a future release.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.250-23-g0fa274aa5a91/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.250-23-g0fa274aa5a91
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0fa274aa5a910956562959c200c6dd904641ebcd =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6166a852db4bf973f708faa6
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.250=
--23-g0fa274aa5a91/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.250=
--23-g0fa274aa5a91/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6166a853db4bf97=
-3f708faab
-        failing since 1 day (last pass: v4.14.250-10-g360a25ea0f96, first f=
-ail: v4.14.250-24-g0c04723a59cf)
-        2 lines
-
-    2021-10-13T09:34:58.045756  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/98
-    2021-10-13T09:34:58.054971  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+Thanks,
+Eric
