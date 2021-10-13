@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2225842B167
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 02:56:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 542D342B16A
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 02:56:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236845AbhJMA6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Oct 2021 20:58:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41920 "EHLO mail.kernel.org"
+        id S236543AbhJMA6N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Oct 2021 20:58:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237147AbhJMA5v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Oct 2021 20:57:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A740860EBB;
-        Wed, 13 Oct 2021 00:55:48 +0000 (UTC)
+        id S237223AbhJMA5z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Oct 2021 20:57:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F352F6109E;
+        Wed, 13 Oct 2021 00:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634086549;
-        bh=8w6nCCwfCDCGKC/ESbabK963/M8g6HzQJrjfEqIhZso=;
+        s=k20201202; t=1634086553;
+        bh=9+9sOa2s70vt7+UuFUxQ/TgXeovhbDnUd1sR4b0gowo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fgVKmUkFjlrPy6gQjuFvB5WjAVrgw812898QSXwwF0a8blB1Z26+PtMd6bxvlTd+l
-         awM+xzp+Uz+ZGWkWBBu3ekBKvNe9wGq5/i/XwePXtKlcJjoqKiZunzoTD8z4hvKhaR
-         RsxVGDLDt4mrM1X6O4y+BF+iug1upqIUe8dcd0b59hm1ABupRggT5Li0G5xFFkcN51
-         ewPOKLomjUrhYfiUhC8mUkcvPbdMo5KbiDmFORxniutVzRuOte1TNI58o8xbY+Dmds
-         XSXlwx0tzSpZU7zl/ZYh4ZbvVykykoPFRcRyXjhpIfD5YHCnTJe/jcKsvQLy+pG1xD
-         ZAHq5p0aKafVQ==
+        b=TOPILK/r5Br7uIerzxVLGKcd/nKRxiQA8RORFSPHaB0Pkwkep3Ttr3BnWa/rUekvZ
+         Xox3ythk2OAaF6CVeMgL1MhW4yskdrQ/ErxXR/V6GJwdZvxohlyqdSeWfcRViFrTug
+         LJ+wfMEW18Rj/cyncKyFzUayQVScWeBkpEToun3jldNt8KmQ4av3gVwI8weylltDuJ
+         LNKibecccFhJ6uiyH6LzGt++42qIdscq9U+LBrtduwaxrQDDxQ3R11QUy5oUhfLL35
+         JN78h63tEezbk5dUcRaCiKiB5N01nRXkvnOv3ipwcCVg6Mw6sQxMw8/CGsAkSZhFvB
+         hHUKV5QGdz+eA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Coddington <bcodding@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, bfields@fieldses.org,
-        linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 09/11] NFSD: Keep existing listeners on portlist error
-Date:   Tue, 12 Oct 2021 20:55:29 -0400
-Message-Id: <20211013005532.700190-9-sashal@kernel.org>
+Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, npiggin@gmail.com,
+        dja@axtens.net, christophe.leroy@csgroup.eu, aik@ozlabs.ru,
+        aneesh.kumar@linux.ibm.com, lihuafei1@huawei.com,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.10 10/11] powerpc/security: Add a helper to query stf_barrier type
+Date:   Tue, 12 Oct 2021 20:55:30 -0400
+Message-Id: <20211013005532.700190-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211013005532.700190-1-sashal@kernel.org>
 References: <20211013005532.700190-1-sashal@kernel.org>
@@ -43,40 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit c20106944eb679fa3ab7e686fe5f6ba30fbc51e5 ]
+[ Upstream commit 030905920f32e91a52794937f67434ac0b3ea41a ]
 
-If nfsd has existing listening sockets without any processes, then an error
-returned from svc_create_xprt() for an additional transport will remove
-those existing listeners.  We're seeing this in practice when userspace
-attempts to create rpcrdma transports without having the rpcrdma modules
-present before creating nfsd kernel processes.  Fix this by checking for
-existing sockets before calling nfsd_destroy().
+Add a helper to return the stf_barrier type for the current processor.
 
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/3bd5d7f96ea1547991ac2ce3137dc2b220bae285.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfsctl.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/security_features.h | 5 +++++
+ arch/powerpc/kernel/security.c               | 5 +++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
-index 0759e589ab52..506da1c77bea 100644
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -792,7 +792,10 @@ static ssize_t __write_ports_addxprt(char *buf, struct net *net, const struct cr
- 		svc_xprt_put(xprt);
- 	}
- out_err:
--	nfsd_destroy(net);
-+	if (!list_empty(&nn->nfsd_serv->sv_permsocks))
-+		nn->nfsd_serv->sv_nrthreads--;
-+	 else
-+		nfsd_destroy(net);
- 	return err;
+diff --git a/arch/powerpc/include/asm/security_features.h b/arch/powerpc/include/asm/security_features.h
+index b774a4477d5f..e380acc6e413 100644
+--- a/arch/powerpc/include/asm/security_features.h
++++ b/arch/powerpc/include/asm/security_features.h
+@@ -39,6 +39,11 @@ static inline bool security_ftr_enabled(u64 feature)
+ 	return !!(powerpc_security_features & feature);
  }
  
++#ifdef CONFIG_PPC_BOOK3S_64
++enum stf_barrier_type stf_barrier_type_get(void);
++#else
++static inline enum stf_barrier_type stf_barrier_type_get(void) { return STF_BARRIER_NONE; }
++#endif
+ 
+ // Features indicating support for Spectre/Meltdown mitigations
+ 
+diff --git a/arch/powerpc/kernel/security.c b/arch/powerpc/kernel/security.c
+index e4e1a94ccf6a..3f510c911b10 100644
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -261,6 +261,11 @@ static int __init handle_no_stf_barrier(char *p)
+ 
+ early_param("no_stf_barrier", handle_no_stf_barrier);
+ 
++enum stf_barrier_type stf_barrier_type_get(void)
++{
++	return stf_enabled_flush_types;
++}
++
+ /* This is the generic flag used by other architectures */
+ static int __init handle_ssbd(char *p)
+ {
 -- 
 2.33.0
 
