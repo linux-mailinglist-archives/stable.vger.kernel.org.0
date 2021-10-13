@@ -2,96 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4AF942C6AE
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 18:46:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87B1F42C6B3
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 18:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230204AbhJMQsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Oct 2021 12:48:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48746 "EHLO mail.kernel.org"
+        id S229946AbhJMQud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Oct 2021 12:50:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230118AbhJMQsf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 Oct 2021 12:48:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA9E760E54;
-        Wed, 13 Oct 2021 16:46:31 +0000 (UTC)
+        id S229559AbhJMQuc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 Oct 2021 12:50:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26FDA60EB4;
+        Wed, 13 Oct 2021 16:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634143592;
-        bh=gZxxSZNJVcGCly4XUFrQovq9UG2RxCIqbq1MKEQS/DU=;
+        s=korg; t=1634143709;
+        bh=BFqRpZywG1v6AlOtTl9eDc60gBxGssJVA2WVf3D5fJU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=O8z+AEdyWQ6c+sX1kouv5fa84k9VD/agQAO02nF8IUy8VyqZP+619NH/GUhVr9GDQ
-         w0/ECZ7foV62zyo40t7ZDAgGpP5JgaaC2KMP68dtGYFwLqMOFk/+/NG92Y64F9N29q
-         nWBiqWDgNaxD3BR0vE7hT1+oDbMWWrlZrxljB8lQ=
-Date:   Wed, 13 Oct 2021 18:46:29 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jane Malalane <jane.malalane@citrix.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Pu Wen <puwen@hygon.cn>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
-        Yazen Ghannam <Yazen.Ghannam@amd.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Huang Rui <ray.huang@amd.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Kim Phillips <kim.phillips@amd.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] x86/cpu: Fix migration safety with X86_BUG_NULL_SEL
-Message-ID: <YWcNZdyULbJG5xVA@kroah.com>
-References: <20211013142230.10129-1-jane.malalane@citrix.com>
+        b=MSly2AE51VvcB17lwla5QIXwa6tuLgLQyeNxQLEmMIjAKaz0dSY3HiV5XkFFXgw9o
+         gEDMpodSQXXdLkKTggs/E623NkPzM+LCfd9zVxehOmfbcYPOEHGioN/0bbgCuEG1cI
+         KTFZKk3NWdAWUB55xjP7Hxz6IXUHp4I5yOmWVlto=
+Date:   Wed, 13 Oct 2021 18:48:27 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Matthieu Baerts <matthieu.baerts@tessares.net>
+Cc:     Sasha Levin <sashal@kernel.org>, stable <stable@vger.kernel.org>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>
+Subject: Re: Use of "Fixes" tag for trivial fixes
+Message-ID: <YWcN2+XZ8+h4Jrwr@kroah.com>
+References: <19ffe0d6-f957-135c-cbae-14a0a46f3183@tessares.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211013142230.10129-1-jane.malalane@citrix.com>
+In-Reply-To: <19ffe0d6-f957-135c-cbae-14a0a46f3183@tessares.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 13, 2021 at 03:22:30PM +0100, Jane Malalane wrote:
-> Currently, Linux probes for X86_BUG_NULL_SEL unconditionally which
-> makes it unsafe to migrate in a virtualised environment as the
-> properties across the migration pool might differ.
+On Wed, Oct 13, 2021 at 04:47:55PM +0200, Matthieu Baerts wrote:
+> Hi Greg, Sasha,
 > 
-> To be specific, the case which goes wrong is:
+> First, thank you for your great job maintaining the stable versions!
 > 
-> 1. Zen1 (or earlier) and Zen2 (or later) in a migration pool
-> 2. Linux boots on Zen2, probes and finds the absence of X86_BUG_NULL_SEL
-> 3. Linux is then migrated to Zen1
+> In our work related to MPTCP, we were wondering if we should/can add the
+> "Fixes" tag for trivial/stable fixes.
 > 
-> Linux is now running on a X86_BUG_NULL_SEL-impacted CPU while believing
-> that the bug is fixed.
+> It is certainly easier to explain that with an example: we have a small
+> patch [1] to stop exposing a function that is only used from one .c file
+> and declared there too. So the signature is removed from the .h file and
+> the 'static' keyword is added in the .c file. It should have been like
+> that since the introduction of this function.
 > 
-> The only way to address the problem is to fully trust the "no longer
-> affected" CPUID bit when virtualised, because in the above case it would
-> be clear deliberately to indicate the fact "you might migrate to
-> somewhere which has this behaviour".
+> We don't know if we can/should add the "Fixes" tag for such cases: the
+> "mistake" has been introduced by one specific commit so we could add the
+> "Fixes" tag but we also know patches with such tags are certainly going
+> to be automatically backported. The patch is not really fixing a bug,
+> more a "cleaning". Does it make sense to backport these patches then?
 > 
-> Zen3 adds the NullSelectorClearsBase bit to indicate that loading
-> a NULL segment selector zeroes the base and limit fields, as well as
-> just attributes. Zen2 also has this behaviour but doesn't have the
-> NSCB bit.
+> On one hand, we might think it would be interesting to backport it to
+> reduce the differences with the last version: if the idea is to backport
+> simple fixes to ease future and maybe more complex backports later. But
+> on the other hand, it is more work for you to backport it: if the idea
+> is to backport only actual bug-fix patches. So what is the preferred policy?
 > 
-> Signed-off-by: Jane Malalane <jane.malalane@citrix.com>
-> ---
-> CC: <x86@kernel.org>
-> CC: Thomas Gleixner <tglx@linutronix.de>
-> CC: Ingo Molnar <mingo@redhat.com>
-> CC: Borislav Petkov <bp@alien8.de>
-> CC: "H. Peter Anvin" <hpa@zytor.com>
-> CC: Pu Wen <puwen@hygon.cn>
-> CC: Paolo Bonzini <pbonzini@redhat.com>
-> CC: Sean Christopherson <seanjc@google.com>
-> CC: Peter Zijlstra <peterz@infradead.org>
-> CC: Andrew Cooper <andrew.cooper3@citrix.com>
-> CC: Yazen Ghannam <Yazen.Ghannam@amd.com>
-> CC: Brijesh Singh <brijesh.singh@amd.com>
-> CC: Huang Rui <ray.huang@amd.com>
-> CC: Andy Lutomirski <luto@kernel.org>
-> CC: Kim Phillips <kim.phillips@amd.com>
-> CC: <stable@vger.kernel.org>
+> We didn't find anything in the doc on "when not to add the 'Fixes' tag"
+> but we know the Stable Kernel Rules doc mentions to avoid trivial fixes.
+> Maybe this patch is not "trivial", it is not really a bug-fix either but
+> that's not the real question here, more: does this rule -- and other
+> ones from Stable Kernel doc -- apply to the "Fixes" tag as well?
 
-These need to go above the --- line, otherwise they are cut off when
-the patch is applied and you will loose the cc: stable@ tag.
+Please use the Fixes: tag whenever you want to.  Having it there does
+NOT mean the patch is automatically backported to stable releases, we
+look at them all and choose if they are valid or not.
+
+There are lots of tiny "Fixes:" commits that we do not backport for
+obvious reasons that they do not fit the stable kernel requirements.
+
+If you know a patch should be backported to a stable tree, then put the
+ cc: stable on it, as documented.  Again, "Fixes:" is no guarantee that
+a commit will be backported at all.
 
 thanks,
 
