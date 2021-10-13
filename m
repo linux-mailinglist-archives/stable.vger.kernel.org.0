@@ -2,178 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04A4442C31C
-	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 16:27:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F9042C3E6
+	for <lists+stable@lfdr.de>; Wed, 13 Oct 2021 16:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235581AbhJMO3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Oct 2021 10:29:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49340 "EHLO
+        id S230385AbhJMOuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Oct 2021 10:50:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234081AbhJMO3y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 10:29:54 -0400
-Received: from mail-ua1-x92c.google.com (mail-ua1-x92c.google.com [IPv6:2607:f8b0:4864:20::92c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E93D6C061570
-        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 07:27:50 -0700 (PDT)
-Received: by mail-ua1-x92c.google.com with SMTP id j8so4829983uak.9
-        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 07:27:50 -0700 (PDT)
+        with ESMTP id S237434AbhJMOuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 10:50:04 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AA7AC061570
+        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 07:48:01 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id w19so11508429edd.2
+        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 07:48:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=vanguardiasur-com-ar.20210112.gappssmtp.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Bj1qNEG+5FP9GKXBmM4kufW+uVF44PKuB8CVz9DjaKc=;
-        b=gRlcFYjDdxION0Qyby/akwGm75WSXINStyTQHZZuBBF2RIGoipgwpbONDCZzUuhSr+
-         1CtJI5NfddIfHkuRkTJ3QSLnJFns92TUxaOOXLQRCrS8PCV/mAopiiz1ktRZN4hiMhHL
-         ONOGYv4jqBzR9hcQiavr5d1cIRmjA/7PfIKjm84KYRf8FgXSwuuGS/J/UNfs9bbDoeI1
-         9c5cEUkU+uYHFms0MChAkU9AMdC8bbSkYsLM30Empx/KBSV9vdpQSDGxK9mI8n0YeSfB
-         gqi7v/FIqH0F3J7NkhSw2VpGE2QAAVTPg41ty5iHRUfQbYMqFzQeM6LXfO3d/zjG7mK8
-         getA==
+        d=tessares-net.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:content-language:to:cc:from
+         :subject:content-transfer-encoding;
+        bh=gLJgOZ4E1/bA7d+Zfd9nN0Vl6oH0H/24y3NricMLcy0=;
+        b=pve+zA9q/BhMS0Fj5CKjy40eEe5/T96FHxIv52IkILImUHU9CPpFWpBXHGdRQyqXOb
+         m0f4X7mmMWAAhasyWWUZG+KnDfpiCWeYiwJW+564xFyKB0yIOEDCObb4gCLCxmaO6ZHI
+         tOqp3NQPHVQb+xeInuZkq3izlonLhIB3TUfo1vVsU36No0APL+M/AXJeBV4xrJl7b0YE
+         tdEiVtjGWwC1g3jsvpgp71q62DqMMmzJikXDENGYhm14I9vRGfrvfSGj/2X0jm5BOM/Z
+         rrLYxEbhxKUNIKuBAmhVuhp4ivFOsjY69IT8vFgwNWMrskof+9cbyPMSbWr5WMlbJC8/
+         Gpnw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Bj1qNEG+5FP9GKXBmM4kufW+uVF44PKuB8CVz9DjaKc=;
-        b=3TCcV0Nm5fp3QrPpoJrhJbIFYTeNu0Ah85stO8Z+xsWUolS1+31MNWwW5oDMxekVy0
-         Q73P01slz5KGC5PJoCjHCQJh2IMwYcltyxioj/J5wus+AWTW1ifLCcS0J0yeNuZ4I8Kt
-         55gT2vZrUOKenqRPxPN0GiAKOiCv8PV3maGJ1Xr8vWss+AkZq9CJJt8hlUdlgWq86XRr
-         zCKT89pt9GU00WuVTSPLi3haof4CJuFf8hW6YhrKDxPJKdR9QTLXWKsRFrbnFxfoyLzm
-         xv3pfugDZjpel6D54OlMSXoVGWfEA6zxtXIG1E4lBbJDBJ1Jd8YpEJ1lSmR6OtbBl3gZ
-         xqlQ==
-X-Gm-Message-State: AOAM533NgA9HLi4wYCLk0wTOZ0Hg1bpHI0jEOa9n0R+QKaJ+6gT2KaDa
-        jIVsJt0Wq9n/FjpfoJ5BFof4IdENJIEJPw==
-X-Google-Smtp-Source: ABdhPJyeFIGcjygyszMEknoRPsLumSj93t/Zso1VLa1Hm6InMKEqO7C3740GLJxdppAFCA5swk/HJg==
-X-Received: by 2002:ab0:7a50:: with SMTP id a16mr29932206uat.92.1634135270072;
-        Wed, 13 Oct 2021 07:27:50 -0700 (PDT)
-Received: from fedora ([196.32.91.248])
-        by smtp.gmail.com with ESMTPSA id j11sm5825138uaa.6.2021.10.13.07.27.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Oct 2021 07:27:49 -0700 (PDT)
-Date:   Wed, 13 Oct 2021 11:27:44 -0300
-From:   Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-To:     Chen-Yu Tsai <wenst@chromium.org>
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, linux-rockchip@lists.infradead.org,
-        linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] media: rkvdec: Support dynamic resolution changes
-Message-ID: <YWbs4Ng/mDQpIoiK@fedora>
-References: <20211008100423.739462-1-wenst@chromium.org>
- <20211008100423.739462-3-wenst@chromium.org>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:from:subject:content-transfer-encoding;
+        bh=gLJgOZ4E1/bA7d+Zfd9nN0Vl6oH0H/24y3NricMLcy0=;
+        b=hvSn5OyGcdlkuH+rhWgV3NIVtYFqHMCXttGQxw3VMiJU/IwwPgyaGkKZ7nUq2X4f6N
+         b8x0H/fpTcj86idpItn/3Qe1arn+pN8eabIA+TMhZw8d9xZX+ckgA1AlWgRvyefcSwED
+         vFwoGPcEHkMcQ7tU7AmFc/2/m2LeLzAQZad06Fp2v31Q8phBqZXso0I3MnNwei9GIiOB
+         ssr9I1eBId5x6QYSeoR5bn6o2CPH54UF6/UcKeGKt5w3dXti0psXsFUTbyiNESM/CrgS
+         DdtgilMbHzdNpKv3nNXwLAAio7vj9mL5mhlgmBUVAFTzNh4weoqpC2ScsOu6rzif7XBF
+         htTQ==
+X-Gm-Message-State: AOAM530ssUIcrUrJU2scWUyaoJoVsKIZoPmuDTHcvDYmeKnj4PC7FTx2
+        I5Rkv5tiIs11vCgcGYbzoKfGsjvEEmzzZw==
+X-Google-Smtp-Source: ABdhPJxhuXvTd2IMPpVTPzqXwlZCrEwDxCufL7PcN3oMhFxTeKfwOkXdGsuHwWN6hr/L40nhN+3L9Q==
+X-Received: by 2002:a05:6402:3554:: with SMTP id f20mr10486500edd.210.1634136476771;
+        Wed, 13 Oct 2021 07:47:56 -0700 (PDT)
+Received: from [192.168.178.46] ([213.211.156.121])
+        by smtp.gmail.com with ESMTPSA id j22sm6829326ejt.11.2021.10.13.07.47.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 13 Oct 2021 07:47:56 -0700 (PDT)
+Message-ID: <19ffe0d6-f957-135c-cbae-14a0a46f3183@tessares.net>
+Date:   Wed, 13 Oct 2021 16:47:55 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211008100423.739462-3-wenst@chromium.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.2
+Content-Language: en-GB
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable <stable@vger.kernel.org>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>
+From:   Matthieu Baerts <matthieu.baerts@tessares.net>
+Subject: Use of "Fixes" tag for trivial fixes
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Chen-Yu,
+Hi Greg, Sasha,
 
-On Fri, Oct 08, 2021 at 06:04:23PM +0800, Chen-Yu Tsai wrote:
-> The mem-to-mem stateless decoder API specifies support for dynamic
-> resolution changes. In particular, the decoder should accept format
-> changes on the OUTPUT queue even when buffers have been allocated,
-> as long as it is not streaming.
-> 
-> Relax restrictions for S_FMT as described in the previous paragraph,
-> and as long as the codec format remains the same. This aligns it with
-> the Hantro and Cedrus decoders. This change was mostly based on commit
-> ae02d49493b5 ("media: hantro: Fix s_fmt for dynamic resolution changes").
-> 
-> Since rkvdec_s_fmt() is now just a wrapper around the output/capture
-> variants without any additional shared functionality, drop the wrapper
-> and call the respective functions directly.
-> 
-> Fixes: cd33c830448b ("media: rkvdec: Add the rkvdec driver")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+First, thank you for your great job maintaining the stable versions!
 
-Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+In our work related to MPTCP, we were wondering if we should/can add the
+"Fixes" tag for trivial/stable fixes.
 
-Seems we forgot to port Hantro changes over here, so thanks a lot
-for picking this up.
+It is certainly easier to explain that with an example: we have a small
+patch [1] to stop exposing a function that is only used from one .c file
+and declared there too. So the signature is removed from the .h file and
+the 'static' keyword is added in the .c file. It should have been like
+that since the introduction of this function.
 
-Ezequiel
+We don't know if we can/should add the "Fixes" tag for such cases: the
+"mistake" has been introduced by one specific commit so we could add the
+"Fixes" tag but we also know patches with such tags are certainly going
+to be automatically backported. The patch is not really fixing a bug,
+more a "cleaning". Does it make sense to backport these patches then?
 
-> ---
->  drivers/staging/media/rkvdec/rkvdec.c | 40 +++++++++++++--------------
->  1 file changed, 20 insertions(+), 20 deletions(-)
-> 
-> diff --git a/drivers/staging/media/rkvdec/rkvdec.c b/drivers/staging/media/rkvdec/rkvdec.c
-> index 7131156c1f2c..3f3f96488d74 100644
-> --- a/drivers/staging/media/rkvdec/rkvdec.c
-> +++ b/drivers/staging/media/rkvdec/rkvdec.c
-> @@ -280,31 +280,20 @@ static int rkvdec_try_output_fmt(struct file *file, void *priv,
->  	return 0;
->  }
->  
-> -static int rkvdec_s_fmt(struct file *file, void *priv,
-> -			struct v4l2_format *f,
-> -			int (*try_fmt)(struct file *, void *,
-> -				       struct v4l2_format *))
-> +static int rkvdec_s_capture_fmt(struct file *file, void *priv,
-> +				struct v4l2_format *f)
->  {
->  	struct rkvdec_ctx *ctx = fh_to_rkvdec_ctx(priv);
->  	struct vb2_queue *vq;
-> +	int ret;
->  
-> -	if (!try_fmt)
-> -		return -EINVAL;
-> -
-> -	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
-> +	/* Change not allowed if queue is busy */
-> +	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx,
-> +			     V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
->  	if (vb2_is_busy(vq))
->  		return -EBUSY;
->  
-> -	return try_fmt(file, priv, f);
-> -}
-> -
-> -static int rkvdec_s_capture_fmt(struct file *file, void *priv,
-> -				struct v4l2_format *f)
-> -{
-> -	struct rkvdec_ctx *ctx = fh_to_rkvdec_ctx(priv);
-> -	int ret;
-> -
-> -	ret = rkvdec_s_fmt(file, priv, f, rkvdec_try_capture_fmt);
-> +	ret = rkvdec_try_capture_fmt(file, priv, f);
->  	if (ret)
->  		return ret;
->  
-> @@ -319,9 +308,20 @@ static int rkvdec_s_output_fmt(struct file *file, void *priv,
->  	struct v4l2_m2m_ctx *m2m_ctx = ctx->fh.m2m_ctx;
->  	const struct rkvdec_coded_fmt_desc *desc;
->  	struct v4l2_format *cap_fmt;
-> -	struct vb2_queue *peer_vq;
-> +	struct vb2_queue *peer_vq, *vq;
->  	int ret;
->  
-> +	/*
-> +	 * In order to support dynamic resolution change, the decoder admits
-> +	 * a resolution change, as long as the pixelformat remains. Can't be
-> +	 * done if streaming.
-> +	 */
-> +	vq = v4l2_m2m_get_vq(m2m_ctx, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
-> +	if (vb2_is_streaming(vq) ||
-> +	    (vb2_is_busy(vq) &&
-> +	     f->fmt.pix_mp.pixelformat != ctx->coded_fmt.fmt.pix_mp.pixelformat))
-> +		return -EBUSY;
-> +
->  	/*
->  	 * Since format change on the OUTPUT queue will reset the CAPTURE
->  	 * queue, we can't allow doing so when the CAPTURE queue has buffers
-> @@ -331,7 +331,7 @@ static int rkvdec_s_output_fmt(struct file *file, void *priv,
->  	if (vb2_is_busy(peer_vq))
->  		return -EBUSY;
->  
-> -	ret = rkvdec_s_fmt(file, priv, f, rkvdec_try_output_fmt);
-> +	ret = rkvdec_try_output_fmt(file, priv, f);
->  	if (ret)
->  		return ret;
->  
-> -- 
-> 2.33.0.882.g93a45727a2-goog
-> 
+On one hand, we might think it would be interesting to backport it to
+reduce the differences with the last version: if the idea is to backport
+simple fixes to ease future and maybe more complex backports later. But
+on the other hand, it is more work for you to backport it: if the idea
+is to backport only actual bug-fix patches. So what is the preferred policy?
+
+We didn't find anything in the doc on "when not to add the 'Fixes' tag"
+but we know the Stable Kernel Rules doc mentions to avoid trivial fixes.
+Maybe this patch is not "trivial", it is not really a bug-fix either but
+that's not the real question here, more: does this rule -- and other
+ones from Stable Kernel doc -- apply to the "Fixes" tag as well?
+
+Cheers,
+Matt
+
+[1]
+https://lore.kernel.org/mptcp/d40a139-9f3b-974d-31f-faa28099c527@linux.intel.com/T/
+-- 
+Tessares | Belgium | Hybrid Access Solutions
+www.tessares.net
