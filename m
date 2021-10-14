@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8516442DCA1
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E1C42DC69
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232929AbhJNPAg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:00:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45120 "EHLO mail.kernel.org"
+        id S232198AbhJNO6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:58:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232215AbhJNO7X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:59:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1A6C610F8;
-        Thu, 14 Oct 2021 14:57:17 +0000 (UTC)
+        id S232202AbhJNO6S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:58:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC21C61181;
+        Thu, 14 Oct 2021 14:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223438;
-        bh=ZBEsunikF6AXyM/Lk5a09c6uhtVEajONUB5byFO65vQ=;
+        s=korg; t=1634223373;
+        bh=w3OJtOJwclvrx5CNC2uLUqQBnmUtAI0KcB1fjYtYzxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Op2ZCRw36uM78Rc+N8ylT+IZifZKK1fL90S7EPoe7v0OWMx5rYi/hPWqGv1jjbYvB
-         GU+10YQUFs1QjUZZQ/jn07KdR9Njfxf7F02oia5O7hAd2MCkoXDupKuRyXk8NWuo4O
-         K1kmte0MKxCVF00YVGdcqelJ4p/Ehbg3R2RslHos=
+        b=oPPL4+r1pBw94E9u8hR+jh8IL5iLwqlMgz7sKpmHaV0Ojynxz8YDhEKVE1yaFRqKB
+         aieKLcSHM1HeOXsg0sDszQxE5wqfhMnTVsHLRzQQJVtIkCXPeSYD8Qi3DUrdsf+OTA
+         udYYsO9bOYjGxR4cS3jUizLV5ijMxMwRvtdQMW4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/33] rtnetlink: fix if_nlmsg_stats_size() under estimation
+Subject: [PATCH 4.9 22/25] mac80211: Drop frames from invalid MAC address in ad-hoc mode
 Date:   Thu, 14 Oct 2021 16:53:53 +0200
-Message-Id: <20211014145209.500813653@linuxfoundation.org>
+Message-Id: <20211014145208.289512923@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
-References: <20211014145208.775270267@linuxfoundation.org>
+In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
+References: <20211014145207.575041491@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit d34367991933d28bd7331f67a759be9a8c474014 ]
+[ Upstream commit a6555f844549cd190eb060daef595f94d3de1582 ]
 
-rtnl_fill_statsinfo() is filling skb with one mandatory if_stats_msg structure.
+WARNING: CPU: 1 PID: 9 at net/mac80211/sta_info.c:554
+sta_info_insert_rcu+0x121/0x12a0
+Modules linked in:
+CPU: 1 PID: 9 Comm: kworker/u8:1 Not tainted 5.14.0-rc7+ #253
+Workqueue: phy3 ieee80211_iface_work
+RIP: 0010:sta_info_insert_rcu+0x121/0x12a0
+...
+Call Trace:
+ ieee80211_ibss_finish_sta+0xbc/0x170
+ ieee80211_ibss_work+0x13f/0x7d0
+ ieee80211_iface_work+0x37a/0x500
+ process_one_work+0x357/0x850
+ worker_thread+0x41/0x4d0
 
-nlmsg_put(skb, pid, seq, type, sizeof(struct if_stats_msg), flags);
+If an Ad-Hoc node receives packets with invalid source MAC address,
+it hits a WARN_ON in sta_info_insert_check(), this can spam the log.
 
-But if_nlmsg_stats_size() never considered the needed storage.
-
-This bug did not show up because alloc_skb(X) allocates skb with
-extra tailroom, because of added alignments. This could very well
-be changed in the future to have deterministic behavior.
-
-Fixes: 10c9ead9f3c6 ("rtnetlink: add new RTM_GETSTATS message to dump link stats")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Acked-by: Roopa Prabhu <roopa@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20210827144230.39944-1-yuehaibing@huawei.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/rtnetlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/rx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 3bcaecc7ba69..d7e2cb7ae1fa 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -4053,7 +4053,7 @@ nla_put_failure:
- static size_t if_nlmsg_stats_size(const struct net_device *dev,
- 				  u32 filter_mask)
- {
--	size_t size = 0;
-+	size_t size = NLMSG_ALIGN(sizeof(struct if_stats_msg));
- 
- 	if (stats_attr_valid(filter_mask, IFLA_STATS_LINK_64, 0))
- 		size += nla_total_size_64bit(sizeof(struct rtnl_link_stats64));
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index b40e71a5d795..3dc370ad23bf 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -3692,7 +3692,8 @@ static bool ieee80211_accept_frame(struct ieee80211_rx_data *rx)
+ 		if (!bssid)
+ 			return false;
+ 		if (ether_addr_equal(sdata->vif.addr, hdr->addr2) ||
+-		    ether_addr_equal(sdata->u.ibss.bssid, hdr->addr2))
++		    ether_addr_equal(sdata->u.ibss.bssid, hdr->addr2) ||
++		    !is_valid_ether_addr(hdr->addr2))
+ 			return false;
+ 		if (ieee80211_is_beacon(hdr->frame_control))
+ 			return true;
 -- 
 2.33.0
 
