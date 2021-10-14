@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7405342DD88
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:07:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA7CD42DD79
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:06:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233544AbhJNPIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:08:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52210 "EHLO mail.kernel.org"
+        id S232789AbhJNPHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:07:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233665AbhJNPGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:06:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D457961213;
-        Thu, 14 Oct 2021 15:01:47 +0000 (UTC)
+        id S233344AbhJNPGM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:06:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC2C661251;
+        Thu, 14 Oct 2021 15:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223708;
-        bh=LylHOIffVcIqYdv0d4jIzGgDNgrPeLs5cf1VoCqVESU=;
+        s=korg; t=1634223694;
+        bh=58FXAWuN6B7tdOM0Dsabq1bZUoHaGb8nXGyBOe+AGWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kz28dKemZ9AAZQunjhBrxMu88+HF3NBnFrWS8aYPlfk8R9+r/Syvn/L4kVM/UsT+o
-         IthIG8sXwMPHFW0tQoPFuaExnm6bMj6GKYYdxNk39WhBCgenYEhGhFoJ5O8hKaUCNc
-         tiS7J2Imd7l5gcnQHgWuwdV+Lq7IlxgpXXLfcuvg=
+        b=dbELqPfqrkBH55tzbq5Bm3REexOi9ex8Sk5TWybrb/Jlc0+MU3+iqTWvXbpwXcuvQ
+         TsXxmxJZA07+Z1jEn/1hjXgNI89oEsgRN0mT8fYbALD2v4mQ66DYc762Y3EWov295n
+         MuZ+M5UKwwGa9vVZZDlVch/+PLdsSdLte+vZkDN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 24/30] scsi: ses: Fix unsigned comparison with less than zero
-Date:   Thu, 14 Oct 2021 16:54:29 +0200
-Message-Id: <20211014145210.318837349@linuxfoundation.org>
+Subject: [PATCH 5.14 25/30] scsi: virtio_scsi: Fix spelling mistake "Unsupport" -> "Unsupported"
+Date:   Thu, 14 Oct 2021 16:54:30 +0200
+Message-Id: <20211014145210.349438778@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
 References: <20211014145209.520017940@linuxfoundation.org>
@@ -41,37 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit dd689ed5aa905daf4ba4c99319a52aad6ea0a796 ]
+[ Upstream commit cced4c0ec7c06f5230a2958907a409c849762293 ]
 
-Fix the following coccicheck warning:
+There are a couple of spelling mistakes in pr_info and pr_err messages.
+Fix them.
 
-./drivers/scsi/ses.c:137:10-16: WARNING: Unsigned expression compared
-with zero: result > 0.
-
-Link: https://lore.kernel.org/r/1632477113-90378-1-git-send-email-jiapeng.chong@linux.alibaba.com
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20210924230330.143785-1-colin.king@canonical.com
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ses.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/virtio_scsi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
-index 43e682297fd5..0a1734f34587 100644
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -118,7 +118,7 @@ static int ses_recv_diag(struct scsi_device *sdev, int page_code,
- static int ses_send_diag(struct scsi_device *sdev, int page_code,
- 			 void *buf, int bufflen)
- {
--	u32 result;
-+	int result;
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index b0deaf4af5a3..13f55f41a902 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -300,7 +300,7 @@ static void virtscsi_handle_transport_reset(struct virtio_scsi *vscsi,
+ 		}
+ 		break;
+ 	default:
+-		pr_info("Unsupport virtio scsi event reason %x\n", event->reason);
++		pr_info("Unsupported virtio scsi event reason %x\n", event->reason);
+ 	}
+ }
  
- 	unsigned char cmd[] = {
- 		SEND_DIAGNOSTIC,
+@@ -392,7 +392,7 @@ static void virtscsi_handle_event(struct work_struct *work)
+ 		virtscsi_handle_param_change(vscsi, event);
+ 		break;
+ 	default:
+-		pr_err("Unsupport virtio scsi event %x\n", event->event);
++		pr_err("Unsupported virtio scsi event %x\n", event->event);
+ 	}
+ 	virtscsi_kick_event(vscsi, event_node);
+ }
 -- 
 2.33.0
 
