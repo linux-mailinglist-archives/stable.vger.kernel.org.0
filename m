@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E27BE42DC55
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6611342DC8C
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232067AbhJNO6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:58:22 -0400
+        id S232005AbhJNO75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:59:57 -0400
 Received: from mail.kernel.org ([198.145.29.99]:42680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232323AbhJNO5y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:57:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53D7061183;
-        Thu, 14 Oct 2021 14:55:49 +0000 (UTC)
+        id S232562AbhJNO67 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:58:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15B9660F4A;
+        Thu, 14 Oct 2021 14:56:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223349;
-        bh=sWaWquMstVZ/tf6YcQP+74XX8JCn6l1Yp706SCL3YwQ=;
+        s=korg; t=1634223414;
+        bh=SFHbF9fMm8RbgxadZvNqvrApORzyb/26Zm5ZEtBiPe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0r2bTf0av8kUJ7CAjQ/6lm/rCRw80cndhQsfbrSsgE7MJMrMZc+jS4+cBID8rbQc
-         SBRm6AytpG1w/db+JB7qKhxQ2U7PM08hGXfoJAQHPnq72uG9W0dXwUKKY81GvWs6Sq
-         wWyVkUWs/BBSrF+64mvKfY+vQ5ulMykC9d77e5cs=
+        b=A82AsXqzqFhQ7NzVkN3TSh39gv/qFA8r9WMQ6UBvOMJtY4i1hMhEft/dppp99e8Mn
+         kLfStZW0WbfP6DanWSL5Ks1uzXJcCxT+dYVu6fHswvzY48LMEfCsz1VtKTvN2ip0HR
+         n3Vfh0QkuTnXaP3R1ugbHjx7Tk64LbcpSlHqfvd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 14/25] net: bridge: use nla_total_size_64bit() in br_get_linkxstats_size()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 13/33] phy: mdio: fix memory leak
 Date:   Thu, 14 Oct 2021 16:53:45 +0200
-Message-Id: <20211014145208.027416738@linuxfoundation.org>
+Message-Id: <20211014145209.222914468@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
-References: <20211014145207.575041491@linuxfoundation.org>
+In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
+References: <20211014145208.775270267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit dbe0b88064494b7bb6a9b2aa7e085b14a3112d44 ]
+[ Upstream commit ca6e11c337daf7925ff8a2aac8e84490a8691905 ]
 
-bridge_fill_linkxstats() is using nla_reserve_64bit().
+Syzbot reported memory leak in MDIO bus interface, the problem was in
+wrong state logic.
 
-We must use nla_total_size_64bit() instead of nla_total_size()
-for corresponding data structure.
+MDIOBUS_ALLOCATED indicates 2 states:
+	1. Bus is only allocated
+	2. Bus allocated and __mdiobus_register() fails, but
+	   device_register() was called
 
-Fixes: 1080ab95e3c7 ("net: bridge: add support for IGMP/MLD stats and export them via netlink")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Nikolay Aleksandrov <nikolay@nvidia.com>
-Cc: Vivien Didelot <vivien.didelot@gmail.com>
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In case of device_register() has been called we should call put_device()
+to correctly free the memory allocated for this device, but mdiobus_free()
+calls just kfree(dev) in case of MDIOBUS_ALLOCATED state
+
+To avoid this behaviour we need to set bus->state to MDIOBUS_UNREGISTERED
+_before_ calling device_register(), because put_device() should be
+called even in case of device_register() failure.
+
+Link: https://lore.kernel.org/netdev/YVMRWNDZDUOvQjHL@shell.armlinux.org.uk/
+Fixes: 46abc02175b3 ("phylib: give mdio buses a device tree presence")
+Reported-and-tested-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/eceae1429fbf8fa5c73dd2a0d39d525aa905074d.1633024062.git.paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_netlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/mdio_bus.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 4f831225d34f..ca8757090ae3 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1298,7 +1298,7 @@ static size_t br_get_linkxstats_size(const struct net_device *dev, int attr)
- 	}
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index 5fc7b6c1a442..5ef9bbbab3db 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -344,6 +344,13 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
+ 	bus->dev.groups = NULL;
+ 	dev_set_name(&bus->dev, "%s", bus->id);
  
- 	return numvls * nla_total_size(sizeof(struct bridge_vlan_xstats)) +
--	       nla_total_size(sizeof(struct br_mcast_stats)) +
-+	       nla_total_size_64bit(sizeof(struct br_mcast_stats)) +
- 	       nla_total_size(0);
- }
- 
++	/* We need to set state to MDIOBUS_UNREGISTERED to correctly release
++	 * the device in mdiobus_free()
++	 *
++	 * State will be updated later in this function in case of success
++	 */
++	bus->state = MDIOBUS_UNREGISTERED;
++
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
 -- 
 2.33.0
 
