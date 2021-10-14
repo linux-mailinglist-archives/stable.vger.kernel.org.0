@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E08E442DC42
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB7AD42DCAF
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232241AbhJNO5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:57:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42520 "EHLO mail.kernel.org"
+        id S232380AbhJNPA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:00:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232133AbhJNO5c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:57:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19C04610F8;
-        Thu, 14 Oct 2021 14:55:26 +0000 (UTC)
+        id S232287AbhJNO7r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:59:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66176611C7;
+        Thu, 14 Oct 2021 14:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223327;
-        bh=wec54wH+ScmKp6yrjELbXwPR0knqsO4e4s0kdbvtWjM=;
+        s=korg; t=1634223456;
+        bh=aKU+BkwunbYlLzIK2sY1+Y9UdmvTeIh94Oqc4XSaCIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0s4E19BnNl3HQeJHFcpMdcV4NkXHUTo/NOZkO1JlZS6EtXceEFWEqavjaMOVJAwKk
-         jn/qzZyWb4ZLjRO2se7aemDILJkBB1wk/4y00sAGrmpZeNXZ1fQeMXLDfRLEOIBeYG
-         JH63ZdV8hUYsTEsKi4Vxz8LlBJyBYz43nbDa5rZg=
+        b=Oi+utLVMlKeSujgXUOvRwDXE4nzgAQVqwcD/ZFOSb/lVnbRgNUP+AiXdArJGZtTo/
+         r6MbDYWl1ZL1K31EF2tzPg5SIdSelp/n4BWTkeZJjDI1wxH2bz62Bnx9voFCe20uYL
+         bcnQX/34tj1rjhB56DoO9OB7WwuogOS/pPyl7ySQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 09/18] netlink: annotate data races around nlk->bound
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 09/33] bpf: add also cbpf long jump test cases with heavy expansion
 Date:   Thu, 14 Oct 2021 16:53:41 +0200
-Message-Id: <20211014145206.614238739@linuxfoundation.org>
+Message-Id: <20211014145209.087095680@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145206.330102860@linuxfoundation.org>
-References: <20211014145206.330102860@linuxfoundation.org>
+In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
+References: <20211014145208.775270267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,111 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 7707a4d01a648e4c655101a469c956cb11273655 ]
+commit be08815c5d3b25e53cd9b53a4d768d5f3d93ba25 upstream.
 
-While existing code is correct, KCSAN is reporting
-a data-race in netlink_insert / netlink_sendmsg [1]
+We have one triggering on eBPF but lets also add a cBPF example to
+make sure we keep tracking them. Also add anther cBPF test running
+max number of MSH ops.
 
-It is correct to read nlk->bound without a lock, as netlink_autobind()
-will acquire all needed locks.
-
-[1]
-BUG: KCSAN: data-race in netlink_insert / netlink_sendmsg
-
-write to 0xffff8881031c8b30 of 1 bytes by task 18752 on cpu 0:
- netlink_insert+0x5cc/0x7f0 net/netlink/af_netlink.c:597
- netlink_autobind+0xa9/0x150 net/netlink/af_netlink.c:842
- netlink_sendmsg+0x479/0x7c0 net/netlink/af_netlink.c:1892
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
- ___sys_sendmsg net/socket.c:2446 [inline]
- __sys_sendmsg+0x1ed/0x270 net/socket.c:2475
- __do_sys_sendmsg net/socket.c:2484 [inline]
- __se_sys_sendmsg net/socket.c:2482 [inline]
- __x64_sys_sendmsg+0x42/0x50 net/socket.c:2482
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffff8881031c8b30 of 1 bytes by task 18751 on cpu 1:
- netlink_sendmsg+0x270/0x7c0 net/netlink/af_netlink.c:1891
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- __sys_sendto+0x2a8/0x370 net/socket.c:2019
- __do_sys_sendto net/socket.c:2031 [inline]
- __se_sys_sendto net/socket.c:2027 [inline]
- __x64_sys_sendto+0x74/0x90 net/socket.c:2027
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x00 -> 0x01
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 18751 Comm: syz-executor.0 Not tainted 5.14.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: da314c9923fe ("netlink: Replace rhash_portid with bound")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlink/af_netlink.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ lib/test_bpf.c |   63 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 63 insertions(+)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 260cba93a2cf..65cf129eaad3 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -574,7 +574,10 @@ static int netlink_insert(struct sock *sk, u32 portid)
+--- a/lib/test_bpf.c
++++ b/lib/test_bpf.c
+@@ -355,6 +355,52 @@ static int bpf_fill_maxinsns11(struct bp
+ 	return __bpf_fill_ja(self, BPF_MAXINSNS, 68);
+ }
  
- 	/* We need to ensure that the socket is hashed and visible. */
- 	smp_wmb();
--	nlk_sk(sk)->bound = portid;
-+	/* Paired with lockless reads from netlink_bind(),
-+	 * netlink_connect() and netlink_sendmsg().
-+	 */
-+	WRITE_ONCE(nlk_sk(sk)->bound, portid);
- 
- err:
- 	release_sock(sk);
-@@ -993,7 +996,8 @@ static int netlink_bind(struct socket *sock, struct sockaddr *addr,
- 	else if (nlk->ngroups < 8*sizeof(groups))
- 		groups &= (1UL << nlk->ngroups) - 1;
- 
--	bound = nlk->bound;
-+	/* Paired with WRITE_ONCE() in netlink_insert() */
-+	bound = READ_ONCE(nlk->bound);
- 	if (bound) {
- 		/* Ensure nlk->portid is up-to-date. */
- 		smp_rmb();
-@@ -1073,8 +1077,9 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
- 
- 	/* No need for barriers here as we return to user-space without
- 	 * using any of the bound attributes.
-+	 * Paired with WRITE_ONCE() in netlink_insert().
- 	 */
--	if (!nlk->bound)
-+	if (!READ_ONCE(nlk->bound))
- 		err = netlink_autobind(sock);
- 
- 	if (err == 0) {
-@@ -1821,7 +1826,8 @@ static int netlink_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 		dst_group = nlk->dst_group;
- 	}
- 
--	if (!nlk->bound) {
-+	/* Paired with WRITE_ONCE() in netlink_insert() */
-+	if (!READ_ONCE(nlk->bound)) {
- 		err = netlink_autobind(sock);
- 		if (err)
- 			goto out;
--- 
-2.33.0
-
++static int bpf_fill_maxinsns12(struct bpf_test *self)
++{
++	unsigned int len = BPF_MAXINSNS;
++	struct sock_filter *insn;
++	int i = 0;
++
++	insn = kmalloc_array(len, sizeof(*insn), GFP_KERNEL);
++	if (!insn)
++		return -ENOMEM;
++
++	insn[0] = __BPF_JUMP(BPF_JMP | BPF_JA, len - 2, 0, 0);
++
++	for (i = 1; i < len - 1; i++)
++		insn[i] = __BPF_STMT(BPF_LDX | BPF_B | BPF_MSH, 0);
++
++	insn[len - 1] = __BPF_STMT(BPF_RET | BPF_K, 0xabababab);
++
++	self->u.ptr.insns = insn;
++	self->u.ptr.len = len;
++
++	return 0;
++}
++
++static int bpf_fill_maxinsns13(struct bpf_test *self)
++{
++	unsigned int len = BPF_MAXINSNS;
++	struct sock_filter *insn;
++	int i = 0;
++
++	insn = kmalloc_array(len, sizeof(*insn), GFP_KERNEL);
++	if (!insn)
++		return -ENOMEM;
++
++	for (i = 0; i < len - 3; i++)
++		insn[i] = __BPF_STMT(BPF_LDX | BPF_B | BPF_MSH, 0);
++
++	insn[len - 3] = __BPF_STMT(BPF_LD | BPF_IMM, 0xabababab);
++	insn[len - 2] = __BPF_STMT(BPF_ALU | BPF_XOR | BPF_X, 0);
++	insn[len - 1] = __BPF_STMT(BPF_RET | BPF_A, 0);
++
++	self->u.ptr.insns = insn;
++	self->u.ptr.len = len;
++
++	return 0;
++}
++
+ static int bpf_fill_ja(struct bpf_test *self)
+ {
+ 	/* Hits exactly 11 passes on x86_64 JIT. */
+@@ -5438,6 +5484,23 @@ static struct bpf_test tests[] = {
+ 		.expected_errcode = -ENOTSUPP,
+ 	},
+ 	{
++		"BPF_MAXINSNS: jump over MSH",
++		{ },
++		CLASSIC | FLAG_EXPECTED_FAIL,
++		{ 0xfa, 0xfb, 0xfc, 0xfd, },
++		{ { 4, 0xabababab } },
++		.fill_helper = bpf_fill_maxinsns12,
++		.expected_errcode = -EINVAL,
++	},
++	{
++		"BPF_MAXINSNS: exec all MSH",
++		{ },
++		CLASSIC,
++		{ 0xfa, 0xfb, 0xfc, 0xfd, },
++		{ { 4, 0xababab83 } },
++		.fill_helper = bpf_fill_maxinsns13,
++	},
++	{
+ 		"BPF_MAXINSNS: ld_abs+get_processor_id",
+ 		{ },
+ 		CLASSIC,
 
 
