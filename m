@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01A7842DD04
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:01:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FF6A42DD3E
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:03:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232918AbhJNPDm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:03:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44512 "EHLO mail.kernel.org"
+        id S233455AbhJNPF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:05:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232539AbhJNPC3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:02:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E208360F4A;
-        Thu, 14 Oct 2021 14:59:27 +0000 (UTC)
+        id S233159AbhJNPDu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:03:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02DD161248;
+        Thu, 14 Oct 2021 15:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223568;
-        bh=sjz3EsXiyS/q/S8wqsoHyIMZJX0QKH5k/SFBL6iZwjU=;
+        s=korg; t=1634223624;
+        bh=PiVetzDaw7T8JIaJsLImaHBIhlQSbWsMHuvXTlQKHe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FMKv7xMA9atIeYqIwy6dGsy7wT+TJH07ROO3LohwZ+4xkkX+uv84V0UAqH4v6kAcb
-         BK+ILxJgLmSzIHrRNPHSsh9ieYE8QM/vP7107hHNTPDqOsquMJhwSFO+NlMvNNFlGF
-         VhW5ocAUtEuG+Z+h+NqGZHsK2RIQxOsXohYg+dLA=
+        b=kWDRKpPUK3c9fRyyzr+I1GIT2l1rx1l9bfr/WUIaJNiVIUQlUkoQoUOk09oyKCkxC
+         7CFRuMnuUHWtXmduiHHygZRA/5FYhOz1FXuvMrw8CXZeUk+owuxZ5ggPQ3TsjOBm53
+         U0VwMUYDcVbqIVfL25NCoX1dpR+l1cpf/vfOhPIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
-        Michael Wang <yun.wang@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Marc Herbert <marc.herbert@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 10/16] net: prevent user from passing illegal stab size
+Subject: [PATCH 5.10 07/22] ASoC: SOF: loader: release_firmware() on load failure to avoid batching
 Date:   Thu, 14 Oct 2021 16:54:13 +0200
-Message-Id: <20211014145207.654613608@linuxfoundation.org>
+Message-Id: <20211014145208.220739779@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.314256898@linuxfoundation.org>
-References: <20211014145207.314256898@linuxfoundation.org>
+In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
+References: <20211014145207.979449962@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 王贇 <yun.wang@linux.alibaba.com>
+From: Marc Herbert <marc.herbert@intel.com>
 
-[ Upstream commit b193e15ac69d56f35e1d8e2b5d16cbd47764d053 ]
+[ Upstream commit 8a8e1813ffc35111fc0b6db49968ceb0e1615ced ]
 
-We observed below report when playing with netlink sock:
+Invoke release_firmware() when the firmware fails to boot in
+sof_probe_continue().
 
-  UBSAN: shift-out-of-bounds in net/sched/sch_api.c:580:10
-  shift exponent 249 is too large for 32-bit type
-  CPU: 0 PID: 685 Comm: a.out Not tainted
-  Call Trace:
-   dump_stack_lvl+0x8d/0xcf
-   ubsan_epilogue+0xa/0x4e
-   __ubsan_handle_shift_out_of_bounds+0x161/0x182
-   __qdisc_calculate_pkt_len+0xf0/0x190
-   __dev_queue_xmit+0x2ed/0x15b0
+The request_firmware() framework must be informed of failures in
+sof_probe_continue() otherwise its internal "batching"
+feature (different from caching) cached the firmware image
+forever. Attempts to correct the file in /lib/firmware/ were then
+silently and confusingly ignored until the next reboot. Unloading the
+drivers did not help because from their disconnected perspective the
+firmware had failed so there was nothing to release.
 
-it seems like kernel won't check the stab log value passing from
-user, and will use the insane value later to calculate pkt_len.
+Also leverage the new snd_sof_fw_unload() function to simplify the
+snd_sof_device_remove() function.
 
-This patch just add a check on the size/cell_log to avoid insane
-calculation.
-
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Marc Herbert <marc.herbert@intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20210916085008.28929-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/pkt_sched.h | 1 +
- net/sched/sch_api.c     | 6 ++++++
- 2 files changed, 7 insertions(+)
+ sound/soc/sof/core.c   | 4 +---
+ sound/soc/sof/loader.c | 2 ++
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/pkt_sched.h b/include/net/pkt_sched.h
-index b16f9236de14..d1585b54fb0b 100644
---- a/include/net/pkt_sched.h
-+++ b/include/net/pkt_sched.h
-@@ -11,6 +11,7 @@
- #include <uapi/linux/pkt_sched.h>
+diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+index adc7c37145d6..feced9077dfe 100644
+--- a/sound/soc/sof/core.c
++++ b/sound/soc/sof/core.c
+@@ -354,7 +354,6 @@ int snd_sof_device_remove(struct device *dev)
+ 			dev_warn(dev, "error: %d failed to prepare DSP for device removal",
+ 				 ret);
  
- #define DEFAULT_TX_QUEUE_LEN	1000
-+#define STAB_SIZE_LOG_MAX	30
+-		snd_sof_fw_unload(sdev);
+ 		snd_sof_ipc_free(sdev);
+ 		snd_sof_free_debug(sdev);
+ 		snd_sof_free_trace(sdev);
+@@ -377,8 +376,7 @@ int snd_sof_device_remove(struct device *dev)
+ 		snd_sof_remove(sdev);
  
- struct qdisc_walker {
- 	int	stop;
-diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index 3b1b5ee52137..e70f99033408 100644
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -510,6 +510,12 @@ static struct qdisc_size_table *qdisc_get_stab(struct nlattr *opt,
- 		return stab;
- 	}
+ 	/* release firmware */
+-	release_firmware(pdata->fw);
+-	pdata->fw = NULL;
++	snd_sof_fw_unload(sdev);
  
-+	if (s->size_log > STAB_SIZE_LOG_MAX ||
-+	    s->cell_log > STAB_SIZE_LOG_MAX) {
-+		NL_SET_ERR_MSG(extack, "Invalid logarithmic size of size table");
-+		return ERR_PTR(-EINVAL);
-+	}
-+
- 	stab = kmalloc(sizeof(*stab) + tsize * sizeof(u16), GFP_KERNEL);
- 	if (!stab)
- 		return ERR_PTR(-ENOMEM);
+ 	return 0;
+ }
+diff --git a/sound/soc/sof/loader.c b/sound/soc/sof/loader.c
+index ba9ed66f98bc..2d5c3fc93bc5 100644
+--- a/sound/soc/sof/loader.c
++++ b/sound/soc/sof/loader.c
+@@ -830,5 +830,7 @@ EXPORT_SYMBOL(snd_sof_run_firmware);
+ void snd_sof_fw_unload(struct snd_sof_dev *sdev)
+ {
+ 	/* TODO: support module unloading at runtime */
++	release_firmware(sdev->pdata->fw);
++	sdev->pdata->fw = NULL;
+ }
+ EXPORT_SYMBOL(snd_sof_fw_unload);
 -- 
 2.33.0
 
