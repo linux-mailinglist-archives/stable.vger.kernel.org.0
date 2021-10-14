@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 081EB42DD52
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:04:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F1D042DD16
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233847AbhJNPGN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:06:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51894 "EHLO mail.kernel.org"
+        id S233463AbhJNPES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:04:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233396AbhJNPEf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:04:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08E7761247;
-        Thu, 14 Oct 2021 15:00:47 +0000 (UTC)
+        id S231867AbhJNPC6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:02:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE7ED61212;
+        Thu, 14 Oct 2021 14:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223648;
-        bh=l2PBwFcwTGHSNqGFtASWv7fKzwQj4tZRL3SFrv8yhiA=;
+        s=korg; t=1634223584;
+        bh=tqiKyr37ICcCIa+ia8LLlMSrN+ekonHueUB6OZpEBTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ByvF3jIkjwbdSa+pOhwHe8H6zITCMNO3orm/jP1wVJgooBLf9RdfPA94Rhzr4GaSM
-         40aIJgzUw9jkKU1CW+PbsGJTvBUV2FTWubXtBpsxZemB8IeKtRRNLYjnN9AfQVdrs+
-         4hC9XVNnwuvI0TXbtk04AC4hoH5HMh3sxnty9xAY=
+        b=D/Bt+as4MgsanzFST4pdnp32pHFfZ4zgO1wBecTnp5g3SUx9z1MaVD1k/O+Mrcsrv
+         LMer1/FgCb2EPxsZLRC1dyy7PweG4tJmXF+XC1aJ8lR7Bkd8MEIW/rBPGCCD4s7mU1
+         2SOyLiOFk1k6AtvL06ObMePNtb1dzmI0fjaqtB18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
+        Michael Wang <yun.wang@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 14/30] mac80211: Drop frames from invalid MAC address in ad-hoc mode
+Subject: [PATCH 5.10 13/22] net: prevent user from passing illegal stab size
 Date:   Thu, 14 Oct 2021 16:54:19 +0200
-Message-Id: <20211014145209.994928726@linuxfoundation.org>
+Message-Id: <20211014145208.419020014@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
-References: <20211014145209.520017940@linuxfoundation.org>
+In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
+References: <20211014145207.979449962@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: 王贇 <yun.wang@linux.alibaba.com>
 
-[ Upstream commit a6555f844549cd190eb060daef595f94d3de1582 ]
+[ Upstream commit b193e15ac69d56f35e1d8e2b5d16cbd47764d053 ]
 
-WARNING: CPU: 1 PID: 9 at net/mac80211/sta_info.c:554
-sta_info_insert_rcu+0x121/0x12a0
-Modules linked in:
-CPU: 1 PID: 9 Comm: kworker/u8:1 Not tainted 5.14.0-rc7+ #253
-Workqueue: phy3 ieee80211_iface_work
-RIP: 0010:sta_info_insert_rcu+0x121/0x12a0
-...
-Call Trace:
- ieee80211_ibss_finish_sta+0xbc/0x170
- ieee80211_ibss_work+0x13f/0x7d0
- ieee80211_iface_work+0x37a/0x500
- process_one_work+0x357/0x850
- worker_thread+0x41/0x4d0
+We observed below report when playing with netlink sock:
 
-If an Ad-Hoc node receives packets with invalid source MAC address,
-it hits a WARN_ON in sta_info_insert_check(), this can spam the log.
+  UBSAN: shift-out-of-bounds in net/sched/sch_api.c:580:10
+  shift exponent 249 is too large for 32-bit type
+  CPU: 0 PID: 685 Comm: a.out Not tainted
+  Call Trace:
+   dump_stack_lvl+0x8d/0xcf
+   ubsan_epilogue+0xa/0x4e
+   __ubsan_handle_shift_out_of_bounds+0x161/0x182
+   __qdisc_calculate_pkt_len+0xf0/0x190
+   __dev_queue_xmit+0x2ed/0x15b0
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20210827144230.39944-1-yuehaibing@huawei.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+it seems like kernel won't check the stab log value passing from
+user, and will use the insane value later to calculate pkt_len.
+
+This patch just add a check on the size/cell_log to avoid insane
+calculation.
+
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/pkt_sched.h | 1 +
+ net/sched/sch_api.c     | 6 ++++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 2563473b5cf1..e023e307c0c3 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -4053,7 +4053,8 @@ static bool ieee80211_accept_frame(struct ieee80211_rx_data *rx)
- 		if (!bssid)
- 			return false;
- 		if (ether_addr_equal(sdata->vif.addr, hdr->addr2) ||
--		    ether_addr_equal(sdata->u.ibss.bssid, hdr->addr2))
-+		    ether_addr_equal(sdata->u.ibss.bssid, hdr->addr2) ||
-+		    !is_valid_ether_addr(hdr->addr2))
- 			return false;
- 		if (ieee80211_is_beacon(hdr->frame_control))
- 			return true;
+diff --git a/include/net/pkt_sched.h b/include/net/pkt_sched.h
+index 2be90a54a404..7e58b4470570 100644
+--- a/include/net/pkt_sched.h
++++ b/include/net/pkt_sched.h
+@@ -11,6 +11,7 @@
+ #include <uapi/linux/pkt_sched.h>
+ 
+ #define DEFAULT_TX_QUEUE_LEN	1000
++#define STAB_SIZE_LOG_MAX	30
+ 
+ struct qdisc_walker {
+ 	int	stop;
+diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
+index 54a8c363bcdd..7b24582a8a16 100644
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -513,6 +513,12 @@ static struct qdisc_size_table *qdisc_get_stab(struct nlattr *opt,
+ 		return stab;
+ 	}
+ 
++	if (s->size_log > STAB_SIZE_LOG_MAX ||
++	    s->cell_log > STAB_SIZE_LOG_MAX) {
++		NL_SET_ERR_MSG(extack, "Invalid logarithmic size of size table");
++		return ERR_PTR(-EINVAL);
++	}
++
+ 	stab = kmalloc(sizeof(*stab) + tsize * sizeof(u16), GFP_KERNEL);
+ 	if (!stab)
+ 		return ERR_PTR(-ENOMEM);
 -- 
 2.33.0
 
