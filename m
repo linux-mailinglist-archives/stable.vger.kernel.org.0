@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA7CD42DD79
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:06:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8994C42DD7B
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:06:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232789AbhJNPHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:07:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
+        id S234006AbhJNPHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:07:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233344AbhJNPGM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233356AbhJNPGM (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 14 Oct 2021 11:06:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC2C661251;
-        Thu, 14 Oct 2021 15:01:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AB1060F4A;
+        Thu, 14 Oct 2021 15:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223694;
-        bh=58FXAWuN6B7tdOM0Dsabq1bZUoHaGb8nXGyBOe+AGWc=;
+        s=korg; t=1634223696;
+        bh=GmpvK3u4cwsdmFViBPer5JIwxI2lMlCkQ4YDbYj2vlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dbELqPfqrkBH55tzbq5Bm3REexOi9ex8Sk5TWybrb/Jlc0+MU3+iqTWvXbpwXcuvQ
-         TsXxmxJZA07+Z1jEn/1hjXgNI89oEsgRN0mT8fYbALD2v4mQ66DYc762Y3EWov295n
-         MuZ+M5UKwwGa9vVZZDlVch/+PLdsSdLte+vZkDN8=
+        b=YgUi0oL0ViXgODNqCRWUter81saEm4HBpdaQBN3Kh9dWUud9zV10rI78YBqwaPrVH
+         neH8LlgnbvTGkXQoGIbp/iXW4Qx3zTNbKem8amns0wU9ehkmTjfVstRT6tH1hG8XEh
+         XzmwnrpWBkSZu2JFIINoeMDkvCaNDZM9BJfRaSOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 25/30] scsi: virtio_scsi: Fix spelling mistake "Unsupport" -> "Unsupported"
-Date:   Thu, 14 Oct 2021 16:54:30 +0200
-Message-Id: <20211014145210.349438778@linuxfoundation.org>
+Subject: [PATCH 5.14 26/30] scsi: qla2xxx: Fix excessive messages during device logout
+Date:   Thu, 14 Oct 2021 16:54:31 +0200
+Message-Id: <20211014145210.381941161@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
 References: <20211014145209.520017940@linuxfoundation.org>
@@ -40,43 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit cced4c0ec7c06f5230a2958907a409c849762293 ]
+[ Upstream commit 8e2d81c6b5be0d7629fb50b6f678fc07a4c58fae ]
 
-There are a couple of spelling mistakes in pr_info and pr_err messages.
-Fix them.
+Disable default logging of some I/O path messages. If desired, the messages
+can be turned back on by setting ql2xextended_error_logging.
 
-Link: https://lore.kernel.org/r/20210924230330.143785-1-colin.king@canonical.com
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210925035154.29815-1-njavali@marvell.com
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/virtio_scsi.c | 4 ++--
+ drivers/scsi/qla2xxx/qla_isr.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index b0deaf4af5a3..13f55f41a902 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -300,7 +300,7 @@ static void virtscsi_handle_transport_reset(struct virtio_scsi *vscsi,
- 		}
- 		break;
- 	default:
--		pr_info("Unsupport virtio scsi event reason %x\n", event->reason);
-+		pr_info("Unsupported virtio scsi event reason %x\n", event->reason);
+diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
+index 2aa8f519aae6..5f1092195d1f 100644
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -2399,7 +2399,7 @@ static void qla24xx_nvme_iocb_entry(scsi_qla_host_t *vha, struct req_que *req,
  	}
- }
  
-@@ -392,7 +392,7 @@ static void virtscsi_handle_event(struct work_struct *work)
- 		virtscsi_handle_param_change(vscsi, event);
- 		break;
- 	default:
--		pr_err("Unsupport virtio scsi event %x\n", event->event);
-+		pr_err("Unsupported virtio scsi event %x\n", event->event);
- 	}
- 	virtscsi_kick_event(vscsi, event_node);
- }
+ 	if (unlikely(logit))
+-		ql_log(ql_log_warn, fcport->vha, 0x5060,
++		ql_log(ql_dbg_io, fcport->vha, 0x5060,
+ 		   "NVME-%s ERR Handling - hdl=%x status(%x) tr_len:%x resid=%x  ox_id=%x\n",
+ 		   sp->name, sp->handle, comp_status,
+ 		   fd->transferred_length, le32_to_cpu(sts->residual_len),
+@@ -3246,7 +3246,7 @@ check_scsi_status:
+ 
+ out:
+ 	if (logit)
+-		ql_log(ql_log_warn, fcport->vha, 0x3022,
++		ql_log(ql_dbg_io, fcport->vha, 0x3022,
+ 		       "FCP command status: 0x%x-0x%x (0x%x) nexus=%ld:%d:%llu portid=%02x%02x%02x oxid=0x%x cdb=%10phN len=0x%x rsp_info=0x%x resid=0x%x fw_resid=0x%x sp=%p cp=%p.\n",
+ 		       comp_status, scsi_status, res, vha->host_no,
+ 		       cp->device->id, cp->device->lun, fcport->d_id.b.domain,
 -- 
 2.33.0
 
