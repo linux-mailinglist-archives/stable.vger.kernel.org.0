@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A924F42DD19
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FA6C42DD55
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:04:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233510AbhJNPEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:04:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44032 "EHLO mail.kernel.org"
+        id S233453AbhJNPGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:06:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232773AbhJNPDE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:03:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17EA861214;
-        Thu, 14 Oct 2021 14:59:48 +0000 (UTC)
+        id S233640AbhJNPEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:04:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5031611C3;
+        Thu, 14 Oct 2021 15:00:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223589;
-        bh=QTt2i59o3hcholZQ93IdhnhqzxjeUOjWxaOVPdwi3Rs=;
+        s=korg; t=1634223654;
+        bh=l1ouM9IFscS72gcF1D2B7zTkg2D6aFkF5mQc5EYvjC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEhAuq06PSufTGLGoxo9yAVXz32FsOILIaRhaWocorq/PJEy2sHVIKDJlpcDxUpun
-         y8dYeDZRSYcPovmgKNrtqi6G4HtgI9G6zXli3bbwJDKqv8j4HXdhWCFpfcCNQ9rrpp
-         u9OJbMNKiZ1Wi2exTsj+0mGXzmhG4sI4CHJeA3Go=
+        b=PBOsS8JDc7/E+E1GwUKE68YnoejPGY2QY0AW7705pYR4+JQYmgJV3Iupx3v/YV6tM
+         HriaW3eZhkw6WQ148WmiK/2z++LSQCALCIf445fYOvlGCnlmPEG+FCppvDEv+6iNeq
+         HXxP1tze8jRy0D6CFEnXi8Ovqgm398sm80R3wOXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Michael Schmitz <schmitzmic@gmail.com>,
+        Finn Thain <fthain@linux-m68k.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 15/22] vboxfs: fix broken legacy mount signature checking
+Subject: [PATCH 5.14 16/30] m68k: Handle arrivals of multiple signals correctly
 Date:   Thu, 14 Oct 2021 16:54:21 +0200
-Message-Id: <20211014145208.479447819@linuxfoundation.org>
+Message-Id: <20211014145210.065738167@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
-References: <20211014145207.979449962@linuxfoundation.org>
+In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
+References: <20211014145209.520017940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +42,229 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 9b3b353ef330e20bc2d99bf3165cc044cff26a09 ]
+[ Upstream commit 4bb0bd81ce5e97092dfda6a106d414b703ec0ee8 ]
 
-Commit 9d682ea6bcc7 ("vboxsf: Fix the check for the old binary
-mount-arguments struct") was meant to fix a build error due to sign
-mismatch in 'char' and the use of character constants, but it just moved
-the error elsewhere, in that on some architectures characters and signed
-and on others they are unsigned, and that's just how the C standard
-works.
+When we have several pending signals, have entered with the kernel
+with large exception frame *and* have already built at least one
+sigframe, regs->stkadj is going to be non-zero and regs->format/sr/pc
+are going to be junk - the real values are in shifted exception stack
+frame we'd built when putting together the first sigframe.
 
-The proper fix is a simple "don't do that then".  The code was just
-being silly and odd, and it should never have cared about signed vs
-unsigned characters in the first place, since what it is testing is not
-four "characters", but four bytes.
+If that happens, subsequent sigframes are going to be garbage.
+Not hard to fix - just need to find the "adjusted" frame first
+and look for format/vector/sr/pc in it.
 
-And the way to compare four bytes is by using "memcmp()".
-
-Which compilers will know to just turn into a single 32-bit compare with
-a constant, as long as you don't have crazy debug options enabled.
-
-Link: https://lore.kernel.org/lkml/20210927094123.576521-1-arnd@kernel.org/
-Cc: Arnd Bergmann <arnd@kernel.org>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
+Tested-by: Finn Thain <fthain@linux-m68k.org>
+Link: https://lore.kernel.org/r/YP2dBIAPTaVvHiZ6@zeniv-ca.linux.org.uk
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/vboxsf/super.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ arch/m68k/kernel/signal.c | 88 +++++++++++++++++++--------------------
+ 1 file changed, 42 insertions(+), 46 deletions(-)
 
-diff --git a/fs/vboxsf/super.c b/fs/vboxsf/super.c
-index d7816c01a4f6..c578e772cbd5 100644
---- a/fs/vboxsf/super.c
-+++ b/fs/vboxsf/super.c
-@@ -21,10 +21,7 @@
+diff --git a/arch/m68k/kernel/signal.c b/arch/m68k/kernel/signal.c
+index 8f215e79e70e..cd11eb101eac 100644
+--- a/arch/m68k/kernel/signal.c
++++ b/arch/m68k/kernel/signal.c
+@@ -447,7 +447,7 @@ static inline void save_fpu_state(struct sigcontext *sc, struct pt_regs *regs)
  
- #define VBOXSF_SUPER_MAGIC 0x786f4256 /* 'VBox' little endian */
+ 	if (CPU_IS_060 ? sc->sc_fpstate[2] : sc->sc_fpstate[0]) {
+ 		fpu_version = sc->sc_fpstate[0];
+-		if (CPU_IS_020_OR_030 &&
++		if (CPU_IS_020_OR_030 && !regs->stkadj &&
+ 		    regs->vector >= (VEC_FPBRUC * 4) &&
+ 		    regs->vector <= (VEC_FPNAN * 4)) {
+ 			/* Clear pending exception in 68882 idle frame */
+@@ -510,7 +510,7 @@ static inline int rt_save_fpu_state(struct ucontext __user *uc, struct pt_regs *
+ 		if (!(CPU_IS_060 || CPU_IS_COLDFIRE))
+ 			context_size = fpstate[1];
+ 		fpu_version = fpstate[0];
+-		if (CPU_IS_020_OR_030 &&
++		if (CPU_IS_020_OR_030 && !regs->stkadj &&
+ 		    regs->vector >= (VEC_FPBRUC * 4) &&
+ 		    regs->vector <= (VEC_FPNAN * 4)) {
+ 			/* Clear pending exception in 68882 idle frame */
+@@ -832,18 +832,24 @@ badframe:
+ 	return 0;
+ }
  
--#define VBSF_MOUNT_SIGNATURE_BYTE_0 ('\000')
--#define VBSF_MOUNT_SIGNATURE_BYTE_1 ('\377')
--#define VBSF_MOUNT_SIGNATURE_BYTE_2 ('\376')
--#define VBSF_MOUNT_SIGNATURE_BYTE_3 ('\375')
-+static const unsigned char VBSF_MOUNT_SIGNATURE[4] = "\000\377\376\375";
- 
- static int follow_symlinks;
- module_param(follow_symlinks, int, 0444);
-@@ -386,12 +383,7 @@ fail_nomem:
- 
- static int vboxsf_parse_monolithic(struct fs_context *fc, void *data)
++static inline struct pt_regs *rte_regs(struct pt_regs *regs)
++{
++	return (void *)regs + regs->stkadj;
++}
++
+ static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
+ 			     unsigned long mask)
  {
--	unsigned char *options = data;
--
--	if (options && options[0] == VBSF_MOUNT_SIGNATURE_BYTE_0 &&
--		       options[1] == VBSF_MOUNT_SIGNATURE_BYTE_1 &&
--		       options[2] == VBSF_MOUNT_SIGNATURE_BYTE_2 &&
--		       options[3] == VBSF_MOUNT_SIGNATURE_BYTE_3) {
-+	if (data && !memcmp(data, VBSF_MOUNT_SIGNATURE, 4)) {
- 		vbg_err("vboxsf: Old binary mount data not supported, remove obsolete mount.vboxsf and/or update your VBoxService.\n");
- 		return -EINVAL;
++	struct pt_regs *tregs = rte_regs(regs);
+ 	sc->sc_mask = mask;
+ 	sc->sc_usp = rdusp();
+ 	sc->sc_d0 = regs->d0;
+ 	sc->sc_d1 = regs->d1;
+ 	sc->sc_a0 = regs->a0;
+ 	sc->sc_a1 = regs->a1;
+-	sc->sc_sr = regs->sr;
+-	sc->sc_pc = regs->pc;
+-	sc->sc_formatvec = regs->format << 12 | regs->vector;
++	sc->sc_sr = tregs->sr;
++	sc->sc_pc = tregs->pc;
++	sc->sc_formatvec = tregs->format << 12 | tregs->vector;
+ 	save_a5_state(sc, regs);
+ 	save_fpu_state(sc, regs);
+ }
+@@ -851,6 +857,7 @@ static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
+ static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *regs)
+ {
+ 	struct switch_stack *sw = (struct switch_stack *)regs - 1;
++	struct pt_regs *tregs = rte_regs(regs);
+ 	greg_t __user *gregs = uc->uc_mcontext.gregs;
+ 	int err = 0;
+ 
+@@ -871,9 +878,9 @@ static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *
+ 	err |= __put_user(sw->a5, &gregs[13]);
+ 	err |= __put_user(sw->a6, &gregs[14]);
+ 	err |= __put_user(rdusp(), &gregs[15]);
+-	err |= __put_user(regs->pc, &gregs[16]);
+-	err |= __put_user(regs->sr, &gregs[17]);
+-	err |= __put_user((regs->format << 12) | regs->vector, &uc->uc_formatvec);
++	err |= __put_user(tregs->pc, &gregs[16]);
++	err |= __put_user(tregs->sr, &gregs[17]);
++	err |= __put_user((tregs->format << 12) | tregs->vector, &uc->uc_formatvec);
+ 	err |= rt_save_fpu_state(uc, regs);
+ 	return err;
+ }
+@@ -890,13 +897,14 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 			struct pt_regs *regs)
+ {
+ 	struct sigframe __user *frame;
+-	int fsize = frame_extra_sizes(regs->format);
++	struct pt_regs *tregs = rte_regs(regs);
++	int fsize = frame_extra_sizes(tregs->format);
+ 	struct sigcontext context;
+ 	int err = 0, sig = ksig->sig;
+ 
+ 	if (fsize < 0) {
+ 		pr_debug("setup_frame: Unknown frame format %#x\n",
+-			 regs->format);
++			 tregs->format);
+ 		return -EFAULT;
  	}
+ 
+@@ -907,7 +915,7 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	err |= __put_user(sig, &frame->sig);
+ 
+-	err |= __put_user(regs->vector, &frame->code);
++	err |= __put_user(tregs->vector, &frame->code);
+ 	err |= __put_user(&frame->sc, &frame->psc);
+ 
+ 	if (_NSIG_WORDS > 1)
+@@ -933,34 +941,28 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	push_cache ((unsigned long) &frame->retcode);
+ 
+-	/*
+-	 * Set up registers for signal handler.  All the state we are about
+-	 * to destroy is successfully copied to sigframe.
+-	 */
+-	wrusp ((unsigned long) frame);
+-	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
+-	adjustformat(regs);
+-
+ 	/*
+ 	 * This is subtle; if we build more than one sigframe, all but the
+ 	 * first one will see frame format 0 and have fsize == 0, so we won't
+ 	 * screw stkadj.
+ 	 */
+-	if (fsize)
++	if (fsize) {
+ 		regs->stkadj = fsize;
+-
+-	/* Prepare to skip over the extra stuff in the exception frame.  */
+-	if (regs->stkadj) {
+-		struct pt_regs *tregs =
+-			(struct pt_regs *)((ulong)regs + regs->stkadj);
++		tregs = rte_regs(regs);
+ 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
+-		/* This must be copied with decreasing addresses to
+-                   handle overlaps.  */
+ 		tregs->vector = 0;
+ 		tregs->format = 0;
+-		tregs->pc = regs->pc;
+ 		tregs->sr = regs->sr;
+ 	}
++
++	/*
++	 * Set up registers for signal handler.  All the state we are about
++	 * to destroy is successfully copied to sigframe.
++	 */
++	wrusp ((unsigned long) frame);
++	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
++	adjustformat(regs);
++
+ 	return 0;
+ }
+ 
+@@ -968,7 +970,8 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
+ 			   struct pt_regs *regs)
+ {
+ 	struct rt_sigframe __user *frame;
+-	int fsize = frame_extra_sizes(regs->format);
++	struct pt_regs *tregs = rte_regs(regs);
++	int fsize = frame_extra_sizes(tregs->format);
+ 	int err = 0, sig = ksig->sig;
+ 
+ 	if (fsize < 0) {
+@@ -1018,34 +1021,27 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	push_cache ((unsigned long) &frame->retcode);
+ 
+-	/*
+-	 * Set up registers for signal handler.  All the state we are about
+-	 * to destroy is successfully copied to sigframe.
+-	 */
+-	wrusp ((unsigned long) frame);
+-	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
+-	adjustformat(regs);
+-
+ 	/*
+ 	 * This is subtle; if we build more than one sigframe, all but the
+ 	 * first one will see frame format 0 and have fsize == 0, so we won't
+ 	 * screw stkadj.
+ 	 */
+-	if (fsize)
++	if (fsize) {
+ 		regs->stkadj = fsize;
+-
+-	/* Prepare to skip over the extra stuff in the exception frame.  */
+-	if (regs->stkadj) {
+-		struct pt_regs *tregs =
+-			(struct pt_regs *)((ulong)regs + regs->stkadj);
++		tregs = rte_regs(regs);
+ 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
+-		/* This must be copied with decreasing addresses to
+-                   handle overlaps.  */
+ 		tregs->vector = 0;
+ 		tregs->format = 0;
+-		tregs->pc = regs->pc;
+ 		tregs->sr = regs->sr;
+ 	}
++
++	/*
++	 * Set up registers for signal handler.  All the state we are about
++	 * to destroy is successfully copied to sigframe.
++	 */
++	wrusp ((unsigned long) frame);
++	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
++	adjustformat(regs);
+ 	return 0;
+ }
+ 
 -- 
 2.33.0
 
