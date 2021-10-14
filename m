@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D0BF42DD1B
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C89042DD58
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:04:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233314AbhJNPEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:04:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45066 "EHLO mail.kernel.org"
+        id S233670AbhJNPGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:06:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233133AbhJNPDE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:03:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7479611CA;
-        Thu, 14 Oct 2021 14:59:51 +0000 (UTC)
+        id S233499AbhJNPEu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:04:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D633611C7;
+        Thu, 14 Oct 2021 15:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223592;
-        bh=vg+ilq+FkshFxvO6+fl5t/WS0G+CDNmxrnjPYa4IC0c=;
+        s=korg; t=1634223656;
+        bh=gfSSvYoKamvAQoaTJ4v7jnSD7dGLcrlIf0jNkDZz3qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=legOIdOkWC2bgmV+90FpNMLs+M6A80dab6cpv87gb1/P6rSG6sAkI5ARRxG20ZraY
-         7Vs01ern1VP5IzNo68htMEzbZc83EVeNmklOgTODg6k0DD/B2p1Gms4UVicaf5Kbs/
-         apztZAb7mBUQC+rGgxPc9BCESuMkm2KVWIYMhH/M=
+        b=PY+y6cvDEhqGpqpXSjonfn/0EwMHNUvX6svDFTSnnGAZpqIUBqdxGEpbDSsd7Yzc4
+         w66g7vg7uJ8Rnjq+0PGGNF8TRR/NLxRs+Xn6f+oD9T0FnoN2bhqGF8QXFBKjcanPDB
+         Mn5n6G4bKs3W0F5phdX+8iOxCr3DJ7W0zwis8qqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Aaron Young <aaron.young@oracle.com>,
-        Rashmi Narasimhan <rashmi.narasimhan@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 16/22] net: sun: SUNVNET_COMMON should depend on INET
+Subject: [PATCH 5.14 17/30] hwmon: (ltc2947) Properly handle errors when looking for the external clock
 Date:   Thu, 14 Oct 2021 16:54:22 +0200
-Message-Id: <20211014145208.508807439@linuxfoundation.org>
+Message-Id: <20211014145210.095947094@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
-References: <20211014145207.979449962@linuxfoundation.org>
+In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
+References: <20211014145209.520017940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 103bde372f084206c6972be543ecc247ebbff9f3 ]
+[ Upstream commit 6f7d70467121f790b36af2d84bc02b5c236bf5e6 ]
 
-When CONFIG_INET is not set, there are failing references to IPv4
-functions, so make this driver depend on INET.
+The return value of devm_clk_get should in general be propagated to
+upper layer. In this case the clk is optional, use the appropriate
+wrapper instead of interpreting all errors as "The optional clk is not
+available".
 
-Fixes these build errors:
-
-sparc64-linux-ld: drivers/net/ethernet/sun/sunvnet_common.o: in function `sunvnet_start_xmit_common':
-sunvnet_common.c:(.text+0x1a68): undefined reference to `__icmp_send'
-sparc64-linux-ld: drivers/net/ethernet/sun/sunvnet_common.o: in function `sunvnet_poll_common':
-sunvnet_common.c:(.text+0x358c): undefined reference to `ip_send_check'
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Aaron Young <aaron.young@oracle.com>
-Cc: Rashmi Narasimhan <rashmi.narasimhan@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20210923201113.398932-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sun/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwmon/ltc2947-core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/sun/Kconfig b/drivers/net/ethernet/sun/Kconfig
-index 309de38a7530..b0d3f9a2950c 100644
---- a/drivers/net/ethernet/sun/Kconfig
-+++ b/drivers/net/ethernet/sun/Kconfig
-@@ -73,6 +73,7 @@ config CASSINI
- config SUNVNET_COMMON
- 	tristate "Common routines to support Sun Virtual Networking"
- 	depends on SUN_LDOMS
-+	depends on INET
- 	default m
+diff --git a/drivers/hwmon/ltc2947-core.c b/drivers/hwmon/ltc2947-core.c
+index bb3f7749a0b0..5423466de697 100644
+--- a/drivers/hwmon/ltc2947-core.c
++++ b/drivers/hwmon/ltc2947-core.c
+@@ -989,8 +989,12 @@ static int ltc2947_setup(struct ltc2947_data *st)
+ 		return ret;
  
- config SUNVNET
+ 	/* check external clock presence */
+-	extclk = devm_clk_get(st->dev, NULL);
+-	if (!IS_ERR(extclk)) {
++	extclk = devm_clk_get_optional(st->dev, NULL);
++	if (IS_ERR(extclk))
++		return dev_err_probe(st->dev, PTR_ERR(extclk),
++				     "Failed to get external clock\n");
++
++	if (extclk) {
+ 		unsigned long rate_hz;
+ 		u8 pre = 0, div, tbctl;
+ 		u64 aux;
 -- 
 2.33.0
 
