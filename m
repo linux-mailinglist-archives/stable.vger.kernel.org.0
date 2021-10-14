@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC19642DC5E
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D92142DC87
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232394AbhJNO6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:58:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42978 "EHLO mail.kernel.org"
+        id S232210AbhJNO7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:59:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231395AbhJNO5t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:57:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 957AF61163;
-        Thu, 14 Oct 2021 14:55:44 +0000 (UTC)
+        id S230481AbhJNO6y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:58:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0A6061163;
+        Thu, 14 Oct 2021 14:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223345;
-        bh=dRdybtfe6b83/6HE3ZL6p1D7IoSIw4cKYitXdvn9aR0=;
+        s=korg; t=1634223409;
+        bh=SiFFivbrLS6TPHbqQY7Q4cZrOBL4xDg9L9VSEBmFr6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9zX6fjbIpXzA4DCsKfqikdR8zNh7/QmfoHGdmzxe2ZzGEzRJAVPh1up71+yE+OIA
-         2DO8jmsYhCe8GQB27nKrZhcvUhAcnfRAFPAoWXMuo5OWncN5hq6wm3QtC8FLyEkLZD
-         hu9wT4/sPyP1lpHkKQ787qs+k7xD0mqMUUh3Yc3w=
+        b=aU9SzIvXePeNz/ocQZdpUDfJu0LLfwc1euMv8e+nmVQexMdWX5wGzILwMtgsjQG4M
+         7iIkwtIVThVGE42LsXbAuB7jnmy5OXOjyZ3tvqA5bnSIdx5pktQ7CA2mVqkog4YUT2
+         AgTR3wT05AF3TBEeLN+YrUjja5AdwNrjq7o0LFIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 12/25] ptp_pch: Load module automatically if ID matches
+Subject: [PATCH 4.14 11/33] xtensa: call irqchip_init only when CONFIG_USE_OF is selected
 Date:   Thu, 14 Oct 2021 16:53:43 +0200
-Message-Id: <20211014145207.964462565@linuxfoundation.org>
+Message-Id: <20211014145209.155912237@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
-References: <20211014145207.575041491@linuxfoundation.org>
+In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
+References: <20211014145208.775270267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +39,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit 7cd8b1542a7ba0720c5a0a85ed414a122015228b ]
+[ Upstream commit 6489f8d0e1d93a3603d8dad8125797559e4cf2a2 ]
 
-The driver can't be loaded automatically because it misses
-module alias to be provided. Add corresponding MODULE_DEVICE_TABLE()
-call to the driver.
+During boot time kernel configured with OF=y but USE_OF=n displays the
+following warnings and hangs shortly after starting userspace:
 
-Fixes: 863d08ece9bf ("supports eg20t ptp clock")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at kernel/irq/irqdomain.c:695 irq_create_mapping_affinity+0x29/0xc0
+irq_create_mapping_affinity(, 6) called with NULL domain
+CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.0-rc3-00001-gd67ed2510d28 #30
+Call Trace:
+  __warn+0x69/0xc4
+  warn_slowpath_fmt+0x6c/0x94
+  irq_create_mapping_affinity+0x29/0xc0
+  local_timer_setup+0x40/0x88
+  time_init+0xb1/0xe8
+  start_kernel+0x31d/0x3f4
+  _startup+0x13b/0x13b
+---[ end trace 1e6630e1c5eda35b ]---
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at arch/xtensa/kernel/time.c:141 local_timer_setup+0x58/0x88
+error: can't map timer irq
+CPU: 0 PID: 0 Comm: swapper Tainted: G        W         5.15.0-rc3-00001-gd67ed2510d28 #30
+Call Trace:
+  __warn+0x69/0xc4
+  warn_slowpath_fmt+0x6c/0x94
+  local_timer_setup+0x58/0x88
+  time_init+0xb1/0xe8
+  start_kernel+0x31d/0x3f4
+  _startup+0x13b/0x13b
+---[ end trace 1e6630e1c5eda35c ]---
+Failed to request irq 0 (timer)
+
+Fix that by calling irqchip_init only when CONFIG_USE_OF is selected and
+calling legacy interrupt controller init otherwise.
+
+Fixes: da844a81779e ("xtensa: add device trees support")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ptp/ptp_pch.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/xtensa/kernel/irq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/ptp/ptp_pch.c b/drivers/ptp/ptp_pch.c
-index 3aa22ae4d94c..a911325fc0b4 100644
---- a/drivers/ptp/ptp_pch.c
-+++ b/drivers/ptp/ptp_pch.c
-@@ -698,6 +698,7 @@ static const struct pci_device_id pch_ieee1588_pcidev_id[] = {
- 	 },
- 	{0}
- };
-+MODULE_DEVICE_TABLE(pci, pch_ieee1588_pcidev_id);
+diff --git a/arch/xtensa/kernel/irq.c b/arch/xtensa/kernel/irq.c
+index 18e4ef34ac45..4182189b29de 100644
+--- a/arch/xtensa/kernel/irq.c
++++ b/arch/xtensa/kernel/irq.c
+@@ -145,7 +145,7 @@ unsigned xtensa_get_ext_irq_no(unsigned irq)
  
- static struct pci_driver pch_driver = {
- 	.name = KBUILD_MODNAME,
+ void __init init_IRQ(void)
+ {
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ 	irqchip_init();
+ #else
+ #ifdef CONFIG_HAVE_SMP
 -- 
 2.33.0
 
