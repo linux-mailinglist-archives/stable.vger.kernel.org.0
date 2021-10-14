@@ -2,57 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88C0142DA56
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 15:26:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15AA942DA98
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 15:36:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231357AbhJNN2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 09:28:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53780 "EHLO
+        id S230137AbhJNNi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 09:38:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230132AbhJNN2u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Oct 2021 09:28:50 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15A4C06174E
-        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 06:26:45 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id w14so4188423pll.2
-        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 06:26:45 -0700 (PDT)
+        with ESMTP id S230010AbhJNNi5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Oct 2021 09:38:57 -0400
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 740A7C061570
+        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 06:36:52 -0700 (PDT)
+Received: by mail-pg1-x52e.google.com with SMTP id q12so2655115pgq.11
+        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 06:36:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=lambdal-com.20210112.gappssmtp.com; s=20210112;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=Ebk7SpPm6BqbsfgGThol2pRxwCPynH3YSVHSd42533s=;
-        b=5ck8uaGtJzIR3/mZp83FxgFLymMHubvhlgH7XJ+qzXI2Xegia9r40Sg4q2kzw7ti/r
-         Ek1meYzOdYBi2N/euYWzAi1dF3mp0mp8u25qTbzhVOZaPN6LjiYUb7Q7/f1XfLTwXVya
-         HG5oc1cg/Hbsyo1PI3O+1TnP5NCrPJBPB3guH+H1NMyHVIvxSU2Fmb9cLWLVfQm9aa0s
-         7cW6fyvAJbR5Q2o9fphXShcDQaOD1lkWWblroyIzt7RfNa+YN5mcL5S/yJj0BSFkDOtu
-         Ew/LnY5rspy9v6Or1O48O6sRswEa5l9vxiqQUYZQPQVT7T+Mw3ZgH64pww8tjz7L5/xb
-         lb8A==
+        bh=yHj+1t9MEwAxRx5qtotO1qSGm1kus+HGUYV6uTPSYfw=;
+        b=KhpUxMk6X/7o7y5+Z6YSy2OWqZaFfDAtsjD1047NtD0En3WGnwt8mx9JBoxe5D+oNz
+         sdDSVbPjTJgDTtuzKtZqM1fFfSR7NYP4RMw4ELlXj+YxI5177Y2NYsmRr+iWUqjqYUxn
+         tVx6nq8DN1xnuBXA9VRgWE2En7CrZ3+qg+SHhphg+fvKaWDNIUdrn13hfk1eCB9WpNQR
+         cHpZ3tzS9+PaQlhJTTgo2SXJjxvlQHHpeabT1wBHuprQO/kp62PY5/LdzAO1f9ytrSFI
+         e3/KvOWtJpiuktPn/47oNB7iQDZBz6awJdFbBrL7NmHaWMsM4BhKqQNHiE1gE9pU+yAG
+         y7cA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=Ebk7SpPm6BqbsfgGThol2pRxwCPynH3YSVHSd42533s=;
-        b=6kM5oU/z7iTN7gzyXQ7tmH2d2SORruky0QDlQmQL7pbFva64AcYcsFgX5OHseXIHvT
-         bG/HnA+rwa9j+Ay1Jcle4iOTW3zj204a9Qg7/FjMp3K5JhABiMj8L4ygpbPgQ+0HRUbM
-         E8Uu27cAZhz17ZihWTMQTediLvN5NgEIpeqY+PooM0B7m4gpWJkGVrUtbOfHcz8DRLQv
-         Nk7IAdOq2ngS7/2WeAYsOpsX8CCkB8onqtBs9bGEwVFBJCA0jgrYrYXuuglufp0N1h3o
-         9Eza2D70wuauM1sZWNL+whTq9iLQs2jL8NaALPAvSKnsU73kpBWUdL5O+ScZkHs5fItC
-         S1hw==
-X-Gm-Message-State: AOAM531h3ztsfI518J5W2Tg1+rzenFPp+TdGpOG1JmpA7FFnaxAnw65u
-        QjELWu6d+vNwwdZq3Uhe5yaxsZA4z/3cUw==
-X-Google-Smtp-Source: ABdhPJxIJWhMSHu2xZ1Ra5DA8NOcYq2Et+e0sJx2koGtUD4btGGNQ9Ew++0OhSoVGNQqYGYmxqns+w==
-X-Received: by 2002:a17:90a:7892:: with SMTP id x18mr20662281pjk.33.1634218005295;
-        Thu, 14 Oct 2021 06:26:45 -0700 (PDT)
+        bh=yHj+1t9MEwAxRx5qtotO1qSGm1kus+HGUYV6uTPSYfw=;
+        b=kOfxLpDmEENpsVf7w96cySdSHjqOhmBn821wFHVzH5dV7i3IU452MBV5o2IWMwD6jF
+         HDJMF84UTmz7AJV8Xu5DbSEn/KRAfImgRBKHbWRh2wb/g7i2lnHt2NSTwPnic2xve5wp
+         dHJaKb7QT0X2wgs5uZiGz9X2SJ6mihRN6CGlC4jAUx4oPb5s/iWb9XvQicD+v0QNKUq5
+         fg2gZ8i/WwMwyYlxrTV9FJY9XSSQ8WEvQX/oOkaFdr9MNtByv9EPSK65JHTmuBO93Eqk
+         D42DK/C5TIs5NI1r90gDWvyZE/NE0w80XyzuZWU/7tKhM0sFjemQJALLzJX7ihx44Vsu
+         kadQ==
+X-Gm-Message-State: AOAM530lohbAAB6Oz2dcYVf7OX+EtSIiw+PIPvweUiQvku5rU3zt55f2
+        cS7yZH6zDltaEupE46x7024aeuCN+SgK/A==
+X-Google-Smtp-Source: ABdhPJw6mYqfGIgLP/eM785vQF+DX4w2gJc5qcuydoXfDCHrgLzr8hAq9JCrn/Gjy54io6ldHLTtSQ==
+X-Received: by 2002:a63:7404:: with SMTP id p4mr4200503pgc.222.1634218611977;
+        Thu, 14 Oct 2021 06:36:51 -0700 (PDT)
 Received: from mogadishu.hsd1.ca.comcast.net ([50.211.197.46])
-        by smtp.gmail.com with ESMTPSA id s17sm2526467pge.50.2021.10.14.06.26.44
+        by smtp.gmail.com with ESMTPSA id w19sm9370153pjy.9.2021.10.14.06.36.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Oct 2021 06:26:45 -0700 (PDT)
+        Thu, 14 Oct 2021 06:36:51 -0700 (PDT)
 From:   Steven Clarkson <sc@lambdal.com>
-To:     sc@lambdal.com
-Cc:     stable@vger.kernel.org
+To:     alsa-devel@alsa-project.com
+Cc:     tiwai@suse.de, Steven Clarkson <sc@lambdal.com>,
+        stable@vger.kernel.org
 Subject: [PATCH] ALSA: hda/realtek: Add quirk for Clevo PC50HS
-Date:   Thu, 14 Oct 2021 06:26:31 -0700
-Message-Id: <20211014132631.1326212-1-sc@lambdal.com>
+Date:   Thu, 14 Oct 2021 06:35:54 -0700
+Message-Id: <20211014133554.1326741-1-sc@lambdal.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -64,7 +65,7 @@ Apply existing PCI quirk to the Clevo PC50HS and related models to fix
 audio output on the built in speakers.
 
 Signed-off-by: Steven Clarkson <sc@lambdal.com>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
 ---
  sound/pci/hda/patch_realtek.c | 1 +
  1 file changed, 1 insertion(+)
