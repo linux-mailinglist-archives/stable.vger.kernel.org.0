@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0EB42DD46
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:03:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3EEE42DCF8
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:01:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233111AbhJNPFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:05:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51564 "EHLO mail.kernel.org"
+        id S232958AbhJNPDh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:03:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233466AbhJNPES (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:04:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5849F611CE;
-        Thu, 14 Oct 2021 15:00:34 +0000 (UTC)
+        id S233213AbhJNPCG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:02:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE29761205;
+        Thu, 14 Oct 2021 14:59:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223635;
-        bh=8L2qBI4o4/bdfydKxL/itud8i8SRLBD9j7MQr4AVCow=;
+        s=korg; t=1634223550;
+        bh=I6jsj1r0YdkQo+96oGMMJg+j2UVxvW9Wkvbm3Tq8Cbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E1Ss3j5wJEfJ311Eug7G4bwHGy0QlfRnEn99QMdjOrxMozUlzFSrVITw1ufvQirbR
-         HD0u0y19JSeNcNC1Ggu1FwV2KDuNs768DFss9+XGfL9cqL+r+GhEYEQgMup8MN4cBr
-         0RJ3FmIjmBCkHN1shG6aZ+sppA64gUQXsYwBGWIA=
+        b=K17rL/IER0cK5n7MLi2a/8IhLUgj+0SvVkVTJwO7tBdEpCAvcxcKcrim5Ei/POEEI
+         /hZ/0Zn8sdrH51jQs2c/8whn3tQNcF9KcfjIB8q6LNSVb2oQLFeKB41G5mZmtRIyYM
+         BbZKW/RLov5vhpv9rNlsLTOaxr7KySObOC8vV3Nw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 01/30] ext4: check and update i_disksize properly
+        stable@vger.kernel.org, Mizuho Mori <morimolymoly@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 03/16] HID: apple: Fix logical maximum and usage maximum of Magic Keyboard JIS
 Date:   Thu, 14 Oct 2021 16:54:06 +0200
-Message-Id: <20211014145209.566779985@linuxfoundation.org>
+Message-Id: <20211014145207.421131864@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
-References: <20211014145209.520017940@linuxfoundation.org>
+In-Reply-To: <20211014145207.314256898@linuxfoundation.org>
+References: <20211014145207.314256898@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,88 +39,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Mizuho Mori <morimolymoly@gmail.com>
 
-[ Upstream commit 4df031ff5876d94b48dd9ee486ba5522382a06b2 ]
+[ Upstream commit 67fd71ba16a37c663d139f5ba5296f344d80d072 ]
 
-After commit 3da40c7b0898 ("ext4: only call ext4_truncate when size <=
-isize"), i_disksize could always be updated to i_size in ext4_setattr(),
-and we could sure that i_disksize <= i_size since holding inode lock and
-if i_disksize < i_size there are delalloc writes pending in the range
-upto i_size. If the end of the current write is <= i_size, there's no
-need to touch i_disksize since writeback will push i_disksize upto
-i_size eventually. So we can switch to check i_size instead of
-i_disksize in ext4_da_write_end() when write to the end of the file.
-we also could remove ext4_mark_inode_dirty() together because we defer
-inode dirtying to generic_write_end() or ext4_da_write_inline_data_end().
+Apple Magic Keyboard(JIS)'s Logical Maximum and Usage Maximum are wrong.
 
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210716122024.1105856-2-yi.zhang@huawei.com
+Below is a report descriptor.
+
+0x05, 0x01,         /*  Usage Page (Desktop),                           */
+0x09, 0x06,         /*  Usage (Keyboard),                               */
+0xA1, 0x01,         /*  Collection (Application),                       */
+0x85, 0x01,         /*      Report ID (1),                              */
+0x05, 0x07,         /*      Usage Page (Keyboard),                      */
+0x15, 0x00,         /*      Logical Minimum (0),                        */
+0x25, 0x01,         /*      Logical Maximum (1),                        */
+0x19, 0xE0,         /*      Usage Minimum (KB Leftcontrol),             */
+0x29, 0xE7,         /*      Usage Maximum (KB Right GUI),               */
+0x75, 0x01,         /*      Report Size (1),                            */
+0x95, 0x08,         /*      Report Count (8),                           */
+0x81, 0x02,         /*      Input (Variable),                           */
+0x95, 0x05,         /*      Report Count (5),                           */
+0x75, 0x01,         /*      Report Size (1),                            */
+0x05, 0x08,         /*      Usage Page (LED),                           */
+0x19, 0x01,         /*      Usage Minimum (01h),                        */
+0x29, 0x05,         /*      Usage Maximum (05h),                        */
+0x91, 0x02,         /*      Output (Variable),                          */
+0x95, 0x01,         /*      Report Count (1),                           */
+0x75, 0x03,         /*      Report Size (3),                            */
+0x91, 0x03,         /*      Output (Constant, Variable),                */
+0x95, 0x08,         /*      Report Count (8),                           */
+0x75, 0x01,         /*      Report Size (1),                            */
+0x15, 0x00,         /*      Logical Minimum (0),                        */
+0x25, 0x01,         /*      Logical Maximum (1),                        */
+
+here is a report descriptor which is parsed one in kernel.
+see sys/kernel/debug/hid/<dev>/rdesc
+
+05 01 09 06 a1 01 85 01 05 07
+15 00 25 01 19 e0 29 e7 75 01
+95 08 81 02 95 05 75 01 05 08
+19 01 29 05 91 02 95 01 75 03
+91 03 95 08 75 01 15 00 25 01
+06 00 ff 09 03 81 03 95 06 75
+08 15 00 25 [65] 05 07 19 00 29
+[65] 81 00 95 01 75 01 15 00 25
+01 05 0c 09 b8 81 02 95 01 75
+01 06 01 ff 09 03 81 02 95 01
+75 06 81 03 06 02 ff 09 55 85
+55 15 00 26 ff 00 75 08 95 40
+b1 a2 c0 06 00 ff 09 14 a1 01
+85 90 05 84 75 01 95 03 15 00
+25 01 09 61 05 85 09 44 09 46
+81 02 95 05 81 01 75 08 95 01
+15 00 26 ff 00 09 65 81 02 c0
+00
+
+Position 64(Logical Maximum) and 70(Usage Maximum) are 101.
+Both should be 0xE7 to support JIS specific keys(ろ, Eisu, Kana, |) support.
+position 117 is also 101 but not related(it is Usage 65h).
+
+There are no difference of product id between JIS and ANSI.
+They are same 0x0267.
+
+Signed-off-by: Mizuho Mori <morimolymoly@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 34 ++++++++++++++++++----------------
- 1 file changed, 18 insertions(+), 16 deletions(-)
+ drivers/hid/hid-apple.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 73daf9443e5e..a47ff8ce289b 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3089,35 +3089,37 @@ static int ext4_da_write_end(struct file *file,
- 	end = start + copied - 1;
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 6909c045fece..07df64daf7da 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -301,12 +301,19 @@ static int apple_event(struct hid_device *hdev, struct hid_field *field,
  
- 	/*
--	 * generic_write_end() will run mark_inode_dirty() if i_size
--	 * changes.  So let's piggyback the i_disksize mark_inode_dirty
--	 * into that.
-+	 * Since we are holding inode lock, we are sure i_disksize <=
-+	 * i_size. We also know that if i_disksize < i_size, there are
-+	 * delalloc writes pending in the range upto i_size. If the end of
-+	 * the current write is <= i_size, there's no need to touch
-+	 * i_disksize since writeback will push i_disksize upto i_size
-+	 * eventually. If the end of the current write is > i_size and
-+	 * inside an allocated block (ext4_da_should_update_i_disksize()
-+	 * check), we need to update i_disksize here as neither
-+	 * ext4_writepage() nor certain ext4_writepages() paths not
-+	 * allocating blocks update i_disksize.
-+	 *
-+	 * Note that we defer inode dirtying to generic_write_end() /
-+	 * ext4_da_write_inline_data_end().
- 	 */
- 	new_i_size = pos + copied;
--	if (copied && new_i_size > EXT4_I(inode)->i_disksize) {
-+	if (copied && new_i_size > inode->i_size) {
- 		if (ext4_has_inline_data(inode) ||
--		    ext4_da_should_update_i_disksize(page, end)) {
-+		    ext4_da_should_update_i_disksize(page, end))
- 			ext4_update_i_disksize(inode, new_i_size);
--			/* We need to mark inode dirty even if
--			 * new_i_size is less that inode->i_size
--			 * bu greater than i_disksize.(hint delalloc)
--			 */
--			ret = ext4_mark_inode_dirty(handle, inode);
--		}
- 	}
+ /*
+  * MacBook JIS keyboard has wrong logical maximum
++ * Magic Keyboard JIS has wrong logical maximum
+  */
+ static __u8 *apple_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+ {
+ 	struct apple_sc *asc = hid_get_drvdata(hdev);
  
- 	if (write_mode != CONVERT_INLINE_DATA &&
- 	    ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA) &&
- 	    ext4_has_inline_data(inode))
--		ret2 = ext4_da_write_inline_data_end(inode, pos, len, copied,
-+		ret = ext4_da_write_inline_data_end(inode, pos, len, copied,
- 						     page);
- 	else
--		ret2 = generic_write_end(file, mapping, pos, len, copied,
-+		ret = generic_write_end(file, mapping, pos, len, copied,
- 							page, fsdata);
- 
--	copied = ret2;
--	if (ret2 < 0)
--		ret = ret2;
-+	copied = ret;
- 	ret2 = ext4_journal_stop(handle);
- 	if (unlikely(ret2 && !ret))
- 		ret = ret2;
++	if(*rsize >=71 && rdesc[70] == 0x65 && rdesc[64] == 0x65) {
++		hid_info(hdev,
++			 "fixing up Magic Keyboard JIS report descriptor\n");
++		rdesc[64] = rdesc[70] = 0xe7;
++	}
++
+ 	if ((asc->quirks & APPLE_RDESC_JIS) && *rsize >= 60 &&
+ 			rdesc[53] == 0x65 && rdesc[59] == 0x65) {
+ 		hid_info(hdev,
 -- 
 2.33.0
 
