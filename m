@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6375742DC7C
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF90342DCB2
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232691AbhJNO7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:59:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44078 "EHLO mail.kernel.org"
+        id S232424AbhJNPBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:01:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231954AbhJNO6l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:58:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EC6B611C1;
-        Thu, 14 Oct 2021 14:56:35 +0000 (UTC)
+        id S230495AbhJNO7t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:59:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2964611ED;
+        Thu, 14 Oct 2021 14:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223396;
-        bh=omRg4MXMVJ21BkcQswq8gPa3rjGZgX4rzINx2f+XK5U=;
+        s=korg; t=1634223462;
+        bh=85Oe+SG4YAhT0uGSupy2UunOKLoMQHmt1FAIYw08P3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBnRKmShWNmE3vrWvYCNfva2LZ+G8el0REnb45wK/MVZk4fzXC4QQxiIaqotGMm2s
-         nY6rKsa60WZJ/2InVhImflhxr8VnpzEq87ogliTOpWRIwLtdB+tXsbVOCPGDk9OAuf
-         NDlUXlI9RGAWLX0OxFPu7V89fShiC/4hHnhrl+yY=
+        b=uGyrAViFgpDeOJYSMyMg6rk5EcmiXkqxzzXqoPU4gZIQBN/4TQ/8yLBHIXrhP3sk/
+         aYQnwqopDamnN69GUor2niEuR3SCxgz2F5SFD8/wuyH8YVyTSGIPmSa3l1AfNI8pT7
+         J+t2Q8t/FSPW9pVmsHMpGFZm1cfJy7wjM65PwYu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 24/25] scsi: virtio_scsi: Fix spelling mistake "Unsupport" -> "Unsupported"
+        stable@vger.kernel.org, Jamie Iles <quic_jiles@quicinc.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 23/33] i2c: acpi: fix resource leak in reconfiguration device addition
 Date:   Thu, 14 Oct 2021 16:53:55 +0200
-Message-Id: <20211014145208.355376601@linuxfoundation.org>
+Message-Id: <20211014145209.574351338@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
-References: <20211014145207.575041491@linuxfoundation.org>
+In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
+References: <20211014145208.775270267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Jamie Iles <quic_jiles@quicinc.com>
 
-[ Upstream commit cced4c0ec7c06f5230a2958907a409c849762293 ]
+[ Upstream commit 6558b646ce1c2a872fe1c2c7cb116f05a2c1950f ]
 
-There are a couple of spelling mistakes in pr_info and pr_err messages.
-Fix them.
+acpi_i2c_find_adapter_by_handle() calls bus_find_device() which takes a
+reference on the adapter which is never released which will result in a
+reference count leak and render the adapter unremovable.  Make sure to
+put the adapter after creating the client in the same manner that we do
+for OF.
 
-Link: https://lore.kernel.org/r/20210924230330.143785-1-colin.king@canonical.com
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
+Signed-off-by: Jamie Iles <quic_jiles@quicinc.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+[wsa: fixed title]
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/virtio_scsi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index 7ba0031d3a73..d5575869a25c 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -343,7 +343,7 @@ static void virtscsi_handle_transport_reset(struct virtio_scsi *vscsi,
- 		}
- 		break;
- 	default:
--		pr_info("Unsupport virtio scsi event reason %x\n", event->reason);
-+		pr_info("Unsupported virtio scsi event reason %x\n", event->reason);
- 	}
- }
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 52ae674ebf5b..6f42856c1507 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -395,6 +395,7 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
+ 			break;
  
-@@ -396,7 +396,7 @@ static void virtscsi_handle_event(struct work_struct *work)
- 		virtscsi_handle_param_change(vscsi, event);
+ 		i2c_acpi_register_device(adapter, adev, &info);
++		put_device(&adapter->dev);
  		break;
- 	default:
--		pr_err("Unsupport virtio scsi event %x\n", event->event);
-+		pr_err("Unsupported virtio scsi event %x\n", event->event);
- 	}
- 	virtscsi_kick_event(vscsi, event_node);
- }
+ 	case ACPI_RECONFIG_DEVICE_REMOVE:
+ 		if (!acpi_device_enumerated(adev))
 -- 
 2.33.0
 
