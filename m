@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B23BA42DCFC
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:01:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3CCD42DD31
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231977AbhJNPDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:03:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42916 "EHLO mail.kernel.org"
+        id S233750AbhJNPFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:05:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232720AbhJNPCR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:02:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C912B6120C;
-        Thu, 14 Oct 2021 14:59:17 +0000 (UTC)
+        id S233618AbhJNPDd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:03:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B234F61245;
+        Thu, 14 Oct 2021 15:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223558;
-        bh=jrcEUgW68Qkqt5B8DOxIH62D8gSCwxGLreQ0NMB8Lc4=;
+        s=korg; t=1634223614;
+        bh=AahxwJYG4j4R4CS2jEkZRtOfxGhMYw++Mi15qTpH2NM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1uAcc3IAMlRckK2oBCDjeds0nPSRJaYh9fheGN1ePybnt4C6esoRb5TWhK8NhoNG
-         Y1GWpeBsvmuRsDsAzcPfz7qLfeAkN1vGMC5K2BZ+MgvxZrIzWoAp96UyZ7pqM8KIRe
-         qpmkLA1iPogJtTb878FPHsP9er89wvnRIHeeQCD4=
+        b=JUi/IrrbTJqod2/wXSvrTC+BfqrP1y99wL4UByvfWHNQ8DbDmT5daAeV/zIdwdoLI
+         RVgo4HdzOxdmzI0E3RRVQNC04xXptVNwuqOWE97cFHzuDXjzcdeWPDEURVRW5HmvT1
+         4G7OyorOSYH9i2+RMj1Oapbl/s37Y/vudNAUc14M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <bard.liao@intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 06/16] netfilter: nf_nat_masquerade: make async masq_inet6_event handling generic
+Subject: [PATCH 5.10 03/22] ASoC: Intel: sof_sdw: tag SoundWire BEs as non-atomic
 Date:   Thu, 14 Oct 2021 16:54:09 +0200
-Message-Id: <20211014145207.525597975@linuxfoundation.org>
+Message-Id: <20211014145208.095354427@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.314256898@linuxfoundation.org>
-References: <20211014145207.314256898@linuxfoundation.org>
+In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
+References: <20211014145207.979449962@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,207 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 30db406923b9285a9bac06a6af5e74bd6d0f1d06 ]
+[ Upstream commit 58eafe1ff52ee1ce255759fc15729519af180cbb ]
 
-masq_inet6_event is called asynchronously from system work queue,
-because the inet6 notifier is atomic and nf_iterate_cleanup can sleep.
+The SoundWire BEs make use of 'stream' functions for .prepare and
+.trigger. These functions will in turn force a Bank Switch, which
+implies a wait operation.
 
-The ipv4 and device notifiers call nf_iterate_cleanup directly.
+Mark SoundWire BEs as nonatomic for consistency, but keep all other
+types of BEs as is. The initialization of .nonatomic is done outside
+of the create_sdw_dailink helper to avoid adding more parameters to
+deal with a single exception to the rule that BEs are atomic.
 
-This is legal, but these notifiers are called with RTNL mutex held.
-A large conntrack table with many devices coming and going will have severe
-impact on the system usability, with 'ip a' blocking for several seconds.
-
-This change places the defer code into a helper and makes it more
-generic so ipv4 and ifdown notifiers can be converted to defer the
-cleanup walk as well in a follow patch.
-
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Bard Liao <bard.liao@intel.com>
+Link: https://lore.kernel.org/r/20210907184436.33152-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_nat_masquerade.c | 122 ++++++++++++++++++------------
- 1 file changed, 75 insertions(+), 47 deletions(-)
+ sound/soc/intel/boards/sof_sdw.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/netfilter/nf_nat_masquerade.c b/net/netfilter/nf_nat_masquerade.c
-index 8e8a65d46345..415919a6ac1a 100644
---- a/net/netfilter/nf_nat_masquerade.c
-+++ b/net/netfilter/nf_nat_masquerade.c
-@@ -9,8 +9,19 @@
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index 2770e8179983..25548555d8d7 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -847,6 +847,11 @@ static int create_sdw_dailink(struct device *dev, int *be_index,
+ 			      cpus + *cpu_id, cpu_dai_num,
+ 			      codecs, codec_num,
+ 			      NULL, &sdw_ops);
++		/*
++		 * SoundWire DAILINKs use 'stream' functions and Bank Switch operations
++		 * based on wait_for_completion(), tag them as 'nonatomic'.
++		 */
++		dai_links[*be_index].nonatomic = true;
  
- #include <net/netfilter/nf_nat_masquerade.h>
- 
-+struct masq_dev_work {
-+	struct work_struct work;
-+	struct net *net;
-+	union nf_inet_addr addr;
-+	int ifindex;
-+	int (*iter)(struct nf_conn *i, void *data);
-+};
-+
-+#define MAX_MASQ_WORKER_COUNT	16
-+
- static DEFINE_MUTEX(masq_mutex);
- static unsigned int masq_refcnt __read_mostly;
-+static atomic_t masq_worker_count __read_mostly;
- 
- unsigned int
- nf_nat_masquerade_ipv4(struct sk_buff *skb, unsigned int hooknum,
-@@ -63,6 +74,63 @@ nf_nat_masquerade_ipv4(struct sk_buff *skb, unsigned int hooknum,
- }
- EXPORT_SYMBOL_GPL(nf_nat_masquerade_ipv4);
- 
-+static void iterate_cleanup_work(struct work_struct *work)
-+{
-+	struct masq_dev_work *w;
-+
-+	w = container_of(work, struct masq_dev_work, work);
-+
-+	nf_ct_iterate_cleanup_net(w->net, w->iter, (void *)w, 0, 0);
-+
-+	put_net(w->net);
-+	kfree(w);
-+	atomic_dec(&masq_worker_count);
-+	module_put(THIS_MODULE);
-+}
-+
-+/* Iterate conntrack table in the background and remove conntrack entries
-+ * that use the device/address being removed.
-+ *
-+ * In case too many work items have been queued already or memory allocation
-+ * fails iteration is skipped, conntrack entries will time out eventually.
-+ */
-+static void nf_nat_masq_schedule(struct net *net, union nf_inet_addr *addr,
-+				 int ifindex,
-+				 int (*iter)(struct nf_conn *i, void *data),
-+				 gfp_t gfp_flags)
-+{
-+	struct masq_dev_work *w;
-+
-+	if (atomic_read(&masq_worker_count) > MAX_MASQ_WORKER_COUNT)
-+		return;
-+
-+	net = maybe_get_net(net);
-+	if (!net)
-+		return;
-+
-+	if (!try_module_get(THIS_MODULE))
-+		goto err_module;
-+
-+	w = kzalloc(sizeof(*w), gfp_flags);
-+	if (w) {
-+		/* We can overshoot MAX_MASQ_WORKER_COUNT, no big deal */
-+		atomic_inc(&masq_worker_count);
-+
-+		INIT_WORK(&w->work, iterate_cleanup_work);
-+		w->ifindex = ifindex;
-+		w->net = net;
-+		w->iter = iter;
-+		if (addr)
-+			w->addr = *addr;
-+		schedule_work(&w->work);
-+		return;
-+	}
-+
-+	module_put(THIS_MODULE);
-+ err_module:
-+	put_net(net);
-+}
-+
- static int device_cmp(struct nf_conn *i, void *ifindex)
- {
- 	const struct nf_conn_nat *nat = nfct_nat(i);
-@@ -136,8 +204,6 @@ static struct notifier_block masq_inet_notifier = {
- };
- 
- #if IS_ENABLED(CONFIG_IPV6)
--static atomic_t v6_worker_count __read_mostly;
--
- static int
- nat_ipv6_dev_get_saddr(struct net *net, const struct net_device *dev,
- 		       const struct in6_addr *daddr, unsigned int srcprefs,
-@@ -187,13 +253,6 @@ nf_nat_masquerade_ipv6(struct sk_buff *skb, const struct nf_nat_range2 *range,
- }
- EXPORT_SYMBOL_GPL(nf_nat_masquerade_ipv6);
- 
--struct masq_dev_work {
--	struct work_struct work;
--	struct net *net;
--	struct in6_addr addr;
--	int ifindex;
--};
--
- static int inet6_cmp(struct nf_conn *ct, void *work)
- {
- 	struct masq_dev_work *w = (struct masq_dev_work *)work;
-@@ -204,21 +263,7 @@ static int inet6_cmp(struct nf_conn *ct, void *work)
- 
- 	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
- 
--	return ipv6_addr_equal(&w->addr, &tuple->dst.u3.in6);
--}
--
--static void iterate_cleanup_work(struct work_struct *work)
--{
--	struct masq_dev_work *w;
--
--	w = container_of(work, struct masq_dev_work, work);
--
--	nf_ct_iterate_cleanup_net(w->net, inet6_cmp, (void *)w, 0, 0);
--
--	put_net(w->net);
--	kfree(w);
--	atomic_dec(&v6_worker_count);
--	module_put(THIS_MODULE);
-+	return nf_inet_addr_cmp(&w->addr, &tuple->dst.u3);
- }
- 
- /* atomic notifier; can't call nf_ct_iterate_cleanup_net (it can sleep).
-@@ -233,36 +278,19 @@ static int masq_inet6_event(struct notifier_block *this,
- {
- 	struct inet6_ifaddr *ifa = ptr;
- 	const struct net_device *dev;
--	struct masq_dev_work *w;
--	struct net *net;
-+	union nf_inet_addr addr;
- 
--	if (event != NETDEV_DOWN || atomic_read(&v6_worker_count) >= 16)
-+	if (event != NETDEV_DOWN)
- 		return NOTIFY_DONE;
- 
- 	dev = ifa->idev->dev;
--	net = maybe_get_net(dev_net(dev));
--	if (!net)
--		return NOTIFY_DONE;
- 
--	if (!try_module_get(THIS_MODULE))
--		goto err_module;
-+	memset(&addr, 0, sizeof(addr));
- 
--	w = kmalloc(sizeof(*w), GFP_ATOMIC);
--	if (w) {
--		atomic_inc(&v6_worker_count);
-+	addr.in6 = ifa->addr;
- 
--		INIT_WORK(&w->work, iterate_cleanup_work);
--		w->ifindex = dev->ifindex;
--		w->net = net;
--		w->addr = ifa->addr;
--		schedule_work(&w->work);
--
--		return NOTIFY_DONE;
--	}
--
--	module_put(THIS_MODULE);
-- err_module:
--	put_net(net);
-+	nf_nat_masq_schedule(dev_net(dev), &addr, dev->ifindex, inet6_cmp,
-+			     GFP_ATOMIC);
- 	return NOTIFY_DONE;
- }
- 
+ 		ret = set_codec_init_func(link, dai_links + (*be_index)++,
+ 					  playback, group_id);
 -- 
 2.33.0
 
