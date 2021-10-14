@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6476242DD11
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC4E42DD4C
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:04:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233204AbhJNPEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:04:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44722 "EHLO mail.kernel.org"
+        id S233523AbhJNPGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:06:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231840AbhJNPCv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:02:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48E1461183;
-        Thu, 14 Oct 2021 14:59:38 +0000 (UTC)
+        id S233316AbhJNPEZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:04:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0F6E611C0;
+        Thu, 14 Oct 2021 15:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223578;
-        bh=HlJ20umdZfqBNHHwaokcTGUz2B5BVV3kFEd7ksCdN6s=;
+        s=korg; t=1634223643;
+        bh=jrcEUgW68Qkqt5B8DOxIH62D8gSCwxGLreQ0NMB8Lc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vux5NdtD3AxWRUh0WgVM/30HNNoHYA09ad7b/kGpZz8a7TUpJBmAT4IkAo/ygvTZ9
-         DQyn5sp8+7m2+5dxLoyrIjx+RJPA294IGBJue+bk3CDRer5VQG30k1KLmBPDGlpBvb
-         daXjPWwNWuxQaascs/quE1GEAXgf4j85nC1JKRcU=
+        b=T3paWbfLryQzgo6AH4/dUdVwuGdqDxCm2ldyIwVyhp7/hLUwlTi4fHfoW29bXSrdn
+         isuLr3TFMPsU/Y7/WWM5sEmzYNklhOSEHBZdEMHsQiycdfG5dkT/LOsGlchpBwbTR/
+         DmJqDCZZLkBoR7eBFNQBXmTA4L66mY0l8FIrMSYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Finn Thain <fthain@linux-m68k.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 11/22] m68k: Handle arrivals of multiple signals correctly
+Subject: [PATCH 5.14 12/30] netfilter: nf_nat_masquerade: make async masq_inet6_event handling generic
 Date:   Thu, 14 Oct 2021 16:54:17 +0200
-Message-Id: <20211014145208.349918937@linuxfoundation.org>
+Message-Id: <20211014145209.928413054@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
-References: <20211014145207.979449962@linuxfoundation.org>
+In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
+References: <20211014145209.520017940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,227 +40,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 4bb0bd81ce5e97092dfda6a106d414b703ec0ee8 ]
+[ Upstream commit 30db406923b9285a9bac06a6af5e74bd6d0f1d06 ]
 
-When we have several pending signals, have entered with the kernel
-with large exception frame *and* have already built at least one
-sigframe, regs->stkadj is going to be non-zero and regs->format/sr/pc
-are going to be junk - the real values are in shifted exception stack
-frame we'd built when putting together the first sigframe.
+masq_inet6_event is called asynchronously from system work queue,
+because the inet6 notifier is atomic and nf_iterate_cleanup can sleep.
 
-If that happens, subsequent sigframes are going to be garbage.
-Not hard to fix - just need to find the "adjusted" frame first
-and look for format/vector/sr/pc in it.
+The ipv4 and device notifiers call nf_iterate_cleanup directly.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
-Tested-by: Finn Thain <fthain@linux-m68k.org>
-Link: https://lore.kernel.org/r/YP2dBIAPTaVvHiZ6@zeniv-ca.linux.org.uk
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+This is legal, but these notifiers are called with RTNL mutex held.
+A large conntrack table with many devices coming and going will have severe
+impact on the system usability, with 'ip a' blocking for several seconds.
+
+This change places the defer code into a helper and makes it more
+generic so ipv4 and ifdown notifiers can be converted to defer the
+cleanup walk as well in a follow patch.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/kernel/signal.c | 88 +++++++++++++++++++--------------------
- 1 file changed, 42 insertions(+), 46 deletions(-)
+ net/netfilter/nf_nat_masquerade.c | 122 ++++++++++++++++++------------
+ 1 file changed, 75 insertions(+), 47 deletions(-)
 
-diff --git a/arch/m68k/kernel/signal.c b/arch/m68k/kernel/signal.c
-index 46f91e0f6a08..fd916844a683 100644
---- a/arch/m68k/kernel/signal.c
-+++ b/arch/m68k/kernel/signal.c
-@@ -447,7 +447,7 @@ static inline void save_fpu_state(struct sigcontext *sc, struct pt_regs *regs)
+diff --git a/net/netfilter/nf_nat_masquerade.c b/net/netfilter/nf_nat_masquerade.c
+index 8e8a65d46345..415919a6ac1a 100644
+--- a/net/netfilter/nf_nat_masquerade.c
++++ b/net/netfilter/nf_nat_masquerade.c
+@@ -9,8 +9,19 @@
  
- 	if (CPU_IS_060 ? sc->sc_fpstate[2] : sc->sc_fpstate[0]) {
- 		fpu_version = sc->sc_fpstate[0];
--		if (CPU_IS_020_OR_030 &&
-+		if (CPU_IS_020_OR_030 && !regs->stkadj &&
- 		    regs->vector >= (VEC_FPBRUC * 4) &&
- 		    regs->vector <= (VEC_FPNAN * 4)) {
- 			/* Clear pending exception in 68882 idle frame */
-@@ -510,7 +510,7 @@ static inline int rt_save_fpu_state(struct ucontext __user *uc, struct pt_regs *
- 		if (!(CPU_IS_060 || CPU_IS_COLDFIRE))
- 			context_size = fpstate[1];
- 		fpu_version = fpstate[0];
--		if (CPU_IS_020_OR_030 &&
-+		if (CPU_IS_020_OR_030 && !regs->stkadj &&
- 		    regs->vector >= (VEC_FPBRUC * 4) &&
- 		    regs->vector <= (VEC_FPNAN * 4)) {
- 			/* Clear pending exception in 68882 idle frame */
-@@ -828,18 +828,24 @@ badframe:
- 	return 0;
+ #include <net/netfilter/nf_nat_masquerade.h>
+ 
++struct masq_dev_work {
++	struct work_struct work;
++	struct net *net;
++	union nf_inet_addr addr;
++	int ifindex;
++	int (*iter)(struct nf_conn *i, void *data);
++};
++
++#define MAX_MASQ_WORKER_COUNT	16
++
+ static DEFINE_MUTEX(masq_mutex);
+ static unsigned int masq_refcnt __read_mostly;
++static atomic_t masq_worker_count __read_mostly;
+ 
+ unsigned int
+ nf_nat_masquerade_ipv4(struct sk_buff *skb, unsigned int hooknum,
+@@ -63,6 +74,63 @@ nf_nat_masquerade_ipv4(struct sk_buff *skb, unsigned int hooknum,
  }
+ EXPORT_SYMBOL_GPL(nf_nat_masquerade_ipv4);
  
-+static inline struct pt_regs *rte_regs(struct pt_regs *regs)
++static void iterate_cleanup_work(struct work_struct *work)
 +{
-+	return (void *)regs + regs->stkadj;
++	struct masq_dev_work *w;
++
++	w = container_of(work, struct masq_dev_work, work);
++
++	nf_ct_iterate_cleanup_net(w->net, w->iter, (void *)w, 0, 0);
++
++	put_net(w->net);
++	kfree(w);
++	atomic_dec(&masq_worker_count);
++	module_put(THIS_MODULE);
 +}
 +
- static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
- 			     unsigned long mask)
- {
-+	struct pt_regs *tregs = rte_regs(regs);
- 	sc->sc_mask = mask;
- 	sc->sc_usp = rdusp();
- 	sc->sc_d0 = regs->d0;
- 	sc->sc_d1 = regs->d1;
- 	sc->sc_a0 = regs->a0;
- 	sc->sc_a1 = regs->a1;
--	sc->sc_sr = regs->sr;
--	sc->sc_pc = regs->pc;
--	sc->sc_formatvec = regs->format << 12 | regs->vector;
-+	sc->sc_sr = tregs->sr;
-+	sc->sc_pc = tregs->pc;
-+	sc->sc_formatvec = tregs->format << 12 | tregs->vector;
- 	save_a5_state(sc, regs);
- 	save_fpu_state(sc, regs);
- }
-@@ -847,6 +853,7 @@ static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
- static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *regs)
- {
- 	struct switch_stack *sw = (struct switch_stack *)regs - 1;
-+	struct pt_regs *tregs = rte_regs(regs);
- 	greg_t __user *gregs = uc->uc_mcontext.gregs;
- 	int err = 0;
- 
-@@ -867,9 +874,9 @@ static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *
- 	err |= __put_user(sw->a5, &gregs[13]);
- 	err |= __put_user(sw->a6, &gregs[14]);
- 	err |= __put_user(rdusp(), &gregs[15]);
--	err |= __put_user(regs->pc, &gregs[16]);
--	err |= __put_user(regs->sr, &gregs[17]);
--	err |= __put_user((regs->format << 12) | regs->vector, &uc->uc_formatvec);
-+	err |= __put_user(tregs->pc, &gregs[16]);
-+	err |= __put_user(tregs->sr, &gregs[17]);
-+	err |= __put_user((tregs->format << 12) | tregs->vector, &uc->uc_formatvec);
- 	err |= rt_save_fpu_state(uc, regs);
- 	return err;
- }
-@@ -886,13 +893,14 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
- 			struct pt_regs *regs)
- {
- 	struct sigframe __user *frame;
--	int fsize = frame_extra_sizes(regs->format);
-+	struct pt_regs *tregs = rte_regs(regs);
-+	int fsize = frame_extra_sizes(tregs->format);
- 	struct sigcontext context;
- 	int err = 0, sig = ksig->sig;
- 
- 	if (fsize < 0) {
- 		pr_debug("setup_frame: Unknown frame format %#x\n",
--			 regs->format);
-+			 tregs->format);
- 		return -EFAULT;
- 	}
- 
-@@ -903,7 +911,7 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
- 
- 	err |= __put_user(sig, &frame->sig);
- 
--	err |= __put_user(regs->vector, &frame->code);
-+	err |= __put_user(tregs->vector, &frame->code);
- 	err |= __put_user(&frame->sc, &frame->psc);
- 
- 	if (_NSIG_WORDS > 1)
-@@ -929,34 +937,28 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
- 
- 	push_cache ((unsigned long) &frame->retcode);
- 
--	/*
--	 * Set up registers for signal handler.  All the state we are about
--	 * to destroy is successfully copied to sigframe.
--	 */
--	wrusp ((unsigned long) frame);
--	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
--	adjustformat(regs);
--
- 	/*
- 	 * This is subtle; if we build more than one sigframe, all but the
- 	 * first one will see frame format 0 and have fsize == 0, so we won't
- 	 * screw stkadj.
- 	 */
--	if (fsize)
-+	if (fsize) {
- 		regs->stkadj = fsize;
--
--	/* Prepare to skip over the extra stuff in the exception frame.  */
--	if (regs->stkadj) {
--		struct pt_regs *tregs =
--			(struct pt_regs *)((ulong)regs + regs->stkadj);
-+		tregs = rte_regs(regs);
- 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
--		/* This must be copied with decreasing addresses to
--                   handle overlaps.  */
- 		tregs->vector = 0;
- 		tregs->format = 0;
--		tregs->pc = regs->pc;
- 		tregs->sr = regs->sr;
- 	}
++/* Iterate conntrack table in the background and remove conntrack entries
++ * that use the device/address being removed.
++ *
++ * In case too many work items have been queued already or memory allocation
++ * fails iteration is skipped, conntrack entries will time out eventually.
++ */
++static void nf_nat_masq_schedule(struct net *net, union nf_inet_addr *addr,
++				 int ifindex,
++				 int (*iter)(struct nf_conn *i, void *data),
++				 gfp_t gfp_flags)
++{
++	struct masq_dev_work *w;
 +
-+	/*
-+	 * Set up registers for signal handler.  All the state we are about
-+	 * to destroy is successfully copied to sigframe.
-+	 */
-+	wrusp ((unsigned long) frame);
-+	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
-+	adjustformat(regs);
++	if (atomic_read(&masq_worker_count) > MAX_MASQ_WORKER_COUNT)
++		return;
 +
- 	return 0;
++	net = maybe_get_net(net);
++	if (!net)
++		return;
++
++	if (!try_module_get(THIS_MODULE))
++		goto err_module;
++
++	w = kzalloc(sizeof(*w), gfp_flags);
++	if (w) {
++		/* We can overshoot MAX_MASQ_WORKER_COUNT, no big deal */
++		atomic_inc(&masq_worker_count);
++
++		INIT_WORK(&w->work, iterate_cleanup_work);
++		w->ifindex = ifindex;
++		w->net = net;
++		w->iter = iter;
++		if (addr)
++			w->addr = *addr;
++		schedule_work(&w->work);
++		return;
++	}
++
++	module_put(THIS_MODULE);
++ err_module:
++	put_net(net);
++}
++
+ static int device_cmp(struct nf_conn *i, void *ifindex)
+ {
+ 	const struct nf_conn_nat *nat = nfct_nat(i);
+@@ -136,8 +204,6 @@ static struct notifier_block masq_inet_notifier = {
+ };
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+-static atomic_t v6_worker_count __read_mostly;
+-
+ static int
+ nat_ipv6_dev_get_saddr(struct net *net, const struct net_device *dev,
+ 		       const struct in6_addr *daddr, unsigned int srcprefs,
+@@ -187,13 +253,6 @@ nf_nat_masquerade_ipv6(struct sk_buff *skb, const struct nf_nat_range2 *range,
+ }
+ EXPORT_SYMBOL_GPL(nf_nat_masquerade_ipv6);
+ 
+-struct masq_dev_work {
+-	struct work_struct work;
+-	struct net *net;
+-	struct in6_addr addr;
+-	int ifindex;
+-};
+-
+ static int inet6_cmp(struct nf_conn *ct, void *work)
+ {
+ 	struct masq_dev_work *w = (struct masq_dev_work *)work;
+@@ -204,21 +263,7 @@ static int inet6_cmp(struct nf_conn *ct, void *work)
+ 
+ 	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
+ 
+-	return ipv6_addr_equal(&w->addr, &tuple->dst.u3.in6);
+-}
+-
+-static void iterate_cleanup_work(struct work_struct *work)
+-{
+-	struct masq_dev_work *w;
+-
+-	w = container_of(work, struct masq_dev_work, work);
+-
+-	nf_ct_iterate_cleanup_net(w->net, inet6_cmp, (void *)w, 0, 0);
+-
+-	put_net(w->net);
+-	kfree(w);
+-	atomic_dec(&v6_worker_count);
+-	module_put(THIS_MODULE);
++	return nf_inet_addr_cmp(&w->addr, &tuple->dst.u3);
  }
  
-@@ -964,7 +966,8 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
- 			   struct pt_regs *regs)
+ /* atomic notifier; can't call nf_ct_iterate_cleanup_net (it can sleep).
+@@ -233,36 +278,19 @@ static int masq_inet6_event(struct notifier_block *this,
  {
- 	struct rt_sigframe __user *frame;
--	int fsize = frame_extra_sizes(regs->format);
-+	struct pt_regs *tregs = rte_regs(regs);
-+	int fsize = frame_extra_sizes(tregs->format);
- 	int err = 0, sig = ksig->sig;
+ 	struct inet6_ifaddr *ifa = ptr;
+ 	const struct net_device *dev;
+-	struct masq_dev_work *w;
+-	struct net *net;
++	union nf_inet_addr addr;
  
- 	if (fsize < 0) {
-@@ -1014,34 +1017,27 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
+-	if (event != NETDEV_DOWN || atomic_read(&v6_worker_count) >= 16)
++	if (event != NETDEV_DOWN)
+ 		return NOTIFY_DONE;
  
- 	push_cache ((unsigned long) &frame->retcode);
+ 	dev = ifa->idev->dev;
+-	net = maybe_get_net(dev_net(dev));
+-	if (!net)
+-		return NOTIFY_DONE;
  
--	/*
--	 * Set up registers for signal handler.  All the state we are about
--	 * to destroy is successfully copied to sigframe.
--	 */
--	wrusp ((unsigned long) frame);
--	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
--	adjustformat(regs);
+-	if (!try_module_get(THIS_MODULE))
+-		goto err_module;
++	memset(&addr, 0, sizeof(addr));
+ 
+-	w = kmalloc(sizeof(*w), GFP_ATOMIC);
+-	if (w) {
+-		atomic_inc(&v6_worker_count);
++	addr.in6 = ifa->addr;
+ 
+-		INIT_WORK(&w->work, iterate_cleanup_work);
+-		w->ifindex = dev->ifindex;
+-		w->net = net;
+-		w->addr = ifa->addr;
+-		schedule_work(&w->work);
 -
- 	/*
- 	 * This is subtle; if we build more than one sigframe, all but the
- 	 * first one will see frame format 0 and have fsize == 0, so we won't
- 	 * screw stkadj.
- 	 */
--	if (fsize)
-+	if (fsize) {
- 		regs->stkadj = fsize;
+-		return NOTIFY_DONE;
+-	}
 -
--	/* Prepare to skip over the extra stuff in the exception frame.  */
--	if (regs->stkadj) {
--		struct pt_regs *tregs =
--			(struct pt_regs *)((ulong)regs + regs->stkadj);
-+		tregs = rte_regs(regs);
- 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
--		/* This must be copied with decreasing addresses to
--                   handle overlaps.  */
- 		tregs->vector = 0;
- 		tregs->format = 0;
--		tregs->pc = regs->pc;
- 		tregs->sr = regs->sr;
- 	}
-+
-+	/*
-+	 * Set up registers for signal handler.  All the state we are about
-+	 * to destroy is successfully copied to sigframe.
-+	 */
-+	wrusp ((unsigned long) frame);
-+	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
-+	adjustformat(regs);
- 	return 0;
+-	module_put(THIS_MODULE);
+- err_module:
+-	put_net(net);
++	nf_nat_masq_schedule(dev_net(dev), &addr, dev->ifindex, inet6_cmp,
++			     GFP_ATOMIC);
+ 	return NOTIFY_DONE;
  }
  
 -- 
