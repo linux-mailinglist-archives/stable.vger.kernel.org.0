@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4E742DCA3
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99E8D42DC38
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:55:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232678AbhJNPAi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:00:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
+        id S232115AbhJNO52 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:57:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232676AbhJNO72 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:59:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7D6A611CC;
-        Thu, 14 Oct 2021 14:57:22 +0000 (UTC)
+        id S232123AbhJNO5W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:57:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6504360F4A;
+        Thu, 14 Oct 2021 14:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223443;
-        bh=98nUxpVOaill0RE2kqliiVt5G+wB/sZ2Ry28L8kHDD8=;
+        s=korg; t=1634223318;
+        bh=cDrA1jZFkxemkgTkATXwogA2EjutUnYO21kUTWeFPFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVaOvZAl9k+lqg1EBj6XdanF3AMymQdpHYnbR9bhbS3vwkuuIXEWHQiKfiLHzbv0W
-         bcuy8kEke7ZKkXLIx/6VGSQEIjKGJ9s8hADuymR1rrnkl6H+jdrH03ECPBc+ymtAG7
-         nW8SN5zaGyt4beoQkIQvxZB9am5XmUp6j6KXhSyI=
+        b=dBgOEnkiXS8+Wtascy0W5Ty+3MKmb1ZRIUub+1CVXy3WRZebdDkzj+gLtf2Ivl7bB
+         a/ukCaZ4VxKEVT9tC6rpZcGkJA/iqKAd8+Y8z6uBkwBpc3QC6TAYgtucxBli4QuBnW
+         lyOIuUA1vzWz6sHIzTo01sz4eBNDxDUDC29qin9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Liang <zhengliang6@huawei.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.14 04/33] ovl: fix missing negative dentry check in ovl_rename()
-Date:   Thu, 14 Oct 2021 16:53:36 +0200
-Message-Id: <20211014145208.918189369@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 05/18] phy: mdio: fix memory leak
+Date:   Thu, 14 Oct 2021 16:53:37 +0200
+Message-Id: <20211014145206.495207097@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
-References: <20211014145208.775270267@linuxfoundation.org>
+In-Reply-To: <20211014145206.330102860@linuxfoundation.org>
+References: <20211014145206.330102860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Liang <zhengliang6@huawei.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit a295aef603e109a47af355477326bd41151765b6 upstream.
+[ Upstream commit ca6e11c337daf7925ff8a2aac8e84490a8691905 ]
 
-The following reproducer
+Syzbot reported memory leak in MDIO bus interface, the problem was in
+wrong state logic.
 
-  mkdir lower upper work merge
-  touch lower/old
-  touch lower/new
-  mount -t overlay overlay -olowerdir=lower,upperdir=upper,workdir=work merge
-  rm merge/new
-  mv merge/old merge/new & unlink upper/new
+MDIOBUS_ALLOCATED indicates 2 states:
+	1. Bus is only allocated
+	2. Bus allocated and __mdiobus_register() fails, but
+	   device_register() was called
 
-may result in this race:
+In case of device_register() has been called we should call put_device()
+to correctly free the memory allocated for this device, but mdiobus_free()
+calls just kfree(dev) in case of MDIOBUS_ALLOCATED state
 
-PROCESS A:
-  rename("merge/old", "merge/new");
-  overwrite=true,ovl_lower_positive(old)=true,
-  ovl_dentry_is_whiteout(new)=true -> flags |= RENAME_EXCHANGE
+To avoid this behaviour we need to set bus->state to MDIOBUS_UNREGISTERED
+_before_ calling device_register(), because put_device() should be
+called even in case of device_register() failure.
 
-PROCESS B:
-  unlink("upper/new");
-
-PROCESS A:
-  lookup newdentry in new_upperdir
-  call vfs_rename() with negative newdentry and RENAME_EXCHANGE
-
-Fix by adding the missing check for negative newdentry.
-
-Signed-off-by: Zheng Liang <zhengliang6@huawei.com>
-Fixes: e9be9d5e76e3 ("overlay filesystem")
-Cc: <stable@vger.kernel.org> # v3.18
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/netdev/YVMRWNDZDUOvQjHL@shell.armlinux.org.uk/
+Fixes: 46abc02175b3 ("phylib: give mdio buses a device tree presence")
+Reported-and-tested-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/eceae1429fbf8fa5c73dd2a0d39d525aa905074d.1633024062.git.paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/dir.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/phy/mdio_bus.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -1032,9 +1032,13 @@ static int ovl_rename(struct inode *oldd
- 				goto out_dput;
- 		}
- 	} else {
--		if (!d_is_negative(newdentry) &&
--		    (!new_opaque || !ovl_is_whiteout(newdentry)))
--			goto out_dput;
-+		if (!d_is_negative(newdentry)) {
-+			if (!new_opaque || !ovl_is_whiteout(newdentry))
-+				goto out_dput;
-+		} else {
-+			if (flags & RENAME_EXCHANGE)
-+				goto out_dput;
-+		}
- 	}
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index 5ea86fd57ae6..4066fb5a935a 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -264,6 +264,13 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
+ 	bus->dev.groups = NULL;
+ 	dev_set_name(&bus->dev, "%s", bus->id);
  
- 	if (olddentry == trap)
++	/* We need to set state to MDIOBUS_UNREGISTERED to correctly release
++	 * the device in mdiobus_free()
++	 *
++	 * State will be updated later in this function in case of success
++	 */
++	bus->state = MDIOBUS_UNREGISTERED;
++
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
+-- 
+2.33.0
+
 
 
