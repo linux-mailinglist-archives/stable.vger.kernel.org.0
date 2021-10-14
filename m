@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEBDC42DD1D
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A13642DD5C
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:04:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233324AbhJNPEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:04:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45090 "EHLO mail.kernel.org"
+        id S233708AbhJNPGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:06:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233328AbhJNPDF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:03:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A74A4611CB;
-        Thu, 14 Oct 2021 14:59:54 +0000 (UTC)
+        id S233572AbhJNPEz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:04:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2C46611C5;
+        Thu, 14 Oct 2021 15:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223595;
-        bh=TGpWMZp0i5deJQtrOA9LIminswDPhvJNDXCtDEVXMKU=;
+        s=korg; t=1634223661;
+        bh=NQKC8Vr4op7XQbJQ+LpubJ+MUbA4cdFLEPqGo2sEVRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3j6v1i2IvwnZUQ+Udz1QXINdkxslXvzg+TZ5RbosyOaT08/YSpRdxzWJ8YYpcp+E
-         39w2VbfMj2hbofce1dE3NkMYIRNIxWu3Bkg26gwWqUcPy+PQaKE5yShQDddY2oo4P2
-         LfIXJKnC3LZi6xlrrgK+8RDYiw8TsABRfr1kkdw8=
+        b=bzqDJG++zB5of6AHjiRwgKc7WUhS80guluZGpJig5KfwHRZ0l5zk/CmTJu8WIxjl6
+         pH11iocsnbj9e1cmDwoQdJQET3YZuowkUVX1KXm6MQYVq+zIqxbhHbJCtIvBpcPoc3
+         mCYYSGffR8I2KLPh2HgyEHuyUccH3t7EUr5kqSC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hawking Zhang <Hawking.Zhang@amd.com>,
-        Leslie Shi <Yuliang.Shi@amd.com>,
-        Guchun Chen <guchun.chen@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, MichelleJin <shjy180909@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 17/22] drm/amdgpu: fix gart.bo pin_count leak
-Date:   Thu, 14 Oct 2021 16:54:23 +0200
-Message-Id: <20211014145208.538719497@linuxfoundation.org>
+Subject: [PATCH 5.14 19/30] mac80211: check return value of rhashtable_init
+Date:   Thu, 14 Oct 2021 16:54:24 +0200
+Message-Id: <20211014145210.157657252@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
-References: <20211014145207.979449962@linuxfoundation.org>
+In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
+References: <20211014145209.520017940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leslie Shi <Yuliang.Shi@amd.com>
+From: MichelleJin <shjy180909@gmail.com>
 
-[ Upstream commit 66805763a97f8f7bdf742fc0851d85c02ed9411f ]
+[ Upstream commit 111461d573741c17eafad029ac93474fa9adcce0 ]
 
-gmc_v{9,10}_0_gart_disable() isn't called matched with
-correspoding gart_enbale function in SRIOV case. This will
-lead to gart.bo pin_count leak on driver unload.
+When rhashtable_init() fails, it returns -EINVAL.
+However, since error return value of rhashtable_init is not checked,
+it can cause use of uninitialized pointers.
+So, fix unhandled errors of rhashtable_init.
 
-Cc: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Leslie Shi <Yuliang.Shi@amd.com>
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: MichelleJin <shjy180909@gmail.com>
+Link: https://lore.kernel.org/r/20210927033457.1020967-4-shjy180909@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c | 3 ++-
- drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c  | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ net/mac80211/mesh_pathtbl.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
-index dbc8b76b9b78..150fa5258fb6 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
-@@ -1018,6 +1018,8 @@ static int gmc_v10_0_hw_fini(void *handle)
- {
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
+index efbefcbac3ac..7cab1cf09bf1 100644
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -60,7 +60,10 @@ static struct mesh_table *mesh_table_alloc(void)
+ 	atomic_set(&newtbl->entries,  0);
+ 	spin_lock_init(&newtbl->gates_lock);
+ 	spin_lock_init(&newtbl->walk_lock);
+-	rhashtable_init(&newtbl->rhead, &mesh_rht_params);
++	if (rhashtable_init(&newtbl->rhead, &mesh_rht_params)) {
++		kfree(newtbl);
++		return NULL;
++	}
  
-+	gmc_v10_0_gart_disable(adev);
-+
- 	if (amdgpu_sriov_vf(adev)) {
- 		/* full access mode, so don't touch any GMC register */
- 		DRM_DEBUG("For SRIOV client, shouldn't do anything.\n");
-@@ -1026,7 +1028,6 @@ static int gmc_v10_0_hw_fini(void *handle)
- 
- 	amdgpu_irq_put(adev, &adev->gmc.ecc_irq, 0);
- 	amdgpu_irq_put(adev, &adev->gmc.vm_fault, 0);
--	gmc_v10_0_gart_disable(adev);
- 
- 	return 0;
- }
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-index 3ebbddb63705..3a864041968f 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-@@ -1677,6 +1677,8 @@ static int gmc_v9_0_hw_fini(void *handle)
- {
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 
-+	gmc_v9_0_gart_disable(adev);
-+
- 	if (amdgpu_sriov_vf(adev)) {
- 		/* full access mode, so don't touch any GMC register */
- 		DRM_DEBUG("For SRIOV client, shouldn't do anything.\n");
-@@ -1685,7 +1687,6 @@ static int gmc_v9_0_hw_fini(void *handle)
- 
- 	amdgpu_irq_put(adev, &adev->gmc.ecc_irq, 0);
- 	amdgpu_irq_put(adev, &adev->gmc.vm_fault, 0);
--	gmc_v9_0_gart_disable(adev);
- 
- 	return 0;
+ 	return newtbl;
  }
 -- 
 2.33.0
