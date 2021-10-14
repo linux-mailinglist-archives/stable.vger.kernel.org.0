@@ -2,182 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B2C42D0AD
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 04:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9A2242D0B1
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 04:50:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229993AbhJNCrq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Oct 2021 22:47:46 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:31781 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229970AbhJNCrp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 22:47:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634179541;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=eXsQtbYu8ZrTVNpDyzuEjrd6+BUlfzHFpmt5fkpzD3E=;
-        b=XRU9q8FRGSz2fciD9ULj4gNC530Yr5JOydSpAc7aHZxio5lB0t4mCZiIwTml8JOS29TNKy
-        50sYGQxLmgeL3tcPTtMojFI9UCbUmJBiVv8shtXj3KudU8IYZtKnQdSObNLIxoJ8fNl06z
-        gEgDA43RisG6iiBMv0wpwDvBQfcVbU0=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-484-6t1MH9nyN7CvB_-HyKAvUQ-1; Wed, 13 Oct 2021 22:45:40 -0400
-X-MC-Unique: 6t1MH9nyN7CvB_-HyKAvUQ-1
-Received: by mail-lf1-f69.google.com with SMTP id bt36-20020a056512262400b003fd7e6a96e8so3310093lfb.19
-        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 19:45:39 -0700 (PDT)
+        id S229837AbhJNCxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Oct 2021 22:53:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50560 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229834AbhJNCxA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Oct 2021 22:53:00 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ABF5C061570
+        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 19:50:56 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id np13so3684218pjb.4
+        for <stable@vger.kernel.org>; Wed, 13 Oct 2021 19:50:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=QpQq4jMwTztV6OIwBm5Lr9snA1VCT3M8xgwcllQPENQ=;
+        b=R7Yv14R5od/FWHTWXzirBlcXZSVRd0o66oYG20Fkruu77P1nmdtttn4GEDvPc1C9WP
+         0N8A173XbdC6IhPS6f3dXxI6vSqh0EuZcW8zmHzLcJyNqE/YMElmkoB9E849IGyrcNIg
+         QyQo6I9JyJ1c2ZZmVBOs4J3krnT93ixDl56kC4qGnZHPfHfoLzIcY8fjntK4gfG/PRSB
+         FyrFj1FUuGPUP/CYX5NXd9UCgMC1Pfix1aoSunCwmYNpk2vvINlzpp5SnYRuRYCXvN6B
+         Q7kQn2XBxHk+1GTll6H7mRwXD1SNXBmWIQTmSEB5aVfb8inu/dB65e2x3MpmvG9egkU4
+         42BA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=eXsQtbYu8ZrTVNpDyzuEjrd6+BUlfzHFpmt5fkpzD3E=;
-        b=4uvsFbj2i2pkjlCpLyPpGN1/yNDCiW4QjtwNWPGf6eEJRWlza5sFa+HfEUwaruO720
-         bZ9v9sBQnPJU3PGst6kVQpjjLQZV8tGNSArUwF2PYoQi/Nkx5BYrSEwzqeUHPkttSG/L
-         gl+ROsi18UK08SlM1mtJezJSEdLuIbZrbjn/7Uah5No+ji/iqXP2JKYrhztWvs9D7EjA
-         2O2F8VZE+xofeLfzgTlOkL2Nxtt//1idU7TNV8rBStrggb7MWEXyrW2RJMs6UfBgRK97
-         O6D8ihiCVWKZnoNwvWZmt4jt9y0D3vYSCc2PNjMt6Z7Ws0RDiUIJv3yIz6wvGnKTMGRP
-         QBxQ==
-X-Gm-Message-State: AOAM531R0Z+w1h5pu2S3zmvlc058/rOnhB5BnjQvX8qpr0IxMltR+zxu
-        /SOejkLVibHjP7JCp3Qc2k7QU3mZqHo4dSW+7xPEC6jKDiCm9xTrB1EnrjGS36NW+uQyaXrqVFx
-        RAsPqsh5d5JQrZdQnb77XH+FfsMYRY+Ml
-X-Received: by 2002:a2e:a553:: with SMTP id e19mr3434297ljn.420.1634179538432;
-        Wed, 13 Oct 2021 19:45:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx+xgpkEUubYfnpn/vaAsfXQ0rhxqRYeg+wRyCTA86C+jYoPsMcxaiuymric4yv4DqVOdlgczVxxUcTpfzpW1c=
-X-Received: by 2002:a2e:a553:: with SMTP id e19mr3434279ljn.420.1634179538228;
- Wed, 13 Oct 2021 19:45:38 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=QpQq4jMwTztV6OIwBm5Lr9snA1VCT3M8xgwcllQPENQ=;
+        b=nhVST1SnujmTNppB+0EQINrdnYpXBCNzoiz40FWeEPIvmibcO1g2JUTb8qvP9A+fIN
+         7hIYkBYMzUCVUnrDb2b9NYsx5z4WgcraEQI1vrFFX8z44asEMhWfgnPGwoNvpYlx9NjX
+         rmz9u657bF78GKD+y8qGv1OmlV+gG4PFqSJp2koGY1rjbQhkkZd4H/RySm+pqwH5gnB8
+         YZjSRCpfIKl7Sk1gJIo/wxXLhYMBumIzJVNeaqbvhjREHzD8pjgAIfoXniBpvObcyuQ4
+         78Nr+ZYVdhye/XSPYmst1fyHOjobwblklN9p/osiYX9lKbBSwS9rtHzg2rrADFAbXslV
+         YBug==
+X-Gm-Message-State: AOAM532XF7kaCuOo5BdUtTniP/hmC81x1olvAYR2toL36gPKtR2h/vqO
+        rmZ00KlvaITamkRtFuinuVJirxDG3r62JRNSQwU=
+X-Google-Smtp-Source: ABdhPJxcIG6X7d9ivZfH0WTePJgeRDDbFwznJmGhJvQKoZfYzbkO4nOACVGjRqU15yZavgsjorbFyg==
+X-Received: by 2002:a17:902:9a97:b0:13e:2da4:8132 with SMTP id w23-20020a1709029a9700b0013e2da48132mr2734202plp.34.1634179855444;
+        Wed, 13 Oct 2021 19:50:55 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u66sm769418pfc.114.2021.10.13.19.50.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Oct 2021 19:50:55 -0700 (PDT)
+Message-ID: <61679b0f.1c69fb81.331a.37a0@mx.google.com>
+Date:   Wed, 13 Oct 2021 19:50:55 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20211013124553.23803-1-mst@redhat.com>
-In-Reply-To: <20211013124553.23803-1-mst@redhat.com>
-From:   Jason Wang <jasowang@redhat.com>
-Date:   Thu, 14 Oct 2021 10:45:25 +0800
-Message-ID: <CACGkMEvoE8+FxvX_vJEqEuqHptHu1-0TyM4j1P=cnRiBD6-1vA@mail.gmail.com>
-Subject: Re: [PATCH] Revert "virtio-blk: Add validation for block size in
- config space"
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        linux-block@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.211-12-g4bd4db2313e8
+Subject: stable-rc/queue/4.19 baseline: 82 runs,
+ 3 regressions (v4.19.211-12-g4bd4db2313e8)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 13, 2021 at 8:46 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> It turns out that access to config space before completing the feature
-> negotiation is broken for big endian guests at least with QEMU hosts up
-> to 6.1 inclusive.  This affects any device that accesses config space in
-> the validate callback: at the moment that is virtio-net with
-> VIRTIO_NET_F_MTU but since 82e89ea077b9 ("virtio-blk: Add validation for
-> block size in config space") that also started affecting virtio-blk with
-> VIRTIO_BLK_F_BLK_SIZE.
+stable-rc/queue/4.19 baseline: 82 runs, 3 regressions (v4.19.211-12-g4bd4db=
+2313e8)
 
-Ok, so it looks like I need to do something similar in my series to
-validate max_nr_ports in probe() instead of validate()? (multi port is
-not enabled by default).
+Regressions Summary
+-------------------
 
-I wonder if we need to document this and rename the validate to
-validate_features() (since we can do very little thing if we can't
-read config in .validate()).
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
+ | 1          =
 
-> Further, unlike VIRTIO_NET_F_MTU which is off by
-> default on QEMU, VIRTIO_BLK_F_BLK_SIZE is on by default, which resulted
-> in lots of people not being able to boot VMs on BE.
->
-> The spec is very clear that what we are doing is legal so QEMU needs to
-> be fixed, but given it's been broken for so many years and no one
-> noticed, we need to give QEMU a bit more time before applying this.
->
-> Further, this patch is incomplete (does not check blk size is a power
-> of two) and it duplicates the logic from nbd.
->
-> Revert for now, and we'll reapply a cleaner logic in the next release.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-> Cc: Xie Yongji <xieyongji@bytedance.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
+ | 1          =
 
-Acked-by: jason Wang <jasowang@redhat.com>
+qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
+ | 1          =
 
-> ---
->  drivers/block/virtio_blk.c | 37 ++++++-------------------------------
->  1 file changed, 6 insertions(+), 31 deletions(-)
->
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 9b3bd083b411..303caf2d17d0 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -689,28 +689,6 @@ static const struct blk_mq_ops virtio_mq_ops = {
->  static unsigned int virtblk_queue_depth;
->  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
->
-> -static int virtblk_validate(struct virtio_device *vdev)
-> -{
-> -       u32 blk_size;
-> -
-> -       if (!vdev->config->get) {
-> -               dev_err(&vdev->dev, "%s failure: config access disabled\n",
-> -                       __func__);
-> -               return -EINVAL;
-> -       }
-> -
-> -       if (!virtio_has_feature(vdev, VIRTIO_BLK_F_BLK_SIZE))
-> -               return 0;
-> -
-> -       blk_size = virtio_cread32(vdev,
-> -                       offsetof(struct virtio_blk_config, blk_size));
-> -
-> -       if (blk_size < SECTOR_SIZE || blk_size > PAGE_SIZE)
-> -               __virtio_clear_bit(vdev, VIRTIO_BLK_F_BLK_SIZE);
-> -
-> -       return 0;
-> -}
-> -
->  static int virtblk_probe(struct virtio_device *vdev)
->  {
->         struct virtio_blk *vblk;
-> @@ -722,6 +700,12 @@ static int virtblk_probe(struct virtio_device *vdev)
->         u8 physical_block_exp, alignment_offset;
->         unsigned int queue_depth;
->
-> +       if (!vdev->config->get) {
-> +               dev_err(&vdev->dev, "%s failure: config access disabled\n",
-> +                       __func__);
-> +               return -EINVAL;
-> +       }
-> +
->         err = ida_simple_get(&vd_index_ida, 0, minor_to_index(1 << MINORBITS),
->                              GFP_KERNEL);
->         if (err < 0)
-> @@ -836,14 +820,6 @@ static int virtblk_probe(struct virtio_device *vdev)
->         else
->                 blk_size = queue_logical_block_size(q);
->
-> -       if (blk_size < SECTOR_SIZE || blk_size > PAGE_SIZE) {
-> -               dev_err(&vdev->dev,
-> -                       "block size is changed unexpectedly, now is %u\n",
-> -                       blk_size);
-> -               err = -EINVAL;
-> -               goto out_cleanup_disk;
-> -       }
-> -
->         /* Use topology information if available */
->         err = virtio_cread_feature(vdev, VIRTIO_BLK_F_TOPOLOGY,
->                                    struct virtio_blk_config, physical_block_exp,
-> @@ -1009,7 +985,6 @@ static struct virtio_driver virtio_blk = {
->         .driver.name                    = KBUILD_MODNAME,
->         .driver.owner                   = THIS_MODULE,
->         .id_table                       = id_table,
-> -       .validate                       = virtblk_validate,
->         .probe                          = virtblk_probe,
->         .remove                         = virtblk_remove,
->         .config_changed                 = virtblk_config_changed,
-> --
-> MST
->
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.211-12-g4bd4db2313e8/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.211-12-g4bd4db2313e8
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4bd4db2313e8189709d2c0ea5384e7860a14191f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61675de00536dc422708fab5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
+-12-g4bd4db2313e8/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
+-12-g4bd4db2313e8/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61675de00536dc422708f=
+ab6
+        failing since 334 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61675de40536dc422708fab8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
+-12-g4bd4db2313e8/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
+-12-g4bd4db2313e8/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61675de40536dc422708f=
+ab9
+        failing since 334 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61675de90536dc422708fabe
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
+-12-g4bd4db2313e8/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
+-12-g4bd4db2313e8/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61675de90536dc422708f=
+abf
+        failing since 334 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
