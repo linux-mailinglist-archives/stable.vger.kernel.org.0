@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39FF842DC92
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:58:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3737042DC32
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231182AbhJNPAM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:00:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44722 "EHLO mail.kernel.org"
+        id S232106AbhJNO5R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:57:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232630AbhJNO7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:59:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CBAC61183;
-        Thu, 14 Oct 2021 14:56:59 +0000 (UTC)
+        id S232004AbhJNO5M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:57:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 549FE61167;
+        Thu, 14 Oct 2021 14:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223420;
-        bh=Hf2n9xfbqFkxvyar5vNGFeR2VXs0Bc4gXJF2VAyjc10=;
+        s=korg; t=1634223307;
+        bh=z8/N/usr3eM523Py87/ZRLTuaWlZCiyzp5Dz27y/We4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YviLJ3bhMVD+x1uh0U3QV1mjvcLDRfqkQZslIq0z7FmcKwXR4uMac0A1GR8nb8AbH
-         pXLSQVZ7cv3TBX6EW/y+jnm7UrJ5mTK0XNO8CsnYUVxW38kHx8m+2qZ1i87UvGntwH
-         2dhoTkP+3wPOyJDz52pYyBhbo+LOZ5O/mFdbPfXE=
+        b=N2rYqDE7FNSO/tvfGV1sYfEFWC6FwgA0bib3SjVZppScGPd15SmrlBKPC7+mgD9kq
+         CqqwBYkYLpIJU4EFqBNupqeS3lxL1pD1ncTfxIQ++TPtZEXhY2duPEI9hSTBnkDmA9
+         03BY2etOO/zqRkzJZ/EW+SpWBFpXzZmpGQ114N4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Scott Wood <oss@buserror.net>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/33] powerpc/fsl/dts: Fix phy-connection-type for fm1mac3
-Date:   Thu, 14 Oct 2021 16:53:47 +0200
-Message-Id: <20211014145209.284583433@linuxfoundation.org>
+Subject: [PATCH 4.4 16/18] scsi: ses: Fix unsigned comparison with less than zero
+Date:   Thu, 14 Oct 2021 16:53:48 +0200
+Message-Id: <20211014145206.842279265@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
-References: <20211014145208.775270267@linuxfoundation.org>
+In-Reply-To: <20211014145206.330102860@linuxfoundation.org>
+References: <20211014145206.330102860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit eed183abc0d3b8adb64fd1363b7cea7986cd58d6 ]
+[ Upstream commit dd689ed5aa905daf4ba4c99319a52aad6ea0a796 ]
 
-Property phy-connection-type contains invalid value "sgmii-2500" per scheme
-defined in file ethernet-controller.yaml.
+Fix the following coccicheck warning:
 
-Correct phy-connection-type value should be "2500base-x".
+./drivers/scsi/ses.c:137:10-16: WARNING: Unsigned expression compared
+with zero: result > 0.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 84e0f1c13806 ("powerpc/mpc85xx: Add MDIO bus muxing support to the board device tree(s)")
-Acked-by: Scott Wood <oss@buserror.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/1632477113-90378-1-git-send-email-jiapeng.chong@linux.alibaba.com
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/t1023rdb.dts | 2 +-
+ drivers/scsi/ses.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/t1023rdb.dts b/arch/powerpc/boot/dts/fsl/t1023rdb.dts
-index 5ba6fbfca274..f82f85c65964 100644
---- a/arch/powerpc/boot/dts/fsl/t1023rdb.dts
-+++ b/arch/powerpc/boot/dts/fsl/t1023rdb.dts
-@@ -154,7 +154,7 @@
+diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
+index 01168acc864d..1aed965c33a3 100644
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -118,7 +118,7 @@ static int ses_recv_diag(struct scsi_device *sdev, int page_code,
+ static int ses_send_diag(struct scsi_device *sdev, int page_code,
+ 			 void *buf, int bufflen)
+ {
+-	u32 result;
++	int result;
  
- 			fm1mac3: ethernet@e4000 {
- 				phy-handle = <&sgmii_aqr_phy3>;
--				phy-connection-type = "sgmii-2500";
-+				phy-connection-type = "2500base-x";
- 				sleep = <&rcpm 0x20000000>;
- 			};
- 
+ 	unsigned char cmd[] = {
+ 		SEND_DIAGNOSTIC,
 -- 
 2.33.0
 
