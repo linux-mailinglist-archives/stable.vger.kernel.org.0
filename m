@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 880BF42DD33
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:03:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09E0442DCFD
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:01:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232896AbhJNPFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:05:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44464 "EHLO mail.kernel.org"
+        id S232506AbhJNPDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:03:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232525AbhJNPDe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:03:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C61E60FDC;
-        Thu, 14 Oct 2021 15:00:16 +0000 (UTC)
+        id S232307AbhJNPCY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:02:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D6E76120A;
+        Thu, 14 Oct 2021 14:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223616;
-        bh=4ZCA9TKg4yO885UqyCNNZkjwk0X5lC0J8AnQW7sHI9k=;
+        s=korg; t=1634223560;
+        bh=D+8LE65aJeazr7MPs5PYlzMbV8Jvff7TNv/Kb2Y+raE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZCghLVDceenOZxHNxftt3VL2sY3gRhU/ydD0OruSI2luYVbC8WEXx6K91oTqb6Brl
-         HK5TXWJINLijMqJ7C8ouWJw2phvSwfGVgwM1wlEnwtewW2JymbafdJkmc52eym3Sp1
-         Muz1eCwxK9ZbqP7p7cyysj8/SMpLVw1/1JNYf8Yk=
+        b=gTbHJ+BDhN4ku3dWSwPRmjFsYX9W3x7yRxZgoG/nTJD1tPCYCpP6+A60e5xPXIfur
+         T74gbqz9FBZ06OCSdxjyF9eJLSToJMHa1Jk8eZL36a9cb5ZNf5zDLAsyNzOl1y8r6E
+         7e68GWmLj97CIv/9Z6QQl3QCNT4DdxcVUydH/1hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mizuho Mori <morimolymoly@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 04/22] HID: apple: Fix logical maximum and usage maximum of Magic Keyboard JIS
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Martin Zaharinov <micron10@gmail.com>
+Subject: [PATCH 5.4 07/16] netfilter: nf_nat_masquerade: defer conntrack walk to work queue
 Date:   Thu, 14 Oct 2021 16:54:10 +0200
-Message-Id: <20211014145208.125458221@linuxfoundation.org>
+Message-Id: <20211014145207.557561703@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
-References: <20211014145207.979449962@linuxfoundation.org>
+In-Reply-To: <20211014145207.314256898@linuxfoundation.org>
+References: <20211014145207.314256898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,100 +41,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mizuho Mori <morimolymoly@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 67fd71ba16a37c663d139f5ba5296f344d80d072 ]
+[ Upstream commit 7970a19b71044bf4dc2c1becc200275bdf1884d4 ]
 
-Apple Magic Keyboard(JIS)'s Logical Maximum and Usage Maximum are wrong.
+The ipv4 and device notifiers are called with RTNL mutex held.
+The table walk can take some time, better not block other RTNL users.
 
-Below is a report descriptor.
+'ip a' has been reported to block for up to 20 seconds when conntrack table
+has many entries and device down events are frequent (e.g., PPP).
 
-0x05, 0x01,         /*  Usage Page (Desktop),                           */
-0x09, 0x06,         /*  Usage (Keyboard),                               */
-0xA1, 0x01,         /*  Collection (Application),                       */
-0x85, 0x01,         /*      Report ID (1),                              */
-0x05, 0x07,         /*      Usage Page (Keyboard),                      */
-0x15, 0x00,         /*      Logical Minimum (0),                        */
-0x25, 0x01,         /*      Logical Maximum (1),                        */
-0x19, 0xE0,         /*      Usage Minimum (KB Leftcontrol),             */
-0x29, 0xE7,         /*      Usage Maximum (KB Right GUI),               */
-0x75, 0x01,         /*      Report Size (1),                            */
-0x95, 0x08,         /*      Report Count (8),                           */
-0x81, 0x02,         /*      Input (Variable),                           */
-0x95, 0x05,         /*      Report Count (5),                           */
-0x75, 0x01,         /*      Report Size (1),                            */
-0x05, 0x08,         /*      Usage Page (LED),                           */
-0x19, 0x01,         /*      Usage Minimum (01h),                        */
-0x29, 0x05,         /*      Usage Maximum (05h),                        */
-0x91, 0x02,         /*      Output (Variable),                          */
-0x95, 0x01,         /*      Report Count (1),                           */
-0x75, 0x03,         /*      Report Size (3),                            */
-0x91, 0x03,         /*      Output (Constant, Variable),                */
-0x95, 0x08,         /*      Report Count (8),                           */
-0x75, 0x01,         /*      Report Size (1),                            */
-0x15, 0x00,         /*      Logical Minimum (0),                        */
-0x25, 0x01,         /*      Logical Maximum (1),                        */
-
-here is a report descriptor which is parsed one in kernel.
-see sys/kernel/debug/hid/<dev>/rdesc
-
-05 01 09 06 a1 01 85 01 05 07
-15 00 25 01 19 e0 29 e7 75 01
-95 08 81 02 95 05 75 01 05 08
-19 01 29 05 91 02 95 01 75 03
-91 03 95 08 75 01 15 00 25 01
-06 00 ff 09 03 81 03 95 06 75
-08 15 00 25 [65] 05 07 19 00 29
-[65] 81 00 95 01 75 01 15 00 25
-01 05 0c 09 b8 81 02 95 01 75
-01 06 01 ff 09 03 81 02 95 01
-75 06 81 03 06 02 ff 09 55 85
-55 15 00 26 ff 00 75 08 95 40
-b1 a2 c0 06 00 ff 09 14 a1 01
-85 90 05 84 75 01 95 03 15 00
-25 01 09 61 05 85 09 44 09 46
-81 02 95 05 81 01 75 08 95 01
-15 00 26 ff 00 09 65 81 02 c0
-00
-
-Position 64(Logical Maximum) and 70(Usage Maximum) are 101.
-Both should be 0xE7 to support JIS specific keys(ろ, Eisu, Kana, |) support.
-position 117 is also 101 but not related(it is Usage 65h).
-
-There are no difference of product id between JIS and ANSI.
-They are same 0x0267.
-
-Signed-off-by: Mizuho Mori <morimolymoly@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reported-and-tested-by: Martin Zaharinov <micron10@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/netfilter/nf_nat_masquerade.c | 50 +++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 6b8f0d004d34..5c1d33cda863 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -322,12 +322,19 @@ static int apple_event(struct hid_device *hdev, struct hid_field *field,
+diff --git a/net/netfilter/nf_nat_masquerade.c b/net/netfilter/nf_nat_masquerade.c
+index 415919a6ac1a..acd73f717a08 100644
+--- a/net/netfilter/nf_nat_masquerade.c
++++ b/net/netfilter/nf_nat_masquerade.c
+@@ -131,13 +131,14 @@ static void nf_nat_masq_schedule(struct net *net, union nf_inet_addr *addr,
+ 	put_net(net);
+ }
  
- /*
-  * MacBook JIS keyboard has wrong logical maximum
-+ * Magic Keyboard JIS has wrong logical maximum
-  */
- static __u8 *apple_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
+-static int device_cmp(struct nf_conn *i, void *ifindex)
++static int device_cmp(struct nf_conn *i, void *arg)
  {
- 	struct apple_sc *asc = hid_get_drvdata(hdev);
+ 	const struct nf_conn_nat *nat = nfct_nat(i);
++	const struct masq_dev_work *w = arg;
  
-+	if(*rsize >=71 && rdesc[70] == 0x65 && rdesc[64] == 0x65) {
-+		hid_info(hdev,
-+			 "fixing up Magic Keyboard JIS report descriptor\n");
-+		rdesc[64] = rdesc[70] = 0xe7;
-+	}
+ 	if (!nat)
+ 		return 0;
+-	return nat->masq_index == (int)(long)ifindex;
++	return nat->masq_index == w->ifindex;
+ }
+ 
+ static int masq_device_event(struct notifier_block *this,
+@@ -153,8 +154,8 @@ static int masq_device_event(struct notifier_block *this,
+ 		 * and forget them.
+ 		 */
+ 
+-		nf_ct_iterate_cleanup_net(net, device_cmp,
+-					  (void *)(long)dev->ifindex, 0, 0);
++		nf_nat_masq_schedule(net, NULL, dev->ifindex,
++				     device_cmp, GFP_KERNEL);
+ 	}
+ 
+ 	return NOTIFY_DONE;
+@@ -162,35 +163,45 @@ static int masq_device_event(struct notifier_block *this,
+ 
+ static int inet_cmp(struct nf_conn *ct, void *ptr)
+ {
+-	struct in_ifaddr *ifa = (struct in_ifaddr *)ptr;
+-	struct net_device *dev = ifa->ifa_dev->dev;
+ 	struct nf_conntrack_tuple *tuple;
++	struct masq_dev_work *w = ptr;
+ 
+-	if (!device_cmp(ct, (void *)(long)dev->ifindex))
++	if (!device_cmp(ct, ptr))
+ 		return 0;
+ 
+ 	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
+ 
+-	return ifa->ifa_address == tuple->dst.u3.ip;
++	return nf_inet_addr_cmp(&w->addr, &tuple->dst.u3);
+ }
+ 
+ static int masq_inet_event(struct notifier_block *this,
+ 			   unsigned long event,
+ 			   void *ptr)
+ {
+-	struct in_device *idev = ((struct in_ifaddr *)ptr)->ifa_dev;
+-	struct net *net = dev_net(idev->dev);
++	const struct in_ifaddr *ifa = ptr;
++	const struct in_device *idev;
++	const struct net_device *dev;
++	union nf_inet_addr addr;
 +
- 	if ((asc->quirks & APPLE_RDESC_JIS) && *rsize >= 60 &&
- 			rdesc[53] == 0x65 && rdesc[59] == 0x65) {
- 		hid_info(hdev,
++	if (event != NETDEV_DOWN)
++		return NOTIFY_DONE;
+ 
+ 	/* The masq_dev_notifier will catch the case of the device going
+ 	 * down.  So if the inetdev is dead and being destroyed we have
+ 	 * no work to do.  Otherwise this is an individual address removal
+ 	 * and we have to perform the flush.
+ 	 */
++	idev = ifa->ifa_dev;
+ 	if (idev->dead)
+ 		return NOTIFY_DONE;
+ 
+-	if (event == NETDEV_DOWN)
+-		nf_ct_iterate_cleanup_net(net, inet_cmp, ptr, 0, 0);
++	memset(&addr, 0, sizeof(addr));
++
++	addr.ip = ifa->ifa_address;
++
++	dev = idev->dev;
++	nf_nat_masq_schedule(dev_net(idev->dev), &addr, dev->ifindex,
++			     inet_cmp, GFP_KERNEL);
+ 
+ 	return NOTIFY_DONE;
+ }
+@@ -253,19 +264,6 @@ nf_nat_masquerade_ipv6(struct sk_buff *skb, const struct nf_nat_range2 *range,
+ }
+ EXPORT_SYMBOL_GPL(nf_nat_masquerade_ipv6);
+ 
+-static int inet6_cmp(struct nf_conn *ct, void *work)
+-{
+-	struct masq_dev_work *w = (struct masq_dev_work *)work;
+-	struct nf_conntrack_tuple *tuple;
+-
+-	if (!device_cmp(ct, (void *)(long)w->ifindex))
+-		return 0;
+-
+-	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
+-
+-	return nf_inet_addr_cmp(&w->addr, &tuple->dst.u3);
+-}
+-
+ /* atomic notifier; can't call nf_ct_iterate_cleanup_net (it can sleep).
+  *
+  * Defer it to the system workqueue.
+@@ -289,7 +287,7 @@ static int masq_inet6_event(struct notifier_block *this,
+ 
+ 	addr.in6 = ifa->addr;
+ 
+-	nf_nat_masq_schedule(dev_net(dev), &addr, dev->ifindex, inet6_cmp,
++	nf_nat_masq_schedule(dev_net(dev), &addr, dev->ifindex, inet_cmp,
+ 			     GFP_ATOMIC);
+ 	return NOTIFY_DONE;
+ }
 -- 
 2.33.0
 
