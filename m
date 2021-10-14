@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33A1F42DD38
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7E3F42DD00
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:01:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232966AbhJNPFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49670 "EHLO mail.kernel.org"
+        id S232893AbhJNPDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:03:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232720AbhJNPDr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:03:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6422C610D1;
-        Thu, 14 Oct 2021 15:00:21 +0000 (UTC)
+        id S233025AbhJNPC2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:02:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A21A6120E;
+        Thu, 14 Oct 2021 14:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223621;
-        bh=Q8KolwejPoZWajeigDxPT8rcZZa6PeyM1uWZxa8cUMU=;
+        s=korg; t=1634223565;
+        bh=wQfaA+1RE7T6YD4VlDR8Th7fjSpXqAYsnM9WnDoB8M8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/wnwyhiyO4obr9QTuKQ2P717W+Ai4uhNUMA9UdkMviCfMvUDcDHv4/sqelcBp0T8
-         kAM4zjTVr8BaqWFzGaalm8w7ufR2qfAPD4uX8iPfU6GOoAyr1WWnlVZN60YMb3OcyB
-         CEVVbgFIChkjMKjkf/e5wG/ytI+/97Bj71+uBw/0=
+        b=WcpdSMUIy7Kq+Xnx6DiUNMY7U4TV7WOY05dSu12K+s3MtkKIwFC+c+r5Hk6z4jtrH
+         vYyNaI/GofckFOI32JlurpeFunlayBGlvYthr4Y+IDhTepP0GCR68ax76bLsfj2Xn0
+         6m7FBMG0yVzmrS6oo25NmF3xkw8Q71qi0MyrLQDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joshua Dickens <joshua.dickens@wacom.com>,
-        Ping Cheng <ping.cheng@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 06/22] HID: wacom: Add new Intuos BT (CTL-4100WL/CTL-6100WL) device IDs
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Michael Schmitz <schmitzmic@gmail.com>,
+        Finn Thain <fthain@linux-m68k.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 09/16] m68k: Handle arrivals of multiple signals correctly
 Date:   Thu, 14 Oct 2021 16:54:12 +0200
-Message-Id: <20211014145208.191051266@linuxfoundation.org>
+Message-Id: <20211014145207.623586224@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
-References: <20211014145207.979449962@linuxfoundation.org>
+In-Reply-To: <20211014145207.314256898@linuxfoundation.org>
+References: <20211014145207.314256898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +42,229 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joshua-Dickens <Joshua@Joshua-Dickens.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 0c8fbaa553077630e8eae45bd9676cfc01836aeb ]
+[ Upstream commit 4bb0bd81ce5e97092dfda6a106d414b703ec0ee8 ]
 
-Add the new PIDs to wacom_wac.c to support the new models in the Intuos series.
+When we have several pending signals, have entered with the kernel
+with large exception frame *and* have already built at least one
+sigframe, regs->stkadj is going to be non-zero and regs->format/sr/pc
+are going to be junk - the real values are in shifted exception stack
+frame we'd built when putting together the first sigframe.
 
-[jkosina@suse.cz: fix changelog]
-Signed-off-by: Joshua Dickens <joshua.dickens@wacom.com>
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+If that happens, subsequent sigframes are going to be garbage.
+Not hard to fix - just need to find the "adjusted" frame first
+and look for format/vector/sr/pc in it.
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
+Tested-by: Finn Thain <fthain@linux-m68k.org>
+Link: https://lore.kernel.org/r/YP2dBIAPTaVvHiZ6@zeniv-ca.linux.org.uk
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/m68k/kernel/signal.c | 88 +++++++++++++++++++--------------------
+ 1 file changed, 42 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 4228ddc3df0e..b2719cf37aa5 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -4715,6 +4715,12 @@ static const struct wacom_features wacom_features_0x393 =
- 	{ "Wacom Intuos Pro S", 31920, 19950, 8191, 63,
- 	  INTUOSP2S_BT, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 7,
- 	  .touch_max = 10 };
-+static const struct wacom_features wacom_features_0x3c6 =
-+	{ "Wacom Intuos BT S", 15200, 9500, 4095, 63,
-+	  INTUOSHT3_BT, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4 };
-+static const struct wacom_features wacom_features_0x3c8 =
-+	{ "Wacom Intuos BT M", 21600, 13500, 4095, 63,
-+	  INTUOSHT3_BT, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4 };
+diff --git a/arch/m68k/kernel/signal.c b/arch/m68k/kernel/signal.c
+index 05610e6924c1..f7121b775e5f 100644
+--- a/arch/m68k/kernel/signal.c
++++ b/arch/m68k/kernel/signal.c
+@@ -448,7 +448,7 @@ static inline void save_fpu_state(struct sigcontext *sc, struct pt_regs *regs)
  
- static const struct wacom_features wacom_features_HID_ANY_ID =
- 	{ "Wacom HID", .type = HID_GENERIC, .oVid = HID_ANY_ID, .oPid = HID_ANY_ID };
-@@ -4888,6 +4894,8 @@ const struct hid_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x37A) },
- 	{ USB_DEVICE_WACOM(0x37B) },
- 	{ BT_DEVICE_WACOM(0x393) },
-+	{ BT_DEVICE_WACOM(0x3c6) },
-+	{ BT_DEVICE_WACOM(0x3c8) },
- 	{ USB_DEVICE_WACOM(0x4001) },
- 	{ USB_DEVICE_WACOM(0x4004) },
- 	{ USB_DEVICE_WACOM(0x5000) },
+ 	if (CPU_IS_060 ? sc->sc_fpstate[2] : sc->sc_fpstate[0]) {
+ 		fpu_version = sc->sc_fpstate[0];
+-		if (CPU_IS_020_OR_030 &&
++		if (CPU_IS_020_OR_030 && !regs->stkadj &&
+ 		    regs->vector >= (VEC_FPBRUC * 4) &&
+ 		    regs->vector <= (VEC_FPNAN * 4)) {
+ 			/* Clear pending exception in 68882 idle frame */
+@@ -511,7 +511,7 @@ static inline int rt_save_fpu_state(struct ucontext __user *uc, struct pt_regs *
+ 		if (!(CPU_IS_060 || CPU_IS_COLDFIRE))
+ 			context_size = fpstate[1];
+ 		fpu_version = fpstate[0];
+-		if (CPU_IS_020_OR_030 &&
++		if (CPU_IS_020_OR_030 && !regs->stkadj &&
+ 		    regs->vector >= (VEC_FPBRUC * 4) &&
+ 		    regs->vector <= (VEC_FPNAN * 4)) {
+ 			/* Clear pending exception in 68882 idle frame */
+@@ -829,18 +829,24 @@ badframe:
+ 	return 0;
+ }
+ 
++static inline struct pt_regs *rte_regs(struct pt_regs *regs)
++{
++	return (void *)regs + regs->stkadj;
++}
++
+ static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
+ 			     unsigned long mask)
+ {
++	struct pt_regs *tregs = rte_regs(regs);
+ 	sc->sc_mask = mask;
+ 	sc->sc_usp = rdusp();
+ 	sc->sc_d0 = regs->d0;
+ 	sc->sc_d1 = regs->d1;
+ 	sc->sc_a0 = regs->a0;
+ 	sc->sc_a1 = regs->a1;
+-	sc->sc_sr = regs->sr;
+-	sc->sc_pc = regs->pc;
+-	sc->sc_formatvec = regs->format << 12 | regs->vector;
++	sc->sc_sr = tregs->sr;
++	sc->sc_pc = tregs->pc;
++	sc->sc_formatvec = tregs->format << 12 | tregs->vector;
+ 	save_a5_state(sc, regs);
+ 	save_fpu_state(sc, regs);
+ }
+@@ -848,6 +854,7 @@ static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
+ static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *regs)
+ {
+ 	struct switch_stack *sw = (struct switch_stack *)regs - 1;
++	struct pt_regs *tregs = rte_regs(regs);
+ 	greg_t __user *gregs = uc->uc_mcontext.gregs;
+ 	int err = 0;
+ 
+@@ -868,9 +875,9 @@ static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *
+ 	err |= __put_user(sw->a5, &gregs[13]);
+ 	err |= __put_user(sw->a6, &gregs[14]);
+ 	err |= __put_user(rdusp(), &gregs[15]);
+-	err |= __put_user(regs->pc, &gregs[16]);
+-	err |= __put_user(regs->sr, &gregs[17]);
+-	err |= __put_user((regs->format << 12) | regs->vector, &uc->uc_formatvec);
++	err |= __put_user(tregs->pc, &gregs[16]);
++	err |= __put_user(tregs->sr, &gregs[17]);
++	err |= __put_user((tregs->format << 12) | tregs->vector, &uc->uc_formatvec);
+ 	err |= rt_save_fpu_state(uc, regs);
+ 	return err;
+ }
+@@ -887,13 +894,14 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 			struct pt_regs *regs)
+ {
+ 	struct sigframe __user *frame;
+-	int fsize = frame_extra_sizes(regs->format);
++	struct pt_regs *tregs = rte_regs(regs);
++	int fsize = frame_extra_sizes(tregs->format);
+ 	struct sigcontext context;
+ 	int err = 0, sig = ksig->sig;
+ 
+ 	if (fsize < 0) {
+ 		pr_debug("setup_frame: Unknown frame format %#x\n",
+-			 regs->format);
++			 tregs->format);
+ 		return -EFAULT;
+ 	}
+ 
+@@ -904,7 +912,7 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	err |= __put_user(sig, &frame->sig);
+ 
+-	err |= __put_user(regs->vector, &frame->code);
++	err |= __put_user(tregs->vector, &frame->code);
+ 	err |= __put_user(&frame->sc, &frame->psc);
+ 
+ 	if (_NSIG_WORDS > 1)
+@@ -929,34 +937,28 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	push_cache ((unsigned long) &frame->retcode);
+ 
+-	/*
+-	 * Set up registers for signal handler.  All the state we are about
+-	 * to destroy is successfully copied to sigframe.
+-	 */
+-	wrusp ((unsigned long) frame);
+-	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
+-	adjustformat(regs);
+-
+ 	/*
+ 	 * This is subtle; if we build more than one sigframe, all but the
+ 	 * first one will see frame format 0 and have fsize == 0, so we won't
+ 	 * screw stkadj.
+ 	 */
+-	if (fsize)
++	if (fsize) {
+ 		regs->stkadj = fsize;
+-
+-	/* Prepare to skip over the extra stuff in the exception frame.  */
+-	if (regs->stkadj) {
+-		struct pt_regs *tregs =
+-			(struct pt_regs *)((ulong)regs + regs->stkadj);
++		tregs = rte_regs(regs);
+ 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
+-		/* This must be copied with decreasing addresses to
+-                   handle overlaps.  */
+ 		tregs->vector = 0;
+ 		tregs->format = 0;
+-		tregs->pc = regs->pc;
+ 		tregs->sr = regs->sr;
+ 	}
++
++	/*
++	 * Set up registers for signal handler.  All the state we are about
++	 * to destroy is successfully copied to sigframe.
++	 */
++	wrusp ((unsigned long) frame);
++	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
++	adjustformat(regs);
++
+ 	return 0;
+ }
+ 
+@@ -964,7 +966,8 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
+ 			   struct pt_regs *regs)
+ {
+ 	struct rt_sigframe __user *frame;
+-	int fsize = frame_extra_sizes(regs->format);
++	struct pt_regs *tregs = rte_regs(regs);
++	int fsize = frame_extra_sizes(tregs->format);
+ 	int err = 0, sig = ksig->sig;
+ 
+ 	if (fsize < 0) {
+@@ -1013,34 +1016,27 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	push_cache ((unsigned long) &frame->retcode);
+ 
+-	/*
+-	 * Set up registers for signal handler.  All the state we are about
+-	 * to destroy is successfully copied to sigframe.
+-	 */
+-	wrusp ((unsigned long) frame);
+-	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
+-	adjustformat(regs);
+-
+ 	/*
+ 	 * This is subtle; if we build more than one sigframe, all but the
+ 	 * first one will see frame format 0 and have fsize == 0, so we won't
+ 	 * screw stkadj.
+ 	 */
+-	if (fsize)
++	if (fsize) {
+ 		regs->stkadj = fsize;
+-
+-	/* Prepare to skip over the extra stuff in the exception frame.  */
+-	if (regs->stkadj) {
+-		struct pt_regs *tregs =
+-			(struct pt_regs *)((ulong)regs + regs->stkadj);
++		tregs = rte_regs(regs);
+ 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
+-		/* This must be copied with decreasing addresses to
+-                   handle overlaps.  */
+ 		tregs->vector = 0;
+ 		tregs->format = 0;
+-		tregs->pc = regs->pc;
+ 		tregs->sr = regs->sr;
+ 	}
++
++	/*
++	 * Set up registers for signal handler.  All the state we are about
++	 * to destroy is successfully copied to sigframe.
++	 */
++	wrusp ((unsigned long) frame);
++	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
++	adjustformat(regs);
+ 	return 0;
+ }
+ 
 -- 
 2.33.0
 
