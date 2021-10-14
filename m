@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51B3A42DC3B
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BB7142DC76
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232170AbhJNO5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:57:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42320 "EHLO mail.kernel.org"
+        id S232398AbhJNO7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:59:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232146AbhJNO5Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:57:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF5FC610D1;
-        Thu, 14 Oct 2021 14:55:19 +0000 (UTC)
+        id S232478AbhJNO6a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:58:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 482AF61184;
+        Thu, 14 Oct 2021 14:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223320;
-        bh=PZFKWnxODNTENkEkPckKJCnGsPviuxrOQQo3vxO/yzc=;
+        s=korg; t=1634223385;
+        bh=EcL8nWbhvmN2JezNVRCLOz4lqc/yvWJ13F+n8CE0QVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ts7NTys6RIDSa4AsTki5RKVhcQACmuP1TYZgzsoRM3e0G+mJ7B3VhbWhp71biWNmR
-         SpjPeZdLdfraVHSz9wZXIoSmChjXj059oOx6q0EGsW9giWhjWJD4TDwnaKp7gUYJsi
-         uFbMgf+OWjQH4EIe+UyuL3GJwZBh7dKyd2nOfEvU=
+        b=BsBIp8vPd0RleFL5qxRroA0eGTR7d4AAZ9F/ZUkndLcJk3pFFnq3MShYtwCkmguRa
+         q31hchBxfj+TCBF8Gb0doMg4AAa0oQKIHe/fuCuQw8vuDzSPGzm3gK/2CJTTGqAnqk
+         qecq2F5JvPI1gQCPU5bIjG53/0HrANsJapX1E82M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 06/18] net_sched: fix NULL deref in fifo_set_limit()
+Subject: [PATCH 4.9 07/25] xtensa: call irqchip_init only when CONFIG_USE_OF is selected
 Date:   Thu, 14 Oct 2021 16:53:38 +0200
-Message-Id: <20211014145206.524140721@linuxfoundation.org>
+Message-Id: <20211014145207.811181114@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145206.330102860@linuxfoundation.org>
-References: <20211014145206.330102860@linuxfoundation.org>
+In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
+References: <20211014145207.575041491@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +39,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit 560ee196fe9e5037e5015e2cdb14b3aecb1cd7dc ]
+[ Upstream commit 6489f8d0e1d93a3603d8dad8125797559e4cf2a2 ]
 
-syzbot reported another NULL deref in fifo_set_limit() [1]
+During boot time kernel configured with OF=y but USE_OF=n displays the
+following warnings and hangs shortly after starting userspace:
 
-I could repro the issue with :
-
-unshare -n
-tc qd add dev lo root handle 1:0 tbf limit 200000 burst 70000 rate 100Mbit
-tc qd replace dev lo parent 1:0 pfifo_fast
-tc qd change dev lo root handle 1:0 tbf limit 300000 burst 70000 rate 100Mbit
-
-pfifo_fast does not have a change() operation.
-Make fifo_set_limit() more robust about this.
-
-[1]
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PGD 1cf99067 P4D 1cf99067 PUD 7ca49067 PMD 0
-Oops: 0010 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 14443 Comm: syz-executor959 Not tainted 5.15.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:0x0
-Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-RSP: 0018:ffffc9000e2f7310 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: ffffffff8d6ecc00 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffff888024c27910 RDI: ffff888071e34000
-RBP: ffff888071e34000 R08: 0000000000000001 R09: ffffffff8fcfb947
-R10: 0000000000000001 R11: 0000000000000000 R12: ffff888024c27910
-R13: ffff888071e34018 R14: 0000000000000000 R15: ffff88801ef74800
-FS:  00007f321d897700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 00000000722c3000 CR4: 00000000003506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at kernel/irq/irqdomain.c:695 irq_create_mapping_affinity+0x29/0xc0
+irq_create_mapping_affinity(, 6) called with NULL domain
+CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.0-rc3-00001-gd67ed2510d28 #30
 Call Trace:
- fifo_set_limit net/sched/sch_fifo.c:242 [inline]
- fifo_set_limit+0x198/0x210 net/sched/sch_fifo.c:227
- tbf_change+0x6ec/0x16d0 net/sched/sch_tbf.c:418
- qdisc_change net/sched/sch_api.c:1332 [inline]
- tc_modify_qdisc+0xd9a/0x1a60 net/sched/sch_api.c:1634
- rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
- netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
- netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:724
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+  __warn+0x69/0xc4
+  warn_slowpath_fmt+0x6c/0x94
+  irq_create_mapping_affinity+0x29/0xc0
+  local_timer_setup+0x40/0x88
+  time_init+0xb1/0xe8
+  start_kernel+0x31d/0x3f4
+  _startup+0x13b/0x13b
+---[ end trace 1e6630e1c5eda35b ]---
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at arch/xtensa/kernel/time.c:141 local_timer_setup+0x58/0x88
+error: can't map timer irq
+CPU: 0 PID: 0 Comm: swapper Tainted: G        W         5.15.0-rc3-00001-gd67ed2510d28 #30
+Call Trace:
+  __warn+0x69/0xc4
+  warn_slowpath_fmt+0x6c/0x94
+  local_timer_setup+0x58/0x88
+  time_init+0xb1/0xe8
+  start_kernel+0x31d/0x3f4
+  _startup+0x13b/0x13b
+---[ end trace 1e6630e1c5eda35c ]---
+Failed to request irq 0 (timer)
 
-Fixes: fb0305ce1b03 ("net-sched: consolidate default fifo qdisc setup")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20210930212239.3430364-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix that by calling irqchip_init only when CONFIG_USE_OF is selected and
+calling legacy interrupt controller init otherwise.
+
+Fixes: da844a81779e ("xtensa: add device trees support")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_fifo.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/xtensa/kernel/irq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_fifo.c b/net/sched/sch_fifo.c
-index 2e4bd2c0a50c..6c99b833f665 100644
---- a/net/sched/sch_fifo.c
-+++ b/net/sched/sch_fifo.c
-@@ -151,6 +151,9 @@ int fifo_set_limit(struct Qdisc *q, unsigned int limit)
- 	if (strncmp(q->ops->id + 1, "fifo", 4) != 0)
- 		return 0;
+diff --git a/arch/xtensa/kernel/irq.c b/arch/xtensa/kernel/irq.c
+index 441694464b1e..fbbc24b914e3 100644
+--- a/arch/xtensa/kernel/irq.c
++++ b/arch/xtensa/kernel/irq.c
+@@ -144,7 +144,7 @@ unsigned xtensa_get_ext_irq_no(unsigned irq)
  
-+	if (!q->ops->change)
-+		return 0;
-+
- 	nla = kmalloc(nla_attr_size(sizeof(struct tc_fifo_qopt)), GFP_KERNEL);
- 	if (nla) {
- 		nla->nla_type = RTM_NEWQDISC;
+ void __init init_IRQ(void)
+ {
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ 	irqchip_init();
+ #else
+ #ifdef CONFIG_HAVE_SMP
 -- 
 2.33.0
 
