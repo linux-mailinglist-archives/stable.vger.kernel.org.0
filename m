@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21B6242DC37
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:55:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 124E842DC72
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232091AbhJNO52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:57:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42264 "EHLO mail.kernel.org"
+        id S232453AbhJNO7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:59:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232098AbhJNO5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:57:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEB8A61151;
-        Thu, 14 Oct 2021 14:55:14 +0000 (UTC)
+        id S232087AbhJNO6Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:58:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63DEC611B0;
+        Thu, 14 Oct 2021 14:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223315;
-        bh=EcL8nWbhvmN2JezNVRCLOz4lqc/yvWJ13F+n8CE0QVA=;
+        s=korg; t=1634223380;
+        bh=d5zQFgUzc3+d4l3i9VHtpk4cas2EtO2xm8LrO4mMBkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z6LYX4ZYSFe82TjQHkCNd21ee76lLoAjcsuBMZCDnJmNCB5dhkodakjrAHnkd/4Dj
-         PwzmqYxQ3QqC0mVhNHv1ez+8igXbSknv7vWIbraCCL9pLSslQa+UI4mHd093fcbBbG
-         hEkNdUfja19CcSAhcLJGewZyQdupeAaMLRtUgh/I=
+        b=Haj24f9alzdoKptvJ9o7SCevcvb0o1+efvhi0y3+rQSP3GSBhd3F0vLvcq9Q8DDCu
+         qzZ5ffIo+ToqstgxrpQPVftW8Vty1cJ5wwVVRbi7Lryoi09/WkN2/GPs9tcu96bFol
+         EjAZlj9LTc0+nuhpac2j7Z/XHXVIMZUaVuJ0KI20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 04/18] xtensa: call irqchip_init only when CONFIG_USE_OF is selected
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 4.9 05/25] nfsd4: Handle the NFSv4 READDIR dircount hint being zero
 Date:   Thu, 14 Oct 2021 16:53:36 +0200
-Message-Id: <20211014145206.466833094@linuxfoundation.org>
+Message-Id: <20211014145207.751001229@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145206.330102860@linuxfoundation.org>
-References: <20211014145206.330102860@linuxfoundation.org>
+In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
+References: <20211014145207.575041491@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 6489f8d0e1d93a3603d8dad8125797559e4cf2a2 ]
+commit f2e717d655040d632c9015f19aa4275f8b16e7f2 upstream.
 
-During boot time kernel configured with OF=y but USE_OF=n displays the
-following warnings and hangs shortly after starting userspace:
+RFC3530 notes that the 'dircount' field may be zero, in which case the
+recommendation is to ignore it, and only enforce the 'maxcount' field.
+In RFC5661, this recommendation to ignore a zero valued field becomes a
+requirement.
 
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at kernel/irq/irqdomain.c:695 irq_create_mapping_affinity+0x29/0xc0
-irq_create_mapping_affinity(, 6) called with NULL domain
-CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.0-rc3-00001-gd67ed2510d28 #30
-Call Trace:
-  __warn+0x69/0xc4
-  warn_slowpath_fmt+0x6c/0x94
-  irq_create_mapping_affinity+0x29/0xc0
-  local_timer_setup+0x40/0x88
-  time_init+0xb1/0xe8
-  start_kernel+0x31d/0x3f4
-  _startup+0x13b/0x13b
----[ end trace 1e6630e1c5eda35b ]---
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at arch/xtensa/kernel/time.c:141 local_timer_setup+0x58/0x88
-error: can't map timer irq
-CPU: 0 PID: 0 Comm: swapper Tainted: G        W         5.15.0-rc3-00001-gd67ed2510d28 #30
-Call Trace:
-  __warn+0x69/0xc4
-  warn_slowpath_fmt+0x6c/0x94
-  local_timer_setup+0x58/0x88
-  time_init+0xb1/0xe8
-  start_kernel+0x31d/0x3f4
-  _startup+0x13b/0x13b
----[ end trace 1e6630e1c5eda35c ]---
-Failed to request irq 0 (timer)
-
-Fix that by calling irqchip_init only when CONFIG_USE_OF is selected and
-calling legacy interrupt controller init otherwise.
-
-Fixes: da844a81779e ("xtensa: add device trees support")
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: aee377644146 ("nfsd4: fix rd_dircount enforcement")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/kernel/irq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs4xdr.c |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/arch/xtensa/kernel/irq.c b/arch/xtensa/kernel/irq.c
-index 441694464b1e..fbbc24b914e3 100644
---- a/arch/xtensa/kernel/irq.c
-+++ b/arch/xtensa/kernel/irq.c
-@@ -144,7 +144,7 @@ unsigned xtensa_get_ext_irq_no(unsigned irq)
+--- a/fs/nfsd/nfs4xdr.c
++++ b/fs/nfsd/nfs4xdr.c
+@@ -3028,15 +3028,18 @@ nfsd4_encode_dirent(void *ccdv, const ch
+ 		goto fail;
+ 	cd->rd_maxcount -= entry_bytes;
+ 	/*
+-	 * RFC 3530 14.2.24 describes rd_dircount as only a "hint", so
+-	 * let's always let through the first entry, at least:
++	 * RFC 3530 14.2.24 describes rd_dircount as only a "hint", and
++	 * notes that it could be zero. If it is zero, then the server
++	 * should enforce only the rd_maxcount value.
+ 	 */
+-	if (!cd->rd_dircount)
+-		goto fail;
+-	name_and_cookie = 4 + 4 * XDR_QUADLEN(namlen) + 8;
+-	if (name_and_cookie > cd->rd_dircount && cd->cookie_offset)
+-		goto fail;
+-	cd->rd_dircount -= min(cd->rd_dircount, name_and_cookie);
++	if (cd->rd_dircount) {
++		name_and_cookie = 4 + 4 * XDR_QUADLEN(namlen) + 8;
++		if (name_and_cookie > cd->rd_dircount && cd->cookie_offset)
++			goto fail;
++		cd->rd_dircount -= min(cd->rd_dircount, name_and_cookie);
++		if (!cd->rd_dircount)
++			cd->rd_maxcount = 0;
++	}
  
- void __init init_IRQ(void)
- {
--#ifdef CONFIG_OF
-+#ifdef CONFIG_USE_OF
- 	irqchip_init();
- #else
- #ifdef CONFIG_HAVE_SMP
--- 
-2.33.0
-
+ 	cd->cookie_offset = cookie_offset;
+ skip_entry:
 
 
