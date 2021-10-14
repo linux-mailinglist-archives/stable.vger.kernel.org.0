@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1462142DCA5
+	by mail.lfdr.de (Postfix) with ESMTP id AE5BB42DCA7
 	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232948AbhJNPAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:00:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45236 "EHLO mail.kernel.org"
+        id S232977AbhJNPAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:00:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229743AbhJNO7a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:59:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 774AD61184;
-        Thu, 14 Oct 2021 14:57:25 +0000 (UTC)
+        id S232702AbhJNO7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:59:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E635C611C0;
+        Thu, 14 Oct 2021 14:57:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223446;
-        bh=B9lYIyXKlaMzMrhHVEVyaQkl2AXM0CEJIRfOu5A7bVw=;
+        s=korg; t=1634223448;
+        bh=CAVn6nApZMlAPzuvnFchBCfEgjysVqugDsTuF4oUqC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GM0cApO+c72xYWOfwNyBa3hzLazrkLYVmJw866kT2CL25FIw95gj8DFEajBK/R0eO
-         wubHkn7p5JTB+QbzdSzP5Vu+bek/6RtWYAXCAVYwrQdvVzgm3qqBHg+oVQnyVVyPuz
-         6ekyEjb3kunLDHvxSkiImHSjmBcjwe6o2CZiM7l0=
+        b=IksatOIcoFwW8YfT4hNEhUNDh/M83LvocY2mj3+aEejhuCD0vFKG7iw8VIoxxVEl1
+         qGYAvrVXTgJZuqtRWF/qt+Ojb1PBuB3h9LWu/cnCOGAR9KjXKXHrjKiMyu8YErFSrc
+         jf1bPDmuv9dvBPgQ4Hs1efBy6LgNMx2JwMkZGxP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 4.14 05/33] nfsd4: Handle the NFSv4 READDIR dircount hint being zero
-Date:   Thu, 14 Oct 2021 16:53:37 +0200
-Message-Id: <20211014145208.956289908@linuxfoundation.org>
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>, Juergen Gross <jgross@suse.com>,
+        Jason Andryuk <jandryuk@gmail.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 4.14 06/33] xen/balloon: fix cancelled balloon action
+Date:   Thu, 14 Oct 2021 16:53:38 +0200
+Message-Id: <20211014145208.988495952@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
 References: <20211014145208.775270267@linuxfoundation.org>
@@ -40,52 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit f2e717d655040d632c9015f19aa4275f8b16e7f2 upstream.
+commit 319933a80fd4f07122466a77f93e5019d71be74c upstream.
 
-RFC3530 notes that the 'dircount' field may be zero, in which case the
-recommendation is to ignore it, and only enforce the 'maxcount' field.
-In RFC5661, this recommendation to ignore a zero valued field becomes a
-requirement.
+In case a ballooning action is cancelled the new kernel thread handling
+the ballooning might end up in a busy loop.
 
-Fixes: aee377644146 ("nfsd4: fix rd_dircount enforcement")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fix that by handling the cancelled action gracefully.
+
+While at it introduce a short wait for the BP_WAIT case.
+
+Cc: stable@vger.kernel.org
+Fixes: 8480ed9c2bbd56 ("xen/balloon: use a kernel thread instead a workqueue")
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Tested-by: Jason Andryuk <jandryuk@gmail.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20211005133433.32008-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs4xdr.c |   19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/xen/balloon.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
---- a/fs/nfsd/nfs4xdr.c
-+++ b/fs/nfsd/nfs4xdr.c
-@@ -3082,15 +3082,18 @@ nfsd4_encode_dirent(void *ccdv, const ch
- 		goto fail;
- 	cd->rd_maxcount -= entry_bytes;
- 	/*
--	 * RFC 3530 14.2.24 describes rd_dircount as only a "hint", so
--	 * let's always let through the first entry, at least:
-+	 * RFC 3530 14.2.24 describes rd_dircount as only a "hint", and
-+	 * notes that it could be zero. If it is zero, then the server
-+	 * should enforce only the rd_maxcount value.
- 	 */
--	if (!cd->rd_dircount)
--		goto fail;
--	name_and_cookie = 4 + 4 * XDR_QUADLEN(namlen) + 8;
--	if (name_and_cookie > cd->rd_dircount && cd->cookie_offset)
--		goto fail;
--	cd->rd_dircount -= min(cd->rd_dircount, name_and_cookie);
-+	if (cd->rd_dircount) {
-+		name_and_cookie = 4 + 4 * XDR_QUADLEN(namlen) + 8;
-+		if (name_and_cookie > cd->rd_dircount && cd->cookie_offset)
-+			goto fail;
-+		cd->rd_dircount -= min(cd->rd_dircount, name_and_cookie);
-+		if (!cd->rd_dircount)
-+			cd->rd_maxcount = 0;
-+	}
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -571,12 +571,12 @@ static enum bp_state decrease_reservatio
+ }
  
- 	cd->cookie_offset = cookie_offset;
- skip_entry:
+ /*
+- * Stop waiting if either state is not BP_EAGAIN and ballooning action is
+- * needed, or if the credit has changed while state is BP_EAGAIN.
++ * Stop waiting if either state is BP_DONE and ballooning action is
++ * needed, or if the credit has changed while state is not BP_DONE.
+  */
+ static bool balloon_thread_cond(enum bp_state state, long credit)
+ {
+-	if (state != BP_EAGAIN)
++	if (state == BP_DONE)
+ 		credit = 0;
+ 
+ 	return current_credit() != credit || kthread_should_stop();
+@@ -596,10 +596,19 @@ static int balloon_thread(void *unused)
+ 
+ 	set_freezable();
+ 	for (;;) {
+-		if (state == BP_EAGAIN)
+-			timeout = balloon_stats.schedule_delay * HZ;
+-		else
++		switch (state) {
++		case BP_DONE:
++		case BP_ECANCELED:
+ 			timeout = 3600 * HZ;
++			break;
++		case BP_EAGAIN:
++			timeout = balloon_stats.schedule_delay * HZ;
++			break;
++		case BP_WAIT:
++			timeout = HZ;
++			break;
++		}
++
+ 		credit = current_credit();
+ 
+ 		wait_event_freezable_timeout(balloon_thread_wq,
 
 
