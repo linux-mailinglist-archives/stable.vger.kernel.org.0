@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A47342DCF7
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:01:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F235242DD3A
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:03:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232890AbhJNPDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:03:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45120 "EHLO mail.kernel.org"
+        id S232875AbhJNPFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:05:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231882AbhJNPBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232909AbhJNPBy (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 14 Oct 2021 11:01:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65089611C8;
-        Thu, 14 Oct 2021 14:59:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BF0060F36;
+        Thu, 14 Oct 2021 14:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223544;
-        bh=QxKQVCagVUM8gHqgxYlCUAXj/Ut5EyMhUWDjNYC4x60=;
+        s=korg; t=1634223547;
+        bh=Ic1Xl0EJlz1H6BWjK+QotJRMRFnTH66mGwyoc4yMAio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QEk/P9Bm1QzlcSDs8p0lti6PIl/Jtz6BoFx1Mdl1lnpV+RNHRncl3hfzduXGxK8n3
-         qLecJidvMATYnvt28gEKIZa5ANy0cwCImWG8pBb7iMRE6w+d3mkLoW7x7XDAObcQig
-         W0MlHRfvCcTRvwsJ8802C2QJRqeCBFejPJYzUUSk=
+        b=TK3g7Kc60Nf53U+5d0zLWVT3UXfsR5BHbNLXoGxb7KgqA0A3I8aT6o3TgwxAn/QOF
+         dKPFMaXfXTRgsm68VITpZPrlUPvojPmRrfYge9ZDNg13z+hDCp5H1Gxhe7MjH2OH2L
+         NUW3e0EiksgryUxQowHt5DBxdEcQzQ4XnlC2QGoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/16] scsi: virtio_scsi: Fix spelling mistake "Unsupport" -> "Unsupported"
-Date:   Thu, 14 Oct 2021 16:54:18 +0200
-Message-Id: <20211014145207.806459277@linuxfoundation.org>
+Subject: [PATCH 5.4 16/16] sched: Always inline is_percpu_thread()
+Date:   Thu, 14 Oct 2021 16:54:19 +0200
+Message-Id: <20211014145207.835283624@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211014145207.314256898@linuxfoundation.org>
 References: <20211014145207.314256898@linuxfoundation.org>
@@ -40,43 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit cced4c0ec7c06f5230a2958907a409c849762293 ]
+[ Upstream commit 83d40a61046f73103b4e5d8f1310261487ff63b0 ]
 
-There are a couple of spelling mistakes in pr_info and pr_err messages.
-Fix them.
+  vmlinux.o: warning: objtool: check_preemption_disabled()+0x81: call to is_percpu_thread() leaves .noinstr.text section
 
-Link: https://lore.kernel.org/r/20210924230330.143785-1-colin.king@canonical.com
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210928084218.063371959@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/virtio_scsi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/sched.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index bfec84aacd90..cb833c5fb9ce 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -297,7 +297,7 @@ static void virtscsi_handle_transport_reset(struct virtio_scsi *vscsi,
- 		}
- 		break;
- 	default:
--		pr_info("Unsupport virtio scsi event reason %x\n", event->reason);
-+		pr_info("Unsupported virtio scsi event reason %x\n", event->reason);
- 	}
- }
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 5710b80f8050..afee5d5eb945 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1500,7 +1500,7 @@ extern struct pid *cad_pid;
+ #define tsk_used_math(p)			((p)->flags & PF_USED_MATH)
+ #define used_math()				tsk_used_math(current)
  
-@@ -381,7 +381,7 @@ static void virtscsi_handle_event(struct work_struct *work)
- 		virtscsi_handle_param_change(vscsi, event);
- 		break;
- 	default:
--		pr_err("Unsupport virtio scsi event %x\n", event->event);
-+		pr_err("Unsupported virtio scsi event %x\n", event->event);
- 	}
- 	virtscsi_kick_event(vscsi, event_node);
- }
+-static inline bool is_percpu_thread(void)
++static __always_inline bool is_percpu_thread(void)
+ {
+ #ifdef CONFIG_SMP
+ 	return (current->flags & PF_NO_SETAFFINITY) &&
 -- 
 2.33.0
 
