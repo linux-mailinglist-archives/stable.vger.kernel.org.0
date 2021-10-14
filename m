@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50ACA42DC8E
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C190242DC2D
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:55:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232580AbhJNPAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:00:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44622 "EHLO mail.kernel.org"
+        id S232034AbhJNO5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:57:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232608AbhJNO7C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:59:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6969611AE;
-        Thu, 14 Oct 2021 14:56:56 +0000 (UTC)
+        id S231978AbhJNO5K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:57:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA57E60F4A;
+        Thu, 14 Oct 2021 14:55:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223417;
-        bh=9n0KO/SVOXfcWhAq4JTMCmYNMpFBJrl7+pSIco1JJas=;
+        s=korg; t=1634223305;
+        bh=7mrx/wYzFT+ribRy9pKrAtm2yxrql/pmVeqnU+obPMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qr6uYm+JWaQvAc0Fm0xOLqSxNjuRNodsFQCmFc035ayQDMAKGcPIkl/3/JF5JZvq1
-         e8OIhERlW8FUOiHP8mdE7DGes+NWu2XkfP5YKb5nflrKZwNObGQ4K7N77xegy3HMGB
-         eeJQzIRBOAcY/UV4+wJKKHTb3PyB05EeVmuawnN4=
+        b=eHujiZJaSkEZRyOfP5Fua2TQg1UFdH4h3qANs2Ye2yBo2xQaI0f/NuOP8IzU9By32
+         gP+vq54Nl3IaxYwftvWWcwk68iHjUxdzUoCRXbNxWnnZTunyxv8Lv4f9umf4Sh2ZgN
+         B+LEJ34LGeW3oYygCazIBL5lEGCL1iQXsU6vOtLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/33] net_sched: fix NULL deref in fifo_set_limit()
-Date:   Thu, 14 Oct 2021 16:53:46 +0200
-Message-Id: <20211014145209.254938927@linuxfoundation.org>
+Subject: [PATCH 4.4 15/18] mac80211: Drop frames from invalid MAC address in ad-hoc mode
+Date:   Thu, 14 Oct 2021 16:53:47 +0200
+Message-Id: <20211014145206.813015317@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
-References: <20211014145208.775270267@linuxfoundation.org>
+In-Reply-To: <20211014145206.330102860@linuxfoundation.org>
+References: <20211014145206.330102860@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 560ee196fe9e5037e5015e2cdb14b3aecb1cd7dc ]
+[ Upstream commit a6555f844549cd190eb060daef595f94d3de1582 ]
 
-syzbot reported another NULL deref in fifo_set_limit() [1]
-
-I could repro the issue with :
-
-unshare -n
-tc qd add dev lo root handle 1:0 tbf limit 200000 burst 70000 rate 100Mbit
-tc qd replace dev lo parent 1:0 pfifo_fast
-tc qd change dev lo root handle 1:0 tbf limit 300000 burst 70000 rate 100Mbit
-
-pfifo_fast does not have a change() operation.
-Make fifo_set_limit() more robust about this.
-
-[1]
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PGD 1cf99067 P4D 1cf99067 PUD 7ca49067 PMD 0
-Oops: 0010 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 14443 Comm: syz-executor959 Not tainted 5.15.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:0x0
-Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-RSP: 0018:ffffc9000e2f7310 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: ffffffff8d6ecc00 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffff888024c27910 RDI: ffff888071e34000
-RBP: ffff888071e34000 R08: 0000000000000001 R09: ffffffff8fcfb947
-R10: 0000000000000001 R11: 0000000000000000 R12: ffff888024c27910
-R13: ffff888071e34018 R14: 0000000000000000 R15: ffff88801ef74800
-FS:  00007f321d897700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 00000000722c3000 CR4: 00000000003506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+WARNING: CPU: 1 PID: 9 at net/mac80211/sta_info.c:554
+sta_info_insert_rcu+0x121/0x12a0
+Modules linked in:
+CPU: 1 PID: 9 Comm: kworker/u8:1 Not tainted 5.14.0-rc7+ #253
+Workqueue: phy3 ieee80211_iface_work
+RIP: 0010:sta_info_insert_rcu+0x121/0x12a0
+...
 Call Trace:
- fifo_set_limit net/sched/sch_fifo.c:242 [inline]
- fifo_set_limit+0x198/0x210 net/sched/sch_fifo.c:227
- tbf_change+0x6ec/0x16d0 net/sched/sch_tbf.c:418
- qdisc_change net/sched/sch_api.c:1332 [inline]
- tc_modify_qdisc+0xd9a/0x1a60 net/sched/sch_api.c:1634
- rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
- netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
- netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:724
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+ ieee80211_ibss_finish_sta+0xbc/0x170
+ ieee80211_ibss_work+0x13f/0x7d0
+ ieee80211_iface_work+0x37a/0x500
+ process_one_work+0x357/0x850
+ worker_thread+0x41/0x4d0
 
-Fixes: fb0305ce1b03 ("net-sched: consolidate default fifo qdisc setup")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20210930212239.3430364-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+If an Ad-Hoc node receives packets with invalid source MAC address,
+it hits a WARN_ON in sta_info_insert_check(), this can spam the log.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20210827144230.39944-1-yuehaibing@huawei.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_fifo.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/mac80211/rx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_fifo.c b/net/sched/sch_fifo.c
-index 1e37247656f8..8b7110cbcce4 100644
---- a/net/sched/sch_fifo.c
-+++ b/net/sched/sch_fifo.c
-@@ -151,6 +151,9 @@ int fifo_set_limit(struct Qdisc *q, unsigned int limit)
- 	if (strncmp(q->ops->id + 1, "fifo", 4) != 0)
- 		return 0;
- 
-+	if (!q->ops->change)
-+		return 0;
-+
- 	nla = kmalloc(nla_attr_size(sizeof(struct tc_fifo_qopt)), GFP_KERNEL);
- 	if (nla) {
- 		nla->nla_type = RTM_NEWQDISC;
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index b5848bcc09eb..688d7b5b7139 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -3447,7 +3447,8 @@ static bool ieee80211_accept_frame(struct ieee80211_rx_data *rx)
+ 		if (!bssid)
+ 			return false;
+ 		if (ether_addr_equal(sdata->vif.addr, hdr->addr2) ||
+-		    ether_addr_equal(sdata->u.ibss.bssid, hdr->addr2))
++		    ether_addr_equal(sdata->u.ibss.bssid, hdr->addr2) ||
++		    !is_valid_ether_addr(hdr->addr2))
+ 			return false;
+ 		if (ieee80211_is_beacon(hdr->frame_control))
+ 			return true;
 -- 
 2.33.0
 
