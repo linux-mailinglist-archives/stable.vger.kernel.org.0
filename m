@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF90342DCB2
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BACD042DC80
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232424AbhJNPBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:01:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44464 "EHLO mail.kernel.org"
+        id S232518AbhJNO7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:59:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230495AbhJNO7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:59:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2964611ED;
-        Thu, 14 Oct 2021 14:57:41 +0000 (UTC)
+        id S232520AbhJNO6n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:58:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 355A7611C8;
+        Thu, 14 Oct 2021 14:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223462;
-        bh=85Oe+SG4YAhT0uGSupy2UunOKLoMQHmt1FAIYw08P3s=;
+        s=korg; t=1634223398;
+        bh=GCt2C3RDvSbqWnxistKcpoIX6m1JQokV/m2AZecj7q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGyrAViFgpDeOJYSMyMg6rk5EcmiXkqxzzXqoPU4gZIQBN/4TQ/8yLBHIXrhP3sk/
-         aYQnwqopDamnN69GUor2niEuR3SCxgz2F5SFD8/wuyH8YVyTSGIPmSa3l1AfNI8pT7
-         J+t2Q8t/FSPW9pVmsHMpGFZm1cfJy7wjM65PwYu0=
+        b=1YiogPrEUFRoOpNe1eNd54fBcUC9s/Yu40H8SLSkKSb2R6EeiVkUQnNmwP33sTVXP
+         8eXo6lz/zkNdsveteDxV451wSBMdtEALnUUsV8ouil9LpQzEBATJ0NJBH0iF828R3R
+         r3x2HUrEEO8JDw04nCbME8fiiDRDtL6j6Rml5CAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamie Iles <quic_jiles@quicinc.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 23/33] i2c: acpi: fix resource leak in reconfiguration device addition
-Date:   Thu, 14 Oct 2021 16:53:55 +0200
-Message-Id: <20211014145209.574351338@linuxfoundation.org>
+        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 25/25] perf/x86: Reset destroy callback on event init failure
+Date:   Thu, 14 Oct 2021 16:53:56 +0200
+Message-Id: <20211014145208.383562223@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
-References: <20211014145208.775270267@linuxfoundation.org>
+In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
+References: <20211014145207.575041491@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamie Iles <quic_jiles@quicinc.com>
+From: Anand K Mistry <amistry@google.com>
 
-[ Upstream commit 6558b646ce1c2a872fe1c2c7cb116f05a2c1950f ]
+[ Upstream commit 02d029a41dc986e2d5a77ecca45803857b346829 ]
 
-acpi_i2c_find_adapter_by_handle() calls bus_find_device() which takes a
-reference on the adapter which is never released which will result in a
-reference count leak and render the adapter unremovable.  Make sure to
-put the adapter after creating the client in the same manner that we do
-for OF.
+perf_init_event tries multiple init callbacks and does not reset the
+event state between tries. When x86_pmu_event_init runs, it
+unconditionally sets the destroy callback to hw_perf_event_destroy. On
+the next init attempt after x86_pmu_event_init, in perf_try_init_event,
+if the pmu's capabilities includes PERF_PMU_CAP_NO_EXCLUDE, the destroy
+callback will be run. However, if the next init didn't set the destroy
+callback, hw_perf_event_destroy will be run (since the callback wasn't
+reset).
 
-Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
-Signed-off-by: Jamie Iles <quic_jiles@quicinc.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-[wsa: fixed title]
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Looking at other pmu init functions, the common pattern is to only set
+the destroy callback on a successful init. Resetting the callback on
+failure tries to replicate that pattern.
+
+This was discovered after commit f11dd0d80555 ("perf/x86/amd/ibs: Extend
+PERF_PMU_CAP_NO_EXCLUDE to IBS Op") when the second (and only second)
+run of the perf tool after a reboot results in 0 samples being
+generated. The extra run of hw_perf_event_destroy results in
+active_events having an extra decrement on each perf run. The second run
+has active_events == 0 and every subsequent run has active_events < 0.
+When active_events == 0, the NMI handler will early-out and not record
+any samples.
+
+Signed-off-by: Anand K Mistry <amistry@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210929170405.1.I078b98ee7727f9ae9d6df8262bad7e325e40faf0@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-acpi.c | 1 +
+ arch/x86/events/core.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 52ae674ebf5b..6f42856c1507 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -395,6 +395,7 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
- 			break;
+diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
+index c26cca506f64..c20df6a3540c 100644
+--- a/arch/x86/events/core.c
++++ b/arch/x86/events/core.c
+@@ -2075,6 +2075,7 @@ static int x86_pmu_event_init(struct perf_event *event)
+ 	if (err) {
+ 		if (event->destroy)
+ 			event->destroy(event);
++		event->destroy = NULL;
+ 	}
  
- 		i2c_acpi_register_device(adapter, adev, &info);
-+		put_device(&adapter->dev);
- 		break;
- 	case ACPI_RECONFIG_DEVICE_REMOVE:
- 		if (!acpi_device_enumerated(adev))
+ 	if (ACCESS_ONCE(x86_pmu.attr_rdpmc))
 -- 
 2.33.0
 
