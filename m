@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40BBD42DCC1
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00AF042DCCB
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232142AbhJNPBf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:01:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43924 "EHLO mail.kernel.org"
+        id S232917AbhJNPBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:01:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232853AbhJNPAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:00:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A086E611CE;
-        Thu, 14 Oct 2021 14:58:00 +0000 (UTC)
+        id S231977AbhJNPAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:00:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C198611CB;
+        Thu, 14 Oct 2021 14:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223481;
-        bh=b3fOF40LqZPBDMNk+SMfwsFuKOTHzp434EanwJLUgfs=;
+        s=korg; t=1634223494;
+        bh=mr6EYhAyGub4WdJKqDvzvA/q+Sc+Lp7O7crvO6T8n+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWdNB/sHXbEPfcfPoQHS7mxzoltR7PaYljSWd398BEGYJUoXykZqjlK7rjFPEWCRv
-         I5L478TVTjVQwJcREQ8H8Zs3bE6fMk1hJSnAWeQouIX8E2VcA85+Dkb9gPJzrL+Im5
-         rtHN2asPtYBSnydAJbcZakCUuSeMEkCjP8RUkBT0=
+        b=aYuEsZalBC8lbWX8PQPlnwhzWu9OtXjg3DoJ9EdMQKbqgVjmk5N7UbAKlUtuhPxL7
+         kOOz04Kb+tfRr20mgLj5x2miC0CMWUQ6tPK+0+jM6aWGJuNmAFk/UqtRDbJ+qlI+Lq
+         Wf1i6LQ3Bv6+W8ut8p0P/mSK1xRD4XoTMApYg2qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Finn Thain <fthain@linux-m68k.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/33] m68k: Handle arrivals of multiple signals correctly
-Date:   Thu, 14 Oct 2021 16:54:00 +0200
-Message-Id: <20211014145209.742354262@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 01/12] net: phy: bcm7xxx: Fixed indirect MMD operations
+Date:   Thu, 14 Oct 2021 16:54:01 +0200
+Message-Id: <20211014145206.612929174@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
-References: <20211014145208.775270267@linuxfoundation.org>
+In-Reply-To: <20211014145206.566123760@linuxfoundation.org>
+References: <20211014145206.566123760@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,231 +41,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 4bb0bd81ce5e97092dfda6a106d414b703ec0ee8 ]
+commit d88fd1b546ff19c8040cfaea76bf16aed1c5a0bb upstream.
 
-When we have several pending signals, have entered with the kernel
-with large exception frame *and* have already built at least one
-sigframe, regs->stkadj is going to be non-zero and regs->format/sr/pc
-are going to be junk - the real values are in shifted exception stack
-frame we'd built when putting together the first sigframe.
+When EEE support was added to the 28nm EPHY it was assumed that it would
+be able to support the standard clause 45 over clause 22 register access
+method. It turns out that the PHY does not support that, which is the
+very reason for using the indirect shadow mode 2 bank 3 access method.
 
-If that happens, subsequent sigframes are going to be garbage.
-Not hard to fix - just need to find the "adjusted" frame first
-and look for format/vector/sr/pc in it.
+Implement {read,write}_mmd to allow the standard PHY library routines
+pertaining to EEE querying and configuration to work correctly on these
+PHYs. This forces us to implement a __phy_set_clr_bits() function that
+does not grab the MDIO bus lock since the PHY driver's {read,write}_mmd
+functions are always called with that lock held.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
-Tested-by: Finn Thain <fthain@linux-m68k.org>
-Link: https://lore.kernel.org/r/YP2dBIAPTaVvHiZ6@zeniv-ca.linux.org.uk
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 83ee102a6998 ("net: phy: bcm7xxx: add support for 28nm EPHY")
+[florian: adjust locking since phy_{read,write}_mmd are called with no
+PHYLIB locks held]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/m68k/kernel/signal.c | 88 +++++++++++++++++++--------------------
- 1 file changed, 42 insertions(+), 46 deletions(-)
+ drivers/net/phy/bcm7xxx.c |   94 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 94 insertions(+)
 
-diff --git a/arch/m68k/kernel/signal.c b/arch/m68k/kernel/signal.c
-index e79421f5b9cd..20a3ff41d0d5 100644
---- a/arch/m68k/kernel/signal.c
-+++ b/arch/m68k/kernel/signal.c
-@@ -448,7 +448,7 @@ static inline void save_fpu_state(struct sigcontext *sc, struct pt_regs *regs)
- 
- 	if (CPU_IS_060 ? sc->sc_fpstate[2] : sc->sc_fpstate[0]) {
- 		fpu_version = sc->sc_fpstate[0];
--		if (CPU_IS_020_OR_030 &&
-+		if (CPU_IS_020_OR_030 && !regs->stkadj &&
- 		    regs->vector >= (VEC_FPBRUC * 4) &&
- 		    regs->vector <= (VEC_FPNAN * 4)) {
- 			/* Clear pending exception in 68882 idle frame */
-@@ -511,7 +511,7 @@ static inline int rt_save_fpu_state(struct ucontext __user *uc, struct pt_regs *
- 		if (!(CPU_IS_060 || CPU_IS_COLDFIRE))
- 			context_size = fpstate[1];
- 		fpu_version = fpstate[0];
--		if (CPU_IS_020_OR_030 &&
-+		if (CPU_IS_020_OR_030 && !regs->stkadj &&
- 		    regs->vector >= (VEC_FPBRUC * 4) &&
- 		    regs->vector <= (VEC_FPNAN * 4)) {
- 			/* Clear pending exception in 68882 idle frame */
-@@ -765,18 +765,24 @@ badframe:
- 	return 0;
+--- a/drivers/net/phy/bcm7xxx.c
++++ b/drivers/net/phy/bcm7xxx.c
+@@ -30,7 +30,12 @@
+ #define MII_BCM7XXX_SHD_2_ADDR_CTRL	0xe
+ #define MII_BCM7XXX_SHD_2_CTRL_STAT	0xf
+ #define MII_BCM7XXX_SHD_2_BIAS_TRIM	0x1a
++#define MII_BCM7XXX_SHD_3_PCS_CTRL	0x0
++#define MII_BCM7XXX_SHD_3_PCS_STATUS	0x1
++#define MII_BCM7XXX_SHD_3_EEE_CAP	0x2
+ #define MII_BCM7XXX_SHD_3_AN_EEE_ADV	0x3
++#define MII_BCM7XXX_SHD_3_EEE_LP	0x4
++#define MII_BCM7XXX_SHD_3_EEE_WK_ERR	0x5
+ #define MII_BCM7XXX_SHD_3_PCS_CTRL_2	0x6
+ #define  MII_BCM7XXX_PCS_CTRL_2_DEF	0x4400
+ #define MII_BCM7XXX_SHD_3_AN_STAT	0xb
+@@ -463,6 +468,93 @@ static int bcm7xxx_28nm_ephy_config_init
+ 	return bcm7xxx_28nm_ephy_apd_enable(phydev);
  }
  
-+static inline struct pt_regs *rte_regs(struct pt_regs *regs)
++#define MII_BCM7XXX_REG_INVALID	0xff
++
++static u8 bcm7xxx_28nm_ephy_regnum_to_shd(u16 regnum)
 +{
-+	return (void *)regs + regs->stkadj;
++	switch (regnum) {
++	case MDIO_CTRL1:
++		return MII_BCM7XXX_SHD_3_PCS_CTRL;
++	case MDIO_STAT1:
++		return MII_BCM7XXX_SHD_3_PCS_STATUS;
++	case MDIO_PCS_EEE_ABLE:
++		return MII_BCM7XXX_SHD_3_EEE_CAP;
++	case MDIO_AN_EEE_ADV:
++		return MII_BCM7XXX_SHD_3_AN_EEE_ADV;
++	case MDIO_AN_EEE_LPABLE:
++		return MII_BCM7XXX_SHD_3_EEE_LP;
++	case MDIO_PCS_EEE_WK_ERR:
++		return MII_BCM7XXX_SHD_3_EEE_WK_ERR;
++	default:
++		return MII_BCM7XXX_REG_INVALID;
++	}
 +}
 +
- static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
- 			     unsigned long mask)
- {
-+	struct pt_regs *tregs = rte_regs(regs);
- 	sc->sc_mask = mask;
- 	sc->sc_usp = rdusp();
- 	sc->sc_d0 = regs->d0;
- 	sc->sc_d1 = regs->d1;
- 	sc->sc_a0 = regs->a0;
- 	sc->sc_a1 = regs->a1;
--	sc->sc_sr = regs->sr;
--	sc->sc_pc = regs->pc;
--	sc->sc_formatvec = regs->format << 12 | regs->vector;
-+	sc->sc_sr = tregs->sr;
-+	sc->sc_pc = tregs->pc;
-+	sc->sc_formatvec = tregs->format << 12 | tregs->vector;
- 	save_a5_state(sc, regs);
- 	save_fpu_state(sc, regs);
- }
-@@ -784,6 +790,7 @@ static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
- static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *regs)
- {
- 	struct switch_stack *sw = (struct switch_stack *)regs - 1;
-+	struct pt_regs *tregs = rte_regs(regs);
- 	greg_t __user *gregs = uc->uc_mcontext.gregs;
- 	int err = 0;
- 
-@@ -804,9 +811,9 @@ static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *
- 	err |= __put_user(sw->a5, &gregs[13]);
- 	err |= __put_user(sw->a6, &gregs[14]);
- 	err |= __put_user(rdusp(), &gregs[15]);
--	err |= __put_user(regs->pc, &gregs[16]);
--	err |= __put_user(regs->sr, &gregs[17]);
--	err |= __put_user((regs->format << 12) | regs->vector, &uc->uc_formatvec);
-+	err |= __put_user(tregs->pc, &gregs[16]);
-+	err |= __put_user(tregs->sr, &gregs[17]);
-+	err |= __put_user((tregs->format << 12) | tregs->vector, &uc->uc_formatvec);
- 	err |= rt_save_fpu_state(uc, regs);
- 	return err;
- }
-@@ -823,13 +830,14 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
- 			struct pt_regs *regs)
- {
- 	struct sigframe __user *frame;
--	int fsize = frame_extra_sizes(regs->format);
-+	struct pt_regs *tregs = rte_regs(regs);
-+	int fsize = frame_extra_sizes(tregs->format);
- 	struct sigcontext context;
- 	int err = 0, sig = ksig->sig;
- 
- 	if (fsize < 0) {
- 		pr_debug("setup_frame: Unknown frame format %#x\n",
--			 regs->format);
-+			 tregs->format);
- 		return -EFAULT;
- 	}
- 
-@@ -840,7 +848,7 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
- 
- 	err |= __put_user(sig, &frame->sig);
- 
--	err |= __put_user(regs->vector, &frame->code);
-+	err |= __put_user(tregs->vector, &frame->code);
- 	err |= __put_user(&frame->sc, &frame->psc);
- 
- 	if (_NSIG_WORDS > 1)
-@@ -865,34 +873,28 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
- 
- 	push_cache ((unsigned long) &frame->retcode);
- 
--	/*
--	 * Set up registers for signal handler.  All the state we are about
--	 * to destroy is successfully copied to sigframe.
--	 */
--	wrusp ((unsigned long) frame);
--	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
--	adjustformat(regs);
--
- 	/*
- 	 * This is subtle; if we build more than one sigframe, all but the
- 	 * first one will see frame format 0 and have fsize == 0, so we won't
- 	 * screw stkadj.
- 	 */
--	if (fsize)
-+	if (fsize) {
- 		regs->stkadj = fsize;
--
--	/* Prepare to skip over the extra stuff in the exception frame.  */
--	if (regs->stkadj) {
--		struct pt_regs *tregs =
--			(struct pt_regs *)((ulong)regs + regs->stkadj);
-+		tregs = rte_regs(regs);
- 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
--		/* This must be copied with decreasing addresses to
--                   handle overlaps.  */
- 		tregs->vector = 0;
- 		tregs->format = 0;
--		tregs->pc = regs->pc;
- 		tregs->sr = regs->sr;
- 	}
++static bool bcm7xxx_28nm_ephy_dev_valid(int devnum)
++{
++	return devnum == MDIO_MMD_AN || devnum == MDIO_MMD_PCS;
++}
 +
-+	/*
-+	 * Set up registers for signal handler.  All the state we are about
-+	 * to destroy is successfully copied to sigframe.
-+	 */
-+	wrusp ((unsigned long) frame);
-+	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
-+	adjustformat(regs);
++static int bcm7xxx_28nm_ephy_read_mmd(struct phy_device *phydev,
++				      int devnum, u16 regnum)
++{
++	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
++	int ret;
 +
- 	return 0;
- }
- 
-@@ -900,7 +902,8 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
- 			   struct pt_regs *regs)
++	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
++	    shd == MII_BCM7XXX_REG_INVALID)
++		return -EOPNOTSUPP;
++
++	/* set shadow mode 2 */
++	ret = phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
++			       MII_BCM7XXX_SHD_MODE_2, 0);
++	if (ret < 0)
++		return ret;
++
++	/* Access the desired shadow register address */
++	ret = phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
++	if (ret < 0)
++		goto reset_shadow_mode;
++
++	ret = phy_read(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT);
++
++reset_shadow_mode:
++	/* reset shadow mode 2 */
++	phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
++			 MII_BCM7XXX_SHD_MODE_2);
++	return ret;
++}
++
++static int bcm7xxx_28nm_ephy_write_mmd(struct phy_device *phydev,
++				       int devnum, u16 regnum, u16 val)
++{
++	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
++	int ret;
++
++	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
++	    shd == MII_BCM7XXX_REG_INVALID)
++		return -EOPNOTSUPP;
++
++	/* set shadow mode 2 */
++	ret = phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
++			       MII_BCM7XXX_SHD_MODE_2, 0);
++	if (ret < 0)
++		return ret;
++
++	/* Access the desired shadow register address */
++	ret = phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
++	if (ret < 0)
++		goto reset_shadow_mode;
++
++	/* Write the desired value in the shadow register */
++	phy_write(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT, val);
++
++reset_shadow_mode:
++	/* reset shadow mode 2 */
++	return phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
++				MII_BCM7XXX_SHD_MODE_2);
++}
++
+ static int bcm7xxx_28nm_ephy_resume(struct phy_device *phydev)
  {
- 	struct rt_sigframe __user *frame;
--	int fsize = frame_extra_sizes(regs->format);
-+	struct pt_regs *tregs = rte_regs(regs);
-+	int fsize = frame_extra_sizes(tregs->format);
- 	int err = 0, sig = ksig->sig;
- 
- 	if (fsize < 0) {
-@@ -949,34 +952,27 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
- 
- 	push_cache ((unsigned long) &frame->retcode);
- 
--	/*
--	 * Set up registers for signal handler.  All the state we are about
--	 * to destroy is successfully copied to sigframe.
--	 */
--	wrusp ((unsigned long) frame);
--	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
--	adjustformat(regs);
--
- 	/*
- 	 * This is subtle; if we build more than one sigframe, all but the
- 	 * first one will see frame format 0 and have fsize == 0, so we won't
- 	 * screw stkadj.
- 	 */
--	if (fsize)
-+	if (fsize) {
- 		regs->stkadj = fsize;
--
--	/* Prepare to skip over the extra stuff in the exception frame.  */
--	if (regs->stkadj) {
--		struct pt_regs *tregs =
--			(struct pt_regs *)((ulong)regs + regs->stkadj);
-+		tregs = rte_regs(regs);
- 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
--		/* This must be copied with decreasing addresses to
--                   handle overlaps.  */
- 		tregs->vector = 0;
- 		tregs->format = 0;
--		tregs->pc = regs->pc;
- 		tregs->sr = regs->sr;
- 	}
-+
-+	/*
-+	 * Set up registers for signal handler.  All the state we are about
-+	 * to destroy is successfully copied to sigframe.
-+	 */
-+	wrusp ((unsigned long) frame);
-+	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
-+	adjustformat(regs);
- 	return 0;
+ 	int ret;
+@@ -634,6 +726,8 @@ static int bcm7xxx_28nm_probe(struct phy
+ 	.get_strings	= bcm_phy_get_strings,				\
+ 	.get_stats	= bcm7xxx_28nm_get_phy_stats,			\
+ 	.probe		= bcm7xxx_28nm_probe,				\
++	.read_mmd	= bcm7xxx_28nm_ephy_read_mmd,			\
++	.write_mmd	= bcm7xxx_28nm_ephy_write_mmd,			\
  }
  
--- 
-2.33.0
-
+ #define BCM7XXX_40NM_EPHY(_oui, _name)					\
 
 
