@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A11CA42DD14
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63F8942DD4F
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232775AbhJNPEL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:04:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44786 "EHLO mail.kernel.org"
+        id S233545AbhJNPGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:06:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232252AbhJNPCz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:02:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C514611AE;
-        Thu, 14 Oct 2021 14:59:40 +0000 (UTC)
+        id S233348AbhJNPEf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:04:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73A5461244;
+        Thu, 14 Oct 2021 15:00:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223581;
-        bh=gfSSvYoKamvAQoaTJ4v7jnSD7dGLcrlIf0jNkDZz3qg=;
+        s=korg; t=1634223645;
+        bh=D+8LE65aJeazr7MPs5PYlzMbV8Jvff7TNv/Kb2Y+raE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KtswgutCUHqFFphV+2JFMzRWRHGUdrKRIMpHfv4mvveIzBsiDa5MGZIDkMMce/Dgy
-         00aEc8SyOKIdw+iEcdiFyQBoEeUpgytNcsVlrz5os89Z/KBFQP1d6wNxvl917/6ebQ
-         yHXJAHbtUU7tFon62bnQyuM/R85Me7Rb0+cbrVpQ=
+        b=QKTONx50NpAEepD0caQhYbq7OW0b8iUhMZ89StvoLtsWkAd4DXxMrYXIsG8Vij46R
+         yrG1gvp2+/FT9Fxn6+MENsPzXVDZQUaS4XU54K5/Q/NWWI/IKDIYI4XqlS5hich/lb
+         tPi/45AVov1IQb9edn85qByryw1nKFVaEnN9aG1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 12/22] hwmon: (ltc2947) Properly handle errors when looking for the external clock
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Martin Zaharinov <micron10@gmail.com>
+Subject: [PATCH 5.14 13/30] netfilter: nf_nat_masquerade: defer conntrack walk to work queue
 Date:   Thu, 14 Oct 2021 16:54:18 +0200
-Message-Id: <20211014145208.379721338@linuxfoundation.org>
+Message-Id: <20211014145209.966283591@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
-References: <20211014145207.979449962@linuxfoundation.org>
+In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
+References: <20211014145209.520017940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +41,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 6f7d70467121f790b36af2d84bc02b5c236bf5e6 ]
+[ Upstream commit 7970a19b71044bf4dc2c1becc200275bdf1884d4 ]
 
-The return value of devm_clk_get should in general be propagated to
-upper layer. In this case the clk is optional, use the appropriate
-wrapper instead of interpreting all errors as "The optional clk is not
-available".
+The ipv4 and device notifiers are called with RTNL mutex held.
+The table walk can take some time, better not block other RTNL users.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20210923201113.398932-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+'ip a' has been reported to block for up to 20 seconds when conntrack table
+has many entries and device down events are frequent (e.g., PPP).
+
+Reported-and-tested-by: Martin Zaharinov <micron10@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/ltc2947-core.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/netfilter/nf_nat_masquerade.c | 50 +++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/hwmon/ltc2947-core.c b/drivers/hwmon/ltc2947-core.c
-index bb3f7749a0b0..5423466de697 100644
---- a/drivers/hwmon/ltc2947-core.c
-+++ b/drivers/hwmon/ltc2947-core.c
-@@ -989,8 +989,12 @@ static int ltc2947_setup(struct ltc2947_data *st)
- 		return ret;
+diff --git a/net/netfilter/nf_nat_masquerade.c b/net/netfilter/nf_nat_masquerade.c
+index 415919a6ac1a..acd73f717a08 100644
+--- a/net/netfilter/nf_nat_masquerade.c
++++ b/net/netfilter/nf_nat_masquerade.c
+@@ -131,13 +131,14 @@ static void nf_nat_masq_schedule(struct net *net, union nf_inet_addr *addr,
+ 	put_net(net);
+ }
  
- 	/* check external clock presence */
--	extclk = devm_clk_get(st->dev, NULL);
--	if (!IS_ERR(extclk)) {
-+	extclk = devm_clk_get_optional(st->dev, NULL);
-+	if (IS_ERR(extclk))
-+		return dev_err_probe(st->dev, PTR_ERR(extclk),
-+				     "Failed to get external clock\n");
+-static int device_cmp(struct nf_conn *i, void *ifindex)
++static int device_cmp(struct nf_conn *i, void *arg)
+ {
+ 	const struct nf_conn_nat *nat = nfct_nat(i);
++	const struct masq_dev_work *w = arg;
+ 
+ 	if (!nat)
+ 		return 0;
+-	return nat->masq_index == (int)(long)ifindex;
++	return nat->masq_index == w->ifindex;
+ }
+ 
+ static int masq_device_event(struct notifier_block *this,
+@@ -153,8 +154,8 @@ static int masq_device_event(struct notifier_block *this,
+ 		 * and forget them.
+ 		 */
+ 
+-		nf_ct_iterate_cleanup_net(net, device_cmp,
+-					  (void *)(long)dev->ifindex, 0, 0);
++		nf_nat_masq_schedule(net, NULL, dev->ifindex,
++				     device_cmp, GFP_KERNEL);
+ 	}
+ 
+ 	return NOTIFY_DONE;
+@@ -162,35 +163,45 @@ static int masq_device_event(struct notifier_block *this,
+ 
+ static int inet_cmp(struct nf_conn *ct, void *ptr)
+ {
+-	struct in_ifaddr *ifa = (struct in_ifaddr *)ptr;
+-	struct net_device *dev = ifa->ifa_dev->dev;
+ 	struct nf_conntrack_tuple *tuple;
++	struct masq_dev_work *w = ptr;
+ 
+-	if (!device_cmp(ct, (void *)(long)dev->ifindex))
++	if (!device_cmp(ct, ptr))
+ 		return 0;
+ 
+ 	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
+ 
+-	return ifa->ifa_address == tuple->dst.u3.ip;
++	return nf_inet_addr_cmp(&w->addr, &tuple->dst.u3);
+ }
+ 
+ static int masq_inet_event(struct notifier_block *this,
+ 			   unsigned long event,
+ 			   void *ptr)
+ {
+-	struct in_device *idev = ((struct in_ifaddr *)ptr)->ifa_dev;
+-	struct net *net = dev_net(idev->dev);
++	const struct in_ifaddr *ifa = ptr;
++	const struct in_device *idev;
++	const struct net_device *dev;
++	union nf_inet_addr addr;
 +
-+	if (extclk) {
- 		unsigned long rate_hz;
- 		u8 pre = 0, div, tbctl;
- 		u64 aux;
++	if (event != NETDEV_DOWN)
++		return NOTIFY_DONE;
+ 
+ 	/* The masq_dev_notifier will catch the case of the device going
+ 	 * down.  So if the inetdev is dead and being destroyed we have
+ 	 * no work to do.  Otherwise this is an individual address removal
+ 	 * and we have to perform the flush.
+ 	 */
++	idev = ifa->ifa_dev;
+ 	if (idev->dead)
+ 		return NOTIFY_DONE;
+ 
+-	if (event == NETDEV_DOWN)
+-		nf_ct_iterate_cleanup_net(net, inet_cmp, ptr, 0, 0);
++	memset(&addr, 0, sizeof(addr));
++
++	addr.ip = ifa->ifa_address;
++
++	dev = idev->dev;
++	nf_nat_masq_schedule(dev_net(idev->dev), &addr, dev->ifindex,
++			     inet_cmp, GFP_KERNEL);
+ 
+ 	return NOTIFY_DONE;
+ }
+@@ -253,19 +264,6 @@ nf_nat_masquerade_ipv6(struct sk_buff *skb, const struct nf_nat_range2 *range,
+ }
+ EXPORT_SYMBOL_GPL(nf_nat_masquerade_ipv6);
+ 
+-static int inet6_cmp(struct nf_conn *ct, void *work)
+-{
+-	struct masq_dev_work *w = (struct masq_dev_work *)work;
+-	struct nf_conntrack_tuple *tuple;
+-
+-	if (!device_cmp(ct, (void *)(long)w->ifindex))
+-		return 0;
+-
+-	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
+-
+-	return nf_inet_addr_cmp(&w->addr, &tuple->dst.u3);
+-}
+-
+ /* atomic notifier; can't call nf_ct_iterate_cleanup_net (it can sleep).
+  *
+  * Defer it to the system workqueue.
+@@ -289,7 +287,7 @@ static int masq_inet6_event(struct notifier_block *this,
+ 
+ 	addr.in6 = ifa->addr;
+ 
+-	nf_nat_masq_schedule(dev_net(dev), &addr, dev->ifindex, inet6_cmp,
++	nf_nat_masq_schedule(dev_net(dev), &addr, dev->ifindex, inet_cmp,
+ 			     GFP_ATOMIC);
+ 	return NOTIFY_DONE;
+ }
 -- 
 2.33.0
 
