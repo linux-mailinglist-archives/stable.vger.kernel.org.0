@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1100F42DD0B
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B90242DCEF
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:01:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233046AbhJNPDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:03:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44622 "EHLO mail.kernel.org"
+        id S233319AbhJNPDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:03:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231869AbhJNPCp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:02:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDDBD61208;
-        Thu, 14 Oct 2021 14:59:35 +0000 (UTC)
+        id S231683AbhJNPBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:01:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B2CB611C5;
+        Thu, 14 Oct 2021 14:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223576;
-        bh=Peqv+CdcgutYK8n36QBwI+LegFHv4FQyMD4F8X9PF4I=;
+        s=korg; t=1634223539;
+        bh=5dmm1Ef3IOZdp+QCshrZDWnytx8HgMKMx14U0hnogMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R3Pil096EE9GO+oU4Fb3ZnUDFBJLN80b3vCl3GQyOgvUE94GJC/kkhdLiuNfdE1OE
-         6iHZKgwlWwRjNRlwfeHvTIODEd4ROygCNsCiO3baBHbG2OJSer7WcsE8JQ9v9KGS9r
-         HJ3vLGchSVvhWmKK0RMLmWHRxw23D0imnpvKCde0=
+        b=vMI5wt8JkHi2nRKTpjFU+f0tPO7GI3H9XIcbOKjzyEiQP7dVIzqF5n0fPHgbSS/qq
+         JiG7fHsDTlRhpj1bwR6ZciShr8fT3x2x/62uj7YBxwhYi3pyC1v/T0m8OB7paFfF2e
+         0ZjmU4KCelihjZF4GU2h8g3hE4Sksi7C+lnefN1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Hawking Zhang <Hawking.Zhang@amd.com>,
+        Leslie Shi <Yuliang.Shi@amd.com>,
+        Guchun Chen <guchun.chen@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/22] mac80211: Drop frames from invalid MAC address in ad-hoc mode
+Subject: [PATCH 5.4 13/16] drm/amdgpu: fix gart.bo pin_count leak
 Date:   Thu, 14 Oct 2021 16:54:16 +0200
-Message-Id: <20211014145208.316659104@linuxfoundation.org>
+Message-Id: <20211014145207.745121194@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
-References: <20211014145207.979449962@linuxfoundation.org>
+In-Reply-To: <20211014145207.314256898@linuxfoundation.org>
+References: <20211014145207.314256898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Leslie Shi <Yuliang.Shi@amd.com>
 
-[ Upstream commit a6555f844549cd190eb060daef595f94d3de1582 ]
+[ Upstream commit 66805763a97f8f7bdf742fc0851d85c02ed9411f ]
 
-WARNING: CPU: 1 PID: 9 at net/mac80211/sta_info.c:554
-sta_info_insert_rcu+0x121/0x12a0
-Modules linked in:
-CPU: 1 PID: 9 Comm: kworker/u8:1 Not tainted 5.14.0-rc7+ #253
-Workqueue: phy3 ieee80211_iface_work
-RIP: 0010:sta_info_insert_rcu+0x121/0x12a0
-...
-Call Trace:
- ieee80211_ibss_finish_sta+0xbc/0x170
- ieee80211_ibss_work+0x13f/0x7d0
- ieee80211_iface_work+0x37a/0x500
- process_one_work+0x357/0x850
- worker_thread+0x41/0x4d0
+gmc_v{9,10}_0_gart_disable() isn't called matched with
+correspoding gart_enbale function in SRIOV case. This will
+lead to gart.bo pin_count leak on driver unload.
 
-If an Ad-Hoc node receives packets with invalid source MAC address,
-it hits a WARN_ON in sta_info_insert_check(), this can spam the log.
-
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20210827144230.39944-1-yuehaibing@huawei.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Leslie Shi <Yuliang.Shi@amd.com>
+Signed-off-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c | 3 ++-
+ drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c  | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 38b5695c2a0c..b7979c0bffd0 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -4064,7 +4064,8 @@ static bool ieee80211_accept_frame(struct ieee80211_rx_data *rx)
- 		if (!bssid)
- 			return false;
- 		if (ether_addr_equal(sdata->vif.addr, hdr->addr2) ||
--		    ether_addr_equal(sdata->u.ibss.bssid, hdr->addr2))
-+		    ether_addr_equal(sdata->u.ibss.bssid, hdr->addr2) ||
-+		    !is_valid_ether_addr(hdr->addr2))
- 			return false;
- 		if (ieee80211_is_beacon(hdr->frame_control))
- 			return true;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
+index f642e066e67a..85ee0e849647 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
+@@ -903,6 +903,8 @@ static int gmc_v10_0_hw_fini(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 
++	gmc_v10_0_gart_disable(adev);
++
+ 	if (amdgpu_sriov_vf(adev)) {
+ 		/* full access mode, so don't touch any GMC register */
+ 		DRM_DEBUG("For SRIOV client, shouldn't do anything.\n");
+@@ -910,7 +912,6 @@ static int gmc_v10_0_hw_fini(void *handle)
+ 	}
+ 
+ 	amdgpu_irq_put(adev, &adev->gmc.vm_fault, 0);
+-	gmc_v10_0_gart_disable(adev);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+index 688111ef814d..63205de4a565 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+@@ -1526,6 +1526,8 @@ static int gmc_v9_0_hw_fini(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 
++	gmc_v9_0_gart_disable(adev);
++
+ 	if (amdgpu_sriov_vf(adev)) {
+ 		/* full access mode, so don't touch any GMC register */
+ 		DRM_DEBUG("For SRIOV client, shouldn't do anything.\n");
+@@ -1534,7 +1536,6 @@ static int gmc_v9_0_hw_fini(void *handle)
+ 
+ 	amdgpu_irq_put(adev, &adev->gmc.ecc_irq, 0);
+ 	amdgpu_irq_put(adev, &adev->gmc.vm_fault, 0);
+-	gmc_v9_0_gart_disable(adev);
+ 
+ 	return 0;
+ }
 -- 
 2.33.0
 
