@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 134F442DC77
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18DC942DCAD
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232475AbhJNO7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:59:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43974 "EHLO mail.kernel.org"
+        id S233017AbhJNPAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:00:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232484AbhJNO6d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:58:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4D13611AD;
-        Thu, 14 Oct 2021 14:56:27 +0000 (UTC)
+        id S231941AbhJNO7n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:59:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1C4F611C1;
+        Thu, 14 Oct 2021 14:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223388;
-        bh=ulsHIHPE2aQQzKXpkaTj814+EKheKKejxJfwaYSTTGI=;
+        s=korg; t=1634223454;
+        bh=2btvVJ7Fh9qXEtSL8gAuJh0tvf23V4eoboZkDUgkvRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MbkTq4uh+C1glErSxcjhlspqvNIPXBQhW+4qp5kQRJBrMp8yLHDdh4JJU2mDUMRfk
-         kGeQg/vOfE6xxGg2t5LTuQnGiIIK1gUM1jy7Ntk4CL2e9Md0pKA67mb3aw0sZ2SBcg
-         +vhjnP4IxZPfGGIGWtXiDUmgBcXNJL+Wcp6quSkI=
+        b=h3L7PEVoZ2CLy+up5fe7i/MMIZ8qjbk87rjWUIfT5DFpuT4/KGGKj1LiZG/3wAztq
+         qlmPkqkdgRNxzMX7AO1tD0TWF4xiweP79HhAo+9bJMK/5jp5cDjQRCGcF4iHXrMv4m
+         BobdqKwdCx3Hb9TggOVEZTkk9cAGOkKgTzoK6dU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/25] bpf: Fix integer overflow in prealloc_elems_and_freelist()
-Date:   Thu, 14 Oct 2021 16:53:39 +0200
-Message-Id: <20211014145207.839912984@linuxfoundation.org>
+        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 4.14 08/33] ARM: dts: qcom: apq8064: use compatible which contains chipid
+Date:   Thu, 14 Oct 2021 16:53:40 +0200
+Message-Id: <20211014145209.056205998@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
-References: <20211014145207.575041491@linuxfoundation.org>
+In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
+References: <20211014145208.775270267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit 30e29a9a2bc6a4888335a6ede968b75cd329657a ]
+commit f5c03f131dae3f06d08464e6157dd461200f78d9 upstream.
 
-In prealloc_elems_and_freelist(), the multiplication to calculate the
-size passed to bpf_map_area_alloc() could lead to an integer overflow.
-As a result, out-of-bounds write could occur in pcpu_freelist_populate()
-as reported by KASAN:
+Also resolves these kernel warnings for APQ8064:
+adreno 4300000.adreno-3xx: Using legacy qcom,chipid binding!
+adreno 4300000.adreno-3xx: Use compatible qcom,adreno-320.2 instead.
 
-[...]
-[   16.968613] BUG: KASAN: slab-out-of-bounds in pcpu_freelist_populate+0xd9/0x100
-[   16.969408] Write of size 8 at addr ffff888104fc6ea0 by task crash/78
-[   16.970038]
-[   16.970195] CPU: 0 PID: 78 Comm: crash Not tainted 5.15.0-rc2+ #1
-[   16.970878] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-[   16.972026] Call Trace:
-[   16.972306]  dump_stack_lvl+0x34/0x44
-[   16.972687]  print_address_description.constprop.0+0x21/0x140
-[   16.973297]  ? pcpu_freelist_populate+0xd9/0x100
-[   16.973777]  ? pcpu_freelist_populate+0xd9/0x100
-[   16.974257]  kasan_report.cold+0x7f/0x11b
-[   16.974681]  ? pcpu_freelist_populate+0xd9/0x100
-[   16.975190]  pcpu_freelist_populate+0xd9/0x100
-[   16.975669]  stack_map_alloc+0x209/0x2a0
-[   16.976106]  __sys_bpf+0xd83/0x2ce0
-[...]
+Tested on Nexus 7 2013, no functional changes.
 
-The possibility of this overflow was originally discussed in [0], but
-was overlooked.
-
-Fix the integer overflow by changing elem_size to u64 from u32.
-
-  [0] https://lore.kernel.org/bpf/728b238e-a481-eb50-98e9-b0f430ab01e7@gmail.com/
-
-Fixes: 557c0c6e7df8 ("bpf: convert stackmap to pre-allocation")
-Signed-off-by: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210930135545.173698-1-th.yasumatsu@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210818065317.19822-1-david@ixit.cz
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/stackmap.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom-apq8064.dtsi |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
-index 2fdf6f96f976..6f09728cd1dd 100644
---- a/kernel/bpf/stackmap.c
-+++ b/kernel/bpf/stackmap.c
-@@ -28,7 +28,8 @@ struct bpf_stack_map {
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1114,7 +1114,7 @@
+ 		};
  
- static int prealloc_elems_and_freelist(struct bpf_stack_map *smap)
- {
--	u32 elem_size = sizeof(struct stack_map_bucket) + smap->map.value_size;
-+	u64 elem_size = sizeof(struct stack_map_bucket) +
-+			(u64)smap->map.value_size;
- 	int err;
+ 		gpu: adreno-3xx@4300000 {
+-			compatible = "qcom,adreno-3xx";
++			compatible = "qcom,adreno-320.2", "qcom,adreno";
+ 			reg = <0x04300000 0x20000>;
+ 			reg-names = "kgsl_3d0_reg_memory";
+ 			interrupts = <GIC_SPI 80 0>;
+@@ -1129,7 +1129,6 @@
+ 			    <&mmcc GFX3D_AHB_CLK>,
+ 			    <&mmcc GFX3D_AXI_CLK>,
+ 			    <&mmcc MMSS_IMEM_AHB_CLK>;
+-			qcom,chipid = <0x03020002>;
  
- 	smap->elems = bpf_map_area_alloc(elem_size * smap->map.max_entries);
--- 
-2.33.0
-
+ 			iommus = <&gfx3d 0
+ 				  &gfx3d 1
 
 
