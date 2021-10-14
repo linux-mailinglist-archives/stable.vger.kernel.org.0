@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 875B642DD59
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:04:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEBDC42DD1D
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233689AbhJNPGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:06:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50460 "EHLO mail.kernel.org"
+        id S233324AbhJNPEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:04:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233709AbhJNPEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:04:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1FCB611C1;
-        Thu, 14 Oct 2021 15:00:58 +0000 (UTC)
+        id S233328AbhJNPDF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:03:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A74A4611CB;
+        Thu, 14 Oct 2021 14:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223659;
-        bh=OTrccWwKPffRiq3S6lIt8TgRqj+9/RN0ax0h0LgFrls=;
+        s=korg; t=1634223595;
+        bh=TGpWMZp0i5deJQtrOA9LIminswDPhvJNDXCtDEVXMKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EgVgNH3QHXz2gooycYsGA+Agq+86CRCwMpQhGP3bKF8gmAOryIip1kE1qdj6w17y1
-         xXf5JiV4UCBAEn1391nUE3Ppj6CVRGjK3o5bqP8+JgFo1XQOR3hXQenBIkJ/QC6XY4
-         4CngSQoSsSL3iXU77YuOq2r5jbVoWNaxg7owvClc=
+        b=L3j6v1i2IvwnZUQ+Udz1QXINdkxslXvzg+TZ5RbosyOaT08/YSpRdxzWJ8YYpcp+E
+         39w2VbfMj2hbofce1dE3NkMYIRNIxWu3Bkg26gwWqUcPy+PQaKE5yShQDddY2oo4P2
+         LfIXJKnC3LZi6xlrrgK+8RDYiw8TsABRfr1kkdw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
-        Michael Wang <yun.wang@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hawking Zhang <Hawking.Zhang@amd.com>,
+        Leslie Shi <Yuliang.Shi@amd.com>,
+        Guchun Chen <guchun.chen@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 18/30] net: prevent user from passing illegal stab size
+Subject: [PATCH 5.10 17/22] drm/amdgpu: fix gart.bo pin_count leak
 Date:   Thu, 14 Oct 2021 16:54:23 +0200
-Message-Id: <20211014145210.126140061@linuxfoundation.org>
+Message-Id: <20211014145208.538719497@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
-References: <20211014145209.520017940@linuxfoundation.org>
+In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
+References: <20211014145207.979449962@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 王贇 <yun.wang@linux.alibaba.com>
+From: Leslie Shi <Yuliang.Shi@amd.com>
 
-[ Upstream commit b193e15ac69d56f35e1d8e2b5d16cbd47764d053 ]
+[ Upstream commit 66805763a97f8f7bdf742fc0851d85c02ed9411f ]
 
-We observed below report when playing with netlink sock:
+gmc_v{9,10}_0_gart_disable() isn't called matched with
+correspoding gart_enbale function in SRIOV case. This will
+lead to gart.bo pin_count leak on driver unload.
 
-  UBSAN: shift-out-of-bounds in net/sched/sch_api.c:580:10
-  shift exponent 249 is too large for 32-bit type
-  CPU: 0 PID: 685 Comm: a.out Not tainted
-  Call Trace:
-   dump_stack_lvl+0x8d/0xcf
-   ubsan_epilogue+0xa/0x4e
-   __ubsan_handle_shift_out_of_bounds+0x161/0x182
-   __qdisc_calculate_pkt_len+0xf0/0x190
-   __dev_queue_xmit+0x2ed/0x15b0
-
-it seems like kernel won't check the stab log value passing from
-user, and will use the insane value later to calculate pkt_len.
-
-This patch just add a check on the size/cell_log to avoid insane
-calculation.
-
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Leslie Shi <Yuliang.Shi@amd.com>
+Signed-off-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/pkt_sched.h | 1 +
- net/sched/sch_api.c     | 6 ++++++
- 2 files changed, 7 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c | 3 ++-
+ drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c  | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/pkt_sched.h b/include/net/pkt_sched.h
-index 6d7b12cba015..bf79f3a890af 100644
---- a/include/net/pkt_sched.h
-+++ b/include/net/pkt_sched.h
-@@ -11,6 +11,7 @@
- #include <uapi/linux/pkt_sched.h>
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
+index dbc8b76b9b78..150fa5258fb6 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
+@@ -1018,6 +1018,8 @@ static int gmc_v10_0_hw_fini(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
  
- #define DEFAULT_TX_QUEUE_LEN	1000
-+#define STAB_SIZE_LOG_MAX	30
- 
- struct qdisc_walker {
- 	int	stop;
-diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index f87d07736a14..148edd0e71e3 100644
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -513,6 +513,12 @@ static struct qdisc_size_table *qdisc_get_stab(struct nlattr *opt,
- 		return stab;
- 	}
- 
-+	if (s->size_log > STAB_SIZE_LOG_MAX ||
-+	    s->cell_log > STAB_SIZE_LOG_MAX) {
-+		NL_SET_ERR_MSG(extack, "Invalid logarithmic size of size table");
-+		return ERR_PTR(-EINVAL);
-+	}
++	gmc_v10_0_gart_disable(adev);
 +
- 	stab = kmalloc(sizeof(*stab) + tsize * sizeof(u16), GFP_KERNEL);
- 	if (!stab)
- 		return ERR_PTR(-ENOMEM);
+ 	if (amdgpu_sriov_vf(adev)) {
+ 		/* full access mode, so don't touch any GMC register */
+ 		DRM_DEBUG("For SRIOV client, shouldn't do anything.\n");
+@@ -1026,7 +1028,6 @@ static int gmc_v10_0_hw_fini(void *handle)
+ 
+ 	amdgpu_irq_put(adev, &adev->gmc.ecc_irq, 0);
+ 	amdgpu_irq_put(adev, &adev->gmc.vm_fault, 0);
+-	gmc_v10_0_gart_disable(adev);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+index 3ebbddb63705..3a864041968f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+@@ -1677,6 +1677,8 @@ static int gmc_v9_0_hw_fini(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 
++	gmc_v9_0_gart_disable(adev);
++
+ 	if (amdgpu_sriov_vf(adev)) {
+ 		/* full access mode, so don't touch any GMC register */
+ 		DRM_DEBUG("For SRIOV client, shouldn't do anything.\n");
+@@ -1685,7 +1687,6 @@ static int gmc_v9_0_hw_fini(void *handle)
+ 
+ 	amdgpu_irq_put(adev, &adev->gmc.ecc_irq, 0);
+ 	amdgpu_irq_put(adev, &adev->gmc.vm_fault, 0);
+-	gmc_v9_0_gart_disable(adev);
+ 
+ 	return 0;
+ }
 -- 
 2.33.0
 
