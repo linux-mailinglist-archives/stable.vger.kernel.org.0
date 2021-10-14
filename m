@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ED5B42DCFF
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:01:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7104A42DD35
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232507AbhJNPDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:03:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43406 "EHLO mail.kernel.org"
+        id S233634AbhJNPFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:05:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233013AbhJNPC0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:02:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD38561163;
-        Thu, 14 Oct 2021 14:59:22 +0000 (UTC)
+        id S232556AbhJNPDe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:03:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D20606121F;
+        Thu, 14 Oct 2021 15:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223563;
-        bh=wET7jlo9v2hHgYFlJoGvD4IA2Xglyllmc4vVpIhXhvw=;
+        s=korg; t=1634223619;
+        bh=/ggK83Mt//2/kCPdLnCsSx0Vac0wyAk+F1AEtyVh3yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6SsJk7z/KQdjrLdicce+5dQ64Y7VlGGvGg+QnMc0WQrNfqc4sUCqiD7t6xstq9Q2
-         LdeQBfi/RrJwwzfxHrtOEln5zq2A4CuPa6UI2BGY1XKmFxCpTaysEaAfZvYjtXupqh
-         5barpSEYu2qmn7ULwYa86WqlwXeXpH+3J88OYQ4s=
+        b=Pl7qHdt7t5i8xYgp41XrCWUQ09ySHxzRCknVeQcyX6EV32k8khPHliDDw6jSBaHLJ
+         uMJUOmhAuYwDNi5jTcgb8bw1+eawjyRkFU/7yFQQlm3a0MBqKeS6d6Z1yyZIPuQOfq
+         CofdO/pgvJrcVbfvPPXAVVhnsbr6ob4CYteKDyGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Jeremy Sowden <jeremy@azazel.net>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/16] mac80211: Drop frames from invalid MAC address in ad-hoc mode
+Subject: [PATCH 5.10 05/22] netfilter: ip6_tables: zero-initialize fragment offset
 Date:   Thu, 14 Oct 2021 16:54:11 +0200
-Message-Id: <20211014145207.588240184@linuxfoundation.org>
+Message-Id: <20211014145208.156776903@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.314256898@linuxfoundation.org>
-References: <20211014145207.314256898@linuxfoundation.org>
+In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
+References: <20211014145207.979449962@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-[ Upstream commit a6555f844549cd190eb060daef595f94d3de1582 ]
+[ Upstream commit 310e2d43c3ad429c1fba4b175806cf1f55ed73a6 ]
 
-WARNING: CPU: 1 PID: 9 at net/mac80211/sta_info.c:554
-sta_info_insert_rcu+0x121/0x12a0
-Modules linked in:
-CPU: 1 PID: 9 Comm: kworker/u8:1 Not tainted 5.14.0-rc7+ #253
-Workqueue: phy3 ieee80211_iface_work
-RIP: 0010:sta_info_insert_rcu+0x121/0x12a0
-...
-Call Trace:
- ieee80211_ibss_finish_sta+0xbc/0x170
- ieee80211_ibss_work+0x13f/0x7d0
- ieee80211_iface_work+0x37a/0x500
- process_one_work+0x357/0x850
- worker_thread+0x41/0x4d0
+ip6tables only sets the `IP6T_F_PROTO` flag on a rule if a protocol is
+specified (`-p tcp`, for example).  However, if the flag is not set,
+`ip6_packet_match` doesn't call `ipv6_find_hdr` for the skb, in which
+case the fragment offset is left uninitialized and a garbage value is
+passed to each matcher.
 
-If an Ad-Hoc node receives packets with invalid source MAC address,
-it hits a WARN_ON in sta_info_insert_check(), this can spam the log.
-
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20210827144230.39944-1-yuehaibing@huawei.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv6/netfilter/ip6_tables.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 670d84e54db7..c7e6bf7c22c7 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -3952,7 +3952,8 @@ static bool ieee80211_accept_frame(struct ieee80211_rx_data *rx)
- 		if (!bssid)
- 			return false;
- 		if (ether_addr_equal(sdata->vif.addr, hdr->addr2) ||
--		    ether_addr_equal(sdata->u.ibss.bssid, hdr->addr2))
-+		    ether_addr_equal(sdata->u.ibss.bssid, hdr->addr2) ||
-+		    !is_valid_ether_addr(hdr->addr2))
- 			return false;
- 		if (ieee80211_is_beacon(hdr->frame_control))
- 			return true;
+diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
+index eb2b5404806c..d36168baf677 100644
+--- a/net/ipv6/netfilter/ip6_tables.c
++++ b/net/ipv6/netfilter/ip6_tables.c
+@@ -273,6 +273,7 @@ ip6t_do_table(struct sk_buff *skb,
+ 	 * things we don't know, ie. tcp syn flag or ports).  If the
+ 	 * rule is also a fragment-specific rule, non-fragments won't
+ 	 * match it. */
++	acpar.fragoff = 0;
+ 	acpar.hotdrop = false;
+ 	acpar.state   = state;
+ 
 -- 
 2.33.0
 
