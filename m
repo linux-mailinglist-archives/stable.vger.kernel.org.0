@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF21642DC66
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4620E42DC9A
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231523AbhJNO6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:58:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43482 "EHLO mail.kernel.org"
+        id S232861AbhJNPAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232426AbhJNO6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:58:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7499611AE;
-        Thu, 14 Oct 2021 14:56:07 +0000 (UTC)
+        id S231924AbhJNO7O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:59:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96003600CC;
+        Thu, 14 Oct 2021 14:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223368;
-        bh=Y7lLbnn2OH0q9Iw/Vy3ZG2KUPZl6ON2JommqVQ1Mozg=;
+        s=korg; t=1634223430;
+        bh=+8jA28rdb8qucLwkPp4mcQjxFxJB+PeKSSKyA2dbXb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MuxD7GtiN9AEdB+zhZwXsF8gwvPjUVg/LVd8rZsui48a4sMM/kGWJp0oCBSyB1c7i
-         FSYvfoLHTz4jwdoXDaGZe0KRD7VDto2wDUN95dJ4aygKK1tz6IiCmRluQJU/qyAjHK
-         RT+9y83NSAiEksd/qi+J4AO44TKmrh90LMhQtmkU=
+        b=UICibO47oeJUpcoDEb8b1OcSivneECMbnnJ4PWeyPBn8nz8wY9Jy8Z2769bWh4Ahh
+         Dne40tv44dYuS9GrUn5ohouXathIiYmtDyEzLqF5kg8+yy0D/W1emQNlhRKBSM4vjY
+         ROii3D/KJATvisSaA4ZCXvh+DX7oNjxP+IceIPJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mizuho Mori <morimolymoly@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 20/25] HID: apple: Fix logical maximum and usage maximum of Magic Keyboard JIS
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 19/33] netlink: annotate data races around nlk->bound
 Date:   Thu, 14 Oct 2021 16:53:51 +0200
-Message-Id: <20211014145208.223713681@linuxfoundation.org>
+Message-Id: <20211014145209.433390760@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
-References: <20211014145207.575041491@linuxfoundation.org>
+In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
+References: <20211014145208.775270267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,100 +41,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mizuho Mori <morimolymoly@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 67fd71ba16a37c663d139f5ba5296f344d80d072 ]
+[ Upstream commit 7707a4d01a648e4c655101a469c956cb11273655 ]
 
-Apple Magic Keyboard(JIS)'s Logical Maximum and Usage Maximum are wrong.
+While existing code is correct, KCSAN is reporting
+a data-race in netlink_insert / netlink_sendmsg [1]
 
-Below is a report descriptor.
+It is correct to read nlk->bound without a lock, as netlink_autobind()
+will acquire all needed locks.
 
-0x05, 0x01,         /*  Usage Page (Desktop),                           */
-0x09, 0x06,         /*  Usage (Keyboard),                               */
-0xA1, 0x01,         /*  Collection (Application),                       */
-0x85, 0x01,         /*      Report ID (1),                              */
-0x05, 0x07,         /*      Usage Page (Keyboard),                      */
-0x15, 0x00,         /*      Logical Minimum (0),                        */
-0x25, 0x01,         /*      Logical Maximum (1),                        */
-0x19, 0xE0,         /*      Usage Minimum (KB Leftcontrol),             */
-0x29, 0xE7,         /*      Usage Maximum (KB Right GUI),               */
-0x75, 0x01,         /*      Report Size (1),                            */
-0x95, 0x08,         /*      Report Count (8),                           */
-0x81, 0x02,         /*      Input (Variable),                           */
-0x95, 0x05,         /*      Report Count (5),                           */
-0x75, 0x01,         /*      Report Size (1),                            */
-0x05, 0x08,         /*      Usage Page (LED),                           */
-0x19, 0x01,         /*      Usage Minimum (01h),                        */
-0x29, 0x05,         /*      Usage Maximum (05h),                        */
-0x91, 0x02,         /*      Output (Variable),                          */
-0x95, 0x01,         /*      Report Count (1),                           */
-0x75, 0x03,         /*      Report Size (3),                            */
-0x91, 0x03,         /*      Output (Constant, Variable),                */
-0x95, 0x08,         /*      Report Count (8),                           */
-0x75, 0x01,         /*      Report Size (1),                            */
-0x15, 0x00,         /*      Logical Minimum (0),                        */
-0x25, 0x01,         /*      Logical Maximum (1),                        */
+[1]
+BUG: KCSAN: data-race in netlink_insert / netlink_sendmsg
 
-here is a report descriptor which is parsed one in kernel.
-see sys/kernel/debug/hid/<dev>/rdesc
+write to 0xffff8881031c8b30 of 1 bytes by task 18752 on cpu 0:
+ netlink_insert+0x5cc/0x7f0 net/netlink/af_netlink.c:597
+ netlink_autobind+0xa9/0x150 net/netlink/af_netlink.c:842
+ netlink_sendmsg+0x479/0x7c0 net/netlink/af_netlink.c:1892
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg net/socket.c:723 [inline]
+ ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
+ ___sys_sendmsg net/socket.c:2446 [inline]
+ __sys_sendmsg+0x1ed/0x270 net/socket.c:2475
+ __do_sys_sendmsg net/socket.c:2484 [inline]
+ __se_sys_sendmsg net/socket.c:2482 [inline]
+ __x64_sys_sendmsg+0x42/0x50 net/socket.c:2482
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-05 01 09 06 a1 01 85 01 05 07
-15 00 25 01 19 e0 29 e7 75 01
-95 08 81 02 95 05 75 01 05 08
-19 01 29 05 91 02 95 01 75 03
-91 03 95 08 75 01 15 00 25 01
-06 00 ff 09 03 81 03 95 06 75
-08 15 00 25 [65] 05 07 19 00 29
-[65] 81 00 95 01 75 01 15 00 25
-01 05 0c 09 b8 81 02 95 01 75
-01 06 01 ff 09 03 81 02 95 01
-75 06 81 03 06 02 ff 09 55 85
-55 15 00 26 ff 00 75 08 95 40
-b1 a2 c0 06 00 ff 09 14 a1 01
-85 90 05 84 75 01 95 03 15 00
-25 01 09 61 05 85 09 44 09 46
-81 02 95 05 81 01 75 08 95 01
-15 00 26 ff 00 09 65 81 02 c0
-00
+read to 0xffff8881031c8b30 of 1 bytes by task 18751 on cpu 1:
+ netlink_sendmsg+0x270/0x7c0 net/netlink/af_netlink.c:1891
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg net/socket.c:723 [inline]
+ __sys_sendto+0x2a8/0x370 net/socket.c:2019
+ __do_sys_sendto net/socket.c:2031 [inline]
+ __se_sys_sendto net/socket.c:2027 [inline]
+ __x64_sys_sendto+0x74/0x90 net/socket.c:2027
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Position 64(Logical Maximum) and 70(Usage Maximum) are 101.
-Both should be 0xE7 to support JIS specific keys(ろ, Eisu, Kana, |) support.
-position 117 is also 101 but not related(it is Usage 65h).
+value changed: 0x00 -> 0x01
 
-There are no difference of product id between JIS and ANSI.
-They are same 0x0267.
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 18751 Comm: syz-executor.0 Not tainted 5.14.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 
-Signed-off-by: Mizuho Mori <morimolymoly@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: da314c9923fe ("netlink: Replace rhash_portid with bound")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/netlink/af_netlink.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 959a9e38b4f5..149902619cbc 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -302,12 +302,19 @@ static int apple_event(struct hid_device *hdev, struct hid_field *field,
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 955041c54702..d1fd9f7c867e 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -567,7 +567,10 @@ static int netlink_insert(struct sock *sk, u32 portid)
  
- /*
-  * MacBook JIS keyboard has wrong logical maximum
-+ * Magic Keyboard JIS has wrong logical maximum
-  */
- static __u8 *apple_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
- 	struct apple_sc *asc = hid_get_drvdata(hdev);
+ 	/* We need to ensure that the socket is hashed and visible. */
+ 	smp_wmb();
+-	nlk_sk(sk)->bound = portid;
++	/* Paired with lockless reads from netlink_bind(),
++	 * netlink_connect() and netlink_sendmsg().
++	 */
++	WRITE_ONCE(nlk_sk(sk)->bound, portid);
  
-+	if(*rsize >=71 && rdesc[70] == 0x65 && rdesc[64] == 0x65) {
-+		hid_info(hdev,
-+			 "fixing up Magic Keyboard JIS report descriptor\n");
-+		rdesc[64] = rdesc[70] = 0xe7;
-+	}
-+
- 	if ((asc->quirks & APPLE_RDESC_JIS) && *rsize >= 60 &&
- 			rdesc[53] == 0x65 && rdesc[59] == 0x65) {
- 		hid_info(hdev,
+ err:
+ 	release_sock(sk);
+@@ -986,7 +989,8 @@ static int netlink_bind(struct socket *sock, struct sockaddr *addr,
+ 	else if (nlk->ngroups < 8*sizeof(groups))
+ 		groups &= (1UL << nlk->ngroups) - 1;
+ 
+-	bound = nlk->bound;
++	/* Paired with WRITE_ONCE() in netlink_insert() */
++	bound = READ_ONCE(nlk->bound);
+ 	if (bound) {
+ 		/* Ensure nlk->portid is up-to-date. */
+ 		smp_rmb();
+@@ -1072,8 +1076,9 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
+ 
+ 	/* No need for barriers here as we return to user-space without
+ 	 * using any of the bound attributes.
++	 * Paired with WRITE_ONCE() in netlink_insert().
+ 	 */
+-	if (!nlk->bound)
++	if (!READ_ONCE(nlk->bound))
+ 		err = netlink_autobind(sock);
+ 
+ 	if (err == 0) {
+@@ -1839,7 +1844,8 @@ static int netlink_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 		dst_group = nlk->dst_group;
+ 	}
+ 
+-	if (!nlk->bound) {
++	/* Paired with WRITE_ONCE() in netlink_insert() */
++	if (!READ_ONCE(nlk->bound)) {
+ 		err = netlink_autobind(sock);
+ 		if (err)
+ 			goto out;
 -- 
 2.33.0
 
