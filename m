@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B0A442DC68
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76B2042DC9E
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232290AbhJNO6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:58:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43508 "EHLO mail.kernel.org"
+        id S231293AbhJNPA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:00:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232302AbhJNO6P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:58:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5900A61163;
-        Thu, 14 Oct 2021 14:56:10 +0000 (UTC)
+        id S232664AbhJNO7U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:59:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53266610D1;
+        Thu, 14 Oct 2021 14:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223370;
-        bh=AFPHVVfcEuRK12amz4oDieJPFmtW9F/POEKjp8Rlb34=;
+        s=korg; t=1634223435;
+        bh=ypwFQT/ttAArZs0XkrtyKy2gElvMXG7xS2Yrt+rUiZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bp+EIxuUQ1aqi0dAuWjpQFtDkwznqInkCkOv30uyNtEFrNxrWac6xNwUg4lL8NFd4
-         qUuw8wCj7AgKJupJ9lnjRzAqckm8/pz60GrO1Zi+j0cIkvyACmhjjHNtct7YJg5D+Z
-         mOi/+zi5yd9+nVVuQLzxv+7ADEILZnYPVw+xm27M=
+        b=KutgaF83xXb6y2VwQlYOuOlErTiLc7ZfIfxnWB7FsqXSF12YTeMjxktKDTts9+wRL
+         UGVz/rpdPkjnNbIF4G5IQQCkQksFHjrHxyvK2wjKcYextI4vVs55bgMFE+0Zucs7eX
+         3lKuslZI+TxOiuau1ctudZPHXL3QQdCDi4DzYoT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Sowden <jeremy@azazel.net>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 21/25] netfilter: ip6_tables: zero-initialize fragment offset
+Subject: [PATCH 4.14 20/33] drm/nouveau/debugfs: fix file release memory leak
 Date:   Thu, 14 Oct 2021 16:53:52 +0200
-Message-Id: <20211014145208.253790977@linuxfoundation.org>
+Message-Id: <20211014145209.471298815@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
-References: <20211014145207.575041491@linuxfoundation.org>
+In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
+References: <20211014145208.775270267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Sowden <jeremy@azazel.net>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 310e2d43c3ad429c1fba4b175806cf1f55ed73a6 ]
+[ Upstream commit f5a8703a9c418c6fc54eb772712dfe7641e3991c ]
 
-ip6tables only sets the `IP6T_F_PROTO` flag on a rule if a protocol is
-specified (`-p tcp`, for example).  However, if the flag is not set,
-`ip6_packet_match` doesn't call `ipv6_find_hdr` for the skb, in which
-case the fragment offset is left uninitialized and a garbage value is
-passed to each matcher.
+When using single_open() for opening, single_release() should be
+called, otherwise the 'op' allocated in single_open() will be leaked.
 
-Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 6e9fc177399f ("drm/nouveau/debugfs: add copy of sysfs pstate interface ported to debugfs")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210911075023.3969054-2-yangyingliang@huawei.com
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/netfilter/ip6_tables.c | 1 +
+ drivers/gpu/drm/nouveau/nouveau_debugfs.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
-index 579fda1bc45d..ce54e66b47a0 100644
---- a/net/ipv6/netfilter/ip6_tables.c
-+++ b/net/ipv6/netfilter/ip6_tables.c
-@@ -290,6 +290,7 @@ ip6t_do_table(struct sk_buff *skb,
- 	 * things we don't know, ie. tcp syn flag or ports).  If the
- 	 * rule is also a fragment-specific rule, non-fragments won't
- 	 * match it. */
-+	acpar.fragoff = 0;
- 	acpar.hotdrop = false;
- 	acpar.net     = state->net;
- 	acpar.in      = state->in;
+diff --git a/drivers/gpu/drm/nouveau/nouveau_debugfs.c b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
+index 4561a786fab0..cce4833a6083 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_debugfs.c
++++ b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
+@@ -185,6 +185,7 @@ static const struct file_operations nouveau_pstate_fops = {
+ 	.open = nouveau_debugfs_pstate_open,
+ 	.read = seq_read,
+ 	.write = nouveau_debugfs_pstate_set,
++	.release = single_release,
+ };
+ 
+ static struct drm_info_list nouveau_debugfs_list[] = {
 -- 
 2.33.0
 
