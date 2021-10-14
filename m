@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0C442DC29
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:55:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E27BE42DC55
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231967AbhJNO5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:57:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41892 "EHLO mail.kernel.org"
+        id S232067AbhJNO6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:58:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231982AbhJNO5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:57:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3211C60F36;
-        Thu, 14 Oct 2021 14:55:00 +0000 (UTC)
+        id S232323AbhJNO5y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:57:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53D7061183;
+        Thu, 14 Oct 2021 14:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223300;
-        bh=+ickOl/0o/hrJ/30y7b+QvRz2Lu6cSfP+WICbEp/GIw=;
+        s=korg; t=1634223349;
+        bh=sWaWquMstVZ/tf6YcQP+74XX8JCn6l1Yp706SCL3YwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GrPW7kBMbeaSXsZv5cMXFXFjg+pStn7nPtyg9Q5YmJblcSXa+B9TXhQb837wRMWDN
-         DgZLgIA2gExmif6a190kfIaEF5bXGIU0KWI8Xdz0excc/uqVuCyfU6iJi1wawvP/pv
-         OaXBUIz0I8F6y7bYe9Gq5sE0sUYVExWGA2rwmVhI=
+        b=F0r2bTf0av8kUJ7CAjQ/6lm/rCRw80cndhQsfbrSsgE7MJMrMZc+jS4+cBID8rbQc
+         SBRm6AytpG1w/db+JB7qKhxQ2U7PM08hGXfoJAQHPnq72uG9W0dXwUKKY81GvWs6Sq
+         wWyVkUWs/BBSrF+64mvKfY+vQ5ulMykC9d77e5cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mizuho Mori <morimolymoly@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 13/18] HID: apple: Fix logical maximum and usage maximum of Magic Keyboard JIS
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 14/25] net: bridge: use nla_total_size_64bit() in br_get_linkxstats_size()
 Date:   Thu, 14 Oct 2021 16:53:45 +0200
-Message-Id: <20211014145206.751625859@linuxfoundation.org>
+Message-Id: <20211014145208.027416738@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145206.330102860@linuxfoundation.org>
-References: <20211014145206.330102860@linuxfoundation.org>
+In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
+References: <20211014145207.575041491@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,100 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mizuho Mori <morimolymoly@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 67fd71ba16a37c663d139f5ba5296f344d80d072 ]
+[ Upstream commit dbe0b88064494b7bb6a9b2aa7e085b14a3112d44 ]
 
-Apple Magic Keyboard(JIS)'s Logical Maximum and Usage Maximum are wrong.
+bridge_fill_linkxstats() is using nla_reserve_64bit().
 
-Below is a report descriptor.
+We must use nla_total_size_64bit() instead of nla_total_size()
+for corresponding data structure.
 
-0x05, 0x01,         /*  Usage Page (Desktop),                           */
-0x09, 0x06,         /*  Usage (Keyboard),                               */
-0xA1, 0x01,         /*  Collection (Application),                       */
-0x85, 0x01,         /*      Report ID (1),                              */
-0x05, 0x07,         /*      Usage Page (Keyboard),                      */
-0x15, 0x00,         /*      Logical Minimum (0),                        */
-0x25, 0x01,         /*      Logical Maximum (1),                        */
-0x19, 0xE0,         /*      Usage Minimum (KB Leftcontrol),             */
-0x29, 0xE7,         /*      Usage Maximum (KB Right GUI),               */
-0x75, 0x01,         /*      Report Size (1),                            */
-0x95, 0x08,         /*      Report Count (8),                           */
-0x81, 0x02,         /*      Input (Variable),                           */
-0x95, 0x05,         /*      Report Count (5),                           */
-0x75, 0x01,         /*      Report Size (1),                            */
-0x05, 0x08,         /*      Usage Page (LED),                           */
-0x19, 0x01,         /*      Usage Minimum (01h),                        */
-0x29, 0x05,         /*      Usage Maximum (05h),                        */
-0x91, 0x02,         /*      Output (Variable),                          */
-0x95, 0x01,         /*      Report Count (1),                           */
-0x75, 0x03,         /*      Report Size (3),                            */
-0x91, 0x03,         /*      Output (Constant, Variable),                */
-0x95, 0x08,         /*      Report Count (8),                           */
-0x75, 0x01,         /*      Report Size (1),                            */
-0x15, 0x00,         /*      Logical Minimum (0),                        */
-0x25, 0x01,         /*      Logical Maximum (1),                        */
-
-here is a report descriptor which is parsed one in kernel.
-see sys/kernel/debug/hid/<dev>/rdesc
-
-05 01 09 06 a1 01 85 01 05 07
-15 00 25 01 19 e0 29 e7 75 01
-95 08 81 02 95 05 75 01 05 08
-19 01 29 05 91 02 95 01 75 03
-91 03 95 08 75 01 15 00 25 01
-06 00 ff 09 03 81 03 95 06 75
-08 15 00 25 [65] 05 07 19 00 29
-[65] 81 00 95 01 75 01 15 00 25
-01 05 0c 09 b8 81 02 95 01 75
-01 06 01 ff 09 03 81 02 95 01
-75 06 81 03 06 02 ff 09 55 85
-55 15 00 26 ff 00 75 08 95 40
-b1 a2 c0 06 00 ff 09 14 a1 01
-85 90 05 84 75 01 95 03 15 00
-25 01 09 61 05 85 09 44 09 46
-81 02 95 05 81 01 75 08 95 01
-15 00 26 ff 00 09 65 81 02 c0
-00
-
-Position 64(Logical Maximum) and 70(Usage Maximum) are 101.
-Both should be 0xE7 to support JIS specific keys(ろ, Eisu, Kana, |) support.
-position 117 is also 101 but not related(it is Usage 65h).
-
-There are no difference of product id between JIS and ANSI.
-They are same 0x0267.
-
-Signed-off-by: Mizuho Mori <morimolymoly@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 1080ab95e3c7 ("net: bridge: add support for IGMP/MLD stats and export them via netlink")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Nikolay Aleksandrov <nikolay@nvidia.com>
+Cc: Vivien Didelot <vivien.didelot@gmail.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/bridge/br_netlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 8af87dc05f2a..73289b013dee 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -301,12 +301,19 @@ static int apple_event(struct hid_device *hdev, struct hid_field *field,
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 4f831225d34f..ca8757090ae3 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1298,7 +1298,7 @@ static size_t br_get_linkxstats_size(const struct net_device *dev, int attr)
+ 	}
  
- /*
-  * MacBook JIS keyboard has wrong logical maximum
-+ * Magic Keyboard JIS has wrong logical maximum
-  */
- static __u8 *apple_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
- 	struct apple_sc *asc = hid_get_drvdata(hdev);
+ 	return numvls * nla_total_size(sizeof(struct bridge_vlan_xstats)) +
+-	       nla_total_size(sizeof(struct br_mcast_stats)) +
++	       nla_total_size_64bit(sizeof(struct br_mcast_stats)) +
+ 	       nla_total_size(0);
+ }
  
-+	if(*rsize >=71 && rdesc[70] == 0x65 && rdesc[64] == 0x65) {
-+		hid_info(hdev,
-+			 "fixing up Magic Keyboard JIS report descriptor\n");
-+		rdesc[64] = rdesc[70] = 0xe7;
-+	}
-+
- 	if ((asc->quirks & APPLE_RDESC_JIS) && *rsize >= 60 &&
- 			rdesc[53] == 0x65 && rdesc[59] == 0x65) {
- 		hid_info(hdev,
 -- 
 2.33.0
 
