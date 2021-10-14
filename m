@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E88A42DCF2
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:01:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6476242DD11
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232868AbhJNPDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45090 "EHLO mail.kernel.org"
+        id S233204AbhJNPEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:04:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232480AbhJNPBl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:01:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6CCC611ED;
-        Thu, 14 Oct 2021 14:59:01 +0000 (UTC)
+        id S231840AbhJNPCv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:02:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48E1461183;
+        Thu, 14 Oct 2021 14:59:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223542;
-        bh=LylHOIffVcIqYdv0d4jIzGgDNgrPeLs5cf1VoCqVESU=;
+        s=korg; t=1634223578;
+        bh=HlJ20umdZfqBNHHwaokcTGUz2B5BVV3kFEd7ksCdN6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ckU1gN4K+yhSrKFxmWW2ecb7oEinjCYapHhl8S+6MGUiYWZXtG2j4n/5sjVkfidjX
-         JlaHnP+0wBkkaCF0m3gqs5YAr8uDc6AsDusMeOAa2RtUQkRX4nHfLi1hssQA0jDII2
-         nHfKBLLujUwF+DWcUuUvRfOQVd/ezuYb6W2lYc/o=
+        b=vux5NdtD3AxWRUh0WgVM/30HNNoHYA09ad7b/kGpZz8a7TUpJBmAT4IkAo/ygvTZ9
+         DQyn5sp8+7m2+5dxLoyrIjx+RJPA294IGBJue+bk3CDRer5VQG30k1KLmBPDGlpBvb
+         daXjPWwNWuxQaascs/quE1GEAXgf4j85nC1JKRcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Michael Schmitz <schmitzmic@gmail.com>,
+        Finn Thain <fthain@linux-m68k.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 14/16] scsi: ses: Fix unsigned comparison with less than zero
+Subject: [PATCH 5.10 11/22] m68k: Handle arrivals of multiple signals correctly
 Date:   Thu, 14 Oct 2021 16:54:17 +0200
-Message-Id: <20211014145207.775550640@linuxfoundation.org>
+Message-Id: <20211014145208.349918937@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.314256898@linuxfoundation.org>
-References: <20211014145207.314256898@linuxfoundation.org>
+In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
+References: <20211014145207.979449962@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +42,229 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit dd689ed5aa905daf4ba4c99319a52aad6ea0a796 ]
+[ Upstream commit 4bb0bd81ce5e97092dfda6a106d414b703ec0ee8 ]
 
-Fix the following coccicheck warning:
+When we have several pending signals, have entered with the kernel
+with large exception frame *and* have already built at least one
+sigframe, regs->stkadj is going to be non-zero and regs->format/sr/pc
+are going to be junk - the real values are in shifted exception stack
+frame we'd built when putting together the first sigframe.
 
-./drivers/scsi/ses.c:137:10-16: WARNING: Unsigned expression compared
-with zero: result > 0.
+If that happens, subsequent sigframes are going to be garbage.
+Not hard to fix - just need to find the "adjusted" frame first
+and look for format/vector/sr/pc in it.
 
-Link: https://lore.kernel.org/r/1632477113-90378-1-git-send-email-jiapeng.chong@linux.alibaba.com
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
+Tested-by: Finn Thain <fthain@linux-m68k.org>
+Link: https://lore.kernel.org/r/YP2dBIAPTaVvHiZ6@zeniv-ca.linux.org.uk
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ses.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/m68k/kernel/signal.c | 88 +++++++++++++++++++--------------------
+ 1 file changed, 42 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/scsi/ses.c b/drivers/scsi/ses.c
-index 43e682297fd5..0a1734f34587 100644
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -118,7 +118,7 @@ static int ses_recv_diag(struct scsi_device *sdev, int page_code,
- static int ses_send_diag(struct scsi_device *sdev, int page_code,
- 			 void *buf, int bufflen)
- {
--	u32 result;
-+	int result;
+diff --git a/arch/m68k/kernel/signal.c b/arch/m68k/kernel/signal.c
+index 46f91e0f6a08..fd916844a683 100644
+--- a/arch/m68k/kernel/signal.c
++++ b/arch/m68k/kernel/signal.c
+@@ -447,7 +447,7 @@ static inline void save_fpu_state(struct sigcontext *sc, struct pt_regs *regs)
  
- 	unsigned char cmd[] = {
- 		SEND_DIAGNOSTIC,
+ 	if (CPU_IS_060 ? sc->sc_fpstate[2] : sc->sc_fpstate[0]) {
+ 		fpu_version = sc->sc_fpstate[0];
+-		if (CPU_IS_020_OR_030 &&
++		if (CPU_IS_020_OR_030 && !regs->stkadj &&
+ 		    regs->vector >= (VEC_FPBRUC * 4) &&
+ 		    regs->vector <= (VEC_FPNAN * 4)) {
+ 			/* Clear pending exception in 68882 idle frame */
+@@ -510,7 +510,7 @@ static inline int rt_save_fpu_state(struct ucontext __user *uc, struct pt_regs *
+ 		if (!(CPU_IS_060 || CPU_IS_COLDFIRE))
+ 			context_size = fpstate[1];
+ 		fpu_version = fpstate[0];
+-		if (CPU_IS_020_OR_030 &&
++		if (CPU_IS_020_OR_030 && !regs->stkadj &&
+ 		    regs->vector >= (VEC_FPBRUC * 4) &&
+ 		    regs->vector <= (VEC_FPNAN * 4)) {
+ 			/* Clear pending exception in 68882 idle frame */
+@@ -828,18 +828,24 @@ badframe:
+ 	return 0;
+ }
+ 
++static inline struct pt_regs *rte_regs(struct pt_regs *regs)
++{
++	return (void *)regs + regs->stkadj;
++}
++
+ static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
+ 			     unsigned long mask)
+ {
++	struct pt_regs *tregs = rte_regs(regs);
+ 	sc->sc_mask = mask;
+ 	sc->sc_usp = rdusp();
+ 	sc->sc_d0 = regs->d0;
+ 	sc->sc_d1 = regs->d1;
+ 	sc->sc_a0 = regs->a0;
+ 	sc->sc_a1 = regs->a1;
+-	sc->sc_sr = regs->sr;
+-	sc->sc_pc = regs->pc;
+-	sc->sc_formatvec = regs->format << 12 | regs->vector;
++	sc->sc_sr = tregs->sr;
++	sc->sc_pc = tregs->pc;
++	sc->sc_formatvec = tregs->format << 12 | tregs->vector;
+ 	save_a5_state(sc, regs);
+ 	save_fpu_state(sc, regs);
+ }
+@@ -847,6 +853,7 @@ static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
+ static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *regs)
+ {
+ 	struct switch_stack *sw = (struct switch_stack *)regs - 1;
++	struct pt_regs *tregs = rte_regs(regs);
+ 	greg_t __user *gregs = uc->uc_mcontext.gregs;
+ 	int err = 0;
+ 
+@@ -867,9 +874,9 @@ static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *
+ 	err |= __put_user(sw->a5, &gregs[13]);
+ 	err |= __put_user(sw->a6, &gregs[14]);
+ 	err |= __put_user(rdusp(), &gregs[15]);
+-	err |= __put_user(regs->pc, &gregs[16]);
+-	err |= __put_user(regs->sr, &gregs[17]);
+-	err |= __put_user((regs->format << 12) | regs->vector, &uc->uc_formatvec);
++	err |= __put_user(tregs->pc, &gregs[16]);
++	err |= __put_user(tregs->sr, &gregs[17]);
++	err |= __put_user((tregs->format << 12) | tregs->vector, &uc->uc_formatvec);
+ 	err |= rt_save_fpu_state(uc, regs);
+ 	return err;
+ }
+@@ -886,13 +893,14 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 			struct pt_regs *regs)
+ {
+ 	struct sigframe __user *frame;
+-	int fsize = frame_extra_sizes(regs->format);
++	struct pt_regs *tregs = rte_regs(regs);
++	int fsize = frame_extra_sizes(tregs->format);
+ 	struct sigcontext context;
+ 	int err = 0, sig = ksig->sig;
+ 
+ 	if (fsize < 0) {
+ 		pr_debug("setup_frame: Unknown frame format %#x\n",
+-			 regs->format);
++			 tregs->format);
+ 		return -EFAULT;
+ 	}
+ 
+@@ -903,7 +911,7 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	err |= __put_user(sig, &frame->sig);
+ 
+-	err |= __put_user(regs->vector, &frame->code);
++	err |= __put_user(tregs->vector, &frame->code);
+ 	err |= __put_user(&frame->sc, &frame->psc);
+ 
+ 	if (_NSIG_WORDS > 1)
+@@ -929,34 +937,28 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	push_cache ((unsigned long) &frame->retcode);
+ 
+-	/*
+-	 * Set up registers for signal handler.  All the state we are about
+-	 * to destroy is successfully copied to sigframe.
+-	 */
+-	wrusp ((unsigned long) frame);
+-	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
+-	adjustformat(regs);
+-
+ 	/*
+ 	 * This is subtle; if we build more than one sigframe, all but the
+ 	 * first one will see frame format 0 and have fsize == 0, so we won't
+ 	 * screw stkadj.
+ 	 */
+-	if (fsize)
++	if (fsize) {
+ 		regs->stkadj = fsize;
+-
+-	/* Prepare to skip over the extra stuff in the exception frame.  */
+-	if (regs->stkadj) {
+-		struct pt_regs *tregs =
+-			(struct pt_regs *)((ulong)regs + regs->stkadj);
++		tregs = rte_regs(regs);
+ 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
+-		/* This must be copied with decreasing addresses to
+-                   handle overlaps.  */
+ 		tregs->vector = 0;
+ 		tregs->format = 0;
+-		tregs->pc = regs->pc;
+ 		tregs->sr = regs->sr;
+ 	}
++
++	/*
++	 * Set up registers for signal handler.  All the state we are about
++	 * to destroy is successfully copied to sigframe.
++	 */
++	wrusp ((unsigned long) frame);
++	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
++	adjustformat(regs);
++
+ 	return 0;
+ }
+ 
+@@ -964,7 +966,8 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
+ 			   struct pt_regs *regs)
+ {
+ 	struct rt_sigframe __user *frame;
+-	int fsize = frame_extra_sizes(regs->format);
++	struct pt_regs *tregs = rte_regs(regs);
++	int fsize = frame_extra_sizes(tregs->format);
+ 	int err = 0, sig = ksig->sig;
+ 
+ 	if (fsize < 0) {
+@@ -1014,34 +1017,27 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	push_cache ((unsigned long) &frame->retcode);
+ 
+-	/*
+-	 * Set up registers for signal handler.  All the state we are about
+-	 * to destroy is successfully copied to sigframe.
+-	 */
+-	wrusp ((unsigned long) frame);
+-	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
+-	adjustformat(regs);
+-
+ 	/*
+ 	 * This is subtle; if we build more than one sigframe, all but the
+ 	 * first one will see frame format 0 and have fsize == 0, so we won't
+ 	 * screw stkadj.
+ 	 */
+-	if (fsize)
++	if (fsize) {
+ 		regs->stkadj = fsize;
+-
+-	/* Prepare to skip over the extra stuff in the exception frame.  */
+-	if (regs->stkadj) {
+-		struct pt_regs *tregs =
+-			(struct pt_regs *)((ulong)regs + regs->stkadj);
++		tregs = rte_regs(regs);
+ 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
+-		/* This must be copied with decreasing addresses to
+-                   handle overlaps.  */
+ 		tregs->vector = 0;
+ 		tregs->format = 0;
+-		tregs->pc = regs->pc;
+ 		tregs->sr = regs->sr;
+ 	}
++
++	/*
++	 * Set up registers for signal handler.  All the state we are about
++	 * to destroy is successfully copied to sigframe.
++	 */
++	wrusp ((unsigned long) frame);
++	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
++	adjustformat(regs);
+ 	return 0;
+ }
+ 
 -- 
 2.33.0
 
