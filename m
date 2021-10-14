@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCF3C42DC4B
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:56:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42FC942DC84
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231295AbhJNO6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:58:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42520 "EHLO mail.kernel.org"
+        id S232746AbhJNO7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:59:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232123AbhJNO5m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:57:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 541B2610F8;
-        Thu, 14 Oct 2021 14:55:37 +0000 (UTC)
+        id S232543AbhJNO6s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:58:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CFA661151;
+        Thu, 14 Oct 2021 14:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223337;
-        bh=v7+TkdjV8KAuHdhOoUIUNqS4/e3tlVITDpERbHGJTNI=;
+        s=korg; t=1634223404;
+        bh=u3CSsca4gyl9UEM72IHWit8Vd7alm3EujA7eeI/rhXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+Ss25SrVneGsHbY97+pSrh8eGt0JDQzl8l8BuYUElK2vrUGs72FZZ39v2zPwIC5f
-         5gXmoF7zvHzQeKjgQoQBrxAOI1rB1o8OMcgteDU/4EU37eNHCNrSSNgW/4tLvdUjsO
-         vNUrAsi1j4a/BNWljvrbiB3U3zh0tSK1TFjSHN5M=
+        b=yX7QE/AHdalFtRQhgHf3xXgTETh6SfBvkqmmDN++SNZvZKJTl27c+Mw50thMQB7zu
+         70bSfHzP4O77jFgZt6btYo5ztzgsRBTNMcs5ZAa06Y3HpXg58LMKXfZERKR0HqoF/9
+         2wYZyyJTOM1s+S7sEKT5T05k7w+MI6gCKXBceC6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
         Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH 4.9 01/25] Partially revert "usb: Kconfig: using select for USB_COMMON dependency"
-Date:   Thu, 14 Oct 2021 16:53:32 +0200
-Message-Id: <20211014145207.623708072@linuxfoundation.org>
+Subject: [PATCH 4.14 01/33] Partially revert "usb: Kconfig: using select for USB_COMMON dependency"
+Date:   Thu, 14 Oct 2021 16:53:33 +0200
+Message-Id: <20211014145208.824547649@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
-References: <20211014145207.575041491@linuxfoundation.org>
+In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
+References: <20211014145208.775270267@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -62,7 +62,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/Kconfig
 +++ b/drivers/usb/Kconfig
-@@ -160,8 +160,7 @@ source "drivers/usb/gadget/Kconfig"
+@@ -174,8 +174,7 @@ source "drivers/usb/typec/Kconfig"
  
  config USB_LED_TRIG
  	bool "USB LED Triggers"
