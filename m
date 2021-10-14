@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA56542DC88
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B12D42DC53
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232202AbhJNO7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:59:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44512 "EHLO mail.kernel.org"
+        id S232207AbhJNO6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:58:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232441AbhJNO64 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:58:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36F1E61167;
-        Thu, 14 Oct 2021 14:56:51 +0000 (UTC)
+        id S232210AbhJNO5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:57:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E91BA60F4A;
+        Thu, 14 Oct 2021 14:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223411;
-        bh=eop6uWB8hV0VF39Vdncu6/JbGauekPkM33YZs6zMJdo=;
+        s=korg; t=1634223347;
+        bh=QS7i1mFCt5hpyadcWznNirAIeA8qEwBcD2Gsv5uxyJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IG9Hh3rLVBDIQ7+S5GCTrwRWX3CjmKP0xV79fy3P6zIPwbIADtU6XQDWp8P6HL2KR
-         jd1s4kAzBXfoxjngJ7GGic+Vw5p7KSVkeeYMfUOC3wEEIVNnuhsvxx0YU5Ev1erJ2C
-         yxeqbSffRckr5zu+VnnsAbQTZhUhIj6Jsg9t70sY=
+        b=I+u9fGXY2lv2VyLuoyCuUec9uDndsujaFZLAlRibRdLsuPHgivrQQgWFsVEWHnHzs
+         7tix2kAJkGi3SvgPHZ/208WztfEdTfsJuhIYemNfN2VyFD9K2Exu+6wcqdQVX64gLc
+         fOTl+JY+CGOmh11JFgO/wqU7Za8hnei7QAF6ux/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/33] bpf: Fix integer overflow in prealloc_elems_and_freelist()
+Subject: [PATCH 4.9 13/25] ARM: imx6: disable the GIC CPU interface before calling stby-poweroff sequence
 Date:   Thu, 14 Oct 2021 16:53:44 +0200
-Message-Id: <20211014145209.187580503@linuxfoundation.org>
+Message-Id: <20211014145207.997033189@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
-References: <20211014145208.775270267@linuxfoundation.org>
+In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
+References: <20211014145207.575041491@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 30e29a9a2bc6a4888335a6ede968b75cd329657a ]
+[ Upstream commit 783f3db030563f7bcdfe2d26428af98ea1699a8e ]
 
-In prealloc_elems_and_freelist(), the multiplication to calculate the
-size passed to bpf_map_area_alloc() could lead to an integer overflow.
-As a result, out-of-bounds write could occur in pcpu_freelist_populate()
-as reported by KASAN:
+Any pending interrupt can prevent entering standby based power off state.
+To avoid it, disable the GIC CPU interface.
 
-[...]
-[   16.968613] BUG: KASAN: slab-out-of-bounds in pcpu_freelist_populate+0xd9/0x100
-[   16.969408] Write of size 8 at addr ffff888104fc6ea0 by task crash/78
-[   16.970038]
-[   16.970195] CPU: 0 PID: 78 Comm: crash Not tainted 5.15.0-rc2+ #1
-[   16.970878] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-[   16.972026] Call Trace:
-[   16.972306]  dump_stack_lvl+0x34/0x44
-[   16.972687]  print_address_description.constprop.0+0x21/0x140
-[   16.973297]  ? pcpu_freelist_populate+0xd9/0x100
-[   16.973777]  ? pcpu_freelist_populate+0xd9/0x100
-[   16.974257]  kasan_report.cold+0x7f/0x11b
-[   16.974681]  ? pcpu_freelist_populate+0xd9/0x100
-[   16.975190]  pcpu_freelist_populate+0xd9/0x100
-[   16.975669]  stack_map_alloc+0x209/0x2a0
-[   16.976106]  __sys_bpf+0xd83/0x2ce0
-[...]
-
-The possibility of this overflow was originally discussed in [0], but
-was overlooked.
-
-Fix the integer overflow by changing elem_size to u64 from u32.
-
-  [0] https://lore.kernel.org/bpf/728b238e-a481-eb50-98e9-b0f430ab01e7@gmail.com/
-
-Fixes: 557c0c6e7df8 ("bpf: convert stackmap to pre-allocation")
-Signed-off-by: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210930135545.173698-1-th.yasumatsu@gmail.com
+Fixes: 8148d2136002 ("ARM: imx6: register pm_power_off handler if "fsl,pmic-stby-poweroff" is set")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/stackmap.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/mach-imx/pm-imx6.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
-index 1d4c3fba0f8c..099dc780a92f 100644
---- a/kernel/bpf/stackmap.c
-+++ b/kernel/bpf/stackmap.c
-@@ -28,7 +28,8 @@ struct bpf_stack_map {
+diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
+index 6da26692f2fd..950c9f2ffe00 100644
+--- a/arch/arm/mach-imx/pm-imx6.c
++++ b/arch/arm/mach-imx/pm-imx6.c
+@@ -15,6 +15,7 @@
+ #include <linux/io.h>
+ #include <linux/irq.h>
+ #include <linux/genalloc.h>
++#include <linux/irqchip/arm-gic.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/mfd/syscon/imx6q-iomuxc-gpr.h>
+ #include <linux/of.h>
+@@ -606,6 +607,7 @@ static void __init imx6_pm_common_init(const struct imx6_pm_socdata
  
- static int prealloc_elems_and_freelist(struct bpf_stack_map *smap)
+ static void imx6_pm_stby_poweroff(void)
  {
--	u32 elem_size = sizeof(struct stack_map_bucket) + smap->map.value_size;
-+	u64 elem_size = sizeof(struct stack_map_bucket) +
-+			(u64)smap->map.value_size;
- 	int err;
++	gic_cpu_if_down(0);
+ 	imx6_set_lpm(STOP_POWER_OFF);
+ 	imx6q_suspend_finish(0);
  
- 	smap->elems = bpf_map_area_alloc(elem_size * smap->map.max_entries,
 -- 
 2.33.0
 
