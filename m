@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 570E742DCB9
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EECF842DCBB
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233088AbhJNPBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:01:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44622 "EHLO mail.kernel.org"
+        id S231481AbhJNPB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:01:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232579AbhJNPAA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:00:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B84CA61151;
-        Thu, 14 Oct 2021 14:57:49 +0000 (UTC)
+        id S231890AbhJNPAL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:00:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9586A61163;
+        Thu, 14 Oct 2021 14:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223470;
-        bh=HitNsl+kbzg8iIMflm7duTfEMWkHh7Hl7Po4erb1TTc=;
+        s=korg; t=1634223473;
+        bh=Sj4Ix1oy1bA9BRKsMToHEqwwybS5CjT6rXeYXgxMD24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWnMPR0U3cEHjbeu1H3WeE6VxkBmRf+xRdsMpVP9x4OCR6GmafZTber2Ouan8M9tR
-         lGinUYy1vUa93akMHcuDiJE/WIqgR3IHLjkrd6E0I8eoxh+pSyiVnODd5CZ55noLg4
-         VckY/RLwVFVpCChB07KOE/XkqdzYRDlhUQTO1kZY=
+        b=Q8nG2o0AratTrHKPjGCBXx4iyJaM+KiW2UqC8jWqQJCy46CKDLS7HZ3qS0ub3hcnd
+         w9ErkzVfFTkWODwI7X7y4bRC0DCGepN37bhjiiVqESiyVvQJrqbGFFn89oOqntfq/L
+         vK3UratqfS8sbhHreI53FR2qPa/10sGtRkzHE63Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 24/33] net: phy: bcm7xxx: Fixed indirect MMD operations
-Date:   Thu, 14 Oct 2021 16:53:56 +0200
-Message-Id: <20211014145209.611498968@linuxfoundation.org>
+        stable@vger.kernel.org, Mizuho Mori <morimolymoly@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 25/33] HID: apple: Fix logical maximum and usage maximum of Magic Keyboard JIS
+Date:   Thu, 14 Oct 2021 16:53:57 +0200
+Message-Id: <20211014145209.641180923@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
 References: <20211014145208.775270267@linuxfoundation.org>
@@ -39,148 +39,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Mizuho Mori <morimolymoly@gmail.com>
 
-commit d88fd1b546ff19c8040cfaea76bf16aed1c5a0bb upstream.
+[ Upstream commit 67fd71ba16a37c663d139f5ba5296f344d80d072 ]
 
-When EEE support was added to the 28nm EPHY it was assumed that it would
-be able to support the standard clause 45 over clause 22 register access
-method. It turns out that the PHY does not support that, which is the
-very reason for using the indirect shadow mode 2 bank 3 access method.
+Apple Magic Keyboard(JIS)'s Logical Maximum and Usage Maximum are wrong.
 
-Implement {read,write}_mmd to allow the standard PHY library routines
-pertaining to EEE querying and configuration to work correctly on these
-PHYs. This forces us to implement a __phy_set_clr_bits() function that
-does not grab the MDIO bus lock since the PHY driver's {read,write}_mmd
-functions are always called with that lock held.
+Below is a report descriptor.
 
-Fixes: 83ee102a6998 ("net: phy: bcm7xxx: add support for 28nm EPHY")
-[florian: adjust locking since phy_{read,write}_mmd are called with no
-PHYLIB locks held]
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+0x05, 0x01,         /*  Usage Page (Desktop),                           */
+0x09, 0x06,         /*  Usage (Keyboard),                               */
+0xA1, 0x01,         /*  Collection (Application),                       */
+0x85, 0x01,         /*      Report ID (1),                              */
+0x05, 0x07,         /*      Usage Page (Keyboard),                      */
+0x15, 0x00,         /*      Logical Minimum (0),                        */
+0x25, 0x01,         /*      Logical Maximum (1),                        */
+0x19, 0xE0,         /*      Usage Minimum (KB Leftcontrol),             */
+0x29, 0xE7,         /*      Usage Maximum (KB Right GUI),               */
+0x75, 0x01,         /*      Report Size (1),                            */
+0x95, 0x08,         /*      Report Count (8),                           */
+0x81, 0x02,         /*      Input (Variable),                           */
+0x95, 0x05,         /*      Report Count (5),                           */
+0x75, 0x01,         /*      Report Size (1),                            */
+0x05, 0x08,         /*      Usage Page (LED),                           */
+0x19, 0x01,         /*      Usage Minimum (01h),                        */
+0x29, 0x05,         /*      Usage Maximum (05h),                        */
+0x91, 0x02,         /*      Output (Variable),                          */
+0x95, 0x01,         /*      Report Count (1),                           */
+0x75, 0x03,         /*      Report Size (3),                            */
+0x91, 0x03,         /*      Output (Constant, Variable),                */
+0x95, 0x08,         /*      Report Count (8),                           */
+0x75, 0x01,         /*      Report Size (1),                            */
+0x15, 0x00,         /*      Logical Minimum (0),                        */
+0x25, 0x01,         /*      Logical Maximum (1),                        */
+
+here is a report descriptor which is parsed one in kernel.
+see sys/kernel/debug/hid/<dev>/rdesc
+
+05 01 09 06 a1 01 85 01 05 07
+15 00 25 01 19 e0 29 e7 75 01
+95 08 81 02 95 05 75 01 05 08
+19 01 29 05 91 02 95 01 75 03
+91 03 95 08 75 01 15 00 25 01
+06 00 ff 09 03 81 03 95 06 75
+08 15 00 25 [65] 05 07 19 00 29
+[65] 81 00 95 01 75 01 15 00 25
+01 05 0c 09 b8 81 02 95 01 75
+01 06 01 ff 09 03 81 02 95 01
+75 06 81 03 06 02 ff 09 55 85
+55 15 00 26 ff 00 75 08 95 40
+b1 a2 c0 06 00 ff 09 14 a1 01
+85 90 05 84 75 01 95 03 15 00
+25 01 09 61 05 85 09 44 09 46
+81 02 95 05 81 01 75 08 95 01
+15 00 26 ff 00 09 65 81 02 c0
+00
+
+Position 64(Logical Maximum) and 70(Usage Maximum) are 101.
+Both should be 0xE7 to support JIS specific keys(ろ, Eisu, Kana, |) support.
+position 117 is also 101 but not related(it is Usage 65h).
+
+There are no difference of product id between JIS and ANSI.
+They are same 0x0267.
+
+Signed-off-by: Mizuho Mori <morimolymoly@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/bcm7xxx.c |   94 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 94 insertions(+)
+ drivers/hid/hid-apple.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/net/phy/bcm7xxx.c
-+++ b/drivers/net/phy/bcm7xxx.c
-@@ -30,7 +30,12 @@
- #define MII_BCM7XXX_SHD_2_ADDR_CTRL	0xe
- #define MII_BCM7XXX_SHD_2_CTRL_STAT	0xf
- #define MII_BCM7XXX_SHD_2_BIAS_TRIM	0x1a
-+#define MII_BCM7XXX_SHD_3_PCS_CTRL	0x0
-+#define MII_BCM7XXX_SHD_3_PCS_STATUS	0x1
-+#define MII_BCM7XXX_SHD_3_EEE_CAP	0x2
- #define MII_BCM7XXX_SHD_3_AN_EEE_ADV	0x3
-+#define MII_BCM7XXX_SHD_3_EEE_LP	0x4
-+#define MII_BCM7XXX_SHD_3_EEE_WK_ERR	0x5
- #define MII_BCM7XXX_SHD_3_PCS_CTRL_2	0x6
- #define  MII_BCM7XXX_PCS_CTRL_2_DEF	0x4400
- #define MII_BCM7XXX_SHD_3_AN_STAT	0xb
-@@ -462,6 +467,93 @@ static int bcm7xxx_28nm_ephy_config_init
- 	return bcm7xxx_28nm_ephy_apd_enable(phydev);
- }
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index b58ab769aa7b..4e3dd3f55a96 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -304,12 +304,19 @@ static int apple_event(struct hid_device *hdev, struct hid_field *field,
  
-+#define MII_BCM7XXX_REG_INVALID	0xff
-+
-+static u8 bcm7xxx_28nm_ephy_regnum_to_shd(u16 regnum)
-+{
-+	switch (regnum) {
-+	case MDIO_CTRL1:
-+		return MII_BCM7XXX_SHD_3_PCS_CTRL;
-+	case MDIO_STAT1:
-+		return MII_BCM7XXX_SHD_3_PCS_STATUS;
-+	case MDIO_PCS_EEE_ABLE:
-+		return MII_BCM7XXX_SHD_3_EEE_CAP;
-+	case MDIO_AN_EEE_ADV:
-+		return MII_BCM7XXX_SHD_3_AN_EEE_ADV;
-+	case MDIO_AN_EEE_LPABLE:
-+		return MII_BCM7XXX_SHD_3_EEE_LP;
-+	case MDIO_PCS_EEE_WK_ERR:
-+		return MII_BCM7XXX_SHD_3_EEE_WK_ERR;
-+	default:
-+		return MII_BCM7XXX_REG_INVALID;
-+	}
-+}
-+
-+static bool bcm7xxx_28nm_ephy_dev_valid(int devnum)
-+{
-+	return devnum == MDIO_MMD_AN || devnum == MDIO_MMD_PCS;
-+}
-+
-+static int bcm7xxx_28nm_ephy_read_mmd(struct phy_device *phydev,
-+				      int devnum, u16 regnum)
-+{
-+	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
-+	int ret;
-+
-+	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
-+	    shd == MII_BCM7XXX_REG_INVALID)
-+		return -EOPNOTSUPP;
-+
-+	/* set shadow mode 2 */
-+	ret = phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
-+			       MII_BCM7XXX_SHD_MODE_2, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Access the desired shadow register address */
-+	ret = phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
-+	if (ret < 0)
-+		goto reset_shadow_mode;
-+
-+	ret = phy_read(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT);
-+
-+reset_shadow_mode:
-+	/* reset shadow mode 2 */
-+	phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
-+			 MII_BCM7XXX_SHD_MODE_2);
-+	return ret;
-+}
-+
-+static int bcm7xxx_28nm_ephy_write_mmd(struct phy_device *phydev,
-+				       int devnum, u16 regnum, u16 val)
-+{
-+	u8 shd = bcm7xxx_28nm_ephy_regnum_to_shd(regnum);
-+	int ret;
-+
-+	if (!bcm7xxx_28nm_ephy_dev_valid(devnum) ||
-+	    shd == MII_BCM7XXX_REG_INVALID)
-+		return -EOPNOTSUPP;
-+
-+	/* set shadow mode 2 */
-+	ret = phy_set_clr_bits(phydev, MII_BCM7XXX_TEST,
-+			       MII_BCM7XXX_SHD_MODE_2, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Access the desired shadow register address */
-+	ret = phy_write(phydev, MII_BCM7XXX_SHD_2_ADDR_CTRL, shd);
-+	if (ret < 0)
-+		goto reset_shadow_mode;
-+
-+	/* Write the desired value in the shadow register */
-+	phy_write(phydev, MII_BCM7XXX_SHD_2_CTRL_STAT, val);
-+
-+reset_shadow_mode:
-+	/* reset shadow mode 2 */
-+	return phy_set_clr_bits(phydev, MII_BCM7XXX_TEST, 0,
-+				MII_BCM7XXX_SHD_MODE_2);
-+}
-+
- static int bcm7xxx_28nm_ephy_resume(struct phy_device *phydev)
+ /*
+  * MacBook JIS keyboard has wrong logical maximum
++ * Magic Keyboard JIS has wrong logical maximum
+  */
+ static __u8 *apple_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
  {
- 	int ret;
-@@ -637,6 +729,8 @@ static int bcm7xxx_28nm_probe(struct phy
- 	.get_strings	= bcm_phy_get_strings,				\
- 	.get_stats	= bcm7xxx_28nm_get_phy_stats,			\
- 	.probe		= bcm7xxx_28nm_probe,				\
-+	.read_mmd	= bcm7xxx_28nm_ephy_read_mmd,			\
-+	.write_mmd	= bcm7xxx_28nm_ephy_write_mmd,			\
- }
+ 	struct apple_sc *asc = hid_get_drvdata(hdev);
  
- #define BCM7XXX_40NM_EPHY(_oui, _name)					\
++	if(*rsize >=71 && rdesc[70] == 0x65 && rdesc[64] == 0x65) {
++		hid_info(hdev,
++			 "fixing up Magic Keyboard JIS report descriptor\n");
++		rdesc[64] = rdesc[70] = 0xe7;
++	}
++
+ 	if ((asc->quirks & APPLE_RDESC_JIS) && *rsize >= 60 &&
+ 			rdesc[53] == 0x65 && rdesc[59] == 0x65) {
+ 		hid_info(hdev,
+-- 
+2.33.0
+
 
 
