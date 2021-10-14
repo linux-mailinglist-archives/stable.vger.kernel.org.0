@@ -2,130 +2,271 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53FC842DCE4
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40BBD42DCC1
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232804AbhJNPCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:02:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44722 "EHLO mail.kernel.org"
+        id S232142AbhJNPBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:01:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232808AbhJNPBZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:01:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 956FD6120D;
-        Thu, 14 Oct 2021 14:58:45 +0000 (UTC)
+        id S232853AbhJNPAV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:00:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A086E611CE;
+        Thu, 14 Oct 2021 14:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223526;
-        bh=F6cAyb9YjU9zZ8eWPv3WUj2arDIgo8WrmczzKSEMu48=;
-        h=From:To:Cc:Subject:Date:From;
-        b=IUSyLULa8Ht4/l+THRKY3upISiVEHMFcG4fHJrKxJcv+RnNNS9YyjJ7pft5mqRokq
-         kBI1Wmwzj3MrFgUUPpV8LWehbE41AdgSZTTt/C909Vsdss/D8q+K6GX7UG5/qHoXe9
-         L6wfbRBo91BUfUL1nEoHZdePAumiYgED1hxgqZ3s=
+        s=korg; t=1634223481;
+        bh=b3fOF40LqZPBDMNk+SMfwsFuKOTHzp434EanwJLUgfs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=DWdNB/sHXbEPfcfPoQHS7mxzoltR7PaYljSWd398BEGYJUoXykZqjlK7rjFPEWCRv
+         I5L478TVTjVQwJcREQ8H8Zs3bE6fMk1hJSnAWeQouIX8E2VcA85+Dkb9gPJzrL+Im5
+         rtHN2asPtYBSnydAJbcZakCUuSeMEkCjP8RUkBT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.19 00/12] 4.19.212-rc1 review
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Michael Schmitz <schmitzmic@gmail.com>,
+        Finn Thain <fthain@linux-m68k.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 28/33] m68k: Handle arrivals of multiple signals correctly
 Date:   Thu, 14 Oct 2021 16:54:00 +0200
-Message-Id: <20211014145206.566123760@linuxfoundation.org>
+Message-Id: <20211014145209.742354262@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-MIME-Version: 1.0
+In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
+References: <20211014145208.775270267@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.212-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.212-rc1
-X-KernelTest-Deadline: 2021-10-16T14:52+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.212 release.
-There are 12 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-Responses should be made by Sat, 16 Oct 2021 14:51:59 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 4bb0bd81ce5e97092dfda6a106d414b703ec0ee8 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.212-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+When we have several pending signals, have entered with the kernel
+with large exception frame *and* have already built at least one
+sigframe, regs->stkadj is going to be non-zero and regs->format/sr/pc
+are going to be junk - the real values are in shifted exception stack
+frame we'd built when putting together the first sigframe.
 
-thanks,
+If that happens, subsequent sigframes are going to be garbage.
+Not hard to fix - just need to find the "adjusted" frame first
+and look for format/vector/sr/pc in it.
 
-greg k-h
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
+Tested-by: Finn Thain <fthain@linux-m68k.org>
+Link: https://lore.kernel.org/r/YP2dBIAPTaVvHiZ6@zeniv-ca.linux.org.uk
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/m68k/kernel/signal.c | 88 +++++++++++++++++++--------------------
+ 1 file changed, 42 insertions(+), 46 deletions(-)
 
--------------
-Pseudo-Shortlog of commits:
+diff --git a/arch/m68k/kernel/signal.c b/arch/m68k/kernel/signal.c
+index e79421f5b9cd..20a3ff41d0d5 100644
+--- a/arch/m68k/kernel/signal.c
++++ b/arch/m68k/kernel/signal.c
+@@ -448,7 +448,7 @@ static inline void save_fpu_state(struct sigcontext *sc, struct pt_regs *regs)
+ 
+ 	if (CPU_IS_060 ? sc->sc_fpstate[2] : sc->sc_fpstate[0]) {
+ 		fpu_version = sc->sc_fpstate[0];
+-		if (CPU_IS_020_OR_030 &&
++		if (CPU_IS_020_OR_030 && !regs->stkadj &&
+ 		    regs->vector >= (VEC_FPBRUC * 4) &&
+ 		    regs->vector <= (VEC_FPNAN * 4)) {
+ 			/* Clear pending exception in 68882 idle frame */
+@@ -511,7 +511,7 @@ static inline int rt_save_fpu_state(struct ucontext __user *uc, struct pt_regs *
+ 		if (!(CPU_IS_060 || CPU_IS_COLDFIRE))
+ 			context_size = fpstate[1];
+ 		fpu_version = fpstate[0];
+-		if (CPU_IS_020_OR_030 &&
++		if (CPU_IS_020_OR_030 && !regs->stkadj &&
+ 		    regs->vector >= (VEC_FPBRUC * 4) &&
+ 		    regs->vector <= (VEC_FPNAN * 4)) {
+ 			/* Clear pending exception in 68882 idle frame */
+@@ -765,18 +765,24 @@ badframe:
+ 	return 0;
+ }
+ 
++static inline struct pt_regs *rte_regs(struct pt_regs *regs)
++{
++	return (void *)regs + regs->stkadj;
++}
++
+ static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
+ 			     unsigned long mask)
+ {
++	struct pt_regs *tregs = rte_regs(regs);
+ 	sc->sc_mask = mask;
+ 	sc->sc_usp = rdusp();
+ 	sc->sc_d0 = regs->d0;
+ 	sc->sc_d1 = regs->d1;
+ 	sc->sc_a0 = regs->a0;
+ 	sc->sc_a1 = regs->a1;
+-	sc->sc_sr = regs->sr;
+-	sc->sc_pc = regs->pc;
+-	sc->sc_formatvec = regs->format << 12 | regs->vector;
++	sc->sc_sr = tregs->sr;
++	sc->sc_pc = tregs->pc;
++	sc->sc_formatvec = tregs->format << 12 | tregs->vector;
+ 	save_a5_state(sc, regs);
+ 	save_fpu_state(sc, regs);
+ }
+@@ -784,6 +790,7 @@ static void setup_sigcontext(struct sigcontext *sc, struct pt_regs *regs,
+ static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *regs)
+ {
+ 	struct switch_stack *sw = (struct switch_stack *)regs - 1;
++	struct pt_regs *tregs = rte_regs(regs);
+ 	greg_t __user *gregs = uc->uc_mcontext.gregs;
+ 	int err = 0;
+ 
+@@ -804,9 +811,9 @@ static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *
+ 	err |= __put_user(sw->a5, &gregs[13]);
+ 	err |= __put_user(sw->a6, &gregs[14]);
+ 	err |= __put_user(rdusp(), &gregs[15]);
+-	err |= __put_user(regs->pc, &gregs[16]);
+-	err |= __put_user(regs->sr, &gregs[17]);
+-	err |= __put_user((regs->format << 12) | regs->vector, &uc->uc_formatvec);
++	err |= __put_user(tregs->pc, &gregs[16]);
++	err |= __put_user(tregs->sr, &gregs[17]);
++	err |= __put_user((tregs->format << 12) | tregs->vector, &uc->uc_formatvec);
+ 	err |= rt_save_fpu_state(uc, regs);
+ 	return err;
+ }
+@@ -823,13 +830,14 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 			struct pt_regs *regs)
+ {
+ 	struct sigframe __user *frame;
+-	int fsize = frame_extra_sizes(regs->format);
++	struct pt_regs *tregs = rte_regs(regs);
++	int fsize = frame_extra_sizes(tregs->format);
+ 	struct sigcontext context;
+ 	int err = 0, sig = ksig->sig;
+ 
+ 	if (fsize < 0) {
+ 		pr_debug("setup_frame: Unknown frame format %#x\n",
+-			 regs->format);
++			 tregs->format);
+ 		return -EFAULT;
+ 	}
+ 
+@@ -840,7 +848,7 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	err |= __put_user(sig, &frame->sig);
+ 
+-	err |= __put_user(regs->vector, &frame->code);
++	err |= __put_user(tregs->vector, &frame->code);
+ 	err |= __put_user(&frame->sc, &frame->psc);
+ 
+ 	if (_NSIG_WORDS > 1)
+@@ -865,34 +873,28 @@ static int setup_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	push_cache ((unsigned long) &frame->retcode);
+ 
+-	/*
+-	 * Set up registers for signal handler.  All the state we are about
+-	 * to destroy is successfully copied to sigframe.
+-	 */
+-	wrusp ((unsigned long) frame);
+-	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
+-	adjustformat(regs);
+-
+ 	/*
+ 	 * This is subtle; if we build more than one sigframe, all but the
+ 	 * first one will see frame format 0 and have fsize == 0, so we won't
+ 	 * screw stkadj.
+ 	 */
+-	if (fsize)
++	if (fsize) {
+ 		regs->stkadj = fsize;
+-
+-	/* Prepare to skip over the extra stuff in the exception frame.  */
+-	if (regs->stkadj) {
+-		struct pt_regs *tregs =
+-			(struct pt_regs *)((ulong)regs + regs->stkadj);
++		tregs = rte_regs(regs);
+ 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
+-		/* This must be copied with decreasing addresses to
+-                   handle overlaps.  */
+ 		tregs->vector = 0;
+ 		tregs->format = 0;
+-		tregs->pc = regs->pc;
+ 		tregs->sr = regs->sr;
+ 	}
++
++	/*
++	 * Set up registers for signal handler.  All the state we are about
++	 * to destroy is successfully copied to sigframe.
++	 */
++	wrusp ((unsigned long) frame);
++	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
++	adjustformat(regs);
++
+ 	return 0;
+ }
+ 
+@@ -900,7 +902,8 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
+ 			   struct pt_regs *regs)
+ {
+ 	struct rt_sigframe __user *frame;
+-	int fsize = frame_extra_sizes(regs->format);
++	struct pt_regs *tregs = rte_regs(regs);
++	int fsize = frame_extra_sizes(tregs->format);
+ 	int err = 0, sig = ksig->sig;
+ 
+ 	if (fsize < 0) {
+@@ -949,34 +952,27 @@ static int setup_rt_frame(struct ksignal *ksig, sigset_t *set,
+ 
+ 	push_cache ((unsigned long) &frame->retcode);
+ 
+-	/*
+-	 * Set up registers for signal handler.  All the state we are about
+-	 * to destroy is successfully copied to sigframe.
+-	 */
+-	wrusp ((unsigned long) frame);
+-	regs->pc = (unsigned long) ksig->ka.sa.sa_handler;
+-	adjustformat(regs);
+-
+ 	/*
+ 	 * This is subtle; if we build more than one sigframe, all but the
+ 	 * first one will see frame format 0 and have fsize == 0, so we won't
+ 	 * screw stkadj.
+ 	 */
+-	if (fsize)
++	if (fsize) {
+ 		regs->stkadj = fsize;
+-
+-	/* Prepare to skip over the extra stuff in the exception frame.  */
+-	if (regs->stkadj) {
+-		struct pt_regs *tregs =
+-			(struct pt_regs *)((ulong)regs + regs->stkadj);
++		tregs = rte_regs(regs);
+ 		pr_debug("Performing stackadjust=%04lx\n", regs->stkadj);
+-		/* This must be copied with decreasing addresses to
+-                   handle overlaps.  */
+ 		tregs->vector = 0;
+ 		tregs->format = 0;
+-		tregs->pc = regs->pc;
+ 		tregs->sr = regs->sr;
+ 	}
++
++	/*
++	 * Set up registers for signal handler.  All the state we are about
++	 * to destroy is successfully copied to sigframe.
++	 */
++	wrusp ((unsigned long) frame);
++	tregs->pc = (unsigned long) ksig->ka.sa.sa_handler;
++	adjustformat(regs);
+ 	return 0;
+ }
+ 
+-- 
+2.33.0
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.212-rc1
-
-Peter Zijlstra <peterz@infradead.org>
-    sched: Always inline is_percpu_thread()
-
-Anand K Mistry <amistry@google.com>
-    perf/x86: Reset destroy callback on event init failure
-
-Colin Ian King <colin.king@canonical.com>
-    scsi: virtio_scsi: Fix spelling mistake "Unsupport" -> "Unsupported"
-
-Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-    scsi: ses: Fix unsigned comparison with less than zero
-
-Randy Dunlap <rdunlap@infradead.org>
-    net: sun: SUNVNET_COMMON should depend on INET
-
-MichelleJin <shjy180909@gmail.com>
-    mac80211: check return value of rhashtable_init
-
-王贇 <yun.wang@linux.alibaba.com>
-    net: prevent user from passing illegal stab size
-
-Al Viro <viro@zeniv.linux.org.uk>
-    m68k: Handle arrivals of multiple signals correctly
-
-YueHaibing <yuehaibing@huawei.com>
-    mac80211: Drop frames from invalid MAC address in ad-hoc mode
-
-Jeremy Sowden <jeremy@azazel.net>
-    netfilter: ip6_tables: zero-initialize fragment offset
-
-Mizuho Mori <morimolymoly@gmail.com>
-    HID: apple: Fix logical maximum and usage maximum of Magic Keyboard JIS
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: phy: bcm7xxx: Fixed indirect MMD operations
-
-
--------------
-
-Diffstat:
-
- Makefile                         |  4 +-
- arch/m68k/kernel/signal.c        | 88 ++++++++++++++++++-------------------
- arch/x86/events/core.c           |  1 +
- drivers/hid/hid-apple.c          |  7 +++
- drivers/net/ethernet/sun/Kconfig |  1 +
- drivers/net/phy/bcm7xxx.c        | 94 ++++++++++++++++++++++++++++++++++++++++
- drivers/scsi/ses.c               |  2 +-
- drivers/scsi/virtio_scsi.c       |  4 +-
- include/linux/sched.h            |  2 +-
- include/net/pkt_sched.h          |  1 +
- net/ipv6/netfilter/ip6_tables.c  |  1 +
- net/mac80211/mesh_pathtbl.c      |  5 ++-
- net/mac80211/rx.c                |  3 +-
- net/sched/sch_api.c              |  6 +++
- 14 files changed, 165 insertions(+), 54 deletions(-)
 
 
