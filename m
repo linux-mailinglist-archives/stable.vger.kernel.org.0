@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7119642DD09
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F244D42DD63
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:05:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232375AbhJNPDr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:03:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49670 "EHLO mail.kernel.org"
+        id S233770AbhJNPGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231783AbhJNPCk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:02:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D89161213;
-        Thu, 14 Oct 2021 14:59:32 +0000 (UTC)
+        id S233586AbhJNPFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:05:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69E6561246;
+        Thu, 14 Oct 2021 15:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223573;
-        bh=k6lBR4/y3fkaS5nGWhR9R4qf/QCjtp+95GeKhYMgTB8=;
+        s=korg; t=1634223663;
+        bh=HxtKu/UHhwpV93cAwoMNzzQFJo7p2jgC9ww9cEFc+bI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tLs7p+CmwRS3RRAc+p/A+C8S9M8rEeYeSpM4I2n3OL57TJeBK6Efw6DCOxPrQ9/1N
-         Qv80w94GOq89Lla7Nf7UbOFUUcssZ8EQs+Tc6pntDpxe+tFbE5nqYTlm1rfhFor9eg
-         7AwInBsmHYeh14Re37mL300PYg2sbl3kep869vvs=
+        b=q6a6G0/6c+vh4S1dj4BPqrP9VhRc2ny/rvBzLEjLOLCAGX7mrIB9C08OJzXWce3j5
+         enwfNWuz4EPO1LaKozzlUHxmfO4F195uXyUYtCam+sycxQjxvrLnm9UJhkBN4z2JaB
+         ttDtwPVyVWdoBsY8rVxS6lfljJYFACAOuEw2EU6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
         Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 01/22] ext4: check and update i_disksize properly
+Subject: [PATCH 5.14 02/30] ext4: correct the error path of ext4_write_inline_data_end()
 Date:   Thu, 14 Oct 2021 16:54:07 +0200
-Message-Id: <20211014145208.032762384@linuxfoundation.org>
+Message-Id: <20211014145209.605961255@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
-References: <20211014145207.979449962@linuxfoundation.org>
+In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
+References: <20211014145209.520017940@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,85 +42,124 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit 4df031ff5876d94b48dd9ee486ba5522382a06b2 ]
+[ Upstream commit 55ce2f649b9e88111270333a8127e23f4f8f42d7 ]
 
-After commit 3da40c7b0898 ("ext4: only call ext4_truncate when size <=
-isize"), i_disksize could always be updated to i_size in ext4_setattr(),
-and we could sure that i_disksize <= i_size since holding inode lock and
-if i_disksize < i_size there are delalloc writes pending in the range
-upto i_size. If the end of the current write is <= i_size, there's no
-need to touch i_disksize since writeback will push i_disksize upto
-i_size eventually. So we can switch to check i_size instead of
-i_disksize in ext4_da_write_end() when write to the end of the file.
-we also could remove ext4_mark_inode_dirty() together because we defer
-inode dirtying to generic_write_end() or ext4_da_write_inline_data_end().
+Current error path of ext4_write_inline_data_end() is not correct.
+
+Firstly, it should pass out the error value if ext4_get_inode_loc()
+return fail, or else it could trigger infinite loop if we inject error
+here. And then it's better to add inode to orphan list if it return fail
+in ext4_journal_stop(), otherwise we could not restore inline xattr
+entry after power failure. Finally, we need to reset the 'ret' value if
+ext4_write_inline_data_end() return success in ext4_write_end() and
+ext4_journalled_write_end(), otherwise we could not get the error return
+value of ext4_journal_stop().
 
 Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
 Reviewed-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210716122024.1105856-2-yi.zhang@huawei.com
+Link: https://lore.kernel.org/r/20210716122024.1105856-3-yi.zhang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 34 ++++++++++++++++++----------------
- 1 file changed, 18 insertions(+), 16 deletions(-)
+ fs/ext4/inline.c | 15 +++++----------
+ fs/ext4/inode.c  |  7 +++++--
+ 2 files changed, 10 insertions(+), 12 deletions(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 63a292db7587..f0dcc09e220b 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3090,35 +3090,37 @@ static int ext4_da_write_end(struct file *file,
- 	end = start + copied - 1;
+diff --git a/fs/ext4/inline.c b/fs/ext4/inline.c
+index 24e994e75f5c..8049448476a6 100644
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -733,18 +733,13 @@ int ext4_write_inline_data_end(struct inode *inode, loff_t pos, unsigned len,
+ 	void *kaddr;
+ 	struct ext4_iloc iloc;
  
- 	/*
--	 * generic_write_end() will run mark_inode_dirty() if i_size
--	 * changes.  So let's piggyback the i_disksize mark_inode_dirty
--	 * into that.
-+	 * Since we are holding inode lock, we are sure i_disksize <=
-+	 * i_size. We also know that if i_disksize < i_size, there are
-+	 * delalloc writes pending in the range upto i_size. If the end of
-+	 * the current write is <= i_size, there's no need to touch
-+	 * i_disksize since writeback will push i_disksize upto i_size
-+	 * eventually. If the end of the current write is > i_size and
-+	 * inside an allocated block (ext4_da_should_update_i_disksize()
-+	 * check), we need to update i_disksize here as neither
-+	 * ext4_writepage() nor certain ext4_writepages() paths not
-+	 * allocating blocks update i_disksize.
-+	 *
-+	 * Note that we defer inode dirtying to generic_write_end() /
-+	 * ext4_da_write_inline_data_end().
- 	 */
- 	new_i_size = pos + copied;
--	if (copied && new_i_size > EXT4_I(inode)->i_disksize) {
-+	if (copied && new_i_size > inode->i_size) {
- 		if (ext4_has_inline_data(inode) ||
--		    ext4_da_should_update_i_disksize(page, end)) {
-+		    ext4_da_should_update_i_disksize(page, end))
- 			ext4_update_i_disksize(inode, new_i_size);
--			/* We need to mark inode dirty even if
--			 * new_i_size is less that inode->i_size
--			 * bu greater than i_disksize.(hint delalloc)
--			 */
--			ret = ext4_mark_inode_dirty(handle, inode);
+-	if (unlikely(copied < len)) {
+-		if (!PageUptodate(page)) {
+-			copied = 0;
+-			goto out;
 -		}
+-	}
++	if (unlikely(copied < len) && !PageUptodate(page))
++		return 0;
+ 
+ 	ret = ext4_get_inode_loc(inode, &iloc);
+ 	if (ret) {
+ 		ext4_std_error(inode->i_sb, ret);
+-		copied = 0;
+-		goto out;
++		return ret;
  	}
  
- 	if (write_mode != CONVERT_INLINE_DATA &&
- 	    ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA) &&
- 	    ext4_has_inline_data(inode))
--		ret2 = ext4_da_write_inline_data_end(inode, pos, len, copied,
-+		ret = ext4_da_write_inline_data_end(inode, pos, len, copied,
- 						     page);
- 	else
--		ret2 = generic_write_end(file, mapping, pos, len, copied,
-+		ret = generic_write_end(file, mapping, pos, len, copied,
- 							page, fsdata);
+ 	ext4_write_lock_xattr(inode, &no_expand);
+@@ -757,7 +752,7 @@ int ext4_write_inline_data_end(struct inode *inode, loff_t pos, unsigned len,
+ 	(void) ext4_find_inline_data_nolock(inode);
  
--	copied = ret2;
--	if (ret2 < 0)
--		ret = ret2;
-+	copied = ret;
+ 	kaddr = kmap_atomic(page);
+-	ext4_write_inline_data(inode, &iloc, kaddr, pos, len);
++	ext4_write_inline_data(inode, &iloc, kaddr, pos, copied);
+ 	kunmap_atomic(kaddr);
+ 	SetPageUptodate(page);
+ 	/* clear page dirty so that writepages wouldn't work for us. */
+@@ -766,7 +761,7 @@ int ext4_write_inline_data_end(struct inode *inode, loff_t pos, unsigned len,
+ 	ext4_write_unlock_xattr(inode, &no_expand);
+ 	brelse(iloc.bh);
+ 	mark_inode_dirty(inode);
+-out:
++
+ 	return copied;
+ }
+ 
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index a47ff8ce289b..fc6ea56de77c 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1295,6 +1295,7 @@ static int ext4_write_end(struct file *file,
+ 			goto errout;
+ 		}
+ 		copied = ret;
++		ret = 0;
+ 	} else
+ 		copied = block_write_end(file, mapping, pos,
+ 					 len, copied, page, fsdata);
+@@ -1321,13 +1322,14 @@ static int ext4_write_end(struct file *file,
+ 	if (i_size_changed || inline_data)
+ 		ret = ext4_mark_inode_dirty(handle, inode);
+ 
++errout:
+ 	if (pos + len > inode->i_size && !verity && ext4_can_truncate(inode))
+ 		/* if we have allocated more blocks and copied
+ 		 * less. We will have blocks allocated outside
+ 		 * inode->i_size. So truncate them
+ 		 */
+ 		ext4_orphan_add(handle, inode);
+-errout:
++
  	ret2 = ext4_journal_stop(handle);
- 	if (unlikely(ret2 && !ret))
+ 	if (!ret)
+ 		ret = ret2;
+@@ -1410,6 +1412,7 @@ static int ext4_journalled_write_end(struct file *file,
+ 			goto errout;
+ 		}
+ 		copied = ret;
++		ret = 0;
+ 	} else if (unlikely(copied < len) && !PageUptodate(page)) {
+ 		copied = 0;
+ 		ext4_journalled_zero_new_buffers(handle, page, from, to);
+@@ -1439,6 +1442,7 @@ static int ext4_journalled_write_end(struct file *file,
+ 			ret = ret2;
+ 	}
+ 
++errout:
+ 	if (pos + len > inode->i_size && !verity && ext4_can_truncate(inode))
+ 		/* if we have allocated more blocks and copied
+ 		 * less. We will have blocks allocated outside
+@@ -1446,7 +1450,6 @@ static int ext4_journalled_write_end(struct file *file,
+ 		 */
+ 		ext4_orphan_add(handle, inode);
+ 
+-errout:
+ 	ret2 = ext4_journal_stop(handle);
+ 	if (!ret)
  		ret = ret2;
 -- 
 2.33.0
