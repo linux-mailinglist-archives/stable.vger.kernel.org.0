@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C184B42DD5F
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:05:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B049A42DD25
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:02:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233946AbhJNPGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:06:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50518 "EHLO mail.kernel.org"
+        id S232088AbhJNPEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:04:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233745AbhJNPFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:05:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21A5161222;
-        Thu, 14 Oct 2021 15:01:05 +0000 (UTC)
+        id S233475AbhJNPDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:03:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BEC460E97;
+        Thu, 14 Oct 2021 15:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223666;
-        bh=fEl8BJgrezmtg7ruCQ4UqWxbxPp54n7YB32+vPu8PqU=;
+        s=korg; t=1634223605;
+        bh=AAtsf1XrUEZfP7/FvER+7+wergTqusMA/4Bo51jkEP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MbwFp3+uVn5I1QI4IHZgL6AoqADRGRuBQgRm+IvL7RfvDHJBlMPlxQSYJR9z4bJb7
-         QjnuAemccZZBGBmnPP5VUQwG55M2CgBMeqvW6s7IU0jEJyERTCVAXwA/eSis5EKyB0
-         EiUWWsRMTe4yI5+Hqr3HtoB5d82dkqq0cpgvq6bw=
+        b=xT7zZpt9pnk7GCKTfCRA+YFEdNzoImBCUJ5Jn0l8dLeXP98S8ek2uLCy3fCO+V9vm
+         5hrlh1O8wxl/5d9yEzsP9uSlQ25Rvu9waGi7nmHsLN6L/WoxuScIB3AJvC8m5GPPll
+         MQf8Nq4kjTg6VhX6O0Z3ZS5Zw64mMFcpeNnd5cZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Hagan <mnhagan88@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 20/30] net: bgmac-platform: handle mac-address deferral
-Date:   Thu, 14 Oct 2021 16:54:25 +0200
-Message-Id: <20211014145210.187922037@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Lucian Grijincu <lucian@fb.com>
+Subject: [PATCH 5.10 20/22] perf/core: fix userpage->time_enabled of inactive events
+Date:   Thu, 14 Oct 2021 16:54:26 +0200
+Message-Id: <20211014145208.627318874@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
-References: <20211014145209.520017940@linuxfoundation.org>
+In-Reply-To: <20211014145207.979449962@linuxfoundation.org>
+References: <20211014145207.979449962@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +42,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Hagan <mnhagan88@gmail.com>
+From: Song Liu <songliubraving@fb.com>
 
-[ Upstream commit 763716a55cb1f480ffe1a9702e6b5d9ea1a80a24 ]
+[ Upstream commit f792565326825ed806626da50c6f9a928f1079c1 ]
 
-This patch is a replication of Christian Lamparter's "net: bgmac-bcma:
-handle deferred probe error due to mac-address" patch for the
-bgmac-platform driver [1].
+Users of rdpmc rely on the mmapped user page to calculate accurate
+time_enabled. Currently, userpage->time_enabled is only updated when the
+event is added to the pmu. As a result, inactive event (due to counter
+multiplexing) does not have accurate userpage->time_enabled. This can
+be reproduced with something like:
 
-As is the case with the bgmac-bcma driver, this change is to cover the
-scenario where the MAC address cannot yet be discovered due to reliance
-on an nvmem provider which is yet to be instantiated, resulting in a
-random address being assigned that has to be manually overridden.
+   /* open 20 task perf_event "cycles", to create multiplexing */
 
-[1] https://lore.kernel.org/netdev/20210919115725.29064-1-chunkeey@gmail.com
+   fd = perf_event_open();  /* open task perf_event "cycles" */
+   userpage = mmap(fd);     /* use mmap and rdmpc */
 
-Signed-off-by: Matthew Hagan <mnhagan88@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+   while (true) {
+     time_enabled_mmap = xxx; /* use logic in perf_event_mmap_page */
+     time_enabled_read = read(fd).time_enabled;
+     if (time_enabled_mmap > time_enabled_read)
+         BUG();
+   }
+
+Fix this by updating userpage for inactive events in merge_sched_in.
+
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reported-and-tested-by: Lucian Grijincu <lucian@fb.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210929194313.2398474-1-songliubraving@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bgmac-platform.c | 3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/perf_event.h |  4 +++-
+ kernel/events/core.c       | 34 ++++++++++++++++++++++++++++++----
+ 2 files changed, 33 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bgmac-platform.c b/drivers/net/ethernet/broadcom/bgmac-platform.c
-index 4ab5bf64d353..df8ff839cc62 100644
---- a/drivers/net/ethernet/broadcom/bgmac-platform.c
-+++ b/drivers/net/ethernet/broadcom/bgmac-platform.c
-@@ -192,6 +192,9 @@ static int bgmac_probe(struct platform_device *pdev)
- 	bgmac->dma_dev = &pdev->dev;
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index 072ac6c1ef2b..c095e713cf08 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -682,7 +682,9 @@ struct perf_event {
+ 	/*
+ 	 * timestamp shadows the actual context timing but it can
+ 	 * be safely used in NMI interrupt context. It reflects the
+-	 * context time as it was when the event was last scheduled in.
++	 * context time as it was when the event was last scheduled in,
++	 * or when ctx_sched_in failed to schedule the event because we
++	 * run out of PMC.
+ 	 *
+ 	 * ctx_time already accounts for ctx->timestamp. Therefore to
+ 	 * compute ctx_time for a sample, simply add perf_clock().
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index c677f934353a..c81151926171 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -3695,6 +3695,29 @@ static noinline int visit_groups_merge(struct perf_cpu_context *cpuctx,
+ 	return 0;
+ }
  
- 	ret = of_get_mac_address(np, bgmac->net_dev->dev_addr);
-+	if (ret == -EPROBE_DEFER)
-+		return ret;
++static inline bool event_update_userpage(struct perf_event *event)
++{
++	if (likely(!atomic_read(&event->mmap_count)))
++		return false;
 +
- 	if (ret)
- 		dev_warn(&pdev->dev,
- 			 "MAC address not present in device tree\n");
++	perf_event_update_time(event);
++	perf_set_shadow_time(event, event->ctx);
++	perf_event_update_userpage(event);
++
++	return true;
++}
++
++static inline void group_update_userpage(struct perf_event *group_event)
++{
++	struct perf_event *event;
++
++	if (!event_update_userpage(group_event))
++		return;
++
++	for_each_sibling_event(event, group_event)
++		event_update_userpage(event);
++}
++
+ static int merge_sched_in(struct perf_event *event, void *data)
+ {
+ 	struct perf_event_context *ctx = event->ctx;
+@@ -3713,14 +3736,15 @@ static int merge_sched_in(struct perf_event *event, void *data)
+ 	}
+ 
+ 	if (event->state == PERF_EVENT_STATE_INACTIVE) {
++		*can_add_hw = 0;
+ 		if (event->attr.pinned) {
+ 			perf_cgroup_event_disable(event, ctx);
+ 			perf_event_set_state(event, PERF_EVENT_STATE_ERROR);
++		} else {
++			ctx->rotate_necessary = 1;
++			perf_mux_hrtimer_restart(cpuctx);
++			group_update_userpage(event);
+ 		}
+-
+-		*can_add_hw = 0;
+-		ctx->rotate_necessary = 1;
+-		perf_mux_hrtimer_restart(cpuctx);
+ 	}
+ 
+ 	return 0;
+@@ -6239,6 +6263,8 @@ accounting:
+ 
+ 		ring_buffer_attach(event, rb);
+ 
++		perf_event_update_time(event);
++		perf_set_shadow_time(event, event->ctx);
+ 		perf_event_init_userpage(event);
+ 		perf_event_update_userpage(event);
+ 	} else {
 -- 
 2.33.0
 
