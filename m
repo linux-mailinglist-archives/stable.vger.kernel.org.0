@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63F8942DD4F
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:04:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A47342DCF7
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 17:01:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233545AbhJNPGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 11:06:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
+        id S232890AbhJNPDf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:03:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233348AbhJNPEf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 11:04:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73A5461244;
-        Thu, 14 Oct 2021 15:00:45 +0000 (UTC)
+        id S231882AbhJNPBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 11:01:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65089611C8;
+        Thu, 14 Oct 2021 14:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223645;
-        bh=D+8LE65aJeazr7MPs5PYlzMbV8Jvff7TNv/Kb2Y+raE=;
+        s=korg; t=1634223544;
+        bh=QxKQVCagVUM8gHqgxYlCUAXj/Ut5EyMhUWDjNYC4x60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QKTONx50NpAEepD0caQhYbq7OW0b8iUhMZ89StvoLtsWkAd4DXxMrYXIsG8Vij46R
-         yrG1gvp2+/FT9Fxn6+MENsPzXVDZQUaS4XU54K5/Q/NWWI/IKDIYI4XqlS5hich/lb
-         tPi/45AVov1IQb9edn85qByryw1nKFVaEnN9aG1Q=
+        b=QEk/P9Bm1QzlcSDs8p0lti6PIl/Jtz6BoFx1Mdl1lnpV+RNHRncl3hfzduXGxK8n3
+         qLecJidvMATYnvt28gEKIZa5ANy0cwCImWG8pBb7iMRE6w+d3mkLoW7x7XDAObcQig
+         W0MlHRfvCcTRvwsJ8802C2QJRqeCBFejPJYzUUSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Martin Zaharinov <micron10@gmail.com>
-Subject: [PATCH 5.14 13/30] netfilter: nf_nat_masquerade: defer conntrack walk to work queue
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 15/16] scsi: virtio_scsi: Fix spelling mistake "Unsupport" -> "Unsupported"
 Date:   Thu, 14 Oct 2021 16:54:18 +0200
-Message-Id: <20211014145209.966283591@linuxfoundation.org>
+Message-Id: <20211014145207.806459277@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145209.520017940@linuxfoundation.org>
-References: <20211014145209.520017940@linuxfoundation.org>
+In-Reply-To: <20211014145207.314256898@linuxfoundation.org>
+References: <20211014145207.314256898@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,138 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 7970a19b71044bf4dc2c1becc200275bdf1884d4 ]
+[ Upstream commit cced4c0ec7c06f5230a2958907a409c849762293 ]
 
-The ipv4 and device notifiers are called with RTNL mutex held.
-The table walk can take some time, better not block other RTNL users.
+There are a couple of spelling mistakes in pr_info and pr_err messages.
+Fix them.
 
-'ip a' has been reported to block for up to 20 seconds when conntrack table
-has many entries and device down events are frequent (e.g., PPP).
-
-Reported-and-tested-by: Martin Zaharinov <micron10@gmail.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Link: https://lore.kernel.org/r/20210924230330.143785-1-colin.king@canonical.com
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_nat_masquerade.c | 50 +++++++++++++++----------------
- 1 file changed, 24 insertions(+), 26 deletions(-)
+ drivers/scsi/virtio_scsi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_nat_masquerade.c b/net/netfilter/nf_nat_masquerade.c
-index 415919a6ac1a..acd73f717a08 100644
---- a/net/netfilter/nf_nat_masquerade.c
-+++ b/net/netfilter/nf_nat_masquerade.c
-@@ -131,13 +131,14 @@ static void nf_nat_masq_schedule(struct net *net, union nf_inet_addr *addr,
- 	put_net(net);
- }
- 
--static int device_cmp(struct nf_conn *i, void *ifindex)
-+static int device_cmp(struct nf_conn *i, void *arg)
- {
- 	const struct nf_conn_nat *nat = nfct_nat(i);
-+	const struct masq_dev_work *w = arg;
- 
- 	if (!nat)
- 		return 0;
--	return nat->masq_index == (int)(long)ifindex;
-+	return nat->masq_index == w->ifindex;
- }
- 
- static int masq_device_event(struct notifier_block *this,
-@@ -153,8 +154,8 @@ static int masq_device_event(struct notifier_block *this,
- 		 * and forget them.
- 		 */
- 
--		nf_ct_iterate_cleanup_net(net, device_cmp,
--					  (void *)(long)dev->ifindex, 0, 0);
-+		nf_nat_masq_schedule(net, NULL, dev->ifindex,
-+				     device_cmp, GFP_KERNEL);
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index bfec84aacd90..cb833c5fb9ce 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -297,7 +297,7 @@ static void virtscsi_handle_transport_reset(struct virtio_scsi *vscsi,
+ 		}
+ 		break;
+ 	default:
+-		pr_info("Unsupport virtio scsi event reason %x\n", event->reason);
++		pr_info("Unsupported virtio scsi event reason %x\n", event->reason);
  	}
- 
- 	return NOTIFY_DONE;
-@@ -162,35 +163,45 @@ static int masq_device_event(struct notifier_block *this,
- 
- static int inet_cmp(struct nf_conn *ct, void *ptr)
- {
--	struct in_ifaddr *ifa = (struct in_ifaddr *)ptr;
--	struct net_device *dev = ifa->ifa_dev->dev;
- 	struct nf_conntrack_tuple *tuple;
-+	struct masq_dev_work *w = ptr;
- 
--	if (!device_cmp(ct, (void *)(long)dev->ifindex))
-+	if (!device_cmp(ct, ptr))
- 		return 0;
- 
- 	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
- 
--	return ifa->ifa_address == tuple->dst.u3.ip;
-+	return nf_inet_addr_cmp(&w->addr, &tuple->dst.u3);
  }
  
- static int masq_inet_event(struct notifier_block *this,
- 			   unsigned long event,
- 			   void *ptr)
- {
--	struct in_device *idev = ((struct in_ifaddr *)ptr)->ifa_dev;
--	struct net *net = dev_net(idev->dev);
-+	const struct in_ifaddr *ifa = ptr;
-+	const struct in_device *idev;
-+	const struct net_device *dev;
-+	union nf_inet_addr addr;
-+
-+	if (event != NETDEV_DOWN)
-+		return NOTIFY_DONE;
- 
- 	/* The masq_dev_notifier will catch the case of the device going
- 	 * down.  So if the inetdev is dead and being destroyed we have
- 	 * no work to do.  Otherwise this is an individual address removal
- 	 * and we have to perform the flush.
- 	 */
-+	idev = ifa->ifa_dev;
- 	if (idev->dead)
- 		return NOTIFY_DONE;
- 
--	if (event == NETDEV_DOWN)
--		nf_ct_iterate_cleanup_net(net, inet_cmp, ptr, 0, 0);
-+	memset(&addr, 0, sizeof(addr));
-+
-+	addr.ip = ifa->ifa_address;
-+
-+	dev = idev->dev;
-+	nf_nat_masq_schedule(dev_net(idev->dev), &addr, dev->ifindex,
-+			     inet_cmp, GFP_KERNEL);
- 
- 	return NOTIFY_DONE;
- }
-@@ -253,19 +264,6 @@ nf_nat_masquerade_ipv6(struct sk_buff *skb, const struct nf_nat_range2 *range,
- }
- EXPORT_SYMBOL_GPL(nf_nat_masquerade_ipv6);
- 
--static int inet6_cmp(struct nf_conn *ct, void *work)
--{
--	struct masq_dev_work *w = (struct masq_dev_work *)work;
--	struct nf_conntrack_tuple *tuple;
--
--	if (!device_cmp(ct, (void *)(long)w->ifindex))
--		return 0;
--
--	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
--
--	return nf_inet_addr_cmp(&w->addr, &tuple->dst.u3);
--}
--
- /* atomic notifier; can't call nf_ct_iterate_cleanup_net (it can sleep).
-  *
-  * Defer it to the system workqueue.
-@@ -289,7 +287,7 @@ static int masq_inet6_event(struct notifier_block *this,
- 
- 	addr.in6 = ifa->addr;
- 
--	nf_nat_masq_schedule(dev_net(dev), &addr, dev->ifindex, inet6_cmp,
-+	nf_nat_masq_schedule(dev_net(dev), &addr, dev->ifindex, inet_cmp,
- 			     GFP_ATOMIC);
- 	return NOTIFY_DONE;
+@@ -381,7 +381,7 @@ static void virtscsi_handle_event(struct work_struct *work)
+ 		virtscsi_handle_param_change(vscsi, event);
+ 		break;
+ 	default:
+-		pr_err("Unsupport virtio scsi event %x\n", event->event);
++		pr_err("Unsupported virtio scsi event %x\n", event->event);
+ 	}
+ 	virtscsi_kick_event(vscsi, event_node);
  }
 -- 
 2.33.0
