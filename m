@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 149EA42DC3D
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 134F442DC77
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231984AbhJNO5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:57:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42384 "EHLO mail.kernel.org"
+        id S232475AbhJNO7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 10:59:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232087AbhJNO51 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:57:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72CC960F36;
-        Thu, 14 Oct 2021 14:55:22 +0000 (UTC)
+        id S232484AbhJNO6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:58:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4D13611AD;
+        Thu, 14 Oct 2021 14:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223322;
-        bh=dRdybtfe6b83/6HE3ZL6p1D7IoSIw4cKYitXdvn9aR0=;
+        s=korg; t=1634223388;
+        bh=ulsHIHPE2aQQzKXpkaTj814+EKheKKejxJfwaYSTTGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KDM1V4n0oK4+tbIqFNI/mZp8Vabj+8MyWEoA4gjp3aTQ6VHGug66SYnfscGzFpERJ
-         cuZfYpv3ehf2A34tcVLBhFHsSPRZS20PlQy2OfOoUe6rosheGzIaLwi2bo1PbTCOx9
-         51meMvkWDbgzDmFteNz5MKhnS/dUk9X/vw4+35Hc=
+        b=MbkTq4uh+C1glErSxcjhlspqvNIPXBQhW+4qp5kQRJBrMp8yLHDdh4JJU2mDUMRfk
+         kGeQg/vOfE6xxGg2t5LTuQnGiIIK1gUM1jy7Ntk4CL2e9Md0pKA67mb3aw0sZ2SBcg
+         +vhjnP4IxZPfGGIGWtXiDUmgBcXNJL+Wcp6quSkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 07/18] ptp_pch: Load module automatically if ID matches
+Subject: [PATCH 4.9 08/25] bpf: Fix integer overflow in prealloc_elems_and_freelist()
 Date:   Thu, 14 Oct 2021 16:53:39 +0200
-Message-Id: <20211014145206.554678234@linuxfoundation.org>
+Message-Id: <20211014145207.839912984@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145206.330102860@linuxfoundation.org>
-References: <20211014145206.330102860@linuxfoundation.org>
+In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
+References: <20211014145207.575041491@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
 
-[ Upstream commit 7cd8b1542a7ba0720c5a0a85ed414a122015228b ]
+[ Upstream commit 30e29a9a2bc6a4888335a6ede968b75cd329657a ]
 
-The driver can't be loaded automatically because it misses
-module alias to be provided. Add corresponding MODULE_DEVICE_TABLE()
-call to the driver.
+In prealloc_elems_and_freelist(), the multiplication to calculate the
+size passed to bpf_map_area_alloc() could lead to an integer overflow.
+As a result, out-of-bounds write could occur in pcpu_freelist_populate()
+as reported by KASAN:
 
-Fixes: 863d08ece9bf ("supports eg20t ptp clock")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[...]
+[   16.968613] BUG: KASAN: slab-out-of-bounds in pcpu_freelist_populate+0xd9/0x100
+[   16.969408] Write of size 8 at addr ffff888104fc6ea0 by task crash/78
+[   16.970038]
+[   16.970195] CPU: 0 PID: 78 Comm: crash Not tainted 5.15.0-rc2+ #1
+[   16.970878] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+[   16.972026] Call Trace:
+[   16.972306]  dump_stack_lvl+0x34/0x44
+[   16.972687]  print_address_description.constprop.0+0x21/0x140
+[   16.973297]  ? pcpu_freelist_populate+0xd9/0x100
+[   16.973777]  ? pcpu_freelist_populate+0xd9/0x100
+[   16.974257]  kasan_report.cold+0x7f/0x11b
+[   16.974681]  ? pcpu_freelist_populate+0xd9/0x100
+[   16.975190]  pcpu_freelist_populate+0xd9/0x100
+[   16.975669]  stack_map_alloc+0x209/0x2a0
+[   16.976106]  __sys_bpf+0xd83/0x2ce0
+[...]
+
+The possibility of this overflow was originally discussed in [0], but
+was overlooked.
+
+Fix the integer overflow by changing elem_size to u64 from u32.
+
+  [0] https://lore.kernel.org/bpf/728b238e-a481-eb50-98e9-b0f430ab01e7@gmail.com/
+
+Fixes: 557c0c6e7df8 ("bpf: convert stackmap to pre-allocation")
+Signed-off-by: Tatsuhiko Yasumatsu <th.yasumatsu@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210930135545.173698-1-th.yasumatsu@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ptp/ptp_pch.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/bpf/stackmap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ptp/ptp_pch.c b/drivers/ptp/ptp_pch.c
-index 3aa22ae4d94c..a911325fc0b4 100644
---- a/drivers/ptp/ptp_pch.c
-+++ b/drivers/ptp/ptp_pch.c
-@@ -698,6 +698,7 @@ static const struct pci_device_id pch_ieee1588_pcidev_id[] = {
- 	 },
- 	{0}
- };
-+MODULE_DEVICE_TABLE(pci, pch_ieee1588_pcidev_id);
+diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
+index 2fdf6f96f976..6f09728cd1dd 100644
+--- a/kernel/bpf/stackmap.c
++++ b/kernel/bpf/stackmap.c
+@@ -28,7 +28,8 @@ struct bpf_stack_map {
  
- static struct pci_driver pch_driver = {
- 	.name = KBUILD_MODNAME,
+ static int prealloc_elems_and_freelist(struct bpf_stack_map *smap)
+ {
+-	u32 elem_size = sizeof(struct stack_map_bucket) + smap->map.value_size;
++	u64 elem_size = sizeof(struct stack_map_bucket) +
++			(u64)smap->map.value_size;
+ 	int err;
+ 
+ 	smap->elems = bpf_map_area_alloc(elem_size * smap->map.max_entries);
 -- 
 2.33.0
 
