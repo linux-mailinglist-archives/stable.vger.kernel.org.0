@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B85542DC56
-	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50ACA42DC8E
+	for <lists+stable@lfdr.de>; Thu, 14 Oct 2021 16:57:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232449AbhJNO6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Oct 2021 10:58:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43140 "EHLO mail.kernel.org"
+        id S232580AbhJNPAA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Oct 2021 11:00:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232341AbhJNO55 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Oct 2021 10:57:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9840610D1;
-        Thu, 14 Oct 2021 14:55:51 +0000 (UTC)
+        id S232608AbhJNO7C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:59:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6969611AE;
+        Thu, 14 Oct 2021 14:56:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634223352;
-        bh=9a2yItoPg24Y+FPodP1DDYJb2d8BLz0F8kICRBTupNs=;
+        s=korg; t=1634223417;
+        bh=9n0KO/SVOXfcWhAq4JTMCmYNMpFBJrl7+pSIco1JJas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IaYoEEiRxISOnR4fYtUFlZ+hfCVOFsQ08KILQq33LZOBVva4McPQbZmsi9lAby2kK
-         Q0OvlfHc80bmDzqn9ITNxR//g+aHVT647UVyc26KRkeD1VyLk5/H9RMTq3GgTGj2dD
-         a0iTOqA8ZFcnj9QYC4H2rid3TJI2on2zrPOwlYXI=
+        b=Qr6uYm+JWaQvAc0Fm0xOLqSxNjuRNodsFQCmFc035ayQDMAKGcPIkl/3/JF5JZvq1
+         e8OIhERlW8FUOiHP8mdE7DGes+NWu2XkfP5YKb5nflrKZwNObGQ4K7N77xegy3HMGB
+         eeJQzIRBOAcY/UV4+wJKKHTb3PyB05EeVmuawnN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 15/25] netlink: annotate data races around nlk->bound
+Subject: [PATCH 4.14 14/33] net_sched: fix NULL deref in fifo_set_limit()
 Date:   Thu, 14 Oct 2021 16:53:46 +0200
-Message-Id: <20211014145208.058408685@linuxfoundation.org>
+Message-Id: <20211014145209.254938927@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211014145207.575041491@linuxfoundation.org>
-References: <20211014145207.575041491@linuxfoundation.org>
+In-Reply-To: <20211014145208.775270267@linuxfoundation.org>
+References: <20211014145208.775270267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,107 +43,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 7707a4d01a648e4c655101a469c956cb11273655 ]
+[ Upstream commit 560ee196fe9e5037e5015e2cdb14b3aecb1cd7dc ]
 
-While existing code is correct, KCSAN is reporting
-a data-race in netlink_insert / netlink_sendmsg [1]
+syzbot reported another NULL deref in fifo_set_limit() [1]
 
-It is correct to read nlk->bound without a lock, as netlink_autobind()
-will acquire all needed locks.
+I could repro the issue with :
+
+unshare -n
+tc qd add dev lo root handle 1:0 tbf limit 200000 burst 70000 rate 100Mbit
+tc qd replace dev lo parent 1:0 pfifo_fast
+tc qd change dev lo root handle 1:0 tbf limit 300000 burst 70000 rate 100Mbit
+
+pfifo_fast does not have a change() operation.
+Make fifo_set_limit() more robust about this.
 
 [1]
-BUG: KCSAN: data-race in netlink_insert / netlink_sendmsg
-
-write to 0xffff8881031c8b30 of 1 bytes by task 18752 on cpu 0:
- netlink_insert+0x5cc/0x7f0 net/netlink/af_netlink.c:597
- netlink_autobind+0xa9/0x150 net/netlink/af_netlink.c:842
- netlink_sendmsg+0x479/0x7c0 net/netlink/af_netlink.c:1892
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
- ___sys_sendmsg net/socket.c:2446 [inline]
- __sys_sendmsg+0x1ed/0x270 net/socket.c:2475
- __do_sys_sendmsg net/socket.c:2484 [inline]
- __se_sys_sendmsg net/socket.c:2482 [inline]
- __x64_sys_sendmsg+0x42/0x50 net/socket.c:2482
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffff8881031c8b30 of 1 bytes by task 18751 on cpu 1:
- netlink_sendmsg+0x270/0x7c0 net/netlink/af_netlink.c:1891
- sock_sendmsg_nosec net/socket.c:703 [inline]
- sock_sendmsg net/socket.c:723 [inline]
- __sys_sendto+0x2a8/0x370 net/socket.c:2019
- __do_sys_sendto net/socket.c:2031 [inline]
- __se_sys_sendto net/socket.c:2027 [inline]
- __x64_sys_sendto+0x74/0x90 net/socket.c:2027
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x00 -> 0x01
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 18751 Comm: syz-executor.0 Not tainted 5.14.0-rc1-syzkaller #0
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+PGD 1cf99067 P4D 1cf99067 PUD 7ca49067 PMD 0
+Oops: 0010 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 14443 Comm: syz-executor959 Not tainted 5.15.0-rc3-syzkaller #0
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:0x0
+Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+RSP: 0018:ffffc9000e2f7310 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: ffffffff8d6ecc00 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff888024c27910 RDI: ffff888071e34000
+RBP: ffff888071e34000 R08: 0000000000000001 R09: ffffffff8fcfb947
+R10: 0000000000000001 R11: 0000000000000000 R12: ffff888024c27910
+R13: ffff888071e34018 R14: 0000000000000000 R15: ffff88801ef74800
+FS:  00007f321d897700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffffd6 CR3: 00000000722c3000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ fifo_set_limit net/sched/sch_fifo.c:242 [inline]
+ fifo_set_limit+0x198/0x210 net/sched/sch_fifo.c:227
+ tbf_change+0x6ec/0x16d0 net/sched/sch_tbf.c:418
+ qdisc_change net/sched/sch_api.c:1332 [inline]
+ tc_modify_qdisc+0xd9a/0x1a60 net/sched/sch_api.c:1634
+ rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5572
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
+ netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
+ netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:724
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: da314c9923fe ("netlink: Replace rhash_portid with bound")
+Fixes: fb0305ce1b03 ("net-sched: consolidate default fifo qdisc setup")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210930212239.3430364-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ net/sched/sch_fifo.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 453b0efdc0d7..1b70de5898c4 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -574,7 +574,10 @@ static int netlink_insert(struct sock *sk, u32 portid)
+diff --git a/net/sched/sch_fifo.c b/net/sched/sch_fifo.c
+index 1e37247656f8..8b7110cbcce4 100644
+--- a/net/sched/sch_fifo.c
++++ b/net/sched/sch_fifo.c
+@@ -151,6 +151,9 @@ int fifo_set_limit(struct Qdisc *q, unsigned int limit)
+ 	if (strncmp(q->ops->id + 1, "fifo", 4) != 0)
+ 		return 0;
  
- 	/* We need to ensure that the socket is hashed and visible. */
- 	smp_wmb();
--	nlk_sk(sk)->bound = portid;
-+	/* Paired with lockless reads from netlink_bind(),
-+	 * netlink_connect() and netlink_sendmsg().
-+	 */
-+	WRITE_ONCE(nlk_sk(sk)->bound, portid);
- 
- err:
- 	release_sock(sk);
-@@ -993,7 +996,8 @@ static int netlink_bind(struct socket *sock, struct sockaddr *addr,
- 	else if (nlk->ngroups < 8*sizeof(groups))
- 		groups &= (1UL << nlk->ngroups) - 1;
- 
--	bound = nlk->bound;
-+	/* Paired with WRITE_ONCE() in netlink_insert() */
-+	bound = READ_ONCE(nlk->bound);
- 	if (bound) {
- 		/* Ensure nlk->portid is up-to-date. */
- 		smp_rmb();
-@@ -1073,8 +1077,9 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
- 
- 	/* No need for barriers here as we return to user-space without
- 	 * using any of the bound attributes.
-+	 * Paired with WRITE_ONCE() in netlink_insert().
- 	 */
--	if (!nlk->bound)
-+	if (!READ_ONCE(nlk->bound))
- 		err = netlink_autobind(sock);
- 
- 	if (err == 0) {
-@@ -1821,7 +1826,8 @@ static int netlink_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 		dst_group = nlk->dst_group;
- 	}
- 
--	if (!nlk->bound) {
-+	/* Paired with WRITE_ONCE() in netlink_insert() */
-+	if (!READ_ONCE(nlk->bound)) {
- 		err = netlink_autobind(sock);
- 		if (err)
- 			goto out;
++	if (!q->ops->change)
++		return 0;
++
+ 	nla = kmalloc(nla_attr_size(sizeof(struct tc_fifo_qopt)), GFP_KERNEL);
+ 	if (nla) {
+ 		nla->nla_type = RTM_NEWQDISC;
 -- 
 2.33.0
 
