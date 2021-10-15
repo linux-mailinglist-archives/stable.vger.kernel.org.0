@@ -2,146 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0601442FA37
-	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 19:24:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B18A742FA5F
+	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 19:35:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234791AbhJOR05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Oct 2021 13:26:57 -0400
-Received: from mail-mw2nam12on2054.outbound.protection.outlook.com ([40.107.244.54]:4608
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S237584AbhJOR0t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Oct 2021 13:26:49 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=nT1/ZxghRS4v/dw+ZLA5gxUXPWynitMDd7+JpoXtSvxP2Rhd9ivTe4Ed1RByox2bTMgp7mO4sTZmpp+LpkPJncsfuoW98yQeLiz0Qr8CLElRHndKqRUATk1eNg1Sv9NaEJoYIULZwK3YLaHKzxVmvWGOrfBmAcGEwB+w5YbFEgEVCQZaikr6wRzOnloZfvIOQn+ZErkzVM81ZCavt/leDkKvD2laRehm6uOYQeqDqj7G8X64M4P34z0epdmPyExAXZAOHlfFfUBxGzU2N9TrHGWpxYlYQ1rOCawGR8fIy3kvczn2L+UJ0GnyQLbRR4o5L4yTuU1iXqHpBhQoSP5c0g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=6R+B+i+sdUGDofKwnROtjeoanx7R9RwSUO5zwOWPITc=;
- b=EgYuj5m4/JeyQgPV+CafEEK8VJKqXIqxHgXlPWA7Z9ill7jt1ianN3nyf0v+9IFNC9OmpNZIy6b6Yr/vzv7B/KPo0EwVNvEuwRWtLiaoQ2nf9tzghlsW+fuVzH5CvIbbikMGEzSebIoHxIQsHvPf9672CGDixw8nK75Nlaq7u+lJ6Hp+m0c1kgUpW8MyHB/IGKm5jWKjfe85JDw0lROM9yesKUsRTnkuvBX4b4XEZ77Ih91fiyt0mJufX6o+fWTMjn9wB2y9mgv0m1Yj9aj+EGvOfOeeeTg0UDW6ikcfNgSyg81ew46tIIxIun+8s6K8ATHdwaldUL7uOqUqHZ3ajQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6R+B+i+sdUGDofKwnROtjeoanx7R9RwSUO5zwOWPITc=;
- b=iaR4IDQAqOl29fOsJIlGe8nehil8cRVsmVFraegq/Piw6CHmmpejy6CQkwxfdGxeuxiuE04g1xrFVZLda3gvtIXfWViQTCttmquNZwDEhLSBGr+vwhvF4wz+B4OFPwKaFbPsDOJCBSRij81MH4M4GPc1rnwFJXG8VX6sPybaxGY=
-Received: from MWHPR12CA0050.namprd12.prod.outlook.com (2603:10b6:300:103::12)
- by BN8PR12MB3619.namprd12.prod.outlook.com (2603:10b6:408:46::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4608.17; Fri, 15 Oct
- 2021 17:24:39 +0000
-Received: from CO1NAM11FT006.eop-nam11.prod.protection.outlook.com
- (2603:10b6:300:103:cafe::2c) by MWHPR12CA0050.outlook.office365.com
- (2603:10b6:300:103::12) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4608.14 via Frontend
- Transport; Fri, 15 Oct 2021 17:24:39 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CO1NAM11FT006.mail.protection.outlook.com (10.13.174.246) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4608.15 via Frontend Transport; Fri, 15 Oct 2021 17:24:38 +0000
-Received: from tlendack-t1.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.15; Fri, 15 Oct
- 2021 12:24:36 -0500
-From:   Tom Lendacky <thomas.lendacky@amd.com>
-To:     <linux-kernel@vger.kernel.org>, <x86@kernel.org>
-CC:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH] x86/sme: Use #define USE_EARLY_PGTABLE_L5 in mem_encrypt_identity.c
-Date:   Fri, 15 Oct 2021 12:24:16 -0500
-Message-ID: <2cb8329655f5c753905812d951e212022a480475.1634318656.git.thomas.lendacky@amd.com>
-X-Mailer: git-send-email 2.33.1
+        id S238050AbhJORhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Oct 2021 13:37:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43248 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238057AbhJORhI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 13:37:08 -0400
+Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DD83C061570
+        for <stable@vger.kernel.org>; Fri, 15 Oct 2021 10:35:01 -0700 (PDT)
+Received: by mail-ot1-x333.google.com with SMTP id l16-20020a9d6a90000000b0054e7ab56f27so13756486otq.12
+        for <stable@vger.kernel.org>; Fri, 15 Oct 2021 10:35:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=yp8wpT/FzZkt1PcCFDsB182x2tyHjic3yl4SM1t24h4=;
+        b=ulkpZhazXJY5FDJqsundVQ7nHnpIisqrlNzAYptDlNlsDMUZ57AesDSih7l6whx1fC
+         7bpBeeH3w4592V/OhqRdOcx5MwNAczYp+yB0JUSk06x8YFwtAapUP0nb45zeqtQ4HoLl
+         bv/UK7sQxPS+z7/cLsIcRozYiDge+nRzF+suGvgZS9jDt5E1lDLSZAbp3N1O6lWJwdx4
+         dX8vP2y1JRQwg/58unCZGDPTGLwCrWl+nJ/qQvsz8eZ8AnuJj7knbQDmMrCr0O5l0NZe
+         D+xN+4DZXb/FjBJwvBb2VtOOhZk9c9kbTVDFhqborMoUBHa3Gtz2xVCAMgvClzS9uLvQ
+         TdTw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=yp8wpT/FzZkt1PcCFDsB182x2tyHjic3yl4SM1t24h4=;
+        b=uJCccwfm1T1TOLrSYC64mFuVNSw4hNvmWcXbEBkplgOAcUupkXun1T4IhGG1629g8k
+         S/dukhkSm6hhYpLankOuKaSEm9NRP1EJrBXGrmsGkZWGiEUtErvpHxNjqV5KhCHbk+WJ
+         1zXRUimfRBgW7HtyTe/Zx5mtMXHJnY+HQGHLSZcwW2VPzw7iqKeqG5KeaE7IUuJny2ys
+         XJz2pOQAKPNxyM3vbLJprlfTCcRdTme3KlKbXiAW+aWVUrhoxFKvX9tnxGsm2ykK80vN
+         PlGaGDqnAIjPsrRze1G0bJjKasDo2Ypc2jo7vwyzczRl4cyQYK7lZr1gLgvpwRScupwm
+         X83Q==
+X-Gm-Message-State: AOAM533LoSBliOMZ/sq6+BBjs4QrkX4MHLTOO6d2h+rehSwAsKjbf1Aj
+        Zl8ZqvZ9HsjizEn6ckNAeSc7zw==
+X-Google-Smtp-Source: ABdhPJwluJ8HagwzB2fxTxfIZ9dIg+Ixksl3WHsqTV7pPL2NwEW1bwAXILTNyaz9k9f6vzU+GtpNug==
+X-Received: by 2002:a9d:720c:: with SMTP id u12mr9164445otj.95.1634319300806;
+        Fri, 15 Oct 2021 10:35:00 -0700 (PDT)
+Received: from [192.168.17.16] ([189.219.72.19])
+        by smtp.gmail.com with ESMTPSA id i28sm1107939ood.23.2021.10.15.10.34.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 15 Oct 2021 10:35:00 -0700 (PDT)
+Subject: Re: [PATCH 4.19 00/12] 4.19.212-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     shuah@kernel.org, f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+References: <20211014145206.566123760@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <7b02fe6e-b816-6330-486c-fa29fd03d3c9@linaro.org>
+Date:   Fri, 15 Oct 2021 12:34:58 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
+In-Reply-To: <20211014145206.566123760@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: e4d8eac7-e871-46d9-8470-08d99000aa8c
-X-MS-TrafficTypeDiagnostic: BN8PR12MB3619:
-X-Microsoft-Antispam-PRVS: <BN8PR12MB361927F709805A17C2FCFACBECB99@BN8PR12MB3619.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: y7aBl2I6HEq+5Ade163fbcZwdGzP/sv7qRo+qEqIbJ7S4ob7Gkg2T0nohIHjAtJOLHvl6nVsmBo1giKyIMC5Kjgyyhph0dbqO9yLfhMgK4YcRtLgN2wyfj1V+9xw3ycdqKa3Ybp9Snd+/b1IRhOGWTr+rmyorGr1FUqQZzSeqLYcWQHDOayEmPhexMKWu/dBtyCyyj/0ZKA/DXSOZW+s+ql8wRtGW+9syV68jjO0YX48zyxYbriR3Of6pOttuQgW6JGzH/9szRJ6+qZQv+MD/ynGEPMA1XnmnoFArezyqLXQhSdCYd50+vJ/3E0TMqT9NwC4cuIlxb5KT1wx78kWV8BrCGq7jk5OPGM0Cxxx9NnpYYfBJueIkIsIpLoN11D58jktS1X8/VG+jxWWCFLk7L6mnRn4VfCvbdO2cvUEt9eoErZo0ZQYlYH58rItCW0WC1rmLqG4l/lyeK4klhzkrQSfgqC/zK3nnko/BAnQODevxb+437GNTruMt7ldtr2uDlGpjgHN16SVxa8FFX25PZa/fLBi++JCNxTn+hYc29ZlcQWDb1aAiGvhTsq33FiCOgmyL/bhcBUgA5KjJ3W5BvRamQGNAPD3iyZ6tp7f1h14QIShY1fvn4tivQ/9BQnjExHGDJS4hNKml617LrdiGA36LJiwVWNe66oIG9bLo2nQjuSE7VuudGj6lDB63jueCbYFIwAhe2UvRURriQC6Dwn0aXmp+0sZZf4jOWJ8sd0=
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(8936002)(316002)(16526019)(86362001)(336012)(26005)(7696005)(36756003)(5660300002)(2906002)(186003)(70586007)(426003)(6666004)(2616005)(70206006)(8676002)(110136005)(83380400001)(4326008)(36860700001)(508600001)(7416002)(47076005)(54906003)(82310400003)(81166007)(356005)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Oct 2021 17:24:38.3852
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: e4d8eac7-e871-46d9-8470-08d99000aa8c
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT006.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR12MB3619
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When runtime support for converting between 4-level and 5-level pagetables
-was added to the kernel, the SME code that built pagetables was updated
-to use the pagetable functions, e.g. p4d_offset(), etc., in order to
-simplify the code. However, the use of the pagetable functions in early
-boot code requires the use of the USE_EARLY_PGTABLE_L5 #define in order to
-ensure that proper definition of pgtable_l5_enabled() is used.
+Hello!
 
-Without the #define, pgtable_l5_enabled() is #defined as
-cpu_feature_enabled(X86_FEATURE_LA57). In early boot, the CPU features
-have not yet been discovered and populated, so pgtable_l5_enabled() will
-return false even when 5-level paging is enabled. This causes the SME code
-to always build 4-level pagetables to perform the in-place encryption.
-If 5-level paging is enabled, switching to the SME pagetables results in
-a page-fault that kills the boot.
+On 10/14/21 9:54 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.212 release.
+> There are 12 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 16 Oct 2021 14:51:59 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.212-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Adding the #define results in pgtable_l5_enabled() using the
-__pgtable_l5_enabled variable set in early boot and the SME code building
-pagetables for the proper paging level.
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Cc: <stable@vger.kernel.org> # 4.18.x
-Fixes: aad983913d77 ("x86/mm/encrypt: Simplify sme_populate_pgd() and sme_populate_pgd_large()")
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
----
- arch/x86/mm/mem_encrypt_identity.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
-index f8c612902038..3f0abb403340 100644
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -27,6 +27,15 @@
- #undef CONFIG_PARAVIRT_XXL
- #undef CONFIG_PARAVIRT_SPINLOCKS
- 
-+/*
-+ * This code runs before CPU feature bits are set. By default, the
-+ * pgtable_l5_enabled() function uses bit X86_FEATURE_LA57 to determine if
-+ * 5-level paging is active, so that won't work here. USE_EARLY_PGTABLE_L5
-+ * is provided to handle this situation and, instead, use a variable that
-+ * has been set by the early boot code.
-+ */
-+#define USE_EARLY_PGTABLE_L5
-+
- #include <linux/kernel.h>
- #include <linux/mm.h>
- #include <linux/mem_encrypt.h>
+## Build
+* kernel: 4.19.212-rc1
+* git: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git', 'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
+* git branch: linux-4.19.y
+* git commit: 2be6a8418bd1568db7e752ea68f73e6f24fca984
+* git describe: v4.19.211-13-g2be6a8418bd1
+* test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19.211-13-g2be6a8418bd1
+
+## No regressions (compared to v4.19.211)
+
+## No fixes (compared to v4.19.211)
+
+## Test result summary
+total: 83844, pass: 67315, fail: 797, skip: 13617, xfail: 2115
+
+## Build Summary
+* arm: 129 total, 129 passed, 0 failed
+* arm64: 37 total, 37 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 18 total, 18 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 29 total, 29 passed, 0 failed
+* s390: 12 total, 12 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 21 total, 21 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
+
 -- 
-2.33.1
-
+Linaro LKFT
+https://lkft.linaro.org
