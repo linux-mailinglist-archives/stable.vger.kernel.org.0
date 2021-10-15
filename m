@@ -2,236 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 677CB42E884
-	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 07:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBD2B42E8A8
+	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 08:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235427AbhJOFyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Oct 2021 01:54:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49132 "EHLO
+        id S229610AbhJOGHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Oct 2021 02:07:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229706AbhJOFyp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 01:54:45 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD90C061570
-        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 22:52:39 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id f5so7605501pgc.12
-        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 22:52:39 -0700 (PDT)
+        with ESMTP id S231301AbhJOGHZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 02:07:25 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13EE8C061755
+        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 23:05:19 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id w19so33524081edd.2
+        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 23:05:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Y/YxzoCFdGlUO9kfGO0IuQs32io5RrpBsWdHxrbppFI=;
-        b=2Lg+OAPeeUPJjH11TANxSUyIngPD0Jiv/SFMvIhNULZCB0GTDDQ1jCt8bAEeK44qJL
-         iJdS1trtp+tsrXhkZy21vHEn7duGEHSHB9NOzcAcwoqstK/Mb4M4Nz+J4798RDEZV5M7
-         B8epMD61OFCFhBiNVbMHe07/LJkl9yJPaJoTjfi7nWJ+CWCqmUUzz139XxT6nSlAUSWb
-         mh5+jZHzXwGtk0HiQERBl3IKQ0XnAv9Fby9Hs/1vvL+BiNrrQg3hlZ9SmgsH8hF1q8qS
-         VMjfvGmm7KU+P5CoG1PbOmKiXVmnwOirZ6ym9I7lQbMwW6YVS77r/z1jqTVqa+jNibMA
-         pUYg==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=piZa1sAjzEWDxdTwo50EAbH9XcznZQpKKcSQ3+ZQPQ8=;
+        b=imLlO/9hpu1L8XToAtmd3wfwernuTvR7zEEI6kcXGA0X9WMwRYNVtu08J789WDxw01
+         Zy/1ZLlH0lmnwxPiQeLGvQT6VrrzWQZ3piKPnkNLthvEj11MnJ0RJr7L03+c5JHubpxL
+         hvak9wH6rmvBWMQAD2mUBq+Kn/+HtjMOgjSG/SAhAbjtWkqlWBiGPJVSdTKuXPmXiCst
+         uoyVktdOzoOD0qFWMdz6mfoe44VS6p1bKdWnNC5UCsUW2vAMzjQ9OEPVFrbrmk9VxoXI
+         NOanqYF1w32jx1NmrL3CWKCuPECvCLN8XzKnaiz0OJL2ur2awzMSUY0eRSuc4+jozzSV
+         Hp4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Y/YxzoCFdGlUO9kfGO0IuQs32io5RrpBsWdHxrbppFI=;
-        b=etP7ungjj/N6+T9pzakUMNX7BKERkcrKNcZSSfGqWTYl9mNqiCOaOB6yuJX9Cy6pRJ
-         zBrEl6cklLAG2ysBddeHKKfnXtNBFjp/CzgxWpxudQlwqiheqrPGWthS3MGBy6B0uV3O
-         NO667eEkVyEY2aLchBZbnO79W7m+SvboP/KP/jxApcg++LtOXo1ch9lTTCzj3mDB9A0Q
-         rTnL3u4HxEMUkVEtwljzSNbAXa8R/9eAtpaUQCX9YOt7/vWL9gy6GnQQQfPX9EyS/p9h
-         +ozopjQrW4yYfKNEjX34NhNF0uE7PQMr/SsITWccnU9ecyhAbnXEg+3VNdSKMkD2wjc+
-         8ZfA==
-X-Gm-Message-State: AOAM531KJpF1X6EohEjVKVgaj8qa9AmiSg3wMzVhDo2nptAqVXtk4vwV
-        Ab7VPMWtgnTBt0j9A+LT1b5WBuhmt8nX3NzH
-X-Google-Smtp-Source: ABdhPJwIuECR2TiI6oZM/V1Hv7W3UvX+B/d7ydjgMqUfFwlb4NWDR6L3U7W2AIjrBLSikARPUbQTYg==
-X-Received: by 2002:a65:6287:: with SMTP id f7mr7821007pgv.444.1634277159254;
-        Thu, 14 Oct 2021 22:52:39 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f84sm4023936pfa.25.2021.10.14.22.52.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Oct 2021 22:52:38 -0700 (PDT)
-Message-ID: <61691726.1c69fb81.66327.d2f4@mx.google.com>
-Date:   Thu, 14 Oct 2021 22:52:38 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=piZa1sAjzEWDxdTwo50EAbH9XcznZQpKKcSQ3+ZQPQ8=;
+        b=BJ5cin1GZZWqgwDVNohvcyL5Tmcnr6EcvW4/7OudvpPZgqqvRWSbjv7OZx6M7IQfMQ
+         tb7UXfGcc/rPYT01GRuifuaXeVjhQ3/sNTN0Aaqn9UlGfSE4rmGa4g5UB0EBC2AwOsbH
+         IIDQnbiGHkICvfDDogtHKzORD50RtQZO0tfAmBn/WL9lS//FLcE4iNsw+2345UNaw6ou
+         i77A3MZgGCMQG12AsiiQv1+SlvB+3rEDQkaQ6ozXpQTCCYcPd9piP3Il3H0209KS/cOW
+         V6KgLtETnPWAWUOFcuTq14L3doLtYvvfVpJTk2HhrLqMZGL3CD1dRw7kHkOpXbUeiEPk
+         Hbzg==
+X-Gm-Message-State: AOAM5338rw6QeaWvHf0QRsvH4GrV7XnjkGJNRclWbnG9AVx3FrEl4se3
+        6jXiCsKVRtoR9Plt94D7vFS6EK4r34bLxYXufRg1m6/eDHQ=
+X-Google-Smtp-Source: ABdhPJyL9R9F4XBQQsaqb5yi7g3SJJgrh6TOGMuWsUUVUYHE//4sPxiiPwzAzOGxW+fAFrUctaec/exWm4Yogu5OlNQ=
+X-Received: by 2002:a17:906:a0c9:: with SMTP id bh9mr4432067ejb.51.1634277917597;
+ Thu, 14 Oct 2021 23:05:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.153-17-g8f48de738cda
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.4.y baseline: 86 runs,
- 4 regressions (v5.4.153-17-g8f48de738cda)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:ab4:a5d2:0:0:0:0:0 with HTTP; Thu, 14 Oct 2021 23:05:16
+ -0700 (PDT)
+Reply-To: mrmusaali771@gmail.com
+From:   Mr Musa Ali <mrmusaali001@gmail.com>
+Date:   Fri, 15 Oct 2021 06:05:16 +0000
+Message-ID: <CAEp+okehGspFnoKbUg3xRwGfJjuwbx17+71yAgjxFD87-KQV6g@mail.gmail.com>
+Subject: I NEED YOUR URGENT RESPOND.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 86 runs, 4 regressions (v5.4.153-17-g8f48de=
-738cda)
+My Name is Mr. Musa Ali,
 
-Regressions Summary
--------------------
+I am the Auditing manager foreign department Bank of Africa Burkina
+Faso Ouagadougou West Africa,
 
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
+I feel quite safe dealing with foreign partner in this important
+business transaction. Though this medium (Internet) has been greatly
+abused, But I choose to reach you through it because it still remains
+the fastest medium of communication. However, this correspondence is
+private, and it should be treated in strict confidence.
 
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
+Be rest assure that this transaction is 100% from any risk to both
+parties, In order to transfer out twenty million five hundred thousand
+dollars, (US$20.500 000 ) from our bank here, The clean origin and The
+owner of this fund is late COLONEL MUMMER GADDAFI formal Libyan
+president, who was murdered brutally during the war crisis,
 
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
+I want to transfer his left fund into your account as the foreign
+beneficiary of the fund. I know that this letter will come to you as a
+surprise as we don't know ourselves before, but be sure that it is
+real and a genuine business transaction. I contact you believing that
+you will not let me down once the fund goes into your account. More
+details of this deal will be forwarded to you as soon as I hear from
+you positively concerning this transfer;
 
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
+I will come over to your Country as soon as the transfer is over to
+receive my own share of the fund for further investments by your
+advice. Please I want you to understand that  the government of my
+country want to take over all unclaimed funds please write me  back
+immediately and tell me if you really want to carry out the
+transaction with me, please delete this message if you are not
+interested.
 
+Looking forwards to hear from you soon,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.153-17-g8f48de738cda/plan/baseline/
+Regards,
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.153-17-g8f48de738cda
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8f48de738cda248d961f0fc9967316716498b80f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6168da054f0fcfa4f8335906
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--17-g8f48de738cda/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
-hed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--17-g8f48de738cda/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
-hed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6168da054f0fcfa4f8335=
-907
-        failing since 328 days (last pass: v5.4.77-152-ga3746663c3479, firs=
-t fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6168d92660d4250a723358fd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6168d92660d4250a72335=
-8fe
-        failing since 334 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6168da39beb949c4f63358e1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6168da39beb949c4f6335=
-8e2
-        failing since 334 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6168d87590ca2de7493358e8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6168d87590ca2de749335=
-8e9
-        failing since 334 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =20
+Mr.Musa Ali
