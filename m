@@ -2,19 +2,19 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76E3B42E8B7
-	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 08:13:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58A6142E8BC
+	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 08:15:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232004AbhJOGPY convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 15 Oct 2021 02:15:24 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:58987 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231445AbhJOGPX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 02:15:23 -0400
+        id S231445AbhJOGRN convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 15 Oct 2021 02:17:13 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:41383 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230244AbhJOGRN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 02:17:13 -0400
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 550D224000A;
-        Fri, 15 Oct 2021 06:13:15 +0000 (UTC)
-Date:   Fri, 15 Oct 2021 08:13:13 +0200
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 19BBA100006;
+        Fri, 15 Oct 2021 06:15:03 +0000 (UTC)
+Date:   Fri, 15 Oct 2021 08:14:47 +0200
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Paul Cercueil <paul@crapouillou.net>
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -22,12 +22,12 @@ Cc:     Richard Weinberger <richard@nod.at>,
         Harvey Hunt <harveyhuntnexus@gmail.com>, list@opendingux.net,
         linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-mips@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 2/3] mtd: rawnand: Export
- nand_read_page_hwecc_oob_first()
-Message-ID: <20211015081313.60018976@xps13>
-In-Reply-To: <20211009184952.24591-3-paul@crapouillou.net>
+Subject: Re: [PATCH 3/3] mtd: rawnand/ingenic: JZ4740 needs 'oob_first' read
+ page function
+Message-ID: <20211015081447.25836fc7@xps13>
+In-Reply-To: <20211009184952.24591-4-paul@crapouillou.net>
 References: <20211009184952.24591-1-paul@crapouillou.net>
-        <20211009184952.24591-3-paul@crapouillou.net>
+        <20211009184952.24591-4-paul@crapouillou.net>
 Organization: Bootlin
 X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
@@ -39,227 +39,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi Paul,
 
-paul@crapouillou.net wrote on Sat,  9 Oct 2021 20:49:51 +0200:
+paul@crapouillou.net wrote on Sat,  9 Oct 2021 20:49:52 +0200:
 
-> Move the function nand_read_page_hwecc_oob_first() (previously
-> nand_davinci_read_page_hwecc_oob_first()) to nand_base.c, and export it
-> as a GPL symbol, so that it can be used by more modules.
+> The ECC engine on the JZ4740 SoC requires the ECC data to be read before
+> the page; using the default page reading function does not work. Indeed,
+> the old JZ4740 NAND driver (removed in 5.4) did use the 'OOB first' flag
+> that existed back then.
+> 
+> Use the newly created nand_read_page_hwecc_oob_first() to address this
+> issue.
+> 
+> This issue was not found when the new ingenic-nand driver was developed,
+> most likely because the Device Tree used had the nand-ecc-mode set to
+> "hw_oob_first", which seems to not be supported anymore.
+
+I would rename both the boolean and the helper "*_access_oob_first"
+which seems more precise.
+
 > 
 > Cc: <stable@vger.kernel.org> # v5.2
 > Fixes: a0ac778eb82c ("mtd: rawnand: ingenic: Add support for the JZ4740")
 > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 > ---
->  drivers/mtd/nand/raw/davinci_nand.c | 70 +----------------------------
->  drivers/mtd/nand/raw/nand_base.c    | 69 ++++++++++++++++++++++++++++
->  include/linux/mtd/rawnand.h         |  2 +
->  3 files changed, 72 insertions(+), 69 deletions(-)
+>  drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 > 
-> diff --git a/drivers/mtd/nand/raw/davinci_nand.c b/drivers/mtd/nand/raw/davinci_nand.c
-> index 89de24d3bb7a..45fec8c192ab 100644
-> --- a/drivers/mtd/nand/raw/davinci_nand.c
-> +++ b/drivers/mtd/nand/raw/davinci_nand.c
-> @@ -371,74 +371,6 @@ static int nand_davinci_correct_4bit(struct nand_chip *chip, u_char *data,
->  	return corrected;
->  }
+> diff --git a/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c b/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c
+> index 0e9d426fe4f2..b18861bdcdc8 100644
+> --- a/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c
+> +++ b/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c
+> @@ -32,6 +32,7 @@ struct jz_soc_info {
+>  	unsigned long addr_offset;
+>  	unsigned long cmd_offset;
+>  	const struct mtd_ooblayout_ops *oob_layout;
+> +	bool oob_first;
+>  };
 >  
-> -/**
-> - * nand_read_page_hwecc_oob_first - hw ecc, read oob first
-> - * @chip: nand chip info structure
-> - * @buf: buffer to store read data
-> - * @oob_required: caller requires OOB data read to chip->oob_poi
-> - * @page: page number to read
-> - *
-> - * Hardware ECC for large page chips, require OOB to be read first. For this
-> - * ECC mode, the write_page method is re-used from ECC_HW. These methods
-> - * read/write ECC from the OOB area, unlike the ECC_HW_SYNDROME support with
-> - * multiple ECC steps, follows the "infix ECC" scheme and reads/writes ECC from
-> - * the data area, by overwriting the NAND manufacturer bad block markings.
-> - */
-> -static int nand_davinci_read_page_hwecc_oob_first(struct nand_chip *chip,
-> -						  uint8_t *buf,
-> -						  int oob_required, int page)
-> -{
-> -	struct mtd_info *mtd = nand_to_mtd(chip);
-> -	int i, eccsize = chip->ecc.size, ret;
-> -	int eccbytes = chip->ecc.bytes;
-> -	int eccsteps = chip->ecc.steps;
-> -	uint8_t *p = buf;
-> -	uint8_t *ecc_code = chip->ecc.code_buf;
-> -	unsigned int max_bitflips = 0;
-> -
-> -	/* Read the OOB area first */
-> -	ret = nand_read_oob_op(chip, page, 0, chip->oob_poi, mtd->oobsize);
-> -	if (ret)
-> -		return ret;
-> -
-> -	ret = nand_read_page_op(chip, page, 0, NULL, 0);
-> -	if (ret)
-> -		return ret;
-> -
-> -	ret = mtd_ooblayout_get_eccbytes(mtd, ecc_code, chip->oob_poi, 0,
-> -					 chip->ecc.total);
-> -	if (ret)
-> -		return ret;
-> -
-> -	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
-> -		int stat;
-> -
-> -		chip->ecc.hwctl(chip, NAND_ECC_READ);
-> -
-> -		ret = nand_read_data_op(chip, p, eccsize, false, false);
-> -		if (ret)
-> -			return ret;
-> -
-> -		stat = chip->ecc.correct(chip, p, &ecc_code[i], NULL);
-> -		if (stat == -EBADMSG &&
-> -		    (chip->ecc.options & NAND_ECC_GENERIC_ERASED_CHECK)) {
-> -			/* check for empty pages with bitflips */
-> -			stat = nand_check_erased_ecc_chunk(p, eccsize,
-> -							   &ecc_code[i],
-> -							   eccbytes, NULL, 0,
-> -							   chip->ecc.strength);
-> -		}
-> -
-> -		if (stat < 0) {
-> -			mtd->ecc_stats.failed++;
-> -		} else {
-> -			mtd->ecc_stats.corrected += stat;
-> -			max_bitflips = max_t(unsigned int, max_bitflips, stat);
-> -		}
-> -	}
-> -	return max_bitflips;
-> -}
-> -
->  /*----------------------------------------------------------------------*/
+>  struct ingenic_nand_cs {
+> @@ -240,6 +241,9 @@ static int ingenic_nand_attach_chip(struct nand_chip *chip)
+>  	if (chip->bbt_options & NAND_BBT_USE_FLASH)
+>  		chip->bbt_options |= NAND_BBT_NO_OOB;
 >  
->  /* An ECC layout for using 4-bit ECC with small-page flash, storing
-> @@ -648,7 +580,7 @@ static int davinci_nand_attach_chip(struct nand_chip *chip)
->  			} else if (chunks == 4 || chunks == 8) {
->  				mtd_set_ooblayout(mtd,
->  						  nand_get_large_page_ooblayout());
-> -				chip->ecc.read_page = nand_davinci_read_page_hwecc_oob_first;
-> +				chip->ecc.read_page = nand_read_page_hwecc_oob_first;
->  			} else {
->  				return -EIO;
->  			}
-> diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
-> index 3d6c6e880520..cb5f343b9fa2 100644
-> --- a/drivers/mtd/nand/raw/nand_base.c
-> +++ b/drivers/mtd/nand/raw/nand_base.c
-> @@ -3160,6 +3160,75 @@ static int nand_read_page_hwecc(struct nand_chip *chip, uint8_t *buf,
->  	return max_bitflips;
->  }
+> +	if (nfc->soc_info->oob_first)
+> +		chip->ecc.read_page = nand_read_page_hwecc_oob_first;
+> +
+>  	/* For legacy reasons we use a different layout on the qi,lb60 board. */
+>  	if (of_machine_is_compatible("qi,lb60"))
+>  		mtd_set_ooblayout(mtd, &qi_lb60_ooblayout_ops);
+> @@ -534,6 +538,7 @@ static const struct jz_soc_info jz4740_soc_info = {
+>  	.data_offset = 0x00000000,
+>  	.cmd_offset = 0x00008000,
+>  	.addr_offset = 0x00010000,
+> +	.oob_first = true,
+>  };
 >  
-> +/**
-> + * nand_read_page_hwecc_oob_first - Hardware ECC page read with ECC
-> + *                                  data read from OOB area
-> + * @chip: nand chip info structure
-> + * @buf: buffer to store read data
-> + * @oob_required: caller requires OOB data read to chip->oob_poi
-> + * @page: page number to read
-> + *
-> + * Hardware ECC for large page chips, require OOB to be read first. For this
-
-requires
-
-With this ECC configuration?
-
-> + * ECC mode, the write_page method is re-used from ECC_HW. These methods
-
-I do not understand this sentence nor the next one about syndrome. I
-believe it is related to your engine and should not leak into the core.
-
-> + * read/write ECC from the OOB area, unlike the ECC_HW_SYNDROME support with
-> + * multiple ECC steps, follows the "infix ECC" scheme and reads/writes ECC from
-> + * the data area, by overwriting the NAND manufacturer bad block markings.
-
-That's a sentence I don't like. What do you mean exactly?
-
-What "Infix ECC" scheme is?
-
-Do you mean that unlike the syndrome  mode it *does not* overwrite the
-BBM ?
-
-> + */
-> +int nand_read_page_hwecc_oob_first(struct nand_chip *chip, uint8_t *buf,
-> +				   int oob_required, int page)
-> +{
-> +	struct mtd_info *mtd = nand_to_mtd(chip);
-> +	int i, eccsize = chip->ecc.size, ret;
-> +	int eccbytes = chip->ecc.bytes;
-> +	int eccsteps = chip->ecc.steps;
-> +	uint8_t *p = buf;
-> +	uint8_t *ecc_code = chip->ecc.code_buf;
-> +	unsigned int max_bitflips = 0;
-> +
-> +	/* Read the OOB area first */
-> +	ret = nand_read_oob_op(chip, page, 0, chip->oob_poi, mtd->oobsize);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = nand_read_page_op(chip, page, 0, NULL, 0);
-
-Definitely not, your are requesting the chip to do the read_page
-operation twice. You only need a nand_change_read_column I believe.
-
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = mtd_ooblayout_get_eccbytes(mtd, ecc_code, chip->oob_poi, 0,
-> +					 chip->ecc.total);
-> +	if (ret)
-> +		return ret;
-> +
-> +	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
-> +		int stat;
-> +
-> +		chip->ecc.hwctl(chip, NAND_ECC_READ);
-> +
-> +		ret = nand_read_data_op(chip, p, eccsize, false, false);
-> +		if (ret)
-> +			return ret;
-> +
-> +		stat = chip->ecc.correct(chip, p, &ecc_code[i], NULL);
-> +		if (stat == -EBADMSG &&
-> +		    (chip->ecc.options & NAND_ECC_GENERIC_ERASED_CHECK)) {
-> +			/* check for empty pages with bitflips */
-> +			stat = nand_check_erased_ecc_chunk(p, eccsize,
-> +							   &ecc_code[i],
-> +							   eccbytes, NULL, 0,
-> +							   chip->ecc.strength);
-> +		}
-> +
-> +		if (stat < 0) {
-> +			mtd->ecc_stats.failed++;
-> +		} else {
-> +			mtd->ecc_stats.corrected += stat;
-> +			max_bitflips = max_t(unsigned int, max_bitflips, stat);
-> +		}
-> +	}
-> +	return max_bitflips;
-> +}
-> +EXPORT_SYMBOL_GPL(nand_read_page_hwecc_oob_first);
-> +
->  /**
->   * nand_read_page_syndrome - [REPLACEABLE] hardware ECC syndrome based page read
->   * @chip: nand chip info structure
-> diff --git a/include/linux/mtd/rawnand.h b/include/linux/mtd/rawnand.h
-> index b2f9dd3cbd69..5b88cd51fadb 100644
-> --- a/include/linux/mtd/rawnand.h
-> +++ b/include/linux/mtd/rawnand.h
-> @@ -1539,6 +1539,8 @@ int nand_read_data_op(struct nand_chip *chip, void *buf, unsigned int len,
->  		      bool force_8bit, bool check_only);
->  int nand_write_data_op(struct nand_chip *chip, const void *buf,
->  		       unsigned int len, bool force_8bit);
-> +int nand_read_page_hwecc_oob_first(struct nand_chip *chip, uint8_t *buf,
-> +				   int oob_required, int page);
-
-You certainly want to add this symbol closer to the other read/write
-page helpers?
-
->  
->  /* Scan and identify a NAND device */
->  int nand_scan_with_ids(struct nand_chip *chip, unsigned int max_chips,
+>  static const struct jz_soc_info jz4725b_soc_info = {
 
 
 Thanks,
