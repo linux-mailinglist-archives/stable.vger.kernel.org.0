@@ -2,18 +2,18 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D9FF42EEDE
-	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 12:32:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8083642EEE1
+	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 12:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238071AbhJOKev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Oct 2021 06:34:51 -0400
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:38757 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238128AbhJOKec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 06:34:32 -0400
+        id S235001AbhJOKe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Oct 2021 06:34:58 -0400
+Received: from relay10.mail.gandi.net ([217.70.178.230]:38759 "EHLO
+        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238141AbhJOKen (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 06:34:43 -0400
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 5E99D1C000F;
-        Fri, 15 Oct 2021 10:32:24 +0000 (UTC)
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 8F9F8240013;
+        Fri, 15 Oct 2021 10:32:28 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Miquel Raynal <miquel.raynal@bootlin.com>,
         Richard Weinberger <richard@nod.at>,
@@ -21,21 +21,21 @@ To:     Miquel Raynal <miquel.raynal@bootlin.com>,
         Tudor Ambarus <Tudor.Ambarus@microchip.com>
 Cc:     linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 3/9] mtd: rawnand: gpio: Keep the driver compatible with on-die ECC engines
-Date:   Fri, 15 Oct 2021 12:32:23 +0200
-Message-Id: <20211015103223.949769-1-miquel.raynal@bootlin.com>
+Subject: Re: [PATCH 2/9] mtd: rawnand: au1550nd: Keep the driver compatible with on-die ECC engines
+Date:   Fri, 15 Oct 2021 12:32:28 +0200
+Message-Id: <20211015103228.949834-1-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210928222258.199726-4-miquel.raynal@bootlin.com>
+In-Reply-To: <20210928222258.199726-3-miquel.raynal@bootlin.com>
 References: 
 MIME-Version: 1.0
 X-linux-mtd-patch-notification: thanks
-X-linux-mtd-patch-commit: b'b5b5b4dc6fcd8194b9dd38c8acdc5ab71adf44f8'
+X-linux-mtd-patch-commit: b'7e3cdba176ba59eaf4d463d273da0718e3626140'
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2021-09-28 at 22:22:42 UTC, Miquel Raynal wrote:
+On Tue, 2021-09-28 at 22:22:41 UTC, Miquel Raynal wrote:
 > Following the introduction of the generic ECC engine infrastructure, it
 > was necessary to reorganize the code and move the ECC configuration in
 > the ->attach_chip() hook. Failing to do that properly lead to a first
@@ -61,7 +61,7 @@ On Tue, 2021-09-28 at 22:22:42 UTC, Miquel Raynal wrote:
 > entry as the default engine for this driver. This value may of course
 > be overloaded by the user if the usual DT properties are provided.
 > 
-> Fixes: f6341f6448e0 ("mtd: rawnand: gpio: Move the ECC initialization to ->attach_chip()")
+> Fixes: dbffc8ccdf3a ("mtd: rawnand: au1550: Move the ECC initialization to ->attach_chip()")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 
