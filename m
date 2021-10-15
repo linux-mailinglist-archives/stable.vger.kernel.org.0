@@ -2,18 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30C6442EED4
-	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 12:32:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D461142EEEF
+	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 12:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238065AbhJOKeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Oct 2021 06:34:09 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:56381 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238025AbhJOKeI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 06:34:08 -0400
+        id S238204AbhJOKfs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Oct 2021 06:35:48 -0400
+Received: from mslow1.mail.gandi.net ([217.70.178.240]:54677 "EHLO
+        mslow1.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238184AbhJOKfi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 06:35:38 -0400
+Received: from relay9-d.mail.gandi.net (unknown [217.70.183.199])
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 7379FDBC31
+        for <stable@vger.kernel.org>; Fri, 15 Oct 2021 10:32:34 +0000 (UTC)
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id E5CBC1BF20F;
-        Fri, 15 Oct 2021 10:32:00 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 8028FFF80D;
+        Fri, 15 Oct 2021 10:32:05 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Miquel Raynal <miquel.raynal@bootlin.com>,
         Richard Weinberger <richard@nod.at>,
@@ -21,21 +24,21 @@ To:     Miquel Raynal <miquel.raynal@bootlin.com>,
         Tudor Ambarus <Tudor.Ambarus@microchip.com>
 Cc:     linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 8/9] mtd: rawnand: socrates: Keep the driver compatible with on-die ECC engines
-Date:   Fri, 15 Oct 2021 12:32:00 +0200
-Message-Id: <20211015103200.949449-1-miquel.raynal@bootlin.com>
+Subject: Re: [PATCH 7/9] mtd: rawnand: plat_nand: Keep the driver compatible with on-die ECC engines
+Date:   Fri, 15 Oct 2021 12:32:04 +0200
+Message-Id: <20211015103204.949513-1-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210928222258.199726-9-miquel.raynal@bootlin.com>
+In-Reply-To: <20210928222258.199726-8-miquel.raynal@bootlin.com>
 References: 
 MIME-Version: 1.0
 X-linux-mtd-patch-notification: thanks
-X-linux-mtd-patch-commit: b'b4ebddd6540d78a7f977b3fea0261bd575c6ffe2'
+X-linux-mtd-patch-commit: b'325fd539fc84f0aaa0ceb9d7d3b8718582473dc5'
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2021-09-28 at 22:22:47 UTC, Miquel Raynal wrote:
+On Tue, 2021-09-28 at 22:22:46 UTC, Miquel Raynal wrote:
 > Following the introduction of the generic ECC engine infrastructure, it
 > was necessary to reorganize the code and move the ECC configuration in
 > the ->attach_chip() hook. Failing to do that properly lead to a first
@@ -61,7 +64,7 @@ On Tue, 2021-09-28 at 22:22:47 UTC, Miquel Raynal wrote:
 > entry as the default engine for this driver. This value may of course
 > be overloaded by the user if the usual DT properties are provided.
 > 
-> Fixes: b36bf0a0fe5d ("mtd: rawnand: socrates: Move the ECC initialization to ->attach_chip()")
+> Fixes: 612e048e6aab ("mtd: rawnand: plat_nand: Move the ECC initialization to ->attach_chip()")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 
