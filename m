@@ -2,99 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58A6142E8BC
-	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 08:15:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF3E842E8BA
+	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 08:14:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231445AbhJOGRN convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 15 Oct 2021 02:17:13 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:41383 "EHLO
-        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230244AbhJOGRN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 02:17:13 -0400
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 19BBA100006;
-        Fri, 15 Oct 2021 06:15:03 +0000 (UTC)
-Date:   Fri, 15 Oct 2021 08:14:47 +0200
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Harvey Hunt <harveyhuntnexus@gmail.com>, list@opendingux.net,
-        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 3/3] mtd: rawnand/ingenic: JZ4740 needs 'oob_first' read
- page function
-Message-ID: <20211015081447.25836fc7@xps13>
-In-Reply-To: <20211009184952.24591-4-paul@crapouillou.net>
-References: <20211009184952.24591-1-paul@crapouillou.net>
-        <20211009184952.24591-4-paul@crapouillou.net>
-Organization: Bootlin
-X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S230257AbhJOGQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Oct 2021 02:16:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54036 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230244AbhJOGQ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 02:16:58 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73280C061570
+        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 23:14:52 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id c4so5753776pls.6
+        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 23:14:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=rJ1qV6wHBtZhfOpFjgg/3gSLCvEO1VpY++1rsh/kxrE=;
+        b=Ip/VeR/89gri4fHTmU+mGz60LRHQ5EvjuWjV6SiPJ8vokEYu9SAHzBAIHRKdhkmi6C
+         cVF2McaNFrvfUip3wulw86HEw3aP44CUXL9qYwR+NzqLKNcezXXCbVk1ziBtXLjyxjgn
+         8sUrQSPdqiy5t9V9a5OrRYD1buqWDLpxIJlUEm473d5t+USIKIIEb9f9wGme2/A76Kyo
+         3cZS/Kemlcn8iNG4PXQ5GOCDHIibXdlnYeFpetsoN1Xq4k4ft8eQE3v8lFqGuMJt+5GX
+         pPJkQW2TIvdAvji0uRXCGwfjJYzDg8pGubY2gm5NfX/uGNQZXyRulVDJ9UFDqKF4Tl2o
+         tOwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=rJ1qV6wHBtZhfOpFjgg/3gSLCvEO1VpY++1rsh/kxrE=;
+        b=y3KVfkqhmK+4FFnCnz8pBakrznSGW+3SUQij53iPySu1nE4upmgeUeFGTWBKiiRQY/
+         BHEASEw+QlfL6HUMd94wnoHn5dDc7von9qETen+rD14y3csCm0od14zuujP7dDojOixb
+         HGt/06zaE5Rp2L+e4V+KT32SeVRLyKCE7b25+3OgVgMWSU9eTr3QfaUU2dymcp8e0KCk
+         3+hL/Ihg/Wop4RiiVBTIpe0M2KVywOSCrV2aSvhbp/QRYtBZHnPHMiLGzkUIPHICGLx8
+         /WGFDuCDiIpYbegeCI2+nsUxUye9Mw8kdrywfddP+ILXMsB7bmSdmeKVXXMLhZGxp/kZ
+         pbzw==
+X-Gm-Message-State: AOAM530EKNzJXdsRekF/PjRIKwnyh5xWO3RI+QYhlphoFsXtnNitLnfR
+        VhIy4aKOXHh/KqbX53K0FndCg2vW2+u6ziLZ
+X-Google-Smtp-Source: ABdhPJxTmGUTHMr8hWHJ5KCiGjYFeOp8otZksQSIh96T3cxUhpl4vNOwBgSJxktzxhh145YgYgPlEA==
+X-Received: by 2002:a17:90b:3b52:: with SMTP id ot18mr11497556pjb.245.1634278491755;
+        Thu, 14 Oct 2021 23:14:51 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f33sm10397881pjk.42.2021.10.14.23.14.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Oct 2021 23:14:51 -0700 (PDT)
+Message-ID: <61691c5b.1c69fb81.fa7c1.f76a@mx.google.com>
+Date:   Thu, 14 Oct 2021 23:14:51 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.211-13-g2be6a8418bd1
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.19.y baseline: 83 runs,
+ 3 regressions (v4.19.211-13-g2be6a8418bd1)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Paul,
+stable-rc/linux-4.19.y baseline: 83 runs, 3 regressions (v4.19.211-13-g2be6=
+a8418bd1)
 
-paul@crapouillou.net wrote on Sat,  9 Oct 2021 20:49:52 +0200:
+Regressions Summary
+-------------------
 
-> The ECC engine on the JZ4740 SoC requires the ECC data to be read before
-> the page; using the default page reading function does not work. Indeed,
-> the old JZ4740 NAND driver (removed in 5.4) did use the 'OOB first' flag
-> that existed back then.
-> 
-> Use the newly created nand_read_page_hwecc_oob_first() to address this
-> issue.
-> 
-> This issue was not found when the new ingenic-nand driver was developed,
-> most likely because the Device Tree used had the nand-ecc-mode set to
-> "hw_oob_first", which seems to not be supported anymore.
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
+ | 1          =
 
-I would rename both the boolean and the helper "*_access_oob_first"
-which seems more precise.
+qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
+ | 1          =
 
-> 
-> Cc: <stable@vger.kernel.org> # v5.2
-> Fixes: a0ac778eb82c ("mtd: rawnand: ingenic: Add support for the JZ4740")
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> ---
->  drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c b/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c
-> index 0e9d426fe4f2..b18861bdcdc8 100644
-> --- a/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c
-> +++ b/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c
-> @@ -32,6 +32,7 @@ struct jz_soc_info {
->  	unsigned long addr_offset;
->  	unsigned long cmd_offset;
->  	const struct mtd_ooblayout_ops *oob_layout;
-> +	bool oob_first;
->  };
->  
->  struct ingenic_nand_cs {
-> @@ -240,6 +241,9 @@ static int ingenic_nand_attach_chip(struct nand_chip *chip)
->  	if (chip->bbt_options & NAND_BBT_USE_FLASH)
->  		chip->bbt_options |= NAND_BBT_NO_OOB;
->  
-> +	if (nfc->soc_info->oob_first)
-> +		chip->ecc.read_page = nand_read_page_hwecc_oob_first;
-> +
->  	/* For legacy reasons we use a different layout on the qi,lb60 board. */
->  	if (of_machine_is_compatible("qi,lb60"))
->  		mtd_set_ooblayout(mtd, &qi_lb60_ooblayout_ops);
-> @@ -534,6 +538,7 @@ static const struct jz_soc_info jz4740_soc_info = {
->  	.data_offset = 0x00000000,
->  	.cmd_offset = 0x00008000,
->  	.addr_offset = 0x00010000,
-> +	.oob_first = true,
->  };
->  
->  static const struct jz_soc_info jz4725b_soc_info = {
+qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
+ | 1          =
 
 
-Thanks,
-Miquèl
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.211-13-g2be6a8418bd1/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.211-13-g2be6a8418bd1
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2be6a8418bd1568db7e752ea68f73e6f24fca984 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6168e29e46bed242b93358dc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+11-13-g2be6a8418bd1/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+11-13-g2be6a8418bd1/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6168e29e46bed242b9335=
+8dd
+        failing since 330 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6168e2979461800bec335902
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+11-13-g2be6a8418bd1/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+11-13-g2be6a8418bd1/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6168e2979461800bec335=
+903
+        failing since 330 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6168e29dfb687ae94f3358f1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+11-13-g2be6a8418bd1/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+11-13-g2be6a8418bd1/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6168e29dfb687ae94f335=
+8f2
+        failing since 330 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =20
