@@ -2,108 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E17F142E788
-	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 06:12:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 677CB42E884
+	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 07:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233390AbhJOEPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Oct 2021 00:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35454 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233083AbhJOEPA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Oct 2021 00:15:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F9AA61168;
-        Fri, 15 Oct 2021 04:12:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634271174;
-        bh=ep/IXH3UxYH/vOBTWCg7qNPyVSjQ3xGnQubpgz0v/V4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=n6LAhMRKZOIopPXdzW0rHn0TXO9aq6GW48M95bssT/Qu4/N/zKrqxhEC+tdhU4LXx
-         37HChB1W3b8uppBWdpYXJa+B5jEuFb3dLe8w0Xl9YWTxb/IT8jI5bBVPAfVabk5SNI
-         0BFoipCGiQ/R8iG4KucsrtUfqilWjEVxSWMNV7bF8Tissco4BmKrQCfmMpx3E5cSFv
-         F7osaIOhPrLvwyaurfG7ggqIZaClT76RNMrpOCmHyqijwhjBNTsy9UoXbmD0heoCZG
-         zVtz8ENURA5dAofGoZ433BOAdlSWnQivCpQ+63WCi1ude9iKDYKjQyDfcHcNVlJ0lP
-         322unydic2xsQ==
-Date:   Fri, 15 Oct 2021 12:12:40 +0800
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Frieder Schrempf <frieder.schrempf@kontron.de>
-Cc:     Frieder Schrempf <frieder@fris.de>, devicetree@vger.kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>, stable@vger.kernel.org,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>
-Subject: Re: [PATCH 5/8] arm64: dts: imx8mm-kontron: Fix CAN SPI clock
- frequency
-Message-ID: <20211015041239.GH22881@dragon>
-References: <20210930155633.2745201-1-frieder@fris.de>
- <20210930155633.2745201-6-frieder@fris.de>
- <20211005071230.GC20743@dragon>
- <37c1845d-9323-3187-ed0b-b9795758649d@kontron.de>
+        id S235427AbhJOFyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Oct 2021 01:54:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49132 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229706AbhJOFyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 01:54:45 -0400
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD90C061570
+        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 22:52:39 -0700 (PDT)
+Received: by mail-pg1-x534.google.com with SMTP id f5so7605501pgc.12
+        for <stable@vger.kernel.org>; Thu, 14 Oct 2021 22:52:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Y/YxzoCFdGlUO9kfGO0IuQs32io5RrpBsWdHxrbppFI=;
+        b=2Lg+OAPeeUPJjH11TANxSUyIngPD0Jiv/SFMvIhNULZCB0GTDDQ1jCt8bAEeK44qJL
+         iJdS1trtp+tsrXhkZy21vHEn7duGEHSHB9NOzcAcwoqstK/Mb4M4Nz+J4798RDEZV5M7
+         B8epMD61OFCFhBiNVbMHe07/LJkl9yJPaJoTjfi7nWJ+CWCqmUUzz139XxT6nSlAUSWb
+         mh5+jZHzXwGtk0HiQERBl3IKQ0XnAv9Fby9Hs/1vvL+BiNrrQg3hlZ9SmgsH8hF1q8qS
+         VMjfvGmm7KU+P5CoG1PbOmKiXVmnwOirZ6ym9I7lQbMwW6YVS77r/z1jqTVqa+jNibMA
+         pUYg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Y/YxzoCFdGlUO9kfGO0IuQs32io5RrpBsWdHxrbppFI=;
+        b=etP7ungjj/N6+T9pzakUMNX7BKERkcrKNcZSSfGqWTYl9mNqiCOaOB6yuJX9Cy6pRJ
+         zBrEl6cklLAG2ysBddeHKKfnXtNBFjp/CzgxWpxudQlwqiheqrPGWthS3MGBy6B0uV3O
+         NO667eEkVyEY2aLchBZbnO79W7m+SvboP/KP/jxApcg++LtOXo1ch9lTTCzj3mDB9A0Q
+         rTnL3u4HxEMUkVEtwljzSNbAXa8R/9eAtpaUQCX9YOt7/vWL9gy6GnQQQfPX9EyS/p9h
+         +ozopjQrW4yYfKNEjX34NhNF0uE7PQMr/SsITWccnU9ecyhAbnXEg+3VNdSKMkD2wjc+
+         8ZfA==
+X-Gm-Message-State: AOAM531KJpF1X6EohEjVKVgaj8qa9AmiSg3wMzVhDo2nptAqVXtk4vwV
+        Ab7VPMWtgnTBt0j9A+LT1b5WBuhmt8nX3NzH
+X-Google-Smtp-Source: ABdhPJwIuECR2TiI6oZM/V1Hv7W3UvX+B/d7ydjgMqUfFwlb4NWDR6L3U7W2AIjrBLSikARPUbQTYg==
+X-Received: by 2002:a65:6287:: with SMTP id f7mr7821007pgv.444.1634277159254;
+        Thu, 14 Oct 2021 22:52:39 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f84sm4023936pfa.25.2021.10.14.22.52.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Oct 2021 22:52:38 -0700 (PDT)
+Message-ID: <61691726.1c69fb81.66327.d2f4@mx.google.com>
+Date:   Thu, 14 Oct 2021 22:52:38 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <37c1845d-9323-3187-ed0b-b9795758649d@kontron.de>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.153-17-g8f48de738cda
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.4.y baseline: 86 runs,
+ 4 regressions (v5.4.153-17-g8f48de738cda)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 05, 2021 at 07:17:13PM +0200, Frieder Schrempf wrote:
-> On 05.10.21 09:12, Shawn Guo wrote:
-> > On Thu, Sep 30, 2021 at 05:56:28PM +0200, Frieder Schrempf wrote:
-> >> From: Frieder Schrempf <frieder.schrempf@kontron.de>
-> >>
-> >> The MCP2515 can be used with an SPI clock of up to 10 MHz. Set the
-> >> limit accordingly to prevent any performance issues caused by the
-> >> really low clock speed of 100 kHz.
-> > 
-> > Could you share some testing result of this change?
-> 
-> Without this change, receiving CAN messages on the board beyond a
-> certain bitrate will cause overrun errors (see 'ip -det -stat link show
-> can0').
-> 
-> With this fix, receiving messages on the bus works without any overrun
-> errors for bitrates up to 1 MBit.
-> 
-> 
-> > 
-> >>
-> >> Fixes: 21c4f45b335f ("arm64: dts: Add the Kontron i.MX8M Mini SoMs and baseboards")
-> > 
-> > It's really an optimization rather than fix, isn't it?
-> 
-> It removes the arbitrarily low limit on the SPI frequency, that was
-> caused by a typo in the original dts. As the usage of the CAN bus is
-> seriously affected by this I would consider it a fix. But if you think
-> otherwise, feel free to remove the Fixes tag.
+stable-rc/linux-5.4.y baseline: 86 runs, 4 regressions (v5.4.153-17-g8f48de=
+738cda)
 
-Put all these good information into commit log, and I will be happy to
-take it as a fix.
+Regressions Summary
+-------------------
 
-Shawn
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
+  | 1          =
 
-> >> Cc: stable@vger.kernel.org
-> >> Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-> >> ---
-> >>  arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts | 2 +-
-> >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >>
-> >> diff --git a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
-> >> index f2c8ccefd1bf..dbf11e03ecce 100644
-> >> --- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
-> >> +++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
-> >> @@ -98,7 +98,7 @@ can0: can@0 {
-> >>  		clocks = <&osc_can>;
-> >>  		interrupt-parent = <&gpio4>;
-> >>  		interrupts = <28 IRQ_TYPE_EDGE_FALLING>;
-> >> -		spi-max-frequency = <100000>;
-> >> +		spi-max-frequency = <10000000>;
-> >>  		vdd-supply = <&reg_vdd_3v3>;
-> >>  		xceiver-supply = <&reg_vdd_5v>;
-> >>  	};
-> >> -- 
-> >> 2.33.0
-> >>
+qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
+g | 1          =
+
+qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.153-17-g8f48de738cda/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.153-17-g8f48de738cda
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8f48de738cda248d961f0fc9967316716498b80f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6168da054f0fcfa4f8335906
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-17-g8f48de738cda/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
+hed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-17-g8f48de738cda/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
+hed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6168da054f0fcfa4f8335=
+907
+        failing since 328 days (last pass: v5.4.77-152-ga3746663c3479, firs=
+t fail: v5.4.78) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6168d92660d4250a723358fd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6168d92660d4250a72335=
+8fe
+        failing since 334 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6168da39beb949c4f63358e1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6168da39beb949c4f6335=
+8e2
+        failing since 334 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6168d87590ca2de7493358e8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-17-g8f48de738cda/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6168d87590ca2de749335=
+8e9
+        failing since 334 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =20
