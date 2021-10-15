@@ -2,211 +2,343 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B988042FD80
-	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 23:34:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BBD742FDA5
+	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 23:51:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243147AbhJOVg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Oct 2021 17:36:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45646 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243079AbhJOVg2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Oct 2021 17:36:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B304B60FE3;
-        Fri, 15 Oct 2021 21:34:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1634333661;
-        bh=swvPF5exO/i6NzVfk61sEL+f5jv37gAfMaLh14RN/cI=;
-        h=Date:From:To:Subject:From;
-        b=M3R9N7FxlsTNXMgAIrxiWd53LXbnO0jiPW3Lx6kCHfoBOYeQmg5/0GuwsfK44B9pr
-         Qz41xyR4GrrazBBWe9e1ujf4+PmFCPvcysvIeV102pcv9J2MYL9NfYGshLqYNNjwgI
-         CMcQ6nnXiPWu7BqRTRUkmW0kodE4dJisSTBIALrU=
-Date:   Fri, 15 Oct 2021 14:34:21 -0700
-From:   akpm@linux-foundation.org
-To:     david@redhat.com, guro@fb.com, hannes@cmpxchg.org, mhocko@suse.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        vvs@virtuozzo.com
-Subject:  +
- memcg-enable-memory-accounting-in-__alloc_pages_bulk.patch added to -mm
- tree
-Message-ID: <20211015213421.XJL-wQMwi%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S235418AbhJOVxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Oct 2021 17:53:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44688 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229921AbhJOVxT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 17:53:19 -0400
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AE80C061570
+        for <stable@vger.kernel.org>; Fri, 15 Oct 2021 14:51:12 -0700 (PDT)
+Received: by mail-pg1-x52d.google.com with SMTP id c4so2698734pgv.11
+        for <stable@vger.kernel.org>; Fri, 15 Oct 2021 14:51:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=RPPkoL3+dfBz09MOYstW3Zk6MDLdxecf9ZSKg1SH0ic=;
+        b=jpgUBY4MbjUQfNSxTxb9/LN4oQX/O91R5O6COXZkOjpJDIEQBdj6k7Ok4Qzj1o2pms
+         gop/263atHJ5ob+egcjmG5NDtV4IXEyg+oC3gNGbSfU/s87InqMieKDHvXHl1/6y+nnL
+         ecQ8XUWh2YP/ZiL/zP9EbnyLSYCIbqJwqK2SH1NmuXI3BgQkTwW8PJPEO/TFt1aIsldU
+         0OEkDTo9tPXCyOiWwXbiF7jPalEBxRR2JDZ4UfAh3qhsGOdpgUSlFk53WU64Xe7Ai5J6
+         MmgcAa+Jd35RZ/nBkBe+k5IuE716CNNCBDZlSpBi3+TeoLJvUJzp2y+yhsT29zkawTlB
+         oYjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=RPPkoL3+dfBz09MOYstW3Zk6MDLdxecf9ZSKg1SH0ic=;
+        b=M6rCbXvPAyp4o/pY5pACY/Fm66Ho2sumizUIcMWIKNavXDCxMTab4QzYv/HkEGN+aq
+         lGRUuJkcTuH33bHWa6sbsbHQBpqPdObSrKrZ9t/NPcUScxiw32JsBkxjG7lZrsX7ig2K
+         hoylaDVJJuvaAtGjIsyw4VWRw28VLX8EMxZC/fW9kAqCEHgxDZ4aqQ+74w+eLy1rokrm
+         DE6LS1hL2lH4BOuJr/H9399rBxQjxClkcmA7XDNbh3bSUpVklLT4eAttob35LryBsiZf
+         l3LZsTID5X3+YIstgH7knzYKE7SI1s0reV+GxgpnSCyLfzGIrcknz/c9Eq8QmK0LWXFT
+         fFOw==
+X-Gm-Message-State: AOAM532P4kMyYBU0igTvA9x/J51TaqgwgG7JiiODg7cFW4b/jgBCOpXA
+        ANQU3IyLKTN3EJBJnC9KFybtishoDyih2en/
+X-Google-Smtp-Source: ABdhPJzBIhAZKkMt7niYc2mscG1Sd+aeqm8HFvyzn/8lN53igcNYcqr1/40ln+5RhiMplVEgB7R46Q==
+X-Received: by 2002:a05:6a00:d43:b0:44d:6d58:41fb with SMTP id n3-20020a056a000d4300b0044d6d5841fbmr13871748pfv.56.1634334671703;
+        Fri, 15 Oct 2021 14:51:11 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id rj6sm2264994pjb.30.2021.10.15.14.51.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Oct 2021 14:51:11 -0700 (PDT)
+Message-ID: <6169f7cf.1c69fb81.3857b.6fa2@mx.google.com>
+Date:   Fri, 15 Oct 2021 14:51:11 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.288-18-g7376049d5811
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.4 baseline: 60 runs,
+ 7 regressions (v4.4.288-18-g7376049d5811)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.4 baseline: 60 runs, 7 regressions (v4.4.288-18-g7376049d=
+5811)
 
-The patch titled
-     Subject: memcg: enable memory accounting in __alloc_pages_bulk
-has been added to the -mm tree.  Its filename is
-     memcg-enable-memory-accounting-in-__alloc_pages_bulk.patch
+Regressions Summary
+-------------------
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/memcg-enable-memory-accounting-in-__alloc_pages_bulk.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/memcg-enable-memory-accounting-in-__alloc_pages_bulk.patch
+platform            | arch   | lab          | compiler | defconfig         =
+ | regressions
+--------------------+--------+--------------+----------+-------------------=
+-+------------
+qemu_arm-virt-gicv2 | arm    | lab-baylibre | gcc-8    | multi_v7_defconfig=
+ | 1          =
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+qemu_arm-virt-gicv2 | arm    | lab-broonie  | gcc-8    | multi_v7_defconfig=
+ | 1          =
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+qemu_arm-virt-gicv2 | arm    | lab-cip      | gcc-8    | multi_v7_defconfig=
+ | 1          =
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+qemu_arm-virt-gicv3 | arm    | lab-baylibre | gcc-8    | multi_v7_defconfig=
+ | 1          =
 
-------------------------------------------------------
-From: Vasily Averin <vvs@virtuozzo.com>
-Subject: memcg: enable memory accounting in __alloc_pages_bulk
+qemu_arm-virt-gicv3 | arm    | lab-broonie  | gcc-8    | multi_v7_defconfig=
+ | 1          =
 
-Bulk page allocator is used in vmalloc where it can be called
-with __GFP_ACCOUNT and must charge allocated pages into memory cgroup.
+qemu_arm-virt-gicv3 | arm    | lab-cip      | gcc-8    | multi_v7_defconfig=
+ | 1          =
 
-Link: https://lkml.kernel.org/r/65c1afaf-7947-ce28-55b7-06bde7aeb278@virtuozzo.com
-Fixes: 387ba26fb1cb ("mm/page_alloc: add a bulk page allocator")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+qemu_x86_64         | x86_64 | lab-broonie  | gcc-8    | x86_64_defconfig  =
+ | 1          =
 
- include/linux/memcontrol.h |    9 ++++++
- mm/memcontrol.c            |   50 +++++++++++++++++++++++++++++++++++
- mm/page_alloc.c            |   12 +++++++-
- 3 files changed, 69 insertions(+), 2 deletions(-)
 
---- a/include/linux/memcontrol.h~memcg-enable-memory-accounting-in-__alloc_pages_bulk
-+++ a/include/linux/memcontrol.h
-@@ -1692,6 +1692,9 @@ static inline int memcg_cache_id(struct
- 
- struct mem_cgroup *mem_cgroup_from_obj(void *p);
- 
-+int memcg_charge_bulk_pages(gfp_t gfp, int nr_pages,
-+			    struct list_head *page_list,
-+			    struct page **page_array);
- #else
- static inline bool mem_cgroup_kmem_disabled(void)
- {
-@@ -1744,6 +1747,12 @@ static inline struct mem_cgroup *mem_cgr
-        return NULL;
- }
- 
-+int memcg_charge_bulk_pages(gfp_t gfp, int nr_pages,
-+			    struct list_head *page_list,
-+			    struct page **page_array)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_MEMCG_KMEM */
- 
- #endif /* _LINUX_MEMCONTROL_H */
---- a/mm/memcontrol.c~memcg-enable-memory-accounting-in-__alloc_pages_bulk
-+++ a/mm/memcontrol.c
-@@ -3288,6 +3288,56 @@ void obj_cgroup_uncharge(struct obj_cgro
- 	refill_obj_stock(objcg, size, true);
- }
- 
-+/*
-+ * memcg_charge_bulk_pages - Charge pages allocated by bulk allocator
-+ * @gfp: GFP flags for the allocation
-+ * @nr_pages: The number of pages added into the list or array
-+ * @page_list: Optional list of allocated pages
-+ * @page_array: Optional array of allocated pages
-+ *
-+ * Walks through array or list of allocated pages.
-+ * For each page tries to charge it.
-+ * If charge fails removes page from of array/list, frees it,
-+ * and repeat it till end of array/list
-+ *
-+ * Returns the number of freed pages.
-+ */
-+int memcg_charge_bulk_pages(gfp_t gfp, int nr_pages,
-+			    struct list_head *page_list,
-+			    struct page **page_array)
-+{
-+	struct page *page, *np = NULL;
-+	bool charge = true;
-+	int i, nr_freed = 0;
-+
-+	if (page_list)
-+		page = list_first_entry(page_list, struct page, lru);
-+
-+	for (i = 0; i < nr_pages; i++) {
-+		if (page_list) {
-+			if (np)
-+				page = np;
-+			np = list_next_entry(page, lru);
-+		} else {
-+			page = page_array[i];
-+		}
-+		/* some pages in incoming array can be charged already */
-+		if (!page->memcg_data) {
-+			if (charge && __memcg_kmem_charge_page(page, gfp, 0))
-+				charge = false;
-+
-+			if (!charge) {
-+				if (page_list)
-+					list_del(&page->lru);
-+				else
-+					page_array[i] = NULL;
-+				__free_pages(page, 0);
-+				nr_freed++;
-+			}
-+		}
-+	}
-+	return nr_freed;
-+}
- #endif /* CONFIG_MEMCG_KMEM */
- 
- /*
---- a/mm/page_alloc.c~memcg-enable-memory-accounting-in-__alloc_pages_bulk
-+++ a/mm/page_alloc.c
-@@ -5203,10 +5203,11 @@ unsigned long __alloc_pages_bulk(gfp_t g
- 	struct zoneref *z;
- 	struct per_cpu_pages *pcp;
- 	struct list_head *pcp_list;
-+	LIST_HEAD(tpl);
- 	struct alloc_context ac;
- 	gfp_t alloc_gfp;
- 	unsigned int alloc_flags = ALLOC_WMARK_LOW;
--	int nr_populated = 0, nr_account = 0;
-+	int nr_populated = 0, nr_account = 0, nr_freed = 0;
- 
- 	/*
- 	 * Skip populated array elements to determine if any pages need
-@@ -5300,7 +5301,7 @@ unsigned long __alloc_pages_bulk(gfp_t g
- 
- 		prep_new_page(page, 0, gfp, 0);
- 		if (page_list)
--			list_add(&page->lru, page_list);
-+			list_add(&page->lru, &tpl);
- 		else
- 			page_array[nr_populated] = page;
- 		nr_populated++;
-@@ -5308,6 +5309,13 @@ unsigned long __alloc_pages_bulk(gfp_t g
- 
- 	local_unlock_irqrestore(&pagesets.lock, flags);
- 
-+	if (memcg_kmem_enabled() && (gfp & __GFP_ACCOUNT) && nr_account)
-+       		nr_freed = memcg_charge_bulk_pages(gfp, nr_populated,
-+						   page_list ? &tpl : NULL,
-+						   page_array);
-+	nr_account -= nr_freed;
-+	nr_populated -= nr_freed;
-+	list_splice(&tpl, page_list);
- 	__count_zid_vm_events(PGALLOC, zone_idx(zone), nr_account);
- 	zone_statistics(ac.preferred_zoneref->zone, zone, nr_account);
- 
-_
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.288-18-g7376049d5811/plan/baseline/
 
-Patches currently in -mm which might be from vvs@virtuozzo.com are
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.288-18-g7376049d5811
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7376049d581124aa56b9fa265531f19f3ac326be =
 
-memcg-prohibit-unconditional-exceeding-the-limit-of-dying-tasks.patch
-memcg-enable-memory-accounting-in-__alloc_pages_bulk.patch
-mm-vmalloc-repair-warn_allocs-in-__vmalloc_area_node.patch
-vmalloc-back-off-when-the-current-task-is-oom-killed.patch
 
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch   | lab          | compiler | defconfig         =
+ | regressions
+--------------------+--------+--------------+----------+-------------------=
+-+------------
+qemu_arm-virt-gicv2 | arm    | lab-baylibre | gcc-8    | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6169bed57388571d6b3358ef
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6169bed57388571d6b335=
+8f0
+        failing since 335 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab          | compiler | defconfig         =
+ | regressions
+--------------------+--------+--------------+----------+-------------------=
+-+------------
+qemu_arm-virt-gicv2 | arm    | lab-broonie  | gcc-8    | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6169bef1ecb4deb92e3358f9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
+virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
+virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6169bef1ecb4deb92e335=
+8fa
+        failing since 335 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab          | compiler | defconfig         =
+ | regressions
+--------------------+--------+--------------+----------+-------------------=
+-+------------
+qemu_arm-virt-gicv2 | arm    | lab-cip      | gcc-8    | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6169bec87388571d6b3358e1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
+-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
+-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6169bec87388571d6b335=
+8e2
+        failing since 335 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab          | compiler | defconfig         =
+ | regressions
+--------------------+--------+--------------+----------+-------------------=
+-+------------
+qemu_arm-virt-gicv3 | arm    | lab-baylibre | gcc-8    | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6169bed4ffd6830419335907
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6169bed4ffd6830419335=
+908
+        failing since 335 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab          | compiler | defconfig         =
+ | regressions
+--------------------+--------+--------------+----------+-------------------=
+-+------------
+qemu_arm-virt-gicv3 | arm    | lab-broonie  | gcc-8    | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6169bef0ecb4deb92e3358f3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
+virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
+virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6169bef0ecb4deb92e335=
+8f4
+        failing since 335 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab          | compiler | defconfig         =
+ | regressions
+--------------------+--------+--------------+----------+-------------------=
+-+------------
+qemu_arm-virt-gicv3 | arm    | lab-cip      | gcc-8    | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6169beccffd6830419335901
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
+-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt=
+-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6169beccffd6830419335=
+902
+        failing since 335 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch   | lab          | compiler | defconfig         =
+ | regressions
+--------------------+--------+--------------+----------+-------------------=
+-+------------
+qemu_x86_64         | x86_64 | lab-broonie  | gcc-8    | x86_64_defconfig  =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6169b98b7777e082123358fa
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86=
+_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-1=
+8-g7376049d5811/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86=
+_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6169b98b7777e08212335=
+8fb
+        new failure (last pass: v4.4.288-18-ga8ec20dcebd9) =
+
+ =20
