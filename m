@@ -2,26 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D556242F15D
-	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 14:49:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C438E42F15F
+	for <lists+stable@lfdr.de>; Fri, 15 Oct 2021 14:49:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239109AbhJOMvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Oct 2021 08:51:44 -0400
-Received: from mail.fris.de ([116.203.77.234]:38838 "EHLO mail.fris.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239100AbhJOMvj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Oct 2021 08:51:39 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 240C1BFB10;
-        Fri, 15 Oct 2021 14:49:28 +0200 (CEST)
+        id S239137AbhJOMvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Oct 2021 08:51:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60142 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239135AbhJOMvm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Oct 2021 08:51:42 -0400
+Received: from mail.fris.de (mail.fris.de [IPv6:2a01:4f8:c2c:390b::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B1A6C061769;
+        Fri, 15 Oct 2021 05:49:36 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 487F4BFBCC;
+        Fri, 15 Oct 2021 14:49:33 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fris.de; s=dkim;
-        t=1634302169; h=from:subject:date:message-id:to:cc:mime-version:
+        t=1634302174; h=from:subject:date:message-id:to:cc:mime-version:
          content-transfer-encoding:in-reply-to:references;
-        bh=vtolzEmWYzx1NYsPin3VsKIQZeb2yk9gnCRf2QcYdHc=;
-        b=dxCOAg6i7fFuDQ2K7rIcl6+RRwIPhGldD4ZkCjH8LvtGq3a0ycC3ZW8N9xu5hXMZukU41V
-        cxvwLKJ11bEHPGT5/l2hw3cq/yJ+mSiO2iisFe+9O7UovYJg4xrVFTH035V4F0quEyviWv
-        8VtD+4JtAKvRM0SyEvHWoBpS4nRMYNF5pger1ZAwMsSa7PbeU5Ck55DKxF4bI8MYNzS4pn
-        cAaVIURO32+s4OfE3stm84Mo9tXosV9vhlgvb1w+uQ5Sq+cT1MxyU43yPimsofultE+1vs
-        U8JIYvCjWkMW6KsTiQM9kFFEPgfXiaw6JHwzjTju93Q/SsCXO5Ow5jYkB4+t2Q==
+        bh=8lm9gsabnoEYqTgKZqukYHlfOlUcDx4Taw7hbxvkE1k=;
+        b=w25PoQ4x0Y24OkCpbgSjF3j1j5aK06mr9VRzWv/9oF4l7gwyZnsnZb4/pPuUBP8QViLjJz
+        TmfqSukyj5mVgAvFVEWGb7nc49edLWlzIE6kJfb9fSnUnVCsSWPpqbYFGoo/xsh+2UyM9u
+        S3egVukF1ECdl3szDwe1PD5S8u6HEA6Cl3cg+Ewf3TJZoEvUYNv9d6vc9RgEzh5SjgtfhA
+        EBBqF/idvQesqjP7gVKhaIhC0VzolWkGEBoxn27Ya4xQYMcwL9r2a3tQQkb4aoKnA7nHUp
+        Q35r0jZKy9DdakVHQQMaTDEKIZkGlkrsNFjd8hzf2Nyl1tm8rf2+gum5ZsK0Pw==
 From:   Frieder Schrempf <frieder@fris.de>
 To:     devicetree@vger.kernel.org,
         Frieder Schrempf <frieder.schrempf@kontron.de>,
@@ -33,9 +36,9 @@ To:     devicetree@vger.kernel.org,
 Cc:     stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
         NXP Linux Team <linux-imx@nxp.com>,
         Pengutronix Kernel Team <kernel@pengutronix.de>
-Subject: [PATCH v2 5/6] arm64: dts: imx8mm-kontron: Fix CAN SPI clock frequency
-Date:   Fri, 15 Oct 2021 14:48:39 +0200
-Message-Id: <20211015124841.28226-6-frieder@fris.de>
+Subject: [PATCH v2 6/6] arm64: dts: imx8mm-kontron: Fix connection type for VSC8531 RGMII PHY
+Date:   Fri, 15 Oct 2021 14:48:40 +0200
+Message-Id: <20211015124841.28226-7-frieder@fris.de>
 In-Reply-To: <20211015124841.28226-1-frieder@fris.de>
 References: <20211015124841.28226-1-frieder@fris.de>
 MIME-Version: 1.0
@@ -47,19 +50,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-The MCP2515 can be used with an SPI clock of up to 10 MHz. Set the
-limit accordingly to prevent any performance issues caused by the
-really low clock speed of 100 kHz.
+Previously we falsely relied on the PHY driver to unconditionally
+enable the internal RX delay. Since the following fix for the PHY
+driver this is not the case anymore:
 
-This removes the arbitrarily low limit on the SPI frequency, that was
-caused by a typo in the original dts.
+commit 7b005a1742be ("net: phy: mscc: configure both RX and TX internal
+delays for RGMII")
 
-Without this change, receiving CAN messages on the board beyond a
-certain bitrate will cause overrun errors (see 'ip -det -stat link show
-can0').
-
-With this fix, receiving messages on the bus works without any overrun
-errors for bitrates up to 1 MBit.
+In order to enable the delay we need to set the connection type to
+"rgmii-rxid". Without the RX delay the ethernet is not functional at
+all.
 
 Fixes: 8668d8b2e67f ("arm64: dts: Add the Kontron i.MX8M Mini SoMs and baseboards")
 Cc: stable@vger.kernel.org
@@ -67,24 +67,25 @@ Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
 ---
 Changes in v2:
   * Fix the commit ref in the Fixes tag
-  * Improve commit message
+  * Extend the commit message to make clear that ethernet is not working
+    without this fix.
 ---
  arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
-index a192a047f264..14263cd40daf 100644
+index 14263cd40daf..41ddaf980e14 100644
 --- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
 +++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
-@@ -97,7 +97,7 @@ can0: can@0 {
- 		clocks = <&osc_can>;
- 		interrupt-parent = <&gpio4>;
- 		interrupts = <28 IRQ_TYPE_EDGE_FALLING>;
--		spi-max-frequency = <100000>;
-+		spi-max-frequency = <10000000>;
- 		vdd-supply = <&reg_vdd_3v3>;
- 		xceiver-supply = <&reg_vdd_5v>;
- 	};
+@@ -113,7 +113,7 @@ &ecspi3 {
+ &fec1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet>;
+-	phy-connection-type = "rgmii";
++	phy-connection-type = "rgmii-rxid";
+ 	phy-handle = <&ethphy>;
+ 	status = "okay";
+ 
 -- 
 2.33.0
 
