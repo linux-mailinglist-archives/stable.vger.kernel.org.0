@@ -2,118 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70AA042FFCD
-	for <lists+stable@lfdr.de>; Sat, 16 Oct 2021 05:02:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FD4B430084
+	for <lists+stable@lfdr.de>; Sat, 16 Oct 2021 08:24:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239711AbhJPDFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Oct 2021 23:05:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42194 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239704AbhJPDFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Oct 2021 23:05:01 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BE3861278;
-        Sat, 16 Oct 2021 03:02:54 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.94.2)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1mbZyH-006ZV1-8O; Fri, 15 Oct 2021 23:02:53 -0400
-Message-ID: <20211016030253.098208133@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Fri, 15 Oct 2021 23:02:29 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Greentime Hu <green.hu@gmail.com>
-Subject: [for-linus][PATCH 7/7] nds32/ftrace: Fix Error: invalid operands (*UND* and *UND* sections)
- for `^
-References: <20211016030222.926060517@goodmis.org>
+        id S239833AbhJPG0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Oct 2021 02:26:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43526 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239451AbhJPG0d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 16 Oct 2021 02:26:33 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21BFC061570;
+        Fri, 15 Oct 2021 23:24:25 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id l6so7726542plh.9;
+        Fri, 15 Oct 2021 23:24:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ZvOvoZcvvH/Tx90si2pKJuiA/fIC5HYugtK+5A8dZIs=;
+        b=adWh4ygPqc92epNkTraqhJCi7bUk4sjO5zyT+A14oTHay7XdUEdrusc0T7n4dkJWr8
+         iuYo+Wx9Twyue8mGvq71xjUsiHbNgE07aZSGVxQhDBv7t2zmYCjzpcYDD0Lwa3Oewc1O
+         ncs3GLLEsK2mqJt3jrezh6hJ7sDe7oub0C7Q2E0raaAzhpeRysyKDnS7ALzmIgSI7W5J
+         iFVAeygq2FgIZqnuCK2xjln6M6LtSIXKitatPcbCy9tEQJGYyv77WE3dnq+eL+dPLefR
+         Qoie4B4uSaOBdnXp58iT0M0aUVkp7uTxAaQegU6Jz6R/trZj//vVu6CTwYjfQSVd3cBv
+         P12A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ZvOvoZcvvH/Tx90si2pKJuiA/fIC5HYugtK+5A8dZIs=;
+        b=uztWHbeQFZlLdZLn6qiwpyzP6kTMY6CbB3xZIBZaTRUTtCMr2c+Gh9zLVWzHsubf4x
+         rZHYzNwDHyPh2JS9PhKSNqpfWnNlbP2N6rbW/zMGpAdn631bgBPc1sNdpMNv56dCGg1M
+         LvcxH1490DMlrs+ngkTPGhckjsIVZ/Efmq1wOvOhOjFjhrKz4mAlcogx0h7tB/YKMmo2
+         QR6fbDrfKjf+83mWw0iFr9faGCy+pzYAwZKcHkmhUEjACbgXmxZXudQMg3LecSVIuhnn
+         jFHnQGcXN8dAVlOJ6GsywJw3yHAsnDBrLT+4K/+zO/68GBLdx5vMC4eK20FRn1YAEbOh
+         s4QQ==
+X-Gm-Message-State: AOAM533RIWhwpxwN/84ac3vlSqecFXAej8z/05AjThT1ez558CMWQnWO
+        BzKYBBHCmRUT4hmmW5JH0Wg=
+X-Google-Smtp-Source: ABdhPJzaqUWxXy8civOeDMmAst1Ydj5bQI6jj4MORNLBbMI0BSepJ0kkZcvj9C/q3tDNOeRM/XNQXA==
+X-Received: by 2002:a17:902:e846:b0:13f:551b:ba23 with SMTP id t6-20020a170902e84600b0013f551bba23mr14791681plg.77.1634365465100;
+        Fri, 15 Oct 2021 23:24:25 -0700 (PDT)
+Received: from localhost.localdomain ([171.211.26.24])
+        by smtp.gmail.com with ESMTPSA id z11sm13147334pjl.45.2021.10.15.23.24.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Oct 2021 23:24:24 -0700 (PDT)
+From:   DENG Qingfang <dqfext@gmail.com>
+To:     Sean Wang <sean.wang@mediatek.com>,
+        Landen Chao <Landen.Chao@mediatek.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Russell King <linux@armlinux.org.uk>, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH net] net: dsa: mt7530: correct ds->num_ports
+Date:   Sat, 16 Oct 2021 14:24:14 +0800
+Message-Id: <20211016062414.783863-1-dqfext@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+Setting ds->num_ports to DSA_MAX_PORTS made DSA core allocate unnecessary
+dsa_port's and call mt7530_port_disable for non-existent ports.
 
-I received a build failure for a new patch I'm working on the nds32
-architecture, and when I went to test it, I couldn't get to my build error,
-because it failed to build with a bunch of:
-
-  Error: invalid operands (*UND* and *UND* sections) for `^'
-
-issues with various files. Those files were temporary asm files that looked
-like:  kernel/.tmp_mc_fork.s
-
-I decided to look deeper, and found that the "mc" portion of that name
-stood for "mcount", and was created by the recordmcount.pl script. One that
-I wrote over a decade ago. Once I knew the source of the problem, I was
-able to investigate it further.
-
-The way the recordmcount.pl script works (BTW, there's a C version that
-simply modifies the ELF object) is by doing an "objdump" on the object
-file. Looks for all the calls to "mcount", and creates an offset of those
-locations from some global variable it can use (usually a global function
-name, found with <.*>:). Creates a asm file that is a table of references
-to these locations, using the found variable/function. Compiles it and
-links it back into the original object file. This asm file is called
-".tmp_mc_<object_base_name>.s".
-
-The problem here is that the objdump produced by the nds32 object file,
-contains things that look like:
-
- 0000159a <.L3^B1>:
-    159a:       c6 00           beqz38 $r6, 159a <.L3^B1>
-                        159a: R_NDS32_9_PCREL_RELA      .text+0x159e
-    159c:       84 d2           movi55 $r6, #-14
-    159e:       80 06           mov55 $r0, $r6
-    15a0:       ec 3c           addi10.sp #0x3c
-
-Where ".L3^B1 is somehow selected as the "global" variable to index off of.
-
-Then the assembly file that holds the mcount locations looks like this:
-
-        .section __mcount_loc,"a",@progbits
-        .align 2
-        .long .L3^B1 + -5522
-        .long .L3^B1 + -5384
-        .long .L3^B1 + -5270
-        .long .L3^B1 + -5098
-        .long .L3^B1 + -4970
-        .long .L3^B1 + -4758
-        .long .L3^B1 + -4122
-        [...]
-
-And when it is compiled back to an object to link to the original object,
-the compile fails on the "^" symbol.
-
-Simple solution for now, is to have the perl script ignore using function
-symbols that have an "^" in the name.
-
-Link: https://lkml.kernel.org/r/20211014143507.4ad2c0f7@gandalf.local.home
+Set it to MT7530_NUM_PORTS to fix that, and dsa_is_user_port check in
+port_enable/disable is no longer required.
 
 Cc: stable@vger.kernel.org
-Acked-by: Greentime Hu <green.hu@gmail.com>
-Fixes: fbf58a52ac088 ("nds32/ftrace: Add RECORD_MCOUNT support")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
 ---
- scripts/recordmcount.pl | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/mt7530.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
-index 8f6b13ae46bf..7d631aaa0ae1 100755
---- a/scripts/recordmcount.pl
-+++ b/scripts/recordmcount.pl
-@@ -189,7 +189,7 @@ if ($arch =~ /(x86(_64)?)|(i386)/) {
- $local_regex = "^[0-9a-fA-F]+\\s+t\\s+(\\S+)";
- $weak_regex = "^[0-9a-fA-F]+\\s+([wW])\\s+(\\S+)";
- $section_regex = "Disassembly of section\\s+(\\S+):";
--$function_regex = "^([0-9a-fA-F]+)\\s+<(.*?)>:";
-+$function_regex = "^([0-9a-fA-F]+)\\s+<([^^]*?)>:";
- $mcount_regex = "^\\s*([0-9a-fA-F]+):.*\\s(mcount|__fentry__)\$";
- $section_type = '@progbits';
- $mcount_adjust = 0;
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index a3b49abd32f1..dbd15da977b5 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -1035,9 +1035,6 @@ mt7530_port_enable(struct dsa_switch *ds, int port,
+ {
+ 	struct mt7530_priv *priv = ds->priv;
+ 
+-	if (!dsa_is_user_port(ds, port))
+-		return 0;
+-
+ 	mutex_lock(&priv->reg_mutex);
+ 
+ 	/* Allow the user port gets connected to the cpu port and also
+@@ -1060,9 +1057,6 @@ mt7530_port_disable(struct dsa_switch *ds, int port)
+ {
+ 	struct mt7530_priv *priv = ds->priv;
+ 
+-	if (!dsa_is_user_port(ds, port))
+-		return;
+-
+ 	mutex_lock(&priv->reg_mutex);
+ 
+ 	/* Clear up all port matrix which could be restored in the next
+@@ -3265,7 +3259,7 @@ mt7530_probe(struct mdio_device *mdiodev)
+ 		return -ENOMEM;
+ 
+ 	priv->ds->dev = &mdiodev->dev;
+-	priv->ds->num_ports = DSA_MAX_PORTS;
++	priv->ds->num_ports = MT7530_NUM_PORTS;
+ 
+ 	/* Use medatek,mcm property to distinguish hardware type that would
+ 	 * casues a little bit differences on power-on sequence.
 -- 
-2.32.0
+2.25.1
+
