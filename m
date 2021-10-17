@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE397430C35
+	by mail.lfdr.de (Postfix) with ESMTP id D1487430C34
 	for <lists+stable@lfdr.de>; Sun, 17 Oct 2021 23:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344674AbhJQVEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Oct 2021 17:04:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40004 "EHLO
+        id S1344621AbhJQVET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Oct 2021 17:04:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344640AbhJQVEM (ORCPT
+        with ESMTP id S1344634AbhJQVEM (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 17 Oct 2021 17:04:12 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1266C061777
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2192C061773
         for <stable@vger.kernel.org>; Sun, 17 Oct 2021 14:01:59 -0700 (PDT)
 Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <mkl@pengutronix.de>)
-        id 1mcDI6-0000QQ-9d
+        id 1mcDI6-0000Pp-5d
         for stable@vger.kernel.org; Sun, 17 Oct 2021 23:01:58 +0200
 Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id E035E695F1E
+        by bjornoya.blackshift.org (Postfix) with SMTP id 61F95695F18
         for <stable@vger.kernel.org>; Sun, 17 Oct 2021 21:01:50 +0000 (UTC)
 Received: from hardanger.blackshift.org (unknown [172.20.34.65])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id 4A14F695EB7;
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id A8EE5695EBE;
         Sun, 17 Oct 2021 21:01:45 +0000 (UTC)
 Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 512d2b15;
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 3150a84b;
         Sun, 17 Oct 2021 21:01:43 +0000 (UTC)
 From:   Marc Kleine-Budde <mkl@pengutronix.de>
 To:     netdev@vger.kernel.org
 Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        stable@vger.kernel.org,
-        Ayumi Nakamichi <ayumi.nakamichi.kf@renesas.com>,
-        Ulrich Hecht <uli+renesas@fpond.eu>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH net 07/11] can: rcar_can: fix suspend/resume
-Date:   Sun, 17 Oct 2021 23:01:38 +0200
-Message-Id: <20211017210142.2108610-8-mkl@pengutronix.de>
+        kernel@pengutronix.de, Zheyu Ma <zheyuma97@gmail.com>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH net 09/11] can: peak_pci: peak_pci_remove(): fix UAF
+Date:   Sun, 17 Oct 2021 23:01:40 +0200
+Message-Id: <20211017210142.2108610-10-mkl@pengutronix.de>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211017210142.2108610-1-mkl@pengutronix.de>
 References: <20211017210142.2108610-1-mkl@pengutronix.de>
@@ -58,68 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-If the driver was not opened, rcar_can_suspend() should not call
-clk_disable() because the clock was not enabled.
+When remove the module peek_pci, referencing 'chan' again after
+releasing 'dev' will cause UAF.
 
-Fixes: fd1159318e55 ("can: add Renesas R-Car CAN driver")
-Link: https://lore.kernel.org/all/20210924075556.223685-1-yoshihiro.shimoda.uh@renesas.com
+Fix this by releasing 'dev' later.
+
+The following log reveals it:
+
+[   35.961814 ] BUG: KASAN: use-after-free in peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.963414 ] Read of size 8 at addr ffff888136998ee8 by task modprobe/5537
+[   35.965513 ] Call Trace:
+[   35.965718 ]  dump_stack_lvl+0xa8/0xd1
+[   35.966028 ]  print_address_description+0x87/0x3b0
+[   35.966420 ]  kasan_report+0x172/0x1c0
+[   35.966725 ]  ? peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.967137 ]  ? trace_irq_enable_rcuidle+0x10/0x170
+[   35.967529 ]  ? peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.967945 ]  __asan_report_load8_noabort+0x14/0x20
+[   35.968346 ]  peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.968752 ]  pci_device_remove+0xa9/0x250
+
+Fixes: e6d9c80b7ca1 ("can: peak_pci: add support of some new PEAK-System PCI cards")
+Link: https://lore.kernel.org/all/1634192913-15639-1-git-send-email-zheyuma97@gmail.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Tested-by: Ayumi Nakamichi <ayumi.nakamichi.kf@renesas.com>
-Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Tested-by: Biju Das <biju.das.jz@bp.renesas.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 ---
- drivers/net/can/rcar/rcar_can.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/net/can/sja1000/peak_pci.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/can/rcar/rcar_can.c b/drivers/net/can/rcar/rcar_can.c
-index 00e4533c8bdd..8999ec9455ec 100644
---- a/drivers/net/can/rcar/rcar_can.c
-+++ b/drivers/net/can/rcar/rcar_can.c
-@@ -846,10 +846,12 @@ static int __maybe_unused rcar_can_suspend(struct device *dev)
- 	struct rcar_can_priv *priv = netdev_priv(ndev);
- 	u16 ctlr;
+diff --git a/drivers/net/can/sja1000/peak_pci.c b/drivers/net/can/sja1000/peak_pci.c
+index 6db90dc4bc9d..84f34020aafb 100644
+--- a/drivers/net/can/sja1000/peak_pci.c
++++ b/drivers/net/can/sja1000/peak_pci.c
+@@ -752,16 +752,15 @@ static void peak_pci_remove(struct pci_dev *pdev)
+ 		struct net_device *prev_dev = chan->prev_dev;
  
--	if (netif_running(ndev)) {
--		netif_stop_queue(ndev);
--		netif_device_detach(ndev);
--	}
-+	if (!netif_running(ndev))
-+		return 0;
-+
-+	netif_stop_queue(ndev);
-+	netif_device_detach(ndev);
-+
- 	ctlr = readw(&priv->regs->ctlr);
- 	ctlr |= RCAR_CAN_CTLR_CANM_HALT;
- 	writew(ctlr, &priv->regs->ctlr);
-@@ -868,6 +870,9 @@ static int __maybe_unused rcar_can_resume(struct device *dev)
- 	u16 ctlr;
- 	int err;
+ 		dev_info(&pdev->dev, "removing device %s\n", dev->name);
++		/* do that only for first channel */
++		if (!prev_dev && chan->pciec_card)
++			peak_pciec_remove(chan->pciec_card);
+ 		unregister_sja1000dev(dev);
+ 		free_sja1000dev(dev);
+ 		dev = prev_dev;
  
-+	if (!netif_running(ndev))
-+		return 0;
-+
- 	err = clk_enable(priv->clk);
- 	if (err) {
- 		netdev_err(ndev, "clk_enable() failed, error %d\n", err);
-@@ -881,10 +886,9 @@ static int __maybe_unused rcar_can_resume(struct device *dev)
- 	writew(ctlr, &priv->regs->ctlr);
- 	priv->can.state = CAN_STATE_ERROR_ACTIVE;
- 
--	if (netif_running(ndev)) {
--		netif_device_attach(ndev);
--		netif_start_queue(ndev);
--	}
-+	netif_device_attach(ndev);
-+	netif_start_queue(ndev);
-+
- 	return 0;
- }
- 
+-		if (!dev) {
+-			/* do that only for first channel */
+-			if (chan->pciec_card)
+-				peak_pciec_remove(chan->pciec_card);
++		if (!dev)
+ 			break;
+-		}
+ 		priv = netdev_priv(dev);
+ 		chan = priv->priv;
+ 	}
 -- 
 2.33.0
 
