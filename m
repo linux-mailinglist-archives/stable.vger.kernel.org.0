@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B17C430BFF
-	for <lists+stable@lfdr.de>; Sun, 17 Oct 2021 22:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21E45430C02
+	for <lists+stable@lfdr.de>; Sun, 17 Oct 2021 22:33:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242902AbhJQUc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Oct 2021 16:32:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33194 "EHLO
+        id S242915AbhJQUf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Oct 2021 16:35:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242900AbhJQUcz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Oct 2021 16:32:55 -0400
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E186C06161C
-        for <stable@vger.kernel.org>; Sun, 17 Oct 2021 13:30:45 -0700 (PDT)
-Received: by mail-ed1-x532.google.com with SMTP id i20so61442032edj.10
-        for <stable@vger.kernel.org>; Sun, 17 Oct 2021 13:30:44 -0700 (PDT)
+        with ESMTP id S242900AbhJQUfZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Oct 2021 16:35:25 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E02FC06161C;
+        Sun, 17 Oct 2021 13:33:15 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id r18so62441671edv.12;
+        Sun, 17 Oct 2021 13:33:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
         bh=/nVjTYA81wB7SSdqTCo1jbJLycAjbKBO8LR6ntkz6ew=;
-        b=gkmH3Rv1EIFurgcAzT0odeSUg7x/VEHJsY/T8C8Ih8MO/hlOwbK8xBadJe0tXOy1hc
-         HSR0iTBSz5icrPEBGNw3JLne8NvnHcQF/8hIV6QsTjRt1PGyzruNPgtACc6hdKYChBdx
-         VaNXySjmKYmoPONn3792F/TDrTD0VaVWvt5KFFCqGCtW157K1EgqbHhzzk6Hs9KUmiDn
-         PsBBte+Eb/OkCqSxWlDoGnxWXDVCHq50OhVTGSgUAVK6CFLJHkp85tfqlrnfwtMBaVg/
-         2cFLhdwpmCPK4pLoHI8Nj65e+qT2FzFpm9IaoBny9iYGRiBIXNt1o0MgvV33v9RqCN5C
-         Xiag==
+        b=OOHOAGXWjp5pGhcPMdUC60ixDV+HrVHaaX5YjsUu9BUm8qkmEFjgFmmUOtj8rkjRIe
+         gb3Dbj6NtE+XkpaaE93i4eieYfH8XB5NnzUXw3oiG8ot4lPxTKqAS2Of+qQ544nn25Lv
+         0qDcoR2q0YUBge6yyTDbDQ2IMYsA5GGesO5PTdKWHT0imD/bJlXeaOoHl7fCRvHdlYgf
+         ahUJg9DRNbU+3ug1m5VMpLiOrrxI2OChx2hEDDz3hfr69dC94qWxK/5pDkb/i/z4A+XU
+         ARZUObRDZtyd86wgZr0G5tbRkJVi84r8kXBp/6wJKbrfsXS7RcAXD7ozr0WIAeczMOOk
+         RkWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
         bh=/nVjTYA81wB7SSdqTCo1jbJLycAjbKBO8LR6ntkz6ew=;
-        b=C9/c9p4yfpWpsklGjoQcbTuzw1mx4EB8VEd3rxEQt67pv8grDyvlR2o+7vh2xfXczU
-         S5lK9Bq3ydvJKMYCGvPMkASJa7BO2qYvp+dzLI7EQ5bW9zwT/Ki7rUKZWoJFIsxGQrmT
-         0OVTStwzP6vS+ZRFPpifzeJNxfIMVsF0NRUKWduobeDDMe/YfF6QeUJNsmetxqtB4VpC
-         ucMNHYX3gDqj31lZ0P+YgC4pVWwQbSTODkABr+8hWriQtTN7OQc5EJdD9vfSwyxCiyHo
-         iDyqOIClGrKnoHrpXthqE56qeJN4RBWNQ2tpZMcm30jXQv3kVCFgZjJ0nvDNCaGp/86V
-         bqRw==
-X-Gm-Message-State: AOAM531BypPG8p7fO58pXYmaq3CuXNncNGIYzahXKl+MeBYnRoaU3BdO
-        xIEBU8RdsId+gRiCOREjGNcRT+U5XhOoZw==
-X-Google-Smtp-Source: ABdhPJxb89maNIUYDvwhD8r5o83eLqTFN+EOQCMprbemwKKgZhfKdyYN8MWI1y2V6DjpLqetMVl5Gg==
-X-Received: by 2002:a05:6402:27d2:: with SMTP id c18mr38736255ede.186.1634502643632;
-        Sun, 17 Oct 2021 13:30:43 -0700 (PDT)
+        b=rmLxIyLC1XmZHxumQyNcs01jJ2OXPSNoe4SGDGJGs4R2eVDv6oXThrTQGGvM7x6hts
+         EqGdHvRIT+Yt0WW8/RfhV8TlwV0IU2455F4yOm9yEVm4FKjyLNqTfRC7vjBcOJ3YegB9
+         zWYc1awy/SJh9JFFrsabDM3D6iq2tPlTXQBIgQSW17pwgpi8JFXLc51HGKO5o68/aKua
+         BhNAUZBv8fQKrVphDqgzSRvsBQxoG9lk4eIhswCtzXThHsLTCdhjZj1X8UK5cccXKhap
+         0+5QpAVrVoDi4SzpHrlYplMlJgC9C6MtQNq1aBH67Kyg+J8q69jHrS3/RCQzsjPJA6uW
+         hjKg==
+X-Gm-Message-State: AOAM532KBuGvljaTxVvTABb6VvMWlGW0HYjLWfH6SnpVTM0qZrvP8EZ9
+        j70oQg+sinZJoU1gR/9OeDbP3c/D/6I7dA==
+X-Google-Smtp-Source: ABdhPJz3aVPzeaGtIbn4FvInvZCCws4Wo1x/U6G5+PlOrz9eyNiFHH0SOPcKcc1XOTNIsPXbIaH7/Q==
+X-Received: by 2002:a50:be82:: with SMTP id b2mr37204380edk.56.1634502792639;
+        Sun, 17 Oct 2021 13:33:12 -0700 (PDT)
 Received: from 127.0.0.1localhost ([185.69.145.195])
-        by smtp.gmail.com with ESMTPSA id p23sm9465498edw.94.2021.10.17.13.30.42
+        by smtp.gmail.com with ESMTPSA id ca4sm8119651ejb.1.2021.10.17.13.33.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Oct 2021 13:30:43 -0700 (PDT)
+        Sun, 17 Oct 2021 13:33:12 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     asml.silence@gmail.com
-Cc:     stable@vger.kernel.org
+To:     io-uring@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>, stable@vger.kernel.org
 Subject: [PATCH 1/2] io_uring: fail iopoll links if can't retry
-Date:   Sun, 17 Oct 2021 20:30:55 +0000
+Date:   Sun, 17 Oct 2021 20:33:21 +0000
 Message-Id: <ff66f584ff352b94ef0f5cb4188da609834fe173.1634501363.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <cover.1634501363.git.asml.silence@gmail.com>
