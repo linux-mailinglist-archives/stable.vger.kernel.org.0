@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BD18430816
+	by mail.lfdr.de (Postfix) with ESMTP id A4C7A430817
 	for <lists+stable@lfdr.de>; Sun, 17 Oct 2021 12:42:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245354AbhJQKnj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Oct 2021 06:43:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54422 "EHLO mail.kernel.org"
+        id S245361AbhJQKnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Oct 2021 06:43:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245368AbhJQKng (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 17 Oct 2021 06:43:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D34460D42;
-        Sun, 17 Oct 2021 10:41:26 +0000 (UTC)
+        id S245371AbhJQKnj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 17 Oct 2021 06:43:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 531856103B;
+        Sun, 17 Oct 2021 10:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634467286;
-        bh=nX5F67gmdc3RVeYrdSzPp+JVLzn6lMLKCQo+QHkLyQc=;
+        s=korg; t=1634467289;
+        bh=0kARFI1G8FUF/OQXlAPsT8vDmBoLxlv2cIyj2O04Iak=;
         h=Subject:To:Cc:From:Date:From;
-        b=lV3OPa4XPjYMJ1pYTYdGpSc3dvotkETpD4RFehwfCDReY2LAfTwCfzfg9IAN7jMWF
-         ql+78RnYtq8eIEFSfEdWDd+WfvenySe3rG159DtADLwhQzllzgE4wuKpc2uvNHY3m7
-         v5KZd/j6MP89ZTay4mr3kU8Mh5ewnqgsonyN9elg=
-Subject: FAILED: patch "[PATCH] btrfs: unify lookup return value when dir entry is missing" failed to apply to 5.10-stable tree
+        b=pn4hcXK5IIUWcE9Woyrqx++InsCRDRAcrlnWAdS0ztGomhJFQPJsLzoH30QENqIfT
+         HgtLL+A031EreBitNrGYYMqwEg7mffM2fJ9xfk6muhfKdSWTsCmv3iYxN4uM/10NQF
+         T2+JfumPtvprFnFdm3VUhrG1AUO8G48NaXXhzSSo=
+Subject: FAILED: patch "[PATCH] btrfs: unify lookup return value when dir entry is missing" failed to apply to 5.14-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 17 Oct 2021 12:41:17 +0200
-Message-ID: <163446727716356@kroah.com>
+Date:   Sun, 17 Oct 2021 12:41:18 +0200
+Message-ID: <163446727858254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
