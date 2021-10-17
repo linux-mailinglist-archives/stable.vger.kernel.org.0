@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 441A8430819
-	for <lists+stable@lfdr.de>; Sun, 17 Oct 2021 12:42:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 518B743081A
+	for <lists+stable@lfdr.de>; Sun, 17 Oct 2021 12:42:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242112AbhJQKom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Oct 2021 06:44:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55308 "EHLO mail.kernel.org"
+        id S242040AbhJQKop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Oct 2021 06:44:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242040AbhJQKol (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 17 Oct 2021 06:44:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEA2A60EBD;
-        Sun, 17 Oct 2021 10:42:31 +0000 (UTC)
+        id S242117AbhJQKop (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 17 Oct 2021 06:44:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA47C604DB;
+        Sun, 17 Oct 2021 10:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634467352;
-        bh=oxDuUD9A92I2r/Kv5+dtxKuI5UgHrJZzV18CrwjeAhs=;
+        s=korg; t=1634467356;
+        bh=wWh26wSCXGgCtCkn3EqyUrK2wKOcGkUiDIQq7YnCIQ0=;
         h=Subject:To:Cc:From:Date:From;
-        b=ORhmJZddMS9AEdcPSaE7lPypebAEz9XUpinj/43yYk8oIY3LHI5xcNRmGfrW/Zp5s
-         ntce7gY4m2QIxJMAiFpkLfzm8wKYlBZrudRQ1XONWsmYDDHkkYKAsi97pfmxbN0rII
-         dxzVFjpENtjE4n6kz1Uogl6lnnXl5sa1lOWbh5Fk=
-Subject: FAILED: patch "[PATCH] workqueue: fix state-dump console deadlock" failed to apply to 4.4-stable tree
+        b=NQmLTwcf+cpH/8ILFvJlC+Wy2i/CeYcbAdkjgFhsiKkL/A9Gp93jEEk222Bvsn79B
+         M0X97PBaWsdj7YmpEH+NM+bQyCPhqxgRsWaltgEzURVMrNMBheqn2faji3zSkOJeFJ
+         UVMkBIINMKAytrYM9DEj0elR1jkHybPv1vD6/o7I=
+Subject: FAILED: patch "[PATCH] workqueue: fix state-dump console deadlock" failed to apply to 4.9-stable tree
 To:     johan@kernel.org, festevam@denx.de, john.ogness@linutronix.de,
         tj@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 17 Oct 2021 12:42:29 +0200
-Message-ID: <163446734915938@kroah.com>
+Date:   Sun, 17 Oct 2021 12:42:30 +0200
+Message-ID: <1634467350251100@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
