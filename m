@@ -2,32 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47624430800
-	for <lists+stable@lfdr.de>; Sun, 17 Oct 2021 12:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7A1430812
+	for <lists+stable@lfdr.de>; Sun, 17 Oct 2021 12:41:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237869AbhJQKlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Oct 2021 06:41:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52392 "EHLO mail.kernel.org"
+        id S242056AbhJQKnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Oct 2021 06:43:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235835AbhJQKlR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 17 Oct 2021 06:41:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33B5560F26;
-        Sun, 17 Oct 2021 10:39:07 +0000 (UTC)
+        id S245355AbhJQKna (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 17 Oct 2021 06:43:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B41D66103B;
+        Sun, 17 Oct 2021 10:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634467147;
-        bh=YhORjK5wC9VpC1wb1f+WfKm0zDWlraJPEiwUqOmhoUU=;
+        s=korg; t=1634467281;
+        bh=B60DuDFaOMuIghtpXk+xonJDGH0pUIw9t/G7X7f1Jtk=;
         h=Subject:To:Cc:From:Date:From;
-        b=kkIv1LBCr1UAwR++ntRPcLVHVA4DnPmL0SzswjvzX4lNPjjp2idMZvmgBg9Z64UZs
-         BEgEhso4Yga+XtUTL0L97wnBZm8BwhJ/cb3XnxvTaBtx+q559zO7NqxVaNxLe7hRJH
-         MUFyYX1D8wRuaMTIUebXCZ+gKgFoSjmwKWQ1W4SA=
-Subject: FAILED: patch "[PATCH] drm/i915: Fix bug in user proto-context creation that leaked" failed to apply to 5.14-stable tree
-To:     matthew.brost@intel.com, jani.nikula@intel.com,
-        jason@jlekstrand.net, stable@vger.kernel.org,
-        tvrtko.ursulin@intel.com
+        b=ALa3YqjHV96OJHP2HRjv2XTxIzd/xBVfVY5rSGp4Vl5Ta+9hdP5OCp9iZoxLPSReJ
+         qUUJOlxjUYDzyVCCUC2eaHRTTJ9YJkkxfMRe9ysUxJNgzD8+uZ+7zF0T0K/FBOzK+6
+         l5LuRf2e44a3VOOE8D8mD1GcO0pKwYZsnRdP+iDQ=
+Subject: FAILED: patch "[PATCH] btrfs: unify lookup return value when dir entry is missing" failed to apply to 4.19-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 17 Oct 2021 12:39:04 +0200
-Message-ID: <1634467144101111@kroah.com>
+Date:   Sun, 17 Oct 2021 12:41:15 +0200
+Message-ID: <163446727520421@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -47,56 +45,178 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From af628cdd64e11f03181a5a19645768ed4687bda4 Mon Sep 17 00:00:00 2001
-From: Matthew Brost <matthew.brost@intel.com>
-Date: Fri, 1 Oct 2021 08:58:25 -0700
-Subject: [PATCH] drm/i915: Fix bug in user proto-context creation that leaked
- contexts
+From 8dcbc26194eb872cc3430550fb70bb461424d267 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Fri, 1 Oct 2021 13:52:33 +0100
+Subject: [PATCH] btrfs: unify lookup return value when dir entry is missing
 
-Set number of engines before attempting to create contexts so the
-function free_engines can clean up properly. Also check return of
-alloc_engines for NULL.
+btrfs_lookup_dir_index_item() and btrfs_lookup_dir_item() lookup for dir
+entries and both are used during log replay or when updating a log tree
+during an unlink.
 
-v2:
- (Tvrtko)
-  - Send as stand alone patch
- (John Harrison)
-  - Check for alloc_engines returning NULL
-v3:
- (Checkpatch / Tvrtko)
-  - Remove braces around single line if statement
+However when the dir item does not exists, btrfs_lookup_dir_item() returns
+NULL while btrfs_lookup_dir_index_item() returns PTR_ERR(-ENOENT), and if
+the dir item exists but there is no matching entry for a given name or
+index, both return NULL. This makes the call sites during log replay to
+be more verbose than necessary and it makes it easy to miss this slight
+difference. Since we don't need to distinguish between those two cases,
+make btrfs_lookup_dir_index_item() always return NULL when there is no
+matching directory entry - either because there isn't any dir entry or
+because there is one but it does not match the given name and index.
 
-Cc: Jason Ekstrand <jason@jlekstrand.net>
-Fixes: d4433c7600f7 ("drm/i915/gem: Use the proto-context to handle create parameters (v5)")
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Matthew Brost <matthew.brost@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211001155825.6762-1-matthew.brost@intel.com
-(cherry picked from commit 84edf53776343d6b5bf5fa59a6f600a22ca23c40)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Also rename the argument 'objectid' of btrfs_lookup_dir_index_item() to
+'index' since it is supposed to match an index number, and the name
+'objectid' is not very good because it can easily be confused with an
+inode number (like the inode number a dir entry points to).
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-index 9ccf4b29b82e..166bb46408a9 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-@@ -937,6 +937,10 @@ static struct i915_gem_engines *user_engines(struct i915_gem_context *ctx,
- 	unsigned int n;
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index f07c82fafa04..852a49dcc22b 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -3030,7 +3030,7 @@ struct btrfs_dir_item *
+ btrfs_lookup_dir_index_item(struct btrfs_trans_handle *trans,
+ 			    struct btrfs_root *root,
+ 			    struct btrfs_path *path, u64 dir,
+-			    u64 objectid, const char *name, int name_len,
++			    u64 index, const char *name, int name_len,
+ 			    int mod);
+ struct btrfs_dir_item *
+ btrfs_search_dir_index_item(struct btrfs_root *root,
+diff --git a/fs/btrfs/dir-item.c b/fs/btrfs/dir-item.c
+index f1274d5c3805..7721ce0c0604 100644
+--- a/fs/btrfs/dir-item.c
++++ b/fs/btrfs/dir-item.c
+@@ -190,9 +190,20 @@ static struct btrfs_dir_item *btrfs_lookup_match_dir(
+ }
  
- 	e = alloc_engines(num_engines);
-+	if (!e)
-+		return ERR_PTR(-ENOMEM);
-+	e->num_engines = num_engines;
+ /*
+- * lookup a directory item based on name.  'dir' is the objectid
+- * we're searching in, and 'mod' tells us if you plan on deleting the
+- * item (use mod < 0) or changing the options (use mod > 0)
++ * Lookup for a directory item by name.
++ *
++ * @trans:	The transaction handle to use. Can be NULL if @mod is 0.
++ * @root:	The root of the target tree.
++ * @path:	Path to use for the search.
++ * @dir:	The inode number (objectid) of the directory.
++ * @name:	The name associated to the directory entry we are looking for.
++ * @name_len:	The length of the name.
++ * @mod:	Used to indicate if the tree search is meant for a read only
++ *		lookup, for a modification lookup or for a deletion lookup, so
++ *		its value should be 0, 1 or -1, respectively.
++ *
++ * Returns: NULL if the dir item does not exists, an error pointer if an error
++ * happened, or a pointer to a dir item if a dir item exists for the given name.
+  */
+ struct btrfs_dir_item *btrfs_lookup_dir_item(struct btrfs_trans_handle *trans,
+ 					     struct btrfs_root *root,
+@@ -273,27 +284,42 @@ int btrfs_check_dir_item_collision(struct btrfs_root *root, u64 dir,
+ }
+ 
+ /*
+- * lookup a directory item based on index.  'dir' is the objectid
+- * we're searching in, and 'mod' tells us if you plan on deleting the
+- * item (use mod < 0) or changing the options (use mod > 0)
++ * Lookup for a directory index item by name and index number.
+  *
+- * The name is used to make sure the index really points to the name you were
+- * looking for.
++ * @trans:	The transaction handle to use. Can be NULL if @mod is 0.
++ * @root:	The root of the target tree.
++ * @path:	Path to use for the search.
++ * @dir:	The inode number (objectid) of the directory.
++ * @index:	The index number.
++ * @name:	The name associated to the directory entry we are looking for.
++ * @name_len:	The length of the name.
++ * @mod:	Used to indicate if the tree search is meant for a read only
++ *		lookup, for a modification lookup or for a deletion lookup, so
++ *		its value should be 0, 1 or -1, respectively.
++ *
++ * Returns: NULL if the dir index item does not exists, an error pointer if an
++ * error happened, or a pointer to a dir item if the dir index item exists and
++ * matches the criteria (name and index number).
+  */
+ struct btrfs_dir_item *
+ btrfs_lookup_dir_index_item(struct btrfs_trans_handle *trans,
+ 			    struct btrfs_root *root,
+ 			    struct btrfs_path *path, u64 dir,
+-			    u64 objectid, const char *name, int name_len,
++			    u64 index, const char *name, int name_len,
+ 			    int mod)
+ {
++	struct btrfs_dir_item *di;
+ 	struct btrfs_key key;
+ 
+ 	key.objectid = dir;
+ 	key.type = BTRFS_DIR_INDEX_KEY;
+-	key.offset = objectid;
++	key.offset = index;
+ 
+-	return btrfs_lookup_match_dir(trans, root, path, &key, name, name_len, mod);
++	di = btrfs_lookup_match_dir(trans, root, path, &key, name, name_len, mod);
++	if (di == ERR_PTR(-ENOENT))
++		return NULL;
 +
- 	for (n = 0; n < num_engines; n++) {
- 		struct intel_context *ce;
- 		int ret;
-@@ -970,7 +974,6 @@ static struct i915_gem_engines *user_engines(struct i915_gem_context *ctx,
- 			goto free_engines;
- 		}
- 	}
--	e->num_engines = num_engines;
++	return di;
+ }
  
- 	return e;
+ struct btrfs_dir_item *
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 1b6008240ec6..1bb5ebf13383 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -957,8 +957,7 @@ static noinline int inode_in_dir(struct btrfs_root *root,
+ 	di = btrfs_lookup_dir_index_item(NULL, root, path, dirid,
+ 					 index, name, name_len, 0);
+ 	if (IS_ERR(di)) {
+-		if (PTR_ERR(di) != -ENOENT)
+-			ret = PTR_ERR(di);
++		ret = PTR_ERR(di);
+ 		goto out;
+ 	} else if (di) {
+ 		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
+@@ -1191,8 +1190,7 @@ static inline int __add_inode_ref(struct btrfs_trans_handle *trans,
+ 	di = btrfs_lookup_dir_index_item(trans, root, path, btrfs_ino(dir),
+ 					 ref_index, name, namelen, 0);
+ 	if (IS_ERR(di)) {
+-		if (PTR_ERR(di) != -ENOENT)
+-			return PTR_ERR(di);
++		return PTR_ERR(di);
+ 	} else if (di) {
+ 		ret = drop_one_dir_item(trans, root, path, dir, di);
+ 		if (ret)
+@@ -1994,9 +1992,6 @@ static noinline int replay_one_name(struct btrfs_trans_handle *trans,
+ 		goto out;
+ 	}
+ 
+-	if (dst_di == ERR_PTR(-ENOENT))
+-		dst_di = NULL;
+-
+ 	if (IS_ERR(dst_di)) {
+ 		ret = PTR_ERR(dst_di);
+ 		goto out;
+@@ -2304,7 +2299,7 @@ static noinline int check_item_in_log(struct btrfs_trans_handle *trans,
+ 						     dir_key->offset,
+ 						     name, name_len, 0);
+ 		}
+-		if (!log_di || log_di == ERR_PTR(-ENOENT)) {
++		if (!log_di) {
+ 			btrfs_dir_item_key_to_cpu(eb, di, &location);
+ 			btrfs_release_path(path);
+ 			btrfs_release_path(log_path);
+@@ -3563,8 +3558,7 @@ int btrfs_del_dir_entries_in_log(struct btrfs_trans_handle *trans,
+ 	if (err == -ENOSPC) {
+ 		btrfs_set_log_full_commit(trans);
+ 		err = 0;
+-	} else if (err < 0 && err != -ENOENT) {
+-		/* ENOENT can be returned if the entry hasn't been fsynced yet */
++	} else if (err < 0) {
+ 		btrfs_abort_transaction(trans, err);
+ 	}
  
 
