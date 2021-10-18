@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF325431EAD
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:03:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F39AE431EC4
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:04:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233736AbhJROFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:05:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41674 "EHLO mail.kernel.org"
+        id S232740AbhJROFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 10:05:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234186AbhJROCQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 10:02:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA9E861A54;
-        Mon, 18 Oct 2021 13:43:03 +0000 (UTC)
+        id S234574AbhJROAc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 10:00:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3368061462;
+        Mon, 18 Oct 2021 13:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564584;
-        bh=R5jUxIIdFcTznHbss8kyS5hnmABBquhtWBJAHvPsJbk=;
+        s=korg; t=1634564541;
+        bh=AVtF9RVIMzKQ/5cqmUtQaAVJXUGCxVVO4Sn/ciFiNco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lM5ZvsgK445HDkush0DhdNNsUZ7reRakAtzw81mK+jwN7W6gXZ2LnAE+CmYMGWRE3
-         5vw/gwRrsetGAEqapgHfZgsGIvT6YG2Y11YgJFduut8Tgka9tFqa77AUF/PmpSbomm
-         hinxa3XUcWodczFwozpNocBFi+EGXBPjnma3TfQY=
+        b=jTQbZ8Ri4CUdfuC2eS1VvCixBrrGn5YvxrXloSc76hznJ5164Ye8i2YbBc59QPL2s
+         YngoLgAiEb51QeYGo2C3i2eL5kmWLAcEIdr4NFwrNPXcotufTSCs4xAorm3g/N+/nP
+         JUwvc8bfz3BQNadVadM2nyx/UYcDAipd+6xnqokk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Nanyong Sun <sunnanyong@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 112/151] net: encx24j600: check error in devm_regmap_init_encx24j600
-Date:   Mon, 18 Oct 2021 15:24:51 +0200
-Message-Id: <20211018132344.316520553@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>
+Subject: [PATCH 5.14 128/151] drm/msm/mdp5: fix cursor-related warnings
+Date:   Mon, 18 Oct 2021 15:25:07 +0200
+Message-Id: <20211018132344.828384145@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -40,123 +40,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nanyong Sun <sunnanyong@huawei.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit f03dca0c9e2297c84a018e306f8a9cd534ee4287 upstream.
+commit c491a0c7bbf3a64732cb8414021429d15ec08eec upstream.
 
-devm_regmap_init may return error which caused by like out of memory,
-this will results in null pointer dereference later when reading
-or writing register:
+Since f35a2a99100f ("drm/encoder: make encoder control functions
+optional") drm_mode_config_validate would print warnings if both cursor
+plane and cursor functions are provided. Restore separate set of
+drm_crtc_funcs to be used if separate cursor plane is provided.
 
-general protection fault in encx24j600_spi_probe
-KASAN: null-ptr-deref in range [0x0000000000000090-0x0000000000000097]
-CPU: 0 PID: 286 Comm: spi-encx24j600- Not tainted 5.15.0-rc2-00142-g9978db750e31-dirty #11 9c53a778c1306b1b02359f3c2bbedc0222cba652
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:regcache_cache_bypass drivers/base/regmap/regcache.c:540
-Code: 54 41 89 f4 55 53 48 89 fb 48 83 ec 08 e8 26 94 a8 fe 48 8d bb a0 00 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 4a 03 00 00 4c 8d ab b0 00 00 00 48 8b ab a0 00
-RSP: 0018:ffffc900010476b8 EFLAGS: 00010207
-RAX: dffffc0000000000 RBX: fffffffffffffff4 RCX: 0000000000000000
-RDX: 0000000000000012 RSI: ffff888002de0000 RDI: 0000000000000094
-RBP: ffff888013c9a000 R08: 0000000000000000 R09: fffffbfff3f9cc6a
-R10: ffffc900010476e8 R11: fffffbfff3f9cc69 R12: 0000000000000001
-R13: 000000000000000a R14: ffff888013c9af54 R15: ffff888013c9ad08
-FS:  00007ffa984ab580(0000) GS:ffff88801fe00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000055a6384136c8 CR3: 000000003bbe6003 CR4: 0000000000770ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- encx24j600_spi_probe drivers/net/ethernet/microchip/encx24j600.c:459
- spi_probe drivers/spi/spi.c:397
- really_probe drivers/base/dd.c:517
- __driver_probe_device drivers/base/dd.c:751
- driver_probe_device drivers/base/dd.c:782
- __device_attach_driver drivers/base/dd.c:899
- bus_for_each_drv drivers/base/bus.c:427
- __device_attach drivers/base/dd.c:971
- bus_probe_device drivers/base/bus.c:487
- device_add drivers/base/core.c:3364
- __spi_add_device drivers/spi/spi.c:599
- spi_add_device drivers/spi/spi.c:641
- spi_new_device drivers/spi/spi.c:717
- new_device_store+0x18c/0x1f1 [spi_stub 4e02719357f1ff33f5a43d00630982840568e85e]
- dev_attr_store drivers/base/core.c:2074
- sysfs_kf_write fs/sysfs/file.c:139
- kernfs_fop_write_iter fs/kernfs/file.c:300
- new_sync_write fs/read_write.c:508 (discriminator 4)
- vfs_write fs/read_write.c:594
- ksys_write fs/read_write.c:648
- do_syscall_64 arch/x86/entry/common.c:50
- entry_SYSCALL_64_after_hwframe arch/x86/entry/entry_64.S:113
+[    6.556046] ------------[ cut here ]------------
+[    6.556071] [CRTC:93:crtc-0] must not have both a cursor plane and a cursor_set func
+[    6.556091] WARNING: CPU: 1 PID: 76 at drivers/gpu/drm/drm_mode_config.c:648 drm_mode_config_validate+0x238/0x4d0
+[    6.567453] Modules linked in:
+[    6.577604] CPU: 1 PID: 76 Comm: kworker/u8:2 Not tainted 5.15.0-rc1-dirty #43
+[    6.580557] Hardware name: Qualcomm Technologies, Inc. DB820c (DT)
+[    6.587763] Workqueue: events_unbound deferred_probe_work_func
+[    6.593926] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    6.599740] pc : drm_mode_config_validate+0x238/0x4d0
+[    6.606596] lr : drm_mode_config_validate+0x238/0x4d0
+[    6.611804] sp : ffff8000121b3980
+[    6.616838] x29: ffff8000121b3990 x28: 0000000000000000 x27: 0000000000000001
+[    6.620140] x26: ffff8000114cde50 x25: ffff8000114cdd40 x24: ffff0000987282d8
+[    6.627258] x23: 0000000000000000 x22: 0000000000000000 x21: 0000000000000001
+[    6.634376] x20: ffff000098728000 x19: ffff000080a39000 x18: ffffffffffffffff
+[    6.641494] x17: 3136564e3631564e x16: 0000000000000324 x15: ffff800011c78709
+[    6.648613] x14: 0000000000000000 x13: ffff800011a22850 x12: 00000000000009ab
+[    6.655730] x11: 0000000000000339 x10: ffff800011a22850 x9 : ffff800011a22850
+[    6.662848] x8 : 00000000ffffefff x7 : ffff800011a7a850 x6 : ffff800011a7a850
+[    6.669966] x5 : 000000000000bff4 x4 : 40000000fffff339 x3 : 0000000000000000
+[    6.677084] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff00008093b800
+[    6.684205] Call trace:
+[    6.691319]  drm_mode_config_validate+0x238/0x4d0
+[    6.693577]  drm_dev_register+0x17c/0x210
+[    6.698435]  msm_drm_bind+0x4b4/0x694
+[    6.702429]  try_to_bring_up_master+0x164/0x1d0
+[    6.706075]  __component_add+0xa0/0x170
+[    6.710415]  component_add+0x14/0x20
+[    6.714234]  msm_hdmi_dev_probe+0x1c/0x2c
+[    6.718053]  platform_probe+0x68/0xe0
+[    6.721959]  really_probe.part.0+0x9c/0x30c
+[    6.725606]  __driver_probe_device+0x98/0x144
+[    6.729600]  driver_probe_device+0xc8/0x15c
+[    6.734114]  __device_attach_driver+0xb4/0x120
+[    6.738106]  bus_for_each_drv+0x78/0xd0
+[    6.742619]  __device_attach+0xdc/0x184
+[    6.746351]  device_initial_probe+0x14/0x20
+[    6.750172]  bus_probe_device+0x9c/0xa4
+[    6.754337]  deferred_probe_work_func+0x88/0xc0
+[    6.758158]  process_one_work+0x1d0/0x370
+[    6.762671]  worker_thread+0x2c8/0x470
+[    6.766839]  kthread+0x15c/0x170
+[    6.770483]  ret_from_fork+0x10/0x20
+[    6.773870] ---[ end trace 5884eb76cd26d274 ]---
+[    6.777500] ------------[ cut here ]------------
+[    6.782043] [CRTC:93:crtc-0] must not have both a cursor plane and a cursor_move func
+[    6.782063] WARNING: CPU: 1 PID: 76 at drivers/gpu/drm/drm_mode_config.c:654 drm_mode_config_validate+0x290/0x4d0
+[    6.794362] Modules linked in:
+[    6.804600] CPU: 1 PID: 76 Comm: kworker/u8:2 Tainted: G        W         5.15.0-rc1-dirty #43
+[    6.807555] Hardware name: Qualcomm Technologies, Inc. DB820c (DT)
+[    6.816148] Workqueue: events_unbound deferred_probe_work_func
+[    6.822311] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    6.828126] pc : drm_mode_config_validate+0x290/0x4d0
+[    6.834981] lr : drm_mode_config_validate+0x290/0x4d0
+[    6.840189] sp : ffff8000121b3980
+[    6.845223] x29: ffff8000121b3990 x28: 0000000000000000 x27: 0000000000000001
+[    6.848525] x26: ffff8000114cde50 x25: ffff8000114cdd40 x24: ffff0000987282d8
+[    6.855643] x23: 0000000000000000 x22: 0000000000000000 x21: 0000000000000001
+[    6.862763] x20: ffff000098728000 x19: ffff000080a39000 x18: ffffffffffffffff
+[    6.869879] x17: 3136564e3631564e x16: 0000000000000324 x15: ffff800011c790c2
+[    6.876998] x14: 0000000000000000 x13: ffff800011a22850 x12: 0000000000000a2f
+[    6.884116] x11: 0000000000000365 x10: ffff800011a22850 x9 : ffff800011a22850
+[    6.891234] x8 : 00000000ffffefff x7 : ffff800011a7a850 x6 : ffff800011a7a850
+[    6.898351] x5 : 000000000000bff4 x4 : 40000000fffff365 x3 : 0000000000000000
+[    6.905470] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff00008093b800
+[    6.912590] Call trace:
+[    6.919702]  drm_mode_config_validate+0x290/0x4d0
+[    6.921960]  drm_dev_register+0x17c/0x210
+[    6.926821]  msm_drm_bind+0x4b4/0x694
+[    6.930813]  try_to_bring_up_master+0x164/0x1d0
+[    6.934459]  __component_add+0xa0/0x170
+[    6.938799]  component_add+0x14/0x20
+[    6.942619]  msm_hdmi_dev_probe+0x1c/0x2c
+[    6.946438]  platform_probe+0x68/0xe0
+[    6.950345]  really_probe.part.0+0x9c/0x30c
+[    6.953991]  __driver_probe_device+0x98/0x144
+[    6.957984]  driver_probe_device+0xc8/0x15c
+[    6.962498]  __device_attach_driver+0xb4/0x120
+[    6.966492]  bus_for_each_drv+0x78/0xd0
+[    6.971004]  __device_attach+0xdc/0x184
+[    6.974737]  device_initial_probe+0x14/0x20
+[    6.978556]  bus_probe_device+0x9c/0xa4
+[    6.982722]  deferred_probe_work_func+0x88/0xc0
+[    6.986543]  process_one_work+0x1d0/0x370
+[    6.991057]  worker_thread+0x2c8/0x470
+[    6.995223]  kthread+0x15c/0x170
+[    6.998869]  ret_from_fork+0x10/0x20
+[    7.002255] ---[ end trace 5884eb76cd26d275 ]---
 
-Add error check in devm_regmap_init_encx24j600 to avoid this situation.
-
-Fixes: 04fbfce7a222 ("net: Microchip encx24j600 driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Link: https://lore.kernel.org/r/20211012125901.3623144-1-sunnanyong@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: aa649e875daf ("drm/msm/mdp5: mdp5_crtc: Restore cursor state only if LM cursors are enabled")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20210925192824.3416259-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/microchip/encx24j600-regmap.c |   10 ++++++++--
- drivers/net/ethernet/microchip/encx24j600.c        |    5 ++++-
- drivers/net/ethernet/microchip/encx24j600_hw.h     |    4 ++--
- 3 files changed, 14 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/net/ethernet/microchip/encx24j600-regmap.c
-+++ b/drivers/net/ethernet/microchip/encx24j600-regmap.c
-@@ -497,13 +497,19 @@ static struct regmap_bus phymap_encx24j6
- 	.reg_read = regmap_encx24j600_phy_reg_read,
- };
- 
--void devm_regmap_init_encx24j600(struct device *dev,
--				 struct encx24j600_context *ctx)
-+int devm_regmap_init_encx24j600(struct device *dev,
-+				struct encx24j600_context *ctx)
- {
- 	mutex_init(&ctx->mutex);
- 	regcfg.lock_arg = ctx;
- 	ctx->regmap = devm_regmap_init(dev, &regmap_encx24j600, ctx, &regcfg);
-+	if (IS_ERR(ctx->regmap))
-+		return PTR_ERR(ctx->regmap);
- 	ctx->phymap = devm_regmap_init(dev, &phymap_encx24j600, ctx, &phycfg);
-+	if (IS_ERR(ctx->phymap))
-+		return PTR_ERR(ctx->phymap);
-+
-+	return 0;
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
+@@ -1125,6 +1125,20 @@ static void mdp5_crtc_reset(struct drm_c
+ 	__drm_atomic_helper_crtc_reset(crtc, &mdp5_cstate->base);
  }
- EXPORT_SYMBOL_GPL(devm_regmap_init_encx24j600);
  
---- a/drivers/net/ethernet/microchip/encx24j600.c
-+++ b/drivers/net/ethernet/microchip/encx24j600.c
-@@ -1023,10 +1023,13 @@ static int encx24j600_spi_probe(struct s
- 	priv->speed = SPEED_100;
- 
- 	priv->ctx.spi = spi;
--	devm_regmap_init_encx24j600(&spi->dev, &priv->ctx);
- 	ndev->irq = spi->irq;
- 	ndev->netdev_ops = &encx24j600_netdev_ops;
- 
-+	ret = devm_regmap_init_encx24j600(&spi->dev, &priv->ctx);
-+	if (ret)
-+		goto out_free;
++static const struct drm_crtc_funcs mdp5_crtc_no_lm_cursor_funcs = {
++	.set_config = drm_atomic_helper_set_config,
++	.destroy = mdp5_crtc_destroy,
++	.page_flip = drm_atomic_helper_page_flip,
++	.reset = mdp5_crtc_reset,
++	.atomic_duplicate_state = mdp5_crtc_duplicate_state,
++	.atomic_destroy_state = mdp5_crtc_destroy_state,
++	.atomic_print_state = mdp5_crtc_atomic_print_state,
++	.get_vblank_counter = mdp5_crtc_get_vblank_counter,
++	.enable_vblank  = msm_crtc_enable_vblank,
++	.disable_vblank = msm_crtc_disable_vblank,
++	.get_vblank_timestamp = drm_crtc_vblank_helper_get_vblank_timestamp,
++};
 +
- 	mutex_init(&priv->lock);
+ static const struct drm_crtc_funcs mdp5_crtc_funcs = {
+ 	.set_config = drm_atomic_helper_set_config,
+ 	.destroy = mdp5_crtc_destroy,
+@@ -1313,6 +1327,8 @@ struct drm_crtc *mdp5_crtc_init(struct d
+ 	mdp5_crtc->lm_cursor_enabled = cursor_plane ? false : true;
  
- 	/* Reset device and check if it is connected */
---- a/drivers/net/ethernet/microchip/encx24j600_hw.h
-+++ b/drivers/net/ethernet/microchip/encx24j600_hw.h
-@@ -15,8 +15,8 @@ struct encx24j600_context {
- 	int bank;
- };
+ 	drm_crtc_init_with_planes(dev, crtc, plane, cursor_plane,
++				  cursor_plane ?
++				  &mdp5_crtc_no_lm_cursor_funcs :
+ 				  &mdp5_crtc_funcs, NULL);
  
--void devm_regmap_init_encx24j600(struct device *dev,
--				 struct encx24j600_context *ctx);
-+int devm_regmap_init_encx24j600(struct device *dev,
-+				struct encx24j600_context *ctx);
- 
- /* Single-byte instructions */
- #define BANK_SELECT(bank) (0xC0 | ((bank & (BANK_MASK >> BANK_SHIFT)) << 1))
+ 	drm_flip_work_init(&mdp5_crtc->unref_cursor_work,
 
 
