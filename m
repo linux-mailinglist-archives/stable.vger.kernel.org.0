@@ -2,203 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C609B4312E9
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:12:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 840C2431331
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:21:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231248AbhJRJOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 05:14:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59010 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231493AbhJRJOI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 05:14:08 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C486C061765
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 02:11:57 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id i76so12083898pfe.13
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 02:11:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=65XlvrjT3kqu1mMZ7NJKRZtt5qFbdHyma/4tyP27bo4=;
-        b=b0cxMGaIkCyWlshXYypqwrh0YjZKfsT+TIdbZvxyOLm1wOi6KWf+QCTVlIVGBw8AGm
-         hPsS/yHad53FVWCX2xcDClPK2jeu9JmzCRgqcnAID+a5s3UImVmNVxSagP6dX4uUYpMx
-         43mIjXIfsXZ0/+6qDdKiJglWYMBTEnnUoeM8M8qGgUzgpebG+K66JQgVQsb5e3NemXVw
-         0p3Ec2Y1zyapswdlxXrqVR8fn0C1OJ1//sKIsnXkAwDICRigSUT7ADvJAF4ftIHQBAoR
-         CAFCqyrf+8JrUAu22V+I81l30rxdwc5hLc0bGOqElL0n3UVA9USbTBNZNhweZkn8MATT
-         iYAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=65XlvrjT3kqu1mMZ7NJKRZtt5qFbdHyma/4tyP27bo4=;
-        b=Noc+ciewG5LUD/a1C/vEP9VO3Am7ge5iBxApLU5g6Qo9SiRAd5MZvjEir7cySBQfDa
-         aoO6g18nd02nFtPHRjRPwUWAV+GPUIViQuEunIQZfGOVN7fmBp6ODUhrQcjWPZP5XAWM
-         kJj6hnmIX36LVCJGpHq9Km7FOyZdFLk6Y+WUCtF7wsFZpapKkv3azYOl5OtIfpm8WDQy
-         D8V5ne5tjSrHo00j3i63Rm7E5ew8w845vO5Z4DQq0uRH7yRAb2r0xRnd3ZoIW+xZB+rK
-         GfTifSuKVleyIDNOmgnKFNDrIyzT80VSLE6fdrUdzuTCQmX5o5yoOmStkf1b0ckZhVPY
-         Cc2g==
-X-Gm-Message-State: AOAM532M7s8CVIxit1RvN2tUQzm1Q2OgaELXtyCGDSpXotoZaD+/ejst
-        TGTNUE72qMgV57ealHuxVTlYtSbrVKPY5g==
-X-Google-Smtp-Source: ABdhPJzRPr9lj0p2mEwh6+9G0GzvpSfUEFfL+2YLzU7IxJIpbBmGVpKc9l2aw87ry9yShSLs0KG2JQ==
-X-Received: by 2002:a62:2982:0:b0:44c:f2a3:ec62 with SMTP id p124-20020a622982000000b0044cf2a3ec62mr27536872pfp.23.1634548316500;
-        Mon, 18 Oct 2021 02:11:56 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f84sm12496405pfa.25.2021.10.18.02.11.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Oct 2021 02:11:55 -0700 (PDT)
-Message-ID: <616d3a5b.1c69fb81.66327.30e9@mx.google.com>
-Date:   Mon, 18 Oct 2021 02:11:55 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S231206AbhJRJXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 05:23:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45928 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231149AbhJRJXi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 05:23:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E54F60FC3;
+        Mon, 18 Oct 2021 09:21:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1634548887;
+        bh=hqYfwehpbHNWrxNX7jVtcaOUi/HuOQOaayXP95cOpzg=;
+        h=Subject:To:Cc:From:Date:From;
+        b=UZFqiLirvoTdzB2nuQzOiuKxje7Bn/NxDoj54ijQY/SMa+mFNBVPz7wgJmOhC9RQs
+         4e5QyuMVPCN2cAuO0chX94sjsfzaCyfEu65n7m6UXcHL6SJzKh6JhN/kpuyOupd3ya
+         C2EJdbtafqhThooChwax+5SF0k3qzcopIj3O6VCA=
+Subject: FAILED: patch "[PATCH] USB: xhci: dbc: fix tty registration race" failed to apply to 5.4-stable tree
+To:     johan@kernel.org, baolu.lu@linux.intel.com,
+        gregkh@linuxfoundation.org, mathias.nyman@linux.intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 Oct 2021 11:21:24 +0200
+Message-ID: <1634548884245110@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.288-22-ga0cc68e7856a
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.4.y baseline: 41 runs,
- 3 regressions (v4.4.288-22-ga0cc68e7856a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y baseline: 41 runs, 3 regressions (v4.4.288-22-ga0cc68=
-e7856a)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 2       =
-   =
+thanks,
 
-qemu_i386 | i386 | lab-broonie  | gcc-8    | i386_defconfig      | 1       =
-   =
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
-el/v4.4.288-22-ga0cc68e7856a/plan/baseline/
+From 880de403777376e50bdf60def359fa50a722006f Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Fri, 8 Oct 2021 12:25:45 +0300
+Subject: [PATCH] USB: xhci: dbc: fix tty registration race
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.4.y
-  Describe: v4.4.288-22-ga0cc68e7856a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a0cc68e7856a17b196b58722615d0a138dc1d91a =
+Make sure to allocate resources before registering the tty device to
+avoid having a racing open() and write() fail to enable rx or
+dereference a NULL pointer when accessing the uninitialised fifo.
 
+Fixes: dfba2174dc42 ("usb: xhci: Add DbC support in xHCI driver")
+Cc: stable@vger.kernel.org      # 4.16
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211008092547.3996295-4-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
+diff --git a/drivers/usb/host/xhci-dbgtty.c b/drivers/usb/host/xhci-dbgtty.c
+index 6e784f2fc26d..eb46e642e87a 100644
+--- a/drivers/usb/host/xhci-dbgtty.c
++++ b/drivers/usb/host/xhci-dbgtty.c
+@@ -408,40 +408,38 @@ static int xhci_dbc_tty_register_device(struct xhci_dbc *dbc)
+ 		return -EBUSY;
+ 
+ 	xhci_dbc_tty_init_port(dbc, port);
+-	tty_dev = tty_port_register_device(&port->port,
+-					   dbc_tty_driver, 0, NULL);
+-	if (IS_ERR(tty_dev)) {
+-		ret = PTR_ERR(tty_dev);
+-		goto register_fail;
+-	}
+ 
+ 	ret = kfifo_alloc(&port->write_fifo, DBC_WRITE_BUF_SIZE, GFP_KERNEL);
+ 	if (ret)
+-		goto buf_alloc_fail;
++		goto err_exit_port;
+ 
+ 	ret = xhci_dbc_alloc_requests(dbc, BULK_IN, &port->read_pool,
+ 				      dbc_read_complete);
+ 	if (ret)
+-		goto request_fail;
++		goto err_free_fifo;
+ 
+ 	ret = xhci_dbc_alloc_requests(dbc, BULK_OUT, &port->write_pool,
+ 				      dbc_write_complete);
+ 	if (ret)
+-		goto request_fail;
++		goto err_free_requests;
++
++	tty_dev = tty_port_register_device(&port->port,
++					   dbc_tty_driver, 0, NULL);
++	if (IS_ERR(tty_dev)) {
++		ret = PTR_ERR(tty_dev);
++		goto err_free_requests;
++	}
+ 
+ 	port->registered = true;
+ 
+ 	return 0;
+ 
+-request_fail:
++err_free_requests:
+ 	xhci_dbc_free_requests(&port->read_pool);
+ 	xhci_dbc_free_requests(&port->write_pool);
++err_free_fifo:
+ 	kfifo_free(&port->write_fifo);
+-
+-buf_alloc_fail:
+-	tty_unregister_device(dbc_tty_driver, 0);
+-
+-register_fail:
++err_exit_port:
+ 	xhci_dbc_tty_exit_port(port);
+ 
+ 	dev_err(dbc->dev, "can't register tty port, err %d\n", ret);
 
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 2       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d00a5b8f0e12d203358f7
-
-  Results:     3 PASS, 2 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.288=
--22-ga0cc68e7856a/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.288=
--22-ga0cc68e7856a/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/616d00a5b8f0e12d=
-203358fa
-        failing since 3 days (last pass: v4.4.288-19-g46f1e1a33c90, first f=
-ail: v4.4.288-19-gf9c6c370e0b0)
-        1 lines
-
-    2021-10-18T05:05:24.875135  /
-    2021-10-18T05:05:24.979105   # #
-    2021-10-18T05:05:24.979888  =
-
-    2021-10-18T05:05:25.081452  / # #export SHELL=3D/bin/sh
-    2021-10-18T05:05:25.081915  =
-
-    2021-10-18T05:05:25.183150  / # export SHELL=3D/bin/sh. /lava-952051/en=
-vironment
-    2021-10-18T05:05:25.183632  =
-
-    2021-10-18T05:05:25.285011  / # . /lava-952051/environment/lava-952051/=
-bin/lava-test-runner /lava-952051/0
-    2021-10-18T05:05:25.286346  =
-
-    2021-10-18T05:05:25.287294  / # /lava-952051/bin/lava-test-runner /lava=
--952051/0 =
-
-    ... (8 line(s) more)  =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/616d00a5b8f0e12=
-d203358fc
-        failing since 3 days (last pass: v4.4.288-19-g46f1e1a33c90, first f=
-ail: v4.4.288-19-gf9c6c370e0b0)
-        28 lines
-
-    2021-10-18T05:05:25.801315  kern  :emerg : Internal error: Oops - BUG: =
-0 [#1] SMP ARM
-    2021-10-18T05:05:25.807126  kern  :emerg : Process udevd (pid: 108, sta=
-ck limit =3D 0xcb930218)
-    2021-10-18T05:05:25.811603  kern  :emerg : Stack: (0xcb931d10 to 0xcb93=
-2000)
-    2021-10-18T05:05:25.819697  kern  :emerg : 1d00:                       =
-              bf02b83c bf010b84 cb9d4e10 bf02b8c8
-    2021-10-18T05:05:25.832806  kern  :emerg : 1d20: cb9d4e10 bf2310a8 0000=
-0002 cb[   50.015838] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Demerg RESULT=3Df=
-ail UNITS=3Dlines MEASUREMENT=3D28>   =
-
- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-qemu_i386 | i386 | lab-broonie  | gcc-8    | i386_defconfig      | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d052d0e47ccfba73358e6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.288=
--22-ga0cc68e7856a/i386/i386_defconfig/gcc-8/lab-broonie/baseline-qemu_i386.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.288=
--22-ga0cc68e7856a/i386/i386_defconfig/gcc-8/lab-broonie/baseline-qemu_i386.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616d052d0e47ccfba7335=
-8e7
-        new failure (last pass: v4.4.288-19-gf9c6c370e0b0) =
-
- =20
