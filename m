@@ -2,194 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89E42432632
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 20:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A74B43264A
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 20:23:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230266AbhJRSTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 14:19:43 -0400
-Received: from mail.skyhub.de ([5.9.137.197]:55762 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229696AbhJRSTn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 14:19:43 -0400
-Received: from zn.tnic (p200300ec2f085700af6a7a3215758573.dip0.t-ipconnect.de [IPv6:2003:ec:2f08:5700:af6a:7a32:1575:8573])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id A27881EC04A9;
-        Mon, 18 Oct 2021 20:17:30 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1634581050;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=uFKMgdVJFuAMxHN1IAGm/xRW2JT89EOF3TPA/iPD/r8=;
-        b=UBh+Z8F0bkePuoPFqIcoUJ6KW5uHh7CLk6xjRzKnW6VnRmMxUGvUXbyxmBaDV/mGbWuzv2
-        7dDm774ZELg8Ws6lhkQJGwr1KrX2t8nFkyt4+a6lD4fQa4mHQtUWf18hVMXFSpZCHcS/+4
-        hWm8Za7ekoa4sR9nwA2jG7goM93tbrU=
-Date:   Mon, 18 Oct 2021 20:17:30 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     Jane Malalane <jane.malalane@citrix.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Pu Wen <puwen@hygon.cn>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
-        Yazen Ghannam <Yazen.Ghannam@amd.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Huang Rui <ray.huang@amd.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Kim Phillips <kim.phillips@amd.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] x86/cpu: Fix migration safety with X86_BUG_NULL_SEL
-Message-ID: <YW25x7AYiM1f1HQA@zn.tnic>
-References: <20211013142230.10129-1-jane.malalane@citrix.com>
+        id S229696AbhJRS0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 14:26:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231970AbhJRSZ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 14:25:56 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A818C06161C
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 11:23:45 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id o11so1333334ljg.10
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 11:23:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=NI6UmnOVqHIFIXD4WPPotT1IrQ1AYYc8vYLqus9rJW0=;
+        b=GJqCCAXMt0C3S76J4Fr3pfmV9KsCGzpF9uZ2E7JuTQEca2MGrPillIWfjgaV9kMklr
+         uykKrntdJFCLwjI8iwCGKbFJ64UBj7VO//N4iOVgy+yeMZbXTqShkZEIahp2ggOKjIWH
+         Ir+LLKxmNf4BT9fqKAEnhnYC0wuGNUj2xOpBu7suR2/FKoLhqMMe3FZz6FSH27j7atG0
+         n0dL9gOSJiHods6m+u5lqhmdtNAQ9pAmig4XWjvbbPZ0bSNt1ZNQUMlhUCTZSJJPujpx
+         V/bqGIYkbtk2VzXApOOoqTa9IhcZuZEyewjsMNh7VmrTXIoMwNqLFvkmRiTH4+97mtTT
+         tMAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=NI6UmnOVqHIFIXD4WPPotT1IrQ1AYYc8vYLqus9rJW0=;
+        b=W+dDEifvwrSyw16nd8HZCpFneVnZGWleyocqzQ3LSy219IPo2F5YAbBY8JLodk0jng
+         XaSbePgbKpwJGMU3VI/x1C3UtqNQ3X+7v1wkmhIeY/vi0G2Fa8csZxz0GRqFjNHMg2W6
+         Ialbp1z2rqPmeOX6kMoJNbc3Bgrljq0HAXCxa3oP0ll9OkWEJd4PgMZYSpJ2f2h15jlu
+         0gTHyPdTt9zq6jhZGQcD+2EOL0CsKC6GiBF3VvZ+FPybhzaCk3TAOeVYHuL41yy6A+ij
+         5Ea8d7sc5AnLM9BP9RnTPwegW4S4f6DX4vcfEFDFHWSmJTuQwdDs7jUyOUSn/UL0mgjM
+         aCAg==
+X-Gm-Message-State: AOAM533v8hGt1/o2813E25RQwMpjjF83ey4V9BXdAA/SPQeuC7NosSGK
+        UDY7auZz7ZOlcM2JZc2Fuo9YAL+CjyDwcZAWPoI=
+X-Google-Smtp-Source: ABdhPJyvJeU1vIcXH3Ji/CU3sQ+mnhzPHFjTfV4xrinapdWBladsH90YUw8rALdVwqQLl/KVETDjAFo251yR+5AlvxE=
+X-Received: by 2002:a2e:9bd0:: with SMTP id w16mr1437081ljj.390.1634581423382;
+ Mon, 18 Oct 2021 11:23:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20211013142230.10129-1-jane.malalane@citrix.com>
+Received: by 2002:ab2:1388:0:b0:f6:f7a1:d2e9 with HTTP; Mon, 18 Oct 2021
+ 11:23:42 -0700 (PDT)
+Reply-To: mrsrosebanneth19@gmail.com
+From:   Mrs Rose Banneth <colemantim660@gmail.com>
+Date:   Mon, 18 Oct 2021 11:23:42 -0700
+Message-ID: <CACZm7_H5OAGF0VH4-SrUmZmbqrH3iN52tLqDpjTuoAudH7ZMow@mail.gmail.com>
+Subject: God bless you,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 13, 2021 at 03:22:30PM +0100, Jane Malalane wrote:
-> @@ -650,6 +651,27 @@ static void early_init_amd(struct cpuinfo_x86 *c)
->  	if (c->x86_power & BIT(14))
->  		set_cpu_cap(c, X86_FEATURE_RAPL);
->  
-> +	/*
-> +	 * Zen1 and earlier CPUs don't clear segment base/limits when
-> +	 * loading a NULL selector.  This has been designated
-> +	 * X86_BUG_NULL_SEG.
-> +	 *
-> +	 * Zen3 CPUs advertise Null Selector Clears Base in CPUID.
-> +	 * Zen2 CPUs also have this behaviour, but no CPUID bit.
-> +	 *
-> +	 * A hypervisor may sythesize the bit, but may also hide it
-> +	 * for migration safety, so we must not probe for model
-> +	 * specific behaviour when virtualised.
-> +	 */
-> +	if (c->extended_cpuid_level >= 0x80000021 && cpuid_eax(0x80000021) & BIT(6))
-> +		nscb = true;
-> +
-> +	if (!cpu_has(c, X86_FEATURE_HYPERVISOR) && !nscb && c->x86 == 0x17)
-> +		nscb = check_null_seg_clears_base(c);
-> +
-> +	if (!nscb)
-> +		set_cpu_bug(c, X86_BUG_NULL_SEG);
-> +
->  #ifdef CONFIG_X86_64
->  	set_cpu_cap(c, X86_FEATURE_SYSCALL32);
->  #else
+Dear friend,
 
-Can we do something like this?
+may God bless you, please Can you join me and help people?
 
-It is carved out into a separate function which you can simply call from
-early_init_amd() and early_init_hygon().
+It's my pleasure to have contact with you, based on the critical
+condition I find myself and my desire to will part of my property to
+the Orphans, Disable, blind, Old and poor people who have nothing to
+eat, although, it's not financial problem is about my health, you
+might have know that cancer is not what to talk  about at home I have
+been in the hospital for 7 months now I am Mrs. Rose Banneth and I am
+married to Mr. Abaulkarim banneth who worked with Tun norway embassy
+here in Burkina Faso for nine years before he died in the year
+February 2011.We were married for eleven years without a child. He
+died after a brief illness that lasted for five days.
 
-I guess you can put that function in arch/x86/kernel/cpu/common.c or so.
+Since the death of my husband I have been dying and diagnosed with
+cancer for 4 years now, I decided not to remarry. When my late husband
+was alive he deposited the sum of (=E2=82=AC8.5 Million Euro)  (Eight milli=
+on,
+Five hundred thousand Euros) in a bank in Burkina Faso for me,
+presently this money is still in bank. I want you to help me use this
+money for the poor people around you in your Country it is the
+Almighty God direction that I choose you to do this with your heart.
 
-Then, you should put the comments right over the code like I've done
-below so that one can follow what's going on with each particular check.
+My Doctors told me that I don't have much time to live because of the
+cancer problem and i don t want to live this money in the bank for
+Government instead I decided to use it for Old people who cannot work
+again and Orphans who have nothing to eat because i am Orphan, Having
+known my condition I decided to hand over this fund to a responsible
+person that have fear of God to receive this money and use it for the
+needy instead of this money be forgotten to the bank. Can you have the
+time to do this? If so please, i want you to contact me here my
+private email address mrsrosebanneth19@gmail.com  to know on how the
+fund will be transferred to your bank account or online banking.
 
-I've also flipped the logic a bit and it is simpler this way.
-
-Totally untested of course.
-
-static void early_probe_null_seg_clearing_base(struct cpuinfo_x86 *c)
-{
-	/*
-	 * A hypervisor may sythesize the bit, but may also hide it
-	 * for migration safety, so do not probe for model-specific
-	 * behaviour when virtualised.
-	 */
-	if (cpu_has(c, X86_FEATURE_HYPERVISOR))
-		return;
-
-	/* Zen3 CPUs advertise Null Selector Clears Base in CPUID. */
-	if (c->extended_cpuid_level >= 0x80000021 && cpuid_eax(0x80000021) & BIT(6))
-		return;
-
-	/* Zen2 CPUs also have this behaviour, but no CPUID bit. */
-	if (c->x86 == 0x17 && check_null_seg_clears_base(c))
-		return;
-
-	/* All the remaining ones are affected */
-	set_cpu_bug(c, X86_BUG_NULL_SEG);
-}
-
-> diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-> index 0f8885949e8c..2ca4afb97247 100644
-> --- a/arch/x86/kernel/cpu/common.c
-> +++ b/arch/x86/kernel/cpu/common.c
-> @@ -1395,7 +1395,7 @@ void __init early_cpu_init(void)
->  	early_identify_cpu(&boot_cpu_data);
->  }
->  
-> -static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
-> +bool check_null_seg_clears_base(struct cpuinfo_x86 *c)
->  {
->  #ifdef CONFIG_X86_64
->  	/*
-> @@ -1418,10 +1418,10 @@ static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
->  	wrmsrl(MSR_FS_BASE, 1);
->  	loadsegment(fs, 0);
->  	rdmsrl(MSR_FS_BASE, tmp);
-> -	if (tmp != 0)
-> -		set_cpu_bug(c, X86_BUG_NULL_SEG);
->  	wrmsrl(MSR_FS_BASE, old_base);
-> +	return tmp == 0;
->  #endif
-> +	return true;
->  }
->  
->  static void generic_identify(struct cpuinfo_x86 *c)
-> @@ -1457,8 +1457,6 @@ static void generic_identify(struct cpuinfo_x86 *c)
->  
->  	get_model_name(c); /* Default name */
->  
-> -	detect_null_seg_behavior(c);
-> -
->  	/*
->  	 * ESPFIX is a strange bug.  All real CPUs have it.  Paravirt
->  	 * systems that run Linux at CPL > 0 may or may not have the
-
-So this function is called on all x86 CPUs. Are you sure others besides
-AMD and Hygon do not have the same issue?
-
-IOW, I wouldn't remove that call here.
-
-But then this is the identify() phase in the boot process and you've
-moved it to early_identify() by putting it in the ->c_early_init()
-function pointer on AMD and Hygon.
-
-Is there any particular reasoning for this or can that detection remain
-in ->c_identify()?
-
-Because if this null seg behavior detection should happen on all
-CPUs - and I think it should, because, well, it has been that way
-until now - then the vendor specific identification minus what
-detect_null_seg_behavior() does should run first and then after
-->c_identify() is done, you should do something like:
-
-	if (!cpu_has_bug(c, X86_BUG_NULL_SEG)) {
-		if (!check_null_seg_clears_base(c))
-			set_cpu_bug(c, X86_BUG_NULL_SEG);
-	}
-
-so that it still takes place on all CPUs.
-
-I.e., you should split the detection.
-
-I hope I'm making sense ...
-
-Ah, btw, that @c parameter to detect_null_seg_behavior() is unused - you
-should remove it in a pre-patch.
-
-Thx.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+I wait for your response.
+My regards,
+Mrs Rose Banneth
+Written from Hospital
