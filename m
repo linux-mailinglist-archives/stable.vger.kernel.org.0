@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 609A2431B27
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:28:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF54B431E2C
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232728AbhJRNbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:31:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43392 "EHLO mail.kernel.org"
+        id S234102AbhJRN6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:58:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232367AbhJRNaD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:30:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51F006135F;
-        Mon, 18 Oct 2021 13:27:52 +0000 (UTC)
+        id S232330AbhJRN42 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:56:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96A26613A6;
+        Mon, 18 Oct 2021 13:40:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563672;
-        bh=ubAvB6JX1biGxOpVIDUf3L0WDpzSuu59LjTKcCdn4kU=;
+        s=korg; t=1634564433;
+        bh=Pk0vjCTxsyUVkxJShviw2ozJNFJ2klvJbRjQupwHRNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9SkpkElx7oOGvFWL18hFnfaYNtH0PvnQh1h9Sqi8EK/9XfPjcrdjeoLvDxwpyEda
-         VnP2hQ3RsykQatgU+70wJ4yeODH+YL9q76ZG0G/xkL9W245PGfsVYqCP8DXNiTGLob
-         wWNjbCvSE9f0r6gNPdSHMSRFerxvX0sAIQDWKekU=
+        b=iWPPhFe/6lNsui2cVEagC6x9PGZ/tRlehwh6bC/eZUIkx+gOOOdaZai5gb8qmFPNB
+         SKkPoMC60qQ2WWL6k+o5tO7IGDqFgjj05q3s/uut6pccIKLOBkHetn+HTQfw7NPVrY
+         H9fQtVVn+YqhYrGA4OLklpjnkcqFe+6bmxwQdTKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Michael Cullen <michael@michaelcullen.name>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 19/50] Input: xpad - add support for another USB ID of Nacon GC-100
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        Jackie Liu <liuyun01@kylinos.cn>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 5.14 087/151] tracing: Fix missing osnoise tracer on max_latency
 Date:   Mon, 18 Oct 2021 15:24:26 +0200
-Message-Id: <20211018132327.177160741@linuxfoundation.org>
+Message-Id: <20211018132343.517300612@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Cullen <michael@michaelcullen.name>
+From: Jackie Liu <liuyun01@kylinos.cn>
 
-commit 3378a07daa6cdd11e042797454c706d1c69f9ca6 upstream.
+commit 424b650f35c77defbb3cbd6e5221d3697af42250 upstream.
 
-The Nacon GX100XF is already mapped, but it seems there is a Nacon
-GC-100 (identified as NC5136Wht PCGC-100WHITE though I believe other
-colours exist) with a different USB ID when in XInput mode.
+The compiler warns when the data are actually unused:
 
-Signed-off-by: Michael Cullen <michael@michaelcullen.name>
-Link: https://lore.kernel.org/r/20211015192051.5196-1-michael@michaelcullen.name
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+  kernel/trace/trace.c:1712:13: error: ‘trace_create_maxlat_file’ defined but not used [-Werror=unused-function]
+   1712 | static void trace_create_maxlat_file(struct trace_array *tr,
+        |             ^~~~~~~~~~~~~~~~~~~~~~~~
+
+[Why]
+CONFIG_HWLAT_TRACER=n, CONFIG_TRACER_MAX_TRACE=n, CONFIG_OSNOISE_TRACER=y
+gcc report warns.
+
+[How]
+Now trace_create_maxlat_file will only take effect when
+CONFIG_HWLAT_TRACER=y or CONFIG_TRACER_MAX_TRACE=y. In fact, after
+adding osnoise trace, it also needs to take effect.
+
+Link: https://lore.kernel.org/all/c1d9e328-ad7c-920b-6c24-9e1598a6421c@infradead.org/
+Link: https://lkml.kernel.org/r/20210922025122.3268022-1-liu.yun@linux.dev
+
+Fixes: bce29ac9ce0b ("trace: Add osnoise tracer")
+Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
+Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+Reviewed-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/trace/trace.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -345,6 +345,7 @@ static const struct xpad_device {
- 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
-+	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
- 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
- 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
- 	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
-@@ -461,6 +462,7 @@ static const struct usb_device_id xpad_t
- 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
- 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
- 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
-+	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
- 	{ }
- };
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1744,16 +1744,15 @@ void latency_fsnotify(struct trace_array
+ 	irq_work_queue(&tr->fsnotify_irqwork);
+ }
  
+-/*
+- * (defined(CONFIG_TRACER_MAX_TRACE) || defined(CONFIG_HWLAT_TRACER)) && \
+- *  defined(CONFIG_FSNOTIFY)
+- */
+-#else
++#elif defined(CONFIG_TRACER_MAX_TRACE) || defined(CONFIG_HWLAT_TRACER)	\
++	|| defined(CONFIG_OSNOISE_TRACER)
+ 
+ #define trace_create_maxlat_file(tr, d_tracer)				\
+ 	trace_create_file("tracing_max_latency", 0644, d_tracer,	\
+ 			  &tr->max_latency, &tracing_max_lat_fops)
+ 
++#else
++#define trace_create_maxlat_file(tr, d_tracer)	 do { } while (0)
+ #endif
+ 
+ #ifdef CONFIG_TRACER_MAX_TRACE
+@@ -9457,9 +9456,7 @@ init_tracer_tracefs(struct trace_array *
+ 
+ 	create_trace_options_dir(tr);
+ 
+-#if defined(CONFIG_TRACER_MAX_TRACE) || defined(CONFIG_HWLAT_TRACER)
+ 	trace_create_maxlat_file(tr, d_tracer);
+-#endif
+ 
+ 	if (ftrace_create_function_files(tr, d_tracer))
+ 		MEM_FAIL(1, "Could not allocate function filter files");
 
 
