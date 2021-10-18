@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E41C2431C2B
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44280431B50
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:30:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232970AbhJRNjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:39:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56366 "EHLO mail.kernel.org"
+        id S233050AbhJRNcX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:32:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232094AbhJRNg5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:36:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82AA1613C8;
-        Mon, 18 Oct 2021 13:31:21 +0000 (UTC)
+        id S232615AbhJRNah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:30:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC9E7610A6;
+        Mon, 18 Oct 2021 13:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563882;
-        bh=3fkVhJNSC3O2VSBSQQCAKZGKJ/9U4/+ZHSikwhQPeBk=;
+        s=korg; t=1634563697;
+        bh=NXc3d0PwEMEkITokcwa3/NneKOV66jJsGKA91i2KZB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VU5BVn7Pl0aBr8ALPTezC7v5xIbW3GQSI/4NbBAX1ftKxaEWDVd54ccc/V5fIzeD5
-         19NynwrVYegHui9j27H0CUBZlhgSzYsq1dQFrGkeK4ehHhmmWM/2548Sq0x0ETSVMJ
-         a9bFVPRvGhcNyO4bGGgFZvrsCjjxTY5ctHLmhAus=
+        b=rXBPa43UWCE30Zqy2ut7lwvFUlNS2yWs0C0qHnafLoZbXJgTV0lRaG+ck1WWcealm
+         J6ZfiLbHBnV0nymjQcRCbjztD0EOhHuACPugDN5+PjEXymL7kIwNbF7cmtNguXEiIj
+         Hz/6duCF76bS4z7mrJ9xqxwu1XRgbs8x21Oyw3I0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.4 18/69] mei: me: add Ice Lake-N device id.
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 09/50] btrfs: check for error when looking up inode during dir entry replay
 Date:   Mon, 18 Oct 2021 15:24:16 +0200
-Message-Id: <20211018132330.073593841@linuxfoundation.org>
+Message-Id: <20211018132326.840532967@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
+References: <20211018132326.529486647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 75c10c5e7a715550afdd51ef8cfd1d975f48f9e1 upstream.
+commit cfd312695b71df04c3a2597859ff12c470d1e2e4 upstream.
 
-Add Ice Lake-N device ID.
+At replay_one_name(), we are treating any error from btrfs_lookup_inode()
+as if the inode does not exists. Fix this by checking for an error and
+returning it to the caller.
 
-The device can be found on MacBookPro16,2 [1].
-
-[1]: https://linux-hardware.org/?probe=f1c5cf0c43
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211001173644.16068-1-andriy.shevchenko@linux.intel.com
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/hw-me-regs.h |    1 +
- drivers/misc/mei/pci-me.c     |    1 +
- 2 files changed, 2 insertions(+)
+ fs/btrfs/tree-log.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -90,6 +90,7 @@
- #define MEI_DEV_ID_CDF        0x18D3  /* Cedar Fork */
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1871,8 +1871,8 @@ static noinline int replay_one_name(stru
+ 	struct btrfs_key log_key;
+ 	struct inode *dir;
+ 	u8 log_type;
+-	int exists;
+-	int ret = 0;
++	bool exists;
++	int ret;
+ 	bool update_size = (key->type == BTRFS_DIR_INDEX_KEY);
+ 	bool name_added = false;
  
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
-+#define MEI_DEV_ID_ICP_N      0x38E0  /* Ice Lake Point N */
+@@ -1892,12 +1892,12 @@ static noinline int replay_one_name(stru
+ 		   name_len);
  
- #define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
+ 	btrfs_dir_item_key_to_cpu(eb, di, &log_key);
+-	exists = btrfs_lookup_inode(trans, root, path, &log_key, 0);
+-	if (exists == 0)
+-		exists = 1;
+-	else
+-		exists = 0;
++	ret = btrfs_lookup_inode(trans, root, path, &log_key, 0);
+ 	btrfs_release_path(path);
++	if (ret < 0)
++		goto out;
++	exists = (ret == 0);
++	ret = 0;
  
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -103,6 +103,7 @@ static const struct pci_device_id mei_me
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H_3, MEI_ME_PCH8_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_N, MEI_ME_PCH12_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_TGP_LP, MEI_ME_PCH12_CFG)},
- 
+ 	if (key->type == BTRFS_DIR_ITEM_KEY) {
+ 		dst_di = btrfs_lookup_dir_item(trans, root, path, key->objectid,
 
 
