@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F50A431E69
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:58:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DF0431AEF
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:28:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234671AbhJROAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:00:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38668 "EHLO mail.kernel.org"
+        id S231912AbhJRN3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234812AbhJRN6v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:58:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 827BE613A8;
-        Mon, 18 Oct 2021 13:41:31 +0000 (UTC)
+        id S231986AbhJRN3P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D85DC6126A;
+        Mon, 18 Oct 2021 13:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564492;
-        bh=eTnfVWKlsW/i6qDvROrWWj7teRSCUAukI+LYIxwu9zI=;
+        s=korg; t=1634563624;
+        bh=XQdSf5ZkGN84ZrUHB1PcYb/UmBZmE6ysDA+QmBgjBMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lNgno35qrhrimeJv+BGk6DZG3IZtEFVR08Rd00W5LUSrX/sBdXERR2LPM67ydGKeq
-         +JdikgvZIzRqhtvaxJmTSNr4I9o83lhVZqfRLw/tIxH0kTqvIZljWfmLy9iR0/i+hZ
-         LDKNdMVBUSUk3zYP3qbCuDETB5/VKKeUOq0edK2U=
+        b=euav33Dv51YLbnuAdNgd7qdPm4K6Q0eUnXeALO00ka+JpbN54ZZac+oR+t9UKJaal
+         UftbZXDP86aZ90ph/MIyGmB71cdl+/oPeUNAvZPr6Fe2A54PqFeeyRJZ0vKWu66lCB
+         KpMbSpTsXgR1BlSlvAEAmAYOghwlo27WuIOIaXnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Valek - 2N <valek@2n.cz>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.14 076/151] iio: light: opt3001: Fixed timeout error when 0 lux
-Date:   Mon, 18 Oct 2021 15:24:15 +0200
-Message-Id: <20211018132343.157481543@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pavankumar Kondeti <pkondeti@codeaurora.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 07/39] xhci: Fix command ring pointer corruption while aborting a command
+Date:   Mon, 18 Oct 2021 15:24:16 +0200
+Message-Id: <20211018132325.684286252@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Valek - 2N <valek@2n.cz>
+From: Pavankumar Kondeti <pkondeti@codeaurora.org>
 
-commit 26d90b5590579def54382a2fc34cfbe8518a9851 upstream.
+commit ff0e50d3564f33b7f4b35cadeabd951d66cfc570 upstream.
 
-Reading from sensor returned timeout error under
-zero light conditions.
+The command ring pointer is located at [6:63] bits of the command
+ring control register (CRCR). All the control bits like command stop,
+abort are located at [0:3] bits. While aborting a command, we read the
+CRCR and set the abort bit and write to the CRCR. The read will always
+give command ring pointer as all zeros. So we essentially write only
+the control bits. Since we split the 64 bit write into two 32 bit writes,
+there is a possibility of xHC command ring stopped before the upper
+dword (all zeros) is written. If that happens, xHC updates the upper
+dword of its internal command ring pointer with all zeros. Next time,
+when the command ring is restarted, we see xHC memory access failures.
+Fix this issue by only writing to the lower dword of CRCR where all
+control bits are located.
 
-Signed-off-by: Jiri Valek - 2N <valek@2n.cz>
-Fixes: ac663db3678a ("iio: light: opt3001: enable operation w/o IRQ")
-Link: https://lore.kernel.org/r/20210920125351.6569-1-valek@2n.cz
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavankumar Kondeti <pkondeti@codeaurora.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211008092547.3996295-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/opt3001.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci-ring.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/iio/light/opt3001.c
-+++ b/drivers/iio/light/opt3001.c
-@@ -276,6 +276,8 @@ static int opt3001_get_lux(struct opt300
- 		ret = wait_event_timeout(opt->result_ready_queue,
- 				opt->result_ready,
- 				msecs_to_jiffies(OPT3001_RESULT_READY_LONG));
-+		if (ret == 0)
-+			return -ETIMEDOUT;
- 	} else {
- 		/* Sleep for result ready time */
- 		timeout = (opt->int_time == OPT3001_INT_TIME_SHORT) ?
-@@ -312,9 +314,7 @@ err:
- 		/* Disallow IRQ to access the device while lock is active */
- 		opt->ok_to_ignore_lock = false;
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -350,16 +350,22 @@ static void xhci_handle_stopped_cmd_ring
+ /* Must be called with xhci->lock held, releases and aquires lock back */
+ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
+ {
+-	u64 temp_64;
++	u32 temp_32;
+ 	int ret;
  
--	if (ret == 0)
--		return -ETIMEDOUT;
--	else if (ret < 0)
-+	if (ret < 0)
- 		return ret;
+ 	xhci_dbg(xhci, "Abort command ring\n");
  
- 	if (opt->use_irq) {
+ 	reinit_completion(&xhci->cmd_ring_stop_completion);
+ 
+-	temp_64 = xhci_read_64(xhci, &xhci->op_regs->cmd_ring);
+-	xhci_write_64(xhci, temp_64 | CMD_RING_ABORT,
+-			&xhci->op_regs->cmd_ring);
++	/*
++	 * The control bits like command stop, abort are located in lower
++	 * dword of the command ring control register. Limit the write
++	 * to the lower dword to avoid corrupting the command ring pointer
++	 * in case if the command ring is stopped by the time upper dword
++	 * is written.
++	 */
++	temp_32 = readl(&xhci->op_regs->cmd_ring);
++	writel(temp_32 | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
+ 
+ 	/* Section 4.6.1.2 of xHCI 1.0 spec says software should also time the
+ 	 * completion of the Command Abort operation. If CRR is not negated in 5
 
 
