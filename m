@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8396B431B88
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9077C431D04
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:45:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232179AbhJRNd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:33:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43870 "EHLO mail.kernel.org"
+        id S232544AbhJRNrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:47:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232896AbhJRNbs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:31:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BADEB61350;
-        Mon, 18 Oct 2021 13:28:51 +0000 (UTC)
+        id S232414AbhJRNpJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:45:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA288615A4;
+        Mon, 18 Oct 2021 13:35:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563732;
-        bh=FGM35nTA62kE6flpMLAyrF6LD12iQJC9R0HgxLPllvA=;
+        s=korg; t=1634564126;
+        bh=HuHe8S83WxmmoP4Hyx+MT5LkkF+fxuSCD8kog9q8rsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sksa6BJGYxs6auYFeWxwor6KrFQULqghQRcoKwym2hRjn0N1M3NDFw2Ks+dbcZ9dF
-         y4TS6mkT50F1gaAtQTtpcnGIyBABB2C6pFA2VqlMqGlv7h6xxgZvX4x9Ym//87U7ke
-         n1xS536OlLgn8gHuv8TnP43xC7KhFkkz6uoVlA7I=
+        b=GFZ95Utgsl4jA/mQZJd8ynik4uBN54KpB2USQd22dUPdvRKvD65f80uWBBfOgNSRk
+         KiedLu4/6/oIIi2AEwwe2xxvBywUpHJyuBLvS1YFZfN3O8SPSAgKNhIxK2bRXwqEZ+
+         G6BcdeJK+OBAUEjED8dzc8btu/VvAAo6UScswYfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4.19 42/50] platform/mellanox: mlxreg-io: Fix argument base in kstrtou32() call
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.10 073/103] net/mlx5e: Mutually exclude RX-FCS and RX-port-timestamp
 Date:   Mon, 18 Oct 2021 15:24:49 +0200
-Message-Id: <20211018132327.912316024@linuxfoundation.org>
+Message-Id: <20211018132337.205366925@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +41,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@nvidia.com>
+From: Aya Levin <ayal@nvidia.com>
 
-commit 9b024201693e397441668cca0d2df7055fe572eb upstream.
+commit 0bc73ad46a76ed6ece4dcacb28858e7b38561e1c upstream.
 
-Change kstrtou32() argument 'base' to be zero instead of 'len'.
-It works by chance for setting one bit value, but it is not supposed to
-work in case value passed to mlxreg_io_attr_store() is greater than 1.
+Due to current HW arch limitations, RX-FCS (scattering FCS frame field
+to software) and RX-port-timestamp (improved timestamp accuracy on the
+receive side) can't work together.
+RX-port-timestamp is not controlled by the user and it is enabled by
+default when supported by the HW/FW.
+This patch sets RX-port-timestamp opposite to RX-FCS configuration.
 
-It works for example, for:
-echo 1 > /sys/devices/platform/mlxplat/mlxreg-io/hwmon/.../jtag_enable
-But it will fail for:
-echo n > /sys/devices/platform/mlxplat/mlxreg-io/hwmon/.../jtag_enable,
-where n > 1.
-
-The flow for input buffer conversion is as below:
-_kstrtoull(const char *s, unsigned int base, unsigned long long *res)
-calls:
-rv = _parse_integer(s, base, &_res);
-
-For the second case, where n > 1:
-- _parse_integer() converts 's' to 'val'.
-  For n=2, 'len' is set to 2 (string buffer is 0x32 0x0a), for n=3
-  'len' is set to 3 (string buffer 0x33 0x0a), etcetera.
-- 'base' is equal or greater then '2' (length of input buffer).
-
-As a result, _parse_integer() exits with result zero (rv):
-	rv = 0;
-	while (1) {
-		...
-		if (val >= base)-> (2 >= 2)
-			break;
-		...
-		rv++;
-		...
-	}
-
-And _kstrtoull() in their turn will fail:
-	if (rv == 0)
-		return -EINVAL;
-
-Fixes: 5ec4a8ace06c ("platform/mellanox: Introduce support for Mellanox register access driver")
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-Link: https://lore.kernel.org/r/20210927142214.2613929-2-vadimp@nvidia.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 102722fc6832 ("net/mlx5e: Add support for RXFCS feature flag")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/mellanox/mlxreg-io.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c |   57 ++++++++++++++++++++--
+ include/linux/mlx5/mlx5_ifc.h                     |   10 +++
+ 2 files changed, 60 insertions(+), 7 deletions(-)
 
---- a/drivers/platform/mellanox/mlxreg-io.c
-+++ b/drivers/platform/mellanox/mlxreg-io.c
-@@ -123,7 +123,7 @@ mlxreg_io_attr_store(struct device *dev,
- 		return -EINVAL;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -3819,20 +3819,67 @@ static int set_feature_rx_all(struct net
+ 	return mlx5_set_port_fcs(mdev, !enable);
+ }
  
- 	/* Convert buffer to input value. */
--	ret = kstrtou32(buf, len, &input_val);
-+	ret = kstrtou32(buf, 0, &input_val);
- 	if (ret)
- 		return ret;
++static int mlx5e_set_rx_port_ts(struct mlx5_core_dev *mdev, bool enable)
++{
++	u32 in[MLX5_ST_SZ_DW(pcmr_reg)] = {};
++	bool supported, curr_state;
++	int err;
++
++	if (!MLX5_CAP_GEN(mdev, ports_check))
++		return 0;
++
++	err = mlx5_query_ports_check(mdev, in, sizeof(in));
++	if (err)
++		return err;
++
++	supported = MLX5_GET(pcmr_reg, in, rx_ts_over_crc_cap);
++	curr_state = MLX5_GET(pcmr_reg, in, rx_ts_over_crc);
++
++	if (!supported || enable == curr_state)
++		return 0;
++
++	MLX5_SET(pcmr_reg, in, local_port, 1);
++	MLX5_SET(pcmr_reg, in, rx_ts_over_crc, enable);
++
++	return mlx5_set_ports_check(mdev, in, sizeof(in));
++}
++
+ static int set_feature_rx_fcs(struct net_device *netdev, bool enable)
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
++	struct mlx5e_channels *chs = &priv->channels;
++	struct mlx5_core_dev *mdev = priv->mdev;
+ 	int err;
  
+ 	mutex_lock(&priv->state_lock);
+ 
+-	priv->channels.params.scatter_fcs_en = enable;
+-	err = mlx5e_modify_channels_scatter_fcs(&priv->channels, enable);
+-	if (err)
+-		priv->channels.params.scatter_fcs_en = !enable;
++	if (enable) {
++		err = mlx5e_set_rx_port_ts(mdev, false);
++		if (err)
++			goto out;
++
++		chs->params.scatter_fcs_en = true;
++		err = mlx5e_modify_channels_scatter_fcs(chs, true);
++		if (err) {
++			chs->params.scatter_fcs_en = false;
++			mlx5e_set_rx_port_ts(mdev, true);
++		}
++	} else {
++		chs->params.scatter_fcs_en = false;
++		err = mlx5e_modify_channels_scatter_fcs(chs, false);
++		if (err) {
++			chs->params.scatter_fcs_en = true;
++			goto out;
++		}
++		err = mlx5e_set_rx_port_ts(mdev, true);
++		if (err) {
++			mlx5_core_warn(mdev, "Failed to set RX port timestamp %d\n", err);
++			err = 0;
++		}
++	}
+ 
++out:
+ 	mutex_unlock(&priv->state_lock);
+-
+ 	return err;
+ }
+ 
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -9274,16 +9274,22 @@ struct mlx5_ifc_pcmr_reg_bits {
+ 	u8         reserved_at_0[0x8];
+ 	u8         local_port[0x8];
+ 	u8         reserved_at_10[0x10];
++
+ 	u8         entropy_force_cap[0x1];
+ 	u8         entropy_calc_cap[0x1];
+ 	u8         entropy_gre_calc_cap[0x1];
+-	u8         reserved_at_23[0x1b];
++	u8         reserved_at_23[0xf];
++	u8         rx_ts_over_crc_cap[0x1];
++	u8         reserved_at_33[0xb];
+ 	u8         fcs_cap[0x1];
+ 	u8         reserved_at_3f[0x1];
++
+ 	u8         entropy_force[0x1];
+ 	u8         entropy_calc[0x1];
+ 	u8         entropy_gre_calc[0x1];
+-	u8         reserved_at_43[0x1b];
++	u8         reserved_at_43[0xf];
++	u8         rx_ts_over_crc[0x1];
++	u8         reserved_at_53[0xb];
+ 	u8         fcs_chk[0x1];
+ 	u8         reserved_at_5f[0x1];
+ };
 
 
