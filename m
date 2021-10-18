@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 804F24316BE
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:03:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F72E4316BF
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:03:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229668AbhJRLFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:05:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54408 "EHLO mail.kernel.org"
+        id S229603AbhJRLFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:05:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229603AbhJRLFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:05:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBDEB60F0F;
-        Mon, 18 Oct 2021 11:03:26 +0000 (UTC)
+        id S229670AbhJRLFu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 07:05:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E3A160F0F;
+        Mon, 18 Oct 2021 11:03:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634555007;
-        bh=AjkIizD6jWsyyc+Mx+h28x2UXn5tWYXQXUSTKJwDfj8=;
+        s=korg; t=1634555016;
+        bh=HbLKdRN2al3X5fmfIu5WQ8yIYGPOfhm67KD1OFx2UwI=;
         h=Subject:To:Cc:From:Date:From;
-        b=o8lrGS2n1leHnLHhlCa+7JuMabRdSDXwYAnnZAgpKbOLzXkgaQBKcFXs+oxOvuPyV
-         /wG3pNL1x20HDxATaOMfp9Lgb3nUXAHORsmffupUE8vBvYzRJ5Io9aEWCWxk5cCa/I
-         M/QUgssRidGjq20QoJl4GbNmMcIFcKBJy+SeSVUo=
-Subject: FAILED: patch "[PATCH] net/mlx5e: Fix memory leak in mlx5_core_destroy_cq() error" failed to apply to 5.4-stable tree
-To:     valentinef@nvidia.com, moshe@nvidia.com, saeedm@nvidia.com
+        b=vPtcByUOeLB90PutQk9Fyj6/CAR5vUVcopSn/ebSrvJYVMco1odwjAMAWxqtUH/ST
+         tqUyuLLG9EgRDLLrnZ8k2p0LpUVU6eybbouyM3kGfyIPLcpy+CkqGYUlZ9Bin87ohb
+         80vcm0lkZ2yQ1VVYSzd5t7C9RbH89ZVlQBzhfpPk=
+Subject: FAILED: patch "[PATCH] net/mlx5e: Mutually exclude RX-FCS and RX-port-timestamp" failed to apply to 4.14-stable tree
+To:     ayal@nvidia.com, moshe@nvidia.com, saeedm@nvidia.com,
+        tariqt@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 13:03:16 +0200
-Message-ID: <1634554996151186@kroah.com>
+Date:   Mon, 18 Oct 2021 13:03:33 +0200
+Message-ID: <1634555013249143@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,80 +46,128 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 94b960b9deffc02fc0747afc01f72cc62ab099e3 Mon Sep 17 00:00:00 2001
-From: Valentine Fatiev <valentinef@nvidia.com>
-Date: Sun, 15 Aug 2021 17:43:19 +0300
-Subject: [PATCH] net/mlx5e: Fix memory leak in mlx5_core_destroy_cq() error
- path
+From 0bc73ad46a76ed6ece4dcacb28858e7b38561e1c Mon Sep 17 00:00:00 2001
+From: Aya Levin <ayal@nvidia.com>
+Date: Sun, 26 Sep 2021 17:55:41 +0300
+Subject: [PATCH] net/mlx5e: Mutually exclude RX-FCS and RX-port-timestamp
 
-Prior to this patch in case mlx5_core_destroy_cq() failed it returns
-without completing all destroy operations and that leads to memory leak.
-Instead, complete the destroy flow before return error.
+Due to current HW arch limitations, RX-FCS (scattering FCS frame field
+to software) and RX-port-timestamp (improved timestamp accuracy on the
+receive side) can't work together.
+RX-port-timestamp is not controlled by the user and it is enabled by
+default when supported by the HW/FW.
+This patch sets RX-port-timestamp opposite to RX-FCS configuration.
 
-Also move mlx5_debug_cq_remove() to the beginning of mlx5_core_destroy_cq()
-to be symmetrical with mlx5_core_create_cq().
-
-kmemleak complains on:
-
-unreferenced object 0xc000000038625100 (size 64):
-  comm "ethtool", pid 28301, jiffies 4298062946 (age 785.380s)
-  hex dump (first 32 bytes):
-    60 01 48 94 00 00 00 c0 b8 05 34 c3 00 00 00 c0  `.H.......4.....
-    02 00 00 00 00 00 00 00 00 db 7d c1 00 00 00 c0  ..........}.....
-  backtrace:
-    [<000000009e8643cb>] add_res_tree+0xd0/0x270 [mlx5_core]
-    [<00000000e7cb8e6c>] mlx5_debug_cq_add+0x5c/0xc0 [mlx5_core]
-    [<000000002a12918f>] mlx5_core_create_cq+0x1d0/0x2d0 [mlx5_core]
-    [<00000000cef0a696>] mlx5e_create_cq+0x210/0x3f0 [mlx5_core]
-    [<000000009c642c26>] mlx5e_open_cq+0xb4/0x130 [mlx5_core]
-    [<0000000058dfa578>] mlx5e_ptp_open+0x7f4/0xe10 [mlx5_core]
-    [<0000000081839561>] mlx5e_open_channels+0x9cc/0x13e0 [mlx5_core]
-    [<0000000009cf05d4>] mlx5e_switch_priv_channels+0xa4/0x230
-[mlx5_core]
-    [<0000000042bbedd8>] mlx5e_safe_switch_params+0x14c/0x300
-[mlx5_core]
-    [<0000000004bc9db8>] set_pflag_tx_port_ts+0x9c/0x160 [mlx5_core]
-    [<00000000a0553443>] mlx5e_set_priv_flags+0xd0/0x1b0 [mlx5_core]
-    [<00000000a8f3d84b>] ethnl_set_privflags+0x234/0x2d0
-    [<00000000fd27f27c>] genl_family_rcv_msg_doit+0x108/0x1d0
-    [<00000000f495e2bb>] genl_family_rcv_msg+0xe4/0x1f0
-    [<00000000646c5c2c>] genl_rcv_msg+0x78/0x120
-    [<00000000d53e384e>] netlink_rcv_skb+0x74/0x1a0
-
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Signed-off-by: Valentine Fatiev <valentinef@nvidia.com>
+Fixes: 102722fc6832 ("net/mlx5e: Add support for RXFCS feature flag")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
 Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cq.c b/drivers/net/ethernet/mellanox/mlx5/core/cq.c
-index cf97985628ab..02e77ffe5c3e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/cq.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/cq.c
-@@ -155,6 +155,8 @@ int mlx5_core_destroy_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq)
- 	u32 in[MLX5_ST_SZ_DW(destroy_cq_in)] = {};
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 336aa07313da..09c8b71b186c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -3325,20 +3325,67 @@ static int set_feature_rx_all(struct net_device *netdev, bool enable)
+ 	return mlx5_set_port_fcs(mdev, !enable);
+ }
+ 
++static int mlx5e_set_rx_port_ts(struct mlx5_core_dev *mdev, bool enable)
++{
++	u32 in[MLX5_ST_SZ_DW(pcmr_reg)] = {};
++	bool supported, curr_state;
++	int err;
++
++	if (!MLX5_CAP_GEN(mdev, ports_check))
++		return 0;
++
++	err = mlx5_query_ports_check(mdev, in, sizeof(in));
++	if (err)
++		return err;
++
++	supported = MLX5_GET(pcmr_reg, in, rx_ts_over_crc_cap);
++	curr_state = MLX5_GET(pcmr_reg, in, rx_ts_over_crc);
++
++	if (!supported || enable == curr_state)
++		return 0;
++
++	MLX5_SET(pcmr_reg, in, local_port, 1);
++	MLX5_SET(pcmr_reg, in, rx_ts_over_crc, enable);
++
++	return mlx5_set_ports_check(mdev, in, sizeof(in));
++}
++
+ static int set_feature_rx_fcs(struct net_device *netdev, bool enable)
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
++	struct mlx5e_channels *chs = &priv->channels;
++	struct mlx5_core_dev *mdev = priv->mdev;
  	int err;
  
-+	mlx5_debug_cq_remove(dev, cq);
-+
- 	mlx5_eq_del_cq(mlx5_get_async_eq(dev), cq);
- 	mlx5_eq_del_cq(&cq->eq->core, cq);
+ 	mutex_lock(&priv->state_lock);
  
-@@ -162,16 +164,13 @@ int mlx5_core_destroy_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq)
- 	MLX5_SET(destroy_cq_in, in, cqn, cq->cqn);
- 	MLX5_SET(destroy_cq_in, in, uid, cq->uid);
- 	err = mlx5_cmd_exec_in(dev, destroy_cq, in);
+-	priv->channels.params.scatter_fcs_en = enable;
+-	err = mlx5e_modify_channels_scatter_fcs(&priv->channels, enable);
 -	if (err)
--		return err;
+-		priv->channels.params.scatter_fcs_en = !enable;
++	if (enable) {
++		err = mlx5e_set_rx_port_ts(mdev, false);
++		if (err)
++			goto out;
  
- 	synchronize_irq(cq->irqn);
+-	mutex_unlock(&priv->state_lock);
++		chs->params.scatter_fcs_en = true;
++		err = mlx5e_modify_channels_scatter_fcs(chs, true);
++		if (err) {
++			chs->params.scatter_fcs_en = false;
++			mlx5e_set_rx_port_ts(mdev, true);
++		}
++	} else {
++		chs->params.scatter_fcs_en = false;
++		err = mlx5e_modify_channels_scatter_fcs(chs, false);
++		if (err) {
++			chs->params.scatter_fcs_en = true;
++			goto out;
++		}
++		err = mlx5e_set_rx_port_ts(mdev, true);
++		if (err) {
++			mlx5_core_warn(mdev, "Failed to set RX port timestamp %d\n", err);
++			err = 0;
++		}
++	}
  
--	mlx5_debug_cq_remove(dev, cq);
- 	mlx5_cq_put(cq);
- 	wait_for_completion(&cq->free);
- 
--	return 0;
-+	return err;
++out:
++	mutex_unlock(&priv->state_lock);
+ 	return err;
  }
- EXPORT_SYMBOL(mlx5_core_destroy_cq);
  
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index f3638d09ba77..993204a6c1a1 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -9475,16 +9475,22 @@ struct mlx5_ifc_pcmr_reg_bits {
+ 	u8         reserved_at_0[0x8];
+ 	u8         local_port[0x8];
+ 	u8         reserved_at_10[0x10];
++
+ 	u8         entropy_force_cap[0x1];
+ 	u8         entropy_calc_cap[0x1];
+ 	u8         entropy_gre_calc_cap[0x1];
+-	u8         reserved_at_23[0x1b];
++	u8         reserved_at_23[0xf];
++	u8         rx_ts_over_crc_cap[0x1];
++	u8         reserved_at_33[0xb];
+ 	u8         fcs_cap[0x1];
+ 	u8         reserved_at_3f[0x1];
++
+ 	u8         entropy_force[0x1];
+ 	u8         entropy_calc[0x1];
+ 	u8         entropy_gre_calc[0x1];
+-	u8         reserved_at_43[0x1b];
++	u8         reserved_at_43[0xf];
++	u8         rx_ts_over_crc[0x1];
++	u8         reserved_at_53[0xb];
+ 	u8         fcs_chk[0x1];
+ 	u8         reserved_at_5f[0x1];
+ };
 
