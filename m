@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FC06431BA8
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B626431D4A
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232832AbhJRNeL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:34:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42838 "EHLO mail.kernel.org"
+        id S233892AbhJRNt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:49:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233055AbhJRNcX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:32:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A7816137B;
-        Mon, 18 Oct 2021 13:29:11 +0000 (UTC)
+        id S232891AbhJRNsI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:48:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B394561360;
+        Mon, 18 Oct 2021 13:36:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563751;
-        bh=u8O7nu3IFo70M67z9E3h7OH31dB0utrND8ayViNyC0o=;
+        s=korg; t=1634564204;
+        bh=5dlnK4dzyi2Jw1z3okBIXu8lZDl/jvlRZV3/+8AL1S8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rffjc8TIttC9pe57kJ+0SbzSTWoUoaCP7ha7lGCqA7c+G4YN3pFzb1Neh4H8Caaix
-         CBgc5e5ZkNnEpFx8QJJxK7muqXcYpUnE3YMrG7R6KX0VRvNR2DHNJdHVj+8V35omlB
-         uyLb2zb4zDOjy5LmXGra8cyOvEAbFRWYCtcXOWpw=
+        b=gOsevQzLazDkcihmp52KBqQHih+AkW8+6St9dMnOucgz4ZIxxDWeC/7/qWOt14Con
+         k3RpluPWW3i5ERxl35UvV8fuIoImqqe8iS4wPry3zE3ASkVb+ZaTLCjUFDdLlchd4l
+         mhNGVRidD03SK+oBMe7+U7kjYEyGqEuEHqEvgVPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 50/50] r8152: select CRC32 and CRYPTO/CRYPTO_HASH/CRYPTO_SHA256
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 081/103] NFC: digital: fix possible memory leak in digital_in_send_sdd_req()
 Date:   Mon, 18 Oct 2021 15:24:57 +0200
-Message-Id: <20211018132328.188381894@linuxfoundation.org>
+Message-Id: <20211018132337.477024554@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-commit 9973a43012b6ad1720dbc4d5faf5302c28635b8c upstream.
+commit 291c932fc3692e4d211a445ba8aa35663831bac7 upstream.
 
-Fix the following build/link errors by adding a dependency on
-CRYPTO, CRYPTO_HASH, CRYPTO_SHA256 and CRC32:
+'skb' is allocated in digital_in_send_sdd_req(), but not free when
+digital_in_send_cmd() failed, which will cause memory leak. Fix it
+by freeing 'skb' if digital_in_send_cmd() return failed.
 
-  ld: drivers/net/usb/r8152.o: in function `rtl8152_fw_verify_checksum':
-  r8152.c:(.text+0x2b2a): undefined reference to `crypto_alloc_shash'
-  ld: r8152.c:(.text+0x2bed): undefined reference to `crypto_shash_digest'
-  ld: r8152.c:(.text+0x2c50): undefined reference to `crypto_destroy_tfm'
-  ld: drivers/net/usb/r8152.o: in function `_rtl8152_set_rx_mode':
-  r8152.c:(.text+0xdcb0): undefined reference to `crc32_le'
-
-Fixes: 9370f2d05a2a1 ("r8152: support request_firmware for RTL8153")
-Fixes: ac718b69301c7 ("net/usb: new driver for RTL8152")
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2c66daecc409 ("NFC Digital: Add NFC-A technology support")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/Kconfig |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/nfc/digital_technology.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/usb/Kconfig
-+++ b/drivers/net/usb/Kconfig
-@@ -98,6 +98,10 @@ config USB_RTL8150
- config USB_RTL8152
- 	tristate "Realtek RTL8152/RTL8153 Based USB Ethernet Adapters"
- 	select MII
-+	select CRC32
-+	select CRYPTO
-+	select CRYPTO_HASH
-+	select CRYPTO_SHA256
- 	help
- 	  This option adds support for Realtek RTL8152 based USB 2.0
- 	  10/100 Ethernet adapters and RTL8153 based USB 3.0 10/100/1000
+--- a/net/nfc/digital_technology.c
++++ b/net/nfc/digital_technology.c
+@@ -465,8 +465,12 @@ static int digital_in_send_sdd_req(struc
+ 	skb_put_u8(skb, sel_cmd);
+ 	skb_put_u8(skb, DIGITAL_SDD_REQ_SEL_PAR);
+ 
+-	return digital_in_send_cmd(ddev, skb, 30, digital_in_recv_sdd_res,
+-				   target);
++	rc = digital_in_send_cmd(ddev, skb, 30, digital_in_recv_sdd_res,
++				 target);
++	if (rc)
++		kfree_skb(skb);
++
++	return rc;
+ }
+ 
+ static void digital_in_recv_sens_res(struct nfc_digital_dev *ddev, void *arg,
 
 
