@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 185B1431CF4
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:44:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C0B9431C24
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232002AbhJRNqf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:46:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35684 "EHLO mail.kernel.org"
+        id S232758AbhJRNjO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:39:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232432AbhJRNo1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:44:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5533C6159A;
-        Mon, 18 Oct 2021 13:35:14 +0000 (UTC)
+        id S231873AbhJRNgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:36:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0E3461423;
+        Mon, 18 Oct 2021 13:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564114;
-        bh=KKmFggWOIxdeFqORwrBzgJJYqzZ/XjUd8vhuuFwgfT0=;
+        s=korg; t=1634563877;
+        bh=b+Ufc/yiY9BNYCCkbhhib/96jI8n5yxkAyLJNITWAk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=km166xdSPT5khufNnpKZG7ZGH1+INTnK+VOuWhUeX0v+SlmoJMdY9Z//FTq0K8ydG
-         mZ0n6Zb3wFXU5cenmKc+fflb6giz6uyBebm7NLDkgDLEpRGokTMbDzgcooIlmMYvZq
-         RsVwz+RsAjTDnK015sS5z5h89XaI9p6JQmEsHp3A=
+        b=srYuvR5hshMrBz47feWjwhxZUhP/R/ozC8nLze49CzbKeVjY0i4FIYarvzdWKvGeW
+         baSnXKSZGQnWE3XDdCpscJXpEcnSCVGZnBBCmtR1vshH7uYD8H1mQHLDyEZdWqhhVs
+         kJ08Q4AgRoD8mlzlafBndLunHURFw+kuseto9Uc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Vegard Nossum <vegard.nossum@oracle.com>,
+        Florian fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 070/103] net: arc: select CRC32
+Subject: [PATCH 5.4 48/69] net: korina: select CRC32
 Date:   Mon, 18 Oct 2021 15:24:46 +0200
-Message-Id: <20211018132337.089696612@linuxfoundation.org>
+Message-Id: <20211018132331.082571075@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +43,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vegard Nossum <vegard.nossum@oracle.com>
 
-commit e599ee234ad4fdfe241d937bbabd96e0d8f9d868 upstream.
+commit 427f974d9727ca681085ddcd0530c97ab5811ae0 upstream.
 
 Fix the following build/link error by adding a dependency on the CRC32
 routines:
 
-  ld: drivers/net/ethernet/arc/emac_main.o: in function `arc_emac_set_rx_mode':
-  emac_main.c:(.text+0xb11): undefined reference to `crc32_le'
+  ld: drivers/net/ethernet/korina.o: in function `korina_multicast_list':
+  korina.c:(.text+0x1af): undefined reference to `crc32_le'
 
-The crc32_le() call comes through the ether_crc_le() call in
-arc_emac_set_rx_mode().
-
-[v2: moved the select to ARC_EMAC_CORE; the Makefile is a bit confusing,
-but the error comes from emac_main.o, which is part of the arc_emac module,
-which in turn is enabled by CONFIG_ARC_EMAC_CORE. Note that arc_emac is
-different from emac_arc...]
-
-Fixes: 775dd682e2b0ec ("arc_emac: implement promiscuous mode and multicast filtering")
+Fixes: ef11291bcd5f9 ("Add support the Korina (IDT RC32434) Ethernet MAC")
 Cc: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Link: https://lore.kernel.org/r/20211012093446.1575-1-vegard.nossum@oracle.com
+Acked-by: Florian fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20211012152509.21771-1-vegard.nossum@oracle.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/arc/Kconfig |    1 +
+ drivers/net/ethernet/Kconfig |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/arc/Kconfig
-+++ b/drivers/net/ethernet/arc/Kconfig
-@@ -21,6 +21,7 @@ config ARC_EMAC_CORE
- 	depends on ARC || ARCH_ROCKCHIP || COMPILE_TEST
- 	select MII
- 	select PHYLIB
+--- a/drivers/net/ethernet/Kconfig
++++ b/drivers/net/ethernet/Kconfig
+@@ -100,6 +100,7 @@ config JME
+ config KORINA
+ 	tristate "Korina (IDT RC32434) Ethernet support"
+ 	depends on MIKROTIK_RB532
 +	select CRC32
- 
- config ARC_EMAC
- 	tristate "ARC EMAC support"
+ 	---help---
+ 	  If you have a Mikrotik RouterBoard 500 or IDT RC32434
+ 	  based system say Y. Otherwise say N.
 
 
