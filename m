@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79960431D67
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:48:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D65DF431D74
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232879AbhJRNvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49508 "EHLO mail.kernel.org"
+        id S232994AbhJRNva (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:51:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232617AbhJRNtM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:49:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 911C2613DB;
-        Mon, 18 Oct 2021 13:37:15 +0000 (UTC)
+        id S233373AbhJRNtT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:49:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3035C60EFE;
+        Mon, 18 Oct 2021 13:37:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564236;
-        bh=YrK6Z7UxsxCKjhdSKe/rz/pxD7DNaT2TFIjB7YkMI4I=;
+        s=korg; t=1634564238;
+        bh=E8neFMQxf1o/6hUR9Xy8xjTJANOM1AjMQHoam/otEwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDeXlp/7lW2VbdGZjtH6j3Ys9Z1S/5verBopnCWCSzV5b3Sr3/8qm1P5oaZf7SKxK
-         qxajRhuAWz2mCv8keE+f3j3M6zDn7D6Jht/LhSz3481zAhKM6blNYCp4jsNNtXtKvr
-         2XLa9TzLBCpHh5YHqV8w6mSroJDa/PCoV7mVHYeg=
+        b=oIpBekhTuvzjcUxwQa6A1a2G+4Fix+bMcxdl9y7v/0EA/F4z04wrboEffnXaqo2Il
+         ZOsyvL8raPN+H3jJeP+X7JXbTsh9KXW5NYNvfyiPAyJhyTRWogTT9wkomwb/7vMWcE
+         TG2Pbk/6HbUKqQqFMS/FVdvyVK/Lnc1SPjH++fUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Zephaniah E. Loss-Cutler-Hull" <zephaniah@gmail.com>,
+        stable@vger.kernel.org, Sachi King <nakato@nakato.io>,
+        Mario Limonciello <mario.limonciello@amd.com>,
         Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.14 013/151] platform/x86: gigabyte-wmi: add support for B550 AORUS ELITE AX V2
-Date:   Mon, 18 Oct 2021 15:23:12 +0200
-Message-Id: <20211018132341.115829214@linuxfoundation.org>
+Subject: [PATCH 5.14 014/151] platform/x86: amd-pmc: Add alternative acpi id for PMC controller
+Date:   Mon, 18 Oct 2021 15:23:13 +0200
+Message-Id: <20211018132341.149538591@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -40,30 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zephaniah E. Loss-Cutler-Hull <zephaniah@gmail.com>
+From: Sachi King <nakato@nakato.io>
 
-commit 0f607d6b227470456a69a37d7c7badea51d52844 upstream.
+commit c0d84d2c7c23e9cf23a5abdda40eeaa79eabfe69 upstream.
 
-This works just fine on my system.
+The Surface Laptop 4 AMD has used the AMD0005 to identify this
+controller instead of using the appropriate ACPI ID AMDI0005.  Include
+AMD0005 in the acpi id list.
 
-Signed-off-by: Zephaniah E. Loss-Cutler-Hull <zephaniah@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211005044855.1429724-1-zephaniah@gmail.com
+Link: https://github.com/linux-surface/acpidumps/tree/master/surface_laptop_4_amd
+Link: https://gist.github.com/nakato/2a1a7df1a45fe680d7a08c583e1bf863
+Cc: <stable@vger.kernel.org> # 5.14+
+Signed-off-by: Sachi King <nakato@nakato.io>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://lore.kernel.org/r/20211002041840.2058647-1-nakato@nakato.io
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/gigabyte-wmi.c |    1 +
+ drivers/platform/x86/amd-pmc.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/platform/x86/gigabyte-wmi.c
-+++ b/drivers/platform/x86/gigabyte-wmi.c
-@@ -141,6 +141,7 @@ static u8 gigabyte_wmi_detect_sensor_usa
- 
- static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M S2H V2"),
-+	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE AX V2"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE V2"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 GAMING X V2"),
+--- a/drivers/platform/x86/amd-pmc.c
++++ b/drivers/platform/x86/amd-pmc.c
+@@ -476,6 +476,7 @@ static const struct acpi_device_id amd_p
+ 	{"AMDI0006", 0},
+ 	{"AMDI0007", 0},
+ 	{"AMD0004", 0},
++	{"AMD0005", 0},
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(acpi, amd_pmc_acpi_ids);
 
 
