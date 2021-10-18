@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BFA3431E06
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9DDB431C63
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232854AbhJRN5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:57:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57654 "EHLO mail.kernel.org"
+        id S233555AbhJRNkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:40:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233670AbhJRNzN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:55:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 288ED619F9;
-        Mon, 18 Oct 2021 13:39:51 +0000 (UTC)
+        id S233886AbhJRNjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:39:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA3FF61351;
+        Mon, 18 Oct 2021 13:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564391;
-        bh=1vCC8JmW3qUGBvIvH+VBwtplxGM1bASbw/+PNV10B94=;
+        s=korg; t=1634563951;
+        bh=YtbMyczbAmwsU0xCrDe3WpkdXZe4HFudsVFciYzlZDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gnTXb8ky3q21cEmDv50oZnodcfBlol1gXqfTk2IykL+rC5BbLkE+7S0lN0IQkxP7I
-         1182Xx6mo+7YE+yEXXiOht8JWKJUnEoRhYoHErdx2eszkSBAHTyEZ2tI/m/blVJ1tf
-         orw+aDFZUhQDFuIbHXJr/gHB+bwd/GoMVIKblYgM=
+        b=Ume9zHhpft5sxaG8UwJ5UqDpqzNVUQ5kk5xbgX7EefKdB4ulDhvptC/mSNk4wpQV0
+         9MW9mYxzUk51CpDdzbnNn5LZucX9em7GuPQMKVwerBynqcnX+FwGHapPbkEdEuu5j5
+         Dx9i15tSrp2GT/YRpH+h8MqdXXDJfWNfFZBTRjSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.14 038/151] mei: me: add Ice Lake-N device id.
+        stable@vger.kernel.org, Jonas Hahnfeld <hahnjo@hahnjo.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 001/103] ALSA: usb-audio: Add quirk for VF0770
 Date:   Mon, 18 Oct 2021 15:23:37 +0200
-Message-Id: <20211018132341.929405147@linuxfoundation.org>
+Message-Id: <20211018132334.753955399@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,44 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Jonas Hahnfeld <hahnjo@hahnjo.de>
 
-commit 75c10c5e7a715550afdd51ef8cfd1d975f48f9e1 upstream.
+commit 48827e1d6af58f219e89c7ec08dccbca28c7694e upstream.
 
-Add Ice Lake-N device ID.
+The device advertises 8 formats, but only a rate of 48kHz is honored
+by the hardware and 24 bits give chopped audio, so only report the
+one working combination. This fixes out-of-the-box audio experience
+with PipeWire which otherwise attempts to choose S24_3LE (while
+PulseAudio defaulted to S16_LE).
 
-The device can be found on MacBookPro16,2 [1].
-
-[1]: https://linux-hardware.org/?probe=f1c5cf0c43
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211001173644.16068-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Jonas Hahnfeld <hahnjo@hahnjo.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211012200906.3492-1-hahnjo@hahnjo.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/hw-me-regs.h |    1 +
- drivers/misc/mei/pci-me.c     |    1 +
- 2 files changed, 2 insertions(+)
+ sound/usb/quirks-table.h |   42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -92,6 +92,7 @@
- #define MEI_DEV_ID_CDF        0x18D3  /* Cedar Fork */
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -78,6 +78,48 @@
+ { USB_DEVICE_VENDOR_SPEC(0x041e, 0x3f19) },
  
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
-+#define MEI_DEV_ID_ICP_N      0x38E0  /* Ice Lake Point N */
- 
- #define MEI_DEV_ID_JSP_N      0x4DE0  /* Jasper Lake Point N */
- 
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -96,6 +96,7 @@ static const struct pci_device_id mei_me
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H_3, MEI_ME_PCH8_ITOUCH_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_N, MEI_ME_PCH12_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_TGP_LP, MEI_ME_PCH15_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_TGP_H, MEI_ME_PCH15_SPS_CFG)},
+ /*
++ * Creative Technology, Ltd Live! Cam Sync HD [VF0770]
++ * The device advertises 8 formats, but only a rate of 48kHz is honored by the
++ * hardware and 24 bits give chopped audio, so only report the one working
++ * combination.
++ */
++{
++	USB_DEVICE(0x041e, 0x4095),
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = &(const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_STANDARD_MIXER,
++			},
++			{
++				.ifnum = 3,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S16_LE,
++					.channels = 2,
++					.fmt_bits = 16,
++					.iface = 3,
++					.altsetting = 4,
++					.altset_idx = 4,
++					.endpoint = 0x82,
++					.ep_attr = 0x05,
++					.rates = SNDRV_PCM_RATE_48000,
++					.rate_min = 48000,
++					.rate_max = 48000,
++					.nr_rates = 1,
++					.rate_table = (unsigned int[]) { 48000 },
++				},
++			},
++			{
++				.ifnum = -1
++			},
++		},
++	},
++},
++
++/*
+  * HP Wireless Audio
+  * When not ignored, causes instability issues for some users, forcing them to
+  * skip the entire module.
 
 
