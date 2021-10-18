@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9FE3431CB2
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96968431C2C
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232973AbhJRNoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:44:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39094 "EHLO mail.kernel.org"
+        id S232990AbhJRNjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:39:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232934AbhJRNmN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:42:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B26961502;
-        Mon, 18 Oct 2021 13:33:59 +0000 (UTC)
+        id S232582AbhJRNhF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:37:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0EEB6128A;
+        Mon, 18 Oct 2021 13:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564040;
-        bh=UIDBhV2mo5XJ6O4cTODOgyRET1/Q1EOHmTKga8/6W+M=;
+        s=korg; t=1634563887;
+        bh=5fkEOeRKMpAv1rt8DKebXAXjaN3huRnJpE8l2uHkoJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STzmMvBvUfGirkdZ01AC2q/BLaqVsP8ontAvs8fcCz1vPKEywtYv6YD98Mbqjte2T
-         neueMWfZcOmNo55ooI4bEtV3S99/HYyo148WD1IDJbKD+EzRP35vn5YRi0o71Ey1dk
-         aujLFQACdn/qojRdpCO2e/Usksr0CNGKzRL7fd+Y=
+        b=fyWW+t+HgNgf/hO0NOauXJU3d1lKHgMLutZe0gL7G2dlIiN+0cGv8cCKDEtw3exST
+         snd+YeLQIA0bbXVnp4X5vXn8IdJxA768XgJyl2G3+/KfNeZ6beMSjWNcFqOcVlOu6h
+         w/Se2EfdTbfLutqu3Gpj03kg7cW+qnj0oB+KEr14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        markver@us.ibm.com, Cornelia Huck <cohuck@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.10 041/103] virtio: write back F_VERSION_1 before validate
-Date:   Mon, 18 Oct 2021 15:24:17 +0200
-Message-Id: <20211018132336.097237458@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pavankumar Kondeti <pkondeti@codeaurora.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 20/69] xhci: Fix command ring pointer corruption while aborting a command
+Date:   Mon, 18 Oct 2021 15:24:18 +0200
+Message-Id: <20211018132330.137108183@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Pavankumar Kondeti <pkondeti@codeaurora.org>
 
-commit 2f9a174f918e29608564c7a4e8329893ab604fb4 upstream.
+commit ff0e50d3564f33b7f4b35cadeabd951d66cfc570 upstream.
 
-The virtio specification virtio-v1.1-cs01 states: "Transitional devices
-MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
-been acknowledged by the driver."  This is exactly what QEMU as of 6.1
-has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
+The command ring pointer is located at [6:63] bits of the command
+ring control register (CRCR). All the control bits like command stop,
+abort are located at [0:3] bits. While aborting a command, we read the
+CRCR and set the abort bit and write to the CRCR. The read will always
+give command ring pointer as all zeros. So we essentially write only
+the control bits. Since we split the 64 bit write into two 32 bit writes,
+there is a possibility of xHC command ring stopped before the upper
+dword (all zeros) is written. If that happens, xHC updates the upper
+dword of its internal command ring pointer with all zeros. Next time,
+when the command ring is restarted, we see xHC memory access failures.
+Fix this issue by only writing to the lower dword of CRCR where all
+control bits are located.
 
-However, the specification also says: "... the driver MAY read (but MUST
-NOT write) the device-specific configuration fields to check that it can
-support the device ..." before setting FEATURES_OK.
-
-In that case, any transitional device relying solely on
-VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
-legacy format.  In particular, this implies that it is in big endian
-format for big endian guests. This naturally confuses the driver which
-expects little endian in the modern mode.
-
-It is probably a good idea to amend the spec to clarify that
-VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
-is complete. Before validate callback existed, config space was only
-read after FEATURES_OK. However, we already have two regressions, so
-let's address this here as well.
-
-The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
-the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
-virtio 1.0 is used on both sides. The latter renders virtio-blk unusable
-with DASD backing, because things simply don't work with the default.
-See Fixes tags for relevant commits.
-
-For QEMU, we can work around the issue by writing out the feature bits
-with VIRTIO_F_VERSION_1 bit set.  We (ab)use the finalize_features
-config op for this. This isn't enough to address all vhost devices since
-these do not get the features until FEATURES_OK, however it looks like
-the affected devices actually never handled the endianness for legacy
-mode correctly, so at least that's not a regression.
-
-No devices except virtio net and virtio blk seem to be affected.
-
-Long term the right thing to do is to fix the hypervisors.
-
-Cc: <stable@vger.kernel.org> #v4.11
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
-Reported-by: markver@us.ibm.com
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Link: https://lore.kernel.org/r/20211011053921.1198936-1-pasic@linux.ibm.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavankumar Kondeti <pkondeti@codeaurora.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211008092547.3996295-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virtio/virtio.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/usb/host/xhci-ring.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -240,6 +240,17 @@ static int virtio_dev_probe(struct devic
- 		driver_features_legacy = driver_features;
- 	}
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -339,16 +339,22 @@ static void xhci_handle_stopped_cmd_ring
+ /* Must be called with xhci->lock held, releases and aquires lock back */
+ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
+ {
+-	u64 temp_64;
++	u32 temp_32;
+ 	int ret;
  
+ 	xhci_dbg(xhci, "Abort command ring\n");
+ 
+ 	reinit_completion(&xhci->cmd_ring_stop_completion);
+ 
+-	temp_64 = xhci_read_64(xhci, &xhci->op_regs->cmd_ring);
+-	xhci_write_64(xhci, temp_64 | CMD_RING_ABORT,
+-			&xhci->op_regs->cmd_ring);
 +	/*
-+	 * Some devices detect legacy solely via F_VERSION_1. Write
-+	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
-+	 * these when needed.
++	 * The control bits like command stop, abort are located in lower
++	 * dword of the command ring control register. Limit the write
++	 * to the lower dword to avoid corrupting the command ring pointer
++	 * in case if the command ring is stopped by the time upper dword
++	 * is written.
 +	 */
-+	if (drv->validate && !virtio_legacy_is_little_endian()
-+			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
-+		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
-+		dev->config->finalize_features(dev);
-+	}
-+
- 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
- 		dev->features = driver_features & device_features;
- 	else
++	temp_32 = readl(&xhci->op_regs->cmd_ring);
++	writel(temp_32 | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
+ 
+ 	/* Section 4.6.1.2 of xHCI 1.0 spec says software should also time the
+ 	 * completion of the Command Abort operation. If CRR is not negated in 5
 
 
