@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57413431E0F
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21159431C29
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232912AbhJRN53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:57:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57776 "EHLO mail.kernel.org"
+        id S232959AbhJRNjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:39:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234257AbhJRNzY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:55:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06F616138D;
-        Mon, 18 Oct 2021 13:40:05 +0000 (UTC)
+        id S233119AbhJRNg5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:36:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35ACD60295;
+        Mon, 18 Oct 2021 13:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564406;
-        bh=RUSYGcUE9avAjSDc7pZPpcq1IGDFoer+waIvRGTiRgQ=;
+        s=korg; t=1634563884;
+        bh=uU1dajyjx+Uyi5D5/TdGmN40awWfzaNcGUHRGW8Tb7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00iMZdEhhc+wUYUyyLg+PYHlaDo4/4vdTrCTUee50d74pLndWJPUioTHQQ4ad6yW6
-         hUD3c5MHNz9Lkk6Yi/6goLKuJ8RZY3Hgq8kD8I5hft8nGU5DvmDF+pk5wVM/KZ/T4F
-         CrRb6umk3c/yDntYn41zARNwxI+/sWeGorvn4VSw=
+        b=LXAFg59eRYZFgOCbIsHrq8d/NYTxGg1StbSwmBySutCn59UKvLLdYyVPt9MPLRNeK
+         O0j4NT0iqJhC7jPxLYjtYI4IPG1EzbrmL0gHTHfokyhVanDjw1tniMMmV2Rukj3541
+         SnWtReVdhOynbufNYZiFXxVqfwvoObdO/60zXyq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.14 078/151] iio: adc: max1027: Fix the number of max1X31 channels
+        stable@vger.kernel.org, Jonathan Bell <jonathan@raspberrypi.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 19/69] xhci: guard accesses to ep_state in xhci_endpoint_reset()
 Date:   Mon, 18 Oct 2021 15:24:17 +0200
-Message-Id: <20211018132343.224884198@linuxfoundation.org>
+Message-Id: <20211018132330.106182147@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Jonathan Bell <jonathan@raspberrypi.com>
 
-commit f0cb5fed37ab37f6a6c5463c5fd39b58a45670c8 upstream.
+commit a01ba2a3378be85538e0183ae5367c1bc1d5aaf3 upstream.
 
-The macro MAX1X29_CHANNELS() already calls MAX1X27_CHANNELS().
-Calling MAX1X27_CHANNELS() before MAX1X29_CHANNELS() in the definition
-of MAX1X31_CHANNELS() declares the first 8 channels twice. So drop this
-extra call from the MAX1X31 channels list definition.
+See https://github.com/raspberrypi/linux/issues/3981
 
-Fixes: 7af5257d8427 ("iio: adc: max1027: Prepare the introduction of different resolutions")
+Two read-modify-write cycles on ep->ep_state are not guarded by
+xhci->lock. Fix these.
+
+Fixes: f5249461b504 ("xhci: Clear the host side toggle manually when endpoint is soft reset")
 Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210818111139.330636-3-miquel.raynal@bootlin.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Jonathan Bell <jonathan@raspberrypi.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211008092547.3996295-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/max1027.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/usb/host/xhci.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/iio/adc/max1027.c
-+++ b/drivers/iio/adc/max1027.c
-@@ -142,7 +142,6 @@ MODULE_DEVICE_TABLE(of, max1027_adc_dt_i
- 	MAX1027_V_CHAN(11, depth)
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -3173,10 +3173,13 @@ static void xhci_endpoint_reset(struct u
+ 		return;
  
- #define MAX1X31_CHANNELS(depth)			\
--	MAX1X27_CHANNELS(depth),		\
- 	MAX1X29_CHANNELS(depth),		\
- 	MAX1027_V_CHAN(12, depth),		\
- 	MAX1027_V_CHAN(13, depth),		\
+ 	/* Bail out if toggle is already being cleared by a endpoint reset */
++	spin_lock_irqsave(&xhci->lock, flags);
+ 	if (ep->ep_state & EP_HARD_CLEAR_TOGGLE) {
+ 		ep->ep_state &= ~EP_HARD_CLEAR_TOGGLE;
++		spin_unlock_irqrestore(&xhci->lock, flags);
+ 		return;
+ 	}
++	spin_unlock_irqrestore(&xhci->lock, flags);
+ 	/* Only interrupt and bulk ep's use data toggle, USB2 spec 5.5.4-> */
+ 	if (usb_endpoint_xfer_control(&host_ep->desc) ||
+ 	    usb_endpoint_xfer_isoc(&host_ep->desc))
+@@ -3262,8 +3265,10 @@ static void xhci_endpoint_reset(struct u
+ 	xhci_free_command(xhci, cfg_cmd);
+ cleanup:
+ 	xhci_free_command(xhci, stop_cmd);
++	spin_lock_irqsave(&xhci->lock, flags);
+ 	if (ep->ep_state & EP_SOFT_CLEAR_TOGGLE)
+ 		ep->ep_state &= ~EP_SOFT_CLEAR_TOGGLE;
++	spin_unlock_irqrestore(&xhci->lock, flags);
+ }
+ 
+ static int xhci_check_streams_endpoint(struct xhci_hcd *xhci,
 
 
