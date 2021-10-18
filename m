@@ -2,196 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 088184327E4
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 21:45:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92B5F432821
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 22:05:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232635AbhJRTro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 15:47:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35112 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232405AbhJRTro (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 15:47:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 677DA6112D;
-        Mon, 18 Oct 2021 19:45:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1634586332;
-        bh=a5MuhLhxRBRik43R3XKbsPDiH4hO4fDK/HOeDaIgMeo=;
-        h=Date:From:To:Subject:From;
-        b=xAmVpKtDACOULrezciALJNMzyHN7AMnwfaoggPvCKuy+oKk/lm3GkmKxwHFPr34dD
-         GkVsTFSXy4gsbTNCkcQaAV15ZEmPdpzx/FQDyUKzD+XN7aBxMd4Uxg4sxDmHvIcN/e
-         TKU84s7EOPTic8fr2L+YxmVYgMIDjK6vXP9ig0vE=
-Date:   Mon, 18 Oct 2021 12:45:31 -0700
-From:   akpm@linux-foundation.org
-To:     david@redhat.com, guro@fb.com, hannes@cmpxchg.org, mhocko@suse.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        vvs@virtuozzo.com
-Subject:  [alternative-merged]
- memcg-enable-memory-accounting-in-__alloc_pages_bulk.patch removed from -mm
- tree
-Message-ID: <20211018194531.p7nILd93Z%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S230298AbhJRUH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 16:07:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41804 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229941AbhJRUH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 16:07:27 -0400
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DA1DC06161C
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 13:05:16 -0700 (PDT)
+Received: by mail-pl1-x62a.google.com with SMTP id g5so12068487plg.1
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 13:05:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=gA5NVBhwNW6cB47b6gADEH6G16s82hlNxMBdMQJ46G4=;
+        b=SfaHX5YKldLyP3NtC+ktRQct4C+/GIRlpXxDZ9s68Y0YxnZuS8wh5ZJxfgE0maUIHq
+         lVNuNsueljz7+BSE1iCbBtdSuAszidqeRlOCs6GDsOD+yrp5H/kZVTckts1UOleBYgFs
+         aoVX1xzDWAXh7x4kNe8tGES57oERW9QwogHazvnM5HczEg7pa5/o2H+2lMHr1V50WDV7
+         jTihlgUATf3SQnWoLqUPQDtkStaUclvHepANzW/z1syaRhicRUHkLTGgOAfreFCVzCK1
+         tv63MtIYQtAB3ZAh1hS2qHJxFyyuOEPpNgdYr23ZR84YxFNmxX6XZRJXUNaV0JQ4JUqK
+         8pmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=gA5NVBhwNW6cB47b6gADEH6G16s82hlNxMBdMQJ46G4=;
+        b=x8IPUOuWjv26mn2ZcbnCLLsioADEbHC41Q2mQ1E8IjOiYt1wvbZ5rlhPnu2yvKyN+u
+         V9hirvV5w0rKQAsX88SNRaHgBONF8lQbzDkQc6KxftfWtUFhRQpAEv95jQsVAPnLVJso
+         e5/8+9t81g1Hxa2qEvQwCZS8dsjSXirKqsA5TGxqD79xPtZgCAr7OFpiRo/txIHELwiE
+         T3QSroMe+yMv1lZOgyTw/dUBQ2n6PMNkiQ9nZB55d3u+GqLU1fsIP0193a9YcQKGrS6t
+         8UKPyOz+tRx0lz3Qj+RdkRPGMqj8kiHOGobBKHhw2XOkJeWn+CpshjLq5LzL8B+yFGVg
+         gPIA==
+X-Gm-Message-State: AOAM531YtmeNTWKylOon04dBKZLwjwOkpLqJ+xmtI0UnM+TBjJBT/Idx
+        iCcT5r9mAKt0uKBcMc7fU364IQ==
+X-Google-Smtp-Source: ABdhPJwSxbIu5Hn2VcVRe6RKLH//qooKR5tgpTVxwkjGgW2GG1l4y28tCj7bxanZ6i+w3vp1TpVD8g==
+X-Received: by 2002:a17:90b:4b07:: with SMTP id lx7mr1097565pjb.195.1634587515606;
+        Mon, 18 Oct 2021 13:05:15 -0700 (PDT)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id kb15sm272822pjb.43.2021.10.18.13.05.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Oct 2021 13:05:14 -0700 (PDT)
+Date:   Mon, 18 Oct 2021 20:05:10 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     Jane Malalane <jane.malalane@citrix.com>,
+        LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Pu Wen <puwen@hygon.cn>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andrew Cooper <andrew.cooper3@citrix.com>,
+        Yazen Ghannam <Yazen.Ghannam@amd.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Huang Rui <ray.huang@amd.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Kim Phillips <kim.phillips@amd.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] x86/cpu: Fix migration safety with X86_BUG_NULL_SEL
+Message-ID: <YW3TdmEe/mx/5aOO@google.com>
+References: <20211013142230.10129-1-jane.malalane@citrix.com>
+ <YW25x7AYiM1f1HQA@zn.tnic>
+ <YW3LJdztZom+xQHv@google.com>
+ <YW3M40tOILjI3DiD@zn.tnic>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YW3M40tOILjI3DiD@zn.tnic>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Oct 18, 2021, Borislav Petkov wrote:
+> On Mon, Oct 18, 2021 at 07:29:41PM +0000, Sean Christopherson wrote:
+> > I agree.  If the argument for this patch is that the kernel can be migrated to
+> > older hardware, then it stands to reason that the kernel could also be migrated
+> > to a different CPU vendor entirely.  E.g. start on Intel, migrate to Zen1, kaboom.
+> 
+> Migration across vendors? Really, that works?
+> 
+> I'll believe it only when I see it with my own eyes.
 
-The patch titled
-     Subject: memcg: enable memory accounting in __alloc_pages_bulk
-has been removed from the -mm tree.  Its filename was
-     memcg-enable-memory-accounting-in-__alloc_pages_bulk.patch
-
-This patch was dropped because an alternative patch was merged
-
-------------------------------------------------------
-From: Vasily Averin <vvs@virtuozzo.com>
-Subject: memcg: enable memory accounting in __alloc_pages_bulk
-
-Bulk page allocator is used in vmalloc where it can be called
-with __GFP_ACCOUNT and must charge allocated pages into memory cgroup.
-
-Link: https://lkml.kernel.org/r/65c1afaf-7947-ce28-55b7-06bde7aeb278@virtuozzo.com
-Fixes: 387ba26fb1cb ("mm/page_alloc: add a bulk page allocator")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- include/linux/memcontrol.h |    9 ++++++
- mm/memcontrol.c            |   50 +++++++++++++++++++++++++++++++++++
- mm/page_alloc.c            |   12 +++++++-
- 3 files changed, 69 insertions(+), 2 deletions(-)
-
---- a/include/linux/memcontrol.h~memcg-enable-memory-accounting-in-__alloc_pages_bulk
-+++ a/include/linux/memcontrol.h
-@@ -1692,6 +1692,9 @@ static inline int memcg_cache_id(struct
- 
- struct mem_cgroup *mem_cgroup_from_obj(void *p);
- 
-+int memcg_charge_bulk_pages(gfp_t gfp, int nr_pages,
-+			    struct list_head *page_list,
-+			    struct page **page_array);
- #else
- static inline bool mem_cgroup_kmem_disabled(void)
- {
-@@ -1744,6 +1747,12 @@ static inline struct mem_cgroup *mem_cgr
-        return NULL;
- }
- 
-+int memcg_charge_bulk_pages(gfp_t gfp, int nr_pages,
-+			    struct list_head *page_list,
-+			    struct page **page_array)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_MEMCG_KMEM */
- 
- #endif /* _LINUX_MEMCONTROL_H */
---- a/mm/memcontrol.c~memcg-enable-memory-accounting-in-__alloc_pages_bulk
-+++ a/mm/memcontrol.c
-@@ -3288,6 +3288,56 @@ void obj_cgroup_uncharge(struct obj_cgro
- 	refill_obj_stock(objcg, size, true);
- }
- 
-+/*
-+ * memcg_charge_bulk_pages - Charge pages allocated by bulk allocator
-+ * @gfp: GFP flags for the allocation
-+ * @nr_pages: The number of pages added into the list or array
-+ * @page_list: Optional list of allocated pages
-+ * @page_array: Optional array of allocated pages
-+ *
-+ * Walks through array or list of allocated pages.
-+ * For each page tries to charge it.
-+ * If charge fails removes page from of array/list, frees it,
-+ * and repeat it till end of array/list
-+ *
-+ * Returns the number of freed pages.
-+ */
-+int memcg_charge_bulk_pages(gfp_t gfp, int nr_pages,
-+			    struct list_head *page_list,
-+			    struct page **page_array)
-+{
-+	struct page *page, *np = NULL;
-+	bool charge = true;
-+	int i, nr_freed = 0;
-+
-+	if (page_list)
-+		page = list_first_entry(page_list, struct page, lru);
-+
-+	for (i = 0; i < nr_pages; i++) {
-+		if (page_list) {
-+			if (np)
-+				page = np;
-+			np = list_next_entry(page, lru);
-+		} else {
-+			page = page_array[i];
-+		}
-+		/* some pages in incoming array can be charged already */
-+		if (!page->memcg_data) {
-+			if (charge && __memcg_kmem_charge_page(page, gfp, 0))
-+				charge = false;
-+
-+			if (!charge) {
-+				if (page_list)
-+					list_del(&page->lru);
-+				else
-+					page_array[i] = NULL;
-+				__free_pages(page, 0);
-+				nr_freed++;
-+			}
-+		}
-+	}
-+	return nr_freed;
-+}
- #endif /* CONFIG_MEMCG_KMEM */
- 
- /*
---- a/mm/page_alloc.c~memcg-enable-memory-accounting-in-__alloc_pages_bulk
-+++ a/mm/page_alloc.c
-@@ -5203,10 +5203,11 @@ unsigned long __alloc_pages_bulk(gfp_t g
- 	struct zoneref *z;
- 	struct per_cpu_pages *pcp;
- 	struct list_head *pcp_list;
-+	LIST_HEAD(tpl);
- 	struct alloc_context ac;
- 	gfp_t alloc_gfp;
- 	unsigned int alloc_flags = ALLOC_WMARK_LOW;
--	int nr_populated = 0, nr_account = 0;
-+	int nr_populated = 0, nr_account = 0, nr_freed = 0;
- 
- 	/*
- 	 * Skip populated array elements to determine if any pages need
-@@ -5300,7 +5301,7 @@ unsigned long __alloc_pages_bulk(gfp_t g
- 
- 		prep_new_page(page, 0, gfp, 0);
- 		if (page_list)
--			list_add(&page->lru, page_list);
-+			list_add(&page->lru, &tpl);
- 		else
- 			page_array[nr_populated] = page;
- 		nr_populated++;
-@@ -5308,6 +5309,13 @@ unsigned long __alloc_pages_bulk(gfp_t g
- 
- 	local_unlock_irqrestore(&pagesets.lock, flags);
- 
-+	if (memcg_kmem_enabled() && (gfp & __GFP_ACCOUNT) && nr_account)
-+       		nr_freed = memcg_charge_bulk_pages(gfp, nr_populated,
-+						   page_list ? &tpl : NULL,
-+						   page_array);
-+	nr_account -= nr_freed;
-+	nr_populated -= nr_freed;
-+	list_splice(&tpl, page_list);
- 	__count_zid_vm_events(PGALLOC, zone_idx(zone), nr_account);
- 	zone_statistics(ac.preferred_zoneref->zone, zone, nr_account);
- 
-_
-
-Patches currently in -mm which might be from vvs@virtuozzo.com are
-
-memcg-prohibit-unconditional-exceeding-the-limit-of-dying-tasks.patch
-mm-vmalloc-repair-warn_allocs-in-__vmalloc_area_node.patch
-vmalloc-back-off-when-the-current-task-is-oom-killed.patch
-
+There are plenty of caveats, but it is feasible.  KVM even has a few patches that
+came about specifically to support cross-vendor migration, e.g. commit adc2a23734ac
+("KVM: nSVM: improve SYSENTER emulation on AMD").
