@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 804C5431EB9
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:03:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A546431EBD
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:03:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233622AbhJROFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:05:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39834 "EHLO mail.kernel.org"
+        id S233166AbhJROFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 10:05:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234818AbhJRODS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 10:03:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A74F3610A6;
-        Mon, 18 Oct 2021 13:43:30 +0000 (UTC)
+        id S234843AbhJROD0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 10:03:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BEF061529;
+        Mon, 18 Oct 2021 13:43:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564611;
-        bh=/+fv3M6e4tZV0XEHFtkrthpnHFGfVGANl86RrK2DDG8=;
+        s=korg; t=1634564614;
+        bh=jqL16xTccPc2iQwfJ90ixrkDYzSs3Zd9Cx3u7sMDWFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZfZrcrrw5uBViRt/p3r+DTO2Y+CZZD100rozmBOMrgUnKYy2plECzfIl+bnhs7mLC
-         rUFPPeWF4hftTWZm/6aIrS91fc+QdSMN4wDfBlqvbgTfnu43Prbt+w61wmKIJZmmWK
-         ZiuYhWgx5pRX5iopUF/44k/f8N5y+SKmIzBXYYIY=
+        b=E0TgnQGWf4lyFvblgiccSzCrvJO82k69/cOrluKtqHpZ5Tq0ZJUNO/zW6yWCmp6Ko
+         X97PTpamSWVssw9P5LMC1eYgS+2q/OQRjUE0pXz3Nr7mzDfn20dEwPD1WcR52hs3cy
+         altjc6vXiM8cYISkWahZ3E0sI77rkEo+sxV4ntN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Gioh Kim <gi-oh.kim@ionos.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.14 143/151] block/rnbd-clt-sysfs: fix a couple uninitialized variable bugs
-Date:   Mon, 18 Oct 2021 15:25:22 +0200
-Message-Id: <20211018132345.308431405@linuxfoundation.org>
+        stable@vger.kernel.org, Baowen Zheng <baowen.zheng@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Louis Peens <louis.peens@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.14 144/151] nfp: flow_offload: move flow_indr_dev_register from app init to app start
+Date:   Mon, 18 Oct 2021 15:25:23 +0200
+Message-Id: <20211018132345.347006499@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -39,37 +41,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Baowen Zheng <baowen.zheng@corigine.com>
 
-commit 7904022decc260a19dd65b56ac896387f5da6f8c upstream.
+commit 60d950f443a52d950126ad664fbd4a1eb8353dc9 upstream.
 
-These variables are printed on the error path if match_int() fails so
-they have to be initialized.
+In commit 74fc4f828769 ("net: Fix offloading indirect devices dependency
+on qdisc order creation"), it adds a process to trigger the callback to
+setup the bo callback when the driver regists a callback.
 
-Fixes: 2958a995edc9 ("block/rnbd-clt: Support polling mode for IO latency optimization")
-Fixes: 1eb54f8f5dd8 ("block/rnbd: client: sysfs interface functions")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Gioh Kim <gi-oh.kim@ionos.com>
-Link: https://lore.kernel.org/r/20211012084443.GA31472@kili
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+In our current implement, we are not ready to run the callback when nfp
+call the function flow_indr_dev_register, then there will be error
+message as:
+
+kernel: Oops: 0000 [#1] SMP PTI
+kernel: CPU: 0 PID: 14119 Comm: kworker/0:0 Tainted: G
+kernel: Workqueue: events work_for_cpu_fn
+kernel: RIP: 0010:nfp_flower_indr_setup_tc_cb+0x258/0x410
+kernel: RSP: 0018:ffffbc1e02c57bf8 EFLAGS: 00010286
+kernel: RAX: 0000000000000000 RBX: ffff9c761fabc000 RCX: 0000000000000001
+kernel: RDX: 0000000000000001 RSI: fffffffffffffff0 RDI: ffffffffc0be9ef1
+kernel: RBP: ffffbc1e02c57c58 R08: ffffffffc08f33aa R09: ffff9c6db7478800
+kernel: R10: 0000009c003f6e00 R11: ffffbc1e02800000 R12: ffffbc1e000d9000
+kernel: R13: ffffbc1e000db428 R14: ffff9c6db7478800 R15: ffff9c761e884e80
+kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+kernel: CR2: fffffffffffffff0 CR3: 00000009e260a004 CR4: 00000000007706f0
+kernel: DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+kernel: DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+kernel: PKRU: 55555554
+kernel: Call Trace:
+kernel: ? flow_indr_dev_register+0xab/0x210
+kernel: ? __cond_resched+0x15/0x30
+kernel: ? kmem_cache_alloc_trace+0x44/0x4b0
+kernel: ? nfp_flower_setup_tc+0x1d0/0x1d0 [nfp]
+kernel: flow_indr_dev_register+0x158/0x210
+kernel: ? tcf_block_unbind+0xe0/0xe0
+kernel: nfp_flower_init+0x40b/0x650 [nfp]
+kernel: nfp_net_pci_probe+0x25f/0x960 [nfp]
+kernel: ? nfp_rtsym_read_le+0x76/0x130 [nfp]
+kernel: nfp_pci_probe+0x6a9/0x820 [nfp]
+kernel: local_pci_probe+0x45/0x80
+
+So we need to call flow_indr_dev_register in app start process instead of
+init stage.
+
+Fixes: 74fc4f828769 ("net: Fix offloading indirect devices dependency on qdisc order creation")
+Signed-off-by: Baowen Zheng <baowen.zheng@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Louis Peens <louis.peens@corigine.com>
+Link: https://lore.kernel.org/r/20211012124850.13025-1-louis.peens@corigine.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/rnbd/rnbd-clt-sysfs.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/netronome/nfp/flower/main.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/drivers/block/rnbd/rnbd-clt-sysfs.c
-+++ b/drivers/block/rnbd/rnbd-clt-sysfs.c
-@@ -71,8 +71,10 @@ static int rnbd_clt_parse_map_options(co
- 	int opt_mask = 0;
- 	int token;
- 	int ret = -EINVAL;
--	int i, dest_port, nr_poll_queues;
-+	int nr_poll_queues = 0;
-+	int dest_port = 0;
- 	int p_cnt = 0;
-+	int i;
+--- a/drivers/net/ethernet/netronome/nfp/flower/main.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/main.c
+@@ -830,10 +830,6 @@ static int nfp_flower_init(struct nfp_ap
+ 	if (err)
+ 		goto err_cleanup;
  
- 	options = kstrdup(buf, GFP_KERNEL);
- 	if (!options)
+-	err = flow_indr_dev_register(nfp_flower_indr_setup_tc_cb, app);
+-	if (err)
+-		goto err_cleanup;
+-
+ 	if (app_priv->flower_ext_feats & NFP_FL_FEATS_VF_RLIM)
+ 		nfp_flower_qos_init(app);
+ 
+@@ -942,7 +938,20 @@ static int nfp_flower_start(struct nfp_a
+ 			return err;
+ 	}
+ 
+-	return nfp_tunnel_config_start(app);
++	err = flow_indr_dev_register(nfp_flower_indr_setup_tc_cb, app);
++	if (err)
++		return err;
++
++	err = nfp_tunnel_config_start(app);
++	if (err)
++		goto err_tunnel_config;
++
++	return 0;
++
++err_tunnel_config:
++	flow_indr_dev_unregister(nfp_flower_indr_setup_tc_cb, app,
++				 nfp_flower_setup_indr_tc_release);
++	return err;
+ }
+ 
+ static void nfp_flower_stop(struct nfp_app *app)
 
 
