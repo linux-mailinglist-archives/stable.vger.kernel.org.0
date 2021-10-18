@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A6F431C26
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92C29431AE9
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232804AbhJRNjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:39:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56336 "EHLO mail.kernel.org"
+        id S232158AbhJRN3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231836AbhJRNg4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:36:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BC2F6136A;
-        Mon, 18 Oct 2021 13:31:18 +0000 (UTC)
+        id S231959AbhJRN3M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F3F061077;
+        Mon, 18 Oct 2021 13:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563879;
-        bh=OM20+lB+gffL8rLecoYgxGmfeLWLanpiKC2P8wWeRe8=;
+        s=korg; t=1634563621;
+        bh=ew2EV4reE2dItotEpuyddWr8z0xQGblTQU+MtG6B9zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQh1zyiIqklc7eI7r5MIU4e6ZTfMWImql/qSsnq9BrITQS5RAdjUKqWhPwNm9JYkq
-         xIKy5I3cQpfouyHpH0VY+o6qKuWL7dCaqAP91hOazK44FTppcAIkwnfWYYcu554oUH
-         7wuRTwcYmMCCWXVf+X/43EyNG/IexwpEPHF7uNvU=
+        b=e7nvdkuGkX9VDBiKQODEvx/JyufOGIX6QhubGvRm4V9Ov2Wg+CjjcYOPhZJJA+/Dp
+         HOja9Z+KaF9nY14co4eAgEvskBWr6owPk/oOCGSt5/X74gO8yOmBisWJhi7/TT898U
+         HbScMjo5c+6HYGOCgXDtzZbv3mQmzfXa5uExtXoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Borislav Petkov <bp@suse.de>,
-        Reinette Chatre <reinette.chatre@intel.com>
-Subject: [PATCH 5.4 17/69] x86/resctrl: Free the ctrlval arrays when domain_setup_mon_state() fails
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 06/39] btrfs: check for error when looking up inode during dir entry replay
 Date:   Mon, 18 Oct 2021 15:24:15 +0200
-Message-Id: <20211018132330.040445279@linuxfoundation.org>
+Message-Id: <20211018132325.639431250@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 64e87d4bd3201bf8a4685083ee4daf5c0d001452 upstream.
+commit cfd312695b71df04c3a2597859ff12c470d1e2e4 upstream.
 
-domain_add_cpu() is called whenever a CPU is brought online. The
-earlier call to domain_setup_ctrlval() allocates the control value
-arrays.
+At replay_one_name(), we are treating any error from btrfs_lookup_inode()
+as if the inode does not exists. Fix this by checking for an error and
+returning it to the caller.
 
-If domain_setup_mon_state() fails, the control value arrays are not
-freed.
-
-Add the missing kfree() calls.
-
-Fixes: 1bd2a63b4f0de ("x86/intel_rdt/mba_sc: Add initialization support")
-Fixes: edf6fa1c4a951 ("x86/intel_rdt/cqm: Add RMID (Resource monitoring ID) management")
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20210917165958.28313-1-james.morse@arm.com
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/resctrl/core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/tree-log.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kernel/cpu/resctrl/core.c
-+++ b/arch/x86/kernel/cpu/resctrl/core.c
-@@ -588,6 +588,8 @@ static void domain_add_cpu(int cpu, stru
- 	}
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1730,8 +1730,8 @@ static noinline int replay_one_name(stru
+ 	struct btrfs_key log_key;
+ 	struct inode *dir;
+ 	u8 log_type;
+-	int exists;
+-	int ret = 0;
++	bool exists;
++	int ret;
+ 	bool update_size = (key->type == BTRFS_DIR_INDEX_KEY);
+ 	bool name_added = false;
  
- 	if (r->mon_capable && domain_setup_mon_state(r, d)) {
-+		kfree(d->ctrl_val);
-+		kfree(d->mbps_val);
- 		kfree(d);
- 		return;
- 	}
+@@ -1751,12 +1751,12 @@ static noinline int replay_one_name(stru
+ 		   name_len);
+ 
+ 	btrfs_dir_item_key_to_cpu(eb, di, &log_key);
+-	exists = btrfs_lookup_inode(trans, root, path, &log_key, 0);
+-	if (exists == 0)
+-		exists = 1;
+-	else
+-		exists = 0;
++	ret = btrfs_lookup_inode(trans, root, path, &log_key, 0);
+ 	btrfs_release_path(path);
++	if (ret < 0)
++		goto out;
++	exists = (ret == 0);
++	ret = 0;
+ 
+ 	if (key->type == BTRFS_DIR_ITEM_KEY) {
+ 		dst_di = btrfs_lookup_dir_item(trans, root, path, key->objectid,
 
 
