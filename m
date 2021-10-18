@@ -2,200 +2,279 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF134316F7
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:11:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6243B4316FE
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:11:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230381AbhJRLNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:13:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58516 "EHLO
+        id S231199AbhJRLN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:13:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230346AbhJRLNN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 07:13:13 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD648C06161C
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 04:11:02 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id y4so11012856plb.0
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 04:11:02 -0700 (PDT)
+        with ESMTP id S231180AbhJRLN4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 07:13:56 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D63C06161C
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 04:11:44 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id m42so8374146wms.2
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 04:11:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=R0JbmmPxKD++KeMkfWPEaQQF0x54jxcwOEu5qUI0f4w=;
-        b=A8DHDQ7aSqWzt/WR+LLKjhb/WNkOKG8Z5YjVpBZn6p1dYAqLnP9lNaYeytSHr6bd2s
-         LWlHBfhtoQA930XF3ohJjyCKP2H10rDNTqA6xKduCgTJLNSS4aixSCXprxi3oYLHeLoD
-         jsgGYn8EeZJDXapl/NvyrGYIZ6qLc6HRNOTABCSox8oO7wSprhygPmPKqCb81DyVV/so
-         J23G03QeL2JfQVSSn37WEvxlbZ38L82LDqRB/lQjuzDI3UfsetDEf1Zh3bogb8LF2hgP
-         mji2MYATN+CXuZ1St2xqYhiiK8b9+gZap7dgojs1lKmqvrs+y2vZa5QT07KF+C/pItRO
-         gP1A==
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=6LMkvC8rUvNEYJAWr0jeALL8Sd8+8yvSqunhnCPBHGc=;
+        b=agLE4W3w9cBeJBQob7LTEJI0PJSKdgKYVN93zezYOtv4ulZm+YthWc0jxZPudwKmgd
+         HhaFpLc9lDZsrBGTVJc4eu8c/s+QdoXAuQxp+kw+nqO45qaxVFenNXohqiAsEhfBlFt9
+         2Ye/RN9sOYSNG4KoI23TBDWjsxofIUvVlcUmwPNe1TGzon+NGNZyoeR4uE+116F2BgHZ
+         zD7d1hrK2UIVWvb3OFsHaTruZdT5j4ctTgC9hhxxfMh1bo9eRtThWV/ycxJukrvwwHIS
+         Mk4qu6YJ7wRV8lITDrCVJZ1VTXZ0hDCfqpweVsQJsn8/q514hViqWYSG/06rofS6mW1E
+         fcVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=R0JbmmPxKD++KeMkfWPEaQQF0x54jxcwOEu5qUI0f4w=;
-        b=zUXj76H8d8bXqvRppq51ndgyaOv8WtHueeasGN3gs+uSWSbPNoneXqLPPjEOfNV4za
-         QA2Zqd1+PiL9YLPgFOzt7MBEaQ1iXs00B0/58lfaDHPS/4aSc6vmrrbML4SFaFBlIJDV
-         UGO27ybPfUSrrU8POMsWr2T45+BJbtJFvsqeOJyyIsf/BzvXMth0FpaTG+YKc2wkNhf4
-         NRS/hxAp2FYa/cWdteLs84nidTBZuBET4Y8MMyqjP3KqHWlx1zdDTnTMqDV0eCoGSI4J
-         88iJg2yF42PbaJx+k1t8YBQtNHHoLRPmp9NAPC5RQUll9IjdstauC8nmsqsbyJn55qDi
-         K/UQ==
-X-Gm-Message-State: AOAM531STJVQVfgGby3JZ6aszMo1Rt/bu7860F8azSA0JHfsaRDHU5if
-        aHkRo78RjCls8cVImz27rBN+2d/Kw0u4mA==
-X-Google-Smtp-Source: ABdhPJyHNzrexUne8Hao7sT+3u7a0hPvEKq41APGP3cp399RDepa9yJmFdw+94IpDxs/Wmg1YRxyew==
-X-Received: by 2002:a17:90b:1c02:: with SMTP id oc2mr32557938pjb.128.1634555461924;
-        Mon, 18 Oct 2021 04:11:01 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w19sm19906236pjy.9.2021.10.18.04.11.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Oct 2021 04:11:01 -0700 (PDT)
-Message-ID: <616d5645.1c69fb81.9c159.93b7@mx.google.com>
-Date:   Mon, 18 Oct 2021 04:11:01 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=6LMkvC8rUvNEYJAWr0jeALL8Sd8+8yvSqunhnCPBHGc=;
+        b=cs52XvpUiZtOSUkyUPj51GnvZlTJ+S/dCdZKUuyYSQN83zpww6Y/3K1lkt3+bqPBCQ
+         2Z7Fdw0bjeQzleRXG6tyNzlAExknXhkTs04U40vjHfC59JPfPmB+lOFdD7fOKdP/Wy0d
+         jzN/Qmw1CByIyGmXOCWJQNNAEtwHDsVhAENvGVNWa96hieRZjMl5n4N8IFyBnTaG10dP
+         MXybeJ2AGajND4p9GGOyyUfnFelSr64VL14viQC/E0LV53B4Cs1kfux4YWBJ1ECekZ5q
+         Vp9U8YD8yk0Fswsfb+fTKpyFbrhUl3P0KUqJyYdS/iBJuxUpi/wFQB9WNiiPtrl8iwq6
+         vk0Q==
+X-Gm-Message-State: AOAM532XElQTcYFFwW3XoFTOKuXJ4es++OpRUiUY6mWUvdMUFRlQ3eg2
+        h1lFaNkdjE1ebEP2icFxIwrltpYHIE4gwhdz
+X-Google-Smtp-Source: ABdhPJwpFob4ROiW1u8XbTUkLDwo1BxmCCvDx3FUCb1tdEaSznuACTaOj4Hp1+i/EBHVaPsug5pCWg==
+X-Received: by 2002:a1c:7f0c:: with SMTP id a12mr30218368wmd.14.1634555502995;
+        Mon, 18 Oct 2021 04:11:42 -0700 (PDT)
+Received: from ?IPv6:2a01:e34:ed2f:f020:b2b3:1133:5bdb:b2f2? ([2a01:e34:ed2f:f020:b2b3:1133:5bdb:b2f2])
+        by smtp.googlemail.com with ESMTPSA id b19sm18906146wmj.9.2021.10.18.04.11.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 Oct 2021 04:11:42 -0700 (PDT)
+Subject: Re: [PATCH] thermal: imx: Fix temperature measurements on i.MX6 after
+ alarm
+To:     Petr Benes <petrben@gmail.com>
+Cc:     =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        linux-pm@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>,
+        Amit Kucheria <amitk@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?Q?Petr_Bene=c5=a1?= <petr.benes@ysoft.com>,
+        stable@vger.kernel.org
+References: <20211008081137.1948848-1-michal.vokac@ysoft.com>
+ <df545947-2f5b-a355-859d-7f61eab14dcb@linaro.org>
+ <CAPwXO5Z0OkmXuy=e6JDjFwqJMqOC4FDjs3uiwdZcJSxy5SPtVw@mail.gmail.com>
+From:   Daniel Lezcano <daniel.lezcano@linaro.org>
+Message-ID: <7a02cb0a-3360-4512-2425-8096d153ae48@linaro.org>
+Date:   Mon, 18 Oct 2021 13:11:40 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.211-23-g6a69a7fc4b12
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 83 runs,
- 3 regressions (v4.19.211-23-g6a69a7fc4b12)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <CAPwXO5Z0OkmXuy=e6JDjFwqJMqOC4FDjs3uiwdZcJSxy5SPtVw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 83 runs, 3 regressions (v4.19.211-23-g6a69a7=
-fc4b12)
 
-Regressions Summary
--------------------
+I'm not seeing any thermal zone definitions in the DT for imx6 and imx7.
 
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
- | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
- | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
- | 1          =
+Am I missing something ?
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.211-23-g6a69a7fc4b12/plan/baseline/
+On 18/10/2021 10:36, Petr Benes wrote:
+> On Sun, 17 Oct 2021 at 00:23, Daniel Lezcano <daniel.lezcano@linaro.org> wrote:
+>>
+>> On 08/10/2021 10:11, Michal Vokáč wrote:
+>>> From: Petr Beneš <petr.benes@ysoft.com>
+>>>
+>>> SoC temperature readout may not work after thermal alarm fires interrupt.
+>>> This harms userspace as well as CPU cooling device.
+>>>
+>>> Two issues with the logic involved. First, there is no protection against
+>>> concurent measurements, hence one can switch the sensor off while
+>>> the other one tries to read temperature later. Second, the interrupt path
+>>> usually fails. At the end the sensor is powered off and thermal IRQ is
+>>> disabled. One has to reenable the thermal zone by the sysfs interface.
+>>>
+>>> Most of troubles come from commit d92ed2c9d3ff ("thermal: imx: Use
+>>> driver's local data to decide whether to run a measurement")
+>>
+>> Are these troubles observed and reproduced ? Or is it your understanding
+>> from reading the code ?
+> 
+> Yes, it is observed. We are using:
+> CONFIG_CPU_THERMAL=y
+> CONFIG_CPU_FREQ_THERMAL=y
+> If the SoC temperature oscillates  around the passive trip point, it is not
+> possible to read out /sys/class/thermal/thermal_zone0/temp after
+> a while (minutes). For reproduction either heat the device up a bit or set
+> the passive trip point lower.
+> 
+>>
+>> get_temp() and tz enable/disable are protected against races in the core
+>> code via the tz mutex
+> 
+> imx_get_temp() itself doesn't handle concurrent invocations properly, despite
+> it may seem it does. The sensor is switched on/off without control.
+> That is a flaw in imx_get_temp().
+> No evidence the core locking is wrong.
+> 
+> data->irq_enabled is set to false in imx_thermal_alarm_irq() each time
+> the interrupt arrives. imx_get_temp() does wrong decision based
+> on the value later.
+> 
+>>
+>>> It uses data->irq_enabled as the "local data". Indeed, its value is
+>>> related to the state of the sensor loosely under normal operation and,
+>>> frankly, gets unleashed when the thermal interrupt arrives.
+>>>
+>>> Current patch adds the "local data" (new member sensor_on in
+>>> imx_thermal_data) and sets its value in controlled manner.>
+>>> Fixes: d92ed2c9d3ff ("thermal: imx: Use driver's local data to decide whether to run a measurement")
+>>> Cc: petrben@gmail.com
+>>> Cc: stable@vger.kernel.org
+>>> Signed-off-by: Petr Beneš <petr.benes@ysoft.com>
+>>> Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
+>>> ---
+>>>  drivers/thermal/imx_thermal.c | 30 ++++++++++++++++++++++++++----
+>>>  1 file changed, 26 insertions(+), 4 deletions(-)
+>>>
+>>> diff --git a/drivers/thermal/imx_thermal.c b/drivers/thermal/imx_thermal.c
+>>> index 2c7473d86a59..df5658e21828 100644
+>>> --- a/drivers/thermal/imx_thermal.c
+>>> +++ b/drivers/thermal/imx_thermal.c
+>>> @@ -209,6 +209,8 @@ struct imx_thermal_data {
+>>>       struct clk *thermal_clk;
+>>>       const struct thermal_soc_data *socdata;
+>>>       const char *temp_grade;
+>>> +     struct mutex sensor_lock;
+>>> +     bool sensor_on;
+>>>  };
+>>>
+>>>  static void imx_set_panic_temp(struct imx_thermal_data *data,
+>>> @@ -252,11 +254,12 @@ static int imx_get_temp(struct thermal_zone_device *tz, int *temp)
+>>>       const struct thermal_soc_data *soc_data = data->socdata;
+>>>       struct regmap *map = data->tempmon;
+>>>       unsigned int n_meas;
+>>> -     bool wait, run_measurement;
+>>> +     bool wait;
+>>>       u32 val;
+>>>
+>>> -     run_measurement = !data->irq_enabled;
+>>> -     if (!run_measurement) {
+>>> +     mutex_lock(&data->sensor_lock);
+>>> +
+>>> +     if (data->sensor_on) {
+>>>               /* Check if a measurement is currently in progress */
+>>>               regmap_read(map, soc_data->temp_data, &val);
+>>>               wait = !(val & soc_data->temp_valid_mask);
+>>> @@ -283,13 +286,15 @@ static int imx_get_temp(struct thermal_zone_device *tz, int *temp)
+>>>
+>>>       regmap_read(map, soc_data->temp_data, &val);
+>>>
+>>> -     if (run_measurement) {
+>>> +     if (!data->sensor_on) {
+>>>               regmap_write(map, soc_data->sensor_ctrl + REG_CLR,
+>>>                            soc_data->measure_temp_mask);
+>>>               regmap_write(map, soc_data->sensor_ctrl + REG_SET,
+>>>                            soc_data->power_down_mask);
+>>>       }
+>>>
+>>> +     mutex_unlock(&data->sensor_lock);
+>>> +
+>>>       if ((val & soc_data->temp_valid_mask) == 0) {
+>>>               dev_dbg(&tz->device, "temp measurement never finished\n");
+>>>               return -EAGAIN;
+>>> @@ -339,20 +344,26 @@ static int imx_change_mode(struct thermal_zone_device *tz,
+>>>       const struct thermal_soc_data *soc_data = data->socdata;
+>>>
+>>>       if (mode == THERMAL_DEVICE_ENABLED) {
+>>> +             mutex_lock(&data->sensor_lock);
+>>>               regmap_write(map, soc_data->sensor_ctrl + REG_CLR,
+>>>                            soc_data->power_down_mask);
+>>>               regmap_write(map, soc_data->sensor_ctrl + REG_SET,
+>>>                            soc_data->measure_temp_mask);
+>>> +             data->sensor_on = true;
+>>> +             mutex_unlock(&data->sensor_lock);
+>>>
+>>>               if (!data->irq_enabled) {
+>>>                       data->irq_enabled = true;
+>>>                       enable_irq(data->irq);
+>>>               }
+>>>       } else {
+>>> +             mutex_lock(&data->sensor_lock);
+>>>               regmap_write(map, soc_data->sensor_ctrl + REG_CLR,
+>>>                            soc_data->measure_temp_mask);
+>>>               regmap_write(map, soc_data->sensor_ctrl + REG_SET,
+>>>                            soc_data->power_down_mask);
+>>> +             data->sensor_on = false;
+>>> +             mutex_unlock(&data->sensor_lock);
+>>>
+>>>               if (data->irq_enabled) {
+>>>                       disable_irq(data->irq);
+>>> @@ -728,6 +739,8 @@ static int imx_thermal_probe(struct platform_device *pdev)
+>>>       }
+>>>
+>>>       /* Make sure sensor is in known good state for measurements */
+>>> +     mutex_init(&data->sensor_lock);
+>>> +     mutex_lock(&data->sensor_lock);
+>>>       regmap_write(map, data->socdata->sensor_ctrl + REG_CLR,
+>>>                    data->socdata->power_down_mask);
+>>>       regmap_write(map, data->socdata->sensor_ctrl + REG_CLR,
+>>> @@ -739,6 +752,8 @@ static int imx_thermal_probe(struct platform_device *pdev)
+>>>                       IMX6_MISC0_REFTOP_SELBIASOFF);
+>>>       regmap_write(map, data->socdata->sensor_ctrl + REG_SET,
+>>>                    data->socdata->power_down_mask);
+>>> +     data->sensor_on = false;
+>>> +     mutex_unlock(&data->sensor_lock);
+>>>
+>>>       ret = imx_thermal_register_legacy_cooling(data);
+>>>       if (ret)
+>>> @@ -796,10 +811,13 @@ static int imx_thermal_probe(struct platform_device *pdev)
+>>>       if (data->socdata->version == TEMPMON_IMX6SX)
+>>>               imx_set_panic_temp(data, data->temp_critical);
+>>>
+>>> +     mutex_lock(&data->sensor_lock);
+>>>       regmap_write(map, data->socdata->sensor_ctrl + REG_CLR,
+>>>                    data->socdata->power_down_mask);
+>>>       regmap_write(map, data->socdata->sensor_ctrl + REG_SET,
+>>>                    data->socdata->measure_temp_mask);
+>>> +     data->sensor_on = true;
+>>> +     mutex_unlock(&data->sensor_lock);
+>>>
+>>>       data->irq_enabled = true;
+>>>       ret = thermal_zone_device_enable(data->tz);
+>>> @@ -832,8 +850,12 @@ static int imx_thermal_remove(struct platform_device *pdev)
+>>>       struct regmap *map = data->tempmon;
+>>>
+>>>       /* Disable measurements */
+>>> +     mutex_lock(&data->sensor_lock);
+>>>       regmap_write(map, data->socdata->sensor_ctrl + REG_SET,
+>>>                    data->socdata->power_down_mask);
+>>> +     data->sensor_on = false;
+>>> +     mutex_unlock(&data->sensor_lock);
+>>> +
+>>>       if (!IS_ERR(data->thermal_clk))
+>>>               clk_disable_unprepare(data->thermal_clk);
+>>>
+>>>
+>>
+>>
+>> --
+>> <http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
+>>
+>> Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
+>> <http://twitter.com/#!/linaroorg> Twitter |
+>> <http://www.linaro.org/linaro-blog/> Blog
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.211-23-g6a69a7fc4b12
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6a69a7fc4b120ed4a4660cb2450ced8fac856aa9 =
 
+-- 
+<http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
 
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d17605de24f263c3358e6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
--23-g6a69a7fc4b12/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
--23-g6a69a7fc4b12/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616d17605de24f263c335=
-8e7
-        failing since 338 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d176478ad717d373358dd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
--23-g6a69a7fc4b12/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
--23-g6a69a7fc4b12/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616d176478ad717d37335=
-8de
-        failing since 338 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d175d7c7c6eacf333590e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
--23-g6a69a7fc4b12/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
--23-g6a69a7fc4b12/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616d175d7c7c6eacf3335=
-90f
-        failing since 338 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =20
+Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
+<http://twitter.com/#!/linaroorg> Twitter |
+<http://www.linaro.org/linaro-blog/> Blog
