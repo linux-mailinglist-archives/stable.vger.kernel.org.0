@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85808431AE3
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECCCC431B54
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:30:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231918AbhJRN3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:29:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41422 "EHLO mail.kernel.org"
+        id S232006AbhJRNcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:32:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231920AbhJRN3I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:29:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74E2761362;
-        Mon, 18 Oct 2021 13:26:46 +0000 (UTC)
+        id S232636AbhJRNam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:30:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CAB06135E;
+        Mon, 18 Oct 2021 13:28:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563606;
-        bh=mIfWHTo6F5vNmIUpGiI4Mgv2twSJ0V9JjEE+iJXG1q8=;
+        s=korg; t=1634563707;
+        bh=nWPJtnQw4HI9f3ZVSzcIANMyEsM4326AmbLQjkdyVxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ULr0xe5jTc36/lCozQEsAtfAFAHmvxgOjYbjBbbjE+9TSXGDi6lb5J7JMSxPfM6OF
-         JfYacT9D5IIVyzq0jpHUdn8sUXKzaTZfPv5mrWDikOVUQZmoD6UdqS73nTyyHeJ94r
-         auN2bWHWFWHAPGWc1Aow7IFDgOkq5qpb7uq8viJI=
+        b=DsjQaG7n1SzUEtFdBQPtGs8qLa4r0XohRJ2wIsXWQZAY5pXW+GqY4yEI+ILKY/0wO
+         KCmm4pOAx4uR+iLCox9OInvwzN2B44q6MXaFh4lwhL28B8zM/OTQHSaUv1X3RTCJ3+
+         DuG1ORqVUMNMrK7tj/SJGrMmnpIx7xxBI0KH7EM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Vlad Yasevich <vyasevich@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Marcelo Ricardo Leitner <mleitner@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 31/39] nfc: fix error handling of nfc_proto_register()
+Subject: [PATCH 4.19 33/50] sctp: account stream padding length for reconf chunk
 Date:   Mon, 18 Oct 2021 15:24:40 +0200
-Message-Id: <20211018132326.441888479@linuxfoundation.org>
+Message-Id: <20211018132327.629206662@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
-References: <20211018132325.426739023@linuxfoundation.org>
+In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
+References: <20211018132326.529486647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
 
-commit 0911ab31896f0e908540746414a77dd63912748d upstream.
+commit a2d859e3fc97e79d907761550dbc03ff1b36479c upstream.
 
-When nfc proto id is using, nfc_proto_register() return -EBUSY error
-code, but forgot to unregister proto. Fix it by adding proto_unregister()
-in the error handling case.
+sctp_make_strreset_req() makes repeated calls to sctp_addto_chunk()
+which will automatically account for padding on each call. inreq and
+outreq are already 4 bytes aligned, but the payload is not and doing
+SCTP_PAD4(a + b) (which _sctp_make_chunk() did implicitly here) is
+different from SCTP_PAD4(a) + SCTP_PAD4(b) and not enough. It led to
+possible attempt to use more buffer than it was allocated and triggered
+a BUG_ON.
 
-Fixes: c7fe3b52c128 ("NFC: add NFC socket family")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20211013034932.2833737-1-william.xuanziyang@huawei.com
+Cc: Vlad Yasevich <vyasevich@gmail.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Fixes: cc16f00f6529 ("sctp: add support for generating stream reconf ssn reset request chunk")
+Reported-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Marcelo Ricardo Leitner <mleitner@redhat.com>
+Reviewed-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/b97c1f8b0c7ff79ac4ed206fc2c49d3612e0850c.1634156849.git.mleitner@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/af_nfc.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/sctp/sm_make_chunk.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/nfc/af_nfc.c
-+++ b/net/nfc/af_nfc.c
-@@ -72,6 +72,9 @@ int nfc_proto_register(const struct nfc_
- 		proto_tab[nfc_proto->id] = nfc_proto;
- 	write_unlock(&proto_tab_lock);
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -3673,7 +3673,7 @@ struct sctp_chunk *sctp_make_strreset_re
+ 	outlen = (sizeof(outreq) + stream_len) * out;
+ 	inlen = (sizeof(inreq) + stream_len) * in;
  
-+	if (rc)
-+		proto_unregister(nfc_proto->proto);
-+
- 	return rc;
- }
- EXPORT_SYMBOL(nfc_proto_register);
+-	retval = sctp_make_reconf(asoc, outlen + inlen);
++	retval = sctp_make_reconf(asoc, SCTP_PAD4(outlen) + SCTP_PAD4(inlen));
+ 	if (!retval)
+ 		return NULL;
+ 
 
 
