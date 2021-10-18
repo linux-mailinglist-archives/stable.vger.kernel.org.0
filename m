@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6E2B43176D
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:34:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 518B8431777
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:34:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229644AbhJRLgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:36:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42008 "EHLO mail.kernel.org"
+        id S229519AbhJRLhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:37:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229519AbhJRLgu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:36:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E21D360EE5;
-        Mon, 18 Oct 2021 11:34:38 +0000 (UTC)
+        id S231295AbhJRLg7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 07:36:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE17960E76;
+        Mon, 18 Oct 2021 11:34:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634556879;
-        bh=NZ2JVewieaD1xSdyQBufGLYr2vgtLo66rPCwgxgr+1A=;
+        s=korg; t=1634556888;
+        bh=K5IZwcLEqvrKkU8DRamM5qc0iLLoAvkCkMcbhWgmtzs=;
         h=Subject:To:Cc:From:Date:From;
-        b=yuHcXWo40+QVeC7G6pOiw6A3+zgQkmeyWuO6/4FABuQdzGvD1FOmpnBtuH3V2fZXM
-         FrzktM5sbpVUolyp99GUCsiLfznQv5Eo/0W0YNTy6YKg6tuUBnrf7Xlkto2ObGvH+D
-         mPy0XhzLE0R79Tu7M7WZOEeb7mxhBsEY7WjFvx5E=
-Subject: FAILED: patch "[PATCH] net: mscc: ocelot: make use of all 63 PTP timestamp" failed to apply to 5.4-stable tree
+        b=Ljz7nn5s4hSSx8oK4meyVIw1vXZMGz4TRrgcCwQNIba/FD9dp47qaU5a8tH4XXevJ
+         zPu/2pjXxgRrNqg9WgMSivbbJ6qXzB1Xcj99D9aWqV76Hmef4q6rYjMHC61sMTohAY
+         vJsXG4lNKLYto8P5GwTFQochTbjZ5UENrt2n002Q=
+Subject: FAILED: patch "[PATCH] net: mscc: ocelot: make use of all 63 PTP timestamp" failed to apply to 5.10-stable tree
 To:     vladimir.oltean@nxp.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 13:34:36 +0200
-Message-ID: <1634556876199113@kroah.com>
+Date:   Mon, 18 Oct 2021 13:34:37 +0200
+Message-ID: <1634556877173160@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
