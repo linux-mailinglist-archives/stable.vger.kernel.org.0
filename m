@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF1D431DD2
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00422431DD9
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234113AbhJRNzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:55:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57654 "EHLO mail.kernel.org"
+        id S234230AbhJRNzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:55:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234163AbhJRNxQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234174AbhJRNxQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Oct 2021 09:53:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51F9161994;
-        Mon, 18 Oct 2021 13:38:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E1A961A0C;
+        Mon, 18 Oct 2021 13:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564337;
-        bh=90kXehvpQUPWrT0A1olxvxENgHo8g6UIskVWuso48Bo=;
+        s=korg; t=1634564340;
+        bh=DNlUJedpY1d8ERHjy1N7bkYZo8U0LtRGe4n5jCwrsuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GcUoPBVLStNZ+0Va/OeHMyZfiSte/7NshlNcenZAmCWtzP3RDTnftdJwmqZOCxeP7
-         PlGQkY0CKyJ30myqWJJQ2AYpNnLimu8WqKVSdAvlWAraUsIo0DvcViGB+cowIEa2uN
-         WgG9JGxBoeNsUI5Ir28PXkW+qCmR/P6LBnbgmNa8=
+        b=OUSELgumUQejG2/wQmVQU/dT8SKINdr70zmo5UNUhfIO1f9H1TUIsW+oidOeGaUmX
+         HeA4MPAigU9lCurVD18qFQV/Wkg5EhUXhYKZ6kgHUgQNJdYadUa6cK8Izc04o6qMvv
+         QVk+a0K4UN55ROwCtB/MnrI9rHzGevENCuwqZ1i8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-Tung Chang <mtwget@gmail.com>,
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.14 051/151] USB: serial: option: add Quectel EC200S-CN module support
-Date:   Mon, 18 Oct 2021 15:23:50 +0200
-Message-Id: <20211018132342.349113835@linuxfoundation.org>
+Subject: [PATCH 5.14 052/151] USB: serial: option: add Telit LE910Cx composition 0x1204
+Date:   Mon, 18 Oct 2021 15:23:51 +0200
+Message-Id: <20211018132342.379554974@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -39,28 +39,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu-Tung Chang <mtwget@gmail.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit 2263eb7370060bdb0013bc14e1a7c9bf33617a55 upstream.
+commit f5a8a07edafed8bede17a95ef8940fe3a57a77d5 upstream.
 
-Add usb product id of the Quectel EC200S-CN module.
+Add the following Telit LE910Cx composition:
 
-usb-devices output for 0x6002:
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=6002 Rev=03.18
-S:  Manufacturer=Android
-S:  Product=Android
-S:  SerialNumber=0000
-C:  #Ifs= 5 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=06 Prot=00 Driver=cdc_ether
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+0x1204: tty, adb, mbim, tty, tty, tty, tty
 
-Signed-off-by: Yu-Tung Chang <mtwget@gmail.com>
-Link: https://lore.kernel.org/r/20210930021112.330396-1-mtwget@gmail.com
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20211004105655.8515-1-dnlplm@gmail.com
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -70,21 +58,14 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -251,6 +251,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_EP06			0x0306
- #define QUECTEL_PRODUCT_EM12			0x0512
- #define QUECTEL_PRODUCT_RM500Q			0x0800
-+#define QUECTEL_PRODUCT_EC200S_CN		0x6002
- #define QUECTEL_PRODUCT_EC200T			0x6026
- 
- #define CMOTECH_VENDOR_ID			0x16d8
-@@ -1128,6 +1129,7 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
- 	  .driver_info = ZLP },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
- 
- 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
+@@ -1229,6 +1229,8 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1203, 0xff),	/* Telit LE910Cx (RNDIS) */
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1204, 0xff),	/* Telit LE910Cx (MBIM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920),
 
 
