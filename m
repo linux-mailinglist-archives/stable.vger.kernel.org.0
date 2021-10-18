@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F05CF431E6B
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:58:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 874C3431E0C
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234726AbhJROAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:00:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38968 "EHLO mail.kernel.org"
+        id S234052AbhJRN5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:57:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233740AbhJRN7A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:59:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 207E361501;
-        Mon, 18 Oct 2021 13:41:33 +0000 (UTC)
+        id S233099AbhJRNzU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:55:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D53A861357;
+        Mon, 18 Oct 2021 13:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564494;
-        bh=vSKllmAoAxJEYAd7SNZSGjMWf2ruCZRmMu4m2CgWPNU=;
+        s=korg; t=1634564401;
+        bh=724jwHlAmbEEgNUE8PVb4/7KjMta1oNOQusosNNzaBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X2SM+PuLD9Wb1f7nZbYzlC8YVmqOZz7pmPMlnAsSPFVV+pMhubsG6yZqcJU5oUwnF
-         wAxDm7hGpSdRi4IwiW482rCyWTQ080g/W7+kkfDfakj058kjKrPjSj5Lr9neAo4ciS
-         JaXqyQq020cdQ5x9K77zEOZIoY8PGYLWz93oZntc=
+        b=W2vyx8MFApehnKKIvxSFYaZ88l6SuxodwcDkqz2521r/XKPOC9S6O50C3fb6OzdxD
+         MBbLBWsEvM8Fd0svsgKEn/Yql8vJK4D2kekTsxr86IERrFfRmha7LetucU8bLol3/f
+         hxJdK7bgSwbnt8YdiDHivShTyvE8mtAqmVpYB0QU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Saravana Kannan <saravanak@google.com>
-Subject: [PATCH 5.14 067/151] driver core: Reject pointless SYNC_STATE_ONLY device links
-Date:   Mon, 18 Oct 2021 15:24:06 +0200
-Message-Id: <20211018132342.869733806@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexandru Tachici <alexandru.tachici@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.14 068/151] iio: adc: ad7192: Add IRQ flag
+Date:   Mon, 18 Oct 2021 15:24:07 +0200
+Message-Id: <20211018132342.901849295@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -40,43 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: Alexandru Tachici <alexandru.tachici@analog.com>
 
-commit f729a592adb6760013c3e48622a5bf256b992452 upstream.
+commit 89a86da5cb8e0ee153111fb68a719d31582c206b upstream.
 
-SYNC_STATE_ONLY device links intentionally allow cycles because cyclic
-sync_state() dependencies are valid and necessary.
+IRQ type in ad_sigma_delta_info struct was missing.
 
-However a SYNC_STATE_ONLY device link where the consumer and the supplier
-are the same device is pointless because the device link would be deleted
-as soon as the device probes (because it's also the consumer) and won't
-affect when the sync_state() callback is called. It's a waste of CPU cycles
-and memory to create this device link. So reject any attempts to create
-such a device link.
+In Sigma-Delta devices the SDO line is also used as an interrupt.
+Leaving IRQ on level instead of falling might trigger a sample read
+when the IRQ is enabled, as the SDO line is already low. Not sure
+if SDO line will always immediately go high in ad_sd_buffer_postenable
+before the IRQ is enabled.
 
-Fixes: 05ef983e0d65 ("driver core: Add device link support for SYNC_STATE_ONLY flag")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Link: https://lore.kernel.org/r/20210929190549.860541-1-saravanak@google.com
+Also the datasheet seem to explicitly say the falling edge of the SDO
+should be used as an interrupt:
+>From the AD7192 datasheet: "The DOUT/RDY falling edge can be used
+as an interrupt to a processor,"
+
+Fixes: da4d3d6bb9f6 ("iio: adc: ad-sigma-delta: Allow custom IRQ flags")
+Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210906065630.16325-2-alexandru.tachici@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/adc/ad7192.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -675,7 +675,8 @@ struct device_link *device_link_add(stru
- {
- 	struct device_link *link;
+--- a/drivers/iio/adc/ad7192.c
++++ b/drivers/iio/adc/ad7192.c
+@@ -293,6 +293,7 @@ static const struct ad_sigma_delta_info
+ 	.has_registers = true,
+ 	.addr_shift = 3,
+ 	.read_mask = BIT(6),
++	.irq_flags = IRQF_TRIGGER_FALLING,
+ };
  
--	if (!consumer || !supplier || flags & ~DL_ADD_VALID_FLAGS ||
-+	if (!consumer || !supplier || consumer == supplier ||
-+	    flags & ~DL_ADD_VALID_FLAGS ||
- 	    (flags & DL_FLAG_STATELESS && flags & DL_MANAGED_LINK_FLAGS) ||
- 	    (flags & DL_FLAG_SYNC_STATE_ONLY &&
- 	     (flags & ~DL_FLAG_INFERRED) != DL_FLAG_SYNC_STATE_ONLY) ||
+ static const struct ad_sd_calib_data ad7192_calib_arr[8] = {
 
 
