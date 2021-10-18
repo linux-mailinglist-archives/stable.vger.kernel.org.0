@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C1B6431EB7
+	by mail.lfdr.de (Postfix) with ESMTP id 022EE431EB6
 	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:03:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230344AbhJROFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234694AbhJROFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 18 Oct 2021 10:05:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38968 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234773AbhJROCy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 10:02:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 420B361A57;
-        Mon, 18 Oct 2021 13:43:17 +0000 (UTC)
+        id S234791AbhJROC4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 10:02:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F13BE61528;
+        Mon, 18 Oct 2021 13:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564597;
-        bh=zvjs20sOg4WIawD97wRDFk2JlaVcAWA3whOAUNX5+0k=;
+        s=korg; t=1634564600;
+        bh=AgX+EiQDbW4aI/vscvozxBVzAXEqnYe8BPDY9tG2feM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZV2ZosctdurZsFuiNL265gcgjLOvnP9uRL1HveSHIYGZQeai2KgyMZy4shmt4Qwi
-         8XorYzr8b33ORqy59+s5qSaKoPJ0PNg1Xyq1r6E3Xowsq6Jaisdbn9yygl1kM8MfmF
-         Qi53KpDI98OHY7Mx5xxeCPKbD7eyWZRm6k+ciAKE=
+        b=jIcavwUj8Hgi4jICGoX3hor2k5Si6MGJaLuRJtkwLqM+G0G3O+dbqTovQ7Ag/xYQ4
+         1CthUswwOSKd2bTLwpFB4NDMNAeByIO7ExMOxytXepKpskAD8B4YNYWqtaeRdKhRXC
+         m1A1Jy1IXME45qeGYjFjhRLLEXqMM0ElJdGi/khU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 150/151] net: dsa: felix: break at first CPU port during init and teardown
-Date:   Mon, 18 Oct 2021 15:25:29 +0200
-Message-Id: <20211018132345.533806301@linuxfoundation.org>
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 151/151] ionic: dont remove netdev->dev_addr when syncing uc list
+Date:   Mon, 18 Oct 2021 15:25:30 +0200
+Message-Id: <20211018132345.570450849@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -40,99 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Shannon Nelson <snelson@pensando.io>
 
-commit 8d5f7954b7c8de54902a8beda141064a7e2e6ee0 upstream.
+commit 5c976a56570f29aaf4a2f9a1bf99789c252183c9 upstream.
 
-The NXP LS1028A switch has two Ethernet ports towards the CPU, but only
-one of them is capable of acting as an NPI port at a time (inject and
-extract packets using DSA tags).
+Bridging, and possibly other upper stack gizmos, adds the
+lower device's netdev->dev_addr to its own uc list, and
+then requests it be deleted when the upper bridge device is
+removed.  This delete request also happens with the bridging
+vlan_filtering is enabled and then disabled.
 
-However, using the alternative ocelot-8021q tagging protocol, it should
-be possible to use both CPU ports symmetrically, but for that we need to
-mark both ports in the device tree as DSA masters.
+Bonding has a similar behavior with the uc list, but since it
+also uses set_mac to manage netdev->dev_addr, it doesn't have
+the same the failure case.
 
-In the process of doing that, it can be seen that traffic to/from the
-network stack gets broken, and this is because the Felix driver iterates
-through all DSA CPU ports and configures them as NPI ports. But since
-there can only be a single NPI port, we effectively end up in a
-situation where DSA thinks the default CPU port is the first one, but
-the hardware port configured to be an NPI is the last one.
+Because we store our netdev->dev_addr in our uc list, we need
+to ignore the delete request from dev_uc_sync so as to not
+lose the address and all hope of communicating.  Note that
+ndo_set_mac_address is expressly changing netdev->dev_addr,
+so no limitation is set there.
 
-I would like to treat this as a bug, because if the updated device trees
-are going to start circulating, it would be really good for existing
-kernels to support them, too.
-
-Fixes: adb3dccf090b ("net: dsa: felix: convert to the new .change_tag_protocol DSA API")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 2a654540be10 ("ionic: Add Rx filter and rx_mode ndo support")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/ocelot/felix.c |   19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/dsa/ocelot/felix.c
-+++ b/drivers/net/dsa/ocelot/felix.c
-@@ -271,12 +271,12 @@ static void felix_8021q_cpu_port_deinit(
-  */
- static int felix_setup_mmio_filtering(struct felix *felix)
+--- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+@@ -1357,6 +1357,10 @@ static int ionic_addr_add(struct net_dev
+ 
+ static int ionic_addr_del(struct net_device *netdev, const u8 *addr)
  {
--	unsigned long user_ports = 0, cpu_ports = 0;
-+	unsigned long user_ports = dsa_user_ports(felix->ds);
- 	struct ocelot_vcap_filter *redirect_rule;
- 	struct ocelot_vcap_filter *tagging_rule;
- 	struct ocelot *ocelot = &felix->ocelot;
- 	struct dsa_switch *ds = felix->ds;
--	int port, ret;
-+	int cpu = -1, port, ret;
- 
- 	tagging_rule = kzalloc(sizeof(struct ocelot_vcap_filter), GFP_KERNEL);
- 	if (!tagging_rule)
-@@ -289,12 +289,15 @@ static int felix_setup_mmio_filtering(st
- 	}
- 
- 	for (port = 0; port < ocelot->num_phys_ports; port++) {
--		if (dsa_is_user_port(ds, port))
--			user_ports |= BIT(port);
--		if (dsa_is_cpu_port(ds, port))
--			cpu_ports |= BIT(port);
-+		if (dsa_is_cpu_port(ds, port)) {
-+			cpu = port;
-+			break;
-+		}
- 	}
- 
-+	if (cpu < 0)
-+		return -EINVAL;
++	/* Don't delete our own address from the uc list */
++	if (ether_addr_equal(addr, netdev->dev_addr))
++		return 0;
 +
- 	tagging_rule->key_type = OCELOT_VCAP_KEY_ETYPE;
- 	*(__be16 *)tagging_rule->key.etype.etype.value = htons(ETH_P_1588);
- 	*(__be16 *)tagging_rule->key.etype.etype.mask = htons(0xffff);
-@@ -330,7 +333,7 @@ static int felix_setup_mmio_filtering(st
- 		 * the CPU port module
- 		 */
- 		redirect_rule->action.mask_mode = OCELOT_MASK_MODE_REDIRECT;
--		redirect_rule->action.port_mask = cpu_ports;
-+		redirect_rule->action.port_mask = BIT(cpu);
- 	} else {
- 		/* Trap PTP packets only to the CPU port module (which is
- 		 * redirected to the NPI port)
-@@ -1241,6 +1244,7 @@ static int felix_setup(struct dsa_switch
- 		 * there's no real point in checking for errors.
- 		 */
- 		felix_set_tag_protocol(ds, port, felix->tag_proto);
-+		break;
- 	}
+ 	return ionic_lif_addr(netdev_priv(netdev), addr, DEL_ADDR);
+ }
  
- 	ds->mtu_enforcement_ingress = true;
-@@ -1277,6 +1281,7 @@ static void felix_teardown(struct dsa_sw
- 			continue;
- 
- 		felix_del_tag_protocol(ds, port, felix->tag_proto);
-+		break;
- 	}
- 
- 	ocelot_devlink_sb_unregister(ocelot);
 
 
