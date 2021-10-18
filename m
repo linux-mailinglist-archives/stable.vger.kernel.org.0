@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FE11431E2E
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:57:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF29431ADC
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233020AbhJRN64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:58:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56876 "EHLO mail.kernel.org"
+        id S232070AbhJRN31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233797AbhJRN4k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:56:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C250613A2;
-        Mon, 18 Oct 2021 13:40:37 +0000 (UTC)
+        id S231861AbhJRN3E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 193F061350;
+        Mon, 18 Oct 2021 13:26:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564438;
-        bh=mqE/Kn9CQDdlKx57o1s6845Vsk2YcTVhS3tBKOKrbw0=;
+        s=korg; t=1634563572;
+        bh=TpO4EEaob/fjJr5adrfsWNVyULAMtGkS3nXv4F9xMJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c3ie46Th6WiLU0qI5wNEGIdS8NwG4q57dCkS0wudKHjyOiFQLcS6vmEzmZLUsAgb+
-         CH/H7eNDEU2t+0lhbuwDz4JCq4Yq0RBLK8v/Zh/Wm8NsSuAKipiYUEfuMN5PQh3E29
-         xpWo9aXcVKJmv/Cy8nXb8fokljqlHJmNXBPE3Ri4=
+        b=vQC7iS3exSRdD4clquxnU89tdh2m4fzD1izV/FCrbYaH7J+8IhDx4ba5ZvH/fkmpw
+         ViymS1NwFGdqRNckTKXrFqkO8tXYRxTseflaj3QZdJ/tkx4KmSpHBYGQxFqaU7faa9
+         jxnGjJMnPGO13j9ySZ9D4ZOf7WereywREgoDsI4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Nicolas Saenz Julienne <nsaenz@kernel.org>
-Subject: [PATCH 5.14 089/151] ARM: dts: bcm2711-rpi-4-b: Fix usbs unit address
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 4.14 19/39] nvmem: Fix shift-out-of-bound (UBSAN) with byte size cells
 Date:   Mon, 18 Oct 2021 15:24:28 +0200
-Message-Id: <20211018132343.577569587@linuxfoundation.org>
+Message-Id: <20211018132326.071442459@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenz@kernel.org>
+From: Stephen Boyd <swboyd@chromium.org>
 
-commit 3f32472854614d6f53b09b4812372dba9fc5c7de upstream.
+commit 5d388fa01fa6eb310ac023a363a6cb216d9d8fe9 upstream.
 
-The unit address is supposed to represent '<device>,<function>'. Which
-are both 0 for RPi4b's XHCI controller. On top of that although
-OpenFirmware states bus number goes in the high part of the last reg
-parameter, FDT doesn't seem to care for it[1], so remove it.
+If a cell has 'nbits' equal to a multiple of BITS_PER_BYTE the logic
 
-[1] https://patchwork.kernel.org/project/linux-arm-kernel/patch/20210830103909.323356-1-nsaenzju@redhat.com/#24414633
-Fixes: 258f92d2f840 ("ARM: dts: bcm2711: Add reset controller to xHCI node")
-Suggested-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20210831125843.1233488-2-nsaenzju@redhat.com
-Signed-off-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+ *p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
+
+will become undefined behavior because nbits modulo BITS_PER_BYTE is 0, and we
+subtract one from that making a large number that is then shifted more than the
+number of bits that fit into an unsigned long.
+
+UBSAN reports this problem:
+
+ UBSAN: shift-out-of-bounds in drivers/nvmem/core.c:1386:8
+ shift exponent 64 is too large for 64-bit type 'unsigned long'
+ CPU: 6 PID: 7 Comm: kworker/u16:0 Not tainted 5.15.0-rc3+ #9
+ Hardware name: Google Lazor (rev3+) with KB Backlight (DT)
+ Workqueue: events_unbound deferred_probe_work_func
+ Call trace:
+  dump_backtrace+0x0/0x170
+  show_stack+0x24/0x30
+  dump_stack_lvl+0x64/0x7c
+  dump_stack+0x18/0x38
+  ubsan_epilogue+0x10/0x54
+  __ubsan_handle_shift_out_of_bounds+0x180/0x194
+  __nvmem_cell_read+0x1ec/0x21c
+  nvmem_cell_read+0x58/0x94
+  nvmem_cell_read_variable_common+0x4c/0xb0
+  nvmem_cell_read_variable_le_u32+0x40/0x100
+  a6xx_gpu_init+0x170/0x2f4
+  adreno_bind+0x174/0x284
+  component_bind_all+0xf0/0x264
+  msm_drm_bind+0x1d8/0x7a0
+  try_to_bring_up_master+0x164/0x1ac
+  __component_add+0xbc/0x13c
+  component_add+0x20/0x2c
+  dp_display_probe+0x340/0x384
+  platform_probe+0xc0/0x100
+  really_probe+0x110/0x304
+  __driver_probe_device+0xb8/0x120
+  driver_probe_device+0x4c/0xfc
+  __device_attach_driver+0xb0/0x128
+  bus_for_each_drv+0x90/0xdc
+  __device_attach+0xc8/0x174
+  device_initial_probe+0x20/0x2c
+  bus_probe_device+0x40/0xa4
+  deferred_probe_work_func+0x7c/0xb8
+  process_one_work+0x128/0x21c
+  process_scheduled_works+0x40/0x54
+  worker_thread+0x1ec/0x2a8
+  kthread+0x138/0x158
+  ret_from_fork+0x10/0x20
+
+Fix it by making sure there are any bits to mask out.
+
+Fixes: 69aba7948cbe ("nvmem: Add a simple NVMEM framework for consumers")
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20211013124511.18726-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/bcm2711-rpi-4-b.dts |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvmem/core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
-+++ b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
-@@ -224,8 +224,8 @@
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -987,7 +987,8 @@ static inline void nvmem_shift_read_buff
+ 		*p-- = 0;
  
- 		reg = <0 0 0 0 0>;
+ 	/* clear msb bits if any leftover in the last byte */
+-	*p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
++	if (cell->nbits % BITS_PER_BYTE)
++		*p &= GENMASK((cell->nbits % BITS_PER_BYTE) - 1, 0);
+ }
  
--		usb@1,0 {
--			reg = <0x10000 0 0 0 0>;
-+		usb@0,0 {
-+			reg = <0 0 0 0 0>;
- 			resets = <&reset RASPBERRYPI_FIRMWARE_RESET_ID_USB>;
- 		};
- 	};
+ static int __nvmem_cell_read(struct nvmem_device *nvmem,
 
 
