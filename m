@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F1E2431B22
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:28:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA496431ADD
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232060AbhJRNa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:30:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43210 "EHLO mail.kernel.org"
+        id S231928AbhJRN31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232330AbhJRN37 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:29:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D32960295;
-        Mon, 18 Oct 2021 13:27:47 +0000 (UTC)
+        id S230005AbhJRN3E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 638726128B;
+        Mon, 18 Oct 2021 13:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563668;
-        bh=v0qt75fXEfZDx0pU2hWoiPCdS13jBNKzxMVUeErd/2w=;
+        s=korg; t=1634563562;
+        bh=chcz+leP09AY6DyBZT7N+ipg9Q/8nU/lqMOIKZhmkgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IztfQ51ePWWwepSJARfTEG36+usfnAUA/N4vT9YAzogflwYT805LrIWt/0D2mrV/o
-         XVKUr13uKNuJq2rzLT5VHRngdZ4zY4P8rrYQvINkIkwdivdVzguiWsOnuztVA8mWeI
-         V4O8X/okTRwBNmUY5ZiOdhbg9ButhzRfRMZgBUfo=
+        b=jtc8RUJgLfOR9xhQwdzl3ESF06o+/vitXnpkReS2qjgyxmmdvL57QaP1fFVijXmxh
+         81y8Bz6wWBemkfVwdzcLT3UeANd/dv1wvs9Jxmw7DNEYgXnqxbC6N7HvSwfVyvSihv
+         9LS4JKBpvidQGsBgYEIOr/WZKI2UR93WfUHGGJ/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Jianhua <chris.zjh@huawei.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.19 17/50] efi: Change down_interruptible() in virt_efi_reset_system() to down_trylock()
+        stable@vger.kernel.org, Yu-Tung Chang <mtwget@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 15/39] USB: serial: option: add Quectel EC200S-CN module support
 Date:   Mon, 18 Oct 2021 15:24:24 +0200
-Message-Id: <20211018132327.112350628@linuxfoundation.org>
+Message-Id: <20211018132325.945019508@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Jianhua <chris.zjh@huawei.com>
+From: Yu-Tung Chang <mtwget@gmail.com>
 
-commit 38fa3206bf441911258e5001ac8b6738693f8d82 upstream.
+commit 2263eb7370060bdb0013bc14e1a7c9bf33617a55 upstream.
 
-While reboot the system by sysrq, the following bug will be occur.
+Add usb product id of the Quectel EC200S-CN module.
 
-BUG: sleeping function called from invalid context at kernel/locking/semaphore.c:90
-in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 10052, name: rc.shutdown
-CPU: 3 PID: 10052 Comm: rc.shutdown Tainted: G        W O      5.10.0 #1
-Call trace:
- dump_backtrace+0x0/0x1c8
- show_stack+0x18/0x28
- dump_stack+0xd0/0x110
- ___might_sleep+0x14c/0x160
- __might_sleep+0x74/0x88
- down_interruptible+0x40/0x118
- virt_efi_reset_system+0x3c/0xd0
- efi_reboot+0xd4/0x11c
- machine_restart+0x60/0x9c
- emergency_restart+0x1c/0x2c
- sysrq_handle_reboot+0x1c/0x2c
- __handle_sysrq+0xd0/0x194
- write_sysrq_trigger+0xbc/0xe4
- proc_reg_write+0xd4/0xf0
- vfs_write+0xa8/0x148
- ksys_write+0x6c/0xd8
- __arm64_sys_write+0x18/0x28
- el0_svc_common.constprop.3+0xe4/0x16c
- do_el0_svc+0x1c/0x2c
- el0_svc+0x20/0x30
- el0_sync_handler+0x80/0x17c
- el0_sync+0x158/0x180
+usb-devices output for 0x6002:
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=6002 Rev=03.18
+S:  Manufacturer=Android
+S:  Product=Android
+S:  SerialNumber=0000
+C:  #Ifs= 5 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=06 Prot=00 Driver=cdc_ether
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
 
-The reason for this problem is that irq has been disabled in
-machine_restart() and then it calls down_interruptible() in
-virt_efi_reset_system(), which would occur sleep in irq context,
-it is dangerous! Commit 99409b935c9a("locking/semaphore: Add
-might_sleep() to down_*() family") add might_sleep() in
-down_interruptible(), so the bug info is here. down_trylock()
-can solve this problem, cause there is no might_sleep.
-
---------
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Zhang Jianhua <chris.zjh@huawei.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Yu-Tung Chang <mtwget@gmail.com>
+Link: https://lore.kernel.org/r/20210930021112.330396-1-mtwget@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/runtime-wrappers.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/firmware/efi/runtime-wrappers.c
-+++ b/drivers/firmware/efi/runtime-wrappers.c
-@@ -395,7 +395,7 @@ static void virt_efi_reset_system(int re
- 				  unsigned long data_size,
- 				  efi_char16_t *data)
- {
--	if (down_interruptible(&efi_runtime_lock)) {
-+	if (down_trylock(&efi_runtime_lock)) {
- 		pr_warn("failed to invoke the reset_system() runtime service:\n"
- 			"could not get exclusive access to the firmware\n");
- 		return;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -254,6 +254,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EP06			0x0306
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
++#define QUECTEL_PRODUCT_EC200S_CN		0x6002
+ #define QUECTEL_PRODUCT_EC200T			0x6026
+ 
+ #define CMOTECH_VENDOR_ID			0x16d8
+@@ -1131,6 +1132,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
+ 	  .driver_info = ZLP },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
+ 
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
 
 
