@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 566DB431D7B
+	by mail.lfdr.de (Postfix) with ESMTP id A0D8D431D7C
 	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233793AbhJRNv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:51:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50492 "EHLO mail.kernel.org"
+        id S233827AbhJRNwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:52:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233357AbhJRNuD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:50:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1D6561390;
-        Mon, 18 Oct 2021 13:37:36 +0000 (UTC)
+        id S233907AbhJRNuE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:50:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4624F613E8;
+        Mon, 18 Oct 2021 13:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564257;
-        bh=eDTojDbsL2yDNqpN0qA6hR0iQ4xi9fQ2ndFuesSquwQ=;
+        s=korg; t=1634564259;
+        bh=vrKvWL1eQ+s4rQfU/Vj6bkBAWX4Z1BAQEweK7n3Oe4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uf0MMjLUPkvXTtK7VikIRkzrp+KixO/HS+9cFBciUpttlPxBagpHpkxoUjVcnWQUH
-         cczclb8aACO8mW3Mr3VJi6NlcgfPj+YUT0fCkm/KAhZbMcyw+RAvw6ERWodGHYleUp
-         kO0udwKyPGRRUv4YuKvuW67mHkvPdZLRN9OLi3nM=
+        b=GdiAX8vmCIeMCPsqoB14z8mkarPjS7AbYy8cIJQVekpR+l5gALvI7m+sjDiJv6iRd
+         EieWZrwcoK2O71TF17WT4ek2RxGi/36NsxP9zQcvHQuUzAOo0CUlexDmAfkqbBJSJx
+         oR/y9Jcr01Sndk0pDZun6PR51wpOfHfRMPGBD0bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.14 020/151] dm rq: dont queue request to blk-mq during DM suspend
-Date:   Mon, 18 Oct 2021 15:23:19 +0200
-Message-Id: <20211018132341.334019450@linuxfoundation.org>
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.14 021/151] s390: fix strrchr() implementation
+Date:   Mon, 18 Oct 2021 15:23:20 +0200
+Message-Id: <20211018132341.366760104@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -39,43 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit b4459b11e84092658fa195a2587aff3b9637f0e7 upstream.
+commit 8e0ab8e26b72a80e991c66a8abc16e6c856abe3d upstream.
 
-DM uses blk-mq's quiesce/unquiesce to stop/start device mapper queue.
+Fix two problems found in the strrchr() implementation for s390
+architectures: evaluate empty strings (return the string address instead of
+NULL, if '\0' is passed as second argument); evaluate the first character
+of non-empty strings (the current implementation stops at the second).
 
-But blk-mq's unquiesce may come from outside events, such as elevator
-switch, updating nr_requests or others, and request may come during
-suspend, so simply ask for blk-mq to requeue it.
-
-Fixes one kernel panic issue when running updating nr_requests and
-dm-mpath suspend/resume stress test.
-
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable@vger.kernel.org
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Reported-by: Heiko Carstens <hca@linux.ibm.com> (incorrect behavior with empty strings)
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Link: https://lore.kernel.org/r/20211005120836.60630-1-roberto.sassu@huawei.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-rq.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/s390/lib/string.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/drivers/md/dm-rq.c
-+++ b/drivers/md/dm-rq.c
-@@ -490,6 +490,14 @@ static blk_status_t dm_mq_queue_rq(struc
- 	struct mapped_device *md = tio->md;
- 	struct dm_target *ti = md->immutable_target;
+--- a/arch/s390/lib/string.c
++++ b/arch/s390/lib/string.c
+@@ -259,14 +259,13 @@ EXPORT_SYMBOL(strcmp);
+ #ifdef __HAVE_ARCH_STRRCHR
+ char *strrchr(const char *s, int c)
+ {
+-       size_t len = __strend(s) - s;
++	ssize_t len = __strend(s) - s;
  
-+	/*
-+	 * blk-mq's unquiesce may come from outside events, such as
-+	 * elevator switch, updating nr_requests or others, and request may
-+	 * come during suspend, so simply ask for blk-mq to requeue it.
-+	 */
-+	if (unlikely(test_bit(DMF_BLOCK_IO_FOR_SUSPEND, &md->flags)))
-+		return BLK_STS_RESOURCE;
-+
- 	if (unlikely(!ti)) {
- 		int srcu_idx;
- 		struct dm_table *map = dm_get_live_table(md, &srcu_idx);
+-       if (len)
+-	       do {
+-		       if (s[len] == (char) c)
+-			       return (char *) s + len;
+-	       } while (--len > 0);
+-       return NULL;
++	do {
++		if (s[len] == (char)c)
++			return (char *)s + len;
++	} while (--len >= 0);
++	return NULL;
+ }
+ EXPORT_SYMBOL(strrchr);
+ #endif
 
 
