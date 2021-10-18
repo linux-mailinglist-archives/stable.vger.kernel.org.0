@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB8AA431BFE
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 337FF431B87
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232647AbhJRNhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:37:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53502 "EHLO mail.kernel.org"
+        id S232784AbhJRNdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:33:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232172AbhJRNfS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:35:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B42D56126A;
-        Mon, 18 Oct 2021 13:30:36 +0000 (UTC)
+        id S232450AbhJRNbd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:31:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1880D6128E;
+        Mon, 18 Oct 2021 13:28:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563837;
-        bh=w8Yg64NpISzanOf/I01LEKyBZfD7cK08ATPg/AuFw6Q=;
+        s=korg; t=1634563729;
+        bh=1ADLGrEstFCqSsIQZXS9I2KSEQd1t78SzVMETSn9TUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FK8Pgf4dYgvj5/okcw0WzeU/z3XcAf0GO89kxKb7vOaVMVG0ZaALNCA0oPeW1Vkyn
-         +sU6Gg5i1nUdHUQ05arMdvKSpPnKb5Lg34GQCEbbz8LJ4o4EW77AnZGTvbpBU5WeXP
-         ZWlbkWc6pJXraNf6lmg4BS6mZuINnPUWnW+zJnH4=
+        b=LrdD8MjRKFkpw39VDjAQVu9kjMj/rHBgWh0Ys40mmmlX8yNmXLS2Al9HhoTQ0EqN+
+         n2hYGPVr+yFXOQtu8yxjjIdHr7sWFRuufM9KifkkI6UcJtd/Z1gQeVUoZuC5Cptf2z
+         YA+tjUDZrnRTF7n34WjinHqa1Mo44qsZdWpjKqwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.4 33/69] nvmem: Fix shift-out-of-bound (UBSAN) with byte size cells
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        markver@us.ibm.com, Cornelia Huck <cohuck@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 4.19 24/50] virtio: write back F_VERSION_1 before validate
 Date:   Mon, 18 Oct 2021 15:24:31 +0200
-Message-Id: <20211018132330.582609428@linuxfoundation.org>
+Message-Id: <20211018132327.338374122@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
+References: <20211018132326.529486647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-commit 5d388fa01fa6eb310ac023a363a6cb216d9d8fe9 upstream.
+commit 2f9a174f918e29608564c7a4e8329893ab604fb4 upstream.
 
-If a cell has 'nbits' equal to a multiple of BITS_PER_BYTE the logic
+The virtio specification virtio-v1.1-cs01 states: "Transitional devices
+MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
+been acknowledged by the driver."  This is exactly what QEMU as of 6.1
+has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
 
- *p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
+However, the specification also says: "... the driver MAY read (but MUST
+NOT write) the device-specific configuration fields to check that it can
+support the device ..." before setting FEATURES_OK.
 
-will become undefined behavior because nbits modulo BITS_PER_BYTE is 0, and we
-subtract one from that making a large number that is then shifted more than the
-number of bits that fit into an unsigned long.
+In that case, any transitional device relying solely on
+VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
+legacy format.  In particular, this implies that it is in big endian
+format for big endian guests. This naturally confuses the driver which
+expects little endian in the modern mode.
 
-UBSAN reports this problem:
+It is probably a good idea to amend the spec to clarify that
+VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
+is complete. Before validate callback existed, config space was only
+read after FEATURES_OK. However, we already have two regressions, so
+let's address this here as well.
 
- UBSAN: shift-out-of-bounds in drivers/nvmem/core.c:1386:8
- shift exponent 64 is too large for 64-bit type 'unsigned long'
- CPU: 6 PID: 7 Comm: kworker/u16:0 Not tainted 5.15.0-rc3+ #9
- Hardware name: Google Lazor (rev3+) with KB Backlight (DT)
- Workqueue: events_unbound deferred_probe_work_func
- Call trace:
-  dump_backtrace+0x0/0x170
-  show_stack+0x24/0x30
-  dump_stack_lvl+0x64/0x7c
-  dump_stack+0x18/0x38
-  ubsan_epilogue+0x10/0x54
-  __ubsan_handle_shift_out_of_bounds+0x180/0x194
-  __nvmem_cell_read+0x1ec/0x21c
-  nvmem_cell_read+0x58/0x94
-  nvmem_cell_read_variable_common+0x4c/0xb0
-  nvmem_cell_read_variable_le_u32+0x40/0x100
-  a6xx_gpu_init+0x170/0x2f4
-  adreno_bind+0x174/0x284
-  component_bind_all+0xf0/0x264
-  msm_drm_bind+0x1d8/0x7a0
-  try_to_bring_up_master+0x164/0x1ac
-  __component_add+0xbc/0x13c
-  component_add+0x20/0x2c
-  dp_display_probe+0x340/0x384
-  platform_probe+0xc0/0x100
-  really_probe+0x110/0x304
-  __driver_probe_device+0xb8/0x120
-  driver_probe_device+0x4c/0xfc
-  __device_attach_driver+0xb0/0x128
-  bus_for_each_drv+0x90/0xdc
-  __device_attach+0xc8/0x174
-  device_initial_probe+0x20/0x2c
-  bus_probe_device+0x40/0xa4
-  deferred_probe_work_func+0x7c/0xb8
-  process_one_work+0x128/0x21c
-  process_scheduled_works+0x40/0x54
-  worker_thread+0x1ec/0x2a8
-  kthread+0x138/0x158
-  ret_from_fork+0x10/0x20
+The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
+the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
+virtio 1.0 is used on both sides. The latter renders virtio-blk unusable
+with DASD backing, because things simply don't work with the default.
+See Fixes tags for relevant commits.
 
-Fix it by making sure there are any bits to mask out.
+For QEMU, we can work around the issue by writing out the feature bits
+with VIRTIO_F_VERSION_1 bit set.  We (ab)use the finalize_features
+config op for this. This isn't enough to address all vhost devices since
+these do not get the features until FEATURES_OK, however it looks like
+the affected devices actually never handled the endianness for legacy
+mode correctly, so at least that's not a regression.
 
-Fixes: 69aba7948cbe ("nvmem: Add a simple NVMEM framework for consumers")
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20211013124511.18726-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+No devices except virtio net and virtio blk seem to be affected.
+
+Long term the right thing to do is to fix the hypervisors.
+
+Cc: <stable@vger.kernel.org> #v4.11
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
+Reported-by: markver@us.ibm.com
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Link: https://lore.kernel.org/r/20211011053921.1198936-1-pasic@linux.ibm.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvmem/core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -954,7 +954,8 @@ static void nvmem_shift_read_buffer_in_p
- 		*p-- = 0;
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -222,6 +222,17 @@ static int virtio_dev_probe(struct devic
+ 		driver_features_legacy = driver_features;
+ 	}
  
- 	/* clear msb bits if any leftover in the last byte */
--	*p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
-+	if (cell->nbits % BITS_PER_BYTE)
-+		*p &= GENMASK((cell->nbits % BITS_PER_BYTE) - 1, 0);
- }
- 
- static int __nvmem_cell_read(struct nvmem_device *nvmem,
++	/*
++	 * Some devices detect legacy solely via F_VERSION_1. Write
++	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
++	 * these when needed.
++	 */
++	if (drv->validate && !virtio_legacy_is_little_endian()
++			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
++		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
++		dev->config->finalize_features(dev);
++	}
++
+ 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+ 		dev->features = driver_features & device_features;
+ 	else
 
 
