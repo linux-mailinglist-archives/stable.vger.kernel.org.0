@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77E95431B58
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:30:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CAE2431CF0
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:44:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232651AbhJRNc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:32:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41884 "EHLO mail.kernel.org"
+        id S233893AbhJRNqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:46:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232312AbhJRNaw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:30:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B70E16058D;
-        Mon, 18 Oct 2021 13:28:31 +0000 (UTC)
+        id S232533AbhJRNoQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:44:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 849B261526;
+        Mon, 18 Oct 2021 13:35:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563712;
-        bh=spT+mTz6Sq3sdyfzZk69VBXSZ2sJLsDvjbKHAmns0aI=;
+        s=korg; t=1634564104;
+        bh=MpoZJ9scGot9fKKZXIgpwTlyB8cZr2ozyuVQrAiQarM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cU+sIbKUKqyW2WUJrhxmTt51znU0KsE/J/5bAZKMrPEa857zj9Fq4QWFqhQSz9M8j
-         uhXRa2yA2Vfid/3PyGhlogv3Eh0/4yRNGlo+MNpPkH+xK/zfI+xDjoAvAQUXKr6tWf
-         2FigO0ijuJqsggTKvTnjZT+1CNQOWUnC4ex0M0bk=
+        b=lcD/l/YVizh3ca6pW7gRwADoGjNVapR+i7ORyipOTg/7tNU193yxF9J/hLXInmQIb
+         3Xmsuk9Eb2u3NWlf8HICqqxfhmZw54Jnop+n9rEjIg5GrGs1pDsYKLpYa3r6GHsvrp
+         oy7NkyUOF5laADJUQkaBBZxjjMUO5r0yVfupKArc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Florian fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 35/50] net: korina: select CRC32
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>
+Subject: [PATCH 5.10 066/103] ARM: dts: bcm2711-rpi-4-b: Fix pcie0s unit address formatting
 Date:   Mon, 18 Oct 2021 15:24:42 +0200
-Message-Id: <20211018132327.692643815@linuxfoundation.org>
+Message-Id: <20211018132336.962856067@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+From: Nicolas Saenz Julienne <nsaenz@kernel.org>
 
-commit 427f974d9727ca681085ddcd0530c97ab5811ae0 upstream.
+commit 13dbc954b3c9a9de0ad5b7279e8d3b708d31068b upstream.
 
-Fix the following build/link error by adding a dependency on the CRC32
-routines:
+dtbs_check currently complains that:
 
-  ld: drivers/net/ethernet/korina.o: in function `korina_multicast_list':
-  korina.c:(.text+0x1af): undefined reference to `crc32_le'
+arch/arm/boot/dts/bcm2711-rpi-4-b.dts:220.10-231.4: Warning
+(pci_device_reg): /scb/pcie@7d500000/pci@1,0: PCI unit address format
+error, expected "0,0"
 
-Fixes: ef11291bcd5f9 ("Add support the Korina (IDT RC32434) Ethernet MAC")
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Acked-by: Florian fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20211012152509.21771-1-vegard.nossum@oracle.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Unsurprisingly pci@0,0 is the right address, as illustrated by its reg
+property:
+
+    &pcie0 {
+	    pci@0,0 {
+		    /*
+		     * As defined in the IEEE Std 1275-1994 document,
+		     * reg is a five-cell address encoded as (phys.hi
+		     * phys.mid phys.lo size.hi size.lo). phys.hi
+		     * should contain the device's BDF as 0b00000000
+		     * bbbbbbbb dddddfff 00000000. The other cells
+		     * should be zero.
+		     */
+		    reg = <0 0 0 0 0>;
+	    };
+    };
+
+The device is clearly 0. So fix it.
+
+Also add a missing 'device_type = "pci"'.
+
+Fixes: 258f92d2f840 ("ARM: dts: bcm2711: Add reset controller to xHCI node")
+Suggested-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20210831125843.1233488-1-nsaenzju@redhat.com
+Signed-off-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/bcm2711-rpi-4-b.dts |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/Kconfig
-+++ b/drivers/net/ethernet/Kconfig
-@@ -98,6 +98,7 @@ config JME
- config KORINA
- 	tristate "Korina (IDT RC32434) Ethernet support"
- 	depends on MIKROTIK_RB532
-+	select CRC32
- 	---help---
- 	  If you have a Mikrotik RouterBoard 500 or IDT RC32434
- 	  based system say Y. Otherwise say N.
+--- a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
++++ b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
+@@ -255,7 +255,8 @@
+ };
+ 
+ &pcie0 {
+-	pci@1,0 {
++	pci@0,0 {
++		device_type = "pci";
+ 		#address-cells = <3>;
+ 		#size-cells = <2>;
+ 		ranges;
 
 
