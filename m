@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C66BE431BA6
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9854F431D24
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:47:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232588AbhJRNeI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:34:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42664 "EHLO mail.kernel.org"
+        id S232089AbhJRNsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:48:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232059AbhJRNcW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:32:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89DBD60EFE;
-        Mon, 18 Oct 2021 13:29:06 +0000 (UTC)
+        id S233868AbhJRNqR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:46:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 820CD6162E;
+        Mon, 18 Oct 2021 13:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563747;
-        bh=QO8j95tTJerGA5WGZ1MrkB6rA66a4Ts7HXGfMmC/R8s=;
+        s=korg; t=1634564157;
+        bh=czaI13gQk7wRy9J0Hi5zKCZKM6yOkAkNqxw0VBmSeSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TXcdbY6M2uHnHYX6n0kTCpkwN0hLD+zscNMVFZlyPBe+uegM/rTdgCEOrZrJLkDbG
-         Tl3T0Tn+i8HUc3vnaIBrwSd0sunlbKCGlmB+aK0oONqLxgubyMjaWFEIsy3JNSrY5A
-         oh0dkAvRirzyECniphRoSru30Hu4zSOsPGluTpec=
+        b=KnbZWOZCO1ZfrRga1MMB2yWfoHIGPbd+UTIJ9GcALUT0G3+d9NbX74Z5oxR74SpDJ
+         +QEdQYCeTKmo3Dyk57SCxJYjHc/kEnLF/n7CJeA4vCyURTmkTUuxwp1s/EBjLJGLLj
+         bQxin8D39ooNH5InhEMho4hSnPMLNZDXtUgJhgW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 48/50] mqprio: Correct stats in mqprio_dump_class_stats().
+Subject: [PATCH 5.10 079/103] nfc: fix error handling of nfc_proto_register()
 Date:   Mon, 18 Oct 2021 15:24:55 +0200
-Message-Id: <20211018132328.110231802@linuxfoundation.org>
+Message-Id: <20211018132337.410206165@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-commit 14132690860e4d06aa3e1c4d7d8e9866ba7756dd upstream.
+commit 0911ab31896f0e908540746414a77dd63912748d upstream.
 
-Introduction of lockless subqueues broke the class statistics.
-Before the change stats were accumulated in `bstats' and `qstats'
-on the stack which was then copied to struct gnet_dump.
+When nfc proto id is using, nfc_proto_register() return -EBUSY error
+code, but forgot to unregister proto. Fix it by adding proto_unregister()
+in the error handling case.
 
-After the change the `bstats' and `qstats' are initialized to 0
-and never updated, yet still fed to gnet_dump. The code updates
-the global qdisc->cpu_bstats and qdisc->cpu_qstats instead,
-clobbering them. Most likely a copy-paste error from the code in
-mqprio_dump().
-
-__gnet_stats_copy_basic() and __gnet_stats_copy_queue() accumulate
-the values for per-CPU case but for global stats they overwrite
-the value, so only stats from the last loop iteration / tc end up
-in sch->[bq]stats.
-
-Use the on-stack [bq]stats variables again and add the stats manually
-in the global case.
-
-Fixes: ce679e8df7ed2 ("net: sched: add support for TCQ_F_NOLOCK subqueues to sch_mqprio")
-Cc: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-https://lore.kernel.org/all/20211007175000.2334713-2-bigeasy@linutronix.de/
+Fixes: c7fe3b52c128 ("NFC: add NFC socket family")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211013034932.2833737-1-william.xuanziyang@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_mqprio.c |   30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ net/nfc/af_nfc.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/sched/sch_mqprio.c
-+++ b/net/sched/sch_mqprio.c
-@@ -531,22 +531,28 @@ static int mqprio_dump_class_stats(struc
- 		for (i = tc.offset; i < tc.offset + tc.count; i++) {
- 			struct netdev_queue *q = netdev_get_tx_queue(dev, i);
- 			struct Qdisc *qdisc = rtnl_dereference(q->qdisc);
--			struct gnet_stats_basic_cpu __percpu *cpu_bstats = NULL;
--			struct gnet_stats_queue __percpu *cpu_qstats = NULL;
+--- a/net/nfc/af_nfc.c
++++ b/net/nfc/af_nfc.c
+@@ -60,6 +60,9 @@ int nfc_proto_register(const struct nfc_
+ 		proto_tab[nfc_proto->id] = nfc_proto;
+ 	write_unlock(&proto_tab_lock);
  
- 			spin_lock_bh(qdisc_lock(qdisc));
++	if (rc)
++		proto_unregister(nfc_proto->proto);
 +
- 			if (qdisc_is_percpu_stats(qdisc)) {
--				cpu_bstats = qdisc->cpu_bstats;
--				cpu_qstats = qdisc->cpu_qstats;
--			}
-+				qlen = qdisc_qlen_sum(qdisc);
- 
--			qlen = qdisc_qlen_sum(qdisc);
--			__gnet_stats_copy_basic(NULL, &sch->bstats,
--						cpu_bstats, &qdisc->bstats);
--			__gnet_stats_copy_queue(&sch->qstats,
--						cpu_qstats,
--						&qdisc->qstats,
--						qlen);
-+				__gnet_stats_copy_basic(NULL, &bstats,
-+							qdisc->cpu_bstats,
-+							&qdisc->bstats);
-+				__gnet_stats_copy_queue(&qstats,
-+							qdisc->cpu_qstats,
-+							&qdisc->qstats,
-+							qlen);
-+			} else {
-+				qlen		+= qdisc->q.qlen;
-+				bstats.bytes	+= qdisc->bstats.bytes;
-+				bstats.packets	+= qdisc->bstats.packets;
-+				qstats.backlog	+= qdisc->qstats.backlog;
-+				qstats.drops	+= qdisc->qstats.drops;
-+				qstats.requeues	+= qdisc->qstats.requeues;
-+				qstats.overlimits += qdisc->qstats.overlimits;
-+			}
- 			spin_unlock_bh(qdisc_lock(qdisc));
- 		}
- 
+ 	return rc;
+ }
+ EXPORT_SYMBOL(nfc_proto_register);
 
 
