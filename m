@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98AEB4314B7
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 12:13:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF91F4315B9
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 12:16:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231618AbhJRKOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 06:14:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49986 "EHLO mail.kernel.org"
+        id S231352AbhJRKSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 06:18:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231621AbhJRKO1 (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 06:14:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 824E560E90;
-        Mon, 18 Oct 2021 10:12:15 +0000 (UTC)
+        id S231736AbhJRKR2 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 06:17:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E6F960E54;
+        Mon, 18 Oct 2021 10:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634551936;
-        bh=QiSaMSvw1vZps5/Z1mY1oDj9rDgvOikPYHhYB8n9GaM=;
+        s=korg; t=1634552116;
+        bh=GObAGqZ2hvrL/nRO9gl0VcvqDvc/hE34/bIPAyRon/Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=q9ubdDWjSt1uiT3ePGep9p5/HU/bbpze1HXGeTRlc4iKU0rNlEnSEwa1XdcHl6j2X
-         L0Rm1/IoUl6+thlA6vhq6xY+n+cZoKysnSKPR/+OU7ScIcfY9EEN7nONgA8fLeFXmA
-         5QhIGgqmMZUkY7nsodiF74okcX/lsGdqFxPBh6bM=
-Subject: FAILED: patch "[PATCH] iio: adis16480: fix devices that do not support sleep mode" failed to apply to 5.10-stable tree
-To:     nuno.sa@analog.com, Jonathan.Cameron@huawei.com,
+        b=CIXlK2wU4v1r1Am96cvfEXmSo5ZtgOjgZd6cv7vk2+0pb170QKFGDnr4PuTyN8eAr
+         EkuS92v/xn3CZ1iTb1bX98oQ7JKvdVQjKORRxtLk0lm8NIGJEn7ZHrSzX01wCXg0/V
+         7zUBfjqYuPdgnPqA8tycpHMz8Jg75kxRpUk6xzZE=
+Subject: FAILED: patch "[PATCH] iio: mtk-auxadc: fix case IIO_CHAN_INFO_PROCESSED" failed to apply to 4.9-stable tree
+To:     hui.liu@mediatek.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 12:12:12 +0200
-Message-ID: <163455193221417@kroah.com>
+Date:   Mon, 18 Oct 2021 12:15:13 +0200
+Message-ID: <163455211320827@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,83 +46,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ea1945c2f72d7bd253e2ebaa97cdd8d9ffcde076 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
-Date: Fri, 3 Sep 2021 16:14:23 +0200
-Subject: [PATCH] iio: adis16480: fix devices that do not support sleep mode
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From c2980c64c7fd4585d684574c92d1624d44961edd Mon Sep 17 00:00:00 2001
+From: Hui Liu <hui.liu@mediatek.com>
+Date: Sun, 26 Sep 2021 15:30:28 +0800
+Subject: [PATCH] iio: mtk-auxadc: fix case IIO_CHAN_INFO_PROCESSED
 
-Not all devices supported by this driver support being put to sleep
-mode. For those devices, when calling 'adis16480_stop_device()' on the
-unbind path, we where actually writing in the SYNC_SCALE register.
+The previous driver does't apply the necessary scaling to take the
+voltage range into account.
+We change readback value from raw data to input voltage to fix case
+IIO_CHAN_INFO_PROCESSED.
 
-Fixes: 80cbc848c4fa0 ("iio: imu: adis16480: Add support for ADIS16490")
-Fixes: 82e7a1b250170 ("iio: imu: adis16480: Add support for ADIS1649x family of devices")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210903141423.517028-6-nuno.sa@analog.com
+Fixes: ace4cdfe67be ("iio: adc: mt2701: Add Mediatek auxadc driver for mt2701.")
+Signed-off-by: Hui Liu <hui.liu@mediatek.com>
+Link: https://lore.kernel.org/r/20210926073028.11045-2-hui.liu@mediatek.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-diff --git a/drivers/iio/imu/adis16480.c b/drivers/iio/imu/adis16480.c
-index a869a6e52a16..ed129321a14d 100644
---- a/drivers/iio/imu/adis16480.c
-+++ b/drivers/iio/imu/adis16480.c
-@@ -144,6 +144,7 @@ struct adis16480_chip_info {
- 	unsigned int max_dec_rate;
- 	const unsigned int *filter_freqs;
- 	bool has_pps_clk_mode;
-+	bool has_sleep_cnt;
- 	const struct adis_data adis_data;
+diff --git a/drivers/iio/adc/mt6577_auxadc.c b/drivers/iio/adc/mt6577_auxadc.c
+index 79c1dd68b909..d4fccd52ef08 100644
+--- a/drivers/iio/adc/mt6577_auxadc.c
++++ b/drivers/iio/adc/mt6577_auxadc.c
+@@ -82,6 +82,10 @@ static const struct iio_chan_spec mt6577_auxadc_iio_channels[] = {
+ 	MT6577_AUXADC_CHANNEL(15),
  };
  
-@@ -939,6 +940,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
- 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
- 		.int_clk = 2460000,
- 		.max_dec_rate = 2048,
-+		.has_sleep_cnt = true,
- 		.filter_freqs = adis16480_def_filter_freqs,
- 		.adis_data = ADIS16480_DATA(16375, &adis16485_timeouts, 0),
- 	},
-@@ -952,6 +954,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
- 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
- 		.int_clk = 2460000,
- 		.max_dec_rate = 2048,
-+		.has_sleep_cnt = true,
- 		.filter_freqs = adis16480_def_filter_freqs,
- 		.adis_data = ADIS16480_DATA(16480, &adis16480_timeouts, 0),
- 	},
-@@ -965,6 +968,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
- 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
- 		.int_clk = 2460000,
- 		.max_dec_rate = 2048,
-+		.has_sleep_cnt = true,
- 		.filter_freqs = adis16480_def_filter_freqs,
- 		.adis_data = ADIS16480_DATA(16485, &adis16485_timeouts, 0),
- 	},
-@@ -978,6 +982,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
- 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
- 		.int_clk = 2460000,
- 		.max_dec_rate = 2048,
-+		.has_sleep_cnt = true,
- 		.filter_freqs = adis16480_def_filter_freqs,
- 		.adis_data = ADIS16480_DATA(16488, &adis16485_timeouts, 0),
- 	},
-@@ -1425,9 +1430,12 @@ static int adis16480_probe(struct spi_device *spi)
- 	if (ret)
- 		return ret;
++/* For Voltage calculation */
++#define VOLTAGE_FULL_RANGE  1500	/* VA voltage */
++#define AUXADC_PRECISE      4096	/* 12 bits */
++
+ static int mt_auxadc_get_cali_data(int rawdata, bool enable_cali)
+ {
+ 	return rawdata;
+@@ -191,6 +195,10 @@ static int mt6577_auxadc_read_raw(struct iio_dev *indio_dev,
+ 		}
+ 		if (adc_dev->dev_comp->sample_data_cali)
+ 			*val = mt_auxadc_get_cali_data(*val, true);
++
++		/* Convert adc raw data to voltage: 0 - 1500 mV */
++		*val = *val * VOLTAGE_FULL_RANGE / AUXADC_PRECISE;
++
+ 		return IIO_VAL_INT;
  
--	ret = devm_add_action_or_reset(&spi->dev, adis16480_stop, indio_dev);
--	if (ret)
--		return ret;
-+	if (st->chip_info->has_sleep_cnt) {
-+		ret = devm_add_action_or_reset(&spi->dev, adis16480_stop,
-+					       indio_dev);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	ret = adis16480_config_irq_pin(spi->dev.of_node, st);
- 	if (ret)
+ 	default:
 
