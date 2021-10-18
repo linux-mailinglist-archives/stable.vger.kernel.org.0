@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F244316BD
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:03:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 804F24316BE
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:03:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229665AbhJRLFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:05:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54356 "EHLO mail.kernel.org"
+        id S229668AbhJRLFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:05:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229603AbhJRLFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:05:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AF4860F0F;
-        Mon, 18 Oct 2021 11:03:23 +0000 (UTC)
+        id S229603AbhJRLFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 07:05:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBDEB60F0F;
+        Mon, 18 Oct 2021 11:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634555004;
-        bh=JWv/g74h4R6m+jo8gRJ32TCmvaFvPiTNq4jYyZYBRro=;
+        s=korg; t=1634555007;
+        bh=AjkIizD6jWsyyc+Mx+h28x2UXn5tWYXQXUSTKJwDfj8=;
         h=Subject:To:Cc:From:Date:From;
-        b=CVOCoSPQXDX4b18278fTyW9XfMEA+8cOIgMzaUfApsqOEkpzzLkQZUm6nyGZWRMVE
-         oe/Tc8u5iYmi8dAbdD4JlaINxd337IsGvFrEAvJWKaU7jzoc4PKotJdVnMfRtPbAqT
-         qnemUwS7Vvu0pFC6HdvkY5dEHjyjDw/gEJFuXKdA=
-Subject: FAILED: patch "[PATCH] net/mlx5e: Fix memory leak in mlx5_core_destroy_cq() error" failed to apply to 4.14-stable tree
+        b=o8lrGS2n1leHnLHhlCa+7JuMabRdSDXwYAnnZAgpKbOLzXkgaQBKcFXs+oxOvuPyV
+         /wG3pNL1x20HDxATaOMfp9Lgb3nUXAHORsmffupUE8vBvYzRJ5Io9aEWCWxk5cCa/I
+         M/QUgssRidGjq20QoJl4GbNmMcIFcKBJy+SeSVUo=
+Subject: FAILED: patch "[PATCH] net/mlx5e: Fix memory leak in mlx5_core_destroy_cq() error" failed to apply to 5.4-stable tree
 To:     valentinef@nvidia.com, moshe@nvidia.com, saeedm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 13:03:15 +0200
-Message-ID: <1634554995248202@kroah.com>
+Date:   Mon, 18 Oct 2021 13:03:16 +0200
+Message-ID: <1634554996151186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
