@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1637B431EB4
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C1B6431EB7
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:03:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234461AbhJROFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38668 "EHLO mail.kernel.org"
+        id S230344AbhJROFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 10:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234762AbhJROCu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 10:02:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B90C61505;
-        Mon, 18 Oct 2021 13:43:14 +0000 (UTC)
+        id S234773AbhJROCy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 10:02:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 420B361A57;
+        Mon, 18 Oct 2021 13:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564595;
-        bh=wsqFQ2T8wYvjlsxPJLXpdG+TGN0aTjW6u3LdLVfbp6U=;
+        s=korg; t=1634564597;
+        bh=zvjs20sOg4WIawD97wRDFk2JlaVcAWA3whOAUNX5+0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RYnoHJDzAIN7eyXHlkO7Z2+GfwWRmKTJLUtTwnqUsauJvEKrT1wPS8GfKK3j5mbKT
-         ICVoOALo/ufHOYmcjy264YpAiezEZMBvQlVh55IymKbYRIaEusSdKi05Kp1qaju6hm
-         7jGuzjBGKNy1uXTAkn7NJKI0TxAimG1wi0o8HYAc=
+        b=JZV2ZosctdurZsFuiNL265gcgjLOvnP9uRL1HveSHIYGZQeai2KgyMZy4shmt4Qwi
+         8XorYzr8b33ORqy59+s5qSaKoPJ0PNg1Xyq1r6E3Xowsq6Jaisdbn9yygl1kM8MfmF
+         Qi53KpDI98OHY7Mx5xxeCPKbD7eyWZRm6k+ciAKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 149/151] net: mscc: ocelot: cross-check the sequence id from the timestamp FIFO with the skb PTP header
-Date:   Mon, 18 Oct 2021 15:25:28 +0200
-Message-Id: <20211018132345.502711115@linuxfoundation.org>
+Subject: [PATCH 5.14 150/151] net: dsa: felix: break at first CPU port during init and teardown
+Date:   Mon, 18 Oct 2021 15:25:29 +0200
+Message-Id: <20211018132345.533806301@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -41,134 +42,97 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit ebb4c6a990f786d7e0e4618a0d3766cd660125d8 upstream.
+commit 8d5f7954b7c8de54902a8beda141064a7e2e6ee0 upstream.
 
-The sad reality is that when a PTP frame with a TX timestamping request
-is transmitted, it isn't guaranteed that it will make it all the way to
-the wire (due to congestion inside the switch), and that a timestamp
-will be taken by the hardware and placed in the timestamp FIFO where an
-IRQ will be raised for it.
+The NXP LS1028A switch has two Ethernet ports towards the CPU, but only
+one of them is capable of acting as an NPI port at a time (inject and
+extract packets using DSA tags).
 
-The implication is that if enough PTP frames are silently dropped by the
-hardware such that the timestamp ID has rolled over, it is possible to
-match a timestamp to an old skb.
+However, using the alternative ocelot-8021q tagging protocol, it should
+be possible to use both CPU ports symmetrically, but for that we need to
+mark both ports in the device tree as DSA masters.
 
-Furthermore, nobody will match on the real skb corresponding to this
-timestamp, since we stupidly matched on a previous one that was stale in
-the queue, and stopped there.
+In the process of doing that, it can be seen that traffic to/from the
+network stack gets broken, and this is because the Felix driver iterates
+through all DSA CPU ports and configures them as NPI ports. But since
+there can only be a single NPI port, we effectively end up in a
+situation where DSA thinks the default CPU port is the first one, but
+the hardware port configured to be an NPI is the last one.
 
-So PTP timestamping will be broken and there will be no way to recover.
+I would like to treat this as a bug, because if the updated device trees
+are going to start circulating, it would be really good for existing
+kernels to support them, too.
 
-It looks like the hardware parses the sequenceID from the PTP header,
-and also provides that metadata for each timestamp. The driver currently
-ignores this, but it shouldn't.
-
-As an extra resiliency measure, do the following:
-
-- check whether the PTP sequenceID also matches between the skb and the
-  timestamp, treat the skb as stale otherwise and free it
-
-- if we see a stale skb, don't stop there and try to match an skb one
-  more time, chances are there's one more skb in the queue with the same
-  timestamp ID, otherwise we wouldn't have ever found the stale one (it
-  is by timestamp ID that we matched it).
-
-While this does not prevent PTP packet drops, it at least prevents
-the catastrophic consequences of incorrect timestamp matching.
-
-Since we already call ptp_classify_raw in the TX path, save the result
-in the skb->cb of the clone, and just use that result in the interrupt
-code path.
-
-Fixes: 4e3b0468e6d7 ("net: mscc: PTP Hardware Clock (PHC) support")
+Fixes: adb3dccf090b ("net: dsa: felix: convert to the new .change_tag_protocol DSA API")
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mscc/ocelot.c |   24 +++++++++++++++++++++++-
- include/soc/mscc/ocelot.h          |    1 +
- 2 files changed, 24 insertions(+), 1 deletion(-)
+ drivers/net/dsa/ocelot/felix.c |   19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -642,6 +642,7 @@ int ocelot_port_txtstamp_request(struct
- 			return err;
+--- a/drivers/net/dsa/ocelot/felix.c
++++ b/drivers/net/dsa/ocelot/felix.c
+@@ -271,12 +271,12 @@ static void felix_8021q_cpu_port_deinit(
+  */
+ static int felix_setup_mmio_filtering(struct felix *felix)
+ {
+-	unsigned long user_ports = 0, cpu_ports = 0;
++	unsigned long user_ports = dsa_user_ports(felix->ds);
+ 	struct ocelot_vcap_filter *redirect_rule;
+ 	struct ocelot_vcap_filter *tagging_rule;
+ 	struct ocelot *ocelot = &felix->ocelot;
+ 	struct dsa_switch *ds = felix->ds;
+-	int port, ret;
++	int cpu = -1, port, ret;
  
- 		OCELOT_SKB_CB(skb)->ptp_cmd = ptp_cmd;
-+		OCELOT_SKB_CB(*clone)->ptp_class = ptp_class;
+ 	tagging_rule = kzalloc(sizeof(struct ocelot_vcap_filter), GFP_KERNEL);
+ 	if (!tagging_rule)
+@@ -289,12 +289,15 @@ static int felix_setup_mmio_filtering(st
  	}
  
- 	return 0;
-@@ -675,6 +676,17 @@ static void ocelot_get_hwtimestamp(struc
- 	spin_unlock_irqrestore(&ocelot->ptp_clock_lock, flags);
- }
+ 	for (port = 0; port < ocelot->num_phys_ports; port++) {
+-		if (dsa_is_user_port(ds, port))
+-			user_ports |= BIT(port);
+-		if (dsa_is_cpu_port(ds, port))
+-			cpu_ports |= BIT(port);
++		if (dsa_is_cpu_port(ds, port)) {
++			cpu = port;
++			break;
++		}
+ 	}
  
-+static bool ocelot_validate_ptp_skb(struct sk_buff *clone, u16 seqid)
-+{
-+	struct ptp_header *hdr;
++	if (cpu < 0)
++		return -EINVAL;
 +
-+	hdr = ptp_parse_header(clone, OCELOT_SKB_CB(clone)->ptp_class);
-+	if (WARN_ON(!hdr))
-+		return false;
-+
-+	return seqid == ntohs(hdr->sequence_id);
-+}
-+
- void ocelot_get_txtstamp(struct ocelot *ocelot)
- {
- 	int budget = OCELOT_PTP_QUEUE_SZ;
-@@ -682,10 +694,10 @@ void ocelot_get_txtstamp(struct ocelot *
- 	while (budget--) {
- 		struct sk_buff *skb, *skb_tmp, *skb_match = NULL;
- 		struct skb_shared_hwtstamps shhwtstamps;
-+		u32 val, id, seqid, txport;
- 		struct ocelot_port *port;
- 		struct timespec64 ts;
- 		unsigned long flags;
--		u32 val, id, txport;
+ 	tagging_rule->key_type = OCELOT_VCAP_KEY_ETYPE;
+ 	*(__be16 *)tagging_rule->key.etype.etype.value = htons(ETH_P_1588);
+ 	*(__be16 *)tagging_rule->key.etype.etype.mask = htons(0xffff);
+@@ -330,7 +333,7 @@ static int felix_setup_mmio_filtering(st
+ 		 * the CPU port module
+ 		 */
+ 		redirect_rule->action.mask_mode = OCELOT_MASK_MODE_REDIRECT;
+-		redirect_rule->action.port_mask = cpu_ports;
++		redirect_rule->action.port_mask = BIT(cpu);
+ 	} else {
+ 		/* Trap PTP packets only to the CPU port module (which is
+ 		 * redirected to the NPI port)
+@@ -1241,6 +1244,7 @@ static int felix_setup(struct dsa_switch
+ 		 * there's no real point in checking for errors.
+ 		 */
+ 		felix_set_tag_protocol(ds, port, felix->tag_proto);
++		break;
+ 	}
  
- 		val = ocelot_read(ocelot, SYS_PTP_STATUS);
- 
-@@ -698,6 +710,7 @@ void ocelot_get_txtstamp(struct ocelot *
- 		/* Retrieve the ts ID and Tx port */
- 		id = SYS_PTP_STATUS_PTP_MESS_ID_X(val);
- 		txport = SYS_PTP_STATUS_PTP_MESS_TXPORT_X(val);
-+		seqid = SYS_PTP_STATUS_PTP_MESS_SEQ_ID(val);
- 
- 		port = ocelot->ports[txport];
- 
-@@ -707,6 +720,7 @@ void ocelot_get_txtstamp(struct ocelot *
- 		spin_unlock(&ocelot->ts_id_lock);
- 
- 		/* Retrieve its associated skb */
-+try_again:
- 		spin_lock_irqsave(&port->tx_skbs.lock, flags);
- 
- 		skb_queue_walk_safe(&port->tx_skbs, skb, skb_tmp) {
-@@ -722,6 +736,14 @@ void ocelot_get_txtstamp(struct ocelot *
- 		if (WARN_ON(!skb_match))
+ 	ds->mtu_enforcement_ingress = true;
+@@ -1277,6 +1281,7 @@ static void felix_teardown(struct dsa_sw
  			continue;
  
-+		if (!ocelot_validate_ptp_skb(skb_match, seqid)) {
-+			dev_err_ratelimited(ocelot->dev,
-+					    "port %d received stale TX timestamp for seqid %d, discarding\n",
-+					    txport, seqid);
-+			dev_kfree_skb_any(skb);
-+			goto try_again;
-+		}
-+
- 		/* Get the h/w timestamp */
- 		ocelot_get_hwtimestamp(ocelot, &ts);
+ 		felix_del_tag_protocol(ds, port, felix->tag_proto);
++		break;
+ 	}
  
---- a/include/soc/mscc/ocelot.h
-+++ b/include/soc/mscc/ocelot.h
-@@ -694,6 +694,7 @@ struct ocelot_policer {
- 
- struct ocelot_skb_cb {
- 	struct sk_buff *clone;
-+	unsigned int ptp_class; /* valid only for clones */
- 	u8 ptp_cmd;
- 	u8 ts_id;
- };
+ 	ocelot_devlink_sb_unregister(ocelot);
 
 
