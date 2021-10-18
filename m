@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F99431BE1
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20332431E20
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:56:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231736AbhJRNfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:35:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41820 "EHLO mail.kernel.org"
+        id S234333AbhJRN55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:57:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232288AbhJRNeR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:34:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C06E861374;
-        Mon, 18 Oct 2021 13:30:08 +0000 (UTC)
+        id S234381AbhJRNz5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:55:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FB7861A03;
+        Mon, 18 Oct 2021 13:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563809;
-        bh=aDrrtYirxl9DD6ssBjNnq8RVSx5xf1PvKge7TK53Mxg=;
+        s=korg; t=1634564417;
+        bh=DTVAeuq2AdtyIHNnOObDtjxX+Zf6lc5YAEEVS2lGK80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OVPAmiJM5GfPBvQ3dL6Ar+jS+NoWSWtW25fOahyFJ5ojynemN4BYFA0MTmkyr+aqC
-         WmP+jsqNB+lCJh5tuYej7O3o7wVOUGdHfscAoJ/sWYYRlJl2E+xI351l6O02GnrHUk
-         b8Nx4YOSmUv+7Msu9tempR9t/359nWHPggZT2D2I=
+        b=k6FDdw2PkgwjUjoWDaE+x74jBI+oVaeEulST4QeH2OIP4VlVCao3yfuHddRt4CnrA
+         OWSwcelUXgyJSXVLfhO63nSVaupnFG4Aqp+K1pQJpCZO0KccJLqh+IygCktxQw1Xc9
+         CnIEsJrmREqNw5Gm5QVJ25/zBDtITOsnxfhmfC3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.4 23/69] efi/cper: use stack buffer for error record decoding
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.14 082/151] eeprom: 93xx46: Add SPI device ID table
 Date:   Mon, 18 Oct 2021 15:24:21 +0200
-Message-Id: <20211018132330.229106611@linuxfoundation.org>
+Message-Id: <20211018132343.355899156@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +38,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Mark Brown <broonie@kernel.org>
 
-commit b3a72ca80351917cc23f9e24c35f3c3979d3c121 upstream.
+commit 137879f7ff23c635d2c6b2e43f4b39e2d305c3e2 upstream.
 
-Joe reports that using a statically allocated buffer for converting CPER
-error records into human readable text is probably a bad idea. Even
-though we are not aware of any actual issues, a stack buffer is clearly
-a better choice here anyway, so let's move the buffer into the stack
-frames of the two functions that refer to it.
+Currently autoloading for SPI devices does not use the DT ID table, it uses
+SPI modalises. Supporting OF modalises is going to be difficult if not
+impractical, an attempt was made but has been reverted, so ensure that
+module autoloading works for this driver by adding a SPI device ID table.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: Joe Perches <joe@perches.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 96c8395e2166 ("spi: Revert modalias changes")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210922184048.34770-1-broonie@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/cper.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/misc/eeprom/eeprom_93xx46.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/firmware/efi/cper.c
-+++ b/drivers/firmware/efi/cper.c
-@@ -25,8 +25,6 @@
- #include <acpi/ghes.h>
- #include <ras/ras_event.h>
+--- a/drivers/misc/eeprom/eeprom_93xx46.c
++++ b/drivers/misc/eeprom/eeprom_93xx46.c
+@@ -406,6 +406,23 @@ static const struct of_device_id eeprom_
+ };
+ MODULE_DEVICE_TABLE(of, eeprom_93xx46_of_table);
  
--static char rcd_decode_str[CPER_REC_LEN];
--
- /*
-  * CPER record ID need to be unique even after reboot, because record
-  * ID is used as index for ERST storage, while CPER records from
-@@ -299,6 +297,7 @@ const char *cper_mem_err_unpack(struct t
- 				struct cper_mem_err_compact *cmem)
++static const struct spi_device_id eeprom_93xx46_spi_ids[] = {
++	{ .name = "eeprom-93xx46",
++	  .driver_data = (kernel_ulong_t)&at93c46_data, },
++	{ .name = "at93c46",
++	  .driver_data = (kernel_ulong_t)&at93c46_data, },
++	{ .name = "at93c46d",
++	  .driver_data = (kernel_ulong_t)&atmel_at93c46d_data, },
++	{ .name = "at93c56",
++	  .driver_data = (kernel_ulong_t)&at93c56_data, },
++	{ .name = "at93c66",
++	  .driver_data = (kernel_ulong_t)&at93c66_data, },
++	{ .name = "93lc46b",
++	  .driver_data = (kernel_ulong_t)&microchip_93lc46b_data, },
++	{}
++};
++MODULE_DEVICE_TABLE(of, eeprom_93xx46_of_table);
++
+ static int eeprom_93xx46_probe_dt(struct spi_device *spi)
  {
- 	const char *ret = trace_seq_buffer_ptr(p);
-+	char rcd_decode_str[CPER_REC_LEN];
+ 	const struct of_device_id *of_id =
+@@ -555,6 +572,7 @@ static struct spi_driver eeprom_93xx46_d
+ 	},
+ 	.probe		= eeprom_93xx46_probe,
+ 	.remove		= eeprom_93xx46_remove,
++	.id_table	= eeprom_93xx46_spi_ids,
+ };
  
- 	if (cper_mem_err_location(cmem, rcd_decode_str))
- 		trace_seq_printf(p, "%s", rcd_decode_str);
-@@ -313,6 +312,7 @@ static void cper_print_mem(const char *p
- 	int len)
- {
- 	struct cper_mem_err_compact cmem;
-+	char rcd_decode_str[CPER_REC_LEN];
- 
- 	/* Don't trust UEFI 2.1/2.2 structure with bad validation bits */
- 	if (len == sizeof(struct cper_sec_mem_err_old) &&
+ module_spi_driver(eeprom_93xx46_driver);
 
 
