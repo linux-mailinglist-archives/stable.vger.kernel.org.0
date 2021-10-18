@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40DE6431ABC
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B1C431CA5
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231858AbhJRN3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:29:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40174 "EHLO mail.kernel.org"
+        id S233511AbhJRNm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:42:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231310AbhJRN16 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:27:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F20F16103D;
-        Mon, 18 Oct 2021 13:25:46 +0000 (UTC)
+        id S233736AbhJRNk6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:40:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 540906138B;
+        Mon, 18 Oct 2021 13:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563547;
-        bh=rvsvVO5Xy1rsi14PHe8eAjf9UGx0G65KJ+aNPwgGFNA=;
+        s=korg; t=1634564019;
+        bh=Vw6ttr68ZCstAPpVVICipZAA0bc2xWlXeF1vrKCNfus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dfj0tmWgXL0p15VeTqAyN9AgHSuurvqsXmobjrqhT2sYYXOKHMyEBJfG/9l+2go46
-         FgPPyWcsWQMC6n6EFtpQ1Ga7qRQNipSCrVq8f0+C+iiKACsTt7iAWH2G2jPsSr2GcG
-         Y/+NDWjmrWfcU766qR0dExnQjmxsVdAxkJg5XP24=
+        b=ZRIPo804LX3OPGtYZ+PTViu53MXsn5QLz1eriQORkeoJAt+9vxBbbeAw29D+1vnYF
+         ja5t37PP/NnESyy98h1EKIb9cVByPS6pjzXcnmygbLsjZ2pKVRG1ZHhJ9WwyrWFbhf
+         gihBs2rhazTU64eSa83k+5+HBWnH0V7jtKGmLQkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/39] stable: clamp SUBLEVEL in 4.14
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.10 034/103] usb: musb: dsps: Fix the probe error path
 Date:   Mon, 18 Oct 2021 15:24:10 +0200
-Message-Id: <20211018132325.476752539@linuxfoundation.org>
+Message-Id: <20211018132335.864944908@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
-References: <20211018132325.426739023@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,44 +38,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Levin <sashal@kernel.org>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-Right now SUBLEVEL is overflowing, and some userspace may start treating
-4.14.256 as 4.15. While out of tree modules have different ways of
-extracting the version number (and we're generally ok with breaking
-them), we do care about breaking userspace and it would appear that this
-overflow might do just that.
+commit c2115b2b16421d93d4993f3fe4c520e91d6fe801 upstream.
 
-Our rules around userspace ABI in the stable kernel are pretty simple:
-we don't break it. Thus, while userspace may be checking major/minor, it
-shouldn't be doing anything with sublevel.
+Commit 7c75bde329d7 ("usb: musb: musb_dsps: request_irq() after
+initializing musb") has inverted the calls to
+dsps_setup_optional_vbus_irq() and dsps_create_musb_pdev() without
+updating correctly the error path. dsps_create_musb_pdev() allocates and
+registers a new platform device which must be unregistered and freed
+with platform_device_unregister(), and this is missing upon
+dsps_setup_optional_vbus_irq() error.
 
-This patch applies a big band-aid to the 4.14 kernel in the form of
-clamping the sublevel to 255.
+While on the master branch it seems not to trigger any issue, I observed
+a kernel crash because of a NULL pointer dereference with a v5.10.70
+stable kernel where the patch mentioned above was backported. With this
+kernel version, -EPROBE_DEFER is returned the first time
+dsps_setup_optional_vbus_irq() is called which triggers the probe to
+error out without unregistering the platform device. Unfortunately, on
+the Beagle Bone Black Wireless, the platform device still living in the
+system is being used by the USB Ethernet gadget driver, which during the
+boot phase triggers the crash.
 
-The clamp is done for the purpose of LINUX_VERSION_CODE only, and
-extracting the version number from the Makefile or "make kernelversion"
-will continue to work as intended.
+My limited knowledge of the musb world prevents me to revert this commit
+which was sent to silence a robot warning which, as far as I understand,
+does not make sense. The goal of this patch was to prevent an IRQ to
+fire before the platform device being registered. I think this cannot
+ever happen due to the fact that enabling the interrupts is done by the
+->enable() callback of the platform musb device, and this platform
+device must be already registered in order for the core or any other
+user to use this callback.
 
-We might need to do it later in newer trees, but maybe we'll have a
-better solution by then, so I'm ignoring that problem for now.
+Hence, I decided to fix the error path, which might prevent future
+errors on mainline kernels while also fixing older ones.
 
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7c75bde329d7 ("usb: musb: musb_dsps: request_irq() after initializing musb")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20211005221631.1529448-1-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/musb/musb_dsps.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -1162,7 +1162,7 @@ endef
+--- a/drivers/usb/musb/musb_dsps.c
++++ b/drivers/usb/musb/musb_dsps.c
+@@ -899,11 +899,13 @@ static int dsps_probe(struct platform_de
+ 	if (usb_get_dr_mode(&pdev->dev) == USB_DR_MODE_PERIPHERAL) {
+ 		ret = dsps_setup_optional_vbus_irq(pdev, glue);
+ 		if (ret)
+-			goto err;
++			goto unregister_pdev;
+ 	}
  
- define filechk_version.h
- 	(echo \#define LINUX_VERSION_CODE $(shell                         \
--	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 0$(SUBLEVEL)); \
-+	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255); \
- 	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';)
- endef
+ 	return 0;
  
++unregister_pdev:
++	platform_device_unregister(glue->musb);
+ err:
+ 	pm_runtime_disable(&pdev->dev);
+ 	iounmap(glue->usbss_base);
 
 
