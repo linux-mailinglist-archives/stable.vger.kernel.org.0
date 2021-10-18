@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C2C4431C39
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0985431D54
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:48:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232879AbhJRNj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:39:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55140 "EHLO mail.kernel.org"
+        id S233961AbhJRNuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:50:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233387AbhJRNiN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:38:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB0F16135F;
-        Mon, 18 Oct 2021 13:31:51 +0000 (UTC)
+        id S234014AbhJRNsU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:48:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3B196135F;
+        Mon, 18 Oct 2021 13:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563912;
-        bh=MREsAtc/Jb5z/qYIxI/HXY9GmLMitSFau5Ot4mCAuRs=;
+        s=korg; t=1634564220;
+        bh=PcqQIb1IhiaRoWComIAtp2rMlcfK8hqwRoXaYragQ1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=If5DVWFEsjmxAQER9FNZ98bVAMX112Zm9VYKE50pIT4zBlC5zuBq48NqG+nIe8giD
-         HCx25t1iZaSlngUJQXTLD86yNKOitDi+I3BrKj5dQu5XnZXCixscqEiRl8MThm1VKt
-         FQUQEvQ8oR8cBrDo5maXhnA/8VrPOnrxdcZgbMaU=
+        b=jUGggrULULqLi1rDtfVIKeZNd+xvil9S9hR7C10/MUd99iY6PjJlrj6ZwqI4pfG/a
+         2ZAcESugcAa7ZObDHjiHmDg4uZXif5yr7mUHbOdnwIRZ+mz7w+40LE96WyPQ3+eLLV
+         MCugUFnG7W4Oy1oE4LxWfLYPRm1gEyyFAV1QbtUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>
-Subject: [PATCH 5.4 64/69] drm/msm/dsi: fix off by one in dsi_bus_clk_enable error handling
-Date:   Mon, 18 Oct 2021 15:25:02 +0200
-Message-Id: <20211018132331.588380413@linuxfoundation.org>
+        stable@vger.kernel.org, Kamal Dasu <kdasu@broadcom.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 087/103] spi: bcm-qspi: clear MSPI spifie interrupt during probe
+Date:   Mon, 18 Oct 2021 15:25:03 +0200
+Message-Id: <20211018132337.674188687@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Kamal Dasu <kdasu@broadcom.com>
 
-commit c8f01ffc83923a91e8087aaa077de13354a7aa59 upstream.
+commit 75b3cb97eb1f05042745c0655a7145b0262d4c5c upstream.
 
-This disables a lock which wasn't enabled and it does not disable
-the first lock in the array.
+Intermittent Kernel crash has been observed on probe in
+bcm_qspi_mspi_l2_isr() handler when the MSPI spifie interrupt bit
+has not been cleared before registering for interrupts.
+Fix the driver to move SoC specific custom interrupt handling code
+before we register IRQ in probe. Also clear MSPI interrupt status
+resgiter prior to registering IRQ handlers.
 
-Fixes: 6e0eb52eba9e ("drm/msm/dsi: Parse bus clocks from a list")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20211001123409.GG2283@kili
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: cc20a38612db ("spi: iproc-qspi: Add Broadcom iProc SoCs support")
+Signed-off-by: Kamal Dasu <kdasu@broadcom.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20211008203603.40915-3-kdasu.kdev@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_host.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-bcm-qspi.c |   77 ++++++++++++++++++++++++++-------------------
+ 1 file changed, 45 insertions(+), 32 deletions(-)
 
---- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -460,7 +460,7 @@ static int dsi_bus_clk_enable(struct msm
+--- a/drivers/spi/spi-bcm-qspi.c
++++ b/drivers/spi/spi-bcm-qspi.c
+@@ -1250,10 +1250,14 @@ static void bcm_qspi_hw_init(struct bcm_
  
- 	return 0;
- err:
--	for (; i > 0; i--)
-+	while (--i >= 0)
- 		clk_disable_unprepare(msm_host->bus_clks[i]);
+ static void bcm_qspi_hw_uninit(struct bcm_qspi *qspi)
+ {
++	u32 status = bcm_qspi_read(qspi, MSPI, MSPI_MSPI_STATUS);
++
+ 	bcm_qspi_write(qspi, MSPI, MSPI_SPCR2, 0);
+ 	if (has_bspi(qspi))
+ 		bcm_qspi_write(qspi, MSPI, MSPI_WRITE_LOCK, 0);
  
- 	return ret;
++	/* clear interrupt */
++	bcm_qspi_write(qspi, MSPI, MSPI_MSPI_STATUS, status & ~1);
+ }
+ 
+ static const struct spi_controller_mem_ops bcm_qspi_mem_ops = {
+@@ -1397,6 +1401,47 @@ int bcm_qspi_probe(struct platform_devic
+ 	if (!qspi->dev_ids)
+ 		return -ENOMEM;
+ 
++	/*
++	 * Some SoCs integrate spi controller (e.g., its interrupt bits)
++	 * in specific ways
++	 */
++	if (soc_intc) {
++		qspi->soc_intc = soc_intc;
++		soc_intc->bcm_qspi_int_set(soc_intc, MSPI_DONE, true);
++	} else {
++		qspi->soc_intc = NULL;
++	}
++
++	if (qspi->clk) {
++		ret = clk_prepare_enable(qspi->clk);
++		if (ret) {
++			dev_err(dev, "failed to prepare clock\n");
++			goto qspi_probe_err;
++		}
++		qspi->base_clk = clk_get_rate(qspi->clk);
++	} else {
++		qspi->base_clk = MSPI_BASE_FREQ;
++	}
++
++	if (data->has_mspi_rev) {
++		rev = bcm_qspi_read(qspi, MSPI, MSPI_REV);
++		/* some older revs do not have a MSPI_REV register */
++		if ((rev & 0xff) == 0xff)
++			rev = 0;
++	}
++
++	qspi->mspi_maj_rev = (rev >> 4) & 0xf;
++	qspi->mspi_min_rev = rev & 0xf;
++	qspi->mspi_spcr3_sysclk = data->has_spcr3_sysclk;
++
++	qspi->max_speed_hz = qspi->base_clk / (bcm_qspi_spbr_min(qspi) * 2);
++
++	/*
++	 * On SW resets it is possible to have the mask still enabled
++	 * Need to disable the mask and clear the status while we init
++	 */
++	bcm_qspi_hw_uninit(qspi);
++
+ 	for (val = 0; val < num_irqs; val++) {
+ 		irq = -1;
+ 		name = qspi_irq_tab[val].irq_name;
+@@ -1433,38 +1478,6 @@ int bcm_qspi_probe(struct platform_devic
+ 		goto qspi_probe_err;
+ 	}
+ 
+-	/*
+-	 * Some SoCs integrate spi controller (e.g., its interrupt bits)
+-	 * in specific ways
+-	 */
+-	if (soc_intc) {
+-		qspi->soc_intc = soc_intc;
+-		soc_intc->bcm_qspi_int_set(soc_intc, MSPI_DONE, true);
+-	} else {
+-		qspi->soc_intc = NULL;
+-	}
+-
+-	ret = clk_prepare_enable(qspi->clk);
+-	if (ret) {
+-		dev_err(dev, "failed to prepare clock\n");
+-		goto qspi_probe_err;
+-	}
+-
+-	qspi->base_clk = clk_get_rate(qspi->clk);
+-
+-	if (data->has_mspi_rev) {
+-		rev = bcm_qspi_read(qspi, MSPI, MSPI_REV);
+-		/* some older revs do not have a MSPI_REV register */
+-		if ((rev & 0xff) == 0xff)
+-			rev = 0;
+-	}
+-
+-	qspi->mspi_maj_rev = (rev >> 4) & 0xf;
+-	qspi->mspi_min_rev = rev & 0xf;
+-	qspi->mspi_spcr3_sysclk = data->has_spcr3_sysclk;
+-
+-	qspi->max_speed_hz = qspi->base_clk / (bcm_qspi_spbr_min(qspi) * 2);
+-
+ 	bcm_qspi_hw_init(qspi);
+ 	init_completion(&qspi->mspi_done);
+ 	init_completion(&qspi->bspi_done);
 
 
