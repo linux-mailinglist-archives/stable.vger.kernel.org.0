@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43043431E49
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62DAF431ACC
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234140AbhJRN74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:59:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58170 "EHLO mail.kernel.org"
+        id S231955AbhJRN3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234304AbhJRN5z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:57:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E61306139E;
-        Mon, 18 Oct 2021 13:41:07 +0000 (UTC)
+        id S231741AbhJRN3I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 203C76135E;
+        Mon, 18 Oct 2021 13:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564468;
-        bh=rEet7YUxuIXeiVZf3/YE6pPboeMS3BSY1qV4RzFQQlE=;
+        s=korg; t=1634563604;
+        bh=UAuJ+XFjulNuwFyzr3C3KCMt/vayPpsiizpGnWb0q50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yTzm4lVMy0BUXetqWNeprlUrB8ZG1Q/WvMftp8ziVpba2udnulJCUgF3bbcicWAqT
-         s3TDO1kG1bxWYkijEGLbnVA6iXdBjdVRE6Rn7QzqKUFzUKSu/4X1Gd43gMJ6zeSDRQ
-         4OJI9UwVkpke7GQVjEFsnjVUhlzzQxMAG5i8K4nc=
+        b=ZDaDXorLInoUeBoRFl6mBke5i1+42XKtQdRWfMctAQ14Sz6zZXQPDxWP5eJvS44GQ
+         y2xYmRwbTLj/ic/IrnVGl/hCM3H+CFqTZaRw8Z5o6IKSXH2k0AZ8J1y/tUSIYa/zhq
+         /ywasVyh/TSR1TfikdU/DqJMsc/W/m0v2jc7Iods=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 5.14 099/151] gpio: 74x164: Add SPI device ID table
-Date:   Mon, 18 Oct 2021 15:24:38 +0200
-Message-Id: <20211018132343.887300062@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 30/39] ethernet: s2io: fix setting mac address during resume
+Date:   Mon, 18 Oct 2021 15:24:39 +0200
+Message-Id: <20211018132326.404642606@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit be4491838359e78e42e88db4ac479e21c5eda1e0 upstream.
+commit 40507e7aada8422c38aafa0c8a1a09e4623c712a upstream.
 
-Currently autoloading for SPI devices does not use the DT ID table, it uses
-SPI modalises. Supporting OF modalises is going to be difficult if not
-impractical, an attempt was made but has been reverted, so ensure that
-module autoloading works for this driver by adding a SPI device ID table.
+After recent cleanups, gcc started warning about a suspicious
+memcpy() call during the s2io_io_resume() function:
 
-Fixes: 96c8395e2166 ("spi: Revert modalias changes")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+In function '__dev_addr_set',
+    inlined from 'eth_hw_addr_set' at include/linux/etherdevice.h:318:2,
+    inlined from 's2io_set_mac_addr' at drivers/net/ethernet/neterion/s2io.c:5205:2,
+    inlined from 's2io_io_resume' at drivers/net/ethernet/neterion/s2io.c:8569:7:
+arch/x86/include/asm/string_32.h:182:25: error: '__builtin_memcpy' accessing 6 bytes at offsets 0 and 2 overlaps 4 bytes at offset 2 [-Werror=restrict]
+  182 | #define memcpy(t, f, n) __builtin_memcpy(t, f, n)
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+include/linux/netdevice.h:4648:9: note: in expansion of macro 'memcpy'
+ 4648 |         memcpy(dev->dev_addr, addr, len);
+      |         ^~~~~~
+
+What apparently happened is that an old cleanup changed the calling
+conventions for s2io_set_mac_addr() from taking an ethernet address
+as a character array to taking a struct sockaddr, but one of the
+callers was not changed at the same time.
+
+Change it to instead call the low-level do_s2io_prog_unicast() function
+that still takes the old argument type.
+
+Fixes: 2fd376884558 ("S2io: Added support set_mac_address driver entry point")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20211013143613.2049096-1-arnd@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-74x164.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/neterion/s2io.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpio/gpio-74x164.c
-+++ b/drivers/gpio/gpio-74x164.c
-@@ -174,6 +174,13 @@ static int gen_74x164_remove(struct spi_
- 	return 0;
- }
+--- a/drivers/net/ethernet/neterion/s2io.c
++++ b/drivers/net/ethernet/neterion/s2io.c
+@@ -8574,7 +8574,7 @@ static void s2io_io_resume(struct pci_de
+ 			return;
+ 		}
  
-+static const struct spi_device_id gen_74x164_spi_ids[] = {
-+	{ .name = "74hc595" },
-+	{ .name = "74lvc594" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(spi, gen_74x164_spi_ids);
-+
- static const struct of_device_id gen_74x164_dt_ids[] = {
- 	{ .compatible = "fairchild,74hc595" },
- 	{ .compatible = "nxp,74lvc594" },
-@@ -188,6 +195,7 @@ static struct spi_driver gen_74x164_driv
- 	},
- 	.probe		= gen_74x164_probe,
- 	.remove		= gen_74x164_remove,
-+	.id_table	= gen_74x164_spi_ids,
- };
- module_spi_driver(gen_74x164_driver);
- 
+-		if (s2io_set_mac_addr(netdev, netdev->dev_addr) == FAILURE) {
++		if (do_s2io_prog_unicast(netdev, netdev->dev_addr) == FAILURE) {
+ 			s2io_card_down(sp);
+ 			pr_err("Can't restore mac addr after reset.\n");
+ 			return;
 
 
