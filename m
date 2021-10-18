@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72404431BD7
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 107A4431BD9
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232494AbhJRNfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:35:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42612 "EHLO mail.kernel.org"
+        id S232299AbhJRNfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:35:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232579AbhJRNeC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:34:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B198F6136F;
-        Mon, 18 Oct 2021 13:29:53 +0000 (UTC)
+        id S232390AbhJRNeI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:34:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F3A361354;
+        Mon, 18 Oct 2021 13:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563794;
-        bh=ioid6dr2i2v5d1SwCGY0/2mkKTGK+5RlY2dtljkNT/o=;
+        s=korg; t=1634563796;
+        bh=+rm77VMA07kGpepxIYwls/OaoeJjBtAI1v3bXgCzprU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e6tJzO3+1nbaVIvxt56NvEaaO0r9UzfNAvLPtgqxkqUo+mGq694PVSM1c5N0330VY
-         lFSwQpZvFBLDNwrajDxpxXS1k9dohe1Jkzf5/c9FZUS98DXzyMEprFEHWGnzXL7SZ0
-         q9zltTSxoUVbKFeSob5imiqWTVjMWmS3Zbrfhf90=
+        b=eLVkcRbaYE1atR+YY/A4CRnPFpCxg/+e/TtMeTT3FQ4xXpfWdcu8Xqkg1Fwg+PB9c
+         VtQDGlVmrETPMRp8nrM7cqU6ImX9oGq3w0areyCRQNzcjZOHGq+lakGIpImg/TcVFJ
+         kQmmhMO0tLmTIctV1kLoyoEpJRjLSI6vXORVO7Ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 06/69] ALSA: hda/realtek - ALC236 headset MIC recording issue
-Date:   Mon, 18 Oct 2021 15:24:04 +0200
-Message-Id: <20211018132329.667492656@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, msd <msd.mmq@gmail.com>
+Subject: [PATCH 5.4 07/69] ALSA: hda/realtek: Fix the mic type detection issue for ASUS G551JW
+Date:   Mon, 18 Oct 2021 15:24:05 +0200
+Message-Id: <20211018132329.705332055@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
 References: <20211018132329.453964125@linuxfoundation.org>
@@ -40,45 +39,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 5aec98913095ed3b4424ed6c5fdeb6964e9734da upstream.
+commit a3fd1a986e499a06ac5ef95c3a39aa4611e7444c upstream.
 
-In power save mode, the recording voice from headset mic will 2s more delay.
-Add this patch will solve this issue.
+We need to define the codec pin 0x1b to be the mic, but somehow
+the mic doesn't support hot plugging detection, and Windows also has
+this issue, so we set it to phantom headset-mic.
 
-[ minor coding style fix by tiwai ]
+Also the determine_headset_type() often returns the omtp type by a
+mistake when we plug a ctia headset, this makes the mic can't record
+sound at all. Because most of the headset are ctia type nowadays and
+some machines have the fixed ctia type audio jack, it is possible this
+machine has the fixed ctia jack too. Here we set this mic jack to
+fixed ctia type, this could avoid the mic type detection mistake and
+make the ctia headset work stable.
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214537
+Reported-and-tested-by: msd <msd.mmq@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/ccb0cdd5bbd7486eabbd8d987d384cb0@realtek.com
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20211012114748.5238-1-hui.wang@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |   27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -517,6 +517,8 @@ static void alc_shutup_pins(struct hda_c
- 	struct alc_spec *spec = codec->spec;
+@@ -9692,6 +9692,9 @@ enum {
+ 	ALC671_FIXUP_HP_HEADSET_MIC2,
+ 	ALC662_FIXUP_ACER_X2660G_HEADSET_MODE,
+ 	ALC662_FIXUP_ACER_NITRO_HEADSET_MODE,
++	ALC668_FIXUP_ASUS_NO_HEADSET_MIC,
++	ALC668_FIXUP_HEADSET_MIC,
++	ALC668_FIXUP_MIC_DET_COEF,
+ };
  
- 	switch (codec->core.vendor_id) {
-+	case 0x10ec0236:
-+	case 0x10ec0256:
- 	case 0x10ec0283:
- 	case 0x10ec0286:
- 	case 0x10ec0288:
-@@ -3522,7 +3524,8 @@ static void alc256_shutup(struct hda_cod
- 	/* If disable 3k pulldown control for alc257, the Mic detection will not work correctly
- 	 * when booting with headset plugged. So skip setting it for the codec alc257
- 	 */
--	if (codec->core.vendor_id != 0x10ec0257)
-+	if (spec->codec_variant != ALC269_TYPE_ALC257 &&
-+	    spec->codec_variant != ALC269_TYPE_ALC256)
- 		alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
+ static const struct hda_fixup alc662_fixups[] = {
+@@ -10075,6 +10078,29 @@ static const struct hda_fixup alc662_fix
+ 		.chained = true,
+ 		.chain_id = ALC662_FIXUP_USI_FUNC
+ 	},
++	[ALC668_FIXUP_ASUS_NO_HEADSET_MIC] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x1b, 0x04a1112c },
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC668_FIXUP_HEADSET_MIC
++	},
++	[ALC668_FIXUP_HEADSET_MIC] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc269_fixup_headset_mic,
++		.chained = true,
++		.chain_id = ALC668_FIXUP_MIC_DET_COEF
++	},
++	[ALC668_FIXUP_MIC_DET_COEF] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x15 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0d60 },
++			{}
++		},
++	},
+ };
  
- 	if (!spec->no_shutup_pins)
+ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
+@@ -10110,6 +10136,7 @@ static const struct snd_pci_quirk alc662
+ 	SND_PCI_QUIRK(0x1043, 0x15a7, "ASUS UX51VZH", ALC662_FIXUP_BASS_16),
+ 	SND_PCI_QUIRK(0x1043, 0x177d, "ASUS N551", ALC668_FIXUP_ASUS_Nx51),
+ 	SND_PCI_QUIRK(0x1043, 0x17bd, "ASUS N751", ALC668_FIXUP_ASUS_Nx51),
++	SND_PCI_QUIRK(0x1043, 0x185d, "ASUS G551JW", ALC668_FIXUP_ASUS_NO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1963, "ASUS X71SL", ALC662_FIXUP_ASUS_MODE8),
+ 	SND_PCI_QUIRK(0x1043, 0x1b73, "ASUS N55SF", ALC662_FIXUP_BASS_16),
+ 	SND_PCI_QUIRK(0x1043, 0x1bf3, "ASUS N76VZ", ALC662_FIXUP_BASS_MODE4_CHMAP),
 
 
