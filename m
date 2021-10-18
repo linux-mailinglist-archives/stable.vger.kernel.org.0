@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BC3A431BBC
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC7D6431ACB
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232714AbhJRNeo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:34:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43392 "EHLO mail.kernel.org"
+        id S231948AbhJRN3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232718AbhJRNcz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:32:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8E1A6137D;
-        Mon, 18 Oct 2021 13:29:28 +0000 (UTC)
+        id S231548AbhJRN3I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 180A66135F;
+        Mon, 18 Oct 2021 13:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563769;
-        bh=LJlDaRBgePqAvT2+QHa8/PRFb0ox9bnspEkX9m8EXJs=;
+        s=korg; t=1634563599;
+        bh=o9RFfwI0sv4AmSk4/RdXvL+qifTo6Le6igbD1msL6pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vJK0hil4nJ00rMQFNkQRzQ5fd4tZQ+wrh3MFmui+oBooyp+FZkt1U3Qd/Ld95w37N
-         mIlu5Toun0KkX9WxjAd5mWINGlY+4oSgDU+QN/oIbmv0NPwi4Njd+94BqYcFuisCGr
-         ZgQsthRQTp7e4hvQvq2bvoXTrEvRooUPW4bnQB1c=
+        b=t67cOxcgCtyTUgwFodnSeqHModkB8uiM08AU4fP8MZv9hQ9ij+UHbEWVsYDr0Z2Ty
+         Hddx20VhbWKPhRMILoyG+rzhN0P9nov0G2wDdHFzIRTTwq++8O9BZnUoACP82VSCyB
+         TgXkzQ87HMKwwMZH+CYazVEcAdq6ot8ChyKRoMk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.19 31/50] iio: ssp_sensors: fix error code in ssp_print_mcu_debug()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Nanyong Sun <sunnanyong@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 29/39] net: encx24j600: check error in devm_regmap_init_encx24j600
 Date:   Mon, 18 Oct 2021 15:24:38 +0200
-Message-Id: <20211018132327.564462287@linuxfoundation.org>
+Message-Id: <20211018132326.373837598@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Nanyong Sun <sunnanyong@huawei.com>
 
-commit 4170d3dd1467e9d78cb9af374b19357dc324b328 upstream.
+commit f03dca0c9e2297c84a018e306f8a9cd534ee4287 upstream.
 
-The ssp_print_mcu_debug() function should return negative error codes on
-error.  Returning "length" is meaningless.  This change does not affect
-runtime because the callers only care about zero/non-zero.
+devm_regmap_init may return error which caused by like out of memory,
+this will results in null pointer dereference later when reading
+or writing register:
 
-Reported-by: Jonathan Cameron <jic23@kernel.org>
-Fixes: 50dd64d57eee ("iio: common: ssp_sensors: Add sensorhub driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20210914105333.GA11657@kili
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+general protection fault in encx24j600_spi_probe
+KASAN: null-ptr-deref in range [0x0000000000000090-0x0000000000000097]
+CPU: 0 PID: 286 Comm: spi-encx24j600- Not tainted 5.15.0-rc2-00142-g9978db750e31-dirty #11 9c53a778c1306b1b02359f3c2bbedc0222cba652
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:regcache_cache_bypass drivers/base/regmap/regcache.c:540
+Code: 54 41 89 f4 55 53 48 89 fb 48 83 ec 08 e8 26 94 a8 fe 48 8d bb a0 00 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 4a 03 00 00 4c 8d ab b0 00 00 00 48 8b ab a0 00
+RSP: 0018:ffffc900010476b8 EFLAGS: 00010207
+RAX: dffffc0000000000 RBX: fffffffffffffff4 RCX: 0000000000000000
+RDX: 0000000000000012 RSI: ffff888002de0000 RDI: 0000000000000094
+RBP: ffff888013c9a000 R08: 0000000000000000 R09: fffffbfff3f9cc6a
+R10: ffffc900010476e8 R11: fffffbfff3f9cc69 R12: 0000000000000001
+R13: 000000000000000a R14: ffff888013c9af54 R15: ffff888013c9ad08
+FS:  00007ffa984ab580(0000) GS:ffff88801fe00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055a6384136c8 CR3: 000000003bbe6003 CR4: 0000000000770ef0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ encx24j600_spi_probe drivers/net/ethernet/microchip/encx24j600.c:459
+ spi_probe drivers/spi/spi.c:397
+ really_probe drivers/base/dd.c:517
+ __driver_probe_device drivers/base/dd.c:751
+ driver_probe_device drivers/base/dd.c:782
+ __device_attach_driver drivers/base/dd.c:899
+ bus_for_each_drv drivers/base/bus.c:427
+ __device_attach drivers/base/dd.c:971
+ bus_probe_device drivers/base/bus.c:487
+ device_add drivers/base/core.c:3364
+ __spi_add_device drivers/spi/spi.c:599
+ spi_add_device drivers/spi/spi.c:641
+ spi_new_device drivers/spi/spi.c:717
+ new_device_store+0x18c/0x1f1 [spi_stub 4e02719357f1ff33f5a43d00630982840568e85e]
+ dev_attr_store drivers/base/core.c:2074
+ sysfs_kf_write fs/sysfs/file.c:139
+ kernfs_fop_write_iter fs/kernfs/file.c:300
+ new_sync_write fs/read_write.c:508 (discriminator 4)
+ vfs_write fs/read_write.c:594
+ ksys_write fs/read_write.c:648
+ do_syscall_64 arch/x86/entry/common.c:50
+ entry_SYSCALL_64_after_hwframe arch/x86/entry/entry_64.S:113
+
+Add error check in devm_regmap_init_encx24j600 to avoid this situation.
+
+Fixes: 04fbfce7a222 ("net: Microchip encx24j600 driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Link: https://lore.kernel.org/r/20211012125901.3623144-1-sunnanyong@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/common/ssp_sensors/ssp_spi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/microchip/encx24j600-regmap.c |   10 ++++++++--
+ drivers/net/ethernet/microchip/encx24j600.c        |    5 ++++-
+ drivers/net/ethernet/microchip/encx24j600_hw.h     |    4 ++--
+ 3 files changed, 14 insertions(+), 5 deletions(-)
 
---- a/drivers/iio/common/ssp_sensors/ssp_spi.c
-+++ b/drivers/iio/common/ssp_sensors/ssp_spi.c
-@@ -147,7 +147,7 @@ static int ssp_print_mcu_debug(char *dat
- 	if (length > received_len - *data_index || length <= 0) {
- 		ssp_dbg("[SSP]: MSG From MCU-invalid debug length(%d/%d)\n",
- 			length, received_len);
--		return length ? length : -EPROTO;
-+		return -EPROTO;
- 	}
+--- a/drivers/net/ethernet/microchip/encx24j600-regmap.c
++++ b/drivers/net/ethernet/microchip/encx24j600-regmap.c
+@@ -505,13 +505,19 @@ static struct regmap_bus phymap_encx24j6
+ 	.reg_read = regmap_encx24j600_phy_reg_read,
+ };
  
- 	ssp_dbg("[SSP]: MSG From MCU - %s\n", &data_frame[*data_index]);
+-void devm_regmap_init_encx24j600(struct device *dev,
+-				 struct encx24j600_context *ctx)
++int devm_regmap_init_encx24j600(struct device *dev,
++				struct encx24j600_context *ctx)
+ {
+ 	mutex_init(&ctx->mutex);
+ 	regcfg.lock_arg = ctx;
+ 	ctx->regmap = devm_regmap_init(dev, &regmap_encx24j600, ctx, &regcfg);
++	if (IS_ERR(ctx->regmap))
++		return PTR_ERR(ctx->regmap);
+ 	ctx->phymap = devm_regmap_init(dev, &phymap_encx24j600, ctx, &phycfg);
++	if (IS_ERR(ctx->phymap))
++		return PTR_ERR(ctx->phymap);
++
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(devm_regmap_init_encx24j600);
+ 
+--- a/drivers/net/ethernet/microchip/encx24j600.c
++++ b/drivers/net/ethernet/microchip/encx24j600.c
+@@ -1032,10 +1032,13 @@ static int encx24j600_spi_probe(struct s
+ 	priv->speed = SPEED_100;
+ 
+ 	priv->ctx.spi = spi;
+-	devm_regmap_init_encx24j600(&spi->dev, &priv->ctx);
+ 	ndev->irq = spi->irq;
+ 	ndev->netdev_ops = &encx24j600_netdev_ops;
+ 
++	ret = devm_regmap_init_encx24j600(&spi->dev, &priv->ctx);
++	if (ret)
++		goto out_free;
++
+ 	mutex_init(&priv->lock);
+ 
+ 	/* Reset device and check if it is connected */
+--- a/drivers/net/ethernet/microchip/encx24j600_hw.h
++++ b/drivers/net/ethernet/microchip/encx24j600_hw.h
+@@ -15,8 +15,8 @@ struct encx24j600_context {
+ 	int bank;
+ };
+ 
+-void devm_regmap_init_encx24j600(struct device *dev,
+-				 struct encx24j600_context *ctx);
++int devm_regmap_init_encx24j600(struct device *dev,
++				struct encx24j600_context *ctx);
+ 
+ /* Single-byte instructions */
+ #define BANK_SELECT(bank) (0xC0 | ((bank & (BANK_MASK >> BANK_SHIFT)) << 1))
 
 
