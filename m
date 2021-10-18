@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 889EC431741
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:27:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3373A431743
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:27:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbhJRL3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:29:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38416 "EHLO mail.kernel.org"
+        id S229843AbhJRL3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:29:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229491AbhJRL3g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:29:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E88E8600D4;
-        Mon, 18 Oct 2021 11:27:24 +0000 (UTC)
+        id S229491AbhJRL3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 07:29:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D859E600D4;
+        Mon, 18 Oct 2021 11:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634556445;
-        bh=exW0T5++a9B+zkWNxEXEngabcWrONMIYmarrkYcDCFo=;
+        s=korg; t=1634556451;
+        bh=1wPNPEpgxmwZxV5IkB49VEfxD/zI6xyEZYYi7AbB+OU=;
         h=Subject:To:Cc:From:Date:From;
-        b=QmRNzwZkzUxanY0OndWmgb1J9K0HMGwaTwMj49YfNxoyw7S8OybXib5OdwjJ9pRbq
-         EGY0zN9MRUtYJibRQxP5SdIH7SBwqOYqDhrY3WbT49UTDPeWVxpfnQ3owlJLTITjHG
-         7ij4GaM0Nsh9XfN+hsdZkhHgp4C1VBL9lKFD6NzQ=
-Subject: FAILED: patch "[PATCH] drm/msm/dsi: dsi_phy_14nm: Take ready-bit into account in" failed to apply to 4.19-stable tree
+        b=rB1Yl4cYCu/AdITXjj2mfI6V9Zucacco0jlXik/eAovQbazWT53AXfsoinP3amDel
+         30dx+ERzLBooB7erpnrzzGsYlJcEhhFfM+CVENSxgl8ejxkhiIqpdvKzMHhaALAyPE
+         u9UIU94KyLxkzw5gi1FjFw8H7f73lQoCOG1EfUK0=
+Subject: FAILED: patch "[PATCH] drm/msm/dsi: dsi_phy_14nm: Take ready-bit into account in" failed to apply to 5.4-stable tree
 To:     marijn.suijten@somainline.org, dmitry.baryshkov@linaro.org,
         robdclark@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 13:27:14 +0200
-Message-ID: <1634556434233193@kroah.com>
+Date:   Mon, 18 Oct 2021 13:27:15 +0200
+Message-ID: <163455643539126@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
