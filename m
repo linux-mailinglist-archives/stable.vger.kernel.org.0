@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27357431CAB
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82DB3431DB6
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232413AbhJRNn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:43:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37404 "EHLO mail.kernel.org"
+        id S233380AbhJRNyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:54:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233859AbhJRNl0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:41:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4435361391;
-        Mon, 18 Oct 2021 13:33:44 +0000 (UTC)
+        id S234037AbhJRNwW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:52:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42D0E61355;
+        Mon, 18 Oct 2021 13:38:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564024;
-        bh=YQufhl9Vo+1zjytj6vfr4lZvpJtukfudroBbDwmOgnU=;
+        s=korg; t=1634564324;
+        bh=H6/bz4ph6WCr8Ka1uaSQPmCtR2591g3xQ5w1Amar1uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ml07+t7WFIxBy6/XYjet2vVDElSW1hvIsnCkT+Lh19T0n8MoTD0OLJ3MJeaMwqC9c
-         2wmAHvPx2FwuJ77B4TUhiV4wOcf635/JdQ7iUY/dNe5PUyIf9CfBQCKXQvS5npcrBl
-         WIXdpZb35RMLY4y8tury24An47Viqchv9cgfUwJs=
+        b=KiBkeRqAlGcuAMonovoRAimAaRXTDcMirnG11IScr05Mvb/dCoW+cZJ2wu6FPA8bz
+         JemFelXGUnJW6UnVdupOeDwV9DMMIiFwfsJcJs2dMK/VOSG6T4pz2P4oHkZg9cxx0g
+         94EuwduUHunQrPEQg4mvyzMgq4kMl044ztyb9Me4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 009/103] ALSA: hda/realtek: Add quirk for TongFang PHxTxX1
-Date:   Mon, 18 Oct 2021 15:23:45 +0200
-Message-Id: <20211018132335.007976150@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Jianhua <chris.zjh@huawei.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.14 047/151] efi: Change down_interruptible() in virt_efi_reset_system() to down_trylock()
+Date:   Mon, 18 Oct 2021 15:23:46 +0200
+Message-Id: <20211018132342.229638978@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,87 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Zhang Jianhua <chris.zjh@huawei.com>
 
-commit dd6dd6e3c791db7fdbc5433ec7e450717aa3a0ce upstream.
+commit 38fa3206bf441911258e5001ac8b6738693f8d82 upstream.
 
-This applies a SND_PCI_QUIRK(...) to the TongFang PHxTxX1 barebone. This
-fixes the issue of the internal Microphone not working after booting
-another OS.
+While reboot the system by sysrq, the following bug will be occur.
 
-When booting a certain another OS this barebone keeps some coeff settings
-even after a cold shutdown. These coeffs prevent the microphone detection
-from working in Linux, making the Laptop think that there is always an
-external microphone plugged-in and therefore preventing the use of the
-internal one.
+BUG: sleeping function called from invalid context at kernel/locking/semaphore.c:90
+in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 10052, name: rc.shutdown
+CPU: 3 PID: 10052 Comm: rc.shutdown Tainted: G        W O      5.10.0 #1
+Call trace:
+ dump_backtrace+0x0/0x1c8
+ show_stack+0x18/0x28
+ dump_stack+0xd0/0x110
+ ___might_sleep+0x14c/0x160
+ __might_sleep+0x74/0x88
+ down_interruptible+0x40/0x118
+ virt_efi_reset_system+0x3c/0xd0
+ efi_reboot+0xd4/0x11c
+ machine_restart+0x60/0x9c
+ emergency_restart+0x1c/0x2c
+ sysrq_handle_reboot+0x1c/0x2c
+ __handle_sysrq+0xd0/0x194
+ write_sysrq_trigger+0xbc/0xe4
+ proc_reg_write+0xd4/0xf0
+ vfs_write+0xa8/0x148
+ ksys_write+0x6c/0xd8
+ __arm64_sys_write+0x18/0x28
+ el0_svc_common.constprop.3+0xe4/0x16c
+ do_el0_svc+0x1c/0x2c
+ el0_svc+0x20/0x30
+ el0_sync_handler+0x80/0x17c
+ el0_sync+0x158/0x180
 
-The relevant indexes and values where gathered by naively diff-ing and
-reading a working and a non-working coeff dump.
+The reason for this problem is that irq has been disabled in
+machine_restart() and then it calls down_interruptible() in
+virt_efi_reset_system(), which would occur sleep in irq context,
+it is dangerous! Commit 99409b935c9a("locking/semaphore: Add
+might_sleep() to down_*() family") add might_sleep() in
+down_interruptible(), so the bug info is here. down_trylock()
+can solve this problem, cause there is no might_sleep.
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+--------
+
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211006130415.538243-1-wse@tuxedocomputers.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Zhang Jianhua <chris.zjh@huawei.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   26 +++++++++++++++++++++++++-
- 1 file changed, 25 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/runtime-wrappers.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6399,6 +6399,24 @@ static void alc287_fixup_legion_15imhg05
- /* for alc285_fixup_ideapad_s740_coef() */
- #include "ideapad_s740_helper.c"
- 
-+static void alc256_fixup_tongfang_reset_persistent_settings(struct hda_codec *codec,
-+							    const struct hda_fixup *fix,
-+							    int action)
-+{
-+	/*
-+	* A certain other OS sets these coeffs to different values. On at least one TongFang
-+	* barebone these settings might survive even a cold reboot. So to restore a clean slate the
-+	* values are explicitly reset to default here. Without this, the external microphone is
-+	* always in a plugged-in state, while the internal microphone is always in an unplugged
-+	* state, breaking the ability to use the internal microphone.
-+	*/
-+	alc_write_coef_idx(codec, 0x24, 0x0000);
-+	alc_write_coef_idx(codec, 0x26, 0x0000);
-+	alc_write_coef_idx(codec, 0x29, 0x3000);
-+	alc_write_coef_idx(codec, 0x37, 0xfe05);
-+	alc_write_coef_idx(codec, 0x45, 0x5089);
-+}
-+
- enum {
- 	ALC269_FIXUP_GPIO2,
- 	ALC269_FIXUP_SONY_VAIO,
-@@ -6612,7 +6630,8 @@ enum {
- 	ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS,
- 	ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE,
- 	ALC287_FIXUP_YOGA7_14ITL_SPEAKERS,
--	ALC287_FIXUP_13S_GEN2_SPEAKERS
-+	ALC287_FIXUP_13S_GEN2_SPEAKERS,
-+	ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS,
- };
- 
- static const struct hda_fixup alc269_fixups[] = {
-@@ -8304,6 +8323,10 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_HEADSET_MODE,
- 	},
-+	[ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc256_fixup_tongfang_reset_persistent_settings,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8733,6 +8756,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
- 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
- 	SND_PCI_QUIRK(0x1c06, 0x2015, "Lemote A190X", ALC269_FIXUP_LEMOTE_A190X),
-+	SND_PCI_QUIRK(0x1d05, 0x1132, "TongFang PHxTxX1", ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS),
- 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
+--- a/drivers/firmware/efi/runtime-wrappers.c
++++ b/drivers/firmware/efi/runtime-wrappers.c
+@@ -414,7 +414,7 @@ static void virt_efi_reset_system(int re
+ 				  unsigned long data_size,
+ 				  efi_char16_t *data)
+ {
+-	if (down_interruptible(&efi_runtime_lock)) {
++	if (down_trylock(&efi_runtime_lock)) {
+ 		pr_warn("failed to invoke the reset_system() runtime service:\n"
+ 			"could not get exclusive access to the firmware\n");
+ 		return;
 
 
