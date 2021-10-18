@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6003431D9F
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E80B0431E0A
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232699AbhJRNxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:53:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49508 "EHLO mail.kernel.org"
+        id S233423AbhJRN5S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:57:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232345AbhJRNvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:51:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3019610E8;
-        Mon, 18 Oct 2021 13:38:04 +0000 (UTC)
+        id S233311AbhJRNzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:55:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72E18619EC;
+        Mon, 18 Oct 2021 13:39:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564285;
-        bh=r2NJFyi2isgBngHnMJBBgcw0k5kLK4x48AVAU2KxzKA=;
+        s=korg; t=1634564398;
+        bh=afczrjsrsAncSFiK5jjPxBvK2MlNPTu3B4UP02iRIxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zc5zPnbll/DjZzKYKUoTuWwoPZAfqUjVRD4gaXMeACWusZ7Xwl+NNfzMdF/gLxm8/
-         MpRGHhyi5HBSaUSejqdNdhYIo/r3EmN3Atb+EXKxZV1vr6RO0SYf6qeBjSQUig6rPg
-         eTXibcT8JPcQpR+8Yy7ULo54WitRs+CqoC0lqLls=
+        b=cQTywcMSZJ7o5OJittk+yj+Srx8GgjiYh5H9LhU52WUYoryxuIIBeWrHGm3pCbIts
+         PpveLRm83atdVMq7JmSRt/MzLA/efB43+ZiYamIoV6gAUf/BP+sB9C9aDmUSJSxfs5
+         H4TGWiN2DlxiblXXjExsTF37vWxSh04KBhxeVES0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Sun <sunhao.th@gmail.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.14 030/151] btrfs: unlock newly allocated extent buffer after error
-Date:   Mon, 18 Oct 2021 15:23:29 +0200
-Message-Id: <20211018132341.665968683@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.14 031/151] btrfs: deal with errors when replaying dir entry during log replay
+Date:   Mon, 18 Oct 2021 15:23:30 +0200
+Message-Id: <20211018132341.696529082@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -39,96 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 19ea40dddf1833db868533958ca066f368862211 upstream.
+commit e15ac6413745e3def00e663de00aea5a717311c1 upstream.
 
-[BUG]
-There is a bug report that injected ENOMEM error could leave a tree
-block locked while we return to user-space:
+At replay_one_one(), we are treating any error returned from
+btrfs_lookup_dir_item() or from btrfs_lookup_dir_index_item() as meaning
+that there is no existing directory entry in the fs/subvolume tree.
+This is not correct since we can get errors such as, for example, -EIO
+when reading extent buffers while searching the fs/subvolume's btree.
 
-  BTRFS info (device loop0): enabling ssd optimizations
-  FAULT_INJECTION: forcing a failure.
-  name failslab, interval 1, probability 0, space 0, times 0
-  CPU: 0 PID: 7579 Comm: syz-executor Not tainted 5.15.0-rc1 #16
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-  rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-  Call Trace:
-   __dump_stack lib/dump_stack.c:88 [inline]
-   dump_stack_lvl+0x8d/0xcf lib/dump_stack.c:106
-   fail_dump lib/fault-inject.c:52 [inline]
-   should_fail+0x13c/0x160 lib/fault-inject.c:146
-   should_failslab+0x5/0x10 mm/slab_common.c:1328
-   slab_pre_alloc_hook.constprop.99+0x4e/0xc0 mm/slab.h:494
-   slab_alloc_node mm/slub.c:3120 [inline]
-   slab_alloc mm/slub.c:3214 [inline]
-   kmem_cache_alloc+0x44/0x280 mm/slub.c:3219
-   btrfs_alloc_delayed_extent_op fs/btrfs/delayed-ref.h:299 [inline]
-   btrfs_alloc_tree_block+0x38c/0x670 fs/btrfs/extent-tree.c:4833
-   __btrfs_cow_block+0x16f/0x7d0 fs/btrfs/ctree.c:415
-   btrfs_cow_block+0x12a/0x300 fs/btrfs/ctree.c:570
-   btrfs_search_slot+0x6b0/0xee0 fs/btrfs/ctree.c:1768
-   btrfs_insert_empty_items+0x80/0xf0 fs/btrfs/ctree.c:3905
-   btrfs_new_inode+0x311/0xa60 fs/btrfs/inode.c:6530
-   btrfs_create+0x12b/0x270 fs/btrfs/inode.c:6783
-   lookup_open+0x660/0x780 fs/namei.c:3282
-   open_last_lookups fs/namei.c:3352 [inline]
-   path_openat+0x465/0xe20 fs/namei.c:3557
-   do_filp_open+0xe3/0x170 fs/namei.c:3588
-   do_sys_openat2+0x357/0x4a0 fs/open.c:1200
-   do_sys_open+0x87/0xd0 fs/open.c:1216
-   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-   do_syscall_64+0x34/0xb0 arch/x86/entry/common.c:80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x46ae99
-  Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48
-  89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d
-  01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-  RSP: 002b:00007f46711b9c48 EFLAGS: 00000246 ORIG_RAX: 0000000000000055
-  RAX: ffffffffffffffda RBX: 000000000078c0a0 RCX: 000000000046ae99
-  RDX: 0000000000000000 RSI: 00000000000000a1 RDI: 0000000020005800
-  RBP: 00007f46711b9c80 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000017
-  R13: 0000000000000000 R14: 000000000078c0a0 R15: 00007ffc129da6e0
+So fix that and return the error to the caller when it is not -ENOENT.
 
-  ================================================
-  WARNING: lock held when returning to user space!
-  5.15.0-rc1 #16 Not tainted
-  ------------------------------------------------
-  syz-executor/7579 is leaving the kernel with locks still held!
-  1 lock held by syz-executor/7579:
-   #0: ffff888104b73da8 (btrfs-tree-01/1){+.+.}-{3:3}, at:
-  __btrfs_tree_lock+0x2e/0x1a0 fs/btrfs/locking.c:112
-
-[CAUSE]
-In btrfs_alloc_tree_block(), after btrfs_init_new_buffer(), the new
-extent buffer @buf is locked, but if later operations like adding
-delayed tree ref fail, we just free @buf without unlocking it,
-resulting above warning.
-
-[FIX]
-Unlock @buf in out_free_buf: label.
-
-Reported-by: Hao Sun <sunhao.th@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/CACkBjsZ9O6Zr0KK1yGn=1rQi6Crh1yeCRdTSBxx9R99L4xdn-Q@mail.gmail.com/
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent-tree.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/tree-log.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -4859,6 +4859,7 @@ struct extent_buffer *btrfs_alloc_tree_b
- out_free_delayed:
- 	btrfs_free_delayed_extent_op(extent_op);
- out_free_buf:
-+	btrfs_tree_unlock(buf);
- 	free_extent_buffer(buf);
- out_free_reserved:
- 	btrfs_free_reserved_extent(fs_info, ins.objectid, ins.offset, 0);
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1977,7 +1977,14 @@ static noinline int replay_one_name(stru
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+-	if (IS_ERR_OR_NULL(dst_di)) {
++
++	if (dst_di == ERR_PTR(-ENOENT))
++		dst_di = NULL;
++
++	if (IS_ERR(dst_di)) {
++		ret = PTR_ERR(dst_di);
++		goto out;
++	} else if (!dst_di) {
+ 		/* we need a sequence number to insert, so we only
+ 		 * do inserts for the BTRFS_DIR_INDEX_KEY types
+ 		 */
 
 
