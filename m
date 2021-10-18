@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 384AF4316CD
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:05:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 103F64316CC
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:04:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229781AbhJRLHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:07:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55466 "EHLO mail.kernel.org"
+        id S230013AbhJRLHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:07:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229519AbhJRLHJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:07:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8F2A60F0F;
-        Mon, 18 Oct 2021 11:04:57 +0000 (UTC)
+        id S229781AbhJRLHG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 07:07:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F41526103C;
+        Mon, 18 Oct 2021 11:04:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634555098;
-        bh=jyg2aIKtbTYmI0wGNp+o+iQcZ/GpIgy3YtycUaq9W+g=;
+        s=korg; t=1634555095;
+        bh=qB4EuNxKfZuNAjOK+UeKZxQL3mA0hlkg+HHA2d9Y/14=;
         h=Subject:To:Cc:From:Date:From;
-        b=evtUvAZIZwBuym0V4WiDwrFtwCI8AYiODVh3gEtp5rv1/33q9huOWdAa/TvT14yoK
-         UESAc/tCqpQvUNtvvLhOy1ma8KfjST/pELZa+5SpRs/aJciAcq21njx0UuP3HbKz7O
-         ldB9AeVukUWZounzOih/ANQvaKuD1ihiFyqAdjVk=
-Subject: FAILED: patch "[PATCH] net: stmmac: fix get_hw_feature() on old hardware" failed to apply to 4.14-stable tree
+        b=BRxq8rx7cpCi44+52lpFOt3i4Mts21fP9HxKrcMabBUI52wK0P/MccJhx4otvGUIF
+         mE+ec0OUxUhO3BotNoJNSIPF9S0vFKvYAQ2rcSgiTk0Y14KRiRu3X2GHEDUCpWN3xA
+         28HP0Gkg+JZsgRYEowgGuDLnDomZj3Nb6R8vyqxs=
+Subject: FAILED: patch "[PATCH] net: stmmac: fix get_hw_feature() on old hardware" failed to apply to 4.19-stable tree
 To:     herve.codina@bootlin.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 18 Oct 2021 13:04:45 +0200
-Message-ID: <1634555085135104@kroah.com>
+Message-ID: <163455508537131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
