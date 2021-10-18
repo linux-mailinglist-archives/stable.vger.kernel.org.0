@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 356F4431D26
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4423C431C43
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231922AbhJRNst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:48:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47682 "EHLO mail.kernel.org"
+        id S232827AbhJRNjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:39:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233913AbhJRNq3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:46:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61152613BD;
-        Mon, 18 Oct 2021 13:36:04 +0000 (UTC)
+        id S233571AbhJRNia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:38:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E248161372;
+        Mon, 18 Oct 2021 13:32:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564164;
-        bh=RnTKsBJzNHDVtnKE56ENXLz4MomONE8g6IMKWUNhBgY=;
+        s=korg; t=1634563922;
+        bh=Iyu7TEnz67pI/qx6n5wEofWbBHfC59wdErmoqPzeylg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i9IDRr4sIjxmgh75eh/JLwldFp/9cweZe6BuNcX+dMjb+qYmxu/baLSEMYmagmnpB
-         79zs0KiTMq/EN2aUCXM5TScf99xl/6nWydMdrD/anZ8fZqPq2iHCj6EBVuQEqavY2t
-         W75Hf0YsTPz76u553qw2Zejr6BGtG4nhDrtaZHzc=
+        b=nt+Osuob8wVicvA8LrZOuHBvfzUwaZYlvr0s7iIZDe7wRTf51/YnQr8DFyNozEKeN
+         2bLv1nim9P2HFeKsPg3qTXX0/SE0hDKAxkqLHIkwvXisWU7N1PbBLFyQOIN+OokyuC
+         59PEG1/HNbFit4y5KfGyWz/mMPWFHi6f6zCkNFKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>
-Subject: [PATCH 5.10 090/103] drm/msm: Fix null pointer dereference on pointer edp
+        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 68/69] r8152: select CRC32 and CRYPTO/CRYPTO_HASH/CRYPTO_SHA256
 Date:   Mon, 18 Oct 2021 15:25:06 +0200
-Message-Id: <20211018132337.771320227@linuxfoundation.org>
+Message-Id: <20211018132331.727403167@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Vegard Nossum <vegard.nossum@oracle.com>
 
-commit 2133c4fc8e1348dcb752f267a143fe2254613b34 upstream.
+commit 9973a43012b6ad1720dbc4d5faf5302c28635b8c upstream.
 
-The initialization of pointer dev dereferences pointer edp before
-edp is null checked, so there is a potential null pointer deference
-issue. Fix this by only dereferencing edp after edp has been null
-checked.
+Fix the following build/link errors by adding a dependency on
+CRYPTO, CRYPTO_HASH, CRYPTO_SHA256 and CRC32:
 
-Addresses-Coverity: ("Dereference before null check")
-Fixes: ab5b0107ccf3 ("drm/msm: Initial add eDP support in msm drm driver (v5)")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210929121857.213922-1-colin.king@canonical.com
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+  ld: drivers/net/usb/r8152.o: in function `rtl8152_fw_verify_checksum':
+  r8152.c:(.text+0x2b2a): undefined reference to `crypto_alloc_shash'
+  ld: r8152.c:(.text+0x2bed): undefined reference to `crypto_shash_digest'
+  ld: r8152.c:(.text+0x2c50): undefined reference to `crypto_destroy_tfm'
+  ld: drivers/net/usb/r8152.o: in function `_rtl8152_set_rx_mode':
+  r8152.c:(.text+0xdcb0): undefined reference to `crc32_le'
+
+Fixes: 9370f2d05a2a1 ("r8152: support request_firmware for RTL8153")
+Fixes: ac718b69301c7 ("net/usb: new driver for RTL8152")
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/edp/edp_ctrl.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/Kconfig |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/msm/edp/edp_ctrl.c
-+++ b/drivers/gpu/drm/msm/edp/edp_ctrl.c
-@@ -1116,7 +1116,7 @@ void msm_edp_ctrl_power(struct edp_ctrl
- int msm_edp_ctrl_init(struct msm_edp *edp)
- {
- 	struct edp_ctrl *ctrl = NULL;
--	struct device *dev = &edp->pdev->dev;
-+	struct device *dev;
- 	int ret;
- 
- 	if (!edp) {
-@@ -1124,6 +1124,7 @@ int msm_edp_ctrl_init(struct msm_edp *ed
- 		return -EINVAL;
- 	}
- 
-+	dev = &edp->pdev->dev;
- 	ctrl = devm_kzalloc(dev, sizeof(*ctrl), GFP_KERNEL);
- 	if (!ctrl)
- 		return -ENOMEM;
+--- a/drivers/net/usb/Kconfig
++++ b/drivers/net/usb/Kconfig
+@@ -99,6 +99,10 @@ config USB_RTL8150
+ config USB_RTL8152
+ 	tristate "Realtek RTL8152/RTL8153 Based USB Ethernet Adapters"
+ 	select MII
++	select CRC32
++	select CRYPTO
++	select CRYPTO_HASH
++	select CRYPTO_SHA256
+ 	help
+ 	  This option adds support for Realtek RTL8152 based USB 2.0
+ 	  10/100 Ethernet adapters and RTL8153 based USB 3.0 10/100/1000
 
 
