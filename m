@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A96B431B1F
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:28:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05B84431D15
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232082AbhJRNax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:30:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41884 "EHLO mail.kernel.org"
+        id S233629AbhJRNrs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:47:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232321AbhJRN34 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:29:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1040361260;
-        Mon, 18 Oct 2021 13:27:44 +0000 (UTC)
+        id S233715AbhJRNpr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:45:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FCB5613AD;
+        Mon, 18 Oct 2021 13:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563665;
-        bh=+SRxb1X4HPldcRmw4/nJibzSkkID6PALLpf7xzb+9TQ=;
+        s=korg; t=1634564144;
+        bh=0/NXyCFCgLjRaDEMu+8WjjgjPm1AQmy6JSx8rfNlOi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwGhdx4j0014kPnounkpsOpmybMlHomIEq8Gg3ViJ2LBHRFLjLEUkv0Ac4ku1NbI+
-         8/Op1zn6la4kktZjEJrz96Pe3+T0RObnF2BZ73rXL8e2YootWLeSBSN6YgeQLt0/6k
-         91yKWVs+9RxA1gN0EmBLxwhtk+p7VMzDmdkZCW6M=
+        b=nJbWfGK5pkKJ2LCj58uxGTNKnu7XpkcsyZT8uOvdGQzasJXg5wHfQAEKUZ6/ADvZ9
+         aptxfPZT/h33pagS9QySJEWVJazhALU6TewYiQHyUhKWKpAf8HGPcqGYh7VVSZhoFP
+         4v/qpV/Iqeb4rTBcfCec3v35+PMl5NV0ofBs3R3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.19 16/50] efi/cper: use stack buffer for error record decoding
-Date:   Mon, 18 Oct 2021 15:24:23 +0200
-Message-Id: <20211018132327.081021783@linuxfoundation.org>
+        stable@vger.kernel.org, Billy Tsai <billy_tsai@aspeedtech.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 048/103] iio: adc: aspeed: set driver data when adc probe.
+Date:   Mon, 18 Oct 2021 15:24:24 +0200
+Message-Id: <20211018132336.365610310@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +40,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Billy Tsai <billy_tsai@aspeedtech.com>
 
-commit b3a72ca80351917cc23f9e24c35f3c3979d3c121 upstream.
+commit eb795cd97365a3d3d9da3926d234a7bc32a3bb15 upstream.
 
-Joe reports that using a statically allocated buffer for converting CPER
-error records into human readable text is probably a bad idea. Even
-though we are not aware of any actual issues, a stack buffer is clearly
-a better choice here anyway, so let's move the buffer into the stack
-frames of the two functions that refer to it.
+Fix the issue when adc remove will get the null driver data.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: Joe Perches <joe@perches.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixed: commit 573803234e72 ("iio: Aspeed ADC")
+Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
+Link: https://lore.kernel.org/r/20210831071458.2334-2-billy_tsai@aspeedtech.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/cper.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/adc/aspeed_adc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/firmware/efi/cper.c
-+++ b/drivers/firmware/efi/cper.c
-@@ -37,8 +37,6 @@
- #include <acpi/ghes.h>
- #include <ras/ras_event.h>
+--- a/drivers/iio/adc/aspeed_adc.c
++++ b/drivers/iio/adc/aspeed_adc.c
+@@ -183,6 +183,7 @@ static int aspeed_adc_probe(struct platf
  
--static char rcd_decode_str[CPER_REC_LEN];
--
- /*
-  * CPER record ID need to be unique even after reboot, because record
-  * ID is used as index for ERST storage, while CPER records from
-@@ -311,6 +309,7 @@ const char *cper_mem_err_unpack(struct t
- 				struct cper_mem_err_compact *cmem)
- {
- 	const char *ret = trace_seq_buffer_ptr(p);
-+	char rcd_decode_str[CPER_REC_LEN];
+ 	data = iio_priv(indio_dev);
+ 	data->dev = &pdev->dev;
++	platform_set_drvdata(pdev, indio_dev);
  
- 	if (cper_mem_err_location(cmem, rcd_decode_str))
- 		trace_seq_printf(p, "%s", rcd_decode_str);
-@@ -325,6 +324,7 @@ static void cper_print_mem(const char *p
- 	int len)
- {
- 	struct cper_mem_err_compact cmem;
-+	char rcd_decode_str[CPER_REC_LEN];
- 
- 	/* Don't trust UEFI 2.1/2.2 structure with bad validation bits */
- 	if (len == sizeof(struct cper_sec_mem_err_old) &&
+ 	data->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(data->base))
 
 
