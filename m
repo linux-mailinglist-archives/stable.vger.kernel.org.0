@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECCCC431B54
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:30:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0319431CE8
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:44:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232006AbhJRNcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41784 "EHLO mail.kernel.org"
+        id S233821AbhJRNp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:45:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232636AbhJRNam (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:30:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CAB06135E;
-        Mon, 18 Oct 2021 13:28:26 +0000 (UTC)
+        id S232606AbhJRNoA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:44:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4261961507;
+        Mon, 18 Oct 2021 13:34:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563707;
-        bh=nWPJtnQw4HI9f3ZVSzcIANMyEsM4326AmbLQjkdyVxM=;
+        s=korg; t=1634564098;
+        bh=zJAkJoWlHczIkuAjVPyHBbMLKA7zZA9sWHfvsC6rSWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DsjQaG7n1SzUEtFdBQPtGs8qLa4r0XohRJ2wIsXWQZAY5pXW+GqY4yEI+ILKY/0wO
-         KCmm4pOAx4uR+iLCox9OInvwzN2B44q6MXaFh4lwhL28B8zM/OTQHSaUv1X3RTCJ3+
-         DuG1ORqVUMNMrK7tj/SJGrMmnpIx7xxBI0KH7EM8=
+        b=SsjYxSL2yUvUK6fe1tULK/7yFQ+pdVAyp76TVdC4b0wiAv/aYx1ncT9IeEMOPw1ty
+         exsUWt+zoKnWNBP8OwcnNCG8GF3Y0hgnkBp8Qj+tOShxmESTErvYxjYh4eXXz3PXN/
+         tz9B7ExVQa26seMM6cXtJjEQRttZsThWOtDFhFkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Yasevich <vyasevich@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Marcelo Ricardo Leitner <mleitner@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 33/50] sctp: account stream padding length for reconf chunk
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>
+Subject: [PATCH 5.10 064/103] ARM: dts: bcm2711: fix MDIO #address- and #size-cells
 Date:   Mon, 18 Oct 2021 15:24:40 +0200
-Message-Id: <20211018132327.629206662@linuxfoundation.org>
+Message-Id: <20211018132336.902700070@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-commit a2d859e3fc97e79d907761550dbc03ff1b36479c upstream.
+commit 2faff6737a8a684b077264f0aed131526c99eec4 upstream.
 
-sctp_make_strreset_req() makes repeated calls to sctp_addto_chunk()
-which will automatically account for padding on each call. inreq and
-outreq are already 4 bytes aligned, but the payload is not and doing
-SCTP_PAD4(a + b) (which _sctp_make_chunk() did implicitly here) is
-different from SCTP_PAD4(a) + SCTP_PAD4(b) and not enough. It led to
-possible attempt to use more buffer than it was allocated and triggered
-a BUG_ON.
+The values of #address-cells and #size-cells are swapped. Fix this
+and avoid the following DT schema warnings for mdio@e14:
 
-Cc: Vlad Yasevich <vyasevich@gmail.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Fixes: cc16f00f6529 ("sctp: add support for generating stream reconf ssn reset request chunk")
-Reported-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
-Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Marcelo Ricardo Leitner <mleitner@redhat.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/b97c1f8b0c7ff79ac4ed206fc2c49d3612e0850c.1634156849.git.mleitner@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+ #address-cells:0:0: 1 was expected
+ #size-cells:0:0: 0 was expected
+
+Fixes: be8af7a9e3cc ("ARM: dts: bcm2711-rpi-4: Enable GENET support")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/1628334401-6577-2-git-send-email-stefan.wahren@i2se.com
+Signed-off-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/sm_make_chunk.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/bcm2711.dtsi |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -3673,7 +3673,7 @@ struct sctp_chunk *sctp_make_strreset_re
- 	outlen = (sizeof(outreq) + stream_len) * out;
- 	inlen = (sizeof(inreq) + stream_len) * in;
- 
--	retval = sctp_make_reconf(asoc, outlen + inlen);
-+	retval = sctp_make_reconf(asoc, SCTP_PAD4(outlen) + SCTP_PAD4(inlen));
- 	if (!retval)
- 		return NULL;
- 
+--- a/arch/arm/boot/dts/bcm2711.dtsi
++++ b/arch/arm/boot/dts/bcm2711.dtsi
+@@ -514,8 +514,8 @@
+ 				compatible = "brcm,genet-mdio-v5";
+ 				reg = <0xe14 0x8>;
+ 				reg-names = "mdio";
+-				#address-cells = <0x0>;
+-				#size-cells = <0x1>;
++				#address-cells = <0x1>;
++				#size-cells = <0x0>;
+ 			};
+ 		};
+ 	};
 
 
