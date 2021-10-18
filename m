@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C027431E4A
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10F21431C18
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234180AbhJRN75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:59:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58198 "EHLO mail.kernel.org"
+        id S232193AbhJRNjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:39:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234323AbhJRN54 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:57:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4142961A38;
-        Mon, 18 Oct 2021 13:41:13 +0000 (UTC)
+        id S232628AbhJRNgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:36:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 727F0613CF;
+        Mon, 18 Oct 2021 13:30:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564473;
-        bh=KKmFggWOIxdeFqORwrBzgJJYqzZ/XjUd8vhuuFwgfT0=;
+        s=korg; t=1634563859;
+        bh=sH1yKxxos5/co1fIbgisEwbOaF8zHZ/40AoBPTdz9SU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aNVVylFOeVYFPyZ3W+SUDeg+T+8prXPVDArew6Fm5rthqdC8hqo/0LLWXAMbaQVFr
-         B4QqYoLcsgUJPof+oANBgv+5+cCG4g6gycNJoTiOh2pktEPmr1GX5JrvTqHPBio0Rg
-         E2X25UgJAKDPAxAVuBDmnJI+giMmRP8Aq9nuXYPc=
+        b=aU/zOXD5vHe8GJEyuLKXxfM6qlyXA6wEU7Rkq0xxXSShKBCF54RZphZ9tbEV93h5d
+         jjyYwT5eG04HN85aNHGBf4aWKw0I0DoUUc8Xsvn3rac95ZQPIZ99zF/yMJAQxk7dFj
+         NM5RsFJKtK/4o6YRu7ddX6o8k4sNxkncktL0PQ4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 101/151] net: arc: select CRC32
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 42/69] iio: ssp_sensors: add more range checking in ssp_parse_dataframe()
 Date:   Mon, 18 Oct 2021 15:24:40 +0200
-Message-Id: <20211018132343.964755548@linuxfoundation.org>
+Message-Id: <20211018132330.871950576@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit e599ee234ad4fdfe241d937bbabd96e0d8f9d868 upstream.
+commit 8167c9a375ccceed19048ad9d68cb2d02ed276e0 upstream.
 
-Fix the following build/link error by adding a dependency on the CRC32
-routines:
+The "idx" is validated at the start of the loop but it gets incremented
+during the iteration so it needs to be checked again.
 
-  ld: drivers/net/ethernet/arc/emac_main.o: in function `arc_emac_set_rx_mode':
-  emac_main.c:(.text+0xb11): undefined reference to `crc32_le'
-
-The crc32_le() call comes through the ether_crc_le() call in
-arc_emac_set_rx_mode().
-
-[v2: moved the select to ARC_EMAC_CORE; the Makefile is a bit confusing,
-but the error comes from emac_main.o, which is part of the arc_emac module,
-which in turn is enabled by CONFIG_ARC_EMAC_CORE. Note that arc_emac is
-different from emac_arc...]
-
-Fixes: 775dd682e2b0ec ("arc_emac: implement promiscuous mode and multicast filtering")
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Link: https://lore.kernel.org/r/20211012093446.1575-1-vegard.nossum@oracle.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 50dd64d57eee ("iio: common: ssp_sensors: Add sensorhub driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20210909091336.GA26312@kili
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/arc/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/common/ssp_sensors/ssp_spi.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/arc/Kconfig
-+++ b/drivers/net/ethernet/arc/Kconfig
-@@ -21,6 +21,7 @@ config ARC_EMAC_CORE
- 	depends on ARC || ARCH_ROCKCHIP || COMPILE_TEST
- 	select MII
- 	select PHYLIB
-+	select CRC32
+--- a/drivers/iio/common/ssp_sensors/ssp_spi.c
++++ b/drivers/iio/common/ssp_sensors/ssp_spi.c
+@@ -273,6 +273,8 @@ static int ssp_parse_dataframe(struct ss
+ 	for (idx = 0; idx < len;) {
+ 		switch (dataframe[idx++]) {
+ 		case SSP_MSG2AP_INST_BYPASS_DATA:
++			if (idx >= len)
++				return -EPROTO;
+ 			sd = dataframe[idx++];
+ 			if (sd < 0 || sd >= SSP_SENSOR_MAX) {
+ 				dev_err(SSP_DEV,
+@@ -282,10 +284,13 @@ static int ssp_parse_dataframe(struct ss
  
- config ARC_EMAC
- 	tristate "ARC EMAC support"
+ 			if (indio_devs[sd]) {
+ 				spd = iio_priv(indio_devs[sd]);
+-				if (spd->process_data)
++				if (spd->process_data) {
++					if (idx >= len)
++						return -EPROTO;
+ 					spd->process_data(indio_devs[sd],
+ 							  &dataframe[idx],
+ 							  data->timestamp);
++				}
+ 			} else {
+ 				dev_err(SSP_DEV, "no client for frame\n");
+ 			}
+@@ -293,6 +298,8 @@ static int ssp_parse_dataframe(struct ss
+ 			idx += ssp_offset_map[sd];
+ 			break;
+ 		case SSP_MSG2AP_INST_DEBUG_DATA:
++			if (idx >= len)
++				return -EPROTO;
+ 			sd = ssp_print_mcu_debug(dataframe, &idx, len);
+ 			if (sd) {
+ 				dev_err(SSP_DEV,
 
 
