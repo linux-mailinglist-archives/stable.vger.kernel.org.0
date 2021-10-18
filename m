@@ -2,200 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42B90431394
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE5EA4313BE
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:42:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231394AbhJRJil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 05:38:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36574 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231213AbhJRJil (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 05:38:41 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E63C06161C
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 02:36:30 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id m14so14255267pfc.9
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 02:36:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=VvXug8NLFeOC0eC5jPGfWmbumkE841scNkDypD4Y3KM=;
-        b=iMgOEkHGRi964ASSoonBxzq0HQjqtQNo1BQSnAcL8rhriHWTFvD0wWSIEtRWXq3s88
-         wu3uG5xb/4UbkpvgKrgH4mTr308gw0LD1dz7kYGmzFOmHpoygEWyl0A4gXoCVn2JcEGz
-         EZ08tDsC3L+/Gu5E0g0kk1gQnpGIftiDmuQbeN2g/fquyUrlPkU+X/q1HCnCaiCpLXjh
-         MF3hZrGRUMSgHO2uf3G0bpxvta2Y0z4DhuhD7BQKoqNvTt7fVIU3QgTgDA+yioivso9B
-         5QMHOe5VVBuwFyocnQh/HV5fXmrSD/dK0CvqjrVx4wk+2cgH+W3RjvjR/zpiuKt3xMSJ
-         qLjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=VvXug8NLFeOC0eC5jPGfWmbumkE841scNkDypD4Y3KM=;
-        b=Q1hNSTUItm0ZpYzPchzQNDa+ohNcD/+oARoa2Mg5m1y15AuorxSDfsaSYMx1Bj24Gj
-         mH4BRv/DgGVR4NG9+gA3KsXZ/23KQk5g3QcRCKDUZpGS4PSu8bUjwt5XYJOH+nyj6tEu
-         /a+2kMuGUxc/h8j7MpnKnR9JF53Nf7XrDipuft4Sk155IVsRGavD43mlgqVxEx4aE8gf
-         3gvveQUNSOYUuc48/KZCDfq4OMtXRb/N9aq3Q2H+RcpWS+kdu7cCb5T5gBrVXcLrvI1k
-         VtcVGj2CEr+IpHQaeZ4i9owHYWtwqpRNO7+4hD1B2I/v+ivi3RN6BnVrCAHHQ03Yhvzd
-         L72A==
-X-Gm-Message-State: AOAM533FlxzF8KTUcQ1veQNDmB/MVuVY+wuOMgyOJNp0UZBe07yxx+qw
-        /2vVv1NECslNezA93mXdbEPuL9R5B/c49D7G
-X-Google-Smtp-Source: ABdhPJySfdWzaAc4tE0sDHlDnuIhpMICMPYNpgyY5VfEUJp3bl8+eFkkFtXx1LRMen/0Xfm+L5SmRA==
-X-Received: by 2002:a05:6a00:1950:b0:44d:9402:3396 with SMTP id s16-20020a056a00195000b0044d94023396mr20827336pfk.70.1634549789910;
-        Mon, 18 Oct 2021 02:36:29 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w13sm12840744pfc.10.2021.10.18.02.36.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Oct 2021 02:36:29 -0700 (PDT)
-Message-ID: <616d401d.1c69fb81.ebff1.3b31@mx.google.com>
-Date:   Mon, 18 Oct 2021 02:36:29 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S231615AbhJRJox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 05:44:53 -0400
+Received: from mga07.intel.com ([134.134.136.100]:21930 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231522AbhJRJod (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 05:44:33 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10140"; a="291682956"
+X-IronPort-AV: E=Sophos;i="5.85,381,1624345200"; 
+   d="scan'208";a="291682956"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2021 02:42:00 -0700
+X-IronPort-AV: E=Sophos;i="5.85,381,1624345200"; 
+   d="scan'208";a="493516710"
+Received: from ideak-desk.fi.intel.com ([10.237.68.141])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2021 02:41:58 -0700
+From:   Imre Deak <imre.deak@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Mat Jonczyk <mat.jonczyk@o2.pl>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org
+Subject: [PATCH 1/6] drm/i915/dp: Skip the HW readout of DPCD on disabled encoders
+Date:   Mon, 18 Oct 2021 12:41:49 +0300
+Message-Id: <20211018094154.1407705-2-imre.deak@intel.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20211018094154.1407705-1-imre.deak@intel.com>
+References: <20211018094154.1407705-1-imre.deak@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.286-29-g41084917ca47
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.9.y baseline: 70 runs,
- 3 regressions (v4.9.286-29-g41084917ca47)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 70 runs, 3 regressions (v4.9.286-29-g410849=
-17ca47)
+Reading out the DP encoders' DPCD during booting or resume is only
+required for enabled encoders: such encoders may be modesetted during
+the initial commit and the link training this involves depends on an
+initialized DPCD. For DDI encoders reading out the DPCD is skipped, do
+the same on pre-DDI platforms.
 
-Regressions Summary
--------------------
+Atm, the first DPCD readout without a sink connected - which is a likely
+scneario if the encoder is disabled - leaves intel_dp->num_common_rates
+at 0, which resulted in
 
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
- | 1          =
+intel_dp_sync_state()->intel_dp_max_common_rate()
 
-qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
- | 1          =
+in a
 
-qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
- | 1          =
+intel_dp->common_rates[-1]
 
+access. This by definition results in an undefined behaviour, though to
+my best knowledge in all HW/compiler configurations it actually results
+in accessing the array item type value preceding the array. In this
+case the preceding value happens to be intel_dp->num_common_rates,
+which is 0, so this issue - by luck - didn't cause a user visible
+problem.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.286-29-g41084917ca47/plan/baseline/
+Nevertheless it's still an undefined behaviour and in CONFIG_UBSAN
+builds leads to a kernel BUG() (which revealed this problem for us),
+hence CC:stable.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.286-29-g41084917ca47
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      41084917ca47ee6ac81786261afbab9b3523df5f =
+A related problem in case the encoder is enabled but the sink is not
+connected or the DPCD readout fails is fixed by the next patch.
 
+v2: Amend the commit message describing the root cause of the
+    CONFIG_UBSAN BUG().
 
+Fixes: a532cde31de3 ("drm/i915/tc: Fix TypeC port init/resume time sanitization")
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/4297
+Reported-and-tested-by: Mat Jonczyk <mat.jonczyk@o2.pl>
+Cc: Mat Jonczyk <mat.jonczyk@o2.pl>
+Cc: José Roberto de Souza <jose.souza@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+---
+ drivers/gpu/drm/i915/display/intel_dp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Test Regressions
----------------- =
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index 9d8132dd4cc5a..23de500d56b52 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -2007,6 +2007,9 @@ void intel_dp_sync_state(struct intel_encoder *encoder,
+ {
+ 	struct intel_dp *intel_dp = enc_to_intel_dp(encoder);
+ 
++	if (!crtc_state)
++		return;
++
+ 	/*
+ 	 * Don't clobber DPCD if it's been already read out during output
+ 	 * setup (eDP) or detect.
+-- 
+2.27.0
 
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d059f35c14b90153358e2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
--29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
--29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616d059f35c14b9015335=
-8e3
-        failing since 337 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d09cad60afa6fae3358f4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
--29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
--29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616d09cad60afa6fae335=
-8f5
-        failing since 337 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d05730d2806377a3358ee
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
--29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
--29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616d05730d2806377a335=
-8ef
-        failing since 337 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =20
