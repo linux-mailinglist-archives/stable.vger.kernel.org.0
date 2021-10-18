@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 337FF431B87
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A7ED431C00
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:35:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232784AbhJRNdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:33:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43774 "EHLO mail.kernel.org"
+        id S233344AbhJRNhc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:37:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232450AbhJRNbd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:31:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1880D6128E;
-        Mon, 18 Oct 2021 13:28:48 +0000 (UTC)
+        id S231982AbhJRNfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:35:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3ACF26139F;
+        Mon, 18 Oct 2021 13:30:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563729;
-        bh=1ADLGrEstFCqSsIQZXS9I2KSEQd1t78SzVMETSn9TUI=;
+        s=korg; t=1634563839;
+        bh=LrfCRFasqvuXbG5tf0T/B1fhv+UmrMhZx2uqMllI/PU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LrdD8MjRKFkpw39VDjAQVu9kjMj/rHBgWh0Ys40mmmlX8yNmXLS2Al9HhoTQ0EqN+
-         n2hYGPVr+yFXOQtu8yxjjIdHr7sWFRuufM9KifkkI6UcJtd/Z1gQeVUoZuC5Cptf2z
-         YA+tjUDZrnRTF7n34WjinHqa1Mo44qsZdWpjKqwA=
+        b=uarbnuLjK/dNdVE0kdezGEkDwoTgbJ10ZMiLJnOYvXbGfaPgeNGpCDTS9YDQWnCkT
+         brhDyRk7CXOMo8Iliwm71Cdikm+dNZQZUuwrxNw8u7+0jD9v3XyvT1T72SA96uzOjR
+         Zrl4CitogZAqiG/lunCtC/A2qQw/cm82nUzc89cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        markver@us.ibm.com, Cornelia Huck <cohuck@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 4.19 24/50] virtio: write back F_VERSION_1 before validate
-Date:   Mon, 18 Oct 2021 15:24:31 +0200
-Message-Id: <20211018132327.338374122@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 34/69] KVM: PPC: Book3S HV: Fix stack handling in idle_kvm_start_guest()
+Date:   Mon, 18 Oct 2021 15:24:32 +0200
+Message-Id: <20211018132330.615103813@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +38,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 2f9a174f918e29608564c7a4e8329893ab604fb4 upstream.
+commit 9b4416c5095c20e110c82ae602c254099b83b72f upstream.
 
-The virtio specification virtio-v1.1-cs01 states: "Transitional devices
-MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
-been acknowledged by the driver."  This is exactly what QEMU as of 6.1
-has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
+In commit 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in
+C") kvm_start_guest() became idle_kvm_start_guest(). The old code
+allocated a stack frame on the emergency stack, but didn't use the
+frame to store anything, and also didn't store anything in its caller's
+frame.
 
-However, the specification also says: "... the driver MAY read (but MUST
-NOT write) the device-specific configuration fields to check that it can
-support the device ..." before setting FEATURES_OK.
+idle_kvm_start_guest() on the other hand is written more like a normal C
+function, it creates a frame on entry, and also stores CR/LR into its
+callers frame (per the ABI). The problem is that there is no caller
+frame on the emergency stack.
 
-In that case, any transitional device relying solely on
-VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
-legacy format.  In particular, this implies that it is in big endian
-format for big endian guests. This naturally confuses the driver which
-expects little endian in the modern mode.
+The emergency stack for a given CPU is allocated with:
 
-It is probably a good idea to amend the spec to clarify that
-VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
-is complete. Before validate callback existed, config space was only
-read after FEATURES_OK. However, we already have two regressions, so
-let's address this here as well.
+  paca_ptrs[i]->emergency_sp = alloc_stack(limit, i) + THREAD_SIZE;
 
-The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
-the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
-virtio 1.0 is used on both sides. The latter renders virtio-blk unusable
-with DASD backing, because things simply don't work with the default.
-See Fixes tags for relevant commits.
+So emergency_sp actually points to the first address above the emergency
+stack allocation for a given CPU, we must not store above it without
+first decrementing it to create a frame. This is different to the
+regular kernel stack, paca->kstack, which is initialised to point at an
+initial frame that is ready to use.
 
-For QEMU, we can work around the issue by writing out the feature bits
-with VIRTIO_F_VERSION_1 bit set.  We (ab)use the finalize_features
-config op for this. This isn't enough to address all vhost devices since
-these do not get the features until FEATURES_OK, however it looks like
-the affected devices actually never handled the endianness for legacy
-mode correctly, so at least that's not a regression.
+idle_kvm_start_guest() stores the backchain, CR and LR all of which
+write outside the allocation for the emergency stack. It then creates a
+stack frame and saves the non-volatile registers. Unfortunately the
+frame it creates is not large enough to fit the non-volatiles, and so
+the saving of the non-volatile registers also writes outside the
+emergency stack allocation.
 
-No devices except virtio net and virtio blk seem to be affected.
+The end result is that we corrupt whatever is at 0-24 bytes, and 112-248
+bytes above the emergency stack allocation.
 
-Long term the right thing to do is to fix the hypervisors.
+In practice this has gone unnoticed because the memory immediately above
+the emergency stack happens to be used for other stack allocations,
+either another CPUs mc_emergency_sp or an IRQ stack. See the order of
+calls to irqstack_early_init() and emergency_stack_init().
 
-Cc: <stable@vger.kernel.org> #v4.11
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
-Reported-by: markver@us.ibm.com
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Link: https://lore.kernel.org/r/20211011053921.1198936-1-pasic@linux.ibm.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+The low addresses of another stack are the top of that stack, and so are
+only used if that stack is under extreme pressue, which essentially
+never happens in practice - and if it did there's a high likelyhood we'd
+crash due to that stack overflowing.
+
+Still, we shouldn't be corrupting someone else's stack, and it is purely
+luck that we aren't corrupting something else.
+
+To fix it we save CR/LR into the caller's frame using the existing r1 on
+entry, we then create a SWITCH_FRAME_SIZE frame (which has space for
+pt_regs) on the emergency stack with the backchain pointing to the
+existing stack, and then finally we switch to the new frame on the
+emergency stack.
+
+Fixes: 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in C")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211015133929.832061-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virtio/virtio.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/powerpc/kvm/book3s_hv_rmhandlers.S |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -222,6 +222,17 @@ static int virtio_dev_probe(struct devic
- 		driver_features_legacy = driver_features;
- 	}
+--- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
++++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+@@ -292,13 +292,15 @@ kvm_novcpu_exit:
+  * r3 contains the SRR1 wakeup value, SRR1 is trashed.
+  */
+ _GLOBAL(idle_kvm_start_guest)
+-	ld	r4,PACAEMERGSP(r13)
+ 	mfcr	r5
+ 	mflr	r0
+-	std	r1,0(r4)
+-	std	r5,8(r4)
+-	std	r0,16(r4)
+-	subi	r1,r4,STACK_FRAME_OVERHEAD
++	std	r5, 8(r1)	// Save CR in caller's frame
++	std	r0, 16(r1)	// Save LR in caller's frame
++	// Create frame on emergency stack
++	ld	r4, PACAEMERGSP(r13)
++	stdu	r1, -SWITCH_FRAME_SIZE(r4)
++	// Switch to new frame on emergency stack
++	mr	r1, r4
+ 	SAVE_NVGPRS(r1)
  
-+	/*
-+	 * Some devices detect legacy solely via F_VERSION_1. Write
-+	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
-+	 * these when needed.
-+	 */
-+	if (drv->validate && !virtio_legacy_is_little_endian()
-+			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
-+		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
-+		dev->config->finalize_features(dev);
-+	}
-+
- 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
- 		dev->features = driver_features & device_features;
- 	else
+ 	/*
+@@ -444,10 +446,9 @@ kvm_no_guest:
+ 	/* set up r3 for return */
+ 	mfspr	r3,SPRN_SRR1
+ 	REST_NVGPRS(r1)
+-	addi	r1, r1, STACK_FRAME_OVERHEAD
+-	ld	r0, 16(r1)
+-	ld	r5, 8(r1)
+-	ld	r1, 0(r1)
++	ld	r1, 0(r1)	// Switch back to caller stack
++	ld	r0, 16(r1)	// Reload LR
++	ld	r5, 8(r1)	// Reload CR
+ 	mtlr	r0
+ 	mtcr	r5
+ 	blr
 
 
