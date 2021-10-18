@@ -2,123 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 030D4431F4B
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:17:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FAB3431F01
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:08:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232654AbhJROTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:19:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44236 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232406AbhJROTM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 10:19:12 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A581C072477
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 07:04:10 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id 5so40951705edw.7
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 07:04:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=0E8olpVuSZ+ptLyRM4c9kXpCgTo08CyV1Gik+ccxK8Q=;
-        b=OAM3sNetluUSN+ZXtPOfvehMdOJbbNh8E6w3Ry94IGVxPd0omR4tjhMRTRsoqZHUWv
-         rxsaOScA/PF9iZ1PwHBXw/nf9BelvIMhHXkM6xmbTkFa+PJNnlgx8TLHCiAorrJo5Tdz
-         bwCHCP8kHwgUXp+49PbymAjgCPiBhe86viUUtn1PLWmCPWKFMcqZvleobyVwMD4PWu84
-         oIAjMrx+9tYvCrl9D5VXSDNrZZSm1+mTZFeeg4iCKTSVFAB07sKv6VuE32YHrdg9Md0U
-         l/dQDj4Yu71gShHFpVjcPUYMySIqWSFC16VmiSDUPKXRpt6BsVOqYhwBNOwqMvcWtw4Q
-         sG0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=0E8olpVuSZ+ptLyRM4c9kXpCgTo08CyV1Gik+ccxK8Q=;
-        b=IVio57YdGXXcS1VWXK8k6vVsK4JAKeW9kW7ssC7k2Gx+ocU12LLp0QV/Y/3YGFeA/d
-         734qZlHzIsmi6V3GmhEmPZGMyWzAwPMPX8SXbjMu8Y/CVLGM5j06G2THlUb6vwejfIO5
-         3bMBbylCJ8wBGCPh9ok4HdsTjI/nfbeUf0EmP1NcX2ncA4/2tqL2H97FaqXW343vUtv+
-         4ZpbMkRZVyZRcjeE+mRmWPhyVtTMPkjZ2lvv5tP/xaGlIAJBg8kurZ/wyAMzEUcqoyhw
-         n8Up8AN9K6Yb2u0OqORbNyU188GS6f0to0O4YAH2x1MxKL0wYPykoxIlN1JJvmpm9a9R
-         ddaQ==
-X-Gm-Message-State: AOAM532Rw5kvUtohIvxZmasU3YLYszIWhLicv0zliS0fezV9szLLlVQL
-        101/68rMiEf0amNVmp9vWumqGJJSTZJzmpoExVm8Z6mozjfjXQ==
-X-Google-Smtp-Source: ABdhPJxVuRu2Z1fK8N7CfkNeKnIWrUqElja5nWSdxBUpwa8YekKdBed7ofk1v9MZUctNEkSvc5XQkju4uHDYVZdTuG8=
-X-Received: by 2002:a17:906:318b:: with SMTP id 11mr30057933ejy.493.1634565658763;
- Mon, 18 Oct 2021 07:00:58 -0700 (PDT)
+        id S234072AbhJROKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 10:10:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55570 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233284AbhJROJv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 10:09:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D89460F24;
+        Mon, 18 Oct 2021 14:07:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1634566060;
+        bh=u2Wb3sMDEmnjhwN797cZJ0tSxj9xbZZK17ZdlQ/Ot74=;
+        h=From:To:Cc:Subject:Date:From;
+        b=s9B2wLosQY4utctr8jCbf5R7MB/kdeRdXVr1AHAOzghFoUKtVYaDtFMhGwjWjvLH6
+         fhpv/GRQC8vL9pOC1FTwGXkKK6cSl8Rq5+5+/Qz3Nlswbrxieem7vGg6FVQ6n5h95G
+         wO7kpNI4BrSSV837MF69trFUY9c1e7Rr72+JpmiEZQDk2jGqpuKeghsVCdXhlPCQL8
+         DNbOlDXUWuUkZIdVVlsdAvB9SZhRRJZXVCQPZ1JknrjYAa7EfoDrN91rXvaUUcYFsE
+         qVXXoSzHrGJO8EhnTymguGwZBbrCEn794nGdy81bUDvmPcHJh3gsUGXhp+bd0nOvXe
+         kS6DC8uewwQJw==
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     Russell King <linux@armlinux.org.uk>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Antonio Terceiro <antonio.terceiro@linaro.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Sebastian Andrzej Siewior <sebastian@breakpoint.cc>,
+        Matthias Klose <doko@debian.org>, stable@vger.kernel.org,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ARM: drop cc-option fallbacks for architecture selection
+Date:   Mon, 18 Oct 2021 16:07:12 +0200
+Message-Id: <20211018140735.3714254-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 18 Oct 2021 19:30:47 +0530
-Message-ID: <CA+G9fYusztaOSJJxr5WuGOueDBaAxmerU99FSjh4Pf6JOFOQfg@mail.gmail.com>
-Subject: Queues: mdp5_crtc.c:1058:31: error: 'mdp5_crtc_get_vblank_counter'
- undeclared here (not in a function); did you mean 'mdp5_crtc_vblank_on'?
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Following build errors noticed while building Linux stable rc queue
-with gcc-11 for arm and arm64 architecture.
-  - 5.4.154 gcc-11 arm FAILED
-  - 5.4.154 gcc-11 arm64 FAILED
-  - 4.19.212 gcc-11 arm FAILED
-  - 4.19.212 gcc-11 arm64 FAILED
+From: Arnd Bergmann <arnd@arndb.de>
 
-drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c:1058:31: error:
-'mdp5_crtc_get_vblank_counter' undeclared here (not in a function);
-did you mean 'mdp5_crtc_vblank_on'?
- 1058 |         .get_vblank_counter = mdp5_crtc_get_vblank_counter,
-      |                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      |                               mdp5_crtc_vblank_on
-drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c:1059:27: error:
-'msm_crtc_enable_vblank' undeclared here (not in a function); did you
-mean 'drm_crtc_handle_vblank'?
- 1059 |         .enable_vblank  = msm_crtc_enable_vblank,
-      |                           ^~~~~~~~~~~~~~~~~~~~~~
-      |                           drm_crtc_handle_vblank
-drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c:1060:27: error:
-'msm_crtc_disable_vblank' undeclared here (not in a function); did you
-mean 'mdp5_disable_vblank'?
- 1060 |         .disable_vblank = msm_crtc_disable_vblank,
-      |                           ^~~~~~~~~~~~~~~~~~~~~~~
-      |                           mdp5_disable_vblank
-drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c:1061:10: error: 'const
-struct drm_crtc_funcs' has no member named 'get_vblank_timestamp'
- 1061 |         .get_vblank_timestamp =
-drm_crtc_vblank_helper_get_vblank_timestamp,
-      |          ^~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c:1061:33: error:
-'drm_crtc_vblank_helper_get_vblank_timestamp' undeclared here (not in
-a function)
- 1061 |         .get_vblank_timestamp =
-drm_crtc_vblank_helper_get_vblank_timestamp,
-      |
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c:1061:33: warning: excess
-elements in struct initializer
-drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c:1061:33: note: (near
-initialization for 'mdp5_crtc_no_lm_cursor_funcs')
-make[5]: *** [scripts/Makefile.build:262:
-drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.o] Error 1
-make[5]: Target '__build' not remade because of errors.
-make[4]: *** [scripts/Makefile.build:497: drivers/gpu/drm/msm] Error 2
-make[4]: Target '__build' not remade because of errors.
-make[3]: *** [scripts/Makefile.build:497: drivers/gpu/drm] Error 2
-make[3]: Target '__build' not remade because of errors.
-make[2]: *** [scripts/Makefile.build:497: drivers/gpu] Error 2
-make[2]: Target '__build' not remade because of errors.
-make[1]: *** [Makefile:1734: drivers] Error 2
-make[1]: Target '_all' not remade because of errors.
-make: *** [Makefile:179: sub-make] Error 2
+Naresh and Antonio ran into a build failure with latest Debian
+armhf compilers, with lots of output like
 
+ tmp/ccY3nOAs.s:2215: Error: selected processor does not support `cpsid i' in ARM mode
 
-Build config:
-https://builds.tuxbuild.com/1zgK0LewhdaH7jb2PYiEaTFPgT9/config
+As it turns out, $(cc-option) fails early here when the FPU is not
+selected before CPU architecture is selected, as the compiler
+option check runs before enabling -msoft-float, which causes
+a problem when testing a target architecture level without an FPU:
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+cc1: error: '-mfloat-abi=hard': selected architecture lacks an FPU
 
+Passing e.g. -march=armv6k+fp in place of -march=armv6k would avoid this
+issue, but the fallback logic is already broken because all supported
+compilers (gcc-5 and higher) are much more recent than these options,
+and building with -march=armv5t as a fallback no longer works.
 
-steps to reproduce:
-https://builds.tuxbuild.com/1zgK0LewhdaH7jb2PYiEaTFPgT9/tuxmake_reproducer.sh
+The best way forward that I see is to just remove all the checks, which
+also has the nice side-effect of slightly improving the startup time for
+'make'.
 
---
-Linaro LKFT
-https://lkft.linaro.org
+The -mtune=marvell-f option was apparently never supported by any mainline
+compiler, and the custom Codesourcery gcc build that did support is
+now too old to build kernels, so just use -mtune=xscale unconditionally
+for those.
+
+This should be safe to apply on all stable kernels, and will be required
+in order to keep building them with gcc-11 and higher.
+
+Reported-by: Antonio Terceiro <antonio.terceiro@linaro.org>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reported-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=996419
+Cc: Matthias Klose <doko@debian.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/arm/Makefile | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/arch/arm/Makefile b/arch/arm/Makefile
+index 847c31e7c368..fa45837b8065 100644
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -60,15 +60,15 @@ KBUILD_CFLAGS	+= $(call cc-option,-fno-ipa-sra)
+ # Note that GCC does not numerically define an architecture version
+ # macro, but instead defines a whole series of macros which makes
+ # testing for a specific architecture or later rather impossible.
+-arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m -Wa,-march=armv7-m
+-arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
+-arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6,-march=armv5t -Wa$(comma)-march=armv6)
++arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m
++arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 -march=armv7-a
++arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 -march=armv6
+ # Only override the compiler option if ARMv6. The ARMv6K extensions are
+ # always available in ARMv7
+ ifeq ($(CONFIG_CPU_32v6),y)
+-arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6k,-march=armv5t -Wa$(comma)-march=armv6k)
++arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 -march=armv6k
+ endif
+-arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5te,-march=armv4t)
++arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 -march=armv5te
+ arch-$(CONFIG_CPU_32v4T)	=-D__LINUX_ARM_ARCH__=4 -march=armv4t
+ arch-$(CONFIG_CPU_32v4)		=-D__LINUX_ARM_ARCH__=4 -march=armv4
+ arch-$(CONFIG_CPU_32v3)		=-D__LINUX_ARM_ARCH__=3 -march=armv3m
+@@ -82,7 +82,7 @@ tune-$(CONFIG_CPU_ARM720T)	=-mtune=arm7tdmi
+ tune-$(CONFIG_CPU_ARM740T)	=-mtune=arm7tdmi
+ tune-$(CONFIG_CPU_ARM9TDMI)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_ARM940T)	=-mtune=arm9tdmi
+-tune-$(CONFIG_CPU_ARM946E)	=$(call cc-option,-mtune=arm9e,-mtune=arm9tdmi)
++tune-$(CONFIG_CPU_ARM946E)	=-mtune=arm9e
+ tune-$(CONFIG_CPU_ARM920T)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_ARM922T)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_ARM925T)	=-mtune=arm9tdmi
+@@ -90,11 +90,11 @@ tune-$(CONFIG_CPU_ARM926T)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_FA526)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_SA110)	=-mtune=strongarm110
+ tune-$(CONFIG_CPU_SA1100)	=-mtune=strongarm1100
+-tune-$(CONFIG_CPU_XSCALE)	=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
+-tune-$(CONFIG_CPU_XSC3)		=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
+-tune-$(CONFIG_CPU_FEROCEON)	=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
+-tune-$(CONFIG_CPU_V6)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
+-tune-$(CONFIG_CPU_V6K)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
++tune-$(CONFIG_CPU_XSCALE)	=-mtune=xscale
++tune-$(CONFIG_CPU_XSC3)		=-mtune=xscale
++tune-$(CONFIG_CPU_FEROCEON)	=-mtune=xscale
++tune-$(CONFIG_CPU_V6)		=-mtune=arm1136j-s
++tune-$(CONFIG_CPU_V6K)		=-mtune=arm1136j-s
+ 
+ # Evaluate tune cc-option calls now
+ tune-y := $(tune-y)
+-- 
+2.29.2
+
