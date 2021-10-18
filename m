@@ -2,117 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B91944313BF
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:42:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF0324313E2
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:56:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231699AbhJRJoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 05:44:55 -0400
-Received: from mga07.intel.com ([134.134.136.100]:21934 "EHLO mga07.intel.com"
+        id S229629AbhJRJ7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 05:59:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231493AbhJRJov (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 05:44:51 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10140"; a="291682969"
-X-IronPort-AV: E=Sophos;i="5.85,381,1624345200"; 
-   d="scan'208";a="291682969"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2021 02:42:03 -0700
-X-IronPort-AV: E=Sophos;i="5.85,381,1624345200"; 
-   d="scan'208";a="493516730"
-Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2021 02:42:02 -0700
-From:   Imre Deak <imre.deak@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org
-Subject: [PATCH 3/6] drm/i915/dp: Ensure max link params are always valid
-Date:   Mon, 18 Oct 2021 12:41:51 +0300
-Message-Id: <20211018094154.1407705-4-imre.deak@intel.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20211018094154.1407705-1-imre.deak@intel.com>
-References: <20211018094154.1407705-1-imre.deak@intel.com>
+        id S229548AbhJRJ7E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 05:59:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91F7160FD7;
+        Mon, 18 Oct 2021 09:56:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1634551013;
+        bh=IhQIyPPB3L8GKihYwDq1WxgnwUAIXE6Tq7OHoiD8sqY=;
+        h=Subject:To:Cc:From:Date:From;
+        b=ISaNmm2IsCBz1qEZTefRuzA5yWGwOYZdTUkM7qKbNdRkvTvxVrM7zeVdOnpfxt0Xu
+         nXqQ/YLwkKdd75vqGTBmsHSZpypzaoQshUS8IqhCN3nGsDLARtq7Rap+RjRmFkqIKl
+         sMJ48ndF5QWqBZWDc8INyiYB6UGp0JB3MCldfeNo=
+Subject: FAILED: patch "[PATCH] misc: fastrpc: Add missing lock before accessing find_vma()" failed to apply to 5.4-stable tree
+To:     srinivas.kandagatla@linaro.org, gregkh@linuxfoundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 Oct 2021 11:55:43 +0200
+Message-ID: <1634550943149112@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Atm until the DPCD for a connector is read the max link rate and lane
-count params are invalid. If the connector is modeset, in
-intel_dp_compute_config(), intel_dp_common_len_rate_limit(max_link_rate)
-will return 0, leading to a intel_dp->common_rates[-1] access.
 
-Fix the above by making sure the max link params are always valid.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-The above access leads to an undefined behaviour by definition, though
-not causing a user visible problem to my best knowledge, see the previous
-patch why. Nevertheless it is an undefined behaviour and it triggers a
-BUG() in CONFIG_UBSAN builds, hence CC:stable.
+thanks,
 
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Imre Deak <imre.deak@intel.com>
----
- drivers/gpu/drm/i915/display/intel_dp.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+greg k-h
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-index 153ae944a354b..1935eb49f9574 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -1864,6 +1864,12 @@ void intel_dp_set_link_params(struct intel_dp *intel_dp,
- 	intel_dp->lane_count = lane_count;
- }
+------------------ original commit in Linus's tree ------------------
+
+From f9a470db2736b01538ad193c316eb3f26be37d58 Mon Sep 17 00:00:00 2001
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Date: Wed, 22 Sep 2021 16:43:26 +0100
+Subject: [PATCH] misc: fastrpc: Add missing lock before accessing find_vma()
+
+fastrpc driver is using find_vma() without any protection, as a
+result we see below warning due to recent patch 5b78ed24e8ec
+("mm/pagemap: add mmap_assert_locked() annotations to find_vma*()")
+which added mmap_assert_locked() in find_vma() function.
+
+This bug went un-noticed in previous versions. Fix this issue by adding
+required protection while calling find_vma().
+
+CPU: 0 PID: 209746 Comm: benchmark_model Not tainted 5.15.0-rc2-00445-ge14fe2bf817a-dirty #969
+Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
+pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : find_vma+0x64/0xd0
+lr : find_vma+0x60/0xd0
+sp : ffff8000158ebc40
+...
+
+Call trace:
+ find_vma+0x64/0xd0
+ fastrpc_internal_invoke+0x570/0xda8
+ fastrpc_device_ioctl+0x3e0/0x928
+ __arm64_sys_ioctl+0xac/0xf0
+ invoke_syscall+0x44/0x100
+ el0_svc_common.constprop.3+0x70/0xf8
+ do_el0_svc+0x24/0x88
+ el0_svc+0x3c/0x138
+ el0t_64_sync_handler+0x90/0xb8
+ el0t_64_sync+0x180/0x184
+
+Fixes: 80f3afd72bd4 ("misc: fastrpc: consider address offset before sending to DSP")
+Cc: stable@vger.kernel.org
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210922154326.8927-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
+index beda610e6b30..ad6ced454655 100644
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -814,10 +814,12 @@ static int fastrpc_get_args(u32 kernel, struct fastrpc_invoke_ctx *ctx)
+ 			rpra[i].pv = (u64) ctx->args[i].ptr;
+ 			pages[i].addr = ctx->maps[i]->phys;
  
-+static void intel_dp_reset_max_link_params(struct intel_dp *intel_dp)
-+{
-+	intel_dp->max_link_lane_count = intel_dp_max_common_lane_count(intel_dp);
-+	intel_dp->max_link_rate = intel_dp_max_common_rate(intel_dp);
-+}
-+
- /* Enable backlight PWM and backlight PP control. */
- void intel_edp_backlight_on(const struct intel_crtc_state *crtc_state,
- 			    const struct drm_connector_state *conn_state)
-@@ -2023,8 +2029,7 @@ void intel_dp_sync_state(struct intel_encoder *encoder,
- 	if (intel_dp->dpcd[DP_DPCD_REV] == 0)
- 		intel_dp_get_dpcd(intel_dp);
++			mmap_read_lock(current->mm);
+ 			vma = find_vma(current->mm, ctx->args[i].ptr);
+ 			if (vma)
+ 				pages[i].addr += ctx->args[i].ptr -
+ 						 vma->vm_start;
++			mmap_read_unlock(current->mm);
  
--	intel_dp->max_link_lane_count = intel_dp_max_common_lane_count(intel_dp);
--	intel_dp->max_link_rate = intel_dp_max_common_rate(intel_dp);
-+	intel_dp_reset_max_link_params(intel_dp);
- }
- 
- bool intel_dp_initial_fastset_check(struct intel_encoder *encoder,
-@@ -2597,6 +2602,7 @@ intel_edp_init_dpcd(struct intel_dp *intel_dp)
- 		intel_dp_set_sink_rates(intel_dp);
- 
- 	intel_dp_set_common_rates(intel_dp);
-+	intel_dp_reset_max_link_params(intel_dp);
- 
- 	/* Read the eDP DSC DPCD registers */
- 	if (DISPLAY_VER(dev_priv) >= 10)
-@@ -4338,12 +4344,7 @@ intel_dp_detect(struct drm_connector *connector,
- 	 * supports link training fallback params.
- 	 */
- 	if (intel_dp->reset_link_params || intel_dp->is_mst) {
--		/* Initial max link lane count */
--		intel_dp->max_link_lane_count = intel_dp_max_common_lane_count(intel_dp);
--
--		/* Initial max link rate */
--		intel_dp->max_link_rate = intel_dp_max_common_rate(intel_dp);
--
-+		intel_dp_reset_max_link_params(intel_dp);
- 		intel_dp->reset_link_params = false;
- 	}
- 
-@@ -5011,6 +5012,7 @@ intel_dp_init_connector(struct intel_digital_port *dig_port,
- 	intel_dp_set_source_rates(intel_dp);
- 	intel_dp_set_default_sink_rates(intel_dp);
- 	intel_dp_set_common_rates(intel_dp);
-+	intel_dp_reset_max_link_params(intel_dp);
- 
- 	if (IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv))
- 		intel_dp->pps.active_pipe = vlv_active_pipe(intel_dp);
--- 
-2.27.0
+ 			pg_start = (ctx->args[i].ptr & PAGE_MASK) >> PAGE_SHIFT;
+ 			pg_end = ((ctx->args[i].ptr + len - 1) & PAGE_MASK) >>
 
