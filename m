@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25C82431DF2
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6303D431C97
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232692AbhJRN4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:56:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56112 "EHLO mail.kernel.org"
+        id S233332AbhJRNmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:42:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234489AbhJRNx5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:53:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B223E619EA;
-        Mon, 18 Oct 2021 13:39:31 +0000 (UTC)
+        id S233637AbhJRNkm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:40:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 698C3613A6;
+        Mon, 18 Oct 2021 13:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564372;
-        bh=lXLlfCbQtkhdbVNrtf5/tFKWDC0fpl7Ovh1a+dwRxO0=;
+        s=korg; t=1634563998;
+        bh=1vCC8JmW3qUGBvIvH+VBwtplxGM1bASbw/+PNV10B94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KHXL6IC6WUbMSFBuBn1rAl2u/GVMhujQgZBuGj0EqzeugmjKuWVh7HC8GJeRIJT6i
-         b+wiFaH22xGs7XH8jOAPQESpqq9J7qQJr5kz0aEebCriunM+ye0tXDYp68waudikkl
-         W999DDzfUixgqNYefVTJ5pcFW3mu0RW1EjK5wOn8=
+        b=ORhz78yWVQ+EVp3m/EoA/ZYZOzXaze2eHbeTL8qBwtpOkJnRyVnTOQTeh/tXzm9ys
+         O0Tj7qvxg3bHgjNkr9krzCuDR2RnmgJnjRoSPYP7pz27XD+aR6iBAlvYg5MplzXgmU
+         miChLUYG/02s1g/pMIGQhPMioTBiJu3+YeXx2AB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Borislav Petkov <bp@suse.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 5.14 063/151] x86/Kconfig: Do not enable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT automatically
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.10 026/103] mei: me: add Ice Lake-N device id.
 Date:   Mon, 18 Oct 2021 15:24:02 +0200
-Message-Id: <20211018132342.745738031@linuxfoundation.org>
+Message-Id: <20211018132335.590361709@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 711885906b5c2df90746a51f4cd674f1ab9fbb1d upstream.
+commit 75c10c5e7a715550afdd51ef8cfd1d975f48f9e1 upstream.
 
-This Kconfig option was added initially so that memory encryption is
-enabled by default on machines which support it.
+Add Ice Lake-N device ID.
 
-However, devices which have DMA masks that are less than the bit
-position of the encryption bit, aka C-bit, require the use of an IOMMU
-or the use of SWIOTLB.
+The device can be found on MacBookPro16,2 [1].
 
-If the IOMMU is disabled or in passthrough mode, the kernel would switch
-to SWIOTLB bounce-buffering for those transfers.
+[1]: https://linux-hardware.org/?probe=f1c5cf0c43
 
-In order to avoid that,
-
-  2cc13bb4f59f ("iommu: Disable passthrough mode when SME is active")
-
-disables the default IOMMU passthrough mode so that devices for which the
-default 256K DMA is insufficient, can use the IOMMU instead.
-
-However 2, there are cases where the IOMMU is disabled in the BIOS, etc.
-(think the usual hardware folk "oops, I dropped the ball there" cases) or a
-driver doesn't properly use the DMA APIs or a device has a firmware or
-hardware bug, e.g.:
-
-  ea68573d408f ("drm/amdgpu: Fail to load on RAVEN if SME is active")
-
-However 3, in the above GPU use case, there are APIs like Vulkan and
-some OpenGL/OpenCL extensions which are under the assumption that
-user-allocated memory can be passed in to the kernel driver and both the
-GPU and CPU can do coherent and concurrent access to the same memory.
-That cannot work with SWIOTLB bounce buffers, of course.
-
-So, in order for those devices to function, drop the "default y" for the
-SME by default active option so that users who want to have SME enabled,
-will need to either enable it in their config or use "mem_encrypt=on" on
-the kernel command line.
-
- [ tlendacky: Generalize commit message. ]
-
-Fixes: 7744ccdbc16f ("x86/mm: Add Secure Memory Encryption (SME) support")
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/8bbacd0e-4580-3194-19d2-a0ecad7df09c@molgen.mpg.de
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211001173644.16068-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/Kconfig |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/misc/mei/hw-me-regs.h |    1 +
+ drivers/misc/mei/pci-me.c     |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1520,7 +1520,6 @@ config AMD_MEM_ENCRYPT
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -92,6 +92,7 @@
+ #define MEI_DEV_ID_CDF        0x18D3  /* Cedar Fork */
  
- config AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
- 	bool "Activate AMD Secure Memory Encryption (SME) by default"
--	default y
- 	depends on AMD_MEM_ENCRYPT
- 	help
- 	  Say yes to have system memory encrypted by default if running on
+ #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
++#define MEI_DEV_ID_ICP_N      0x38E0  /* Ice Lake Point N */
+ 
+ #define MEI_DEV_ID_JSP_N      0x4DE0  /* Jasper Lake Point N */
+ 
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -96,6 +96,7 @@ static const struct pci_device_id mei_me
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H_3, MEI_ME_PCH8_ITOUCH_CFG)},
+ 
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_N, MEI_ME_PCH12_CFG)},
+ 
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_TGP_LP, MEI_ME_PCH15_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_TGP_H, MEI_ME_PCH15_SPS_CFG)},
 
 
