@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C01E8431C9D
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5D89431BDB
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233403AbhJRNmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:42:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35670 "EHLO mail.kernel.org"
+        id S233186AbhJRNfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:35:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233591AbhJRNks (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:40:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1EA361354;
-        Mon, 18 Oct 2021 13:33:28 +0000 (UTC)
+        id S232706AbhJRNeK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:34:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C145661352;
+        Mon, 18 Oct 2021 13:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564009;
-        bh=/awy34kJy4IbzjAmDuVQRImRg06SYH2OxxPFIPT1nuc=;
+        s=korg; t=1634563799;
+        bh=6Vp21lSexe6z120mdDelmfwJ35ap7XXTqN+VwLxH3y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oMM9n6bo5+9Cl+YRCCA20EdLJTKojtZ22p6aMe46Owofs+sP9QsNZOes3kBh3eu1I
-         q3d+1jW4hQKYKbss/UT8bjyrKKZ8IdDFy1JZPDAEMdsc55BQzRNY2zHa4wsA8wmTot
-         /5BW7OX/136+fd6wzW+4etqNUcGUw8spUQBt4LhE=
+        b=Ke8yEoa1dwy6wAPWPbFgIWk4xCdmx4lVbtZeRfg7S8ru9PSn0TI/kB0V+M1tQZay9
+         L6OL89L8VWjvRNjo/7zHq65QpHYJ0RwVVHaMUPsnohe4NDm/10ohVDFuDl7GougyEe
+         Bj1cl7J5Dpe8k7UbxiOF9J/F7qmCLwPU9X0tYRL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Martynov <mar.kolya@gmail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 030/103] xhci: Enable trust tx length quirk for Fresco FL11 USB controller
+        stable@vger.kernel.org, Greentime Hu <green.hu@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 08/69] nds32/ftrace: Fix Error: invalid operands (*UND* and *UND* sections) for `^
 Date:   Mon, 18 Oct 2021 15:24:06 +0200
-Message-Id: <20211018132335.734084429@linuxfoundation.org>
+Message-Id: <20211018132329.735104300@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Martynov <mar.kolya@gmail.com>
+From: Steven Rostedt <rostedt@goodmis.org>
 
-commit ea0f69d8211963c4b2cc1998b86779a500adb502 upstream.
+commit be358af1191b1b2fedebd8f3421cafdc8edacc7d upstream.
 
-Tested on SD5200T TB3 dock which has Fresco Logic FL1100 USB 3.0 Host
-Controller.
-Before this patch streaming video from USB cam made mouse and keyboard
-connected to the same USB bus unusable. Also video was jerky.
-With this patch streaming video doesn't have any effect on other
-periferals and video is smooth.
+I received a build failure for a new patch I'm working on the nds32
+architecture, and when I went to test it, I couldn't get to my build error,
+because it failed to build with a bunch of:
+
+  Error: invalid operands (*UND* and *UND* sections) for `^'
+
+issues with various files. Those files were temporary asm files that looked
+like:  kernel/.tmp_mc_fork.s
+
+I decided to look deeper, and found that the "mc" portion of that name
+stood for "mcount", and was created by the recordmcount.pl script. One that
+I wrote over a decade ago. Once I knew the source of the problem, I was
+able to investigate it further.
+
+The way the recordmcount.pl script works (BTW, there's a C version that
+simply modifies the ELF object) is by doing an "objdump" on the object
+file. Looks for all the calls to "mcount", and creates an offset of those
+locations from some global variable it can use (usually a global function
+name, found with <.*>:). Creates a asm file that is a table of references
+to these locations, using the found variable/function. Compiles it and
+links it back into the original object file. This asm file is called
+".tmp_mc_<object_base_name>.s".
+
+The problem here is that the objdump produced by the nds32 object file,
+contains things that look like:
+
+ 0000159a <.L3^B1>:
+    159a:       c6 00           beqz38 $r6, 159a <.L3^B1>
+                        159a: R_NDS32_9_PCREL_RELA      .text+0x159e
+    159c:       84 d2           movi55 $r6, #-14
+    159e:       80 06           mov55 $r0, $r6
+    15a0:       ec 3c           addi10.sp #0x3c
+
+Where ".L3^B1 is somehow selected as the "global" variable to index off of.
+
+Then the assembly file that holds the mcount locations looks like this:
+
+        .section __mcount_loc,"a",@progbits
+        .align 2
+        .long .L3^B1 + -5522
+        .long .L3^B1 + -5384
+        .long .L3^B1 + -5270
+        .long .L3^B1 + -5098
+        .long .L3^B1 + -4970
+        .long .L3^B1 + -4758
+        .long .L3^B1 + -4122
+        [...]
+
+And when it is compiled back to an object to link to the original object,
+the compile fails on the "^" symbol.
+
+Simple solution for now, is to have the perl script ignore using function
+symbols that have an "^" in the name.
+
+Link: https://lkml.kernel.org/r/20211014143507.4ad2c0f7@gandalf.local.home
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Nikolay Martynov <mar.kolya@gmail.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211008092547.3996295-6-mathias.nyman@linux.intel.com
+Acked-by: Greentime Hu <green.hu@gmail.com>
+Fixes: fbf58a52ac088 ("nds32/ftrace: Add RECORD_MCOUNT support")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci.c |    2 ++
- 1 file changed, 2 insertions(+)
+ scripts/recordmcount.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -30,6 +30,7 @@
- #define PCI_VENDOR_ID_FRESCO_LOGIC	0x1b73
- #define PCI_DEVICE_ID_FRESCO_LOGIC_PDK	0x1000
- #define PCI_DEVICE_ID_FRESCO_LOGIC_FL1009	0x1009
-+#define PCI_DEVICE_ID_FRESCO_LOGIC_FL1100	0x1100
- #define PCI_DEVICE_ID_FRESCO_LOGIC_FL1400	0x1400
- 
- #define PCI_VENDOR_ID_ETRON		0x1b6f
-@@ -112,6 +113,7 @@ static void xhci_pci_quirks(struct devic
- 	/* Look for vendor-specific quirks */
- 	if (pdev->vendor == PCI_VENDOR_ID_FRESCO_LOGIC &&
- 			(pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_PDK ||
-+			 pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1100 ||
- 			 pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1400)) {
- 		if (pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_PDK &&
- 				pdev->revision == 0x0) {
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -222,7 +222,7 @@ if ($arch =~ /(x86(_64)?)|(i386)/) {
+ $local_regex = "^[0-9a-fA-F]+\\s+t\\s+(\\S+)";
+ $weak_regex = "^[0-9a-fA-F]+\\s+([wW])\\s+(\\S+)";
+ $section_regex = "Disassembly of section\\s+(\\S+):";
+-$function_regex = "^([0-9a-fA-F]+)\\s+<(.*?)>:";
++$function_regex = "^([0-9a-fA-F]+)\\s+<([^^]*?)>:";
+ $mcount_regex = "^\\s*([0-9a-fA-F]+):.*\\s(mcount|__fentry__)\$";
+ $section_type = '@progbits';
+ $mcount_adjust = 0;
 
 
