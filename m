@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 453FF431DBD
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70FB5431DC0
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233806AbhJRNye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:54:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56732 "EHLO mail.kernel.org"
+        id S233981AbhJRNyl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:54:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234116AbhJRNwd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:52:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78F2061381;
-        Mon, 18 Oct 2021 13:38:49 +0000 (UTC)
+        id S234287AbhJRNwj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:52:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F21BD6197A;
+        Mon, 18 Oct 2021 13:38:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564329;
-        bh=D9VwApYEqHKpSLReLdDLcfcGkIsVyjtRW/I6FbVQjvU=;
+        s=korg; t=1634564332;
+        bh=q3lh+gjflrBJV2rRqgypOb877B06Z8aBqZPWVjeDlFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUuPgaPtAgD0UHl05XcE+fm2t9lT9qFI3dnkPH8OBEn/5EVLgATz0+J3T9zSuq8Ld
-         tdkf0ixvkpxlk9GIW6mHlWFbK657mfTu+EWF7Jj11KVnb4+QuRopzZ0aRljyYkWJ7/
-         EySDUFb8apXK7n6/DHDuYGAY76+wLEQTxkaUk+Qo=
+        b=xlzsgKwMihJHm3v+UbnoKADO7zZnsxo9bmqqgLGZuK7Aqnxnnr+CYZ0YTYppsOPO4
+         z5twLp35+P1KhAz0w74mSttNceJZbd9bqGMaGKs1CBD3C7eG3A882SwH4XX8dGGH+s
+         eCAHSianssJyyZ3x62/jX2n07SjhZja7k9uxYAdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Michael Cullen <michael@michaelcullen.name>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.14 049/151] Input: xpad - add support for another USB ID of Nacon GC-100
-Date:   Mon, 18 Oct 2021 15:23:48 +0200
-Message-Id: <20211018132342.290000692@linuxfoundation.org>
+        Aleksander Morgado <aleksander@aleksander.es>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.14 050/151] USB: serial: qcserial: add EM9191 QDL support
+Date:   Mon, 18 Oct 2021 15:23:49 +0200
+Message-Id: <20211018132342.320923979@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -40,39 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Cullen <michael@michaelcullen.name>
+From: Aleksander Morgado <aleksander@aleksander.es>
 
-commit 3378a07daa6cdd11e042797454c706d1c69f9ca6 upstream.
+commit 11c52d250b34a0862edc29db03fbec23b30db6da upstream.
 
-The Nacon GX100XF is already mapped, but it seems there is a Nacon
-GC-100 (identified as NC5136Wht PCGC-100WHITE though I believe other
-colours exist) with a different USB ID when in XInput mode.
+When the module boots into QDL download mode it exposes the 1199:90d2
+ids, which can be mapped to the qcserial driver, and used to run
+firmware upgrades (e.g. with the qmi-firmware-update program).
 
-Signed-off-by: Michael Cullen <michael@michaelcullen.name>
-Link: https://lore.kernel.org/r/20211015192051.5196-1-michael@michaelcullen.name
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+  T:  Bus=01 Lev=03 Prnt=08 Port=03 Cnt=01 Dev#= 10 Spd=480 MxCh= 0
+  D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+  P:  Vendor=1199 ProdID=90d2 Rev=00.00
+  S:  Manufacturer=Sierra Wireless, Incorporated
+  S:  Product=Sierra Wireless EM9191
+  S:  SerialNumber=8W0382004102A109
+  C:  #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=2mA
+  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=10 Driver=qcserial
+
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/qcserial.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -334,6 +334,7 @@ static const struct xpad_device {
- 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
-+	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
- 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
- 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
- 	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
-@@ -451,6 +452,7 @@ static const struct usb_device_id xpad_t
- 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
- 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
- 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
-+	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
- 	{ }
- };
- 
+--- a/drivers/usb/serial/qcserial.c
++++ b/drivers/usb/serial/qcserial.c
+@@ -165,6 +165,7 @@ static const struct usb_device_id id_tab
+ 	{DEVICE_SWI(0x1199, 0x907b)},	/* Sierra Wireless EM74xx */
+ 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
+ 	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
++	{DEVICE_SWI(0x1199, 0x90d2)},	/* Sierra Wireless EM9191 QDL */
+ 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
 
 
