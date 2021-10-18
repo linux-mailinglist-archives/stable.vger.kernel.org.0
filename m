@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1E5B431DA6
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0EB7431DD6
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231921AbhJRNyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:54:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49552 "EHLO mail.kernel.org"
+        id S234168AbhJRNzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:55:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232135AbhJRNvV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:51:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30ECB61881;
-        Mon, 18 Oct 2021 13:38:07 +0000 (UTC)
+        id S233312AbhJRNvW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:51:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2237A61373;
+        Mon, 18 Oct 2021 13:38:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564287;
-        bh=6eDWqturCmIhUGp+VhapVzWSFy+VSIdEuKRe4eOMXrs=;
+        s=korg; t=1634564290;
+        bh=XXmYJ/KmGggVKdnQNRtRgHP8Nn6CbOwtaolpkh7pwsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFatlLCm1jd6Exn8QACLvRboKjI1x1OfONGBNbPBQKWu2gwi0/+ryshHFx+vPy7KN
-         zJOIE5QJc0M0L9VZXKHc+AGhtLzWe+/gQ+Dzhj0N4kLeSLylie33k2voZl1C4hvPJM
-         5sFR1ZnmVvYYkn7t//NZ/51yNDQG81FWg/aEiYwY=
+        b=FAeDDzT/90qs+CVjIiZIOKUtbyZD6YTHsmdxJJySOys0H8gajjACMFo9Qu5Ys2EXb
+         j5XDJ+MZCFBiyptflcTSy3njGb9sCX001CaENdtrOE2sQ48TAN04sbFGd0nbrqgl6Y
+         T78qJ+k88Tm24ogwcOHfoYVKPAG+Xhzij4J8jKqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        John Keeping <john@metanate.com>
-Subject: [PATCH 5.14 004/151] ALSA: seq: Fix a potential UAF by wrong private_free call order
-Date:   Mon, 18 Oct 2021 15:23:03 +0200
-Message-Id: <20211018132340.829520377@linuxfoundation.org>
+        stable@vger.kernel.org, John Liu <johnliu55tw@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.14 005/151] ALSA: hda/realtek: Enable 4-speaker output for Dell Precision 5560 laptop
+Date:   Mon, 18 Oct 2021 15:23:04 +0200
+Message-Id: <20211018132340.862476900@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -39,59 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: John Liu <johnliu55tw@gmail.com>
 
-commit 1f8763c59c4ec6254d629fe77c0a52220bd907aa upstream.
+commit eb676622846b34a751e2ff9b5910a5322a4e0000 upstream.
 
-John Keeping reported and posted a patch for a potential UAF in
-rawmidi sequencer destruction: the snd_rawmidi_dev_seq_free() may be
-called after the associated rawmidi object got already freed.
-After a deeper look, it turned out that the bug is rather the
-incorrect private_free call order for a snd_seq_device.  The
-snd_seq_device private_free gets called at the release callback of the
-sequencer device object, while this was rather expected to be executed
-at the snd_device call chains that runs at the beginning of the whole
-card-free procedure.  It's been broken since the rewrite of
-sequencer-device binding (although it hasn't surfaced because the
-sequencer device release happens usually right along with the card
-device release).
+The Dell Precision 5560 laptop appears to use the 4-speakers-on-ALC289
+audio just like its sibling product XPS 9510, so it requires the same
+quirk to enable woofer output. Tested on my Dell Precision 5560.
 
-This patch corrects the private_free call to be done in the right
-place, at snd_seq_device_dev_free().
-
-Fixes: 7c37ae5c625a ("ALSA: seq: Rewrite sequencer device binding with standard bus")
-Reported-and-tested-by: John Keeping <john@metanate.com>
+Signed-off-by: John Liu <johnliu55tw@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210930114114.8645-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20210930115316.659-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/seq_device.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/seq_device.c
-+++ b/sound/core/seq_device.c
-@@ -156,6 +156,8 @@ static int snd_seq_device_dev_free(struc
- 	struct snd_seq_device *dev = device->device_data;
- 
- 	cancel_autoload_drivers();
-+	if (dev->private_free)
-+		dev->private_free(dev);
- 	put_device(&dev->dev);
- 	return 0;
- }
-@@ -183,11 +185,7 @@ static int snd_seq_device_dev_disconnect
- 
- static void snd_seq_dev_release(struct device *dev)
- {
--	struct snd_seq_device *sdev = to_seq_dev(dev);
--
--	if (sdev->private_free)
--		sdev->private_free(sdev);
--	kfree(sdev);
-+	kfree(to_seq_dev(dev));
- }
- 
- /*
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8465,6 +8465,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1028, 0x0a30, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0a58, "Dell", ALC255_FIXUP_DELL_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1028, 0x0a61, "Dell XPS 15 9510", ALC289_FIXUP_DUAL_SPK),
++	SND_PCI_QUIRK(0x1028, 0x0a62, "Dell Precision 5560", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
 
 
