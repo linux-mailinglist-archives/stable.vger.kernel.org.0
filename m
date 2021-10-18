@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C92A8431E28
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E254431BF0
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:34:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234827AbhJRN6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:58:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59060 "EHLO mail.kernel.org"
+        id S231814AbhJRNgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:36:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234474AbhJRN4T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:56:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8222761A07;
-        Mon, 18 Oct 2021 13:40:27 +0000 (UTC)
+        id S232753AbhJRNe4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:34:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E13B86058D;
+        Mon, 18 Oct 2021 13:30:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564428;
-        bh=fwWc1vHc++P7U8++KRpjhEkjrQAy4ulOHvPESQ1xhfw=;
+        s=korg; t=1634563819;
+        bh=q3lh+gjflrBJV2rRqgypOb877B06Z8aBqZPWVjeDlFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y81LCEA6RAuFm6f/IX599cR4aKiaG296Ao0W0rBahl8aUG6sMQuOe7I9LzJXcTcHq
-         1+513bCrZdY67ITMiSisz2+v08LFrLIYcnmPf5SaCnrCLoZ7oBuS835pDfLl9Ohoct
-         GsuQIfI9J7X7hWQ/Le5H76IG0/XKO4iz10BPIIMY=
+        b=WDhW7Wj5XPEXzbZfLEojKyCg7KGCRDohtRO5f434J7IvNiuzyw7SbWoZif11TkqgX
+         Msa6xApGrwvi+kjjY6CGV9QqUK2/2fFomlXyz7tkbjUCnoZUrryO7zlRu9qlQaLTNi
+         zjczeaEQUV70wsCJvs4kxqYAxnY3+kKtc9cNKBDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.14 086/151] iio: dac: ti-dac5571: fix an error code in probe()
+        stable@vger.kernel.org,
+        Aleksander Morgado <aleksander@aleksander.es>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 27/69] USB: serial: qcserial: add EM9191 QDL support
 Date:   Mon, 18 Oct 2021 15:24:25 +0200
-Message-Id: <20211018132343.488553361@linuxfoundation.org>
+Message-Id: <20211018132330.363134228@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Aleksander Morgado <aleksander@aleksander.es>
 
-commit f7a28df7db84eb3410e9eca37832efa5aed93338 upstream.
+commit 11c52d250b34a0862edc29db03fbec23b30db6da upstream.
 
-If we have an unexpected number of channels then return -EINVAL instead
-of returning success.
+When the module boots into QDL download mode it exposes the 1199:90d2
+ids, which can be mapped to the qcserial driver, and used to run
+firmware upgrades (e.g. with the qmi-firmware-update program).
 
-Fixes: df38a4a72a3b ("iio: dac: add TI DAC5571 family support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20210816183954.GB2068@kili
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+  T:  Bus=01 Lev=03 Prnt=08 Port=03 Cnt=01 Dev#= 10 Spd=480 MxCh= 0
+  D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+  P:  Vendor=1199 ProdID=90d2 Rev=00.00
+  S:  Manufacturer=Sierra Wireless, Incorporated
+  S:  Product=Sierra Wireless EM9191
+  S:  SerialNumber=8W0382004102A109
+  C:  #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=2mA
+  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=10 Driver=qcserial
+
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/dac/ti-dac5571.c |    1 +
+ drivers/usb/serial/qcserial.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/iio/dac/ti-dac5571.c
-+++ b/drivers/iio/dac/ti-dac5571.c
-@@ -350,6 +350,7 @@ static int dac5571_probe(struct i2c_clie
- 		data->dac5571_pwrdwn = dac5571_pwrdwn_quad;
- 		break;
- 	default:
-+		ret = -EINVAL;
- 		goto err;
- 	}
- 
+--- a/drivers/usb/serial/qcserial.c
++++ b/drivers/usb/serial/qcserial.c
+@@ -165,6 +165,7 @@ static const struct usb_device_id id_tab
+ 	{DEVICE_SWI(0x1199, 0x907b)},	/* Sierra Wireless EM74xx */
+ 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
+ 	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
++	{DEVICE_SWI(0x1199, 0x90d2)},	/* Sierra Wireless EM9191 QDL */
+ 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
 
 
