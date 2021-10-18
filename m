@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A72C3431D71
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:50:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 566DB431D7B
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233319AbhJRNv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:51:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49874 "EHLO mail.kernel.org"
+        id S233793AbhJRNv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:51:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233356AbhJRNt1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:49:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C3D4617E5;
-        Mon, 18 Oct 2021 13:37:31 +0000 (UTC)
+        id S233357AbhJRNuD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:50:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1D6561390;
+        Mon, 18 Oct 2021 13:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564252;
-        bh=hCcs/XLHiAkXJzy7hvDA0gYAuxzu2AQsf724r6E2lEE=;
+        s=korg; t=1634564257;
+        bh=eDTojDbsL2yDNqpN0qA6hR0iQ4xi9fQ2ndFuesSquwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jLB7KP9RQ5F0BPtFTMuUB7r5zjblcViI+4VQe4xw9aQN7QgCVIM8UmDfNyW5rQTiK
-         TXz1sijM4xoPDUBwUistMjujryqEkwBC5T8nUt2PY5LSBsvqZuZLwNQ6q0AtOevq5+
-         Lch5IH7Yp7oyld8VFHTBiQZiR1IE1L/XwVQj+PBM=
+        b=uf0MMjLUPkvXTtK7VikIRkzrp+KixO/HS+9cFBciUpttlPxBagpHpkxoUjVcnWQUH
+         cczclb8aACO8mW3Mr3VJi6NlcgfPj+YUT0fCkm/KAhZbMcyw+RAvw6ERWodGHYleUp
+         kO0udwKyPGRRUv4YuKvuW67mHkvPdZLRN9OLi3nM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachi King <nakato@nakato.io>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.14 019/151] ACPI: PM: Include alternate AMDI0005 id in special behaviour
-Date:   Mon, 18 Oct 2021 15:23:18 +0200
-Message-Id: <20211018132341.302779676@linuxfoundation.org>
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.14 020/151] dm rq: dont queue request to blk-mq during DM suspend
+Date:   Mon, 18 Oct 2021 15:23:19 +0200
+Message-Id: <20211018132341.334019450@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -40,43 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sachi King <nakato@nakato.io>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 1ea1dbf1f54c3345072c963b3acf8830e2468c1b upstream.
+commit b4459b11e84092658fa195a2587aff3b9637f0e7 upstream.
 
-The Surface Laptop 4 AMD has used the AMD0005 to identify this
-controller instead of using the appropriate ACPI ID AMDI0005.  The
-AMD0005 needs the same special casing as AMDI0005.
+DM uses blk-mq's quiesce/unquiesce to stop/start device mapper queue.
 
-Link: https://github.com/linux-surface/acpidumps/tree/master/surface_laptop_4_amd
-Link: https://gist.github.com/nakato/2a1a7df1a45fe680d7a08c583e1bf863
-Signed-off-by: Sachi King <nakato@nakato.io>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Cc: 5.14+ <stable@vger.kernel.org> # 5.14+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+But blk-mq's unquiesce may come from outside events, such as elevator
+switch, updating nr_requests or others, and request may come during
+suspend, so simply ask for blk-mq to requeue it.
+
+Fixes one kernel panic issue when running updating nr_requests and
+dm-mpath suspend/resume stress test.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/x86/s2idle.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/md/dm-rq.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/acpi/x86/s2idle.c
-+++ b/drivers/acpi/x86/s2idle.c
-@@ -371,7 +371,7 @@ static int lps0_device_attach(struct acp
- 		return 0;
+--- a/drivers/md/dm-rq.c
++++ b/drivers/md/dm-rq.c
+@@ -490,6 +490,14 @@ static blk_status_t dm_mq_queue_rq(struc
+ 	struct mapped_device *md = tio->md;
+ 	struct dm_target *ti = md->immutable_target;
  
- 	if (acpi_s2idle_vendor_amd()) {
--		/* AMD0004, AMDI0005:
-+		/* AMD0004, AMD0005, AMDI0005:
- 		 * - Should use rev_id 0x0
- 		 * - function mask > 0x3: Should use AMD method, but has off by one bug
- 		 * - function mask = 0x3: Should use Microsoft method
-@@ -390,6 +390,7 @@ static int lps0_device_attach(struct acp
- 					ACPI_LPS0_DSM_UUID_MICROSOFT, 0,
- 					&lps0_dsm_guid_microsoft);
- 		if (lps0_dsm_func_mask > 0x3 && (!strcmp(hid, "AMD0004") ||
-+						 !strcmp(hid, "AMD0005") ||
- 						 !strcmp(hid, "AMDI0005"))) {
- 			lps0_dsm_func_mask = (lps0_dsm_func_mask << 1) | 0x1;
- 			acpi_handle_debug(adev->handle, "_DSM UUID %s: Adjusted function mask: 0x%x\n",
++	/*
++	 * blk-mq's unquiesce may come from outside events, such as
++	 * elevator switch, updating nr_requests or others, and request may
++	 * come during suspend, so simply ask for blk-mq to requeue it.
++	 */
++	if (unlikely(test_bit(DMF_BLOCK_IO_FOR_SUSPEND, &md->flags)))
++		return BLK_STS_RESOURCE;
++
+ 	if (unlikely(!ti)) {
+ 		int srcu_idx;
+ 		struct dm_table *map = dm_get_live_table(md, &srcu_idx);
 
 
