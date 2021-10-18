@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49466431AE8
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8992A431B47
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:30:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232152AbhJRN3e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:29:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41210 "EHLO mail.kernel.org"
+        id S232154AbhJRNcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:32:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231941AbhJRN3K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:29:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE85F6103D;
-        Mon, 18 Oct 2021 13:26:58 +0000 (UTC)
+        id S232532AbhJRNaX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:30:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1022D6136F;
+        Mon, 18 Oct 2021 13:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563619;
-        bh=x1uy6RIjpwMMLSGg25DhVeftTvCQsgZSHU3x1TuOvsA=;
+        s=korg; t=1634563692;
+        bh=2Wp1Zy23ncLg73L2WZLf5Lzwqc7HJa2GFdpduRGAWU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=06s+dl8h+Gwcuut0cWztvQ6yt6BIKBKU3GGxlWcRCDdAU7SdZOa5b1d8iZ40z0pzO
-         EJ2wEhoRsKb4qsBfb32UnYv2qPpEbtfE9SsMKWCXiBDuWhujqkLAPTZnv02s2q2yG9
-         DfBbEz0bacT6oU19iegSNHcJlb6DzOdaHVoCrAYU=
+        b=ZVpoB8mVeJjxkD0y2fFzqxi/kiiAVKf1ZD9M7F/+pecsD6aMDPwur2oytai9lwivm
+         v0PGWCE7UoE09uJ7zpZWhK4+gtj9pOD7fkCO12Q6EC4wgD1Mh6yV2c3RmKZAN63xfh
+         s6CdtjygRrxy/7m0lC+pkitKX890zUjP3gxGTj5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 05/39] btrfs: deal with errors when adding inode reference during log replay
+Subject: [PATCH 4.19 07/50] btrfs: deal with errors when replaying dir entry during log replay
 Date:   Mon, 18 Oct 2021 15:24:14 +0200
-Message-Id: <20211018132325.599820842@linuxfoundation.org>
+Message-Id: <20211018132326.766656666@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
-References: <20211018132325.426739023@linuxfoundation.org>
+In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
+References: <20211018132326.529486647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,9 +41,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-commit 52db77791fe24538c8aa2a183248399715f6b380 upstream.
+commit e15ac6413745e3def00e663de00aea5a717311c1 upstream.
 
-At __inode_add_ref(), we treating any error returned from
+At replay_one_one(), we are treating any error returned from
 btrfs_lookup_dir_item() or from btrfs_lookup_dir_index_item() as meaning
 that there is no existing directory entry in the fs/subvolume tree.
 This is not correct since we can get errors such as, for example, -EIO
@@ -57,33 +57,26 @@ Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-log.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ fs/btrfs/tree-log.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 --- a/fs/btrfs/tree-log.c
 +++ b/fs/btrfs/tree-log.c
-@@ -1161,7 +1161,10 @@ next:
- 	/* look for a conflicting sequence number */
- 	di = btrfs_lookup_dir_index_item(trans, root, path, btrfs_ino(dir),
- 					 ref_index, name, namelen, 0);
--	if (di && !IS_ERR(di)) {
-+	if (IS_ERR(di)) {
-+		if (PTR_ERR(di) != -ENOENT)
-+			return PTR_ERR(di);
-+	} else if (di) {
- 		ret = drop_one_dir_item(trans, root, path, dir, di);
- 		if (ret)
- 			return ret;
-@@ -1171,7 +1174,9 @@ next:
- 	/* look for a conflicing name */
- 	di = btrfs_lookup_dir_item(trans, root, path, btrfs_ino(dir),
- 				   name, namelen, 0);
--	if (di && !IS_ERR(di)) {
-+	if (IS_ERR(di)) {
-+		return PTR_ERR(di);
-+	} else if (di) {
- 		ret = drop_one_dir_item(trans, root, path, dir, di);
- 		if (ret)
- 			return ret;
+@@ -1907,7 +1907,14 @@ static noinline int replay_one_name(stru
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+-	if (IS_ERR_OR_NULL(dst_di)) {
++
++	if (dst_di == ERR_PTR(-ENOENT))
++		dst_di = NULL;
++
++	if (IS_ERR(dst_di)) {
++		ret = PTR_ERR(dst_di);
++		goto out;
++	} else if (!dst_di) {
+ 		/* we need a sequence number to insert, so we only
+ 		 * do inserts for the BTRFS_DIR_INDEX_KEY types
+ 		 */
 
 
