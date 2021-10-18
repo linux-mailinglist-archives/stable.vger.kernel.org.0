@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54A4F431D21
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BE86431E8B
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232458AbhJRNsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:48:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40226 "EHLO mail.kernel.org"
+        id S234322AbhJROCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 10:02:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232717AbhJRNqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:46:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22779613D2;
-        Mon, 18 Oct 2021 13:35:58 +0000 (UTC)
+        id S234403AbhJROAR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 10:00:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C064C60F9F;
+        Mon, 18 Oct 2021 13:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564159;
-        bh=hgMGe4nzlQLDBy/snzkJQDmTs3EaaYatJgM75VBBZQY=;
+        s=korg; t=1634564534;
+        bh=3++VzICGDhvvZFNV6lnX1YbTDhbiEiaxO3ky5cFrYf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0rHYgbfeUellYgUYXIsPyDd/41Vy7R+svF5suxy4ySkCqYWQp4Q+YcKl/lUFvy6ts
-         EtkrEycpvywDESXJX60Z17hJHpOfz6vdG2inK/vdAOdekPivCzhojbdbzb2/nftcdh
-         vW4OcGrXG1gljdpeAKcs86Hha+bKi/OINzrongGo=
+        b=a2uBV4IeeNuuEhulCiBASn5E0DTwfeBJhWQlw/zcLmAvcPYkkx6kFVVowqj+khPT7
+         R/WhkAsw+TlXbfjF5Cui37GHZDIEpgPdC+CzWWQ5dPZQTHuqMEtjd9fjTdtv7WKOrC
+         FRY/zbGpgbPxjy8/cEx9f53ewR0GZaIt+S0DcIR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Vegard Nossum <vegard.nossum@oracle.com>,
         Sam Ravnborg <sam@ravnborg.org>,
         Dave Airlie <airlied@redhat.com>
-Subject: [PATCH 5.10 088/103] drm/panel: olimex-lcd-olinuxino: select CRC32
+Subject: [PATCH 5.14 125/151] drm/panel: olimex-lcd-olinuxino: select CRC32
 Date:   Mon, 18 Oct 2021 15:25:04 +0200
-Message-Id: <20211018132337.709354324@linuxfoundation.org>
+Message-Id: <20211018132344.731102425@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,7 +64,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/gpu/drm/panel/Kconfig
 +++ b/drivers/gpu/drm/panel/Kconfig
-@@ -233,6 +233,7 @@ config DRM_PANEL_OLIMEX_LCD_OLINUXINO
+@@ -273,6 +273,7 @@ config DRM_PANEL_OLIMEX_LCD_OLINUXINO
  	depends on OF
  	depends on I2C
  	depends on BACKLIGHT_CLASS_DEVICE
