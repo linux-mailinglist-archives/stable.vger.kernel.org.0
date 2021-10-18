@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB10B43177E
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:35:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A3EA43177F
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231180AbhJRLiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:38:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42746 "EHLO mail.kernel.org"
+        id S229491AbhJRLiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:38:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229491AbhJRLiA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:38:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 120D060EE5;
-        Mon, 18 Oct 2021 11:35:48 +0000 (UTC)
+        id S230399AbhJRLiK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 07:38:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7900760E76;
+        Mon, 18 Oct 2021 11:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634556949;
-        bh=C6OegEsC9qYc21rtHvmKQdLOJwyI9YirmdQvNAg7P+E=;
+        s=korg; t=1634556959;
+        bh=pP0cdlPFZcBRYFCDYa7fMqVe2Jwjn6R51+vdaKj9HN0=;
         h=Subject:To:Cc:From:Date:From;
-        b=D01+Ju1JO7RqId3uKlFKvlEA+oWINc3Me/PARxsfFRj2FZYmN4Pw1dL+hBBnM4N1b
-         7eq/bk0lOYa8UokpuLc/6udrHTIzjdWhcNrn4OLny+uFqc9K5oncB2C37dHoZzVx/l
-         uLgpMktiXOdPcYv8LLcZMJKtZA3V+iQmB3SYe8JI=
-Subject: FAILED: patch "[PATCH] net: mscc: ocelot: cross-check the sequence id from the" failed to apply to 5.4-stable tree
+        b=fD4l3LpX8YZkJdmQnM5BiE31Bu2/6fNtCX9iHkETypEccQzTYr0yeZQoqCFjjRHsC
+         aP59/+/55TguWy3qm3hwTZLZLvhdxn2C4J3LqV4haQc85RDrUMTBWK551wumxDL7U3
+         9aCZD0+9nVzubi/12uipkw10dYJdX4AVhS+RCInY=
+Subject: FAILED: patch "[PATCH] net: mscc: ocelot: cross-check the sequence id from the" failed to apply to 5.10-stable tree
 To:     vladimir.oltean@nxp.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 13:35:46 +0200
-Message-ID: <1634556946203116@kroah.com>
+Date:   Mon, 18 Oct 2021 13:35:48 +0200
+Message-ID: <1634556948192112@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
