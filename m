@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D591C431E3F
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:57:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A96E431BC3
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232528AbhJRN73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:59:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57776 "EHLO mail.kernel.org"
+        id S232772AbhJRNfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:35:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234116AbhJRN5Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:57:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6E4A61A52;
-        Mon, 18 Oct 2021 13:40:59 +0000 (UTC)
+        id S233172AbhJRNdX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:33:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2859861357;
+        Mon, 18 Oct 2021 13:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564460;
-        bh=J5hh4JfP+qOe5Gp7tcBGciG7iJE8Fdu59ov/wmhnTaY=;
+        s=korg; t=1634563779;
+        bh=ftJcYa5tYRmlDTN9v6teyzo1AQ+5+Sb5uPNE16kOzk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PwYP4SU5HWrg8qI7LzkRzePWCYRxo27QCjsw5Ifqr/SdKf4W3MfL3fMzE+aK0qnEV
-         yXfivNS1Zd5lYIqaoy4yv7jEJ8nISZWXsRkGdlqPFfCV6YYnsZUb4uFlwcQtXw4GQZ
-         zjK45bLytqrXUkQSfzTarxHhbqIKl/W12KTgjphM=
+        b=yobzgN81rb57r9e1qJaL7QMURrNvEMcb/Rr7kqj7RmtMvK1cLhVo8XT8h7HJnfjWH
+         oNZrJQp7U42jZmiymQN3EPMh1sTWbm3wcrYtn0R+uD6ygbEmX5Np4wC7ysDNjXUuXs
+         o2vvIJ1BfALZgcnheCaNLosCueuT5LXkdOEoLHN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandru Tachici <alexandru.tachici@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.14 070/151] iio: adc: ad7793: Fix IRQ flag
+        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.4 11/69] csky: Fixup regs.sr broken in ptrace
 Date:   Mon, 18 Oct 2021 15:24:09 +0200
-Message-Id: <20211018132342.965244028@linuxfoundation.org>
+Message-Id: <20211018132329.825628897@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Tachici <alexandru.tachici@analog.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit 1a913270e57a8e7f1e3789802f1f64e6d0654626 upstream.
+commit af89ebaa64de726ca0a39bbb0bf0c81a1f43ad50 upstream.
 
-In Sigma-Delta devices the SDO line is also used as an interrupt.
-Leaving IRQ on level instead of falling might trigger a sample read
-when the IRQ is enabled, as the SDO line is already low. Not sure
-if SDO line will always immediately go high in ad_sd_buffer_postenable
-before the IRQ is enabled.
+gpr_get() return the entire pt_regs (include sr) to userspace, if we
+don't restore the C bit in gpr_set, it may break the ALU result in
+that context. So the C flag bit is part of gpr context, that's why
+riscv totally remove the C bit in the ISA. That makes sr reg clear
+from userspace to supervisor privilege.
 
-Also the datasheet seem to explicitly say the falling edge of the SDO
-should be used as an interrupt:
->From the AD7793 datasheet: " The DOUT/RDY falling edge can be
-used as an interrupt to a processor"
-
-Fixes: da4d3d6bb9f6 ("iio: adc: ad-sigma-delta: Allow custom IRQ flags")
-Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210906065630.16325-4-alexandru.tachici@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad7793.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/csky/kernel/ptrace.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/ad7793.c
-+++ b/drivers/iio/adc/ad7793.c
-@@ -206,7 +206,7 @@ static const struct ad_sigma_delta_info
- 	.has_registers = true,
- 	.addr_shift = 3,
- 	.read_mask = BIT(6),
--	.irq_flags = IRQF_TRIGGER_LOW,
-+	.irq_flags = IRQF_TRIGGER_FALLING,
- };
+--- a/arch/csky/kernel/ptrace.c
++++ b/arch/csky/kernel/ptrace.c
+@@ -96,7 +96,8 @@ static int gpr_set(struct task_struct *t
+ 	if (ret)
+ 		return ret;
  
- static const struct ad_sd_calib_data ad7793_calib_arr[6] = {
+-	regs.sr = task_pt_regs(target)->sr;
++	/* BIT(0) of regs.sr is Condition Code/Carry bit */
++	regs.sr = (regs.sr & BIT(0)) | (task_pt_regs(target)->sr & ~BIT(0));
+ #ifdef CONFIG_CPU_HAS_HILO
+ 	regs.dcsr = task_pt_regs(target)->dcsr;
+ #endif
 
 
