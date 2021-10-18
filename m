@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E4F4431C91
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25C82431DF2
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233274AbhJRNmd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:42:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53902 "EHLO mail.kernel.org"
+        id S232692AbhJRN4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:56:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233175AbhJRNk1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:40:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEBD9613A1;
-        Mon, 18 Oct 2021 13:33:12 +0000 (UTC)
+        id S234489AbhJRNx5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:53:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B223E619EA;
+        Mon, 18 Oct 2021 13:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563993;
-        bh=Zl0baRCnKsAHiJrz1tKd7AQ0J4hd5iCqHZMVx0C6zQQ=;
+        s=korg; t=1634564372;
+        bh=lXLlfCbQtkhdbVNrtf5/tFKWDC0fpl7Ovh1a+dwRxO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z7nrXT8kqRyX8j1Xrk7ebkPg0JbDxtdDA43AfOrJ5OJtEUWjXsX5/tiXt+tnDyj9G
-         p3+Akr1FENAcriSFe1QYTn3DopbYaZRw5smNfko3SCPSQYQm3zXLo2IZAlfN2TTT5/
-         cYaKuigyVA/vvBfpOj5L4dgZZpjS02DAhrQwctnw=
+        b=KHXL6IC6WUbMSFBuBn1rAl2u/GVMhujQgZBuGj0EqzeugmjKuWVh7HC8GJeRIJT6i
+         b+wiFaH22xGs7XH8jOAPQESpqq9J7qQJr5kz0aEebCriunM+ye0tXDYp68waudikkl
+         W999DDzfUixgqNYefVTJ5pcFW3mu0RW1EjK5wOn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
         Borislav Petkov <bp@suse.de>,
-        Reinette Chatre <reinette.chatre@intel.com>
-Subject: [PATCH 5.10 025/103] x86/resctrl: Free the ctrlval arrays when domain_setup_mon_state() fails
-Date:   Mon, 18 Oct 2021 15:24:01 +0200
-Message-Id: <20211018132335.554060899@linuxfoundation.org>
+        Alex Deucher <alexander.deucher@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 5.14 063/151] x86/Kconfig: Do not enable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT automatically
+Date:   Mon, 18 Oct 2021 15:24:02 +0200
+Message-Id: <20211018132342.745738031@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit 64e87d4bd3201bf8a4685083ee4daf5c0d001452 upstream.
+commit 711885906b5c2df90746a51f4cd674f1ab9fbb1d upstream.
 
-domain_add_cpu() is called whenever a CPU is brought online. The
-earlier call to domain_setup_ctrlval() allocates the control value
-arrays.
+This Kconfig option was added initially so that memory encryption is
+enabled by default on machines which support it.
 
-If domain_setup_mon_state() fails, the control value arrays are not
-freed.
+However, devices which have DMA masks that are less than the bit
+position of the encryption bit, aka C-bit, require the use of an IOMMU
+or the use of SWIOTLB.
 
-Add the missing kfree() calls.
+If the IOMMU is disabled or in passthrough mode, the kernel would switch
+to SWIOTLB bounce-buffering for those transfers.
 
-Fixes: 1bd2a63b4f0de ("x86/intel_rdt/mba_sc: Add initialization support")
-Fixes: edf6fa1c4a951 ("x86/intel_rdt/cqm: Add RMID (Resource monitoring ID) management")
-Signed-off-by: James Morse <james.morse@arm.com>
+In order to avoid that,
+
+  2cc13bb4f59f ("iommu: Disable passthrough mode when SME is active")
+
+disables the default IOMMU passthrough mode so that devices for which the
+default 256K DMA is insufficient, can use the IOMMU instead.
+
+However 2, there are cases where the IOMMU is disabled in the BIOS, etc.
+(think the usual hardware folk "oops, I dropped the ball there" cases) or a
+driver doesn't properly use the DMA APIs or a device has a firmware or
+hardware bug, e.g.:
+
+  ea68573d408f ("drm/amdgpu: Fail to load on RAVEN if SME is active")
+
+However 3, in the above GPU use case, there are APIs like Vulkan and
+some OpenGL/OpenCL extensions which are under the assumption that
+user-allocated memory can be passed in to the kernel driver and both the
+GPU and CPU can do coherent and concurrent access to the same memory.
+That cannot work with SWIOTLB bounce buffers, of course.
+
+So, in order for those devices to function, drop the "default y" for the
+SME by default active option so that users who want to have SME enabled,
+will need to either enable it in their config or use "mem_encrypt=on" on
+the kernel command line.
+
+ [ tlendacky: Generalize commit message. ]
+
+Fixes: 7744ccdbc16f ("x86/mm: Add Secure Memory Encryption (SME) support")
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Reinette Chatre <reinette.chatre@intel.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20210917165958.28313-1-james.morse@arm.com
+Link: https://lkml.kernel.org/r/8bbacd0e-4580-3194-19d2-a0ecad7df09c@molgen.mpg.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/resctrl/core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/resctrl/core.c
-+++ b/arch/x86/kernel/cpu/resctrl/core.c
-@@ -590,6 +590,8 @@ static void domain_add_cpu(int cpu, stru
- 	}
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1520,7 +1520,6 @@ config AMD_MEM_ENCRYPT
  
- 	if (r->mon_capable && domain_setup_mon_state(r, d)) {
-+		kfree(d->ctrl_val);
-+		kfree(d->mbps_val);
- 		kfree(d);
- 		return;
- 	}
+ config AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
+ 	bool "Activate AMD Secure Memory Encryption (SME) by default"
+-	default y
+ 	depends on AMD_MEM_ENCRYPT
+ 	help
+ 	  Say yes to have system memory encrypted by default if running on
 
 
