@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 454E3431CA3
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D57A5431BC2
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233464AbhJRNm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:42:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55128 "EHLO mail.kernel.org"
+        id S232790AbhJRNfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:35:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233696AbhJRNkz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:40:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EF9E61352;
-        Mon, 18 Oct 2021 13:33:34 +0000 (UTC)
+        id S232134AbhJRNdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:33:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C87B7613A0;
+        Mon, 18 Oct 2021 13:29:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564014;
-        bh=b3aGtohO717TSNZ0ihvaEzIUwQ0LZ7WFoe7mE075hAY=;
+        s=korg; t=1634563777;
+        bh=tKdSaJ4ky4rkcucRDq96qoY0E2exYgCClISb3PmPDUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cr26N5ljBAWrXe1lt4rP65eQMWsZmefgZ3ygLW0UW4WMTATDFVRgeee8Ghu8cP9r/
-         IYK8881R68OBJBOdbc1XvvL+Y3B2pAAVwSkpA2SiGNCaY4WGiddGq+SkCUExXjpBFl
-         PzjLxF8nW7zKHRGwo4VCfS1JJsSXBxREC37QiE5w=
+        b=dLUjN0CjNcNQhrAOieAhy4CD3QHGwquSRQhXnGof4ntqqyy9ZLMN0UGUzF0knGt3z
+         3C1608DVbuanBiOZIN5HCI3ACXCWvP22DNeEdCdxP5KSizcGZv0LDVKn6h4ggj/ZQW
+         YAyEgaEIlKcSdfW9b503NQ/QxOZEScnpAxrxk5wM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.10 032/103] efi/cper: use stack buffer for error record decoding
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Guo Ren <guoren@kernel.org>
+Subject: [PATCH 5.4 10/69] csky: dont let sigreturn play with priveleged bits of status register
 Date:   Mon, 18 Oct 2021 15:24:08 +0200
-Message-Id: <20211018132335.801978431@linuxfoundation.org>
+Message-Id: <20211018132329.795936051@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit b3a72ca80351917cc23f9e24c35f3c3979d3c121 upstream.
+commit fbd63c08cdcca5fb1315aca3172b3c9c272cfb4f upstream.
 
-Joe reports that using a statically allocated buffer for converting CPER
-error records into human readable text is probably a bad idea. Even
-though we are not aware of any actual issues, a stack buffer is clearly
-a better choice here anyway, so let's move the buffer into the stack
-frames of the two functions that refer to it.
+csky restore_sigcontext() blindly overwrites regs->sr with the value
+it finds in sigcontext.  Attacker can store whatever they want in there,
+which includes things like S-bit.  Userland shouldn't be able to set
+that, or anything other than C flag (bit 0).
 
-Cc: <stable@vger.kernel.org>
-Reported-by: Joe Perches <joe@perches.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Do the same thing other architectures with protected bits in flags
+register do - preserve everything that shouldn't be settable in
+user mode, picking the rest from the value saved is sigcontext.
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/cper.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/csky/kernel/signal.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/firmware/efi/cper.c
-+++ b/drivers/firmware/efi/cper.c
-@@ -25,8 +25,6 @@
- #include <acpi/ghes.h>
- #include <ras/ras_event.h>
- 
--static char rcd_decode_str[CPER_REC_LEN];
--
- /*
-  * CPER record ID need to be unique even after reboot, because record
-  * ID is used as index for ERST storage, while CPER records from
-@@ -313,6 +311,7 @@ const char *cper_mem_err_unpack(struct t
- 				struct cper_mem_err_compact *cmem)
+--- a/arch/csky/kernel/signal.c
++++ b/arch/csky/kernel/signal.c
+@@ -52,10 +52,14 @@ static long restore_sigcontext(struct pt
+ 	struct sigcontext __user *sc)
  {
- 	const char *ret = trace_seq_buffer_ptr(p);
-+	char rcd_decode_str[CPER_REC_LEN];
+ 	int err = 0;
++	unsigned long sr = regs->sr;
  
- 	if (cper_mem_err_location(cmem, rcd_decode_str))
- 		trace_seq_printf(p, "%s", rcd_decode_str);
-@@ -327,6 +326,7 @@ static void cper_print_mem(const char *p
- 	int len)
- {
- 	struct cper_mem_err_compact cmem;
-+	char rcd_decode_str[CPER_REC_LEN];
+ 	/* sc_pt_regs is structured the same as the start of pt_regs */
+ 	err |= __copy_from_user(regs, &sc->sc_pt_regs, sizeof(struct pt_regs));
  
- 	/* Don't trust UEFI 2.1/2.2 structure with bad validation bits */
- 	if (len == sizeof(struct cper_sec_mem_err_old) &&
++	/* BIT(0) of regs->sr is Condition Code/Carry bit */
++	regs->sr = (sr & ~1) | (regs->sr & 1);
++
+ 	/* Restore the floating-point state. */
+ 	err |= restore_fpu_state(sc);
+ 
 
 
