@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA527431376
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D184E431375
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:26:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231341AbhJRJ3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 05:29:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48250 "EHLO mail.kernel.org"
+        id S231339AbhJRJ3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 05:29:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231338AbhJRJ3I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 05:29:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C221A6126A;
-        Mon, 18 Oct 2021 09:26:56 +0000 (UTC)
+        id S231338AbhJRJ3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 05:29:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B181D6126A;
+        Mon, 18 Oct 2021 09:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634549217;
-        bh=PUeS9aeK1l4lRCXGi62TKQ0luv22voNbFLXqCb9BaCw=;
+        s=korg; t=1634549209;
+        bh=pF9b1HGzjn+dD2HCPU/L8MNqnHbaNubtJhugSG6exLY=;
         h=Subject:To:Cc:From:Date:From;
-        b=wVei1fuWkbJ6EodXG7oW0DBuZBcgGYI8redDmmXFQqgnxTlmrjxVvm/a791+wVwfo
-         fcLbv2wORgyq9OuVjTl633qVS+bmQvRhuyQyWlLJJ9JK8ir9kDPK3Uq3mksSWn+Mny
-         Xn1fOdVgzyBNPTj2nLtCpdJHAfByPFBny1te4Wwk=
-Subject: FAILED: patch "[PATCH] staging: vc04_services: shut up out-of-range warning" failed to apply to 4.14-stable tree
+        b=jL3+2tKPvfScMCbjfW5LgFE/b9fsnUw7hDguzPTEqtwUlEfqdMNOzK1DXkpX2jBU2
+         YG9grpO1lCtSRWAIrM8ZqAVZD1P/NrXxmoev2zxFRYwS3A0bR0aMpPsF7BGiONkbML
+         HcAgiis7+q1EjDbaBqAVObqKdsC3KfaloQSwj6IE=
+Subject: FAILED: patch "[PATCH] staging: vc04_services: shut up out-of-range warning" failed to apply to 4.9-stable tree
 To:     arnd@arndb.de, gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 18 Oct 2021 11:26:46 +0200
-Message-ID: <16345492061331@kroah.com>
+Message-ID: <1634549206143144@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
