@@ -2,171 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E09431730
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:24:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0D5431761
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:32:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229833AbhJRL1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:27:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37738 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229473AbhJRL1H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:27:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D1C360FC2;
-        Mon, 18 Oct 2021 11:24:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634556296;
-        bh=TtvSPwEQKb8C1QG/5mKytdFuGVtw/z/r9rzJZ0TgNOM=;
-        h=Subject:To:Cc:From:Date:From;
-        b=JfmGNxj7RZJG6zG2yFZZ3CNOkYmBkdMLeDSWCpvKMIx0zeQe/XGoIPghMRMUXjiM6
-         rLQ5NAByLVUP4Wr7ftBcLdm9e1qHDHayj5lGWjxFMUayIM4VmDEogMvreBvklI2NJd
-         R3fwYyYLBNGmcPef4nY7mvmmdnhs1q+Pd69w5yxo=
-Subject: FAILED: patch "[PATCH] spi: bcm-qspi: clear MSPI spifie interrupt during probe" failed to apply to 5.4-stable tree
-To:     kdasu@broadcom.com, broonie@kernel.org, f.fainelli@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 13:24:39 +0200
-Message-ID: <163455627972139@kroah.com>
+        id S231420AbhJRLeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:34:25 -0400
+Received: from asav21.altibox.net ([109.247.116.8]:41662 "EHLO
+        asav21.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231352AbhJRLeX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 07:34:23 -0400
+Received: from localhost.localdomain (211.81-166-168.customer.lyse.net [81.166.168.211])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: noralf.tronnes@ebnett.no)
+        by asav21.altibox.net (Postfix) with ESMTPSA id E8D8080052;
+        Mon, 18 Oct 2021 13:26:20 +0200 (CEST)
+From:   =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+To:     lee.jones@linaro.org
+Cc:     linux-kernel@vger.kernel.org, Jack Andersen <jackoalan@gmail.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+Subject: [PATCH] mfd: dln2: Add cell for initializing DLN2 ADC
+Date:   Mon, 18 Oct 2021 13:25:41 +0200
+Message-Id: <20211018112541.25466-1-noralf@tronnes.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-CMAE-Score: 0
+X-CMAE-Analysis: v=2.3 cv=Yr0hubQX c=1 sm=1 tr=0
+        a=OYZzhG0JTxDrWp/F2OJbnw==:117 a=OYZzhG0JTxDrWp/F2OJbnw==:17
+        a=IkcTkHD0fZMA:10 a=M51BFTxLslgA:10 a=pGLkceISAAAA:8 a=OLL_FvSJAAAA:8
+        a=VwQbUJbxAAAA:8 a=SJz97ENfAAAA:8 a=p1JdDOvq47JOlRMEupMA:9
+        a=QEXdDO2ut3YA:10 a=QLaaOG07l1cA:10 a=3UZ-nZRERu8A:10
+        a=oIrB72frpwYPwTMnlWqB:22 a=AjGcO6oz07-iQ99wixmX:22
+        a=vFet0B0WnEQeilDPIY6i:22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Jack Andersen <jackoalan@gmail.com>
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This patch extends the DLN2 driver; adding cell for adc_dln2 module.
 
-thanks,
+The original patch[1] fell through the cracks when the driver was added
+so ADC has never actually been usable. That patch did not have ACPI
+support which was added in v5.9, so the oldest supported version this
+current patch can be backported to is 5.10.
 
-greg k-h
+[1] https://www.spinics.net/lists/linux-iio/msg33975.html
 
------------------- original commit in Linus's tree ------------------
+Cc: <stable@vger.kernel.org> # 5.10+
+Signed-off-by: Jack Andersen <jackoalan@gmail.com>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+---
+ drivers/mfd/dln2.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-From 75b3cb97eb1f05042745c0655a7145b0262d4c5c Mon Sep 17 00:00:00 2001
-From: Kamal Dasu <kdasu@broadcom.com>
-Date: Fri, 8 Oct 2021 16:36:02 -0400
-Subject: [PATCH] spi: bcm-qspi: clear MSPI spifie interrupt during probe
-
-Intermittent Kernel crash has been observed on probe in
-bcm_qspi_mspi_l2_isr() handler when the MSPI spifie interrupt bit
-has not been cleared before registering for interrupts.
-Fix the driver to move SoC specific custom interrupt handling code
-before we register IRQ in probe. Also clear MSPI interrupt status
-resgiter prior to registering IRQ handlers.
-
-Fixes: cc20a38612db ("spi: iproc-qspi: Add Broadcom iProc SoCs support")
-Signed-off-by: Kamal Dasu <kdasu@broadcom.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20211008203603.40915-3-kdasu.kdev@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-
-diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
-index a78e56f566dd..3043677ba222 100644
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -1250,10 +1250,14 @@ static void bcm_qspi_hw_init(struct bcm_qspi *qspi)
+diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+index 83e676a096dc..852129ea0766 100644
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -50,6 +50,7 @@ enum dln2_handle {
+ 	DLN2_HANDLE_GPIO,
+ 	DLN2_HANDLE_I2C,
+ 	DLN2_HANDLE_SPI,
++	DLN2_HANDLE_ADC,
+ 	DLN2_HANDLES
+ };
  
- static void bcm_qspi_hw_uninit(struct bcm_qspi *qspi)
- {
-+	u32 status = bcm_qspi_read(qspi, MSPI, MSPI_MSPI_STATUS);
-+
- 	bcm_qspi_write(qspi, MSPI, MSPI_SPCR2, 0);
- 	if (has_bspi(qspi))
- 		bcm_qspi_write(qspi, MSPI, MSPI_WRITE_LOCK, 0);
+@@ -653,6 +654,7 @@ enum {
+ 	DLN2_ACPI_MATCH_GPIO	= 0,
+ 	DLN2_ACPI_MATCH_I2C	= 1,
+ 	DLN2_ACPI_MATCH_SPI	= 2,
++	DLN2_ACPI_MATCH_ADC	= 3,
+ };
  
-+	/* clear interrupt */
-+	bcm_qspi_write(qspi, MSPI, MSPI_MSPI_STATUS, status & ~1);
- }
+ static struct dln2_platform_data dln2_pdata_gpio = {
+@@ -683,6 +685,16 @@ static struct mfd_cell_acpi_match dln2_acpi_match_spi = {
+ 	.adr = DLN2_ACPI_MATCH_SPI,
+ };
  
- static const struct spi_controller_mem_ops bcm_qspi_mem_ops = {
-@@ -1397,6 +1401,47 @@ int bcm_qspi_probe(struct platform_device *pdev,
- 	if (!qspi->dev_ids)
- 		return -ENOMEM;
++/* Only one ADC port supported */
++static struct dln2_platform_data dln2_pdata_adc = {
++	.handle = DLN2_HANDLE_ADC,
++	.port = 0,
++};
++
++static struct mfd_cell_acpi_match dln2_acpi_match_adc = {
++	.adr = DLN2_ACPI_MATCH_ADC,
++};
++
+ static const struct mfd_cell dln2_devs[] = {
+ 	{
+ 		.name = "dln2-gpio",
+@@ -702,6 +714,12 @@ static const struct mfd_cell dln2_devs[] = {
+ 		.platform_data = &dln2_pdata_spi,
+ 		.pdata_size = sizeof(struct dln2_platform_data),
+ 	},
++	{
++		.name = "dln2-adc",
++		.acpi_match = &dln2_acpi_match_adc,
++		.platform_data = &dln2_pdata_adc,
++		.pdata_size = sizeof(struct dln2_platform_data),
++	},
+ };
  
-+	/*
-+	 * Some SoCs integrate spi controller (e.g., its interrupt bits)
-+	 * in specific ways
-+	 */
-+	if (soc_intc) {
-+		qspi->soc_intc = soc_intc;
-+		soc_intc->bcm_qspi_int_set(soc_intc, MSPI_DONE, true);
-+	} else {
-+		qspi->soc_intc = NULL;
-+	}
-+
-+	if (qspi->clk) {
-+		ret = clk_prepare_enable(qspi->clk);
-+		if (ret) {
-+			dev_err(dev, "failed to prepare clock\n");
-+			goto qspi_probe_err;
-+		}
-+		qspi->base_clk = clk_get_rate(qspi->clk);
-+	} else {
-+		qspi->base_clk = MSPI_BASE_FREQ;
-+	}
-+
-+	if (data->has_mspi_rev) {
-+		rev = bcm_qspi_read(qspi, MSPI, MSPI_REV);
-+		/* some older revs do not have a MSPI_REV register */
-+		if ((rev & 0xff) == 0xff)
-+			rev = 0;
-+	}
-+
-+	qspi->mspi_maj_rev = (rev >> 4) & 0xf;
-+	qspi->mspi_min_rev = rev & 0xf;
-+	qspi->mspi_spcr3_sysclk = data->has_spcr3_sysclk;
-+
-+	qspi->max_speed_hz = qspi->base_clk / (bcm_qspi_spbr_min(qspi) * 2);
-+
-+	/*
-+	 * On SW resets it is possible to have the mask still enabled
-+	 * Need to disable the mask and clear the status while we init
-+	 */
-+	bcm_qspi_hw_uninit(qspi);
-+
- 	for (val = 0; val < num_irqs; val++) {
- 		irq = -1;
- 		name = qspi_irq_tab[val].irq_name;
-@@ -1433,38 +1478,6 @@ int bcm_qspi_probe(struct platform_device *pdev,
- 		goto qspi_probe_err;
- 	}
- 
--	/*
--	 * Some SoCs integrate spi controller (e.g., its interrupt bits)
--	 * in specific ways
--	 */
--	if (soc_intc) {
--		qspi->soc_intc = soc_intc;
--		soc_intc->bcm_qspi_int_set(soc_intc, MSPI_DONE, true);
--	} else {
--		qspi->soc_intc = NULL;
--	}
--
--	ret = clk_prepare_enable(qspi->clk);
--	if (ret) {
--		dev_err(dev, "failed to prepare clock\n");
--		goto qspi_probe_err;
--	}
--
--	qspi->base_clk = clk_get_rate(qspi->clk);
--
--	if (data->has_mspi_rev) {
--		rev = bcm_qspi_read(qspi, MSPI, MSPI_REV);
--		/* some older revs do not have a MSPI_REV register */
--		if ((rev & 0xff) == 0xff)
--			rev = 0;
--	}
--
--	qspi->mspi_maj_rev = (rev >> 4) & 0xf;
--	qspi->mspi_min_rev = rev & 0xf;
--	qspi->mspi_spcr3_sysclk = data->has_spcr3_sysclk;
--
--	qspi->max_speed_hz = qspi->base_clk / (bcm_qspi_spbr_min(qspi) * 2);
--
- 	bcm_qspi_hw_init(qspi);
- 	init_completion(&qspi->mspi_done);
- 	init_completion(&qspi->bspi_done);
+ static void dln2_stop(struct dln2_dev *dln2)
+-- 
+2.33.0
 
