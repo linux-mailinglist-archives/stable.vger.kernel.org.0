@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 433F4431CD1
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E5D8431AD3
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233476AbhJRNo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:44:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40940 "EHLO mail.kernel.org"
+        id S232047AbhJRN3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233455AbhJRNm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:42:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 274C761503;
-        Mon, 18 Oct 2021 13:34:31 +0000 (UTC)
+        id S231896AbhJRN3G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BACA461352;
+        Mon, 18 Oct 2021 13:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564072;
-        bh=d4mqd3nmx/pe/KPLfNiqal5aAW2JmfUWtp/RMsjIN7o=;
+        s=korg; t=1634563582;
+        bh=gU2vMTAAa3nBkBTgSpYWKFBTfdz2wmsODH7b8zx5kvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NKulyVQIS0/I9FfC8RYFjtvl3zN9thENTxzQthHfI+lcytL41YcpOgSPTfXmPi8kV
-         LJbexPP+g5cT5o9Br3yt2kBlB2VeElR6+5ssyOtM90APLdNRv5tcGrw8pKPwlr1DZy
-         nLmYhG4WckuFu5O8QkbmoVAtTfZQVVcn7FjS74Ps=
+        b=hVN9TZHfgCVj5Z220Y7M7vTaZBSuGwBAP/GSB9ZsqWinkaE2VerTaeOLtFNvNt9ut
+         2Yo1WYGoer5H9EneoKE+GyIS1uhAaqOfseR5Rztj1l3XKWMPgIfOC1eHe+Le0wPQvO
+         AganEZLeHT11Z6whI+HPi3hLHB6tpAKe+TDXEetE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Alexandru Ardelean <ardeleanalex@gmail.com>,
+        Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 055/103] iio: adc: max1027: Fix wrong shift with 12-bit devices
+Subject: [PATCH 4.14 22/39] iio: adc128s052: Fix the error handling path of adc128_probe()
 Date:   Mon, 18 Oct 2021 15:24:31 +0200
-Message-Id: <20211018132336.609640048@linuxfoundation.org>
+Message-Id: <20211018132326.160507916@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 732ae19ee8f58ecaf30cbc1bbbda5cbee6a45043 upstream.
+commit bbcf40816b547b3c37af49168950491d20d81ce1 upstream.
 
-10-bit devices must shift the value twice.
-This is not needed anymore on 12-bit devices.
+A successful 'regulator_enable()' call should be balanced by a
+corresponding 'regulator_disable()' call in the error handling path of the
+probe, as already done in the remove function.
 
-Fixes: ae47d009b508 ("iio: adc: max1027: Introduce 12-bit devices support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210818111139.330636-2-miquel.raynal@bootlin.com
+Update the error handling path accordingly.
+
+Fixes: 913b86468674 ("iio: adc: Add TI ADC128S052")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Link: https://lore.kernel.org/r/85189f1cfcf6f5f7b42d8730966f2a074b07b5f5.1629542160.git.christophe.jaillet@wanadoo.fr
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/max1027.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/ti-adc128s052.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/iio/adc/max1027.c
-+++ b/drivers/iio/adc/max1027.c
-@@ -103,7 +103,7 @@ MODULE_DEVICE_TABLE(of, max1027_adc_dt_i
- 			.sign = 'u',					\
- 			.realbits = depth,				\
- 			.storagebits = 16,				\
--			.shift = 2,					\
-+			.shift = (depth == 10) ? 2 : 0,			\
- 			.endianness = IIO_BE,				\
- 		},							\
- 	}
+--- a/drivers/iio/adc/ti-adc128s052.c
++++ b/drivers/iio/adc/ti-adc128s052.c
+@@ -169,7 +169,13 @@ static int adc128_probe(struct spi_devic
+ 	mutex_init(&adc->lock);
+ 
+ 	ret = iio_device_register(indio_dev);
++	if (ret)
++		goto err_disable_regulator;
+ 
++	return 0;
++
++err_disable_regulator:
++	regulator_disable(adc->reg);
+ 	return ret;
+ }
+ 
 
 
