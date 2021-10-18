@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F727431C9B
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72404431BD7
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233393AbhJRNmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:42:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54280 "EHLO mail.kernel.org"
+        id S232494AbhJRNfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:35:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233646AbhJRNkm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:40:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 781976140B;
-        Mon, 18 Oct 2021 13:33:23 +0000 (UTC)
+        id S232579AbhJRNeC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:34:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B198F6136F;
+        Mon, 18 Oct 2021 13:29:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564004;
-        bh=uU1dajyjx+Uyi5D5/TdGmN40awWfzaNcGUHRGW8Tb7k=;
+        s=korg; t=1634563794;
+        bh=ioid6dr2i2v5d1SwCGY0/2mkKTGK+5RlY2dtljkNT/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xuAWjBnuBdW0YH70glYuz2u0bgj+CEQWhdh4scAJbh+YzG5cxyEu0sCDNlQx6l08C
-         gswM6WTY9pUo3bYVtXyzKuZyTTiTDZaLJPIDkvhKNL1oEpLVl79MWtoq3bizKqWqlU
-         YuAzqFphSbzFnBjbLHEkwL781U3V1YCkRwtUX9u4=
+        b=e6tJzO3+1nbaVIvxt56NvEaaO0r9UzfNAvLPtgqxkqUo+mGq694PVSM1c5N0330VY
+         lFSwQpZvFBLDNwrajDxpxXS1k9dohe1Jkzf5/c9FZUS98DXzyMEprFEHWGnzXL7SZ0
+         q9zltTSxoUVbKFeSob5imiqWTVjMWmS3Zbrfhf90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Bell <jonathan@raspberrypi.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 028/103] xhci: guard accesses to ep_state in xhci_endpoint_reset()
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 06/69] ALSA: hda/realtek - ALC236 headset MIC recording issue
 Date:   Mon, 18 Oct 2021 15:24:04 +0200
-Message-Id: <20211018132335.666001818@linuxfoundation.org>
+Message-Id: <20211018132329.667492656@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Bell <jonathan@raspberrypi.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit a01ba2a3378be85538e0183ae5367c1bc1d5aaf3 upstream.
+commit 5aec98913095ed3b4424ed6c5fdeb6964e9734da upstream.
 
-See https://github.com/raspberrypi/linux/issues/3981
+In power save mode, the recording voice from headset mic will 2s more delay.
+Add this patch will solve this issue.
 
-Two read-modify-write cycles on ep->ep_state are not guarded by
-xhci->lock. Fix these.
+[ minor coding style fix by tiwai ]
 
-Fixes: f5249461b504 ("xhci: Clear the host side toggle manually when endpoint is soft reset")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jonathan Bell <jonathan@raspberrypi.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211008092547.3996295-2-mathias.nyman@linux.intel.com
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/ccb0cdd5bbd7486eabbd8d987d384cb0@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ sound/pci/hda/patch_realtek.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -3173,10 +3173,13 @@ static void xhci_endpoint_reset(struct u
- 		return;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -517,6 +517,8 @@ static void alc_shutup_pins(struct hda_c
+ 	struct alc_spec *spec = codec->spec;
  
- 	/* Bail out if toggle is already being cleared by a endpoint reset */
-+	spin_lock_irqsave(&xhci->lock, flags);
- 	if (ep->ep_state & EP_HARD_CLEAR_TOGGLE) {
- 		ep->ep_state &= ~EP_HARD_CLEAR_TOGGLE;
-+		spin_unlock_irqrestore(&xhci->lock, flags);
- 		return;
- 	}
-+	spin_unlock_irqrestore(&xhci->lock, flags);
- 	/* Only interrupt and bulk ep's use data toggle, USB2 spec 5.5.4-> */
- 	if (usb_endpoint_xfer_control(&host_ep->desc) ||
- 	    usb_endpoint_xfer_isoc(&host_ep->desc))
-@@ -3262,8 +3265,10 @@ static void xhci_endpoint_reset(struct u
- 	xhci_free_command(xhci, cfg_cmd);
- cleanup:
- 	xhci_free_command(xhci, stop_cmd);
-+	spin_lock_irqsave(&xhci->lock, flags);
- 	if (ep->ep_state & EP_SOFT_CLEAR_TOGGLE)
- 		ep->ep_state &= ~EP_SOFT_CLEAR_TOGGLE;
-+	spin_unlock_irqrestore(&xhci->lock, flags);
- }
+ 	switch (codec->core.vendor_id) {
++	case 0x10ec0236:
++	case 0x10ec0256:
+ 	case 0x10ec0283:
+ 	case 0x10ec0286:
+ 	case 0x10ec0288:
+@@ -3522,7 +3524,8 @@ static void alc256_shutup(struct hda_cod
+ 	/* If disable 3k pulldown control for alc257, the Mic detection will not work correctly
+ 	 * when booting with headset plugged. So skip setting it for the codec alc257
+ 	 */
+-	if (codec->core.vendor_id != 0x10ec0257)
++	if (spec->codec_variant != ALC269_TYPE_ALC257 &&
++	    spec->codec_variant != ALC269_TYPE_ALC256)
+ 		alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
  
- static int xhci_check_streams_endpoint(struct xhci_hcd *xhci,
+ 	if (!spec->no_shutup_pins)
 
 
