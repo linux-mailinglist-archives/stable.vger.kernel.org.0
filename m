@@ -2,41 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA65C431D82
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:50:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A239A431D87
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233885AbhJRNwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:52:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
+        id S234046AbhJRNwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:52:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233948AbhJRNuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:50:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4F6760F11;
-        Mon, 18 Oct 2021 13:37:48 +0000 (UTC)
+        id S234049AbhJRNuX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:50:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4D4D619E2;
+        Mon, 18 Oct 2021 13:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564269;
-        bh=hcLD8jw7S9eVpfvObzQtoQYN/G3O82DDn2OSUIXuI3M=;
+        s=korg; t=1634564272;
+        bh=1clZC4+6scj+EWeoxEBLwVl8HlbEHeWyoiYZ54CDi00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6rsvBWteFekiUy+harD4XJ8VbUjRlL9XUn8kh89gyqLOvYr+74kut50Rn6R9m7aI
-         ge7c5lmjRqTTXT++FVAcDUVKC1dQR+ynq6ad1nLcCh2p6Cm06R3sr+LPSYGsFDgEqT
-         8FLjBS5sagZZ0+3eChFoYHmuZ21IMx9y3PoM1Fdk=
+        b=xvuQ1x4Ivi3BdJIY960uMDDq7dil4k0MkJk5HGKtssutivOJuBYhwNU0KXXZTSVWH
+         eA2H93vKEtMe4OfuTLBTy7nqlR/jtn981YMgSsye2RWJzftVxzY1W+Oa/BcTud7H5b
+         /5/qIaxXhP8zz1zpI740UOM5I2ji1FmlOdYItsWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Amanoel Dawod <kernel@amanoeldawod.com>,
-        =?UTF-8?q?Zolt=C3=A1n=20K=C5=91v=C3=A1g=C3=B3?= 
-        <dirty.ice.hu@gmail.com>,
-        Michael Stapelberg <michael+lkml@stapelberg.ch>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Maxime Ripard <maxime@cerno.tech>,
-        dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>
-Subject: [PATCH 5.14 025/151] drm/fbdev: Clamp fbdev surface size if too large
-Date:   Mon, 18 Oct 2021 15:23:24 +0200
-Message-Id: <20211018132341.499234552@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.14 026/151] arm64/hugetlb: fix CMA gigantic page order for non-4K PAGE_SIZE
+Date:   Mon, 18 Oct 2021 15:23:25 +0200
+Message-Id: <20211018132341.530225688@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -48,62 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zimmermann <tzimmermann@suse.de>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-commit b693e42921e0220c0d564c55c6cdc680b0f85390 upstream.
+commit 2e5809a4ddb15969503e43b06662a9a725f613ea upstream.
 
-Clamp the fbdev surface size of the available maximumi height to avoid
-failing to init console emulation. An example error is shown below.
+For non-4K PAGE_SIZE configs, the largest gigantic huge page size is
+CONT_PMD_SHIFT order. On arm64 with 64K PAGE_SIZE, the gigantic page is
+16G. Therefore, one should be able to specify 'hugetlb_cma=16G' on the
+kernel command line so that one gigantic page can be allocated from CMA.
+However, when adding such an option the following message is produced:
 
-  bad framebuffer height 2304, should be >= 768 && <= 768
-  [drm] Initialized simpledrm 1.0.0 20200625 for simple-framebuffer.0 on minor 0
-  simple-framebuffer simple-framebuffer.0: [drm] *ERROR* fbdev: Failed to setup generic emulation (ret=-22)
+hugetlb_cma: cma area should be at least 8796093022208 MiB
 
-This is especially a problem with drivers that have very small screen
-sizes and cannot over-allocate at all.
+This is because the calculation for non-4K gigantic page order is
+incorrect in the arm64 specific routine arm64_hugetlb_cma_reserve().
 
-v2:
-	* reduce warning level (Ville)
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Fixes: 11e8f5fd223b ("drm: Add simpledrm driver")
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Reported-by: Amanoel Dawod <kernel@amanoeldawod.com>
-Reported-by: Zoltán Kővágó <dirty.ice.hu@gmail.com>
-Reported-by: Michael Stapelberg <michael+lkml@stapelberg.ch>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Maxime Ripard <maxime@cerno.tech>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.14+
-Link: https://patchwork.freedesktop.org/patch/msgid/20211005070355.7680-1-tzimmermann@suse.de
-Signed-off-by: Dave Airlie <airlied@redhat.com>
+Fixes: abb7962adc80 ("arm64/hugetlb: Reserve CMA areas for gigantic pages on 16K and 64K configs")
+Cc: <stable@vger.kernel.org> # 5.9.x
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Link: https://lore.kernel.org/r/20211005202529.213812-1-mike.kravetz@oracle.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_fb_helper.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/mm/hugetlbpage.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -1506,6 +1506,7 @@ static int drm_fb_helper_single_fb_probe
- {
- 	struct drm_client_dev *client = &fb_helper->client;
- 	struct drm_device *dev = fb_helper->dev;
-+	struct drm_mode_config *config = &dev->mode_config;
- 	int ret = 0;
- 	int crtc_count = 0;
- 	struct drm_connector_list_iter conn_iter;
-@@ -1663,6 +1664,11 @@ static int drm_fb_helper_single_fb_probe
- 	/* Handle our overallocation */
- 	sizes.surface_height *= drm_fbdev_overalloc;
- 	sizes.surface_height /= 100;
-+	if (sizes.surface_height > config->max_height) {
-+		drm_dbg_kms(dev, "Fbdev over-allocation too large; clamping height to %d\n",
-+			    config->max_height);
-+		sizes.surface_height = config->max_height;
-+	}
- 
- 	/* push down into drivers */
- 	ret = (*fb_helper->funcs->fb_probe)(fb_helper, &sizes);
+--- a/arch/arm64/mm/hugetlbpage.c
++++ b/arch/arm64/mm/hugetlbpage.c
+@@ -43,7 +43,7 @@ void __init arm64_hugetlb_cma_reserve(vo
+ #ifdef CONFIG_ARM64_4K_PAGES
+ 	order = PUD_SHIFT - PAGE_SHIFT;
+ #else
+-	order = CONT_PMD_SHIFT + PMD_SHIFT - PAGE_SHIFT;
++	order = CONT_PMD_SHIFT - PAGE_SHIFT;
+ #endif
+ 	/*
+ 	 * HugeTLB CMA reservation is required for gigantic
 
 
