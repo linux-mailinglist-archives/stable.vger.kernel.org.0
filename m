@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46839431AD6
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1D10431CCD
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232063AbhJRN3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:29:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41308 "EHLO mail.kernel.org"
+        id S233397AbhJRNos (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:44:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231862AbhJRN3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:29:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7EC661351;
-        Mon, 18 Oct 2021 13:26:16 +0000 (UTC)
+        id S231896AbhJRNmz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:42:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCA0E61283;
+        Mon, 18 Oct 2021 13:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563577;
-        bh=+ib9zcQrYowbooh3z6A8+w+XpmLuLVcQcMhGzWYHZ64=;
+        s=korg; t=1634564067;
+        bh=J5hh4JfP+qOe5Gp7tcBGciG7iJE8Fdu59ov/wmhnTaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZRNMUxvSwU1ivqo1P+ZeFFbf07CdBrqtUety0coy6NZ1HJa57ygt61ZCO5xnUXWsG
-         VcEPW9/k79Y5K6EwUGHfuki0qlhfJQrNoV0fOUVABcX2QSEiONwboGGPiROVFN794+
-         09jsqD7WbGY2tgix7lnm8HoVIdRTCZHtdpfhWu2I=
+        b=fZkzY5vQRYOjbVA2TlXWqgC+p5d31AuChPjXRLqkLqEcHbPS+YQ72Zvwqa5HqVyXH
+         UZbTRjdusOWddZRk93e6vUAgHqSrsQ8/wTzvWiQj7dy2pS2UqJ05LoM8Dqlw5nUSBg
+         MS2/i+mDdRvKCeKttgFW8sV2nhkfG2bB5/O82jRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Borislav Petkov <bp@suse.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 4.14 20/39] x86/Kconfig: Do not enable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT automatically
+        stable@vger.kernel.org,
+        Alexandru Tachici <alexandru.tachici@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 053/103] iio: adc: ad7793: Fix IRQ flag
 Date:   Mon, 18 Oct 2021 15:24:29 +0200
-Message-Id: <20211018132326.100974635@linuxfoundation.org>
+Message-Id: <20211018132336.540589965@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
-References: <20211018132325.426739023@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Alexandru Tachici <alexandru.tachici@analog.com>
 
-commit 711885906b5c2df90746a51f4cd674f1ab9fbb1d upstream.
+commit 1a913270e57a8e7f1e3789802f1f64e6d0654626 upstream.
 
-This Kconfig option was added initially so that memory encryption is
-enabled by default on machines which support it.
+In Sigma-Delta devices the SDO line is also used as an interrupt.
+Leaving IRQ on level instead of falling might trigger a sample read
+when the IRQ is enabled, as the SDO line is already low. Not sure
+if SDO line will always immediately go high in ad_sd_buffer_postenable
+before the IRQ is enabled.
 
-However, devices which have DMA masks that are less than the bit
-position of the encryption bit, aka C-bit, require the use of an IOMMU
-or the use of SWIOTLB.
+Also the datasheet seem to explicitly say the falling edge of the SDO
+should be used as an interrupt:
+>From the AD7793 datasheet: " The DOUT/RDY falling edge can be
+used as an interrupt to a processor"
 
-If the IOMMU is disabled or in passthrough mode, the kernel would switch
-to SWIOTLB bounce-buffering for those transfers.
-
-In order to avoid that,
-
-  2cc13bb4f59f ("iommu: Disable passthrough mode when SME is active")
-
-disables the default IOMMU passthrough mode so that devices for which the
-default 256K DMA is insufficient, can use the IOMMU instead.
-
-However 2, there are cases where the IOMMU is disabled in the BIOS, etc.
-(think the usual hardware folk "oops, I dropped the ball there" cases) or a
-driver doesn't properly use the DMA APIs or a device has a firmware or
-hardware bug, e.g.:
-
-  ea68573d408f ("drm/amdgpu: Fail to load on RAVEN if SME is active")
-
-However 3, in the above GPU use case, there are APIs like Vulkan and
-some OpenGL/OpenCL extensions which are under the assumption that
-user-allocated memory can be passed in to the kernel driver and both the
-GPU and CPU can do coherent and concurrent access to the same memory.
-That cannot work with SWIOTLB bounce buffers, of course.
-
-So, in order for those devices to function, drop the "default y" for the
-SME by default active option so that users who want to have SME enabled,
-will need to either enable it in their config or use "mem_encrypt=on" on
-the kernel command line.
-
- [ tlendacky: Generalize commit message. ]
-
-Fixes: 7744ccdbc16f ("x86/mm: Add Secure Memory Encryption (SME) support")
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/8bbacd0e-4580-3194-19d2-a0ecad7df09c@molgen.mpg.de
+Fixes: da4d3d6bb9f6 ("iio: adc: ad-sigma-delta: Allow custom IRQ flags")
+Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210906065630.16325-4-alexandru.tachici@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/Kconfig |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/iio/adc/ad7793.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1456,7 +1456,6 @@ config AMD_MEM_ENCRYPT
+--- a/drivers/iio/adc/ad7793.c
++++ b/drivers/iio/adc/ad7793.c
+@@ -206,7 +206,7 @@ static const struct ad_sigma_delta_info
+ 	.has_registers = true,
+ 	.addr_shift = 3,
+ 	.read_mask = BIT(6),
+-	.irq_flags = IRQF_TRIGGER_LOW,
++	.irq_flags = IRQF_TRIGGER_FALLING,
+ };
  
- config AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
- 	bool "Activate AMD Secure Memory Encryption (SME) by default"
--	default y
- 	depends on AMD_MEM_ENCRYPT
- 	---help---
- 	  Say yes to have system memory encrypted by default if running on
+ static const struct ad_sd_calib_data ad7793_calib_arr[6] = {
 
 
