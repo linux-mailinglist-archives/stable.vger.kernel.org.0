@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F66431EA7
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:03:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B16431EAA
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:03:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233258AbhJROFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:05:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37454 "EHLO mail.kernel.org"
+        id S233521AbhJROFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 10:05:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234130AbhJROB4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 10:01:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D59161A7D;
-        Mon, 18 Oct 2021 13:42:55 +0000 (UTC)
+        id S234170AbhJROB5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 10:01:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B545B613B3;
+        Mon, 18 Oct 2021 13:42:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564576;
-        bh=IbQGeoLWsxcDZCrfIL+MGeMYAnCWVmunxa6PYbLY0w4=;
+        s=korg; t=1634564579;
+        bh=wl6BZ4CiyNR380+3hmLrpZ/UsCdaPZpusfSZCKKUSUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V1LcwwQdQ4LcUjPZSox//o29dXBZrpA8ofBQAqFSvq3ho3wVi/KDj/JufYHv6Xvyx
-         7OpIy+ZfSHkncv7TucFMRdXyVyG1O5xPgLdKTp6FKbN27QHlQFLwQmRATfs4XC2hvf
-         jxuK9SlKyrNsQfojx5RDl3e00o8sQSh/w8IXsUyI=
+        b=Ks/X0oINv4OS+jhdRhImf6b0BYI0uDULzNG1T6v94j7uVovKSSFzV/USIhSubjXJs
+         WV2wZWkVg+yTT0mVLEnsN21vSZoAk/KrikyPh3mLvnlZZn6oxObj8fQ1Xejwwo8Xas
+         e7O0NKJCNzRODC3t6o/WA9Tr1B4OjyA+A9ypKgFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maarten Zanders <m.zanders@televic.com>,
-        Maxime Chevallier <maxime.chevallier@bootlin.com>,
-        Maarten Zanders <maarten.zanders@mind.be>,
+        stable@vger.kernel.org,
+        Arun Ramadoss <arun.ramadoss@microchip.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 109/151] net: dsa: mv88e6xxx: dont use PHY_DETECT on internal PHYs
-Date:   Mon, 18 Oct 2021 15:24:48 +0200
-Message-Id: <20211018132344.218209451@linuxfoundation.org>
+Subject: [PATCH 5.14 110/151] net: dsa: microchip: Added the condition for scheduling ksz_mib_read_work
+Date:   Mon, 18 Oct 2021 15:24:49 +0200
+Message-Id: <20211018132344.249261516@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -41,58 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maarten Zanders <maarten.zanders@mind.be>
+From: Arun Ramadoss <arun.ramadoss@microchip.com>
 
-commit 4a3e0aeddf091f00974b02627c157843ce382a24 upstream.
+commit ef1100ef20f29aec4e62abeccdb5bdbebba1e378 upstream.
 
-mv88e6xxx_port_ppu_updates() interpretes data in the PORT_STS
-register incorrectly for internal ports (ie no PPU). In these
-cases, the PHY_DETECT bit indicates link status. This results
-in forcing the MAC state whenever the PHY link goes down which
-is not intended. As a side effect, LED's configured to show
-link status stay lit even though the physical link is down.
+When the ksz module is installed and removed using rmmod, kernel crashes
+with null pointer dereferrence error. During rmmod, ksz_switch_remove
+function tries to cancel the mib_read_workqueue using
+cancel_delayed_work_sync routine and unregister switch from dsa.
 
-Add a check in mac_link_down and mac_link_up to see if it
-concerns an external port and only then, look at PPU status.
+During dsa_unregister_switch it calls ksz_mac_link_down, which in turn
+reschedules the workqueue since mib_interval is non-zero.
+Due to which queue executed after mib_interval and it tries to access
+dp->slave. But the slave is unregistered in the ksz_switch_remove
+function. Hence kernel crashes.
 
-Fixes: 5d5b231da7ac (net: dsa: mv88e6xxx: use PHY_DETECT in mac_link_up/mac_link_down)
-Reported-by: Maarten Zanders <m.zanders@televic.com>
-Reviewed-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
-Signed-off-by: Maarten Zanders <maarten.zanders@mind.be>
+To avoid this crash, before canceling the workqueue, resetted the
+mib_interval to 0.
+
+v1 -> v2:
+-Removed the if condition in ksz_mib_read_work
+
+Fixes: 469b390e1ba3 ("net: dsa: microchip: use delayed_work instead of timer + work")
+Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/net/dsa/microchip/ksz_common.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -749,7 +749,11 @@ static void mv88e6xxx_mac_link_down(stru
- 	ops = chip->info->ops;
+--- a/drivers/net/dsa/microchip/ksz_common.c
++++ b/drivers/net/dsa/microchip/ksz_common.c
+@@ -449,8 +449,10 @@ EXPORT_SYMBOL(ksz_switch_register);
+ void ksz_switch_remove(struct ksz_device *dev)
+ {
+ 	/* timer started */
+-	if (dev->mib_read_interval)
++	if (dev->mib_read_interval) {
++		dev->mib_read_interval = 0;
+ 		cancel_delayed_work_sync(&dev->mib_read);
++	}
  
- 	mv88e6xxx_reg_lock(chip);
--	if ((!mv88e6xxx_port_ppu_updates(chip, port) ||
-+	/* Internal PHYs propagate their configuration directly to the MAC.
-+	 * External PHYs depend on whether the PPU is enabled for this port.
-+	 */
-+	if (((!mv88e6xxx_phy_is_internal(ds, port) &&
-+	      !mv88e6xxx_port_ppu_updates(chip, port)) ||
- 	     mode == MLO_AN_FIXED) && ops->port_sync_link)
- 		err = ops->port_sync_link(chip, port, mode, false);
- 	mv88e6xxx_reg_unlock(chip);
-@@ -772,7 +776,12 @@ static void mv88e6xxx_mac_link_up(struct
- 	ops = chip->info->ops;
- 
- 	mv88e6xxx_reg_lock(chip);
--	if (!mv88e6xxx_port_ppu_updates(chip, port) || mode == MLO_AN_FIXED) {
-+	/* Internal PHYs propagate their configuration directly to the MAC.
-+	 * External PHYs depend on whether the PPU is enabled for this port.
-+	 */
-+	if ((!mv88e6xxx_phy_is_internal(ds, port) &&
-+	     !mv88e6xxx_port_ppu_updates(chip, port)) ||
-+	    mode == MLO_AN_FIXED) {
- 		/* FIXME: for an automedia port, should we force the link
- 		 * down here - what if the link comes up due to "other" media
- 		 * while we're bringing the port up, how is the exclusivity
+ 	dev->dev_ops->exit(dev);
+ 	dsa_unregister_switch(dev->ds);
 
 
