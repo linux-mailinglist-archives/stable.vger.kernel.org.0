@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFFFB431E55
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F270431AE6
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234422AbhJROAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:00:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59130 "EHLO mail.kernel.org"
+        id S232138AbhJRN3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234577AbhJRN6R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:58:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C635561391;
-        Mon, 18 Oct 2021 13:41:23 +0000 (UTC)
+        id S231921AbhJRN3I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6987061371;
+        Mon, 18 Oct 2021 13:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564484;
-        bh=d4mqd3nmx/pe/KPLfNiqal5aAW2JmfUWtp/RMsjIN7o=;
+        s=korg; t=1634563602;
+        bh=1S1QACtcwhixShhhtmO6ZqqEYgfaXBF0nZjGGYPVGZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ib0beblPaqJZAMJgv9GNoGzk7TXFYTkXBUfjBDupv5RQ43orIA7FqoLN6oNdfppWo
-         Ia8ycQ8snJJc9bm9cNMbkZR4uQMIMQrWnIvWO7p8Av46kSWkRU6OzrKt0Fdkks+AvP
-         kIop2oWkArZxix9RmcrXDrETf4dPd4l7y3qRx1lc=
+        b=kj0dEdCf/IHhpNBpQCG3Cg0HNXw7Ex2YqqQPhvlyMS+c/7uM/+BsUvZ7FM4M482H8
+         WoX7ZHmovMqdIpIzYq6+1SwhQ3RnIzYWee3Jjmlfn0OVJDnDG8ckbZsUqIQfYYHq8c
+         53NTMb7LJvNslKqfJDjaf57uNn3OnBJ3kBeE1UE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.14 073/151] iio: adc: max1027: Fix wrong shift with 12-bit devices
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.14 03/39] s390: fix strrchr() implementation
 Date:   Mon, 18 Oct 2021 15:24:12 +0200
-Message-Id: <20211018132343.058624724@linuxfoundation.org>
+Message-Id: <20211018132325.536685997@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit 732ae19ee8f58ecaf30cbc1bbbda5cbee6a45043 upstream.
+commit 8e0ab8e26b72a80e991c66a8abc16e6c856abe3d upstream.
 
-10-bit devices must shift the value twice.
-This is not needed anymore on 12-bit devices.
+Fix two problems found in the strrchr() implementation for s390
+architectures: evaluate empty strings (return the string address instead of
+NULL, if '\0' is passed as second argument); evaluate the first character
+of non-empty strings (the current implementation stops at the second).
 
-Fixes: ae47d009b508 ("iio: adc: max1027: Introduce 12-bit devices support")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210818111139.330636-2-miquel.raynal@bootlin.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reported-by: Heiko Carstens <hca@linux.ibm.com> (incorrect behavior with empty strings)
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Link: https://lore.kernel.org/r/20211005120836.60630-1-roberto.sassu@huawei.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/max1027.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/lib/string.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/drivers/iio/adc/max1027.c
-+++ b/drivers/iio/adc/max1027.c
-@@ -103,7 +103,7 @@ MODULE_DEVICE_TABLE(of, max1027_adc_dt_i
- 			.sign = 'u',					\
- 			.realbits = depth,				\
- 			.storagebits = 16,				\
--			.shift = 2,					\
-+			.shift = (depth == 10) ? 2 : 0,			\
- 			.endianness = IIO_BE,				\
- 		},							\
- 	}
+--- a/arch/s390/lib/string.c
++++ b/arch/s390/lib/string.c
+@@ -227,14 +227,13 @@ EXPORT_SYMBOL(strcmp);
+  */
+ char * strrchr(const char * s, int c)
+ {
+-       size_t len = __strend(s) - s;
++	ssize_t len = __strend(s) - s;
+ 
+-       if (len)
+-	       do {
+-		       if (s[len] == (char) c)
+-			       return (char *) s + len;
+-	       } while (--len > 0);
+-       return NULL;
++	do {
++		if (s[len] == (char)c)
++			return (char *)s + len;
++	} while (--len >= 0);
++	return NULL;
+ }
+ EXPORT_SYMBOL(strrchr);
+ 
 
 
