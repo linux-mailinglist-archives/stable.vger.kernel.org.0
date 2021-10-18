@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A77F431BDC
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 865D5431E2B
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233188AbhJRNfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:35:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42714 "EHLO mail.kernel.org"
+        id S234829AbhJRN6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:58:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232059AbhJRNeK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:34:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DAA36138B;
-        Mon, 18 Oct 2021 13:30:01 +0000 (UTC)
+        id S234481AbhJRN4U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:56:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E89A761A2E;
+        Mon, 18 Oct 2021 13:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563801;
-        bh=cesyj4anBa+P1NwYCsv+OIjAb5LzGTtCQDFHTqD9RZc=;
+        s=korg; t=1634564430;
+        bh=arOuavtSGezhyOzRSIbU4OJWoNzqOS8N+i+b0aA6J/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eL13aILfPqatwZAuDQz+8s+HmFkjcDRR2RsgfZzMmCSk7a5AFykUDTkgnDgLtBHlb
-         ZbPoU+7Jyg04fkD0emqVLkm3QQHpB60mTvARJx4nPJo5nidpZ7Gx82pn35x/shNqml
-         y215xsYZhv2RZwDCFs0de0x6sXqkJI8NwyA7D4Pk=
+        b=QsMDlrj6gJL15A4PyxK8GovWDlwq9mIJnwOM1Es0VtndZE9Ng8ParrZmkUy2PEfwg
+         B+gC8VA+tK9WJLpnlAWl7R0Zos+pN5ZSb2g51kU58oH9+fPe7in0JLRhNTbF4qgQVT
+         wz2D2wi1zZ8GObPtdGPh/lOtShI+gmAjzEa4dZmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 09/69] s390: fix strrchr() implementation
-Date:   Mon, 18 Oct 2021 15:24:07 +0200
-Message-Id: <20211018132329.765908869@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexandru Tachici <alexandru.tachici@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.14 069/151] iio: adc: ad7780: Fix IRQ flag
+Date:   Mon, 18 Oct 2021 15:24:08 +0200
+Message-Id: <20211018132342.933028240@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Alexandru Tachici <alexandru.tachici@analog.com>
 
-commit 8e0ab8e26b72a80e991c66a8abc16e6c856abe3d upstream.
+commit e081102f3077aa716974ccebec97003c890d5641 upstream.
 
-Fix two problems found in the strrchr() implementation for s390
-architectures: evaluate empty strings (return the string address instead of
-NULL, if '\0' is passed as second argument); evaluate the first character
-of non-empty strings (the current implementation stops at the second).
+Correct IRQ flag here is falling.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Reported-by: Heiko Carstens <hca@linux.ibm.com> (incorrect behavior with empty strings)
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Link: https://lore.kernel.org/r/20211005120836.60630-1-roberto.sassu@huawei.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+In Sigma-Delta devices the SDO line is also used as an interrupt.
+Leaving IRQ on level instead of falling might trigger a sample read
+when the IRQ is enabled, as the SDO line is already low. Not sure
+if SDO line will always immediately go high in ad_sd_buffer_postenable
+before the IRQ is enabled.
+
+Also the datasheet seem to explicitly say the falling edge of the SDO
+should be used as an interrupt:
+>From the AD7780 datasheet: " The DOUT/Figure 22 RDY falling edge
+can be used as an interrupt to a processor"
+
+Fixes: da4d3d6bb9f6 ("iio: adc: ad-sigma-delta: Allow custom IRQ flags")
+Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210906065630.16325-3-alexandru.tachici@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/lib/string.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/iio/adc/ad7780.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/lib/string.c
-+++ b/arch/s390/lib/string.c
-@@ -246,14 +246,13 @@ EXPORT_SYMBOL(strcmp);
- #ifdef __HAVE_ARCH_STRRCHR
- char *strrchr(const char *s, int c)
- {
--       size_t len = __strend(s) - s;
-+	ssize_t len = __strend(s) - s;
+--- a/drivers/iio/adc/ad7780.c
++++ b/drivers/iio/adc/ad7780.c
+@@ -203,7 +203,7 @@ static const struct ad_sigma_delta_info
+ 	.set_mode = ad7780_set_mode,
+ 	.postprocess_sample = ad7780_postprocess_sample,
+ 	.has_registers = false,
+-	.irq_flags = IRQF_TRIGGER_LOW,
++	.irq_flags = IRQF_TRIGGER_FALLING,
+ };
  
--       if (len)
--	       do {
--		       if (s[len] == (char) c)
--			       return (char *) s + len;
--	       } while (--len > 0);
--       return NULL;
-+	do {
-+		if (s[len] == (char)c)
-+			return (char *)s + len;
-+	} while (--len >= 0);
-+	return NULL;
- }
- EXPORT_SYMBOL(strrchr);
- #endif
+ #define _AD7780_CHANNEL(_bits, _wordsize, _mask_all)		\
 
 
