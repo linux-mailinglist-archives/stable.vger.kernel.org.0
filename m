@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31D5431CE5
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:44:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85808431AE3
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233761AbhJRNpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:45:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39220 "EHLO mail.kernel.org"
+        id S231918AbhJRN3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234115AbhJRNnu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:43:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FF3A6126A;
-        Mon, 18 Oct 2021 13:34:55 +0000 (UTC)
+        id S231920AbhJRN3I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74E2761362;
+        Mon, 18 Oct 2021 13:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564096;
-        bh=lB4QadlMJcP/QLGrEF8yrCOEdFe50p2EV3pbD1Krnpk=;
+        s=korg; t=1634563606;
+        bh=mIfWHTo6F5vNmIUpGiI4Mgv2twSJ0V9JjEE+iJXG1q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ale5Ms7nKVuF2G10e7tF5p3O5/oOpPRcFP6/TV4+l1q2qlcs1pYhWMoEIIXERmGFU
-         L7OzdvRlM9M9DXTq9i+AQcx6HWQiJkdSOtdyIyAs6VQ+Wksuc40TJvnc5gNm1ba5Yi
-         /BaMbL0gf/gWRfEnvv0WiI0XvYJQpMwpqXS4Vkq0=
+        b=ULr0xe5jTc36/lCozQEsAtfAFAHmvxgOjYbjBbbjE+9TSXGDi6lb5J7JMSxPfM6OF
+         JfYacT9D5IIVyzq0jpHUdn8sUXKzaTZfPv5mrWDikOVUQZmoD6UdqS73nTyyHeJ94r
+         auN2bWHWFWHAPGWc1Aow7IFDgOkq5qpb7uq8viJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Nicolas Saenz Julienne <nsaenz@kernel.org>
-Subject: [PATCH 5.10 063/103] ARM: dts: bcm2711-rpi-4-b: Fix usbs unit address
-Date:   Mon, 18 Oct 2021 15:24:39 +0200
-Message-Id: <20211018132336.870092585@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 31/39] nfc: fix error handling of nfc_proto_register()
+Date:   Mon, 18 Oct 2021 15:24:40 +0200
+Message-Id: <20211018132326.441888479@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenz@kernel.org>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-commit 3f32472854614d6f53b09b4812372dba9fc5c7de upstream.
+commit 0911ab31896f0e908540746414a77dd63912748d upstream.
 
-The unit address is supposed to represent '<device>,<function>'. Which
-are both 0 for RPi4b's XHCI controller. On top of that although
-OpenFirmware states bus number goes in the high part of the last reg
-parameter, FDT doesn't seem to care for it[1], so remove it.
+When nfc proto id is using, nfc_proto_register() return -EBUSY error
+code, but forgot to unregister proto. Fix it by adding proto_unregister()
+in the error handling case.
 
-[1] https://patchwork.kernel.org/project/linux-arm-kernel/patch/20210830103909.323356-1-nsaenzju@redhat.com/#24414633
-Fixes: 258f92d2f840 ("ARM: dts: bcm2711: Add reset controller to xHCI node")
-Suggested-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20210831125843.1233488-2-nsaenzju@redhat.com
-Signed-off-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Fixes: c7fe3b52c128 ("NFC: add NFC socket family")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211013034932.2833737-1-william.xuanziyang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/bcm2711-rpi-4-b.dts |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/nfc/af_nfc.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
-+++ b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
-@@ -262,8 +262,8 @@
+--- a/net/nfc/af_nfc.c
++++ b/net/nfc/af_nfc.c
+@@ -72,6 +72,9 @@ int nfc_proto_register(const struct nfc_
+ 		proto_tab[nfc_proto->id] = nfc_proto;
+ 	write_unlock(&proto_tab_lock);
  
- 		reg = <0 0 0 0 0>;
- 
--		usb@1,0 {
--			reg = <0x10000 0 0 0 0>;
-+		usb@0,0 {
-+			reg = <0 0 0 0 0>;
- 			resets = <&reset RASPBERRYPI_FIRMWARE_RESET_ID_USB>;
- 		};
- 	};
++	if (rc)
++		proto_unregister(nfc_proto->proto);
++
+ 	return rc;
+ }
+ EXPORT_SYMBOL(nfc_proto_register);
 
 
