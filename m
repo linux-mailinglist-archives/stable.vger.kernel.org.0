@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0263A431CB0
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9A6F431C26
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232714AbhJRNoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:44:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38720 "EHLO mail.kernel.org"
+        id S232804AbhJRNjO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:39:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232395AbhJRNmD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:42:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DCE261501;
-        Mon, 18 Oct 2021 13:33:51 +0000 (UTC)
+        id S231836AbhJRNg4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:36:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BC2F6136A;
+        Mon, 18 Oct 2021 13:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564032;
-        bh=DNlUJedpY1d8ERHjy1N7bkYZo8U0LtRGe4n5jCwrsuc=;
+        s=korg; t=1634563879;
+        bh=OM20+lB+gffL8rLecoYgxGmfeLWLanpiKC2P8wWeRe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCg4mejJVWTSe+8yBaerG1kViRVOjfING7NnxDC9GIyqcHu8QAhKHu3NVVBgdEMON
-         HVCUi8fBx5ZyNWP366x5roVvfX3ZPEkKpM7kw1VGxCt7FpOp5nSnysIgJD/QZWondP
-         ZcbWAdIXxLRAjRso6Ej/4bvUfRkUj9SYYznxBRLQ=
+        b=lQh1zyiIqklc7eI7r5MIU4e6ZTfMWImql/qSsnq9BrITQS5RAdjUKqWhPwNm9JYkq
+         xIKy5I3cQpfouyHpH0VY+o6qKuWL7dCaqAP91hOazK44FTppcAIkwnfWYYcu554oUH
+         7wuRTwcYmMCCWXVf+X/43EyNG/IexwpEPHF7uNvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 038/103] USB: serial: option: add Telit LE910Cx composition 0x1204
-Date:   Mon, 18 Oct 2021 15:24:14 +0200
-Message-Id: <20211018132335.986649700@linuxfoundation.org>
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Borislav Petkov <bp@suse.de>,
+        Reinette Chatre <reinette.chatre@intel.com>
+Subject: [PATCH 5.4 17/69] x86/resctrl: Free the ctrlval arrays when domain_setup_mon_state() fails
+Date:   Mon, 18 Oct 2021 15:24:15 +0200
+Message-Id: <20211018132330.040445279@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: James Morse <james.morse@arm.com>
 
-commit f5a8a07edafed8bede17a95ef8940fe3a57a77d5 upstream.
+commit 64e87d4bd3201bf8a4685083ee4daf5c0d001452 upstream.
 
-Add the following Telit LE910Cx composition:
+domain_add_cpu() is called whenever a CPU is brought online. The
+earlier call to domain_setup_ctrlval() allocates the control value
+arrays.
 
-0x1204: tty, adb, mbim, tty, tty, tty, tty
+If domain_setup_mon_state() fails, the control value arrays are not
+freed.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20211004105655.8515-1-dnlplm@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Add the missing kfree() calls.
+
+Fixes: 1bd2a63b4f0de ("x86/intel_rdt/mba_sc: Add initialization support")
+Fixes: edf6fa1c4a951 ("x86/intel_rdt/cqm: Add RMID (Resource monitoring ID) management")
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Reinette Chatre <reinette.chatre@intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20210917165958.28313-1-james.morse@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    2 ++
+ arch/x86/kernel/cpu/resctrl/core.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1229,6 +1229,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1203, 0xff),	/* Telit LE910Cx (RNDIS) */
- 	  .driver_info = NCTRL(2) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1204, 0xff),	/* Telit LE910Cx (MBIM) */
-+	  .driver_info = NCTRL(0) | RSVD(1) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920),
+--- a/arch/x86/kernel/cpu/resctrl/core.c
++++ b/arch/x86/kernel/cpu/resctrl/core.c
+@@ -588,6 +588,8 @@ static void domain_add_cpu(int cpu, stru
+ 	}
+ 
+ 	if (r->mon_capable && domain_setup_mon_state(r, d)) {
++		kfree(d->ctrl_val);
++		kfree(d->mbps_val);
+ 		kfree(d);
+ 		return;
+ 	}
 
 
