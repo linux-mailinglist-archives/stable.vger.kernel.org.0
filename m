@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF561431B02
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:28:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C09F8431C30
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232440AbhJRNaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:30:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42364 "EHLO mail.kernel.org"
+        id S231833AbhJRNjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:39:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232133AbhJRN3d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:29:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FCD561250;
-        Mon, 18 Oct 2021 13:27:21 +0000 (UTC)
+        id S233168AbhJRNho (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:37:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFA7461350;
+        Mon, 18 Oct 2021 13:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563642;
-        bh=u8O7nu3IFo70M67z9E3h7OH31dB0utrND8ayViNyC0o=;
+        s=korg; t=1634563897;
+        bh=U5EPDvDxRwuwGLAyLFC9t8K9bDCR/g4m+1dzIVed0L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=elAG+5JV/Cv3uKT4EgA/xyIRatDcvivgQDPsmJ5RdbkgW7c7kJwhOvZl3n+sdQaCz
-         PgFrLMbYOOTew8viQKVpA68fApsZMvDiHKRneyHtw2SICoQVuMsVAQX4w1EyOialnn
-         1S/joRbyufcd2M1viRJv3A4dAwrnx5zKyYMjBAbg=
+        b=Ski7QIoyWrnXSZSv9EeNCI2GchnQkHSn3dGn7TZ1eHfhF5AcK4MUOD1qwmKAxUAX5
+         chyWawq/BhgKwH4qufbqvpyktom8nvTG3Qot37Od8VaveS1INnNERQu6NmY+v7fM9J
+         86jn7zy74ToRCDeDSR2VZOhJEUMrjbccMH+J0CKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
+        stable@vger.kernel.org, Herve Codina <herve.codina@bootlin.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 39/39] r8152: select CRC32 and CRYPTO/CRYPTO_HASH/CRYPTO_SHA256
+Subject: [PATCH 5.4 50/69] net: stmmac: fix get_hw_feature() on old hardware
 Date:   Mon, 18 Oct 2021 15:24:48 +0200
-Message-Id: <20211018132326.691209255@linuxfoundation.org>
+Message-Id: <20211018132331.145499722@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
-References: <20211018132325.426739023@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +39,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+From: Herve Codina <herve.codina@bootlin.com>
 
-commit 9973a43012b6ad1720dbc4d5faf5302c28635b8c upstream.
+commit 075da584bae2da6a37428d59a477b6bdad430ac3 upstream.
 
-Fix the following build/link errors by adding a dependency on
-CRYPTO, CRYPTO_HASH, CRYPTO_SHA256 and CRC32:
+Some old IPs do not provide the hardware feature register.
+On these IPs, this register is read 0x00000000.
 
-  ld: drivers/net/usb/r8152.o: in function `rtl8152_fw_verify_checksum':
-  r8152.c:(.text+0x2b2a): undefined reference to `crypto_alloc_shash'
-  ld: r8152.c:(.text+0x2bed): undefined reference to `crypto_shash_digest'
-  ld: r8152.c:(.text+0x2c50): undefined reference to `crypto_destroy_tfm'
-  ld: drivers/net/usb/r8152.o: in function `_rtl8152_set_rx_mode':
-  r8152.c:(.text+0xdcb0): undefined reference to `crc32_le'
+In old driver version, this feature was handled but a regression came
+with the commit f10a6a3541b4 ("stmmac: rework get_hw_feature function").
+Indeed, this commit removes the return value in dma->get_hw_feature().
+This return value was used to indicate the validity of retrieved
+information and used later on in stmmac_hw_init() to override
+priv->plat data if this hardware feature were valid.
 
-Fixes: 9370f2d05a2a1 ("r8152: support request_firmware for RTL8153")
-Fixes: ac718b69301c7 ("net/usb: new driver for RTL8152")
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+This patch restores the return code in ->get_hw_feature() in order
+to indicate the hardware feature validity and override priv->plat
+data only if this hardware feature is valid.
+
+Fixes: f10a6a3541b4 ("stmmac: rework get_hw_feature function")
+Signed-off-by: Herve Codina <herve.codina@bootlin.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/Kconfig |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac1000_dma.c |   13 +++++++++++--
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c    |    6 ++++--
+ drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c  |    6 ++++--
+ drivers/net/ethernet/stmicro/stmmac/hwif.h          |    6 +++---
+ 4 files changed, 22 insertions(+), 9 deletions(-)
 
---- a/drivers/net/usb/Kconfig
-+++ b/drivers/net/usb/Kconfig
-@@ -98,6 +98,10 @@ config USB_RTL8150
- config USB_RTL8152
- 	tristate "Realtek RTL8152/RTL8153 Based USB Ethernet Adapters"
- 	select MII
-+	select CRC32
-+	select CRYPTO
-+	select CRYPTO_HASH
-+	select CRYPTO_SHA256
- 	help
- 	  This option adds support for Realtek RTL8152 based USB 2.0
- 	  10/100 Ethernet adapters and RTL8153 based USB 3.0 10/100/1000
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac1000_dma.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac1000_dma.c
+@@ -218,11 +218,18 @@ static void dwmac1000_dump_dma_regs(void
+ 				readl(ioaddr + DMA_BUS_MODE + i * 4);
+ }
+ 
+-static void dwmac1000_get_hw_feature(void __iomem *ioaddr,
+-				     struct dma_features *dma_cap)
++static int dwmac1000_get_hw_feature(void __iomem *ioaddr,
++				    struct dma_features *dma_cap)
+ {
+ 	u32 hw_cap = readl(ioaddr + DMA_HW_FEATURE);
+ 
++	if (!hw_cap) {
++		/* 0x00000000 is the value read on old hardware that does not
++		 * implement this register
++		 */
++		return -EOPNOTSUPP;
++	}
++
+ 	dma_cap->mbps_10_100 = (hw_cap & DMA_HW_FEAT_MIISEL);
+ 	dma_cap->mbps_1000 = (hw_cap & DMA_HW_FEAT_GMIISEL) >> 1;
+ 	dma_cap->half_duplex = (hw_cap & DMA_HW_FEAT_HDSEL) >> 2;
+@@ -252,6 +259,8 @@ static void dwmac1000_get_hw_feature(voi
+ 	dma_cap->number_tx_channel = (hw_cap & DMA_HW_FEAT_TXCHCNT) >> 22;
+ 	/* Alternate (enhanced) DESC mode */
+ 	dma_cap->enh_desc = (hw_cap & DMA_HW_FEAT_ENHDESSEL) >> 24;
++
++	return 0;
+ }
+ 
+ static void dwmac1000_rx_watchdog(void __iomem *ioaddr, u32 riwt,
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
+@@ -336,8 +336,8 @@ static void dwmac4_dma_tx_chan_op_mode(v
+ 	writel(mtl_tx_op, ioaddr +  MTL_CHAN_TX_OP_MODE(channel));
+ }
+ 
+-static void dwmac4_get_hw_feature(void __iomem *ioaddr,
+-				  struct dma_features *dma_cap)
++static int dwmac4_get_hw_feature(void __iomem *ioaddr,
++				 struct dma_features *dma_cap)
+ {
+ 	u32 hw_cap = readl(ioaddr + GMAC_HW_FEATURE0);
+ 
+@@ -400,6 +400,8 @@ static void dwmac4_get_hw_feature(void _
+ 	dma_cap->frpbs = (hw_cap & GMAC_HW_FEAT_FRPBS) >> 11;
+ 	dma_cap->frpsel = (hw_cap & GMAC_HW_FEAT_FRPSEL) >> 10;
+ 	dma_cap->dvlan = (hw_cap & GMAC_HW_FEAT_DVLAN) >> 5;
++
++	return 0;
+ }
+ 
+ /* Enable/disable TSO feature and set MSS */
+--- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c
+@@ -356,8 +356,8 @@ static int dwxgmac2_dma_interrupt(void _
+ 	return ret;
+ }
+ 
+-static void dwxgmac2_get_hw_feature(void __iomem *ioaddr,
+-				    struct dma_features *dma_cap)
++static int dwxgmac2_get_hw_feature(void __iomem *ioaddr,
++				   struct dma_features *dma_cap)
+ {
+ 	u32 hw_cap;
+ 
+@@ -425,6 +425,8 @@ static void dwxgmac2_get_hw_feature(void
+ 	dma_cap->frpes = (hw_cap & XGMAC_HWFEAT_FRPES) >> 11;
+ 	dma_cap->frpbs = (hw_cap & XGMAC_HWFEAT_FRPPB) >> 9;
+ 	dma_cap->frpsel = (hw_cap & XGMAC_HWFEAT_FRPSEL) >> 3;
++
++	return 0;
+ }
+ 
+ static void dwxgmac2_rx_watchdog(void __iomem *ioaddr, u32 riwt, u32 nchan)
+--- a/drivers/net/ethernet/stmicro/stmmac/hwif.h
++++ b/drivers/net/ethernet/stmicro/stmmac/hwif.h
+@@ -196,8 +196,8 @@ struct stmmac_dma_ops {
+ 	int (*dma_interrupt) (void __iomem *ioaddr,
+ 			      struct stmmac_extra_stats *x, u32 chan);
+ 	/* If supported then get the optional core features */
+-	void (*get_hw_feature)(void __iomem *ioaddr,
+-			       struct dma_features *dma_cap);
++	int (*get_hw_feature)(void __iomem *ioaddr,
++			      struct dma_features *dma_cap);
+ 	/* Program the HW RX Watchdog */
+ 	void (*rx_watchdog)(void __iomem *ioaddr, u32 riwt, u32 number_chan);
+ 	void (*set_tx_ring_len)(void __iomem *ioaddr, u32 len, u32 chan);
+@@ -247,7 +247,7 @@ struct stmmac_dma_ops {
+ #define stmmac_dma_interrupt_status(__priv, __args...) \
+ 	stmmac_do_callback(__priv, dma, dma_interrupt, __args)
+ #define stmmac_get_hw_feature(__priv, __args...) \
+-	stmmac_do_void_callback(__priv, dma, get_hw_feature, __args)
++	stmmac_do_callback(__priv, dma, get_hw_feature, __args)
+ #define stmmac_rx_watchdog(__priv, __args...) \
+ 	stmmac_do_void_callback(__priv, dma, rx_watchdog, __args)
+ #define stmmac_set_tx_ring_len(__priv, __args...) \
 
 
