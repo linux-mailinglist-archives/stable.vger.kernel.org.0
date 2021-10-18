@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 394C4431CF8
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:44:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95582431AE0
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232493AbhJRNqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40810 "EHLO mail.kernel.org"
+        id S232091AbhJRN33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233363AbhJRNor (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:44:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8F5F615E1;
-        Mon, 18 Oct 2021 13:35:19 +0000 (UTC)
+        id S231800AbhJRN3B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6784861260;
+        Mon, 18 Oct 2021 13:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564120;
-        bh=rJboFWYOlFxCjJ2sD+ydfZ3t2qyUBerEkypslsxgIkw=;
+        s=korg; t=1634563555;
+        bh=ttEj3R8FWWnF6pqIXRRfckoDNy1c35Yo/tBGpVCeGc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=srCYUB2N1vpIZ6096EibqHC5TGbJ8kOMC7QqIUEHTSw7tlt1lqESwy9LzQzxH5G8w
-         fKEUNAS0xZdIJBi8fpvyErChrsj8ayESw06/fzXPHwjdCbYlXVqOhFSKNfIfnmTAvs
-         zAtVZkEJAZPbcT/+o9VobFob7TsP1pTltJipmllI=
+        b=n5FAJHHe4ue2rke1LRop9OEW+aUP4H8qtnw79DvtGRGhhEyV8ihXennY+hS6o2SaV
+         07yYbF/dwMm+Uu8nUmlrb88815z6T6woGhtRxnebHItHjq9YSpF+E5oKATdZqHer+C
+         dozwpB+rd9CBa+9SelixtOicnIbntS8JRorPy6EQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 045/103] KVM: PPC: Book3S HV: Make idle_kvm_start_guest() return 0 if it went to guest
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.14 12/39] usb: musb: dsps: Fix the probe error path
 Date:   Mon, 18 Oct 2021 15:24:21 +0200
-Message-Id: <20211018132336.251615175@linuxfoundation.org>
+Message-Id: <20211018132325.854408952@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,71 +38,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit cdeb5d7d890e14f3b70e8087e745c4a6a7d9f337 upstream.
+commit c2115b2b16421d93d4993f3fe4c520e91d6fe801 upstream.
 
-We call idle_kvm_start_guest() from power7_offline() if the thread has
-been requested to enter KVM. We pass it the SRR1 value that was returned
-from power7_idle_insn() which tells us what sort of wakeup we're
-processing.
+Commit 7c75bde329d7 ("usb: musb: musb_dsps: request_irq() after
+initializing musb") has inverted the calls to
+dsps_setup_optional_vbus_irq() and dsps_create_musb_pdev() without
+updating correctly the error path. dsps_create_musb_pdev() allocates and
+registers a new platform device which must be unregistered and freed
+with platform_device_unregister(), and this is missing upon
+dsps_setup_optional_vbus_irq() error.
 
-Depending on the SRR1 value we pass in, the KVM code might enter the
-guest, or it might return to us to do some host action if the wakeup
-requires it.
+While on the master branch it seems not to trigger any issue, I observed
+a kernel crash because of a NULL pointer dereference with a v5.10.70
+stable kernel where the patch mentioned above was backported. With this
+kernel version, -EPROBE_DEFER is returned the first time
+dsps_setup_optional_vbus_irq() is called which triggers the probe to
+error out without unregistering the platform device. Unfortunately, on
+the Beagle Bone Black Wireless, the platform device still living in the
+system is being used by the USB Ethernet gadget driver, which during the
+boot phase triggers the crash.
 
-If idle_kvm_start_guest() is able to handle the wakeup, and enter the
-guest it is supposed to indicate that by returning a zero SRR1 value to
-us.
+My limited knowledge of the musb world prevents me to revert this commit
+which was sent to silence a robot warning which, as far as I understand,
+does not make sense. The goal of this patch was to prevent an IRQ to
+fire before the platform device being registered. I think this cannot
+ever happen due to the fact that enabling the interrupts is done by the
+->enable() callback of the platform musb device, and this platform
+device must be already registered in order for the core or any other
+user to use this callback.
 
-That was the behaviour prior to commit 10d91611f426 ("powerpc/64s:
-Reimplement book3s idle code in C"), however in that commit the
-handling of SRR1 was reworked, and the zeroing behaviour was lost.
+Hence, I decided to fix the error path, which might prevent future
+errors on mainline kernels while also fixing older ones.
 
-Returning from idle_kvm_start_guest() without zeroing the SRR1 value can
-confuse the host offline code, causing the guest to crash and other
-weirdness.
-
-Fixes: 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in C")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211015133929.832061-2-mpe@ellerman.id.au
+Fixes: 7c75bde329d7 ("usb: musb: musb_dsps: request_irq() after initializing musb")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20211005221631.1529448-1-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_hv_rmhandlers.S |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/musb/musb_dsps.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-+++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-@@ -301,6 +301,7 @@ _GLOBAL(idle_kvm_start_guest)
- 	stdu	r1, -SWITCH_FRAME_SIZE(r4)
- 	// Switch to new frame on emergency stack
- 	mr	r1, r4
-+	std	r3, 32(r1)	// Save SRR1 wakeup value
- 	SAVE_NVGPRS(r1)
+--- a/drivers/usb/musb/musb_dsps.c
++++ b/drivers/usb/musb/musb_dsps.c
+@@ -939,11 +939,13 @@ static int dsps_probe(struct platform_de
+ 	if (usb_get_dr_mode(&pdev->dev) == USB_DR_MODE_PERIPHERAL) {
+ 		ret = dsps_setup_optional_vbus_irq(pdev, glue);
+ 		if (ret)
+-			goto err;
++			goto unregister_pdev;
+ 	}
  
- 	/*
-@@ -352,6 +353,10 @@ kvm_unsplit_wakeup:
+ 	return 0;
  
- kvm_secondary_got_guest:
- 
-+	// About to go to guest, clear saved SRR1
-+	li	r0, 0
-+	std	r0, 32(r1)
-+
- 	/* Set HSTATE_DSCR(r13) to something sensible */
- 	ld	r6, PACA_DSCR_DEFAULT(r13)
- 	std	r6, HSTATE_DSCR(r13)
-@@ -443,8 +448,8 @@ kvm_no_guest:
- 	mfspr	r4, SPRN_LPCR
- 	rlwimi	r4, r3, 0, LPCR_PECE0 | LPCR_PECE1
- 	mtspr	SPRN_LPCR, r4
--	/* set up r3 for return */
--	mfspr	r3,SPRN_SRR1
-+	// Return SRR1 wakeup value, or 0 if we went into the guest
-+	ld	r3, 32(r1)
- 	REST_NVGPRS(r1)
- 	ld	r1, 0(r1)	// Switch back to caller stack
- 	ld	r0, 16(r1)	// Reload LR
++unregister_pdev:
++	platform_device_unregister(glue->musb);
+ err:
+ 	pm_runtime_disable(&pdev->dev);
+ 	iounmap(glue->usbss_base);
 
 
