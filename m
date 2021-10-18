@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CE3D431D6B
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:50:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A19A431D70
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:50:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233427AbhJRNvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:51:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49664 "EHLO mail.kernel.org"
+        id S231893AbhJRNv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:51:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233437AbhJRNtW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:49:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 923E86187C;
-        Mon, 18 Oct 2021 13:37:23 +0000 (UTC)
+        id S231959AbhJRNtZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:49:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5459661406;
+        Mon, 18 Oct 2021 13:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564244;
-        bh=X8T8nJdcfjDb9RMfDqAHqm8OX/AnvRnsLpuBQOCD6aY=;
+        s=korg; t=1634564246;
+        bh=hJ/Fj83g5wcwg63laNtWcSYJTHwDQ/ZvFQkLfMiKugE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fY7jZYvbgkiSVdLaFtCdonGZwCg1T/qGGDfcbI+BsnjGZZe60wLgTiudQfeLD/ycC
-         hMqi1uSixO6L/8oxRHO1dj7OW/yGSyTvJXwmtO+EXgFPJywEg8+1JrE44WnbawQHu+
-         Mqc0u3Nh6HYLM3SYN/OF1lgc+a+T7B0h/9SSjxfc=
+        b=2lhZuxZpn+2VdWQSv4x+qpXxCUX1ERQlBJjVCpUS9OlUSR8rezuJLuGndBIXIbjKO
+         JyM5o/nCHCerQYqKX5PMbWNmDDtsAeBY3xmSAMSFi8/Gvv2uYj7tb0cySMGRS8ip/o
+         c5dQTZz3cOtIJtj8O2ZdI7Q7agrv55Sm+hfTW4Z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Md Sadre Alam <mdalam@codeaurora.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.14 016/151] mtd: rawnand: qcom: Update code word value for raw read
-Date:   Mon, 18 Oct 2021 15:23:15 +0200
-Message-Id: <20211018132341.212664447@linuxfoundation.org>
+        stable@vger.kernel.org, Greentime Hu <green.hu@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.14 017/151] nds32/ftrace: Fix Error: invalid operands (*UND* and *UND* sections) for `^
+Date:   Mon, 18 Oct 2021 15:23:16 +0200
+Message-Id: <20211018132341.242345633@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -40,61 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Md Sadre Alam <mdalam@codeaurora.org>
+From: Steven Rostedt <rostedt@goodmis.org>
 
-commit f60f5741002b9fde748cff65fd09bd6222c5db0c upstream.
+commit be358af1191b1b2fedebd8f3421cafdc8edacc7d upstream.
 
->From QPIC V2 onwards there is a separate register to read
-last code word "QPIC_NAND_READ_LOCATION_LAST_CW_n".
+I received a build failure for a new patch I'm working on the nds32
+architecture, and when I went to test it, I couldn't get to my build error,
+because it failed to build with a bunch of:
 
-qcom_nandc_read_cw_raw() is used to read only one code word
-at a time. If we will configure number of code words to 1 in
-in QPIC_NAND_DEV0_CFG0 register then QPIC controller thinks
-its reading the last code word, since from QPIC V2 onwards
-we are having separate register to read the last code word,
-we have to configure "QPIC_NAND_READ_LOCATION_LAST_CW_n"
-register to fetch data from controller buffer to system
-memory.
+  Error: invalid operands (*UND* and *UND* sections) for `^'
 
-Fixes: 503ee5aad430 ("mtd: rawnand: qcom: update last code word register")
-Cc: stable@kernel.org
-Signed-off-by: Md Sadre Alam <mdalam@codeaurora.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/1630998357-1359-1-git-send-email-mdalam@codeaurora.org
+issues with various files. Those files were temporary asm files that looked
+like:  kernel/.tmp_mc_fork.s
+
+I decided to look deeper, and found that the "mc" portion of that name
+stood for "mcount", and was created by the recordmcount.pl script. One that
+I wrote over a decade ago. Once I knew the source of the problem, I was
+able to investigate it further.
+
+The way the recordmcount.pl script works (BTW, there's a C version that
+simply modifies the ELF object) is by doing an "objdump" on the object
+file. Looks for all the calls to "mcount", and creates an offset of those
+locations from some global variable it can use (usually a global function
+name, found with <.*>:). Creates a asm file that is a table of references
+to these locations, using the found variable/function. Compiles it and
+links it back into the original object file. This asm file is called
+".tmp_mc_<object_base_name>.s".
+
+The problem here is that the objdump produced by the nds32 object file,
+contains things that look like:
+
+ 0000159a <.L3^B1>:
+    159a:       c6 00           beqz38 $r6, 159a <.L3^B1>
+                        159a: R_NDS32_9_PCREL_RELA      .text+0x159e
+    159c:       84 d2           movi55 $r6, #-14
+    159e:       80 06           mov55 $r0, $r6
+    15a0:       ec 3c           addi10.sp #0x3c
+
+Where ".L3^B1 is somehow selected as the "global" variable to index off of.
+
+Then the assembly file that holds the mcount locations looks like this:
+
+        .section __mcount_loc,"a",@progbits
+        .align 2
+        .long .L3^B1 + -5522
+        .long .L3^B1 + -5384
+        .long .L3^B1 + -5270
+        .long .L3^B1 + -5098
+        .long .L3^B1 + -4970
+        .long .L3^B1 + -4758
+        .long .L3^B1 + -4122
+        [...]
+
+And when it is compiled back to an object to link to the original object,
+the compile fails on the "^" symbol.
+
+Simple solution for now, is to have the perl script ignore using function
+symbols that have an "^" in the name.
+
+Link: https://lkml.kernel.org/r/20211014143507.4ad2c0f7@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Acked-by: Greentime Hu <green.hu@gmail.com>
+Fixes: fbf58a52ac088 ("nds32/ftrace: Add RECORD_MCOUNT support")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/qcom_nandc.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ scripts/recordmcount.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/qcom_nandc.c
-+++ b/drivers/mtd/nand/raw/qcom_nandc.c
-@@ -1676,13 +1676,17 @@ qcom_nandc_read_cw_raw(struct mtd_info *
- 	struct nand_ecc_ctrl *ecc = &chip->ecc;
- 	int data_size1, data_size2, oob_size1, oob_size2;
- 	int ret, reg_off = FLASH_BUF_ACC, read_loc = 0;
-+	int raw_cw = cw;
- 
- 	nand_read_page_op(chip, page, 0, NULL, 0);
- 	host->use_ecc = false;
- 
-+	if (nandc->props->qpic_v2)
-+		raw_cw = ecc->steps - 1;
-+
- 	clear_bam_transaction(nandc);
- 	set_address(host, host->cw_size * cw, page);
--	update_rw_regs(host, 1, true, cw);
-+	update_rw_regs(host, 1, true, raw_cw);
- 	config_nand_page_read(chip);
- 
- 	data_size1 = mtd->writesize - host->cw_size * (ecc->steps - 1);
-@@ -1711,7 +1715,7 @@ qcom_nandc_read_cw_raw(struct mtd_info *
- 		nandc_set_read_loc(chip, cw, 3, read_loc, oob_size2, 1);
- 	}
- 
--	config_nand_cw_read(chip, false, cw);
-+	config_nand_cw_read(chip, false, raw_cw);
- 
- 	read_data_dma(nandc, reg_off, data_buf, data_size1, 0);
- 	reg_off += data_size1;
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -189,7 +189,7 @@ if ($arch =~ /(x86(_64)?)|(i386)/) {
+ $local_regex = "^[0-9a-fA-F]+\\s+t\\s+(\\S+)";
+ $weak_regex = "^[0-9a-fA-F]+\\s+([wW])\\s+(\\S+)";
+ $section_regex = "Disassembly of section\\s+(\\S+):";
+-$function_regex = "^([0-9a-fA-F]+)\\s+<(.*?)>:";
++$function_regex = "^([0-9a-fA-F]+)\\s+<([^^]*?)>:";
+ $mcount_regex = "^\\s*([0-9a-fA-F]+):.*\\s(mcount|__fentry__)\$";
+ $section_type = '@progbits';
+ $mcount_adjust = 0;
 
 
