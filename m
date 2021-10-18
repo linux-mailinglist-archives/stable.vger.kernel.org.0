@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04189431D5E
+	by mail.lfdr.de (Postfix) with ESMTP id 4CD0C431D5F
 	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234121AbhJRNub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:50:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50742 "EHLO mail.kernel.org"
+        id S234132AbhJRNuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:50:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234138AbhJRNs3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:48:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFADE61250;
-        Mon, 18 Oct 2021 13:37:07 +0000 (UTC)
+        id S234170AbhJRNsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:48:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E45461371;
+        Mon, 18 Oct 2021 13:37:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564228;
-        bh=j/dXTeNLHBCx/cQ2APnhqjWwMPxfe2gtqKJwF1iR8eE=;
+        s=korg; t=1634564230;
+        bh=dT687phatm1TJqek4ldCy6LsRiKHbqN3DirXEj2bSOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U28cApY3DxICKXcOO2ns+eOB1+jBbGYeY6iG+xjqI43EugMMkOnu30MRIv7kjgYJz
-         4tAdLDLItMo2JdENgQHqSBqnqo+ue7995ukacYmBhzeUvF7r9T3XjDM0aMkSBWHB+N
-         JgAVMkuzx3P+bCvprJiGn/4qUco7p4v2DsuaYhCw=
+        b=cCVJmEI01K0G1oYUPi8YIP4CedG6oXv2TP/Hq9qwrEfkDCkiKBqaiLAlGDvfB1NJ6
+         EZG4LPfBMQzmntgOjYD5MZBrZWPNP6gFIByb04yUKI+bFysG5FOVuFGimgTA1et9XG
+         JV83iIjpi8GiCNHz4kFZksXIbDCNRVMWnaoDGu9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
+        stable@vger.kernel.org, Cameron Berkenpas <cam@neo-zeon.de>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.14 010/151] ALSA: hda/realtek: Add quirk for TongFang PHxTxX1
-Date:   Mon, 18 Oct 2021 15:23:09 +0200
-Message-Id: <20211018132341.013962486@linuxfoundation.org>
+Subject: [PATCH 5.14 011/151] ALSA: hda/realtek: Fix for quirk to enable speaker output on the Lenovo 13s Gen2
+Date:   Mon, 18 Oct 2021 15:23:10 +0200
+Message-Id: <20211018132341.045942296@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -39,87 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Cameron Berkenpas <cam@neo-zeon.de>
 
-commit dd6dd6e3c791db7fdbc5433ec7e450717aa3a0ce upstream.
+commit 023a062f238129e8a542b5163c4350ceb076283e upstream.
 
-This applies a SND_PCI_QUIRK(...) to the TongFang PHxTxX1 barebone. This
-fixes the issue of the internal Microphone not working after booting
-another OS.
+The previous patch's HDA verb initialization for the Lenovo 13s
+sequence was slightly off. This updated verb sequence has been tested
+and confirmed working.
 
-When booting a certain another OS this barebone keeps some coeff settings
-even after a cold shutdown. These coeffs prevent the microphone detection
-from working in Linux, making the Laptop think that there is always an
-external microphone plugged-in and therefore preventing the use of the
-internal one.
-
-The relevant indexes and values where gathered by naively diff-ing and
-reading a working and a non-working coeff dump.
-
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Fixes: ad7cc2d41b7a ("ALSA: hda/realtek: Quirks to enable speaker output for Lenovo Legion 7i 15IMHG05, Yoga 7i 14ITL5/15ITL5, and 13s Gen2 laptops.")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208555
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211006130415.538243-1-wse@tuxedocomputers.com
+Signed-off-by: Cameron Berkenpas <cam@neo-zeon.de>
+Link: https://lore.kernel.org/r/20211010225410.23423-1-cam@neo-zeon.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   26 +++++++++++++++++++++++++-
- 1 file changed, 25 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -6466,6 +6466,24 @@ static void alc287_fixup_legion_15imhg05
- /* for alc285_fixup_ideapad_s740_coef() */
- #include "ideapad_s740_helper.c"
- 
-+static void alc256_fixup_tongfang_reset_persistent_settings(struct hda_codec *codec,
-+							    const struct hda_fixup *fix,
-+							    int action)
-+{
-+	/*
-+	* A certain other OS sets these coeffs to different values. On at least one TongFang
-+	* barebone these settings might survive even a cold reboot. So to restore a clean slate the
-+	* values are explicitly reset to default here. Without this, the external microphone is
-+	* always in a plugged-in state, while the internal microphone is always in an unplugged
-+	* state, breaking the ability to use the internal microphone.
-+	*/
-+	alc_write_coef_idx(codec, 0x24, 0x0000);
-+	alc_write_coef_idx(codec, 0x26, 0x0000);
-+	alc_write_coef_idx(codec, 0x29, 0x3000);
-+	alc_write_coef_idx(codec, 0x37, 0xfe05);
-+	alc_write_coef_idx(codec, 0x45, 0x5089);
-+}
-+
- enum {
- 	ALC269_FIXUP_GPIO2,
- 	ALC269_FIXUP_SONY_VAIO,
-@@ -6680,7 +6698,8 @@ enum {
- 	ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS,
- 	ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE,
- 	ALC287_FIXUP_YOGA7_14ITL_SPEAKERS,
--	ALC287_FIXUP_13S_GEN2_SPEAKERS
-+	ALC287_FIXUP_13S_GEN2_SPEAKERS,
-+	ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS,
- };
- 
- static const struct hda_fixup alc269_fixups[] = {
-@@ -8378,6 +8397,10 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_HEADSET_MODE,
- 	},
-+	[ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc256_fixup_tongfang_reset_persistent_settings,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8809,6 +8832,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
- 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
- 	SND_PCI_QUIRK(0x1c06, 0x2015, "Lemote A190X", ALC269_FIXUP_LEMOTE_A190X),
-+	SND_PCI_QUIRK(0x1d05, 0x1132, "TongFang PHxTxX1", ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS),
- 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
+@@ -8380,7 +8380,7 @@ static const struct hda_fixup alc269_fix
+ 		.v.verbs = (const struct hda_verb[]) {
+ 			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
+ 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x41 },
+-			{ 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
+ 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
+ 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
+ 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
 
 
