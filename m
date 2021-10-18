@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24B1C431CA5
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F27431AD5
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233511AbhJRNm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:42:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55246 "EHLO mail.kernel.org"
+        id S232058AbhJRN3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233736AbhJRNk6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:40:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 540906138B;
-        Mon, 18 Oct 2021 13:33:39 +0000 (UTC)
+        id S231811AbhJRN3E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 724E36134F;
+        Mon, 18 Oct 2021 13:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564019;
-        bh=Vw6ttr68ZCstAPpVVICipZAA0bc2xWlXeF1vrKCNfus=;
+        s=korg; t=1634563574;
+        bh=XUV2F7QPq6I0CrJayOW5sCUAAwA4qldj1kvMCO92C68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZRIPo804LX3OPGtYZ+PTViu53MXsn5QLz1eriQORkeoJAt+9vxBbbeAw29D+1vnYF
-         ja5t37PP/NnESyy98h1EKIb9cVByPS6pjzXcnmygbLsjZ2pKVRG1ZHhJ9WwyrWFbhf
-         gihBs2rhazTU64eSa83k+5+HBWnH0V7jtKGmLQkk=
+        b=UFGeuVCM9g2hyPMl1grV6xtxs77a5Bb4VxtK88c6qsPGVtSyLjyFZfKLXeoi4Rt8A
+         q1rLE6PG8G0YaILCr3uz03pTzhIY17NWFELEAxtPIrQ6AnNrzHX8y9683je8Jd7sAf
+         pXBgzZZGqYpSepB771YgWzCdDhvOLET7OYg49JEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.10 034/103] usb: musb: dsps: Fix the probe error path
-Date:   Mon, 18 Oct 2021 15:24:10 +0200
-Message-Id: <20211018132335.864944908@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        John Keeping <john@metanate.com>
+Subject: [PATCH 4.14 02/39] ALSA: seq: Fix a potential UAF by wrong private_free call order
+Date:   Mon, 18 Oct 2021 15:24:11 +0200
+Message-Id: <20211018132325.507403908@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,65 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit c2115b2b16421d93d4993f3fe4c520e91d6fe801 upstream.
+commit 1f8763c59c4ec6254d629fe77c0a52220bd907aa upstream.
 
-Commit 7c75bde329d7 ("usb: musb: musb_dsps: request_irq() after
-initializing musb") has inverted the calls to
-dsps_setup_optional_vbus_irq() and dsps_create_musb_pdev() without
-updating correctly the error path. dsps_create_musb_pdev() allocates and
-registers a new platform device which must be unregistered and freed
-with platform_device_unregister(), and this is missing upon
-dsps_setup_optional_vbus_irq() error.
+John Keeping reported and posted a patch for a potential UAF in
+rawmidi sequencer destruction: the snd_rawmidi_dev_seq_free() may be
+called after the associated rawmidi object got already freed.
+After a deeper look, it turned out that the bug is rather the
+incorrect private_free call order for a snd_seq_device.  The
+snd_seq_device private_free gets called at the release callback of the
+sequencer device object, while this was rather expected to be executed
+at the snd_device call chains that runs at the beginning of the whole
+card-free procedure.  It's been broken since the rewrite of
+sequencer-device binding (although it hasn't surfaced because the
+sequencer device release happens usually right along with the card
+device release).
 
-While on the master branch it seems not to trigger any issue, I observed
-a kernel crash because of a NULL pointer dereference with a v5.10.70
-stable kernel where the patch mentioned above was backported. With this
-kernel version, -EPROBE_DEFER is returned the first time
-dsps_setup_optional_vbus_irq() is called which triggers the probe to
-error out without unregistering the platform device. Unfortunately, on
-the Beagle Bone Black Wireless, the platform device still living in the
-system is being used by the USB Ethernet gadget driver, which during the
-boot phase triggers the crash.
+This patch corrects the private_free call to be done in the right
+place, at snd_seq_device_dev_free().
 
-My limited knowledge of the musb world prevents me to revert this commit
-which was sent to silence a robot warning which, as far as I understand,
-does not make sense. The goal of this patch was to prevent an IRQ to
-fire before the platform device being registered. I think this cannot
-ever happen due to the fact that enabling the interrupts is done by the
-->enable() callback of the platform musb device, and this platform
-device must be already registered in order for the core or any other
-user to use this callback.
-
-Hence, I decided to fix the error path, which might prevent future
-errors on mainline kernels while also fixing older ones.
-
-Fixes: 7c75bde329d7 ("usb: musb: musb_dsps: request_irq() after initializing musb")
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/r/20211005221631.1529448-1-miquel.raynal@bootlin.com
+Fixes: 7c37ae5c625a ("ALSA: seq: Rewrite sequencer device binding with standard bus")
+Reported-and-tested-by: John Keeping <john@metanate.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210930114114.8645-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/musb/musb_dsps.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/core/seq_device.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/musb/musb_dsps.c
-+++ b/drivers/usb/musb/musb_dsps.c
-@@ -899,11 +899,13 @@ static int dsps_probe(struct platform_de
- 	if (usb_get_dr_mode(&pdev->dev) == USB_DR_MODE_PERIPHERAL) {
- 		ret = dsps_setup_optional_vbus_irq(pdev, glue);
- 		if (ret)
--			goto err;
-+			goto unregister_pdev;
- 	}
+--- a/sound/core/seq_device.c
++++ b/sound/core/seq_device.c
+@@ -162,6 +162,8 @@ static int snd_seq_device_dev_free(struc
+ 	struct snd_seq_device *dev = device->device_data;
  
+ 	cancel_autoload_drivers();
++	if (dev->private_free)
++		dev->private_free(dev);
+ 	put_device(&dev->dev);
  	return 0;
+ }
+@@ -189,11 +191,7 @@ static int snd_seq_device_dev_disconnect
  
-+unregister_pdev:
-+	platform_device_unregister(glue->musb);
- err:
- 	pm_runtime_disable(&pdev->dev);
- 	iounmap(glue->usbss_base);
+ static void snd_seq_dev_release(struct device *dev)
+ {
+-	struct snd_seq_device *sdev = to_seq_dev(dev);
+-
+-	if (sdev->private_free)
+-		sdev->private_free(sdev);
+-	kfree(sdev);
++	kfree(to_seq_dev(dev));
+ }
+ 
+ /*
 
 
