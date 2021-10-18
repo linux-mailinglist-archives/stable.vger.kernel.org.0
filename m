@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C356431CB1
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F50A431E69
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:58:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233044AbhJRNoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:44:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38832 "EHLO mail.kernel.org"
+        id S234671AbhJROAu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 10:00:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232817AbhJRNmF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:42:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C180061440;
-        Mon, 18 Oct 2021 13:33:54 +0000 (UTC)
+        id S234812AbhJRN6v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:58:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 827BE613A8;
+        Mon, 18 Oct 2021 13:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564035;
-        bh=5XQC/5gA2VzzjIOsTD3/VrSSjs40RAnchdlV1WviRlA=;
+        s=korg; t=1634564492;
+        bh=eTnfVWKlsW/i6qDvROrWWj7teRSCUAukI+LYIxwu9zI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eNht6iytGPDAHgVFq7I4/GWA5yj9bIhksPa7Ve3Xr4UBqFIUEVVzCSabS5R2cP89X
-         154WqXxlNnimwMlHrhbiZ5dT3qIrmxz8r80fv6mYdjQb3ncLkxhDR3qu/U861MnmrP
-         0NVesNWmmzPJLJYuKnpsPU2PPUzJBHnJzg+0/IWs=
+        b=lNgno35qrhrimeJv+BGk6DZG3IZtEFVR08Rd00W5LUSrX/sBdXERR2LPM67ydGKeq
+         +JdikgvZIzRqhtvaxJmTSNr4I9o83lhVZqfRLw/tIxH0kTqvIZljWfmLy9iR0/i+hZ
+         LDKNdMVBUSUk3zYP3qbCuDETB5/VKKeUOq0edK2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomaz Solc <tomaz.solc@tablix.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 039/103] USB: serial: option: add prod. id for Quectel EG91
+        stable@vger.kernel.org, Jiri Valek - 2N <valek@2n.cz>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.14 076/151] iio: light: opt3001: Fixed timeout error when 0 lux
 Date:   Mon, 18 Oct 2021 15:24:15 +0200
-Message-Id: <20211018132336.025269834@linuxfoundation.org>
+Message-Id: <20211018132343.157481543@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomaz Solc <tomaz.solc@tablix.org>
+From: Jiri Valek - 2N <valek@2n.cz>
 
-commit c184accc4a42c7872dc8e8d0fc97a740dc61fe24 upstream.
+commit 26d90b5590579def54382a2fc34cfbe8518a9851 upstream.
 
-Adding support for Quectel EG91 LTE module.
+Reading from sensor returned timeout error under
+zero light conditions.
 
-The interface layout is same as for EG95.
-
-usb-devices output:
-T:  Bus=01 Lev=02 Prnt=02 Port=00 Cnt=01 Dev#=  3 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0191 Rev=03.18
-S:  Manufacturer=Android
-S:  Product=Android
-C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-
-Interfaces:
-
-0: Diag
-1: GNSS
-2: AT-command interface/modem
-3: Modem
-4: QMI
-
-Signed-off-by: Tomaz Solc <tomaz.solc@tablix.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Jiri Valek - 2N <valek@2n.cz>
+Fixes: ac663db3678a ("iio: light: opt3001: enable operation w/o IRQ")
+Link: https://lore.kernel.org/r/20210920125351.6569-1-valek@2n.cz
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/iio/light/opt3001.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -246,6 +246,7 @@ static void option_instat_callback(struc
- /* These Quectel products use Quectel's vendor ID */
- #define QUECTEL_PRODUCT_EC21			0x0121
- #define QUECTEL_PRODUCT_EC25			0x0125
-+#define QUECTEL_PRODUCT_EG91			0x0191
- #define QUECTEL_PRODUCT_EG95			0x0195
- #define QUECTEL_PRODUCT_BG96			0x0296
- #define QUECTEL_PRODUCT_EP06			0x0306
-@@ -1112,6 +1113,9 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25, 0xff, 0xff, 0xff),
- 	  .driver_info = NUMEP2 },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG91, 0xff, 0xff, 0xff),
-+	  .driver_info = NUMEP2 },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG91, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95, 0xff, 0xff, 0xff),
- 	  .driver_info = NUMEP2 },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95, 0xff, 0, 0) },
+--- a/drivers/iio/light/opt3001.c
++++ b/drivers/iio/light/opt3001.c
+@@ -276,6 +276,8 @@ static int opt3001_get_lux(struct opt300
+ 		ret = wait_event_timeout(opt->result_ready_queue,
+ 				opt->result_ready,
+ 				msecs_to_jiffies(OPT3001_RESULT_READY_LONG));
++		if (ret == 0)
++			return -ETIMEDOUT;
+ 	} else {
+ 		/* Sleep for result ready time */
+ 		timeout = (opt->int_time == OPT3001_INT_TIME_SHORT) ?
+@@ -312,9 +314,7 @@ err:
+ 		/* Disallow IRQ to access the device while lock is active */
+ 		opt->ok_to_ignore_lock = false;
+ 
+-	if (ret == 0)
+-		return -ETIMEDOUT;
+-	else if (ret < 0)
++	if (ret < 0)
+ 		return ret;
+ 
+ 	if (opt->use_irq) {
 
 
