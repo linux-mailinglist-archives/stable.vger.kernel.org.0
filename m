@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B82A4431E4E
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F585431B35
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234220AbhJRN76 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:59:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37464 "EHLO mail.kernel.org"
+        id S232256AbhJRNbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:31:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234340AbhJRN55 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:57:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AFC261A05;
-        Mon, 18 Oct 2021 13:41:18 +0000 (UTC)
+        id S232132AbhJRNaN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:30:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4095E61351;
+        Mon, 18 Oct 2021 13:28:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564479;
-        bh=FTq9aKxtvC9DABeHCnl/DgR+38H1FTLYtm0hVD7HkYQ=;
+        s=korg; t=1634563682;
+        bh=yPqwLxKFBD/V8h+UWQGIFVtSE+u5JEz0Rdtya6pOk3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f8+PmlVVOyZEBl9tEwbvM9Xa4jety/r5aCB7TnNTq+P0w9OfgIrdrSK1q6f9oQ9JM
-         8gAbMJgHkzkXVhirX+LH3PKlUff7tEhw91hsSE6wmJFTG49g8jb0hdKxdkSJ2oli0A
-         sD5U3qN3reQgT91H0SrNUwgobepQ1/72K0faqJUQ=
+        b=XoAS+deTCaj46FkGZgSAtoi7/kF8R7glvbxHjNghE0tXz2fhzPSqt86o+ka1QIEd1
+         GN4mKvyNXIRAGe5pY1IhZ00qShld7WdQeEllIKPwIHZ6icjNYzTbZV46R9ROtwUWeo
+         SKcgLzgl1xMBD2HjdvRVEz6gX6GtCC8PQWTV+Rkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.14 071/151] iio: adis16480: fix devices that do not support sleep mode
+        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 03/50] ALSA: hda/realtek: Add quirk for Clevo X170KM-G
 Date:   Mon, 18 Oct 2021 15:24:10 +0200
-Message-Id: <20211018132342.994281537@linuxfoundation.org>
+Message-Id: <20211018132326.635310179@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
+References: <20211018132326.529486647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,82 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-commit ea1945c2f72d7bd253e2ebaa97cdd8d9ffcde076 upstream.
+commit cc03069a397005da24f6783835c274d5aedf6043 upstream.
 
-Not all devices supported by this driver support being put to sleep
-mode. For those devices, when calling 'adis16480_stop_device()' on the
-unbind path, we where actually writing in the SYNC_SCALE register.
+This applies a SND_PCI_QUIRK(...) to the Clevo X170KM-G barebone. This
+fixes the issue of the devices internal Speaker not working.
 
-Fixes: 80cbc848c4fa0 ("iio: imu: adis16480: Add support for ADIS16490")
-Fixes: 82e7a1b250170 ("iio: imu: adis16480: Add support for ADIS1649x family of devices")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210903141423.517028-6-nuno.sa@analog.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211001133111.428249-3-wse@tuxedocomputers.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/adis16480.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/imu/adis16480.c
-+++ b/drivers/iio/imu/adis16480.c
-@@ -144,6 +144,7 @@ struct adis16480_chip_info {
- 	unsigned int max_dec_rate;
- 	const unsigned int *filter_freqs;
- 	bool has_pps_clk_mode;
-+	bool has_sleep_cnt;
- 	const struct adis_data adis_data;
- };
- 
-@@ -939,6 +940,7 @@ static const struct adis16480_chip_info
- 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
- 		.int_clk = 2460000,
- 		.max_dec_rate = 2048,
-+		.has_sleep_cnt = true,
- 		.filter_freqs = adis16480_def_filter_freqs,
- 		.adis_data = ADIS16480_DATA(16375, &adis16485_timeouts, 0),
- 	},
-@@ -952,6 +954,7 @@ static const struct adis16480_chip_info
- 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
- 		.int_clk = 2460000,
- 		.max_dec_rate = 2048,
-+		.has_sleep_cnt = true,
- 		.filter_freqs = adis16480_def_filter_freqs,
- 		.adis_data = ADIS16480_DATA(16480, &adis16480_timeouts, 0),
- 	},
-@@ -965,6 +968,7 @@ static const struct adis16480_chip_info
- 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
- 		.int_clk = 2460000,
- 		.max_dec_rate = 2048,
-+		.has_sleep_cnt = true,
- 		.filter_freqs = adis16480_def_filter_freqs,
- 		.adis_data = ADIS16480_DATA(16485, &adis16485_timeouts, 0),
- 	},
-@@ -978,6 +982,7 @@ static const struct adis16480_chip_info
- 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
- 		.int_clk = 2460000,
- 		.max_dec_rate = 2048,
-+		.has_sleep_cnt = true,
- 		.filter_freqs = adis16480_def_filter_freqs,
- 		.adis_data = ADIS16480_DATA(16488, &adis16485_timeouts, 0),
- 	},
-@@ -1425,9 +1430,12 @@ static int adis16480_probe(struct spi_de
- 	if (ret)
- 		return ret;
- 
--	ret = devm_add_action_or_reset(&spi->dev, adis16480_stop, indio_dev);
--	if (ret)
--		return ret;
-+	if (st->chip_info->has_sleep_cnt) {
-+		ret = devm_add_action_or_reset(&spi->dev, adis16480_stop,
-+					       indio_dev);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	ret = adis16480_config_irq_pin(spi->dev.of_node, st);
- 	if (ret)
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2524,6 +2524,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170SM", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x7715, "Clevo X170KM-G", ALC1220_FIXUP_CLEVO_PB51ED),
+ 	SND_PCI_QUIRK(0x1558, 0x9501, "Clevo P950HR", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1558, 0x9506, "Clevo P955HQ", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1558, 0x950a, "Clevo P955H[PR]", ALC1220_FIXUP_CLEVO_P950),
 
 
