@@ -2,106 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E096E4319CA
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 14:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4065431A18
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 14:53:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbhJRMtw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 08:49:52 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:60978 "EHLO m43-7.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229644AbhJRMtv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 08:49:51 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1634561260; h=Date: Message-ID: Cc: To: References:
- In-Reply-To: From: Subject: Content-Transfer-Encoding: MIME-Version:
- Content-Type: Sender; bh=0j+IfNmIKl8RYC/I1HBAehhfSRQaJld1SDjqTOGGquk=;
- b=jLYm1VeTPeddSDPy62M6pd5LODJUIpyuPotx93xRANbk9vIAuItY+4pUTI7db5JeptNd+c2X
- yMYXkj11dHrxYzfJvVtgVAzL8btCgzK4a+UyRIw133B9i8W0CM2HGvM1zsh0HrzZkTRcvWqw
- TD5Zdk3Df/vDwQVOCVO6WlSERcU=
-X-Mailgun-Sending-Ip: 69.72.43.7
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n02.prod.us-east-1.postgun.com with SMTP id
- 616d6ceaab9da96e64ed0d90 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 18 Oct 2021 12:47:38
- GMT
-Sender: kvalo=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id DB14BC43460; Mon, 18 Oct 2021 12:47:37 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.5 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        MISSING_DATE,SPF_FAIL autolearn=no autolearn_force=no version=3.4.0
-Received: from tykki.adurom.net (tynnyri.adurom.net [51.15.11.48])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: kvalo)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 89CC0C4338F;
-        Mon, 18 Oct 2021 12:47:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 smtp.codeaurora.org 89CC0C4338F
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=codeaurora.org
-Content-Type: text/plain; charset="utf-8"
+        id S229833AbhJRMzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 08:55:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54648 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229519AbhJRMzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 08:55:10 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25CEC06161C
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 05:52:58 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id r18so70906279edv.12
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 05:52:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=mind.be; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=MOuesFkbx8787dPIPc8Q8TOsbWXeYPQW0Qj4zGK36Z4=;
+        b=H9zeVlnhAj85/5gphFStfQWyN+O+VvdcJzhxT+vlL7BP3qIeK2rNulZ5NiedfnAG4g
+         or6uIgBDezS3dr6bP9xGu4f1IBPKWrI5wF+8Ml9jGmy4ABjao2Uka5UOWphhWpXmkVM3
+         rNFrPvps40FEqQmIASri0zjZx4PNOTrhxvHw69kmmiB6zfJXQzMss8sByQfcOTV0EWbk
+         OJGKDK6L36fZ3Q+HgJ7U2xQOeU2XC2F7LifFRkPBi70Y/Vx44o3ds7KgYa3s5luDpxLA
+         ShbJ1Ym8jx9bfWjTRhtivUa35mL366L1otZ1U7U5WSlLbM6+fp3hF60314ZWu5rpIpoS
+         IADA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=MOuesFkbx8787dPIPc8Q8TOsbWXeYPQW0Qj4zGK36Z4=;
+        b=cuQHhOLTcNyDrFznF5bQUDmJhee4NuJm/DxHj1SlG+uWTe3pbDPYj8xRnYPobA48eC
+         P7bEWHrXGEw+FOCD7XOvetRmXFJdvqZMvY0as7Il0FozHlZehTPmVGaA/nzsRJ0iwSbJ
+         dYQGBT/doM5yPQMbGf/mvaB+RkLLIlVXI1OFDrkPhXIQzrgPXM0G19NOVGlB3kwUrJKM
+         7GZIW7+M64/dbcphKX9Zz5F31nEmBGp1RWoMy+46bOIJieLz3tx/F4DTXebOVfYb/JOV
+         XnWfbybeu9Isj6fNAuIhda6KKA4TAagezUGmt0j4zrtC1/qo20dTATsQuz621zAzyNi0
+         yJjw==
+X-Gm-Message-State: AOAM532E8E2NoNlNxxBwFE1GCOdq15fj9pU5v0nsWs5bDJRRsMSxhENY
+        yEpG6oj79670voCK3ZE+6FsiCirT+b0s62vg
+X-Google-Smtp-Source: ABdhPJwGgdGAO5bdxTRO8P0AMtgBOdQk9K8KSeup0cxE5ppaMO1XJHtYIeNyfzw1HVu1r9RVOpLnIw==
+X-Received: by 2002:a05:6402:5189:: with SMTP id q9mr44629676edd.94.1634561566091;
+        Mon, 18 Oct 2021 05:52:46 -0700 (PDT)
+Received: from dtpc.zanders.be (78-22-137-109.access.telenet.be. [78.22.137.109])
+        by smtp.gmail.com with ESMTPSA id dh16sm9584498edb.63.2021.10.18.05.52.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Oct 2021 05:52:45 -0700 (PDT)
+From:   Maarten Zanders <maarten.zanders@mind.be>
+To:     stable@vger.kernel.org
+Cc:     Maarten Zanders <maarten.zanders@mind.be>
+Subject: [PATCH 5.10] net: dsa: mv88e6xxx: don't use PHY_DETECT on internal PHY's
+Date:   Mon, 18 Oct 2021 14:52:20 +0200
+Message-Id: <20211018125220.22190-1-maarten.zanders@mind.be>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH] wcn36xx: Fix tx_status mechanism
-From:   Kalle Valo <kvalo@codeaurora.org>
-In-Reply-To: <1634560260-15056-1-git-send-email-loic.poulain@linaro.org>
-References: <1634560260-15056-1-git-send-email-loic.poulain@linaro.org>
-To:     Loic Poulain <loic.poulain@linaro.org>
-Cc:     linux-wireless@vger.kernel.org, wcn36xx@lists.infradead.org,
-        bryan.odonoghue@linaro.org, Loic Poulain <loic.poulain@linaro.org>,
-        stable@vger.kernel.org
-User-Agent: pwcli/0.1.0-git (https://github.com/kvalo/pwcli/) Python/3.7.3
-Message-ID: <163456125238.11105.17236254354491324059.kvalo@codeaurora.org>
-Date:   Mon, 18 Oct 2021 12:47:37 +0000 (UTC)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Loic Poulain <loic.poulain@linaro.org> wrote:
+mv88e6xxx_port_ppu_updates() interpretes data in the PORT_STS
+register incorrectly for internal ports (ie no PPU). In these
+cases, the PHY_DETECT bit indicates link status. This results
+in forcing the MAC state whenever the PHY link goes down which
+is not intended. As a side effect, LED's configured to show
+link status stay lit even though the physical link is down.
 
-> This change fix the TX ack mechanism in various ways:
-> 
-> - For NO_ACK tagged packets, we don't need to way for TX_ACK indication
-> and so are not subject to the single packet ack limitation. So we don't
-> have to stop the tx queue, and can call the tx status callback as soon
-> as DMA transfer has completed.
-> 
-> - Fix skb ownership/reference. Only start status indication timeout
-> once the DMA transfer has been completed. This avoids the skb to be
-> both referenced in the DMA tx ring and by the tx_ack_skb pointer,
-> preventing any use-after-free or double-free.
-> 
-> - This adds a sanity (paranoia?) check on the skb tx ack pointer.
-> 
-> - Resume TX queue if TX status tagged packet TX fails.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: fdf21cc37149 ("wcn36xx: Add TX ack support")
-> Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Add a check in mac_link_down and mac_link_up to see if it
+concerns an external port and only then, look at PPU status.
 
-Fails to build:
+Difference from upstream commit:
+ops->port_sync_link() renamed to ops->port_set_link()
 
-drivers/net/wireless/ath/wcn36xx/txrx.c: In function 'wcn36xx_start_tx':
-drivers/net/wireless/ath/wcn36xx/txrx.c:611:23: error: unused variable 'flags' [-Werror=unused-variable]
-  611 |         unsigned long flags;
-      |                       ^~~~~
-cc1: all warnings being treated as errors
-make[5]: *** [scripts/Makefile.build:277: drivers/net/wireless/ath/wcn36xx/txrx.o] Error 1
-make[5]: *** Waiting for unfinished jobs....
-make[4]: *** [scripts/Makefile.build:540: drivers/net/wireless/ath/wcn36xx] Error 2
-make[3]: *** [scripts/Makefile.build:540: drivers/net/wireless/ath] Error 2
-make[2]: *** [scripts/Makefile.build:540: drivers/net/wireless] Error 2
-make[1]: *** [scripts/Makefile.build:540: drivers/net] Error 2
-make: *** [Makefile:1874: drivers] Error 2
+Fixes: 5d5b231da7ac (net: dsa: mv88e6xxx: use PHY_DETECT in mac_link_up/mac_link_down)
+Cc: <stable@vger.kernel.org> # 5.10
+Signed-off-by: Maarten Zanders <maarten.zanders@mind.be>
+---
+ drivers/net/dsa/mv88e6xxx/chip.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-Patch set to Changes Requested.
-
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 18388ea5ebd9..afc5500ef8ed 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -726,7 +726,11 @@ static void mv88e6xxx_mac_link_down(struct dsa_switch *ds, int port,
+ 	ops = chip->info->ops;
+ 
+ 	mv88e6xxx_reg_lock(chip);
+-	if ((!mv88e6xxx_port_ppu_updates(chip, port) ||
++	/* Internal PHYs propagate their configuration directly to the MAC.
++	 * External PHYs depend on whether the PPU is enabled for this port.
++	 */
++	if (((!mv88e6xxx_phy_is_internal(ds, port) &&
++	      !mv88e6xxx_port_ppu_updates(chip, port)) ||
+ 	     mode == MLO_AN_FIXED) && ops->port_set_link)
+ 		err = ops->port_set_link(chip, port, LINK_FORCED_DOWN);
+ 	mv88e6xxx_reg_unlock(chip);
+@@ -749,7 +753,12 @@ static void mv88e6xxx_mac_link_up(struct dsa_switch *ds, int port,
+ 	ops = chip->info->ops;
+ 
+ 	mv88e6xxx_reg_lock(chip);
+-	if (!mv88e6xxx_port_ppu_updates(chip, port) || mode == MLO_AN_FIXED) {
++	/* Internal PHYs propagate their configuration directly to the MAC.
++	 * External PHYs depend on whether the PPU is enabled for this port.
++	 */
++	if ((!mv88e6xxx_phy_is_internal(ds, port) &&
++	     !mv88e6xxx_port_ppu_updates(chip, port)) ||
++	    mode == MLO_AN_FIXED) {
+ 		/* FIXME: for an automedia port, should we force the link
+ 		 * down here - what if the link comes up due to "other" media
+ 		 * while we're bringing the port up, how is the exclusivity
 -- 
-https://patchwork.kernel.org/project/linux-wireless/patch/1634560260-15056-1-git-send-email-loic.poulain@linaro.org/
-
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+2.25.1
 
