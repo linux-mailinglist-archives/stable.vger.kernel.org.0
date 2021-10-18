@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DF1D431D35
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D22B431D32
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232991AbhJRNtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:49:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49074 "EHLO mail.kernel.org"
+        id S233257AbhJRNtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:49:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232846AbhJRNrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:47:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24DF7613D0;
-        Mon, 18 Oct 2021 13:36:19 +0000 (UTC)
+        id S232454AbhJRNrk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:47:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B801F6128E;
+        Mon, 18 Oct 2021 13:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564180;
-        bh=PWW+rabaX/wNvoiL7AcF8POQE8b0xp3dMVs2LjsWSe4=;
+        s=korg; t=1634564183;
+        bh=vgO7421nswS0O3mEoLkmcesOBtxJ6kzPILryIbihVac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kO9ypItmP6HktJ2ieclq3XwYndsCoRVdvKPIHf6BvdJUQGqB9VrftYEw5v6rQmfOa
-         4vvWUfThW45+72Xa1yTH22vsdVDdpO6oPuKxK+TLekOBquJpsPUsrmp5g+J6yAw9QV
-         iCEJX3A7NecKCXcf483pzZjJzz5wf9jf/nNRLX7Y=
+        b=DnxI0Ne2LxmZJgwNfp1+Q3I+DS8C4wsBj7wIBLDO/QsKCQI6YAI6ZzFLueWk5qxdz
+         DXnmSU3zut+GiP1DukmqQjWwwXop/rGCEPH7HXYxUQZLyKuM9FOqBCoR7R2RsV1a4h
+         xCGLnLOzboNu5jIJ0I13dSEzlEThvmW+kk1AI2A0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.10 096/103] platform/x86: intel_scu_ipc: Fix busy loop expiry time
-Date:   Mon, 18 Oct 2021 15:25:12 +0200
-Message-Id: <20211018132337.969316573@linuxfoundation.org>
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 097/103] mqprio: Correct stats in mqprio_dump_class_stats().
+Date:   Mon, 18 Oct 2021 15:25:13 +0200
+Message-Id: <20211018132337.999774964@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
 References: <20211018132334.702559133@linuxfoundation.org>
@@ -41,36 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit 41512e4dc0b84525495e784295092592adb87f1b upstream.
+commit 14132690860e4d06aa3e1c4d7d8e9866ba7756dd upstream.
 
-The macro IPC_TIMEOUT is already in jiffies (it is also used like that
-elsewhere in the file when calling wait_for_completion_timeout()). Don’t
-convert it using helper functions for the purposes of calculating the
-busy loop expiry time.
+Introduction of lockless subqueues broke the class statistics.
+Before the change stats were accumulated in `bstats' and `qstats'
+on the stack which was then copied to struct gnet_dump.
 
-Fixes: e7b7ab3847c9 (“platform/x86: intel_scu_ipc: Sleeping is fine when polling”)
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Cc: Benson Leung <bleung@chromium.org>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Link: https://lore.kernel.org/r/20210928101932.2543937-2-pmalani@chromium.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+After the change the `bstats' and `qstats' are initialized to 0
+and never updated, yet still fed to gnet_dump. The code updates
+the global qdisc->cpu_bstats and qdisc->cpu_qstats instead,
+clobbering them. Most likely a copy-paste error from the code in
+mqprio_dump().
+
+__gnet_stats_copy_basic() and __gnet_stats_copy_queue() accumulate
+the values for per-CPU case but for global stats they overwrite
+the value, so only stats from the last loop iteration / tc end up
+in sch->[bq]stats.
+
+Use the on-stack [bq]stats variables again and add the stats manually
+in the global case.
+
+Fixes: ce679e8df7ed2 ("net: sched: add support for TCQ_F_NOLOCK subqueues to sch_mqprio")
+Cc: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+https://lore.kernel.org/all/20211007175000.2334713-2-bigeasy@linutronix.de/
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/intel_scu_ipc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/sch_mqprio.c |   30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
 
---- a/drivers/platform/x86/intel_scu_ipc.c
-+++ b/drivers/platform/x86/intel_scu_ipc.c
-@@ -232,7 +232,7 @@ static inline u32 ipc_data_readl(struct
- /* Wait till scu status is busy */
- static inline int busy_loop(struct intel_scu_ipc_dev *scu)
- {
--	unsigned long end = jiffies + msecs_to_jiffies(IPC_TIMEOUT);
-+	unsigned long end = jiffies + IPC_TIMEOUT;
+--- a/net/sched/sch_mqprio.c
++++ b/net/sched/sch_mqprio.c
+@@ -529,22 +529,28 @@ static int mqprio_dump_class_stats(struc
+ 		for (i = tc.offset; i < tc.offset + tc.count; i++) {
+ 			struct netdev_queue *q = netdev_get_tx_queue(dev, i);
+ 			struct Qdisc *qdisc = rtnl_dereference(q->qdisc);
+-			struct gnet_stats_basic_cpu __percpu *cpu_bstats = NULL;
+-			struct gnet_stats_queue __percpu *cpu_qstats = NULL;
  
- 	do {
- 		u32 status;
+ 			spin_lock_bh(qdisc_lock(qdisc));
++
+ 			if (qdisc_is_percpu_stats(qdisc)) {
+-				cpu_bstats = qdisc->cpu_bstats;
+-				cpu_qstats = qdisc->cpu_qstats;
+-			}
++				qlen = qdisc_qlen_sum(qdisc);
+ 
+-			qlen = qdisc_qlen_sum(qdisc);
+-			__gnet_stats_copy_basic(NULL, &sch->bstats,
+-						cpu_bstats, &qdisc->bstats);
+-			__gnet_stats_copy_queue(&sch->qstats,
+-						cpu_qstats,
+-						&qdisc->qstats,
+-						qlen);
++				__gnet_stats_copy_basic(NULL, &bstats,
++							qdisc->cpu_bstats,
++							&qdisc->bstats);
++				__gnet_stats_copy_queue(&qstats,
++							qdisc->cpu_qstats,
++							&qdisc->qstats,
++							qlen);
++			} else {
++				qlen		+= qdisc->q.qlen;
++				bstats.bytes	+= qdisc->bstats.bytes;
++				bstats.packets	+= qdisc->bstats.packets;
++				qstats.backlog	+= qdisc->qstats.backlog;
++				qstats.drops	+= qdisc->qstats.drops;
++				qstats.requeues	+= qdisc->qstats.requeues;
++				qstats.overlimits += qdisc->qstats.overlimits;
++			}
+ 			spin_unlock_bh(qdisc_lock(qdisc));
+ 		}
+ 
 
 
