@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF29431ADC
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 222EE431CC5
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232070AbhJRN31 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:29:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41302 "EHLO mail.kernel.org"
+        id S232824AbhJRNo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:44:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231861AbhJRN3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:29:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 193F061350;
-        Mon, 18 Oct 2021 13:26:11 +0000 (UTC)
+        id S233260AbhJRNmt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:42:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 201936058D;
+        Mon, 18 Oct 2021 13:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563572;
-        bh=TpO4EEaob/fjJr5adrfsWNVyULAMtGkS3nXv4F9xMJI=;
+        s=korg; t=1634564064;
+        bh=arOuavtSGezhyOzRSIbU4OJWoNzqOS8N+i+b0aA6J/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vQC7iS3exSRdD4clquxnU89tdh2m4fzD1izV/FCrbYaH7J+8IhDx4ba5ZvH/fkmpw
-         ViymS1NwFGdqRNckTKXrFqkO8tXYRxTseflaj3QZdJ/tkx4KmSpHBYGQxFqaU7faa9
-         jxnGjJMnPGO13j9ySZ9D4ZOf7WereywREgoDsI4E=
+        b=diRyLMo9AZ6CKaUusM1WTPVKVRov7Q6AY5qeQTxcogL6XOvz++UE79NZ8cU8ioG53
+         SdEdkW8pOskxSiQx41oswql+sb8/NA3aaFuXPtNKd0OGD+PNu1j9u99VHka5a7aAiU
+         81rLzO7nQufCWMqBESrDl9KaWwykHqwDn7NN3LP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 4.14 19/39] nvmem: Fix shift-out-of-bound (UBSAN) with byte size cells
+        stable@vger.kernel.org,
+        Alexandru Tachici <alexandru.tachici@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 052/103] iio: adc: ad7780: Fix IRQ flag
 Date:   Mon, 18 Oct 2021 15:24:28 +0200
-Message-Id: <20211018132326.071442459@linuxfoundation.org>
+Message-Id: <20211018132336.510253893@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
-References: <20211018132325.426739023@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Alexandru Tachici <alexandru.tachici@analog.com>
 
-commit 5d388fa01fa6eb310ac023a363a6cb216d9d8fe9 upstream.
+commit e081102f3077aa716974ccebec97003c890d5641 upstream.
 
-If a cell has 'nbits' equal to a multiple of BITS_PER_BYTE the logic
+Correct IRQ flag here is falling.
 
- *p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
+In Sigma-Delta devices the SDO line is also used as an interrupt.
+Leaving IRQ on level instead of falling might trigger a sample read
+when the IRQ is enabled, as the SDO line is already low. Not sure
+if SDO line will always immediately go high in ad_sd_buffer_postenable
+before the IRQ is enabled.
 
-will become undefined behavior because nbits modulo BITS_PER_BYTE is 0, and we
-subtract one from that making a large number that is then shifted more than the
-number of bits that fit into an unsigned long.
+Also the datasheet seem to explicitly say the falling edge of the SDO
+should be used as an interrupt:
+>From the AD7780 datasheet: " The DOUT/Figure 22 RDY falling edge
+can be used as an interrupt to a processor"
 
-UBSAN reports this problem:
-
- UBSAN: shift-out-of-bounds in drivers/nvmem/core.c:1386:8
- shift exponent 64 is too large for 64-bit type 'unsigned long'
- CPU: 6 PID: 7 Comm: kworker/u16:0 Not tainted 5.15.0-rc3+ #9
- Hardware name: Google Lazor (rev3+) with KB Backlight (DT)
- Workqueue: events_unbound deferred_probe_work_func
- Call trace:
-  dump_backtrace+0x0/0x170
-  show_stack+0x24/0x30
-  dump_stack_lvl+0x64/0x7c
-  dump_stack+0x18/0x38
-  ubsan_epilogue+0x10/0x54
-  __ubsan_handle_shift_out_of_bounds+0x180/0x194
-  __nvmem_cell_read+0x1ec/0x21c
-  nvmem_cell_read+0x58/0x94
-  nvmem_cell_read_variable_common+0x4c/0xb0
-  nvmem_cell_read_variable_le_u32+0x40/0x100
-  a6xx_gpu_init+0x170/0x2f4
-  adreno_bind+0x174/0x284
-  component_bind_all+0xf0/0x264
-  msm_drm_bind+0x1d8/0x7a0
-  try_to_bring_up_master+0x164/0x1ac
-  __component_add+0xbc/0x13c
-  component_add+0x20/0x2c
-  dp_display_probe+0x340/0x384
-  platform_probe+0xc0/0x100
-  really_probe+0x110/0x304
-  __driver_probe_device+0xb8/0x120
-  driver_probe_device+0x4c/0xfc
-  __device_attach_driver+0xb0/0x128
-  bus_for_each_drv+0x90/0xdc
-  __device_attach+0xc8/0x174
-  device_initial_probe+0x20/0x2c
-  bus_probe_device+0x40/0xa4
-  deferred_probe_work_func+0x7c/0xb8
-  process_one_work+0x128/0x21c
-  process_scheduled_works+0x40/0x54
-  worker_thread+0x1ec/0x2a8
-  kthread+0x138/0x158
-  ret_from_fork+0x10/0x20
-
-Fix it by making sure there are any bits to mask out.
-
-Fixes: 69aba7948cbe ("nvmem: Add a simple NVMEM framework for consumers")
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20211013124511.18726-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: da4d3d6bb9f6 ("iio: adc: ad-sigma-delta: Allow custom IRQ flags")
+Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210906065630.16325-3-alexandru.tachici@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvmem/core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/adc/ad7780.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -987,7 +987,8 @@ static inline void nvmem_shift_read_buff
- 		*p-- = 0;
+--- a/drivers/iio/adc/ad7780.c
++++ b/drivers/iio/adc/ad7780.c
+@@ -203,7 +203,7 @@ static const struct ad_sigma_delta_info
+ 	.set_mode = ad7780_set_mode,
+ 	.postprocess_sample = ad7780_postprocess_sample,
+ 	.has_registers = false,
+-	.irq_flags = IRQF_TRIGGER_LOW,
++	.irq_flags = IRQF_TRIGGER_FALLING,
+ };
  
- 	/* clear msb bits if any leftover in the last byte */
--	*p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
-+	if (cell->nbits % BITS_PER_BYTE)
-+		*p &= GENMASK((cell->nbits % BITS_PER_BYTE) - 1, 0);
- }
- 
- static int __nvmem_cell_read(struct nvmem_device *nvmem,
+ #define _AD7780_CHANNEL(_bits, _wordsize, _mask_all)		\
 
 
