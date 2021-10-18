@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA17431ABE
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:26:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA676431B19
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:28:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231872AbhJRN3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:29:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40248 "EHLO mail.kernel.org"
+        id S231994AbhJRNan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:30:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231495AbhJRN2D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:28:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECE4561250;
-        Mon, 18 Oct 2021 13:25:51 +0000 (UTC)
+        id S232263AbhJRN3t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 862EE6128E;
+        Mon, 18 Oct 2021 13:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563552;
-        bh=o86vtXUV4131K8TJF7T3Do477KsQhv26QQ/gZby7KJM=;
+        s=korg; t=1634563658;
+        bh=5fkEOeRKMpAv1rt8DKebXAXjaN3huRnJpE8l2uHkoJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T29ph93klHlP+fiMt2+1ckGFgSjbhwSCvmxO4zFzZVjaCraRkRICLEa6b2JEkAUBO
-         xVxarP9oTk24w5sI4kf/KovfqduZNvaKwX0Ogn1R/g/6kWYX32UGzv6Qu8I3Vz2nBF
-         TFPo0MKT7dRyIdl7e6aWckXvthpdT0QGYYi8cKW0=
+        b=fLBohUsTt3ww61mE/2U+70vmX05LZkDyrdA6uSows7JXrTww2OqMpRBuM0xFQWX6f
+         WdLUebjH0UtEACMMS8rQH5E21hTJ3gTn50smQs0/6XDDX1asedkMsGDSgmcELTzW39
+         UuNx6ANjabmwckiRmqGLCwSFy0fbtV4px9POPaNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Jianhua <chris.zjh@huawei.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.14 11/39] efi: Change down_interruptible() in virt_efi_reset_system() to down_trylock()
+        stable@vger.kernel.org,
+        Pavankumar Kondeti <pkondeti@codeaurora.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 13/50] xhci: Fix command ring pointer corruption while aborting a command
 Date:   Mon, 18 Oct 2021 15:24:20 +0200
-Message-Id: <20211018132325.821945885@linuxfoundation.org>
+Message-Id: <20211018132326.980569595@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
-References: <20211018132325.426739023@linuxfoundation.org>
+In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
+References: <20211018132326.529486647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Jianhua <chris.zjh@huawei.com>
+From: Pavankumar Kondeti <pkondeti@codeaurora.org>
 
-commit 38fa3206bf441911258e5001ac8b6738693f8d82 upstream.
+commit ff0e50d3564f33b7f4b35cadeabd951d66cfc570 upstream.
 
-While reboot the system by sysrq, the following bug will be occur.
+The command ring pointer is located at [6:63] bits of the command
+ring control register (CRCR). All the control bits like command stop,
+abort are located at [0:3] bits. While aborting a command, we read the
+CRCR and set the abort bit and write to the CRCR. The read will always
+give command ring pointer as all zeros. So we essentially write only
+the control bits. Since we split the 64 bit write into two 32 bit writes,
+there is a possibility of xHC command ring stopped before the upper
+dword (all zeros) is written. If that happens, xHC updates the upper
+dword of its internal command ring pointer with all zeros. Next time,
+when the command ring is restarted, we see xHC memory access failures.
+Fix this issue by only writing to the lower dword of CRCR where all
+control bits are located.
 
-BUG: sleeping function called from invalid context at kernel/locking/semaphore.c:90
-in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 10052, name: rc.shutdown
-CPU: 3 PID: 10052 Comm: rc.shutdown Tainted: G        W O      5.10.0 #1
-Call trace:
- dump_backtrace+0x0/0x1c8
- show_stack+0x18/0x28
- dump_stack+0xd0/0x110
- ___might_sleep+0x14c/0x160
- __might_sleep+0x74/0x88
- down_interruptible+0x40/0x118
- virt_efi_reset_system+0x3c/0xd0
- efi_reboot+0xd4/0x11c
- machine_restart+0x60/0x9c
- emergency_restart+0x1c/0x2c
- sysrq_handle_reboot+0x1c/0x2c
- __handle_sysrq+0xd0/0x194
- write_sysrq_trigger+0xbc/0xe4
- proc_reg_write+0xd4/0xf0
- vfs_write+0xa8/0x148
- ksys_write+0x6c/0xd8
- __arm64_sys_write+0x18/0x28
- el0_svc_common.constprop.3+0xe4/0x16c
- do_el0_svc+0x1c/0x2c
- el0_svc+0x20/0x30
- el0_sync_handler+0x80/0x17c
- el0_sync+0x158/0x180
-
-The reason for this problem is that irq has been disabled in
-machine_restart() and then it calls down_interruptible() in
-virt_efi_reset_system(), which would occur sleep in irq context,
-it is dangerous! Commit 99409b935c9a("locking/semaphore: Add
-might_sleep() to down_*() family") add might_sleep() in
-down_interruptible(), so the bug info is here. down_trylock()
-can solve this problem, cause there is no might_sleep.
-
---------
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Zhang Jianhua <chris.zjh@huawei.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavankumar Kondeti <pkondeti@codeaurora.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211008092547.3996295-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/runtime-wrappers.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci-ring.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/firmware/efi/runtime-wrappers.c
-+++ b/drivers/firmware/efi/runtime-wrappers.c
-@@ -259,7 +259,7 @@ static void virt_efi_reset_system(int re
- 				  unsigned long data_size,
- 				  efi_char16_t *data)
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -339,16 +339,22 @@ static void xhci_handle_stopped_cmd_ring
+ /* Must be called with xhci->lock held, releases and aquires lock back */
+ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
  {
--	if (down_interruptible(&efi_runtime_lock)) {
-+	if (down_trylock(&efi_runtime_lock)) {
- 		pr_warn("failed to invoke the reset_system() runtime service:\n"
- 			"could not get exclusive access to the firmware\n");
- 		return;
+-	u64 temp_64;
++	u32 temp_32;
+ 	int ret;
+ 
+ 	xhci_dbg(xhci, "Abort command ring\n");
+ 
+ 	reinit_completion(&xhci->cmd_ring_stop_completion);
+ 
+-	temp_64 = xhci_read_64(xhci, &xhci->op_regs->cmd_ring);
+-	xhci_write_64(xhci, temp_64 | CMD_RING_ABORT,
+-			&xhci->op_regs->cmd_ring);
++	/*
++	 * The control bits like command stop, abort are located in lower
++	 * dword of the command ring control register. Limit the write
++	 * to the lower dword to avoid corrupting the command ring pointer
++	 * in case if the command ring is stopped by the time upper dword
++	 * is written.
++	 */
++	temp_32 = readl(&xhci->op_regs->cmd_ring);
++	writel(temp_32 | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
+ 
+ 	/* Section 4.6.1.2 of xHCI 1.0 spec says software should also time the
+ 	 * completion of the Command Abort operation. If CRR is not negated in 5
 
 
