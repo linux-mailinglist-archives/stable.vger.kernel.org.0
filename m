@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24D91431AD0
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8D34431C10
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232034AbhJRN3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:29:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41282 "EHLO mail.kernel.org"
+        id S233176AbhJRNhz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:37:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231903AbhJRN3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:29:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AEFB61357;
-        Mon, 18 Oct 2021 13:26:29 +0000 (UTC)
+        id S232532AbhJRNfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:35:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19E83613AB;
+        Mon, 18 Oct 2021 13:30:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563589;
-        bh=LJlDaRBgePqAvT2+QHa8/PRFb0ox9bnspEkX9m8EXJs=;
+        s=korg; t=1634563844;
+        bh=+y+S4sr4LrFwxu2nSQ80feGpvSX2thEHPUinc2qElgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVN4gpYL4fUaug2+SfPDm0qzjG5IzA2xNHYUfdlnvzJZup7dLcaX9PhrRJuLahS+x
-         XUdeziUzBBkYsccS+jveiJcYBTVx4jFE6TJ8MDYbB35AxyAbcKxUudyFFYt72I0LMX
-         w9YyCyUfu2gQtaXhOlt877OULPINNJ56HYcOaeqo=
+        b=eGc51J0mrlSItGCNQDAPv+JXPTXmtPCJaH9wBGGcLHjtTLZMZvbR+LrVY89zD//bu
+         fj32z8VcruS0XWrg5BzUYeCFx7aL1IBKNGe4J6XtqONqErfjsWwad0nS3dd7TYzf+y
+         l3zGDpuhQiHCllw0tCeDNNCATkIUQ7O9b61/+4uY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 25/39] iio: ssp_sensors: fix error code in ssp_print_mcu_debug()
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Borislav Petkov <bp@suse.de>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 5.4 36/69] x86/Kconfig: Do not enable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT automatically
 Date:   Mon, 18 Oct 2021 15:24:34 +0200
-Message-Id: <20211018132326.252518942@linuxfoundation.org>
+Message-Id: <20211018132330.678200819@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
-References: <20211018132325.426739023@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit 4170d3dd1467e9d78cb9af374b19357dc324b328 upstream.
+commit 711885906b5c2df90746a51f4cd674f1ab9fbb1d upstream.
 
-The ssp_print_mcu_debug() function should return negative error codes on
-error.  Returning "length" is meaningless.  This change does not affect
-runtime because the callers only care about zero/non-zero.
+This Kconfig option was added initially so that memory encryption is
+enabled by default on machines which support it.
 
-Reported-by: Jonathan Cameron <jic23@kernel.org>
-Fixes: 50dd64d57eee ("iio: common: ssp_sensors: Add sensorhub driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20210914105333.GA11657@kili
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+However, devices which have DMA masks that are less than the bit
+position of the encryption bit, aka C-bit, require the use of an IOMMU
+or the use of SWIOTLB.
+
+If the IOMMU is disabled or in passthrough mode, the kernel would switch
+to SWIOTLB bounce-buffering for those transfers.
+
+In order to avoid that,
+
+  2cc13bb4f59f ("iommu: Disable passthrough mode when SME is active")
+
+disables the default IOMMU passthrough mode so that devices for which the
+default 256K DMA is insufficient, can use the IOMMU instead.
+
+However 2, there are cases where the IOMMU is disabled in the BIOS, etc.
+(think the usual hardware folk "oops, I dropped the ball there" cases) or a
+driver doesn't properly use the DMA APIs or a device has a firmware or
+hardware bug, e.g.:
+
+  ea68573d408f ("drm/amdgpu: Fail to load on RAVEN if SME is active")
+
+However 3, in the above GPU use case, there are APIs like Vulkan and
+some OpenGL/OpenCL extensions which are under the assumption that
+user-allocated memory can be passed in to the kernel driver and both the
+GPU and CPU can do coherent and concurrent access to the same memory.
+That cannot work with SWIOTLB bounce buffers, of course.
+
+So, in order for those devices to function, drop the "default y" for the
+SME by default active option so that users who want to have SME enabled,
+will need to either enable it in their config or use "mem_encrypt=on" on
+the kernel command line.
+
+ [ tlendacky: Generalize commit message. ]
+
+Fixes: 7744ccdbc16f ("x86/mm: Add Secure Memory Encryption (SME) support")
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/8bbacd0e-4580-3194-19d2-a0ecad7df09c@molgen.mpg.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/common/ssp_sensors/ssp_spi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/iio/common/ssp_sensors/ssp_spi.c
-+++ b/drivers/iio/common/ssp_sensors/ssp_spi.c
-@@ -147,7 +147,7 @@ static int ssp_print_mcu_debug(char *dat
- 	if (length > received_len - *data_index || length <= 0) {
- 		ssp_dbg("[SSP]: MSG From MCU-invalid debug length(%d/%d)\n",
- 			length, received_len);
--		return length ? length : -EPROTO;
-+		return -EPROTO;
- 	}
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1541,7 +1541,6 @@ config AMD_MEM_ENCRYPT
  
- 	ssp_dbg("[SSP]: MSG From MCU - %s\n", &data_frame[*data_index]);
+ config AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
+ 	bool "Activate AMD Secure Memory Encryption (SME) by default"
+-	default y
+ 	depends on AMD_MEM_ENCRYPT
+ 	---help---
+ 	  Say yes to have system memory encrypted by default if running on
 
 
