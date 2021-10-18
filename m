@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFB2A431CB5
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF786431DB7
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233365AbhJRNoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:44:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39220 "EHLO mail.kernel.org"
+        id S233460AbhJRNyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:54:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233099AbhJRNmR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:42:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A443261504;
-        Mon, 18 Oct 2021 13:34:02 +0000 (UTC)
+        id S234212AbhJRNwX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:52:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CADA26137B;
+        Mon, 18 Oct 2021 13:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564043;
-        bh=Tf5f15sNLMIIbV/rhCQL45in1rX+UtwgPEvckpvOIH8=;
+        s=korg; t=1634564327;
+        bh=Vw6ttr68ZCstAPpVVICipZAA0bc2xWlXeF1vrKCNfus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dESbvEz9n873hAu+/lyY8+b0HHMiFSMBsfJotdRxbxZ134nndRAyeNtdWNLPXXY3I
-         IulqdDfqCUms3BOaCIoUp+SbS3pd0Zz8dQcy4JfLHtkZ/NowvjTsfGwQ38E9n9AXIU
-         v0FClg86wEmPtaYSwqB7k/SW4Hiv82nDqg186Vfo=
+        b=NGLlRiT97yjjhWbcoNF7lhZXuXyIdvynWBDFCItkzKwHvQEP0+bgiL/Pa+DEsIVVz
+         gk8iwWJvx3Y75qoU+Pgk/1OSA24HRtizEzcuDJBA0evpN1VY84UvT8wsnzm+kp8f5b
+         wC6FSsLxnzae9DQfjydQu0HjihY6zHIdS8BzClTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cameron Berkenpas <cam@neo-zeon.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 010/103] ALSA: hda/realtek: Fix for quirk to enable speaker output on the Lenovo 13s Gen2
-Date:   Mon, 18 Oct 2021 15:23:46 +0200
-Message-Id: <20211018132335.041872226@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.14 048/151] usb: musb: dsps: Fix the probe error path
+Date:   Mon, 18 Oct 2021 15:23:47 +0200
+Message-Id: <20211018132342.260270497@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +38,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cameron Berkenpas <cam@neo-zeon.de>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 023a062f238129e8a542b5163c4350ceb076283e upstream.
+commit c2115b2b16421d93d4993f3fe4c520e91d6fe801 upstream.
 
-The previous patch's HDA verb initialization for the Lenovo 13s
-sequence was slightly off. This updated verb sequence has been tested
-and confirmed working.
+Commit 7c75bde329d7 ("usb: musb: musb_dsps: request_irq() after
+initializing musb") has inverted the calls to
+dsps_setup_optional_vbus_irq() and dsps_create_musb_pdev() without
+updating correctly the error path. dsps_create_musb_pdev() allocates and
+registers a new platform device which must be unregistered and freed
+with platform_device_unregister(), and this is missing upon
+dsps_setup_optional_vbus_irq() error.
 
-Fixes: ad7cc2d41b7a ("ALSA: hda/realtek: Quirks to enable speaker output for Lenovo Legion 7i 15IMHG05, Yoga 7i 14ITL5/15ITL5, and 13s Gen2 laptops.")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208555
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Cameron Berkenpas <cam@neo-zeon.de>
-Link: https://lore.kernel.org/r/20211010225410.23423-1-cam@neo-zeon.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+While on the master branch it seems not to trigger any issue, I observed
+a kernel crash because of a NULL pointer dereference with a v5.10.70
+stable kernel where the patch mentioned above was backported. With this
+kernel version, -EPROBE_DEFER is returned the first time
+dsps_setup_optional_vbus_irq() is called which triggers the probe to
+error out without unregistering the platform device. Unfortunately, on
+the Beagle Bone Black Wireless, the platform device still living in the
+system is being used by the USB Ethernet gadget driver, which during the
+boot phase triggers the crash.
+
+My limited knowledge of the musb world prevents me to revert this commit
+which was sent to silence a robot warning which, as far as I understand,
+does not make sense. The goal of this patch was to prevent an IRQ to
+fire before the platform device being registered. I think this cannot
+ever happen due to the fact that enabling the interrupts is done by the
+->enable() callback of the platform musb device, and this platform
+device must be already registered in order for the core or any other
+user to use this callback.
+
+Hence, I decided to fix the error path, which might prevent future
+errors on mainline kernels while also fixing older ones.
+
+Fixes: 7c75bde329d7 ("usb: musb: musb_dsps: request_irq() after initializing musb")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20211005221631.1529448-1-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/musb/musb_dsps.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8306,7 +8306,7 @@ static const struct hda_fixup alc269_fix
- 		.v.verbs = (const struct hda_verb[]) {
- 			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
- 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x41 },
--			{ 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
- 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
- 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
- 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
+--- a/drivers/usb/musb/musb_dsps.c
++++ b/drivers/usb/musb/musb_dsps.c
+@@ -899,11 +899,13 @@ static int dsps_probe(struct platform_de
+ 	if (usb_get_dr_mode(&pdev->dev) == USB_DR_MODE_PERIPHERAL) {
+ 		ret = dsps_setup_optional_vbus_irq(pdev, glue);
+ 		if (ret)
+-			goto err;
++			goto unregister_pdev;
+ 	}
+ 
+ 	return 0;
+ 
++unregister_pdev:
++	platform_device_unregister(glue->musb);
+ err:
+ 	pm_runtime_disable(&pdev->dev);
+ 	iounmap(glue->usbss_base);
 
 
