@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D2AB431AF6
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:28:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B3E431E18
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232308AbhJRN3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:29:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41820 "EHLO mail.kernel.org"
+        id S234005AbhJRN5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:57:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232029AbhJRN3U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:29:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D51C460295;
-        Mon, 18 Oct 2021 13:27:08 +0000 (UTC)
+        id S234336AbhJRNzu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:55:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8686161A04;
+        Mon, 18 Oct 2021 13:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563629;
-        bh=lO0DuIKUZ5zkgHkfV2sRjPBl0xkSfEwWiAYLq1/9Cq4=;
+        s=korg; t=1634564409;
+        bh=sH1yKxxos5/co1fIbgisEwbOaF8zHZ/40AoBPTdz9SU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OOn8uW3tsgB79PpTisrrLjj1++QVj83kGSAA1xAFqqsUCcjrJ3VKMCffp+SKjCOBr
-         7b6YhZacFbiBZ1I7H62KJoRTjHDqYHqZOLz13aHmaAEV3N2j1i1NIuzfav1vA5RCca
-         xspRYn2QqvBTM6BfxpA4HoG2TLx18QXlVeIZmvTI=
+        b=NgTtK0VrjkGEPDWadhZYcQaYAc7P5giDMzRjR+iGX8nMwjmcEjS03giuZkFmR7pf+
+         RKFdnCKvNwK1k2U0nZz2OoUwnbwOxzMzYk42uENHLAovnVpUiENocD8zl6qYMFmplr
+         K8nNMTx6CiF1jvJcabQyktrFXQmcuRUwJM7P6K9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.14 09/39] cb710: avoid NULL pointer subtraction
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.14 079/151] iio: ssp_sensors: add more range checking in ssp_parse_dataframe()
 Date:   Mon, 18 Oct 2021 15:24:18 +0200
-Message-Id: <20211018132325.751304440@linuxfoundation.org>
+Message-Id: <20211018132343.257069037@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
-References: <20211018132325.426739023@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,37 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 42641042c10c757fe10cc09088cf3f436cec5007 upstream.
+commit 8167c9a375ccceed19048ad9d68cb2d02ed276e0 upstream.
 
-clang-14 complains about an unusual way of converting a pointer to
-an integer:
+The "idx" is validated at the start of the loop but it gets incremented
+during the iteration so it needs to be checked again.
 
-drivers/misc/cb710/sgbuf2.c:50:15: error: performing pointer subtraction with a null pointer has undefined behavior [-Werror,-Wnull-pointer-subtraction]
-        return ((ptr - NULL) & 3) != 0;
-
-Replace this with a normal cast to uintptr_t.
-
-Fixes: 5f5bac8272be ("mmc: Driver for CB710/720 memory card reader (MMC part)")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210927121408.939246-1-arnd@kernel.org
+Fixes: 50dd64d57eee ("iio: common: ssp_sensors: Add sensorhub driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20210909091336.GA26312@kili
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/cb710/sgbuf2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/common/ssp_sensors/ssp_spi.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/misc/cb710/sgbuf2.c
-+++ b/drivers/misc/cb710/sgbuf2.c
-@@ -50,7 +50,7 @@ static inline bool needs_unaligned_copy(
- #ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- 	return false;
- #else
--	return ((ptr - NULL) & 3) != 0;
-+	return ((uintptr_t)ptr & 3) != 0;
- #endif
- }
+--- a/drivers/iio/common/ssp_sensors/ssp_spi.c
++++ b/drivers/iio/common/ssp_sensors/ssp_spi.c
+@@ -273,6 +273,8 @@ static int ssp_parse_dataframe(struct ss
+ 	for (idx = 0; idx < len;) {
+ 		switch (dataframe[idx++]) {
+ 		case SSP_MSG2AP_INST_BYPASS_DATA:
++			if (idx >= len)
++				return -EPROTO;
+ 			sd = dataframe[idx++];
+ 			if (sd < 0 || sd >= SSP_SENSOR_MAX) {
+ 				dev_err(SSP_DEV,
+@@ -282,10 +284,13 @@ static int ssp_parse_dataframe(struct ss
  
+ 			if (indio_devs[sd]) {
+ 				spd = iio_priv(indio_devs[sd]);
+-				if (spd->process_data)
++				if (spd->process_data) {
++					if (idx >= len)
++						return -EPROTO;
+ 					spd->process_data(indio_devs[sd],
+ 							  &dataframe[idx],
+ 							  data->timestamp);
++				}
+ 			} else {
+ 				dev_err(SSP_DEV, "no client for frame\n");
+ 			}
+@@ -293,6 +298,8 @@ static int ssp_parse_dataframe(struct ss
+ 			idx += ssp_offset_map[sd];
+ 			break;
+ 		case SSP_MSG2AP_INST_DEBUG_DATA:
++			if (idx >= len)
++				return -EPROTO;
+ 			sd = ssp_print_mcu_debug(dataframe, &idx, len);
+ 			if (sd) {
+ 				dev_err(SSP_DEV,
 
 
