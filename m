@@ -2,95 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE2154328B1
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 23:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7A334328B3
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 23:00:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233775AbhJRVCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 17:02:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54162 "EHLO
+        id S233831AbhJRVC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 17:02:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229709AbhJRVCU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 17:02:20 -0400
-Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CF6BC06161C
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 14:00:08 -0700 (PDT)
-Received: by mail-il1-x12a.google.com with SMTP id g2so16314599ild.1
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 14:00:08 -0700 (PDT)
+        with ESMTP id S232088AbhJRVC1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 17:02:27 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11FBAC061745;
+        Mon, 18 Oct 2021 14:00:16 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id f5so17352521pgc.12;
+        Mon, 18 Oct 2021 14:00:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
+        d=gmail.com; s=20210112;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=9iDEH9s3SYN/2o6Dnyml+lF+spW3V7+dMTflhdwzT/0=;
-        b=XGMt+nzu3r08/4TODpwfqaneqSX0imp6YLnZ6AeC+kR1RI5t5brbJHcReNvSoi6zrh
-         G9E/yxbtNC6QeULfDyKxgPPBoWe+wzTGlWAeoOfzcSFczdv8mKNz+m5VL6BM4LXY7gWD
-         qBs7EGPc2zgOKWa896xqbtOOZtd12gZVXG0Ws=
+        bh=qjCLjNNuC+CaoBNv3qy03uO8pBqwDKTK+8JZj8umqAI=;
+        b=KowFvAkJwh6YbhELo37hGXEvdb4mLCo7AkKIf7k+TO+IYJl1gH7d/2WdS5DzwEHWy8
+         V7cUUvW3/B0G2453wHCzl7IuFjBHidHBGSL5GzzhgGDutodhLgg/yD3wzaj2OjOavbgO
+         kmj1gQ3AZMTMDJUVnuRS3QMJu3IEO2nWIbrLMU1N8/36tIhxQv8OXd2Ema/Aid8V5pkX
+         pinB95SNK2dTcryTkBoLL5RXogUrpWthbsOG1zhSoQGdZf3LfrPla2nA9wj3jG/FMzRf
+         gfhFewUfGB4qudghy0E1eZnk55/EFvovnNLKeDN9L+ElIcDy5at6WHCoG3Fu4Mdx3bOc
+         rMkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=9iDEH9s3SYN/2o6Dnyml+lF+spW3V7+dMTflhdwzT/0=;
-        b=mRgXQV9pPDc1XuwznUgHgnDU3Qx576r9Cup7JNkQQVn/jKwvCHlK1gC/gPA2BXAwLe
-         4skEamZoq0XxG/AZwLge0nKL7WbEdwb+5JftsRuAkHEnAXPBt0lFQe8T8MybRnrWY6Pe
-         Ic7k4C83xIzuO9uK/8MbkI7SYXRjYVVctjWYJTZrF+leCaEaPJOUe4u27CIBhmENO9mQ
-         m8e7HdjbrG8JCTQa2jQQxcHa2Y6gmyLAmG8go/DGoTYrqjoF03NYde4MlIFAoI7nuhhu
-         j5qeFB7LdqxZaUrnQIxWTCDz6G/mBpuoVI1LJQStqHyjJuOS5oI4N+/S/lIZS8ft6sMM
-         /TfQ==
-X-Gm-Message-State: AOAM533FTaUxuqFyKBWeB5YdFbPRFsyTzS+ZhUuB94IdR9eUqy179iSy
-        g25sAaANxPGV47SaQ6obOcx7xQ==
-X-Google-Smtp-Source: ABdhPJxKOCqMloSr3C8jzamHG8vjypbw04fZ9QJFgp34lwiEMITkxR0ecuZ9a/3T8eXOE3cOWtSDiA==
-X-Received: by 2002:a05:6e02:1a05:: with SMTP id s5mr15447645ild.164.1634590807885;
-        Mon, 18 Oct 2021 14:00:07 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id i18sm8153830ila.32.2021.10.18.14.00.06
+        bh=qjCLjNNuC+CaoBNv3qy03uO8pBqwDKTK+8JZj8umqAI=;
+        b=5RgmB7BhBeVy5LD+suoBr8e+G9n/pcfKKvN59icIENS4xhKXhJLenZuI4bQ7E25UiW
+         b0RKL3PaGzTFiu2yuj0NRbcJOtBjPADgfhy7vEc+QDKSavuB6htR/ict1f5Yi4t8DiAo
+         frqfL4xzueXStY3H3klEni7N1n/0SBXgqY26zpUy+8M1kivnU4HCpR9aP4rI7hUKX5Df
+         sIBVjRrD+pJNEc2pNzlqVRAp8A0p3jlw0BEVr3ULmiW5JbxSPmgdUp1pz7hBtmy26jDn
+         /JHT3HFMMrhNK48+SHrY6jRmqwjlZWakv1ZrgRJoWrlRuar10HmE2gCKlkddJ3etf6VP
+         MHNQ==
+X-Gm-Message-State: AOAM531ryCzZLjY1/pos96Lv1bbI6QzHRDfHZZ4+tFrvqJkC6v9KvZBh
+        CxlQR1BGmctELARTbU5bUkuKPt2aESI=
+X-Google-Smtp-Source: ABdhPJyDzp1s9qeHKc4YO7vdVD64vqFXlzF24RjkQlsisvM1m95u7xOUGdCGDrrltuC+1grBIbQlaw==
+X-Received: by 2002:a05:6a00:992:b0:44d:8981:37f6 with SMTP id u18-20020a056a00099200b0044d898137f6mr26420205pfg.76.1634590815028;
+        Mon, 18 Oct 2021 14:00:15 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id o6sm13941598pfp.79.2021.10.18.14.00.13
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 18 Oct 2021 14:00:07 -0700 (PDT)
-Subject: Re: [PATCH 4.19 00/50] 4.19.213-rc1 review
+        Mon, 18 Oct 2021 14:00:14 -0700 (PDT)
+Subject: Re: [PATCH 5.4 00/68] 5.4.155-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <9584fca6-afda-ed4b-6a95-deefbabb80f9@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 15:00:06 -0600
+        stable@vger.kernel.org
+References: <20211018143049.664480980@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <faceebb5-7f31-f935-cdc3-899a31b324c8@gmail.com>
+Date:   Mon, 18 Oct 2021 14:00:12 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20211018143049.664480980@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/18/21 7:24 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.213 release.
-> There are 50 patches in this series, all will be posted as a response
+On 10/18/21 7:31 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.155 release.
+> There are 68 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
-> Responses should be made by Wed, 20 Oct 2021 13:23:15 +0000.
+> Responses should be made by Wed, 20 Oct 2021 14:30:36 +0000.
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.213-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.155-rc2.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
 > and the diffstat can be found below.
 > 
 > thanks,
 > 
 > greg k-h
-> 
 
-Compiled and booted on my test system. No dmesg regressions.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
-
-thanks,
--- Shuah
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
