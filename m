@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70FB5431DC0
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F8B1431CBC
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233981AbhJRNyl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:54:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56876 "EHLO mail.kernel.org"
+        id S231905AbhJRNoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:44:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234287AbhJRNwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:52:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F21BD6197A;
-        Mon, 18 Oct 2021 13:38:51 +0000 (UTC)
+        id S233258AbhJRNmm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:42:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A003B61353;
+        Mon, 18 Oct 2021 13:34:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564332;
-        bh=q3lh+gjflrBJV2rRqgypOb877B06Z8aBqZPWVjeDlFs=;
+        s=korg; t=1634564051;
+        bh=cesyj4anBa+P1NwYCsv+OIjAb5LzGTtCQDFHTqD9RZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xlzsgKwMihJHm3v+UbnoKADO7zZnsxo9bmqqgLGZuK7Aqnxnnr+CYZ0YTYppsOPO4
-         z5twLp35+P1KhAz0w74mSttNceJZbd9bqGMaGKs1CBD3C7eG3A882SwH4XX8dGGH+s
-         eCAHSianssJyyZ3x62/jX2n07SjhZja7k9uxYAdA=
+        b=fuUofMGt4CFSgXLiArmPLtum/chiqOSv1bmquRNNBoqfBRLgEAq0WoLhGvGzvkhrB
+         +j0E2qYq1qO35fj4pyvVyOmtXJmH2Ud/WUfnY+eKmqSYBcBlhw/NdW5mhAwoeYT3X5
+         6U+ZHQfLZzMpT1hEsFMRGiqy2pYinGuYGqsRKfDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksander Morgado <aleksander@aleksander.es>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.14 050/151] USB: serial: qcserial: add EM9191 QDL support
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.10 013/103] s390: fix strrchr() implementation
 Date:   Mon, 18 Oct 2021 15:23:49 +0200
-Message-Id: <20211018132342.320923979@linuxfoundation.org>
+Message-Id: <20211018132335.141328601@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Morgado <aleksander@aleksander.es>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit 11c52d250b34a0862edc29db03fbec23b30db6da upstream.
+commit 8e0ab8e26b72a80e991c66a8abc16e6c856abe3d upstream.
 
-When the module boots into QDL download mode it exposes the 1199:90d2
-ids, which can be mapped to the qcserial driver, and used to run
-firmware upgrades (e.g. with the qmi-firmware-update program).
+Fix two problems found in the strrchr() implementation for s390
+architectures: evaluate empty strings (return the string address instead of
+NULL, if '\0' is passed as second argument); evaluate the first character
+of non-empty strings (the current implementation stops at the second).
 
-  T:  Bus=01 Lev=03 Prnt=08 Port=03 Cnt=01 Dev#= 10 Spd=480 MxCh= 0
-  D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-  P:  Vendor=1199 ProdID=90d2 Rev=00.00
-  S:  Manufacturer=Sierra Wireless, Incorporated
-  S:  Product=Sierra Wireless EM9191
-  S:  SerialNumber=8W0382004102A109
-  C:  #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=2mA
-  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=10 Driver=qcserial
-
-Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reported-by: Heiko Carstens <hca@linux.ibm.com> (incorrect behavior with empty strings)
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Link: https://lore.kernel.org/r/20211005120836.60630-1-roberto.sassu@huawei.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/qcserial.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/lib/string.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/serial/qcserial.c
-+++ b/drivers/usb/serial/qcserial.c
-@@ -165,6 +165,7 @@ static const struct usb_device_id id_tab
- 	{DEVICE_SWI(0x1199, 0x907b)},	/* Sierra Wireless EM74xx */
- 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
- 	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
-+	{DEVICE_SWI(0x1199, 0x90d2)},	/* Sierra Wireless EM9191 QDL */
- 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
- 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
- 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
+--- a/arch/s390/lib/string.c
++++ b/arch/s390/lib/string.c
+@@ -246,14 +246,13 @@ EXPORT_SYMBOL(strcmp);
+ #ifdef __HAVE_ARCH_STRRCHR
+ char *strrchr(const char *s, int c)
+ {
+-       size_t len = __strend(s) - s;
++	ssize_t len = __strend(s) - s;
+ 
+-       if (len)
+-	       do {
+-		       if (s[len] == (char) c)
+-			       return (char *) s + len;
+-	       } while (--len > 0);
+-       return NULL;
++	do {
++		if (s[len] == (char)c)
++			return (char *)s + len;
++	} while (--len >= 0);
++	return NULL;
+ }
+ EXPORT_SYMBOL(strrchr);
+ #endif
 
 
