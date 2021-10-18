@@ -2,80 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB78C43137A
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:27:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42B90431394
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:36:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231352AbhJRJ3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 05:29:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48386 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231213AbhJRJ3T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 05:29:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 742B460F12;
-        Mon, 18 Oct 2021 09:27:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634549229;
-        bh=ixDZKgR8qlLNCDg7ZGFXWjYqDS0+wFYUShM3z8OcuII=;
-        h=Subject:To:Cc:From:Date:From;
-        b=srOF2rHXT9mFTsufFr7qWyrijSW0ohrrxRjDCBZFSbzr5VMSqZieIW9exKRGk14hK
-         Uf7uYy+CPWa5iJBXNnTP2ahsbWDNBN+ECcCVTprUOnFkTPmclbh8JPpN9nWZuKDX9q
-         a5KSZsexnns7mGonJuqm8lEGKKRBnfymRW6vVv0c=
-Subject: FAILED: patch "[PATCH] staging: vc04_services: shut up out-of-range warning" failed to apply to 5.10-stable tree
-To:     arnd@arndb.de, gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 11:26:48 +0200
-Message-ID: <163454920870120@kroah.com>
+        id S231394AbhJRJil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 05:38:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36574 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231213AbhJRJil (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 05:38:41 -0400
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E63C06161C
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 02:36:30 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id m14so14255267pfc.9
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 02:36:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=VvXug8NLFeOC0eC5jPGfWmbumkE841scNkDypD4Y3KM=;
+        b=iMgOEkHGRi964ASSoonBxzq0HQjqtQNo1BQSnAcL8rhriHWTFvD0wWSIEtRWXq3s88
+         wu3uG5xb/4UbkpvgKrgH4mTr308gw0LD1dz7kYGmzFOmHpoygEWyl0A4gXoCVn2JcEGz
+         EZ08tDsC3L+/Gu5E0g0kk1gQnpGIftiDmuQbeN2g/fquyUrlPkU+X/q1HCnCaiCpLXjh
+         MF3hZrGRUMSgHO2uf3G0bpxvta2Y0z4DhuhD7BQKoqNvTt7fVIU3QgTgDA+yioivso9B
+         5QMHOe5VVBuwFyocnQh/HV5fXmrSD/dK0CvqjrVx4wk+2cgH+W3RjvjR/zpiuKt3xMSJ
+         qLjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=VvXug8NLFeOC0eC5jPGfWmbumkE841scNkDypD4Y3KM=;
+        b=Q1hNSTUItm0ZpYzPchzQNDa+ohNcD/+oARoa2Mg5m1y15AuorxSDfsaSYMx1Bj24Gj
+         mH4BRv/DgGVR4NG9+gA3KsXZ/23KQk5g3QcRCKDUZpGS4PSu8bUjwt5XYJOH+nyj6tEu
+         /a+2kMuGUxc/h8j7MpnKnR9JF53Nf7XrDipuft4Sk155IVsRGavD43mlgqVxEx4aE8gf
+         3gvveQUNSOYUuc48/KZCDfq4OMtXRb/N9aq3Q2H+RcpWS+kdu7cCb5T5gBrVXcLrvI1k
+         VtcVGj2CEr+IpHQaeZ4i9owHYWtwqpRNO7+4hD1B2I/v+ivi3RN6BnVrCAHHQ03Yhvzd
+         L72A==
+X-Gm-Message-State: AOAM533FlxzF8KTUcQ1veQNDmB/MVuVY+wuOMgyOJNp0UZBe07yxx+qw
+        /2vVv1NECslNezA93mXdbEPuL9R5B/c49D7G
+X-Google-Smtp-Source: ABdhPJySfdWzaAc4tE0sDHlDnuIhpMICMPYNpgyY5VfEUJp3bl8+eFkkFtXx1LRMen/0Xfm+L5SmRA==
+X-Received: by 2002:a05:6a00:1950:b0:44d:9402:3396 with SMTP id s16-20020a056a00195000b0044d94023396mr20827336pfk.70.1634549789910;
+        Mon, 18 Oct 2021 02:36:29 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w13sm12840744pfc.10.2021.10.18.02.36.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Oct 2021 02:36:29 -0700 (PDT)
+Message-ID: <616d401d.1c69fb81.ebff1.3b31@mx.google.com>
+Date:   Mon, 18 Oct 2021 02:36:29 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.286-29-g41084917ca47
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.9.y baseline: 70 runs,
+ 3 regressions (v4.9.286-29-g41084917ca47)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.9.y baseline: 70 runs, 3 regressions (v4.9.286-29-g410849=
+17ca47)
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-thanks,
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
+ | 1          =
 
-greg k-h
+qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
+ | 1          =
 
------------------- original commit in Linus's tree ------------------
+qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
+ | 1          =
 
-From 7ff4034e910fe00a90d985f0d05bacf60c162f02 Mon Sep 17 00:00:00 2001
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Mon, 27 Sep 2021 13:36:56 +0200
-Subject: [PATCH] staging: vc04_services: shut up out-of-range warning
 
-The comparison against SIZE_MAX produces a harmless warning on 64-bit
-architectures:
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.286-29-g41084917ca47/plan/baseline/
 
-drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c:185:16: error: result of comparison of constant 419244183493398898 with expression of type 'unsigned int' is always false [-Werror,-Wtautological-constant-out-of-range-compare]
-        if (num_pages > (SIZE_MAX - sizeof(struct pagelist) -
-            ~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.286-29-g41084917ca47
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      41084917ca47ee6ac81786261afbab9b3523df5f =
 
-Shut up that warning by adding a cast to a longer type.
 
-Fixes: ca641bae6da9 ("staging: vc04_services: prevent integer overflow in create_pagelist()")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210927113702.3866843-1-arnd@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-index b25369a13452..967f10b9582a 100644
---- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-+++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-@@ -182,7 +182,7 @@ create_pagelist(char *buf, char __user *ubuf,
- 		offset = (uintptr_t)ubuf & (PAGE_SIZE - 1);
- 	num_pages = DIV_ROUND_UP(count + offset, PAGE_SIZE);
- 
--	if (num_pages > (SIZE_MAX - sizeof(struct pagelist) -
-+	if ((size_t)num_pages > (SIZE_MAX - sizeof(struct pagelist) -
- 			 sizeof(struct vchiq_pagelist_info)) /
- 			(sizeof(u32) + sizeof(pages[0]) +
- 			 sizeof(struct scatterlist)))
+Test Regressions
+---------------- =
 
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/616d059f35c14b90153358e2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
+-29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
+-29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/616d059f35c14b9015335=
+8e3
+        failing since 337 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
+t fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/616d09cad60afa6fae3358f4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
+-29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
+-29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/616d09cad60afa6fae335=
+8f5
+        failing since 337 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
+t fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch | lab          | compiler | defconfig          =
+ | regressions
+---------------------+------+--------------+----------+--------------------=
+-+------------
+qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/616d05730d2806377a3358ee
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
+-29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.286=
+-29-g41084917ca47/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/616d05730d2806377a335=
+8ef
+        failing since 337 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
+t fail: v4.9.243-26-g7b603f689c1c) =
+
+ =20
