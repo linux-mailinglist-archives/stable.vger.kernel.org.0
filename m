@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A34431C7E
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:39:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5512431DDD
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232392AbhJRNlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:41:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55956 "EHLO mail.kernel.org"
+        id S232593AbhJRNzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:55:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232916AbhJRNjt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:39:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A9FE613E6;
-        Mon, 18 Oct 2021 13:32:54 +0000 (UTC)
+        id S234308AbhJRNxS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:53:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BF51619E1;
+        Mon, 18 Oct 2021 13:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563974;
-        bh=Djm/Wz8BkBkqc/s435I7JSTKaCq4zCtqGrnv56ShB8U=;
+        s=korg; t=1634564348;
+        bh=wt1KKO2f0iDH4FjTaEdSsFZ8qzOlJAGvLTZBFhVvTpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxpCjVuhTMkkvRrEylmiTl5ReoJ346uF+d+qGA+Ny4O+9yRBQK9axKiQn9VP4XL0t
-         SfG73Z+mRB75/4jlAuMZJpY+hYERFg3Q8KXcfmCtumq7NTN8kzq/1qqAJRa0RTE2MS
-         77L9CmOYTrN34zd1pv+7ZG60KQtvMD8I03PC17bc=
+        b=CYGFXIe3oMDi7hCGU6gPsj8UpOBy2vnoGr3mzm0G9VoUI77WCBSDspQGjIobbb1iG
+         gDAFuA2RAtohLuE75bAGZgoNkSTl0b0oBgdE11JdypSBDY7Mq3IdiMfcOAokM9ywQa
+         vvO0hnSHV1dlXjXYCIcc3FaYuo39N1CDzwuSZ8P4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Subject: [PATCH 5.10 018/103] drm/msm: Avoid potential overflow in timeout_to_jiffies()
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        markver@us.ibm.com, Cornelia Huck <cohuck@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 5.14 055/151] virtio: write back F_VERSION_1 before validate
 Date:   Mon, 18 Oct 2021 15:23:54 +0200
-Message-Id: <20211018132335.315869640@linuxfoundation.org>
+Message-Id: <20211018132342.485325805@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-commit 171316a68d9a8e0d9e28b7cf4c15afc4c6244a4e upstream.
+commit 2f9a174f918e29608564c7a4e8329893ab604fb4 upstream.
 
-The return type of ktime_divns() is s64. The timeout_to_jiffies() currently
-assigns the result of this ktime_divns() to unsigned long, which on 32 bit
-systems may overflow. Furthermore, the result of this function is sometimes
-also passed to functions which expect signed long, dma_fence_wait_timeout()
-is one such example.
+The virtio specification virtio-v1.1-cs01 states: "Transitional devices
+MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
+been acknowledged by the driver."  This is exactly what QEMU as of 6.1
+has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
 
-Fix this by adjusting the type of remaining_jiffies to s64, so we do not
-suffer overflow there, and return a value limited to range of 0..INT_MAX,
-which is safe for all usecases of this timeout.
+However, the specification also says: "... the driver MAY read (but MUST
+NOT write) the device-specific configuration fields to check that it can
+support the device ..." before setting FEATURES_OK.
 
-The above overflow can be triggered if userspace passes in too large timeout
-value, larger than INT_MAX / HZ seconds. The kernel detects it and complains
-about "schedule_timeout: wrong timeout value %lx" and generates a warning
-backtrace.
+In that case, any transitional device relying solely on
+VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
+legacy format.  In particular, this implies that it is in big endian
+format for big endian guests. This naturally confuses the driver which
+expects little endian in the modern mode.
 
-Note that this fixes commit 6cedb8b377bb ("drm/msm: avoid using 'timespec'"),
-because the previously used timespec_to_jiffies() function returned unsigned
-long instead of s64:
-static inline unsigned long timespec_to_jiffies(const struct timespec *value)
+It is probably a good idea to amend the spec to clarify that
+VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
+is complete. Before validate callback existed, config space was only
+read after FEATURES_OK. However, we already have two regressions, so
+let's address this here as well.
 
-Fixes: 6cedb8b377bb ("drm/msm: avoid using 'timespec'")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Jordan Crouse <jcrouse@codeaurora.org>
-Cc: Rob Clark <robdclark@chromium.org>
-Cc: stable@vger.kernel.org # 5.6+
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210917005913.157379-1-marex@denx.de
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
+the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
+virtio 1.0 is used on both sides. The latter renders virtio-blk unusable
+with DASD backing, because things simply don't work with the default.
+See Fixes tags for relevant commits.
+
+For QEMU, we can work around the issue by writing out the feature bits
+with VIRTIO_F_VERSION_1 bit set.  We (ab)use the finalize_features
+config op for this. This isn't enough to address all vhost devices since
+these do not get the features until FEATURES_OK, however it looks like
+the affected devices actually never handled the endianness for legacy
+mode correctly, so at least that's not a regression.
+
+No devices except virtio net and virtio blk seem to be affected.
+
+Long term the right thing to do is to fix the hypervisors.
+
+Cc: <stable@vger.kernel.org> #v4.11
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
+Reported-by: markver@us.ibm.com
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Link: https://lore.kernel.org/r/20211011053921.1198936-1-pasic@linux.ibm.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_drv.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/gpu/drm/msm/msm_drv.h
-+++ b/drivers/gpu/drm/msm/msm_drv.h
-@@ -543,7 +543,7 @@ static inline int align_pitch(int width,
- static inline unsigned long timeout_to_jiffies(const ktime_t *timeout)
- {
- 	ktime_t now = ktime_get();
--	unsigned long remaining_jiffies;
-+	s64 remaining_jiffies;
- 
- 	if (ktime_compare(*timeout, now) < 0) {
- 		remaining_jiffies = 0;
-@@ -552,7 +552,7 @@ static inline unsigned long timeout_to_j
- 		remaining_jiffies = ktime_divns(rem, NSEC_PER_SEC / HZ);
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -238,6 +238,17 @@ static int virtio_dev_probe(struct devic
+ 		driver_features_legacy = driver_features;
  	}
  
--	return remaining_jiffies;
-+	return clamp(remaining_jiffies, 0LL, (s64)INT_MAX);
- }
- 
- #endif /* __MSM_DRV_H__ */
++	/*
++	 * Some devices detect legacy solely via F_VERSION_1. Write
++	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
++	 * these when needed.
++	 */
++	if (drv->validate && !virtio_legacy_is_little_endian()
++			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
++		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
++		dev->config->finalize_features(dev);
++	}
++
+ 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+ 		dev->features = driver_features & device_features;
+ 	else
 
 
