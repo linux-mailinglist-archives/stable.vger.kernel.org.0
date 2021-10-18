@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9854F431D24
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFAF9431C5E
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:39:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232089AbhJRNsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:48:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40198 "EHLO mail.kernel.org"
+        id S233467AbhJRNkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:40:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233868AbhJRNqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:46:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 820CD6162E;
-        Mon, 18 Oct 2021 13:35:56 +0000 (UTC)
+        id S233835AbhJRNix (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:38:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAADB613A3;
+        Mon, 18 Oct 2021 13:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564157;
-        bh=czaI13gQk7wRy9J0Hi5zKCZKM6yOkAkNqxw0VBmSeSw=;
+        s=korg; t=1634563943;
+        bh=hdVSouO5q40i5sExSswgZBr9F2tSWw0r0jMFgRHJJXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KnbZWOZCO1ZfrRga1MMB2yWfoHIGPbd+UTIJ9GcALUT0G3+d9NbX74Z5oxR74SpDJ
-         +QEdQYCeTKmo3Dyk57SCxJYjHc/kEnLF/n7CJeA4vCyURTmkTUuxwp1s/EBjLJGLLj
-         bQxin8D39ooNH5InhEMho4hSnPMLNZDXtUgJhgW4=
+        b=mJlB/Vpm0mcBo4NymixLL4TOUo29keBk7P2v13bjdT7dw4y3ntU1o8UicrYXGhk8k
+         WbEIV+R8xOUM/UBAR9v1+ObiTjy60Nwc+UkQ/xn0AdBIby+r6zuI5jnm1tZASbnits
+         1YQxGoAIGgdyaK3xfBf1Yxj/AC4lOc4Xq2cfqDV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 079/103] nfc: fix error handling of nfc_proto_register()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 5.4 57/69] ata: ahci_platform: fix null-ptr-deref in ahci_platform_enable_regulators()
 Date:   Mon, 18 Oct 2021 15:24:55 +0200
-Message-Id: <20211018132337.410206165@linuxfoundation.org>
+Message-Id: <20211018132331.363394702@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit 0911ab31896f0e908540746414a77dd63912748d upstream.
+commit 776c75010803849c1cc4f11031a2b3960ab05202 upstream.
 
-When nfc proto id is using, nfc_proto_register() return -EBUSY error
-code, but forgot to unregister proto. Fix it by adding proto_unregister()
-in the error handling case.
+I got a null-ptr-deref report:
 
-Fixes: c7fe3b52c128 ("NFC: add NFC socket family")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20211013034932.2833737-1-william.xuanziyang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+KASAN: null-ptr-deref in range [0x0000000000000090-0x0000000000000097]
+...
+RIP: 0010:regulator_enable+0x84/0x260
+...
+Call Trace:
+ ahci_platform_enable_regulators+0xae/0x320
+ ahci_platform_enable_resources+0x1a/0x120
+ ahci_probe+0x4f/0x1b9
+ platform_probe+0x10b/0x280
+...
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+If devm_regulator_get() in ahci_platform_get_resources() fails,
+hpriv->phy_regulator will point to NULL, when enabling or disabling it,
+null-ptr-deref will occur.
+
+ahci_probe()
+	ahci_platform_get_resources()
+		devm_regulator_get(, "phy") // failed, let phy_regulator = NULL
+	ahci_platform_enable_resources()
+		ahci_platform_enable_regulators()
+			regulator_enable(hpriv->phy_regulator) // null-ptr-deref
+
+commit 962399bb7fbf ("ata: libahci_platform: Fix regulator_get_optional()
+misuse") replaces devm_regulator_get_optional() with devm_regulator_get(),
+but PHY regulator omits to delete "hpriv->phy_regulator = NULL;" like AHCI.
+Delete it like AHCI regulator to fix this bug.
+
+Fixes: commit 962399bb7fbf ("ata: libahci_platform: Fix regulator_get_optional() misuse")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/af_nfc.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/ata/libahci_platform.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/net/nfc/af_nfc.c
-+++ b/net/nfc/af_nfc.c
-@@ -60,6 +60,9 @@ int nfc_proto_register(const struct nfc_
- 		proto_tab[nfc_proto->id] = nfc_proto;
- 	write_unlock(&proto_tab_lock);
+--- a/drivers/ata/libahci_platform.c
++++ b/drivers/ata/libahci_platform.c
+@@ -440,10 +440,7 @@ struct ahci_host_priv *ahci_platform_get
+ 	hpriv->phy_regulator = devm_regulator_get(dev, "phy");
+ 	if (IS_ERR(hpriv->phy_regulator)) {
+ 		rc = PTR_ERR(hpriv->phy_regulator);
+-		if (rc == -EPROBE_DEFER)
+-			goto err_out;
+-		rc = 0;
+-		hpriv->phy_regulator = NULL;
++		goto err_out;
+ 	}
  
-+	if (rc)
-+		proto_unregister(nfc_proto->proto);
-+
- 	return rc;
- }
- EXPORT_SYMBOL(nfc_proto_register);
+ 	if (flags & AHCI_PLATFORM_GET_RESETS) {
 
 
