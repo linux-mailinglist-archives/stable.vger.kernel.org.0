@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 532D943172E
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E09431730
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:24:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbhJRL1A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:27:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
+        id S229833AbhJRL1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:27:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229473AbhJRL07 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:26:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 448E260F9D;
-        Mon, 18 Oct 2021 11:24:48 +0000 (UTC)
+        id S229473AbhJRL1H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 07:27:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D1C360FC2;
+        Mon, 18 Oct 2021 11:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634556288;
-        bh=XGGEh5Lt/MFsBfzTZZPJPZvTSRDV/0DYXjIbH96NK1k=;
+        s=korg; t=1634556296;
+        bh=TtvSPwEQKb8C1QG/5mKytdFuGVtw/z/r9rzJZ0TgNOM=;
         h=Subject:To:Cc:From:Date:From;
-        b=cVMJ54erFRTQqJGCkh255hkypqZWITNOMye+ct4mpAywkFOxqptB/IPftXcmJAmFM
-         EOmW13FkC+R086AOO+cvsOUL4BEJxFeh//ky/nS4Fk4a9NrFyKw96sBhWvr1eCHDH5
-         UYwp9oomtthwgXmzft96LuTzqb/E2NZfLZnHN8/g=
-Subject: FAILED: patch "[PATCH] spi: bcm-qspi: clear MSPI spifie interrupt during probe" failed to apply to 4.19-stable tree
+        b=JfmGNxj7RZJG6zG2yFZZ3CNOkYmBkdMLeDSWCpvKMIx0zeQe/XGoIPghMRMUXjiM6
+         rLQ5NAByLVUP4Wr7ftBcLdm9e1qHDHayj5lGWjxFMUayIM4VmDEogMvreBvklI2NJd
+         R3fwYyYLBNGmcPef4nY7mvmmdnhs1q+Pd69w5yxo=
+Subject: FAILED: patch "[PATCH] spi: bcm-qspi: clear MSPI spifie interrupt during probe" failed to apply to 5.4-stable tree
 To:     kdasu@broadcom.com, broonie@kernel.org, f.fainelli@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 13:24:38 +0200
-Message-ID: <163455627847247@kroah.com>
+Date:   Mon, 18 Oct 2021 13:24:39 +0200
+Message-ID: <163455627972139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
