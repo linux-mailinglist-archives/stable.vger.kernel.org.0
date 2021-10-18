@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A546431EBD
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:03:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82B11431EBE
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:04:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233166AbhJROFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:05:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39880 "EHLO mail.kernel.org"
+        id S233964AbhJROFM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 10:05:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234843AbhJROD0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 10:03:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BEF061529;
-        Mon, 18 Oct 2021 13:43:33 +0000 (UTC)
+        id S234921AbhJRODe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 10:03:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 513F56135E;
+        Mon, 18 Oct 2021 13:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564614;
-        bh=jqL16xTccPc2iQwfJ90ixrkDYzSs3Zd9Cx3u7sMDWFM=;
+        s=korg; t=1634564616;
+        bh=fI1uiQxqbOO361F5XdBqN7wyao4gVHverHJa7SFikqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E0TgnQGWf4lyFvblgiccSzCrvJO82k69/cOrluKtqHpZ5Tq0ZJUNO/zW6yWCmp6Ko
-         X97PTpamSWVssw9P5LMC1eYgS+2q/OQRjUE0pXz3Nr7mzDfn20dEwPD1WcR52hs3cy
-         altjc6vXiM8cYISkWahZ3E0sI77rkEo+sxV4ntN4=
+        b=OgJi9wNzfGjKeLVb2lGiNcuzfxpoGCiCaaQrBkNbrE9IJ59pdEifEotKz9JHXQpwE
+         7oj6oQC/RvT+4T0HNXD3EI80cmKqummLozTvFFJr87670ljPPjI6qj0MOIR5zKLleh
+         wRETs8Gn7gBfyf8WLrx0krazYiSycnnhbqJvJu88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baowen Zheng <baowen.zheng@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Louis Peens <louis.peens@corigine.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 144/151] nfp: flow_offload: move flow_indr_dev_register from app init to app start
-Date:   Mon, 18 Oct 2021 15:25:23 +0200
-Message-Id: <20211018132345.347006499@linuxfoundation.org>
+Subject: [PATCH 5.14 145/151] net: mscc: ocelot: make use of all 63 PTP timestamp identifiers
+Date:   Mon, 18 Oct 2021 15:25:24 +0200
+Message-Id: <20211018132345.379645054@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -41,94 +39,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baowen Zheng <baowen.zheng@corigine.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 60d950f443a52d950126ad664fbd4a1eb8353dc9 upstream.
+commit c57fe0037a4e3863d9b740f8c14df9c51ac31aa1 upstream.
 
-In commit 74fc4f828769 ("net: Fix offloading indirect devices dependency
-on qdisc order creation"), it adds a process to trigger the callback to
-setup the bo callback when the driver regists a callback.
+At present, there is a problem when user space bombards a port with PTP
+event frames which have TX timestamping requests (or when a tc-taprio
+offload is installed on a port, which delays the TX timestamps by a
+significant amount of time). The driver will happily roll over the 2-bit
+timestamp ID and this will cause incorrect matches between an skb and
+the TX timestamp collected from the FIFO.
 
-In our current implement, we are not ready to run the callback when nfp
-call the function flow_indr_dev_register, then there will be error
-message as:
+The Ocelot switches have a 6-bit PTP timestamp identifier, and the value
+63 is reserved, so that leaves identifiers 0-62 to be used.
 
-kernel: Oops: 0000 [#1] SMP PTI
-kernel: CPU: 0 PID: 14119 Comm: kworker/0:0 Tainted: G
-kernel: Workqueue: events work_for_cpu_fn
-kernel: RIP: 0010:nfp_flower_indr_setup_tc_cb+0x258/0x410
-kernel: RSP: 0018:ffffbc1e02c57bf8 EFLAGS: 00010286
-kernel: RAX: 0000000000000000 RBX: ffff9c761fabc000 RCX: 0000000000000001
-kernel: RDX: 0000000000000001 RSI: fffffffffffffff0 RDI: ffffffffc0be9ef1
-kernel: RBP: ffffbc1e02c57c58 R08: ffffffffc08f33aa R09: ffff9c6db7478800
-kernel: R10: 0000009c003f6e00 R11: ffffbc1e02800000 R12: ffffbc1e000d9000
-kernel: R13: ffffbc1e000db428 R14: ffff9c6db7478800 R15: ffff9c761e884e80
-kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-kernel: CR2: fffffffffffffff0 CR3: 00000009e260a004 CR4: 00000000007706f0
-kernel: DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-kernel: DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-kernel: PKRU: 55555554
-kernel: Call Trace:
-kernel: ? flow_indr_dev_register+0xab/0x210
-kernel: ? __cond_resched+0x15/0x30
-kernel: ? kmem_cache_alloc_trace+0x44/0x4b0
-kernel: ? nfp_flower_setup_tc+0x1d0/0x1d0 [nfp]
-kernel: flow_indr_dev_register+0x158/0x210
-kernel: ? tcf_block_unbind+0xe0/0xe0
-kernel: nfp_flower_init+0x40b/0x650 [nfp]
-kernel: nfp_net_pci_probe+0x25f/0x960 [nfp]
-kernel: ? nfp_rtsym_read_le+0x76/0x130 [nfp]
-kernel: nfp_pci_probe+0x6a9/0x820 [nfp]
-kernel: local_pci_probe+0x45/0x80
+The timestamp identifiers are selected by the REW_OP packet field, and
+are actually shared between CPU-injected frames and frames which match a
+VCAP IS2 rule that modifies the REW_OP. The hardware supports
+partitioning between the two uses of the REW_OP field through the
+PTP_ID_LOW and PTP_ID_HIGH registers, and by default reserves the PTP
+IDs 0-3 for CPU-injected traffic and the rest for VCAP IS2.
 
-So we need to call flow_indr_dev_register in app start process instead of
-init stage.
+The driver does not use VCAP IS2 to set REW_OP for 2-step timestamping,
+and it also writes 0xffffffff to both PTP_ID_HIGH and PTP_ID_LOW in
+ocelot_init_timestamp() which makes all timestamp identifiers available
+to CPU injection.
 
-Fixes: 74fc4f828769 ("net: Fix offloading indirect devices dependency on qdisc order creation")
-Signed-off-by: Baowen Zheng <baowen.zheng@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Louis Peens <louis.peens@corigine.com>
-Link: https://lore.kernel.org/r/20211012124850.13025-1-louis.peens@corigine.com
+Therefore, we can make use of all 63 timestamp identifiers, which should
+allow more timestampable packets to be in flight on each port. This is
+only part of the solution, more issues will be addressed in future changes.
+
+Fixes: 4e3b0468e6d7 ("net: mscc: PTP Hardware Clock (PHC) support")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/netronome/nfp/flower/main.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mscc/ocelot.c |    4 +++-
+ include/soc/mscc/ocelot_ptp.h      |    2 ++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/netronome/nfp/flower/main.c
-+++ b/drivers/net/ethernet/netronome/nfp/flower/main.c
-@@ -830,10 +830,6 @@ static int nfp_flower_init(struct nfp_ap
- 	if (err)
- 		goto err_cleanup;
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -546,7 +546,9 @@ static void ocelot_port_add_txtstamp_skb
+ 	skb_shinfo(clone)->tx_flags |= SKBTX_IN_PROGRESS;
+ 	/* Store timestamp ID in OCELOT_SKB_CB(clone)->ts_id */
+ 	OCELOT_SKB_CB(clone)->ts_id = ocelot_port->ts_id;
+-	ocelot_port->ts_id = (ocelot_port->ts_id + 1) % 4;
++	ocelot_port->ts_id++;
++	if (ocelot_port->ts_id == OCELOT_MAX_PTP_ID)
++		ocelot_port->ts_id = 0;
+ 	skb_queue_tail(&ocelot_port->tx_skbs, clone);
  
--	err = flow_indr_dev_register(nfp_flower_indr_setup_tc_cb, app);
--	if (err)
--		goto err_cleanup;
--
- 	if (app_priv->flower_ext_feats & NFP_FL_FEATS_VF_RLIM)
- 		nfp_flower_qos_init(app);
+ 	spin_unlock(&ocelot_port->ts_id_lock);
+--- a/include/soc/mscc/ocelot_ptp.h
++++ b/include/soc/mscc/ocelot_ptp.h
+@@ -13,6 +13,8 @@
+ #include <linux/ptp_clock_kernel.h>
+ #include <soc/mscc/ocelot.h>
  
-@@ -942,7 +938,20 @@ static int nfp_flower_start(struct nfp_a
- 			return err;
- 	}
- 
--	return nfp_tunnel_config_start(app);
-+	err = flow_indr_dev_register(nfp_flower_indr_setup_tc_cb, app);
-+	if (err)
-+		return err;
++#define OCELOT_MAX_PTP_ID		63
 +
-+	err = nfp_tunnel_config_start(app);
-+	if (err)
-+		goto err_tunnel_config;
-+
-+	return 0;
-+
-+err_tunnel_config:
-+	flow_indr_dev_unregister(nfp_flower_indr_setup_tc_cb, app,
-+				 nfp_flower_setup_indr_tc_release);
-+	return err;
- }
- 
- static void nfp_flower_stop(struct nfp_app *app)
+ #define PTP_PIN_CFG_RSZ			0x20
+ #define PTP_PIN_TOD_SEC_MSB_RSZ		PTP_PIN_CFG_RSZ
+ #define PTP_PIN_TOD_SEC_LSB_RSZ		PTP_PIN_CFG_RSZ
 
 
