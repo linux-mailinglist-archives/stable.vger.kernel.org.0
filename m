@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C5EB431CB9
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 453FF431DBD
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232476AbhJRNoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:44:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39900 "EHLO mail.kernel.org"
+        id S233806AbhJRNye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:54:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232283AbhJRNmf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:42:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33F8F61505;
-        Mon, 18 Oct 2021 13:34:08 +0000 (UTC)
+        id S234116AbhJRNwd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:52:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78F2061381;
+        Mon, 18 Oct 2021 13:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564048;
-        bh=6Vp21lSexe6z120mdDelmfwJ35ap7XXTqN+VwLxH3y0=;
+        s=korg; t=1634564329;
+        bh=D9VwApYEqHKpSLReLdDLcfcGkIsVyjtRW/I6FbVQjvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3UZjzG/JLjJNNEBo1B8P3cM402bsJtC70W+In08oqrptJ38HQk7ZoNn6f8T1xTOk
-         rLOF5ki6BwNwFb1r+v8pqM/w7Zod9Pv84/OPxwLPGZW39Cv6RY7pJrJssgHcI55Bas
-         ArRUSVxrWlZlAnF7RZKElv7nS+TUR6cegLPbrAIE=
+        b=HUuPgaPtAgD0UHl05XcE+fm2t9lT9qFI3dnkPH8OBEn/5EVLgATz0+J3T9zSuq8Ld
+         tdkf0ixvkpxlk9GIW6mHlWFbK657mfTu+EWF7Jj11KVnb4+QuRopzZ0aRljyYkWJ7/
+         EySDUFb8apXK7n6/DHDuYGAY76+wLEQTxkaUk+Qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greentime Hu <green.hu@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 012/103] nds32/ftrace: Fix Error: invalid operands (*UND* and *UND* sections) for `^
+        stable@vger.kernel.org,
+        Michael Cullen <michael@michaelcullen.name>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.14 049/151] Input: xpad - add support for another USB ID of Nacon GC-100
 Date:   Mon, 18 Oct 2021 15:23:48 +0200
-Message-Id: <20211018132335.103161754@linuxfoundation.org>
+Message-Id: <20211018132342.290000692@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,85 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Michael Cullen <michael@michaelcullen.name>
 
-commit be358af1191b1b2fedebd8f3421cafdc8edacc7d upstream.
+commit 3378a07daa6cdd11e042797454c706d1c69f9ca6 upstream.
 
-I received a build failure for a new patch I'm working on the nds32
-architecture, and when I went to test it, I couldn't get to my build error,
-because it failed to build with a bunch of:
+The Nacon GX100XF is already mapped, but it seems there is a Nacon
+GC-100 (identified as NC5136Wht PCGC-100WHITE though I believe other
+colours exist) with a different USB ID when in XInput mode.
 
-  Error: invalid operands (*UND* and *UND* sections) for `^'
-
-issues with various files. Those files were temporary asm files that looked
-like:  kernel/.tmp_mc_fork.s
-
-I decided to look deeper, and found that the "mc" portion of that name
-stood for "mcount", and was created by the recordmcount.pl script. One that
-I wrote over a decade ago. Once I knew the source of the problem, I was
-able to investigate it further.
-
-The way the recordmcount.pl script works (BTW, there's a C version that
-simply modifies the ELF object) is by doing an "objdump" on the object
-file. Looks for all the calls to "mcount", and creates an offset of those
-locations from some global variable it can use (usually a global function
-name, found with <.*>:). Creates a asm file that is a table of references
-to these locations, using the found variable/function. Compiles it and
-links it back into the original object file. This asm file is called
-".tmp_mc_<object_base_name>.s".
-
-The problem here is that the objdump produced by the nds32 object file,
-contains things that look like:
-
- 0000159a <.L3^B1>:
-    159a:       c6 00           beqz38 $r6, 159a <.L3^B1>
-                        159a: R_NDS32_9_PCREL_RELA      .text+0x159e
-    159c:       84 d2           movi55 $r6, #-14
-    159e:       80 06           mov55 $r0, $r6
-    15a0:       ec 3c           addi10.sp #0x3c
-
-Where ".L3^B1 is somehow selected as the "global" variable to index off of.
-
-Then the assembly file that holds the mcount locations looks like this:
-
-        .section __mcount_loc,"a",@progbits
-        .align 2
-        .long .L3^B1 + -5522
-        .long .L3^B1 + -5384
-        .long .L3^B1 + -5270
-        .long .L3^B1 + -5098
-        .long .L3^B1 + -4970
-        .long .L3^B1 + -4758
-        .long .L3^B1 + -4122
-        [...]
-
-And when it is compiled back to an object to link to the original object,
-the compile fails on the "^" symbol.
-
-Simple solution for now, is to have the perl script ignore using function
-symbols that have an "^" in the name.
-
-Link: https://lkml.kernel.org/r/20211014143507.4ad2c0f7@gandalf.local.home
-
-Cc: stable@vger.kernel.org
-Acked-by: Greentime Hu <green.hu@gmail.com>
-Fixes: fbf58a52ac088 ("nds32/ftrace: Add RECORD_MCOUNT support")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Michael Cullen <michael@michaelcullen.name>
+Link: https://lore.kernel.org/r/20211015192051.5196-1-michael@michaelcullen.name
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/recordmcount.pl |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/joystick/xpad.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/scripts/recordmcount.pl
-+++ b/scripts/recordmcount.pl
-@@ -222,7 +222,7 @@ if ($arch =~ /(x86(_64)?)|(i386)/) {
- $local_regex = "^[0-9a-fA-F]+\\s+t\\s+(\\S+)";
- $weak_regex = "^[0-9a-fA-F]+\\s+([wW])\\s+(\\S+)";
- $section_regex = "Disassembly of section\\s+(\\S+):";
--$function_regex = "^([0-9a-fA-F]+)\\s+<(.*?)>:";
-+$function_regex = "^([0-9a-fA-F]+)\\s+<([^^]*?)>:";
- $mcount_regex = "^\\s*([0-9a-fA-F]+):.*\\s(mcount|__fentry__)\$";
- $section_type = '@progbits';
- $mcount_adjust = 0;
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -334,6 +334,7 @@ static const struct xpad_device {
+ 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
+ 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
+ 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
+ 	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
+@@ -451,6 +452,7 @@ static const struct usb_device_id xpad_t
+ 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
+ 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
+ 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
++	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
+ 	{ }
+ };
+ 
 
 
