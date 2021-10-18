@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A28014316B9
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25ACA4316BA
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:03:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbhJRLEz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:04:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54038 "EHLO mail.kernel.org"
+        id S229491AbhJRLF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:05:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229491AbhJRLEy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:04:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8185360F56;
-        Mon, 18 Oct 2021 11:02:43 +0000 (UTC)
+        id S229494AbhJRLF0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 07:05:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3323D60F56;
+        Mon, 18 Oct 2021 11:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634554964;
-        bh=9S985ri1lC/OddB+jRt2vkSwSao4zv8dbwn8pGeUxEw=;
+        s=korg; t=1634554995;
+        bh=yeml+LVlYaStZY24c1fqtFbYj99BEDEpucDkUVrklAM=;
         h=Subject:To:Cc:From:Date:From;
-        b=LR2I76LNaKMrHThL7m1DjTdfhHqD0B1G4Qa97dvmDnboA1QgMfuM3K38ZTOHY55df
-         xBzyJFhHL1c16jjPiEmMtnD0foZxFjJpE1vFsOV1YHaKX8neGUDq10SdaINrtW9cTL
-         X++6cOlcT0c4FbEqamSfW+vmyy08+bVDBCt7g9ZM=
-Subject: FAILED: patch "[PATCH] net/smc: improved fix wait on already cleared link" failed to apply to 5.10-stable tree
-To:     kgraul@linux.ibm.com, davem@davemloft.net
+        b=BD5ZNlXW8QB27AwsCPx92DAUE81Yiwy82TNof8c9fDR2lT5S6c37dg3yrZ4/SSQra
+         HVDwK1Xb+a8oyzi0mx0xwwUnKIlz6PJKI+f3ngw/MkiuWJ++Bq+0/SdsCmdVPfXNpm
+         1LezpxGyWCnC3eek+3f+FfOYyGTgkQSiTsajAvxE=
+Subject: FAILED: patch "[PATCH] net/mlx5e: Fix memory leak in mlx5_core_destroy_cq() error" failed to apply to 4.4-stable tree
+To:     valentinef@nvidia.com, moshe@nvidia.com, saeedm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 13:02:41 +0200
-Message-ID: <163455496125239@kroah.com>
+Date:   Mon, 18 Oct 2021 13:03:13 +0200
+Message-ID: <1634554993166179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,375 +45,80 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 95f7f3e7dc6bd2e735cb5de11734ea2222b1e05a Mon Sep 17 00:00:00 2001
-From: Karsten Graul <kgraul@linux.ibm.com>
-Date: Thu, 7 Oct 2021 16:14:40 +0200
-Subject: [PATCH] net/smc: improved fix wait on already cleared link
+From 94b960b9deffc02fc0747afc01f72cc62ab099e3 Mon Sep 17 00:00:00 2001
+From: Valentine Fatiev <valentinef@nvidia.com>
+Date: Sun, 15 Aug 2021 17:43:19 +0300
+Subject: [PATCH] net/mlx5e: Fix memory leak in mlx5_core_destroy_cq() error
+ path
 
-Commit 8f3d65c16679 ("net/smc: fix wait on already cleared link")
-introduced link refcounting to avoid waits on already cleared links.
-This patch extents and improves the refcounting to cover all
-remaining possible cases for this kind of error situation.
+Prior to this patch in case mlx5_core_destroy_cq() failed it returns
+without completing all destroy operations and that leads to memory leak.
+Instead, complete the destroy flow before return error.
 
-Fixes: 15e1b99aadfb ("net/smc: no WR buffer wait for terminating link group")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Also move mlx5_debug_cq_remove() to the beginning of mlx5_core_destroy_cq()
+to be symmetrical with mlx5_core_create_cq().
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index f23f558054a7..99acd337ba90 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -150,9 +150,11 @@ static int smcr_cdc_get_slot_and_msg_send(struct smc_connection *conn)
+kmemleak complains on:
+
+unreferenced object 0xc000000038625100 (size 64):
+  comm "ethtool", pid 28301, jiffies 4298062946 (age 785.380s)
+  hex dump (first 32 bytes):
+    60 01 48 94 00 00 00 c0 b8 05 34 c3 00 00 00 c0  `.H.......4.....
+    02 00 00 00 00 00 00 00 00 db 7d c1 00 00 00 c0  ..........}.....
+  backtrace:
+    [<000000009e8643cb>] add_res_tree+0xd0/0x270 [mlx5_core]
+    [<00000000e7cb8e6c>] mlx5_debug_cq_add+0x5c/0xc0 [mlx5_core]
+    [<000000002a12918f>] mlx5_core_create_cq+0x1d0/0x2d0 [mlx5_core]
+    [<00000000cef0a696>] mlx5e_create_cq+0x210/0x3f0 [mlx5_core]
+    [<000000009c642c26>] mlx5e_open_cq+0xb4/0x130 [mlx5_core]
+    [<0000000058dfa578>] mlx5e_ptp_open+0x7f4/0xe10 [mlx5_core]
+    [<0000000081839561>] mlx5e_open_channels+0x9cc/0x13e0 [mlx5_core]
+    [<0000000009cf05d4>] mlx5e_switch_priv_channels+0xa4/0x230
+[mlx5_core]
+    [<0000000042bbedd8>] mlx5e_safe_switch_params+0x14c/0x300
+[mlx5_core]
+    [<0000000004bc9db8>] set_pflag_tx_port_ts+0x9c/0x160 [mlx5_core]
+    [<00000000a0553443>] mlx5e_set_priv_flags+0xd0/0x1b0 [mlx5_core]
+    [<00000000a8f3d84b>] ethnl_set_privflags+0x234/0x2d0
+    [<00000000fd27f27c>] genl_family_rcv_msg_doit+0x108/0x1d0
+    [<00000000f495e2bb>] genl_family_rcv_msg+0xe4/0x1f0
+    [<00000000646c5c2c>] genl_rcv_msg+0x78/0x120
+    [<00000000d53e384e>] netlink_rcv_skb+0x74/0x1a0
+
+Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+Signed-off-by: Valentine Fatiev <valentinef@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cq.c b/drivers/net/ethernet/mellanox/mlx5/core/cq.c
+index cf97985628ab..02e77ffe5c3e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cq.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cq.c
+@@ -155,6 +155,8 @@ int mlx5_core_destroy_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq)
+ 	u32 in[MLX5_ST_SZ_DW(destroy_cq_in)] = {};
+ 	int err;
  
- again:
- 	link = conn->lnk;
-+	if (!smc_wr_tx_link_hold(link))
-+		return -ENOLINK;
- 	rc = smc_cdc_get_free_slot(conn, link, &wr_buf, NULL, &pend);
- 	if (rc)
--		return rc;
-+		goto put_out;
- 
- 	spin_lock_bh(&conn->send_lock);
- 	if (link != conn->lnk) {
-@@ -160,6 +162,7 @@ static int smcr_cdc_get_slot_and_msg_send(struct smc_connection *conn)
- 		spin_unlock_bh(&conn->send_lock);
- 		smc_wr_tx_put_slot(link,
- 				   (struct smc_wr_tx_pend_priv *)pend);
-+		smc_wr_tx_link_put(link);
- 		if (again)
- 			return -ENOLINK;
- 		again = true;
-@@ -167,6 +170,8 @@ static int smcr_cdc_get_slot_and_msg_send(struct smc_connection *conn)
- 	}
- 	rc = smc_cdc_msg_send(conn, wr_buf, pend);
- 	spin_unlock_bh(&conn->send_lock);
-+put_out:
-+	smc_wr_tx_link_put(link);
- 	return rc;
- }
- 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 8280c938be80..d2206743dc71 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -949,7 +949,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 		to_lnk = &lgr->lnk[i];
- 		break;
- 	}
--	if (!to_lnk) {
-+	if (!to_lnk || !smc_wr_tx_link_hold(to_lnk)) {
- 		smc_lgr_terminate_sched(lgr);
- 		return NULL;
- 	}
-@@ -981,24 +981,26 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 		read_unlock_bh(&lgr->conns_lock);
- 		/* pre-fetch buffer outside of send_lock, might sleep */
- 		rc = smc_cdc_get_free_slot(conn, to_lnk, &wr_buf, NULL, &pend);
--		if (rc) {
--			smcr_link_down_cond_sched(to_lnk);
--			return NULL;
--		}
-+		if (rc)
-+			goto err_out;
- 		/* avoid race with smcr_tx_sndbuf_nonempty() */
- 		spin_lock_bh(&conn->send_lock);
- 		smc_switch_link_and_count(conn, to_lnk);
- 		rc = smc_switch_cursor(smc, pend, wr_buf);
- 		spin_unlock_bh(&conn->send_lock);
- 		sock_put(&smc->sk);
--		if (rc) {
--			smcr_link_down_cond_sched(to_lnk);
--			return NULL;
--		}
-+		if (rc)
-+			goto err_out;
- 		goto again;
- 	}
- 	read_unlock_bh(&lgr->conns_lock);
-+	smc_wr_tx_link_put(to_lnk);
- 	return to_lnk;
++	mlx5_debug_cq_remove(dev, cq);
 +
-+err_out:
-+	smcr_link_down_cond_sched(to_lnk);
-+	smc_wr_tx_link_put(to_lnk);
-+	return NULL;
+ 	mlx5_eq_del_cq(mlx5_get_async_eq(dev), cq);
+ 	mlx5_eq_del_cq(&cq->eq->core, cq);
+ 
+@@ -162,16 +164,13 @@ int mlx5_core_destroy_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq)
+ 	MLX5_SET(destroy_cq_in, in, cqn, cq->cqn);
+ 	MLX5_SET(destroy_cq_in, in, uid, cq->uid);
+ 	err = mlx5_cmd_exec_in(dev, destroy_cq, in);
+-	if (err)
+-		return err;
+ 
+ 	synchronize_irq(cq->irqn);
+ 
+-	mlx5_debug_cq_remove(dev, cq);
+ 	mlx5_cq_put(cq);
+ 	wait_for_completion(&cq->free);
+ 
+-	return 0;
++	return err;
  }
+ EXPORT_SYMBOL(mlx5_core_destroy_cq);
  
- static void smcr_buf_unuse(struct smc_buf_desc *rmb_desc,
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 2e7560eba981..72f4b72eb175 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -383,9 +383,11 @@ int smc_llc_send_confirm_link(struct smc_link *link,
- 	struct smc_wr_buf *wr_buf;
- 	int rc;
- 
-+	if (!smc_wr_tx_link_hold(link))
-+		return -ENOLINK;
- 	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
- 	if (rc)
--		return rc;
-+		goto put_out;
- 	confllc = (struct smc_llc_msg_confirm_link *)wr_buf;
- 	memset(confllc, 0, sizeof(*confllc));
- 	confllc->hd.common.type = SMC_LLC_CONFIRM_LINK;
-@@ -402,6 +404,8 @@ int smc_llc_send_confirm_link(struct smc_link *link,
- 	confllc->max_links = SMC_LLC_ADD_LNK_MAX_LINKS;
- 	/* send llc message */
- 	rc = smc_wr_tx_send(link, pend);
-+put_out:
-+	smc_wr_tx_link_put(link);
- 	return rc;
- }
- 
-@@ -415,9 +419,11 @@ static int smc_llc_send_confirm_rkey(struct smc_link *send_link,
- 	struct smc_link *link;
- 	int i, rc, rtok_ix;
- 
-+	if (!smc_wr_tx_link_hold(send_link))
-+		return -ENOLINK;
- 	rc = smc_llc_add_pending_send(send_link, &wr_buf, &pend);
- 	if (rc)
--		return rc;
-+		goto put_out;
- 	rkeyllc = (struct smc_llc_msg_confirm_rkey *)wr_buf;
- 	memset(rkeyllc, 0, sizeof(*rkeyllc));
- 	rkeyllc->hd.common.type = SMC_LLC_CONFIRM_RKEY;
-@@ -444,6 +450,8 @@ static int smc_llc_send_confirm_rkey(struct smc_link *send_link,
- 		(u64)sg_dma_address(rmb_desc->sgt[send_link->link_idx].sgl));
- 	/* send llc message */
- 	rc = smc_wr_tx_send(send_link, pend);
-+put_out:
-+	smc_wr_tx_link_put(send_link);
- 	return rc;
- }
- 
-@@ -456,9 +464,11 @@ static int smc_llc_send_delete_rkey(struct smc_link *link,
- 	struct smc_wr_buf *wr_buf;
- 	int rc;
- 
-+	if (!smc_wr_tx_link_hold(link))
-+		return -ENOLINK;
- 	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
- 	if (rc)
--		return rc;
-+		goto put_out;
- 	rkeyllc = (struct smc_llc_msg_delete_rkey *)wr_buf;
- 	memset(rkeyllc, 0, sizeof(*rkeyllc));
- 	rkeyllc->hd.common.type = SMC_LLC_DELETE_RKEY;
-@@ -467,6 +477,8 @@ static int smc_llc_send_delete_rkey(struct smc_link *link,
- 	rkeyllc->rkey[0] = htonl(rmb_desc->mr_rx[link->link_idx]->rkey);
- 	/* send llc message */
- 	rc = smc_wr_tx_send(link, pend);
-+put_out:
-+	smc_wr_tx_link_put(link);
- 	return rc;
- }
- 
-@@ -480,9 +492,11 @@ int smc_llc_send_add_link(struct smc_link *link, u8 mac[], u8 gid[],
- 	struct smc_wr_buf *wr_buf;
- 	int rc;
- 
-+	if (!smc_wr_tx_link_hold(link))
-+		return -ENOLINK;
- 	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
- 	if (rc)
--		return rc;
-+		goto put_out;
- 	addllc = (struct smc_llc_msg_add_link *)wr_buf;
- 
- 	memset(addllc, 0, sizeof(*addllc));
-@@ -504,6 +518,8 @@ int smc_llc_send_add_link(struct smc_link *link, u8 mac[], u8 gid[],
- 	}
- 	/* send llc message */
- 	rc = smc_wr_tx_send(link, pend);
-+put_out:
-+	smc_wr_tx_link_put(link);
- 	return rc;
- }
- 
-@@ -517,9 +533,11 @@ int smc_llc_send_delete_link(struct smc_link *link, u8 link_del_id,
- 	struct smc_wr_buf *wr_buf;
- 	int rc;
- 
-+	if (!smc_wr_tx_link_hold(link))
-+		return -ENOLINK;
- 	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
- 	if (rc)
--		return rc;
-+		goto put_out;
- 	delllc = (struct smc_llc_msg_del_link *)wr_buf;
- 
- 	memset(delllc, 0, sizeof(*delllc));
-@@ -536,6 +554,8 @@ int smc_llc_send_delete_link(struct smc_link *link, u8 link_del_id,
- 	delllc->reason = htonl(reason);
- 	/* send llc message */
- 	rc = smc_wr_tx_send(link, pend);
-+put_out:
-+	smc_wr_tx_link_put(link);
- 	return rc;
- }
- 
-@@ -547,9 +567,11 @@ static int smc_llc_send_test_link(struct smc_link *link, u8 user_data[16])
- 	struct smc_wr_buf *wr_buf;
- 	int rc;
- 
-+	if (!smc_wr_tx_link_hold(link))
-+		return -ENOLINK;
- 	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
- 	if (rc)
--		return rc;
-+		goto put_out;
- 	testllc = (struct smc_llc_msg_test_link *)wr_buf;
- 	memset(testllc, 0, sizeof(*testllc));
- 	testllc->hd.common.type = SMC_LLC_TEST_LINK;
-@@ -557,6 +579,8 @@ static int smc_llc_send_test_link(struct smc_link *link, u8 user_data[16])
- 	memcpy(testllc->user_data, user_data, sizeof(testllc->user_data));
- 	/* send llc message */
- 	rc = smc_wr_tx_send(link, pend);
-+put_out:
-+	smc_wr_tx_link_put(link);
- 	return rc;
- }
- 
-@@ -567,13 +591,16 @@ static int smc_llc_send_message(struct smc_link *link, void *llcbuf)
- 	struct smc_wr_buf *wr_buf;
- 	int rc;
- 
--	if (!smc_link_usable(link))
-+	if (!smc_wr_tx_link_hold(link))
- 		return -ENOLINK;
- 	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
- 	if (rc)
--		return rc;
-+		goto put_out;
- 	memcpy(wr_buf, llcbuf, sizeof(union smc_llc_msg));
--	return smc_wr_tx_send(link, pend);
-+	rc = smc_wr_tx_send(link, pend);
-+put_out:
-+	smc_wr_tx_link_put(link);
-+	return rc;
- }
- 
- /* schedule an llc send on link, may wait for buffers,
-@@ -586,13 +613,16 @@ static int smc_llc_send_message_wait(struct smc_link *link, void *llcbuf)
- 	struct smc_wr_buf *wr_buf;
- 	int rc;
- 
--	if (!smc_link_usable(link))
-+	if (!smc_wr_tx_link_hold(link))
- 		return -ENOLINK;
- 	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
- 	if (rc)
--		return rc;
-+		goto put_out;
- 	memcpy(wr_buf, llcbuf, sizeof(union smc_llc_msg));
--	return smc_wr_tx_send_wait(link, pend, SMC_LLC_WAIT_TIME);
-+	rc = smc_wr_tx_send_wait(link, pend, SMC_LLC_WAIT_TIME);
-+put_out:
-+	smc_wr_tx_link_put(link);
-+	return rc;
- }
- 
- /********************************* receive ***********************************/
-@@ -672,9 +702,11 @@ static int smc_llc_add_link_cont(struct smc_link *link,
- 	struct smc_buf_desc *rmb;
- 	u8 n;
- 
-+	if (!smc_wr_tx_link_hold(link))
-+		return -ENOLINK;
- 	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
- 	if (rc)
--		return rc;
-+		goto put_out;
- 	addc_llc = (struct smc_llc_msg_add_link_cont *)wr_buf;
- 	memset(addc_llc, 0, sizeof(*addc_llc));
- 
-@@ -706,7 +738,10 @@ static int smc_llc_add_link_cont(struct smc_link *link,
- 	addc_llc->hd.length = sizeof(struct smc_llc_msg_add_link_cont);
- 	if (lgr->role == SMC_CLNT)
- 		addc_llc->hd.flags |= SMC_LLC_FLAG_RESP;
--	return smc_wr_tx_send(link, pend);
-+	rc = smc_wr_tx_send(link, pend);
-+put_out:
-+	smc_wr_tx_link_put(link);
-+	return rc;
- }
- 
- static int smc_llc_cli_rkey_exchange(struct smc_link *link,
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index c79361dfcdfb..738a4a99c827 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -496,7 +496,7 @@ static int smc_tx_rdma_writes(struct smc_connection *conn,
- /* Wakeup sndbuf consumers from any context (IRQ or process)
-  * since there is more data to transmit; usable snd_wnd as max transmit
-  */
--static int _smcr_tx_sndbuf_nonempty(struct smc_connection *conn)
-+static int smcr_tx_sndbuf_nonempty(struct smc_connection *conn)
- {
- 	struct smc_cdc_producer_flags *pflags = &conn->local_tx_ctrl.prod_flags;
- 	struct smc_link *link = conn->lnk;
-@@ -505,8 +505,11 @@ static int _smcr_tx_sndbuf_nonempty(struct smc_connection *conn)
- 	struct smc_wr_buf *wr_buf;
- 	int rc;
- 
-+	if (!link || !smc_wr_tx_link_hold(link))
-+		return -ENOLINK;
- 	rc = smc_cdc_get_free_slot(conn, link, &wr_buf, &wr_rdma_buf, &pend);
- 	if (rc < 0) {
-+		smc_wr_tx_link_put(link);
- 		if (rc == -EBUSY) {
- 			struct smc_sock *smc =
- 				container_of(conn, struct smc_sock, conn);
-@@ -547,22 +550,7 @@ static int _smcr_tx_sndbuf_nonempty(struct smc_connection *conn)
- 
- out_unlock:
- 	spin_unlock_bh(&conn->send_lock);
--	return rc;
--}
--
--static int smcr_tx_sndbuf_nonempty(struct smc_connection *conn)
--{
--	struct smc_link *link = conn->lnk;
--	int rc = -ENOLINK;
--
--	if (!link)
--		return rc;
--
--	atomic_inc(&link->wr_tx_refcnt);
--	if (smc_link_usable(link))
--		rc = _smcr_tx_sndbuf_nonempty(conn);
--	if (atomic_dec_and_test(&link->wr_tx_refcnt))
--		wake_up_all(&link->wr_tx_wait);
-+	smc_wr_tx_link_put(link);
- 	return rc;
- }
- 
-diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
-index 423b8709f1c9..2bc626f230a5 100644
---- a/net/smc/smc_wr.h
-+++ b/net/smc/smc_wr.h
-@@ -60,6 +60,20 @@ static inline void smc_wr_tx_set_wr_id(atomic_long_t *wr_tx_id, long val)
- 	atomic_long_set(wr_tx_id, val);
- }
- 
-+static inline bool smc_wr_tx_link_hold(struct smc_link *link)
-+{
-+	if (!smc_link_usable(link))
-+		return false;
-+	atomic_inc(&link->wr_tx_refcnt);
-+	return true;
-+}
-+
-+static inline void smc_wr_tx_link_put(struct smc_link *link)
-+{
-+	if (atomic_dec_and_test(&link->wr_tx_refcnt))
-+		wake_up_all(&link->wr_tx_wait);
-+}
-+
- static inline void smc_wr_wakeup_tx_wait(struct smc_link *lnk)
- {
- 	wake_up_all(&lnk->wr_tx_wait);
 
