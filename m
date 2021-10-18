@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A6A9431E0E
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E41C2431C2B
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232506AbhJRN5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:57:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57730 "EHLO mail.kernel.org"
+        id S232970AbhJRNjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:39:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234183AbhJRNzU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:55:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6829A6137F;
-        Mon, 18 Oct 2021 13:40:03 +0000 (UTC)
+        id S232094AbhJRNg5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:36:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82AA1613C8;
+        Mon, 18 Oct 2021 13:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564403;
-        bh=IEVXBQ/6xZ+vbYCVhttAvoLjwdG6FbycEd4remA6ftM=;
+        s=korg; t=1634563882;
+        bh=3fkVhJNSC3O2VSBSQQCAKZGKJ/9U4/+ZHSikwhQPeBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/nyoIpLGZmyO4atlS1zxf6ZPcpq9p8w0tIEAFvyN4JcaMx67k/aG3oDQ8BWwnYXP
-         sNyQBdx9+5U/RISrltn+iPQisXmqCAJl+z4cZmE6CAsigQQAisHkwJxTHwYJGVw6ho
-         8zbFYqBevIC90RIyncwGJxjDI1zaksCj6T7bIBrs=
+        b=VU5BVn7Pl0aBr8ALPTezC7v5xIbW3GQSI/4NbBAX1ftKxaEWDVd54ccc/V5fIzeD5
+         19NynwrVYegHui9j27H0CUBZlhgSzYsq1dQFrGkeK4ehHhmmWM/2548Sq0x0ETSVMJ
+         a9bFVPRvGhcNyO4bGGgFZvrsCjjxTY5ctHLmhAus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.14 077/151] iio: accel: fxls8962af: return IRQ_HANDLED when fifo is flushed
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 18/69] mei: me: add Ice Lake-N device id.
 Date:   Mon, 18 Oct 2021 15:24:16 +0200
-Message-Id: <20211018132343.186253685@linuxfoundation.org>
+Message-Id: <20211018132330.073593841@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 9033c7a357481fb5bcc1737bafa4aec572dca5c6 upstream.
+commit 75c10c5e7a715550afdd51ef8cfd1d975f48f9e1 upstream.
 
-fxls8962af_fifo_flush() will return the samples flushed.
-So return IRQ_NONE only if an error is returned.
+Add Ice Lake-N device ID.
 
-Fixes: 79e3a5bdd9ef ("iio: accel: fxls8962af: add hw buffered sampling")
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Link: https://lore.kernel.org/r/20210817124336.1672169-1-sean@geanix.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+The device can be found on MacBookPro16,2 [1].
+
+[1]: https://linux-hardware.org/?probe=f1c5cf0c43
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211001173644.16068-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/fxls8962af-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/mei/hw-me-regs.h |    1 +
+ drivers/misc/mei/pci-me.c     |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/iio/accel/fxls8962af-core.c
-+++ b/drivers/iio/accel/fxls8962af-core.c
-@@ -738,7 +738,7 @@ static irqreturn_t fxls8962af_interrupt(
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -90,6 +90,7 @@
+ #define MEI_DEV_ID_CDF        0x18D3  /* Cedar Fork */
  
- 	if (reg & FXLS8962AF_INT_STATUS_SRC_BUF) {
- 		ret = fxls8962af_fifo_flush(indio_dev);
--		if (ret)
-+		if (ret < 0)
- 			return IRQ_NONE;
+ #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
++#define MEI_DEV_ID_ICP_N      0x38E0  /* Ice Lake Point N */
  
- 		return IRQ_HANDLED;
+ #define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
+ 
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -103,6 +103,7 @@ static const struct pci_device_id mei_me
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_H_3, MEI_ME_PCH8_CFG)},
+ 
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_N, MEI_ME_PCH12_CFG)},
+ 
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_TGP_LP, MEI_ME_PCH12_CFG)},
+ 
 
 
