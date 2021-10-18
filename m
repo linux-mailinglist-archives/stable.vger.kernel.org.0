@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1451431BCC
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E4F4431C91
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230526AbhJRNfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:35:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44044 "EHLO mail.kernel.org"
+        id S233274AbhJRNmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:42:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232527AbhJRNdk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:33:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4083C6137F;
-        Mon, 18 Oct 2021 13:29:46 +0000 (UTC)
+        id S233175AbhJRNk1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:40:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CEBD9613A1;
+        Mon, 18 Oct 2021 13:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563786;
-        bh=glO5kOTvHBBqUKJHWg7JUF+Q8f3ht5WQPL8YaDXYzo0=;
+        s=korg; t=1634563993;
+        bh=Zl0baRCnKsAHiJrz1tKd7AQ0J4hd5iCqHZMVx0C6zQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MbFfXzBgXO1+XMDSAbfJApNo6Da8L/nAVudXEl5ZRUopzCen2L4c0Ir5y5tzXmx2H
-         134L2ZNUY80WpPhh+/HYZzSZRBR+aVL8cS/TfBbRMJffod/2Yy/yE9gC1+vdzVSlK6
-         7KdoUxqhpCyVRqicVX6Z3P1Fs1hy8V3zv/ClWL4I=
+        b=z7nrXT8kqRyX8j1Xrk7ebkPg0JbDxtdDA43AfOrJ5OJtEUWjXsX5/tiXt+tnDyj9G
+         p3+Akr1FENAcriSFe1QYTn3DopbYaZRw5smNfko3SCPSQYQm3zXLo2IZAlfN2TTT5/
+         cYaKuigyVA/vvBfpOj5L4dgZZpjS02DAhrQwctnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        John Keeping <john@metanate.com>
-Subject: [PATCH 5.4 03/69] ALSA: seq: Fix a potential UAF by wrong private_free call order
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Borislav Petkov <bp@suse.de>,
+        Reinette Chatre <reinette.chatre@intel.com>
+Subject: [PATCH 5.10 025/103] x86/resctrl: Free the ctrlval arrays when domain_setup_mon_state() fails
 Date:   Mon, 18 Oct 2021 15:24:01 +0200
-Message-Id: <20211018132329.566413001@linuxfoundation.org>
+Message-Id: <20211018132335.554060899@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: James Morse <james.morse@arm.com>
 
-commit 1f8763c59c4ec6254d629fe77c0a52220bd907aa upstream.
+commit 64e87d4bd3201bf8a4685083ee4daf5c0d001452 upstream.
 
-John Keeping reported and posted a patch for a potential UAF in
-rawmidi sequencer destruction: the snd_rawmidi_dev_seq_free() may be
-called after the associated rawmidi object got already freed.
-After a deeper look, it turned out that the bug is rather the
-incorrect private_free call order for a snd_seq_device.  The
-snd_seq_device private_free gets called at the release callback of the
-sequencer device object, while this was rather expected to be executed
-at the snd_device call chains that runs at the beginning of the whole
-card-free procedure.  It's been broken since the rewrite of
-sequencer-device binding (although it hasn't surfaced because the
-sequencer device release happens usually right along with the card
-device release).
+domain_add_cpu() is called whenever a CPU is brought online. The
+earlier call to domain_setup_ctrlval() allocates the control value
+arrays.
 
-This patch corrects the private_free call to be done in the right
-place, at snd_seq_device_dev_free().
+If domain_setup_mon_state() fails, the control value arrays are not
+freed.
 
-Fixes: 7c37ae5c625a ("ALSA: seq: Rewrite sequencer device binding with standard bus")
-Reported-and-tested-by: John Keeping <john@metanate.com>
+Add the missing kfree() calls.
+
+Fixes: 1bd2a63b4f0de ("x86/intel_rdt/mba_sc: Add initialization support")
+Fixes: edf6fa1c4a951 ("x86/intel_rdt/cqm: Add RMID (Resource monitoring ID) management")
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Reinette Chatre <reinette.chatre@intel.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210930114114.8645-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lkml.kernel.org/r/20210917165958.28313-1-james.morse@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/seq_device.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/x86/kernel/cpu/resctrl/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/core/seq_device.c
-+++ b/sound/core/seq_device.c
-@@ -147,6 +147,8 @@ static int snd_seq_device_dev_free(struc
- 	struct snd_seq_device *dev = device->device_data;
+--- a/arch/x86/kernel/cpu/resctrl/core.c
++++ b/arch/x86/kernel/cpu/resctrl/core.c
+@@ -590,6 +590,8 @@ static void domain_add_cpu(int cpu, stru
+ 	}
  
- 	cancel_autoload_drivers();
-+	if (dev->private_free)
-+		dev->private_free(dev);
- 	put_device(&dev->dev);
- 	return 0;
- }
-@@ -174,11 +176,7 @@ static int snd_seq_device_dev_disconnect
- 
- static void snd_seq_dev_release(struct device *dev)
- {
--	struct snd_seq_device *sdev = to_seq_dev(dev);
--
--	if (sdev->private_free)
--		sdev->private_free(sdev);
--	kfree(sdev);
-+	kfree(to_seq_dev(dev));
- }
- 
- /*
+ 	if (r->mon_capable && domain_setup_mon_state(r, d)) {
++		kfree(d->ctrl_val);
++		kfree(d->mbps_val);
+ 		kfree(d);
+ 		return;
+ 	}
 
 
