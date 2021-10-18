@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BA05431E1E
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:56:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD1CF431B1E
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:28:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234326AbhJRN54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:57:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58198 "EHLO mail.kernel.org"
+        id S232011AbhJRNav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:30:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233513AbhJRNz5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:55:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 210DC61A0A;
-        Mon, 18 Oct 2021 13:40:18 +0000 (UTC)
+        id S232017AbhJRN3y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AA616135A;
+        Mon, 18 Oct 2021 13:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564419;
-        bh=B9OPdaySnRMGvm5T8Nz/ZoMUNOqReRoCZ5ID4bBQF2Y=;
+        s=korg; t=1634563663;
+        bh=lO0DuIKUZ5zkgHkfV2sRjPBl0xkSfEwWiAYLq1/9Cq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uD8XYr3nvV+cBCVxmX7r8ipHmlCnWL2HO7hFCnYUjCZstvbrpzziCAQBi6IQdq9qm
-         nMA8l2juVJKPY3lA0LaYXjLQoTYFBvFctESM+drqRydJ8yZ0/4n6n1j/H2QlWzkxNH
-         f9q9rkZxAJImpy+zOiOR0rkrzqsnIRcvA4Kd6+YU=
+        b=A8IUXsCPRbRkAJpz3kCnqkvJZF/pDuOm1cSGyeJYvVktI8Fw708Fi9GSkkjEsstcv
+         zHgGtM+B/h8+TWMHzYP1Q/1CIdsIyDMyMgKullFsaB/HOn45LUea+vDGr8bJQAfCZ/
+         e461U7uQYurJoWodopM2dWG1YfWz6F+b/JbBZ3Og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.14 083/151] eeprom: 93xx46: fix MODULE_DEVICE_TABLE
+Subject: [PATCH 4.19 15/50] cb710: avoid NULL pointer subtraction
 Date:   Mon, 18 Oct 2021 15:24:22 +0200
-Message-Id: <20211018132343.385955308@linuxfoundation.org>
+Message-Id: <20211018132327.040545561@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
+References: <20211018132326.529486647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-commit f42752729e2068a92c7d8b576d0dbbc9c1464149 upstream.
+commit 42641042c10c757fe10cc09088cf3f436cec5007 upstream.
 
-The newly added SPI device ID table does not work because the
-entry is incorrectly copied from the OF device table.
+clang-14 complains about an unusual way of converting a pointer to
+an integer:
 
-During build testing, this shows as a compile failure when building
-it as a loadable module:
+drivers/misc/cb710/sgbuf2.c:50:15: error: performing pointer subtraction with a null pointer has undefined behavior [-Werror,-Wnull-pointer-subtraction]
+        return ((ptr - NULL) & 3) != 0;
 
-drivers/misc/eeprom/eeprom_93xx46.c:424:1: error: redefinition of '__mod_of__eeprom_93xx46_of_table_device_table'
-MODULE_DEVICE_TABLE(of, eeprom_93xx46_of_table);
+Replace this with a normal cast to uintptr_t.
 
-Change the entry to refer to the correct symbol.
-
-Fixes: 137879f7ff23 ("eeprom: 93xx46: Add SPI device ID table")
+Fixes: 5f5bac8272be ("mmc: Driver for CB710/720 memory card reader (MMC part)")
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211014153730.3821376-1-arnd@kernel.org
+Link: https://lore.kernel.org/r/20210927121408.939246-1-arnd@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/eeprom/eeprom_93xx46.c |    2 +-
+ drivers/misc/cb710/sgbuf2.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/eeprom/eeprom_93xx46.c
-+++ b/drivers/misc/eeprom/eeprom_93xx46.c
-@@ -421,7 +421,7 @@ static const struct spi_device_id eeprom
- 	  .driver_data = (kernel_ulong_t)&microchip_93lc46b_data, },
- 	{}
- };
--MODULE_DEVICE_TABLE(of, eeprom_93xx46_of_table);
-+MODULE_DEVICE_TABLE(spi, eeprom_93xx46_spi_ids);
+--- a/drivers/misc/cb710/sgbuf2.c
++++ b/drivers/misc/cb710/sgbuf2.c
+@@ -50,7 +50,7 @@ static inline bool needs_unaligned_copy(
+ #ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+ 	return false;
+ #else
+-	return ((ptr - NULL) & 3) != 0;
++	return ((uintptr_t)ptr & 3) != 0;
+ #endif
+ }
  
- static int eeprom_93xx46_probe_dt(struct spi_device *spi)
- {
 
 
