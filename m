@@ -2,236 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC176431419
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 12:07:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98AEB4314B7
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 12:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230173AbhJRKJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 06:09:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43578 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229992AbhJRKJa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 06:09:30 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B21C06161C
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 03:07:19 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id np13so11835734pjb.4
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 03:07:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=PZi4CqOeNvJwcpNuyxij/N2/KbdgS81lWmUlVuyW0Zc=;
-        b=2CD3TM4EPsEK3R1/ZxPfp78BUrK7ZKewViyjf7mqG6Q43te5Llf2ZY9s0hyKOuGAQu
-         jF8+BuEZFFyOmxAtxwnKbYBBElxIIVzpHm70ZySJ53xBfmQtL7SVmjUpCvB7Vi6WpU7F
-         1D9OlbtxuD5OFua8yDzfxl+5hEBDwUO78snvoAmNAq/A8F/456ENFHvk3JRVSYzwNB3O
-         lzK8VWhcZiA7zlK0gV5G7dEfUmIkMACCgsNhe8Z2j2/3fyZKcI5zSY39Ae6LYk+8Lf0Q
-         eR4cyNYmdF2M8yXAYq93N4kWU7LWLqY+NDf8PO+t96cwOIenLE8Abldv8xWaSeAxKkS2
-         tlhg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=PZi4CqOeNvJwcpNuyxij/N2/KbdgS81lWmUlVuyW0Zc=;
-        b=KZktu2xP0LDU0/TH3jT7i8u+YWIgbhaX//07hzGm+cT+zm0Cf84fzzITWcYROQJckF
-         JF6TiuX4Upf3N2OYTCQY10QxJdUJoHPC+mPz2obJAZRYNI07Cd1Dw42lRfzl5oYdEAnv
-         3HOuNF3ZFJK4ZSQQXcz9OnB4FiseCyMEPvggikwrlX+HCZ2C7jJ9m+uwX9KYJTCRWZ3w
-         7BjsEf44hQjmeXWedQLtIIjWkGgZWp25Ii2FF87jmFvnOfHZDzKkyLnsvybw4cR06MWY
-         h2myX87IM0rl8ts/ACWiDTd3AOnNqSUWYqGQxf7d/BZtClrD2NBwA+KmEoit5W7h8Ie1
-         Q+iw==
-X-Gm-Message-State: AOAM530iNv46EMgYSuiGzFUw3vA6lpD/kWzGEgySbjUJWeWt7dYdQQ19
-        pVCYCJKNF9Zr7fog2VwgtoqQBuvkF8/+MnPS
-X-Google-Smtp-Source: ABdhPJxnzvdrCJy0oPvk5f09aljl7L6DU/kSAFjv8PMK7jZgNDvgN2z34zSwPqLVbifFQE2hdm9ucw==
-X-Received: by 2002:a17:902:8a8c:b0:13e:45bc:e9a9 with SMTP id p12-20020a1709028a8c00b0013e45bce9a9mr26902040plo.11.1634551639015;
-        Mon, 18 Oct 2021 03:07:19 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c192sm12534073pfb.110.2021.10.18.03.07.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Oct 2021 03:07:18 -0700 (PDT)
-Message-ID: <616d4756.1c69fb81.2abd9.25f2@mx.google.com>
-Date:   Mon, 18 Oct 2021 03:07:18 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S231618AbhJRKOr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 06:14:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49986 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231621AbhJRKO1 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 06:14:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 824E560E90;
+        Mon, 18 Oct 2021 10:12:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1634551936;
+        bh=QiSaMSvw1vZps5/Z1mY1oDj9rDgvOikPYHhYB8n9GaM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=q9ubdDWjSt1uiT3ePGep9p5/HU/bbpze1HXGeTRlc4iKU0rNlEnSEwa1XdcHl6j2X
+         L0Rm1/IoUl6+thlA6vhq6xY+n+cZoKysnSKPR/+OU7ScIcfY9EEN7nONgA8fLeFXmA
+         5QhIGgqmMZUkY7nsodiF74okcX/lsGdqFxPBh6bM=
+Subject: FAILED: patch "[PATCH] iio: adis16480: fix devices that do not support sleep mode" failed to apply to 5.10-stable tree
+To:     nuno.sa@analog.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 Oct 2021 12:12:12 +0200
+Message-ID: <163455193221417@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.153-35-g937fda060bec
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.4.y baseline: 76 runs,
- 4 regressions (v5.4.153-35-g937fda060bec)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 76 runs, 4 regressions (v5.4.153-35-g937fda=
-060bec)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
+thanks,
 
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
+greg k-h
 
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
+------------------ original commit in Linus's tree ------------------
 
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
+From ea1945c2f72d7bd253e2ebaa97cdd8d9ffcde076 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
+Date: Fri, 3 Sep 2021 16:14:23 +0200
+Subject: [PATCH] iio: adis16480: fix devices that do not support sleep mode
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
+Not all devices supported by this driver support being put to sleep
+mode. For those devices, when calling 'adis16480_stop_device()' on the
+unbind path, we where actually writing in the SYNC_SCALE register.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.153-35-g937fda060bec/plan/baseline/
+Fixes: 80cbc848c4fa0 ("iio: imu: adis16480: Add support for ADIS16490")
+Fixes: 82e7a1b250170 ("iio: imu: adis16480: Add support for ADIS1649x family of devices")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210903141423.517028-6-nuno.sa@analog.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.153-35-g937fda060bec
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      937fda060bec916541d631ab306bf1581673cda3 =
+diff --git a/drivers/iio/imu/adis16480.c b/drivers/iio/imu/adis16480.c
+index a869a6e52a16..ed129321a14d 100644
+--- a/drivers/iio/imu/adis16480.c
++++ b/drivers/iio/imu/adis16480.c
+@@ -144,6 +144,7 @@ struct adis16480_chip_info {
+ 	unsigned int max_dec_rate;
+ 	const unsigned int *filter_freqs;
+ 	bool has_pps_clk_mode;
++	bool has_sleep_cnt;
+ 	const struct adis_data adis_data;
+ };
+ 
+@@ -939,6 +940,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+ 		.max_dec_rate = 2048,
++		.has_sleep_cnt = true,
+ 		.filter_freqs = adis16480_def_filter_freqs,
+ 		.adis_data = ADIS16480_DATA(16375, &adis16485_timeouts, 0),
+ 	},
+@@ -952,6 +954,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+ 		.max_dec_rate = 2048,
++		.has_sleep_cnt = true,
+ 		.filter_freqs = adis16480_def_filter_freqs,
+ 		.adis_data = ADIS16480_DATA(16480, &adis16480_timeouts, 0),
+ 	},
+@@ -965,6 +968,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+ 		.max_dec_rate = 2048,
++		.has_sleep_cnt = true,
+ 		.filter_freqs = adis16480_def_filter_freqs,
+ 		.adis_data = ADIS16480_DATA(16485, &adis16485_timeouts, 0),
+ 	},
+@@ -978,6 +982,7 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+ 		.max_dec_rate = 2048,
++		.has_sleep_cnt = true,
+ 		.filter_freqs = adis16480_def_filter_freqs,
+ 		.adis_data = ADIS16480_DATA(16488, &adis16485_timeouts, 0),
+ 	},
+@@ -1425,9 +1430,12 @@ static int adis16480_probe(struct spi_device *spi)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = devm_add_action_or_reset(&spi->dev, adis16480_stop, indio_dev);
+-	if (ret)
+-		return ret;
++	if (st->chip_info->has_sleep_cnt) {
++		ret = devm_add_action_or_reset(&spi->dev, adis16480_stop,
++					       indio_dev);
++		if (ret)
++			return ret;
++	}
+ 
+ 	ret = adis16480_config_irq_pin(spi->dev.of_node, st);
+ 	if (ret)
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d0e22e36b87a5813358e7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--35-g937fda060bec/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
-hed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--35-g937fda060bec/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
-hed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616d0e22e36b87a581335=
-8e8
-        failing since 331 days (last pass: v5.4.77-152-ga3746663c3479, firs=
-t fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d09ecaefcdc66ae3358df
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616d09ecaefcdc66ae335=
-8e0
-        failing since 337 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d0aa6f863f3e21e3358ed
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616d0aa6f863f3e21e335=
-8ee
-        failing since 337 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/616d09ed8f1af12ed83358f4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
--35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616d09ed8f1af12ed8335=
-8f5
-        failing since 337 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =20
