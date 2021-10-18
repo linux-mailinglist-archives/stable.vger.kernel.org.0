@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C187F431E76
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C66BE431BA6
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232160AbhJROBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:01:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39834 "EHLO mail.kernel.org"
+        id S232588AbhJRNeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:34:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233993AbhJRN7X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:59:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1872761A3D;
-        Mon, 18 Oct 2021 13:41:46 +0000 (UTC)
+        id S232059AbhJRNcW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:32:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89DBD60EFE;
+        Mon, 18 Oct 2021 13:29:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564507;
-        bh=F6/j8CSR2cmasNkSLypwl3nDj6yUpxbHCMsipKhXnyU=;
+        s=korg; t=1634563747;
+        bh=QO8j95tTJerGA5WGZ1MrkB6rA66a4Ts7HXGfMmC/R8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hh9BBjM8MWs1nm8iwhqj0pEUVfbWEViZKmPD5tFZk4A/QArO2kSZH+oDYla5elvB/
-         d8A4hmb/BXomkQgElfZ3oto4n9UYvQLQ3H97faP637BVdv1dbaC8NviQEnMkFnrEqN
-         YbmPv6mABnWmXpcba9CnWCqpl0sCCjtW6HyFZrLg=
+        b=TXcdbY6M2uHnHYX6n0kTCpkwN0hLD+zscNMVFZlyPBe+uegM/rTdgCEOrZrJLkDbG
+         Tl3T0Tn+i8HUc3vnaIBrwSd0sunlbKCGlmB+aK0oONqLxgubyMjaWFEIsy3JNSrY5A
+         oh0dkAvRirzyECniphRoSru30Hu4zSOsPGluTpec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 116/151] NFC: digital: fix possible memory leak in digital_tg_listen_mdaa()
+Subject: [PATCH 4.19 48/50] mqprio: Correct stats in mqprio_dump_class_stats().
 Date:   Mon, 18 Oct 2021 15:24:55 +0200
-Message-Id: <20211018132344.445992371@linuxfoundation.org>
+Message-Id: <20211018132328.110231802@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
+References: <20211018132326.529486647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit 58e7dcc9ca29c14e44267a4d0ea61e3229124907 upstream.
+commit 14132690860e4d06aa3e1c4d7d8e9866ba7756dd upstream.
 
-'params' is allocated in digital_tg_listen_mdaa(), but not free when
-digital_send_cmd() failed, which will cause memory leak. Fix it by
-freeing 'params' if digital_send_cmd() return failed.
+Introduction of lockless subqueues broke the class statistics.
+Before the change stats were accumulated in `bstats' and `qstats'
+on the stack which was then copied to struct gnet_dump.
 
-Fixes: 1c7a4c24fbfd ("NFC Digital: Add target NFC-DEP support")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+After the change the `bstats' and `qstats' are initialized to 0
+and never updated, yet still fed to gnet_dump. The code updates
+the global qdisc->cpu_bstats and qdisc->cpu_qstats instead,
+clobbering them. Most likely a copy-paste error from the code in
+mqprio_dump().
+
+__gnet_stats_copy_basic() and __gnet_stats_copy_queue() accumulate
+the values for per-CPU case but for global stats they overwrite
+the value, so only stats from the last loop iteration / tc end up
+in sch->[bq]stats.
+
+Use the on-stack [bq]stats variables again and add the stats manually
+in the global case.
+
+Fixes: ce679e8df7ed2 ("net: sched: add support for TCQ_F_NOLOCK subqueues to sch_mqprio")
+Cc: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+https://lore.kernel.org/all/20211007175000.2334713-2-bigeasy@linutronix.de/
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/digital_core.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ net/sched/sch_mqprio.c |   30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
 
---- a/net/nfc/digital_core.c
-+++ b/net/nfc/digital_core.c
-@@ -277,6 +277,7 @@ int digital_tg_configure_hw(struct nfc_d
- static int digital_tg_listen_mdaa(struct nfc_digital_dev *ddev, u8 rf_tech)
- {
- 	struct digital_tg_mdaa_params *params;
-+	int rc;
+--- a/net/sched/sch_mqprio.c
++++ b/net/sched/sch_mqprio.c
+@@ -531,22 +531,28 @@ static int mqprio_dump_class_stats(struc
+ 		for (i = tc.offset; i < tc.offset + tc.count; i++) {
+ 			struct netdev_queue *q = netdev_get_tx_queue(dev, i);
+ 			struct Qdisc *qdisc = rtnl_dereference(q->qdisc);
+-			struct gnet_stats_basic_cpu __percpu *cpu_bstats = NULL;
+-			struct gnet_stats_queue __percpu *cpu_qstats = NULL;
  
- 	params = kzalloc(sizeof(*params), GFP_KERNEL);
- 	if (!params)
-@@ -291,8 +292,12 @@ static int digital_tg_listen_mdaa(struct
- 	get_random_bytes(params->nfcid2 + 2, NFC_NFCID2_MAXSIZE - 2);
- 	params->sc = DIGITAL_SENSF_FELICA_SC;
- 
--	return digital_send_cmd(ddev, DIGITAL_CMD_TG_LISTEN_MDAA, NULL, params,
--				500, digital_tg_recv_atr_req, NULL);
-+	rc = digital_send_cmd(ddev, DIGITAL_CMD_TG_LISTEN_MDAA, NULL, params,
-+			      500, digital_tg_recv_atr_req, NULL);
-+	if (rc)
-+		kfree(params);
+ 			spin_lock_bh(qdisc_lock(qdisc));
 +
-+	return rc;
- }
+ 			if (qdisc_is_percpu_stats(qdisc)) {
+-				cpu_bstats = qdisc->cpu_bstats;
+-				cpu_qstats = qdisc->cpu_qstats;
+-			}
++				qlen = qdisc_qlen_sum(qdisc);
  
- static int digital_tg_listen_md(struct nfc_digital_dev *ddev, u8 rf_tech)
+-			qlen = qdisc_qlen_sum(qdisc);
+-			__gnet_stats_copy_basic(NULL, &sch->bstats,
+-						cpu_bstats, &qdisc->bstats);
+-			__gnet_stats_copy_queue(&sch->qstats,
+-						cpu_qstats,
+-						&qdisc->qstats,
+-						qlen);
++				__gnet_stats_copy_basic(NULL, &bstats,
++							qdisc->cpu_bstats,
++							&qdisc->bstats);
++				__gnet_stats_copy_queue(&qstats,
++							qdisc->cpu_qstats,
++							&qdisc->qstats,
++							qlen);
++			} else {
++				qlen		+= qdisc->q.qlen;
++				bstats.bytes	+= qdisc->bstats.bytes;
++				bstats.packets	+= qdisc->bstats.packets;
++				qstats.backlog	+= qdisc->qstats.backlog;
++				qstats.drops	+= qdisc->qstats.drops;
++				qstats.requeues	+= qdisc->qstats.requeues;
++				qstats.overlimits += qdisc->qstats.overlimits;
++			}
+ 			spin_unlock_bh(qdisc_lock(qdisc));
+ 		}
+ 
 
 
