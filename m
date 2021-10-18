@@ -2,113 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB0D5431761
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:32:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FF6543173F
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:27:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231420AbhJRLeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:34:25 -0400
-Received: from asav21.altibox.net ([109.247.116.8]:41662 "EHLO
-        asav21.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231352AbhJRLeX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 07:34:23 -0400
-Received: from localhost.localdomain (211.81-166-168.customer.lyse.net [81.166.168.211])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: noralf.tronnes@ebnett.no)
-        by asav21.altibox.net (Postfix) with ESMTPSA id E8D8080052;
-        Mon, 18 Oct 2021 13:26:20 +0200 (CEST)
-From:   =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-To:     lee.jones@linaro.org
-Cc:     linux-kernel@vger.kernel.org, Jack Andersen <jackoalan@gmail.com>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Subject: [PATCH] mfd: dln2: Add cell for initializing DLN2 ADC
-Date:   Mon, 18 Oct 2021 13:25:41 +0200
-Message-Id: <20211018112541.25466-1-noralf@tronnes.org>
-X-Mailer: git-send-email 2.33.0
+        id S229569AbhJRL32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:29:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38364 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229491AbhJRL31 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 07:29:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 317CC600D4;
+        Mon, 18 Oct 2021 11:27:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1634556436;
+        bh=XPPmnTLOMQpLhYWDR57mPf16ZSPyIglmTmuKizPqHh0=;
+        h=Subject:To:Cc:From:Date:From;
+        b=gwA6L13dLF6fEXJiAsQehSuwoPCwTfWarXMqExkFFh3KdtjO6Jo/Kc3wKEo3HBYWl
+         RPJLQyLVBYNHWbhfA6xdven6EuN/AXYqhv6pUHtQOdD8/hHCgjDbMl6fhJwdnKOxpF
+         THGdxTf5IVCp7JWA339BKAUN0AkXS9av3z5PPASo=
+Subject: FAILED: patch "[PATCH] drm/msm/dsi: dsi_phy_14nm: Take ready-bit into account in" failed to apply to 4.14-stable tree
+To:     marijn.suijten@somainline.org, dmitry.baryshkov@linaro.org,
+        robdclark@chromium.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 Oct 2021 13:27:14 +0200
+Message-ID: <163455643498102@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-CMAE-Score: 0
-X-CMAE-Analysis: v=2.3 cv=Yr0hubQX c=1 sm=1 tr=0
-        a=OYZzhG0JTxDrWp/F2OJbnw==:117 a=OYZzhG0JTxDrWp/F2OJbnw==:17
-        a=IkcTkHD0fZMA:10 a=M51BFTxLslgA:10 a=pGLkceISAAAA:8 a=OLL_FvSJAAAA:8
-        a=VwQbUJbxAAAA:8 a=SJz97ENfAAAA:8 a=p1JdDOvq47JOlRMEupMA:9
-        a=QEXdDO2ut3YA:10 a=QLaaOG07l1cA:10 a=3UZ-nZRERu8A:10
-        a=oIrB72frpwYPwTMnlWqB:22 a=AjGcO6oz07-iQ99wixmX:22
-        a=vFet0B0WnEQeilDPIY6i:22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Andersen <jackoalan@gmail.com>
 
-This patch extends the DLN2 driver; adding cell for adc_dln2 module.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-The original patch[1] fell through the cracks when the driver was added
-so ADC has never actually been usable. That patch did not have ACPI
-support which was added in v5.9, so the oldest supported version this
-current patch can be backported to is 5.10.
+thanks,
 
-[1] https://www.spinics.net/lists/linux-iio/msg33975.html
+greg k-h
 
-Cc: <stable@vger.kernel.org> # 5.10+
-Signed-off-by: Jack Andersen <jackoalan@gmail.com>
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
----
- drivers/mfd/dln2.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+------------------ original commit in Linus's tree ------------------
 
-diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
-index 83e676a096dc..852129ea0766 100644
---- a/drivers/mfd/dln2.c
-+++ b/drivers/mfd/dln2.c
-@@ -50,6 +50,7 @@ enum dln2_handle {
- 	DLN2_HANDLE_GPIO,
- 	DLN2_HANDLE_I2C,
- 	DLN2_HANDLE_SPI,
-+	DLN2_HANDLE_ADC,
- 	DLN2_HANDLES
- };
+From 90b7c1c66132c20e8a550006011a3cbfb73dbfc1 Mon Sep 17 00:00:00 2001
+From: Marijn Suijten <marijn.suijten@somainline.org>
+Date: Mon, 6 Sep 2021 22:25:51 +0200
+Subject: [PATCH] drm/msm/dsi: dsi_phy_14nm: Take ready-bit into account in
+ poll_for_ready
+
+The downstream driver models this PLL lock check as an if-elseif-else.
+The only way to reach the else case where pll_locked=true [1] is by
+succeeding both readl_poll_timeout_atomic calls (which return zero on
+success) in the if _and_ elseif condition.  Hence both the "lock" and
+"ready" bit need to be tested in the SM_READY_STATUS register before
+considering the PLL locked and ready to go.
+
+Tested on the Sony Xperia XA2 Ultra (nile-discovery, sdm630).
+
+[1]: https://source.codeaurora.org/quic/la/kernel/msm-4.19/tree/drivers/clk/qcom/mdss/mdss-dsi-pll-14nm-util.c?h=LA.UM.9.2.1.r1-08000-sdm660.0#n302
+
+Fixes: f079f6d999cb ("drm/msm/dsi: Add PHY/PLL for 8x96")
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20210906202552.824598-1-marijn.suijten@somainline.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+
+diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
+index d13552b2213b..5b4e991f220d 100644
+--- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
++++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
+@@ -110,14 +110,13 @@ static struct dsi_pll_14nm *pll_14nm_list[DSI_MAX];
+ static bool pll_14nm_poll_for_ready(struct dsi_pll_14nm *pll_14nm,
+ 				    u32 nb_tries, u32 timeout_us)
+ {
+-	bool pll_locked = false;
++	bool pll_locked = false, pll_ready = false;
+ 	void __iomem *base = pll_14nm->phy->pll_base;
+ 	u32 tries, val;
  
-@@ -653,6 +654,7 @@ enum {
- 	DLN2_ACPI_MATCH_GPIO	= 0,
- 	DLN2_ACPI_MATCH_I2C	= 1,
- 	DLN2_ACPI_MATCH_SPI	= 2,
-+	DLN2_ACPI_MATCH_ADC	= 3,
- };
+ 	tries = nb_tries;
+ 	while (tries--) {
+-		val = dsi_phy_read(base +
+-			       REG_DSI_14nm_PHY_PLL_RESET_SM_READY_STATUS);
++		val = dsi_phy_read(base + REG_DSI_14nm_PHY_PLL_RESET_SM_READY_STATUS);
+ 		pll_locked = !!(val & BIT(5));
  
- static struct dln2_platform_data dln2_pdata_gpio = {
-@@ -683,6 +685,16 @@ static struct mfd_cell_acpi_match dln2_acpi_match_spi = {
- 	.adr = DLN2_ACPI_MATCH_SPI,
- };
+ 		if (pll_locked)
+@@ -126,23 +125,24 @@ static bool pll_14nm_poll_for_ready(struct dsi_pll_14nm *pll_14nm,
+ 		udelay(timeout_us);
+ 	}
  
-+/* Only one ADC port supported */
-+static struct dln2_platform_data dln2_pdata_adc = {
-+	.handle = DLN2_HANDLE_ADC,
-+	.port = 0,
-+};
+-	if (!pll_locked) {
+-		tries = nb_tries;
+-		while (tries--) {
+-			val = dsi_phy_read(base +
+-				REG_DSI_14nm_PHY_PLL_RESET_SM_READY_STATUS);
+-			pll_locked = !!(val & BIT(0));
++	if (!pll_locked)
++		goto out;
+ 
+-			if (pll_locked)
+-				break;
++	tries = nb_tries;
++	while (tries--) {
++		val = dsi_phy_read(base + REG_DSI_14nm_PHY_PLL_RESET_SM_READY_STATUS);
++		pll_ready = !!(val & BIT(0));
+ 
+-			udelay(timeout_us);
+-		}
++		if (pll_ready)
++			break;
 +
-+static struct mfd_cell_acpi_match dln2_acpi_match_adc = {
-+	.adr = DLN2_ACPI_MATCH_ADC,
-+};
-+
- static const struct mfd_cell dln2_devs[] = {
- 	{
- 		.name = "dln2-gpio",
-@@ -702,6 +714,12 @@ static const struct mfd_cell dln2_devs[] = {
- 		.platform_data = &dln2_pdata_spi,
- 		.pdata_size = sizeof(struct dln2_platform_data),
- 	},
-+	{
-+		.name = "dln2-adc",
-+		.acpi_match = &dln2_acpi_match_adc,
-+		.platform_data = &dln2_pdata_adc,
-+		.pdata_size = sizeof(struct dln2_platform_data),
-+	},
- };
++		udelay(timeout_us);
+ 	}
  
- static void dln2_stop(struct dln2_dev *dln2)
--- 
-2.33.0
+-	DBG("DSI PLL is %slocked", pll_locked ? "" : "*not* ");
++out:
++	DBG("DSI PLL is %slocked, %sready", pll_locked ? "" : "*not* ", pll_ready ? "" : "*not* ");
+ 
+-	return pll_locked;
++	return pll_locked && pll_ready;
+ }
+ 
+ static void dsi_pll_14nm_config_init(struct dsi_pll_config *pconf)
 
