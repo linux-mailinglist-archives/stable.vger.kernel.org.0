@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C988431C37
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30748431E83
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:00:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233224AbhJRNjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:39:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54404 "EHLO mail.kernel.org"
+        id S234109AbhJROBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 10:01:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232046AbhJRNht (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:37:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C03BC61406;
-        Mon, 18 Oct 2021 13:31:46 +0000 (UTC)
+        id S234166AbhJRN75 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:59:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 284E861A7F;
+        Mon, 18 Oct 2021 13:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563907;
-        bh=CS7lBRG8htqAz8XxsUtDD/3GX6/yIWK4FJdkaiNnStE=;
+        s=korg; t=1634564520;
+        bh=HRFTNtA+EIHY4T1vUwID7BP9b/K85QKNpgaRKClWL5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FPlLa30agRrG/JGgOvvkpFl2arlxpWFQYv7cpldtHnptILtKMiG2LAQiRK/kmLWiQ
-         ee6ZATS+QlbYkMSTiwCwMND0kHs8IKFLiL2m9Dp2DceGkynRfPuj9DXRVMFGfDBR9z
-         QNByBwKe4jvqDK0OMLjMODnSeTcrpPC24gD0YjVM=
+        b=tUAKat/5lmO+qWq1TJhTpdsGiVen+r1RqxDHiW1n88r4/k/bo1FdOSBGiwjIshXN1
+         6k5TBsO1Kz7REIX6u53AHb2UznN9OogDEHZ3Prg1Rxhj+HjXHFHjBUsVCf5iOmJQKm
+         SJ2vIQzMSdTX+KuyBZxhS4v13zyYdHCsIaz5kFUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>
-Subject: [PATCH 5.4 62/69] drm/msm/mdp5: fix cursor-related warnings
+        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.14 121/151] platform/mellanox: mlxreg-io: Fix argument base in kstrtou32() call
 Date:   Mon, 18 Oct 2021 15:25:00 +0200
-Message-Id: <20211018132331.525166588@linuxfoundation.org>
+Message-Id: <20211018132344.609478403@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,144 +39,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Vadim Pasternak <vadimp@nvidia.com>
 
-commit c491a0c7bbf3a64732cb8414021429d15ec08eec upstream.
+commit 9b024201693e397441668cca0d2df7055fe572eb upstream.
 
-Since f35a2a99100f ("drm/encoder: make encoder control functions
-optional") drm_mode_config_validate would print warnings if both cursor
-plane and cursor functions are provided. Restore separate set of
-drm_crtc_funcs to be used if separate cursor plane is provided.
+Change kstrtou32() argument 'base' to be zero instead of 'len'.
+It works by chance for setting one bit value, but it is not supposed to
+work in case value passed to mlxreg_io_attr_store() is greater than 1.
 
-[    6.556046] ------------[ cut here ]------------
-[    6.556071] [CRTC:93:crtc-0] must not have both a cursor plane and a cursor_set func
-[    6.556091] WARNING: CPU: 1 PID: 76 at drivers/gpu/drm/drm_mode_config.c:648 drm_mode_config_validate+0x238/0x4d0
-[    6.567453] Modules linked in:
-[    6.577604] CPU: 1 PID: 76 Comm: kworker/u8:2 Not tainted 5.15.0-rc1-dirty #43
-[    6.580557] Hardware name: Qualcomm Technologies, Inc. DB820c (DT)
-[    6.587763] Workqueue: events_unbound deferred_probe_work_func
-[    6.593926] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    6.599740] pc : drm_mode_config_validate+0x238/0x4d0
-[    6.606596] lr : drm_mode_config_validate+0x238/0x4d0
-[    6.611804] sp : ffff8000121b3980
-[    6.616838] x29: ffff8000121b3990 x28: 0000000000000000 x27: 0000000000000001
-[    6.620140] x26: ffff8000114cde50 x25: ffff8000114cdd40 x24: ffff0000987282d8
-[    6.627258] x23: 0000000000000000 x22: 0000000000000000 x21: 0000000000000001
-[    6.634376] x20: ffff000098728000 x19: ffff000080a39000 x18: ffffffffffffffff
-[    6.641494] x17: 3136564e3631564e x16: 0000000000000324 x15: ffff800011c78709
-[    6.648613] x14: 0000000000000000 x13: ffff800011a22850 x12: 00000000000009ab
-[    6.655730] x11: 0000000000000339 x10: ffff800011a22850 x9 : ffff800011a22850
-[    6.662848] x8 : 00000000ffffefff x7 : ffff800011a7a850 x6 : ffff800011a7a850
-[    6.669966] x5 : 000000000000bff4 x4 : 40000000fffff339 x3 : 0000000000000000
-[    6.677084] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff00008093b800
-[    6.684205] Call trace:
-[    6.691319]  drm_mode_config_validate+0x238/0x4d0
-[    6.693577]  drm_dev_register+0x17c/0x210
-[    6.698435]  msm_drm_bind+0x4b4/0x694
-[    6.702429]  try_to_bring_up_master+0x164/0x1d0
-[    6.706075]  __component_add+0xa0/0x170
-[    6.710415]  component_add+0x14/0x20
-[    6.714234]  msm_hdmi_dev_probe+0x1c/0x2c
-[    6.718053]  platform_probe+0x68/0xe0
-[    6.721959]  really_probe.part.0+0x9c/0x30c
-[    6.725606]  __driver_probe_device+0x98/0x144
-[    6.729600]  driver_probe_device+0xc8/0x15c
-[    6.734114]  __device_attach_driver+0xb4/0x120
-[    6.738106]  bus_for_each_drv+0x78/0xd0
-[    6.742619]  __device_attach+0xdc/0x184
-[    6.746351]  device_initial_probe+0x14/0x20
-[    6.750172]  bus_probe_device+0x9c/0xa4
-[    6.754337]  deferred_probe_work_func+0x88/0xc0
-[    6.758158]  process_one_work+0x1d0/0x370
-[    6.762671]  worker_thread+0x2c8/0x470
-[    6.766839]  kthread+0x15c/0x170
-[    6.770483]  ret_from_fork+0x10/0x20
-[    6.773870] ---[ end trace 5884eb76cd26d274 ]---
-[    6.777500] ------------[ cut here ]------------
-[    6.782043] [CRTC:93:crtc-0] must not have both a cursor plane and a cursor_move func
-[    6.782063] WARNING: CPU: 1 PID: 76 at drivers/gpu/drm/drm_mode_config.c:654 drm_mode_config_validate+0x290/0x4d0
-[    6.794362] Modules linked in:
-[    6.804600] CPU: 1 PID: 76 Comm: kworker/u8:2 Tainted: G        W         5.15.0-rc1-dirty #43
-[    6.807555] Hardware name: Qualcomm Technologies, Inc. DB820c (DT)
-[    6.816148] Workqueue: events_unbound deferred_probe_work_func
-[    6.822311] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    6.828126] pc : drm_mode_config_validate+0x290/0x4d0
-[    6.834981] lr : drm_mode_config_validate+0x290/0x4d0
-[    6.840189] sp : ffff8000121b3980
-[    6.845223] x29: ffff8000121b3990 x28: 0000000000000000 x27: 0000000000000001
-[    6.848525] x26: ffff8000114cde50 x25: ffff8000114cdd40 x24: ffff0000987282d8
-[    6.855643] x23: 0000000000000000 x22: 0000000000000000 x21: 0000000000000001
-[    6.862763] x20: ffff000098728000 x19: ffff000080a39000 x18: ffffffffffffffff
-[    6.869879] x17: 3136564e3631564e x16: 0000000000000324 x15: ffff800011c790c2
-[    6.876998] x14: 0000000000000000 x13: ffff800011a22850 x12: 0000000000000a2f
-[    6.884116] x11: 0000000000000365 x10: ffff800011a22850 x9 : ffff800011a22850
-[    6.891234] x8 : 00000000ffffefff x7 : ffff800011a7a850 x6 : ffff800011a7a850
-[    6.898351] x5 : 000000000000bff4 x4 : 40000000fffff365 x3 : 0000000000000000
-[    6.905470] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff00008093b800
-[    6.912590] Call trace:
-[    6.919702]  drm_mode_config_validate+0x290/0x4d0
-[    6.921960]  drm_dev_register+0x17c/0x210
-[    6.926821]  msm_drm_bind+0x4b4/0x694
-[    6.930813]  try_to_bring_up_master+0x164/0x1d0
-[    6.934459]  __component_add+0xa0/0x170
-[    6.938799]  component_add+0x14/0x20
-[    6.942619]  msm_hdmi_dev_probe+0x1c/0x2c
-[    6.946438]  platform_probe+0x68/0xe0
-[    6.950345]  really_probe.part.0+0x9c/0x30c
-[    6.953991]  __driver_probe_device+0x98/0x144
-[    6.957984]  driver_probe_device+0xc8/0x15c
-[    6.962498]  __device_attach_driver+0xb4/0x120
-[    6.966492]  bus_for_each_drv+0x78/0xd0
-[    6.971004]  __device_attach+0xdc/0x184
-[    6.974737]  device_initial_probe+0x14/0x20
-[    6.978556]  bus_probe_device+0x9c/0xa4
-[    6.982722]  deferred_probe_work_func+0x88/0xc0
-[    6.986543]  process_one_work+0x1d0/0x370
-[    6.991057]  worker_thread+0x2c8/0x470
-[    6.995223]  kthread+0x15c/0x170
-[    6.998869]  ret_from_fork+0x10/0x20
-[    7.002255] ---[ end trace 5884eb76cd26d275 ]---
+It works for example, for:
+echo 1 > /sys/devices/platform/mlxplat/mlxreg-io/hwmon/.../jtag_enable
+But it will fail for:
+echo n > /sys/devices/platform/mlxplat/mlxreg-io/hwmon/.../jtag_enable,
+where n > 1.
 
-Fixes: aa649e875daf ("drm/msm/mdp5: mdp5_crtc: Restore cursor state only if LM cursors are enabled")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210925192824.3416259-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+The flow for input buffer conversion is as below:
+_kstrtoull(const char *s, unsigned int base, unsigned long long *res)
+calls:
+rv = _parse_integer(s, base, &_res);
+
+For the second case, where n > 1:
+- _parse_integer() converts 's' to 'val'.
+  For n=2, 'len' is set to 2 (string buffer is 0x32 0x0a), for n=3
+  'len' is set to 3 (string buffer 0x33 0x0a), etcetera.
+- 'base' is equal or greater then '2' (length of input buffer).
+
+As a result, _parse_integer() exits with result zero (rv):
+	rv = 0;
+	while (1) {
+		...
+		if (val >= base)-> (2 >= 2)
+			break;
+		...
+		rv++;
+		...
+	}
+
+And _kstrtoull() in their turn will fail:
+	if (rv == 0)
+		return -EINVAL;
+
+Fixes: 5ec4a8ace06c ("platform/mellanox: Introduce support for Mellanox register access driver")
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+Link: https://lore.kernel.org/r/20210927142214.2613929-2-vadimp@nvidia.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/platform/mellanox/mlxreg-io.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-@@ -1047,6 +1047,20 @@ static void mdp5_crtc_reset(struct drm_c
- 	drm_crtc_vblank_reset(crtc);
- }
+--- a/drivers/platform/mellanox/mlxreg-io.c
++++ b/drivers/platform/mellanox/mlxreg-io.c
+@@ -141,7 +141,7 @@ mlxreg_io_attr_store(struct device *dev,
+ 		return -EINVAL;
  
-+static const struct drm_crtc_funcs mdp5_crtc_no_lm_cursor_funcs = {
-+	.set_config = drm_atomic_helper_set_config,
-+	.destroy = mdp5_crtc_destroy,
-+	.page_flip = drm_atomic_helper_page_flip,
-+	.reset = mdp5_crtc_reset,
-+	.atomic_duplicate_state = mdp5_crtc_duplicate_state,
-+	.atomic_destroy_state = mdp5_crtc_destroy_state,
-+	.atomic_print_state = mdp5_crtc_atomic_print_state,
-+	.get_vblank_counter = mdp5_crtc_get_vblank_counter,
-+	.enable_vblank  = msm_crtc_enable_vblank,
-+	.disable_vblank = msm_crtc_disable_vblank,
-+	.get_vblank_timestamp = drm_crtc_vblank_helper_get_vblank_timestamp,
-+};
-+
- static const struct drm_crtc_funcs mdp5_crtc_funcs = {
- 	.set_config = drm_atomic_helper_set_config,
- 	.destroy = mdp5_crtc_destroy,
-@@ -1230,6 +1244,8 @@ struct drm_crtc *mdp5_crtc_init(struct d
- 	mdp5_crtc->lm_cursor_enabled = cursor_plane ? false : true;
+ 	/* Convert buffer to input value. */
+-	ret = kstrtou32(buf, len, &input_val);
++	ret = kstrtou32(buf, 0, &input_val);
+ 	if (ret)
+ 		return ret;
  
- 	drm_crtc_init_with_planes(dev, crtc, plane, cursor_plane,
-+				  cursor_plane ?
-+				  &mdp5_crtc_no_lm_cursor_funcs :
- 				  &mdp5_crtc_funcs, NULL);
- 
- 	drm_flip_work_init(&mdp5_crtc->unref_cursor_work,
 
 
