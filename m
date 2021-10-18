@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE050431DFF
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5031431E01
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232058AbhJRN4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56732 "EHLO mail.kernel.org"
+        id S233828AbhJRN4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:56:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233797AbhJRNyd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:54:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1782A613E6;
-        Mon, 18 Oct 2021 13:39:42 +0000 (UTC)
+        id S233966AbhJRNyk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:54:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB60F619F6;
+        Mon, 18 Oct 2021 13:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564383;
-        bh=ilREWs/vTvF52vkD5GcR1vSJ9nn5JrHa7HpjlESQmSw=;
+        s=korg; t=1634564386;
+        bh=onbzt/OA7b97z/LVhERZJ34VAKYYc3A6b3rtRjO1JoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NiaW1gKlqKdiHqTxrL6dtvuYonukUC7w8UFXobTahZemP/G0nyyRyGMkTcG8nCBY1
-         abC08cy1l0BwHQDtIBxwH7Q8beo6gUwpAswuSue5dlO4E8UHtXpnFjP1dN/v/IHXYw
-         GGAfXXOe38Vny9N6xbCKUrW9h+P0HHidOOcwHS2k=
+        b=PiislrYdWCPKtAWT6mFWz4o8YWmU+wBMKDBwDgtkzUbY08kIpDSzvm10gdTgEJMIi
+         txsvKahkhWeSzp5Urvamx/tpsvHjJ/Ezpkwb6COG3RaSfYvNxhHmCrG+leyvDaWL60
+         IiUAiMKO1LFJUtMgsfQ5HWOMleykXLUNB1dSu2DE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.14 035/151] btrfs: fix abort logic in btrfs_replace_file_extents
-Date:   Mon, 18 Oct 2021 15:23:34 +0200
-Message-Id: <20211018132341.834085864@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Miroslav Benes <mbenes@suse.cz>, Arnd Bergmann <arnd@arndb.de>,
+        Jessica Yu <jeyu@kernel.org>
+Subject: [PATCH 5.14 036/151] module: fix clang CFI with MODULE_UNLOAD=n
+Date:   Mon, 18 Oct 2021 15:23:35 +0200
+Message-Id: <20211018132341.865594008@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -41,56 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 4afb912f439c4bc4e6a4f3e7547f2e69e354108f upstream.
+commit 0d67e332e6df72f43eaa21228daa3a79e23093f3 upstream.
 
-Error injection testing uncovered a case where we'd end up with a
-corrupt file system with a missing extent in the middle of a file.  This
-occurs because the if statement to decide if we should abort is wrong.
+When CONFIG_MODULE_UNLOAD is disabled, the module->exit member
+is not defined, causing a build failure:
 
-The only way we would abort in this case is if we got a ret !=
--EOPNOTSUPP and we called from the file clone code.  However the
-prealloc code uses this path too.  Instead we need to abort if there is
-an error, and the only error we _don't_ abort on is -EOPNOTSUPP and only
-if we came from the clone file code.
+kernel/module.c:4493:8: error: no member named 'exit' in 'struct module'
+                mod->exit = *exit;
 
-CC: stable@vger.kernel.org # 5.10+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+add an #ifdef block around this.
+
+Fixes: cf68fffb66d6 ("add support for Clang CFI")
+Acked-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/file.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ kernel/module.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -2691,14 +2691,16 @@ int btrfs_replace_file_extents(struct bt
- 						 drop_args.bytes_found);
- 		if (ret != -ENOSPC) {
- 			/*
--			 * When cloning we want to avoid transaction aborts when
--			 * nothing was done and we are attempting to clone parts
--			 * of inline extents, in such cases -EOPNOTSUPP is
--			 * returned by __btrfs_drop_extents() without having
--			 * changed anything in the file.
-+			 * The only time we don't want to abort is if we are
-+			 * attempting to clone a partial inline extent, in which
-+			 * case we'll get EOPNOTSUPP.  However if we aren't
-+			 * clone we need to abort no matter what, because if we
-+			 * got EOPNOTSUPP via prealloc then we messed up and
-+			 * need to abort.
- 			 */
--			if (extent_info && !extent_info->is_new_extent &&
--			    ret && ret != -EOPNOTSUPP)
-+			if (ret &&
-+			    (ret != -EOPNOTSUPP ||
-+			     (extent_info && extent_info->is_new_extent)))
- 				btrfs_abort_transaction(trans, ret);
- 			break;
- 		}
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -4484,8 +4484,10 @@ static void cfi_init(struct module *mod)
+ 	/* Fix init/exit functions to point to the CFI jump table */
+ 	if (init)
+ 		mod->init = *init;
++#ifdef CONFIG_MODULE_UNLOAD
+ 	if (exit)
+ 		mod->exit = *exit;
++#endif
+ 
+ 	cfi_module_add(mod, module_addr_min);
+ #endif
 
 
