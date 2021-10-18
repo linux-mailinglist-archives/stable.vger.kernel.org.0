@@ -2,72 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CF0A431017
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 08:00:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2FAE43101A
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 08:02:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229735AbhJRGDA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 02:03:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48760 "EHLO mail.kernel.org"
+        id S230013AbhJRGEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 02:04:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229533AbhJRGDA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 02:03:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D777460F25;
-        Mon, 18 Oct 2021 06:00:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634536849;
-        bh=RECzbXZ+8IIFp3dDqHwQoTtgoSGnf9j0ExTatmTH5cc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uxBzsN/ifh062VVygB7Q6r3sfF4yipAsU17BnwAD3/3Yh5+NFAIZpzV1sPULyi1+T
-         ahLGjP/OndRTKBfMwtDyUWmVvx77jc4htRakVAqojwlZDzATxo2AluFyNEjRNva2/x
-         lIXwZAbkcWGJBeVonZzsw3/vWzyFj4cL/SmXrkgA=
-Date:   Mon, 18 Oct 2021 08:00:43 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Pavel Begunkov <asml.silence@gmail.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] io_uring: fail iopoll links if can't retry
-Message-ID: <YW0Ni7BxHaJQsmSn@kroah.com>
-References: <cover.1634501363.git.asml.silence@gmail.com>
- <ff66f584ff352b94ef0f5cb4188da609834fe173.1634501363.git.asml.silence@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ff66f584ff352b94ef0f5cb4188da609834fe173.1634501363.git.asml.silence@gmail.com>
+        id S229533AbhJRGEh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 02:04:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id 11FAB60F25;
+        Mon, 18 Oct 2021 06:02:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1634536947;
+        bh=jHc1ArAsX9ODB5TiB6eugodCntdFiZx9IqtuY32ULKo=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=GDcEJoEBz9v3chMkrtpy7KO6QCYQu/NNF2Lu0s0OG4o+1po6ituIq8i2SWfiEVsBG
+         m0BVQurg8oivKsp8wfC3L3q/K2u+xdRlUxD9M7ek2bgimekWa4DgDuIIQMY+WV24Sb
+         PiRvF9Je/EMBjrONLgqiLQSr2pPxYlkQsBf3vXE1fn6jmBIkdzCvYhP8usaU19apD2
+         z1RtkFEZh+jtrJLxqr/MGn8FKj3FUZ2JiGWnEkUfetneeS6QpneSYi2Vi2jd/G8Fr/
+         a1JPK9V1PUxtj4mGeRLepWqBPzT0dEBEP6VqsoIXWXcKON5HJp3QZ2rteezL/1peHO
+         RaPQcG3CJdSBw==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id EBBFC600E6;
+        Mon, 18 Oct 2021 06:02:26 +0000 (UTC)
+Subject: Re: [GIT PULL] virtio,vdpa: fixes
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20211017104900-mutt-send-email-mst@kernel.org>
+References: <20211017104900-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20211017104900-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: bcef9356fc2e1302daf373c83c826aa27954d128
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 3bb50f8530c9cb5ec69c0744b7fd32d0ca404254
+Message-Id: <163453694690.9773.12279094571248426582.pr-tracker-bot@kernel.org>
+Date:   Mon, 18 Oct 2021 06:02:26 +0000
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        corbet@lwn.net, jasowang@redhat.com, linux-doc@vger.kernel.org,
+        lulu@redhat.com, markver@us.ibm.com, mst@redhat.com,
+        pasic@linux.ibm.com, rdunlap@infradead.org, stable@vger.kernel.org,
+        wuzongyong@linux.alibaba.com, xieyongji@bytedance.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Oct 17, 2021 at 08:30:55PM +0000, Pavel Begunkov wrote:
-> If io_rw_should_reissue() fails in iopoll path and we can't reissue we
-> fail the request. Don't forget to also mark it as failed, so links are
-> broken.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-> ---
->  fs/io_uring.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 0d7613c7355c..40b1697e7354 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -2687,6 +2687,7 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
->  			req->flags |= REQ_F_REISSUE;
->  			return;
->  		}
-> +		req_set_fail(req);
->  		req->result = res;
->  	}
->  
-> -- 
-> 2.33.1
-> 
+The pull request you sent on Sun, 17 Oct 2021 10:49:00 -0400:
 
-<formletter>
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/3bb50f8530c9cb5ec69c0744b7fd32d0ca404254
 
-</formletter>
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
