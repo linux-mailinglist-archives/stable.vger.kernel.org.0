@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9A9431C4C
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8396B431B88
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233240AbhJRNkA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:40:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55998 "EHLO mail.kernel.org"
+        id S232179AbhJRNd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:33:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233597AbhJRNib (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:38:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A4C160F11;
-        Mon, 18 Oct 2021 13:32:04 +0000 (UTC)
+        id S232896AbhJRNbs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:31:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BADEB61350;
+        Mon, 18 Oct 2021 13:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563925;
-        bh=MyamxUL7rnbBMH7hWIBxpGIjMC3SPZhKIyU77HeMGZ4=;
+        s=korg; t=1634563732;
+        bh=FGM35nTA62kE6flpMLAyrF6LD12iQJC9R0HgxLPllvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plnp4lLqwqu928GDsmZMvoZOFSb5uGGLNkO8jXXQ2tTe+3abggNoHyc5iziEGPj/O
-         JHozHHwN285kUNC+WArbs8NDIYR5Qh2YdlIB7++MrFpxNyDhcZotVBCR70n7pyOPp9
-         HMerlVnFq2Hilh4T3ifZ1GLw3FfIrsANEemMS2Q0=
+        b=Sksa6BJGYxs6auYFeWxwor6KrFQULqghQRcoKwym2hRjn0N1M3NDFw2Ks+dbcZ9dF
+         y4TS6mkT50F1gaAtQTtpcnGIyBABB2C6pFA2VqlMqGlv7h6xxgZvX4x9Ym//87U7ke
+         n1xS536OlLgn8gHuv8TnP43xC7KhFkkz6uoVlA7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Nanyong Sun <sunnanyong@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 51/69] net: encx24j600: check error in devm_regmap_init_encx24j600
+        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 4.19 42/50] platform/mellanox: mlxreg-io: Fix argument base in kstrtou32() call
 Date:   Mon, 18 Oct 2021 15:24:49 +0200
-Message-Id: <20211018132331.175303037@linuxfoundation.org>
+Message-Id: <20211018132327.912316024@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
+References: <20211018132326.529486647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,123 +39,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nanyong Sun <sunnanyong@huawei.com>
+From: Vadim Pasternak <vadimp@nvidia.com>
 
-commit f03dca0c9e2297c84a018e306f8a9cd534ee4287 upstream.
+commit 9b024201693e397441668cca0d2df7055fe572eb upstream.
 
-devm_regmap_init may return error which caused by like out of memory,
-this will results in null pointer dereference later when reading
-or writing register:
+Change kstrtou32() argument 'base' to be zero instead of 'len'.
+It works by chance for setting one bit value, but it is not supposed to
+work in case value passed to mlxreg_io_attr_store() is greater than 1.
 
-general protection fault in encx24j600_spi_probe
-KASAN: null-ptr-deref in range [0x0000000000000090-0x0000000000000097]
-CPU: 0 PID: 286 Comm: spi-encx24j600- Not tainted 5.15.0-rc2-00142-g9978db750e31-dirty #11 9c53a778c1306b1b02359f3c2bbedc0222cba652
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:regcache_cache_bypass drivers/base/regmap/regcache.c:540
-Code: 54 41 89 f4 55 53 48 89 fb 48 83 ec 08 e8 26 94 a8 fe 48 8d bb a0 00 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 4a 03 00 00 4c 8d ab b0 00 00 00 48 8b ab a0 00
-RSP: 0018:ffffc900010476b8 EFLAGS: 00010207
-RAX: dffffc0000000000 RBX: fffffffffffffff4 RCX: 0000000000000000
-RDX: 0000000000000012 RSI: ffff888002de0000 RDI: 0000000000000094
-RBP: ffff888013c9a000 R08: 0000000000000000 R09: fffffbfff3f9cc6a
-R10: ffffc900010476e8 R11: fffffbfff3f9cc69 R12: 0000000000000001
-R13: 000000000000000a R14: ffff888013c9af54 R15: ffff888013c9ad08
-FS:  00007ffa984ab580(0000) GS:ffff88801fe00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000055a6384136c8 CR3: 000000003bbe6003 CR4: 0000000000770ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- encx24j600_spi_probe drivers/net/ethernet/microchip/encx24j600.c:459
- spi_probe drivers/spi/spi.c:397
- really_probe drivers/base/dd.c:517
- __driver_probe_device drivers/base/dd.c:751
- driver_probe_device drivers/base/dd.c:782
- __device_attach_driver drivers/base/dd.c:899
- bus_for_each_drv drivers/base/bus.c:427
- __device_attach drivers/base/dd.c:971
- bus_probe_device drivers/base/bus.c:487
- device_add drivers/base/core.c:3364
- __spi_add_device drivers/spi/spi.c:599
- spi_add_device drivers/spi/spi.c:641
- spi_new_device drivers/spi/spi.c:717
- new_device_store+0x18c/0x1f1 [spi_stub 4e02719357f1ff33f5a43d00630982840568e85e]
- dev_attr_store drivers/base/core.c:2074
- sysfs_kf_write fs/sysfs/file.c:139
- kernfs_fop_write_iter fs/kernfs/file.c:300
- new_sync_write fs/read_write.c:508 (discriminator 4)
- vfs_write fs/read_write.c:594
- ksys_write fs/read_write.c:648
- do_syscall_64 arch/x86/entry/common.c:50
- entry_SYSCALL_64_after_hwframe arch/x86/entry/entry_64.S:113
+It works for example, for:
+echo 1 > /sys/devices/platform/mlxplat/mlxreg-io/hwmon/.../jtag_enable
+But it will fail for:
+echo n > /sys/devices/platform/mlxplat/mlxreg-io/hwmon/.../jtag_enable,
+where n > 1.
 
-Add error check in devm_regmap_init_encx24j600 to avoid this situation.
+The flow for input buffer conversion is as below:
+_kstrtoull(const char *s, unsigned int base, unsigned long long *res)
+calls:
+rv = _parse_integer(s, base, &_res);
 
-Fixes: 04fbfce7a222 ("net: Microchip encx24j600 driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Link: https://lore.kernel.org/r/20211012125901.3623144-1-sunnanyong@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+For the second case, where n > 1:
+- _parse_integer() converts 's' to 'val'.
+  For n=2, 'len' is set to 2 (string buffer is 0x32 0x0a), for n=3
+  'len' is set to 3 (string buffer 0x33 0x0a), etcetera.
+- 'base' is equal or greater then '2' (length of input buffer).
+
+As a result, _parse_integer() exits with result zero (rv):
+	rv = 0;
+	while (1) {
+		...
+		if (val >= base)-> (2 >= 2)
+			break;
+		...
+		rv++;
+		...
+	}
+
+And _kstrtoull() in their turn will fail:
+	if (rv == 0)
+		return -EINVAL;
+
+Fixes: 5ec4a8ace06c ("platform/mellanox: Introduce support for Mellanox register access driver")
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+Link: https://lore.kernel.org/r/20210927142214.2613929-2-vadimp@nvidia.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/microchip/encx24j600-regmap.c |   10 ++++++++--
- drivers/net/ethernet/microchip/encx24j600.c        |    5 ++++-
- drivers/net/ethernet/microchip/encx24j600_hw.h     |    4 ++--
- 3 files changed, 14 insertions(+), 5 deletions(-)
+ drivers/platform/mellanox/mlxreg-io.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/microchip/encx24j600-regmap.c
-+++ b/drivers/net/ethernet/microchip/encx24j600-regmap.c
-@@ -502,13 +502,19 @@ static struct regmap_bus phymap_encx24j6
- 	.reg_read = regmap_encx24j600_phy_reg_read,
- };
+--- a/drivers/platform/mellanox/mlxreg-io.c
++++ b/drivers/platform/mellanox/mlxreg-io.c
+@@ -123,7 +123,7 @@ mlxreg_io_attr_store(struct device *dev,
+ 		return -EINVAL;
  
--void devm_regmap_init_encx24j600(struct device *dev,
--				 struct encx24j600_context *ctx)
-+int devm_regmap_init_encx24j600(struct device *dev,
-+				struct encx24j600_context *ctx)
- {
- 	mutex_init(&ctx->mutex);
- 	regcfg.lock_arg = ctx;
- 	ctx->regmap = devm_regmap_init(dev, &regmap_encx24j600, ctx, &regcfg);
-+	if (IS_ERR(ctx->regmap))
-+		return PTR_ERR(ctx->regmap);
- 	ctx->phymap = devm_regmap_init(dev, &phymap_encx24j600, ctx, &phycfg);
-+	if (IS_ERR(ctx->phymap))
-+		return PTR_ERR(ctx->phymap);
-+
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(devm_regmap_init_encx24j600);
+ 	/* Convert buffer to input value. */
+-	ret = kstrtou32(buf, len, &input_val);
++	ret = kstrtou32(buf, 0, &input_val);
+ 	if (ret)
+ 		return ret;
  
---- a/drivers/net/ethernet/microchip/encx24j600.c
-+++ b/drivers/net/ethernet/microchip/encx24j600.c
-@@ -1027,10 +1027,13 @@ static int encx24j600_spi_probe(struct s
- 	priv->speed = SPEED_100;
- 
- 	priv->ctx.spi = spi;
--	devm_regmap_init_encx24j600(&spi->dev, &priv->ctx);
- 	ndev->irq = spi->irq;
- 	ndev->netdev_ops = &encx24j600_netdev_ops;
- 
-+	ret = devm_regmap_init_encx24j600(&spi->dev, &priv->ctx);
-+	if (ret)
-+		goto out_free;
-+
- 	mutex_init(&priv->lock);
- 
- 	/* Reset device and check if it is connected */
---- a/drivers/net/ethernet/microchip/encx24j600_hw.h
-+++ b/drivers/net/ethernet/microchip/encx24j600_hw.h
-@@ -15,8 +15,8 @@ struct encx24j600_context {
- 	int bank;
- };
- 
--void devm_regmap_init_encx24j600(struct device *dev,
--				 struct encx24j600_context *ctx);
-+int devm_regmap_init_encx24j600(struct device *dev,
-+				struct encx24j600_context *ctx);
- 
- /* Single-byte instructions */
- #define BANK_SELECT(bank) (0xC0 | ((bank & (BANK_MASK >> BANK_SHIFT)) << 1))
 
 
