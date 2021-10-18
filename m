@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 794DE431CE1
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:44:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAA17431ABE
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:26:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233723AbhJRNpr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:45:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39094 "EHLO mail.kernel.org"
+        id S231872AbhJRN3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234081AbhJRNnq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:43:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E211613A7;
-        Mon, 18 Oct 2021 13:34:49 +0000 (UTC)
+        id S231495AbhJRN2D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:28:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECE4561250;
+        Mon, 18 Oct 2021 13:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564090;
-        bh=LrfCRFasqvuXbG5tf0T/B1fhv+UmrMhZx2uqMllI/PU=;
+        s=korg; t=1634563552;
+        bh=o86vtXUV4131K8TJF7T3Do477KsQhv26QQ/gZby7KJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UtEZ6Am9KAhl0aBuSiQPpfwp5Ljg6ztIx/XAqqgwYSnnPNbYJzQDRvWIJfDApjhXR
-         c+PhMcuy/NQGdcp6/BkCipuyiDvMFwp6+/NbymCLoQIST5ZOj41Pe2rFMl+XLPCMzA
-         GniFLP+Nj96uCh3H+034en11Gyh69aelemmpia7w=
+        b=T29ph93klHlP+fiMt2+1ckGFgSjbhwSCvmxO4zFzZVjaCraRkRICLEa6b2JEkAUBO
+         xVxarP9oTk24w5sI4kf/KovfqduZNvaKwX0Ogn1R/g/6kWYX32UGzv6Qu8I3Vz2nBF
+         TFPo0MKT7dRyIdl7e6aWckXvthpdT0QGYYi8cKW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 044/103] KVM: PPC: Book3S HV: Fix stack handling in idle_kvm_start_guest()
+        stable@vger.kernel.org, Zhang Jianhua <chris.zjh@huawei.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.14 11/39] efi: Change down_interruptible() in virt_efi_reset_system() to down_trylock()
 Date:   Mon, 18 Oct 2021 15:24:20 +0200
-Message-Id: <20211018132336.219642035@linuxfoundation.org>
+Message-Id: <20211018132325.821945885@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,105 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Zhang Jianhua <chris.zjh@huawei.com>
 
-commit 9b4416c5095c20e110c82ae602c254099b83b72f upstream.
+commit 38fa3206bf441911258e5001ac8b6738693f8d82 upstream.
 
-In commit 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in
-C") kvm_start_guest() became idle_kvm_start_guest(). The old code
-allocated a stack frame on the emergency stack, but didn't use the
-frame to store anything, and also didn't store anything in its caller's
-frame.
+While reboot the system by sysrq, the following bug will be occur.
 
-idle_kvm_start_guest() on the other hand is written more like a normal C
-function, it creates a frame on entry, and also stores CR/LR into its
-callers frame (per the ABI). The problem is that there is no caller
-frame on the emergency stack.
+BUG: sleeping function called from invalid context at kernel/locking/semaphore.c:90
+in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 10052, name: rc.shutdown
+CPU: 3 PID: 10052 Comm: rc.shutdown Tainted: G        W O      5.10.0 #1
+Call trace:
+ dump_backtrace+0x0/0x1c8
+ show_stack+0x18/0x28
+ dump_stack+0xd0/0x110
+ ___might_sleep+0x14c/0x160
+ __might_sleep+0x74/0x88
+ down_interruptible+0x40/0x118
+ virt_efi_reset_system+0x3c/0xd0
+ efi_reboot+0xd4/0x11c
+ machine_restart+0x60/0x9c
+ emergency_restart+0x1c/0x2c
+ sysrq_handle_reboot+0x1c/0x2c
+ __handle_sysrq+0xd0/0x194
+ write_sysrq_trigger+0xbc/0xe4
+ proc_reg_write+0xd4/0xf0
+ vfs_write+0xa8/0x148
+ ksys_write+0x6c/0xd8
+ __arm64_sys_write+0x18/0x28
+ el0_svc_common.constprop.3+0xe4/0x16c
+ do_el0_svc+0x1c/0x2c
+ el0_svc+0x20/0x30
+ el0_sync_handler+0x80/0x17c
+ el0_sync+0x158/0x180
 
-The emergency stack for a given CPU is allocated with:
+The reason for this problem is that irq has been disabled in
+machine_restart() and then it calls down_interruptible() in
+virt_efi_reset_system(), which would occur sleep in irq context,
+it is dangerous! Commit 99409b935c9a("locking/semaphore: Add
+might_sleep() to down_*() family") add might_sleep() in
+down_interruptible(), so the bug info is here. down_trylock()
+can solve this problem, cause there is no might_sleep.
 
-  paca_ptrs[i]->emergency_sp = alloc_stack(limit, i) + THREAD_SIZE;
+--------
 
-So emergency_sp actually points to the first address above the emergency
-stack allocation for a given CPU, we must not store above it without
-first decrementing it to create a frame. This is different to the
-regular kernel stack, paca->kstack, which is initialised to point at an
-initial frame that is ready to use.
-
-idle_kvm_start_guest() stores the backchain, CR and LR all of which
-write outside the allocation for the emergency stack. It then creates a
-stack frame and saves the non-volatile registers. Unfortunately the
-frame it creates is not large enough to fit the non-volatiles, and so
-the saving of the non-volatile registers also writes outside the
-emergency stack allocation.
-
-The end result is that we corrupt whatever is at 0-24 bytes, and 112-248
-bytes above the emergency stack allocation.
-
-In practice this has gone unnoticed because the memory immediately above
-the emergency stack happens to be used for other stack allocations,
-either another CPUs mc_emergency_sp or an IRQ stack. See the order of
-calls to irqstack_early_init() and emergency_stack_init().
-
-The low addresses of another stack are the top of that stack, and so are
-only used if that stack is under extreme pressue, which essentially
-never happens in practice - and if it did there's a high likelyhood we'd
-crash due to that stack overflowing.
-
-Still, we shouldn't be corrupting someone else's stack, and it is purely
-luck that we aren't corrupting something else.
-
-To fix it we save CR/LR into the caller's frame using the existing r1 on
-entry, we then create a SWITCH_FRAME_SIZE frame (which has space for
-pt_regs) on the emergency stack with the backchain pointing to the
-existing stack, and then finally we switch to the new frame on the
-emergency stack.
-
-Fixes: 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in C")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211015133929.832061-1-mpe@ellerman.id.au
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Zhang Jianhua <chris.zjh@huawei.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_hv_rmhandlers.S |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/firmware/efi/runtime-wrappers.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-+++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-@@ -292,13 +292,15 @@ kvm_novcpu_exit:
-  * r3 contains the SRR1 wakeup value, SRR1 is trashed.
-  */
- _GLOBAL(idle_kvm_start_guest)
--	ld	r4,PACAEMERGSP(r13)
- 	mfcr	r5
- 	mflr	r0
--	std	r1,0(r4)
--	std	r5,8(r4)
--	std	r0,16(r4)
--	subi	r1,r4,STACK_FRAME_OVERHEAD
-+	std	r5, 8(r1)	// Save CR in caller's frame
-+	std	r0, 16(r1)	// Save LR in caller's frame
-+	// Create frame on emergency stack
-+	ld	r4, PACAEMERGSP(r13)
-+	stdu	r1, -SWITCH_FRAME_SIZE(r4)
-+	// Switch to new frame on emergency stack
-+	mr	r1, r4
- 	SAVE_NVGPRS(r1)
- 
- 	/*
-@@ -444,10 +446,9 @@ kvm_no_guest:
- 	/* set up r3 for return */
- 	mfspr	r3,SPRN_SRR1
- 	REST_NVGPRS(r1)
--	addi	r1, r1, STACK_FRAME_OVERHEAD
--	ld	r0, 16(r1)
--	ld	r5, 8(r1)
--	ld	r1, 0(r1)
-+	ld	r1, 0(r1)	// Switch back to caller stack
-+	ld	r0, 16(r1)	// Reload LR
-+	ld	r5, 8(r1)	// Reload CR
- 	mtlr	r0
- 	mtcr	r5
- 	blr
+--- a/drivers/firmware/efi/runtime-wrappers.c
++++ b/drivers/firmware/efi/runtime-wrappers.c
+@@ -259,7 +259,7 @@ static void virt_efi_reset_system(int re
+ 				  unsigned long data_size,
+ 				  efi_char16_t *data)
+ {
+-	if (down_interruptible(&efi_runtime_lock)) {
++	if (down_trylock(&efi_runtime_lock)) {
+ 		pr_warn("failed to invoke the reset_system() runtime service:\n"
+ 			"could not get exclusive access to the firmware\n");
+ 		return;
 
 
