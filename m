@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E5D8431AD3
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB8AA431BFE
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232047AbhJRN3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:29:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41354 "EHLO mail.kernel.org"
+        id S232647AbhJRNhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:37:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231896AbhJRN3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:29:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BACA461352;
-        Mon, 18 Oct 2021 13:26:21 +0000 (UTC)
+        id S232172AbhJRNfS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:35:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B42D56126A;
+        Mon, 18 Oct 2021 13:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563582;
-        bh=gU2vMTAAa3nBkBTgSpYWKFBTfdz2wmsODH7b8zx5kvw=;
+        s=korg; t=1634563837;
+        bh=w8Yg64NpISzanOf/I01LEKyBZfD7cK08ATPg/AuFw6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVN9TZHfgCVj5Z220Y7M7vTaZBSuGwBAP/GSB9ZsqWinkaE2VerTaeOLtFNvNt9ut
-         2Yo1WYGoer5H9EneoKE+GyIS1uhAaqOfseR5Rztj1l3XKWMPgIfOC1eHe+Le0wPQvO
-         AganEZLeHT11Z6whI+HPi3hLHB6tpAKe+TDXEetE=
+        b=FK8Pgf4dYgvj5/okcw0WzeU/z3XcAf0GO89kxKb7vOaVMVG0ZaALNCA0oPeW1Vkyn
+         +sU6Gg5i1nUdHUQ05arMdvKSpPnKb5Lg34GQCEbbz8LJ4o4EW77AnZGTvbpBU5WeXP
+         ZWlbkWc6pJXraNf6lmg4BS6mZuINnPUWnW+zJnH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Alexandru Ardelean <ardeleanalex@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 22/39] iio: adc128s052: Fix the error handling path of adc128_probe()
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 5.4 33/69] nvmem: Fix shift-out-of-bound (UBSAN) with byte size cells
 Date:   Mon, 18 Oct 2021 15:24:31 +0200
-Message-Id: <20211018132326.160507916@linuxfoundation.org>
+Message-Id: <20211018132330.582609428@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
-References: <20211018132325.426739023@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Stephen Boyd <swboyd@chromium.org>
 
-commit bbcf40816b547b3c37af49168950491d20d81ce1 upstream.
+commit 5d388fa01fa6eb310ac023a363a6cb216d9d8fe9 upstream.
 
-A successful 'regulator_enable()' call should be balanced by a
-corresponding 'regulator_disable()' call in the error handling path of the
-probe, as already done in the remove function.
+If a cell has 'nbits' equal to a multiple of BITS_PER_BYTE the logic
 
-Update the error handling path accordingly.
+ *p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
 
-Fixes: 913b86468674 ("iio: adc: Add TI ADC128S052")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
-Link: https://lore.kernel.org/r/85189f1cfcf6f5f7b42d8730966f2a074b07b5f5.1629542160.git.christophe.jaillet@wanadoo.fr
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+will become undefined behavior because nbits modulo BITS_PER_BYTE is 0, and we
+subtract one from that making a large number that is then shifted more than the
+number of bits that fit into an unsigned long.
+
+UBSAN reports this problem:
+
+ UBSAN: shift-out-of-bounds in drivers/nvmem/core.c:1386:8
+ shift exponent 64 is too large for 64-bit type 'unsigned long'
+ CPU: 6 PID: 7 Comm: kworker/u16:0 Not tainted 5.15.0-rc3+ #9
+ Hardware name: Google Lazor (rev3+) with KB Backlight (DT)
+ Workqueue: events_unbound deferred_probe_work_func
+ Call trace:
+  dump_backtrace+0x0/0x170
+  show_stack+0x24/0x30
+  dump_stack_lvl+0x64/0x7c
+  dump_stack+0x18/0x38
+  ubsan_epilogue+0x10/0x54
+  __ubsan_handle_shift_out_of_bounds+0x180/0x194
+  __nvmem_cell_read+0x1ec/0x21c
+  nvmem_cell_read+0x58/0x94
+  nvmem_cell_read_variable_common+0x4c/0xb0
+  nvmem_cell_read_variable_le_u32+0x40/0x100
+  a6xx_gpu_init+0x170/0x2f4
+  adreno_bind+0x174/0x284
+  component_bind_all+0xf0/0x264
+  msm_drm_bind+0x1d8/0x7a0
+  try_to_bring_up_master+0x164/0x1ac
+  __component_add+0xbc/0x13c
+  component_add+0x20/0x2c
+  dp_display_probe+0x340/0x384
+  platform_probe+0xc0/0x100
+  really_probe+0x110/0x304
+  __driver_probe_device+0xb8/0x120
+  driver_probe_device+0x4c/0xfc
+  __device_attach_driver+0xb0/0x128
+  bus_for_each_drv+0x90/0xdc
+  __device_attach+0xc8/0x174
+  device_initial_probe+0x20/0x2c
+  bus_probe_device+0x40/0xa4
+  deferred_probe_work_func+0x7c/0xb8
+  process_one_work+0x128/0x21c
+  process_scheduled_works+0x40/0x54
+  worker_thread+0x1ec/0x2a8
+  kthread+0x138/0x158
+  ret_from_fork+0x10/0x20
+
+Fix it by making sure there are any bits to mask out.
+
+Fixes: 69aba7948cbe ("nvmem: Add a simple NVMEM framework for consumers")
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20211013124511.18726-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ti-adc128s052.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/nvmem/core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/ti-adc128s052.c
-+++ b/drivers/iio/adc/ti-adc128s052.c
-@@ -169,7 +169,13 @@ static int adc128_probe(struct spi_devic
- 	mutex_init(&adc->lock);
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -954,7 +954,8 @@ static void nvmem_shift_read_buffer_in_p
+ 		*p-- = 0;
  
- 	ret = iio_device_register(indio_dev);
-+	if (ret)
-+		goto err_disable_regulator;
- 
-+	return 0;
-+
-+err_disable_regulator:
-+	regulator_disable(adc->reg);
- 	return ret;
+ 	/* clear msb bits if any leftover in the last byte */
+-	*p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
++	if (cell->nbits % BITS_PER_BYTE)
++		*p &= GENMASK((cell->nbits % BITS_PER_BYTE) - 1, 0);
  }
  
+ static int __nvmem_cell_read(struct nvmem_device *nvmem,
 
 
