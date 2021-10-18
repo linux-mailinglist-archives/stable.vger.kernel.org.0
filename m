@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0BF431DED
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9509B431C8D
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234405AbhJRNz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:55:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58198 "EHLO mail.kernel.org"
+        id S232550AbhJRNmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:42:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234472AbhJRNx4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:53:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 422FB619F5;
-        Mon, 18 Oct 2021 13:39:26 +0000 (UTC)
+        id S233466AbhJRNkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:40:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14912613A0;
+        Mon, 18 Oct 2021 13:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564366;
-        bh=jX8oLkjFFqTvA6DxKsaB1LJrVxL87LonVxv4sXsVfWY=;
+        s=korg; t=1634563990;
+        bh=UcFL9DfXg+6mbtrclVkILyxxrPYNlGHcFAnxg0JclxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u48kO6zZdQoAoyD54fFG/vus+3y3SByfC6/bdAGuEtWUSyLaeIhBOafzEvfdwC0kx
-         gwsnejHKR8QKxhPQfHcnyiiWuWrrTPfgXWr5nltFcUFN6jBgig2B4jckTHBNMOqfG7
-         51WNu9xsnEx8xdeg4Hx1QrRHaXT2ccFyCxYmeIEQ=
+        b=DMqW3HCnM1jxgKDJcyWRa+ILiU8lDD0rbZGl453t8qWwpBKb6bj26O8bvgEwHziVn
+         lIPOf4oZ7XCkkPNbXnbrGhzzef86IQ3rSWtw5J9s+ptIVapiLjUNn+C6qo67UvJOoV
+         2ahIPBLDQl1dM+YE4Gd/SU5rT3wwkiq85bJhurxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.14 061/151] KVM: PPC: Book3S HV: Make idle_kvm_start_guest() return 0 if it went to guest
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 024/103] btrfs: fix abort logic in btrfs_replace_file_extents
 Date:   Mon, 18 Oct 2021 15:24:00 +0200
-Message-Id: <20211018132342.680787028@linuxfoundation.org>
+Message-Id: <20211018132335.521225185@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,71 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit cdeb5d7d890e14f3b70e8087e745c4a6a7d9f337 upstream.
+commit 4afb912f439c4bc4e6a4f3e7547f2e69e354108f upstream.
 
-We call idle_kvm_start_guest() from power7_offline() if the thread has
-been requested to enter KVM. We pass it the SRR1 value that was returned
-from power7_idle_insn() which tells us what sort of wakeup we're
-processing.
+Error injection testing uncovered a case where we'd end up with a
+corrupt file system with a missing extent in the middle of a file.  This
+occurs because the if statement to decide if we should abort is wrong.
 
-Depending on the SRR1 value we pass in, the KVM code might enter the
-guest, or it might return to us to do some host action if the wakeup
-requires it.
+The only way we would abort in this case is if we got a ret !=
+-EOPNOTSUPP and we called from the file clone code.  However the
+prealloc code uses this path too.  Instead we need to abort if there is
+an error, and the only error we _don't_ abort on is -EOPNOTSUPP and only
+if we came from the clone file code.
 
-If idle_kvm_start_guest() is able to handle the wakeup, and enter the
-guest it is supposed to indicate that by returning a zero SRR1 value to
-us.
-
-That was the behaviour prior to commit 10d91611f426 ("powerpc/64s:
-Reimplement book3s idle code in C"), however in that commit the
-handling of SRR1 was reworked, and the zeroing behaviour was lost.
-
-Returning from idle_kvm_start_guest() without zeroing the SRR1 value can
-confuse the host offline code, causing the guest to crash and other
-weirdness.
-
-Fixes: 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in C")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211015133929.832061-2-mpe@ellerman.id.au
+CC: stable@vger.kernel.org # 5.10+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_hv_rmhandlers.S |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ fs/btrfs/file.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-+++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-@@ -264,6 +264,7 @@ _GLOBAL(idle_kvm_start_guest)
- 	stdu	r1, -SWITCH_FRAME_SIZE(r4)
- 	// Switch to new frame on emergency stack
- 	mr	r1, r4
-+	std	r3, 32(r1)	// Save SRR1 wakeup value
- 	SAVE_NVGPRS(r1)
- 
- 	/*
-@@ -315,6 +316,10 @@ kvm_unsplit_wakeup:
- 
- kvm_secondary_got_guest:
- 
-+	// About to go to guest, clear saved SRR1
-+	li	r0, 0
-+	std	r0, 32(r1)
-+
- 	/* Set HSTATE_DSCR(r13) to something sensible */
- 	ld	r6, PACA_DSCR_DEFAULT(r13)
- 	std	r6, HSTATE_DSCR(r13)
-@@ -394,8 +399,8 @@ kvm_no_guest:
- 	mfspr	r4, SPRN_LPCR
- 	rlwimi	r4, r3, 0, LPCR_PECE0 | LPCR_PECE1
- 	mtspr	SPRN_LPCR, r4
--	/* set up r3 for return */
--	mfspr	r3,SPRN_SRR1
-+	// Return SRR1 wakeup value, or 0 if we went into the guest
-+	ld	r3, 32(r1)
- 	REST_NVGPRS(r1)
- 	ld	r1, 0(r1)	// Switch back to caller stack
- 	ld	r0, 16(r1)	// Reload LR
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2661,14 +2661,16 @@ int btrfs_replace_file_extents(struct in
+ 					   1, 0, 0, NULL);
+ 		if (ret != -ENOSPC) {
+ 			/*
+-			 * When cloning we want to avoid transaction aborts when
+-			 * nothing was done and we are attempting to clone parts
+-			 * of inline extents, in such cases -EOPNOTSUPP is
+-			 * returned by __btrfs_drop_extents() without having
+-			 * changed anything in the file.
++			 * The only time we don't want to abort is if we are
++			 * attempting to clone a partial inline extent, in which
++			 * case we'll get EOPNOTSUPP.  However if we aren't
++			 * clone we need to abort no matter what, because if we
++			 * got EOPNOTSUPP via prealloc then we messed up and
++			 * need to abort.
+ 			 */
+-			if (extent_info && !extent_info->is_new_extent &&
+-			    ret && ret != -EOPNOTSUPP)
++			if (ret &&
++			    (ret != -EOPNOTSUPP ||
++			     (extent_info && extent_info->is_new_extent)))
+ 				btrfs_abort_transaction(trans, ret);
+ 			break;
+ 		}
 
 
