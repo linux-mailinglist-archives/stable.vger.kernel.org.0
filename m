@@ -2,98 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A74B43264A
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 20:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0FBC4326D3
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 20:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229696AbhJRS0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 14:26:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46944 "EHLO
+        id S229696AbhJRStc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 14:49:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231970AbhJRSZ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 14:25:56 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A818C06161C
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 11:23:45 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id o11so1333334ljg.10
-        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 11:23:45 -0700 (PDT)
+        with ESMTP id S232301AbhJRStb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 14:49:31 -0400
+Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAEBEC061765
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 11:47:19 -0700 (PDT)
+Received: by mail-io1-xd2a.google.com with SMTP id r134so17447322iod.11
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 11:47:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=NI6UmnOVqHIFIXD4WPPotT1IrQ1AYYc8vYLqus9rJW0=;
-        b=GJqCCAXMt0C3S76J4Fr3pfmV9KsCGzpF9uZ2E7JuTQEca2MGrPillIWfjgaV9kMklr
-         uykKrntdJFCLwjI8iwCGKbFJ64UBj7VO//N4iOVgy+yeMZbXTqShkZEIahp2ggOKjIWH
-         Ir+LLKxmNf4BT9fqKAEnhnYC0wuGNUj2xOpBu7suR2/FKoLhqMMe3FZz6FSH27j7atG0
-         n0dL9gOSJiHods6m+u5lqhmdtNAQ9pAmig4XWjvbbPZ0bSNt1ZNQUMlhUCTZSJJPujpx
-         V/bqGIYkbtk2VzXApOOoqTa9IhcZuZEyewjsMNh7VmrTXIoMwNqLFvkmRiTH4+97mtTT
-         tMAg==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ob0CbEwoPeJgo71AK4uZuz6MhzSfIwRl4kQrmn5LdSo=;
+        b=zryvc2+iyGSLlKZd0t8mtv3dtK+YkZ6kCiMIVzLmOCw+zbbFJuxFfHrZQGVVW8Z/TW
+         PV1pHcYGTrVezQlMjoAuu5kGNyrqdiYuG/GeRZcOJTVjmuCFTd6nNOeJroIWjkxAw5cs
+         tz3ifwG1gL2vBK74CnzmmDPB4yueweSeWo9UNlJNnpz0HAlsCTrHwqRRIqSdzkDwYI2X
+         dBVRhP7O8PO8oMRWc9iQnX913JrKtZwwuKwqFQyddPQMwlU+5371NAluDd5GA5c9mMit
+         ELtH/Ijx4V4Azrr5hn/GmkqDn57YDAR7YTtu26N4uebU98kq9NzMdobGrWTUhNqKsKTg
+         CpVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=NI6UmnOVqHIFIXD4WPPotT1IrQ1AYYc8vYLqus9rJW0=;
-        b=W+dDEifvwrSyw16nd8HZCpFneVnZGWleyocqzQ3LSy219IPo2F5YAbBY8JLodk0jng
-         XaSbePgbKpwJGMU3VI/x1C3UtqNQ3X+7v1wkmhIeY/vi0G2Fa8csZxz0GRqFjNHMg2W6
-         Ialbp1z2rqPmeOX6kMoJNbc3Bgrljq0HAXCxa3oP0ll9OkWEJd4PgMZYSpJ2f2h15jlu
-         0gTHyPdTt9zq6jhZGQcD+2EOL0CsKC6GiBF3VvZ+FPybhzaCk3TAOeVYHuL41yy6A+ij
-         5Ea8d7sc5AnLM9BP9RnTPwegW4S4f6DX4vcfEFDFHWSmJTuQwdDs7jUyOUSn/UL0mgjM
-         aCAg==
-X-Gm-Message-State: AOAM533v8hGt1/o2813E25RQwMpjjF83ey4V9BXdAA/SPQeuC7NosSGK
-        UDY7auZz7ZOlcM2JZc2Fuo9YAL+CjyDwcZAWPoI=
-X-Google-Smtp-Source: ABdhPJyvJeU1vIcXH3Ji/CU3sQ+mnhzPHFjTfV4xrinapdWBladsH90YUw8rALdVwqQLl/KVETDjAFo251yR+5AlvxE=
-X-Received: by 2002:a2e:9bd0:: with SMTP id w16mr1437081ljj.390.1634581423382;
- Mon, 18 Oct 2021 11:23:43 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ob0CbEwoPeJgo71AK4uZuz6MhzSfIwRl4kQrmn5LdSo=;
+        b=TbZsrbhyiN4p0oV3tcptdBQDYs7+g6JDYqjnLb+yNI5XBBPeeZo88+hgpIXlX4Psqj
+         2btTaCAYSRFY+KJjMXywPPk6u/gzi8ctDkfZRU74FKlV/hhkUWuHIPKXLPHN6in0WZoR
+         47jNfQZOOZcXerPvgcF0nlUHl/DZ44mltdeLiWYHLtJCcVA248FQ5JyNlCUmQv1G+A4B
+         YfrRPlYvFUewQJ+hGMuDakWyIxHxzhuWrBUEKxiKwMEr+49I4Py0LZCHURDq7HA9GMN+
+         twcB9wFY1TRVdAfiB06KMVTVDm9mmO69TBzy7Th8xPrY1NYiVp94yOg5qGf52KKq8y6Y
+         +fNg==
+X-Gm-Message-State: AOAM530zDVz1olDg0bVsRL6yLEZ1nSn1RyIr+wtaJA/wL37IuaKTVnAe
+        5toLJMZ7aOixQF7wU+1D5gvEsg==
+X-Google-Smtp-Source: ABdhPJyDN2zfYxfknFmpN3T8LloR/QDQg7yngT5RHbjCQ8mEx+QxOBZHcTf3jfGc6fH5qUxmVu8Leg==
+X-Received: by 2002:a02:cd9c:: with SMTP id l28mr1041464jap.78.1634582839074;
+        Mon, 18 Oct 2021 11:47:19 -0700 (PDT)
+Received: from [192.168.1.30] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id y6sm6832160iol.11.2021.10.18.11.47.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 Oct 2021 11:47:18 -0700 (PDT)
+Subject: Re: [PATCH] [linux-5.10.y] io_uring: fix splice_fd_in checks backport
+ typo
+To:     Kamal Mostafa <kamal@canonical.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20211018171808.18383-1-kamal@canonical.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <056adbd3-62eb-4aca-113e-f80c27c94a3b@kernel.dk>
+Date:   Mon, 18 Oct 2021 12:47:17 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Received: by 2002:ab2:1388:0:b0:f6:f7a1:d2e9 with HTTP; Mon, 18 Oct 2021
- 11:23:42 -0700 (PDT)
-Reply-To: mrsrosebanneth19@gmail.com
-From:   Mrs Rose Banneth <colemantim660@gmail.com>
-Date:   Mon, 18 Oct 2021 11:23:42 -0700
-Message-ID: <CACZm7_H5OAGF0VH4-SrUmZmbqrH3iN52tLqDpjTuoAudH7ZMow@mail.gmail.com>
-Subject: God bless you,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20211018171808.18383-1-kamal@canonical.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear friend,
+On 10/18/21 11:18 AM, Kamal Mostafa wrote:
+> The linux-5.10.y backport of commit "io_uring: add ->splice_fd_in checks"
+> includes a typo: "|" where "||" should be. (The original upstream commit
+> is fine.)
 
-may God bless you, please Can you join me and help people?
+Oops indeed! Greg, can you queue this one up?
 
-It's my pleasure to have contact with you, based on the critical
-condition I find myself and my desire to will part of my property to
-the Orphans, Disable, blind, Old and poor people who have nothing to
-eat, although, it's not financial problem is about my health, you
-might have know that cancer is not what to talk  about at home I have
-been in the hospital for 7 months now I am Mrs. Rose Banneth and I am
-married to Mr. Abaulkarim banneth who worked with Tun norway embassy
-here in Burkina Faso for nine years before he died in the year
-February 2011.We were married for eleven years without a child. He
-died after a brief illness that lasted for five days.
+-- 
+Jens Axboe
 
-Since the death of my husband I have been dying and diagnosed with
-cancer for 4 years now, I decided not to remarry. When my late husband
-was alive he deposited the sum of (=E2=82=AC8.5 Million Euro)  (Eight milli=
-on,
-Five hundred thousand Euros) in a bank in Burkina Faso for me,
-presently this money is still in bank. I want you to help me use this
-money for the poor people around you in your Country it is the
-Almighty God direction that I choose you to do this with your heart.
-
-My Doctors told me that I don't have much time to live because of the
-cancer problem and i don t want to live this money in the bank for
-Government instead I decided to use it for Old people who cannot work
-again and Orphans who have nothing to eat because i am Orphan, Having
-known my condition I decided to hand over this fund to a responsible
-person that have fear of God to receive this money and use it for the
-needy instead of this money be forgotten to the bank. Can you have the
-time to do this? If so please, i want you to contact me here my
-private email address mrsrosebanneth19@gmail.com  to know on how the
-fund will be transferred to your bank account or online banking.
-
-I wait for your response.
-My regards,
-Mrs Rose Banneth
-Written from Hospital
