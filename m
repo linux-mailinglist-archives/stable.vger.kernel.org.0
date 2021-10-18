@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED5B431E47
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF00431ACF
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234124AbhJRN7y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:59:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58168 "EHLO mail.kernel.org"
+        id S231987AbhJRN3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234281AbhJRN5v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:57:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D33161A10;
-        Mon, 18 Oct 2021 13:41:04 +0000 (UTC)
+        id S231912AbhJRN3H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF6756136F;
+        Mon, 18 Oct 2021 13:26:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564465;
-        bh=LRP1vHEPOxp/oJ9HHffPTa8Qfw/xtFrf5LnyU+x4GwE=;
+        s=korg; t=1634563597;
+        bh=fgvZPc3RydAE1RxCUb53xm6l6ozJhtsDHbaDIgb1uGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ctVe21xTND1YqVRTMd8MmcH5sqfWI/ATRrI567fynb4HDki0weO44fl/yfQPpqZ3j
-         ixajHZG+46Lvx6pckeVXStSrp9q0DIBEV7I/EJmRUhlBKt+Xmavq8AxY2bTXuV7yCX
-         6NM87JZBncBMhTCdgTwsURLDdgNdlJkZA+ej/6KU=
+        b=M6oN42D6JPg2ZiCdpBc800XzFv8qCqXxpZL1O/pPAuMLxTgdsVodLIjf4Hd6Gr7TM
+         luZxpFEwQtKromH9iMatuYNyAQYDQ+l90URc0lUcnDlx2i7pslZB7llBfaHaYG3o+q
+         xu6uMcVPsnHuWBiWz0a/ovrZYWDcKog+RFnb7UOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Yasevich <vyasevich@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Marcelo Ricardo Leitner <mleitner@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Florian fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 098/151] sctp: account stream padding length for reconf chunk
+Subject: [PATCH 4.14 28/39] net: korina: select CRC32
 Date:   Mon, 18 Oct 2021 15:24:37 +0200
-Message-Id: <20211018132343.855413392@linuxfoundation.org>
+Message-Id: <20211018132326.343137440@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+From: Vegard Nossum <vegard.nossum@oracle.com>
 
-commit a2d859e3fc97e79d907761550dbc03ff1b36479c upstream.
+commit 427f974d9727ca681085ddcd0530c97ab5811ae0 upstream.
 
-sctp_make_strreset_req() makes repeated calls to sctp_addto_chunk()
-which will automatically account for padding on each call. inreq and
-outreq are already 4 bytes aligned, but the payload is not and doing
-SCTP_PAD4(a + b) (which _sctp_make_chunk() did implicitly here) is
-different from SCTP_PAD4(a) + SCTP_PAD4(b) and not enough. It led to
-possible attempt to use more buffer than it was allocated and triggered
-a BUG_ON.
+Fix the following build/link error by adding a dependency on the CRC32
+routines:
 
-Cc: Vlad Yasevich <vyasevich@gmail.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Fixes: cc16f00f6529 ("sctp: add support for generating stream reconf ssn reset request chunk")
-Reported-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
-Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Marcelo Ricardo Leitner <mleitner@redhat.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/b97c1f8b0c7ff79ac4ed206fc2c49d3612e0850c.1634156849.git.mleitner@redhat.com
+  ld: drivers/net/ethernet/korina.o: in function `korina_multicast_list':
+  korina.c:(.text+0x1af): undefined reference to `crc32_le'
+
+Fixes: ef11291bcd5f9 ("Add support the Korina (IDT RC32434) Ethernet MAC")
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+Acked-by: Florian fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20211012152509.21771-1-vegard.nossum@oracle.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/sm_make_chunk.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -3697,7 +3697,7 @@ struct sctp_chunk *sctp_make_strreset_re
- 	outlen = (sizeof(outreq) + stream_len) * out;
- 	inlen = (sizeof(inreq) + stream_len) * in;
- 
--	retval = sctp_make_reconf(asoc, outlen + inlen);
-+	retval = sctp_make_reconf(asoc, SCTP_PAD4(outlen) + SCTP_PAD4(inlen));
- 	if (!retval)
- 		return NULL;
- 
+--- a/drivers/net/ethernet/Kconfig
++++ b/drivers/net/ethernet/Kconfig
+@@ -99,6 +99,7 @@ config JME
+ config KORINA
+ 	tristate "Korina (IDT RC32434) Ethernet support"
+ 	depends on MIKROTIK_RB532
++	select CRC32
+ 	---help---
+ 	  If you have a Mikrotik RouterBoard 500 or IDT RC32434
+ 	  based system say Y. Otherwise say N.
 
 
