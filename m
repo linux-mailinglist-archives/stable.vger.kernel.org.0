@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F045C431BC0
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC0BF431DED
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:55:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232755AbhJRNe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:34:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42364 "EHLO mail.kernel.org"
+        id S234405AbhJRNz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:55:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233171AbhJRNdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:33:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 251F66139D;
-        Mon, 18 Oct 2021 13:29:34 +0000 (UTC)
+        id S234472AbhJRNx4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:53:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 422FB619F5;
+        Mon, 18 Oct 2021 13:39:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563774;
-        bh=IXYRbfJWY0jx1X38fkKwwubhQ5ijdz/nnxdaewCGGgQ=;
+        s=korg; t=1634564366;
+        bh=jX8oLkjFFqTvA6DxKsaB1LJrVxL87LonVxv4sXsVfWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqEG+7G2a5aJ6VJn67GjDwd/AlHrz8LIb3JFcL+bZHxatTZ3k8XSuW6I6jlQi3QG/
-         bYgJzdd514csEu2qVhmkb49PQlIdXcYG7oF7GDxbShfWLv4Lsz3KoStGbsLxKQtwM9
-         78ULZhIjNu8mVULzVe/AEXyMDlia9qqA2HRnCVjQ=
+        b=u48kO6zZdQoAoyD54fFG/vus+3y3SByfC6/bdAGuEtWUSyLaeIhBOafzEvfdwC0kx
+         gwsnejHKR8QKxhPQfHcnyiiWuWrrTPfgXWr5nltFcUFN6jBgig2B4jckTHBNMOqfG7
+         51WNu9xsnEx8xdeg4Hx1QrRHaXT2ccFyCxYmeIEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.4 01/69] ovl: simplify file splice
-Date:   Mon, 18 Oct 2021 15:23:59 +0200
-Message-Id: <20211018132329.502323802@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.14 061/151] KVM: PPC: Book3S HV: Make idle_kvm_start_guest() return 0 if it went to guest
+Date:   Mon, 18 Oct 2021 15:24:00 +0200
+Message-Id: <20211018132342.680787028@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,89 +38,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 82a763e61e2b601309d696d4fa514c77d64ee1be upstream.
+commit cdeb5d7d890e14f3b70e8087e745c4a6a7d9f337 upstream.
 
-generic_file_splice_read() and iter_file_splice_write() will call back into
-f_op->iter_read() and f_op->iter_write() respectively.  These already do
-the real file lookup and cred override.  So the code in ovl_splice_read()
-and ovl_splice_write() is redundant.
+We call idle_kvm_start_guest() from power7_offline() if the thread has
+been requested to enter KVM. We pass it the SRR1 value that was returned
+from power7_idle_insn() which tells us what sort of wakeup we're
+processing.
 
-In addition the ovl_file_accessed() call in ovl_splice_write() is
-incorrect, though probably harmless.
+Depending on the SRR1 value we pass in, the KVM code might enter the
+guest, or it might return to us to do some host action if the wakeup
+requires it.
 
-Fix by calling generic_file_splice_read() and iter_file_splice_write()
-directly.
+If idle_kvm_start_guest() is able to handle the wakeup, and enter the
+guest it is supposed to indicate that by returning a zero SRR1 value to
+us.
 
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-[reported to resolve issues with 1a980b8cbf00 ("ovl: add splice file read write helper")]
+That was the behaviour prior to commit 10d91611f426 ("powerpc/64s:
+Reimplement book3s idle code in C"), however in that commit the
+handling of SRR1 was reworked, and the zeroing behaviour was lost.
+
+Returning from idle_kvm_start_guest() without zeroing the SRR1 value can
+confuse the host offline code, causing the guest to crash and other
+weirdness.
+
+Fixes: 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in C")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211015133929.832061-2-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/overlayfs/file.c |   46 ++--------------------------------------------
- 1 file changed, 2 insertions(+), 44 deletions(-)
+ arch/powerpc/kvm/book3s_hv_rmhandlers.S |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -296,48 +296,6 @@ out_unlock:
- 	return ret;
- }
+--- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
++++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+@@ -264,6 +264,7 @@ _GLOBAL(idle_kvm_start_guest)
+ 	stdu	r1, -SWITCH_FRAME_SIZE(r4)
+ 	// Switch to new frame on emergency stack
+ 	mr	r1, r4
++	std	r3, 32(r1)	// Save SRR1 wakeup value
+ 	SAVE_NVGPRS(r1)
  
--static ssize_t ovl_splice_read(struct file *in, loff_t *ppos,
--			 struct pipe_inode_info *pipe, size_t len,
--			 unsigned int flags)
--{
--	ssize_t ret;
--	struct fd real;
--	const struct cred *old_cred;
--
--	ret = ovl_real_fdget(in, &real);
--	if (ret)
--		return ret;
--
--	old_cred = ovl_override_creds(file_inode(in)->i_sb);
--	ret = generic_file_splice_read(real.file, ppos, pipe, len, flags);
--	revert_creds(old_cred);
--
--	ovl_file_accessed(in);
--	fdput(real);
--	return ret;
--}
--
--static ssize_t
--ovl_splice_write(struct pipe_inode_info *pipe, struct file *out,
--			  loff_t *ppos, size_t len, unsigned int flags)
--{
--	struct fd real;
--	const struct cred *old_cred;
--	ssize_t ret;
--
--	ret = ovl_real_fdget(out, &real);
--	if (ret)
--		return ret;
--
--	old_cred = ovl_override_creds(file_inode(out)->i_sb);
--	ret = iter_file_splice_write(pipe, real.file, ppos, len, flags);
--	revert_creds(old_cred);
--
--	ovl_file_accessed(out);
--	fdput(real);
--	return ret;
--}
--
- static int ovl_fsync(struct file *file, loff_t start, loff_t end, int datasync)
- {
- 	struct fd real;
-@@ -694,8 +652,8 @@ const struct file_operations ovl_file_op
- 	.fadvise	= ovl_fadvise,
- 	.unlocked_ioctl	= ovl_ioctl,
- 	.compat_ioctl	= ovl_compat_ioctl,
--	.splice_read    = ovl_splice_read,
--	.splice_write   = ovl_splice_write,
-+	.splice_read    = generic_file_splice_read,
-+	.splice_write   = iter_file_splice_write,
+ 	/*
+@@ -315,6 +316,10 @@ kvm_unsplit_wakeup:
  
- 	.copy_file_range	= ovl_copy_file_range,
- 	.remap_file_range	= ovl_remap_file_range,
+ kvm_secondary_got_guest:
+ 
++	// About to go to guest, clear saved SRR1
++	li	r0, 0
++	std	r0, 32(r1)
++
+ 	/* Set HSTATE_DSCR(r13) to something sensible */
+ 	ld	r6, PACA_DSCR_DEFAULT(r13)
+ 	std	r6, HSTATE_DSCR(r13)
+@@ -394,8 +399,8 @@ kvm_no_guest:
+ 	mfspr	r4, SPRN_LPCR
+ 	rlwimi	r4, r3, 0, LPCR_PECE0 | LPCR_PECE1
+ 	mtspr	SPRN_LPCR, r4
+-	/* set up r3 for return */
+-	mfspr	r3,SPRN_SRR1
++	// Return SRR1 wakeup value, or 0 if we went into the guest
++	ld	r3, 32(r1)
+ 	REST_NVGPRS(r1)
+ 	ld	r1, 0(r1)	// Switch back to caller stack
+ 	ld	r0, 16(r1)	// Reload LR
 
 
