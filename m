@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2AD2431AFF
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 196F8431BCA
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232409AbhJRNaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:30:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42246 "EHLO mail.kernel.org"
+        id S232498AbhJRNfP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:35:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232098AbhJRN3a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:29:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 028DD60EFE;
-        Mon, 18 Oct 2021 13:27:18 +0000 (UTC)
+        id S232414AbhJRNbP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:31:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F0FA61260;
+        Mon, 18 Oct 2021 13:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563639;
-        bh=kjP7vnV0gtxg0TCVkMsDrtRhuyEZOkL6fvGmGLqt3oY=;
+        s=korg; t=1634563724;
+        bh=MS2Uw1MMjZwdjNW3SLFOaCILxBT4iMo0z9Hy+GL7sD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyPDdeFI4RfrFyMWrRukXgAoZ+G2IWB+H+k69jFwCc7E1mFUDE79Rvuzwdx11vpTE
-         WjRyBtBDvPDb6pVqFaRS9GIFBAR2T7i2TtjZveLwjk83lRnlHv12DrBB1i+DRqGkoS
-         umrLXDUe5bqGFqULqhB7RJBQzkxlwwED7yjMlJ4A=
+        b=kgZpSCCi4egF5KdPnobq88zL4eHiy+18UXSCopZjY2MnqKCJP03vhYkPsahEN16DX
+         qsni2AE8XUFVpOGx+n7bWyfdiSjgYcUwpaVF2RjuHCVoGFd7gHZD/MG091JAYSaH6i
+         qk81yU2VmByPQLEBstlzgrr8zvebTmuBuerATR4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        chongjiapeng <jiapeng.chong@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 38/39] qed: Fix missing error code in qed_slowpath_start()
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 40/50] NFC: digital: fix possible memory leak in digital_in_send_sdd_req()
 Date:   Mon, 18 Oct 2021 15:24:47 +0200
-Message-Id: <20211018132326.654416928@linuxfoundation.org>
+Message-Id: <20211018132327.847132122@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
-References: <20211018132325.426739023@linuxfoundation.org>
+In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
+References: <20211018132326.529486647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chongjiapeng <jiapeng.chong@linux.alibaba.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-commit a5a14ea7b4e55604acb0dc9d88fdb4cb6945bc77 upstream.
+commit 291c932fc3692e4d211a445ba8aa35663831bac7 upstream.
 
-The error code is missing in this code scenario, add the error code
-'-EINVAL' to the return value 'rc'.
+'skb' is allocated in digital_in_send_sdd_req(), but not free when
+digital_in_send_cmd() failed, which will cause memory leak. Fix it
+by freeing 'skb' if digital_in_send_cmd() return failed.
 
-Eliminate the follow smatch warning:
-
-drivers/net/ethernet/qlogic/qed/qed_main.c:1298 qed_slowpath_start()
-warn: missing error code 'rc'.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Fixes: d51e4af5c209 ("qed: aRFS infrastructure support")
-Signed-off-by: chongjiapeng <jiapeng.chong@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2c66daecc409 ("NFC Digital: Add NFC-A technology support")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_main.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/nfc/digital_technology.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qed/qed_main.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
-@@ -998,6 +998,7 @@ static int qed_slowpath_start(struct qed
- 			} else {
- 				DP_NOTICE(cdev,
- 					  "Failed to acquire PTT for aRFS\n");
-+				rc = -EINVAL;
- 				goto err;
- 			}
- 		}
+--- a/net/nfc/digital_technology.c
++++ b/net/nfc/digital_technology.c
+@@ -474,8 +474,12 @@ static int digital_in_send_sdd_req(struc
+ 	skb_put_u8(skb, sel_cmd);
+ 	skb_put_u8(skb, DIGITAL_SDD_REQ_SEL_PAR);
+ 
+-	return digital_in_send_cmd(ddev, skb, 30, digital_in_recv_sdd_res,
+-				   target);
++	rc = digital_in_send_cmd(ddev, skb, 30, digital_in_recv_sdd_res,
++				 target);
++	if (rc)
++		kfree_skb(skb);
++
++	return rc;
+ }
+ 
+ static void digital_in_recv_sens_res(struct nfc_digital_dev *ddev, void *arg,
 
 
