@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 269A2431BF8
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46839431AD6
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231855AbhJRNg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:36:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43996 "EHLO mail.kernel.org"
+        id S232063AbhJRN3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232017AbhJRNfO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:35:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11F96613A4;
-        Mon, 18 Oct 2021 13:30:28 +0000 (UTC)
+        id S231862AbhJRN3E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7EC661351;
+        Mon, 18 Oct 2021 13:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563829;
-        bh=jD8RYwNjAbLG2BhPBlqkqpOOhpaeDebe4lEESR7TIdU=;
+        s=korg; t=1634563577;
+        bh=+ib9zcQrYowbooh3z6A8+w+XpmLuLVcQcMhGzWYHZ64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gdv1bea20BvEunYe0IbpAysR0+VSMTitNU5KtHKN4XYkySA94HRBVDO9xzigMqpLh
-         eLGpGt1b6fbNc8UXwEBs8zAV/pgABI7JRI/36GwZcAAYJINvw8Y6H01RlqA/VWBSPD
-         m1EmO8/byt95r9EFklfUvlPQUVwhvY/QbGLcW74M=
+        b=ZRNMUxvSwU1ivqo1P+ZeFFbf07CdBrqtUety0coy6NZ1HJa57ygt61ZCO5xnUXWsG
+         VcEPW9/k79Y5K6EwUGHfuki0qlhfJQrNoV0fOUVABcX2QSEiONwboGGPiROVFN794+
+         09jsqD7WbGY2tgix7lnm8HoVIdRTCZHtdpfhWu2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        markver@us.ibm.com, Cornelia Huck <cohuck@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.4 31/69] virtio: write back F_VERSION_1 before validate
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Borislav Petkov <bp@suse.de>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 4.14 20/39] x86/Kconfig: Do not enable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT automatically
 Date:   Mon, 18 Oct 2021 15:24:29 +0200
-Message-Id: <20211018132330.513541343@linuxfoundation.org>
+Message-Id: <20211018132326.100974635@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit 2f9a174f918e29608564c7a4e8329893ab604fb4 upstream.
+commit 711885906b5c2df90746a51f4cd674f1ab9fbb1d upstream.
 
-The virtio specification virtio-v1.1-cs01 states: "Transitional devices
-MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
-been acknowledged by the driver."  This is exactly what QEMU as of 6.1
-has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
+This Kconfig option was added initially so that memory encryption is
+enabled by default on machines which support it.
 
-However, the specification also says: "... the driver MAY read (but MUST
-NOT write) the device-specific configuration fields to check that it can
-support the device ..." before setting FEATURES_OK.
+However, devices which have DMA masks that are less than the bit
+position of the encryption bit, aka C-bit, require the use of an IOMMU
+or the use of SWIOTLB.
 
-In that case, any transitional device relying solely on
-VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
-legacy format.  In particular, this implies that it is in big endian
-format for big endian guests. This naturally confuses the driver which
-expects little endian in the modern mode.
+If the IOMMU is disabled or in passthrough mode, the kernel would switch
+to SWIOTLB bounce-buffering for those transfers.
 
-It is probably a good idea to amend the spec to clarify that
-VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
-is complete. Before validate callback existed, config space was only
-read after FEATURES_OK. However, we already have two regressions, so
-let's address this here as well.
+In order to avoid that,
 
-The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
-the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
-virtio 1.0 is used on both sides. The latter renders virtio-blk unusable
-with DASD backing, because things simply don't work with the default.
-See Fixes tags for relevant commits.
+  2cc13bb4f59f ("iommu: Disable passthrough mode when SME is active")
 
-For QEMU, we can work around the issue by writing out the feature bits
-with VIRTIO_F_VERSION_1 bit set.  We (ab)use the finalize_features
-config op for this. This isn't enough to address all vhost devices since
-these do not get the features until FEATURES_OK, however it looks like
-the affected devices actually never handled the endianness for legacy
-mode correctly, so at least that's not a regression.
+disables the default IOMMU passthrough mode so that devices for which the
+default 256K DMA is insufficient, can use the IOMMU instead.
 
-No devices except virtio net and virtio blk seem to be affected.
+However 2, there are cases where the IOMMU is disabled in the BIOS, etc.
+(think the usual hardware folk "oops, I dropped the ball there" cases) or a
+driver doesn't properly use the DMA APIs or a device has a firmware or
+hardware bug, e.g.:
 
-Long term the right thing to do is to fix the hypervisors.
+  ea68573d408f ("drm/amdgpu: Fail to load on RAVEN if SME is active")
 
-Cc: <stable@vger.kernel.org> #v4.11
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
-Reported-by: markver@us.ibm.com
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Link: https://lore.kernel.org/r/20211011053921.1198936-1-pasic@linux.ibm.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+However 3, in the above GPU use case, there are APIs like Vulkan and
+some OpenGL/OpenCL extensions which are under the assumption that
+user-allocated memory can be passed in to the kernel driver and both the
+GPU and CPU can do coherent and concurrent access to the same memory.
+That cannot work with SWIOTLB bounce buffers, of course.
+
+So, in order for those devices to function, drop the "default y" for the
+SME by default active option so that users who want to have SME enabled,
+will need to either enable it in their config or use "mem_encrypt=on" on
+the kernel command line.
+
+ [ tlendacky: Generalize commit message. ]
+
+Fixes: 7744ccdbc16f ("x86/mm: Add Secure Memory Encryption (SME) support")
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/8bbacd0e-4580-3194-19d2-a0ecad7df09c@molgen.mpg.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virtio/virtio.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/x86/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -225,6 +225,17 @@ static int virtio_dev_probe(struct devic
- 		driver_features_legacy = driver_features;
- 	}
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1456,7 +1456,6 @@ config AMD_MEM_ENCRYPT
  
-+	/*
-+	 * Some devices detect legacy solely via F_VERSION_1. Write
-+	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
-+	 * these when needed.
-+	 */
-+	if (drv->validate && !virtio_legacy_is_little_endian()
-+			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
-+		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
-+		dev->config->finalize_features(dev);
-+	}
-+
- 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
- 		dev->features = driver_features & device_features;
- 	else
+ config AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
+ 	bool "Activate AMD Secure Memory Encryption (SME) by default"
+-	default y
+ 	depends on AMD_MEM_ENCRYPT
+ 	---help---
+ 	  Say yes to have system memory encrypted by default if running on
 
 
