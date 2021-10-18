@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 840C2431331
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:21:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42201431333
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231206AbhJRJXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 05:23:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45928 "EHLO mail.kernel.org"
+        id S231230AbhJRJXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 05:23:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231149AbhJRJXi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 05:23:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E54F60FC3;
-        Mon, 18 Oct 2021 09:21:27 +0000 (UTC)
+        id S231149AbhJRJXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 05:23:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40060610A6;
+        Mon, 18 Oct 2021 09:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634548887;
-        bh=hqYfwehpbHNWrxNX7jVtcaOUi/HuOQOaayXP95cOpzg=;
+        s=korg; t=1634548895;
+        bh=45uHLhSwbxZGqieE58NQBSMQKb+4dloBQaOE2gvnbEI=;
         h=Subject:To:Cc:From:Date:From;
-        b=UZFqiLirvoTdzB2nuQzOiuKxje7Bn/NxDoj54ijQY/SMa+mFNBVPz7wgJmOhC9RQs
-         4e5QyuMVPCN2cAuO0chX94sjsfzaCyfEu65n7m6UXcHL6SJzKh6JhN/kpuyOupd3ya
-         C2EJdbtafqhThooChwax+5SF0k3qzcopIj3O6VCA=
-Subject: FAILED: patch "[PATCH] USB: xhci: dbc: fix tty registration race" failed to apply to 5.4-stable tree
+        b=R2ij7LD6CrwOI6D/ZMzffkKkb0XKmvopY2LQmRSfMnxHi+eXNOf21C2Zx8TMZrrZR
+         CnoRtTYwLVN5t3RMzGQfsGGlit5KE1jxmfX1ZzPFdSorwhw+nQsfjVUMZLLBBJePve
+         Wd2GvqhFDME7QDCViIIFaHBqGhQGSk/Bzl3Cf204=
+Subject: FAILED: patch "[PATCH] USB: xhci: dbc: fix tty registration race" failed to apply to 4.19-stable tree
 To:     johan@kernel.org, baolu.lu@linux.intel.com,
         gregkh@linuxfoundation.org, mathias.nyman@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 11:21:24 +0200
-Message-ID: <1634548884245110@kroah.com>
+Date:   Mon, 18 Oct 2021 11:21:25 +0200
+Message-ID: <163454888522184@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
