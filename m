@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40F0B431B46
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:30:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49466431AE8
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:27:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232968AbhJRNcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:32:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44044 "EHLO mail.kernel.org"
+        id S232152AbhJRN3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:29:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232518AbhJRNaV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:30:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A29F61354;
-        Mon, 18 Oct 2021 13:28:09 +0000 (UTC)
+        id S231941AbhJRN3K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:29:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE85F6103D;
+        Mon, 18 Oct 2021 13:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563690;
-        bh=aie0rVgh2GXA4o4dbwnc3y+pXKr+uqUMVv2dMXjW5kY=;
+        s=korg; t=1634563619;
+        bh=x1uy6RIjpwMMLSGg25DhVeftTvCQsgZSHU3x1TuOvsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKh6waEIC+55S8Nw7N1pgnD+TiJeJ9BbhOec7NPPeWPmDkXbVHq5GYu1bFXr6xH22
-         SwQeWzE2zfzE00fg1AtZmsEEn2KDD7jsTaB2Mv0oZ/ESeeizCIENWA5Ae4S2EBAY/q
-         krl5Hs2HwI6rk3ZkSzsxDzhjbxi7bzShCAA220uo=
+        b=06s+dl8h+Gwcuut0cWztvQ6yt6BIKBKU3GGxlWcRCDdAU7SdZOa5b1d8iZ40z0pzO
+         EJ2wEhoRsKb4qsBfb32UnYv2qPpEbtfE9SsMKWCXiBDuWhujqkLAPTZnv02s2q2yG9
+         DfBbEz0bacT6oU19iegSNHcJlb6DzOdaHVoCrAYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.19 06/50] s390: fix strrchr() implementation
-Date:   Mon, 18 Oct 2021 15:24:13 +0200
-Message-Id: <20211018132326.732689189@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 05/39] btrfs: deal with errors when adding inode reference during log replay
+Date:   Mon, 18 Oct 2021 15:24:14 +0200
+Message-Id: <20211018132325.599820842@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132325.426739023@linuxfoundation.org>
+References: <20211018132325.426739023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 8e0ab8e26b72a80e991c66a8abc16e6c856abe3d upstream.
+commit 52db77791fe24538c8aa2a183248399715f6b380 upstream.
 
-Fix two problems found in the strrchr() implementation for s390
-architectures: evaluate empty strings (return the string address instead of
-NULL, if '\0' is passed as second argument); evaluate the first character
-of non-empty strings (the current implementation stops at the second).
+At __inode_add_ref(), we treating any error returned from
+btrfs_lookup_dir_item() or from btrfs_lookup_dir_index_item() as meaning
+that there is no existing directory entry in the fs/subvolume tree.
+This is not correct since we can get errors such as, for example, -EIO
+when reading extent buffers while searching the fs/subvolume's btree.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Reported-by: Heiko Carstens <hca@linux.ibm.com> (incorrect behavior with empty strings)
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Link: https://lore.kernel.org/r/20211005120836.60630-1-roberto.sassu@huawei.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+So fix that and return the error to the caller when it is not -ENOENT.
+
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/lib/string.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ fs/btrfs/tree-log.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/arch/s390/lib/string.c
-+++ b/arch/s390/lib/string.c
-@@ -227,14 +227,13 @@ EXPORT_SYMBOL(strcmp);
-  */
- char *strrchr(const char *s, int c)
- {
--       size_t len = __strend(s) - s;
-+	ssize_t len = __strend(s) - s;
- 
--       if (len)
--	       do {
--		       if (s[len] == (char) c)
--			       return (char *) s + len;
--	       } while (--len > 0);
--       return NULL;
-+	do {
-+		if (s[len] == (char)c)
-+			return (char *)s + len;
-+	} while (--len >= 0);
-+	return NULL;
- }
- EXPORT_SYMBOL(strrchr);
- 
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1161,7 +1161,10 @@ next:
+ 	/* look for a conflicting sequence number */
+ 	di = btrfs_lookup_dir_index_item(trans, root, path, btrfs_ino(dir),
+ 					 ref_index, name, namelen, 0);
+-	if (di && !IS_ERR(di)) {
++	if (IS_ERR(di)) {
++		if (PTR_ERR(di) != -ENOENT)
++			return PTR_ERR(di);
++	} else if (di) {
+ 		ret = drop_one_dir_item(trans, root, path, dir, di);
+ 		if (ret)
+ 			return ret;
+@@ -1171,7 +1174,9 @@ next:
+ 	/* look for a conflicing name */
+ 	di = btrfs_lookup_dir_item(trans, root, path, btrfs_ino(dir),
+ 				   name, namelen, 0);
+-	if (di && !IS_ERR(di)) {
++	if (IS_ERR(di)) {
++		return PTR_ERR(di);
++	} else if (di) {
+ 		ret = drop_one_dir_item(trans, root, path, dir, di);
+ 		if (ret)
+ 			return ret;
 
 
