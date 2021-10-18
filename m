@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 081EB431C0B
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A31D5431CE5
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:44:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232854AbhJRNhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:37:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
+        id S233761AbhJRNpu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:45:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232268AbhJRNfr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:35:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6A2D613D2;
-        Mon, 18 Oct 2021 13:30:56 +0000 (UTC)
+        id S234115AbhJRNnu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:43:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FF3A6126A;
+        Mon, 18 Oct 2021 13:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563857;
-        bh=JRqW8D8D8QdZEeN/GjVfhrsbkurNMzio3cjQr8dVSDk=;
+        s=korg; t=1634564096;
+        bh=lB4QadlMJcP/QLGrEF8yrCOEdFe50p2EV3pbD1Krnpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVPDMW8BxDAdh+vYKegxyp0nGcOMUsX4QmsZAdL6BRA/ICcXsjm+ZRlXJxVz2B8l3
-         5SK1EUNvp+p6+ybEhIIZvia2wgZY0xKrr9QeSLQF+7wvIK3ldZVwEFI1B/zx46sApA
-         Ca2FfrD5vI1MdGSLlOecNcm55lOx/v0XCz/mGnAc=
+        b=Ale5Ms7nKVuF2G10e7tF5p3O5/oOpPRcFP6/TV4+l1q2qlcs1pYhWMoEIIXERmGFU
+         L7OzdvRlM9M9DXTq9i+AQcx6HWQiJkdSOtdyIyAs6VQ+Wksuc40TJvnc5gNm1ba5Yi
+         /BaMbL0gf/gWRfEnvv0WiI0XvYJQpMwpqXS4Vkq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Valek - 2N <valek@2n.cz>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 41/69] iio: light: opt3001: Fixed timeout error when 0 lux
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>
+Subject: [PATCH 5.10 063/103] ARM: dts: bcm2711-rpi-4-b: Fix usbs unit address
 Date:   Mon, 18 Oct 2021 15:24:39 +0200
-Message-Id: <20211018132330.832981044@linuxfoundation.org>
+Message-Id: <20211018132336.870092585@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Valek - 2N <valek@2n.cz>
+From: Nicolas Saenz Julienne <nsaenz@kernel.org>
 
-commit 26d90b5590579def54382a2fc34cfbe8518a9851 upstream.
+commit 3f32472854614d6f53b09b4812372dba9fc5c7de upstream.
 
-Reading from sensor returned timeout error under
-zero light conditions.
+The unit address is supposed to represent '<device>,<function>'. Which
+are both 0 for RPi4b's XHCI controller. On top of that although
+OpenFirmware states bus number goes in the high part of the last reg
+parameter, FDT doesn't seem to care for it[1], so remove it.
 
-Signed-off-by: Jiri Valek - 2N <valek@2n.cz>
-Fixes: ac663db3678a ("iio: light: opt3001: enable operation w/o IRQ")
-Link: https://lore.kernel.org/r/20210920125351.6569-1-valek@2n.cz
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[1] https://patchwork.kernel.org/project/linux-arm-kernel/patch/20210830103909.323356-1-nsaenzju@redhat.com/#24414633
+Fixes: 258f92d2f840 ("ARM: dts: bcm2711: Add reset controller to xHCI node")
+Suggested-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20210831125843.1233488-2-nsaenzju@redhat.com
+Signed-off-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/opt3001.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/bcm2711-rpi-4-b.dts |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/light/opt3001.c
-+++ b/drivers/iio/light/opt3001.c
-@@ -275,6 +275,8 @@ static int opt3001_get_lux(struct opt300
- 		ret = wait_event_timeout(opt->result_ready_queue,
- 				opt->result_ready,
- 				msecs_to_jiffies(OPT3001_RESULT_READY_LONG));
-+		if (ret == 0)
-+			return -ETIMEDOUT;
- 	} else {
- 		/* Sleep for result ready time */
- 		timeout = (opt->int_time == OPT3001_INT_TIME_SHORT) ?
-@@ -311,9 +313,7 @@ err:
- 		/* Disallow IRQ to access the device while lock is active */
- 		opt->ok_to_ignore_lock = false;
+--- a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
++++ b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
+@@ -262,8 +262,8 @@
  
--	if (ret == 0)
--		return -ETIMEDOUT;
--	else if (ret < 0)
-+	if (ret < 0)
- 		return ret;
+ 		reg = <0 0 0 0 0>;
  
- 	if (opt->use_irq) {
+-		usb@1,0 {
+-			reg = <0x10000 0 0 0 0>;
++		usb@0,0 {
++			reg = <0 0 0 0 0>;
+ 			resets = <&reset RASPBERRYPI_FIRMWARE_RESET_ID_USB>;
+ 		};
+ 	};
 
 
