@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9DC3431CAD
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC2DC431BDE
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:33:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232406AbhJRNoA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:44:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38242 "EHLO mail.kernel.org"
+        id S233192AbhJRNfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:35:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232248AbhJRNlt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:41:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC2BB61414;
-        Mon, 18 Oct 2021 13:33:46 +0000 (UTC)
+        id S232833AbhJRNeL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:34:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D88A61391;
+        Mon, 18 Oct 2021 13:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564027;
-        bh=q3lh+gjflrBJV2rRqgypOb877B06Z8aBqZPWVjeDlFs=;
+        s=korg; t=1634563806;
+        bh=uanmLg5PXj5/A2e+TkmXr3JxTP0zulqxQDbmE8QBi+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sp9T7kKyZc7N5QwHON+uG+TOb8uwwRZHr458J8ys3CZl5kB0AypSKNJmMKYpf/V8M
-         /2R/NZq0aJTMf4DPbfIKm+ywZYN8GKemLB5BrualTXT3l+446sZEZ3jS90mxyamMeg
-         KJZbW0R0lvnSW6KUSvdr7e8LJKYrJfLZ9kGPC5uk=
+        b=QDxvGW2JSN8x+5hQDSikVKupXLORoFfmbdcXi6HDWWba6cLW38Qc9nYRQ5BJ+oRvv
+         aYDsxPLAcWkR1x+0aaixMoBsr4ePnhXx2yrre2w7Ixk3AuFwFykSicqfwJK9k9EvuF
+         DhiX4whCfeT0rhqj+EiZyV8FgiQZ63hcJYjwopUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksander Morgado <aleksander@aleksander.es>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 036/103] USB: serial: qcserial: add EM9191 QDL support
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 14/69] btrfs: deal with errors when adding inode reference during log replay
 Date:   Mon, 18 Oct 2021 15:24:12 +0200
-Message-Id: <20211018132335.925814919@linuxfoundation.org>
+Message-Id: <20211018132329.927019010@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Morgado <aleksander@aleksander.es>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 11c52d250b34a0862edc29db03fbec23b30db6da upstream.
+commit 52db77791fe24538c8aa2a183248399715f6b380 upstream.
 
-When the module boots into QDL download mode it exposes the 1199:90d2
-ids, which can be mapped to the qcserial driver, and used to run
-firmware upgrades (e.g. with the qmi-firmware-update program).
+At __inode_add_ref(), we treating any error returned from
+btrfs_lookup_dir_item() or from btrfs_lookup_dir_index_item() as meaning
+that there is no existing directory entry in the fs/subvolume tree.
+This is not correct since we can get errors such as, for example, -EIO
+when reading extent buffers while searching the fs/subvolume's btree.
 
-  T:  Bus=01 Lev=03 Prnt=08 Port=03 Cnt=01 Dev#= 10 Spd=480 MxCh= 0
-  D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-  P:  Vendor=1199 ProdID=90d2 Rev=00.00
-  S:  Manufacturer=Sierra Wireless, Incorporated
-  S:  Product=Sierra Wireless EM9191
-  S:  SerialNumber=8W0382004102A109
-  C:  #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=2mA
-  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=10 Driver=qcserial
+So fix that and return the error to the caller when it is not -ENOENT.
 
-Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/qcserial.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/tree-log.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/qcserial.c
-+++ b/drivers/usb/serial/qcserial.c
-@@ -165,6 +165,7 @@ static const struct usb_device_id id_tab
- 	{DEVICE_SWI(0x1199, 0x907b)},	/* Sierra Wireless EM74xx */
- 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
- 	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
-+	{DEVICE_SWI(0x1199, 0x90d2)},	/* Sierra Wireless EM9191 QDL */
- 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
- 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
- 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1160,7 +1160,10 @@ next:
+ 	/* look for a conflicting sequence number */
+ 	di = btrfs_lookup_dir_index_item(trans, root, path, btrfs_ino(dir),
+ 					 ref_index, name, namelen, 0);
+-	if (di && !IS_ERR(di)) {
++	if (IS_ERR(di)) {
++		if (PTR_ERR(di) != -ENOENT)
++			return PTR_ERR(di);
++	} else if (di) {
+ 		ret = drop_one_dir_item(trans, root, path, dir, di);
+ 		if (ret)
+ 			return ret;
+@@ -1170,7 +1173,9 @@ next:
+ 	/* look for a conflicting name */
+ 	di = btrfs_lookup_dir_item(trans, root, path, btrfs_ino(dir),
+ 				   name, namelen, 0);
+-	if (di && !IS_ERR(di)) {
++	if (IS_ERR(di)) {
++		return PTR_ERR(di);
++	} else if (di) {
+ 		ret = drop_one_dir_item(trans, root, path, dir, di);
+ 		if (ret)
+ 			return ret;
 
 
