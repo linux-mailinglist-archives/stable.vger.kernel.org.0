@@ -2,84 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB48431702
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:11:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 630A1431760
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:32:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230493AbhJRLOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:14:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59478 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229862AbhJRLOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:14:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A255161350;
-        Mon, 18 Oct 2021 11:11:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634555516;
-        bh=KD0/M4/OiAQhf69haN45crXnoUr/MTDMlf9DKetwp1I=;
-        h=Subject:To:Cc:From:Date:From;
-        b=o+R+HW8vGpzI8cA3Qexd3yzlrugYfX29InCkYGRe3Xyl/j6t6LlqplvhfAf6dPDmx
-         40fvhTCcHIPurHqH6PVL+koLbxSY+gjHnXirCyYobGyUH6TohkhQsdV0385cl21TZx
-         9nFlj7LOmK90ksClwN9fWqWAg+7m9I0esqZYPs60=
-Subject: FAILED: patch "[PATCH] net/mlx5e: Fix division by 0 in mlx5e_select_queue for" failed to apply to 5.14-stable tree
-To:     maximmi@nvidia.com, saeedm@nvidia.com, tariqt@nvidia.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 13:11:53 +0200
-Message-ID: <163455551321963@kroah.com>
+        id S231336AbhJRLeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:34:24 -0400
+Received: from asav21.altibox.net ([109.247.116.8]:41654 "EHLO
+        asav21.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231351AbhJRLeX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 07:34:23 -0400
+X-Greylist: delayed 532 seconds by postgrey-1.27 at vger.kernel.org; Mon, 18 Oct 2021 07:34:20 EDT
+Received: from localhost.localdomain (211.81-166-168.customer.lyse.net [81.166.168.211])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: noralf.tronnes@ebnett.no)
+        by asav21.altibox.net (Postfix) with ESMTPSA id 92D4380047;
+        Mon, 18 Oct 2021 13:23:14 +0200 (CEST)
+From:   =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+To:     linux-gpio@vger.kernel.org
+Cc:     linus.walleij@linaro.org, bgolaszewski@baylibre.com,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        stable@vger.kernel.org, Daniel Baluta <daniel.baluta@gmail.com>
+Subject: [PATCH] gpio: dln2: Fix interrupts when replugging the device
+Date:   Mon, 18 Oct 2021 13:22:01 +0200
+Message-Id: <20211018112201.25424-1-noralf@tronnes.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-CMAE-Score: 0
+X-CMAE-Analysis: v=2.3 cv=Yr0hubQX c=1 sm=1 tr=0
+        a=OYZzhG0JTxDrWp/F2OJbnw==:117 a=OYZzhG0JTxDrWp/F2OJbnw==:17
+        a=IkcTkHD0fZMA:10 a=M51BFTxLslgA:10 a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8
+        a=SJz97ENfAAAA:8 a=uisS6GW8JqvGFITEYyMA:9 a=QEXdDO2ut3YA:10
+        a=AjGcO6oz07-iQ99wixmX:22 a=vFet0B0WnEQeilDPIY6i:22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+When replugging the device the following message shows up:
 
-The patch below does not apply to the 5.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+gpio gpiochip2: (dln2): detected irqchip that is shared with multiple gpiochips: please fix the driver.
 
-thanks,
+This also has the effect that interrupts won't work.
+The same problem would also show up if multiple devices where plugged in.
 
-greg k-h
+Fix this by allocating the irq_chip data structure per instance like other
+drivers do.
 
------------------- original commit in Linus's tree ------------------
+I don't know when this problem appeared, but it is present in 5.10.
 
-From 84c8a87402cf073ba7948dd62d4815a3f4a224c8 Mon Sep 17 00:00:00 2001
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
-Date: Mon, 11 Oct 2021 18:39:35 +0300
-Subject: [PATCH] net/mlx5e: Fix division by 0 in mlx5e_select_queue for
- representors
+Cc: <stable@vger.kernel.org> # 5.10+
+Cc: Daniel Baluta <daniel.baluta@gmail.com>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+---
+ drivers/gpio/gpio-dln2.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-Commit 846d6da1fcdb ("net/mlx5e: Fix division by 0 in
-mlx5e_select_queue") makes mlx5e_build_nic_params assign a non-zero
-initial value to priv->num_tc_x_num_ch, so that mlx5e_select_queue
-doesn't fail with division by 0 if called before the first activation of
-channels. However, the initialization flow of representors doesn't call
-mlx5e_build_nic_params, so this bug can still happen with representors.
-
-This commit fixes the bug by adding the missing assignment to
-mlx5e_build_rep_params.
-
-Fixes: 846d6da1fcdb ("net/mlx5e: Fix division by 0 in mlx5e_select_queue")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-index 0439203fc7d9..0684ac6699b2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -618,6 +618,11 @@ static void mlx5e_build_rep_params(struct net_device *netdev)
- 	params->mqprio.num_tc       = 1;
- 	params->tunneled_offload_en = false;
+diff --git a/drivers/gpio/gpio-dln2.c b/drivers/gpio/gpio-dln2.c
+index 4c5f6d0c8d74..22f11dd5210d 100644
+--- a/drivers/gpio/gpio-dln2.c
++++ b/drivers/gpio/gpio-dln2.c
+@@ -46,6 +46,7 @@
+ struct dln2_gpio {
+ 	struct platform_device *pdev;
+ 	struct gpio_chip gpio;
++	struct irq_chip irqchip;
  
-+	/* Set an initial non-zero value, so that mlx5e_select_queue won't
-+	 * divide by zero if called before first activating channels.
-+	 */
-+	priv->num_tc_x_num_ch = params->num_channels * params->mqprio.num_tc;
-+
- 	mlx5_query_min_inline(mdev, &params->tx_min_inline_mode);
+ 	/*
+ 	 * Cache pin direction to save us one transfer, since the hardware has
+@@ -383,15 +384,6 @@ static void dln2_irq_bus_unlock(struct irq_data *irqd)
+ 	mutex_unlock(&dln2->irq_lock);
  }
  
+-static struct irq_chip dln2_gpio_irqchip = {
+-	.name = "dln2-irq",
+-	.irq_mask = dln2_irq_mask,
+-	.irq_unmask = dln2_irq_unmask,
+-	.irq_set_type = dln2_irq_set_type,
+-	.irq_bus_lock = dln2_irq_bus_lock,
+-	.irq_bus_sync_unlock = dln2_irq_bus_unlock,
+-};
+-
+ static void dln2_gpio_event(struct platform_device *pdev, u16 echo,
+ 			    const void *data, int len)
+ {
+@@ -477,8 +469,15 @@ static int dln2_gpio_probe(struct platform_device *pdev)
+ 	dln2->gpio.direction_output = dln2_gpio_direction_output;
+ 	dln2->gpio.set_config = dln2_gpio_set_config;
+ 
++	dln2->irqchip.name = "dln2-irq",
++	dln2->irqchip.irq_mask = dln2_irq_mask,
++	dln2->irqchip.irq_unmask = dln2_irq_unmask,
++	dln2->irqchip.irq_set_type = dln2_irq_set_type,
++	dln2->irqchip.irq_bus_lock = dln2_irq_bus_lock,
++	dln2->irqchip.irq_bus_sync_unlock = dln2_irq_bus_unlock,
++
+ 	girq = &dln2->gpio.irq;
+-	girq->chip = &dln2_gpio_irqchip;
++	girq->chip = &dln2->irqchip;
+ 	/* The event comes from the outside so no parent handler */
+ 	girq->parent_handler = NULL;
+ 	girq->num_parents = 0;
+-- 
+2.33.0
 
