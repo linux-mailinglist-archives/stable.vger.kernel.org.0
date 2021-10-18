@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18336431626
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 12:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98FE1431625
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 12:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229998AbhJRKdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 06:33:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33138 "EHLO mail.kernel.org"
+        id S230137AbhJRKdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 06:33:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229873AbhJRKdV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 06:33:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 991A1610A3;
-        Mon, 18 Oct 2021 10:31:09 +0000 (UTC)
+        id S229873AbhJRKdI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 06:33:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F2016103B;
+        Mon, 18 Oct 2021 10:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634553070;
-        bh=fJo1kFXMgR4OIN9sQ1Vu8LC/f/K/WK67EBJXWjUfwX0=;
+        s=korg; t=1634553057;
+        bh=RU8+eDrrdX3nR+7xerQltrN1RN+9AF8m/VwWVYQBkzA=;
         h=Subject:To:Cc:From:Date:From;
-        b=K2p9VQmWYxmQve0qHZA8Gzb6FzHZCJDZVfGtPLIsheSIJviQ7ztN7TJ1DT5Wpftw4
-         jbW8a8UiViO0dnf07pIxUxwOOFqN1Vdzt5ABUSB8RadiVfaGl7kqFGivsUVV0Vy0ZG
-         Ub/4AIMmoIwvaEz2OSIe7Gie4JTw1a4MtqysxiaM=
-Subject: FAILED: patch "[PATCH] bootconfig: init: Fix memblock leak in xbc_make_cmdline()" failed to apply to 5.10-stable tree
+        b=L16l7bfHHPbrc8Z41v/RaCDpVsYQpCdMe+tMbSMMX7CETfZnghPEttfF5LMVeSZ6G
+         v0ZrINNetmvhFwc4gzP8MVRVBs9t6VoTjZ0YoYMcyhjuHWF2ixfjXHB3Kdh6cH7Qtr
+         +mkjFugtd56nqlOjcXVt+BFztVMBy7Ne1AVQr2KU=
+Subject: FAILED: patch "[PATCH] bootconfig: init: Fix memblock leak in xbc_make_cmdline()" failed to apply to 5.14-stable tree
 To:     mhiramat@kernel.org, rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 18 Oct 2021 12:30:54 +0200
-Message-ID: <16345530548777@kroah.com>
+Message-ID: <1634553054181194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
