@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9DBB431BAF
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EAF7431C05
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232896AbhJRNeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:34:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41784 "EHLO mail.kernel.org"
+        id S233356AbhJRNhk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:37:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232217AbhJRNcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:32:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FA1C61373;
-        Mon, 18 Oct 2021 13:29:16 +0000 (UTC)
+        id S232195AbhJRNfh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:35:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABAD6610C7;
+        Mon, 18 Oct 2021 13:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563756;
-        bh=D8C0AOKW1fnp0DZkjSIFA6LZL+p9AeMn9ho1k5778jI=;
+        s=korg; t=1634563842;
+        bh=rJboFWYOlFxCjJ2sD+ydfZ3t2qyUBerEkypslsxgIkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRyEKlDy3gVFtC0vMzVCOwCB0nUeJq/aHTmQj+uyqxQo+60fmjkgtt2HzeD7CvHrP
-         3izS904yJflRu+Ykujik7mVTGaS1+ql2+jh3u4Ffk126oE/UIQYh4IpBjAPYiM1EGk
-         atGliZ5v8s/CyTgMKW5DLlUvButrzyAhrtvXvGmw=
+        b=srAgZQUaYUj6dGI6VtDe/yKYRutFeOYOywNNivsNOsv0BcyuF6YBlE2NwX6RKNPX+
+         md+Ar9QGgvv5pl26B5dccyH4LI7mENNL7KNsPjb/YcA0wXrHLzRV30JQfgqn3ewgH9
+         vVGwR6FNwrsHIM4y9XQyiknZI4Jxtc1wSAKgDImY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Borislav Petkov <bp@suse.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 4.19 26/50] x86/Kconfig: Do not enable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT automatically
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 35/69] KVM: PPC: Book3S HV: Make idle_kvm_start_guest() return 0 if it went to guest
 Date:   Mon, 18 Oct 2021 15:24:33 +0200
-Message-Id: <20211018132327.405038283@linuxfoundation.org>
+Message-Id: <20211018132330.646217210@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +38,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 711885906b5c2df90746a51f4cd674f1ab9fbb1d upstream.
+commit cdeb5d7d890e14f3b70e8087e745c4a6a7d9f337 upstream.
 
-This Kconfig option was added initially so that memory encryption is
-enabled by default on machines which support it.
+We call idle_kvm_start_guest() from power7_offline() if the thread has
+been requested to enter KVM. We pass it the SRR1 value that was returned
+from power7_idle_insn() which tells us what sort of wakeup we're
+processing.
 
-However, devices which have DMA masks that are less than the bit
-position of the encryption bit, aka C-bit, require the use of an IOMMU
-or the use of SWIOTLB.
+Depending on the SRR1 value we pass in, the KVM code might enter the
+guest, or it might return to us to do some host action if the wakeup
+requires it.
 
-If the IOMMU is disabled or in passthrough mode, the kernel would switch
-to SWIOTLB bounce-buffering for those transfers.
+If idle_kvm_start_guest() is able to handle the wakeup, and enter the
+guest it is supposed to indicate that by returning a zero SRR1 value to
+us.
 
-In order to avoid that,
+That was the behaviour prior to commit 10d91611f426 ("powerpc/64s:
+Reimplement book3s idle code in C"), however in that commit the
+handling of SRR1 was reworked, and the zeroing behaviour was lost.
 
-  2cc13bb4f59f ("iommu: Disable passthrough mode when SME is active")
+Returning from idle_kvm_start_guest() without zeroing the SRR1 value can
+confuse the host offline code, causing the guest to crash and other
+weirdness.
 
-disables the default IOMMU passthrough mode so that devices for which the
-default 256K DMA is insufficient, can use the IOMMU instead.
-
-However 2, there are cases where the IOMMU is disabled in the BIOS, etc.
-(think the usual hardware folk "oops, I dropped the ball there" cases) or a
-driver doesn't properly use the DMA APIs or a device has a firmware or
-hardware bug, e.g.:
-
-  ea68573d408f ("drm/amdgpu: Fail to load on RAVEN if SME is active")
-
-However 3, in the above GPU use case, there are APIs like Vulkan and
-some OpenGL/OpenCL extensions which are under the assumption that
-user-allocated memory can be passed in to the kernel driver and both the
-GPU and CPU can do coherent and concurrent access to the same memory.
-That cannot work with SWIOTLB bounce buffers, of course.
-
-So, in order for those devices to function, drop the "default y" for the
-SME by default active option so that users who want to have SME enabled,
-will need to either enable it in their config or use "mem_encrypt=on" on
-the kernel command line.
-
- [ tlendacky: Generalize commit message. ]
-
-Fixes: 7744ccdbc16f ("x86/mm: Add Secure Memory Encryption (SME) support")
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/8bbacd0e-4580-3194-19d2-a0ecad7df09c@molgen.mpg.de
+Fixes: 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in C")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211015133929.832061-2-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/Kconfig |    1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/kvm/book3s_hv_rmhandlers.S |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1496,7 +1496,6 @@ config AMD_MEM_ENCRYPT
+--- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
++++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+@@ -301,6 +301,7 @@ _GLOBAL(idle_kvm_start_guest)
+ 	stdu	r1, -SWITCH_FRAME_SIZE(r4)
+ 	// Switch to new frame on emergency stack
+ 	mr	r1, r4
++	std	r3, 32(r1)	// Save SRR1 wakeup value
+ 	SAVE_NVGPRS(r1)
  
- config AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
- 	bool "Activate AMD Secure Memory Encryption (SME) by default"
--	default y
- 	depends on AMD_MEM_ENCRYPT
- 	---help---
- 	  Say yes to have system memory encrypted by default if running on
+ 	/*
+@@ -352,6 +353,10 @@ kvm_unsplit_wakeup:
+ 
+ kvm_secondary_got_guest:
+ 
++	// About to go to guest, clear saved SRR1
++	li	r0, 0
++	std	r0, 32(r1)
++
+ 	/* Set HSTATE_DSCR(r13) to something sensible */
+ 	ld	r6, PACA_DSCR_DEFAULT(r13)
+ 	std	r6, HSTATE_DSCR(r13)
+@@ -443,8 +448,8 @@ kvm_no_guest:
+ 	mfspr	r4, SPRN_LPCR
+ 	rlwimi	r4, r3, 0, LPCR_PECE0 | LPCR_PECE1
+ 	mtspr	SPRN_LPCR, r4
+-	/* set up r3 for return */
+-	mfspr	r3,SPRN_SRR1
++	// Return SRR1 wakeup value, or 0 if we went into the guest
++	ld	r3, 32(r1)
+ 	REST_NVGPRS(r1)
+ 	ld	r1, 0(r1)	// Switch back to caller stack
+ 	ld	r0, 16(r1)	// Reload LR
 
 
