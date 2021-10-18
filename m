@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60261431EB5
+	by mail.lfdr.de (Postfix) with ESMTP id 1637B431EB4
 	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:03:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234315AbhJROFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234461AbhJROFI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 18 Oct 2021 10:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38300 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234521AbhJROCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 10:02:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E434C61A55;
-        Mon, 18 Oct 2021 13:43:11 +0000 (UTC)
+        id S234762AbhJROCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 10:02:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B90C61505;
+        Mon, 18 Oct 2021 13:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564592;
-        bh=c4Cyn4nHvIBz3K7rCFGkyeXzPmsRkLRYh6D5zPt1C0s=;
+        s=korg; t=1634564595;
+        bh=wsqFQ2T8wYvjlsxPJLXpdG+TGN0aTjW6u3LdLVfbp6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F6XJEfAAOdch15JRm6gOmvMW166HwVfOv4uaDNco9szj6nzhX56k164zptQogRhd6
-         sQpUga1GARbLL2Xo4bKjL8QMRenI4oj5/nyNY0GujlGJ8W5Hf8RHIweQLQU1SqQn1m
-         S3Af14u1yGyE44hf6tNLdcK2TTQe1p/SoCEZ8xis=
+        b=RYnoHJDzAIN7eyXHlkO7Z2+GfwWRmKTJLUtTwnqUsauJvEKrT1wPS8GfKK3j5mbKT
+         ICVoOALo/ufHOYmcjy264YpAiezEZMBvQlVh55IymKbYRIaEusSdKi05Kp1qaju6hm
+         7jGuzjBGKNy1uXTAkn7NJKI0TxAimG1wi0o8HYAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 148/151] net: mscc: ocelot: deny TX timestamping of non-PTP packets
-Date:   Mon, 18 Oct 2021 15:25:27 +0200
-Message-Id: <20211018132345.470814695@linuxfoundation.org>
+Subject: [PATCH 5.14 149/151] net: mscc: ocelot: cross-check the sequence id from the timestamp FIFO with the skb PTP header
+Date:   Mon, 18 Oct 2021 15:25:28 +0200
+Message-Id: <20211018132345.502711115@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -41,69 +41,134 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit fba01283d85a09e0e2ef552c6e764b903111d90a upstream.
+commit ebb4c6a990f786d7e0e4618a0d3766cd660125d8 upstream.
 
-It appears that Ocelot switches cannot timestamp non-PTP frames,
-I tested this using the isochron program at:
-https://github.com/vladimiroltean/tsn-scripts
+The sad reality is that when a PTP frame with a TX timestamping request
+is transmitted, it isn't guaranteed that it will make it all the way to
+the wire (due to congestion inside the switch), and that a timestamp
+will be taken by the hardware and placed in the timestamp FIFO where an
+IRQ will be raised for it.
 
-with the result that the driver increments the ocelot_port->ts_id
-counter as expected, puts it in the REW_OP, but the hardware seems to
-not timestamp these packets at all, since no IRQ is emitted.
+The implication is that if enough PTP frames are silently dropped by the
+hardware such that the timestamp ID has rolled over, it is possible to
+match a timestamp to an old skb.
 
-Therefore check whether we are sending PTP frames, and refuse to
-populate REW_OP otherwise.
+Furthermore, nobody will match on the real skb corresponding to this
+timestamp, since we stupidly matched on a previous one that was stale in
+the queue, and stopped there.
+
+So PTP timestamping will be broken and there will be no way to recover.
+
+It looks like the hardware parses the sequenceID from the PTP header,
+and also provides that metadata for each timestamp. The driver currently
+ignores this, but it shouldn't.
+
+As an extra resiliency measure, do the following:
+
+- check whether the PTP sequenceID also matches between the skb and the
+  timestamp, treat the skb as stale otherwise and free it
+
+- if we see a stale skb, don't stop there and try to match an skb one
+  more time, chances are there's one more skb in the queue with the same
+  timestamp ID, otherwise we wouldn't have ever found the stale one (it
+  is by timestamp ID that we matched it).
+
+While this does not prevent PTP packet drops, it at least prevents
+the catastrophic consequences of incorrect timestamp matching.
+
+Since we already call ptp_classify_raw in the TX path, save the result
+in the skb->cb of the clone, and just use that result in the interrupt
+code path.
 
 Fixes: 4e3b0468e6d7 ("net: mscc: PTP Hardware Clock (PHC) support")
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mscc/ocelot.c |   19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/mscc/ocelot.c |   24 +++++++++++++++++++++++-
+ include/soc/mscc/ocelot.h          |    1 +
+ 2 files changed, 24 insertions(+), 1 deletion(-)
 
 --- a/drivers/net/ethernet/mscc/ocelot.c
 +++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -585,16 +585,12 @@ u32 ocelot_ptp_rew_op(struct sk_buff *sk
+@@ -642,6 +642,7 @@ int ocelot_port_txtstamp_request(struct
+ 			return err;
+ 
+ 		OCELOT_SKB_CB(skb)->ptp_cmd = ptp_cmd;
++		OCELOT_SKB_CB(*clone)->ptp_class = ptp_class;
+ 	}
+ 
+ 	return 0;
+@@ -675,6 +676,17 @@ static void ocelot_get_hwtimestamp(struc
+ 	spin_unlock_irqrestore(&ocelot->ptp_clock_lock, flags);
  }
- EXPORT_SYMBOL(ocelot_ptp_rew_op);
  
--static bool ocelot_ptp_is_onestep_sync(struct sk_buff *skb)
-+static bool ocelot_ptp_is_onestep_sync(struct sk_buff *skb,
-+				       unsigned int ptp_class)
- {
- 	struct ptp_header *hdr;
--	unsigned int ptp_class;
- 	u8 msgtype, twostep;
- 
--	ptp_class = ptp_classify_raw(skb);
--	if (ptp_class == PTP_CLASS_NONE)
--		return false;
--
- 	hdr = ptp_parse_header(skb, ptp_class);
- 	if (!hdr)
- 		return false;
-@@ -614,11 +610,20 @@ int ocelot_port_txtstamp_request(struct
- {
- 	struct ocelot_port *ocelot_port = ocelot->ports[port];
- 	u8 ptp_cmd = ocelot_port->ptp_cmd;
-+	unsigned int ptp_class;
- 	int err;
- 
-+	/* Don't do anything if PTP timestamping not enabled */
-+	if (!ptp_cmd)
-+		return 0;
++static bool ocelot_validate_ptp_skb(struct sk_buff *clone, u16 seqid)
++{
++	struct ptp_header *hdr;
 +
-+	ptp_class = ptp_classify_raw(skb);
-+	if (ptp_class == PTP_CLASS_NONE)
-+		return -EINVAL;
++	hdr = ptp_parse_header(clone, OCELOT_SKB_CB(clone)->ptp_class);
++	if (WARN_ON(!hdr))
++		return false;
 +
- 	/* Store ptp_cmd in OCELOT_SKB_CB(skb)->ptp_cmd */
- 	if (ptp_cmd == IFH_REW_OP_ORIGIN_PTP) {
--		if (ocelot_ptp_is_onestep_sync(skb)) {
-+		if (ocelot_ptp_is_onestep_sync(skb, ptp_class)) {
- 			OCELOT_SKB_CB(skb)->ptp_cmd = ptp_cmd;
- 			return 0;
- 		}
++	return seqid == ntohs(hdr->sequence_id);
++}
++
+ void ocelot_get_txtstamp(struct ocelot *ocelot)
+ {
+ 	int budget = OCELOT_PTP_QUEUE_SZ;
+@@ -682,10 +694,10 @@ void ocelot_get_txtstamp(struct ocelot *
+ 	while (budget--) {
+ 		struct sk_buff *skb, *skb_tmp, *skb_match = NULL;
+ 		struct skb_shared_hwtstamps shhwtstamps;
++		u32 val, id, seqid, txport;
+ 		struct ocelot_port *port;
+ 		struct timespec64 ts;
+ 		unsigned long flags;
+-		u32 val, id, txport;
+ 
+ 		val = ocelot_read(ocelot, SYS_PTP_STATUS);
+ 
+@@ -698,6 +710,7 @@ void ocelot_get_txtstamp(struct ocelot *
+ 		/* Retrieve the ts ID and Tx port */
+ 		id = SYS_PTP_STATUS_PTP_MESS_ID_X(val);
+ 		txport = SYS_PTP_STATUS_PTP_MESS_TXPORT_X(val);
++		seqid = SYS_PTP_STATUS_PTP_MESS_SEQ_ID(val);
+ 
+ 		port = ocelot->ports[txport];
+ 
+@@ -707,6 +720,7 @@ void ocelot_get_txtstamp(struct ocelot *
+ 		spin_unlock(&ocelot->ts_id_lock);
+ 
+ 		/* Retrieve its associated skb */
++try_again:
+ 		spin_lock_irqsave(&port->tx_skbs.lock, flags);
+ 
+ 		skb_queue_walk_safe(&port->tx_skbs, skb, skb_tmp) {
+@@ -722,6 +736,14 @@ void ocelot_get_txtstamp(struct ocelot *
+ 		if (WARN_ON(!skb_match))
+ 			continue;
+ 
++		if (!ocelot_validate_ptp_skb(skb_match, seqid)) {
++			dev_err_ratelimited(ocelot->dev,
++					    "port %d received stale TX timestamp for seqid %d, discarding\n",
++					    txport, seqid);
++			dev_kfree_skb_any(skb);
++			goto try_again;
++		}
++
+ 		/* Get the h/w timestamp */
+ 		ocelot_get_hwtimestamp(ocelot, &ts);
+ 
+--- a/include/soc/mscc/ocelot.h
++++ b/include/soc/mscc/ocelot.h
+@@ -694,6 +694,7 @@ struct ocelot_policer {
+ 
+ struct ocelot_skb_cb {
+ 	struct sk_buff *clone;
++	unsigned int ptp_class; /* valid only for clones */
+ 	u8 ptp_cmd;
+ 	u8 ts_id;
+ };
 
 
