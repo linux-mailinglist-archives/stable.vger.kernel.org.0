@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A714F431E84
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B34EF431B60
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234160AbhJROB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:01:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37454 "EHLO mail.kernel.org"
+        id S232067AbhJRNcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:32:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234191AbhJRN75 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:59:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9CF1603E9;
-        Mon, 18 Oct 2021 13:42:05 +0000 (UTC)
+        id S232338AbhJRNa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:30:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2F396126A;
+        Mon, 18 Oct 2021 13:28:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564526;
-        bh=mXKmmQQCAwxfe5g1ACkZxK1Zh9Ex5U2kSAAveCaiuM4=;
+        s=korg; t=1634563717;
+        bh=FrulWWV95bOgHvwQq5mfjUQD/xgKkNZrPDp8n4SED4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yb2s3Z323ZcXkptS+CKnB5D0tUA8MnCzekZ//A9r0BUmvEklf0cjmfKwgoBNR4v5M
-         FaN/GqLFF/hzw7gHEvVrgEwk3zcCaC6LJpCdq6RL/llJ2G+gk0P3gmZG7KEzJfXdx9
-         HRogGgoiyC1lCxMqoDC6TSgvMhEsg9WoyYZhGRGc=
+        b=kmORUwkpDqjuIQ7nlIE5c4UEzouSVkAPhonTYKwK+jXQgcUe2RyhHBTh3CU7Yxkd9
+         2XujjvN+c15f+FMLJcJmpjOgAydHmn6p6PW8U8/jkpiIZtWSXiFabQks/SZG6Zq1lR
+         BoaAPQ9CM7Fhp1VF1YtfyN9MPJgEPki2PJ/rm9ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.14 105/151] net/mlx5e: Mutually exclude RX-FCS and RX-port-timestamp
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 37/50] ethernet: s2io: fix setting mac address during resume
 Date:   Mon, 18 Oct 2021 15:24:44 +0200
-Message-Id: <20211018132344.093391591@linuxfoundation.org>
+Message-Id: <20211018132327.754586968@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
+References: <20211018132326.529486647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,129 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 0bc73ad46a76ed6ece4dcacb28858e7b38561e1c upstream.
+commit 40507e7aada8422c38aafa0c8a1a09e4623c712a upstream.
 
-Due to current HW arch limitations, RX-FCS (scattering FCS frame field
-to software) and RX-port-timestamp (improved timestamp accuracy on the
-receive side) can't work together.
-RX-port-timestamp is not controlled by the user and it is enabled by
-default when supported by the HW/FW.
-This patch sets RX-port-timestamp opposite to RX-FCS configuration.
+After recent cleanups, gcc started warning about a suspicious
+memcpy() call during the s2io_io_resume() function:
 
-Fixes: 102722fc6832 ("net/mlx5e: Add support for RXFCS feature flag")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+In function '__dev_addr_set',
+    inlined from 'eth_hw_addr_set' at include/linux/etherdevice.h:318:2,
+    inlined from 's2io_set_mac_addr' at drivers/net/ethernet/neterion/s2io.c:5205:2,
+    inlined from 's2io_io_resume' at drivers/net/ethernet/neterion/s2io.c:8569:7:
+arch/x86/include/asm/string_32.h:182:25: error: '__builtin_memcpy' accessing 6 bytes at offsets 0 and 2 overlaps 4 bytes at offset 2 [-Werror=restrict]
+  182 | #define memcpy(t, f, n) __builtin_memcpy(t, f, n)
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+include/linux/netdevice.h:4648:9: note: in expansion of macro 'memcpy'
+ 4648 |         memcpy(dev->dev_addr, addr, len);
+      |         ^~~~~~
+
+What apparently happened is that an old cleanup changed the calling
+conventions for s2io_set_mac_addr() from taking an ethernet address
+as a character array to taking a struct sockaddr, but one of the
+callers was not changed at the same time.
+
+Change it to instead call the low-level do_s2io_prog_unicast() function
+that still takes the old argument type.
+
+Fixes: 2fd376884558 ("S2io: Added support set_mac_address driver entry point")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20211013143613.2049096-1-arnd@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c |   57 ++++++++++++++++++++--
- include/linux/mlx5/mlx5_ifc.h                     |   10 +++
- 2 files changed, 60 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/neterion/s2io.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -3724,20 +3724,67 @@ static int set_feature_rx_all(struct net
- 	return mlx5_set_port_fcs(mdev, !enable);
- }
+--- a/drivers/net/ethernet/neterion/s2io.c
++++ b/drivers/net/ethernet/neterion/s2io.c
+@@ -8569,7 +8569,7 @@ static void s2io_io_resume(struct pci_de
+ 			return;
+ 		}
  
-+static int mlx5e_set_rx_port_ts(struct mlx5_core_dev *mdev, bool enable)
-+{
-+	u32 in[MLX5_ST_SZ_DW(pcmr_reg)] = {};
-+	bool supported, curr_state;
-+	int err;
-+
-+	if (!MLX5_CAP_GEN(mdev, ports_check))
-+		return 0;
-+
-+	err = mlx5_query_ports_check(mdev, in, sizeof(in));
-+	if (err)
-+		return err;
-+
-+	supported = MLX5_GET(pcmr_reg, in, rx_ts_over_crc_cap);
-+	curr_state = MLX5_GET(pcmr_reg, in, rx_ts_over_crc);
-+
-+	if (!supported || enable == curr_state)
-+		return 0;
-+
-+	MLX5_SET(pcmr_reg, in, local_port, 1);
-+	MLX5_SET(pcmr_reg, in, rx_ts_over_crc, enable);
-+
-+	return mlx5_set_ports_check(mdev, in, sizeof(in));
-+}
-+
- static int set_feature_rx_fcs(struct net_device *netdev, bool enable)
- {
- 	struct mlx5e_priv *priv = netdev_priv(netdev);
-+	struct mlx5e_channels *chs = &priv->channels;
-+	struct mlx5_core_dev *mdev = priv->mdev;
- 	int err;
- 
- 	mutex_lock(&priv->state_lock);
- 
--	priv->channels.params.scatter_fcs_en = enable;
--	err = mlx5e_modify_channels_scatter_fcs(&priv->channels, enable);
--	if (err)
--		priv->channels.params.scatter_fcs_en = !enable;
-+	if (enable) {
-+		err = mlx5e_set_rx_port_ts(mdev, false);
-+		if (err)
-+			goto out;
-+
-+		chs->params.scatter_fcs_en = true;
-+		err = mlx5e_modify_channels_scatter_fcs(chs, true);
-+		if (err) {
-+			chs->params.scatter_fcs_en = false;
-+			mlx5e_set_rx_port_ts(mdev, true);
-+		}
-+	} else {
-+		chs->params.scatter_fcs_en = false;
-+		err = mlx5e_modify_channels_scatter_fcs(chs, false);
-+		if (err) {
-+			chs->params.scatter_fcs_en = true;
-+			goto out;
-+		}
-+		err = mlx5e_set_rx_port_ts(mdev, true);
-+		if (err) {
-+			mlx5_core_warn(mdev, "Failed to set RX port timestamp %d\n", err);
-+			err = 0;
-+		}
-+	}
- 
-+out:
- 	mutex_unlock(&priv->state_lock);
--
- 	return err;
- }
- 
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -9467,16 +9467,22 @@ struct mlx5_ifc_pcmr_reg_bits {
- 	u8         reserved_at_0[0x8];
- 	u8         local_port[0x8];
- 	u8         reserved_at_10[0x10];
-+
- 	u8         entropy_force_cap[0x1];
- 	u8         entropy_calc_cap[0x1];
- 	u8         entropy_gre_calc_cap[0x1];
--	u8         reserved_at_23[0x1b];
-+	u8         reserved_at_23[0xf];
-+	u8         rx_ts_over_crc_cap[0x1];
-+	u8         reserved_at_33[0xb];
- 	u8         fcs_cap[0x1];
- 	u8         reserved_at_3f[0x1];
-+
- 	u8         entropy_force[0x1];
- 	u8         entropy_calc[0x1];
- 	u8         entropy_gre_calc[0x1];
--	u8         reserved_at_43[0x1b];
-+	u8         reserved_at_43[0xf];
-+	u8         rx_ts_over_crc[0x1];
-+	u8         reserved_at_53[0xb];
- 	u8         fcs_chk[0x1];
- 	u8         reserved_at_5f[0x1];
- };
+-		if (s2io_set_mac_addr(netdev, netdev->dev_addr) == FAILURE) {
++		if (do_s2io_prog_unicast(netdev, netdev->dev_addr) == FAILURE) {
+ 			s2io_card_down(sp);
+ 			pr_err("Can't restore mac addr after reset.\n");
+ 			return;
 
 
