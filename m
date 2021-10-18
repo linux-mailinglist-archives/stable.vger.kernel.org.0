@@ -2,66 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DE34431010
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 07:58:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CF0A431017
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 08:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229998AbhJRGBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 02:01:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45716 "EHLO mail.kernel.org"
+        id S229735AbhJRGDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 02:03:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229901AbhJRGBG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 02:01:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7754960F59;
-        Mon, 18 Oct 2021 05:58:55 +0000 (UTC)
+        id S229533AbhJRGDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 02:03:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D777460F25;
+        Mon, 18 Oct 2021 06:00:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634536736;
-        bh=5rYzsvdza9zw7gO2DMRBVkoMGA9Kg9wwVy5zLFnLKZI=;
+        s=korg; t=1634536849;
+        bh=RECzbXZ+8IIFp3dDqHwQoTtgoSGnf9j0ExTatmTH5cc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=v4QAs1kK+bK+WtH42VpXGgoJ5jSvIxqIPo60uGaU2NrRryAs8LtZnosSocyXN5Wi7
-         DsG0a/pggIoJc3PbqNadTlfDiVIvKoAJKxc6dX7uCiLCrlm/z6auZn5iV3TX1e9AqF
-         mL2miSkcdr9GJS80a/7107o46nodeRP2OTiM2ji0=
-Date:   Mon, 18 Oct 2021 07:58:50 +0200
+        b=uxBzsN/ifh062VVygB7Q6r3sfF4yipAsU17BnwAD3/3Yh5+NFAIZpzV1sPULyi1+T
+         ahLGjP/OndRTKBfMwtDyUWmVvx77jc4htRakVAqojwlZDzATxo2AluFyNEjRNva2/x
+         lIXwZAbkcWGJBeVonZzsw3/vWzyFj4cL/SmXrkgA=
+Date:   Mon, 18 Oct 2021 08:00:43 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mateusz =?utf-8?Q?Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
-Cc:     linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH RESEND 2/6] rtc-cmos: dont touch alarm registers during
- update
-Message-ID: <YW0NGiZDhZf2RrjN@kroah.com>
-References: <20211017193927.277409-1-mat.jonczyk@o2.pl>
- <20211017193927.277409-3-mat.jonczyk@o2.pl>
+To:     Pavel Begunkov <asml.silence@gmail.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] io_uring: fail iopoll links if can't retry
+Message-ID: <YW0Ni7BxHaJQsmSn@kroah.com>
+References: <cover.1634501363.git.asml.silence@gmail.com>
+ <ff66f584ff352b94ef0f5cb4188da609834fe173.1634501363.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20211017193927.277409-3-mat.jonczyk@o2.pl>
+In-Reply-To: <ff66f584ff352b94ef0f5cb4188da609834fe173.1634501363.git.asml.silence@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Oct 17, 2021 at 09:39:23PM +0200, Mateusz Jończyk wrote:
-> Some Intel chipsets disconnect the time and date RTC registers when the
-> clock update is in progress: during this time reads may return bogus
-> values and writes fail silently. This includes the RTC alarm registers.
-> [1]
+On Sun, Oct 17, 2021 at 08:30:55PM +0000, Pavel Begunkov wrote:
+> If io_rw_should_reissue() fails in iopoll path and we can't reissue we
+> fail the request. Don't forget to also mark it as failed, so links are
+> broken.
 > 
-> cmos_read_alarm() and cmos_set_alarm() did not take account for that,
-> which caused alarm time reads to sometimes return bogus values. This can
-> be shown with a test patch that I am attaching to this patch series.
-> Setting the alarm clock also probably did fail sometimes.
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+> ---
+>  fs/io_uring.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> To make this patch suitable for inclusion in stable kernels, I'm using a
-> simple method for avoiding the RTC update cycle. This method is used in
-> mach_set_rtc_mmss() in arch/x86/kernel/rtc.c. A more elaborate algorithm
-> - as in mc146818_get_time() in drivers/rtc/rtc-mc146818-lib.c - would be
-> too complcated for stable. [2]
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 0d7613c7355c..40b1697e7354 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -2687,6 +2687,7 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
+>  			req->flags |= REQ_F_REISSUE;
+>  			return;
+>  		}
+> +		req_set_fail(req);
+>  		req->result = res;
+>  	}
+>  
+> -- 
+> 2.33.1
+> 
 
-No, just do it properly the first time, do not worry about stable
-kernels, we can just take the also-correct version for backporting if
-needed.
+<formletter>
 
-thanks,
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-greg k-h
+</formletter>
