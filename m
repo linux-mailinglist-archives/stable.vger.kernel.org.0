@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82DB3431DB6
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFB2A431CB5
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233380AbhJRNyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:54:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
+        id S233365AbhJRNoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:44:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234037AbhJRNwW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:52:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42D0E61355;
-        Mon, 18 Oct 2021 13:38:44 +0000 (UTC)
+        id S233099AbhJRNmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:42:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A443261504;
+        Mon, 18 Oct 2021 13:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564324;
-        bh=H6/bz4ph6WCr8Ka1uaSQPmCtR2591g3xQ5w1Amar1uQ=;
+        s=korg; t=1634564043;
+        bh=Tf5f15sNLMIIbV/rhCQL45in1rX+UtwgPEvckpvOIH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KiBkeRqAlGcuAMonovoRAimAaRXTDcMirnG11IScr05Mvb/dCoW+cZJ2wu6FPA8bz
-         JemFelXGUnJW6UnVdupOeDwV9DMMIiFwfsJcJs2dMK/VOSG6T4pz2P4oHkZg9cxx0g
-         94EuwduUHunQrPEQg4mvyzMgq4kMl044ztyb9Me4=
+        b=dESbvEz9n873hAu+/lyY8+b0HHMiFSMBsfJotdRxbxZ134nndRAyeNtdWNLPXXY3I
+         IulqdDfqCUms3BOaCIoUp+SbS3pd0Zz8dQcy4JfLHtkZ/NowvjTsfGwQ38E9n9AXIU
+         v0FClg86wEmPtaYSwqB7k/SW4Hiv82nDqg186Vfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Jianhua <chris.zjh@huawei.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.14 047/151] efi: Change down_interruptible() in virt_efi_reset_system() to down_trylock()
+        stable@vger.kernel.org, Cameron Berkenpas <cam@neo-zeon.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 010/103] ALSA: hda/realtek: Fix for quirk to enable speaker output on the Lenovo 13s Gen2
 Date:   Mon, 18 Oct 2021 15:23:46 +0200
-Message-Id: <20211018132342.229638978@linuxfoundation.org>
+Message-Id: <20211018132335.041872226@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Jianhua <chris.zjh@huawei.com>
+From: Cameron Berkenpas <cam@neo-zeon.de>
 
-commit 38fa3206bf441911258e5001ac8b6738693f8d82 upstream.
+commit 023a062f238129e8a542b5163c4350ceb076283e upstream.
 
-While reboot the system by sysrq, the following bug will be occur.
+The previous patch's HDA verb initialization for the Lenovo 13s
+sequence was slightly off. This updated verb sequence has been tested
+and confirmed working.
 
-BUG: sleeping function called from invalid context at kernel/locking/semaphore.c:90
-in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 10052, name: rc.shutdown
-CPU: 3 PID: 10052 Comm: rc.shutdown Tainted: G        W O      5.10.0 #1
-Call trace:
- dump_backtrace+0x0/0x1c8
- show_stack+0x18/0x28
- dump_stack+0xd0/0x110
- ___might_sleep+0x14c/0x160
- __might_sleep+0x74/0x88
- down_interruptible+0x40/0x118
- virt_efi_reset_system+0x3c/0xd0
- efi_reboot+0xd4/0x11c
- machine_restart+0x60/0x9c
- emergency_restart+0x1c/0x2c
- sysrq_handle_reboot+0x1c/0x2c
- __handle_sysrq+0xd0/0x194
- write_sysrq_trigger+0xbc/0xe4
- proc_reg_write+0xd4/0xf0
- vfs_write+0xa8/0x148
- ksys_write+0x6c/0xd8
- __arm64_sys_write+0x18/0x28
- el0_svc_common.constprop.3+0xe4/0x16c
- do_el0_svc+0x1c/0x2c
- el0_svc+0x20/0x30
- el0_sync_handler+0x80/0x17c
- el0_sync+0x158/0x180
-
-The reason for this problem is that irq has been disabled in
-machine_restart() and then it calls down_interruptible() in
-virt_efi_reset_system(), which would occur sleep in irq context,
-it is dangerous! Commit 99409b935c9a("locking/semaphore: Add
-might_sleep() to down_*() family") add might_sleep() in
-down_interruptible(), so the bug info is here. down_trylock()
-can solve this problem, cause there is no might_sleep.
-
---------
-
+Fixes: ad7cc2d41b7a ("ALSA: hda/realtek: Quirks to enable speaker output for Lenovo Legion 7i 15IMHG05, Yoga 7i 14ITL5/15ITL5, and 13s Gen2 laptops.")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208555
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Zhang Jianhua <chris.zjh@huawei.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Cameron Berkenpas <cam@neo-zeon.de>
+Link: https://lore.kernel.org/r/20211010225410.23423-1-cam@neo-zeon.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/runtime-wrappers.c |    2 +-
+ sound/pci/hda/patch_realtek.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firmware/efi/runtime-wrappers.c
-+++ b/drivers/firmware/efi/runtime-wrappers.c
-@@ -414,7 +414,7 @@ static void virt_efi_reset_system(int re
- 				  unsigned long data_size,
- 				  efi_char16_t *data)
- {
--	if (down_interruptible(&efi_runtime_lock)) {
-+	if (down_trylock(&efi_runtime_lock)) {
- 		pr_warn("failed to invoke the reset_system() runtime service:\n"
- 			"could not get exclusive access to the firmware\n");
- 		return;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8306,7 +8306,7 @@ static const struct hda_fixup alc269_fix
+ 		.v.verbs = (const struct hda_verb[]) {
+ 			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x24 },
+ 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x41 },
+-			{ 0x20, AC_VERB_SET_PROC_COEF, 0xb020 },
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x26 },
+ 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2 },
+ 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
+ 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0 },
 
 
