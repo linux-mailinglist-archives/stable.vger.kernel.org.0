@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3539F43177C
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:35:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3126243177D
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229569AbhJRLhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:37:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42590 "EHLO mail.kernel.org"
+        id S230512AbhJRLht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:37:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229491AbhJRLhl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:37:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95AF360EE5;
-        Mon, 18 Oct 2021 11:35:29 +0000 (UTC)
+        id S229491AbhJRLht (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 07:37:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D23E60EE5;
+        Mon, 18 Oct 2021 11:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634556930;
-        bh=f4bk9e/9VCe5ppAlgHOrGIuCvayp4KnRPD6uvEexKF8=;
+        s=korg; t=1634556938;
+        bh=M8RC+MWBKso3BGRP3fIUDrib0z50IwqHFvGPaajZuuE=;
         h=Subject:To:Cc:From:Date:From;
-        b=xxzjSOWbrdp8X+hc0R5g/BJLwlpU1OMQUZQw6LISP3grZFkVRpocwog5pX0m3gFOm
-         w/9mwGY41+Yb4iHoTxdd8W59nqpqG3hkg0MzqIIixWK18haoddpm4R0bToZhDOKLq2
-         Qo5onbPLncYdDRrOu6wN7sH+Zwq1xrB95mizkskE=
-Subject: FAILED: patch "[PATCH] net: mscc: ocelot: deny TX timestamping of non-PTP packets" failed to apply to 5.4-stable tree
+        b=Y1V8j3W6GRF1pnQ0s6OcGp+WnGMdYWNhoT211+Qg7JLEb2z3kqNVmnw0ejx+XgRFR
+         iOa6koZG4fOk6W0/qrRDcm0bJu0q5plG18L9lbgpHk3uQgJTfstG+00TDCLut1iUFL
+         FE1AgBwErMXW7Y32nTDrN+8yljoGJnj83TWO+qFo=
+Subject: FAILED: patch "[PATCH] net: mscc: ocelot: deny TX timestamping of non-PTP packets" failed to apply to 5.10-stable tree
 To:     vladimir.oltean@nxp.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 13:35:27 +0200
-Message-ID: <1634556927127116@kroah.com>
+Date:   Mon, 18 Oct 2021 13:35:28 +0200
+Message-ID: <163455692813569@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
