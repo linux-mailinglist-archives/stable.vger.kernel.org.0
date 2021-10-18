@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F8BF431C1F
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CF56431CEE
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:44:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232517AbhJRNjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:39:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55956 "EHLO mail.kernel.org"
+        id S233882AbhJRNqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:46:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231775AbhJRNgo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:36:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE9D2613DA;
-        Mon, 18 Oct 2021 13:31:11 +0000 (UTC)
+        id S232814AbhJRNoR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:44:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8132613A4;
+        Mon, 18 Oct 2021 13:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563872;
-        bh=p0lay8XH4+8x+Vzh4zc8p837cdO7Qn1/dacKp/icL0E=;
+        s=korg; t=1634564109;
+        bh=pax5PZkCldFZG078Cb1+J/jZRP5k6V3ZxRuLedgHGzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJBQ0Q83ur2mEYoIaPu0ypuEhLKODQPt1dqffS7+z2WI7gxzzXbTVJ7LSHrajBbjh
-         7zHk3fpKU9PzdPp2Jrk1WrT8K/LNxK8IcTyjwRAGoJOLu0iS1XETcf9urB1Hxsvvic
-         Z5glcDhvefmWdor1QfTcEGm3/y1Ga2/WRs2e+luA=
+        b=f/WQIhm8aOLCffsqiMGuYOg1KHBJsxFmh2WZpYZUfqYbnOz+gZ0zQmpdRCZLp/uvL
+         avWtHilxMnSSlyjGsMEYn7DuY/Vg86tNzfOz+kRjAA8N2twiKuMg6ADIT68g1lFBr8
+         uXbL9cGLh3y7qzdhIipyle6kYytCoG/9vkukE+dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 5.4 46/69] gpio: pca953x: Improve bias setting
+        stable@vger.kernel.org, Vlad Yasevich <vyasevich@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Marcelo Ricardo Leitner <mleitner@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 068/103] sctp: account stream padding length for reconf chunk
 Date:   Mon, 18 Oct 2021 15:24:44 +0200
-Message-Id: <20211018132331.005101750@linuxfoundation.org>
+Message-Id: <20211018132337.025412465@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
-References: <20211018132329.453964125@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
 
-commit 55a9968c7e139209a9e93d4ca4321731bea5fc95 upstream.
+commit a2d859e3fc97e79d907761550dbc03ff1b36479c upstream.
 
-The commit 15add06841a3 ("gpio: pca953x: add ->set_config implementation")
-introduced support for bias setting. However this, due to being half-baked,
-brought potential issues:
- - the turning bias via disabling makes the pin floating for a while;
- - once enabled, bias can't be disabled.
+sctp_make_strreset_req() makes repeated calls to sctp_addto_chunk()
+which will automatically account for padding on each call. inreq and
+outreq are already 4 bytes aligned, but the payload is not and doing
+SCTP_PAD4(a + b) (which _sctp_make_chunk() did implicitly here) is
+different from SCTP_PAD4(a) + SCTP_PAD4(b) and not enough. It led to
+possible attempt to use more buffer than it was allocated and triggered
+a BUG_ON.
 
-Fix all these by adding support for bias disabling and move the disabling
-part under the corresponding conditional.
-
-While at it, add support for default setting, since it's cheap to add.
-
-Fixes: 15add06841a3 ("gpio: pca953x: add ->set_config implementation")
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Vlad Yasevich <vyasevich@gmail.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Fixes: cc16f00f6529 ("sctp: add support for generating stream reconf ssn reset request chunk")
+Reported-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Marcelo Ricardo Leitner <mleitner@redhat.com>
+Reviewed-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/b97c1f8b0c7ff79ac4ed206fc2c49d3612e0850c.1634156849.git.mleitner@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-pca953x.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ net/sctp/sm_make_chunk.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpio/gpio-pca953x.c
-+++ b/drivers/gpio/gpio-pca953x.c
-@@ -583,21 +583,21 @@ static int pca953x_gpio_set_pull_up_down
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -3651,7 +3651,7 @@ struct sctp_chunk *sctp_make_strreset_re
+ 	outlen = (sizeof(outreq) + stream_len) * out;
+ 	inlen = (sizeof(inreq) + stream_len) * in;
  
- 	mutex_lock(&chip->i2c_lock);
+-	retval = sctp_make_reconf(asoc, outlen + inlen);
++	retval = sctp_make_reconf(asoc, SCTP_PAD4(outlen) + SCTP_PAD4(inlen));
+ 	if (!retval)
+ 		return NULL;
  
--	/* Disable pull-up/pull-down */
--	ret = regmap_write_bits(chip->regmap, pull_en_reg, bit, 0);
--	if (ret)
--		goto exit;
--
- 	/* Configure pull-up/pull-down */
- 	if (config == PIN_CONFIG_BIAS_PULL_UP)
- 		ret = regmap_write_bits(chip->regmap, pull_sel_reg, bit, bit);
- 	else if (config == PIN_CONFIG_BIAS_PULL_DOWN)
- 		ret = regmap_write_bits(chip->regmap, pull_sel_reg, bit, 0);
-+	else
-+		ret = 0;
- 	if (ret)
- 		goto exit;
- 
--	/* Enable pull-up/pull-down */
--	ret = regmap_write_bits(chip->regmap, pull_en_reg, bit, bit);
-+	/* Disable/Enable pull-up/pull-down */
-+	if (config == PIN_CONFIG_BIAS_DISABLE)
-+		ret = regmap_write_bits(chip->regmap, pull_en_reg, bit, 0);
-+	else
-+		ret = regmap_write_bits(chip->regmap, pull_en_reg, bit, bit);
- 
- exit:
- 	mutex_unlock(&chip->i2c_lock);
-@@ -611,7 +611,9 @@ static int pca953x_gpio_set_config(struc
- 
- 	switch (pinconf_to_config_param(config)) {
- 	case PIN_CONFIG_BIAS_PULL_UP:
-+	case PIN_CONFIG_BIAS_PULL_PIN_DEFAULT:
- 	case PIN_CONFIG_BIAS_PULL_DOWN:
-+	case PIN_CONFIG_BIAS_DISABLE:
- 		return pca953x_gpio_set_pull_up_down(chip, offset, config);
- 	default:
- 		return -ENOTSUPP;
 
 
