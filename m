@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 724F8431DB1
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27357431CAB
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233130AbhJRNyM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:54:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56112 "EHLO mail.kernel.org"
+        id S232413AbhJRNn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:43:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233868AbhJRNwF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:52:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B80D36137C;
-        Mon, 18 Oct 2021 13:38:41 +0000 (UTC)
+        id S233859AbhJRNl0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:41:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4435361391;
+        Mon, 18 Oct 2021 13:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564322;
-        bh=b3aGtohO717TSNZ0ihvaEzIUwQ0LZ7WFoe7mE075hAY=;
+        s=korg; t=1634564024;
+        bh=YQufhl9Vo+1zjytj6vfr4lZvpJtukfudroBbDwmOgnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19AmSyPMpqJfpNBdWL8aQZJ22FrH2UXhQlrF2GMN7Q007qJzIdb0uOWEZ62WDREfL
-         8ryZQrUzV3yNGv6cwIlF3mqjqqvNucit685tbH1MKH6F4iqHStSAMPNypIyBIHnprd
-         MFEH6GXsKPoVrdAbMmt/3bQifrrZlhGmzePwSfl4=
+        b=Ml07+t7WFIxBy6/XYjet2vVDElSW1hvIsnCkT+Lh19T0n8MoTD0OLJ3MJeaMwqC9c
+         2wmAHvPx2FwuJ77B4TUhiV4wOcf635/JdQ7iUY/dNe5PUyIf9CfBQCKXQvS5npcrBl
+         WIXdpZb35RMLY4y8tury24An47Viqchv9cgfUwJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.14 046/151] efi/cper: use stack buffer for error record decoding
+        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 009/103] ALSA: hda/realtek: Add quirk for TongFang PHxTxX1
 Date:   Mon, 18 Oct 2021 15:23:45 +0200
-Message-Id: <20211018132342.199309377@linuxfoundation.org>
+Message-Id: <20211018132335.007976150@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018132334.702559133@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +39,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-commit b3a72ca80351917cc23f9e24c35f3c3979d3c121 upstream.
+commit dd6dd6e3c791db7fdbc5433ec7e450717aa3a0ce upstream.
 
-Joe reports that using a statically allocated buffer for converting CPER
-error records into human readable text is probably a bad idea. Even
-though we are not aware of any actual issues, a stack buffer is clearly
-a better choice here anyway, so let's move the buffer into the stack
-frames of the two functions that refer to it.
+This applies a SND_PCI_QUIRK(...) to the TongFang PHxTxX1 barebone. This
+fixes the issue of the internal Microphone not working after booting
+another OS.
 
+When booting a certain another OS this barebone keeps some coeff settings
+even after a cold shutdown. These coeffs prevent the microphone detection
+from working in Linux, making the Laptop think that there is always an
+external microphone plugged-in and therefore preventing the use of the
+internal one.
+
+The relevant indexes and values where gathered by naively diff-ing and
+reading a working and a non-working coeff dump.
+
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
 Cc: <stable@vger.kernel.org>
-Reported-by: Joe Perches <joe@perches.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20211006130415.538243-1-wse@tuxedocomputers.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/cper.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |   26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
 
---- a/drivers/firmware/efi/cper.c
-+++ b/drivers/firmware/efi/cper.c
-@@ -25,8 +25,6 @@
- #include <acpi/ghes.h>
- #include <ras/ras_event.h>
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6399,6 +6399,24 @@ static void alc287_fixup_legion_15imhg05
+ /* for alc285_fixup_ideapad_s740_coef() */
+ #include "ideapad_s740_helper.c"
  
--static char rcd_decode_str[CPER_REC_LEN];
--
- /*
-  * CPER record ID need to be unique even after reboot, because record
-  * ID is used as index for ERST storage, while CPER records from
-@@ -313,6 +311,7 @@ const char *cper_mem_err_unpack(struct t
- 				struct cper_mem_err_compact *cmem)
- {
- 	const char *ret = trace_seq_buffer_ptr(p);
-+	char rcd_decode_str[CPER_REC_LEN];
++static void alc256_fixup_tongfang_reset_persistent_settings(struct hda_codec *codec,
++							    const struct hda_fixup *fix,
++							    int action)
++{
++	/*
++	* A certain other OS sets these coeffs to different values. On at least one TongFang
++	* barebone these settings might survive even a cold reboot. So to restore a clean slate the
++	* values are explicitly reset to default here. Without this, the external microphone is
++	* always in a plugged-in state, while the internal microphone is always in an unplugged
++	* state, breaking the ability to use the internal microphone.
++	*/
++	alc_write_coef_idx(codec, 0x24, 0x0000);
++	alc_write_coef_idx(codec, 0x26, 0x0000);
++	alc_write_coef_idx(codec, 0x29, 0x3000);
++	alc_write_coef_idx(codec, 0x37, 0xfe05);
++	alc_write_coef_idx(codec, 0x45, 0x5089);
++}
++
+ enum {
+ 	ALC269_FIXUP_GPIO2,
+ 	ALC269_FIXUP_SONY_VAIO,
+@@ -6612,7 +6630,8 @@ enum {
+ 	ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS,
+ 	ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE,
+ 	ALC287_FIXUP_YOGA7_14ITL_SPEAKERS,
+-	ALC287_FIXUP_13S_GEN2_SPEAKERS
++	ALC287_FIXUP_13S_GEN2_SPEAKERS,
++	ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS,
+ };
  
- 	if (cper_mem_err_location(cmem, rcd_decode_str))
- 		trace_seq_printf(p, "%s", rcd_decode_str);
-@@ -327,6 +326,7 @@ static void cper_print_mem(const char *p
- 	int len)
- {
- 	struct cper_mem_err_compact cmem;
-+	char rcd_decode_str[CPER_REC_LEN];
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -8304,6 +8323,10 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE,
+ 	},
++	[ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc256_fixup_tongfang_reset_persistent_settings,
++	},
+ };
  
- 	/* Don't trust UEFI 2.1/2.2 structure with bad validation bits */
- 	if (len == sizeof(struct cper_sec_mem_err_old) &&
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8733,6 +8756,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
+ 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
+ 	SND_PCI_QUIRK(0x1c06, 0x2015, "Lemote A190X", ALC269_FIXUP_LEMOTE_A190X),
++	SND_PCI_QUIRK(0x1d05, 0x1132, "TongFang PHxTxX1", ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS),
+ 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
 
 
