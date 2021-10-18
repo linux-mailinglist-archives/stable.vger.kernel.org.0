@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90545431C8A
+	by mail.lfdr.de (Postfix) with ESMTP id DC2B0431C8B
 	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232958AbhJRNmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:42:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56366 "EHLO mail.kernel.org"
+        id S233014AbhJRNmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233401AbhJRNkM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233214AbhJRNkM (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 18 Oct 2021 09:40:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D7F26137F;
-        Mon, 18 Oct 2021 13:33:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8178C6138D;
+        Mon, 18 Oct 2021 13:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563985;
-        bh=gdqigXVBM7bxMlsS3L1Yf1423G5kWmy1rZzJ/H4Ltw0=;
+        s=korg; t=1634563988;
+        bh=cE7s2eEP8NM2AQY52vlyesHhmKq32ZWnINA5dikkOFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f34ZE+//8GRrwMFNwEyzJzKKVUfcai9NwCqQuDOZ3Zzf95hYyfQCUYixw+Ij/ksCm
-         qo0t9ViG1+Y95XTUGSP557/n4RjUiP1v+D804cOI2jzfAVne4ytZPVquVZ0fLKWHmq
-         KL46m3aJh2I1riZrC671ndbUaedAvuGWoevj3BmA=
+        b=qLbeVmje1tl6qADeY4li2ApZypRT/33aP5bMVMkanpRzPFjrFYFKAMAoaD5sv0MrR
+         bJJFCZAHOuv9TY2gblp3mTmPtg94THe/qff7l+l7+NMVKWKS/S+uEXjTFAUusj199N
+         yFhrjLUThY/EucEhbUWVa9YLrJeJWQ+akm2e3FaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 022/103] btrfs: check for error when looking up inode during dir entry replay
-Date:   Mon, 18 Oct 2021 15:23:58 +0200
-Message-Id: <20211018132335.451775004@linuxfoundation.org>
+Subject: [PATCH 5.10 023/103] btrfs: update refs for any root except tree log roots
+Date:   Mon, 18 Oct 2021 15:23:59 +0200
+Message-Id: <20211018132335.488532110@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
 References: <20211018132334.702559133@linuxfoundation.org>
@@ -39,53 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit cfd312695b71df04c3a2597859ff12c470d1e2e4 upstream.
+commit d175209be04d7d263fa1a54cde7608c706c9d0d7 upstream.
 
-At replay_one_name(), we are treating any error from btrfs_lookup_inode()
-as if the inode does not exists. Fix this by checking for an error and
-returning it to the caller.
+I hit a stuck relocation on btrfs/061 during my overnight testing.  This
+turned out to be because we had left over extent entries in our extent
+root for a data reloc inode that no longer existed.  This happened
+because in btrfs_drop_extents() we only update refs if we have SHAREABLE
+set or we are the tree_root.  This regression was introduced by
+aeb935a45581 ("btrfs: don't set SHAREABLE flag for data reloc tree")
+where we stopped setting SHAREABLE for the data reloc tree.
 
-CC: stable@vger.kernel.org # 4.14+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+The problem here is we actually do want to update extent references for
+data extents in the data reloc tree, in fact we only don't want to
+update extent references if the file extents are in the log tree.
+Update this check to only skip updating references in the case of the
+log tree.
+
+This is relatively rare, because you have to be running scrub at the
+same time, which is what btrfs/061 does.  The data reloc inode has its
+extents pre-allocated, and then we copy the extent into the
+pre-allocated chunks.  We theoretically should never be calling
+btrfs_drop_extents() on a data reloc inode.  The exception of course is
+with scrub, if our pre-allocated extent falls inside of the block group
+we are scrubbing, then the block group will be marked read only and we
+will be forced to cow that extent.  This means we will call
+btrfs_drop_extents() on that range when we COW that file extent.
+
+This isn't really problematic if we do this, the data reloc inode
+requires that our extent lengths match exactly with the extent we are
+copying, thankfully we validate the extent is correct with
+get_new_location(), so if we happen to COW only part of the extent we
+won't link it in when we do the relocation, so we are safe from any
+other shenanigans that arise because of this interaction with scrub.
+
+Fixes: aeb935a45581 ("btrfs: don't set SHAREABLE flag for data reloc tree")
+CC: stable@vger.kernel.org # 5.8+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-log.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ fs/btrfs/file.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -1902,8 +1902,8 @@ static noinline int replay_one_name(stru
- 	struct btrfs_key log_key;
- 	struct inode *dir;
- 	u8 log_type;
--	int exists;
--	int ret = 0;
-+	bool exists;
-+	int ret;
- 	bool update_size = (key->type == BTRFS_DIR_INDEX_KEY);
- 	bool name_added = false;
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -710,8 +710,7 @@ int __btrfs_drop_extents(struct btrfs_tr
+ 	if (start >= inode->disk_i_size && !replace_extent)
+ 		modify_tree = 0;
  
-@@ -1923,12 +1923,12 @@ static noinline int replay_one_name(stru
- 		   name_len);
- 
- 	btrfs_dir_item_key_to_cpu(eb, di, &log_key);
--	exists = btrfs_lookup_inode(trans, root, path, &log_key, 0);
--	if (exists == 0)
--		exists = 1;
--	else
--		exists = 0;
-+	ret = btrfs_lookup_inode(trans, root, path, &log_key, 0);
- 	btrfs_release_path(path);
-+	if (ret < 0)
-+		goto out;
-+	exists = (ret == 0);
-+	ret = 0;
- 
- 	if (key->type == BTRFS_DIR_ITEM_KEY) {
- 		dst_di = btrfs_lookup_dir_item(trans, root, path, key->objectid,
+-	update_refs = (test_bit(BTRFS_ROOT_SHAREABLE, &root->state) ||
+-		       root == fs_info->tree_root);
++	update_refs = (root->root_key.objectid != BTRFS_TREE_LOG_OBJECTID);
+ 	while (1) {
+ 		recow = 0;
+ 		ret = btrfs_lookup_file_extent(trans, root, path, ino,
 
 
