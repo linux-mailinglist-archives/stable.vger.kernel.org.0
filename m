@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB7E431D79
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:50:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16421431D9B
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233716AbhJRNvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:51:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50276 "EHLO mail.kernel.org"
+        id S232395AbhJRNwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:52:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233888AbhJRNt4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:49:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 397796187F;
-        Mon, 18 Oct 2021 13:37:34 +0000 (UTC)
+        id S234185AbhJRNui (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:50:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37BBF610A1;
+        Mon, 18 Oct 2021 13:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564254;
-        bh=291lKMUmf6FoU4f5/wcNNEvJf1KbBZj3G4v06sRl308=;
+        s=korg; t=1634564282;
+        bh=N+mQ5QdIx70i1nulsl5kj6w9HtxeDu8N1DcbeuyO1mU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YAXACXaHeBuxFxMQtFhT7oVX2MCyEIbdSQqRurl9Xzi6skodtqgKgorPnApw66k2r
-         llAjmA4nobFY63KyhBQSBNmkBGbOiegdlqpvIl+EKFGSOCo+juhhEGw4l8BOgEZAcG
-         zZe3pjjNDF3cMosAWJDi2zGHM8YCk9TeULDpToLo=
+        b=B/GYbseYZcY7PIuINE2VMS6hmBJXVDQ8IOTH7zu5PVaV72m2gLoV9n0A/Id1Sq/UF
+         Kin5QoozPyrrCAOTU1fLSEKbm64VHI5H1+onawXmPnjByRFEtc/npQekNU8PX4baVr
+         NVW0GfZDHMELLSrxGzVsMzLeZTgKmaPehR4CjBm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Forney <mforney@mforney.org>,
-        Arnd Bergmann <arnd@arndb.de>, Rich Felker <dalias@libc.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.14 002/151] ALSA: pcm: Workaround for a wrong offset in SYNC_PTR compat ioctl
-Date:   Mon, 18 Oct 2021 15:23:01 +0200
-Message-Id: <20211018132340.759751878@linuxfoundation.org>
+Subject: [PATCH 5.14 003/151] ALSA: usb-audio: Fix a missing error check in scarlett gen2 mixer
+Date:   Mon, 18 Oct 2021 15:23:02 +0200
+Message-Id: <20211018132340.790448596@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
 References: <20211018132340.682786018@linuxfoundation.org>
@@ -42,150 +41,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 228af5a4fa3a8293bd8b7ac5cf59548ee29627bf upstream.
+commit 8ec59ac3ad29891c0afef627640df36f2daa0349 upstream.
 
-Michael Forney reported an incorrect padding type that was defined in
-the commit 80fe7430c708 ("ALSA: add new 32-bit layout for
-snd_pcm_mmap_status/control") for PCM control mmap data.
-His analysis is correct, and this caused the misplacements of PCM
-control data on 32bit arch and 32bit compat mode.
+The check of the returned error code is missing in
+scarlett2_update_monitor_other().  Let's fix it.
 
-The bug is that the __pad2 definition in __snd_pcm_mmap_control64
-struct was wrongly with __pad_before_uframe, which should have been
-__pad_after_uframe instead.  This struct is used in SYNC_PTR ioctl and
-control mmap.  Basically this bug leads to two problems:
-
-- The offset of avail_min field becomes wrong, it's placed right after
-  appl_ptr without padding on little-endian
-
-- When appl_ptr and avail_min are read as 64bit values in kernel side,
-  the values become either zero or corrupted (mixed up)
-
-One good news is that, because both user-space and kernel
-misunderstand the wrong offset, at least, 32bit application running on
-32bit kernel works as is.  Also, 64bit applications are unaffected
-because the padding size is zero.  The remaining problem is the 32bit
-compat mode; as mentioned in the above, avail_min is placed right
-after appl_ptr on little-endian archs, 64bit kernel reads bogus values
-for appl_ptr updates, which may lead to streaming bugs like jumping,
-XRUN or whatever unexpected.
-(However, we haven't heard any serious bug reports due to this over
-years, so practically seen, it's fairly safe to assume that the impact
-by this bug is limited.)
-
-Ideally speaking, we should correct the wrong mmap status control
-definition.  But this would cause again incompatibility with the
-existing binaries, and fixing it (e.g. by renumbering ioctls) would be
-really messy.
-
-So, as of this patch, we only correct the behavior of 32bit compat
-mode and keep the rest as is.  Namely, the SYNC_PTR ioctl is now
-handled differently in compat mode to read/write the 32bit values at
-the right offsets.  The control mmap of 32bit apps on 64bit kernels
-has been already disabled (which is likely rather an overlook, but
-this worked fine at this time :), so covering SYNC_PTR ioctl should
-suffice as a fallback.
-
-Fixes: 80fe7430c708 ("ALSA: add new 32-bit layout for snd_pcm_mmap_status/control")
-Reported-by: Michael Forney <mforney@mforney.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: d5bda7e03982 ("ALSA: usb-audio: scarlett2: Add support for the talkback feature")
+Reported-by: kernel test robot <lkp@intel.com>
 Cc: <stable@vger.kernel.org>
-Cc: Rich Felker <dalias@libc.org>
-Link: https://lore.kernel.org/r/29QBMJU8DE71E.2YZSH8IHT5HMH@mforney.org
-Link: https://lore.kernel.org/r/20211010075546.23220-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/202109131831.9IodEzRx-lkp@intel.com
+Link: https://lore.kernel.org/r/20210929073540.9611-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/pcm_compat.c |   72 +++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 71 insertions(+), 1 deletion(-)
+ sound/usb/mixer_scarlett_gen2.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/core/pcm_compat.c
-+++ b/sound/core/pcm_compat.c
-@@ -468,6 +468,76 @@ static int snd_pcm_ioctl_sync_ptr_x32(st
- }
- #endif /* CONFIG_X86_X32 */
- 
-+#ifdef __BIG_ENDIAN
-+typedef char __pad_before_u32[4];
-+typedef char __pad_after_u32[0];
-+#else
-+typedef char __pad_before_u32[0];
-+typedef char __pad_after_u32[4];
-+#endif
-+
-+/* PCM 2.0.15 API definition had a bug in mmap control; it puts the avail_min
-+ * at the wrong offset due to a typo in padding type.
-+ * The bug hits only 32bit.
-+ * A workaround for incorrect read/write is needed only in 32bit compat mode.
-+ */
-+struct __snd_pcm_mmap_control64_buggy {
-+	__pad_before_u32 __pad1;
-+	__u32 appl_ptr;
-+	__pad_before_u32 __pad2;	/* SiC! here is the bug */
-+	__pad_before_u32 __pad3;
-+	__u32 avail_min;
-+	__pad_after_uframe __pad4;
-+};
-+
-+static int snd_pcm_ioctl_sync_ptr_buggy(struct snd_pcm_substream *substream,
-+					struct snd_pcm_sync_ptr __user *_sync_ptr)
-+{
-+	struct snd_pcm_runtime *runtime = substream->runtime;
-+	struct snd_pcm_sync_ptr sync_ptr;
-+	struct __snd_pcm_mmap_control64_buggy *sync_cp;
-+	volatile struct snd_pcm_mmap_status *status;
-+	volatile struct snd_pcm_mmap_control *control;
-+	int err;
-+
-+	memset(&sync_ptr, 0, sizeof(sync_ptr));
-+	sync_cp = (struct __snd_pcm_mmap_control64_buggy *)&sync_ptr.c.control;
-+	if (get_user(sync_ptr.flags, (unsigned __user *)&(_sync_ptr->flags)))
-+		return -EFAULT;
-+	if (copy_from_user(sync_cp, &(_sync_ptr->c.control), sizeof(*sync_cp)))
-+		return -EFAULT;
-+	status = runtime->status;
-+	control = runtime->control;
-+	if (sync_ptr.flags & SNDRV_PCM_SYNC_PTR_HWSYNC) {
-+		err = snd_pcm_hwsync(substream);
+--- a/sound/usb/mixer_scarlett_gen2.c
++++ b/sound/usb/mixer_scarlett_gen2.c
+@@ -2450,6 +2450,8 @@ static int scarlett2_update_monitor_othe
+ 		err = scarlett2_usb_get_config(mixer,
+ 					       SCARLETT2_CONFIG_TALKBACK_MAP,
+ 					       1, &bitmap);
 +		if (err < 0)
 +			return err;
-+	}
-+	snd_pcm_stream_lock_irq(substream);
-+	if (!(sync_ptr.flags & SNDRV_PCM_SYNC_PTR_APPL)) {
-+		err = pcm_lib_apply_appl_ptr(substream, sync_cp->appl_ptr);
-+		if (err < 0) {
-+			snd_pcm_stream_unlock_irq(substream);
-+			return err;
-+		}
-+	} else {
-+		sync_cp->appl_ptr = control->appl_ptr;
-+	}
-+	if (!(sync_ptr.flags & SNDRV_PCM_SYNC_PTR_AVAIL_MIN))
-+		control->avail_min = sync_cp->avail_min;
-+	else
-+		sync_cp->avail_min = control->avail_min;
-+	sync_ptr.s.status.state = status->state;
-+	sync_ptr.s.status.hw_ptr = status->hw_ptr;
-+	sync_ptr.s.status.tstamp = status->tstamp;
-+	sync_ptr.s.status.suspended_state = status->suspended_state;
-+	sync_ptr.s.status.audio_tstamp = status->audio_tstamp;
-+	snd_pcm_stream_unlock_irq(substream);
-+	if (copy_to_user(_sync_ptr, &sync_ptr, sizeof(sync_ptr)))
-+		return -EFAULT;
-+	return 0;
-+}
-+
- /*
-  */
- enum {
-@@ -537,7 +607,7 @@ static long snd_pcm_ioctl_compat(struct
- 		if (in_x32_syscall())
- 			return snd_pcm_ioctl_sync_ptr_x32(substream, argp);
- #endif /* CONFIG_X86_X32 */
--		return snd_pcm_common_ioctl(file, substream, cmd, argp);
-+		return snd_pcm_ioctl_sync_ptr_buggy(substream, argp);
- 	case SNDRV_PCM_IOCTL_HW_REFINE32:
- 		return snd_pcm_ioctl_hw_params_compat(substream, 1, argp);
- 	case SNDRV_PCM_IOCTL_HW_PARAMS32:
+ 		for (i = 0; i < num_mixes; i++, bitmap >>= 1)
+ 			private->talkback_map[i] = bitmap & 1;
+ 	}
 
 
