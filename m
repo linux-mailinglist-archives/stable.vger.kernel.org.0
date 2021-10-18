@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2E41431B8D
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7806431C53
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:39:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232531AbhJRNdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:33:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44044 "EHLO mail.kernel.org"
+        id S232935AbhJRNkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:40:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232508AbhJRNcC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:32:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB5FE61362;
-        Mon, 18 Oct 2021 13:28:56 +0000 (UTC)
+        id S233674AbhJRNig (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:38:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62377610A1;
+        Mon, 18 Oct 2021 13:32:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563737;
-        bh=AdyhFpSiHBpHjG/mYCvGhCNVoVyZVOdNBluXKhgO0tc=;
+        s=korg; t=1634563932;
+        bh=czaI13gQk7wRy9J0Hi5zKCZKM6yOkAkNqxw0VBmSeSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n2jcHgorq39v6sRbl3UaO1jY4jvF8bn262GBn8tTntqyiHUep376HiEkoBDguiBPA
-         PSxxRvHDQVspWo1GjkgNU3dw8eTulHPK285F1ykLt6S2AYxnWVuPCXucnRJT4posls
-         SGpQ7dcgTTclNXkcm+VmFfLqHegcaAe3OugD6YGM=
+        b=aGo6WtnJHOYw/89TV5fypRFw4vBxTOYZYEH98KqI+Yhj8EJx8PA7qR0Re0B0D9BI8
+         8a/CyX0Oc6Wl13BqzPiA5sfJYTvruwdqGYygbm0WNWNvv4msnntbx+j0kYMxp4NnBJ
+         q7EahB46FeazlVpnu3uD+RHeNALPHtU2i74Q+SAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>
-Subject: [PATCH 4.19 44/50] drm/msm/mdp5: fix cursor-related warnings
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 53/69] nfc: fix error handling of nfc_proto_register()
 Date:   Mon, 18 Oct 2021 15:24:51 +0200
-Message-Id: <20211018132327.974185408@linuxfoundation.org>
+Message-Id: <20211018132331.242568414@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132326.529486647@linuxfoundation.org>
-References: <20211018132326.529486647@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,144 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-commit c491a0c7bbf3a64732cb8414021429d15ec08eec upstream.
+commit 0911ab31896f0e908540746414a77dd63912748d upstream.
 
-Since f35a2a99100f ("drm/encoder: make encoder control functions
-optional") drm_mode_config_validate would print warnings if both cursor
-plane and cursor functions are provided. Restore separate set of
-drm_crtc_funcs to be used if separate cursor plane is provided.
+When nfc proto id is using, nfc_proto_register() return -EBUSY error
+code, but forgot to unregister proto. Fix it by adding proto_unregister()
+in the error handling case.
 
-[    6.556046] ------------[ cut here ]------------
-[    6.556071] [CRTC:93:crtc-0] must not have both a cursor plane and a cursor_set func
-[    6.556091] WARNING: CPU: 1 PID: 76 at drivers/gpu/drm/drm_mode_config.c:648 drm_mode_config_validate+0x238/0x4d0
-[    6.567453] Modules linked in:
-[    6.577604] CPU: 1 PID: 76 Comm: kworker/u8:2 Not tainted 5.15.0-rc1-dirty #43
-[    6.580557] Hardware name: Qualcomm Technologies, Inc. DB820c (DT)
-[    6.587763] Workqueue: events_unbound deferred_probe_work_func
-[    6.593926] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    6.599740] pc : drm_mode_config_validate+0x238/0x4d0
-[    6.606596] lr : drm_mode_config_validate+0x238/0x4d0
-[    6.611804] sp : ffff8000121b3980
-[    6.616838] x29: ffff8000121b3990 x28: 0000000000000000 x27: 0000000000000001
-[    6.620140] x26: ffff8000114cde50 x25: ffff8000114cdd40 x24: ffff0000987282d8
-[    6.627258] x23: 0000000000000000 x22: 0000000000000000 x21: 0000000000000001
-[    6.634376] x20: ffff000098728000 x19: ffff000080a39000 x18: ffffffffffffffff
-[    6.641494] x17: 3136564e3631564e x16: 0000000000000324 x15: ffff800011c78709
-[    6.648613] x14: 0000000000000000 x13: ffff800011a22850 x12: 00000000000009ab
-[    6.655730] x11: 0000000000000339 x10: ffff800011a22850 x9 : ffff800011a22850
-[    6.662848] x8 : 00000000ffffefff x7 : ffff800011a7a850 x6 : ffff800011a7a850
-[    6.669966] x5 : 000000000000bff4 x4 : 40000000fffff339 x3 : 0000000000000000
-[    6.677084] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff00008093b800
-[    6.684205] Call trace:
-[    6.691319]  drm_mode_config_validate+0x238/0x4d0
-[    6.693577]  drm_dev_register+0x17c/0x210
-[    6.698435]  msm_drm_bind+0x4b4/0x694
-[    6.702429]  try_to_bring_up_master+0x164/0x1d0
-[    6.706075]  __component_add+0xa0/0x170
-[    6.710415]  component_add+0x14/0x20
-[    6.714234]  msm_hdmi_dev_probe+0x1c/0x2c
-[    6.718053]  platform_probe+0x68/0xe0
-[    6.721959]  really_probe.part.0+0x9c/0x30c
-[    6.725606]  __driver_probe_device+0x98/0x144
-[    6.729600]  driver_probe_device+0xc8/0x15c
-[    6.734114]  __device_attach_driver+0xb4/0x120
-[    6.738106]  bus_for_each_drv+0x78/0xd0
-[    6.742619]  __device_attach+0xdc/0x184
-[    6.746351]  device_initial_probe+0x14/0x20
-[    6.750172]  bus_probe_device+0x9c/0xa4
-[    6.754337]  deferred_probe_work_func+0x88/0xc0
-[    6.758158]  process_one_work+0x1d0/0x370
-[    6.762671]  worker_thread+0x2c8/0x470
-[    6.766839]  kthread+0x15c/0x170
-[    6.770483]  ret_from_fork+0x10/0x20
-[    6.773870] ---[ end trace 5884eb76cd26d274 ]---
-[    6.777500] ------------[ cut here ]------------
-[    6.782043] [CRTC:93:crtc-0] must not have both a cursor plane and a cursor_move func
-[    6.782063] WARNING: CPU: 1 PID: 76 at drivers/gpu/drm/drm_mode_config.c:654 drm_mode_config_validate+0x290/0x4d0
-[    6.794362] Modules linked in:
-[    6.804600] CPU: 1 PID: 76 Comm: kworker/u8:2 Tainted: G        W         5.15.0-rc1-dirty #43
-[    6.807555] Hardware name: Qualcomm Technologies, Inc. DB820c (DT)
-[    6.816148] Workqueue: events_unbound deferred_probe_work_func
-[    6.822311] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    6.828126] pc : drm_mode_config_validate+0x290/0x4d0
-[    6.834981] lr : drm_mode_config_validate+0x290/0x4d0
-[    6.840189] sp : ffff8000121b3980
-[    6.845223] x29: ffff8000121b3990 x28: 0000000000000000 x27: 0000000000000001
-[    6.848525] x26: ffff8000114cde50 x25: ffff8000114cdd40 x24: ffff0000987282d8
-[    6.855643] x23: 0000000000000000 x22: 0000000000000000 x21: 0000000000000001
-[    6.862763] x20: ffff000098728000 x19: ffff000080a39000 x18: ffffffffffffffff
-[    6.869879] x17: 3136564e3631564e x16: 0000000000000324 x15: ffff800011c790c2
-[    6.876998] x14: 0000000000000000 x13: ffff800011a22850 x12: 0000000000000a2f
-[    6.884116] x11: 0000000000000365 x10: ffff800011a22850 x9 : ffff800011a22850
-[    6.891234] x8 : 00000000ffffefff x7 : ffff800011a7a850 x6 : ffff800011a7a850
-[    6.898351] x5 : 000000000000bff4 x4 : 40000000fffff365 x3 : 0000000000000000
-[    6.905470] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff00008093b800
-[    6.912590] Call trace:
-[    6.919702]  drm_mode_config_validate+0x290/0x4d0
-[    6.921960]  drm_dev_register+0x17c/0x210
-[    6.926821]  msm_drm_bind+0x4b4/0x694
-[    6.930813]  try_to_bring_up_master+0x164/0x1d0
-[    6.934459]  __component_add+0xa0/0x170
-[    6.938799]  component_add+0x14/0x20
-[    6.942619]  msm_hdmi_dev_probe+0x1c/0x2c
-[    6.946438]  platform_probe+0x68/0xe0
-[    6.950345]  really_probe.part.0+0x9c/0x30c
-[    6.953991]  __driver_probe_device+0x98/0x144
-[    6.957984]  driver_probe_device+0xc8/0x15c
-[    6.962498]  __device_attach_driver+0xb4/0x120
-[    6.966492]  bus_for_each_drv+0x78/0xd0
-[    6.971004]  __device_attach+0xdc/0x184
-[    6.974737]  device_initial_probe+0x14/0x20
-[    6.978556]  bus_probe_device+0x9c/0xa4
-[    6.982722]  deferred_probe_work_func+0x88/0xc0
-[    6.986543]  process_one_work+0x1d0/0x370
-[    6.991057]  worker_thread+0x2c8/0x470
-[    6.995223]  kthread+0x15c/0x170
-[    6.998869]  ret_from_fork+0x10/0x20
-[    7.002255] ---[ end trace 5884eb76cd26d275 ]---
-
-Fixes: aa649e875daf ("drm/msm/mdp5: mdp5_crtc: Restore cursor state only if LM cursors are enabled")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210925192824.3416259-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: c7fe3b52c128 ("NFC: add NFC socket family")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211013034932.2833737-1-william.xuanziyang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ net/nfc/af_nfc.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-@@ -1053,6 +1053,20 @@ static void mdp5_crtc_destroy_state(stru
- 	kfree(mdp5_cstate);
- }
+--- a/net/nfc/af_nfc.c
++++ b/net/nfc/af_nfc.c
+@@ -60,6 +60,9 @@ int nfc_proto_register(const struct nfc_
+ 		proto_tab[nfc_proto->id] = nfc_proto;
+ 	write_unlock(&proto_tab_lock);
  
-+static const struct drm_crtc_funcs mdp5_crtc_no_lm_cursor_funcs = {
-+	.set_config = drm_atomic_helper_set_config,
-+	.destroy = mdp5_crtc_destroy,
-+	.page_flip = drm_atomic_helper_page_flip,
-+	.reset = mdp5_crtc_reset,
-+	.atomic_duplicate_state = mdp5_crtc_duplicate_state,
-+	.atomic_destroy_state = mdp5_crtc_destroy_state,
-+	.atomic_print_state = mdp5_crtc_atomic_print_state,
-+	.get_vblank_counter = mdp5_crtc_get_vblank_counter,
-+	.enable_vblank  = msm_crtc_enable_vblank,
-+	.disable_vblank = msm_crtc_disable_vblank,
-+	.get_vblank_timestamp = drm_crtc_vblank_helper_get_vblank_timestamp,
-+};
++	if (rc)
++		proto_unregister(nfc_proto->proto);
 +
- static const struct drm_crtc_funcs mdp5_crtc_funcs = {
- 	.set_config = drm_atomic_helper_set_config,
- 	.destroy = mdp5_crtc_destroy,
-@@ -1236,6 +1250,8 @@ struct drm_crtc *mdp5_crtc_init(struct d
- 	mdp5_crtc->lm_cursor_enabled = cursor_plane ? false : true;
- 
- 	drm_crtc_init_with_planes(dev, crtc, plane, cursor_plane,
-+				  cursor_plane ?
-+				  &mdp5_crtc_no_lm_cursor_funcs :
- 				  &mdp5_crtc_funcs, NULL);
- 
- 	drm_flip_work_init(&mdp5_crtc->unref_cursor_work,
+ 	return rc;
+ }
+ EXPORT_SYMBOL(nfc_proto_register);
 
 
