@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1D10431CCD
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:43:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B947B431E2F
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:57:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233397AbhJRNos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:44:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40778 "EHLO mail.kernel.org"
+        id S232303AbhJRN65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:58:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231896AbhJRNmz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:42:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCA0E61283;
-        Mon, 18 Oct 2021 13:34:26 +0000 (UTC)
+        id S232993AbhJRN5A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:57:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD9D86140B;
+        Mon, 18 Oct 2021 13:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564067;
-        bh=J5hh4JfP+qOe5Gp7tcBGciG7iJE8Fdu59ov/wmhnTaY=;
+        s=korg; t=1634564441;
+        bh=ApDastnvPLq2YFZ2J2d8fh7UgJoGtFenx9l778amDpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZkzY5vQRYOjbVA2TlXWqgC+p5d31AuChPjXRLqkLqEcHbPS+YQ72Zvwqa5HqVyXH
-         UZbTRjdusOWddZRk93e6vUAgHqSrsQ8/wTzvWiQj7dy2pS2UqJ05LoM8Dqlw5nUSBg
-         MS2/i+mDdRvKCeKttgFW8sV2nhkfG2bB5/O82jRw=
+        b=hx94ZoikoQYgNi63TY9il4CRE7vHGuNuiI9BBtqdITemj6ZFGGfxBIKENRzhsXWDT
+         yzMMgKNG9w+36lTuGpHRQpko0gT/kKCTcOoqB40UiQIGT+p5ni4W/8w94BplQF7eti
+         asloglDWnw7EMPvmGTJ5WcPR96BZ5QrO3N1b5t2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexandru Tachici <alexandru.tachici@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 053/103] iio: adc: ad7793: Fix IRQ flag
+        Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>
+Subject: [PATCH 5.14 090/151] ARM: dts: bcm283x: Fix VEC address for BCM2711
 Date:   Mon, 18 Oct 2021 15:24:29 +0200
-Message-Id: <20211018132336.540589965@linuxfoundation.org>
+Message-Id: <20211018132343.607079864@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Tachici <alexandru.tachici@analog.com>
+From: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
 
-commit 1a913270e57a8e7f1e3789802f1f64e6d0654626 upstream.
+commit 9287e91e9019d4bc1018adb55ab791ae672e0b14 upstream.
 
-In Sigma-Delta devices the SDO line is also used as an interrupt.
-Leaving IRQ on level instead of falling might trigger a sample read
-when the IRQ is enabled, as the SDO line is already low. Not sure
-if SDO line will always immediately go high in ad_sd_buffer_postenable
-before the IRQ is enabled.
+The VEC has a different address (0x7ec13000) on the BCM2711 (used in
+e.g. Raspberry Pi 4) compared to BCM283x (e.g. Pi 3 and earlier). This
+was erroneously not taken account for.
 
-Also the datasheet seem to explicitly say the falling edge of the SDO
-should be used as an interrupt:
->From the AD7793 datasheet: " The DOUT/RDY falling edge can be
-used as an interrupt to a processor"
+Definition of the VEC in the devicetrees had to be moved from
+bcm283x.dtsi to bcm2711.dtsi and bcm2835-common.dtsi to allow for this
+differentiation.
 
-Fixes: da4d3d6bb9f6 ("iio: adc: ad-sigma-delta: Allow custom IRQ flags")
-Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210906065630.16325-4-alexandru.tachici@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 7894bdc6228f ("ARM: boot: dts: bcm2711: Add BCM2711 VEC compatible")
+Signed-off-by: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/1626980528-3835-1-git-send-email-stefan.wahren@i2se.com
+Signed-off-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad7793.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/bcm2711.dtsi        |    8 ++++++++
+ arch/arm/boot/dts/bcm2835-common.dtsi |    8 ++++++++
+ arch/arm/boot/dts/bcm283x.dtsi        |    8 --------
+ 3 files changed, 16 insertions(+), 8 deletions(-)
 
---- a/drivers/iio/adc/ad7793.c
-+++ b/drivers/iio/adc/ad7793.c
-@@ -206,7 +206,7 @@ static const struct ad_sigma_delta_info
- 	.has_registers = true,
- 	.addr_shift = 3,
- 	.read_mask = BIT(6),
--	.irq_flags = IRQF_TRIGGER_LOW,
-+	.irq_flags = IRQF_TRIGGER_FALLING,
- };
+--- a/arch/arm/boot/dts/bcm2711.dtsi
++++ b/arch/arm/boot/dts/bcm2711.dtsi
+@@ -300,6 +300,14 @@
+ 			status = "disabled";
+ 		};
  
- static const struct ad_sd_calib_data ad7793_calib_arr[6] = {
++		vec: vec@7ec13000 {
++			compatible = "brcm,bcm2711-vec";
++			reg = <0x7ec13000 0x1000>;
++			clocks = <&clocks BCM2835_CLOCK_VEC>;
++			interrupts = <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
++			status = "disabled";
++		};
++
+ 		dvp: clock@7ef00000 {
+ 			compatible = "brcm,brcm2711-dvp";
+ 			reg = <0x7ef00000 0x10>;
+--- a/arch/arm/boot/dts/bcm2835-common.dtsi
++++ b/arch/arm/boot/dts/bcm2835-common.dtsi
+@@ -106,6 +106,14 @@
+ 			status = "okay";
+ 		};
+ 
++		vec: vec@7e806000 {
++			compatible = "brcm,bcm2835-vec";
++			reg = <0x7e806000 0x1000>;
++			clocks = <&clocks BCM2835_CLOCK_VEC>;
++			interrupts = <2 27>;
++			status = "disabled";
++		};
++
+ 		pixelvalve@7e807000 {
+ 			compatible = "brcm,bcm2835-pixelvalve2";
+ 			reg = <0x7e807000 0x100>;
+--- a/arch/arm/boot/dts/bcm283x.dtsi
++++ b/arch/arm/boot/dts/bcm283x.dtsi
+@@ -464,14 +464,6 @@
+ 			status = "disabled";
+ 		};
+ 
+-		vec: vec@7e806000 {
+-			compatible = "brcm,bcm2835-vec";
+-			reg = <0x7e806000 0x1000>;
+-			clocks = <&clocks BCM2835_CLOCK_VEC>;
+-			interrupts = <2 27>;
+-			status = "disabled";
+-		};
+-
+ 		usb: usb@7e980000 {
+ 			compatible = "brcm,bcm2835-usb";
+ 			reg = <0x7e980000 0x10000>;
 
 
