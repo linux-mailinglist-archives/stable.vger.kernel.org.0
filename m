@@ -2,103 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF0324313E2
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 11:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC176431419
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 12:07:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbhJRJ7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 05:59:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38732 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229548AbhJRJ7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 05:59:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91F7160FD7;
-        Mon, 18 Oct 2021 09:56:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634551013;
-        bh=IhQIyPPB3L8GKihYwDq1WxgnwUAIXE6Tq7OHoiD8sqY=;
-        h=Subject:To:Cc:From:Date:From;
-        b=ISaNmm2IsCBz1qEZTefRuzA5yWGwOYZdTUkM7qKbNdRkvTvxVrM7zeVdOnpfxt0Xu
-         nXqQ/YLwkKdd75vqGTBmsHSZpypzaoQshUS8IqhCN3nGsDLARtq7Rap+RjRmFkqIKl
-         sMJ48ndF5QWqBZWDc8INyiYB6UGp0JB3MCldfeNo=
-Subject: FAILED: patch "[PATCH] misc: fastrpc: Add missing lock before accessing find_vma()" failed to apply to 5.4-stable tree
-To:     srinivas.kandagatla@linaro.org, gregkh@linuxfoundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 11:55:43 +0200
-Message-ID: <1634550943149112@kroah.com>
+        id S230173AbhJRKJd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 06:09:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43578 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229992AbhJRKJa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 06:09:30 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B21C06161C
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 03:07:19 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id np13so11835734pjb.4
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 03:07:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=PZi4CqOeNvJwcpNuyxij/N2/KbdgS81lWmUlVuyW0Zc=;
+        b=2CD3TM4EPsEK3R1/ZxPfp78BUrK7ZKewViyjf7mqG6Q43te5Llf2ZY9s0hyKOuGAQu
+         jF8+BuEZFFyOmxAtxwnKbYBBElxIIVzpHm70ZySJ53xBfmQtL7SVmjUpCvB7Vi6WpU7F
+         1D9OlbtxuD5OFua8yDzfxl+5hEBDwUO78snvoAmNAq/A8F/456ENFHvk3JRVSYzwNB3O
+         lzK8VWhcZiA7zlK0gV5G7dEfUmIkMACCgsNhe8Z2j2/3fyZKcI5zSY39Ae6LYk+8Lf0Q
+         eR4cyNYmdF2M8yXAYq93N4kWU7LWLqY+NDf8PO+t96cwOIenLE8Abldv8xWaSeAxKkS2
+         tlhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=PZi4CqOeNvJwcpNuyxij/N2/KbdgS81lWmUlVuyW0Zc=;
+        b=KZktu2xP0LDU0/TH3jT7i8u+YWIgbhaX//07hzGm+cT+zm0Cf84fzzITWcYROQJckF
+         JF6TiuX4Upf3N2OYTCQY10QxJdUJoHPC+mPz2obJAZRYNI07Cd1Dw42lRfzl5oYdEAnv
+         3HOuNF3ZFJK4ZSQQXcz9OnB4FiseCyMEPvggikwrlX+HCZ2C7jJ9m+uwX9KYJTCRWZ3w
+         7BjsEf44hQjmeXWedQLtIIjWkGgZWp25Ii2FF87jmFvnOfHZDzKkyLnsvybw4cR06MWY
+         h2myX87IM0rl8ts/ACWiDTd3AOnNqSUWYqGQxf7d/BZtClrD2NBwA+KmEoit5W7h8Ie1
+         Q+iw==
+X-Gm-Message-State: AOAM530iNv46EMgYSuiGzFUw3vA6lpD/kWzGEgySbjUJWeWt7dYdQQ19
+        pVCYCJKNF9Zr7fog2VwgtoqQBuvkF8/+MnPS
+X-Google-Smtp-Source: ABdhPJxnzvdrCJy0oPvk5f09aljl7L6DU/kSAFjv8PMK7jZgNDvgN2z34zSwPqLVbifFQE2hdm9ucw==
+X-Received: by 2002:a17:902:8a8c:b0:13e:45bc:e9a9 with SMTP id p12-20020a1709028a8c00b0013e45bce9a9mr26902040plo.11.1634551639015;
+        Mon, 18 Oct 2021 03:07:19 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c192sm12534073pfb.110.2021.10.18.03.07.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Oct 2021 03:07:18 -0700 (PDT)
+Message-ID: <616d4756.1c69fb81.2abd9.25f2@mx.google.com>
+Date:   Mon, 18 Oct 2021 03:07:18 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.153-35-g937fda060bec
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.4.y baseline: 76 runs,
+ 4 regressions (v5.4.153-35-g937fda060bec)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.4.y baseline: 76 runs, 4 regressions (v5.4.153-35-g937fda=
+060bec)
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-thanks,
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
+  | 1          =
 
-greg k-h
+qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
+g | 1          =
 
------------------- original commit in Linus's tree ------------------
+qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-From f9a470db2736b01538ad193c316eb3f26be37d58 Mon Sep 17 00:00:00 2001
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Date: Wed, 22 Sep 2021 16:43:26 +0100
-Subject: [PATCH] misc: fastrpc: Add missing lock before accessing find_vma()
+qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
+g | 1          =
 
-fastrpc driver is using find_vma() without any protection, as a
-result we see below warning due to recent patch 5b78ed24e8ec
-("mm/pagemap: add mmap_assert_locked() annotations to find_vma*()")
-which added mmap_assert_locked() in find_vma() function.
 
-This bug went un-noticed in previous versions. Fix this issue by adding
-required protection while calling find_vma().
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.153-35-g937fda060bec/plan/baseline/
 
-CPU: 0 PID: 209746 Comm: benchmark_model Not tainted 5.15.0-rc2-00445-ge14fe2bf817a-dirty #969
-Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : find_vma+0x64/0xd0
-lr : find_vma+0x60/0xd0
-sp : ffff8000158ebc40
-...
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.153-35-g937fda060bec
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      937fda060bec916541d631ab306bf1581673cda3 =
 
-Call trace:
- find_vma+0x64/0xd0
- fastrpc_internal_invoke+0x570/0xda8
- fastrpc_device_ioctl+0x3e0/0x928
- __arm64_sys_ioctl+0xac/0xf0
- invoke_syscall+0x44/0x100
- el0_svc_common.constprop.3+0x70/0xf8
- do_el0_svc+0x24/0x88
- el0_svc+0x3c/0x138
- el0t_64_sync_handler+0x90/0xb8
- el0t_64_sync+0x180/0x184
 
-Fixes: 80f3afd72bd4 ("misc: fastrpc: consider address offset before sending to DSP")
-Cc: stable@vger.kernel.org
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210922154326.8927-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
-index beda610e6b30..ad6ced454655 100644
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -814,10 +814,12 @@ static int fastrpc_get_args(u32 kernel, struct fastrpc_invoke_ctx *ctx)
- 			rpra[i].pv = (u64) ctx->args[i].ptr;
- 			pages[i].addr = ctx->maps[i]->phys;
- 
-+			mmap_read_lock(current->mm);
- 			vma = find_vma(current->mm, ctx->args[i].ptr);
- 			if (vma)
- 				pages[i].addr += ctx->args[i].ptr -
- 						 vma->vm_start;
-+			mmap_read_unlock(current->mm);
- 
- 			pg_start = (ctx->args[i].ptr & PAGE_MASK) >> PAGE_SHIFT;
- 			pg_end = ((ctx->args[i].ptr + len - 1) & PAGE_MASK) >>
+Test Regressions
+---------------- =
 
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/616d0e22e36b87a5813358e7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-35-g937fda060bec/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
+hed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-35-g937fda060bec/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
+hed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/616d0e22e36b87a581335=
+8e8
+        failing since 331 days (last pass: v5.4.77-152-ga3746663c3479, firs=
+t fail: v5.4.78) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/616d09ecaefcdc66ae3358df
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/616d09ecaefcdc66ae335=
+8e0
+        failing since 337 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/616d0aa6f863f3e21e3358ed
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/616d0aa6f863f3e21e335=
+8ee
+        failing since 337 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/616d09ed8f1af12ed83358f4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.153=
+-35-g937fda060bec/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/616d09ed8f1af12ed8335=
+8f5
+        failing since 337 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =20
