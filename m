@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A543431CBE
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF1D431DD2
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232230AbhJRNoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:44:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40198 "EHLO mail.kernel.org"
+        id S234113AbhJRNzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:55:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233353AbhJRNmn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:42:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68D72613B3;
-        Mon, 18 Oct 2021 13:34:13 +0000 (UTC)
+        id S234163AbhJRNxQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:53:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51F9161994;
+        Mon, 18 Oct 2021 13:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564053;
-        bh=mrECW77YNpFfyAFFbu+Xb7yKyaL65IOjavrB4Z9svcM=;
+        s=korg; t=1634564337;
+        bh=90kXehvpQUPWrT0A1olxvxENgHo8g6UIskVWuso48Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IIEE4seB+DRhBPm1l/SYXG+Dp9Q/HGJPsOboxNTSkmKuo/ixJacYH/eaCDUXmugvr
-         mXS/K1qnZuGAvCUFMSenQB0enVrfrWdhkOdkjlrEvO95bn0jBZP7wz8uuzo0Ob7evc
-         p7/ffPtwMhpiK+z3l6KkFziUHg6iCCF4yGbJaOSs=
+        b=GcUoPBVLStNZ+0Va/OeHMyZfiSte/7NshlNcenZAmCWtzP3RDTnftdJwmqZOCxeP7
+         PlGQkY0CKyJ30myqWJJQ2AYpNnLimu8WqKVSdAvlWAraUsIo0DvcViGB+cowIEa2uN
+         WgG9JGxBoeNsUI5Ir28PXkW+qCmR/P6LBnbgmNa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.10 014/103] clk: socfpga: agilex: fix duplicate s2f_user0_clk
+        stable@vger.kernel.org, Yu-Tung Chang <mtwget@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.14 051/151] USB: serial: option: add Quectel EC200S-CN module support
 Date:   Mon, 18 Oct 2021 15:23:50 +0200
-Message-Id: <20211018132335.172826065@linuxfoundation.org>
+Message-Id: <20211018132342.349113835@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,46 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Yu-Tung Chang <mtwget@gmail.com>
 
-commit 09540fa337196be20e9f0241652364f09275d374 upstream.
+commit 2263eb7370060bdb0013bc14e1a7c9bf33617a55 upstream.
 
-Remove the duplicate s2f_user0_clk and the unused s2f_usr0_mux define.
+Add usb product id of the Quectel EC200S-CN module.
 
-Fixes: f817c132db67 ("clk: socfpga: agilex: fix up s2f_user0_clk representation")
+usb-devices output for 0x6002:
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=6002 Rev=03.18
+S:  Manufacturer=Android
+S:  Product=Android
+S:  SerialNumber=0000
+C:  #Ifs= 5 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=06 Prot=00 Driver=cdc_ether
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+
+Signed-off-by: Yu-Tung Chang <mtwget@gmail.com>
+Link: https://lore.kernel.org/r/20210930021112.330396-1-mtwget@gmail.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20210916225126.1427700-1-dinguyen@kernel.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/socfpga/clk-agilex.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/clk/socfpga/clk-agilex.c
-+++ b/drivers/clk/socfpga/clk-agilex.c
-@@ -165,13 +165,6 @@ static const struct clk_parent_data mpu_
- 	  .name = "boot_clk", },
- };
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -251,6 +251,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EP06			0x0306
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
++#define QUECTEL_PRODUCT_EC200S_CN		0x6002
+ #define QUECTEL_PRODUCT_EC200T			0x6026
  
--static const struct clk_parent_data s2f_usr0_mux[] = {
--	{ .fw_name = "f2s-free-clk",
--	  .name = "f2s-free-clk", },
--	{ .fw_name = "boot_clk",
--	  .name = "boot_clk", },
--};
--
- static const struct clk_parent_data emac_mux[] = {
- 	{ .fw_name = "emaca_free_clk",
- 	  .name = "emaca_free_clk", },
-@@ -299,8 +292,6 @@ static const struct stratix10_gate_clock
- 	  4, 0x44, 28, 1, 0, 0, 0},
- 	{ AGILEX_CS_TIMER_CLK, "cs_timer_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x24,
- 	  5, 0, 0, 0, 0x30, 1, 0},
--	{ AGILEX_S2F_USER0_CLK, "s2f_user0_clk", NULL, s2f_usr0_mux, ARRAY_SIZE(s2f_usr0_mux), 0, 0x24,
--	  6, 0, 0, 0, 0, 0, 0},
- 	{ AGILEX_EMAC0_CLK, "emac0_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0x7C,
- 	  0, 0, 0, 0, 0x94, 26, 0},
- 	{ AGILEX_EMAC1_CLK, "emac1_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0x7C,
+ #define CMOTECH_VENDOR_ID			0x16d8
+@@ -1128,6 +1129,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
+ 	  .driver_info = ZLP },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
+ 
+ 	{ USB_DEVICE(CMOTECH_VENDOR_ID, CMOTECH_PRODUCT_6001) },
 
 
