@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACDFB431C93
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB451431DB2
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:53:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231858AbhJRNmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 09:42:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54084 "EHLO mail.kernel.org"
+        id S233224AbhJRNyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:54:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233416AbhJRNkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:40:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3A90613A2;
-        Mon, 18 Oct 2021 13:33:15 +0000 (UTC)
+        id S233867AbhJRNwF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:52:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FF9261356;
+        Mon, 18 Oct 2021 13:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634563996;
-        bh=n0RHwl3MWWG0TpDMSPDYhcPCIQAcvisO2609pvhR0Yc=;
+        s=korg; t=1634564319;
+        bh=V5q8jqpNLEFvULBQ/nLGImYDqTsVmi2RD6LJkW5bd4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VqXwqiWgMJTuF9mrNyXyetHh5b1yFHwP3iOXXCxy2/w8sEt1F0enZS1U5qdG5Z0Ng
-         FtKpRe9Jmxsq4xjWk+0JME1nG7ZCo/OKTnf06DNifPNSSEbjCucJVYA8UpIFRLm1VO
-         aa79AVGafgge1PeT32vk9tQWhFCkw+Su215A7F3s=
+        b=ocvc7rYBu9DosRp8KNsdKtJrVopQtSte0UalZDFXY5VgxQ5cftf12q0R5uz2CWF07
+         mUNL+Uw0+IxC4gBdomyIKf/YouMPVcH4EciQpKRywi2Cgwb96VfPPZQwRNdugahvl7
+         PMdKqY3IgOddmwhg+1JPGfVhWNSqfCtuQfqyxftc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 008/103] ALSA: hda/realtek - ALC236 headset MIC recording issue
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.14 045/151] cb710: avoid NULL pointer subtraction
 Date:   Mon, 18 Oct 2021 15:23:44 +0200
-Message-Id: <20211018132334.976354137@linuxfoundation.org>
+Message-Id: <20211018132342.169193215@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
+References: <20211018132340.682786018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +38,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 5aec98913095ed3b4424ed6c5fdeb6964e9734da upstream.
+commit 42641042c10c757fe10cc09088cf3f436cec5007 upstream.
 
-In power save mode, the recording voice from headset mic will 2s more delay.
-Add this patch will solve this issue.
+clang-14 complains about an unusual way of converting a pointer to
+an integer:
 
-[ minor coding style fix by tiwai ]
+drivers/misc/cb710/sgbuf2.c:50:15: error: performing pointer subtraction with a null pointer has undefined behavior [-Werror,-Wnull-pointer-subtraction]
+        return ((ptr - NULL) & 3) != 0;
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/ccb0cdd5bbd7486eabbd8d987d384cb0@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Replace this with a normal cast to uintptr_t.
+
+Fixes: 5f5bac8272be ("mmc: Driver for CB710/720 memory card reader (MMC part)")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210927121408.939246-1-arnd@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/misc/cb710/sgbuf2.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -527,6 +527,8 @@ static void alc_shutup_pins(struct hda_c
- 	struct alc_spec *spec = codec->spec;
+--- a/drivers/misc/cb710/sgbuf2.c
++++ b/drivers/misc/cb710/sgbuf2.c
+@@ -47,7 +47,7 @@ static inline bool needs_unaligned_copy(
+ #ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+ 	return false;
+ #else
+-	return ((ptr - NULL) & 3) != 0;
++	return ((uintptr_t)ptr & 3) != 0;
+ #endif
+ }
  
- 	switch (codec->core.vendor_id) {
-+	case 0x10ec0236:
-+	case 0x10ec0256:
- 	case 0x10ec0283:
- 	case 0x10ec0286:
- 	case 0x10ec0288:
-@@ -3532,7 +3534,8 @@ static void alc256_shutup(struct hda_cod
- 	/* If disable 3k pulldown control for alc257, the Mic detection will not work correctly
- 	 * when booting with headset plugged. So skip setting it for the codec alc257
- 	 */
--	if (codec->core.vendor_id != 0x10ec0257)
-+	if (spec->codec_variant != ALC269_TYPE_ALC257 &&
-+	    spec->codec_variant != ALC269_TYPE_ALC256)
- 		alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
- 
- 	if (!spec->no_shutup_pins)
 
 
