@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E08F431E7F
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 16:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98F84431C35
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 15:37:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233893AbhJROBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 10:01:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40764 "EHLO mail.kernel.org"
+        id S233073AbhJRNjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 09:39:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234137AbhJRN7z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 09:59:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D52E61A50;
-        Mon, 18 Oct 2021 13:41:57 +0000 (UTC)
+        id S233373AbhJRNhs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Oct 2021 09:37:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 403C761371;
+        Mon, 18 Oct 2021 13:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634564518;
-        bh=z5OsFOv0E7djkYwtOdbilRXo/GbtY8U6iviwCLnKuDE=;
+        s=korg; t=1634563904;
+        bh=dxpfKwMzhPjaRIEpvbqWvz3Oiuh39b2FReTEQQlhjDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qy403HgldpQcE8qQSewQvqUK9EABPKapfqo+Bq6IZPQW/r+RxEJhY8bgT5TRYEVjr
-         T1rJWM2H2wkFScOs2jGbaZnrgHf6ijOvMNtZKML1plQxONoaSjnlbOVJpunCAcxdF3
-         u3p0YK1l0R3u4Q+Jxq+4QN5i21sGKJqaAL/aIzbk=
+        b=y/54rh0CdWBozwPePBVMUvl63Sql0m8uWWnbJjFQyrAx0Pela57FAPmBQhDxgYlWi
+         nZUM/rtgjLoOBjK12kwqI6tA0v1PdOJsZvkOzqojc7Envus6ecg0nuAUoELkrEtBqd
+         mu2mcsRbYeMkv8W2WPOqEG4CvJXbCeYkTZzfguuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 120/151] mlxsw: thermal: Fix out-of-bounds memory accesses
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>
+Subject: [PATCH 5.4 61/69] drm/msm: Fix null pointer dereference on pointer edp
 Date:   Mon, 18 Oct 2021 15:24:59 +0200
-Message-Id: <20211018132344.579037584@linuxfoundation.org>
+Message-Id: <20211018132331.489294525@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211018132340.682786018@linuxfoundation.org>
-References: <20211018132340.682786018@linuxfoundation.org>
+In-Reply-To: <20211018132329.453964125@linuxfoundation.org>
+References: <20211018132329.453964125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,201 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 332fdf951df8b870e3da86b122ae304e2aabe88c upstream.
+commit 2133c4fc8e1348dcb752f267a143fe2254613b34 upstream.
 
-Currently, mlxsw allows cooling states to be set above the maximum
-cooling state supported by the driver:
+The initialization of pointer dev dereferences pointer edp before
+edp is null checked, so there is a potential null pointer deference
+issue. Fix this by only dereferencing edp after edp has been null
+checked.
 
- # cat /sys/class/thermal/thermal_zone2/cdev0/type
- mlxsw_fan
- # cat /sys/class/thermal/thermal_zone2/cdev0/max_state
- 10
- # echo 18 > /sys/class/thermal/thermal_zone2/cdev0/cur_state
- # echo $?
- 0
-
-This results in out-of-bounds memory accesses when thermal state
-transition statistics are enabled (CONFIG_THERMAL_STATISTICS=y), as the
-transition table is accessed with a too large index (state) [1].
-
-According to the thermal maintainer, it is the responsibility of the
-driver to reject such operations [2].
-
-Therefore, return an error when the state to be set exceeds the maximum
-cooling state supported by the driver.
-
-To avoid dead code, as suggested by the thermal maintainer [3],
-partially revert commit a421ce088ac8 ("mlxsw: core: Extend cooling
-device with cooling levels") that tried to interpret these invalid
-cooling states (above the maximum) in a special way. The cooling levels
-array is not removed in order to prevent the fans going below 20% PWM,
-which would cause them to get stuck at 0% PWM.
-
-[1]
-BUG: KASAN: slab-out-of-bounds in thermal_cooling_device_stats_update+0x271/0x290
-Read of size 4 at addr ffff8881052f7bf8 by task kworker/0:0/5
-
-CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.15.0-rc3-custom-45935-gce1adf704b14 #122
-Hardware name: Mellanox Technologies Ltd. "MSN2410-CB2FO"/"SA000874", BIOS 4.6.5 03/08/2016
-Workqueue: events_freezable_power_ thermal_zone_device_check
-Call Trace:
- dump_stack_lvl+0x8b/0xb3
- print_address_description.constprop.0+0x1f/0x140
- kasan_report.cold+0x7f/0x11b
- thermal_cooling_device_stats_update+0x271/0x290
- __thermal_cdev_update+0x15e/0x4e0
- thermal_cdev_update+0x9f/0xe0
- step_wise_throttle+0x770/0xee0
- thermal_zone_device_update+0x3f6/0xdf0
- process_one_work+0xa42/0x1770
- worker_thread+0x62f/0x13e0
- kthread+0x3ee/0x4e0
- ret_from_fork+0x1f/0x30
-
-Allocated by task 1:
- kasan_save_stack+0x1b/0x40
- __kasan_kmalloc+0x7c/0x90
- thermal_cooling_device_setup_sysfs+0x153/0x2c0
- __thermal_cooling_device_register.part.0+0x25b/0x9c0
- thermal_cooling_device_register+0xb3/0x100
- mlxsw_thermal_init+0x5c5/0x7e0
- __mlxsw_core_bus_device_register+0xcb3/0x19c0
- mlxsw_core_bus_device_register+0x56/0xb0
- mlxsw_pci_probe+0x54f/0x710
- local_pci_probe+0xc6/0x170
- pci_device_probe+0x2b2/0x4d0
- really_probe+0x293/0xd10
- __driver_probe_device+0x2af/0x440
- driver_probe_device+0x51/0x1e0
- __driver_attach+0x21b/0x530
- bus_for_each_dev+0x14c/0x1d0
- bus_add_driver+0x3ac/0x650
- driver_register+0x241/0x3d0
- mlxsw_sp_module_init+0xa2/0x174
- do_one_initcall+0xee/0x5f0
- kernel_init_freeable+0x45a/0x4de
- kernel_init+0x1f/0x210
- ret_from_fork+0x1f/0x30
-
-The buggy address belongs to the object at ffff8881052f7800
- which belongs to the cache kmalloc-1k of size 1024
-The buggy address is located 1016 bytes inside of
- 1024-byte region [ffff8881052f7800, ffff8881052f7c00)
-The buggy address belongs to the page:
-page:0000000052355272 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1052f0
-head:0000000052355272 order:3 compound_mapcount:0 compound_pincount:0
-flags: 0x200000000010200(slab|head|node=0|zone=2)
-raw: 0200000000010200 ffffea0005034800 0000000300000003 ffff888100041dc0
-raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff8881052f7a80: 00 00 00 00 00 00 04 fc fc fc fc fc fc fc fc fc
- ffff8881052f7b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff8881052f7b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                                                                ^
- ffff8881052f7c00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff8881052f7c80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-
-[2] https://lore.kernel.org/linux-pm/9aca37cb-1629-5c67-1895-1fdc45c0244e@linaro.org/
-[3] https://lore.kernel.org/linux-pm/af9857f2-578e-de3a-e62b-6baff7e69fd4@linaro.org/
-
-CC: Daniel Lezcano <daniel.lezcano@linaro.org>
-Fixes: a50c1e35650b ("mlxsw: core: Implement thermal zone")
-Fixes: a421ce088ac8 ("mlxsw: core: Extend cooling device with cooling levels")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Vadim Pasternak <vadimp@nvidia.com>
-Link: https://lore.kernel.org/r/20211012174955.472928-1-idosch@idosch.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Addresses-Coverity: ("Dereference before null check")
+Fixes: ab5b0107ccf3 ("drm/msm: Initial add eDP support in msm drm driver (v5)")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20210929121857.213922-1-colin.king@canonical.com
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core_thermal.c |   52 ++-------------------
- 1 file changed, 5 insertions(+), 47 deletions(-)
+ drivers/gpu/drm/msm/edp/edp_ctrl.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-@@ -24,16 +24,8 @@
- #define MLXSW_THERMAL_ZONE_MAX_NAME	16
- #define MLXSW_THERMAL_TEMP_SCORE_MAX	GENMASK(31, 0)
- #define MLXSW_THERMAL_MAX_STATE	10
-+#define MLXSW_THERMAL_MIN_STATE	2
- #define MLXSW_THERMAL_MAX_DUTY	255
--/* Minimum and maximum fan allowed speed in percent: from 20% to 100%. Values
-- * MLXSW_THERMAL_MAX_STATE + x, where x is between 2 and 10 are used for
-- * setting fan speed dynamic minimum. For example, if value is set to 14 (40%)
-- * cooling levels vector will be set to 4, 4, 4, 4, 4, 5, 6, 7, 8, 9, 10 to
-- * introduce PWM speed in percent: 40, 40, 40, 40, 40, 50, 60. 70, 80, 90, 100.
-- */
--#define MLXSW_THERMAL_SPEED_MIN		(MLXSW_THERMAL_MAX_STATE + 2)
--#define MLXSW_THERMAL_SPEED_MAX		(MLXSW_THERMAL_MAX_STATE * 2)
--#define MLXSW_THERMAL_SPEED_MIN_LEVEL	2		/* 20% */
+--- a/drivers/gpu/drm/msm/edp/edp_ctrl.c
++++ b/drivers/gpu/drm/msm/edp/edp_ctrl.c
+@@ -1082,7 +1082,7 @@ void msm_edp_ctrl_power(struct edp_ctrl
+ int msm_edp_ctrl_init(struct msm_edp *edp)
+ {
+ 	struct edp_ctrl *ctrl = NULL;
+-	struct device *dev = &edp->pdev->dev;
++	struct device *dev;
+ 	int ret;
  
- /* External cooling devices, allowed for binding to mlxsw thermal zones. */
- static char * const mlxsw_thermal_external_allowed_cdev[] = {
-@@ -646,49 +638,16 @@ static int mlxsw_thermal_set_cur_state(s
- 	struct mlxsw_thermal *thermal = cdev->devdata;
- 	struct device *dev = thermal->bus_info->dev;
- 	char mfsc_pl[MLXSW_REG_MFSC_LEN];
--	unsigned long cur_state, i;
- 	int idx;
--	u8 duty;
- 	int err;
+ 	if (!edp) {
+@@ -1090,6 +1090,7 @@ int msm_edp_ctrl_init(struct msm_edp *ed
+ 		return -EINVAL;
+ 	}
  
-+	if (state > MLXSW_THERMAL_MAX_STATE)
-+		return -EINVAL;
-+
- 	idx = mlxsw_get_cooling_device_idx(thermal, cdev);
- 	if (idx < 0)
- 		return idx;
- 
--	/* Verify if this request is for changing allowed fan dynamical
--	 * minimum. If it is - update cooling levels accordingly and update
--	 * state, if current state is below the newly requested minimum state.
--	 * For example, if current state is 5, and minimal state is to be
--	 * changed from 4 to 6, thermal->cooling_levels[0 to 5] will be changed
--	 * all from 4 to 6. And state 5 (thermal->cooling_levels[4]) should be
--	 * overwritten.
--	 */
--	if (state >= MLXSW_THERMAL_SPEED_MIN &&
--	    state <= MLXSW_THERMAL_SPEED_MAX) {
--		state -= MLXSW_THERMAL_MAX_STATE;
--		for (i = 0; i <= MLXSW_THERMAL_MAX_STATE; i++)
--			thermal->cooling_levels[i] = max(state, i);
--
--		mlxsw_reg_mfsc_pack(mfsc_pl, idx, 0);
--		err = mlxsw_reg_query(thermal->core, MLXSW_REG(mfsc), mfsc_pl);
--		if (err)
--			return err;
--
--		duty = mlxsw_reg_mfsc_pwm_duty_cycle_get(mfsc_pl);
--		cur_state = mlxsw_duty_to_state(duty);
--
--		/* If current fan state is lower than requested dynamical
--		 * minimum, increase fan speed up to dynamical minimum.
--		 */
--		if (state < cur_state)
--			return 0;
--
--		state = cur_state;
--	}
--
--	if (state > MLXSW_THERMAL_MAX_STATE)
--		return -EINVAL;
--
- 	/* Normalize the state to the valid speed range. */
- 	state = thermal->cooling_levels[state];
- 	mlxsw_reg_mfsc_pack(mfsc_pl, idx, mlxsw_state_to_duty(state));
-@@ -998,8 +957,7 @@ int mlxsw_thermal_init(struct mlxsw_core
- 
- 	/* Initialize cooling levels per PWM state. */
- 	for (i = 0; i < MLXSW_THERMAL_MAX_STATE; i++)
--		thermal->cooling_levels[i] = max(MLXSW_THERMAL_SPEED_MIN_LEVEL,
--						 i);
-+		thermal->cooling_levels[i] = max(MLXSW_THERMAL_MIN_STATE, i);
- 
- 	thermal->polling_delay = bus_info->low_frequency ?
- 				 MLXSW_THERMAL_SLOW_POLL_INT :
++	dev = &edp->pdev->dev;
+ 	ctrl = devm_kzalloc(dev, sizeof(*ctrl), GFP_KERNEL);
+ 	if (!ctrl)
+ 		return -ENOMEM;
 
 
