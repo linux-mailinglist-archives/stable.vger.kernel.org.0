@@ -2,130 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3AD6431742
-	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:27:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD7CB43174D
+	for <lists+stable@lfdr.de>; Mon, 18 Oct 2021 13:28:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229833AbhJRL3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Oct 2021 07:29:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38470 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229491AbhJRL3j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Oct 2021 07:29:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9839660EE9;
-        Mon, 18 Oct 2021 11:27:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634556448;
-        bh=oWRdqKmyxYWRGKJw+pkVJ12/nQngoAqKtgc8eNO7G3g=;
-        h=Subject:To:Cc:From:Date:From;
-        b=c9OccaRPskqcHbIsaYhKcjmNd9CCAWzJgS6wksvwz/HyCetCrRRqcD/ESKLMLstb9
-         37h1iAYrPJTxH2K2MSmLFmqg3V8DurjK88KzkQc0o7EKoFAyuwTL8BR7jt52icopdI
-         97bmCuLdVjLJzxmZsgsuQE2ZmYuPaKImHAyCblXE=
-Subject: FAILED: patch "[PATCH] drm/msm/dsi: dsi_phy_14nm: Take ready-bit into account in" failed to apply to 5.10-stable tree
-To:     marijn.suijten@somainline.org, dmitry.baryshkov@linaro.org,
-        robdclark@chromium.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Oct 2021 13:27:15 +0200
-Message-ID: <1634556435117220@kroah.com>
+        id S231167AbhJRLap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Oct 2021 07:30:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34306 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229581AbhJRLao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Oct 2021 07:30:44 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C8DAC06161C
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 04:28:33 -0700 (PDT)
+Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1mcQoX-00007x-Fr; Mon, 18 Oct 2021 13:28:21 +0200
+Received: from ore by dude.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1mcQoW-0000Cm-4w; Mon, 18 Oct 2021 13:28:20 +0200
+Date:   Mon, 18 Oct 2021 13:28:20 +0200
+From:   Oleksij Rempel <o.rempel@pengutronix.de>
+To:     Michal =?utf-8?B?Vm9rw6HEjQ==?= <michal.vokac@ysoft.com>
+Cc:     Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        linux-pm@vger.kernel.org,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Amit Kucheria <amitk@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Petr =?utf-8?B?QmVuZcWh?= <petr.benes@ysoft.com>,
+        petrben@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH] thermal: imx: Fix temperature measurements on i.MX6
+ after alarm
+Message-ID: <20211018112820.qkebjt2gk2w53lp5@pengutronix.de>
+References: <20211008081137.1948848-1-michal.vokac@ysoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211008081137.1948848-1-michal.vokac@ysoft.com>
+User-Agent: NeoMutt/20180716
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
+X-SA-Exim-Mail-From: ore@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Michal,
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I hope you have seen this patch:
+https://lore.kernel.org/all/20210924115032.29684-1-o.rempel@pengutronix.de/
 
-thanks,
+Are there any reason why this was ignored?
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 90b7c1c66132c20e8a550006011a3cbfb73dbfc1 Mon Sep 17 00:00:00 2001
-From: Marijn Suijten <marijn.suijten@somainline.org>
-Date: Mon, 6 Sep 2021 22:25:51 +0200
-Subject: [PATCH] drm/msm/dsi: dsi_phy_14nm: Take ready-bit into account in
- poll_for_ready
-
-The downstream driver models this PLL lock check as an if-elseif-else.
-The only way to reach the else case where pll_locked=true [1] is by
-succeeding both readl_poll_timeout_atomic calls (which return zero on
-success) in the if _and_ elseif condition.  Hence both the "lock" and
-"ready" bit need to be tested in the SM_READY_STATUS register before
-considering the PLL locked and ready to go.
-
-Tested on the Sony Xperia XA2 Ultra (nile-discovery, sdm630).
-
-[1]: https://source.codeaurora.org/quic/la/kernel/msm-4.19/tree/drivers/clk/qcom/mdss/mdss-dsi-pll-14nm-util.c?h=LA.UM.9.2.1.r1-08000-sdm660.0#n302
-
-Fixes: f079f6d999cb ("drm/msm/dsi: Add PHY/PLL for 8x96")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210906202552.824598-1-marijn.suijten@somainline.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-index d13552b2213b..5b4e991f220d 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-@@ -110,14 +110,13 @@ static struct dsi_pll_14nm *pll_14nm_list[DSI_MAX];
- static bool pll_14nm_poll_for_ready(struct dsi_pll_14nm *pll_14nm,
- 				    u32 nb_tries, u32 timeout_us)
- {
--	bool pll_locked = false;
-+	bool pll_locked = false, pll_ready = false;
- 	void __iomem *base = pll_14nm->phy->pll_base;
- 	u32 tries, val;
- 
- 	tries = nb_tries;
- 	while (tries--) {
--		val = dsi_phy_read(base +
--			       REG_DSI_14nm_PHY_PLL_RESET_SM_READY_STATUS);
-+		val = dsi_phy_read(base + REG_DSI_14nm_PHY_PLL_RESET_SM_READY_STATUS);
- 		pll_locked = !!(val & BIT(5));
- 
- 		if (pll_locked)
-@@ -126,23 +125,24 @@ static bool pll_14nm_poll_for_ready(struct dsi_pll_14nm *pll_14nm,
- 		udelay(timeout_us);
- 	}
- 
--	if (!pll_locked) {
--		tries = nb_tries;
--		while (tries--) {
--			val = dsi_phy_read(base +
--				REG_DSI_14nm_PHY_PLL_RESET_SM_READY_STATUS);
--			pll_locked = !!(val & BIT(0));
-+	if (!pll_locked)
-+		goto out;
- 
--			if (pll_locked)
--				break;
-+	tries = nb_tries;
-+	while (tries--) {
-+		val = dsi_phy_read(base + REG_DSI_14nm_PHY_PLL_RESET_SM_READY_STATUS);
-+		pll_ready = !!(val & BIT(0));
- 
--			udelay(timeout_us);
--		}
-+		if (pll_ready)
-+			break;
-+
-+		udelay(timeout_us);
- 	}
- 
--	DBG("DSI PLL is %slocked", pll_locked ? "" : "*not* ");
-+out:
-+	DBG("DSI PLL is %slocked, %sready", pll_locked ? "" : "*not* ", pll_ready ? "" : "*not* ");
- 
--	return pll_locked;
-+	return pll_locked && pll_ready;
- }
- 
- static void dsi_pll_14nm_config_init(struct dsi_pll_config *pconf)
-
+On Fri, Oct 08, 2021 at 10:11:37AM +0200, Michal Vokáč wrote:
+> From: Petr Beneš <petr.benes@ysoft.com>
+> 
+> SoC temperature readout may not work after thermal alarm fires interrupt.
+> This harms userspace as well as CPU cooling device.
+> 
+> Two issues with the logic involved. First, there is no protection against
+> concurent measurements, hence one can switch the sensor off while
+> the other one tries to read temperature later. Second, the interrupt path
+> usually fails. At the end the sensor is powered off and thermal IRQ is
+> disabled. One has to reenable the thermal zone by the sysfs interface.
+> 
+> Most of troubles come from commit d92ed2c9d3ff ("thermal: imx: Use
+> driver's local data to decide whether to run a measurement")
+> 
+> It uses data->irq_enabled as the "local data". Indeed, its value is
+> related to the state of the sensor loosely under normal operation and,
+> frankly, gets unleashed when the thermal interrupt arrives.
+> 
+> Current patch adds the "local data" (new member sensor_on in
+> imx_thermal_data) and sets its value in controlled manner.
+> 
+> Fixes: d92ed2c9d3ff ("thermal: imx: Use driver's local data to decide whether to run a measurement")
+> Cc: petrben@gmail.com
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Petr Beneš <petr.benes@ysoft.com>
+> Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
+> ---
+>  drivers/thermal/imx_thermal.c | 30 ++++++++++++++++++++++++++----
+>  1 file changed, 26 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/thermal/imx_thermal.c b/drivers/thermal/imx_thermal.c
+> index 2c7473d86a59..df5658e21828 100644
+> --- a/drivers/thermal/imx_thermal.c
+> +++ b/drivers/thermal/imx_thermal.c
+> @@ -209,6 +209,8 @@ struct imx_thermal_data {
+>  	struct clk *thermal_clk;
+>  	const struct thermal_soc_data *socdata;
+>  	const char *temp_grade;
+> +	struct mutex sensor_lock;
+> +	bool sensor_on;
+>  };
+>  
+>  static void imx_set_panic_temp(struct imx_thermal_data *data,
+> @@ -252,11 +254,12 @@ static int imx_get_temp(struct thermal_zone_device *tz, int *temp)
+>  	const struct thermal_soc_data *soc_data = data->socdata;
+>  	struct regmap *map = data->tempmon;
+>  	unsigned int n_meas;
+> -	bool wait, run_measurement;
+> +	bool wait;
+>  	u32 val;
+>  
+> -	run_measurement = !data->irq_enabled;
+> -	if (!run_measurement) {
+> +	mutex_lock(&data->sensor_lock);
+> +
+> +	if (data->sensor_on) {
+>  		/* Check if a measurement is currently in progress */
+>  		regmap_read(map, soc_data->temp_data, &val);
+>  		wait = !(val & soc_data->temp_valid_mask);
+> @@ -283,13 +286,15 @@ static int imx_get_temp(struct thermal_zone_device *tz, int *temp)
+>  
+>  	regmap_read(map, soc_data->temp_data, &val);
+>  
+> -	if (run_measurement) {
+> +	if (!data->sensor_on) {
+>  		regmap_write(map, soc_data->sensor_ctrl + REG_CLR,
+>  			     soc_data->measure_temp_mask);
+>  		regmap_write(map, soc_data->sensor_ctrl + REG_SET,
+>  			     soc_data->power_down_mask);
+>  	}
+>  
+> +	mutex_unlock(&data->sensor_lock);
+> +
+>  	if ((val & soc_data->temp_valid_mask) == 0) {
+>  		dev_dbg(&tz->device, "temp measurement never finished\n");
+>  		return -EAGAIN;
+> @@ -339,20 +344,26 @@ static int imx_change_mode(struct thermal_zone_device *tz,
+>  	const struct thermal_soc_data *soc_data = data->socdata;
+>  
+>  	if (mode == THERMAL_DEVICE_ENABLED) {
+> +		mutex_lock(&data->sensor_lock);
+>  		regmap_write(map, soc_data->sensor_ctrl + REG_CLR,
+>  			     soc_data->power_down_mask);
+>  		regmap_write(map, soc_data->sensor_ctrl + REG_SET,
+>  			     soc_data->measure_temp_mask);
+> +		data->sensor_on = true;
+> +		mutex_unlock(&data->sensor_lock);
+>  
+>  		if (!data->irq_enabled) {
+>  			data->irq_enabled = true;
+>  			enable_irq(data->irq);
+>  		}
+>  	} else {
+> +		mutex_lock(&data->sensor_lock);
+>  		regmap_write(map, soc_data->sensor_ctrl + REG_CLR,
+>  			     soc_data->measure_temp_mask);
+>  		regmap_write(map, soc_data->sensor_ctrl + REG_SET,
+>  			     soc_data->power_down_mask);
+> +		data->sensor_on = false;
+> +		mutex_unlock(&data->sensor_lock);
+>  
+>  		if (data->irq_enabled) {
+>  			disable_irq(data->irq);
+> @@ -728,6 +739,8 @@ static int imx_thermal_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	/* Make sure sensor is in known good state for measurements */
+> +	mutex_init(&data->sensor_lock);
+> +	mutex_lock(&data->sensor_lock);
+>  	regmap_write(map, data->socdata->sensor_ctrl + REG_CLR,
+>  		     data->socdata->power_down_mask);
+>  	regmap_write(map, data->socdata->sensor_ctrl + REG_CLR,
+> @@ -739,6 +752,8 @@ static int imx_thermal_probe(struct platform_device *pdev)
+>  			IMX6_MISC0_REFTOP_SELBIASOFF);
+>  	regmap_write(map, data->socdata->sensor_ctrl + REG_SET,
+>  		     data->socdata->power_down_mask);
+> +	data->sensor_on = false;
+> +	mutex_unlock(&data->sensor_lock);
+>  
+>  	ret = imx_thermal_register_legacy_cooling(data);
+>  	if (ret)
+> @@ -796,10 +811,13 @@ static int imx_thermal_probe(struct platform_device *pdev)
+>  	if (data->socdata->version == TEMPMON_IMX6SX)
+>  		imx_set_panic_temp(data, data->temp_critical);
+>  
+> +	mutex_lock(&data->sensor_lock);
+>  	regmap_write(map, data->socdata->sensor_ctrl + REG_CLR,
+>  		     data->socdata->power_down_mask);
+>  	regmap_write(map, data->socdata->sensor_ctrl + REG_SET,
+>  		     data->socdata->measure_temp_mask);
+> +	data->sensor_on = true;
+> +	mutex_unlock(&data->sensor_lock);
+>  
+>  	data->irq_enabled = true;
+>  	ret = thermal_zone_device_enable(data->tz);
+> @@ -832,8 +850,12 @@ static int imx_thermal_remove(struct platform_device *pdev)
+>  	struct regmap *map = data->tempmon;
+>  
+>  	/* Disable measurements */
+> +	mutex_lock(&data->sensor_lock);
+>  	regmap_write(map, data->socdata->sensor_ctrl + REG_SET,
+>  		     data->socdata->power_down_mask);
+> +	data->sensor_on = false;
+> +	mutex_unlock(&data->sensor_lock);
+> +
+>  	if (!IS_ERR(data->thermal_clk))
+>  		clk_disable_unprepare(data->thermal_clk);
+>  
+> -- 
+> 2.25.1
+> 
