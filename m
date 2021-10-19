@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CC07433E9D
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 20:39:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDA47433E9E
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 20:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234876AbhJSSlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 14:41:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52594 "EHLO mail.kernel.org"
+        id S234941AbhJSSln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 14:41:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234909AbhJSSlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Oct 2021 14:41:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C86E7611AE;
-        Tue, 19 Oct 2021 18:39:25 +0000 (UTC)
+        id S234891AbhJSSlm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Oct 2021 14:41:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD07C61212;
+        Tue, 19 Oct 2021 18:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1634668766;
-        bh=VmWR9noKoRmdF8lzwFBoiumi3GWOPpTfU0CQ65iULbM=;
+        s=korg; t=1634668769;
+        bh=Y3htAeRGyg0VJhDQntEFTmW1YkDLBNMRsRAeFdOvT7o=;
         h=Date:From:To:Subject:From;
-        b=h+/9iZMI1W52F9fP4u9DJHsnBzzVk974sZzKZXjZDXmB+4Pk/02D7FMkfffWSxDnx
-         wwnUYXBDGG/HJqAb4HdzdR+NAmyeD0CckVVG5e5ETPVWNdJhAFu9RxjDyhgU9AYY0p
-         v1gf5QsxSV6BlcTLn3fySGSPaXyfXiZGarh5Jp6Y=
-Date:   Tue, 19 Oct 2021 11:39:25 -0700
+        b=A0fna+fRa0Tsgmo1q6oabdwIffprjH9HxCXF479f7N1ll4vRv+cRjWY6fgd9RmPI6
+         SCSpt1QZXtt/52ek4rPvExT4jUA1P8BCJt7qH6mZ4FeNS7+12t/VTj49YNeqyIKWZv
+         xO5NVBU3eiXSNTnqOb7/5plLZzNT+8KWWucQkdcc=
+Date:   Tue, 19 Oct 2021 11:39:28 -0700
 From:   akpm@linux-foundation.org
 To:     andreyknvl@gmail.com, bharata@linux.ibm.com, cl@linux.com,
         faiyazm@codeaurora.org, gregkh@linuxfoundation.org, guro@fb.com,
@@ -29,9 +29,9 @@ To:     andreyknvl@gmail.com, bharata@linux.ibm.com, cl@linux.com,
         penberg@kernel.org, rientjes@google.com, ryabinin.a.a@gmail.com,
         stable@vger.kernel.org, vbabka@suse.cz
 Subject:  [merged]
- mm-slub-fix-mismatch-between-reconstructed-freelist-depth-and-cnt.patch
- removed from -mm tree
-Message-ID: <20211019183925.C-IiClkhl%akpm@linux-foundation.org>
+ mm-slub-fix-potential-memoryleak-in-kmem_cache_open.patch removed from -mm
+ tree
+Message-ID: <20211019183928.DQoWqiCR_%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -39,24 +39,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm, slub: fix mismatch between reconstructed freelist depth and cnt
+     Subject: mm, slub: fix potential memoryleak in kmem_cache_open()
 has been removed from the -mm tree.  Its filename was
-     mm-slub-fix-mismatch-between-reconstructed-freelist-depth-and-cnt.patch
+     mm-slub-fix-potential-memoryleak-in-kmem_cache_open.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
 From: Miaohe Lin <linmiaohe@huawei.com>
-Subject: mm, slub: fix mismatch between reconstructed freelist depth and cnt
+Subject: mm, slub: fix potential memoryleak in kmem_cache_open()
 
-If object's reuse is delayed, it will be excluded from the reconstructed
-freelist.  But we forgot to adjust the cnt accordingly.  So there will be
-a mismatch between reconstructed freelist depth and cnt.  This will lead
-to free_debug_processing() complaining about freelist count or a incorrect
-slub inuse count.
+In error path, the random_seq of slub cache might be leaked.  Fix this by
+using __kmem_cache_release() to release all the relevant resources.
 
-Link: https://lkml.kernel.org/r/20210916123920.48704-3-linmiaohe@huawei.com
-Fixes: c3895391df38 ("kasan, slub: fix handling of kasan_slab_free hook")
+Link: https://lkml.kernel.org/r/20210916123920.48704-4-linmiaohe@huawei.com
+Fixes: 210e7a43fa90 ("mm: SLUB freelist randomization")
 Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
 Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
 Cc: Andrey Konovalov <andreyknvl@gmail.com>
@@ -74,41 +71,19 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/slub.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ mm/slub.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/slub.c~mm-slub-fix-mismatch-between-reconstructed-freelist-depth-and-cnt
+--- a/mm/slub.c~mm-slub-fix-potential-memoryleak-in-kmem_cache_open
 +++ a/mm/slub.c
-@@ -1701,7 +1701,8 @@ static __always_inline bool slab_free_ho
- }
+@@ -4210,8 +4210,8 @@ static int kmem_cache_open(struct kmem_c
+ 	if (alloc_kmem_cache_cpus(s))
+ 		return 0;
  
- static inline bool slab_free_freelist_hook(struct kmem_cache *s,
--					   void **head, void **tail)
-+					   void **head, void **tail,
-+					   int *cnt)
- {
- 
- 	void *object;
-@@ -1728,6 +1729,12 @@ static inline bool slab_free_freelist_ho
- 			*head = object;
- 			if (!*tail)
- 				*tail = object;
-+		} else {
-+			/*
-+			 * Adjust the reconstructed freelist depth
-+			 * accordingly if object's reuse is delayed.
-+			 */
-+			--(*cnt);
- 		}
- 	} while (object != old_tail);
- 
-@@ -3480,7 +3487,7 @@ static __always_inline void slab_free(st
- 	 * With KASAN enabled slab_free_freelist_hook modifies the freelist
- 	 * to remove objects, whose reuse must be delayed.
- 	 */
--	if (slab_free_freelist_hook(s, &head, &tail))
-+	if (slab_free_freelist_hook(s, &head, &tail, &cnt))
- 		do_slab_free(s, page, head, tail, cnt, addr);
+-	free_kmem_cache_nodes(s);
+ error:
++	__kmem_cache_release(s);
+ 	return -EINVAL;
  }
  
 _
