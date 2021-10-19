@@ -2,160 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A0E0433E8C
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 20:37:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93F06433E97
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 20:38:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233340AbhJSSjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 14:39:43 -0400
-Received: from mga12.intel.com ([192.55.52.136]:57177 "EHLO mga12.intel.com"
+        id S234526AbhJSSlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 14:41:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231783AbhJSSjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Oct 2021 14:39:43 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10142"; a="208702369"
-X-IronPort-AV: E=Sophos;i="5.87,164,1631602800"; 
-   d="scan'208";a="208702369"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2021 11:37:30 -0700
-X-IronPort-AV: E=Sophos;i="5.87,164,1631602800"; 
-   d="scan'208";a="494236401"
-Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2021 11:37:27 -0700
-Date:   Tue, 19 Oct 2021 21:37:23 +0300
-From:   Imre Deak <imre.deak@intel.com>
-To:     Jani Nikula <jani.nikula@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 2/6] drm/i915/dp: Ensure sink rate values are
- always valid
-Message-ID: <20211019183723.GA1621650@ideak-desk.fi.intel.com>
-References: <20211018094154.1407705-1-imre.deak@intel.com>
- <20211018094154.1407705-3-imre.deak@intel.com>
- <87pms1scdl.fsf@intel.com>
- <20211019073335.GB1537791@ideak-desk.fi.intel.com>
- <87mtn5sbwi.fsf@intel.com>
- <20211019073902.GC1537791@ideak-desk.fi.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20211019073902.GC1537791@ideak-desk.fi.intel.com>
+        id S234124AbhJSSlJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Oct 2021 14:41:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5029610E5;
+        Tue, 19 Oct 2021 18:38:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1634668736;
+        bh=gd/83zY7xxCq5H4fEOV89LICou+zi5GGK8J4fiwaNLw=;
+        h=Date:From:To:Subject:From;
+        b=Iq9ZsxCavNadUP52PDCJlMa32e5RlVprRL4UsWHSh9n+kH2W8dc2tETsAwr6kUjQv
+         3u9wlOWjJVWUI/vMjt2vwxkkH3Wtj0b9YVzc8X7FBmy2WuloS12syZO1e/Xz94ZWDn
+         X27GHoDxHSQtw0jHZ/8PVB/6UCpNWcnVSVZFBCoU=
+Date:   Tue, 19 Oct 2021 11:38:55 -0700
+From:   akpm@linux-foundation.org
+To:     aarcange@redhat.com, axelrasmussen@google.com, liwan@redhat.com,
+        liwang@redhat.com, mm-commits@vger.kernel.org,
+        nadav.amit@gmail.com, peterx@redhat.com, stable@vger.kernel.org
+Subject:  [merged]
+ mm-userfaultfd-selftests-fix-memory-corruption-with-thp-enabled.patch
+ removed from -mm tree
+Message-ID: <20211019183855.n4fUqYnIz%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 19, 2021 at 10:39:08AM +0300, Imre Deak wrote:
-> On Tue, Oct 19, 2021 at 10:37:33AM +0300, Jani Nikula wrote:
-> > On Tue, 19 Oct 2021, Imre Deak <imre.deak@intel.com> wrote:
-> > > On Tue, Oct 19, 2021 at 10:27:18AM +0300, Jani Nikula wrote:
-> > >> On Mon, 18 Oct 2021, Imre Deak <imre.deak@intel.com> wrote:
-> > >> > Atm, there are no sink rate values set for DP (vs. eDP) sinks until the
-> > >> > DPCD capabilities are successfully read from the sink. During this time
-> > >> > intel_dp->num_common_rates is 0 which can lead to a
-> > >> >
-> > >> > intel_dp->common_rates[-1]    (*)
-> > >> >
-> > >> > access, which is an undefined behaviour, in the following cases:
-> > >> >
-> > >> > - In intel_dp_sync_state(), if the encoder is enabled without a sink
-> > >> >   connected to the encoder's connector (BIOS enabled a monitor, but the
-> > >> >   user unplugged the monitor until the driver loaded).
-> > >> > - In intel_dp_sync_state() if the encoder is enabled with a sink
-> > >> >   connected, but for some reason the DPCD read has failed.
-> > >> > - In intel_dp_compute_link_config() if modesetting a connector without
-> > >> >   a sink connected on it.
-> > >> > - In intel_dp_compute_link_config() if modesetting a connector with a
-> > >> >   a sink connected on it, but before probing the connector first.
-> > >> >
-> > >> > To avoid the (*) access in all the above cases, make sure that the sink
-> > >> > rate table - and hence the common rate table - is always valid, by
-> > >> > setting a default minimum sink rate when registering the connector
-> > >> > before anything could use it.
-> > >> >
-> > >> > I also considered setting all the DP link rates by default, so that
-> > >> > modesetting with higher resolution modes also succeeds in the last two
-> > >> > cases above. However in case a sink is not connected that would stop
-> > >> > working after the first modeset, due to the LT fallback logic. So this
-> > >> > would need more work, beyond the scope of this fix.
-> > >> >
-> > >> > As I mentioned in the previous patch, I don't think the issue this patch
-> > >> > fixes is user visible, however it is an undefined behaviour by
-> > >> > definition and triggers a BUG() in CONFIG_UBSAN builds, hence CC:stable.
-> > >> 
-> > >> I think the question here, and in the following patches, is whether this
-> > >> papers over potential bugs elsewhere.
-> > >> 
-> > >> Would the original bug fixed by patch 1 have been detected if all the
-> > >> safeguards here had been in place? Point being, we shouldn't be doing
-> > >> any of these things before we've read the dpcd.
-> > >
-> > > Modesets are possible even without a connected sink or a read-out DPCD,
-> > > so the link parameters need to be valid even without those.
-> > 
-> > Modeset on a disconnected DP? How?
-> 
-> Yes, just do a modeset on it. It doesn't have to be disconnected either,
-> you can modeset a DP connector before probing it.
 
-Jani,
+The patch titled
+     Subject: mm/userfaultfd: selftests: fix memory corruption with thp enabled
+has been removed from the -mm tree.  Its filename was
+     mm-userfaultfd-selftests-fix-memory-corruption-with-thp-enabled.patch
 
-any objections to merge patches 2-6 as well? In a summary the reasons:
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-- Fix userspace triggerable WARNs().
-- Fix undefined behavior triggerring BUG() in UBSAN builds
-  (in addition to the case the first patch fixes).
-- Validate the DP_MAX_LINK_RATE value we read from DPCD.
-- It unifies some open-coded functionality (patch 3 and 6).
+------------------------------------------------------
+From: Peter Xu <peterx@redhat.com>
+Subject: mm/userfaultfd: selftests: fix memory corruption with thp enabled
 
-> > BR,
-> > Jani.
-> > 
-> > 
-> > >
-> > >> BR,
-> > >> Jani.
-> > >> 
-> > >> 
-> > >> >
-> > >> > Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4297
-> > >> > References: https://gitlab.freedesktop.org/drm/intel/-/issues/4298
-> > >> > Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > >> > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > >> > Cc: <stable@vger.kernel.org>
-> > >> > Signed-off-by: Imre Deak <imre.deak@intel.com>
-> > >> > ---
-> > >> >  drivers/gpu/drm/i915/display/intel_dp.c | 8 ++++++++
-> > >> >  1 file changed, 8 insertions(+)
-> > >> >
-> > >> > diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-> > >> > index 23de500d56b52..153ae944a354b 100644
-> > >> > --- a/drivers/gpu/drm/i915/display/intel_dp.c
-> > >> > +++ b/drivers/gpu/drm/i915/display/intel_dp.c
-> > >> > @@ -120,6 +120,12 @@ bool intel_dp_is_uhbr(const struct intel_crtc_state *crtc_state)
-> > >> >  	return crtc_state->port_clock >= 1000000;
-> > >> >  }
-> > >> >  
-> > >> > +static void intel_dp_set_default_sink_rates(struct intel_dp *intel_dp)
-> > >> > +{
-> > >> > +	intel_dp->sink_rates[0] = 162000;
-> > >> > +	intel_dp->num_sink_rates = 1;
-> > >> > +}
-> > >> > +
-> > >> >  /* update sink rates from dpcd */
-> > >> >  static void intel_dp_set_sink_rates(struct intel_dp *intel_dp)
-> > >> >  {
-> > >> > @@ -5003,6 +5009,8 @@ intel_dp_init_connector(struct intel_digital_port *dig_port,
-> > >> >  	}
-> > >> >  
-> > >> >  	intel_dp_set_source_rates(intel_dp);
-> > >> > +	intel_dp_set_default_sink_rates(intel_dp);
-> > >> > +	intel_dp_set_common_rates(intel_dp);
-> > >> >  
-> > >> >  	if (IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv))
-> > >> >  		intel_dp->pps.active_pipe = vlv_active_pipe(intel_dp);
-> > >> 
-> > >> -- 
-> > >> Jani Nikula, Intel Open Source Graphics Center
-> > 
-> > -- 
-> > Jani Nikula, Intel Open Source Graphics Center
+In RHEL's gating selftests we've encountered memory corruption in the uffd
+event test even with upstream kernel:
+
+        # ./userfaultfd anon 128 4
+        nr_pages: 32768, nr_pages_per_cpu: 32768
+        bounces: 3, mode: rnd racing read, userfaults: 6240 missing (6240) 14729 wp (14729)
+        bounces: 2, mode: racing read, userfaults: 1444 missing (1444) 28877 wp (28877)
+        bounces: 1, mode: rnd read, userfaults: 6055 missing (6055) 14699 wp (14699)
+        bounces: 0, mode: read, userfaults: 82 missing (82) 25196 wp (25196)
+        testing uffd-wp with pagemap (pgsize=4096): done
+        testing uffd-wp with pagemap (pgsize=2097152): done
+        testing events (fork, remap, remove): ERROR: nr 32427 memory corruption 0 1 (errno=0, line=963)
+        ERROR: faulting process failed (errno=0, line=1117)
+
+It can be easily reproduced when global thp enabled, which is the default for
+RHEL.
+
+It's also known as a side effect of commit 0db282ba2c12 ("selftest: use
+mmap instead of posix_memalign to allocate memory", 2021-07-23), which is
+imho right itself on using mmap() to make sure the addresses will be
+untagged even on arm.
+
+The problem is, for each test we allocate buffers using two
+allocate_area() calls.  We assumed these two buffers won't affect each
+other, however they could, because mmap() could have found that the two
+buffers are near each other and having the same VMA flags, so they got
+merged into one VMA.
+
+It won't be a big problem if thp is not enabled, but when thp is
+agressively enabled it means when initializing the src buffer it could
+accidentally setup part of the dest buffer too when there's a shared THP
+that overlaps the two regions.  Then some of the dest buffer won't be able
+to be trapped by userfaultfd missing mode, then it'll cause memory
+corruption as described.
+
+To fix it, do release_pages() after initializing the src buffer.
+
+Since the previous two release_pages() calls are after
+uffd_test_ctx_clear() which will unmap all the buffers anyway (which is
+stronger than release pages; as unmap() also tear town pgtables), drop
+them as they shouldn't really be anything useful.
+
+We can mark the Fixes tag upon 0db282ba2c12 as it's reported to only
+happen there, however the real "Fixes" IMHO should be 8ba6e8640844, as
+before that commit we'll always do explicit release_pages() before
+registration of uffd, and 8ba6e8640844 changed that logic by adding extra
+unmap/map and we didn't release the pages at the right place.  Meanwhile I
+don't have a solid glue anyway on whether posix_memalign() could always
+avoid triggering this bug, hence it's safer to attach this fix to commit
+8ba6e8640844.
+
+Link: https://lkml.kernel.org/r/20210923232512.210092-1-peterx@redhat.com
+Fixes: 8ba6e8640844 ("userfaultfd/selftests: reinitialize test context in each test")
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1994931
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reported-by: Li Wang <liwan@redhat.com>
+Tested-by: Li Wang <liwang@redhat.com>
+Reviewed-by: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ tools/testing/selftests/vm/userfaultfd.c |   23 ++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
+
+--- a/tools/testing/selftests/vm/userfaultfd.c~mm-userfaultfd-selftests-fix-memory-corruption-with-thp-enabled
++++ a/tools/testing/selftests/vm/userfaultfd.c
+@@ -414,9 +414,6 @@ static void uffd_test_ctx_init_ext(uint6
+ 	uffd_test_ops->allocate_area((void **)&area_src);
+ 	uffd_test_ops->allocate_area((void **)&area_dst);
+ 
+-	uffd_test_ops->release_pages(area_src);
+-	uffd_test_ops->release_pages(area_dst);
+-
+ 	userfaultfd_open(features);
+ 
+ 	count_verify = malloc(nr_pages * sizeof(unsigned long long));
+@@ -437,6 +434,26 @@ static void uffd_test_ctx_init_ext(uint6
+ 		*(area_count(area_src, nr) + 1) = 1;
+ 	}
+ 
++	/*
++	 * After initialization of area_src, we must explicitly release pages
++	 * for area_dst to make sure it's fully empty.  Otherwise we could have
++	 * some area_dst pages be errornously initialized with zero pages,
++	 * hence we could hit memory corruption later in the test.
++	 *
++	 * One example is when THP is globally enabled, above allocate_area()
++	 * calls could have the two areas merged into a single VMA (as they
++	 * will have the same VMA flags so they're mergeable).  When we
++	 * initialize the area_src above, it's possible that some part of
++	 * area_dst could have been faulted in via one huge THP that will be
++	 * shared between area_src and area_dst.  It could cause some of the
++	 * area_dst won't be trapped by missing userfaults.
++	 *
++	 * This release_pages() will guarantee even if that happened, we'll
++	 * proactively split the thp and drop any accidentally initialized
++	 * pages within area_dst.
++	 */
++	uffd_test_ops->release_pages(area_dst);
++
+ 	pipefd = malloc(sizeof(int) * nr_cpus * 2);
+ 	if (!pipefd)
+ 		err("pipefd");
+_
+
+Patches currently in -mm which might be from peterx@redhat.com are
+
+mm-smaps-fix-shmem-pte-hole-swap-calculation.patch
+mm-smaps-use-vma-vm_pgoff-directly-when-counting-partial-swap.patch
+mm-smaps-simplify-shmem-handling-of-pte-holes.patch
+mm-memcg-drop-swp_entry_t-in-mc_handle_file_pte.patch
+mm-shmem-unconditionally-set-pte-dirty-in-mfill_atomic_install_pte.patch
+mm-clear-vmf-pte-after-pte_unmap_same-returns.patch
+mm-drop-first_index-last_index-in-zap_details.patch
+mm-add-zap_skip_check_mapping-helper.patch
+mm-hugetlb-drop-__unmap_hugepage_range-definition-from-hugetlbh.patch
+
