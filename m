@@ -2,130 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B9D432DF5
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 08:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1336432E14
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 08:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233717AbhJSGRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 02:17:07 -0400
-Received: from mailout4.samsung.com ([203.254.224.34]:33138 "EHLO
-        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229784AbhJSGRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 02:17:07 -0400
-Received: from epcas1p4.samsung.com (unknown [182.195.41.48])
-        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20211019061453epoutp046187f7ccafadc65db49093212ca02afc~vWfPPkiNB3215132151epoutp04s
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 06:14:53 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20211019061453epoutp046187f7ccafadc65db49093212ca02afc~vWfPPkiNB3215132151epoutp04s
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1634624093;
-        bh=CXDwDJ2iAuEoy33TXgOJHbWwG+MzTYTRk+KVciM3jW0=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=gnalOqzyZ2Fc67De3NS00k1d6bXrhY0IFca3a54HwrmiyAw5VkghNGRtIARt08epk
-         Q2og8l3AHylV/dItxurTMvx8BR6q87GSAO33M8++7ViLs6MpEDdnIs06328a3zjr8Q
-         qNtpBVHHhepiFw9J+JgPUagNsY9sBjBvAVGY3A0g=
-Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
-        epcas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20211019061453epcas1p2a09e725753f96baff8fbe9817d123741~vWfO_LU5P2515425154epcas1p23;
-        Tue, 19 Oct 2021 06:14:53 +0000 (GMT)
-Received: from epsmges1p5.samsung.com (unknown [182.195.38.247]) by
-        epsnrtp4.localdomain (Postfix) with ESMTP id 4HYNkf65qNz4x9QB; Tue, 19 Oct
-        2021 06:14:50 +0000 (GMT)
-Received: from epcas1p1.samsung.com ( [182.195.41.45]) by
-        epsmges1p5.samsung.com (Symantec Messaging Gateway) with SMTP id
-        FD.FD.09592.8526E616; Tue, 19 Oct 2021 15:14:48 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20211019061448epcas1p1c6951207ef0ba73f1ef17862bb4495ff~vWfKMwB5r2206422064epcas1p16;
-        Tue, 19 Oct 2021 06:14:48 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20211019061447epsmtrp124f93e1a3a5a1bbcff4c4fa1be6c2c33~vWfKGj9uo2090420904epsmtrp1f;
-        Tue, 19 Oct 2021 06:14:47 +0000 (GMT)
-X-AuditID: b6c32a39-3bdff70000002578-b2-616e62582e7c
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        10.8E.08738.7526E616; Tue, 19 Oct 2021 15:14:47 +0900 (KST)
-Received: from U14PB1-0870.tn.corp.samsungelectronics.net (unknown
-        [10.253.235.196]) by epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20211019061447epsmtip199fc694776b38d56369da51fd0106a73~vWfJ7xoHU0336903369epsmtip1b;
-        Tue, 19 Oct 2021 06:14:47 +0000 (GMT)
-From:   Sungjong Seo <sj1557.seo@samsung.com>
-To:     linux-fsdevel@vger.kernel.org
-Cc:     stable@vger.kernel.org, linkinjeon@kernel.org,
-        sj1557.seo@samsung.com
-Subject: [PATCH v2] exfat: fix incorrect loading of i_blocks for large files
-Date:   Tue, 19 Oct 2021 15:14:21 +0900
-Message-Id: <20211019061421.23706-1-sj1557.seo@samsung.com>
-X-Mailer: git-send-email 2.17.1
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrKKsWRmVeSWpSXmKPExsWy7bCmrm5EUl6iwaa94hYTpy1lttiz9ySL
-        xZZ/R1gtFmx8xOjA4rFpVSebR9+WVYwenzfJBTBHZdtkpCampBYppOYl56dk5qXbKnkHxzvH
-        m5oZGOoaWlqYKynkJeam2iq5+AToumXmAG1TUihLzCkFCgUkFhcr6dvZFOWXlqQqZOQXl9gq
-        pRak5BSYFegVJ+YWl+al6+WlllgZGhgYmQIVJmRn3GtfwFjwmKNi9uZrjA2Ma9m7GDk5JARM
-        JGZN6WfrYuTiEBLYwSjR1PaDCcL5xCjx6c97RgjnM6NE44N1TDAtGz88hErsYpSY9+4oO4TT
-        ySQx7fRSsMFsAtoSy5uWMXcxcnCICChKXH7vBBJmFvCUuHO6hRnEFhbwkWjfMokRxGYRUJW4
-        N3E1WJxXwFriwtR/UPfJS6zecIAZZL6EQDu7xKcpLVBXuEj0HZjBCmELS7w6vgWqQUriZX8b
-        lF0v8X/+WnaI5hZGiYeftjGBHCQhYC/x/pIFiMksoCmxfpc+RLmixM7fcxkh7uSTePe1hxWi
-        mleio00IokRF4vuHnSwwm678uAp1jYfEpzcb2UDKhQRiJdb8lZzAKDsLYf4CRsZVjGKpBcW5
-        6anFhgWm8DhKzs/dxAhOP1qWOxinv/2gd4iRiYPxEKMEB7OSCG+Sa26iEG9KYmVValF+fFFp
-        TmrxIUZTYHBNZJYSTc4HJsC8knhDE0sDEzMjEwtjS2MzJXFeSdHsRCGB9MSS1OzU1ILUIpg+
-        Jg5OqQamNDsHjq8hc95qGNtd5ty6X8bmLscWVzXhs2c7OQSu/dn4Q5bvqqXb1OIyoXebrthk
-        xe879OOMQcMr43/qv9545TjVuh58W9isc3Sm0sIVGnmXpxtNietxlPy0nCXBTyE66M/zSu+i
-        ToXtxmFqXtOmZ3tN/sZgZxMwm+/JGrNV78NkowPfm9lKZbptqjCM8u7rOPn3dsWTbGMmU/7d
-        /r+KM3I22R1rOn+kPTGQ6/+/QMeOyQYK3it43s7Z1mr3e4qA8xHvyR7Tvcw6303ZY3AijN2o
-        06i4gMnn/kxb5sJath2/Zm3zLI0T8zFYqfon7Or2KdkXeJb3G2gY/DlyeLcFyz3jx6E/l62t
-        6jy3Z5sSS3FGoqEWc1FxIgAXdKP1yAMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrMJMWRmVeSWpSXmKPExsWy7bCSnG54Ul6iwdwuU4uJ05YyW+zZe5LF
-        Ysu/I6wWCzY+YnRg8di0qpPNo2/LKkaPz5vkApijuGxSUnMyy1KL9O0SuDLutS9gLHjMUTF7
-        8zXGBsa17F2MnBwSAiYSGz88ZOxi5OIQEtjBKNHzYD9LFyMHUEJK4uA+TQhTWOLw4WKIknYm
-        iRvbHrKB9LIJaEssb1rGDFIjIqAocfm9E0iYWcBXYtHuz4wgtrCAj0T7lklgNouAqsS9iauZ
-        QWxeAWuJC1P/QZ0gL7F6wwHmCYw8CxgZVjFKphYU56bnFhsWGOWllusVJ+YWl+al6yXn525i
-        BIeDltYOxj2rPugdYmTiYDzEKMHBrCTCm+SamyjEm5JYWZValB9fVJqTWnyIUZqDRUmc90LX
-        yXghgfTEktTs1NSC1CKYLBMHp1QDU9JklzUaG6awTJt35qD4tmNXrp8IX3J13i/z+vIDQq9i
-        DbbvveK4PeXOzl0BXw0+bK46fOtLa1C1K6+d4OmX/FflpYzUppj5LlPWtHPmXVmQIPJNTyLo
-        ZNS3FdKix5bWO3vrZSmK/uC6y3snS8Hm1f7pMto+p+QeTDKMNggvNzgUWqj9u+fFHMG2D8us
-        bEUVlXt9f9yP5/4QdO72A+5rfYwXvhpbmK2M+da6+PF+l+tK6nFGq7YZv3t3ujVktqLt0nWX
-        Jyl1mbx3EjgkbFf/XUG25XPSUQVjT1a9Vwur8rfOuSwwS3jPxeV8Pfp33Gd4i+r29r+ebr2L
-        zbD7oNufOVKTa44vWHFc4aOb4BSmbiWW4oxEQy3mouJEAEl1tbp2AgAA
-X-CMS-MailID: 20211019061448epcas1p1c6951207ef0ba73f1ef17862bb4495ff
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: SVC_REQ_APPROVE
-CMS-TYPE: 101P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20211019061448epcas1p1c6951207ef0ba73f1ef17862bb4495ff
-References: <CGME20211019061448epcas1p1c6951207ef0ba73f1ef17862bb4495ff@epcas1p1.samsung.com>
+        id S233786AbhJSGXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 02:23:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36780 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229527AbhJSGXd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 02:23:33 -0400
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D33AC06161C
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 23:21:21 -0700 (PDT)
+Received: by mail-ed1-x532.google.com with SMTP id t16so8648034eds.9
+        for <stable@vger.kernel.org>; Mon, 18 Oct 2021 23:21:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=OHOGwDSVEfVWjDixnzReHf4gOyr6Oktv6s3nxmgUyD8=;
+        b=kPfMAxB8IcFY1mr1ROJclWC35ZRdrfsoINfReIsZY5iXT7hUHdOBlYQnQUy3jBXnEX
+         norIaOxrXWHCFai5u+3/SQjMKE8FjCSWTsByKJIvF94twKbC0G9+LVsM/kBp1xJatqRn
+         vWz3DoFl1L14QJbbLXvWkJ9R4AywJtwyVqr/wa4oORmgqCzHDLN6Hraub63MeVGMwfdf
+         9vjXIaxWIs19mJbFrNmPi9Wx4uYj5r0dYrcbrIY6haX2xUbhM+ScmVHRgD4og3a6y1Ma
+         rpDi0vk0YBnIdtRRUfGLw0aPeL8dZdmN/OOBah6UHKS8b1AVSLN9TYru3hpoUeD4EDIL
+         lEVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=OHOGwDSVEfVWjDixnzReHf4gOyr6Oktv6s3nxmgUyD8=;
+        b=UvIOnUykJ0sWs7bBfLsUR6sGUpyPTGHEWOtlI69yNl3fya2y4kY2dZcgpI641CrMvh
+         /1QHwVk6wVmT6qSkGfuvyLQCc9ms1ZOfJ6sf6onrc7UU/SVE8Qg0HIv58OdTaQoAQwaG
+         ptRFeB5gAVrw0T+LwvHczrHT121doXz6s3YMBcHaLIYO5BZbUa6uZXpZ+axsikaoSS60
+         s+28i9gP3qMsYhtvIyjcpADvUCFeyDIWMFHa8ufWqXZhehp6BcxDK10Ge5zDRAFA3t6I
+         RQi3SKgX3cJKbf7dUvAKGAL3plUczyOepB0Pa4ZLvFS+an2GCyvU9915RbdD4gjVIDy/
+         jzfg==
+X-Gm-Message-State: AOAM5304+i7HO3bXPCTqX8QkAHYCFxM1a/5ZfW4W59mdh93U9Lg1Lizx
+        5AnPs0yRm0HWyyLRFRnAoTR0BKhqwq/56vyTEuLSsSeywaPm5A==
+X-Google-Smtp-Source: ABdhPJxNBP22BcHTX7jTxsarP+pe2iUZwNWGflBjvB7mEQu2ESKM5TBGNAfYMy/Ugf79hL5aUKCe7IV/S58IRZqGUfY=
+X-Received: by 2002:a17:907:8a27:: with SMTP id sc39mr35179639ejc.567.1634624479545;
+ Mon, 18 Oct 2021 23:21:19 -0700 (PDT)
+MIME-Version: 1.0
+References: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 19 Oct 2021 11:51:08 +0530
+Message-ID: <CA+G9fYttfYbp2krFz-+sE1tKCjyknyNcXwXYz2090zejDK2wPw@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/103] 5.10.75-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When calculating i_blocks, there was a mistake that was masked with a
-32-bit variable. So i_blocks for files larger than 4 GiB had incorrect
-values. Mask with a 64-bit variable instead of 32-bit one.
+On Mon, 18 Oct 2021 at 19:03, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.75 release.
+> There are 103 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 20 Oct 2021 13:23:15 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.75-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Fixes: 5f2aa075070c ("exfat: add inode operations")
-Cc: stable@vger.kernel.org # v5.7+
-Reported-by: Ganapathi Kamath <hgkamath@hotmail.com>
-Signed-off-by: Sungjong Seo <sj1557.seo@samsung.com>
----
-v2:
- - Fix maximum 75 characters warning from checkpatch.pl.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
- fs/exfat/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-diff --git a/fs/exfat/inode.c b/fs/exfat/inode.c
-index ca37d4344361..1c7aa1ea4724 100644
---- a/fs/exfat/inode.c
-+++ b/fs/exfat/inode.c
-@@ -604,7 +604,7 @@ static int exfat_fill_inode(struct inode *inode, struct exfat_dir_entry *info)
- 	exfat_save_attr(inode, info->attr);
- 
- 	inode->i_blocks = ((i_size_read(inode) + (sbi->cluster_size - 1)) &
--		~(sbi->cluster_size - 1)) >> inode->i_blkbits;
-+		~((loff_t)sbi->cluster_size - 1)) >> inode->i_blkbits;
- 	inode->i_mtime = info->mtime;
- 	inode->i_ctime = info->mtime;
- 	ei->i_crtime = info->crtime;
--- 
-2.17.1
+## Build
+* kernel: 5.10.75-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.10.y
+* git commit: 211949e9074cd293bd9e8df5a3eb8b2ded6cdda6
+* git describe: v5.10.73-127-g211949e9074c
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.73-127-g211949e9074c
 
+## No regressions (compared to v5.10.74-26-gb2defce123df)
+
+## No fixes (compared to v5.10.74-26-gb2defce123df)
+
+## Test result summary
+total: 87431, pass: 74711, fail: 249, skip: 11698, xfail: 773
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 289 total, 289 passed, 0 failed
+* arm64: 39 total, 39 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 38 total, 38 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 39 total, 39 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 36 total, 36 passed, 0 failed
+* riscv: 30 total, 30 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 39 total, 39 passed, 0 failed
+
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
