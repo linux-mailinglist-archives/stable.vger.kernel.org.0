@@ -2,81 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44406432D95
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 07:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA956432DB4
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 08:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233968AbhJSGB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 02:01:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44154 "EHLO mail.kernel.org"
+        id S229742AbhJSGIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 02:08:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229755AbhJSGB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Oct 2021 02:01:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A9FA6115B;
-        Tue, 19 Oct 2021 05:59:45 +0000 (UTC)
+        id S229527AbhJSGIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Oct 2021 02:08:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 891AF60F25;
+        Tue, 19 Oct 2021 06:06:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634623185;
-        bh=FRG4beuFMc1+FdpIgLOkG3rFrbUvdGSYdFRG5EBVUp8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=t5cPxWcbk5thS6ojbahUasVg3cpLKhCx8hgqiHEHBcHCFhYZGDz3PzTkyV56PThx8
-         C3gRfb/7GiSnBsCQ4+thbCL6jeTWi4Td8oTrT13oEoJE+gNhshpz5odbSJ+vtUo1zC
-         8x+r/FO7nNsSeNyYjEDbeWzYrpmc2Jidcs+Yajmo=
-Date:   Tue, 19 Oct 2021 07:59:43 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     DENG Qingfang <dqfext@gmail.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Landen Chao <Landen.Chao@mediatek.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Russell King <linux@armlinux.org.uk>, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH net] net: dsa: mt7530: correct ds->num_ports
-Message-ID: <YW5ez/PySlH8WsGk@kroah.com>
-References: <20211016062414.783863-1-dqfext@gmail.com>
- <cd6a03b9-af49-97b4-6869-d51b461bf50a@gmail.com>
- <20211018084230.6710-1-dqfext@gmail.com>
- <7b5e5fcf-8e7f-45ec-de3f-57b3da77b479@gmail.com>
+        s=korg; t=1634623571;
+        bh=5UtGbINsJc33EIO5RpwfkaJgg3kXcGYXH3Ou0ohT+kc=;
+        h=Subject:To:From:Date:From;
+        b=ZnZxHqDX9yQ/b6u1x/tSuc4WTY+nXcol6Rf1yRcDGBQjOX/nbodgPUYeOjYhV7yRk
+         NalsMdPd6r4yhBlFwhfI957PrQWhIRMjZ6p4MRA7Xdljn0m4FnlwLtJPELBHdTL3ih
+         0Xpe/uJyPjkh74ieLRHbOw230f1NqbXysD6Y7l9c=
+Subject: patch "usb-storage: Add compatibility quirk flags for iODD 2531/2541" added to usb-next
+To:     braewoods+lkml@braewoods.net, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, stern@rowland.harvard.edu
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 19 Oct 2021 08:06:08 +0200
+Message-ID: <1634623568229213@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7b5e5fcf-8e7f-45ec-de3f-57b3da77b479@gmail.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 18, 2021 at 09:22:49AM -0700, Florian Fainelli wrote:
-> On 10/18/21 1:42 AM, DENG Qingfang wrote:
-> > On Sat, Oct 16, 2021 at 07:36:14PM -0700, Florian Fainelli wrote:
-> >> On 10/15/2021 11:24 PM, DENG Qingfang wrote:
-> >>> Setting ds->num_ports to DSA_MAX_PORTS made DSA core allocate unnecessary
-> >>> dsa_port's and call mt7530_port_disable for non-existent ports.
-> >>>
-> >>> Set it to MT7530_NUM_PORTS to fix that, and dsa_is_user_port check in
-> >>> port_enable/disable is no longer required.
-> >>>
-> >>> Cc: stable@vger.kernel.org
-> >>> Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-> >>
-> >> Do you really want to target the net tree for this change?
-> > 
-> > Yes because I consider this a bug fix.
-> 
-> 
-> OK, why not provide a Fixes tag to help with targeting the back port
-> then? This has been applied anyway, so hopefully the auto selection will
-> do its job and tell you where it stops applying cleanly.
 
-Without a "Fixes:" tag, I just backport things as far are they are easy
-to go and then stop without an email saying anything fails on older
-kernels.
+This is a note to let you know that I've just added the patch titled
 
-thanks,
+    usb-storage: Add compatibility quirk flags for iODD 2531/2541
 
-greg k-h
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 05c8f1b67e67dcd786ae3fe44492bbc617b4bd12 Mon Sep 17 00:00:00 2001
+From: James Buren <braewoods+lkml@braewoods.net>
+Date: Wed, 13 Oct 2021 20:55:04 -0500
+Subject: usb-storage: Add compatibility quirk flags for iODD 2531/2541
+
+These drive enclosures have firmware bugs that make it impossible to mount
+a new virtual ISO image after Linux ejects the old one if the device is
+locked by Linux. Windows bypasses this problem by the fact that they do
+not lock the device. Add a quirk to disable device locking for these
+drive enclosures.
+
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: James Buren <braewoods+lkml@braewoods.net>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211014015504.2695089-1-braewoods+lkml@braewoods.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/storage/unusual_devs.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
+index c6b3fcf90180..29191d33c0e3 100644
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -406,6 +406,16 @@ UNUSUAL_DEV(  0x04b8, 0x0602, 0x0110, 0x0110,
+ 		"785EPX Storage",
+ 		USB_SC_SCSI, USB_PR_BULK, NULL, US_FL_SINGLE_LUN),
+ 
++/*
++ * Reported by James Buren <braewoods+lkml@braewoods.net>
++ * Virtual ISOs cannot be remounted if ejected while the device is locked
++ * Disable locking to mimic Windows behavior that bypasses the issue
++ */
++UNUSUAL_DEV(  0x04c5, 0x2028, 0x0001, 0x0001,
++		"iODD",
++		"2531/2541",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL, US_FL_NOT_LOCKABLE),
++
+ /*
+  * Not sure who reported this originally but
+  * Pavel Machek <pavel@ucw.cz> reported that the extra US_FL_SINGLE_LUN
+-- 
+2.33.1
+
+
