@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6643433E9F
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 20:39:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7390433EA0
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 20:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234891AbhJSSlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 14:41:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52714 "EHLO mail.kernel.org"
+        id S234931AbhJSSls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 14:41:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234909AbhJSSlp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Oct 2021 14:41:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C26826138F;
-        Tue, 19 Oct 2021 18:39:31 +0000 (UTC)
+        id S234909AbhJSSls (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Oct 2021 14:41:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6BB161212;
+        Tue, 19 Oct 2021 18:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1634668772;
-        bh=iaHOxkbh72KTiEBxarvrSysHEuKSmqHsoFSbJWpmLvQ=;
+        s=korg; t=1634668775;
+        bh=LQLWPuZqK0qnIZkEZMVikyXiZK7C71YY9oBOO2JhIvo=;
         h=Date:From:To:Subject:From;
-        b=aQpHrfiKcLcxTi4hvazuwQC5oGfLYe6+asfMN+OGKNa5CgkQAG7+PaOlwoepEJSsE
-         It+oHwcIS4+WnsZUwoWk+qFPVZ6mtpN36/zUckTjAEowUr5YM7hCNbUcxUkGmPrVSX
-         70AGV1AASlhgdnz7a5PeBhGysQDmtcPvtC6EjQ3g=
-Date:   Tue, 19 Oct 2021 11:39:31 -0700
+        b=zjRqEu9elj6QTMylsL3sWOimH0GnOIAM9gegvesqxWveV47Vm+whnDfuWICpR/Qwp
+         0Uy8lEKMKvHD6LVEgGqj1uLeVPtyJJzkslYSZZsHyj32kIA5+Qd/dB7nyrnDP1zIuP
+         8DSZlg3q2fZi20g8yKIF/Mlj3SCbkLAgMLEksOgQ=
+Date:   Tue, 19 Oct 2021 11:39:34 -0700
 From:   akpm@linux-foundation.org
 To:     andreyknvl@gmail.com, bharata@linux.ibm.com, cl@linux.com,
         faiyazm@codeaurora.org, gregkh@linuxfoundation.org, guro@fb.com,
@@ -29,9 +29,9 @@ To:     andreyknvl@gmail.com, bharata@linux.ibm.com, cl@linux.com,
         penberg@kernel.org, rientjes@google.com, ryabinin.a.a@gmail.com,
         stable@vger.kernel.org, vbabka@suse.cz
 Subject:  [merged]
- mm-slub-fix-potential-use-after-free-in-slab_debugfs_fops.patch removed
- from -mm tree
-Message-ID: <20211019183931.4EGfApbcI%akpm@linux-foundation.org>
+ mm-slub-fix-incorrect-memcg-slab-count-for-bulk-free.patch removed from -mm
+ tree
+Message-ID: <20211019183934.dWWVcSyH1%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -39,22 +39,22 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm, slub: fix potential use-after-free in slab_debugfs_fops
+     Subject: mm, slub: fix incorrect memcg slab count for bulk free
 has been removed from the -mm tree.  Its filename was
-     mm-slub-fix-potential-use-after-free-in-slab_debugfs_fops.patch
+     mm-slub-fix-incorrect-memcg-slab-count-for-bulk-free.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
 From: Miaohe Lin <linmiaohe@huawei.com>
-Subject: mm, slub: fix potential use-after-free in slab_debugfs_fops
+Subject: mm, slub: fix incorrect memcg slab count for bulk free
 
-When sysfs_slab_add failed, we shouldn't call debugfs_slab_add() for s
-because s will be freed soon.  And slab_debugfs_fops will use s later
-leading to a use-after-free.
+kmem_cache_free_bulk() will call memcg_slab_free_hook() for all objects
+when doing bulk free.  So we shouldn't call memcg_slab_free_hook() again
+for bulk free to avoid incorrect memcg slab count.
 
-Link: https://lkml.kernel.org/r/20210916123920.48704-5-linmiaohe@huawei.com
-Fixes: 64dd68497be7 ("mm: slub: move sysfs slab alloc/free interfaces to debugfs")
+Link: https://lkml.kernel.org/r/20210916123920.48704-6-linmiaohe@huawei.com
+Fixes: d1b2cf6cb84a ("mm: memcg/slab: uncharge during kmem_cache_free_bulk()")
 Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
 Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
 Cc: Andrey Konovalov <andreyknvl@gmail.com>
@@ -72,29 +72,22 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/slub.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/slub.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/mm/slub.c~mm-slub-fix-potential-use-after-free-in-slab_debugfs_fops
+--- a/mm/slub.c~mm-slub-fix-incorrect-memcg-slab-count-for-bulk-free
 +++ a/mm/slub.c
-@@ -4887,13 +4887,15 @@ int __kmem_cache_create(struct kmem_cach
- 		return 0;
+@@ -3420,7 +3420,9 @@ static __always_inline void do_slab_free
+ 	struct kmem_cache_cpu *c;
+ 	unsigned long tid;
  
- 	err = sysfs_slab_add(s);
--	if (err)
-+	if (err) {
- 		__kmem_cache_release(s);
-+		return err;
-+	}
- 
- 	if (s->flags & SLAB_STORE_USER)
- 		debugfs_slab_add(s);
- 
--	return err;
-+	return 0;
- }
- 
- void *__kmalloc_track_caller(size_t size, gfp_t gfpflags, unsigned long caller)
+-	memcg_slab_free_hook(s, &head, 1);
++	/* memcg_slab_free_hook() is already called for bulk free. */
++	if (!tail)
++		memcg_slab_free_hook(s, &head, 1);
+ redo:
+ 	/*
+ 	 * Determine the currently cpus per cpu slab.
 _
 
 Patches currently in -mm which might be from linmiaohe@huawei.com are
