@@ -2,136 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08B73433EE1
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 21:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C84F7433F1C
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 21:17:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231783AbhJSTDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 15:03:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43070 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231355AbhJSTDL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 15:03:11 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD659C06161C
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 12:00:58 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id c29so797640pfp.2
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 12:00:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=YFGQRSAxUmv7EqWlH60Vm/UQ4fmzdXfLgvToOU53MX4=;
-        b=IFo0YX1v9CsWz1PfFAzk9+KnsnxBU/rLri784LyBHAwMcn90UZ1j6+7m/Xfk4G8dvO
-         zXwCCjhyFuIOHP378u4RJJ8hAdpA6YHRt91/Ox7dADeZsOQvXBu9MhkO5kDBVcZLxGkI
-         WORcVMAtBIkOy7IkoC2UxtQdDwcp9/Kh4xdZgjvi6r2tM5LA0XZSCHUelcSJ5ZyZDhS2
-         TkbQ7x9DVuCEcligSaQirotXHOBO7HoH4rMcN1MObX1KgJf3gk3gyb/OOhOmGULAgA55
-         ngNY94LTmHI2zf0yVaYU5PE2QN915mP58b2m2A3hHtSUPhhcub9I3vTxLJOUMzGQ6Z+x
-         ZCfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=YFGQRSAxUmv7EqWlH60Vm/UQ4fmzdXfLgvToOU53MX4=;
-        b=fydAIOsBQ8StlNiBWMK7Fq/BuDyqM6AmCgc2ctYDwBUkf48s9mzC1Xevle+M9ba/5L
-         BPNI833ZsBEU4kHlrBeVN4RDi5Eh3/cJQekyc8yhEKWq5gIQs5HAHv4Jwd/7Idmr4fND
-         Hi8/4n3LTw/4sZPcKHJdJd3Lpod74PzWXNIkCzs+Z6KO5Fb+Ste5ca2zv+yM4enbrRn1
-         shUnGrVYS8sf/1A3QfOTgIVMY8c4OKB5UgTMgissqsoweW5IvwT9M9wfFUteFVrF0+8T
-         yqX5MMrWg76qNd5vkFIlG9EvU/AzIeMHf7QpqaruvSnoFiprQWdQ9RMJgj5CthiEQK6S
-         XDWA==
-X-Gm-Message-State: AOAM532metnBUQ4JZ9QgFOOJi12GS+Be2BMb6txA+hCY7NIcJ7wWMMc0
-        gWCOJqUt/eW/xsHBDf+ole/NMdmj3D0hOoTD
-X-Google-Smtp-Source: ABdhPJzziqoqMIUiGW91bd8BbiPhokqQh9Iqq1cDVx/Fhq5KVRn/3IrafAeume+y14466YW/7cQjnQ==
-X-Received: by 2002:a63:7b1e:: with SMTP id w30mr10623899pgc.464.1634670058109;
-        Tue, 19 Oct 2021 12:00:58 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ls7sm3608543pjb.16.2021.10.19.12.00.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Oct 2021 12:00:57 -0700 (PDT)
-Message-ID: <616f15e9.1c69fb81.4c7a6.a86d@mx.google.com>
-Date:   Tue, 19 Oct 2021 12:00:57 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S231673AbhJSTTr convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 19 Oct 2021 15:19:47 -0400
+Received: from mga03.intel.com ([134.134.136.65]:54405 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230432AbhJSTTq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Oct 2021 15:19:46 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10142"; a="228562012"
+X-IronPort-AV: E=Sophos;i="5.87,164,1631602800"; 
+   d="scan'208";a="228562012"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2021 12:17:33 -0700
+X-IronPort-AV: E=Sophos;i="5.87,164,1631602800"; 
+   d="scan'208";a="494254390"
+Received: from jsanz-mobl1.ger.corp.intel.com (HELO localhost) ([10.251.211.239])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2021 12:17:31 -0700
+From:   Jani Nikula <jani.nikula@linux.intel.com>
+To:     Imre Deak <imre.deak@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org,
+        Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH 2/6] drm/i915/dp: Ensure sink rate values are always valid
+In-Reply-To: <20211019183723.GA1621650@ideak-desk.fi.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <20211018094154.1407705-1-imre.deak@intel.com> <20211018094154.1407705-3-imre.deak@intel.com> <87pms1scdl.fsf@intel.com> <20211019073335.GB1537791@ideak-desk.fi.intel.com> <87mtn5sbwi.fsf@intel.com> <20211019073902.GC1537791@ideak-desk.fi.intel.com> <20211019183723.GA1621650@ideak-desk.fi.intel.com>
+Date:   Tue, 19 Oct 2021 22:17:28 +0300
+Message-ID: <87ilxsq0xj.fsf@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.211-62-g3bd5e36634ac
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 164 runs,
- 1 regressions (v4.19.211-62-g3bd5e36634ac)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 164 runs, 1 regressions (v4.19.211-62-g3bd5e=
-36634ac)
+On Tue, 19 Oct 2021, Imre Deak <imre.deak@intel.com> wrote:
+> On Tue, Oct 19, 2021 at 10:39:08AM +0300, Imre Deak wrote:
+>> On Tue, Oct 19, 2021 at 10:37:33AM +0300, Jani Nikula wrote:
+>> > On Tue, 19 Oct 2021, Imre Deak <imre.deak@intel.com> wrote:
+>> > > On Tue, Oct 19, 2021 at 10:27:18AM +0300, Jani Nikula wrote:
+>> > >> On Mon, 18 Oct 2021, Imre Deak <imre.deak@intel.com> wrote:
+>> > >> > Atm, there are no sink rate values set for DP (vs. eDP) sinks until the
+>> > >> > DPCD capabilities are successfully read from the sink. During this time
+>> > >> > intel_dp->num_common_rates is 0 which can lead to a
+>> > >> >
+>> > >> > intel_dp->common_rates[-1]    (*)
+>> > >> >
+>> > >> > access, which is an undefined behaviour, in the following cases:
+>> > >> >
+>> > >> > - In intel_dp_sync_state(), if the encoder is enabled without a sink
+>> > >> >   connected to the encoder's connector (BIOS enabled a monitor, but the
+>> > >> >   user unplugged the monitor until the driver loaded).
+>> > >> > - In intel_dp_sync_state() if the encoder is enabled with a sink
+>> > >> >   connected, but for some reason the DPCD read has failed.
+>> > >> > - In intel_dp_compute_link_config() if modesetting a connector without
+>> > >> >   a sink connected on it.
+>> > >> > - In intel_dp_compute_link_config() if modesetting a connector with a
+>> > >> >   a sink connected on it, but before probing the connector first.
+>> > >> >
+>> > >> > To avoid the (*) access in all the above cases, make sure that the sink
+>> > >> > rate table - and hence the common rate table - is always valid, by
+>> > >> > setting a default minimum sink rate when registering the connector
+>> > >> > before anything could use it.
+>> > >> >
+>> > >> > I also considered setting all the DP link rates by default, so that
+>> > >> > modesetting with higher resolution modes also succeeds in the last two
+>> > >> > cases above. However in case a sink is not connected that would stop
+>> > >> > working after the first modeset, due to the LT fallback logic. So this
+>> > >> > would need more work, beyond the scope of this fix.
+>> > >> >
+>> > >> > As I mentioned in the previous patch, I don't think the issue this patch
+>> > >> > fixes is user visible, however it is an undefined behaviour by
+>> > >> > definition and triggers a BUG() in CONFIG_UBSAN builds, hence CC:stable.
+>> > >> 
+>> > >> I think the question here, and in the following patches, is whether this
+>> > >> papers over potential bugs elsewhere.
+>> > >> 
+>> > >> Would the original bug fixed by patch 1 have been detected if all the
+>> > >> safeguards here had been in place? Point being, we shouldn't be doing
+>> > >> any of these things before we've read the dpcd.
+>> > >
+>> > > Modesets are possible even without a connected sink or a read-out DPCD,
+>> > > so the link parameters need to be valid even without those.
+>> > 
+>> > Modeset on a disconnected DP? How?
+>> 
+>> Yes, just do a modeset on it. It doesn't have to be disconnected either,
+>> you can modeset a DP connector before probing it.
+>
+> Jani,
+>
+> any objections to merge patches 2-6 as well? In a summary the reasons:
+>
+> - Fix userspace triggerable WARNs().
+> - Fix undefined behavior triggerring BUG() in UBSAN builds
+>   (in addition to the case the first patch fixes).
+> - Validate the DP_MAX_LINK_RATE value we read from DPCD.
+> - It unifies some open-coded functionality (patch 3 and 6).
 
-Regressions Summary
--------------------
+I have some reservations about adding more stuff that we cache, as well
+as more functions to call to reset the state... but I don't really have
+concrete proposals either right now, and this makes forward progress.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Ack.
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.211-62-g3bd5e36634ac/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.211-62-g3bd5e36634ac
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3bd5e36634ac171953865c6e35b0cb44c464eb4f =
+BR,
+Jani.
 
 
+>
+>> > BR,
+>> > Jani.
+>> > 
+>> > 
+>> > >
+>> > >> BR,
+>> > >> Jani.
+>> > >> 
+>> > >> 
+>> > >> >
+>> > >> > Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4297
+>> > >> > References: https://gitlab.freedesktop.org/drm/intel/-/issues/4298
+>> > >> > Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+>> > >> > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+>> > >> > Cc: <stable@vger.kernel.org>
+>> > >> > Signed-off-by: Imre Deak <imre.deak@intel.com>
+>> > >> > ---
+>> > >> >  drivers/gpu/drm/i915/display/intel_dp.c | 8 ++++++++
+>> > >> >  1 file changed, 8 insertions(+)
+>> > >> >
+>> > >> > diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+>> > >> > index 23de500d56b52..153ae944a354b 100644
+>> > >> > --- a/drivers/gpu/drm/i915/display/intel_dp.c
+>> > >> > +++ b/drivers/gpu/drm/i915/display/intel_dp.c
+>> > >> > @@ -120,6 +120,12 @@ bool intel_dp_is_uhbr(const struct intel_crtc_state *crtc_state)
+>> > >> >  	return crtc_state->port_clock >= 1000000;
+>> > >> >  }
+>> > >> >  
+>> > >> > +static void intel_dp_set_default_sink_rates(struct intel_dp *intel_dp)
+>> > >> > +{
+>> > >> > +	intel_dp->sink_rates[0] = 162000;
+>> > >> > +	intel_dp->num_sink_rates = 1;
+>> > >> > +}
+>> > >> > +
+>> > >> >  /* update sink rates from dpcd */
+>> > >> >  static void intel_dp_set_sink_rates(struct intel_dp *intel_dp)
+>> > >> >  {
+>> > >> > @@ -5003,6 +5009,8 @@ intel_dp_init_connector(struct intel_digital_port *dig_port,
+>> > >> >  	}
+>> > >> >  
+>> > >> >  	intel_dp_set_source_rates(intel_dp);
+>> > >> > +	intel_dp_set_default_sink_rates(intel_dp);
+>> > >> > +	intel_dp_set_common_rates(intel_dp);
+>> > >> >  
+>> > >> >  	if (IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv))
+>> > >> >  		intel_dp->pps.active_pipe = vlv_active_pipe(intel_dp);
+>> > >> 
+>> > >> -- 
+>> > >> Jani Nikula, Intel Open Source Graphics Center
+>> > 
+>> > -- 
+>> > Jani Nikula, Intel Open Source Graphics Center
 
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/616edcded297dcaebb33592c
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
--62-g3bd5e36634ac/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.211=
--62-g3bd5e36634ac/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/616edcded297dca=
-ebb33592f
-        new failure (last pass: v4.19.211-62-gbf52fbbd32a0)
-        2 lines
-
-    2021-10-19T14:57:17.702287  <8>[   21.155120] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-10-19T14:57:17.745615  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/111
-    2021-10-19T14:57:17.754963  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+-- 
+Jani Nikula, Intel Open Source Graphics Center
