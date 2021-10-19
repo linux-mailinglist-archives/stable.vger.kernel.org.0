@@ -2,102 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED0A7432F1F
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 09:15:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CF5A432F53
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 09:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234386AbhJSHRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 03:17:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49102 "EHLO
+        id S231758AbhJSH1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 03:27:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234381AbhJSHRo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 03:17:44 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A11C061745
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 00:15:32 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1mcjLO-0006Dy-L4
-        for stable@vger.kernel.org; Tue, 19 Oct 2021 09:15:30 +0200
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id AECF8697772
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 07:15:28 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id 349E1697764;
-        Tue, 19 Oct 2021 07:15:20 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 82083c34;
-        Tue, 19 Oct 2021 07:15:19 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Marc Kleine-Budde <mkl@pengutronix.de>,
-        stable@vger.kernel.org,
-        Sottas Guillaume <Guillaume.Sottas@liebherr.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>
-Subject: [PATCH net] can: isotp: isotp_sendmsg(): fix return error on FC timeout on TX path
-Date:   Tue, 19 Oct 2021 09:15:18 +0200
-Message-Id: <20211019071518.2346320-2-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211019071518.2346320-1-mkl@pengutronix.de>
-References: <20211019071518.2346320-1-mkl@pengutronix.de>
+        with ESMTP id S229584AbhJSH1I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 03:27:08 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8B34C06161C;
+        Tue, 19 Oct 2021 00:24:56 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id j190so11808573pgd.0;
+        Tue, 19 Oct 2021 00:24:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=jr3Muznsu1+ia39ypZjhEZwn1Lvzal6ZyLPhl8pjkfI=;
+        b=ixmnDgU0Zl4avp6D8yzTpc3wdRJy2oAd3ZvW/hBVZne2jByQwbMnxXkbYl5jRs0Cz7
+         0v2EAr7ipycdLKJoGl0CJuyWMplsUByA8wundZHKppEgzc1B/oP2gqFO6zcFpyFzxyqT
+         vBrESaefLeDxi9k49mDpnzlkee6X9Ea7bijkgmapnEZT0KH8fbNJk4sfBzzlRdLW4qM8
+         nbMVip+NIULDFWJQWTqqRA9zJpQQhaHC7tnV6iNBkTGBgz493OKN+HRSNssQhmwZXl5M
+         VFhSqEj41KW4gbhyVkTvvxoQTFyUHfqLR1oQTzdVdlxaYjJXRqqSnLZMOKuw9ryNFmnU
+         evfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=jr3Muznsu1+ia39ypZjhEZwn1Lvzal6ZyLPhl8pjkfI=;
+        b=TmUlT7pSSRTqbn5WTpT5b3bwzv6PAielLMGIM3Wj+U0swVxvQl2A/Dj1BzkLWsOSjb
+         mlPSmpomQQkF/goDyNZU9N+Ng/eFqQQPSh19s7eif2UhwZ7IMYJ2YwmVX3a4Pc1qPRCK
+         Wh8Ly2OPI8k/7Q9OSRRUVY14v7qNzt1UFhR4IqHORi/hkTrkXUGg2HqJzIQFfipE0ILU
+         GwjLuN4eIi22ImM7EaENmwL+xMTK93M07AQDQ+K7Ic6EHCCl7WB4uIRrTZ6YuhsAxbqv
+         pJB4TddHuaZu/I/b5nJ+mfZj7vytAikUjtn0v1Hh1tzvhMXhZhsPxd7pLART9LRo1Nro
+         WH/Q==
+X-Gm-Message-State: AOAM530Mf1sIk+gaEF1HaWXDSmwrV+BBrdfs2Pfr1TTI7S3uTlDH1/jf
+        tD2dcwxOe7+Mc6YztcEppaceRerUy8HOzYureOY=
+X-Google-Smtp-Source: ABdhPJwL/7Uw8QLij+OYWZyPH3LUPnUQ/++Tuck4Vc4cz54ntUZdo3PLcLYq+Q9hNdZjeirJR1olcltcVXWdg15qAbE=
+X-Received: by 2002:aa7:9f92:0:b0:44d:bd1:98b2 with SMTP id
+ z18-20020aa79f92000000b0044d0bd198b2mr34175808pfr.82.1634628296156; Tue, 19
+ Oct 2021 00:24:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+References: <20211008081137.1948848-1-michal.vokac@ysoft.com>
+ <20211018112820.qkebjt2gk2w53lp5@pengutronix.de> <37bc3702-bc98-dc54-e9c7-bf9bc92432f0@linaro.org>
+In-Reply-To: <37bc3702-bc98-dc54-e9c7-bf9bc92432f0@linaro.org>
+From:   Petr Benes <petrben@gmail.com>
+Date:   Tue, 19 Oct 2021 09:24:44 +0200
+Message-ID: <CAPwXO5YguJtSFSqnA_aGPch2NswmrP1EzOs0QH5O_iOdtn5W1A@mail.gmail.com>
+Subject: Re: [PATCH] thermal: imx: Fix temperature measurements on i.MX6 after alarm
+To:     Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
+        =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        linux-pm@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>,
+        Amit Kucheria <amitk@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        =?UTF-8?Q?Petr_Bene=C5=A1?= <petr.benes@ysoft.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When the a large chunk of data send and the receiver does not send a
-Flow Control frame back in time, the sendmsg() does not return a error
-code, but the number of bytes sent corresponding to the size of the
-packet.
+On Mon, 18 Oct 2021 at 13:38, Daniel Lezcano <daniel.lezcano@linaro.org> wr=
+ote:
+>
+> On 18/10/2021 13:28, Oleksij Rempel wrote:
+> > Hi Michal,
+> >
+> > I hope you have seen this patch:
+> > https://lore.kernel.org/all/20210924115032.29684-1-o.rempel@pengutronix=
+.de/
+> >
+> > Are there any reason why this was ignored?
+>
+> No reasons, I was waiting for some tags before merging it. But I forget
+> about it when reviewing the current patch.
 
-If a timeout occurs the isotp_tx_timer_handler() is fired, sets
-sk->sk_err and calls the sk->sk_error_report() function. It was
-wrongly expected that the error would be propagated to user space in
-every case. For isotp_sendmsg() blocking on wait_event_interruptible()
-this is not the case.
-
-This patch fixes the problem by checking if sk->sk_err is set and
-returning the error to user space.
-
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://github.com/hartkopp/can-isotp/issues/42
-Link: https://github.com/hartkopp/can-isotp/pull/43
-Link: https://lore.kernel.org/all/20210507091839.1366379-1-mkl@pengutronix.de
-Cc: stable@vger.kernel.org
-Reported-by: Sottas Guillaume (LMB) <Guillaume.Sottas@liebherr.com>
-Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- net/can/isotp.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index d1f54273c0bb..df6968b28bf4 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -971,6 +971,9 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
- 	if (wait_tx_done) {
- 		/* wait for complete transmission of current pdu */
- 		wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
-+
-+		if (sk->sk_err)
-+			return -sk->sk_err;
- 	}
- 
- 	return size;
-
-base-commit: 8a64ef042eab8a6cec04a6c79d44d1af79b628ca
--- 
-2.33.0
-
-
+Tested Oleksij's patch. It works OK. A question arose. Does it require
+CONFIG_PM=3Dy?
+If this condition is mandatory and the requirement is valid, Kconfig
+should be changed accordingly.
+I'm not able to verify it works without PM, seems it doesn't.
+>
+>
+>
+> --
+> <http://www.linaro.org/> Linaro.org =E2=94=82 Open source software for AR=
+M SoCs
+>
+> Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
+> <http://twitter.com/#!/linaroorg> Twitter |
+> <http://www.linaro.org/linaro-blog/> Blog
