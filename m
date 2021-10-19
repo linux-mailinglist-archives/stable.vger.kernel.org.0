@@ -2,65 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00A34433A41
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 17:24:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFB55433A5E
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 17:29:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231189AbhJSP1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 11:27:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49492 "EHLO
+        id S234311AbhJSPbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 11:31:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232051AbhJSP1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 11:27:07 -0400
-Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D0A0C06161C
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 08:24:54 -0700 (PDT)
-Received: by mail-ot1-x336.google.com with SMTP id g62-20020a9d2dc4000000b0054752cfbc59so2416151otb.1
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 08:24:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=yOIB1cM1n4AVjkajdRdBpAYqP2G0HC9nHfA5pv+kPpE=;
-        b=poQDVtkUroRNp9TYlbo2Ug4pUL1ZnrBAUmzoiu4GXudxQDipWCKNp8nftDm2TYcSc/
-         UsvAO/xVDfQmSlNGWT1kLHcPUEMYzTb9/CXC7Xn2OgwP0a+Gwpv5k7lvUs1FOOkcqC1M
-         nDAJty+m1jfkf+1v2QzlmAlmaJvHGRfeECt/mF5fOHPXuvEhFaFOVoNqLN1FkZ4QYr1B
-         elxDp9a4U38Mzbn/aX6blxQFtu829Zy4YMXsJJxDiPcoUCo3wjWlNX0m7jzBShcgRJQV
-         +gcZasrqVkaNNqy5O3kIirLjSp3h2dJk7w5eEeuj86xaqP/05IrNJ8tBERGYjSCX6C2s
-         4/sQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=yOIB1cM1n4AVjkajdRdBpAYqP2G0HC9nHfA5pv+kPpE=;
-        b=DPsDfjgKrB4STB9NJr1cXzSrVWkg7dRkHYe6SbQtSGB2VoxeobFmbdzK12FfYGqQcq
-         15znwmzw1+dq+5mIjK733CjcjK7joz+Z4+V63exRu+eULsJqWLXYRbIpLyqUk5xvaNYB
-         bAuAYU1G5SBMbJzcLOtxH6GzDiRG/d6sMO+zk/Vn/ks9uKaz9O/J/3p2Az21MtcWE2ED
-         TTluD1B3lsLYvibqPtTt1wHso5dg6ap4jU1pVxvhXnTJvZyYDkUzDchf9VwIDjYUx89p
-         R2PcufwbM4/K0gjXZS7tFFazkjkIBscw5rInGDdWlADKrSLbO3+X8N1YZPA/XyDQslj0
-         JG+A==
-X-Gm-Message-State: AOAM533WJE/GXc3FhAihWL17FK5giXG6SJYL0NqGwmKkcexb358V3GJt
-        0J3Ely4uhzG/RcZzrpE/aoqyy79VwyOLBGUTyfI=
-X-Google-Smtp-Source: ABdhPJzWxEeUAyUXVMNak9tvc+jkE4uTcX/t3ARi7G+XRPuCpSDI05/fMho/44YWdX/UvCAD7wk9z3vwGnlgG3ugavM=
-X-Received: by 2002:a05:6830:2409:: with SMTP id j9mr5768311ots.178.1634657093712;
- Tue, 19 Oct 2021 08:24:53 -0700 (PDT)
+        with ESMTP id S232357AbhJSPbj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 11:31:39 -0400
+Received: from cambridge.shadura.me (cambridge.shadura.me [IPv6:2a00:1098:0:86:1000:13:0:1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0C55C06161C;
+        Tue, 19 Oct 2021 08:29:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=shadura.me;
+         s=a; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:Cc:To:
+        From:Content-Type:Sender:Reply-To:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
+        References; bh=LsStX3N83EwMbgWWiXAnsz0OEPMzhSd+2H5bAfwboH0=; b=IAEapUkr7LF2gd
+        3ZsXzD5IFUpmJ607HoRV0bevz1/I0r3bfMR3ToVGcDJxoTxREbH/RuCsSg2aWOE1y+q+cEk/H0Yto
+        ONw9BOiFoxfY9b4WzaTVZefaMIZqNkfQ+rNF8mvyvRLk4XdQMVoLfEGyZawoFHaEnq2L7JkVZDq5S
+        er8=;
+Received: from 178-143-43-60.dynamic.orange.sk ([178.143.43.60] helo=localhost)
+        by cambridge.shadura.me with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <andrew@shadura.me>)
+        id 1mcr3M-0002yO-32; Tue, 19 Oct 2021 17:29:24 +0200
+From:   Andrej Shadura <andrew.shadura@collabora.co.uk>
+To:     =?UTF-8?q?Ji=C5=99=C3=AD=20Kosina?= <jikos@kernel.org>
+Cc:     linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
+        stable@vger.kernel.org, kernel@collabora.com,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH v3 1/2] HID: u2fzero: clarify error check and length calculations
+Date:   Tue, 19 Oct 2021 17:29:16 +0200
+Message-Id: <20211019152917.79666-1-andrew.shadura@collabora.co.uk>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Received: by 2002:a05:6820:602:0:0:0:0 with HTTP; Tue, 19 Oct 2021 08:24:52
- -0700 (PDT)
-Reply-To: justinseydou@gmail.com
-From:   Justin Seydou <hamidfaith031@gmail.com>
-Date:   Tue, 19 Oct 2021 16:24:52 +0100
-Message-ID: <CAFepVPp_gUVe6zAEPaJqLQWX4xhBL3s=wzSCAxXjfdkmw7G=RQ@mail.gmail.com>
-Subject: Proposal
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear friend,
+The previous commit fixed handling of incomplete packets but broke error
+handling: offsetof returns an unsigned value (size_t), but when compared
+against the signed return value, the return value is interpreted as if
+it were unsigned, so negative return values are never less than the
+offset.
 
-I am Mr. Justin Seydou. I have a mutually beneficial proposal of
-$35millionUSD I want to introduce to you. All documents to execute the
-transaction are valid and available.
-Kindly indicate your interest to enable me explain further.
+To make the code easier to read, calculate the minimal packet length
+once and separately, and assign it to a signed int variable to eliminate
+unsigned math and the need for type casts. It then becomes immediately
+obvious how the actual data length is calculated and why the return
+value cannot be less than the minimal length.
 
-Justin Seydou.
+Fixes: 22d65765f211 ("HID: u2fzero: ignore incomplete packets without data")
+Fixes: 42337b9d4d95 ("HID: add driver for U2F Zero built-in LED and RNG")
+Signed-off-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
+---
+ drivers/hid/hid-u2fzero.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-u2fzero.c b/drivers/hid/hid-u2fzero.c
+index d70cd3d7f583..94f78ffb76d0 100644
+--- a/drivers/hid/hid-u2fzero.c
++++ b/drivers/hid/hid-u2fzero.c
+@@ -191,6 +191,8 @@ static int u2fzero_rng_read(struct hwrng *rng, void *data,
+ 	struct u2f_hid_msg resp;
+ 	int ret;
+ 	size_t actual_length;
++	/* valid packets must have a correct header */
++	int min_length = offsetof(struct u2f_hid_msg, init.data);
+ 
+ 	if (!dev->present) {
+ 		hid_dbg(dev->hdev, "device not present");
+@@ -200,12 +202,12 @@ static int u2fzero_rng_read(struct hwrng *rng, void *data,
+ 	ret = u2fzero_recv(dev, &req, &resp);
+ 
+ 	/* ignore errors or packets without data */
+-	if (ret < offsetof(struct u2f_hid_msg, init.data))
++	if (ret < min_length)
+ 		return 0;
+ 
+ 	/* only take the minimum amount of data it is safe to take */
+-	actual_length = min3((size_t)ret - offsetof(struct u2f_hid_msg,
+-		init.data), U2F_HID_MSG_LEN(resp), max);
++	actual_length = min3((size_t)ret - min_length,
++		U2F_HID_MSG_LEN(resp), max);
+ 
+ 	memcpy(data, resp.init.data, actual_length);
+ 
+-- 
+2.33.0
+
