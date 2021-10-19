@@ -2,149 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69F0A432FC2
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 09:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EB3D432FC7
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 09:39:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230365AbhJSHlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 03:41:20 -0400
-Received: from mga03.intel.com ([134.134.136.65]:55393 "EHLO mga03.intel.com"
+        id S234464AbhJSHls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 03:41:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229967AbhJSHlU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Oct 2021 03:41:20 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10141"; a="228393877"
-X-IronPort-AV: E=Sophos;i="5.85,383,1624345200"; 
-   d="scan'208";a="228393877"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2021 00:39:08 -0700
-X-IronPort-AV: E=Sophos;i="5.85,383,1624345200"; 
-   d="scan'208";a="574074130"
-Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2021 00:39:06 -0700
-Date:   Tue, 19 Oct 2021 10:39:02 +0300
-From:   Imre Deak <imre.deak@intel.com>
-To:     Jani Nikula <jani.nikula@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 2/6] drm/i915/dp: Ensure sink rate values are
- always valid
-Message-ID: <20211019073902.GC1537791@ideak-desk.fi.intel.com>
-References: <20211018094154.1407705-1-imre.deak@intel.com>
- <20211018094154.1407705-3-imre.deak@intel.com>
- <87pms1scdl.fsf@intel.com>
- <20211019073335.GB1537791@ideak-desk.fi.intel.com>
- <87mtn5sbwi.fsf@intel.com>
+        id S234457AbhJSHls (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Oct 2021 03:41:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8183661374;
+        Tue, 19 Oct 2021 07:39:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1634629176;
+        bh=CqVxfy6Itkiofx8Bp3tiVRtBnr5vmMBWtvRC9ryEKNw=;
+        h=Subject:To:From:Date:From;
+        b=NfpX1dvxDUoFJUdwHS+wDb7jaLdYVRpknC+OJTbSeB/n2c+nlcpWRhWjG62+jrtEK
+         ZCq6zVRynWWQDTvyDgqo/Rsrieycig3r7c1aDLuYtZ7rJd32x7ecsVnqy3uWanmAgR
+         kT0+yiR03Ve6iacmHS/YCgVA+Glu8yGX/Clg95H4=
+Subject: patch "binder: don't detect sender/target during buffer cleanup" added to char-misc-testing
+To:     tkjos@google.com, christian.brauner@ubuntu.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 19 Oct 2021 09:39:24 +0200
+Message-ID: <163462916496195@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <87mtn5sbwi.fsf@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 19, 2021 at 10:37:33AM +0300, Jani Nikula wrote:
-> On Tue, 19 Oct 2021, Imre Deak <imre.deak@intel.com> wrote:
-> > On Tue, Oct 19, 2021 at 10:27:18AM +0300, Jani Nikula wrote:
-> >> On Mon, 18 Oct 2021, Imre Deak <imre.deak@intel.com> wrote:
-> >> > Atm, there are no sink rate values set for DP (vs. eDP) sinks until the
-> >> > DPCD capabilities are successfully read from the sink. During this time
-> >> > intel_dp->num_common_rates is 0 which can lead to a
-> >> >
-> >> > intel_dp->common_rates[-1]    (*)
-> >> >
-> >> > access, which is an undefined behaviour, in the following cases:
-> >> >
-> >> > - In intel_dp_sync_state(), if the encoder is enabled without a sink
-> >> >   connected to the encoder's connector (BIOS enabled a monitor, but the
-> >> >   user unplugged the monitor until the driver loaded).
-> >> > - In intel_dp_sync_state() if the encoder is enabled with a sink
-> >> >   connected, but for some reason the DPCD read has failed.
-> >> > - In intel_dp_compute_link_config() if modesetting a connector without
-> >> >   a sink connected on it.
-> >> > - In intel_dp_compute_link_config() if modesetting a connector with a
-> >> >   a sink connected on it, but before probing the connector first.
-> >> >
-> >> > To avoid the (*) access in all the above cases, make sure that the sink
-> >> > rate table - and hence the common rate table - is always valid, by
-> >> > setting a default minimum sink rate when registering the connector
-> >> > before anything could use it.
-> >> >
-> >> > I also considered setting all the DP link rates by default, so that
-> >> > modesetting with higher resolution modes also succeeds in the last two
-> >> > cases above. However in case a sink is not connected that would stop
-> >> > working after the first modeset, due to the LT fallback logic. So this
-> >> > would need more work, beyond the scope of this fix.
-> >> >
-> >> > As I mentioned in the previous patch, I don't think the issue this patch
-> >> > fixes is user visible, however it is an undefined behaviour by
-> >> > definition and triggers a BUG() in CONFIG_UBSAN builds, hence CC:stable.
-> >> 
-> >> I think the question here, and in the following patches, is whether this
-> >> papers over potential bugs elsewhere.
-> >> 
-> >> Would the original bug fixed by patch 1 have been detected if all the
-> >> safeguards here had been in place? Point being, we shouldn't be doing
-> >> any of these things before we've read the dpcd.
-> >
-> > Modesets are possible even without a connected sink or a read-out DPCD,
-> > so the link parameters need to be valid even without those.
-> 
-> Modeset on a disconnected DP? How?
 
-Yes, just do a modeset on it. It doesn't have to be disconnected either,
-you can modeset a DP connector before probing it.
+This is a note to let you know that I've just added the patch titled
 
-> 
-> BR,
-> Jani.
-> 
-> 
-> >
-> >> BR,
-> >> Jani.
-> >> 
-> >> 
-> >> >
-> >> > Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4297
-> >> > References: https://gitlab.freedesktop.org/drm/intel/-/issues/4298
-> >> > Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> >> > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> >> > Cc: <stable@vger.kernel.org>
-> >> > Signed-off-by: Imre Deak <imre.deak@intel.com>
-> >> > ---
-> >> >  drivers/gpu/drm/i915/display/intel_dp.c | 8 ++++++++
-> >> >  1 file changed, 8 insertions(+)
-> >> >
-> >> > diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-> >> > index 23de500d56b52..153ae944a354b 100644
-> >> > --- a/drivers/gpu/drm/i915/display/intel_dp.c
-> >> > +++ b/drivers/gpu/drm/i915/display/intel_dp.c
-> >> > @@ -120,6 +120,12 @@ bool intel_dp_is_uhbr(const struct intel_crtc_state *crtc_state)
-> >> >  	return crtc_state->port_clock >= 1000000;
-> >> >  }
-> >> >  
-> >> > +static void intel_dp_set_default_sink_rates(struct intel_dp *intel_dp)
-> >> > +{
-> >> > +	intel_dp->sink_rates[0] = 162000;
-> >> > +	intel_dp->num_sink_rates = 1;
-> >> > +}
-> >> > +
-> >> >  /* update sink rates from dpcd */
-> >> >  static void intel_dp_set_sink_rates(struct intel_dp *intel_dp)
-> >> >  {
-> >> > @@ -5003,6 +5009,8 @@ intel_dp_init_connector(struct intel_digital_port *dig_port,
-> >> >  	}
-> >> >  
-> >> >  	intel_dp_set_source_rates(intel_dp);
-> >> > +	intel_dp_set_default_sink_rates(intel_dp);
-> >> > +	intel_dp_set_common_rates(intel_dp);
-> >> >  
-> >> >  	if (IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv))
-> >> >  		intel_dp->pps.active_pipe = vlv_active_pipe(intel_dp);
-> >> 
-> >> -- 
-> >> Jani Nikula, Intel Open Source Graphics Center
-> 
-> -- 
-> Jani Nikula, Intel Open Source Graphics Center
+    binder: don't detect sender/target during buffer cleanup
+
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 32e9f56a96d8d0f23cb2aeb2a3cd18d40393e787 Mon Sep 17 00:00:00 2001
+From: Todd Kjos <tkjos@google.com>
+Date: Fri, 15 Oct 2021 16:38:11 -0700
+Subject: binder: don't detect sender/target during buffer cleanup
+
+When freeing txn buffers, binder_transaction_buffer_release()
+attempts to detect whether the current context is the target by
+comparing current->group_leader to proc->tsk. This is an unreliable
+test. Instead explicitly pass an 'is_failure' boolean.
+
+Detecting the sender was being used as a way to tell if the
+transaction failed to be sent.  When cleaning up after
+failing to send a transaction, there is no need to close
+the fds associated with a BINDER_TYPE_FDA object. Now
+'is_failure' can be used to accurately detect this case.
+
+Fixes: 44d8047f1d87 ("binder: use standard functions to allocate fds")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Link: https://lore.kernel.org/r/20211015233811.3532235-1-tkjos@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/android/binder.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index 9edacc8b9768..fe4c3b49eec1 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -1870,7 +1870,7 @@ static void binder_transaction_buffer_release(struct binder_proc *proc,
+ 		binder_dec_node(buffer->target_node, 1, 0);
+ 
+ 	off_start_offset = ALIGN(buffer->data_size, sizeof(void *));
+-	off_end_offset = is_failure ? failed_at :
++	off_end_offset = is_failure && failed_at ? failed_at :
+ 				off_start_offset + buffer->offsets_size;
+ 	for (buffer_offset = off_start_offset; buffer_offset < off_end_offset;
+ 	     buffer_offset += sizeof(binder_size_t)) {
+@@ -1956,9 +1956,8 @@ static void binder_transaction_buffer_release(struct binder_proc *proc,
+ 			binder_size_t fd_buf_size;
+ 			binder_size_t num_valid;
+ 
+-			if (proc->tsk != current->group_leader) {
++			if (is_failure) {
+ 				/*
+-				 * Nothing to do if running in sender context
+ 				 * The fd fixups have not been applied so no
+ 				 * fds need to be closed.
+ 				 */
+@@ -3185,6 +3184,7 @@ static void binder_transaction(struct binder_proc *proc,
+  * binder_free_buf() - free the specified buffer
+  * @proc:	binder proc that owns buffer
+  * @buffer:	buffer to be freed
++ * @is_failure:	failed to send transaction
+  *
+  * If buffer for an async transaction, enqueue the next async
+  * transaction from the node.
+@@ -3194,7 +3194,7 @@ static void binder_transaction(struct binder_proc *proc,
+ static void
+ binder_free_buf(struct binder_proc *proc,
+ 		struct binder_thread *thread,
+-		struct binder_buffer *buffer)
++		struct binder_buffer *buffer, bool is_failure)
+ {
+ 	binder_inner_proc_lock(proc);
+ 	if (buffer->transaction) {
+@@ -3222,7 +3222,7 @@ binder_free_buf(struct binder_proc *proc,
+ 		binder_node_inner_unlock(buf_node);
+ 	}
+ 	trace_binder_transaction_buffer_release(buffer);
+-	binder_transaction_buffer_release(proc, thread, buffer, 0, false);
++	binder_transaction_buffer_release(proc, thread, buffer, 0, is_failure);
+ 	binder_alloc_free_buf(&proc->alloc, buffer);
+ }
+ 
+@@ -3424,7 +3424,7 @@ static int binder_thread_write(struct binder_proc *proc,
+ 				     proc->pid, thread->pid, (u64)data_ptr,
+ 				     buffer->debug_id,
+ 				     buffer->transaction ? "active" : "finished");
+-			binder_free_buf(proc, thread, buffer);
++			binder_free_buf(proc, thread, buffer, false);
+ 			break;
+ 		}
+ 
+@@ -4117,7 +4117,7 @@ static int binder_thread_read(struct binder_proc *proc,
+ 			buffer->transaction = NULL;
+ 			binder_cleanup_transaction(t, "fd fixups failed",
+ 						   BR_FAILED_REPLY);
+-			binder_free_buf(proc, thread, buffer);
++			binder_free_buf(proc, thread, buffer, true);
+ 			binder_debug(BINDER_DEBUG_FAILED_TRANSACTION,
+ 				     "%d:%d %stransaction %d fd fixups failed %d/%d, line %d\n",
+ 				     proc->pid, thread->pid,
+-- 
+2.33.1
+
+
