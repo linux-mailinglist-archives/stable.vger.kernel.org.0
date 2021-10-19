@@ -2,71 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A827433FCB
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 22:27:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E64B8434071
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 23:22:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231738AbhJSU3v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 16:29:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34134 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231277AbhJSU3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 16:29:50 -0400
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98985C06161C;
-        Tue, 19 Oct 2021 13:27:37 -0700 (PDT)
-Received: by mail-oi1-x234.google.com with SMTP id z126so6740303oiz.12;
-        Tue, 19 Oct 2021 13:27:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=4gJiVod5N6BKX4OnC8ZdSE4FkABW/4VZ+M2Dy1zOycM=;
-        b=a0mPQCw0ehQeCBC8qbGogm54/Tb9aF1N9pRZqzOKLDRjzkgXUKz37hAV4Tsw/eAmR8
-         gMwA+LHqKRS9pSIetXJb+eXzTxMKyHyjg223E8ZTraBID35ua5UFHV+mDZQkqD5QcWyx
-         7DxFSaZooili18tu+Zil3VGHBxk5+351u8K9+GK8VliGoe77XQIuO3cwsL59st44Clam
-         G3ELX7Zcslds9kLhr3a4UlELy5DCpFNQs2Vwi8/RjVZwRISsflM6mmyvUPzAzd8NmKfE
-         jhEKNB7ckkwiqX/HR9RfRws/kGWiWVbXKVSZtHWTLDtDfz+KYnz97toCHH+sX4QC9Ugy
-         bNDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=4gJiVod5N6BKX4OnC8ZdSE4FkABW/4VZ+M2Dy1zOycM=;
-        b=ZVoDi/Ux7wNxMG+TLifRv66rrwZQYX7ayH/OQserL42f2ijkvZUj6G3WrB+9WKT/qa
-         U19llVomr/kJ9Nl26UkntvCgcsNiLl6eBnvhL7QtS+ZOqVRHTdk3yle1oyY/EEag+WVJ
-         TsuCRw9A1mOPG/9qak4/pzyXftTUKq94rKW79fHmXDUR6hOJgrQ9DiPHRN+oTqLXT0Hk
-         Eu7N53tQP126XkQbhkG95jAp7rZbsxY3uF6QGUSZdzsO/k8PoMveKptXgJGwrn8NLp1v
-         vPWG1EdmIvkyvvYrWMxW0iv6+TyZh6x2gOdBS1hJWOtWJ6AWkhBJ0Kj/MNyM5ao0AsDy
-         807w==
-X-Gm-Message-State: AOAM531IvOLPYNYsULY7xpGHDcOc6YKmY6tOOQZx6BvZmFSU78uXHoYi
-        BtcIiNcdEzXa83CFybgMlKf7zUPBeLI=
-X-Google-Smtp-Source: ABdhPJxoG0XcLYlnx7GD3uM6JjwUmuk/NN/ZCJ05vEsfrblu44uZ/SgPs22fxvF8wj3cepKY9iM7gw==
-X-Received: by 2002:aca:ac0b:: with SMTP id v11mr5962742oie.155.1634675257077;
-        Tue, 19 Oct 2021 13:27:37 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id u15sm34867oon.35.2021.10.19.13.27.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Oct 2021 13:27:36 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 19 Oct 2021 13:27:35 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
+        id S229521AbhJSVYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 17:24:34 -0400
+Received: from mail-dm6nam12on2054.outbound.protection.outlook.com ([40.107.243.54]:39393
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229491AbhJSVYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Oct 2021 17:24:34 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WizaZOy8WhoJPRlnlcJvowvHAR4Paj7+ETRvqixCwlGKQ5WLgA3JjSCt4JZCIX6tMFd1+u6kQU3vBDhVLG8QnHtgsTZmLEkKrjuJsXJL5BmEJiXo6I81NLBfqG4vQ+iF0Q9rYwFa3jyvmEsAeLeiLwFL0KxmPQpHciWxx29ivQS32/UWOIT157T+hkdVncJUuDZ2KreHVpGkKaE7dIkClL2vXujhKsG+WSIX95NOcH3SuuItZGBICNQjowy9+KPgoXP84lQ/IsOjLlcZcWmCFRj9Ttu91hAg3NjkU9/oATrjc5yOIeWQJ0FS1UPbFuDkSU6LaWycKeVyYUwE39lAcQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ZnE8cRdPVfJAxWctRuYh7dEO7twZcwEUI8Ta+n3nUsk=;
+ b=MxZVS5G+6IiPGhZwInlhy6QRGFf24DwEdDCjt13TIoUzJd45KrgDeif/JV8FtIotCRVFXXlLCuElxx7lMm//HAXncSDH0WtoTiEd+BIgbp1nD1Om8MCamEAUo21bEkt4BoN7mc9HDv/d0FyZ0XBEa/chVvxwrLkOphh1HYrJioPf1SD2+5bQjwwl8dTX3qlRrSeZHkBn1W9Zpa5csQO/1QiZSRGZARE6LjaQ0W6DT20Q+xkZdcRDFaKWZTPu/DYZi0A3wzuCMMGW4X0w9A9KtJPIpxS9zmtBP2VH6UXMbLr6y7RFYOw+4AqtYoXspnokCipclGiqZG0iwPSJLLuGyg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.36) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=nvidia.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZnE8cRdPVfJAxWctRuYh7dEO7twZcwEUI8Ta+n3nUsk=;
+ b=OfTUripNrea4Fo1vQ9kg5N0435OmLPAj111cTKGLnqzv89w91uFSDSwbE36/Z5hEKdk2I9plEfBzb4v5P9pgu0ZWtHXlacaQXoVlxxRh1yRZJ7dSHR55HOp1TGtMuMm0Evr1OsczYKPKIPXJvKzHIxI1MyMKZB6ggRkxEoYkgyFh+7Nv1QjXsrfCUW9vkvau9YWAGCOxvzM3hW/xIeUb5QA1xCfPh9NUmMQ1ncLW0/Zwkk1NSXMYCmo+t4pG5eEoFHJiY0n+vtvfmCQ/hIJu+4xJUGP9m2qbzrKrYGbqwzP3KPtuS+bLDRK3EMs9sy6I9bdGmx2c/8q5E15gIhWeJg==
+Received: from DM5PR17CA0068.namprd17.prod.outlook.com (2603:10b6:3:13f::30)
+ by BL0PR12MB5012.namprd12.prod.outlook.com (2603:10b6:208:1ca::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4608.15; Tue, 19 Oct
+ 2021 21:22:19 +0000
+Received: from DM6NAM11FT017.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:3:13f:cafe::ca) by DM5PR17CA0068.outlook.office365.com
+ (2603:10b6:3:13f::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4628.15 via Frontend
+ Transport; Tue, 19 Oct 2021 21:22:19 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.36)
+ smtp.mailfrom=nvidia.com; denx.de; dkim=none (message not signed)
+ header.d=none;denx.de; dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.36 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.36; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.36) by
+ DM6NAM11FT017.mail.protection.outlook.com (10.13.172.145) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4608.15 via Frontend Transport; Tue, 19 Oct 2021 21:22:18 +0000
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 19 Oct
+ 2021 21:22:16 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.187.5) by mail.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.18 via Frontend
+ Transport; Tue, 19 Oct 2021 21:22:16 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
 Subject: Re: [PATCH 5.14 000/151] 5.14.14-rc2 review
-Message-ID: <20211019202735.GE748554@roeck-us.net>
-References: <20211019061402.629202866@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20211019061402.629202866@linuxfoundation.org>
+References: <20211019061402.629202866@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Message-ID: <93385b91ef5c473fb1090f6768ccb273@HQMAIL111.nvidia.com>
+Date:   Tue, 19 Oct 2021 21:22:16 +0000
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: af64e0cd-abc1-4ad6-da82-08d993468822
+X-MS-TrafficTypeDiagnostic: BL0PR12MB5012:
+X-Microsoft-Antispam-PRVS: <BL0PR12MB5012CD18D978CFD470D98118D9BD9@BL0PR12MB5012.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Cb4rJU4wLiL5s+o90z2LVNM+BkjZevCHYSXJkKiwJOUkqXGJUg7lJGH3AEM+6nq0GCRbgxoqsr/PS/KQSiwnARF+i41oV0rTwNAEjfkCGubBS0aX2YBI3qBFmIqg8R9bPwozend19JUR5Y8K2qciWaQmnfQb2SQc6YtJdQVaXhfn3Xzopn3ahXFX3Quv0Rt//qBN4FJYOJq/DG85ef29sVRBNob77Ogdrh4TBgrAZOgIpA3fP8icf2ds6qUzjF4Y37yvK+plmBD+jTEX0mXNlC1K/Yofi0bHeOqcVqbFDz6yIe1TAyEGQ4tdfPOIzAOVpRYw/h06mYOqkRMsyUlS4dm5rUfX1WgLpL5PwwteXqZSa/nGhbbXdbxzfpOKlSB8dQ/OCj3fwtTlAMpassfykROTRphCqW9eOsrC4zidFm9ozQlCRSJHsTUfW4Ut5Fy7IiybrjV5Ehr4cClbKNCjUOcRVO3VQ5JXPc7KNKn2kW9C/721yUwt1vnyNUcSBDpqnI81NSrup5io5sFyOsQGvJUDb6i2PNEfLoQG5MD5QrSP+IMmdSRWLNYYaf9xCFTkdNICrnlRKFBbWQ376LkEsdF1deISxpix29mJnbhghD5ECbkjTO81mJykdIXxU+aWYtW01YSsev1GJdUIKs8i922kRUTkjIkZ3vsWdaSHti3FUOtkvSDRMx3qqfCGe/4OXOJBh1KO3fc5ATpsbg6qT6jN3o1rmGVLKPs1xo6hYZr6dRImKAWyWnGy47cbJXGo7jdLdScYJzxToomkk34MXS2EuQbgBvQLe1GrPIDjjkY=
+X-Forefront-Antispam-Report: CIP:216.228.112.36;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid05.nvidia.com;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(5660300002)(36860700001)(336012)(316002)(356005)(8676002)(86362001)(47076005)(54906003)(82310400003)(36906005)(8936002)(186003)(966005)(70586007)(6916009)(4326008)(508600001)(7416002)(70206006)(426003)(26005)(2906002)(24736004)(7636003)(108616005);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Oct 2021 21:22:18.6407
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: af64e0cd-abc1-4ad6-da82-08d993468822
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.36];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT017.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB5012
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 19, 2021 at 08:28:35AM +0200, Greg Kroah-Hartman wrote:
+On Tue, 19 Oct 2021 08:28:35 +0200, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 5.14.14 release.
 > There are 151 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
@@ -75,12 +105,29 @@ On Tue, Oct 19, 2021 at 08:28:35AM +0200, Greg Kroah-Hartman wrote:
 > Responses should be made by Thu, 21 Oct 2021 06:13:39 +0000.
 > Anything received after that time might be too late.
 > 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.14-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 480 pass: 480 fail: 0
+All tests passing for Tegra ...
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Test results for stable-v5.14:
+    10 builds:	10 pass, 0 fail
+    28 boots:	28 pass, 0 fail
+    114 tests:	114 pass, 0 fail
 
-Guenter
+Linux version:	5.14.14-rc2-g6b894d18a514
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
+                tegra20-ventana, tegra210-p2371-2180,
+                tegra210-p3450-0000, tegra30-cardhu-a04
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
