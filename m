@@ -2,108 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95AFF433EA5
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 20:39:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1FBE433EAA
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 20:42:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234974AbhJSSl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 14:41:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52962 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234979AbhJSSl5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Oct 2021 14:41:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAB0B610E5;
-        Tue, 19 Oct 2021 18:39:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1634668784;
-        bh=7JuqS1OTvICtFjiNviUanQuixTtcnJmtC29D5lNBmA8=;
-        h=Date:From:To:Subject:From;
-        b=yF+yl9uc6YhM16E+B24JX/vNevJob78w35TF8NNYqusxzq3mq/fZW7fjS429l+D9v
-         CsIIKe1fn2frLwEO1WtiWsno7tH+bC001QZ702/z7oAG4AYVTgN1jwsCU8hG/hQIgv
-         6dYlmGspaD7JUgEXCLbWSfjziA46Naxrvr4WG+O8=
-Date:   Tue, 19 Oct 2021 11:39:43 -0700
-From:   akpm@linux-foundation.org
-To:     david@redhat.com, djwong@kernel.org, mm-commits@vger.kernel.org,
-        rppt@linux.ibm.com, seanjc@google.com, stable@vger.kernel.org,
-        stephenackerman16@gmail.com
-Subject:  [merged]
- mm-fix-null-page-mapping-dereference-in-page_is_secretmem.patch removed
- from -mm tree
-Message-ID: <20211019183943.kZxOht11E%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S230432AbhJSSof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 14:44:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38964 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230059AbhJSSof (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 14:44:35 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A838C06161C
+        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 11:42:22 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id om14so627918pjb.5
+        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 11:42:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=O3otar1SLaBRtWFqToYN4cheAyMVmv2/E7349aGoPFQ=;
+        b=X1GVQ0QfKX/HP33zy72cL8ggFdXkZG4LFD679aZHV057SoclVC8CeiPjZpI8sLVhVz
+         2H6xpogZCdsZbLmV9FXwJku04KdBdlt7tY1RVZ2q5fR8DjWhj4iEPhsowjQUFKsEY/Yn
+         CqrMrKPy48GkKY0fKRANC8aFcaJhhcxQqpXOtktq8/bWqHXd7y3KWL+nCKyRMSw978Ds
+         NXGUGoNliDi3t8HruAXcUYi5XHcBJDmM9ZFvFyl/+cIaq+Jf0/o9itg7j89BHmgoDhwH
+         w9SZFSE/m6ImjvK5jLMAPHGQ61mkT7SAlHRlAm+bGW8BIMq7akTxc7nUZjHnHztpT228
+         Z5eQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=O3otar1SLaBRtWFqToYN4cheAyMVmv2/E7349aGoPFQ=;
+        b=fzX1XW0k5Wqw6Rml5G87dUdUBEXuMa2uN5sDSaSrik+WHFq5+gWR+d4KCr3tHaRR+y
+         uR3kEsykDOSEVVKx4gHXN+/z9ABpXINzBTCUr3X8SSz0f8kNBE5Lu+tfuiEAonE6shtO
+         U/FWNUps+pvWvW9zp1lc1S6lZ7YoaxVWtyoGAhK7yqacXQ0OWDRqU9NPet4vboUJ5zm5
+         f1pSLFuhiIkR32+CVd2iSLm2WOKMZWmaFwFxOuKwrTmpFD+2CULYnTPu+GM8JuK1qSXD
+         TxV7Q1txGFiMBlkk51yreKSPkGGlTbn5MjurQ2Ak7MZfhqiScHCqnJPdZyuDINvIGUb/
+         79nA==
+X-Gm-Message-State: AOAM530fe9y1hVIBfV+7Nua9jCF6ZbxQB6RbxadQnjJBzKlJVLCKYUNk
+        8cDktS0qOKM/iI5qiuT4ZhWWbq2IQS9FCMvF
+X-Google-Smtp-Source: ABdhPJwQuE6VCKUCjNJ3qxBEf6xV42GDH9kN7JMkJMVnsQk9mYoLgvTCsmnk8Qv28u6Mf7q8txvpTQ==
+X-Received: by 2002:a17:903:22c6:b0:13f:3e6:8dd4 with SMTP id y6-20020a17090322c600b0013f03e68dd4mr34863710plg.23.1634668941625;
+        Tue, 19 Oct 2021 11:42:21 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c8sm3450012pjr.38.2021.10.19.11.42.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Oct 2021 11:42:21 -0700 (PDT)
+Message-ID: <616f118d.1c69fb81.be65e.9f70@mx.google.com>
+Date:   Tue, 19 Oct 2021 11:42:21 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.250-73-ge93304c5bd7b
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 150 runs,
+ 1 regressions (v4.14.250-73-ge93304c5bd7b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.14 baseline: 150 runs, 1 regressions (v4.14.250-73-ge9330=
+4c5bd7b)
 
-The patch titled
-     Subject: mm/secretmem: fix NULL page->mapping dereference in page_is_secretmem()
-has been removed from the -mm tree.  Its filename was
-     mm-fix-null-page-mapping-dereference-in-page_is_secretmem.patch
+Regressions Summary
+-------------------
 
-This patch was dropped because it was merged into mainline or a subsystem tree
-
-------------------------------------------------------
-From: Sean Christopherson <seanjc@google.com>
-Subject: mm/secretmem: fix NULL page->mapping dereference in page_is_secretmem()
-
-Check for a NULL page->mapping before dereferencing the mapping in
-page_is_secretmem(), as the page's mapping can be nullified while gup() is
-running, e.g.  by reclaim or truncation.
-
-  BUG: kernel NULL pointer dereference, address: 0000000000000068
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] PREEMPT SMP NOPTI
-  CPU: 6 PID: 4173897 Comm: CPU 3/KVM Tainted: G        W
-  RIP: 0010:internal_get_user_pages_fast+0x621/0x9d0
-  Code: <48> 81 7a 68 80 08 04 bc 0f 85 21 ff ff 8 89 c7 be
-  RSP: 0018:ffffaa90087679b0 EFLAGS: 00010046
-  RAX: ffffe3f37905b900 RBX: 00007f2dd561e000 RCX: ffffe3f37905b934
-  RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffe3f37905b900
-  ...
-  CR2: 0000000000000068 CR3: 00000004c5898003 CR4: 00000000001726e0
-  Call Trace:
-   get_user_pages_fast_only+0x13/0x20
-   hva_to_pfn+0xa9/0x3e0
-   try_async_pf+0xa1/0x270
-   direct_page_fault+0x113/0xad0
-   kvm_mmu_page_fault+0x69/0x680
-   vmx_handle_exit+0xe1/0x5d0
-   kvm_arch_vcpu_ioctl_run+0xd81/0x1c70
-   kvm_vcpu_ioctl+0x267/0x670
-   __x64_sys_ioctl+0x83/0xa0
-   do_syscall_64+0x56/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Link: https://lkml.kernel.org/r/20211007231502.3552715-1-seanjc@google.com
-Fixes: 1507f51255c9 ("mm: introduce memfd_secret system call to create "secret" memory areas")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reported-by: Darrick J. Wong <djwong@kernel.org>
-Reported-by: Stephen <stephenackerman16@gmail.com>
-Tested-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
-
- include/linux/secretmem.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/include/linux/secretmem.h~mm-fix-null-page-mapping-dereference-in-page_is_secretmem
-+++ a/include/linux/secretmem.h
-@@ -23,7 +23,7 @@ static inline bool page_is_secretmem(str
- 	mapping = (struct address_space *)
- 		((unsigned long)page->mapping & ~PAGE_MAPPING_FLAGS);
- 
--	if (mapping != page->mapping)
-+	if (!mapping || mapping != page->mapping)
- 		return false;
- 
- 	return mapping->a_ops == &secretmem_aops;
-_
-
-Patches currently in -mm which might be from seanjc@google.com are
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.250-73-ge93304c5bd7b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.250-73-ge93304c5bd7b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e93304c5bd7b671291fe2b34d64f46d6151677d1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/616ed6ef79d564a8d23358dc
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.250=
+-73-ge93304c5bd7b/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.250=
+-73-ge93304c5bd7b/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/616ed6ef79d564a=
+8d23358df
+        new failure (last pass: v4.14.250-73-gcf46928023bb)
+        2 lines
+
+    2021-10-19T14:31:58.735798  [   19.798706] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-10-19T14:31:58.780450  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, mmcqd/0/60
+    2021-10-19T14:31:58.789960  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
+    2021-10-19T14:31:58.808851  [   19.870330] smsc95xx 3-1.1:1.0 eth0: reg=
+ister 'smsc95xx' at usb-4a064c00.ehci-1.1, smsc95xx USB 2.0 Ethernet, 16:cc=
+:7b:07:f5:e7
+    2021-10-19T14:31:58.815573  [   19.882659] usbcore: registered new inte=
+rface driver smsc95xx   =
+
+ =20
