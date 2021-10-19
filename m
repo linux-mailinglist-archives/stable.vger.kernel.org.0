@@ -2,102 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF5A432F53
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 09:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 056FD432F61
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 09:27:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231758AbhJSH1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 03:27:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51226 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229584AbhJSH1I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 03:27:08 -0400
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8B34C06161C;
-        Tue, 19 Oct 2021 00:24:56 -0700 (PDT)
-Received: by mail-pg1-x531.google.com with SMTP id j190so11808573pgd.0;
-        Tue, 19 Oct 2021 00:24:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=jr3Muznsu1+ia39ypZjhEZwn1Lvzal6ZyLPhl8pjkfI=;
-        b=ixmnDgU0Zl4avp6D8yzTpc3wdRJy2oAd3ZvW/hBVZne2jByQwbMnxXkbYl5jRs0Cz7
-         0v2EAr7ipycdLKJoGl0CJuyWMplsUByA8wundZHKppEgzc1B/oP2gqFO6zcFpyFzxyqT
-         vBrESaefLeDxi9k49mDpnzlkee6X9Ea7bijkgmapnEZT0KH8fbNJk4sfBzzlRdLW4qM8
-         nbMVip+NIULDFWJQWTqqRA9zJpQQhaHC7tnV6iNBkTGBgz493OKN+HRSNssQhmwZXl5M
-         VFhSqEj41KW4gbhyVkTvvxoQTFyUHfqLR1oQTzdVdlxaYjJXRqqSnLZMOKuw9ryNFmnU
-         evfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=jr3Muznsu1+ia39ypZjhEZwn1Lvzal6ZyLPhl8pjkfI=;
-        b=TmUlT7pSSRTqbn5WTpT5b3bwzv6PAielLMGIM3Wj+U0swVxvQl2A/Dj1BzkLWsOSjb
-         mlPSmpomQQkF/goDyNZU9N+Ng/eFqQQPSh19s7eif2UhwZ7IMYJ2YwmVX3a4Pc1qPRCK
-         Wh8Ly2OPI8k/7Q9OSRRUVY14v7qNzt1UFhR4IqHORi/hkTrkXUGg2HqJzIQFfipE0ILU
-         GwjLuN4eIi22ImM7EaENmwL+xMTK93M07AQDQ+K7Ic6EHCCl7WB4uIRrTZ6YuhsAxbqv
-         pJB4TddHuaZu/I/b5nJ+mfZj7vytAikUjtn0v1Hh1tzvhMXhZhsPxd7pLART9LRo1Nro
-         WH/Q==
-X-Gm-Message-State: AOAM530Mf1sIk+gaEF1HaWXDSmwrV+BBrdfs2Pfr1TTI7S3uTlDH1/jf
-        tD2dcwxOe7+Mc6YztcEppaceRerUy8HOzYureOY=
-X-Google-Smtp-Source: ABdhPJwL/7Uw8QLij+OYWZyPH3LUPnUQ/++Tuck4Vc4cz54ntUZdo3PLcLYq+Q9hNdZjeirJR1olcltcVXWdg15qAbE=
-X-Received: by 2002:aa7:9f92:0:b0:44d:bd1:98b2 with SMTP id
- z18-20020aa79f92000000b0044d0bd198b2mr34175808pfr.82.1634628296156; Tue, 19
- Oct 2021 00:24:56 -0700 (PDT)
-MIME-Version: 1.0
-References: <20211008081137.1948848-1-michal.vokac@ysoft.com>
- <20211018112820.qkebjt2gk2w53lp5@pengutronix.de> <37bc3702-bc98-dc54-e9c7-bf9bc92432f0@linaro.org>
-In-Reply-To: <37bc3702-bc98-dc54-e9c7-bf9bc92432f0@linaro.org>
-From:   Petr Benes <petrben@gmail.com>
-Date:   Tue, 19 Oct 2021 09:24:44 +0200
-Message-ID: <CAPwXO5YguJtSFSqnA_aGPch2NswmrP1EzOs0QH5O_iOdtn5W1A@mail.gmail.com>
-Subject: Re: [PATCH] thermal: imx: Fix temperature measurements on i.MX6 after alarm
-To:     Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
-        =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        linux-pm@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>,
-        Amit Kucheria <amitk@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        =?UTF-8?Q?Petr_Bene=C5=A1?= <petr.benes@ysoft.com>,
+        id S229930AbhJSH3n convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 19 Oct 2021 03:29:43 -0400
+Received: from mga14.intel.com ([192.55.52.115]:52637 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229551AbhJSH3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Oct 2021 03:29:42 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10141"; a="228713945"
+X-IronPort-AV: E=Sophos;i="5.85,383,1624345200"; 
+   d="scan'208";a="228713945"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2021 00:27:25 -0700
+X-IronPort-AV: E=Sophos;i="5.85,383,1624345200"; 
+   d="scan'208";a="493967857"
+Received: from jsanz-mobl1.ger.corp.intel.com (HELO localhost) ([10.251.211.239])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2021 00:27:22 -0700
+From:   Jani Nikula <jani.nikula@linux.intel.com>
+To:     Imre Deak <imre.deak@intel.com>, intel-gfx@lists.freedesktop.org
+Cc:     Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Intel-gfx] [PATCH 2/6] drm/i915/dp: Ensure sink rate values are always valid
+In-Reply-To: <20211018094154.1407705-3-imre.deak@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <20211018094154.1407705-1-imre.deak@intel.com> <20211018094154.1407705-3-imre.deak@intel.com>
+Date:   Tue, 19 Oct 2021 10:27:18 +0300
+Message-ID: <87pms1scdl.fsf@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 18 Oct 2021 at 13:38, Daniel Lezcano <daniel.lezcano@linaro.org> wr=
-ote:
+On Mon, 18 Oct 2021, Imre Deak <imre.deak@intel.com> wrote:
+> Atm, there are no sink rate values set for DP (vs. eDP) sinks until the
+> DPCD capabilities are successfully read from the sink. During this time
+> intel_dp->num_common_rates is 0 which can lead to a
 >
-> On 18/10/2021 13:28, Oleksij Rempel wrote:
-> > Hi Michal,
-> >
-> > I hope you have seen this patch:
-> > https://lore.kernel.org/all/20210924115032.29684-1-o.rempel@pengutronix=
-.de/
-> >
-> > Are there any reason why this was ignored?
+> intel_dp->common_rates[-1]    (*)
 >
-> No reasons, I was waiting for some tags before merging it. But I forget
-> about it when reviewing the current patch.
+> access, which is an undefined behaviour, in the following cases:
+>
+> - In intel_dp_sync_state(), if the encoder is enabled without a sink
+>   connected to the encoder's connector (BIOS enabled a monitor, but the
+>   user unplugged the monitor until the driver loaded).
+> - In intel_dp_sync_state() if the encoder is enabled with a sink
+>   connected, but for some reason the DPCD read has failed.
+> - In intel_dp_compute_link_config() if modesetting a connector without
+>   a sink connected on it.
+> - In intel_dp_compute_link_config() if modesetting a connector with a
+>   a sink connected on it, but before probing the connector first.
+>
+> To avoid the (*) access in all the above cases, make sure that the sink
+> rate table - and hence the common rate table - is always valid, by
+> setting a default minimum sink rate when registering the connector
+> before anything could use it.
+>
+> I also considered setting all the DP link rates by default, so that
+> modesetting with higher resolution modes also succeeds in the last two
+> cases above. However in case a sink is not connected that would stop
+> working after the first modeset, due to the LT fallback logic. So this
+> would need more work, beyond the scope of this fix.
+>
+> As I mentioned in the previous patch, I don't think the issue this patch
+> fixes is user visible, however it is an undefined behaviour by
+> definition and triggers a BUG() in CONFIG_UBSAN builds, hence CC:stable.
 
-Tested Oleksij's patch. It works OK. A question arose. Does it require
-CONFIG_PM=3Dy?
-If this condition is mandatory and the requirement is valid, Kconfig
-should be changed accordingly.
-I'm not able to verify it works without PM, seems it doesn't.
+I think the question here, and in the following patches, is whether this
+papers over potential bugs elsewhere.
+
+Would the original bug fixed by patch 1 have been detected if all the
+safeguards here had been in place? Point being, we shouldn't be doing
+any of these things before we've read the dpcd.
+
+BR,
+Jani.
+
+
 >
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4297
+> References: https://gitlab.freedesktop.org/drm/intel/-/issues/4298
+> Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Imre Deak <imre.deak@intel.com>
+> ---
+>  drivers/gpu/drm/i915/display/intel_dp.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 >
->
-> --
-> <http://www.linaro.org/> Linaro.org =E2=94=82 Open source software for AR=
-M SoCs
->
-> Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-> <http://twitter.com/#!/linaroorg> Twitter |
-> <http://www.linaro.org/linaro-blog/> Blog
+> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+> index 23de500d56b52..153ae944a354b 100644
+> --- a/drivers/gpu/drm/i915/display/intel_dp.c
+> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
+> @@ -120,6 +120,12 @@ bool intel_dp_is_uhbr(const struct intel_crtc_state *crtc_state)
+>  	return crtc_state->port_clock >= 1000000;
+>  }
+>  
+> +static void intel_dp_set_default_sink_rates(struct intel_dp *intel_dp)
+> +{
+> +	intel_dp->sink_rates[0] = 162000;
+> +	intel_dp->num_sink_rates = 1;
+> +}
+> +
+>  /* update sink rates from dpcd */
+>  static void intel_dp_set_sink_rates(struct intel_dp *intel_dp)
+>  {
+> @@ -5003,6 +5009,8 @@ intel_dp_init_connector(struct intel_digital_port *dig_port,
+>  	}
+>  
+>  	intel_dp_set_source_rates(intel_dp);
+> +	intel_dp_set_default_sink_rates(intel_dp);
+> +	intel_dp_set_common_rates(intel_dp);
+>  
+>  	if (IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv))
+>  		intel_dp->pps.active_pipe = vlv_active_pipe(intel_dp);
+
+-- 
+Jani Nikula, Intel Open Source Graphics Center
