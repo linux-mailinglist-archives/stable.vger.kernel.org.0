@@ -2,97 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA956432DB4
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 08:06:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BF56432DC2
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 08:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229742AbhJSGIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 02:08:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45716 "EHLO mail.kernel.org"
+        id S234174AbhJSGJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 02:09:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229527AbhJSGIX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Oct 2021 02:08:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 891AF60F25;
-        Tue, 19 Oct 2021 06:06:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634623571;
-        bh=5UtGbINsJc33EIO5RpwfkaJgg3kXcGYXH3Ou0ohT+kc=;
-        h=Subject:To:From:Date:From;
-        b=ZnZxHqDX9yQ/b6u1x/tSuc4WTY+nXcol6Rf1yRcDGBQjOX/nbodgPUYeOjYhV7yRk
-         NalsMdPd6r4yhBlFwhfI957PrQWhIRMjZ6p4MRA7Xdljn0m4FnlwLtJPELBHdTL3ih
-         0Xpe/uJyPjkh74ieLRHbOw230f1NqbXysD6Y7l9c=
-Subject: patch "usb-storage: Add compatibility quirk flags for iODD 2531/2541" added to usb-next
-To:     braewoods+lkml@braewoods.net, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, stern@rowland.harvard.edu
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 19 Oct 2021 08:06:08 +0200
-Message-ID: <1634623568229213@kroah.com>
+        id S234152AbhJSGJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Oct 2021 02:09:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5539961378;
+        Tue, 19 Oct 2021 06:06:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1634623619;
+        bh=4k+cS1k3jwM4An6DS0zHJtpXKfuGT8tNkqOczOTGpHU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=CdCat87x9o4QknLlPgP68wCjC+Xw4/QSZEhHMeJc1/utYMfRATlwWunzlaEEG+2L1
+         ONxHY1GjFT1ljhpgecMJmfAqXF3whIuT+0BaIgK6+fyH+bJ7V1tp0fyBqwB3wBaXLx
+         BE/dEbT7wJ+RX7JygmefJRAsPXXaVMyIe1BO6f/9WYR3NN3rqrvKCfSB9Yowz7i5/c
+         smsfGODGUBSUs78SDoV3SpJm83xYUCww4Ptaf1RFFjZXAvZMuOo2CShGowMUfSfJ25
+         1V/tIgcd7SP1U6UwkLQ7purc80NbCm9A5WqvP50rLpsIy9CLpLt+HPMc0JlfOCU3pk
+         CZWoavUpvXA2A==
+Received: by mail.kernel.org with local (Exim 4.94.2)
+        (envelope-from <mchehab@kernel.org>)
+        id 1mciGx-001krz-TQ; Tue, 19 Oct 2021 07:06:51 +0100
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+To:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc:     linuxarm@huawei.com, mauro.chehab@huawei.com,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        "Songxiaowei" <songxiaowei@hisilicon.com>,
+        Binghui Wang <wangbinghui@hisilicon.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Jingoo Han <jingoohan1@gmail.com>,
+        Rob Herring <robh@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH v14 10/11] PCI: kirin: fix poweroff sequence
+Date:   Tue, 19 Oct 2021 07:06:47 +0100
+Message-Id: <7deda0cf63e516fe502f0b2a789da2fce285e49a.1634622716.git.mchehab+huawei@kernel.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <cover.1634622716.git.mchehab+huawei@kernel.org>
+References: <cover.1634622716.git.mchehab+huawei@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
+Sender: Mauro Carvalho Chehab <mchehab@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This driver currently doesn't call dw_pcie_host_deinit()
+at the .remove() callback. This can cause an OOPS if the driver
+is unbound.
 
-This is a note to let you know that I've just added the patch titled
+While here, add a poweroff function, in order to abstract
+between the internal and external PHY logic.
 
-    usb-storage: Add compatibility quirk flags for iODD 2531/2541
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From 05c8f1b67e67dcd786ae3fe44492bbc617b4bd12 Mon Sep 17 00:00:00 2001
-From: James Buren <braewoods+lkml@braewoods.net>
-Date: Wed, 13 Oct 2021 20:55:04 -0500
-Subject: usb-storage: Add compatibility quirk flags for iODD 2531/2541
-
-These drive enclosures have firmware bugs that make it impossible to mount
-a new virtual ISO image after Linux ejects the old one if the device is
-locked by Linux. Windows bypasses this problem by the fact that they do
-not lock the device. Add a quirk to disable device locking for these
-drive enclosures.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: James Buren <braewoods+lkml@braewoods.net>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211014015504.2695089-1-braewoods+lkml@braewoods.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fc5165db245a ("PCI: kirin: Add HiSilicon Kirin SoC PCIe controller driver")
+Cc: stable@vger.kernel.org
+Acked-by: Xiaowei Song <songxiaowei@hisilicon.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 ---
- drivers/usb/storage/unusual_devs.h | 10 ++++++++++
- 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index c6b3fcf90180..29191d33c0e3 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -406,6 +406,16 @@ UNUSUAL_DEV(  0x04b8, 0x0602, 0x0110, 0x0110,
- 		"785EPX Storage",
- 		USB_SC_SCSI, USB_PR_BULK, NULL, US_FL_SINGLE_LUN),
+See [PATCH v14 00/11] at: https://lore.kernel.org/all/cover.1634622716.git.mchehab+huawei@kernel.org/
+
+ drivers/pci/controller/dwc/pcie-kirin.c | 29 ++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/pci/controller/dwc/pcie-kirin.c b/drivers/pci/controller/dwc/pcie-kirin.c
+index 64221a204db2..fea4d717fff3 100644
+--- a/drivers/pci/controller/dwc/pcie-kirin.c
++++ b/drivers/pci/controller/dwc/pcie-kirin.c
+@@ -680,6 +680,22 @@ static const struct dw_pcie_host_ops kirin_pcie_host_ops = {
+ 	.host_init = kirin_pcie_host_init,
+ };
  
-+/*
-+ * Reported by James Buren <braewoods+lkml@braewoods.net>
-+ * Virtual ISOs cannot be remounted if ejected while the device is locked
-+ * Disable locking to mimic Windows behavior that bypasses the issue
-+ */
-+UNUSUAL_DEV(  0x04c5, 0x2028, 0x0001, 0x0001,
-+		"iODD",
-+		"2531/2541",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL, US_FL_NOT_LOCKABLE),
++static int kirin_pcie_power_off(struct kirin_pcie *kirin_pcie)
++{
++	int i;
 +
- /*
-  * Not sure who reported this originally but
-  * Pavel Machek <pavel@ucw.cz> reported that the extra US_FL_SINGLE_LUN
++	if (kirin_pcie->type == PCIE_KIRIN_INTERNAL_PHY)
++		return hi3660_pcie_phy_power_off(kirin_pcie);
++
++	for (i = 0; i < kirin_pcie->n_gpio_clkreq; i++)
++		gpio_direction_output(kirin_pcie->gpio_id_clkreq[i], 1);
++
++	phy_power_off(kirin_pcie->phy);
++	phy_exit(kirin_pcie->phy);
++
++	return 0;
++}
++
+ static int kirin_pcie_power_on(struct platform_device *pdev,
+ 			       struct kirin_pcie *kirin_pcie)
+ {
+@@ -725,12 +741,7 @@ static int kirin_pcie_power_on(struct platform_device *pdev,
+ 
+ 	return 0;
+ err:
+-	if (kirin_pcie->type == PCIE_KIRIN_INTERNAL_PHY) {
+-		hi3660_pcie_phy_power_off(kirin_pcie);
+-	} else {
+-		phy_power_off(kirin_pcie->phy);
+-		phy_exit(kirin_pcie->phy);
+-	}
++	kirin_pcie_power_off(kirin_pcie);
+ 
+ 	return ret;
+ }
+@@ -739,11 +750,9 @@ static int __exit kirin_pcie_remove(struct platform_device *pdev)
+ {
+ 	struct kirin_pcie *kirin_pcie = platform_get_drvdata(pdev);
+ 
+-	if (kirin_pcie->type == PCIE_KIRIN_INTERNAL_PHY)
+-		return hi3660_pcie_phy_power_off(kirin_pcie);
++	dw_pcie_host_deinit(&kirin_pcie->pci->pp);
+ 
+-	phy_power_off(kirin_pcie->phy);
+-	phy_exit(kirin_pcie->phy);
++	kirin_pcie_power_off(kirin_pcie);
+ 
+ 	return 0;
+ }
 -- 
-2.33.1
-
+2.31.1
 
