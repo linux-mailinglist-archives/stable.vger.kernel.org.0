@@ -2,127 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ED58433545
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 14:00:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6663F4335BC
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 14:17:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230514AbhJSMCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 08:02:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58452 "EHLO
+        id S235553AbhJSMTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 08:19:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230337AbhJSMCh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 08:02:37 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B305C06161C
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 05:00:25 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id pi19-20020a17090b1e5300b0019fdd3557d3so2469418pjb.5
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 05:00:25 -0700 (PDT)
+        with ESMTP id S235551AbhJSMTg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 08:19:36 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE9A3C06161C;
+        Tue, 19 Oct 2021 05:17:23 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id o20so47482354wro.3;
+        Tue, 19 Oct 2021 05:17:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=uNcY53WWUKgjGyj8awc/ui+n2EeFphlsDkBCevv3JXQ=;
-        b=2I0EhO2ZAYTo7xOVQuoG0iYQpcVu7BlMlzDBiFwWOSakgE4rB64x52OXY6yy/ZVrPb
-         B5hFS9IBbGL0rjJRp8jsx+4H0gR4O3jvUYtGBThTt0hyc0PHtTyDaE+0lAyBsDJ6J2ZX
-         XUtH/ne4667pzIt6WTSgh4XrvMh8dPoQtr7NLQLN/w4MYBYYA4dHpufQUwjYoDbzhUHU
-         necc81lLQS2Qvw9An7lW3wOCUvixq1eyPvwWoAU7ykM4owsgpmSd58HSpZ/z5L/6b+/A
-         e06Nrf6i3YQJH5Jox80j78zWIyxlVV/WHIvSyA5YdV4ZMXk1BkfrO9ZmqvgKYOQCWUCL
-         e+uA==
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=88KvQ8MdXceC+8zAxE6BfvdHFdBiDoLz2q1m2brnxJg=;
+        b=ph3KzMorHixjCmz+KxPL+y5l3Nt5LN2mD/D405UejLV5yZHpcyNlRglibRQNFC8MSu
+         Yrgb05GM7byNXhWw0bZI95dz5JovFOFOMI8XKRjBvnHrFWvi0gh3qstYQx+V66JfHxJ5
+         qg5rPS45jDqsvKk/QbypiiLcUeoM/itB8AoV7Rt7t6mz7q1b2Od5mTn1rrKyGhUVb6wk
+         SlTwrWoM4iZA+jCynT2QS2AC9cm8dvzLkEVn0xUISgFXGgPdpMza7EFAtb6aPON6kOts
+         6Cc6xfKjm5NQGK0Ape1FMTPhe5wMoFASmcUcYBAt9xRTpATqkbn2q1eVANT+aPXpN2a9
+         rYPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=uNcY53WWUKgjGyj8awc/ui+n2EeFphlsDkBCevv3JXQ=;
-        b=Bk30/1/toPLBWOa2NT06ZVR5ah9bGweAvYSu/4QXA6mC6ef6do+kviLbS/+PgrGJl7
-         2Gr5SBruEaXRfQ65i8gZ+x0k8Fe7LR6qGpLyOg210XXd24ylUZZhSOMoRyGyisgLfGGe
-         pGV5GA48IExYGuAJfgCm4oUos8O5OPmNoy2gxk62sd/eLfBWd2ErHS9XVmEn2muslyyz
-         3qWsC5+LE0eoVTgY+eqXKpPdI4OkGUuFgYWByPE2JTiUJjEtgAjlj3+WoE2e0XUPs7uE
-         3n9Knba6wXgmQwJGPzsDsTRTbPkCHXscwISRA3fUo/32ru7vfEpHATM/xIeuI1uP5/co
-         5L0A==
-X-Gm-Message-State: AOAM533Z8QDDSExZ8bw8sF6DOk0+5JJpO0hW6javZZaAutLzIcsvHf01
-        dQA+YkyCDmh2C7Ak5/Q4ItiX9Sqwh4lP8O0A
-X-Google-Smtp-Source: ABdhPJxk5sDXpxociczA9DCrfSXYZcF+cTU+i9K0kU2BWcHBnWhjfpqqGUxJVAaQO90zInjKdx+abQ==
-X-Received: by 2002:a17:90a:7e90:: with SMTP id j16mr6048119pjl.139.1634644824717;
-        Tue, 19 Oct 2021 05:00:24 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y2sm2633625pjl.6.2021.10.19.05.00.24
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=88KvQ8MdXceC+8zAxE6BfvdHFdBiDoLz2q1m2brnxJg=;
+        b=Ht6wItzFoBuMWQaNRzj+Z3VGbbVWa6FI6TyZC6WfQmSIece4BQyAtiVaXRQjZjoQAG
+         vatmEX9nZZdMPyxdKbGsDDm9FgJiep/ZcG/bfq4O03FM4VnOfRtxEVOyVFvp6DER/R+w
+         R2MYIyw1XDVrrA1WOfAhZnyWHO95x4YcA6aa3y8j2xI5o8/HG7Bulp/VkX6izWENq/Ah
+         FZRXx1bmCJoQ7kCqFswQVBRKYsCV9dqnwUsKMmg5m1ixGTQh2qSskrKHNEI2KlzYu787
+         tW4raoA0L0SxcPLf+Lei9NQhbEv7j42pYX9INuhIIEdunXG7L1viCKBE3j3dSnyrtafM
+         bDig==
+X-Gm-Message-State: AOAM530iJ+gX/xvHyWpAGWdheBecv9kx7azd4mQ7Yu/xLiTqjMDSzpzo
+        1Maon9h+RCP0VGJNVDPdtkY=
+X-Google-Smtp-Source: ABdhPJygDFMM+4zG93QvACgtlY1sa6gBUvtnwusr9gsXn6Pc98vLG71Nnf5xiPdvsQGapADZPeN8HQ==
+X-Received: by 2002:adf:a3c3:: with SMTP id m3mr43691158wrb.83.1634645842510;
+        Tue, 19 Oct 2021 05:17:22 -0700 (PDT)
+Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
+        by smtp.gmail.com with ESMTPSA id c185sm2124671wma.8.2021.10.19.05.17.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Oct 2021 05:00:24 -0700 (PDT)
-Message-ID: <616eb358.1c69fb81.c0cc3.76d3@mx.google.com>
-Date:   Tue, 19 Oct 2021 05:00:24 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 19 Oct 2021 05:17:22 -0700 (PDT)
+Date:   Tue, 19 Oct 2021 13:17:20 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/68] 5.4.155-rc2 review
+Message-ID: <YW63UBHVOOQtVRBE@debian>
+References: <20211018143049.664480980@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.288-41-gb49a3cf35ed8
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.4 baseline: 103 runs,
- 1 regressions (v4.4.288-41-gb49a3cf35ed8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211018143049.664480980@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 103 runs, 1 regressions (v4.4.288-41-gb49a3cf=
-35ed8)
+Hi Greg,
 
-Regressions Summary
--------------------
+On Mon, Oct 18, 2021 at 04:31:04PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.155 release.
+> There are 68 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 20 Oct 2021 14:30:36 +0000.
+> Anything received after that time might be too late.
 
-platform         | arch   | lab         | compiler | defconfig        | reg=
-ressions
------------------+--------+-------------+----------+------------------+----=
---------
-qemu_x86_64-uefi | x86_64 | lab-broonie | gcc-10   | x86_64_defconfig | 1  =
-        =
+Build test:
+mips (gcc version 11.2.1 20211012): 65 configs -> no new failure
+arm (gcc version 11.2.1 20211012): 107 configs -> no new failure
+arm64 (gcc version 11.2.1 20211012): 2 configs -> no failure
+x86_64 (gcc version 10.2.1 20210110): 4 configs -> no failure
 
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.288-41-gb49a3cf35ed8/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.288-41-gb49a3cf35ed8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b49a3cf35ed8a32b2bc726d378c6d52a5eba2873 =
+[1]. https://openqa.qa.codethink.co.uk/tests/285
 
 
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-Test Regressions
----------------- =
+--
+Regards
+Sudip
 
-
-
-platform         | arch   | lab         | compiler | defconfig        | reg=
-ressions
------------------+--------+-------------+----------+------------------+----=
---------
-qemu_x86_64-uefi | x86_64 | lab-broonie | gcc-10   | x86_64_defconfig | 1  =
-        =
-
-
-  Details:     https://kernelci.org/test/plan/id/616ea7ab291d3769aa3358ec
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-4=
-1-gb49a3cf35ed8/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x8=
-6_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.288-4=
-1-gb49a3cf35ed8/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x8=
-6_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/616ea7ab291d3769aa335=
-8ed
-        new failure (last pass: v4.4.288-41-g58d13f3a100c) =
-
- =20
