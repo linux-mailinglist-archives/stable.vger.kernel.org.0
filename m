@@ -2,101 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA584336BB
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 15:13:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AB4F4336B5
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 15:11:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235628AbhJSNPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 09:15:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47244 "EHLO
+        id S235790AbhJSNN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 09:13:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231616AbhJSNPv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 09:15:51 -0400
-X-Greylist: delayed 332 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 19 Oct 2021 06:13:38 PDT
-Received: from mail.sgstbr.de (mail.sgstbr.de [IPv6:2a01:4f8:a1:1223::10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25DC8C06161C
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 06:13:38 -0700 (PDT)
-Received: from [IPV6:2a02:810d:9880:6700:1fd1:4b8:692c:b70e] (unknown [IPv6:2a02:810d:9880:6700:1fd1:4b8:692c:b70e])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits))
-        (No client certificate requested)
-        (Authenticated sender: fabian@blaese.de)
-        by mail.sgstbr.de (Postfix) with ESMTPSA id B57AD204B75
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 15:08:03 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=blaese.de; s=201803;
-        t=1634648883; bh=YeMG788q1Mr3jzvdV3otDflWelxCOg8d1NBbHvaZ5ok=;
-        h=Date:To:From:Subject:From;
-        b=wwl+RJEuwjMZFB1RQqkW9QtMNmmMYRWrwwwG3p9j7mNpiQNs+zpzahScdssWfqNk0
-         Iq03teCiibZXon22Oj8s6Bx/be5gxStMivqdRJRwF1L/rAYatuWHxQCty53OWo6DDv
-         LsCLN5rmH+jiYjcCtsEVT1L0wFeInUTOW/8qihVG4zQst0WcOk8OOOoPZ29N0hSsIN
-         hgClmkbNKGKTy6s1jf78oz4zZW55+e6Epm7hJFzqboF6QI3CvNvlSFrrUeMR5JMylI
-         ya/drBVEMKOLctgTA01BK24m0xcx6mrjcatDQoD+/1gVzW0A/NZgCTiH0tL+7LwkvZ
-         9ePpv2oyfcOrw==
-Message-ID: <4be2f5fb-9694-2244-9d5f-a85edff0199f@blaese.de>
-Date:   Tue, 19 Oct 2021 15:08:00 +0200
+        with ESMTP id S235780AbhJSNN0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 09:13:26 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9061BC06161C
+        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 06:11:13 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id n11so13636929plf.4
+        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 06:11:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=eN6o42od0MdiLsoguz51BvuSTp9Fxr8iSkdhBXAlUUI=;
+        b=PK44ydg4cTbpim+09ApAt9JwvuN1yPXeZ2sSl9hIDPwfTWcKscqD155h39FfCwd0wN
+         QgQ/NUvdKFM/ZQcq/CmCoT+mc07Nv0sei3x7x44xqH7nKb5F5NJHI1uhQoT0M7qhBMta
+         YMy/zUChcHpWKn5gbL/XdAvVhlByRovGSlFdpXOH8VvyP16gCIH/pcnqK21JJBRcQnWS
+         wVy0aFoJ6cA70g5rTW94EuJL5+CWTr7vlyDyFDNwm8AZ/HpnfiYqyaplwK/WUd5aVvnN
+         d3wtlMBaLJrexF3nPD6fib9F92OUl7sACepDxkwrGuexoLtcfHmwnNV6pqxMqz7Czo9D
+         pO+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=eN6o42od0MdiLsoguz51BvuSTp9Fxr8iSkdhBXAlUUI=;
+        b=j5wVxOT+7uJWbz26nh0rfGD7HhyodbEXFrLJPkRAI7eTRe+/6IqsJvxO6Kwlp1xqSz
+         zxaDdq1d4K3sRsH+0C9+ZAkjLZLdn0z42pPAndeFR3936VPj+QtUxdWH0kckA3HrNfBR
+         wfnWioADWWo9y38KWasTP0szobv8+yQ51EQRCHOnU+sokADMrXaW8h/WqEZPnSZQnz+/
+         dNXEtcgwfrDgbCos6aIIn+lZpI3OGcNfJsqx8WWcXzHmnlhdgypDRZsYs2wJKNBLuvfw
+         F84yTINLfbW7DmxITWmb40g//83xViX7x8Va36NWZhbIqwMvk+8jkT92cbLjrrgE3Vc3
+         mZQg==
+X-Gm-Message-State: AOAM533PblurNMYAK97+3gwvcYFWd3eaSvo7kuD8vlzCEHGcD8fqO0EH
+        0HVf/X743h8IAjikElRkSAgdDxTcewVFQKup
+X-Google-Smtp-Source: ABdhPJwMwCWeWUWA4lZgykNl5/weOPsF1sk8LT668/D61QpsCKbRKnYo3Tlpz0RKU5ydW9fYjD/i0w==
+X-Received: by 2002:a17:90a:6542:: with SMTP id f2mr6331199pjs.159.1634649072909;
+        Tue, 19 Oct 2021 06:11:12 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q10sm16203546pgn.31.2021.10.19.06.11.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Oct 2021 06:11:12 -0700 (PDT)
+Message-ID: <616ec3f0.1c69fb81.3198c.c86a@mx.google.com>
+Date:   Tue, 19 Oct 2021 06:11:12 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Content-Language: en-US
-To:     stable@vger.kernel.org
-From:   =?UTF-8?Q?Fabian_Bl=c3=a4se?= <fabian@blaese.de>
-Subject: Backport switchdev fix for bridge-in-bridge configurations to
- linux-5.4
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------ZgWlD8B5xihFLhkYUsTny7Hy"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.250-73-gcf46928023bb
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 104 runs,
+ 1 regressions (v4.14.250-73-gcf46928023bb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------ZgWlD8B5xihFLhkYUsTny7Hy
-Content-Type: multipart/mixed; boundary="------------htT0ZYLiflFoQon0dlETSw76";
- protected-headers="v1"
-From: =?UTF-8?Q?Fabian_Bl=c3=a4se?= <fabian@blaese.de>
-To: stable@vger.kernel.org
-Message-ID: <4be2f5fb-9694-2244-9d5f-a85edff0199f@blaese.de>
-Subject: Backport switchdev fix for bridge-in-bridge configurations to
- linux-5.4
+stable-rc/queue/4.14 baseline: 104 runs, 1 regressions (v4.14.250-73-gcf469=
+28023bb)
 
---------------htT0ZYLiflFoQon0dlETSw76
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Regressions Summary
+-------------------
 
-DQpIaSwNCg0KSXMgaXQgcG9zc2libGUgdG8gYmFja3BvcnQgdGhlIGNvbW1pdCAibmV0OiBz
-d2l0Y2hkZXY6IGRvIG5vdCBwcm9wYWdhdGUgYnJpZGdlIHVwZGF0ZXMgYWNyb3NzIGJyaWRn
-ZXMiIFsxXSB0byBsaW51eC01LjQ/DQoNClRoaXMgcGF0Y2ggZml4ZXMgZmF1bHR5IGhhcmR3
-YXJlIGNvbmZpZ3VyYXRpb24gd2hlbiBuZXN0aW5nIERTQS1vZmZsb2FkZWQgYnJpZGdlcyBp
-bnRvIHNvZnR3YXJlIGJyaWRnZXMsIHdoaWNoIGNhbiBjYXVzZSB2bGFuX2ZpbHRlcmluZyB0
-byBiZSBkaXNhYmxlZCBpbiBoYXJkd2FyZSwgZXZlbiB0aG91Z2ggaXQgc2hvdWxkIGJlIGVu
-YWJsZWQuIFRoZXJlZm9yZSwgcG9ydHMvdmxhbnMgZ2V0IGNvbm5lY3RlZCwgZXZlbiB0aG91
-Z2ggdGhleSBzaG91bGQgYmUgaXNvbGF0ZWQuDQoNCkEgYmFja3BvcnQgb2YgdGhpcyBwYXRj
-aCBmb3IgbGludXgtNS40IGhhcyByZWNlbnRseSBiZWVuIGFjY2VwdGVkIGluIE9wZW5XcnQg
-WzJdDQoNCkJlc3QgcmVnYXJkcywNCkZhYmlhbiBCbMOkc2UNCg0KWzFdIDA3YzZmOTgwNWYx
-MmYxYmI1MzhlZjE2NWEwOTJiMzAwMzUwMzg0YWENClsyXSBodHRwczovL2dpdGh1Yi5jb20v
-b3BlbndydC9vcGVud3J0L3B1bGwvNDQ5Mw0K
+platform    | arch   | lab         | compiler | defconfig                  =
+  | regressions
+------------+--------+-------------+----------+----------------------------=
+--+------------
+qemu_x86_64 | x86_64 | lab-broonie | gcc-10   | x86_64_defcon...6-chromeboo=
+k | 1          =
 
---------------htT0ZYLiflFoQon0dlETSw76--
 
---------------ZgWlD8B5xihFLhkYUsTny7Hy
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.250-73-gcf46928023bb/plan/baseline/
 
------BEGIN PGP SIGNATURE-----
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.250-73-gcf46928023bb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      cf46928023bb894e5b4a460828cd9b9aa6328bbb =
 
-iQIzBAEBCAAdFiEEJ7vc7QVhZ31uPwNHRNkkPenpIZUFAmFuwzAACgkQRNkkPenp
-IZUZiQ/+IkE8RQCdbThzTMT1Xw6nWUzVX1L7ZJJRiqz7WXMjRKnoPQRfwO0RByDT
-KuhULchy1b8/mZWZMBSy33L/ldwqRnXsYCMQtx3J3f9zB8w05CkjgRrmxN2mV6ri
-0/pJRn2zPYNwDCEytiD7rctjRbIFgNToRYxkdRs8J75vj+HfSWHHOEt8obQiMCCa
-xL5OGp6p+LJTNNvsfPSBUvLvz2Y4Y+2fwLH/U5vKAIyVRCEJ3KuXGn2Rbik0Cmxo
-LWaVeAhY3zpOFjAlnRA0A4lSlaQ3SXKEqWBhI5HroLTY1HcDPo13IEyf6vvlAz90
-6o0PLv39ETVNq5LnFFZ2gmOVVilbV9ikDE3pZzlCRWFzHJqIqps4kmJ/Y3Wx1hC2
-i+h+07PrFdOGYH4aCuQ6lUIWQMlxlzUo11b0EONHABd/LUeZSeatvJFKcYVYSkes
-OtTvemQ+BlfhFvzC76B1cSuhKqZ9kHk/VDt3WivSlrqvybYHyW/uM5aknbGUFNLc
-0FMmg22j9ccPTgggrMR3XOdTIlfHd3uVcGZIlIcT6SL0UEs10al5nYgAglnvWtXf
-oPO0kDLUX3nN8ByaXy3ElbrQWC2hjBXKQQxAsJg/4iAKMyNYaIsNAbzBZm1+MsBH
-s9AH1k2OXSm5aL1oYcVUeS7v+eL+2nFgl93hAfG+YqfZkQA9B3Q=
-=sq0t
------END PGP SIGNATURE-----
 
---------------ZgWlD8B5xihFLhkYUsTny7Hy--
+
+Test Regressions
+---------------- =
+
+
+
+platform    | arch   | lab         | compiler | defconfig                  =
+  | regressions
+------------+--------+-------------+----------+----------------------------=
+--+------------
+qemu_x86_64 | x86_64 | lab-broonie | gcc-10   | x86_64_defcon...6-chromeboo=
+k | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/616eb405ce0bc7dca03358ec
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.250=
+-73-gcf46928023bb/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie=
+/baseline-qemu_x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.250=
+-73-gcf46928023bb/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie=
+/baseline-qemu_x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/616eb405ce0bc7dca0335=
+8ed
+        new failure (last pass: v4.14.250-73-g4fc2a4026e03) =
+
+ =20
