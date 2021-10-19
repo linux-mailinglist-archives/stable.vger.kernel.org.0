@@ -2,160 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 048B74336A5
-	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 15:05:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA584336BB
+	for <lists+stable@lfdr.de>; Tue, 19 Oct 2021 15:13:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235622AbhJSNHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 09:07:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45310 "EHLO
+        id S235628AbhJSNPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 09:15:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235557AbhJSNHN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 09:07:13 -0400
-Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E839EC061745
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 06:05:00 -0700 (PDT)
-Received: by mail-ot1-x32f.google.com with SMTP id x33-20020a9d37a4000000b0054733a85462so2880153otb.10
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 06:05:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=4ajEhiZu8sdnzA3D+QyFwiSVeRq1/0ZFz6G1ykAePus=;
-        b=ehdkqv0aEnLexGDvcX1MwhetXLhs2b1DnZeEHNFYbZWKd1YDw2jV/2FsBd3jUaKT1j
-         LOGfZV3iVjteKR5JHoB3XRhuwloYGrhJTjWq4WwvPW4v/wSEdCJ11tmxbuS2usFPpiSE
-         dDvFxikkI+uMo5ZzkBLD4T1BH1dtSmpe8o82XB+6grOcifAjQNIErkt+nQRpa+Y5fG3q
-         J1M6+JKj+iQHNlNuVfcuTWkMxa8m3XWF2qb6A7q98ldk9ytGa2IvoFbNaajPSyu23xY7
-         CspdEk5EV1c1pOQ+8+T/Vqw5iPDBg2ieVvynNvU+LH9cXoLmBdZ08tepLW7GITQjC9Qa
-         OQRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to;
-        bh=4ajEhiZu8sdnzA3D+QyFwiSVeRq1/0ZFz6G1ykAePus=;
-        b=Z6J2+4LMOY2ObgSrNpB8tR0LakuJyUZ4n1yVAb6Xv5qU4yrbWeYOztuy3WN58mISRS
-         m0D2DxcVJKREd1ycwy3ZuU6m5xhjjHw/PHuYFh3dQos6V+0aUZtMWJWLC5BtsSbRa9lZ
-         DDUVAvtbz6z7qaEk+hbFsB2n4JcDwODO/IOI9N5jPKleo6ZcvXnsCFtg4uq8vKOCddwR
-         cRUCW1vod9I3nUBDDJoi4d/oZR5E3NZjqa2nF4N99U1RODzrXlLyk08QB4OQQ64oRQpT
-         XOZ11isr7Ut+dIGcNVclicx8fhR+QQ4JxcBS6+Igf4qjfIkzzZ0dB/3hEO5ygtNMDYEZ
-         x6iw==
-X-Gm-Message-State: AOAM5332U54lnV2F33z9aG0cEyZa8y9DbS/NQq1/OkAzr/ZFU17YqVlj
-        qKWE7bXQXGxUGO9hlbyd7engHw==
-X-Google-Smtp-Source: ABdhPJwXqTvwbTQHuUz6gJlZnzQAwib+0zR9p+SRK3AhzyjBcG3mGp9iQbFIoNScm/6k0pJOFQKaCQ==
-X-Received: by 2002:a9d:12f4:: with SMTP id g107mr4968322otg.77.1634648700240;
-        Tue, 19 Oct 2021 06:05:00 -0700 (PDT)
-Received: from winterfell.papolivre.org (winterfell.papolivre.org. [2600:3c00::f03c:91ff:fe69:3960])
-        by smtp.gmail.com with ESMTPSA id h17sm1465168otm.69.2021.10.19.06.04.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Oct 2021 06:04:59 -0700 (PDT)
-Received: from localhost (unknown [IPv6:2804:14d:7224:863b:8aab:99a1:213e:7f96])
-        by winterfell.papolivre.org (Postfix) with ESMTPSA id 2362E1C2F41;
-        Tue, 19 Oct 2021 10:04:57 -0300 (-03)
-Date:   Tue, 19 Oct 2021 10:04:55 -0300
-From:   Antonio Terceiro <antonio.terceiro@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-Subject: Re: [PATCH 5.14 000/151] 5.14.14-rc1 review
-Message-ID: <YW7Cd7c8ycqditff@linaro.org>
-Mail-Followup-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>, Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-References: <20211018132340.682786018@linuxfoundation.org>
- <CA+G9fYtLTmosatvO8VBe-RDjEHEvY01P=Fw5mvRvwbxL31ahOA@mail.gmail.com>
- <YW5iBGg4VKP6ZL+O@kroah.com>
- <CA+G9fYv3mpZMZjoarc6=WNNzrer+xFX_diqVKMy1VFV=xhKpTg@mail.gmail.com>
- <YW5qHvEHtkxCwOBh@kroah.com>
+        with ESMTP id S231616AbhJSNPv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 09:15:51 -0400
+X-Greylist: delayed 332 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 19 Oct 2021 06:13:38 PDT
+Received: from mail.sgstbr.de (mail.sgstbr.de [IPv6:2a01:4f8:a1:1223::10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25DC8C06161C
+        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 06:13:38 -0700 (PDT)
+Received: from [IPV6:2a02:810d:9880:6700:1fd1:4b8:692c:b70e] (unknown [IPv6:2a02:810d:9880:6700:1fd1:4b8:692c:b70e])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits))
+        (No client certificate requested)
+        (Authenticated sender: fabian@blaese.de)
+        by mail.sgstbr.de (Postfix) with ESMTPSA id B57AD204B75
+        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 15:08:03 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=blaese.de; s=201803;
+        t=1634648883; bh=YeMG788q1Mr3jzvdV3otDflWelxCOg8d1NBbHvaZ5ok=;
+        h=Date:To:From:Subject:From;
+        b=wwl+RJEuwjMZFB1RQqkW9QtMNmmMYRWrwwwG3p9j7mNpiQNs+zpzahScdssWfqNk0
+         Iq03teCiibZXon22Oj8s6Bx/be5gxStMivqdRJRwF1L/rAYatuWHxQCty53OWo6DDv
+         LsCLN5rmH+jiYjcCtsEVT1L0wFeInUTOW/8qihVG4zQst0WcOk8OOOoPZ29N0hSsIN
+         hgClmkbNKGKTy6s1jf78oz4zZW55+e6Epm7hJFzqboF6QI3CvNvlSFrrUeMR5JMylI
+         ya/drBVEMKOLctgTA01BK24m0xcx6mrjcatDQoD+/1gVzW0A/NZgCTiH0tL+7LwkvZ
+         9ePpv2oyfcOrw==
+Message-ID: <4be2f5fb-9694-2244-9d5f-a85edff0199f@blaese.de>
+Date:   Tue, 19 Oct 2021 15:08:00 +0200
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Content-Language: en-US
+To:     stable@vger.kernel.org
+From:   =?UTF-8?Q?Fabian_Bl=c3=a4se?= <fabian@blaese.de>
+Subject: Backport switchdev fix for bridge-in-bridge configurations to
+ linux-5.4
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="pGcdEnaB5gTxgpS7"
-Content-Disposition: inline
-In-Reply-To: <YW5qHvEHtkxCwOBh@kroah.com>
+ protocol="application/pgp-signature";
+ boundary="------------ZgWlD8B5xihFLhkYUsTny7Hy"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------ZgWlD8B5xihFLhkYUsTny7Hy
+Content-Type: multipart/mixed; boundary="------------htT0ZYLiflFoQon0dlETSw76";
+ protected-headers="v1"
+From: =?UTF-8?Q?Fabian_Bl=c3=a4se?= <fabian@blaese.de>
+To: stable@vger.kernel.org
+Message-ID: <4be2f5fb-9694-2244-9d5f-a85edff0199f@blaese.de>
+Subject: Backport switchdev fix for bridge-in-bridge configurations to
+ linux-5.4
 
---pGcdEnaB5gTxgpS7
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--------------htT0ZYLiflFoQon0dlETSw76
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Hi,
+DQpIaSwNCg0KSXMgaXQgcG9zc2libGUgdG8gYmFja3BvcnQgdGhlIGNvbW1pdCAibmV0OiBz
+d2l0Y2hkZXY6IGRvIG5vdCBwcm9wYWdhdGUgYnJpZGdlIHVwZGF0ZXMgYWNyb3NzIGJyaWRn
+ZXMiIFsxXSB0byBsaW51eC01LjQ/DQoNClRoaXMgcGF0Y2ggZml4ZXMgZmF1bHR5IGhhcmR3
+YXJlIGNvbmZpZ3VyYXRpb24gd2hlbiBuZXN0aW5nIERTQS1vZmZsb2FkZWQgYnJpZGdlcyBp
+bnRvIHNvZnR3YXJlIGJyaWRnZXMsIHdoaWNoIGNhbiBjYXVzZSB2bGFuX2ZpbHRlcmluZyB0
+byBiZSBkaXNhYmxlZCBpbiBoYXJkd2FyZSwgZXZlbiB0aG91Z2ggaXQgc2hvdWxkIGJlIGVu
+YWJsZWQuIFRoZXJlZm9yZSwgcG9ydHMvdmxhbnMgZ2V0IGNvbm5lY3RlZCwgZXZlbiB0aG91
+Z2ggdGhleSBzaG91bGQgYmUgaXNvbGF0ZWQuDQoNCkEgYmFja3BvcnQgb2YgdGhpcyBwYXRj
+aCBmb3IgbGludXgtNS40IGhhcyByZWNlbnRseSBiZWVuIGFjY2VwdGVkIGluIE9wZW5XcnQg
+WzJdDQoNCkJlc3QgcmVnYXJkcywNCkZhYmlhbiBCbMOkc2UNCg0KWzFdIDA3YzZmOTgwNWYx
+MmYxYmI1MzhlZjE2NWEwOTJiMzAwMzUwMzg0YWENClsyXSBodHRwczovL2dpdGh1Yi5jb20v
+b3BlbndydC9vcGVud3J0L3B1bGwvNDQ5Mw0K
 
-On Tue, Oct 19, 2021 at 08:47:58AM +0200, Greg Kroah-Hartman wrote:
-> Ah much better, I had an older version of tuxmake here.
->=20
-> Now it fails with an expected permission problem:
-> Error: writing blob: adding layer with blob "sha256:10348114f214e2f07f30f=
-a82aaa743c1750b2a9025cc8bec19f3f4f2b087a96d": Error processing tar file(exi=
-t status 1): potentially insufficient UIDs or GIDs available in user namesp=
-ace (requested 0:42 for /etc/gshadow): Check /etc/subuid and /etc/subgid: l=
-chown /etc/gshadow: invalid argument
-> E: Runtime preparation failed: failed to pull remote image docker.io/tuxm=
-ake/arm64_gcc-11
->=20
-> Note, I will not run kernel builds or random containers downloaded from
-> the internet as root, sorry :)
+--------------htT0ZYLiflFoQon0dlETSw76--
 
-Note that podman does *not* run as root by default=B9, and that's why
-tuxbuild recommends it instead of docker. What it does need, is the
-ability to create an unprivileged user namespace. This includes:
-
-- having the `kernel.unprivileged_userns_clone` sysctl set to 1
-
-- having enough UIDs and GIDs in the /etc/sub*id mappings, which is the
-  error message you got is complaining about. Just having the following
-  lines should be enough:
-
-  $ grep -H terceiro /etc/sub*id
-  /etc/subgid:terceiro:100000:65536
-  /etc/subuid:terceiro:100000:65536
-
-  On Debian, those are added by default when you created an user
-  account. I'm not sure about other systems.
-
-=B9 by default in a podman container you are root from the POV of the
-  container, but uid 0 in the container is actually mapped to your regular
-  UID on the host system.
-
---pGcdEnaB5gTxgpS7
-Content-Type: application/pgp-signature; name="signature.asc"
+--------------ZgWlD8B5xihFLhkYUsTny7Hy
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEst7mYDbECCn80PEM/A2xu81GC94FAmFuwnQACgkQ/A2xu81G
-C95+Bw/6AvPUXXfFUqHc6A6p71A/pVpQ+GDaesc5PzAKcZn82sqA7ilvQbO/Vv2/
-puB48VUZx+ykOcwQzSl3KJ4gOzlacDSP+psl6kJZdPZGVSaLurKMCLHDGgps1G/U
-EAiqRuczL2bs+lTlIT9+yTXIu98xpVlZfxA11lAt6dCbbq5e/Da+zqLfyBFgXd1l
-JxgK2FXyq4FYXoCkiWyoHnOAZM5v3HAQX0FPGk1WBpIplOAWomBPjQ3AFiWGW71P
-Y0Np7l5RBiy+Rzab90EFhmKF+Z0K1t9NJRg2gqs7ffqW7cwCMMzhyoK4WQ957rEG
-2ztwkAiTY1T51Ff06DyzHGQxNdCGPJpG3tyjul0H23Cn2TwPxn6cvSJQKh023auk
-EPUT3GuYmcb73kmKDTT6PsgYZYF1xlDtHUoniWY/DtXUvIcthskmRHuYTdRbxIdM
-Pr9MzxYMgSmSgVQ0XU3dYvbI+HMgEY1ZKyHhmu1ezDt69Bxez2li9qWfBT6A/zJO
-jS6Z74LCCCglKKDPpAy2hjDf1/krTSG/RpZ7vt3b5m1hZr2vvekygJP5qLRlxtPF
-R3NK3qFDE2Tm/BMIILTloJ3g/8Kam7oXmRr2aqrPw2kFJNJvuJQL4vG9ZkAdDTUP
-znkAIu815pWAjYJX4c/Shqg4wWKEv7owJHXGNCiwXNGxEK4bg2I=
-=7vLn
+iQIzBAEBCAAdFiEEJ7vc7QVhZ31uPwNHRNkkPenpIZUFAmFuwzAACgkQRNkkPenp
+IZUZiQ/+IkE8RQCdbThzTMT1Xw6nWUzVX1L7ZJJRiqz7WXMjRKnoPQRfwO0RByDT
+KuhULchy1b8/mZWZMBSy33L/ldwqRnXsYCMQtx3J3f9zB8w05CkjgRrmxN2mV6ri
+0/pJRn2zPYNwDCEytiD7rctjRbIFgNToRYxkdRs8J75vj+HfSWHHOEt8obQiMCCa
+xL5OGp6p+LJTNNvsfPSBUvLvz2Y4Y+2fwLH/U5vKAIyVRCEJ3KuXGn2Rbik0Cmxo
+LWaVeAhY3zpOFjAlnRA0A4lSlaQ3SXKEqWBhI5HroLTY1HcDPo13IEyf6vvlAz90
+6o0PLv39ETVNq5LnFFZ2gmOVVilbV9ikDE3pZzlCRWFzHJqIqps4kmJ/Y3Wx1hC2
+i+h+07PrFdOGYH4aCuQ6lUIWQMlxlzUo11b0EONHABd/LUeZSeatvJFKcYVYSkes
+OtTvemQ+BlfhFvzC76B1cSuhKqZ9kHk/VDt3WivSlrqvybYHyW/uM5aknbGUFNLc
+0FMmg22j9ccPTgggrMR3XOdTIlfHd3uVcGZIlIcT6SL0UEs10al5nYgAglnvWtXf
+oPO0kDLUX3nN8ByaXy3ElbrQWC2hjBXKQQxAsJg/4iAKMyNYaIsNAbzBZm1+MsBH
+s9AH1k2OXSm5aL1oYcVUeS7v+eL+2nFgl93hAfG+YqfZkQA9B3Q=
+=sq0t
 -----END PGP SIGNATURE-----
 
---pGcdEnaB5gTxgpS7--
+--------------ZgWlD8B5xihFLhkYUsTny7Hy--
