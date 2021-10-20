@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBB0A434341
-	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 04:10:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CE70434343
+	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 04:10:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbhJTCDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 22:03:10 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:24363 "EHLO
+        id S229743AbhJTCDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 22:03:55 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:24364 "EHLO
         szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229743AbhJTCDJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 22:03:09 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HYtxx26v5zbhDx;
-        Wed, 20 Oct 2021 09:56:21 +0800 (CST)
+        with ESMTP id S229663AbhJTCDz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 22:03:55 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HYtyp6Bj6zbhDm;
+        Wed, 20 Oct 2021 09:57:06 +0800 (CST)
 Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.15; Wed, 20 Oct 2021 10:00:53 +0800
+ 15.1.2308.15; Wed, 20 Oct 2021 10:01:39 +0800
 Received: from [10.174.178.208] (10.174.178.208) by
  kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.15; Wed, 20 Oct 2021 10:00:52 +0800
-Subject: Re: [PATCH 5.10 000/103] 5.10.75-rc1 review
+ 15.1.2308.15; Wed, 20 Oct 2021 10:01:38 +0800
+Subject: Re: [PATCH 5.4 00/68] 5.4.155-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <linux-kernel@vger.kernel.org>
 CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
@@ -30,19 +30,19 @@ CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
         <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
         <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
         <stable@vger.kernel.org>
-References: <20211018132334.702559133@linuxfoundation.org>
+References: <20211018143049.664480980@linuxfoundation.org>
 From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <6b77c99b-0736-92b9-7c7d-834f2a693923@huawei.com>
-Date:   Wed, 20 Oct 2021 10:00:51 +0800
+Message-ID: <6b8acc09-08cc-cf43-3ab3-22a284ea00cf@huawei.com>
+Date:   Wed, 20 Oct 2021 10:01:37 +0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <20211018132334.702559133@linuxfoundation.org>
+In-Reply-To: <20211018143049.664480980@linuxfoundation.org>
 Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
  kwepemm600013.china.huawei.com (7.193.23.68)
 X-CFilter-Loop: Reflected
 Precedence: bulk
@@ -51,19 +51,19 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 
-On 2021/10/18 21:23, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.75 release.
-> There are 103 patches in this series, all will be posted as a response
+On 2021/10/18 22:31, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.155 release.
+> There are 68 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
-> Responses should be made by Wed, 20 Oct 2021 13:23:15 +0000.
+> Responses should be made by Wed, 20 Oct 2021 14:30:36 +0000.
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.75-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.155-rc2.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -71,20 +71,20 @@ On 2021/10/18 21:23, Greg Kroah-Hartman wrote:
 > greg k-h
 > 
 
-Tested on arm64 and x86 for 5.10.75-rc1,
+Tested on arm64 and x86 for 5.4.155-rc2,
 
 Kernel repo:
 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.75-rc1
-Commit: 211949e9074cd293bd9e8df5a3eb8b2ded6cdda6
+Branch: linux-5.4.y
+Version: 5.4.155-rc2
+Commit: 35f96c378e36012ea24805a5feff3276a9e84ca6
 Compiler: gcc version 7.3.0 (GCC)
 
 arm64:
 --------------------------------------------------------------------
 Testcase Result Summary:
-total: 8907
-passed: 8907
+total: 8906
+passed: 8906
 failed: 0
 timeout: 0
 --------------------------------------------------------------------
@@ -92,8 +92,8 @@ timeout: 0
 x86:
 --------------------------------------------------------------------
 Testcase Result Summary:
-total: 8907
-passed: 8907
+total: 8906
+passed: 8906
 failed: 0
 timeout: 0
 --------------------------------------------------------------------
