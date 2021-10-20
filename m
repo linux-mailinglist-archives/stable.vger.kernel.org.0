@@ -2,104 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE85434B45
-	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 14:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70501434B47
+	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 14:37:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229864AbhJTMi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 08:38:56 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:48437 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229702AbhJTMi4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Oct 2021 08:38:56 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id A19F95C015B;
-        Wed, 20 Oct 2021 08:36:41 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 20 Oct 2021 08:36:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm2; bh=c
-        KjoT5zXT9+Nw2WnoPvDx2Y6Q/ZbLHp3Hd1KL6Yy3wE=; b=lUMM6pDRpv1H43P5u
-        BssZmC1CE+20L6/I+SkW/M5dqaefRb/rAVqcf3s3hLAJfynNp9L1ChzawsdL5VeI
-        BYzFk2/29JzpfB5AXS4T2Lp+qUsixfr6uAjSs6HDnhDE2tNdBD1fWBmjFMOhKNr0
-        5Mkl2DZocxccYYsF5u1mTYCY21S672XUdndliOcN/rxi57aKn8AMcXbD7DG7f/j3
-        t1k9Z2MKM8/JlOddyrMuWnlMYrFV1dcsqoemJEq3dPFrkIiWvHK52439aFluUcuz
-        vUM5XrrtjT+cuetP/55QAdYlXP07HPjHuiw/dhWaIySKB15R1cnHBn9P0tgyF0Xo
-        fhcqA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=cKjoT5zXT9+Nw2WnoPvDx2Y6Q/ZbLHp3Hd1KL6Yy3
-        wE=; b=E9koGG40E+bV4PQTedxp0X87DpUJjF60I32TMfYvy+ycq1soCVWR8t2ET
-        WZihxMT8M7lo49qwp5Tar/y0F2d0dGOON6JNxcXsttmNv+B8314ZTr3lYmlhilCz
-        Ulfz0AMam5VZHkGHR3/wnf0RGjbtKJdDxQFAVQ3rHqt6NLCuUedePCaEQDcUMAoI
-        CcXXntHEdkORggswF9h8bgXY7ygRkVZLtWVwPteQxCPreF+8mKIc/8V/FxfFfqoW
-        UE56I6nZnVf0yQShcOf9nMhGAL61AiaDsts86/Y0bQhpT9MbRnFQo6agGQDcVr1I
-        Db8gj4uxmpQOyqiZ2fCNzvIjGDD4Q==
-X-ME-Sender: <xms:WA1wYQfF9jLZ6HnUDRGu9TqjYIwpZC91Ziq_f33mPCs0NcNcGr9Elw>
-    <xme:WA1wYSNKgGRU2YYPrp_Id3pukM9S0bhLqeNZpRvLbUIMox2eZmoImy6sUGG5YIDE7
-    FsHXvqGKfDGYg>
-X-ME-Received: <xmr:WA1wYRhb37Y8fZmyVo35pWBIJshI6GIMepvWdFR6AYmxIGiPysHPoUrKsuFEXYabivT7UFPhLAaCmflTTieP76Xehf6wMFtn>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrvddvgedghedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtudenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepleekud
-    elgeejieejtedtvdeltdefvdefgeeltdefhfetkefhueeuhfekteeuuefgnecuffhomhgr
-    ihhnpehgihhthhhusgdrtghomhenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:WA1wYV_F9JfRyOY7HruBrEDAuIeqPAYJJDBbYzezpBslWua1ndrkRg>
-    <xmx:WA1wYcsnYy7W5DaV7AunApwR6XusK9Npya3po1nnQmjE_xRC09wdyQ>
-    <xmx:WA1wYcHvAhCDuGJgy17FY0914FEVgDu2B5_uWZoRmowXWxfSUjKXdA>
-    <xmx:WQ1wYQh6y3AlRPkOIMZwUQdZA_RpyTNTZgb_lTcAiVYiI79hB4IHuQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 20 Oct 2021 08:36:40 -0400 (EDT)
-Date:   Wed, 20 Oct 2021 14:36:37 +0200
-From:   Greg KH <greg@kroah.com>
-To:     =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
-Cc:     stable@vger.kernel.org, Jonathan Bell <jonathan@raspberrypi.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: Re: [PATCH backport for v5.10] xhci: add quirk for host controllers
- that don't update endpoint DCS
-Message-ID: <YXANVUanKdpnH+Gh@kroah.com>
-References: <20211018170634.5673-1-bjorn@mork.no>
+        id S229702AbhJTMjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 08:39:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53182 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230103AbhJTMje (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 08:39:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8067861183;
+        Wed, 20 Oct 2021 12:37:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1634733440;
+        bh=RazV0KE9BUmPiRvrqcO2XZelw9DTLVIlh1y+xQJ9Kdo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=arT8kkgguxZPcn2kGUzPmKdqNtdcp8nZDTJSEqg+kuU06bmh3DzztetIAkEHdqU2s
+         MyWH9Vi69wJKirLRFBrinoKlWm4WeNyhl6nV4SNlhQ7xnmaAKXSlb8hK+3tNKwFbT2
+         CEmfo8+Tb5ZjZD2JzUHJUU7sawH1CwqRDgrKDb6A=
+Date:   Wed, 20 Oct 2021 14:37:17 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sumit Garg <sumit.garg@linaro.org>
+Cc:     stable@vger.kernel.org, jens.wiklander@linaro.org,
+        sudeep.holla@arm.com
+Subject: Re: [PATCH backport for 5.4] tee: optee: Fix missing devices
+ unregister during optee_remove
+Message-ID: <YXANfcekdo+gdkjh@kroah.com>
+References: <20211019094532.470845-1-sumit.garg@linaro.org>
+ <YXAM1xA86BWW6jKu@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20211018170634.5673-1-bjorn@mork.no>
+In-Reply-To: <YXAM1xA86BWW6jKu@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 18, 2021 at 07:06:34PM +0200, Bjørn Mork wrote:
-> From: Jonathan Bell <jonathan@raspberrypi.org>
+On Wed, Oct 20, 2021 at 02:34:31PM +0200, Greg KH wrote:
+> On Tue, Oct 19, 2021 at 03:15:32PM +0530, Sumit Garg wrote:
+> > upstream commit 7f565d0ead26
+> > 
+> > When OP-TEE driver is built as a module, OP-TEE client devices
+> > registered on TEE bus during probe should be unregistered during
+> > optee_remove. So implement optee_unregister_devices() accordingly.
+> > 
+> > Fixes: c3fa24af9244 ("tee: optee: add TEE bus device enumeration support")
+> > Reported-by: Sudeep Holla <sudeep.holla@arm.com>
+> > Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+> > Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+> > [SG: backport to 5.4, dev name s/optee-ta/optee-clnt/]
+> > Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+> > ---
+> >  drivers/tee/optee/core.c          |  3 +++
+> >  drivers/tee/optee/device.c        | 22 ++++++++++++++++++++++
+> >  drivers/tee/optee/optee_private.h |  1 +
+> >  3 files changed, 26 insertions(+)
 > 
-> upstream commit 5255660b208a
+> Doesn't this also need to go into 5.10 and 5.14?  We can not have people
+> upgrading and having regressions.
 > 
-> Seen on a VLI VL805 PCIe to USB controller. For non-stream endpoints
-> at least, if the xHC halts on a particular TRB due to an error then
-> the DCS field in the Out Endpoint Context maintained by the hardware
-> is not updated with the current cycle state.
-> 
-> Using the quirk XHCI_EP_CTX_BROKEN_DCS and instead fetch the DCS bit
-> from the TRB that the xHC stopped on.
-> 
-> See: https://github.com/raspberrypi/linux/issues/3060
-> 
-> Signed-off-by: Jonathan Bell <jonathan@raspberrypi.org>
-> Signed-off-by: Bjørn Mork <bjorn@mork.no>
-> Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
-> ---
-> 
-> This isn't really a backport.  It's the original patch for 5.10 from
-> https://github.com/raspberrypi/linux.git , which was forward ported
-> and ended up as upstream commit 5255660b208a
-> 
-> The XHCI_EP_CTX_BROKEN_DCS constant has been syncronozed with upstream
-> to avoid collisions, though.
+> Can you provide backports for those trees too?  I can not take just this
+> one, sorry.
 
-Now queued up, thanks.
+Nevermind, it's already there, sorry for the noise, I'll go queue this
+up right now...
 
 greg k-h
