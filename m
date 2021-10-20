@@ -2,81 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55AE6434AEB
-	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 14:12:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFCF0434B27
+	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 14:30:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230265AbhJTMPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 08:15:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44434 "EHLO mail.kernel.org"
+        id S230103AbhJTMcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 08:32:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230092AbhJTMPJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 08:15:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1D93611C7;
-        Wed, 20 Oct 2021 12:12:54 +0000 (UTC)
+        id S230077AbhJTMcx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 08:32:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CF9161355;
+        Wed, 20 Oct 2021 12:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634731975;
-        bh=83tJ8okr7Nb8oaN1QT8DQRxlDJU01xHK7au8CQWVuhs=;
+        s=korg; t=1634733039;
+        bh=LiE/hWTQ5V9XEhRPLyQB9qsB24jCZaZMytc4IqnfsIQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=12YA3V/EF/8H9/cgjLDrvYtT6UX2AZRZwG8Ndm9mudI1o6Ti1B7pOAX56Ae0+fYpp
-         hem2axAi5KLFhcPO/cQZxNXLKvBfLclNN2vZn6b8U4T3LHmRebAQVcFd4PlUVowVis
-         52HpcZPMxGufEk7exC0+fCxviTvb/HR6QBo64nc8=
-Date:   Wed, 20 Oct 2021 14:12:52 +0200
+        b=VJhmUgvdf+nNfJtaQ+tmvYAjNLeMkWcdVOxSKh5qHfBm/3xFLe3Uy8u9rFnO6OGFU
+         3Kldf8yXiJejx01qVBeV3oBR6bWGG+1vvMlpnXkVFRWod9iX2+D+oY6d0TqGTD5XT4
+         zFgkBshnc8Rn2Xaq37sfD77eMRxzl8cf3ye92eZs=
+Date:   Wed, 20 Oct 2021 14:30:36 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Tang Bin <tangbin@cmss.chinamobile.com>
-Cc:     krzysztof.kozlowski@canonical.com, vz@mleia.com,
-        herbert@gondor.apana.org.au, davem@davemloft.net,
-        linux-crypto@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] crypto: s5p-sss - Add error handling in
- s5p_aes_probe()
-Message-ID: <YXAHxNWkttb0V6BV@kroah.com>
-References: <20211020110624.47696-1-tangbin@cmss.chinamobile.com>
+To:     "chenxiaosong (A)" <chenxiaosong2@huawei.com>
+Cc:     viro@zeniv.linux.org.uk, stable@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        dhowells@redhat.com, yukuai3@huawei.com, yi.zhang@huawei.com,
+        zhangxiaoxu5@huawei.com
+Subject: Re: [PATCH 4.19,v2] VFS: Fix fuseblk memory leak caused by mount
+ concurrency
+Message-ID: <YXAL7K88XGWXckWe@kroah.com>
+References: <20211013095101.641329-1-chenxiaosong2@huawei.com>
+ <YWawy0J9JfStEku0@kroah.com>
+ <429d87b0-3a53-052a-a304-0afa8d51900d@huawei.com>
+ <860c36c4-3668-1388-66d1-a07d463c2ad9@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20211020110624.47696-1-tangbin@cmss.chinamobile.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <860c36c4-3668-1388-66d1-a07d463c2ad9@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 20, 2021 at 07:06:24PM +0800, Tang Bin wrote:
-> The function s5p_aes_probe() does not perform sufficient error
-> checking after executing platform_get_resource(), thus fix it.
+On Wed, Oct 13, 2021 at 06:49:06PM +0800, chenxiaosong (A) wrote:
+> 在 2021/10/13 18:38, chenxiaosong (A) 写道:
+> > 在 2021/10/13 18:11, Greg KH 写道:
+> > > On Wed, Oct 13, 2021 at 05:51:01PM +0800, ChenXiaoSong wrote:
+> > > > If two processes mount same superblock, memory leak occurs:
+> > > > 
+> > > > CPU0               |  CPU1
+> > > > do_new_mount       |  do_new_mount
+> > > >    fs_set_subtype   |    fs_set_subtype
+> > > >      kstrdup        |
+> > > >                     |      kstrdup
+> > > >      memrory leak   |
+> > > > 
+> > > > Fix this by adding a write lock while calling fs_set_subtype.
+> > > > 
+> > > > Linus's tree already have refactoring patchset [1], one of them
+> > > > can fix this bug:
+> > > >          c30da2e981a7 (fuse: convert to use the new mount API)
+> > > > 
+> > > > Since we did not merge the refactoring patchset in this branch,
+> > > > I create this patch.
+> > > > 
+> > > > [1] https://patchwork.kernel.org/project/linux-fsdevel/patch/20190903113640.7984-3-mszeredi@redhat.com/
+> > > > 
+> > > > 
+> > > > Fixes: 79c0b2df79eb (add filesystem subtype support)
+> > > > Cc: David Howells <dhowells@redhat.com>
+> > > > Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+> > > > ---
+> > > > v1: Can not mount sshfs ([PATCH linux-4.19.y] VFS: Fix fuseblk
+> > > > memory leak caused by mount concurrency)
+> > > > v2: Use write lock while writing superblock
+> > > > 
+> > > >   fs/namespace.c | 9 ++++++---
+> > > >   1 file changed, 6 insertions(+), 3 deletions(-)
+> > > 
+> > > As you are referring to a fuse-only patch above, why are you trying to
+> > > resolve this issue in the core namespace code instead?
+> > > 
+> > > How does fuse have anything to do with this?
+> > > 
+> > > confused,
+> > > 
+> > > greg k-h
+> > > .
+> > > 
+> > 
+> > Now, only `fuse_fs_type` and `fuseblk_fs_type` has `FS_HAS_SUBTYPE` flag
+> > in kernel code, but maybe there is a filesystem module(`struct
+> > file_system_type` has `FS_HAS_SUBTYPE` flag). And only mounting fuseblk
+> > filesystem(e.g. ntfs) will occur memory leak now.
 > 
-> Fixes: c2afad6c6105 ("crypto: s5p-sss - Add HASH support for Exynos")
-> Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
-> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> ---
-> Changes from v1
->  - add fixed title
-> ---
->  drivers/crypto/s5p-sss.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/crypto/s5p-sss.c b/drivers/crypto/s5p-sss.c
-> index 55aa3a711..7717e9e59 100644
-> --- a/drivers/crypto/s5p-sss.c
-> +++ b/drivers/crypto/s5p-sss.c
-> @@ -2171,6 +2171,8 @@ static int s5p_aes_probe(struct platform_device *pdev)
->  
->  	variant = find_s5p_sss_version(pdev);
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res)
-> +		return -EINVAL;
->  
->  	/*
->  	 * Note: HASH and PRNG uses the same registers in secss, avoid
-> -- 
-> 2.20.1.windows.1
-> 
-> 
-> 
+> How about updating the subject as: VFS: Fix memory leak caused by mounting
+> fs with subtype concurrency?
 
-<formletter>
-
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
-
-</formletter>
+That would be a better idea, but still, this is not obvious that this is
+the correct fix at all...
