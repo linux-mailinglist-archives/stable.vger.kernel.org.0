@@ -2,63 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEBD6434B36
-	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 14:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A9D0434B39
+	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 14:33:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230201AbhJTMfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 08:35:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51970 "EHLO mail.kernel.org"
+        id S230168AbhJTMfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 08:35:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230168AbhJTMfF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 08:35:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37C7A60F57;
-        Wed, 20 Oct 2021 12:32:50 +0000 (UTC)
+        id S229702AbhJTMfl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 08:35:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A26861355;
+        Wed, 20 Oct 2021 12:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634733170;
-        bh=dFn+jTdLLyp2tS25P2DzRAmAECFjBC+RanyBlBG5KVY=;
+        s=korg; t=1634733207;
+        bh=Koyjugp2bqtUckORJ1r45cRwPgJNVbC2R36d8cLnHQY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ym7WPF0PcD+sIJ2/NlMH8sthMlViUab7AZYeota5uQ9f/JJN6hDxWvkua3nTaELL3
-         eTcdYDpQPpnPO2Uiw7h06NwnXuOu0wJEkeYgPhNLPUAZZ5eaVNF71CsoQBUdE2FPBQ
-         pzZbZ2gnQx535QAMD5i94WPVLryiMzfM6+PMVcYA=
-Date:   Wed, 20 Oct 2021 14:32:48 +0200
+        b=jBO3Bc89Ii1XH/6qUluS0uAeqRgqTqx+fCwtyJ2+qZhfE8gMAE0xqqGOqal/Aw0Ti
+         /1zXoyAvbEqiMv+dcYR0Bp/RBGmMLeGeGE1i3Dvbxwroc3X3leRYAUJ4rn2z9ybpbC
+         RRR3bKezYJVbRyC387dOS3dhGa+1yv0JAn0qm7sA=
+Date:   Wed, 20 Oct 2021 14:33:25 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Anand Jain <anand.jain@oracle.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, Josef Bacik <jbacik@fb.com>,
-        Filipe Manana <fdmanana@suse.com>
-Subject: Re: [PATCH stable-4.14.y] btrfs: always wait on ordered extents at
- fsync time
-Message-ID: <YXAMcAnZ13E/Lmmq@kroah.com>
-References: <4fb0d755f4265d71b2a0d314232e53b22067fb0b.1634624427.git.anand.jain@oracle.com>
+To:     Fabian =?iso-8859-1?Q?Bl=E4se?= <fabian@blaese.de>
+Cc:     stable@vger.kernel.org
+Subject: Re: Backport switchdev fix for bridge-in-bridge configurations to
+ linux-5.4
+Message-ID: <YXAMlYYM60/H3l+F@kroah.com>
+References: <4be2f5fb-9694-2244-9d5f-a85edff0199f@blaese.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <4fb0d755f4265d71b2a0d314232e53b22067fb0b.1634624427.git.anand.jain@oracle.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4be2f5fb-9694-2244-9d5f-a85edff0199f@blaese.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 19, 2021 at 06:38:20PM +0800, Anand Jain wrote:
-> From: Josef Bacik <jbacik@fb.com>
+On Tue, Oct 19, 2021 at 03:08:00PM +0200, Fabian Bläse wrote:
 > 
-> Commit b5e6c3e170b77025b5f6174258c7ad71eed2d4de upstream.
+> Hi,
 > 
-> There's a priority inversion that exists currently with btrfs fsync.  In
-> some cases we will collect outstanding ordered extents onto a list and
-> only wait on them at the very last second.  However this "very last
-> second" falls inside of a transaction handle, so if we are in a lower
-> priority cgroup we can end up holding the transaction open for longer
-> than needed, so if a high priority cgroup is also trying to fsync()
-> it'll see latency.
+> Is it possible to backport the commit "net: switchdev: do not propagate bridge updates across bridges" [1] to linux-5.4?
 > 
-> Signed-off-by: Josef Bacik <jbacik@fb.com>
-> Reviewed-by: Filipe Manana <fdmanana@suse.com>
-> Signed-off-by: David Sterba <dsterba@suse.com>
-> Signed-off-by: Anand Jain <anand.jain@oracle.com>
-> ---
->  fs/btrfs/file.c | 56 ++++---------------------------------------------
->  1 file changed, 4 insertions(+), 52 deletions(-)
+> This patch fixes faulty hardware configuration when nesting DSA-offloaded bridges into software bridges, which can cause vlan_filtering to be disabled in hardware, even though it should be enabled. Therefore, ports/vlans get connected, even though they should be isolated.
+> 
+> A backport of this patch for linux-5.4 has recently been accepted in OpenWrt [2]
+> 
+> Best regards,
+> Fabian Bläse
+> 
+> [1] 07c6f9805f12f1bb538ef165a092b300350384aa
+> [2] https://github.com/openwrt/openwrt/pull/4493
 
-Now applied, thanks.
+
+
+Now queued up, thanks.
 
 greg k-h
