@@ -2,91 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51971434E47
-	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 16:52:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 410AA43516C
+	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 19:36:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230265AbhJTOyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 10:54:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:56114 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230024AbhJTOyw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Oct 2021 10:54:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634741557;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=EOJKI5DiIEAdiCMwnSFoBtdcws6vk4gDTew6qqVUMsg=;
-        b=bLUWtWedDZmCbs4AvfzuhqN1thP/xQF6pet8Y537a0n5Ksyh61wRTtO+pjxnwEN3c5qfWa
-        BR/T+YS2P4K52qr6QgEpj9OtF7HQz7DkVrwXEhvP9iAuJTbdrujEpPlt4/FQjE2jnjooA8
-        f+P2j2cb6tDTNB2rs0CBPEeasLK2MHg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-246-GpQSaoceMN-9MGXIiBQtjQ-1; Wed, 20 Oct 2021 10:52:34 -0400
-X-MC-Unique: GpQSaoceMN-9MGXIiBQtjQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 081731926DAC;
-        Wed, 20 Oct 2021 14:52:33 +0000 (UTC)
-Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8EBDC17155;
-        Wed, 20 Oct 2021 14:52:32 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     wanpengli@tencent.com, seanjc@google.com, stable@vger.kernel.org
-Subject: [PATCH] KVM: nVMX: promptly process interrupts delivered while in guest mode
-Date:   Wed, 20 Oct 2021 10:52:30 -0400
-Message-Id: <20211020145231.871299-2-pbonzini@redhat.com>
+        id S230384AbhJTRjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 13:39:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41070 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230376AbhJTRjL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 13:39:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E44160F57;
+        Wed, 20 Oct 2021 17:36:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1634751417;
+        bh=D4e7ZPnHQMO2vaguLwF9vMFU5AT6wrpu3YfVoXubllI=;
+        h=Subject:To:From:Date:From;
+        b=gSHPlwe4fuVJWXPIJV8Tg3GXBUwt2D7p5MJ8H6r0m1nQRCRglSukq5BMMr8GQjgnF
+         T8I5IpCv1RHjI9l/lsEkjAWGqiLYRjU3axu0ja8rBJYFeMnS6h9a4jwU3hriYj2I2m
+         ioDfj2z7GcdHUTPj9O1FgcVRekoUqvd31TtA0KLc=
+Subject: patch "staging: rtl8712: fix use-after-free in rtl8712_dl_fw" added to staging-testing
+To:     paskripkin@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 20 Oct 2021 19:36:49 +0200
+Message-ID: <16347514092631@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit c300ab9f08df ("KVM: x86: Replace late check_nested_events() hack with
-more precise fix") there is no longer the certainty that check_nested_events()
-tries to inject an external interrupt vmexit to L1 on every call to vcpu_enter_guest.
-Therefore, even in that case we need to set KVM_REQ_EVENT.  This ensures
-that inject_pending_event() is called, and from there kvm_check_nested_events().
 
-Fixes: c300ab9f08df ("KVM: x86: Replace late check_nested_events() hack with more precise fix")
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This is a note to let you know that I've just added the patch titled
+
+    staging: rtl8712: fix use-after-free in rtl8712_dl_fw
+
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From c052cc1a069c3e575619cf64ec427eb41176ca70 Mon Sep 17 00:00:00 2001
+From: Pavel Skripkin <paskripkin@gmail.com>
+Date: Wed, 20 Oct 2021 00:17:18 +0300
+Subject: staging: rtl8712: fix use-after-free in rtl8712_dl_fw
+
+Syzbot reported use-after-free in rtl8712_dl_fw(). The problem was in
+race condition between r871xu_dev_remove() ->ndo_open() callback.
+
+It's easy to see from crash log, that driver accesses released firmware
+in ->ndo_open() callback. It may happen, since driver was releasing
+firmware _before_ unregistering netdev. Fix it by moving
+unregister_netdev() before cleaning up resources.
+
+Call Trace:
+...
+ rtl871x_open_fw drivers/staging/rtl8712/hal_init.c:83 [inline]
+ rtl8712_dl_fw+0xd95/0xe10 drivers/staging/rtl8712/hal_init.c:170
+ rtl8712_hal_init drivers/staging/rtl8712/hal_init.c:330 [inline]
+ rtl871x_hal_init+0xae/0x180 drivers/staging/rtl8712/hal_init.c:394
+ netdev_open+0xe6/0x6c0 drivers/staging/rtl8712/os_intfs.c:380
+ __dev_open+0x2bc/0x4d0 net/core/dev.c:1484
+
+Freed by task 1306:
+...
+ release_firmware+0x1b/0x30 drivers/base/firmware_loader/main.c:1053
+ r871xu_dev_remove+0xcc/0x2c0 drivers/staging/rtl8712/usb_intf.c:599
+ usb_unbind_interface+0x1d8/0x8d0 drivers/usb/core/driver.c:458
+
+Fixes: 8c213fa59199 ("staging: r8712u: Use asynchronous firmware loading")
+Cc: stable <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+c55162be492189fb4f51@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20211019211718.26354-1-paskripkin@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ drivers/staging/rtl8712/usb_intf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 79d6af09dbf4..7567e1d15017 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6331,18 +6331,13 @@ static int vmx_sync_pir_to_irr(struct kvm_vcpu *vcpu)
+diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
+index 17e705411e64..ee4c61f85a07 100644
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -595,12 +595,12 @@ static void r871xu_dev_remove(struct usb_interface *pusb_intf)
  
- 		/*
- 		 * If we are running L2 and L1 has a new pending interrupt
--		 * which can be injected, we should re-evaluate
--		 * what should be done with this new L1 interrupt.
--		 * If L1 intercepts external-interrupts, we should
--		 * exit from L2 to L1. Otherwise, interrupt should be
--		 * delivered directly to L2.
-+		 * which can be injected, this may cause a vmexit or it may
-+		 * be injected into L2.  Either way, this interrupt will be
-+		 * processed via KVM_REQ_EVENT, not RVI, because we do not use
-+		 * virtual interrupt delivery to inject L1 interrupts into L2.
- 		 */
--		if (is_guest_mode(vcpu) && max_irr_updated) {
--			if (nested_exit_on_intr(vcpu))
--				kvm_vcpu_exiting_guest_mode(vcpu);
--			else
--				kvm_make_request(KVM_REQ_EVENT, vcpu);
--		}
-+		if (is_guest_mode(vcpu) && max_irr_updated)
-+			kvm_make_request(KVM_REQ_EVENT, vcpu);
- 	} else {
- 		max_irr = kvm_lapic_find_highest_irr(vcpu);
- 	}
+ 	/* never exit with a firmware callback pending */
+ 	wait_for_completion(&padapter->rtl8712_fw_ready);
++	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
++		unregister_netdev(pnetdev); /* will call netdev_close() */
+ 	usb_set_intfdata(pusb_intf, NULL);
+ 	release_firmware(padapter->fw);
+ 	if (drvpriv.drv_registered)
+ 		padapter->surprise_removed = true;
+-	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
+-		unregister_netdev(pnetdev); /* will call netdev_close() */
+ 	r8712_flush_rwctrl_works(padapter);
+ 	r8712_flush_led_works(padapter);
+ 	udelay(1);
 -- 
-2.27.0
+2.33.1
+
 
