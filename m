@@ -2,198 +2,223 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1D2D4347FF
-	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 11:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D765E434861
+	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 11:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229639AbhJTJhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 05:37:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40056 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229555AbhJTJhT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Oct 2021 05:37:19 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA92DC06161C;
-        Wed, 20 Oct 2021 02:35:05 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id m14so2424185pfc.9;
-        Wed, 20 Oct 2021 02:35:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:subject:to:cc:references:in-reply-to:mime-version
-         :message-id:content-transfer-encoding;
-        bh=I0ZEoxf+qBRrE4EbV2DUTK2XydFaBZKQRHBZdtXWdAI=;
-        b=ZuTXYVNiTIfLkbMl6G+ZXFJwDD8iEeOO9ZL4ZcQyMqRWdw3D7oXfxTqhZu/j2em3IB
-         8XMj9jq6yg0zME0rR8hUAhM3GVP6qjMkBR/U0bWPyFxHPi4Bl3LjCwENvAE4tSlun/7s
-         wAswkg2Fb758WbOyD/QGu+6mmtOMB0rUYBQrIchpHr/xBPfFtW+cgFCNpVlNDm0Pc0/D
-         647q2HD2sssL8dBVZrR8mSrz7Ppp1aE2hvbseyVM1/CHzkcKI58Q+9MYdVfCXxlJF7tA
-         YcWLsyttuR6cOiJNaBX/B9Y5SMfzDcRSs6QnscagOXbbCHGHR/zmQZbaf2E8wrlJy6ep
-         jTGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:subject:to:cc:references:in-reply-to
-         :mime-version:message-id:content-transfer-encoding;
-        bh=I0ZEoxf+qBRrE4EbV2DUTK2XydFaBZKQRHBZdtXWdAI=;
-        b=GnrpCVQ3Siw5AGiEhG9IKp7/BAf/d2+hf0B9ogyofRNRRhYBjUHr0MCXpalqqz7tqn
-         oodQW5Y2v5qwPyM9MDTogKqY0KJA/z65aBD5l47kNrSBNF9dx5yE8cl2OZVtwjT06kkR
-         ooOGKvuSelurBAdurLfWYQXNLghkeMuUiRGfP8T8cTD8Pp4K5HwNbMbomJBQJ6H51jWR
-         75t9Oqy4mD0+dj/GMjXpbKijb+z1HxWXzu8k1qRXS/IGyWqLSu1xxDatS08DpRJxMG5L
-         rExNDKf8FlhKY3bGFo3LHMZVDY9XD8umubybgr7/x92ZTr6jRR/UxDcsaaTCxVlY88bs
-         0qWA==
-X-Gm-Message-State: AOAM532mVY3Fta73LtLhGh40d1BpM5J+w6GNj1DxBt6x+wJDth24swHS
-        mLEVErC5rqNY+Eu7pcAhVuFd0iyc8HI=
-X-Google-Smtp-Source: ABdhPJxNP0G5kSvi88Ytp53fs3hL1SswaI+tfU2GpY8sqcprGF19p7VNXQeDBZIyuq+qhdAciF8y4Q==
-X-Received: by 2002:a05:6a00:9a2:b0:44c:b979:afe3 with SMTP id u34-20020a056a0009a200b0044cb979afe3mr5194704pfg.61.1634722505179;
-        Wed, 20 Oct 2021 02:35:05 -0700 (PDT)
-Received: from localhost (14-203-144-177.static.tpgi.com.au. [14.203.144.177])
-        by smtp.gmail.com with ESMTPSA id oc8sm1978993pjb.15.2021.10.20.02.35.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Oct 2021 02:35:04 -0700 (PDT)
-Date:   Wed, 20 Oct 2021 19:35:00 +1000
-From:   Nicholas Piggin <npiggin@gmail.com>
-Subject: Re: [PATCH v2] KVM: PPC: Defer vtime accounting 'til after IRQ
- handling
-To:     kvm-ppc@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Greg Kurz <groug@kaod.org>, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, Paul Mackerras <paulus@ozlabs.org>,
-        stable@vger.kernel.org
-References: <20211007142856.41205-1-lvivier@redhat.com>
-        <875yu17rxk.fsf@mpe.ellerman.id.au>
-        <d7f59d0e-eac2-7978-4067-9258c8b1aefe@redhat.com>
-        <1634263564.zfj0ajf8eh.astroid@bobo.none>
-        <2a13119c-ccec-1dd5-8cf6-da07a9d8fe6f@redhat.com>
-In-Reply-To: <2a13119c-ccec-1dd5-8cf6-da07a9d8fe6f@redhat.com>
+        id S229702AbhJTJ6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 05:58:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38438 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229639AbhJTJ6w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 05:58:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6090161359;
+        Wed, 20 Oct 2021 09:56:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1634723797;
+        bh=1u7J72mM4LGFWe4RKgr0qMzO9kSNHzN32ZQJEU8+llU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=TGarMLJ16Ygtmp7CsuPTikzaGKawCFPUbYBVcrAN0qSddQT9hEKjNvjUhu2MsGZLK
+         Vol6ONnK6qGHWyOinJrXeVaE4tes8RX/wcR34oHoTeEWrbzwl5R794l7u5j3GotWzH
+         NrxbrFLz3jSWknwC/1kFzsL4xyELzrmy+djGtLT0=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.19.213
+Date:   Wed, 20 Oct 2021 11:56:34 +0200
+Message-Id: <16347237946398@kroah.com>
+X-Mailer: git-send-email 2.33.1
 MIME-Version: 1.0
-Message-Id: <1634722472.k7vwa86otu.astroid@bobo.none>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Excerpts from Laurent Vivier's message of October 20, 2021 4:29 pm:
-> On 15/10/2021 04:23, Nicholas Piggin wrote:
->> Excerpts from Laurent Vivier's message of October 13, 2021 7:30 pm:
->>> On 13/10/2021 01:18, Michael Ellerman wrote:
->>>> Laurent Vivier <lvivier@redhat.com> writes:
->>>>> Commit 112665286d08 moved guest_exit() in the interrupt protected
->>>>> area to avoid wrong context warning (or worse), but the tick counter
->>>>> cannot be updated and the guest time is accounted to the system time.
->>>>>
->>>>> To fix the problem port to POWER the x86 fix
->>>>> 160457140187 ("Defer vtime accounting 'til after IRQ handling"):
->>>>>
->>>>> "Defer the call to account guest time until after servicing any IRQ(s=
-)
->>>>>    that happened in the guest or immediately after VM-Exit.  Tick-bas=
-ed
->>>>>    accounting of vCPU time relies on PF_VCPU being set when the tick =
-IRQ
->>>>>    handler runs, and IRQs are blocked throughout the main sequence of
->>>>>    vcpu_enter_guest(), including the call into vendor code to actuall=
-y
->>>>>    enter and exit the guest."
->>>>>
->>>>> Fixes: 112665286d08 ("KVM: PPC: Book3S HV: Context tracking exit gues=
-t context before enabling irqs")
->>>>> Cc: npiggin@gmail.com
->>>>> Cc: <stable@vger.kernel.org> # 5.12
->>>>> Signed-off-by: Laurent Vivier <lvivier@redhat.com>
->>>>> ---
->>>>>
->>>>> Notes:
->>>>>       v2: remove reference to commit 61bd0f66ff92
->>>>>           cc stable 5.12
->>>>>           add the same comment in the code as for x86
->>>>>
->>>>>    arch/powerpc/kvm/book3s_hv.c | 24 ++++++++++++++++++++----
->>>>>    1 file changed, 20 insertions(+), 4 deletions(-)
->>>>>
->>>>> diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_h=
-v.c
->>>>> index 2acb1c96cfaf..a694d1a8f6ce 100644
->>>>> --- a/arch/powerpc/kvm/book3s_hv.c
->>>>> +++ b/arch/powerpc/kvm/book3s_hv.c
->>>> ...
->>>>> @@ -4506,13 +4514,21 @@ int kvmhv_run_single_vcpu(struct kvm_vcpu *vc=
-pu, u64 time_limit,
->>>>>   =20
->>>>>    	srcu_read_unlock(&kvm->srcu, srcu_idx);
->>>>>   =20
->>>>> +	context_tracking_guest_exit();
->>>>> +
->>>>>    	set_irq_happened(trap);
->>>>>   =20
->>>>>    	kvmppc_set_host_core(pcpu);
->>>>>   =20
->>>>> -	guest_exit_irqoff();
->>>>> -
->>>>>    	local_irq_enable();
->>>>> +	/*
->>>>> +	 * Wait until after servicing IRQs to account guest time so that an=
-y
->>>>> +	 * ticks that occurred while running the guest are properly account=
-ed
->>>>> +	 * to the guest.  Waiting until IRQs are enabled degrades the accur=
-acy
->>>>> +	 * of accounting via context tracking, but the loss of accuracy is
->>>>> +	 * acceptable for all known use cases.
->>>>> +	 */
->>>>> +	vtime_account_guest_exit();
->>>>
->>>> This pops a warning for me, running guest(s) on Power8:
->>>>   =20
->>>>     [  270.745303][T16661] ------------[ cut here ]------------
->>>>     [  270.745374][T16661] WARNING: CPU: 72 PID: 16661 at arch/powerpc=
-/kernel/time.c:311 vtime_account_kernel+0xe0/0xf0
->>>
->>> Thank you, I missed that...
->>>
->>> My patch is wrong, I have to add vtime_account_guest_exit() before the =
-local_irq_enable().
->>=20
->> I thought so because if we take an interrupt after exiting the guest tha=
-t
->> should be accounted to kernel not guest.
->>=20
->>>
->>> arch/powerpc/kernel/time.c
->>>
->>>    305 static unsigned long vtime_delta(struct cpu_accounting_data *acc=
-t,
->>>    306                                  unsigned long *stime_scaled,
->>>    307                                  unsigned long *steal_time)
->>>    308 {
->>>    309         unsigned long now, stime;
->>>    310
->>>    311         WARN_ON_ONCE(!irqs_disabled());
->>> ...
->>>
->>> But I don't understand how ticks can be accounted now if irqs are still=
- disabled.
->>>
->>> Not sure it is as simple as expected...
->>=20
->> I don't know all the timer stuff too well. The
->> !CONFIG_VIRT_CPU_ACCOUNTING case is relying on PF_VCPU to be set when
->> the host timer interrupt runs irqtime_account_process_tick runs so it
->> can accumulate that tick to the guest?
->>=20
->> That probably makes sense then, but it seems like we need that in a
->> different place. Timer interrupts are not guaranteed to be the first one
->> to occur when interrupts are enabled.
->>=20
->> Maybe a new tick_account_guest_exit() and move PF_VCPU clearing to that
->> for tick based accounting. Call it after local_irq_enable and call the
->> vtime accounting before it. Would that work?
->=20
-> Hi Nick,
->=20
-> I think I will not have the time to have a look to fix that?
->=20
-> Could you try?
+I'm announcing the release of the 4.19.213 kernel.
 
-Hey Laurent, sure I can take a look at it.
+All users of the 4.19 kernel series must upgrade.
 
-Thanks,
-Nick
+The updated 4.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                           |    2 -
+ arch/s390/lib/string.c                             |   15 ++++-----
+ arch/x86/Kconfig                                   |    1 
+ arch/x86/kernel/cpu/intel_rdt.c                    |    2 +
+ drivers/acpi/arm64/gtdt.c                          |    2 -
+ drivers/ata/pata_legacy.c                          |    6 ++-
+ drivers/firmware/efi/cper.c                        |    4 +-
+ drivers/firmware/efi/runtime-wrappers.c            |    2 -
+ drivers/gpu/drm/msm/dsi/dsi.c                      |    4 +-
+ drivers/gpu/drm/msm/dsi/dsi_host.c                 |    2 -
+ drivers/gpu/drm/msm/edp/edp_ctrl.c                 |    3 +
+ drivers/iio/adc/aspeed_adc.c                       |    1 
+ drivers/iio/adc/ti-adc128s052.c                    |    6 +++
+ drivers/iio/common/ssp_sensors/ssp_spi.c           |   11 +++++--
+ drivers/iio/dac/ti-dac5571.c                       |    1 
+ drivers/iio/light/opt3001.c                        |    6 +--
+ drivers/input/joystick/xpad.c                      |    2 +
+ drivers/misc/cb710/sgbuf2.c                        |    2 -
+ drivers/misc/mei/hw-me-regs.h                      |    1 
+ drivers/misc/mei/pci-me.c                          |    1 
+ drivers/net/ethernet/Kconfig                       |    1 
+ drivers/net/ethernet/arc/Kconfig                   |    1 
+ drivers/net/ethernet/microchip/encx24j600-regmap.c |   10 +++++-
+ drivers/net/ethernet/microchip/encx24j600.c        |    5 ++-
+ drivers/net/ethernet/microchip/encx24j600_hw.h     |    4 +-
+ drivers/net/ethernet/neterion/s2io.c               |    2 -
+ drivers/net/ethernet/qlogic/qed/qed_main.c         |    1 
+ drivers/net/usb/Kconfig                            |    4 ++
+ drivers/nvmem/core.c                               |    3 +
+ drivers/platform/mellanox/mlxreg-io.c              |    2 -
+ drivers/usb/host/xhci-pci.c                        |    2 +
+ drivers/usb/host/xhci-ring.c                       |   14 ++++++---
+ drivers/usb/host/xhci.c                            |    5 +++
+ drivers/usb/musb/musb_dsps.c                       |    4 +-
+ drivers/usb/serial/option.c                        |    8 +++++
+ drivers/usb/serial/qcserial.c                      |    1 
+ drivers/virtio/virtio.c                            |   11 +++++++
+ fs/btrfs/tree-log.c                                |   32 ++++++++++++++-------
+ net/nfc/af_nfc.c                                   |    3 +
+ net/nfc/digital_core.c                             |    9 ++++-
+ net/nfc/digital_technology.c                       |    8 +++--
+ net/sched/sch_mqprio.c                             |   30 +++++++++++--------
+ net/sctp/sm_make_chunk.c                           |    2 -
+ scripts/recordmcount.pl                            |    2 -
+ sound/core/seq_device.c                            |    8 +----
+ sound/pci/hda/patch_realtek.c                      |    8 +++--
+ 46 files changed, 181 insertions(+), 73 deletions(-)
+
+Aleksander Morgado (1):
+      USB: serial: qcserial: add EM9191 QDL support
+
+Andy Shevchenko (1):
+      mei: me: add Ice Lake-N device id.
+
+Ard Biesheuvel (1):
+      efi/cper: use stack buffer for error record decoding
+
+Arnd Bergmann (2):
+      cb710: avoid NULL pointer subtraction
+      ethernet: s2io: fix setting mac address during resume
+
+Billy Tsai (1):
+      iio: adc: aspeed: set driver data when adc probe.
+
+Borislav Petkov (1):
+      x86/Kconfig: Do not enable AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT automatically
+
+Christophe JAILLET (1):
+      iio: adc128s052: Fix the error handling path of 'adc128_probe()'
+
+Colin Ian King (1):
+      drm/msm: Fix null pointer dereference on pointer edp
+
+Dan Carpenter (6):
+      iio: ssp_sensors: add more range checking in ssp_parse_dataframe()
+      iio: ssp_sensors: fix error code in ssp_print_mcu_debug()
+      iio: dac: ti-dac5571: fix an error code in probe()
+      pata_legacy: fix a couple uninitialized variable bugs
+      drm/msm/dsi: Fix an error code in msm_dsi_modeset_init()
+      drm/msm/dsi: fix off by one in dsi_bus_clk_enable error handling
+
+Daniele Palmas (1):
+      USB: serial: option: add Telit LE910Cx composition 0x1204
+
+Eiichi Tsukata (1):
+      sctp: account stream padding length for reconf chunk
+
+Filipe Manana (3):
+      btrfs: deal with errors when replaying dir entry during log replay
+      btrfs: deal with errors when adding inode reference during log replay
+      btrfs: check for error when looking up inode during dir entry replay
+
+Greg Kroah-Hartman (1):
+      Linux 4.19.213
+
+Halil Pasic (1):
+      virtio: write back F_VERSION_1 before validate
+
+Jackie Liu (1):
+      acpi/arm64: fix next_platform_timer() section mismatch error
+
+James Morse (1):
+      x86/resctrl: Free the ctrlval arrays when domain_setup_mon_state() fails
+
+Jiri Valek - 2N (1):
+      iio: light: opt3001: Fixed timeout error when 0 lux
+
+Jonathan Bell (1):
+      xhci: guard accesses to ep_state in xhci_endpoint_reset()
+
+Kailang Yang (1):
+      ALSA: hda/realtek - ALC236 headset MIC recording issue
+
+Michael Cullen (1):
+      Input: xpad - add support for another USB ID of Nacon GC-100
+
+Miquel Raynal (1):
+      usb: musb: dsps: Fix the probe error path
+
+Nanyong Sun (1):
+      net: encx24j600: check error in devm_regmap_init_encx24j600
+
+Nikolay Martynov (1):
+      xhci: Enable trust tx length quirk for Fresco FL11 USB controller
+
+Pavankumar Kondeti (1):
+      xhci: Fix command ring pointer corruption while aborting a command
+
+Roberto Sassu (1):
+      s390: fix strrchr() implementation
+
+Sebastian Andrzej Siewior (1):
+      mqprio: Correct stats in mqprio_dump_class_stats().
+
+Stephen Boyd (1):
+      nvmem: Fix shift-out-of-bound (UBSAN) with byte size cells
+
+Steven Rostedt (1):
+      nds32/ftrace: Fix Error: invalid operands (*UND* and *UND* sections) for `^'
+
+Takashi Iwai (1):
+      ALSA: seq: Fix a potential UAF by wrong private_free call order
+
+Tomaz Solc (1):
+      USB: serial: option: add prod. id for Quectel EG91
+
+Vadim Pasternak (1):
+      platform/mellanox: mlxreg-io: Fix argument base in kstrtou32() call
+
+Vegard Nossum (3):
+      net: arc: select CRC32
+      net: korina: select CRC32
+      r8152: select CRC32 and CRYPTO/CRYPTO_HASH/CRYPTO_SHA256
+
+Werner Sembach (2):
+      ALSA: hda/realtek: Complete partial device name to avoid ambiguity
+      ALSA: hda/realtek: Add quirk for Clevo X170KM-G
+
+Yu-Tung Chang (1):
+      USB: serial: option: add Quectel EC200S-CN module support
+
+Zhang Jianhua (1):
+      efi: Change down_interruptible() in virt_efi_reset_system() to down_trylock()
+
+Ziyang Xuan (3):
+      nfc: fix error handling of nfc_proto_register()
+      NFC: digital: fix possible memory leak in digital_tg_listen_mdaa()
+      NFC: digital: fix possible memory leak in digital_in_send_sdd_req()
+
+chongjiapeng (1):
+      qed: Fix missing error code in qed_slowpath_start()
+
