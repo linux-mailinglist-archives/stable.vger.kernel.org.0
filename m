@@ -2,96 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E1D434279
-	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 02:09:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C8D34342C9
+	for <lists+stable@lfdr.de>; Wed, 20 Oct 2021 03:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229683AbhJTAMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Oct 2021 20:12:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56166 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229602AbhJTAMH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Oct 2021 20:12:07 -0400
-Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF245C06161C
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 17:09:52 -0700 (PDT)
-Received: by mail-il1-x135.google.com with SMTP id a8so20204487ilj.10
-        for <stable@vger.kernel.org>; Tue, 19 Oct 2021 17:09:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=MLnFGF3xAwmNtTsEsffubAjr7Lw5wtxPxpItXOrwi5U=;
-        b=WXtQCpvJZL78iexON8efaT9RpTv+mLYDmQitcRzEkXlAawABdAN+4TCbgbgQrGYErI
-         P/jd8gQTX5gVQxxIwe2idgFJJ74tG32kuILHEfyXElpIlOf6dSaIs45op+HYDleNL4kr
-         HsvD7QB32pptAW7tXY910ofLYo7Lg2rxK81SA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=MLnFGF3xAwmNtTsEsffubAjr7Lw5wtxPxpItXOrwi5U=;
-        b=BpL7OKVbB+q2o2pQAJyqXSEKks0LkHMca3vEQjAU9skRIfsNLUrKDtt87iScSH8zBf
-         okKMO3UsWpFtJa2AXFgDtqyrAUsABPHrVml9JIwerA64bRtnR/iJy3J0dgDRZX0QEwmL
-         mjPRXgJHRxzRftlUcsZgmjPdDETi2eLuL5/LaVnZYM8BYFD345XC0VDX3761Mh7JNsWZ
-         K4Uyu5ktZVPWV17STq5fj1CpU6hNBHFWoUeLEA5B22p13eoH6LLYf6h9fj1TMZnDknHl
-         lzq1G5JFmJNtcWmO6JjCFaUhggCACt8KV2SQIXLorKMKLlntRYvstxziAuHu+FAjg+Vs
-         kesA==
-X-Gm-Message-State: AOAM530zGmBr2Qy6q1LPKdc/QDC+Zz/H+ULL3iEBhF6V/2TmInDsL2VT
-        IaD2h/IUPDeXXI600zTCWo3P8A==
-X-Google-Smtp-Source: ABdhPJyCvN/jGaZ3H1C6sUx54Y+74zmu9n7NtFc0nB1+1FnQ7pj1JWdNRYYXyz5z0aOqgXs/vCJQAg==
-X-Received: by 2002:a05:6e02:8ad:: with SMTP id a13mr21363389ilt.136.1634688592110;
-        Tue, 19 Oct 2021 17:09:52 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id ay5sm309470iob.46.2021.10.19.17.09.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Oct 2021 17:09:51 -0700 (PDT)
-Subject: Re: [PATCH 5.14 000/151] 5.14.14-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20211019061402.629202866@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <3487da41-6401-06a1-4cc4-829e4145fd32@linuxfoundation.org>
-Date:   Tue, 19 Oct 2021 18:09:50 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S229610AbhJTBWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Oct 2021 21:22:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55330 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229603AbhJTBWg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Oct 2021 21:22:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4738461004;
+        Wed, 20 Oct 2021 01:20:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1634692823;
+        bh=Y9YTnWytaS21lTU5HjMbOEAOxoi3tAKPASr/Yz5hlyE=;
+        h=In-Reply-To:References:From:Date:Subject:To:Cc:From;
+        b=cKH1whHvr7tgZakDvhKAKA41L+oODyZFRLblC3C29G8qcZ47DNk2SZkJNNkRaUVJs
+         538423OqHTyEmHWMpD2hIb0PojtN0E40eXu+nVx8AWAxDot0RmVOepnP4FU+f3k2LP
+         djX/zTFjL7jAuQ9NtHiT7XKhwYlGr4EumK8lPKHJCp1s/BH1RbmaJpUl3BzohUHEyN
+         UP7u6aYERV5YLaTja2yK9ETYKFsDjstWSHshfTpQhOUlaEEc4vv83i/bxSBtKG0Soh
+         RHQ000yYH4VbUZFJrK/PR8Riiq22aww/Z/JFTW5S6fxT1IG20g1T0QgdkL1YYx3l/w
+         4QqbBDKHOfZHA==
+Received: by mail-oi1-f174.google.com with SMTP id o4so7615811oia.10;
+        Tue, 19 Oct 2021 18:20:23 -0700 (PDT)
+X-Gm-Message-State: AOAM530W/qkV7YuAS+xtUMH+irWpSHu6lUhxxOgFUJQFQkIBUaqtyj/R
+        VNI/LoyXv3vGV8R7dqP2p1ZtvFigdNMGqa/ig28=
+X-Google-Smtp-Source: ABdhPJyc7uZZtJc5h2DcrZsV0OsIflnkcE9RvRdcpZgwCxw9+pdMkxKPCiEvbdUSHlktwo2zijevr7XZJUTvGQKFYc8=
+X-Received: by 2002:aca:b5c3:: with SMTP id e186mr7237239oif.51.1634692822587;
+ Tue, 19 Oct 2021 18:20:22 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20211019061402.629202866@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: by 2002:ac9:31e7:0:0:0:0:0 with HTTP; Tue, 19 Oct 2021 18:20:22
+ -0700 (PDT)
+In-Reply-To: <20211019061421.23706-1-sj1557.seo@samsung.com>
+References: <CGME20211019061448epcas1p1c6951207ef0ba73f1ef17862bb4495ff@epcas1p1.samsung.com>
+ <20211019061421.23706-1-sj1557.seo@samsung.com>
+From:   Namjae Jeon <linkinjeon@kernel.org>
+Date:   Wed, 20 Oct 2021 10:20:22 +0900
+X-Gmail-Original-Message-ID: <CAKYAXd-s39+YnX1xR=KdLH+JnZ=tAa5M19=Ra-CWUWWKzuTgOw@mail.gmail.com>
+Message-ID: <CAKYAXd-s39+YnX1xR=KdLH+JnZ=tAa5M19=Ra-CWUWWKzuTgOw@mail.gmail.com>
+Subject: Re: [PATCH v2] exfat: fix incorrect loading of i_blocks for large files
+To:     Sungjong Seo <sj1557.seo@samsung.com>
+Cc:     linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/19/21 12:28 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.14.14 release.
-> There are 151 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 21 Oct 2021 06:13:39 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.14-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-
-Compiled and booted on my test system. No dmesg regressions.
-
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
-
-thanks,
--- Shuah
-
+2021-10-19 15:14 GMT+09:00, Sungjong Seo <sj1557.seo@samsung.com>:
+> When calculating i_blocks, there was a mistake that was masked with a
+> 32-bit variable. So i_blocks for files larger than 4 GiB had incorrect
+> values. Mask with a 64-bit variable instead of 32-bit one.
+>
+> Fixes: 5f2aa075070c ("exfat: add inode operations")
+> Cc: stable@vger.kernel.org # v5.7+
+> Reported-by: Ganapathi Kamath <hgkamath@hotmail.com>
+> Signed-off-by: Sungjong Seo <sj1557.seo@samsung.com>
+Applied, Thanks for your patch!
