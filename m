@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 988C34356EB
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:21:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67F144356ED
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231707AbhJUAX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 20:23:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42246 "EHLO mail.kernel.org"
+        id S231624AbhJUAXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 20:23:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231549AbhJUAXP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:23:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67B13611CC;
-        Thu, 21 Oct 2021 00:20:59 +0000 (UTC)
+        id S231447AbhJUAX2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:23:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8FF6611EF;
+        Thu, 21 Oct 2021 00:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775660;
-        bh=4JPQVIHWVjf9kbAJr6+3FH509KcOpC7ie1Fmg5TEGko=;
+        s=k20201202; t=1634775673;
+        bh=B/9Y2HRDsA1cOUt/2dRbTNmKnD/HW/prF7UVNwqjn3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCekbrWFH+OMfmr/rTX9vP1I9eKoUjdtNME6wbgWqTvX/29yrdwVidB4LqPffEzKQ
-         9DDfjsnHnmCSDemLi5eqoACs7VHotLdYt6HsuCSvGcwLMLv3Zgl1nk3JGZ8Mw5ZaAC
-         i0zmfKGR5xCVgz4oiG7RbcxwHc/4XXWHyjrjSZgxd4zkioaws3wanrO642lsb3/5mu
-         pKG4oSfWHZpsB2FFidLXuo5qko+dJB8BKVCWv5NyyZxC+bcoXdjNn6Q1QXNQiGGBKT
-         1gz38/eAlOnP73ZG8dVM3isjEoT/oqUxrV8BnCOYVWl4AUOiInBIed574Xx7a6ZdnL
-         kfHA4tI+xkUdg==
+        b=RQYiBNkY5QanM0dWzLQyLGecfAoPEERpzjsTkyXQPIK+54Uk3q9jGhMjro0Hv1FzE
+         KXjW6VyjQbB+4Xo/ceFRmhAvubo6a/s2tJohg68KFvUjJhZtlNAE+V8Tc+Ja/jg/q5
+         VLuaMVTtiylEeM9B8Kr1Oc/mBq61HfH/3gEt60ASdlcUUznBiKnhGN5bGr8IYZlAOy
+         zTsBc9fl2CY+oDpt7Z/+FCFN3VwXFTiV5cFYzoORLqW+x6mO0Bb+XQb/pVqUz0OyhN
+         IQNwdCeQSpGkFiLVNtb4rc4r+b8txwwM+jbaFEvdxg3e1cupKvUnhO4bIO3b+dvXLr
+         n4Pq8/Feg1uAA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Forney <mforney@mforney.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, peterz@infradead.org
-Subject: [PATCH AUTOSEL 5.14 09/26] objtool: Update section header before relocations
-Date:   Wed, 20 Oct 2021 20:20:06 -0400
-Message-Id: <20211021002023.1128949-9-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, imre.deak@intel.com,
+        kai.heng.feng@canonical.com, broonie@kernel.org,
+        hui.wang@canonical.com, ranjani.sridharan@linux.intel.com,
+        joe@perches.com, pierre-louis.bossart@linux.intel.com,
+        kai.vehmanen@linux.intel.com, alexander.deucher@amd.com,
+        leon@kernel.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.14 10/26] ALSA: hda: intel: Allow repeatedly probing on codec configuration errors
+Date:   Wed, 20 Oct 2021 20:20:07 -0400
+Message-Id: <20211021002023.1128949-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211021002023.1128949-1-sashal@kernel.org>
 References: <20211021002023.1128949-1-sashal@kernel.org>
@@ -43,152 +46,289 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Forney <mforney@mforney.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 86e1e054e0d2105cf32b0266cf1a64e6c26424f7 ]
+[ Upstream commit c0f1886de7e173865f1a0fa7680a1c07954a987f ]
 
-The libelf implementation from elftoolchain has a safety check in
-gelf_update_rel[a] to check that the data corresponds to a section
-that has type SHT_REL[A] [0]. If the relocation is updated before
-the section header is updated with the proper type, this check
-fails.
+It seems that a few recent AMD systems show the codec configuration
+errors at the early boot, while loading the driver at a later stage
+works magically.  Although the root cause of the error isn't clear,
+it's certainly not bad to allow retrying the codec probe in such a
+case if that helps.
 
-To fix this, update the section header first, before the relocations.
-Previously, the section size was calculated in elf_rebuild_reloc_section
-by counting the number of entries in the reloc_list. However, we
-now need the size during elf_write so instead keep a running total
-and add to it for every new relocation.
+This patch adds the capability for retrying the probe upon codec probe
+errors on the certain AMD platforms.  The probe_work is changed to a
+delayed work, and at the secondary call, it'll jump to the codec
+probing.
 
-[0] https://sourceforge.net/p/elftoolchain/mailman/elftoolchain-developers/thread/CAGw6cBtkZro-8wZMD2ULkwJ39J+tHtTtAWXufMjnd3cQ7XG54g@mail.gmail.com/
+Note that, not only adding the re-probing, this includes the behavior
+changes in the codec configuration function.  Namely,
+snd_hda_codec_configure() won't unregister the codec at errors any
+longer.  Instead, its caller, azx_codec_configure() unregisters the
+codecs with the probe failures *if* any codec has been successfully
+configured.  If all codec probe failed, it doesn't unregister but let
+it re-probed -- which is the most case we're seeing and this patch
+tries to improve.
 
-Signed-off-by: Michael Forney <mforney@mforney.org>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lore.kernel.org/r/20210509000103.11008-2-mforney@mforney.org
+Even if the driver doesn't re-probe or give up, it will go to the
+"free-all" error path, hence the leftover codecs shall be disabled /
+deleted in anyway.
+
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1190801
+Link: https://lore.kernel.org/r/20211006141940.2897-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/elf.c | 46 +++++++++++++++++----------------------------
- 1 file changed, 17 insertions(+), 29 deletions(-)
+ include/sound/hda_codec.h      |  1 +
+ sound/pci/hda/hda_bind.c       | 20 +++++++++++---------
+ sound/pci/hda/hda_codec.c      |  1 +
+ sound/pci/hda/hda_controller.c | 24 ++++++++++++++++--------
+ sound/pci/hda/hda_controller.h |  2 +-
+ sound/pci/hda/hda_intel.c      | 29 +++++++++++++++++++++++------
+ sound/pci/hda/hda_intel.h      |  4 +++-
+ 7 files changed, 56 insertions(+), 25 deletions(-)
 
-diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
-index 6cf4c0f11906..a9c2bebd7576 100644
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -509,6 +509,7 @@ int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
- 	list_add_tail(&reloc->list, &sec->reloc->reloc_list);
- 	elf_hash_add(reloc, &reloc->hash, reloc_hash(reloc));
+diff --git a/include/sound/hda_codec.h b/include/sound/hda_codec.h
+index 2e8d51937acd..47d2cad21b56 100644
+--- a/include/sound/hda_codec.h
++++ b/include/sound/hda_codec.h
+@@ -225,6 +225,7 @@ struct hda_codec {
+ #endif
  
-+	sec->reloc->sh.sh_size += sec->reloc->sh.sh_entsize;
- 	sec->reloc->changed = true;
- 
- 	return 0;
-@@ -979,26 +980,23 @@ static struct section *elf_create_reloc_section(struct elf *elf,
- 	}
- }
- 
--static int elf_rebuild_rel_reloc_section(struct section *sec, int nr)
-+static int elf_rebuild_rel_reloc_section(struct section *sec)
+ 	/* misc flags */
++	unsigned int configured:1; /* codec was configured */
+ 	unsigned int in_freeing:1; /* being released */
+ 	unsigned int registered:1; /* codec was registered */
+ 	unsigned int display_power_control:1; /* needs display power */
+diff --git a/sound/pci/hda/hda_bind.c b/sound/pci/hda/hda_bind.c
+index e8dee24c309d..50a58fb5ad9c 100644
+--- a/sound/pci/hda/hda_bind.c
++++ b/sound/pci/hda/hda_bind.c
+@@ -304,29 +304,31 @@ int snd_hda_codec_configure(struct hda_codec *codec)
  {
- 	struct reloc *reloc;
--	int idx = 0, size;
-+	int idx = 0;
- 	void *buf;
+ 	int err;
  
- 	/* Allocate a buffer for relocations */
--	size = nr * sizeof(GElf_Rel);
--	buf = malloc(size);
-+	buf = malloc(sec->sh.sh_size);
- 	if (!buf) {
- 		perror("malloc");
- 		return -1;
- 	}
- 
- 	sec->data->d_buf = buf;
--	sec->data->d_size = size;
-+	sec->data->d_size = sec->sh.sh_size;
- 	sec->data->d_type = ELF_T_REL;
- 
--	sec->sh.sh_size = size;
--
- 	idx = 0;
- 	list_for_each_entry(reloc, &sec->reloc_list, list) {
- 		reloc->rel.r_offset = reloc->offset;
-@@ -1013,26 +1011,23 @@ static int elf_rebuild_rel_reloc_section(struct section *sec, int nr)
- 	return 0;
- }
- 
--static int elf_rebuild_rela_reloc_section(struct section *sec, int nr)
-+static int elf_rebuild_rela_reloc_section(struct section *sec)
- {
- 	struct reloc *reloc;
--	int idx = 0, size;
-+	int idx = 0;
- 	void *buf;
- 
- 	/* Allocate a buffer for relocations with addends */
--	size = nr * sizeof(GElf_Rela);
--	buf = malloc(size);
-+	buf = malloc(sec->sh.sh_size);
- 	if (!buf) {
- 		perror("malloc");
- 		return -1;
- 	}
- 
- 	sec->data->d_buf = buf;
--	sec->data->d_size = size;
-+	sec->data->d_size = sec->sh.sh_size;
- 	sec->data->d_type = ELF_T_RELA;
- 
--	sec->sh.sh_size = size;
--
- 	idx = 0;
- 	list_for_each_entry(reloc, &sec->reloc_list, list) {
- 		reloc->rela.r_offset = reloc->offset;
-@@ -1050,16 +1045,9 @@ static int elf_rebuild_rela_reloc_section(struct section *sec, int nr)
- 
- static int elf_rebuild_reloc_section(struct elf *elf, struct section *sec)
- {
--	struct reloc *reloc;
--	int nr;
--
--	nr = 0;
--	list_for_each_entry(reloc, &sec->reloc_list, list)
--		nr++;
--
- 	switch (sec->sh.sh_type) {
--	case SHT_REL:  return elf_rebuild_rel_reloc_section(sec, nr);
--	case SHT_RELA: return elf_rebuild_rela_reloc_section(sec, nr);
-+	case SHT_REL:  return elf_rebuild_rel_reloc_section(sec);
-+	case SHT_RELA: return elf_rebuild_rela_reloc_section(sec);
- 	default:       return -1;
- 	}
- }
-@@ -1119,12 +1107,6 @@ int elf_write(struct elf *elf)
- 	/* Update changed relocation sections and section headers: */
- 	list_for_each_entry(sec, &elf->sections, list) {
- 		if (sec->changed) {
--			if (sec->base &&
--			    elf_rebuild_reloc_section(elf, sec)) {
--				WARN("elf_rebuild_reloc_section");
--				return -1;
--			}
--
- 			s = elf_getscn(elf->elf, sec->idx);
- 			if (!s) {
- 				WARN_ELF("elf_getscn");
-@@ -1135,6 +1117,12 @@ int elf_write(struct elf *elf)
- 				return -1;
- 			}
- 
-+			if (sec->base &&
-+			    elf_rebuild_reloc_section(elf, sec)) {
-+				WARN("elf_rebuild_reloc_section");
-+				return -1;
-+			}
++	if (codec->configured)
++		return 0;
 +
- 			sec->changed = false;
- 			elf->changed = true;
+ 	if (is_generic_config(codec))
+ 		codec->probe_id = HDA_CODEC_ID_GENERIC;
+ 	else
+ 		codec->probe_id = 0;
+ 
+-	err = snd_hdac_device_register(&codec->core);
+-	if (err < 0)
+-		return err;
++	if (!device_is_registered(&codec->core.dev)) {
++		err = snd_hdac_device_register(&codec->core);
++		if (err < 0)
++			return err;
++	}
+ 
+ 	if (!codec->preset)
+ 		codec_bind_module(codec);
+ 	if (!codec->preset) {
+ 		err = codec_bind_generic(codec);
+ 		if (err < 0) {
+-			codec_err(codec, "Unable to bind the codec\n");
+-			goto error;
++			codec_dbg(codec, "Unable to bind the codec\n");
++			return err;
  		}
+ 	}
+ 
++	codec->configured = 1;
+ 	return 0;
+-
+- error:
+-	snd_hdac_device_unregister(&codec->core);
+-	return err;
+ }
+ EXPORT_SYMBOL_GPL(snd_hda_codec_configure);
+diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
+index 7a717e151156..8afcce6478cd 100644
+--- a/sound/pci/hda/hda_codec.c
++++ b/sound/pci/hda/hda_codec.c
+@@ -791,6 +791,7 @@ void snd_hda_codec_cleanup_for_unbind(struct hda_codec *codec)
+ 	snd_array_free(&codec->nids);
+ 	remove_conn_list(codec);
+ 	snd_hdac_regmap_exit(&codec->core);
++	codec->configured = 0;
+ }
+ EXPORT_SYMBOL_GPL(snd_hda_codec_cleanup_for_unbind);
+ 
+diff --git a/sound/pci/hda/hda_controller.c b/sound/pci/hda/hda_controller.c
+index ca2f2ecd1488..5a49ee4f6ce0 100644
+--- a/sound/pci/hda/hda_controller.c
++++ b/sound/pci/hda/hda_controller.c
+@@ -25,6 +25,7 @@
+ #include <sound/core.h>
+ #include <sound/initval.h>
+ #include "hda_controller.h"
++#include "hda_local.h"
+ 
+ #define CREATE_TRACE_POINTS
+ #include "hda_controller_trace.h"
+@@ -1259,17 +1260,24 @@ EXPORT_SYMBOL_GPL(azx_probe_codecs);
+ int azx_codec_configure(struct azx *chip)
+ {
+ 	struct hda_codec *codec, *next;
++	int success = 0;
+ 
+-	/* use _safe version here since snd_hda_codec_configure() deregisters
+-	 * the device upon error and deletes itself from the bus list.
+-	 */
+-	list_for_each_codec_safe(codec, next, &chip->bus) {
+-		snd_hda_codec_configure(codec);
++	list_for_each_codec(codec, &chip->bus) {
++		if (!snd_hda_codec_configure(codec))
++			success++;
+ 	}
+ 
+-	if (!azx_bus(chip)->num_codecs)
+-		return -ENODEV;
+-	return 0;
++	if (success) {
++		/* unregister failed codecs if any codec has been probed */
++		list_for_each_codec_safe(codec, next, &chip->bus) {
++			if (!codec->configured) {
++				codec_err(codec, "Unable to configure, disabling\n");
++				snd_hdac_device_unregister(&codec->core);
++			}
++		}
++	}
++
++	return success ? 0 : -ENODEV;
+ }
+ EXPORT_SYMBOL_GPL(azx_codec_configure);
+ 
+diff --git a/sound/pci/hda/hda_controller.h b/sound/pci/hda/hda_controller.h
+index 68f9668788ea..324cba13c7ba 100644
+--- a/sound/pci/hda/hda_controller.h
++++ b/sound/pci/hda/hda_controller.h
+@@ -41,7 +41,7 @@
+ /* 24 unused */
+ #define AZX_DCAPS_COUNT_LPIB_DELAY  (1 << 25)	/* Take LPIB as delay */
+ #define AZX_DCAPS_PM_RUNTIME	(1 << 26)	/* runtime PM support */
+-/* 27 unused */
++#define AZX_DCAPS_RETRY_PROBE	(1 << 27)	/* retry probe if no codec is configured */
+ #define AZX_DCAPS_CORBRP_SELF_CLEAR (1 << 28)	/* CORBRP clears itself after reset */
+ #define AZX_DCAPS_NO_MSI64      (1 << 29)	/* Stick to 32-bit MSIs */
+ #define AZX_DCAPS_SEPARATE_STREAM_TAG	(1 << 30) /* capture and playback use separate stream tag */
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 0062c18b646a..89f135a6a1f6 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -307,7 +307,8 @@ enum {
+ /* quirks for AMD SB */
+ #define AZX_DCAPS_PRESET_AMD_SB \
+ 	(AZX_DCAPS_NO_TCSEL | AZX_DCAPS_AMD_WORKAROUND |\
+-	 AZX_DCAPS_SNOOP_TYPE(ATI) | AZX_DCAPS_PM_RUNTIME)
++	 AZX_DCAPS_SNOOP_TYPE(ATI) | AZX_DCAPS_PM_RUNTIME |\
++	 AZX_DCAPS_RETRY_PROBE)
+ 
+ /* quirks for Nvidia */
+ #define AZX_DCAPS_PRESET_NVIDIA \
+@@ -1730,7 +1731,7 @@ static void azx_check_snoop_available(struct azx *chip)
+ 
+ static void azx_probe_work(struct work_struct *work)
+ {
+-	struct hda_intel *hda = container_of(work, struct hda_intel, probe_work);
++	struct hda_intel *hda = container_of(work, struct hda_intel, probe_work.work);
+ 	azx_probe_continue(&hda->chip);
+ }
+ 
+@@ -1839,7 +1840,7 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
+ 	}
+ 
+ 	/* continue probing in work context as may trigger request module */
+-	INIT_WORK(&hda->probe_work, azx_probe_work);
++	INIT_DELAYED_WORK(&hda->probe_work, azx_probe_work);
+ 
+ 	*rchip = chip;
+ 
+@@ -2170,7 +2171,7 @@ static int azx_probe(struct pci_dev *pci,
+ #endif
+ 
+ 	if (schedule_probe)
+-		schedule_work(&hda->probe_work);
++		schedule_delayed_work(&hda->probe_work, 0);
+ 
+ 	dev++;
+ 	if (chip->disabled)
+@@ -2256,6 +2257,11 @@ static int azx_probe_continue(struct azx *chip)
+ 	int dev = chip->dev_index;
+ 	int err;
+ 
++	if (chip->disabled || hda->init_failed)
++		return -EIO;
++	if (hda->probe_retry)
++		goto probe_retry;
++
+ 	to_hda_bus(bus)->bus_probing = 1;
+ 	hda->probe_continued = 1;
+ 
+@@ -2317,10 +2323,20 @@ static int azx_probe_continue(struct azx *chip)
+ #endif
+ 	}
+ #endif
++
++ probe_retry:
+ 	if (bus->codec_mask && !(probe_only[dev] & 1)) {
+ 		err = azx_codec_configure(chip);
+-		if (err < 0)
++		if (err) {
++			if ((chip->driver_caps & AZX_DCAPS_RETRY_PROBE) &&
++			    ++hda->probe_retry < 60) {
++				schedule_delayed_work(&hda->probe_work,
++						      msecs_to_jiffies(1000));
++				return 0; /* keep things up */
++			}
++			dev_err(chip->card->dev, "Cannot probe codecs, giving up\n");
+ 			goto out_free;
++		}
+ 	}
+ 
+ 	err = snd_card_register(chip->card);
+@@ -2350,6 +2366,7 @@ static int azx_probe_continue(struct azx *chip)
+ 		display_power(chip, false);
+ 	complete_all(&hda->probe_wait);
+ 	to_hda_bus(bus)->bus_probing = 0;
++	hda->probe_retry = 0;
+ 	return 0;
+ }
+ 
+@@ -2375,7 +2392,7 @@ static void azx_remove(struct pci_dev *pci)
+ 		 * device during cancel_work_sync() call.
+ 		 */
+ 		device_unlock(&pci->dev);
+-		cancel_work_sync(&hda->probe_work);
++		cancel_delayed_work_sync(&hda->probe_work);
+ 		device_lock(&pci->dev);
+ 
+ 		snd_card_free(card);
+diff --git a/sound/pci/hda/hda_intel.h b/sound/pci/hda/hda_intel.h
+index 3fb119f09040..0f39418f9328 100644
+--- a/sound/pci/hda/hda_intel.h
++++ b/sound/pci/hda/hda_intel.h
+@@ -14,7 +14,7 @@ struct hda_intel {
+ 
+ 	/* sync probing */
+ 	struct completion probe_wait;
+-	struct work_struct probe_work;
++	struct delayed_work probe_work;
+ 
+ 	/* card list (for power_save trigger) */
+ 	struct list_head list;
+@@ -30,6 +30,8 @@ struct hda_intel {
+ 	unsigned int freed:1; /* resources already released */
+ 
+ 	bool need_i915_power:1; /* the hda controller needs i915 power */
++
++	int probe_retry;	/* being probe-retry */
+ };
+ 
+ #endif
 -- 
 2.33.0
 
