@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6251C4356F3
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:21:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B1754356F9
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231675AbhJUAXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 20:23:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42410 "EHLO mail.kernel.org"
+        id S231611AbhJUAXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 20:23:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231727AbhJUAXb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:23:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8970061374;
-        Thu, 21 Oct 2021 00:21:15 +0000 (UTC)
+        id S231740AbhJUAXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:23:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4504E6128E;
+        Thu, 21 Oct 2021 00:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775676;
-        bh=F4e7r/rNpG6DdfngI7GrT/fuUKS/XfxaHkfpxSKvNgU=;
+        s=k20201202; t=1634775678;
+        bh=dkCvC7JcUp89D5pDIH6bpJMp72CkeTXg05qjoA65ybs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bUMu/6AEzhbAFOHnodx9uaccVqLyrZdUYQjYYOe5J6H7nNi4Jy6itGqyykG7lwVMx
-         7IvnXo7kpffHivrTZq+FOnA3uNa+tE3uUyG1YFWlg/oRdFui+1Dg3DbT8aa95bE+1L
-         NEq0Bo0AOlxO0sVrSjrXNLq+ARd+zKJAnaXNbyNs5+py0i/HLWv7FQVWiYNbYmzr0a
-         Z27t6O3jIZG7NAxEmU/yXvqUH1nee81coBQARrNWmbnRIxXOHOPfGMsXvMK1xoWEnV
-         7DM2CY9dWKPCbuHxVLqIa9buJfqoHBY+yMO4eEgJxT4W8ADk1px/r9JLJ0O88JRyGd
-         e8TCe/0d5s1LQ==
+        b=AAXT1Kwp8gXN4iQChfAZFiSmZexhEHafSCKILPHV7HrBKUVMxdjmejC7OiKWvmLIh
+         kMTaA15lQ6MzfHHE+wLaURWPviAs8OypStcQ5CeYK6b1lUkEqolOrzmj0XXxzA6NGB
+         Urza02ddlFAxG3gSLqzK9S6Pwd7qSVQ0HZUr9yI4axC74s+uFSsbU2hwHLx0jb8koB
+         4Cl8SUbX/VoWJ4V1CR7UX70fjvCE5croiGrBQK1wKePMQVpSS7NyMSyqtEpDQEeclF
+         UlRmqY7+EH0aYc0nSfPUxmyYNNJnmWWEj/Os2cKGflDbm8S7GPLf5wt/wcGrxDCJKc
+         qLy/KLf1c/wUg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Herve Codina <herve.codina@bootlin.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, peppe.cavallaro@st.com,
-        alexandre.torgue@foss.st.com, joabreu@synopsys.com,
-        kuba@kernel.org, mcoquelin.stm32@gmail.com, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.14 12/26] net: stmmac: add support for dwmac 3.40a
-Date:   Wed, 20 Oct 2021 20:20:09 -0400
-Message-Id: <20211021002023.1128949-12-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, vireshk@kernel.org,
+        shiraz.linux.kernel@gmail.com, robh+dt@kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 13/26] ARM: dts: spear3xx: Fix gmac node
+Date:   Wed, 20 Oct 2021 20:20:10 -0400
+Message-Id: <20211021002023.1128949-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211021002023.1128949-1-sashal@kernel.org>
 References: <20211021002023.1128949-1-sashal@kernel.org>
@@ -48,49 +46,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Herve Codina <herve.codina@bootlin.com>
 
-[ Upstream commit 9cb1d19f47fafad7dcf7c8564e633440c946cfd7 ]
+[ Upstream commit 6636fec29cdf6665bd219564609e8651f6ddc142 ]
 
-dwmac 3.40a is an old ip version that can be found on SPEAr3xx soc.
+On SPEAr3xx, ethernet driver is not compatible with the SPEAr600
+one.
+Indeed, SPEAr3xx uses an earlier version of this IP (v3.40) and
+needs some driver tuning compare to SPEAr600.
+
+The v3.40 IP support was added to stmmac driver and this patch
+fixes this issue and use the correct compatible string for
+SPEAr3xx
 
 Signed-off-by: Herve Codina <herve.codina@bootlin.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c   | 1 +
- drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ arch/arm/boot/dts/spear3xx.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
-index fbfda55b4c52..5e731a72cce8 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
-@@ -71,6 +71,7 @@ static int dwmac_generic_probe(struct platform_device *pdev)
+diff --git a/arch/arm/boot/dts/spear3xx.dtsi b/arch/arm/boot/dts/spear3xx.dtsi
+index f266b7b03482..cc88ebe7a60c 100644
+--- a/arch/arm/boot/dts/spear3xx.dtsi
++++ b/arch/arm/boot/dts/spear3xx.dtsi
+@@ -47,7 +47,7 @@ dma@fc400000 {
+ 		};
  
- static const struct of_device_id dwmac_generic_match[] = {
- 	{ .compatible = "st,spear600-gmac"},
-+	{ .compatible = "snps,dwmac-3.40a"},
- 	{ .compatible = "snps,dwmac-3.50a"},
- 	{ .compatible = "snps,dwmac-3.610"},
- 	{ .compatible = "snps,dwmac-3.70a"},
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-index 62cec9bfcd33..232ac98943cd 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -508,6 +508,14 @@ stmmac_probe_config_dt(struct platform_device *pdev, u8 *mac)
- 		plat->pmt = 1;
- 	}
- 
-+	if (of_device_is_compatible(np, "snps,dwmac-3.40a")) {
-+		plat->has_gmac = 1;
-+		plat->enh_desc = 1;
-+		plat->tx_coe = 1;
-+		plat->bugged_jumbo = 1;
-+		plat->pmt = 1;
-+	}
-+
- 	if (of_device_is_compatible(np, "snps,dwmac-4.00") ||
- 	    of_device_is_compatible(np, "snps,dwmac-4.10a") ||
- 	    of_device_is_compatible(np, "snps,dwmac-4.20a") ||
+ 		gmac: eth@e0800000 {
+-			compatible = "st,spear600-gmac";
++			compatible = "snps,dwmac-3.40a";
+ 			reg = <0xe0800000 0x8000>;
+ 			interrupts = <23 22>;
+ 			interrupt-names = "macirq", "eth_wake_irq";
 -- 
 2.33.0
 
