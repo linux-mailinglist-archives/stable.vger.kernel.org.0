@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECAD64357C5
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:26:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ACBF4357C3
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:26:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232310AbhJUA2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 20:28:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44304 "EHLO mail.kernel.org"
+        id S232896AbhJUA2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 20:28:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231675AbhJUA07 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:26:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBC1761374;
-        Thu, 21 Oct 2021 00:24:40 +0000 (UTC)
+        id S232306AbhJUA1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:27:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8465B60FD8;
+        Thu, 21 Oct 2021 00:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775881;
-        bh=vckJ+27QpxEAGzTzJ96GNZUN5D4JFQ/i+rJ7uthyoX8=;
+        s=k20201202; t=1634775884;
+        bh=3eublEtbAHJH2wDIYeS2U2RNXI5uX1YDYBvhIOSPYQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PA1ZOHm+uJMTWeblaxDbbkld0epgPEr2wj/6xZS+0LDwr4IVMpH70tUle7Kq8M3dR
-         NBiEZUbMVTxUaNaShX7B6wh/3SlIcniCnUVYuUjS6FHzLCIzAcQeLzYejy1n81LAN5
-         bDfvVMRywRtJwysj+KmW46ZvYcVQooFkWLnBssYd8Tpgs4ygV9UyhJk8vFVYsQkz8P
-         fAHNmTh3ZAxw28aPAua4PZIw0VnObB/oEfZnmE5zMsiuNFqXqs1ek2bXw7+R7AYJ9V
-         4O0YMiEURdJXEOD83/7soa5Yx20vookyLQyTnoRKVS8U5lBEtx59MZozKdy8gQjHQw
-         L4kvV6RDIYb6w==
+        b=N13BbNsPvzm6Bzl8BxLuWZBQJeS94EE+rGRZv2GiF5UwrMV3DCg11uWRygvxXEAmd
+         fd57fTbzgHKH+tXLQZ+2TvJgsXnjonvdq/zvukTzlb6QlhHfDxnlWjvAE2UOnqh6G0
+         Fo08gfKgtG4J9FAU8lNAQ+Hi1JAMBw8y3MpdqDDv8KVGCf1Tm+ap2A7L4C7snYbjWC
+         NQkIcSWJHmygZsunYPmE5+FRZq6Sw2pfmicwW+kj994H3M4NOa6Gq1unthKtNBIfVj
+         ue3AMbJLtggKeH4dxv/ODG17vxUZyk8ZJnEynstZKhp+K30r/OKGITIfg1fMdAdr25
+         rDKGEy2sfURFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, mgross@linux.intel.com,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 5/7] platform/x86: intel_scu_ipc: Update timeout value in comment
-Date:   Wed, 20 Oct 2021 20:24:24 -0400
-Message-Id: <20211021002427.1130044-5-sashal@kernel.org>
+Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com, ranjani.sridharan@linux.intel.com,
+        broonie@kernel.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.4 6/7] ALSA: hda: avoid write to STATESTS if controller is in reset
+Date:   Wed, 20 Oct 2021 20:24:25 -0400
+Message-Id: <20211021002427.1130044-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211021002427.1130044-1-sashal@kernel.org>
 References: <20211021002427.1130044-1-sashal@kernel.org>
@@ -45,41 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit a0c5814b9933f25ecb6de169483c5b88cf632bca ]
+[ Upstream commit b37a15188eae9d4c49c5bb035e0c8d4058e4d9b3 ]
 
-The comment decribing the IPC timeout hadn't been updated when the
-actual timeout was changed from 3 to 5 seconds in
-commit a7d53dbbc70a ("platform/x86: intel_scu_ipc: Increase virtual
-timeout from 3 to 5 seconds") .
+The snd_hdac_bus_reset_link() contains logic to clear STATESTS register
+before performing controller reset. This code dates back to an old
+bugfix in commit e8a7f136f5ed ("[ALSA] hda-intel - Improve HD-audio
+codec probing robustness"). Originally the code was added to
+azx_reset().
 
-Since the value is anyway updated to 10s now, take this opportunity to
-update the value in the comment too.
+The code was moved around in commit a41d122449be ("ALSA: hda - Embed bus
+into controller object") and ended up to snd_hdac_bus_reset_link() and
+called primarily via snd_hdac_bus_init_chip().
 
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Cc: Benson Leung <bleung@chromium.org>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Link: https://lore.kernel.org/r/20210928101932.2543937-4-pmalani@chromium.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+The logic to clear STATESTS is correct when snd_hdac_bus_init_chip() is
+called when controller is not in reset. In this case, STATESTS can be
+cleared. This can be useful e.g. when forcing a controller reset to retry
+codec probe. A normal non-power-on reset will not clear the bits.
+
+However, this old logic is problematic when controller is already in
+reset. The HDA specification states that controller must be taken out of
+reset before writing to registers other than GCTL.CRST (1.0a spec,
+3.3.7). The write to STATESTS in snd_hdac_bus_reset_link() will be lost
+if the controller is already in reset per the HDA specification mentioned.
+
+This has been harmless on older hardware. On newer generation of Intel
+PCIe based HDA controllers, if configured to report issues, this write
+will emit an unsupported request error. If ACPI Platform Error Interface
+(APEI) is enabled in kernel, this will end up to kernel log.
+
+Fix the code in snd_hdac_bus_reset_link() to only clear the STATESTS if
+the function is called when controller is not in reset. Otherwise
+clearing the bits is not possible and should be skipped.
+
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20211012142935.3731820-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_scu_ipc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/hda/hdac_controller.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_scu_ipc.c b/drivers/platform/x86/intel_scu_ipc.c
-index f94b730540e2..04cabcbd8aaa 100644
---- a/drivers/platform/x86/intel_scu_ipc.c
-+++ b/drivers/platform/x86/intel_scu_ipc.c
-@@ -188,7 +188,7 @@ static inline int busy_loop(struct intel_scu_ipc_dev *scu)
- 	return 0;
- }
+diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
+index 4727f5b80e76..4ee3458ad810 100644
+--- a/sound/hda/hdac_controller.c
++++ b/sound/hda/hdac_controller.c
+@@ -288,8 +288,9 @@ static int azx_reset(struct hdac_bus *bus, bool full_reset)
+ 	if (!full_reset)
+ 		goto skip_reset;
  
--/* Wait till ipc ioc interrupt is received or timeout in 3 HZ */
-+/* Wait till ipc ioc interrupt is received or timeout in 10 HZ */
- static inline int ipc_wait_for_interrupt(struct intel_scu_ipc_dev *scu)
- {
- 	int status;
+-	/* clear STATESTS */
+-	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
++	/* clear STATESTS if not in reset */
++	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
++		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
+ 
+ 	/* reset controller */
+ 	snd_hdac_bus_enter_link_reset(bus);
 -- 
 2.33.0
 
