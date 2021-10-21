@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABAA54357AF
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:26:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A2584357B1
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:26:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231529AbhJUA2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 20:28:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46148 "EHLO mail.kernel.org"
+        id S231920AbhJUA2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 20:28:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232021AbhJUA0c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:26:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 405EB61130;
-        Thu, 21 Oct 2021 00:24:16 +0000 (UTC)
+        id S232032AbhJUA0d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:26:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8129361381;
+        Thu, 21 Oct 2021 00:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775857;
-        bh=1hDDKPFMJeNG8aC4u1Bz+JJb9z8HGt06R9e7A0KG3hM=;
+        s=k20201202; t=1634775858;
+        bh=fyj9I3XPf2AF6zgHV9ufCSsOVwVPKoCgptUH2+OCzYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YF9ZDMbBWpJBdB4dTWfpaKDJnjCkUPxSgT1NjWi8OeGEGIDt999Lfc8wDoRbokF6o
-         8cVlfeN9Q88MnpzewRCnjRXogVNtb2U201DfT3DHwk19bH845mT21Lj6hWJBn1Mev+
-         v53yh5OXEIgkDvDsCgh/AbDf1Dz24BYodZOsCRW82Y83AHM1XHLvAR/6KeRKIc62+D
-         IOtoZiKlm3MSDrkBGy/IkV3FYDth24YS88WG6fcbe4DNIAAIeX5gFZ4xygz+7MFGwA
-         f2i05wUekKpGbN4Pad5UHQLAOw+pI0zgiZOEwggz8ouQ1XdsWPfKOkyY3ay0TQt83i
-         N5I9OyzEFqjkA==
+        b=dhqef0/Qamf6y3GXi5Rg6SvXnT+mtrsFDmkw72tNAizl8s55J98CHheUrMxfzEoAE
+         +RoUg3PjbfoHOl7DNV1toXA0UWvwMZ+Ik/M/gZxoVjJt0eu0d9ttcR0XdxMtN+yRqB
+         szxxl/T6CBy1ayCPtwUPakzXsOm3qZMdjkuHdpjud9SjH51n9GwnEjUJa092r/vvs7
+         SorwSiXB0LeaFo7BN4N0TVD3uO8T3p/ry2uEP+3sohSz73OzpZXMlKhI0gddnk+l1U
+         oAAEGsqAAzdX+1TuqHGXye43z7vrVyeXe64aNFyRDbzoA4T1wR+My8WL2mmRFF//SP
+         RpMg57NxozZWQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, isdn@linux-pingi.de,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 4/7] isdn: mISDN: Fix sleeping function called from invalid context
-Date:   Wed, 20 Oct 2021 20:24:00 -0400
-Message-Id: <20211021002404.1129946-4-sashal@kernel.org>
+Cc:     Prashant Malani <pmalani@chromium.org>,
+        Benson Leung <bleung@chromium.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, mgross@linux.intel.com,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 5/7] platform/x86: intel_scu_ipc: Update timeout value in comment
+Date:   Wed, 20 Oct 2021 20:24:01 -0400
+Message-Id: <20211021002404.1129946-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211021002404.1129946-1-sashal@kernel.org>
 References: <20211021002404.1129946-1-sashal@kernel.org>
@@ -43,78 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Prashant Malani <pmalani@chromium.org>
 
-[ Upstream commit 6510e80a0b81b5d814e3aea6297ba42f5e76f73c ]
+[ Upstream commit a0c5814b9933f25ecb6de169483c5b88cf632bca ]
 
-The driver can call card->isac.release() function from an atomic
-context.
+The comment decribing the IPC timeout hadn't been updated when the
+actual timeout was changed from 3 to 5 seconds in
+commit a7d53dbbc70a ("platform/x86: intel_scu_ipc: Increase virtual
+timeout from 3 to 5 seconds") .
 
-Fix this by calling this function after releasing the lock.
+Since the value is anyway updated to 10s now, take this opportunity to
+update the value in the comment too.
 
-The following log reveals it:
-
-[   44.168226 ] BUG: sleeping function called from invalid context at kernel/workqueue.c:3018
-[   44.168941 ] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 5475, name: modprobe
-[   44.169574 ] INFO: lockdep is turned off.
-[   44.169899 ] irq event stamp: 0
-[   44.170160 ] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-[   44.170627 ] hardirqs last disabled at (0): [<ffffffff814209ed>] copy_process+0x132d/0x3e00
-[   44.171240 ] softirqs last  enabled at (0): [<ffffffff81420a1a>] copy_process+0x135a/0x3e00
-[   44.171852 ] softirqs last disabled at (0): [<0000000000000000>] 0x0
-[   44.172318 ] Preemption disabled at:
-[   44.172320 ] [<ffffffffa009b0a9>] nj_release+0x69/0x500 [netjet]
-[   44.174441 ] Call Trace:
-[   44.174630 ]  dump_stack_lvl+0xa8/0xd1
-[   44.174912 ]  dump_stack+0x15/0x17
-[   44.175166 ]  ___might_sleep+0x3a2/0x510
-[   44.175459 ]  ? nj_release+0x69/0x500 [netjet]
-[   44.175791 ]  __might_sleep+0x82/0xe0
-[   44.176063 ]  ? start_flush_work+0x20/0x7b0
-[   44.176375 ]  start_flush_work+0x33/0x7b0
-[   44.176672 ]  ? trace_irq_enable_rcuidle+0x85/0x170
-[   44.177034 ]  ? kasan_quarantine_put+0xaa/0x1f0
-[   44.177372 ]  ? kasan_quarantine_put+0xaa/0x1f0
-[   44.177711 ]  __flush_work+0x11a/0x1a0
-[   44.177991 ]  ? flush_work+0x20/0x20
-[   44.178257 ]  ? lock_release+0x13c/0x8f0
-[   44.178550 ]  ? __kasan_check_write+0x14/0x20
-[   44.178872 ]  ? do_raw_spin_lock+0x148/0x360
-[   44.179187 ]  ? read_lock_is_recursive+0x20/0x20
-[   44.179530 ]  ? __kasan_check_read+0x11/0x20
-[   44.179846 ]  ? do_raw_spin_unlock+0x55/0x900
-[   44.180168 ]  ? ____kasan_slab_free+0x116/0x140
-[   44.180505 ]  ? _raw_spin_unlock_irqrestore+0x41/0x60
-[   44.180878 ]  ? skb_queue_purge+0x1a3/0x1c0
-[   44.181189 ]  ? kfree+0x13e/0x290
-[   44.181438 ]  flush_work+0x17/0x20
-[   44.181695 ]  mISDN_freedchannel+0xe8/0x100
-[   44.182006 ]  isac_release+0x210/0x260 [mISDNipac]
-[   44.182366 ]  nj_release+0xf6/0x500 [netjet]
-[   44.182685 ]  nj_remove+0x48/0x70 [netjet]
-[   44.182989 ]  pci_device_remove+0xa9/0x250
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Cc: Benson Leung <bleung@chromium.org>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Link: https://lore.kernel.org/r/20210928101932.2543937-4-pmalani@chromium.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/netjet.c | 2 +-
+ drivers/platform/x86/intel_scu_ipc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/netjet.c b/drivers/isdn/hardware/mISDN/netjet.c
-index 6dea4c180c49..feada9d7cbcc 100644
---- a/drivers/isdn/hardware/mISDN/netjet.c
-+++ b/drivers/isdn/hardware/mISDN/netjet.c
-@@ -963,8 +963,8 @@ nj_release(struct tiger_hw *card)
- 		nj_disable_hwirq(card);
- 		mode_tiger(&card->bc[0], ISDN_P_NONE);
- 		mode_tiger(&card->bc[1], ISDN_P_NONE);
--		card->isac.release(&card->isac);
- 		spin_unlock_irqrestore(&card->lock, flags);
-+		card->isac.release(&card->isac);
- 		release_region(card->base, card->base_s);
- 		card->base_s = 0;
- 	}
+diff --git a/drivers/platform/x86/intel_scu_ipc.c b/drivers/platform/x86/intel_scu_ipc.c
+index e81daff65f62..238ee4275f5c 100644
+--- a/drivers/platform/x86/intel_scu_ipc.c
++++ b/drivers/platform/x86/intel_scu_ipc.c
+@@ -187,7 +187,7 @@ static inline int busy_loop(struct intel_scu_ipc_dev *scu)
+ 	return 0;
+ }
+ 
+-/* Wait till ipc ioc interrupt is received or timeout in 3 HZ */
++/* Wait till ipc ioc interrupt is received or timeout in 10 HZ */
+ static inline int ipc_wait_for_interrupt(struct intel_scu_ipc_dev *scu)
+ {
+ 	int status;
 -- 
 2.33.0
 
