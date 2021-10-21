@@ -2,127 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B44B84356D0
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27CFC4356D4
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:20:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230478AbhJUARc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 20:17:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44142 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229702AbhJUARa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Oct 2021 20:17:30 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D32EFC06161C
-        for <stable@vger.kernel.org>; Wed, 20 Oct 2021 17:15:15 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id t21so9229411plr.6
-        for <stable@vger.kernel.org>; Wed, 20 Oct 2021 17:15:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hBqnS1q0GYGNglDr/8jEFjuBPmxWiEwPPDsfDowZoXY=;
-        b=vflGgFexuNV5U1CShszEdBFYKN7kPBl8VN7oyu+LpVjpcdSsifgzRAQF9dH2iZvEkV
-         C/CJcQmNFWCiZxZ/hxb0oy9V6q85c0TTw7idMDOoqrqpqWnnmg29I6zpv5gQR9wazWVY
-         tmvKia8jk80rgyj8ry0aUVXi4O4r7nyMG07+K1rL/AYyMBZdmRjC8KMWY0nvGGXmpY+K
-         BKxEvpN+wzB/sWNzROX+jBIo2bwkq3+jZTIknpeQvi5QoQbg/7/lUb98xVD8X4OJL6yt
-         O9vY4awzsgUB6exS25fi+CGI3oVgxjdbUyde25jB5V0X8TWxfH8qqMTzDCWZEJUnff8C
-         O2CQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hBqnS1q0GYGNglDr/8jEFjuBPmxWiEwPPDsfDowZoXY=;
-        b=vSEWb7GtregVUzIMW2O7hryVOZ9rO8dSkmLnN5gElC5b+9m4zDMuBAye3N1450ckom
-         xaaYLjot2sEIdfUYNBlAJgZNxRWEqO4JHdqMHbFqK8sgMwDIFnOTkN/S49BMDkRRfO2e
-         gYNelVu4Q9A+LwU74sq87xCNJs3bAj2r0j5qjm0zi9cMOx4XOS9nyIITtcCFQCpPOc9U
-         A5LeXXYHw9gXcNpgE2uMjt6RmrraNPTspJy0fLVRkcj5T3caXh1zkEoICrlZ8ba9Qd5t
-         nfsxjJyt8XSrFCD5eagGlaQU4rsD+LULGhPiC1nISzeRgTgDIZtgKXESq9XvJhIJjrEg
-         8HnQ==
-X-Gm-Message-State: AOAM532P26NCl3qwaBswX+8WVNmO3rnOH8IG0g7iNgp1vDWhTCT9cIRu
-        YSmD/7EtrWOujWSgsmxIsUtPrM3pMiBxXyrC4XA=
-X-Google-Smtp-Source: ABdhPJxwA/bvmQehvo1C6JN/nl7ugTnHrGiosArWikFpDMc+Yye4OwQGJJdZmmCgtRE0hmKFtUTRVw==
-X-Received: by 2002:a17:902:8b81:b0:13f:3d30:f624 with SMTP id ay1-20020a1709028b8100b0013f3d30f624mr2148744plb.51.1634775315251;
-        Wed, 20 Oct 2021 17:15:15 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i127sm3328284pgc.40.2021.10.20.17.15.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Oct 2021 17:15:15 -0700 (PDT)
-Message-ID: <6170b113.1c69fb81.c6db2.a174@mx.google.com>
-Date:   Wed, 20 Oct 2021 17:15:15 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230494AbhJUAWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 20:22:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41728 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230103AbhJUAWl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:22:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80B0C611CC;
+        Thu, 21 Oct 2021 00:20:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1634775626;
+        bh=OYEiy43p50mFVcpQF0Wr04GWdZWgFGozhCJvTMAK0Wk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ryxsZH8pi6g/YpE1eN//WwKaBk+9fPv8vLIuSBb/a8brsj5AlmNms3ma/TeyJuENd
+         dLje27PMtPP6rACUHwU98UGQARecdYcC5fJo6qLUniB/rL03SzZV/Xr0Y6sJo/uK0S
+         xo9S0eDNag+c3GCp7aXyqndKdfUI4eqKfU/JpFUUauZWlsCfjd2n2F66o8q0mNKSKp
+         sTkTenNERNxt8Y04+jxSxUh5pdWJnaRpIy1wh24hyEFZIO5HZU4gfms9xlDHYO+qhc
+         WOdNqf9IrQL5DbmQBVU+GltKRjS3oPAF6RNf2lrdvJVSG9OrNkF396A+DQZNyK1wB8
+         4BNdLO6rNXKXg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Daniel Latypov <dlatypov@google.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
+Subject: [PATCH AUTOSEL 5.14 01/26] kunit: fix reference count leak in kfree_at_end
+Date:   Wed, 20 Oct 2021 20:19:58 -0400
+Message-Id: <20211021002023.1128949-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.155-3-geac33b1d5763
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 165 runs,
- 1 regressions (v5.4.155-3-geac33b1d5763)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 165 runs, 1 regressions (v5.4.155-3-geac33b1d=
-5763)
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-Regressions Summary
--------------------
+[ Upstream commit f62314b1ced25c58b86e044fc951cd6a1ea234cf ]
 
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-asus-C436FA-Flip-hatch | x86_64 | lab-collabora | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
+The reference counting issue happens in the normal path of
+kfree_at_end(). When kunit_alloc_and_get_resource() is invoked, the
+function forgets to handle the returned resource object, whose refcount
+increased inside, causing a refcount leak.
 
+Fix this issue by calling kunit_alloc_resource() instead of
+kunit_alloc_and_get_resource().
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.155-3-geac33b1d5763/plan/baseline/
+Fixed the following when applying:
+Shuah Khan <skhan@linuxfoundation.org>
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.155-3-geac33b1d5763
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      eac33b1d5763dbc7af633a91d2ab185162995ee8 =
+CHECK: Alignment should match open parenthesis
++	kunit_alloc_resource(test, NULL, kfree_res_free, GFP_KERNEL,
+ 				     (void *)to_free);
 
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Reviewed-by: Daniel Latypov <dlatypov@google.com>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ lib/kunit/executor_test.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/lib/kunit/executor_test.c b/lib/kunit/executor_test.c
+index cdbe54b16501..e14a18af573d 100644
+--- a/lib/kunit/executor_test.c
++++ b/lib/kunit/executor_test.c
+@@ -116,8 +116,8 @@ static void kfree_at_end(struct kunit *test, const void *to_free)
+ 	/* kfree() handles NULL already, but avoid allocating a no-op cleanup. */
+ 	if (IS_ERR_OR_NULL(to_free))
+ 		return;
+-	kunit_alloc_and_get_resource(test, NULL, kfree_res_free, GFP_KERNEL,
+-				     (void *)to_free);
++	kunit_alloc_resource(test, NULL, kfree_res_free, GFP_KERNEL,
++			     (void *)to_free);
+ }
+ 
+ static struct kunit_suite *alloc_fake_suite(struct kunit *test,
+-- 
+2.33.0
 
-Test Regressions
----------------- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-asus-C436FA-Flip-hatch | x86_64 | lab-collabora | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61709497904adb1dd13358f5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.155-3=
--geac33b1d5763/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/=
-baseline-asus-C436FA-Flip-hatch.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.155-3=
--geac33b1d5763/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/=
-baseline-asus-C436FA-Flip-hatch.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61709497904adb1dd1335=
-8f6
-        new failure (last pass: v5.4.153-83-g2b0cde94652c) =
-
- =20
