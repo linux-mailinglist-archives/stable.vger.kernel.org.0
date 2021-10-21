@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 883ED435CD3
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 10:23:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB662435CD4
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 10:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231248AbhJUI0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Oct 2021 04:26:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52170 "EHLO mail.kernel.org"
+        id S231321AbhJUI0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Oct 2021 04:26:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231153AbhJUI0N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 Oct 2021 04:26:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5762C61056;
-        Thu, 21 Oct 2021 08:23:57 +0000 (UTC)
+        id S231280AbhJUI0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 Oct 2021 04:26:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A25A611F2;
+        Thu, 21 Oct 2021 08:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634804637;
-        bh=ju3w8HkK0uEnymdq7cmhfpWLU+UPTBo8PZ5bJIM34LM=;
+        s=korg; t=1634804648;
+        bh=ejEU7JpjYIwALSgPnJhFX6YOUjK3QAD4STTc2ygP+vk=;
         h=Subject:To:From:Date:From;
-        b=iPH5HzMvpSeUz66SGhilecH7Fs6ZT2yjZbz34P/FH5M3Em5hSCf8Hgl3kmYtVYpCD
-         +dxwSb6jVZfb8XxRJZqM5xhEWg+seTaLYyWr8j3oxUdgDSwTo9AySry42GEeUhKymx
-         NgHS2QCiH3fwsc/Wjxo+D5UtaQNEvHdS+m58ms74=
-Subject: patch "staging: rtl8712: fix use-after-free in rtl8712_dl_fw" added to staging-next
-To:     paskripkin@gmail.com, gregkh@linuxfoundation.org,
+        b=YbV5uKL196MUfXJM0OEesXITExz1u86baHdVlHv7mn8T6wr1ZUnLSBnCr3lkUQet7
+         /HHMOEeCAe4Y9ImiWq8van8mTpYdgTdpU1yKp2wuOTRQlWph27MuppZ5Wp5b1y4sq5
+         o4gSGB8+c82Ngfvp/CxFf2B6AlELA6MDUnnfNiXI=
+Subject: patch "staging: r8188eu: fix memleak in rtw_wx_set_enc_ext" added to staging-next
+To:     martin@kaiser.cx, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 21 Oct 2021 10:23:16 +0200
-Message-ID: <163480459619117@kroah.com>
+Date:   Thu, 21 Oct 2021 10:23:17 +0200
+Message-ID: <163480459715458@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: rtl8712: fix use-after-free in rtl8712_dl_fw
+    staging: r8188eu: fix memleak in rtw_wx_set_enc_ext
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,63 +51,53 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From c052cc1a069c3e575619cf64ec427eb41176ca70 Mon Sep 17 00:00:00 2001
-From: Pavel Skripkin <paskripkin@gmail.com>
-Date: Wed, 20 Oct 2021 00:17:18 +0300
-Subject: staging: rtl8712: fix use-after-free in rtl8712_dl_fw
+From 26f448371820cf733c827c11f0c77ce304a29b51 Mon Sep 17 00:00:00 2001
+From: Martin Kaiser <martin@kaiser.cx>
+Date: Tue, 19 Oct 2021 22:23:56 +0200
+Subject: staging: r8188eu: fix memleak in rtw_wx_set_enc_ext
 
-Syzbot reported use-after-free in rtl8712_dl_fw(). The problem was in
-race condition between r871xu_dev_remove() ->ndo_open() callback.
+Free the param struct if the caller sets an unsupported algorithm
+and we return an error.
 
-It's easy to see from crash log, that driver accesses released firmware
-in ->ndo_open() callback. It may happen, since driver was releasing
-firmware _before_ unregistering netdev. Fix it by moving
-unregister_netdev() before cleaning up resources.
-
-Call Trace:
-...
- rtl871x_open_fw drivers/staging/rtl8712/hal_init.c:83 [inline]
- rtl8712_dl_fw+0xd95/0xe10 drivers/staging/rtl8712/hal_init.c:170
- rtl8712_hal_init drivers/staging/rtl8712/hal_init.c:330 [inline]
- rtl871x_hal_init+0xae/0x180 drivers/staging/rtl8712/hal_init.c:394
- netdev_open+0xe6/0x6c0 drivers/staging/rtl8712/os_intfs.c:380
- __dev_open+0x2bc/0x4d0 net/core/dev.c:1484
-
-Freed by task 1306:
-...
- release_firmware+0x1b/0x30 drivers/base/firmware_loader/main.c:1053
- r871xu_dev_remove+0xcc/0x2c0 drivers/staging/rtl8712/usb_intf.c:599
- usb_unbind_interface+0x1d8/0x8d0 drivers/usb/core/driver.c:458
-
-Fixes: 8c213fa59199 ("staging: r8712u: Use asynchronous firmware loading")
+Fixes: 2b42bd58b321 ("staging: r8188eu: introduce new os_dep dir for RTL8188eu driver")
 Cc: stable <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+c55162be492189fb4f51@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20211019211718.26354-1-paskripkin@gmail.com
+Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+Link: https://lore.kernel.org/r/20211019202356.12572-1-martin@kaiser.cx
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/usb_intf.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/r8188eu/os_dep/ioctl_linux.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
-index 17e705411e64..ee4c61f85a07 100644
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -595,12 +595,12 @@ static void r871xu_dev_remove(struct usb_interface *pusb_intf)
+diff --git a/drivers/staging/r8188eu/os_dep/ioctl_linux.c b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
+index 4f0ae821d193..4e51d5a55985 100644
+--- a/drivers/staging/r8188eu/os_dep/ioctl_linux.c
++++ b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
+@@ -1897,7 +1897,7 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
+ 	struct ieee_param *param = NULL;
+ 	struct iw_point *pencoding = &wrqu->encoding;
+ 	struct iw_encode_ext *pext = (struct iw_encode_ext *)extra;
+-	int ret = 0;
++	int ret = -1;
  
- 	/* never exit with a firmware callback pending */
- 	wait_for_completion(&padapter->rtl8712_fw_ready);
-+	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
-+		unregister_netdev(pnetdev); /* will call netdev_close() */
- 	usb_set_intfdata(pusb_intf, NULL);
- 	release_firmware(padapter->fw);
- 	if (drvpriv.drv_registered)
- 		padapter->surprise_removed = true;
--	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
--		unregister_netdev(pnetdev); /* will call netdev_close() */
- 	r8712_flush_rwctrl_works(padapter);
- 	r8712_flush_led_works(padapter);
- 	udelay(1);
+ 	param_len = sizeof(struct ieee_param) + pext->key_len;
+ 	param = kzalloc(param_len, GFP_KERNEL);
+@@ -1923,7 +1923,7 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
+ 		alg_name = "CCMP";
+ 		break;
+ 	default:
+-		return -1;
++		goto out;
+ 	}
+ 
+ 	strlcpy((char *)param->u.crypt.alg, alg_name, IEEE_CRYPT_ALG_NAME_LEN);
+@@ -1950,6 +1950,7 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
+ 
+ 	ret =  wpa_set_encryption(dev, param, param_len);
+ 
++out:
+ 	kfree(param);
+ 	return ret;
+ }
 -- 
 2.33.1
 
