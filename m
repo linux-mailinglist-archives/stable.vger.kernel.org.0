@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B1754356F9
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C89D84356F6
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231611AbhJUAXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 20:23:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42468 "EHLO mail.kernel.org"
+        id S231532AbhJUAXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 20:23:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231740AbhJUAXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:23:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4504E6128E;
-        Thu, 21 Oct 2021 00:21:17 +0000 (UTC)
+        id S231562AbhJUAXg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:23:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D61C61354;
+        Thu, 21 Oct 2021 00:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775678;
-        bh=dkCvC7JcUp89D5pDIH6bpJMp72CkeTXg05qjoA65ybs=;
+        s=k20201202; t=1634775681;
+        bh=oaoViWmLKml3gk3oxSqvx0sQ0cyPPOBkMf25mGyrx2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AAXT1Kwp8gXN4iQChfAZFiSmZexhEHafSCKILPHV7HrBKUVMxdjmejC7OiKWvmLIh
-         kMTaA15lQ6MzfHHE+wLaURWPviAs8OypStcQ5CeYK6b1lUkEqolOrzmj0XXxzA6NGB
-         Urza02ddlFAxG3gSLqzK9S6Pwd7qSVQ0HZUr9yI4axC74s+uFSsbU2hwHLx0jb8koB
-         4Cl8SUbX/VoWJ4V1CR7UX70fjvCE5croiGrBQK1wKePMQVpSS7NyMSyqtEpDQEeclF
-         UlRmqY7+EH0aYc0nSfPUxmyYNNJnmWWEj/Os2cKGflDbm8S7GPLf5wt/wcGrxDCJKc
-         qLy/KLf1c/wUg==
+        b=Tk8e1+7mUJEWNrFoDUuko8gadRzS+jOlbp4r8oPxsbNIJR0oE2z/bG9ki+++CxxJy
+         Vomx1P1j3qO6wyTQnWooJTrVNZZBVvIpWZ7vcAaGUO+rXUZ2ZbNqPz/3NZV0RR8M6t
+         1iictA6I55vD1l/UNMtC6uCoIOWoy+j8ZDU6RZ+kUi8E4lcJGAZJwbiV3h0MmcEWyA
+         +IbtO3ok+pQBDnAe6bL5hnSyjtZHcPljo0bsMkk/9GXQr9IdigHWk6Fi7CrSBRa6tN
+         hFY1Nd0ic2BVWVGA0tWmdNYY0mSIWlSvwsvMHgrKIqUtT3QixJRLahC6mV02Ro+Fqc
+         D4ueRKGIQvftw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Herve Codina <herve.codina@bootlin.com>,
+Cc:     Lin Ma <linma@zju.edu.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, vireshk@kernel.org,
-        shiraz.linux.kernel@gmail.com, robh+dt@kernel.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 13/26] ARM: dts: spear3xx: Fix gmac node
-Date:   Wed, 20 Oct 2021 20:20:10 -0400
-Message-Id: <20211021002023.1128949-13-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        bongsu.jeon@samsung.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 14/26] nfc: nci: fix the UAF of rf_conn_info object
+Date:   Wed, 20 Oct 2021 20:20:11 -0400
+Message-Id: <20211021002023.1128949-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211021002023.1128949-1-sashal@kernel.org>
 References: <20211021002023.1128949-1-sashal@kernel.org>
@@ -44,39 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herve Codina <herve.codina@bootlin.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 6636fec29cdf6665bd219564609e8651f6ddc142 ]
+[ Upstream commit 1b1499a817c90fd1ce9453a2c98d2a01cca0e775 ]
 
-On SPEAr3xx, ethernet driver is not compatible with the SPEAr600
-one.
-Indeed, SPEAr3xx uses an earlier version of this IP (v3.40) and
-needs some driver tuning compare to SPEAr600.
+The nci_core_conn_close_rsp_packet() function will release the conn_info
+with given conn_id. However, it needs to set the rf_conn_info to NULL to
+prevent other routines like nci_rf_intf_activated_ntf_packet() to trigger
+the UAF.
 
-The v3.40 IP support was added to stmmac driver and this patch
-fixes this issue and use the correct compatible string for
-SPEAr3xx
-
-Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/spear3xx.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/nfc/nci/rsp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/spear3xx.dtsi b/arch/arm/boot/dts/spear3xx.dtsi
-index f266b7b03482..cc88ebe7a60c 100644
---- a/arch/arm/boot/dts/spear3xx.dtsi
-+++ b/arch/arm/boot/dts/spear3xx.dtsi
-@@ -47,7 +47,7 @@ dma@fc400000 {
- 		};
- 
- 		gmac: eth@e0800000 {
--			compatible = "st,spear600-gmac";
-+			compatible = "snps,dwmac-3.40a";
- 			reg = <0xe0800000 0x8000>;
- 			interrupts = <23 22>;
- 			interrupt-names = "macirq", "eth_wake_irq";
+diff --git a/net/nfc/nci/rsp.c b/net/nfc/nci/rsp.c
+index e9605922a322..49cbc44e075d 100644
+--- a/net/nfc/nci/rsp.c
++++ b/net/nfc/nci/rsp.c
+@@ -330,6 +330,8 @@ static void nci_core_conn_close_rsp_packet(struct nci_dev *ndev,
+ 							 ndev->cur_conn_id);
+ 		if (conn_info) {
+ 			list_del(&conn_info->list);
++			if (conn_info == ndev->rf_conn_info)
++				ndev->rf_conn_info = NULL;
+ 			devm_kfree(&ndev->nfc_dev->dev, conn_info);
+ 		}
+ 	}
 -- 
 2.33.0
 
