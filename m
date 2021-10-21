@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D43AE435707
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:21:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1547643570A
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:21:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231897AbhJUAYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 20:24:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42800 "EHLO mail.kernel.org"
+        id S231789AbhJUAYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 20:24:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231740AbhJUAXt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:23:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 621B76138F;
-        Thu, 21 Oct 2021 00:21:33 +0000 (UTC)
+        id S231540AbhJUAXu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:23:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D41B613A4;
+        Thu, 21 Oct 2021 00:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775694;
-        bh=idzmCTmScLE7SpFvK5YW4508KB+pnHmJiBrp0tWnMB4=;
+        s=k20201202; t=1634775695;
+        bh=WZWeuxSRxl5SZVNa+xq55nivzTLb8h/2BA88j/0BeOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AK8Bmuk6J3i8Sgpv/xi9sh8LPq63biljwl3HFntT7TwGiAyqUuqzp2zVhOHNuFHwB
-         BaFWCdlj0DnLYDNG6eGa5i48/+jF+Bi/KcPAbymL0+Wls320yBQLZEetAcFskJuT5F
-         lx0ds0Dfdig4mrR7PUifIwZNH0wZHT7vm4C2bbsWMgmgmRjTpHif4T6xvk5xMh9kcr
-         i12jO//QYSxtuFb8TYu5GhGbX5OTHhCGTcbts2S0is1jkVg6cPKWxl9CsBNw2sYrPY
-         docZQNB5Jy/+W5QZv34kqwqao0o4DvGKHCYL9yFpwNLNCbSnBswq1BnYBJYn+bkJu6
-         wdOjsylrxr8LQ==
+        b=rrHy45QQMUHx73DZTVWBiVJwMRPAbe0H2hHzwnZSHr5zW5lkmSIzyWOL1nJEcxuDw
+         qq+Uz2n5ESFhVbjWsLuSfijzOwOFW6yTtK28BY3e23qSOyXRZoH8YI9FUyxWtdXQA3
+         t26o8RUNJGyI5EMQ7io9VViORcSWo6vsAXdCBiZOlzYiUkktJ+wk/SEa0lIB0UYLlt
+         aC7a5Z0v1OXnhFefCue+HHuA1IEFsTj8jzFkwnJn3T33jk17Dtc5juuWWP4YhZ02Zy
+         e0S/V6z75wSAXVfFH30lHQtHdjn0QSgYcMsgxYoKMGMNOXqm1wPYnUcWAdsUpp18oq
+         mVUilMFU5p7Tg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, ranjani.sridharan@linux.intel.com,
-        broonie@kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.14 19/26] ALSA: hda: avoid write to STATESTS if controller is in reset
-Date:   Wed, 20 Oct 2021 20:20:16 -0400
-Message-Id: <20211021002023.1128949-19-sashal@kernel.org>
+Cc:     Mark Brown <broonie@kernel.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>,
+        linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 20/26] spi: Fix deadlock when adding SPI controllers on SPI buses
+Date:   Wed, 20 Oct 2021 20:20:17 -0400
+Message-Id: <20211021002023.1128949-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211021002023.1128949-1-sashal@kernel.org>
 References: <20211021002023.1128949-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,64 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit b37a15188eae9d4c49c5bb035e0c8d4058e4d9b3 ]
+[ Upstream commit 6098475d4cb48d821bdf453c61118c56e26294f0 ]
 
-The snd_hdac_bus_reset_link() contains logic to clear STATESTS register
-before performing controller reset. This code dates back to an old
-bugfix in commit e8a7f136f5ed ("[ALSA] hda-intel - Improve HD-audio
-codec probing robustness"). Originally the code was added to
-azx_reset().
+Currently we have a global spi_add_lock which we take when adding new
+devices so that we can check that we're not trying to reuse a chip
+select that's already controlled.  This means that if the SPI device is
+itself a SPI controller and triggers the instantiation of further SPI
+devices we trigger a deadlock as we try to register and instantiate
+those devices while in the process of doing so for the parent controller
+and hence already holding the global spi_add_lock.  Since we only care
+about concurrency within a single SPI bus move the lock to be per
+controller, avoiding the deadlock.
 
-The code was moved around in commit a41d122449be ("ALSA: hda - Embed bus
-into controller object") and ended up to snd_hdac_bus_reset_link() and
-called primarily via snd_hdac_bus_init_chip().
+This can be easily triggered in the case of spi-mux.
 
-The logic to clear STATESTS is correct when snd_hdac_bus_init_chip() is
-called when controller is not in reset. In this case, STATESTS can be
-cleared. This can be useful e.g. when forcing a controller reset to retry
-codec probe. A normal non-power-on reset will not clear the bits.
-
-However, this old logic is problematic when controller is already in
-reset. The HDA specification states that controller must be taken out of
-reset before writing to registers other than GCTL.CRST (1.0a spec,
-3.3.7). The write to STATESTS in snd_hdac_bus_reset_link() will be lost
-if the controller is already in reset per the HDA specification mentioned.
-
-This has been harmless on older hardware. On newer generation of Intel
-PCIe based HDA controllers, if configured to report issues, this write
-will emit an unsupported request error. If ACPI Platform Error Interface
-(APEI) is enabled in kernel, this will end up to kernel log.
-
-Fix the code in snd_hdac_bus_reset_link() to only clear the STATESTS if
-the function is called when controller is not in reset. Otherwise
-clearing the bits is not possible and should be skipped.
-
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20211012142935.3731820-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/hdac_controller.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/spi/spi.c       | 17 ++++++-----------
+ include/linux/spi/spi.h |  3 +++
+ 2 files changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
-index 062da7a7a586..f7bd6e2db085 100644
---- a/sound/hda/hdac_controller.c
-+++ b/sound/hda/hdac_controller.c
-@@ -421,8 +421,9 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
- 	if (!full_reset)
- 		goto skip_reset;
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index f95f7666cb5b..2c342bded058 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -480,12 +480,6 @@ static LIST_HEAD(spi_controller_list);
+  */
+ static DEFINE_MUTEX(board_lock);
  
--	/* clear STATESTS */
--	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
-+	/* clear STATESTS if not in reset */
-+	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
-+		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
+-/*
+- * Prevents addition of devices with same chip select and
+- * addition of devices below an unregistering controller.
+- */
+-static DEFINE_MUTEX(spi_add_lock);
+-
+ /**
+  * spi_alloc_device - Allocate a new SPI device
+  * @ctlr: Controller to which device is connected
+@@ -638,9 +632,9 @@ int spi_add_device(struct spi_device *spi)
+ 	 * chipselect **BEFORE** we call setup(), else we'll trash
+ 	 * its configuration.  Lock against concurrent add() calls.
+ 	 */
+-	mutex_lock(&spi_add_lock);
++	mutex_lock(&ctlr->add_lock);
+ 	status = __spi_add_device(spi);
+-	mutex_unlock(&spi_add_lock);
++	mutex_unlock(&ctlr->add_lock);
+ 	return status;
+ }
+ EXPORT_SYMBOL_GPL(spi_add_device);
+@@ -660,7 +654,7 @@ static int spi_add_device_locked(struct spi_device *spi)
+ 	/* Set the bus ID string */
+ 	spi_dev_set_name(spi);
  
- 	/* reset controller */
- 	snd_hdac_bus_enter_link_reset(bus);
+-	WARN_ON(!mutex_is_locked(&spi_add_lock));
++	WARN_ON(!mutex_is_locked(&ctlr->add_lock));
+ 	return __spi_add_device(spi);
+ }
+ 
+@@ -2832,6 +2826,7 @@ int spi_register_controller(struct spi_controller *ctlr)
+ 	spin_lock_init(&ctlr->bus_lock_spinlock);
+ 	mutex_init(&ctlr->bus_lock_mutex);
+ 	mutex_init(&ctlr->io_mutex);
++	mutex_init(&ctlr->add_lock);
+ 	ctlr->bus_lock_flag = 0;
+ 	init_completion(&ctlr->xfer_completion);
+ 	if (!ctlr->max_dma_len)
+@@ -2968,7 +2963,7 @@ void spi_unregister_controller(struct spi_controller *ctlr)
+ 
+ 	/* Prevent addition of new devices, unregister existing ones */
+ 	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
+-		mutex_lock(&spi_add_lock);
++		mutex_lock(&ctlr->add_lock);
+ 
+ 	device_for_each_child(&ctlr->dev, NULL, __unregister);
+ 
+@@ -2999,7 +2994,7 @@ void spi_unregister_controller(struct spi_controller *ctlr)
+ 	mutex_unlock(&board_lock);
+ 
+ 	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
+-		mutex_unlock(&spi_add_lock);
++		mutex_unlock(&ctlr->add_lock);
+ }
+ EXPORT_SYMBOL_GPL(spi_unregister_controller);
+ 
+diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
+index 97b8d12b5f2b..5d80c6fd2a22 100644
+--- a/include/linux/spi/spi.h
++++ b/include/linux/spi/spi.h
+@@ -527,6 +527,9 @@ struct spi_controller {
+ 	/* I/O mutex */
+ 	struct mutex		io_mutex;
+ 
++	/* Used to avoid adding the same CS twice */
++	struct mutex		add_lock;
++
+ 	/* lock and mutex for SPI bus locking */
+ 	spinlock_t		bus_lock_spinlock;
+ 	struct mutex		bus_lock_mutex;
 -- 
 2.33.0
 
