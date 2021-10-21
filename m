@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FC7743570D
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:21:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CC89435710
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231920AbhJUAYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 20:24:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42852 "EHLO mail.kernel.org"
+        id S231967AbhJUAYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 20:24:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231800AbhJUAXw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:23:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 600AF6139F;
-        Thu, 21 Oct 2021 00:21:36 +0000 (UTC)
+        id S231660AbhJUAXz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:23:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 095AE611CC;
+        Thu, 21 Oct 2021 00:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775697;
-        bh=wBMMXcHsacMg/RF9mmTos5XgdKFwCwBPUKoV0FrRWks=;
+        s=k20201202; t=1634775700;
+        bh=Nd41AlNRRDX+vpmy08L5K1D8lYLZRjspNAArwUd00nI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jdG+haWL0mVyCyEHWOfVKQCfGKq3muqDeRRMna6YpWDmkKmhD1Lhs4A+qspyqkjaQ
-         ij/WUfozPH9QerxTpn/Zb475xHZfdwQONMhMEPJ0fCh+uyTLkl60OCoVlPOaf23n7H
-         DSu/bMMAohXTpi3n8vHQh8F+n7V9RRrrlqp/TI3Kb1pTLoyGrALYAcnwk34Sg3/0DR
-         DeKWRPZc9wI/pcYRdlTz1El6iT4XVO7nbDOQl34VuyZypimi/J88lfklMPKiFLDyvp
-         2DPN92oVBVOBT8yy6g17F2MOXGst6Qv8PW0561OD4RSTaL9N/5z6MTtAryuV08WPAR
-         JW4lc8cvV29cg==
+        b=JHAHyl0Eh6HaeiuvA8k6QFW3ZasPVDb6dxbnkjURTV92nVD3bLjzwjs0q5NcZ3ZkW
+         D3HYoeu2Hdjpitb25je7QMmfrCsGgfPi6jS4tXRtuEr8qGHtNaip3jyd7bZXqG6uS/
+         Fm+1xhimt4SsLA843WeEoDeTtdrOyfqPgc29Wmw3vJnONVimhxnuV0CLoJRGEAd2wo
+         8FLnGOwGBl6wkWD4n2G3C5nY12vvmlRhYlIXwkGBFoNmAuMtkv9B5RX1Alf0B0rIAL
+         GQ8drrIpyXB6aojrYAdHdm938G8n1yIkQ8AE28E1SpRWrInUEG8clsIrbd5k6Gp7rd
+         XppgXdLQOoGpA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 21/26] spi-mux: Fix false-positive lockdep splats
-Date:   Wed, 20 Oct 2021 20:20:18 -0400
-Message-Id: <20211021002023.1128949-21-sashal@kernel.org>
+Cc:     Shunsuke Nakamura <nakamura.shun@fujitsu.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, acme@kernel.org,
+        irogers@google.com, robh@kernel.org,
+        linux-perf-users@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 22/26] libperf test evsel: Fix build error on !x86 architectures
+Date:   Wed, 20 Oct 2021 20:20:19 -0400
+Message-Id: <20211021002023.1128949-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211021002023.1128949-1-sashal@kernel.org>
 References: <20211021002023.1128949-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,79 +50,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Shunsuke Nakamura <nakamura.shun@fujitsu.com>
 
-[ Upstream commit 16a8e2fbb2d49111004efc1c7342e083eafabeb0 ]
+[ Upstream commit f304c8d949f9adc2ef51304b63e49d5ea1c2d288 ]
 
-io_mutex is taken by spi_setup() and spi-mux's .setup() callback calls
-spi_setup() which results in a nested lock of io_mutex.
+In test_stat_user_read, following build error occurs except i386 and
+x86_64 architectures:
 
-add_lock is taken by spi_add_device(). The device_add() call in there
-can result in calling spi-mux's .probe() callback which registers its
-own spi controller which in turn results in spi_add_device() being
-called again.
+tests/test-evsel.c:129:31: error: variable 'pc' set but not used [-Werror=unused-but-set-variable]
+  struct perf_event_mmap_page *pc;
 
-To fix this initialize the controller's locks already in
-spi_alloc_controller() to give spi_mux_probe() a chance to set the
-lockdep subclass.
+Fix build error.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20211013133710.2679703-2-u.kleine-koenig@pengutronix.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Shunsuke Nakamura <nakamura.shun@fujitsu.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20211006095703.477826-1-nakamura.shun@fujitsu.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mux.c |  7 +++++++
- drivers/spi/spi.c     | 12 ++++++------
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ tools/lib/perf/tests/test-evsel.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-mux.c b/drivers/spi/spi-mux.c
-index 9708b7827ff7..f5d32ec4634e 100644
---- a/drivers/spi/spi-mux.c
-+++ b/drivers/spi/spi-mux.c
-@@ -137,6 +137,13 @@ static int spi_mux_probe(struct spi_device *spi)
- 	priv = spi_controller_get_devdata(ctlr);
- 	priv->spi = spi;
+diff --git a/tools/lib/perf/tests/test-evsel.c b/tools/lib/perf/tests/test-evsel.c
+index a184e4861627..9abd4c0bf6db 100644
+--- a/tools/lib/perf/tests/test-evsel.c
++++ b/tools/lib/perf/tests/test-evsel.c
+@@ -148,6 +148,7 @@ static int test_stat_user_read(int event)
+ 	__T("failed to mmap evsel", err == 0);
  
-+	/*
-+	 * Increase lockdep class as these lock are taken while the parent bus
-+	 * already holds their instance's lock.
-+	 */
-+	lockdep_set_subclass(&ctlr->io_mutex, 1);
-+	lockdep_set_subclass(&ctlr->add_lock, 1);
-+
- 	priv->mux = devm_mux_control_get(&spi->dev, NULL);
- 	if (IS_ERR(priv->mux)) {
- 		ret = dev_err_probe(&spi->dev, PTR_ERR(priv->mux),
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 2c342bded058..3093e0041158 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2549,6 +2549,12 @@ struct spi_controller *__spi_alloc_controller(struct device *dev,
- 		return NULL;
+ 	pc = perf_evsel__mmap_base(evsel, 0, 0);
++	__T("failed to get mmapped address", pc);
  
- 	device_initialize(&ctlr->dev);
-+	INIT_LIST_HEAD(&ctlr->queue);
-+	spin_lock_init(&ctlr->queue_lock);
-+	spin_lock_init(&ctlr->bus_lock_spinlock);
-+	mutex_init(&ctlr->bus_lock_mutex);
-+	mutex_init(&ctlr->io_mutex);
-+	mutex_init(&ctlr->add_lock);
- 	ctlr->bus_num = -1;
- 	ctlr->num_chipselect = 1;
- 	ctlr->slave = slave;
-@@ -2821,12 +2827,6 @@ int spi_register_controller(struct spi_controller *ctlr)
- 			return id;
- 		ctlr->bus_num = id;
- 	}
--	INIT_LIST_HEAD(&ctlr->queue);
--	spin_lock_init(&ctlr->queue_lock);
--	spin_lock_init(&ctlr->bus_lock_spinlock);
--	mutex_init(&ctlr->bus_lock_mutex);
--	mutex_init(&ctlr->io_mutex);
--	mutex_init(&ctlr->add_lock);
- 	ctlr->bus_lock_flag = 0;
- 	init_completion(&ctlr->xfer_completion);
- 	if (!ctlr->max_dma_len)
+ #if defined(__i386__) || defined(__x86_64__)
+ 	__T("userspace counter access not supported", pc->cap_user_rdpmc);
 -- 
 2.33.0
 
