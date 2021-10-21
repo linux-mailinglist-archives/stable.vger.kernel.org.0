@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B33D435766
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:25:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D428435768
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:25:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232449AbhJUA0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232457AbhJUA0J (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 20 Oct 2021 20:26:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43720 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232109AbhJUAZM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:25:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C883C6121E;
-        Thu, 21 Oct 2021 00:22:56 +0000 (UTC)
+        id S232114AbhJUAZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:25:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8D3C61057;
+        Thu, 21 Oct 2021 00:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775777;
-        bh=0ib/fyncMVs4ScXTsWlrVN7bq7ulpIxKD7GDX5t04zY=;
+        s=k20201202; t=1634775780;
+        bh=7bLD1MUDdpch80iXr8BwoGJ4m7QmXbw+3iJAhOjMmvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X5bZPD9TWoGslJmEUBDWD+h/S/tN3eNqyyqqgJcoZKeZgds6N2iuCn4HZrCDfxZis
-         svvKr4TxxyPXgSK00t205lovmPwTVU2JYRmuRvsr7NKRR8syaVbwDhZeToiP3G4pAN
-         qFxrfjFfOdN0VOrrUKpegjylHP/biIIVD2qXxBxgiQa5L0htuOIsaW345fx2Itwect
-         turL9Tu5iIj/wU9sd69CdcPzG1vLL0iW77noTghaNPuy6cLMjbKYHD0YsGlK0EnXdT
-         cKqSqZo12PXDdqEzWPm+vUrfJlv/QZvIVByi6Ih5sMQIc6dc+5hQ36QkV3fkcyVOR0
-         4jP+g+2vn0Sbw==
+        b=Q6b0FQMdCZ9U8xmFLBPtl+0TzqnA4NEerVLWQkNTmNUv8/2V441hKM2N0LWQZ/NIQ
+         PCRC9mVQjUG8yq9rWQfoV5IGcduIk5DX2GCjjvQw04YaVe04glj9tfx7FSeU4Tr1Mg
+         q/M/FPe6NfWhzDFobrT5aMVo4wt/8Bg1MtAf8S5eh7t/CImbumAE392ASi6XMAdIS5
+         X294gE9rPxAQFA9BCETBf8YS/C4hDe33Bc7t+albzJ4ITyvOaWFkZAX3XqTP5JahAm
+         iSjuWARhr2j6P3gqaIKEjEOpbNLAeIGoutcaBQrMhmVgBOAti2N1Bz0krbWLWMmN7i
+         sJogI37Gn1MRA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, ranjani.sridharan@linux.intel.com,
-        broonie@kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 09/11] ALSA: hda: avoid write to STATESTS if controller is in reset
-Date:   Wed, 20 Oct 2021 20:22:35 -0400
-Message-Id: <20211021002238.1129482-9-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 10/11] Input: snvs_pwrkey - add clk handling
+Date:   Wed, 20 Oct 2021 20:22:36 -0400
+Message-Id: <20211021002238.1129482-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211021002238.1129482-1-sashal@kernel.org>
 References: <20211021002238.1129482-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,64 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit b37a15188eae9d4c49c5bb035e0c8d4058e4d9b3 ]
+[ Upstream commit d997cc1715df7b6c3df798881fb9941acf0079f8 ]
 
-The snd_hdac_bus_reset_link() contains logic to clear STATESTS register
-before performing controller reset. This code dates back to an old
-bugfix in commit e8a7f136f5ed ("[ALSA] hda-intel - Improve HD-audio
-codec probing robustness"). Originally the code was added to
-azx_reset().
+On i.MX7S and i.MX8M* (but not i.MX6*) the pwrkey device has an
+associated clock. Accessing the registers requires that this clock is
+enabled. Binding the driver on at least i.MX7S and i.MX8MP while not
+having the clock enabled results in a complete hang of the machine.
+(This usually only happens if snvs_pwrkey is built as a module and the
+rtc-snvs driver isn't already bound because at bootup the required clk
+is on and only gets disabled when the clk framework disables unused clks
+late during boot.)
 
-The code was moved around in commit a41d122449be ("ALSA: hda - Embed bus
-into controller object") and ended up to snd_hdac_bus_reset_link() and
-called primarily via snd_hdac_bus_init_chip().
+This completes the fix in commit 135be16d3505 ("ARM: dts: imx7s: add
+snvs clock to pwrkey").
 
-The logic to clear STATESTS is correct when snd_hdac_bus_init_chip() is
-called when controller is not in reset. In this case, STATESTS can be
-cleared. This can be useful e.g. when forcing a controller reset to retry
-codec probe. A normal non-power-on reset will not clear the bits.
-
-However, this old logic is problematic when controller is already in
-reset. The HDA specification states that controller must be taken out of
-reset before writing to registers other than GCTL.CRST (1.0a spec,
-3.3.7). The write to STATESTS in snd_hdac_bus_reset_link() will be lost
-if the controller is already in reset per the HDA specification mentioned.
-
-This has been harmless on older hardware. On newer generation of Intel
-PCIe based HDA controllers, if configured to report issues, this write
-will emit an unsupported request error. If ACPI Platform Error Interface
-(APEI) is enabled in kernel, this will end up to kernel log.
-
-Fix the code in snd_hdac_bus_reset_link() to only clear the STATESTS if
-the function is called when controller is not in reset. Otherwise
-clearing the bits is not possible and should be skipped.
-
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20211012142935.3731820-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20211013062848.2667192-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/hdac_controller.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/input/keyboard/snvs_pwrkey.c | 29 ++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
-index 7e7be8e4dcf9..87ba66dcfd47 100644
---- a/sound/hda/hdac_controller.c
-+++ b/sound/hda/hdac_controller.c
-@@ -395,8 +395,9 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
- 	if (!full_reset)
- 		goto skip_reset;
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+index e76b7a400a1c..248bb86f4b3f 100644
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -3,6 +3,7 @@
+ // Driver for the IMX SNVS ON/OFF Power Key
+ // Copyright (C) 2015 Freescale Semiconductor, Inc. All Rights Reserved.
  
--	/* clear STATESTS */
--	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
-+	/* clear STATESTS if not in reset */
-+	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
-+		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
++#include <linux/clk.h>
+ #include <linux/device.h>
+ #include <linux/err.h>
+ #include <linux/init.h>
+@@ -81,6 +82,11 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
  
- 	/* reset controller */
- 	snd_hdac_bus_enter_link_reset(bus);
++static void imx_snvs_pwrkey_disable_clk(void *data)
++{
++	clk_disable_unprepare(data);
++}
++
+ static void imx_snvs_pwrkey_act(void *pdata)
+ {
+ 	struct pwrkey_drv_data *pd = pdata;
+@@ -93,6 +99,7 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 	struct pwrkey_drv_data *pdata = NULL;
+ 	struct input_dev *input = NULL;
+ 	struct device_node *np;
++	struct clk *clk;
+ 	int error;
+ 
+ 	/* Get SNVS register Page */
+@@ -115,6 +122,28 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 		dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
+ 	}
+ 
++	clk = devm_clk_get_optional(&pdev->dev, NULL);
++	if (IS_ERR(clk)) {
++		dev_err(&pdev->dev, "Failed to get snvs clock (%pe)\n", clk);
++		return PTR_ERR(clk);
++	}
++
++	error = clk_prepare_enable(clk);
++	if (error) {
++		dev_err(&pdev->dev, "Failed to enable snvs clock (%pe)\n",
++			ERR_PTR(error));
++		return error;
++	}
++
++	error = devm_add_action_or_reset(&pdev->dev,
++					 imx_snvs_pwrkey_disable_clk, clk);
++	if (error) {
++		dev_err(&pdev->dev,
++			"Failed to register clock cleanup handler (%pe)\n",
++			ERR_PTR(error));
++		return error;
++	}
++
+ 	pdata->wakeup = of_property_read_bool(np, "wakeup-source");
+ 
+ 	pdata->irq = platform_get_irq(pdev, 0);
 -- 
 2.33.0
 
