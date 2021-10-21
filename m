@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67F144356ED
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:21:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60B0B4356F0
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:21:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231624AbhJUAXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 20:23:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42296 "EHLO mail.kernel.org"
+        id S231598AbhJUAXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 20:23:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231447AbhJUAX2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:23:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8FF6611EF;
-        Thu, 21 Oct 2021 00:21:11 +0000 (UTC)
+        id S231562AbhJUAX3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:23:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 058C5611CC;
+        Thu, 21 Oct 2021 00:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775673;
-        bh=B/9Y2HRDsA1cOUt/2dRbTNmKnD/HW/prF7UVNwqjn3I=;
+        s=k20201202; t=1634775674;
+        bh=1+gT+wK2HUBi0AgOa9/wH4hnhEi7qtzWgTY47WYCUDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQYiBNkY5QanM0dWzLQyLGecfAoPEERpzjsTkyXQPIK+54Uk3q9jGhMjro0Hv1FzE
-         KXjW6VyjQbB+4Xo/ceFRmhAvubo6a/s2tJohg68KFvUjJhZtlNAE+V8Tc+Ja/jg/q5
-         VLuaMVTtiylEeM9B8Kr1Oc/mBq61HfH/3gEt60ASdlcUUznBiKnhGN5bGr8IYZlAOy
-         zTsBc9fl2CY+oDpt7Z/+FCFN3VwXFTiV5cFYzoORLqW+x6mO0Bb+XQb/pVqUz0OyhN
-         IQNwdCeQSpGkFiLVNtb4rc4r+b8txwwM+jbaFEvdxg3e1cupKvUnhO4bIO3b+dvXLr
-         n4Pq8/Feg1uAA==
+        b=ooGQD93CW2qVaYpePYx4Yot+63HQOBG22ty1tC4wYVeLAX/Uzudh1uU1teyc4/bYP
+         6oxFm9VxKJm8RKKiGBcx8qqzkaKq31gkcYU8QRplTIXhejio2Xo3qXcQRwEI72S85t
+         GR4VWGcSHNbR9PXqozIOxmyLmDCXsMLSiPvhTUasahrM/E6AY+uozIHeIQSlRdrwcy
+         X9naFJ1ervvZ5wnczGAgHZaAc0n7IBOtAuXDEbgziJFqQdNgg/Fh+4+ug0sklx25ni
+         +3JnOs9SFG43DNmx98NhDTjQMuWiIFhClWuRMfpD0KFtUEYuQAV1sLb7+QT3okgu+y
+         tVqJfFtIXU11w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, imre.deak@intel.com,
-        kai.heng.feng@canonical.com, broonie@kernel.org,
-        hui.wang@canonical.com, ranjani.sridharan@linux.intel.com,
-        joe@perches.com, pierre-louis.bossart@linux.intel.com,
-        kai.vehmanen@linux.intel.com, alexander.deucher@amd.com,
-        leon@kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.14 10/26] ALSA: hda: intel: Allow repeatedly probing on codec configuration errors
-Date:   Wed, 20 Oct 2021 20:20:07 -0400
-Message-Id: <20211021002023.1128949-10-sashal@kernel.org>
+Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com,
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 11/26] btrfs: deal with errors when checking if a dir entry exists during log replay
+Date:   Wed, 20 Oct 2021 20:20:08 -0400
+Message-Id: <20211021002023.1128949-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211021002023.1128949-1-sashal@kernel.org>
 References: <20211021002023.1128949-1-sashal@kernel.org>
@@ -46,289 +42,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit c0f1886de7e173865f1a0fa7680a1c07954a987f ]
+[ Upstream commit 77a5b9e3d14cbce49ceed2766b2003c034c066dc ]
 
-It seems that a few recent AMD systems show the codec configuration
-errors at the early boot, while loading the driver at a later stage
-works magically.  Although the root cause of the error isn't clear,
-it's certainly not bad to allow retrying the codec probe in such a
-case if that helps.
+Currently inode_in_dir() ignores errors returned from
+btrfs_lookup_dir_index_item() and from btrfs_lookup_dir_item(), treating
+any errors as if the directory entry does not exists in the fs/subvolume
+tree, which is obviously not correct, as we can get errors such as -EIO
+when reading extent buffers while searching the fs/subvolume's tree.
 
-This patch adds the capability for retrying the probe upon codec probe
-errors on the certain AMD platforms.  The probe_work is changed to a
-delayed work, and at the secondary call, it'll jump to the codec
-probing.
+Fix that by making inode_in_dir() return the errors and making its only
+caller, add_inode_ref(), deal with returned errors as well.
 
-Note that, not only adding the re-probing, this includes the behavior
-changes in the codec configuration function.  Namely,
-snd_hda_codec_configure() won't unregister the codec at errors any
-longer.  Instead, its caller, azx_codec_configure() unregisters the
-codecs with the probe failures *if* any codec has been successfully
-configured.  If all codec probe failed, it doesn't unregister but let
-it re-probed -- which is the most case we're seeing and this patch
-tries to improve.
-
-Even if the driver doesn't re-probe or give up, it will go to the
-"free-all" error path, hence the leftover codecs shall be disabled /
-deleted in anyway.
-
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1190801
-Link: https://lore.kernel.org/r/20211006141940.2897-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/hda_codec.h      |  1 +
- sound/pci/hda/hda_bind.c       | 20 +++++++++++---------
- sound/pci/hda/hda_codec.c      |  1 +
- sound/pci/hda/hda_controller.c | 24 ++++++++++++++++--------
- sound/pci/hda/hda_controller.h |  2 +-
- sound/pci/hda/hda_intel.c      | 29 +++++++++++++++++++++++------
- sound/pci/hda/hda_intel.h      |  4 +++-
- 7 files changed, 56 insertions(+), 25 deletions(-)
+ fs/btrfs/tree-log.c | 47 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 29 insertions(+), 18 deletions(-)
 
-diff --git a/include/sound/hda_codec.h b/include/sound/hda_codec.h
-index 2e8d51937acd..47d2cad21b56 100644
---- a/include/sound/hda_codec.h
-+++ b/include/sound/hda_codec.h
-@@ -225,6 +225,7 @@ struct hda_codec {
- #endif
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 7037e5855d2a..529c1c638b7a 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -939,9 +939,11 @@ static noinline int drop_one_dir_item(struct btrfs_trans_handle *trans,
+ }
  
- 	/* misc flags */
-+	unsigned int configured:1; /* codec was configured */
- 	unsigned int in_freeing:1; /* being released */
- 	unsigned int registered:1; /* codec was registered */
- 	unsigned int display_power_control:1; /* needs display power */
-diff --git a/sound/pci/hda/hda_bind.c b/sound/pci/hda/hda_bind.c
-index e8dee24c309d..50a58fb5ad9c 100644
---- a/sound/pci/hda/hda_bind.c
-+++ b/sound/pci/hda/hda_bind.c
-@@ -304,29 +304,31 @@ int snd_hda_codec_configure(struct hda_codec *codec)
+ /*
+- * helper function to see if a given name and sequence number found
+- * in an inode back reference are already in a directory and correctly
+- * point to this inode
++ * See if a given name and sequence number found in an inode back reference are
++ * already in a directory and correctly point to this inode.
++ *
++ * Returns: < 0 on error, 0 if the directory entry does not exists and 1 if it
++ * exists.
+  */
+ static noinline int inode_in_dir(struct btrfs_root *root,
+ 				 struct btrfs_path *path,
+@@ -950,29 +952,35 @@ static noinline int inode_in_dir(struct btrfs_root *root,
  {
- 	int err;
+ 	struct btrfs_dir_item *di;
+ 	struct btrfs_key location;
+-	int match = 0;
++	int ret = 0;
  
-+	if (codec->configured)
-+		return 0;
-+
- 	if (is_generic_config(codec))
- 		codec->probe_id = HDA_CODEC_ID_GENERIC;
- 	else
- 		codec->probe_id = 0;
- 
--	err = snd_hdac_device_register(&codec->core);
--	if (err < 0)
--		return err;
-+	if (!device_is_registered(&codec->core.dev)) {
-+		err = snd_hdac_device_register(&codec->core);
-+		if (err < 0)
-+			return err;
+ 	di = btrfs_lookup_dir_index_item(NULL, root, path, dirid,
+ 					 index, name, name_len, 0);
+-	if (di && !IS_ERR(di)) {
++	if (IS_ERR(di)) {
++		if (PTR_ERR(di) != -ENOENT)
++			ret = PTR_ERR(di);
++		goto out;
++	} else if (di) {
+ 		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
+ 		if (location.objectid != objectid)
+ 			goto out;
+-	} else
++	} else {
+ 		goto out;
+-	btrfs_release_path(path);
 +	}
  
- 	if (!codec->preset)
- 		codec_bind_module(codec);
- 	if (!codec->preset) {
- 		err = codec_bind_generic(codec);
- 		if (err < 0) {
--			codec_err(codec, "Unable to bind the codec\n");
--			goto error;
-+			codec_dbg(codec, "Unable to bind the codec\n");
-+			return err;
++	btrfs_release_path(path);
+ 	di = btrfs_lookup_dir_item(NULL, root, path, dirid, name, name_len, 0);
+-	if (di && !IS_ERR(di)) {
+-		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
+-		if (location.objectid != objectid)
+-			goto out;
+-	} else
++	if (IS_ERR(di)) {
++		ret = PTR_ERR(di);
+ 		goto out;
+-	match = 1;
++	} else if (di) {
++		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
++		if (location.objectid == objectid)
++			ret = 1;
++	}
+ out:
+ 	btrfs_release_path(path);
+-	return match;
++	return ret;
+ }
+ 
+ /*
+@@ -1517,10 +1525,12 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 		if (ret)
+ 			goto out;
+ 
+-		/* if we already have a perfect match, we're done */
+-		if (!inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
+-					btrfs_ino(BTRFS_I(inode)), ref_index,
+-					name, namelen)) {
++		ret = inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
++				   btrfs_ino(BTRFS_I(inode)), ref_index,
++				   name, namelen);
++		if (ret < 0) {
++			goto out;
++		} else if (ret == 0) {
+ 			/*
+ 			 * look for a conflicting back reference in the
+ 			 * metadata. if we find one we have to unlink that name
+@@ -1580,6 +1590,7 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 			if (ret)
+ 				goto out;
  		}
- 	}
++		/* Else, ret == 1, we already have a perfect match, we're done. */
  
-+	codec->configured = 1;
- 	return 0;
--
-- error:
--	snd_hdac_device_unregister(&codec->core);
--	return err;
- }
- EXPORT_SYMBOL_GPL(snd_hda_codec_configure);
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index 7a717e151156..8afcce6478cd 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -791,6 +791,7 @@ void snd_hda_codec_cleanup_for_unbind(struct hda_codec *codec)
- 	snd_array_free(&codec->nids);
- 	remove_conn_list(codec);
- 	snd_hdac_regmap_exit(&codec->core);
-+	codec->configured = 0;
- }
- EXPORT_SYMBOL_GPL(snd_hda_codec_cleanup_for_unbind);
- 
-diff --git a/sound/pci/hda/hda_controller.c b/sound/pci/hda/hda_controller.c
-index ca2f2ecd1488..5a49ee4f6ce0 100644
---- a/sound/pci/hda/hda_controller.c
-+++ b/sound/pci/hda/hda_controller.c
-@@ -25,6 +25,7 @@
- #include <sound/core.h>
- #include <sound/initval.h>
- #include "hda_controller.h"
-+#include "hda_local.h"
- 
- #define CREATE_TRACE_POINTS
- #include "hda_controller_trace.h"
-@@ -1259,17 +1260,24 @@ EXPORT_SYMBOL_GPL(azx_probe_codecs);
- int azx_codec_configure(struct azx *chip)
- {
- 	struct hda_codec *codec, *next;
-+	int success = 0;
- 
--	/* use _safe version here since snd_hda_codec_configure() deregisters
--	 * the device upon error and deletes itself from the bus list.
--	 */
--	list_for_each_codec_safe(codec, next, &chip->bus) {
--		snd_hda_codec_configure(codec);
-+	list_for_each_codec(codec, &chip->bus) {
-+		if (!snd_hda_codec_configure(codec))
-+			success++;
- 	}
- 
--	if (!azx_bus(chip)->num_codecs)
--		return -ENODEV;
--	return 0;
-+	if (success) {
-+		/* unregister failed codecs if any codec has been probed */
-+		list_for_each_codec_safe(codec, next, &chip->bus) {
-+			if (!codec->configured) {
-+				codec_err(codec, "Unable to configure, disabling\n");
-+				snd_hdac_device_unregister(&codec->core);
-+			}
-+		}
-+	}
-+
-+	return success ? 0 : -ENODEV;
- }
- EXPORT_SYMBOL_GPL(azx_codec_configure);
- 
-diff --git a/sound/pci/hda/hda_controller.h b/sound/pci/hda/hda_controller.h
-index 68f9668788ea..324cba13c7ba 100644
---- a/sound/pci/hda/hda_controller.h
-+++ b/sound/pci/hda/hda_controller.h
-@@ -41,7 +41,7 @@
- /* 24 unused */
- #define AZX_DCAPS_COUNT_LPIB_DELAY  (1 << 25)	/* Take LPIB as delay */
- #define AZX_DCAPS_PM_RUNTIME	(1 << 26)	/* runtime PM support */
--/* 27 unused */
-+#define AZX_DCAPS_RETRY_PROBE	(1 << 27)	/* retry probe if no codec is configured */
- #define AZX_DCAPS_CORBRP_SELF_CLEAR (1 << 28)	/* CORBRP clears itself after reset */
- #define AZX_DCAPS_NO_MSI64      (1 << 29)	/* Stick to 32-bit MSIs */
- #define AZX_DCAPS_SEPARATE_STREAM_TAG	(1 << 30) /* capture and playback use separate stream tag */
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 0062c18b646a..89f135a6a1f6 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -307,7 +307,8 @@ enum {
- /* quirks for AMD SB */
- #define AZX_DCAPS_PRESET_AMD_SB \
- 	(AZX_DCAPS_NO_TCSEL | AZX_DCAPS_AMD_WORKAROUND |\
--	 AZX_DCAPS_SNOOP_TYPE(ATI) | AZX_DCAPS_PM_RUNTIME)
-+	 AZX_DCAPS_SNOOP_TYPE(ATI) | AZX_DCAPS_PM_RUNTIME |\
-+	 AZX_DCAPS_RETRY_PROBE)
- 
- /* quirks for Nvidia */
- #define AZX_DCAPS_PRESET_NVIDIA \
-@@ -1730,7 +1731,7 @@ static void azx_check_snoop_available(struct azx *chip)
- 
- static void azx_probe_work(struct work_struct *work)
- {
--	struct hda_intel *hda = container_of(work, struct hda_intel, probe_work);
-+	struct hda_intel *hda = container_of(work, struct hda_intel, probe_work.work);
- 	azx_probe_continue(&hda->chip);
- }
- 
-@@ -1839,7 +1840,7 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
- 	}
- 
- 	/* continue probing in work context as may trigger request module */
--	INIT_WORK(&hda->probe_work, azx_probe_work);
-+	INIT_DELAYED_WORK(&hda->probe_work, azx_probe_work);
- 
- 	*rchip = chip;
- 
-@@ -2170,7 +2171,7 @@ static int azx_probe(struct pci_dev *pci,
- #endif
- 
- 	if (schedule_probe)
--		schedule_work(&hda->probe_work);
-+		schedule_delayed_work(&hda->probe_work, 0);
- 
- 	dev++;
- 	if (chip->disabled)
-@@ -2256,6 +2257,11 @@ static int azx_probe_continue(struct azx *chip)
- 	int dev = chip->dev_index;
- 	int err;
- 
-+	if (chip->disabled || hda->init_failed)
-+		return -EIO;
-+	if (hda->probe_retry)
-+		goto probe_retry;
-+
- 	to_hda_bus(bus)->bus_probing = 1;
- 	hda->probe_continued = 1;
- 
-@@ -2317,10 +2323,20 @@ static int azx_probe_continue(struct azx *chip)
- #endif
- 	}
- #endif
-+
-+ probe_retry:
- 	if (bus->codec_mask && !(probe_only[dev] & 1)) {
- 		err = azx_codec_configure(chip);
--		if (err < 0)
-+		if (err) {
-+			if ((chip->driver_caps & AZX_DCAPS_RETRY_PROBE) &&
-+			    ++hda->probe_retry < 60) {
-+				schedule_delayed_work(&hda->probe_work,
-+						      msecs_to_jiffies(1000));
-+				return 0; /* keep things up */
-+			}
-+			dev_err(chip->card->dev, "Cannot probe codecs, giving up\n");
- 			goto out_free;
-+		}
- 	}
- 
- 	err = snd_card_register(chip->card);
-@@ -2350,6 +2366,7 @@ static int azx_probe_continue(struct azx *chip)
- 		display_power(chip, false);
- 	complete_all(&hda->probe_wait);
- 	to_hda_bus(bus)->bus_probing = 0;
-+	hda->probe_retry = 0;
- 	return 0;
- }
- 
-@@ -2375,7 +2392,7 @@ static void azx_remove(struct pci_dev *pci)
- 		 * device during cancel_work_sync() call.
- 		 */
- 		device_unlock(&pci->dev);
--		cancel_work_sync(&hda->probe_work);
-+		cancel_delayed_work_sync(&hda->probe_work);
- 		device_lock(&pci->dev);
- 
- 		snd_card_free(card);
-diff --git a/sound/pci/hda/hda_intel.h b/sound/pci/hda/hda_intel.h
-index 3fb119f09040..0f39418f9328 100644
---- a/sound/pci/hda/hda_intel.h
-+++ b/sound/pci/hda/hda_intel.h
-@@ -14,7 +14,7 @@ struct hda_intel {
- 
- 	/* sync probing */
- 	struct completion probe_wait;
--	struct work_struct probe_work;
-+	struct delayed_work probe_work;
- 
- 	/* card list (for power_save trigger) */
- 	struct list_head list;
-@@ -30,6 +30,8 @@ struct hda_intel {
- 	unsigned int freed:1; /* resources already released */
- 
- 	bool need_i915_power:1; /* the hda controller needs i915 power */
-+
-+	int probe_retry;	/* being probe-retry */
- };
- 
- #endif
+ 		ref_ptr = (unsigned long)(ref_ptr + ref_struct_size) + namelen;
+ 		kfree(name);
 -- 
 2.33.0
 
