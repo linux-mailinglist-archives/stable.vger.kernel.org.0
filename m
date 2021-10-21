@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDCD743573A
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:23:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F5FD43573C
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:23:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231934AbhJUAZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 20:25:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43824 "EHLO mail.kernel.org"
+        id S231950AbhJUAZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 20:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231949AbhJUAYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:24:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BD7261284;
-        Thu, 21 Oct 2021 00:22:24 +0000 (UTC)
+        id S231978AbhJUAYo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:24:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24D5561215;
+        Thu, 21 Oct 2021 00:22:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775745;
-        bh=I2PjY6OdnOUedBdm83hMHSwW0WGvgKcfX0vGlUKOx3E=;
+        s=k20201202; t=1634775749;
+        bh=+0OJ+/xPdQhiJbG4hSuQ86RgnzKxAiGQXSJv8/cpzIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxcHIbjOnQhuGTcnV18mNkHI3rs3QoOON0y6Y9UfkOn+aJ5NXNgkjL2XlF6jR3iaE
-         aAB87ccIhslkBgR0zMmzjC4CO7TjqUpF8+J1qecD8jBkV9k5Y3/A/gauVjSlaaMUDd
-         T8FyANihSOXTc9rIY2iE3q3iZ2MdTb4hNIjjRH696aUDZYYLwnMlss6Pk4dIxKQwSd
-         G/PBJBUifKuXZO7Cc56RRV1ZEQVok1g5vqwsWialR60o56lxxmmoUSiQSagef1dhHS
-         5L4jUgSwAdmMkPZCjpmiatqfqsMB8qm5cbau7KpvmDASbjWdrslRs1EGBkEowxeuqF
-         TG9a2DzeXLATQ==
+        b=I5eDydaoHUE59nV6r0zVrrI8RuUjfNuWQcJ64oNA29SH0EgcvoiaKZEigVGtSzWD3
+         kRKGpXkhLErII9jT4riiSxp7xo4OU6RSpBtEIaiqRQSDehhkoOU95GO8eR4+M9uNEM
+         eyhioeLMCkYoi2av4KsffKpJ2tpBDtHqV89g3JK+zPQqsdyBPk6E3hAk0GwsiNwErM
+         0/mDyt4USIZKJ/dGCvkD4MpeqXtmGviSaIH4geh8nL0rlfzBbU4PmxOLwmsyiU0XTM
+         XVq4yU31RGojX1kxJ3tdtxWy8pq2+4IX6iuVKJpMMPdkiMC+ee0uttzFEurc13TgeV
+         2eM1aKBcRfnGA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, broonie@kernel.org,
-        ranjani.sridharan@linux.intel.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 10/14] ALSA: hda: avoid write to STATESTS if controller is in reset
-Date:   Wed, 20 Oct 2021 20:21:51 -0400
-Message-Id: <20211021002155.1129292-10-sashal@kernel.org>
+Cc:     Shunsuke Nakamura <nakamura.shun@fujitsu.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        acme@kernel.org, irogers@google.com, robh@kernel.org,
+        linux-perf-users@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 11/14] libperf tests: Fix test_stat_cpu
+Date:   Wed, 20 Oct 2021 20:21:52 -0400
+Message-Id: <20211021002155.1129292-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211021002155.1129292-1-sashal@kernel.org>
 References: <20211021002155.1129292-1-sashal@kernel.org>
@@ -43,64 +49,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Shunsuke Nakamura <nakamura.shun@fujitsu.com>
 
-[ Upstream commit b37a15188eae9d4c49c5bb035e0c8d4058e4d9b3 ]
+[ Upstream commit 3ff6d64e68abc231955d216236615918797614ae ]
 
-The snd_hdac_bus_reset_link() contains logic to clear STATESTS register
-before performing controller reset. This code dates back to an old
-bugfix in commit e8a7f136f5ed ("[ALSA] hda-intel - Improve HD-audio
-codec probing robustness"). Originally the code was added to
-azx_reset().
+The `cpu` argument of perf_evsel__read() must specify the cpu index.
 
-The code was moved around in commit a41d122449be ("ALSA: hda - Embed bus
-into controller object") and ended up to snd_hdac_bus_reset_link() and
-called primarily via snd_hdac_bus_init_chip().
+perf_cpu_map__for_each_cpu() is for iterating the cpu number (not index)
+and is thus not appropriate for use with perf_evsel__read().
 
-The logic to clear STATESTS is correct when snd_hdac_bus_init_chip() is
-called when controller is not in reset. In this case, STATESTS can be
-cleared. This can be useful e.g. when forcing a controller reset to retry
-codec probe. A normal non-power-on reset will not clear the bits.
+So, if there is an offline CPU, the cpu number specified in the argument
+may point out of range because the cpu number and the cpu index are
+different.
 
-However, this old logic is problematic when controller is already in
-reset. The HDA specification states that controller must be taken out of
-reset before writing to registers other than GCTL.CRST (1.0a spec,
-3.3.7). The write to STATESTS in snd_hdac_bus_reset_link() will be lost
-if the controller is already in reset per the HDA specification mentioned.
+Fix test_stat_cpu().
 
-This has been harmless on older hardware. On newer generation of Intel
-PCIe based HDA controllers, if configured to report issues, this write
-will emit an unsupported request error. If ACPI Platform Error Interface
-(APEI) is enabled in kernel, this will end up to kernel log.
+Testing it:
 
-Fix the code in snd_hdac_bus_reset_link() to only clear the STATESTS if
-the function is called when controller is not in reset. Otherwise
-clearing the bits is not possible and should be skipped.
+  # make tests -C tools/lib/perf/
+  make: Entering directory '/home/nakamura/kernel_src/linux-5.15-rc4_fix/tools/lib/perf'
+  running static:
+  - running tests/test-cpumap.c...OK
+  - running tests/test-threadmap.c...OK
+  - running tests/test-evlist.c...OK
+  - running tests/test-evsel.c...OK
+  running dynamic:
+  - running tests/test-cpumap.c...OK
+  - running tests/test-threadmap.c...OK
+  - running tests/test-evlist.c...OK
+  - running tests/test-evsel.c...OK
+  make: Leaving directory '/home/nakamura/kernel_src/linux-5.15-rc4_fix/tools/lib/perf'
 
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20211012142935.3731820-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Shunsuke Nakamura <nakamura.shun@fujitsu.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20211011083704.4108720-1-nakamura.shun@fujitsu.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/hdac_controller.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/lib/perf/tests/test-evlist.c | 6 +++---
+ tools/lib/perf/tests/test-evsel.c  | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
-index b98449fd92f3..522d1897659c 100644
---- a/sound/hda/hdac_controller.c
-+++ b/sound/hda/hdac_controller.c
-@@ -421,8 +421,9 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
- 	if (!full_reset)
- 		goto skip_reset;
+diff --git a/tools/lib/perf/tests/test-evlist.c b/tools/lib/perf/tests/test-evlist.c
+index bd19cabddaf6..60b5d1801103 100644
+--- a/tools/lib/perf/tests/test-evlist.c
++++ b/tools/lib/perf/tests/test-evlist.c
+@@ -38,7 +38,7 @@ static int test_stat_cpu(void)
+ 		.type	= PERF_TYPE_SOFTWARE,
+ 		.config	= PERF_COUNT_SW_TASK_CLOCK,
+ 	};
+-	int err, cpu, tmp;
++	int err, idx;
  
--	/* clear STATESTS */
--	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
-+	/* clear STATESTS if not in reset */
-+	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
-+		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
+ 	cpus = perf_cpu_map__new(NULL);
+ 	__T("failed to create cpus", cpus);
+@@ -64,10 +64,10 @@ static int test_stat_cpu(void)
+ 	perf_evlist__for_each_evsel(evlist, evsel) {
+ 		cpus = perf_evsel__cpus(evsel);
  
- 	/* reset controller */
- 	snd_hdac_bus_enter_link_reset(bus);
+-		perf_cpu_map__for_each_cpu(cpu, tmp, cpus) {
++		for (idx = 0; idx < perf_cpu_map__nr(cpus); idx++) {
+ 			struct perf_counts_values counts = { .val = 0 };
+ 
+-			perf_evsel__read(evsel, cpu, 0, &counts);
++			perf_evsel__read(evsel, idx, 0, &counts);
+ 			__T("failed to read value for evsel", counts.val != 0);
+ 		}
+ 	}
+diff --git a/tools/lib/perf/tests/test-evsel.c b/tools/lib/perf/tests/test-evsel.c
+index 0ad82d7a2a51..2de98768d844 100644
+--- a/tools/lib/perf/tests/test-evsel.c
++++ b/tools/lib/perf/tests/test-evsel.c
+@@ -21,7 +21,7 @@ static int test_stat_cpu(void)
+ 		.type	= PERF_TYPE_SOFTWARE,
+ 		.config	= PERF_COUNT_SW_CPU_CLOCK,
+ 	};
+-	int err, cpu, tmp;
++	int err, idx;
+ 
+ 	cpus = perf_cpu_map__new(NULL);
+ 	__T("failed to create cpus", cpus);
+@@ -32,10 +32,10 @@ static int test_stat_cpu(void)
+ 	err = perf_evsel__open(evsel, cpus, NULL);
+ 	__T("failed to open evsel", err == 0);
+ 
+-	perf_cpu_map__for_each_cpu(cpu, tmp, cpus) {
++	for (idx = 0; idx < perf_cpu_map__nr(cpus); idx++) {
+ 		struct perf_counts_values counts = { .val = 0 };
+ 
+-		perf_evsel__read(evsel, cpu, 0, &counts);
++		perf_evsel__read(evsel, idx, 0, &counts);
+ 		__T("failed to read value for evsel", counts.val != 0);
+ 	}
+ 
 -- 
 2.33.0
 
