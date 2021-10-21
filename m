@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C69CD43574D
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63DC443574F
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232008AbhJUAZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231849AbhJUAZj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 20 Oct 2021 20:25:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44056 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231863AbhJUAYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:24:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EF3C60FDA;
-        Thu, 21 Oct 2021 00:22:39 +0000 (UTC)
+        id S231233AbhJUAY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:24:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 318BA6138F;
+        Thu, 21 Oct 2021 00:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775760;
-        bh=qEYQFf0VxEija/mw0Byd80LlBxff9kFHIH+fV2S1Zzo=;
-        h=From:To:Cc:Subject:Date:From;
-        b=IzW+oBztTwdosMTnKkuLxL+hsd3cYuNaNNMTlkqoW3vpWl1kFZpFkJIcdcwJtgdpl
-         3mGVehtrc4rRdQwjfDEiNQZ6l7CSSSwF3nQ/a2sL3SwjCUF0iyp0UcVbJ472w6yxPm
-         gXmGLTKIJDAr3eSCMi3g3vG48VDW01gC7DBr07W+DAa76qRb4HQDifKYQre2kCx1pP
-         wzUsJDoPMNUtiq3b3q7zSGMUPf302V8j10WuVDf2w5zNjNbiLXgQjuhPs/YMlI7sbJ
-         yExvcHeQlD86em2wyRH9orgkNJuSYG9hGzRyYrxuvxEawAB547GKQ2mDHEfx+TQhtV
-         EebBWpzDbsInw==
+        s=k20201202; t=1634775762;
+        bh=ipCo6gkWFu/IUnXrN/G226HbXm6WVIoEISJOa6rcDh8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=MM1/sE6Pr7NizGk+jlpLgRqMOo0JN1t2QxDtMm39GR1AZATRIeRFGunwypNENGaX+
+         7Go9q6fuL+GQwV3NQTdXEBYYnIByvFSmkv+HaMh5hbWpLHqc+ex+EXPggh+uB5likP
+         AcBmkYJkv5HTWyqiUuDz5eCuopAYlITioO0HlPH8WU7NtKlK0d7hxB75Vwd9V5b51B
+         DKlrjbLaWYVeDDS+DqTI0rpb5oTmhgNuOYcGC6Q0gZ41iqPxrm2Yw78V5F8j/96SPc
+         PZ1Og0wAZ9zo6OoRer6QEpB7ON1LG4Y50ObA0/A5qE2JlNAyV6AETwod1c6tDqzvJF
+         S8GRtDmAsQq1Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brendan Higgins <brendanhiggins@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        David Gow <davidgow@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, masahiroy@kernel.org,
-        michal.lkml@markovi.net, linux-hardening@vger.kernel.org,
-        linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 01/11] gcc-plugins/structleak: add makefile var for disabling structleak
-Date:   Wed, 20 Oct 2021 20:22:27 -0400
-Message-Id: <20211021002238.1129482-1-sashal@kernel.org>
+Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com,
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 02/11] btrfs: deal with errors when checking if a dir entry exists during log replay
+Date:   Wed, 20 Oct 2021 20:22:28 -0400
+Message-Id: <20211021002238.1129482-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211021002238.1129482-1-sashal@kernel.org>
+References: <20211021002238.1129482-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,38 +42,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brendan Higgins <brendanhiggins@google.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 554afc3b9797511e3245864e32aebeb6abbab1e3 ]
+[ Upstream commit 77a5b9e3d14cbce49ceed2766b2003c034c066dc ]
 
-KUnit and structleak don't play nice, so add a makefile variable for
-enabling structleak when it complains.
+Currently inode_in_dir() ignores errors returned from
+btrfs_lookup_dir_index_item() and from btrfs_lookup_dir_item(), treating
+any errors as if the directory entry does not exists in the fs/subvolume
+tree, which is obviously not correct, as we can get errors such as -EIO
+when reading extent buffers while searching the fs/subvolume's tree.
 
-Co-developed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-Reviewed-by: David Gow <davidgow@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fix that by making inode_in_dir() return the errors and making its only
+caller, add_inode_ref(), deal with returned errors as well.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Makefile.gcc-plugins | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/btrfs/tree-log.c | 47 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 29 insertions(+), 18 deletions(-)
 
-diff --git a/scripts/Makefile.gcc-plugins b/scripts/Makefile.gcc-plugins
-index 5f7df50cfe7a..63d21489216b 100644
---- a/scripts/Makefile.gcc-plugins
-+++ b/scripts/Makefile.gcc-plugins
-@@ -19,6 +19,10 @@ gcc-plugin-cflags-$(CONFIG_GCC_PLUGIN_STRUCTLEAK_BYREF)		\
- 		+= -fplugin-arg-structleak_plugin-byref
- gcc-plugin-cflags-$(CONFIG_GCC_PLUGIN_STRUCTLEAK_BYREF_ALL)	\
- 		+= -fplugin-arg-structleak_plugin-byref-all
-+ifdef CONFIG_GCC_PLUGIN_STRUCTLEAK
-+    DISABLE_STRUCTLEAK_PLUGIN += -fplugin-arg-structleak_plugin-disable
-+endif
-+export DISABLE_STRUCTLEAK_PLUGIN
- gcc-plugin-cflags-$(CONFIG_GCC_PLUGIN_STRUCTLEAK)		\
- 		+= -DSTRUCTLEAK_PLUGIN
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 8ea4b3da85d1..3da8badd4199 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -900,9 +900,11 @@ static noinline int drop_one_dir_item(struct btrfs_trans_handle *trans,
+ }
  
+ /*
+- * helper function to see if a given name and sequence number found
+- * in an inode back reference are already in a directory and correctly
+- * point to this inode
++ * See if a given name and sequence number found in an inode back reference are
++ * already in a directory and correctly point to this inode.
++ *
++ * Returns: < 0 on error, 0 if the directory entry does not exists and 1 if it
++ * exists.
+  */
+ static noinline int inode_in_dir(struct btrfs_root *root,
+ 				 struct btrfs_path *path,
+@@ -911,29 +913,35 @@ static noinline int inode_in_dir(struct btrfs_root *root,
+ {
+ 	struct btrfs_dir_item *di;
+ 	struct btrfs_key location;
+-	int match = 0;
++	int ret = 0;
+ 
+ 	di = btrfs_lookup_dir_index_item(NULL, root, path, dirid,
+ 					 index, name, name_len, 0);
+-	if (di && !IS_ERR(di)) {
++	if (IS_ERR(di)) {
++		if (PTR_ERR(di) != -ENOENT)
++			ret = PTR_ERR(di);
++		goto out;
++	} else if (di) {
+ 		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
+ 		if (location.objectid != objectid)
+ 			goto out;
+-	} else
++	} else {
+ 		goto out;
+-	btrfs_release_path(path);
++	}
+ 
++	btrfs_release_path(path);
+ 	di = btrfs_lookup_dir_item(NULL, root, path, dirid, name, name_len, 0);
+-	if (di && !IS_ERR(di)) {
+-		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
+-		if (location.objectid != objectid)
+-			goto out;
+-	} else
++	if (IS_ERR(di)) {
++		ret = PTR_ERR(di);
+ 		goto out;
+-	match = 1;
++	} else if (di) {
++		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
++		if (location.objectid == objectid)
++			ret = 1;
++	}
+ out:
+ 	btrfs_release_path(path);
+-	return match;
++	return ret;
+ }
+ 
+ /*
+@@ -1495,10 +1503,12 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 		if (ret)
+ 			goto out;
+ 
+-		/* if we already have a perfect match, we're done */
+-		if (!inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
+-					btrfs_ino(BTRFS_I(inode)), ref_index,
+-					name, namelen)) {
++		ret = inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
++				   btrfs_ino(BTRFS_I(inode)), ref_index,
++				   name, namelen);
++		if (ret < 0) {
++			goto out;
++		} else if (ret == 0) {
+ 			/*
+ 			 * look for a conflicting back reference in the
+ 			 * metadata. if we find one we have to unlink that name
+@@ -1556,6 +1566,7 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 
+ 			btrfs_update_inode(trans, root, inode);
+ 		}
++		/* Else, ret == 1, we already have a perfect match, we're done. */
+ 
+ 		ref_ptr = (unsigned long)(ref_ptr + ref_struct_size) + namelen;
+ 		kfree(name);
 -- 
 2.33.0
 
