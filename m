@@ -2,103 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB662435CD4
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 10:24:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C3B3435CF7
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 10:35:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231321AbhJUI0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Oct 2021 04:26:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52298 "EHLO mail.kernel.org"
+        id S231268AbhJUIh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Oct 2021 04:37:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231280AbhJUI0Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 Oct 2021 04:26:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A25A611F2;
-        Thu, 21 Oct 2021 08:24:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634804648;
-        bh=ejEU7JpjYIwALSgPnJhFX6YOUjK3QAD4STTc2ygP+vk=;
-        h=Subject:To:From:Date:From;
-        b=YbV5uKL196MUfXJM0OEesXITExz1u86baHdVlHv7mn8T6wr1ZUnLSBnCr3lkUQet7
-         /HHMOEeCAe4Y9ImiWq8van8mTpYdgTdpU1yKp2wuOTRQlWph27MuppZ5Wp5b1y4sq5
-         o4gSGB8+c82Ngfvp/CxFf2B6AlELA6MDUnnfNiXI=
-Subject: patch "staging: r8188eu: fix memleak in rtw_wx_set_enc_ext" added to staging-next
-To:     martin@kaiser.cx, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 21 Oct 2021 10:23:17 +0200
-Message-ID: <163480459715458@kroah.com>
+        id S231315AbhJUIh1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 Oct 2021 04:37:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B029E61056;
+        Thu, 21 Oct 2021 08:35:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1634805311;
+        bh=o3tW0iefZ6vlMLLc4RHDUV7tkmTYHx0jXWdwLQLUb2E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=qjddEYRRqpHNrO8tAyjy1wm9sehv/oPArfmEAVS9WYbm/HHgZxtIZhA6voaV01c4N
+         kwzlGwYpl4a0tMWN0NSQ3wADYaSN/BhPFs5rIjz7LCDaNkXC4swkp42ZN2vtfD6wq0
+         ug04d6GEwAjnpLDm84IElUu+IF/ulCDZuhCnahGMK0F0JXuICX06YCNiYDAlevXHTL
+         4qu/9Cet5t8uhoognvTPB3rwgpbkEih9MQB8XRBu4jV5tb13irLwpzIkndB63mP0li
+         IWpVJh1IxO1g4MuTO3zJjstaTYWGBpJygGU1LEn0ow2wW8jVMfMfSy/xfp6/DSwSWG
+         4HujS8xBRtVKQ==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1mdTXO-0005Ec-3w; Thu, 21 Oct 2021 10:34:58 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Peter Chen <peter.chen@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] USB: chipidea: fix interrupt deadlock
+Date:   Thu, 21 Oct 2021 10:34:47 +0200
+Message-Id: <20211021083447.20078-1-johan@kernel.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Chipidea core was calling the interrupt handler from non-IRQ context
+with interrupts enabled, something which can lead to a deadlock if
+there's an actual interrupt trying to take a lock that's already held
+(e.g. the controller lock in udc_irq()).
 
-This is a note to let you know that I've just added the patch titled
+Add a wrapper that can be used to fake interrupts instead of calling the
+handler directly.
 
-    staging: r8188eu: fix memleak in rtw_wx_set_enc_ext
-
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From 26f448371820cf733c827c11f0c77ce304a29b51 Mon Sep 17 00:00:00 2001
-From: Martin Kaiser <martin@kaiser.cx>
-Date: Tue, 19 Oct 2021 22:23:56 +0200
-Subject: staging: r8188eu: fix memleak in rtw_wx_set_enc_ext
-
-Free the param struct if the caller sets an unsupported algorithm
-and we return an error.
-
-Fixes: 2b42bd58b321 ("staging: r8188eu: introduce new os_dep dir for RTL8188eu driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
-Link: https://lore.kernel.org/r/20211019202356.12572-1-martin@kaiser.cx
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3ecb3e09b042 ("usb: chipidea: Use extcon framework for VBUS and ID detect")
+Fixes: 876d4e1e8298 ("usb: chipidea: core: add wakeup support for extcon")
+Cc: stable@vger.kernel.org      # 4.4
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/staging/r8188eu/os_dep/ioctl_linux.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/chipidea/core.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/staging/r8188eu/os_dep/ioctl_linux.c b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
-index 4f0ae821d193..4e51d5a55985 100644
---- a/drivers/staging/r8188eu/os_dep/ioctl_linux.c
-+++ b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
-@@ -1897,7 +1897,7 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
- 	struct ieee_param *param = NULL;
- 	struct iw_point *pencoding = &wrqu->encoding;
- 	struct iw_encode_ext *pext = (struct iw_encode_ext *)extra;
--	int ret = 0;
-+	int ret = -1;
+diff --git a/drivers/usb/chipidea/core.c b/drivers/usb/chipidea/core.c
+index 2b18f5088ae4..a56f06368d14 100644
+--- a/drivers/usb/chipidea/core.c
++++ b/drivers/usb/chipidea/core.c
+@@ -514,7 +514,7 @@ int hw_device_reset(struct ci_hdrc *ci)
+ 	return 0;
+ }
  
- 	param_len = sizeof(struct ieee_param) + pext->key_len;
- 	param = kzalloc(param_len, GFP_KERNEL);
-@@ -1923,7 +1923,7 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
- 		alg_name = "CCMP";
- 		break;
- 	default:
--		return -1;
-+		goto out;
- 	}
- 
- 	strlcpy((char *)param->u.crypt.alg, alg_name, IEEE_CRYPT_ALG_NAME_LEN);
-@@ -1950,6 +1950,7 @@ static int rtw_wx_set_enc_ext(struct net_device *dev,
- 
- 	ret =  wpa_set_encryption(dev, param, param_len);
- 
-+out:
- 	kfree(param);
+-static irqreturn_t ci_irq(int irq, void *data)
++static irqreturn_t ci_irq_handler(int irq, void *data)
+ {
+ 	struct ci_hdrc *ci = data;
+ 	irqreturn_t ret = IRQ_NONE;
+@@ -567,6 +567,15 @@ static irqreturn_t ci_irq(int irq, void *data)
  	return ret;
  }
+ 
++static void ci_irq(struct ci_hdrc *ci)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	ci_irq_handler(ci->irq, ci);
++	local_irq_restore(flags);
++}
++
+ static int ci_cable_notifier(struct notifier_block *nb, unsigned long event,
+ 			     void *ptr)
+ {
+@@ -576,7 +585,7 @@ static int ci_cable_notifier(struct notifier_block *nb, unsigned long event,
+ 	cbl->connected = event;
+ 	cbl->changed = true;
+ 
+-	ci_irq(ci->irq, ci);
++	ci_irq(ci);
+ 	return NOTIFY_DONE;
+ }
+ 
+@@ -617,7 +626,7 @@ static int ci_usb_role_switch_set(struct usb_role_switch *sw,
+ 	if (cable) {
+ 		cable->changed = true;
+ 		cable->connected = false;
+-		ci_irq(ci->irq, ci);
++		ci_irq(ci);
+ 		spin_unlock_irqrestore(&ci->lock, flags);
+ 		if (ci->wq && role != USB_ROLE_NONE)
+ 			flush_workqueue(ci->wq);
+@@ -635,7 +644,7 @@ static int ci_usb_role_switch_set(struct usb_role_switch *sw,
+ 	if (cable) {
+ 		cable->changed = true;
+ 		cable->connected = true;
+-		ci_irq(ci->irq, ci);
++		ci_irq(ci);
+ 	}
+ 	spin_unlock_irqrestore(&ci->lock, flags);
+ 	pm_runtime_put_sync(ci->dev);
+@@ -1174,7 +1183,7 @@ static int ci_hdrc_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
+-	ret = devm_request_irq(dev, ci->irq, ci_irq, IRQF_SHARED,
++	ret = devm_request_irq(dev, ci->irq, ci_irq_handler, IRQF_SHARED,
+ 			ci->platdata->name, ci);
+ 	if (ret)
+ 		goto stop;
+@@ -1295,11 +1304,11 @@ static void ci_extcon_wakeup_int(struct ci_hdrc *ci)
+ 
+ 	if (!IS_ERR(cable_id->edev) && ci->is_otg &&
+ 		(otgsc & OTGSC_IDIE) && (otgsc & OTGSC_IDIS))
+-		ci_irq(ci->irq, ci);
++		ci_irq(ci);
+ 
+ 	if (!IS_ERR(cable_vbus->edev) && ci->is_otg &&
+ 		(otgsc & OTGSC_BSVIE) && (otgsc & OTGSC_BSVIS))
+-		ci_irq(ci->irq, ci);
++		ci_irq(ci);
+ }
+ 
+ static int ci_controller_resume(struct device *dev)
 -- 
-2.33.1
-
+2.32.0
 
