@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B964356E3
+	by mail.lfdr.de (Postfix) with ESMTP id C5DDC4356E4
 	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 02:20:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231473AbhJUAXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 20:23:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42042 "EHLO mail.kernel.org"
+        id S231482AbhJUAXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 20:23:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231430AbhJUAXH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Oct 2021 20:23:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66C4261212;
-        Thu, 21 Oct 2021 00:20:51 +0000 (UTC)
+        id S231453AbhJUAXI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Oct 2021 20:23:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBFCB6128E;
+        Thu, 21 Oct 2021 00:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634775652;
-        bh=wHnaPwbGdkGyJ5IVRy5XqjNA7QEAET8Qz2Sy3061jyc=;
+        s=k20201202; t=1634775653;
+        bh=Jp/LtOfV9PqFomRlVTg0uqUKP1LxKDBW4p2FwcZfc8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFKc2gpzJzJ6DJ02S69+Q0EwUOwWxv9dlU2uzeI+pp1R0NxrwPHQglgU5prId9ymb
-         UQ9qHXGtgnbsz+P+adzgB/B3D97mf03RNicLE8nku6juvd2HF23Jq+0u8nP3WH7Emg
-         0jCQJ3mAuM5bwDjgBSF9LVk2KcHMvcJBqzMYXwZ0DzHcYVYaOU/AIYz4YyZ+dltRzr
-         8Da+TGObV7XPaexDy6PYsGSPedn/PfUDPB+q4HjkB0ADheomGIZxW+u/6QpFxdS3rI
-         2kBAyI9/A9A+Uvs1klqXup8jBzuVDypsFmVCBL9MA7rkTS6SRs/TQHObi/plFCIJY0
-         OZwxW+Fx8F7qw==
+        b=GREZ5qclDnKJh3R/RfxPFwJMPcYA7WidnrPikOSADL4WrOk24KPLNt7AWxZH9wsRx
+         4waGl8UAsxipdWEEbjN9eNKaNtFI/BEO0nMwPAmH0cMZgW9KTyRSO7cw1MiIgLtTUL
+         8LsPGRVj4Pom2TC0JpIdnbAdjkLFetr2X2zr+YPR0I12JfagNpzQHficmCMACEUhkJ
+         gC9JAoGUJZStazpwoX7fu5ic77o9vQkz9mz/7uFVFdQ4RKvY043eK/brY5lQZu0wWt
+         JfC2gb9dJR0myDAemp0xKJgri7xfPli8kE+E5zFXdOV8ck5pcr5TfWCJPeokL0vqcN
+         9qgudDPqAPL9w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Brendan Higgins <brendanhiggins@google.com>,
         Arnd Bergmann <arnd@arndb.de>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Kees Cook <keescook@chromium.org>,
         Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
-        npache@redhat.com
-Subject: [PATCH AUTOSEL 5.14 05/26] device property: build kunit tests without structleak plugin
-Date:   Wed, 20 Oct 2021 20:20:02 -0400
-Message-Id: <20211021002023.1128949-5-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, andreas.noever@gmail.com,
+        michael.jamet@intel.com, YehezkelShB@gmail.com,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 06/26] thunderbolt: build kunit tests without structleak plugin
+Date:   Wed, 20 Oct 2021 20:20:03 -0400
+Message-Id: <20211021002023.1128949-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211021002023.1128949-1-sashal@kernel.org>
 References: <20211021002023.1128949-1-sashal@kernel.org>
@@ -47,37 +49,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Brendan Higgins <brendanhiggins@google.com>
 
-[ Upstream commit 6a1e2d93d55b000962b82b9a080006446150b022 ]
+[ Upstream commit 33d4951e021bb67ebd6bdb01f3d437c0f45b3c0c ]
 
 The structleak plugin causes the stack frame size to grow immensely when
 used with KUnit:
 
-../drivers/base/test/property-entry-test.c:492:1: warning: the frame size of 2832 bytes is larger than 2048 bytes [-Wframe-larger-than=]
-../drivers/base/test/property-entry-test.c:322:1: warning: the frame size of 2080 bytes is larger than 2048 bytes [-Wframe-larger-than=]
-../drivers/base/test/property-entry-test.c:250:1: warning: the frame size of 4976 bytes is larger than 2048 bytes [-Wframe-larger-than=]
-../drivers/base/test/property-entry-test.c:115:1: warning: the frame size of 3280 bytes is larger than 2048 bytes [-Wframe-larger-than=]
+drivers/thunderbolt/test.c:1529:1: error: the frame size of 1176 bytes is larger than 1024 bytes [-Werror=frame-larger-than=]
 
 Turn it off in this file.
 
+Linus already split up tests in this file, so this change *should* be
+redundant now.
+
 Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
 Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Reviewed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/test/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thunderbolt/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/test/Makefile b/drivers/base/test/Makefile
-index 64b2f3d744d5..7f76fee6f989 100644
---- a/drivers/base/test/Makefile
-+++ b/drivers/base/test/Makefile
-@@ -2,4 +2,4 @@
- obj-$(CONFIG_TEST_ASYNC_DRIVER_PROBE)	+= test_async_driver_probe.o
+diff --git a/drivers/thunderbolt/Makefile b/drivers/thunderbolt/Makefile
+index da19d7987d00..78fd365893c1 100644
+--- a/drivers/thunderbolt/Makefile
++++ b/drivers/thunderbolt/Makefile
+@@ -7,6 +7,7 @@ thunderbolt-objs += usb4_port.o nvm.o retimer.o quirks.o
+ thunderbolt-${CONFIG_ACPI} += acpi.o
+ thunderbolt-$(CONFIG_DEBUG_FS) += debugfs.o
+ thunderbolt-${CONFIG_USB4_KUNIT_TEST} += test.o
++CFLAGS_test.o += $(DISABLE_STRUCTLEAK_PLUGIN)
  
- obj-$(CONFIG_DRIVER_PE_KUNIT_TEST) += property-entry-test.o
--CFLAGS_REMOVE_property-entry-test.o += -fplugin-arg-structleak_plugin-byref -fplugin-arg-structleak_plugin-byref-all
-+CFLAGS_property-entry-test.o += $(DISABLE_STRUCTLEAK_PLUGIN)
+ thunderbolt_dma_test-${CONFIG_USB4_DMA_TEST} += dma_test.o
+ obj-$(CONFIG_USB4_DMA_TEST) += thunderbolt_dma_test.o
 -- 
 2.33.0
 
