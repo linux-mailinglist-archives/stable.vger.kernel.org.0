@@ -2,170 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F8784358F8
-	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 05:30:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9D0B435902
+	for <lists+stable@lfdr.de>; Thu, 21 Oct 2021 05:40:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230103AbhJUDc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Oct 2021 23:32:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58600 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229842AbhJUDc1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Oct 2021 23:32:27 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80762C06161C
-        for <stable@vger.kernel.org>; Wed, 20 Oct 2021 20:30:12 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id q19so4681978pfl.4
-        for <stable@vger.kernel.org>; Wed, 20 Oct 2021 20:30:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=20Vi00WW7p4dNCRELb0FhgTJcU0D5YoadG26JZQQAHQ=;
-        b=0QxbNxEjXi9J0EVPufjwDXu8b6qdVkYmz19+8BDJWhPxo1UuyHSnDqQTS9yRDr7pdo
-         G9rGq4pYQEoB6CncVlKHBguOEwFLloifsSIYj8EBJEA+QjkYrYSK2GchI1vygxDRf2pR
-         G+Hu78NPxJjxXgxQNsE4tn793H53OLuJMT63V2oTwpjJyvnHSQ/Uo+sILK88SWAAIBaf
-         59VkM4uLU7rj6qzb6v390rD+ShdlPuImKF63bBIVlkTd0wtyYYjy6MkQPPH+0/GLo30b
-         O0L6c17pPI6QgRl03XnhrqxtzwrEvVx2+821aPZ2RzFl1Qlhask7mKFYDznlki3KHwtE
-         8zUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=20Vi00WW7p4dNCRELb0FhgTJcU0D5YoadG26JZQQAHQ=;
-        b=A6VTx0iU3n9/UkvyawABwYFnXMibytVT7yLfPpRW7zCCtnB9H28xUEpPU1Qqztwhdt
-         KxtgPs61EsUMAM0H5BJVF1qqwFORZWs/tQ1Kef5xJYe9j4yTcqCRP1KbNa37VK8ehW6L
-         IIogitMi1iQjU4qkbMwO/abF51KAxDmU4eeEw0IaYZ5mQZalFz9GhrIqF3aP+OmwFyH7
-         6+ATIDm5zl3wpubcg421d9n6wHDb/N7cHNjif1XnMlcglbJ6L8fhM9HLGY6LTOGQ3Wze
-         TyDQnGUoetoV2+NPPD+NbOamYfsRdqGALW1eZ4FGkx7u3sZK+xgzyHfCKDblH4y8ctR3
-         KzbA==
-X-Gm-Message-State: AOAM533vMf3IEVQnJfDwR0Oj++VuOwL92o6ob9v8KdpRCpivOX5lo1Bv
-        xIBfk57PAk8kvu6P+PPsW5xeGg2Q2vZysbl2LV8=
-X-Google-Smtp-Source: ABdhPJwpdvCProtqPGrMBwGmtQhaiDX4VxsjvTmuunDsrn15xBt7g3azLEY9H4ZjZIrcgNc7iF4jLg==
-X-Received: by 2002:a62:3287:0:b0:439:bfec:8374 with SMTP id y129-20020a623287000000b00439bfec8374mr3218753pfy.15.1634787011888;
-        Wed, 20 Oct 2021 20:30:11 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p3sm3983982pfb.205.2021.10.20.20.30.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Oct 2021 20:30:11 -0700 (PDT)
-Message-ID: <6170dec3.1c69fb81.b8db0.c657@mx.google.com>
-Date:   Wed, 20 Oct 2021 20:30:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S231245AbhJUDm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Oct 2021 23:42:59 -0400
+Received: from mx0a-00069f02.pphosted.com ([205.220.165.32]:27770 "EHLO
+        mx0a-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231327AbhJUDmj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Oct 2021 23:42:39 -0400
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19L2ffra029728;
+        Thu, 21 Oct 2021 03:40:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=corp-2021-07-09;
+ bh=2BhrUzawBVGxRPs51RCpkAkG8Dce5F1o5cEgs3Na3vU=;
+ b=ZkzJQCD+Gm6hxIfhh1lgW/Yi+iEaPNaFyUGEyAuSV955zSnlUZ+y1TC9eSPNr3hRxJJb
+ ZiMhNlSKWiPWb3jwwJNFDhdoWfB6Yl+yiV8BEjsdyz713cQ5Xib+jMLQ98daaqriOG7a
+ PwiYzR0EqvSvTWLbYViQHznzdKy+rM3lTcloi27YG3rNCgDl6jCJiy/7jAsodGF5pvo4
+ cwzP7e4iyxUhjatCjwcWXjycpUtz0DqDTZLR+7rL5/jubfDfOQkc2Rlub2DSkD1GE98B
+ pFYvGsBIdIEEKoJCs6/x6aa75b+l+KMtzkNaeptqj/bHS1kHHtUX68XDl4Y9Lq9tVAft wg== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3btkwj3wn7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Oct 2021 03:40:21 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 19L3Lbms083729;
+        Thu, 21 Oct 2021 03:40:20 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+        by userp3020.oracle.com with ESMTP id 3br8gv83kj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Oct 2021 03:40:20 +0000
+Received: from userp3020.oracle.com (userp3020.oracle.com [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 19L3eJZ9135272;
+        Thu, 21 Oct 2021 03:40:19 GMT
+Received: from ca-mkp.mkp.ca.oracle.com (ca-mkp.ca.oracle.com [10.156.108.201])
+        by userp3020.oracle.com with ESMTP id 3br8gv83k1-1;
+        Thu, 21 Oct 2021 03:40:19 +0000
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+To:     tyreld@linux.ibm.com, Brian King <brking@linux.vnet.ibm.com>
+Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
+        jejb@linux.ibm.com, stable@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] ibmvfc: Fixup duplicate response detection
+Date:   Wed, 20 Oct 2021 23:40:17 -0400
+Message-Id: <163478760938.6923.3676022721184133016.b4-ty@oracle.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20211019152129.16558-1-brking@linux.vnet.ibm.com>
+References: <20211019152129.16558-1-brking@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.287-28-g0c887f40044e
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 96 runs,
- 2 regressions (v4.9.287-28-g0c887f40044e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: BmCz4eKJBPLl4asColEiKQ7x0YdvUMjv
+X-Proofpoint-GUID: BmCz4eKJBPLl4asColEiKQ7x0YdvUMjv
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 96 runs, 2 regressions (v4.9.287-28-g0c887f40=
-044e)
+On Tue, 19 Oct 2021 10:21:29 -0500, Brian King wrote:
 
-Regressions Summary
--------------------
+> Commit a264cf5e81c7 ("scsi: ibmvfc: Fix command state accounting and stale response detection")
+> introduced a regression in detecting duplicate responses. This was observed
+> in test where a command was sent to the VIOS and completed before
+> ibmvfc_send_event set the active flag to 1, which resulted in the
+> atomic_dec_if_positive call in ibmvfc_handle_crq thinking this was a
+> duplicate response, which resulted in scsi_done not getting called, so we
+> then hit a scsi command timeout for this command once the timeout expires.
+> This simply ensures the active flag gets set prior to making the hcall to
+> send the command to the VIOS, in order to close this window.
+> 
+> [...]
 
-platform    | arch   | lab           | compiler | defconfig           | reg=
-ressions
-------------+--------+---------------+----------+---------------------+----=
---------
-panda       | arm    | lab-collabora | gcc-10   | omap2plus_defconfig | 1  =
-        =
+Applied to 5.15/scsi-fixes, thanks!
 
-qemu_x86_64 | x86_64 | lab-collabora | gcc-10   | x86_64_defconfig    | 1  =
-        =
+[1/1] ibmvfc: Fixup duplicate response detection
+      https://git.kernel.org/mkp/scsi/c/e20f80b9b163
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.287-28-g0c887f40044e/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.287-28-g0c887f40044e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0c887f40044e08b0ef66bbb958f11f44b9e9ea7c =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform    | arch   | lab           | compiler | defconfig           | reg=
-ressions
-------------+--------+---------------+----------+---------------------+----=
---------
-panda       | arm    | lab-collabora | gcc-10   | omap2plus_defconfig | 1  =
-        =
-
-
-  Details:     https://kernelci.org/test/plan/id/6170a8f2421bee2f7a335949
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.287-2=
-8-g0c887f40044e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.287-2=
-8-g0c887f40044e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6170a8f2421bee2=
-f7a33594c
-        failing since 1 day (last pass: v4.9.286-51-gd156b23118b6, first fa=
-il: v4.9.286-51-geba1061a3f9a)
-        2 lines
-
-    2021-10-20T23:39:52.527071  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/123
-    2021-10-20T23:39:52.535094  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =
-
-
-
-platform    | arch   | lab           | compiler | defconfig           | reg=
-ressions
-------------+--------+---------------+----------+---------------------+----=
---------
-qemu_x86_64 | x86_64 | lab-collabora | gcc-10   | x86_64_defconfig    | 1  =
-        =
-
-
-  Details:     https://kernelci.org/test/plan/id/6170b42ecd08fd04363358f6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.287-2=
-8-g0c887f40044e/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu_=
-x86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.287-2=
-8-g0c887f40044e/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu_=
-x86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6170b42ecd08fd0436335=
-8f7
-        new failure (last pass: v4.9.286-51-geba1061a3f9a) =
-
- =20
+-- 
+Martin K. Petersen	Oracle Linux Engineering
