@@ -2,159 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AFC3436F55
-	for <lists+stable@lfdr.de>; Fri, 22 Oct 2021 03:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2A9B437004
+	for <lists+stable@lfdr.de>; Fri, 22 Oct 2021 04:31:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231687AbhJVBWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Oct 2021 21:22:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47238 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230288AbhJVBWx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 Oct 2021 21:22:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4C286101C;
-        Fri, 22 Oct 2021 01:20:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634865636;
-        bh=g7zKhZ0KPLiGMSOh1+9QyItNNSQJciCAUhhGDw/w/Cw=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=IYtrB4qYTLoAuY2+Htoys6JdZdGgpg9MIQOp7AMX3K1rhifnCG2Cn98+65O8GSANq
-         c+OcW5mi8Lj+BA6HjWW173YvSJ66nKXi0tPMcBKzrNnBayfDFynpyYscOFFdRIWV4/
-         GNMXkiasr+d7FC8LUV74UN5oYMsAnY26xzImFyy4rQGGmOeL9ai/wiLmhycD7Cri6p
-         xE2mInhF5fKRa+WeMjseh9okNhNWsgJuxA5Ax3/dryUboH/+qKImXuIlv85G2iHwtV
-         qB8x6dT1GdOzDGJ5Es43hnFzVxZJJo/cJN0VBZYCLU8Gtj+8rrnof9s5FNovRCVKHQ
-         w1lj+uSL/e50Q==
-Date:   Thu, 21 Oct 2021 20:20:34 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Myron Stowe <myron.stowe@redhat.com>,
-        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>, linux-acpi@vger.kernel.org,
-        linux-pci@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org,
-        Benoit =?iso-8859-1?Q?Gr=E9goire?= <benoitg@coeus.ca>,
-        Hui Wang <hui.wang@canonical.com>, stable@vger.kernel.org,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
-Subject: Re: [PATCH v5 1/2] x86/PCI: Ignore E820 reservations for bridge
- windows on newer systems
-Message-ID: <20211022012034.GA2703195@bhelgaas>
+        id S232434AbhJVCdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Oct 2021 22:33:17 -0400
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:38649 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232435AbhJVCdQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Oct 2021 22:33:16 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=rongwei.wang@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0UtC8jTQ_1634869856;
+Received: from localhost.localdomain(mailfrom:rongwei.wang@linux.alibaba.com fp:SMTPD_---0UtC8jTQ_1634869856)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 22 Oct 2021 10:30:57 +0800
+From:   Rongwei Wang <rongwei.wang@linux.alibaba.com>
+To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     akpm@linux-foundation.org, willy@infradead.org, song@kernel.org,
+        william.kucharski@oracle.com, hughd@google.com, shy828301@gmail.com
+Subject: [PATCH RESEND] mm, thp: bail out early in collapse_file for writeback page
+Date:   Fri, 22 Oct 2021 10:30:52 +0800
+Message-Id: <20211022023052.33114-1-rongwei.wang@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <73aeec22-2ec7-ff21-5c89-c13f2e90a213@redhat.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 21, 2021 at 07:15:57PM +0200, Hans de Goede wrote:
-> On 10/20/21 23:14, Bjorn Helgaas wrote:
-> > On Wed, Oct 20, 2021 at 12:23:26PM +0200, Hans de Goede wrote:
-> >> On 10/19/21 23:52, Bjorn Helgaas wrote:
-> >>> On Thu, Oct 14, 2021 at 08:39:42PM +0200, Hans de Goede wrote:
-> >>>> Some BIOS-es contain a bug where they add addresses which map to system
-> >>>> RAM in the PCI host bridge window returned by the ACPI _CRS method, see
-> >>>> commit 4dc2287c1805 ("x86: avoid E820 regions when allocating address
-> >>>> space").
-> >>>>
-> >>>> To work around this bug Linux excludes E820 reserved addresses when
-> >>>> allocating addresses from the PCI host bridge window since 2010.
-> >>>> ...
-> > 
-> >>> I haven't seen anybody else eager to merge this, so I guess I'll stick
-> >>> my neck out here.
-> >>>
-> >>> I applied this to my for-linus branch for v5.15.
-> >>
-> >> Thank you, and sorry about the build-errors which the lkp
-> >> kernel-test-robot found.
-> >>
-> >> I've just send out a patch which fixes these build-errors
-> >> (verified with both .config-s from the lkp reports).
-> >> Feel free to squash this into the original patch (or keep
-> >> them separate, whatever works for you).
-> > 
-> > Thanks, I squashed the fix in.
-> > 
-> > HOWEVER, I think it would be fairly risky to push this into v5.15.
-> > We would be relying on the assumption that current machines have all
-> > fixed the BIOS defect that 4dc2287c1805 addressed, and we have little
-> > evidence for that.
-> 
-> It is a 10 year old BIOS defect, so hopefully anything from 2018
-> or later will not have it.
+Currently collapse_file does not explicitly check PG_writeback, instead,
+page_has_private and try_to_release_page are used to filter writeback
+pages. This does not work for xfs with blocksize equal to or larger
+than pagesize, because in such case xfs has no page->private.
 
-We can hope.  AFAIK, Windows allocates space top-down, while Linux
-allocates bottom-up, so I think it's quite possible these defects
-would never be discovered or fixed.  In any event, I don't think we
-have much evidence either way.
+This makes collapse_file bail out early for writeback page. Otherwise,
+xfs end_page_writeback will panic as follows.
 
-> > I'm not sure there's significant benefit to having this in v5.15.
-> > Yes, the mainline v5.15 kernel would work on the affected machines,
-> > but I suspect most people with those machines are running distro
-> > kernels, not mainline kernels.
-> 
-> Fedora and Arch do follow mainline pretty closely and a lot of
-> users are affected by this (see the large number of BugLinks in
-> the commit).
-> 
-> I completely understand why you are reluctant to push this out, but
-> your argument about most distros not running mainline kernels also
-> applies to chances of people where this may cause a regression
-> running mainline kernels also being quite small.
+page:fffffe00201bcc80 refcount:0 mapcount:0 mapping:ffff0003f88c86a8 index:0x0 pfn:0x84ef32
+aops:xfs_address_space_operations [xfs] ino:30000b7 dentry name:"libtest.so"
+flags: 0x57fffe0000008027(locked|referenced|uptodate|active|writeback)
+raw: 57fffe0000008027 ffff80001b48bc28 ffff80001b48bc28 ffff0003f88c86a8
+raw: 0000000000000000 0000000000000000 00000000ffffffff ffff0000c3e9a000
+page dumped because: VM_BUG_ON_PAGE(((unsigned int) page_ref_count(page) + 127u <= 127u))
+page->mem_cgroup:ffff0000c3e9a000
+------------[ cut here ]------------
+kernel BUG at include/linux/mm.h:1212!
+Internal error: Oops - BUG: 0 [#1] SMP
+Modules linked in:
+BUG: Bad page state in process khugepaged  pfn:84ef32
+ xfs(E)
+page:fffffe00201bcc80 refcount:0 mapcount:0 mapping:0 index:0x0 pfn:0x84ef32
+ libcrc32c(E) rfkill(E) aes_ce_blk(E) crypto_simd(E) ...
+CPU: 25 PID: 0 Comm: swapper/25 Kdump: loaded Tainted: ...
+pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+pc : end_page_writeback+0x1c0/0x214
+lr : end_page_writeback+0x1c0/0x214
+sp : ffff800011ce3cc0
+x29: ffff800011ce3cc0 x28: 0000000000000000
+x27: ffff000c04608040 x26: 0000000000000000
+x25: ffff000c04608040 x24: 0000000000001000
+x23: ffff0003f88c8530 x22: 0000000000001000
+x21: ffff0003f88c8530 x20: 0000000000000000
+x19: fffffe00201bcc80 x18: 0000000000000030
+x17: 0000000000000000 x16: 0000000000000000
+x15: ffff000c018f9760 x14: ffffffffffffffff
+x13: ffff8000119d72b0 x12: ffff8000119d6ee3
+x11: ffff8000117b69b8 x10: 00000000ffff8000
+x9 : ffff800010617534 x8 : 0000000000000000
+x7 : ffff8000114f69b8 x6 : 000000000000000f
+x5 : 0000000000000000 x4 : 0000000000000000
+x3 : 0000000000000400 x2 : 0000000000000000
+x1 : 0000000000000000 x0 : 0000000000000000
+Call trace:
+ end_page_writeback+0x1c0/0x214
+ iomap_finish_page_writeback+0x13c/0x204
+ iomap_finish_ioend+0xe8/0x19c
+ iomap_writepage_end_bio+0x38/0x50
+ bio_endio+0x168/0x1ec
+ blk_update_request+0x278/0x3f0
+ blk_mq_end_request+0x34/0x15c
+ virtblk_request_done+0x38/0x74 [virtio_blk]
+ blk_done_softirq+0xc4/0x110
+ __do_softirq+0x128/0x38c
+ __irq_exit_rcu+0x118/0x150
+ irq_exit+0x1c/0x30
+ __handle_domain_irq+0x8c/0xf0
+ gic_handle_irq+0x84/0x108
+ el1_irq+0xcc/0x180
+ arch_cpu_idle+0x18/0x40
+ default_idle_call+0x4c/0x1a0
+ cpuidle_idle_call+0x168/0x1e0
+ do_idle+0xb4/0x104
+ cpu_startup_entry+0x30/0x9c
+ secondary_start_kernel+0x104/0x180
+Code: d4210000 b0006161 910c8021 94013f4d (d4210000)
+---[ end trace 4a88c6a074082f8c ]---
+Kernel panic - not syncing: Oops - BUG: Fatal exception in interrupt
 
-True.
+Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
+Suggested-by: Yang Shi <shy828301@gmail.com>
+Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
+Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+---
+ mm/khugepaged.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-> > This issue has been around a long time, so it's not like a regression
-> > that we just introduced.  If we fixed these machines and regressed
-> > *other* machines, we'd be worse off than we are now.
-> 
-> If we break one machine model and fix a whole bunch of other machines
-> then in my book that is a win. Ideally we would not break anything,
-> but we can only find out if we actually break anything if we ship
-> the change.
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index 045cc579f724..48de4e1b0783 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1763,6 +1763,10 @@ static void collapse_file(struct mm_struct *mm,
+ 				filemap_flush(mapping);
+ 				result = SCAN_FAIL;
+ 				goto xa_unlocked;
++			} else if (PageWriteback(page)) {
++				xas_unlock_irq(&xas);
++				result = SCAN_FAIL;
++				goto xa_unlocked;
+ 			} else if (trylock_page(page)) {
+ 				get_page(page);
+ 				xas_unlock_irq(&xas);
+@@ -1798,7 +1802,8 @@ static void collapse_file(struct mm_struct *mm,
+ 			goto out_unlock;
+ 		}
+ 
+-		if (!is_shmem && PageDirty(page)) {
++		if (!is_shmem && (PageDirty(page) ||
++				  PageWriteback(page))) {
+ 			/*
+ 			 * khugepaged only works on read-only fd, so this
+ 			 * page is dirty because it hasn't been flushed
+-- 
+2.27.0
 
-I'm definitely not going to try the "fix many, break one" argument on
-Linus.  Of course we want to fix systems, but IMO it's far better to
-leave a system broken than it is to break one that used to work.
-
-> > In the meantime, here's another possibility for working around this.
-> > What if we discarded remove_e820_regions() completely, but aligned the
-> > problem _CRS windows a little more?  The 4dc2287c1805 case was this:
-> > 
-> >   BIOS-e820: 00000000bfe4dc00 - 00000000c0000000 (reserved)
-> >   pci_root PNP0A03:00: host bridge window [mem 0xbff00000-0xdfffffff]
-> > 
-> > where the _CRS window was of size 0x20100000, i.e., 512M + 1M.  At
-> > least in this particular case, we could avoid the problem by throwing
-> > away that first 1M and aligning the window to a nice 3G boundary.
-> > Maybe it would be worth giving up a small fraction (less than 0.2% in
-> > this case) of questionable windows like this?
-> 
-> The PCI BAR allocation code tries to fall back to the BIOS assigned
-> resource if the allocation fails. That BIOS assigned resource might
-> fall outside of the host bridge window after we round the address.
-> 
-> My initial gut instinct here is that this has a bigger chance
-> of breaking things then my change.
-> 
-> In the beginning of the thread you said that ideally we would
-> completely stop using the E820 reservations for PCI host bridge
-> windows. Because in hindsight messing with the windows on all
-> machines just to work around a clear BIOS bug in some was not a
-> good idea.
-> 
-> This address-rounding/-aligning you now suggest, is again
-> messing with the windows on all machines just to work around
-> a clear BIOS bug in some. At least that is how I see this.
-
-That's true.  I assume Red Hat has a bunch of machines and hopefully
-an archive of dmesg logs from them.  Those logs should contain good
-E820 and _CRS information, so with a little scripting, maybe we could
-get some idea of what's out there.
-
-Bjorn
