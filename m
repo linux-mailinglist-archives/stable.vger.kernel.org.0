@@ -2,120 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1AB3437CC2
-	for <lists+stable@lfdr.de>; Fri, 22 Oct 2021 20:52:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FAC043803D
+	for <lists+stable@lfdr.de>; Sat, 23 Oct 2021 00:32:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231308AbhJVSya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Oct 2021 14:54:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57312 "EHLO
+        id S234410AbhJVWeX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Oct 2021 18:34:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbhJVSya (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Oct 2021 14:54:30 -0400
-Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 353E1C061764
-        for <stable@vger.kernel.org>; Fri, 22 Oct 2021 11:52:12 -0700 (PDT)
-Received: by mail-lj1-x235.google.com with SMTP id u5so1134449ljo.8
-        for <stable@vger.kernel.org>; Fri, 22 Oct 2021 11:52:12 -0700 (PDT)
+        with ESMTP id S232208AbhJVWeW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Oct 2021 18:34:22 -0400
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59FA1C061766
+        for <stable@vger.kernel.org>; Fri, 22 Oct 2021 15:32:04 -0700 (PDT)
+Received: by mail-lf1-x12c.google.com with SMTP id bq11so5534783lfb.10
+        for <stable@vger.kernel.org>; Fri, 22 Oct 2021 15:32:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=VbzvQG3IQbBllas6Nr1faFq7K6/RuDJHqHdnS1NlKCM=;
-        b=K+ULU3UtOjWeJSCBaGxCsaTJ5MnAo2uApMHffgEmGuTKEtcn4pOT8xrJAFiKuVWZy7
-         jpsVU3boAXdYxdeui2jk+5cKL4hCI/qSevLdzxfawmhwF+lSodrAPkSC3Gcjl7TdLUeN
-         NDyM4j2G2iv1ZV6oxG63nk0i7nRotOiSBuAgyt5kJodNMj01Iy3ii8FnrF4oaV4pqk5e
-         qYWfjSQlbCBduTwb7JBDYh0Mia/qxpqyQ2IuInJvJTuLwKpct9se/gTzWa51dtdMqbsj
-         d/FdqMct3/bwQL4SixNVlmE9HzZzCHlg/ZwPEyh22EpQ5+EdqOq2ge40wcTlaAJV00FI
-         Sh4A==
+        d=shutemov-name.20210112.gappssmtp.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=hZeH/6FHgerT+YH6jl5wZNUAXEzrpwBKg9kN8iwOAaY=;
+        b=yxrVbSMAz/RZ/VDn9pVr3nNNhqz1tYPOSqgH7Wq/2V3kCcr84pdYz4/S1g7ICC/LrA
+         3qVxNxy3gLG4Pt903bQUtQh9X9tKzRAicdo2psctU9sP4ygrueC+ZX8yXEPnQDJvahXe
+         9LkqIi6O6hXopC4bINvgCDObrZ1YA5xzZnsxocyy0tSRe+65bCCmA9w3GVRiyw8nNJp+
+         6qeKRiB92it9IQiWK2Lr/pGCtmEygTxp5bEhaUYNQ3qwlDmIg1lFlXoCTCoBKfZHfdYi
+         oinkZCEILXJCje4mOT1djUNdEQa+JZpZFB92IwtdfCm2eERVtjDGHoR1TPII9LLzgQ0G
+         fG+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=VbzvQG3IQbBllas6Nr1faFq7K6/RuDJHqHdnS1NlKCM=;
-        b=4ghSETFmBVTDS+k9G5D7c8bheXqRgLPJcWjKHdTN9S3Lw34iHMJmjvyph6YAmm0Qzn
-         9kMbBA/YIC/ETrrJ8V6Drkt7kS2DkpJRAQ/ZZnH/6RmFOcPXay84RIFGr6ihYHUdziRM
-         9VI0l+qn6lGYxNYFlomesKMgwL4IzesZ1VEDOfO1XN6h5ZWoTjjGGqoWeTLprzqgSUMe
-         vwLbHz45kumnJTWs0546Bk6RCSwaJz9qxMjPp5bMI/xfcx2pqxMWwcwmXp88iLUa4xE6
-         kwVTSxErv+3bQfSXUJuewoX58eRmsBAPyiegomEa4JBlHWjBY7dXJfwkEqXfv0XkN6LI
-         O56A==
-X-Gm-Message-State: AOAM5300xLrqZMnG33I58/TlH20MOaoMWfnMyHbfFMxt5VJH/s7ahWD3
-        Unfbjnl+VvytVkbDzM3zRRXNICzKsei/fpr9rJo=
-X-Google-Smtp-Source: ABdhPJzyUXJCxsRB775tsjnhah/UdYV+Bdf0rjG+h0Co3jC4Bj/YPNQrrKIrZ5EpL+OVQ26cVP0UTg/9rGc3OV5flvo=
-X-Received: by 2002:a05:651c:10d2:: with SMTP id l18mr1725026ljn.49.1634928730537;
- Fri, 22 Oct 2021 11:52:10 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=hZeH/6FHgerT+YH6jl5wZNUAXEzrpwBKg9kN8iwOAaY=;
+        b=MhTgGSvdxzOe4u6HidDnsEQ63zaO7AhrdpBI3ySVoESKbjO4LLdCzw9Wxl6sCUsBg5
+         4clwwBqJGKeYwUJ6m0BS8D6tTH0RBR5YC6Hy8ciSgpvgR/lOYm1R1CZYRKMKB9HSE5Tl
+         o1Rn9i1z96N2FzhezzGbMLv5LubcCGoVv6olI90Lfbc0YHKd8b+qLQQnLeeSGmyEA9zt
+         TniBhxTFp3LP/xDrtooEVv301jo0uesDd+HGRpUe7YhS6vVH8I9wGPvOMq92lgnBKWb4
+         HwsauM/Wlmz4KlIiTpLlTcpumxMtDjlyKdub4V8vc8CR+SLDNoRbC0onGhWnuUx9rrMQ
+         pIaQ==
+X-Gm-Message-State: AOAM532lgNiIVBWN1SxyUBo3VioXbZz3YZr5KkIfk4ZYQoGC+wMV63FZ
+        Lq02WgUjsw5GE5X8VxILgJXScQ==
+X-Google-Smtp-Source: ABdhPJxslEdeY48PfIuW3Id4S4XGhwm9T2BXoWVdP/dYwY8FfGSPxSjLdrvxp+HzyfWXtnIsG9rZBQ==
+X-Received: by 2002:a05:6512:21cb:: with SMTP id d11mr2208016lft.579.1634941922655;
+        Fri, 22 Oct 2021 15:32:02 -0700 (PDT)
+Received: from box.localdomain ([86.57.175.117])
+        by smtp.gmail.com with ESMTPSA id x4sm848531lfq.246.2021.10.22.15.32.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Oct 2021 15:32:02 -0700 (PDT)
+Received: by box.localdomain (Postfix, from userid 1000)
+        id CED1F10315F; Sat, 23 Oct 2021 01:32:06 +0300 (+03)
+Date:   Sat, 23 Oct 2021 01:32:06 +0300
+From:   "Kirill A. Shutemov" <kirill@shutemov.name>
+To:     Rongwei Wang <rongwei.wang@linux.alibaba.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, akpm@linux-foundation.org,
+        willy@infradead.org, song@kernel.org, william.kucharski@oracle.com,
+        hughd@google.com, shy828301@gmail.com
+Subject: Re: [PATCH RESEND] mm, thp: bail out early in collapse_file for
+ writeback page
+Message-ID: <20211022223206.2ns74vvfbap2i4p7@box.shutemov.name>
+References: <20211022023052.33114-1-rongwei.wang@linux.alibaba.com>
 MIME-Version: 1.0
-Sender: nadiaemaan50@gmail.com
-Received: by 2002:a05:6520:2f24:b0:14a:bce6:1fce with HTTP; Fri, 22 Oct 2021
- 11:52:10 -0700 (PDT)
-From:   Mrs Nadia Emaan <mrsnadiaemaan52@gmail.com>
-Date:   Fri, 22 Oct 2021 18:52:10 +0000
-X-Google-Sender-Auth: ZkoimSsja4J5hj28FhAioZRUW_M
-Message-ID: <CAO1QzD3hcq2DxLeUt0i2KkSqCEQ5CSkP5opq5KqzyDv+Eg3S0g@mail.gmail.com>
-Subject: HELLO
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211022023052.33114-1-rongwei.wang@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings My Dear Friend,
+On Fri, Oct 22, 2021 at 10:30:52AM +0800, Rongwei Wang wrote:
+> Currently collapse_file does not explicitly check PG_writeback, instead,
+> page_has_private and try_to_release_page are used to filter writeback
+> pages. This does not work for xfs with blocksize equal to or larger
+> than pagesize, because in such case xfs has no page->private.
+> 
+> This makes collapse_file bail out early for writeback page. Otherwise,
+> xfs end_page_writeback will panic as follows.
+> 
+> page:fffffe00201bcc80 refcount:0 mapcount:0 mapping:ffff0003f88c86a8 index:0x0 pfn:0x84ef32
+> aops:xfs_address_space_operations [xfs] ino:30000b7 dentry name:"libtest.so"
+> flags: 0x57fffe0000008027(locked|referenced|uptodate|active|writeback)
+> raw: 57fffe0000008027 ffff80001b48bc28 ffff80001b48bc28 ffff0003f88c86a8
+> raw: 0000000000000000 0000000000000000 00000000ffffffff ffff0000c3e9a000
+> page dumped because: VM_BUG_ON_PAGE(((unsigned int) page_ref_count(page) + 127u <= 127u))
+> page->mem_cgroup:ffff0000c3e9a000
+> ------------[ cut here ]------------
+> kernel BUG at include/linux/mm.h:1212!
+> Internal error: Oops - BUG: 0 [#1] SMP
+> Modules linked in:
+> BUG: Bad page state in process khugepaged  pfn:84ef32
+>  xfs(E)
+> page:fffffe00201bcc80 refcount:0 mapcount:0 mapping:0 index:0x0 pfn:0x84ef32
+>  libcrc32c(E) rfkill(E) aes_ce_blk(E) crypto_simd(E) ...
+> CPU: 25 PID: 0 Comm: swapper/25 Kdump: loaded Tainted: ...
+> pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+> pc : end_page_writeback+0x1c0/0x214
+> lr : end_page_writeback+0x1c0/0x214
+> sp : ffff800011ce3cc0
+> x29: ffff800011ce3cc0 x28: 0000000000000000
+> x27: ffff000c04608040 x26: 0000000000000000
+> x25: ffff000c04608040 x24: 0000000000001000
+> x23: ffff0003f88c8530 x22: 0000000000001000
+> x21: ffff0003f88c8530 x20: 0000000000000000
+> x19: fffffe00201bcc80 x18: 0000000000000030
+> x17: 0000000000000000 x16: 0000000000000000
+> x15: ffff000c018f9760 x14: ffffffffffffffff
+> x13: ffff8000119d72b0 x12: ffff8000119d6ee3
+> x11: ffff8000117b69b8 x10: 00000000ffff8000
+> x9 : ffff800010617534 x8 : 0000000000000000
+> x7 : ffff8000114f69b8 x6 : 000000000000000f
+> x5 : 0000000000000000 x4 : 0000000000000000
+> x3 : 0000000000000400 x2 : 0000000000000000
+> x1 : 0000000000000000 x0 : 0000000000000000
+> Call trace:
+>  end_page_writeback+0x1c0/0x214
+>  iomap_finish_page_writeback+0x13c/0x204
+>  iomap_finish_ioend+0xe8/0x19c
+>  iomap_writepage_end_bio+0x38/0x50
+>  bio_endio+0x168/0x1ec
+>  blk_update_request+0x278/0x3f0
+>  blk_mq_end_request+0x34/0x15c
+>  virtblk_request_done+0x38/0x74 [virtio_blk]
+>  blk_done_softirq+0xc4/0x110
+>  __do_softirq+0x128/0x38c
+>  __irq_exit_rcu+0x118/0x150
+>  irq_exit+0x1c/0x30
+>  __handle_domain_irq+0x8c/0xf0
+>  gic_handle_irq+0x84/0x108
+>  el1_irq+0xcc/0x180
+>  arch_cpu_idle+0x18/0x40
+>  default_idle_call+0x4c/0x1a0
+>  cpuidle_idle_call+0x168/0x1e0
+>  do_idle+0xb4/0x104
+>  cpu_startup_entry+0x30/0x9c
+>  secondary_start_kernel+0x104/0x180
+> Code: d4210000 b0006161 910c8021 94013f4d (d4210000)
+> ---[ end trace 4a88c6a074082f8c ]---
+> Kernel panic - not syncing: Oops - BUG: Fatal exception in interrupt
+> 
+> Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
+> Suggested-by: Yang Shi <shy828301@gmail.com>
+> Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
+> Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+> Cc: <stable@vger.kernel.org>
+> Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+> Reviewed-by: Yang Shi <shy828301@gmail.com>
 
-I am contacting you through this means because I need your urgent
-assistance and also help me to carry a charity project in your
-country. I found your email address as a true child of God for past
-few days now that I have been praying to know if you are really the
-chosen one for this great charity project, according to God's
-direction, after all prayers I am convinced, and I have decided to
-contact you. Please, i want you use the funds for the Lord's work,
-with confidence, read and respond now.
+Okay, it makes sense:
 
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 
-My name is  Mrs. Nadia Emman, a widow, but currently based in West
-Africa since my life with my late husband, who was a businessman in
-this country before dying some years ago. We were married to many
-years without a child. He died after a brief illness that lasted only
-six days and I myself have been suffering from an ovarian cancer
-disease. At this moment I am about to finish the race in this way
-because the disease has reached a very bad stage, without any family
-member and without children. I hope you do not expose or betray this
-trust and I am sure that I am about to trust you for the mutual
-benefit of orphans and the less privileged. I have some funds that I
-inherited from my late husband, the total sum of ($ 12,500,000.00)
-deposited at a bank here in Burkina Faso. After knowing my current
-state of health, I decided to trust you with this fund, believing that
-you will use it in the way I will instruct here.
+I would also add a sentance in the commit message that PG_writeback
+setting is serialized with page_lock(). I have not had experience with
+writeback and it was something that I had to dig up.
 
+> ---
+>  mm/khugepaged.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+> index 045cc579f724..48de4e1b0783 100644
+> --- a/mm/khugepaged.c
+> +++ b/mm/khugepaged.c
+> @@ -1763,6 +1763,10 @@ static void collapse_file(struct mm_struct *mm,
+>  				filemap_flush(mapping);
+>  				result = SCAN_FAIL;
+>  				goto xa_unlocked;
+> +			} else if (PageWriteback(page)) {
+> +				xas_unlock_irq(&xas);
+> +				result = SCAN_FAIL;
+> +				goto xa_unlocked;
+>  			} else if (trylock_page(page)) {
+>  				get_page(page);
+>  				xas_unlock_irq(&xas);
+> @@ -1798,7 +1802,8 @@ static void collapse_file(struct mm_struct *mm,
+>  			goto out_unlock;
+>  		}
+>  
+> -		if (!is_shmem && PageDirty(page)) {
+> +		if (!is_shmem && (PageDirty(page) ||
+> +				  PageWriteback(page))) {
+>  			/*
+>  			 * khugepaged only works on read-only fd, so this
+>  			 * page is dirty because it hasn't been flushed
+> -- 
+> 2.27.0
+> 
+> 
 
-you will use this $12.5 Million for public benefit as follows;
-
-1. Establish An Orphanage Home To Help The Orphanages Children.
-2. Build A Hospital To Help The Poor.
-3. Build A Nursing Home For Elderly People Need Care & Meal.
-
-You will named them after my late husband.Therefore, I need you to
-help me and claim this money and use it for charities, for orphanages
-and provide justice and help to the poor, needy and to promote the
-words of God and the effort to maintain the house of God, according to
-the bible in the book of. Jeremiah 22: 15-16, without minding our
-different religions.
-
-It will be a pleasure to compensate with 40% percent of the total
-money for your effort in handling the transaction, while 60% of the
-money will go to charity project.
-
-All I need from you is sincerity and ability to complete the task of
-God without any failure. It will be my pleasure to see that the bank
-has finally released and transferred the fund to your bank account in
-the country, even before I die here in the hospital, due to my current
-state of health, everything must be processed as soon as possible.
-
-I am waiting for your immediate response, if you are only interested
-in obtaining more details about the transaction and execution of this
-humanitarian project for the glory and honor of God.
-
-Sorry if you received this letter in your spam, is due to recent
-connection/network error here in the country.
-
-Please I am waiting for your urgent reply now.
-
-May God Bless you,
-Mrs. Nadia Emman.
+-- 
+ Kirill A. Shutemov
