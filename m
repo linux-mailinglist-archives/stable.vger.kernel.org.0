@@ -2,149 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61E8C43735F
-	for <lists+stable@lfdr.de>; Fri, 22 Oct 2021 09:58:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E5CF43739A
+	for <lists+stable@lfdr.de>; Fri, 22 Oct 2021 10:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231923AbhJVIBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Oct 2021 04:01:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50836 "EHLO
+        id S231846AbhJVIXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Oct 2021 04:23:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231846AbhJVIBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Oct 2021 04:01:04 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB31C061764
-        for <stable@vger.kernel.org>; Fri, 22 Oct 2021 00:58:46 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id k7so180453wrd.13
-        for <stable@vger.kernel.org>; Fri, 22 Oct 2021 00:58:46 -0700 (PDT)
+        with ESMTP id S231984AbhJVIXZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Oct 2021 04:23:25 -0400
+Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D20CC061764
+        for <stable@vger.kernel.org>; Fri, 22 Oct 2021 01:21:08 -0700 (PDT)
+Received: by mail-il1-x12a.google.com with SMTP id s3so3476080ild.0
+        for <stable@vger.kernel.org>; Fri, 22 Oct 2021 01:21:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=Fc3waf/OV9e1eiLWEqddx3c5PAReQqUJROoyD4tG+yY=;
-        b=UiYR6y2wU9EIhRkr7kU+xSl9uayIP3BOBX5cqmbchs0/KHDXtCt9hQDNJlaaQeakqk
-         BAlikhGhs3lg8tOmruMCtucsAsnlK0pl4yUPYNh9RO+yZdaUGL3qJCY/B1OeYOWkJDN8
-         WC+WG/RK2WijjVrBY9BGaMwKLSVOwf/qvaAFGRWbUfeiacUlCyGnYJxTVTjl4Dcr765L
-         5BHmaDQkT4GBAIvQUrB6Si4w+rNuQ4DSDiN7BqZeBoop9YIbhsfzqvtGVxVqrIe7NwxO
-         eHuoMkDou5vaYqBQrQGsMV8mCWqnuex5pv2eI7a5tu6KFsacKo82i53FjIYtSSeyV6hD
-         ztzw==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=0zxPduS5IUlaKoDmCEn68k89T9YkKaQNgugxVbUHaKI=;
+        b=ZehBlsv+lmP1rjFYkZwMcQxPPHCz35EWBsJpHBy2ea4vrlcyJXp7mSB4P0dAmRcFax
+         il6WVPkys/jGn0u8EgB3OZdZSjYwcJVKx714VUXKDtJOL4Zqm4Uh5J7a6XE/iqBR6hcg
+         GsMsbnR+b9antGM/Xpqj+PPLqUv02nEaktG7W5F6ZBzGpPABXmAtqAtS70Rx/Yt/ZXKu
+         Ic4HFD0HmfbTiqEhcFTGeDKKvCWZSTJR9cP0NkvOzI9iW7lBtAlepQgGn25NCdyYf190
+         XXKIqn8J6WSnYtTkh7vKS5Oo0Z+cgbGPs+FnG42PfCdT4N0If4yZKrYKIMe6APwsiWFj
+         5WaQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=Fc3waf/OV9e1eiLWEqddx3c5PAReQqUJROoyD4tG+yY=;
-        b=JHyF9YDljHR6A71vs8LWB5UqHKtmDQpqcWpHE3alczI3uo/UETGOT4g0fC6B/6xgGc
-         A7H9IQALYD4k21CnupiF4IzUyafCq9j0o8Lz0PUNpuT8ppJhK/FlADiHSoQZ1muFGvIC
-         jMSxoZu3i4B2/vQSaLzeCjROePL/BJ1Kr9xhNPh4CLM5OEfoc/ea2dcvciGSl0bTZshZ
-         9m0D3gq7ChM1PsZKtvbYij9t9KEQgU9FFm4h5dJYVDIVIdIFViVlmEa/oT09WlYjEU1T
-         b29UGC8JG1pYy4pEd0gAIa3pK+0KoWZWYtqCtsfWp9qz1ApUkZsEw8w39h4iT5plm9bS
-         2LxQ==
-X-Gm-Message-State: AOAM530JYHHl6twEyh8PL9OJOTCQQq49EVP3Ddyf99YMfAfDl30dQBL8
-        0fzJQC76Q0pQKHYPyPzpSdGzO54x8kM=
-X-Google-Smtp-Source: ABdhPJyFBYjAIMVlWRAAXYVgFlVTwX8bYHIpiZ7ehdek8806xsov4rObsHGvBnoSCJ5TY78DvicyPg==
-X-Received: by 2002:adf:ba87:: with SMTP id p7mr13843439wrg.282.1634889525156;
-        Fri, 22 Oct 2021 00:58:45 -0700 (PDT)
-Received: from google.com ([95.148.6.207])
-        by smtp.gmail.com with ESMTPSA id f17sm1995360wmf.44.2021.10.22.00.58.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Oct 2021 00:58:44 -0700 (PDT)
-Date:   Fri, 22 Oct 2021 08:58:42 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Aditya Garg <gargaditya08@live.com>
-Cc:     "andriy.shevchenko@linux.intel.com" 
-        <andriy.shevchenko@linux.intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Orlando Chamberlain <redecorating@protonmail.com>
-Subject: Re: [PATCHv4] mfd: intel-lpss: Add support for MacBookPro16,2 ICL-N
- UART
-Message-ID: <YXJvMscD129bLvGN@google.com>
-References: <7E63F4C9-6AE9-4E97-9986-B13A397289C5@live.com>
- <YWV4bnbn7VXjYWWy@google.com>
- <FC366D8C-0360-49B2-B641-5A3FD50E3398@live.com>
- <YWg/1zcfMN2+vuiJ@smile.fi.intel.com>
- <YXFL05vXfoCV/Go/@google.com>
- <054143A2-888C-42DF-947A-8CEAFF155292@live.com>
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=0zxPduS5IUlaKoDmCEn68k89T9YkKaQNgugxVbUHaKI=;
+        b=Yt5eQJZnzMkCaoZjNlFnCkbyJ4qXjjHbKFZnFvdVe5CPaQTLraVGv9bfeYfXQ4sgSe
+         usz/10aKfoqMpohR3ao1gdLBOpH4njEJoQf9VUE955B/N38Yy8K4HZ8E0lPa52m8wNjY
+         Ddh1pF6ypA5GkK3vKJV3AQ+CQ+bfqVLJYy4j5YBIV6D3mN/jaB+1XxBWK8598xtU5kCd
+         khgu3mL65hvsVcQEAO0Vzr8Z3w2gafAw7jJdZt3kIYujT2kzjS7jtgqMBtOQb0usNT56
+         4heuzMQflDtU4Mtffx7+K3pNgmfu6qcrKHPhBBy1/jOuE4PkbuK2RfH8QEZi+Fuqbt4u
+         tvAA==
+X-Gm-Message-State: AOAM530ovA+IEIO/n4mY5PKx2dslEokBRdxa7CcUqgGJc4CFsZIlD0jT
+        qMELCZEPrVK92ziqfe0ktqIzEjaMGv3cpfD4bA==
+X-Google-Smtp-Source: ABdhPJzyngZvF1x5AqmSo70splXkp+qFQSVxrZ/VH0p1ByKzdfgjcoAoF9DNfn8ykP4Zqa8Z/G73XFAlHMd600yrVS4=
+X-Received: by 2002:a05:6e02:1aa7:: with SMTP id l7mr6839728ilv.231.1634890867503;
+ Fri, 22 Oct 2021 01:21:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <054143A2-888C-42DF-947A-8CEAFF155292@live.com>
+Reply-To: tofilbamar@gmail.com
+Sender: shippinglinecompany46@gmail.com
+Received: by 2002:a02:b089:0:0:0:0:0 with HTTP; Fri, 22 Oct 2021 01:21:07
+ -0700 (PDT)
+From:   Tofil Bama <tofilbamarn@gmail.com>
+Date:   Fri, 22 Oct 2021 01:21:07 -0700
+X-Google-Sender-Auth: 2oVGlsMnEwEhHkLeH7mYqgAEsgA
+Message-ID: <CAO8gpBmhsr+OLBadL5KnUCHQx3LQcZ8=ECo_BiH+YjvviGe7bA@mail.gmail.com>
+Subject: GOOD NEWS.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 22 Oct 2021, Aditya Garg wrote:
+Dear,
 
-> 
-> From 76d8253d90233b2c2d3fbc82355c603bf0eb9964 Mon Sep 17 00:00:00 2001
-> From: Orlando Chamberlain <redecorating@protonmail.com>
-> Date: Fri, 1 Oct 2021 13:30:19 +0530
-> Subject: [PATCH] Add support for MacBookPro16,2 UART
-> Cc: stable@vger.kernel.org
+My name is Mr Tofil Bama, I am the Bill and Exchange assistant
+Manager in Bank of Africa Ouagadougou Burkina Faso. In my department
+I discovered an abandoned sum of eighteen million three hundred
+thousand United State of American dollars (18.3MILLION USA DOLLARS)
+in an account that belongs to one of our foreign customer
+(late Mr Shitu Nuri) who died in Ethiopian Airlines Flight 409 that
+crashed into the Mediterranean Sea on 25th January 2010.
 
-What is this?
+Since I got information about his death I have been expecting
+his next of kin to come over and claim his money because we
+cannot release it unless somebody applies for it as the next
+of kin or relation to the deceased as indicated in our banking
+guidelines, unfortunately we learnt that all his supposed next of
+kin or relation died alongside with him in the plane crash leaving
+nobody behind for the claim.
 
-These headers should not be part of the patch.
+It is therefore upon this discovery that I decided to make this
+business proposal to you and release the money to you as next of kin
+to the deceased for safety and subsequent disbursement since nobody
+is coming for the fund, it is 11 years now the money is lying pending
+in the account of our deceased and I don't want the money to go into
+the bank treasury as unclaimed bill.
 
-How are you submitting this?
-What tools are you using?
-Did you read the documents I sent you (see below)?
+You will be entitled with 40% of the total sum while 60% will be for
+me after which I will visit your Country to invest my own share when
+the fund is successfully transferred into your account, Please I would
+like you to keep this transaction confidential and as a top secret
+between me and you until we successfully achieve this golden
+opportunity.
 
-> Added 8086:38a8 to the intel_lpss_pci driver. It is an Intel Ice Lake PCH-N UART controller present on the MacBookPro16,2.
-
-This line is too long.
-
-> Signed-off-by: Aditya Garg <gargaditya08@live.com>
-> ---
->  drivers/mfd/intel-lpss-pci.c | 2 ++
->  1 file changed, 2 insertions(+)
-
-This diff looks better.
-
-> diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
-> index c54d19fb1..33d5043fd 100644
-> --- a/drivers/mfd/intel-lpss-pci.c
-> +++ b/drivers/mfd/intel-lpss-pci.c
-> @@ -253,6 +253,8 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
->  	{ PCI_VDEVICE(INTEL, 0x34ea), (kernel_ulong_t)&bxt_i2c_info },
->  	{ PCI_VDEVICE(INTEL, 0x34eb), (kernel_ulong_t)&bxt_i2c_info },
->  	{ PCI_VDEVICE(INTEL, 0x34fb), (kernel_ulong_t)&spt_info },
-> +	/* ICL-N*/
-> +	{ PCI_VDEVICE(INTEL, 0x38a8), (kernel_ulong_t)&bxt_uart_info },
->  	/* TGL-H */
->  	{ PCI_VDEVICE(INTEL, 0x43a7), (kernel_ulong_t)&bxt_uart_info },
->  	{ PCI_VDEVICE(INTEL, 0x43a8), (kernel_ulong_t)&bxt_uart_info },
-> 
-> > On 21-Oct-2021, at 4:45 PM, Lee Jones <lee.jones@linaro.org> wrote:
-> > 
-> > On Thu, 14 Oct 2021, andriy.shevchenko@linux.intel.com wrote:
-> > 
-> >> On Thu, Oct 14, 2021 at 04:15:05AM +0000, Aditya Garg wrote:
-> >> 
-> >> Entire message looks like a mess. Are you sure you are using proper tools
-> >> for sending it?
-> > 
-> > Agreed.
-> > 
-> > I can't apply this until it's submitted properly.
-> > 
-> > - Please read Documentation/process/submitting-patches.rst
-> > - Please read Documentation/process/coding-style.rst
-> > 
-> > If you have any questions, please reach out.  We're happy to help.
-> > 
-
-This quoted text can't be part of a submitted patch.
-
-Please submit the patch on its own, as a new thread, using the correct
-tooling (provided mostly by the Git package (i.e. `git format-patch`
-and `git send-email`).
-
-If you're stuck, or there is something you do not understand, please
-ask.
-
--- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Yours sincerely,
+Mr Tofil Bama.
