@@ -2,114 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61CB943794B
-	for <lists+stable@lfdr.de>; Fri, 22 Oct 2021 16:48:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 767374379A0
+	for <lists+stable@lfdr.de>; Fri, 22 Oct 2021 17:09:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233274AbhJVOvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Oct 2021 10:51:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
+        id S233122AbhJVPMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Oct 2021 11:12:03 -0400
+Received: from mga02.intel.com ([134.134.136.20]:51532 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233269AbhJVOvB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Oct 2021 10:51:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4D9861213;
-        Fri, 22 Oct 2021 14:48:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1634914123;
-        bh=D7YiPLV5BWiABRuEJr1caIsL8j1JOmX/Rlc+/V7Zfbg=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=sHa0yAkhFeH0wZLIgP+ZI7JoVDO5tgcdXSeghzQbQK7n/dxfo66MH/BjWZ/GwXYsY
-         1lmUGj33d6m9ZyKJVNRgOnfGQf6661uVPXTNjyiQVYf2SEd27wMupbpxE5k1cNCRpM
-         Y7TGbObewe6NQWRkG0jIaqgVqtC6/OyDZcfm2mUoRVAe6k8KDCEsK8TLhu0x5e9V1T
-         FZLL09ifW1DG2+8UYL7E9psr+jwEKpcegXa58VLfO9xnwswOxplLAXtGgmLgW5fSFr
-         8ELzw3slNSG/FZEpwOCBZtuoxL1qo3u6UCLPNYi3DMe4PCTM2GBqA7Bf4muiaG2gcg
-         N136D/QBNtSLQ==
-Received: by mail-oi1-f169.google.com with SMTP id v77so5329881oie.1;
-        Fri, 22 Oct 2021 07:48:43 -0700 (PDT)
-X-Gm-Message-State: AOAM530FzKiqbAFhZAcm+0Y5Kh40LEFcrBIquFq8dAmAW//06pwQdR0l
-        JzAGEUch7G6/YKkutBhKiWvdu8rqA6nFDzYeQFE=
-X-Google-Smtp-Source: ABdhPJypGAKfqCWEfb5UwFvo4wdFO3IfTvhmWl1YbhLQa54b43BdKPBALNvuxXcnPQLKw9/L9/PCjOHfhxdGtFJefWc=
-X-Received: by 2002:aca:4bc4:: with SMTP id y187mr92315oia.174.1634914123022;
- Fri, 22 Oct 2021 07:48:43 -0700 (PDT)
+        id S233086AbhJVPMD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Oct 2021 11:12:03 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10144"; a="216486644"
+X-IronPort-AV: E=Sophos;i="5.87,173,1631602800"; 
+   d="scan'208";a="216486644"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2021 08:09:37 -0700
+X-IronPort-AV: E=Sophos;i="5.87,173,1631602800"; 
+   d="scan'208";a="445321281"
+Received: from smile.fi.intel.com ([10.237.72.184])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2021 08:09:35 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.95)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1mdwAT-0008kI-9n;
+        Fri, 22 Oct 2021 18:09:13 +0300
+Date:   Fri, 22 Oct 2021 18:09:13 +0300
+From:   "andriy.shevchenko@linux.intel.com" 
+        <andriy.shevchenko@linux.intel.com>
+To:     Aditya Garg <gargaditya08@live.com>
+Cc:     Lee Jones <lee.jones@linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Orlando Chamberlain <redecorating@protonmail.com>
+Subject: Re: [PATCHv4] mfd: intel-lpss: Add support for MacBookPro16,2 ICL-N
+ UART
+Message-ID: <YXLUGCC9GdY4SeH6@smile.fi.intel.com>
+References: <7E63F4C9-6AE9-4E97-9986-B13A397289C5@live.com>
+ <YWV4bnbn7VXjYWWy@google.com>
+ <FC366D8C-0360-49B2-B641-5A3FD50E3398@live.com>
+ <YWg/1zcfMN2+vuiJ@smile.fi.intel.com>
+ <YXFL05vXfoCV/Go/@google.com>
+ <054143A2-888C-42DF-947A-8CEAFF155292@live.com>
+ <YXJvMscD129bLvGN@google.com>
+ <PNZPR01MB44151488C970DB48157D5AFCB8809@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM>
 MIME-Version: 1.0
-References: <ebf1eb2940405438a09d51d121ec0d02c8755558.1634752931.git.thomas.lendacky@amd.com>
- <9d9ca009-93c5-acc3-7445-d514c7878478@amd.com>
-In-Reply-To: <9d9ca009-93c5-acc3-7445-d514c7878478@amd.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Fri, 22 Oct 2021 16:48:31 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXEDPwORj=oeQJ66FVD6WMjpxWiXX1Y317izHzRH1c1ncw@mail.gmail.com>
-Message-ID: <CAMj1kXEDPwORj=oeQJ66FVD6WMjpxWiXX1Y317izHzRH1c1ncw@mail.gmail.com>
-Subject: Re: [PATCH] x86/sme: Explicitly map new EFI memmap table as encrypted
-To:     Tom Lendacky <thomas.lendacky@amd.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        X86 ML <x86@kernel.org>, linux-efi <linux-efi@vger.kernel.org>,
-        platform-driver-x86@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <PNZPR01MB44151488C970DB48157D5AFCB8809@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 21 Oct 2021 at 15:21, Tom Lendacky <thomas.lendacky@amd.com> wrote:
->
-> On 10/20/21 1:02 PM, Tom Lendacky wrote:
-> > Reserving memory using efi_mem_reserve() calls into the x86
-> > efi_arch_mem_reserve() function. This function will insert a new EFI
-> > memory descriptor into the EFI memory map representing the area of
-> > memory to be reserved and marking it as EFI runtime memory. As part
-> > of adding this new entry, a new EFI memory map is allocated and mapped.
-> > The mapping is where a problem can occur. This new memory map is mapped
-> > using early_memremap() and generally mapped encrypted, unless the new
-> > memory for the mapping happens to come from an area of memory that is
-> > marked as EFI_BOOT_SERVICES_DATA memory.
+On Fri, Oct 22, 2021 at 12:43:33PM +0000, Aditya Garg wrote:
+> I am really sorry. I don’t have any experience regarding submitting patches upstream. I copied and pasted the diff generated using git. My email client doesn’t seem to support git send email. I would be happy if I could get some guidance.
 
-This bit already sounds dodgy to me. At runtime, anything provided by
-the firmware that needs to be mapped unencrypted should be
-identifiable as such, regardless of the memory type. So why is there a
-special case for BS data?
+First and very important guidance: do not top-post!
 
-> > In this case, the new memory will
-> > be mapped unencrypted. However, during replacement of the old memory map,
-> > efi_mem_type() is disabled, so the new memory map will now be long-term
-> > mapped encrypted (in efi.memmap), resulting in the map containing invalid
-> > data and causing the kernel boot to crash.
+Next, as Lee pointed out there are available documents on how to submit patches
+properly. Please, read them (they are available inside kernel source tree as
+well).
+
+TL;DR: again as Lee said, `git format-patch` (produces a file in mbox format)
+followed by `git send-email` will suffice.
+
+> From: Lee Jones <lee.jones@linaro.org>
+> Sent: Friday, October 22, 2021 1:28:42 PM
+> To: Aditya Garg <gargaditya08@live.com>
+> Cc: andriy.shevchenko@linux.intel.com <andriy.shevchenko@linux.intel.com>; stable@vger.kernel.org <stable@vger.kernel.org>; Orlando Chamberlain <redecorating@protonmail.com>
+> Subject: Re: [PATCHv4] mfd: intel-lpss: Add support for MacBookPro16,2 ICL-N UART
+> 
+> On Fri, 22 Oct 2021, Aditya Garg wrote:
+> 
 > >
-> > Since it is known that the area will be mapped encrypted going forward,
-> > explicitly map the new memory map as encrypted using early_memremap_prot().
-> >
-> > Cc: <stable@vger.kernel.org> # 4.14.x
-> > Fixes: 8f716c9b5feb ("x86/mm: Add support to access boot related data in the clear")
-> > Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+> > From 76d8253d90233b2c2d3fbc82355c603bf0eb9964 Mon Sep 17 00:00:00 2001
+> > From: Orlando Chamberlain <redecorating@protonmail.com>
+> > Date: Fri, 1 Oct 2021 13:30:19 +0530
+> > Subject: [PATCH] Add support for MacBookPro16,2 UART
+> > Cc: stable@vger.kernel.org
+> 
+> What is this?
+> 
+> These headers should not be part of the patch.
+> 
+> How are you submitting this?
+> What tools are you using?
+> Did you read the documents I sent you (see below)?
+> 
+> > Added 8086:38a8 to the intel_lpss_pci driver. It is an Intel Ice Lake PCH-N UART controller present on the MacBookPro16,2.
+> 
+> This line is too long.
+> 
+> > Signed-off-by: Aditya Garg <gargaditya08@live.com>
 > > ---
-> >   arch/x86/platform/efi/quirks.c | 3 ++-
-> >   1 file changed, 2 insertions(+), 1 deletion(-)
+> >  drivers/mfd/intel-lpss-pci.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> 
+> This diff looks better.
+> 
+> > diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
+> > index c54d19fb1..33d5043fd 100644
+> > --- a/drivers/mfd/intel-lpss-pci.c
+> > +++ b/drivers/mfd/intel-lpss-pci.c
+> > @@ -253,6 +253,8 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
+> >        { PCI_VDEVICE(INTEL, 0x34ea), (kernel_ulong_t)&bxt_i2c_info },
+> >        { PCI_VDEVICE(INTEL, 0x34eb), (kernel_ulong_t)&bxt_i2c_info },
+> >        { PCI_VDEVICE(INTEL, 0x34fb), (kernel_ulong_t)&spt_info },
+> > +     /* ICL-N*/
+> > +     { PCI_VDEVICE(INTEL, 0x38a8), (kernel_ulong_t)&bxt_uart_info },
+> >        /* TGL-H */
+> >        { PCI_VDEVICE(INTEL, 0x43a7), (kernel_ulong_t)&bxt_uart_info },
+> >        { PCI_VDEVICE(INTEL, 0x43a8), (kernel_ulong_t)&bxt_uart_info },
 > >
-> > diff --git a/arch/x86/platform/efi/quirks.c b/arch/x86/platform/efi/quirks.c
-> > index b15ebfe40a73..b0b848d6933a 100644
-> > --- a/arch/x86/platform/efi/quirks.c
-> > +++ b/arch/x86/platform/efi/quirks.c
-> > @@ -277,7 +277,8 @@ void __init efi_arch_mem_reserve(phys_addr_t addr, u64 size)
-> >               return;
-> >       }
-> >
-> > -     new = early_memremap(data.phys_map, data.size);
-> > +     new = early_memremap_prot(data.phys_map, data.size,
-> > +                               pgprot_val(pgprot_encrypted(FIXMAP_PAGE_NORMAL)));
->
-> I should really have a comment above this as to why this version of the
-> early_memremap is being used.
->
-> Let me add that (and maybe work on the commit message a bit) and submit a
-> v2. But I'll hold off for a bit in case any discussion comes about.
->
+> > > On 21-Oct-2021, at 4:45 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> > >
+> > > On Thu, 14 Oct 2021, andriy.shevchenko@linux.intel.com wrote:
+> > >
+> > >> On Thu, Oct 14, 2021 at 04:15:05AM +0000, Aditya Garg wrote:
+> > >>
+> > >> Entire message looks like a mess. Are you sure you are using proper tools
+> > >> for sending it?
+> > >
+> > > Agreed.
+> > >
+> > > I can't apply this until it's submitted properly.
+> > >
+> > > - Please read Documentation/process/submitting-patches.rst
+> > > - Please read Documentation/process/coding-style.rst
+> > >
+> > > If you have any questions, please reach out.  We're happy to help.
+> > >
+> 
+> This quoted text can't be part of a submitted patch.
+> 
+> Please submit the patch on its own, as a new thread, using the correct
+> tooling (provided mostly by the Git package (i.e. `git format-patch`
+> and `git send-email`).
+> 
+> If you're stuck, or there is something you do not understand, please
+> ask.
 
-For the [backported] change itself (with the comment added)
+-- 
+With Best Regards,
+Andy Shevchenko
 
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
 
-but I'd still like to understand if we can improve the situation with BS data.
