@@ -2,119 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32E064380A2
-	for <lists+stable@lfdr.de>; Sat, 23 Oct 2021 01:29:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9484438377
+	for <lists+stable@lfdr.de>; Sat, 23 Oct 2021 13:32:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232099AbhJVXbh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Oct 2021 19:31:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34678 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230086AbhJVXbh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Oct 2021 19:31:37 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14BCEC061764;
-        Fri, 22 Oct 2021 16:29:19 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id q2-20020a17090a2e0200b001a0fd4efd49so8420353pjd.1;
-        Fri, 22 Oct 2021 16:29:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3Q6iLLHmsihC44JANxHNZh042pUr1io1ZQkDcpjym1o=;
-        b=Bw1b0nCs6AFh9GGZszUb0Gh1uAeSCi7J0PfpbV0e8E/LQYYMmDW7NamcjVV27jQjsq
-         tT9z9OKReRoO0SxL+mK9eiOX7liHezL7oyquTU/HHAPFOFW/NktXsy7GJHTvk2sl2brz
-         uIGq7VKf8fOP5mvb/DC/Q+E+jRNXNh5lYSS0qBVaxTLja45Xcgb1KQwZfLs0l7MbwCI4
-         wMjcD86NdL2esw0dlnohpJK9OvnMxUPzruP7nNUCo+INCTJ1cbQ99ipZId39RAq2DY6x
-         1rU5Tv+Gu/KSEyiAPh///7l+3v479CSs14FR8H0JvszeHD4dES83+Pm3tzQUYjrT9BVs
-         mo9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3Q6iLLHmsihC44JANxHNZh042pUr1io1ZQkDcpjym1o=;
-        b=Sg+73Wuq+nnXxHq+z0SzFxb06H4rWfp4PnqRaivv1i26gCTWa08X0heQ1SK7ZB4Qw0
-         lY6EhTtzRZWsFXlFHSTk0PPXRVpTn00JhHz8vorywS1Ku5FpOIMI+FiL8VxfbhQFt4mm
-         EoWSJNfbf3i5JptcOJniI+AUarL8yMDxFdHc8SKxt8oTBfZW/4qSFUQH2QHv5Opb51EA
-         B8c7W4olwuJlrZRHmQ+k9Q3aqDMsw+UH8Hbe0JM+6a5JEcHjpcf+l4bJ4ucID9bj1526
-         xtBlD7K5VMLvxLE0zQkqyIZPZ3tHmq+iauz9zst1/ks216XU25gRcy2TPZLkWSgpyrz2
-         L6pg==
-X-Gm-Message-State: AOAM5302d8XapISCMi7CTcDFt7IZ5rZOejp5p7iS45g2ix5I2nMrvBm7
-        XFlvDnKNbij0yAbbLVvLt/TGc/I6ZB3emw==
-X-Google-Smtp-Source: ABdhPJxwo84oTU0Xc6NMSVrp987XOoTz3aYgBIOm6jCU9LOPkiXGQ5/ueSsLmkYSGoQQ8vFLwAMuaQ==
-X-Received: by 2002:a17:903:2312:b0:140:26b7:fc01 with SMTP id d18-20020a170903231200b0014026b7fc01mr2384586plh.84.1634945358602;
-        Fri, 22 Oct 2021 16:29:18 -0700 (PDT)
-Received: from localhost.localdomain ([2601:1c2:4f03:fea0:28f7:ecd6:6877:a8e])
-        by smtp.gmail.com with ESMTPSA id b6sm12575440pfv.171.2021.10.22.16.29.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Oct 2021 16:29:18 -0700 (PDT)
-From:   Ping Cheng <pinglinux@gmail.com>
-X-Google-Original-From: Ping Cheng <ping.cheng@wacom.com>
-To:     jikos@kernel.org
-Cc:     linux-input@vger.kernel.org, Jason.Gerecke@wacom.com,
-        tatsunosuke.tobita@wacom.com, Ping Cheng <ping.cheng@wacom.com>,
-        stable@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>,
-        Tatsunosuke Tobita <junkpainting@gmail.com>
-Subject: [PATCH] HID: input: fix the incorrectly reported BTN_TOOL_RUBBER/PEN tools
-Date:   Fri, 22 Oct 2021 16:28:37 -0700
-Message-Id: <20211022232837.18988-1-ping.cheng@wacom.com>
-X-Mailer: git-send-email 2.25.1
+        id S229813AbhJWLfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Oct 2021 07:35:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42186 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229778AbhJWLfE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 23 Oct 2021 07:35:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47A6560F70;
+        Sat, 23 Oct 2021 11:32:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1634988765;
+        bh=SBP7/+VsPi2zy67Uxc6FSjUy/Hx+Zxd170hX0qozMNc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=pIQhwT7RU1N7YmhKX5F4asZp8XijLsb1vqqupF5Vgc1Ws0k9571QB0D/YkTQYsrfv
+         bt7aenUva/+XcSIA5aT/8Zz0nu/BmdLNoHVTS7axDTPtwsiafQtErp1ku7qTPqRGU5
+         +QHGnazDkuBkHz1N9GnXg1V6HgY5uTBFqC6aY8qWS+gefx0IYpGPQvYOrSQc6pS7xD
+         IfcfZG1mHJ8+XR3lqaZKp/CrxPI2Mh/iSc0Q+BqJY6wWWBRMbiUeGINiXQGN3bOXby
+         2jrsPUzyUwYNlJxiALAsUnNEuRz38uAU2G10zLU8ABMeuOqrFK5cipCpK5inJAhMN7
+         QryyXma0IXUPA==
+From:   Mark Brown <broonie@kernel.org>
+To:     Thomas Perrot <thomas.perrot@bootlin.com>,
+        linux-spi@vger.kernel.org
+Cc:     Mark Brown <broonie@kernel.org>, stable@vger.kernel.org,
+        linus.walleij@linaro.org
+Subject: Re: [PATCH] spi: spl022: fix Microwire full duplex mode
+Date:   Sat, 23 Oct 2021 12:32:42 +0100
+Message-Id: <163498875634.38380.8059992136982566473.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211022142104.1386379-1-thomas.perrot@bootlin.com>
+References: <20211022142104.1386379-1-thomas.perrot@bootlin.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The HID_QUIRK_INVERT caused BTN_TOOL_RUBBER events were reported at the
-same time as events for BTN_TOOL_PEN/PENCIL/etc, if HID_QUIRK_INVERT
-was set by a stylus' sideswitch. The reality is that a pen can only be
-a stylus (writing/drawing) or an eraser, but not both at the same time.
-This patch makes that logic correct.
+On Fri, 22 Oct 2021 16:21:04 +0200, Thomas Perrot wrote:
+> There are missing braces in the function that verify controller parameters,
+> then an error is always returned when the parameter to select Microwire
+> frames operation is used on devices allowing it.
+> 
+> 
 
-CC: stable@vger.kernel.org # 2.4+
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-Reviewed-by: Jason Gerecke <killertofu@gmail.com>
-Tested-by: Tatsunosuke Tobita <junkpainting@gmail.com>
----
- drivers/hid/hid-input.c | 24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+Applied to
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 4b5ebeacd283..85741a2d828d 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1344,12 +1344,28 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
- 	}
- 
- 	if (usage->hid == HID_DG_INRANGE) {
-+		/* when HID_QUIRK_INVERT is set by a stylus sideswitch, HID_DG_INRANGE could be
-+		 * for stylus or eraser. Make sure events are only posted to the current valid tool:
-+		 * BTN_TOOL_RUBBER vs BTN_TOOL_PEN/BTN_TOOL_PENCIL/BTN_TOOL_BRUSH/etc since a pen
-+		 * can not be used as a stylus (to draw/write) and an erasaer at the same time
-+		 */
-+		static unsigned int last_code = 0;
-+		unsigned int code = (*quirks & HID_QUIRK_INVERT) ? BTN_TOOL_RUBBER : usage->code;
- 		if (value) {
--			input_event(input, usage->type, (*quirks & HID_QUIRK_INVERT) ? BTN_TOOL_RUBBER : usage->code, 1);
--			return;
-+			if (code != last_code) {
-+				/* send the last tool out before allow the new one in */
-+				if (last_code)
-+					input_event(input, usage->type, last_code, 0);
-+				input_event(input, usage->type, code, 1);
-+			}
-+			last_code = code;
-+		} else {
-+			/* only send the last valid tool out */
-+			if (last_code)
-+				input_event(input, usage->type, last_code, 0);
-+			/* reset tool for next cycle */
-+			last_code = 0;
- 		}
--		input_event(input, usage->type, usage->code, 0);
--		input_event(input, usage->type, BTN_TOOL_RUBBER, 0);
- 		return;
- 	}
- 
--- 
-2.25.1
+   broonie/spi.git for-next
 
+Thanks!
+
+[1/1] spi: spl022: fix Microwire full duplex mode
+      commit: 992ed0c72eb9c459c402205ce274904ea789a780
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
