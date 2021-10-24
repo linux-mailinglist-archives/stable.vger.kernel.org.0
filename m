@@ -2,88 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E9684388C1
-	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:57:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B3BE4388C3
+	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 14:04:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229868AbhJXL7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Oct 2021 07:59:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60740 "EHLO mail.kernel.org"
+        id S230021AbhJXMGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Oct 2021 08:06:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229867AbhJXL7c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 Oct 2021 07:59:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3D3F60524;
-        Sun, 24 Oct 2021 11:57:10 +0000 (UTC)
+        id S229867AbhJXMGX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 24 Oct 2021 08:06:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8843860E9B;
+        Sun, 24 Oct 2021 12:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635076631;
-        bh=rRlNDbh9/DqEkYBJ4BtlhsbqREtPLe7GXrIz0zuCL0A=;
-        h=Subject:To:Cc:From:Date:From;
-        b=xCxdKBf9bMpq8LPMSgITbyzb4kEfzsWskho3uZAfxY41h/I7CBAW9q/1xiQxTW75V
-         yR49yKx+xPPx2VU/HJ8yCjw9oO8JiZhwy5WdYEnRoH908FjI/Lzr6yhXkMW+nbEuQh
-         5PmGnTUOZZwTh810S89i7XQL7Pvi9JygR4FHIOac=
-Subject: FAILED: patch "[PATCH] KVM: x86: check for interrupts before deciding whether to" failed to apply to 5.10-stable tree
-To:     pbonzini@redhat.com, seanjc@google.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Oct 2021 13:57:09 +0200
-Message-ID: <16350766297207@kroah.com>
+        s=korg; t=1635077043;
+        bh=347rhVOZpf14PR/MtIZ0NVcBWWUV7MF0ZSZHrOFOtiM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=sbE1uDWsaKk6B6J5mhrvjNYWiA9zAc5ugfSZ+5UNHLC30orUFCnHOY2VIrs7m344M
+         l6AGsLm7FMK3bTbCpiyECdsr3IKR1okkbY07G76ZGWDOvW3YGIBLLqXGPrcrLuZ58W
+         O0Zx2KotmLQ5Yrq+vf8drPB94Ngoghd8X48j/mPo=
+Date:   Sun, 24 Oct 2021 14:04:00 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 5.14 1/2] s390/pci: cleanup resources only if necessary
+Message-ID: <YXVLsMbqZ389YHX8@kroah.com>
+References: <20211021141341.344756-1-schnelle@linux.ibm.com>
+ <20211021141341.344756-2-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211021141341.344756-2-schnelle@linux.ibm.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Oct 21, 2021 at 04:13:40PM +0200, Niklas Schnelle wrote:
+> commit 023cc3cb1e4baa8d1900a4f2e999701c82ce2b6c upstream.
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From de7cd3f6761f49bef044ec49493d88737a70f1a6 Mon Sep 17 00:00:00 2001
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Wed, 20 Oct 2021 06:27:36 -0400
-Subject: [PATCH] KVM: x86: check for interrupts before deciding whether to
- exit the fast path
-
-The kvm_x86_sync_pir_to_irr callback can sometimes set KVM_REQ_EVENT.
-If that happens exactly at the time that an exit is handled as
-EXIT_FASTPATH_REENTER_GUEST, vcpu_enter_guest will go incorrectly
-through the loop that calls kvm_x86_run, instead of processing
-the request promptly.
-
-Fixes: 379a3c8ee444 ("KVM: VMX: Optimize posted-interrupt delivery for timer fastpath")
-Cc: stable@vger.kernel.org
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 0c8b5129effd..381384a54790 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9643,14 +9643,14 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
- 		if (likely(exit_fastpath != EXIT_FASTPATH_REENTER_GUEST))
- 			break;
- 
--                if (unlikely(kvm_vcpu_exit_request(vcpu))) {
-+		if (vcpu->arch.apicv_active)
-+			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
-+
-+		if (unlikely(kvm_vcpu_exit_request(vcpu))) {
- 			exit_fastpath = EXIT_FASTPATH_EXIT_HANDLED;
- 			break;
- 		}
--
--		if (vcpu->arch.apicv_active)
--			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
--        }
-+	}
- 
- 	/*
- 	 * Do this here before restoring debug registers on the host.  And
+This is not a commit in Linus's tree :(
 
