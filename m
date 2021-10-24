@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43CD643886E
-	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:09:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC12D438870
+	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:09:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231574AbhJXLLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Oct 2021 07:11:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48068 "EHLO mail.kernel.org"
+        id S230355AbhJXLLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Oct 2021 07:11:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231563AbhJXLLt (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sun, 24 Oct 2021 07:11:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A430260F6F;
-        Sun, 24 Oct 2021 11:09:28 +0000 (UTC)
+        id S230021AbhJXLLy (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sun, 24 Oct 2021 07:11:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66C4060F45;
+        Sun, 24 Oct 2021 11:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635073769;
-        bh=Txj2HDgLT1pf9JZdx/L4lg4LM9SJVote681Y003qkwA=;
+        s=korg; t=1635073773;
+        bh=5gLOYMiJuuDoqqlj24U3tAM8xZAIbJaFaq31Uzqj0no=;
         h=Subject:To:From:Date:From;
-        b=IMmbAywKposhRHu5eECawzXuaRimsyoU+UVo/uBpUIllWf1gLAimkmUp6/SUMFiQF
-         sTeuopIHMv6Z9+WKdj2RVWesBqlJOrMlx2y9tJzAHPqP0Sqk/IM0V1r/K1g1zjzXd3
-         iVHAQJ7+0a7psTGzosVqokYTpZTmCMdaLW+j5x80=
-Subject: patch "iio: core: check return value when calling dev_set_name()" added to char-misc-testing
-To:     yangyingliang@huawei.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, hulkci@huawei.com
+        b=JkFBP2r3r/GolizUQ+D6pUqlBs2SSHVgp3m4RPQ+esjkR/6l5gWEOujVFnddyBYv2
+         ujxZjOu8+r6eyzgcW0/1pQjxpfCggScLHsWBRW5mI4kjuR6PiiXbKYnAOuyNL58Phf
+         18+mWFoEHT9VWC8jG0UBJyPNo6HZ9opCfDxQfZIQ=
+Subject: patch "iio: adc: tsc2046: fix scan interval warning" added to char-misc-testing
+To:     o.rempel@pengutronix.de, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Oct 2021 13:09:12 +0200
-Message-ID: <1635073752221255@kroah.com>
+Date:   Sun, 24 Oct 2021 13:09:13 +0200
+Message-ID: <16350737538131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: core: check return value when calling dev_set_name()
+    iio: adc: tsc2046: fix scan interval warning
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -51,55 +51,34 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From fe6f45f6ba22d625a8500cbad0237c60dd3117ee Mon Sep 17 00:00:00 2001
-From: Yang Yingliang <yangyingliang@huawei.com>
-Date: Tue, 12 Oct 2021 14:36:24 +0800
-Subject: iio: core: check return value when calling dev_set_name()
+From 69b31fd7a61784692db6433c05d46915b1b1a680 Mon Sep 17 00:00:00 2001
+From: Oleksij Rempel <o.rempel@pengutronix.de>
+Date: Thu, 7 Oct 2021 11:30:06 +0200
+Subject: iio: adc: tsc2046: fix scan interval warning
 
-I got a null-ptr-deref report when doing fault injection test:
+Sync if statement with the actual warning.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-RIP: 0010:strlen+0x0/0x20
-Call Trace:
- start_creating+0x199/0x2f0
- debugfs_create_dir+0x25/0x430
- __iio_device_register+0x4da/0x1b40 [industrialio]
- __devm_iio_device_register+0x22/0x80 [industrialio]
- max1027_probe+0x639/0x860 [max1027]
- spi_probe+0x183/0x210
- really_probe+0x285/0xc30
-
-If dev_set_name() fails, the dev_name() is null, check the return
-value of dev_set_name() to avoid the null-ptr-deref.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: e553f182d55b ("staging: iio: core: Introduce debugfs support...")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Fixes: 9504db5765e8 ("iio: adc: tsc2046: fix a warning message in tsc2046_adc_update_scan_mode()")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/r/20211007093007.1466-2-o.rempel@pengutronix.de
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211012063624.3167460-1-yangyingliang@huawei.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/industrialio-core.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/iio/adc/ti-tsc2046.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
-index 2dbb37e09b8c..48fda6a79076 100644
---- a/drivers/iio/industrialio-core.c
-+++ b/drivers/iio/industrialio-core.c
-@@ -1664,7 +1664,13 @@ struct iio_dev *iio_device_alloc(struct device *parent, int sizeof_priv)
- 		kfree(iio_dev_opaque);
- 		return NULL;
- 	}
--	dev_set_name(&indio_dev->dev, "iio:device%d", iio_dev_opaque->id);
-+
-+	if (dev_set_name(&indio_dev->dev, "iio:device%d", iio_dev_opaque->id)) {
-+		ida_simple_remove(&iio_ida, iio_dev_opaque->id);
-+		kfree(iio_dev_opaque);
-+		return NULL;
-+	}
-+
- 	INIT_LIST_HEAD(&iio_dev_opaque->buffer_list);
- 	INIT_LIST_HEAD(&iio_dev_opaque->ioctl_handlers);
+diff --git a/drivers/iio/adc/ti-tsc2046.c b/drivers/iio/adc/ti-tsc2046.c
+index 170950d5dd49..d84ae6b008c1 100644
+--- a/drivers/iio/adc/ti-tsc2046.c
++++ b/drivers/iio/adc/ti-tsc2046.c
+@@ -398,7 +398,7 @@ static int tsc2046_adc_update_scan_mode(struct iio_dev *indio_dev,
+ 	priv->xfer.len = size;
+ 	priv->time_per_scan_us = size * 8 * priv->time_per_bit_ns / NSEC_PER_USEC;
+ 
+-	if (priv->scan_interval_us > priv->time_per_scan_us)
++	if (priv->scan_interval_us < priv->time_per_scan_us)
+ 		dev_warn(&priv->spi->dev, "The scan interval (%d) is less then calculated scan time (%d)\n",
+ 			 priv->scan_interval_us, priv->time_per_scan_us);
  
 -- 
 2.33.1
