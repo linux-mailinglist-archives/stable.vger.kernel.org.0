@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B444388C9
-	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 14:09:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA55B4388CA
+	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 14:09:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229867AbhJXMLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Oct 2021 08:11:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36652 "EHLO mail.kernel.org"
+        id S231372AbhJXMLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Oct 2021 08:11:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231372AbhJXMLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 Oct 2021 08:11:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F283460EE3;
-        Sun, 24 Oct 2021 12:09:22 +0000 (UTC)
+        id S231397AbhJXMLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 24 Oct 2021 08:11:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5362660F12;
+        Sun, 24 Oct 2021 12:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635077363;
-        bh=jMfUU87AX+hPmwU/2ZiuTwLfmdT5wiWYxwz/NVzAWmI=;
+        s=korg; t=1635077365;
+        bh=xa+zdvXfYCLfVeo6IO9QetC10NUPmJAN9kULopXyf7A=;
         h=Subject:To:Cc:From:Date:From;
-        b=p8R8R0ZqnxPOR0b+hBujKan74E8wI82z9o2WHlMMnp187I3ksZCbkvIKEIe3Exd2q
-         NtNqDbDTjERDVD3rLg5qWr5tO0pvoj+aNaeygHmJBDfZ6Zo7KHOcIYBTd//4tQnKNg
-         IgWXMc3MxeVilVzawPbUdZyYrEtH9ryQ+fdQc2sQ=
-Subject: FAILED: patch "[PATCH] KVM: MMU: Reset mmu->pkru_mask to avoid stale data" failed to apply to 4.19-stable tree
+        b=VFIybizg5r/++QTrwvlOYHqBn39P40YC+/9+TInTfnpKmlnn/9k25w5s0c1XGeeeX
+         ZmH2q3tvw3WbKE/PxZhBoMw2eHHMp2FjqyOYIMgvbFvWojBSh4F1a9mUt6U0DeA2P2
+         WIIZY3NgTTPRJM34lHsEBegQLTlfuRQ6J0lIw7k4=
+Subject: FAILED: patch "[PATCH] KVM: MMU: Reset mmu->pkru_mask to avoid stale data" failed to apply to 4.9-stable tree
 To:     chenyi.qiang@intel.com, pbonzini@redhat.com, seanjc@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 24 Oct 2021 14:09:09 +0200
-Message-ID: <1635077349169115@kroah.com>
+Message-ID: <1635077349839@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
