@@ -2,39 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0AC543889D
-	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 378F64388A3
+	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:37:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230249AbhJXLct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Oct 2021 07:32:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50104 "EHLO mail.kernel.org"
+        id S230227AbhJXLkB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Oct 2021 07:40:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229867AbhJXLct (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 Oct 2021 07:32:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3CFC60FE8;
-        Sun, 24 Oct 2021 11:30:27 +0000 (UTC)
+        id S229867AbhJXLkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 24 Oct 2021 07:40:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AAAE660D43;
+        Sun, 24 Oct 2021 11:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635075028;
-        bh=OL+BqguD7ucpd7u7SWvS6YY4vBU1zFWJVp/j6ljrNi8=;
+        s=korg; t=1635075460;
+        bh=xyPGrsI0EUgHTgDgIw9fHUseaHjWeumEeZ2wzM8NPXM=;
         h=Subject:To:Cc:From:Date:From;
-        b=rYYP2S+sFXXfPBJV9gPBhTtf560A06M0Lc5ZZn5SnNwfxX38ngut4EmuwBZJIPXQL
-         AFlM9fkyER/F0HEmR2B5OdoSbEcgEmgJCXzMRDbXpsuviLfNIH7TCIlcfxm0Trc25T
-         B/pFOide6V70Q0xTamv5A5BlB/B1DWw5hvhLLhZY=
-Subject: FAILED: patch "[PATCH] tracing: Have all levels of checks prevent recursion" failed to apply to 4.14-stable tree
-To:     rostedt@goodmis.org, James.Bottomley@hansenpartnership.com,
-        aou@eecs.berkeley.edu, benh@kernel.crashing.org, bp@alien8.de,
-        colin.king@canonical.com, deller@gmx.de, guoren@kernel.org,
-        hpa@zytor.com, jikos@kernel.org, joe.lawrence@redhat.com,
-        jpoimboe@redhat.com, jszhang@kernel.org, mbenes@suse.cz,
-        mhiramat@kernel.org, mingo@redhat.com, mpe@ellerman.id.au,
-        npiggin@gmail.com, palmer@dabbelt.com, paul.walmsley@sifive.com,
-        paulus@samba.org, peterz@infradead.org, pmladek@suse.com,
-        tglx@linutronix.de, torvalds@linux-foundation.org,
-        yun.wang@linux.alibaba.com
+        b=NYiglEKMHXFJE6Deq37LvFpzFHD6iyQgbWf4wXUNHKUZSdUOrpcShKd9S4rQ7eVmf
+         0iVUBH0FRPIqbyL8t2W+JYSASd2eDsOPRmMHM0J43ScBvieNmh4L/Pfsn0NwPq1ObR
+         D9p7LAx0/B4cL06ieHKHBgpCB9VGMRNgkYNSmrIU=
+Subject: FAILED: patch "[PATCH] ucounts: Move get_ucounts from cred_alloc_blank to" failed to apply to 5.10-stable tree
+To:     ebiederm@xmission.com, legion@kernel.org, yuzhao@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Oct 2021 13:30:26 +0200
-Message-ID: <163507502617982@kroah.com>
+Date:   Sun, 24 Oct 2021 13:37:37 +0200
+Message-ID: <1635075457230115@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,282 +45,86 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ed65df63a39a3f6ed04f7258de8b6789e5021c18 Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Date: Mon, 18 Oct 2021 15:44:12 -0400
-Subject: [PATCH] tracing: Have all levels of checks prevent recursion
+From 5ebcbe342b1c12fae44b4f83cbeae1520e09857e Mon Sep 17 00:00:00 2001
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+Date: Sat, 16 Oct 2021 12:17:30 -0500
+Subject: [PATCH] ucounts: Move get_ucounts from cred_alloc_blank to
+ key_change_session_keyring
 
-While writing an email explaining the "bit = 0" logic for a discussion on
-making ftrace_test_recursion_trylock() disable preemption, I discovered a
-path that makes the "not do the logic if bit is zero" unsafe.
+Setting cred->ucounts in cred_alloc_blank does not make sense.  The
+uid and user_ns are deliberately not set in cred_alloc_blank but
+instead the setting is delayed until key_change_session_keyring.
 
-The recursion logic is done in hot paths like the function tracer. Thus,
-any code executed causes noticeable overhead. Thus, tricks are done to try
-to limit the amount of code executed. This included the recursion testing
-logic.
+So move dealing with ucounts into key_change_session_keyring as well.
 
-Having recursion testing is important, as there are many paths that can
-end up in an infinite recursion cycle when tracing every function in the
-kernel. Thus protection is needed to prevent that from happening.
+Unfortunately that movement of get_ucounts adds a new failure mode to
+key_change_session_keyring.  I do not see anything stopping the parent
+process from calling setuid and changing the relevant part of it's
+cred while keyctl_session_to_parent is running making it fundamentally
+necessary to call get_ucounts in key_change_session_keyring.  Which
+means that the new failure mode cannot be avoided.
 
-Because it is OK to recurse due to different running context levels (e.g.
-an interrupt preempts a trace, and then a trace occurs in the interrupt
-handler), a set of bits are used to know which context one is in (normal,
-softirq, irq and NMI). If a recursion occurs in the same level, it is
-prevented*.
+A failure of key_change_session_keyring results in a single threaded
+parent keeping it's existing credentials.  Which results in the parent
+process not being able to access the session keyring and whichever
+keys are in the new keyring.
 
-Then there are infrastructure levels of recursion as well. When more than
-one callback is attached to the same function to trace, it calls a loop
-function to iterate over all the callbacks. Both the callbacks and the
-loop function have recursion protection. The callbacks use the
-"ftrace_test_recursion_trylock()" which has a "function" set of context
-bits to test, and the loop function calls the internal
-trace_test_and_set_recursion() directly, with an "internal" set of bits.
+Further get_ucounts is only expected to fail if the number of bits in
+the refernece count for the structure is too few.
 
-If an architecture does not implement all the features supported by ftrace
-then the callbacks are never called directly, and the loop function is
-called instead, which will implement the features of ftrace.
+Since the code has no other way to report the failure of get_ucounts
+and because such failures are not expected to be common add a WARN_ONCE
+to report this problem to userspace.
 
-Since both the loop function and the callbacks do recursion protection, it
-was seemed unnecessary to do it in both locations. Thus, a trick was made
-to have the internal set of recursion bits at a more significant bit
-location than the function bits. Then, if any of the higher bits were set,
-the logic of the function bits could be skipped, as any new recursion
-would first have to go through the loop function.
+Between the WARN_ONCE and the parent process not having access to
+the keys in the new session keyring I expect any failure of get_ucounts
+will be noticed and reported and we can find another way to handle this
+condition.  (Possibly by just making ucounts->count an atomic_long_t).
 
-This is true for architectures that do not support all the ftrace
-features, because all functions being traced must first go through the
-loop function before going to the callbacks. But this is not true for
-architectures that support all the ftrace features. That's because the
-loop function could be called due to two callbacks attached to the same
-function, but then a recursion function inside the callback could be
-called that does not share any other callback, and it will be called
-directly.
-
-i.e.
-
- traced_function_1: [ more than one callback tracing it ]
-   call loop_func
-
- loop_func:
-   trace_recursion set internal bit
-   call callback
-
- callback:
-   trace_recursion [ skipped because internal bit is set, return 0 ]
-   call traced_function_2
-
- traced_function_2: [ only traced by above callback ]
-   call callback
-
- callback:
-   trace_recursion [ skipped because internal bit is set, return 0 ]
-   call traced_function_2
-
- [ wash, rinse, repeat, BOOM! out of shampoo! ]
-
-Thus, the "bit == 0 skip" trick is not safe, unless the loop function is
-call for all functions.
-
-Since we want to encourage architectures to implement all ftrace features,
-having them slow down due to this extra logic may encourage the
-maintainers to update to the latest ftrace features. And because this
-logic is only safe for them, remove it completely.
-
- [*] There is on layer of recursion that is allowed, and that is to allow
-     for the transition between interrupt context (normal -> softirq ->
-     irq -> NMI), because a trace may occur before the context update is
-     visible to the trace recursion logic.
-
-Link: https://lore.kernel.org/all/609b565a-ed6e-a1da-f025-166691b5d994@linux.alibaba.com/
-Link: https://lkml.kernel.org/r/20211018154412.09fcad3c@gandalf.local.home
-
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Miroslav Benes <mbenes@suse.cz>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Jisheng Zhang <jszhang@kernel.org>
-Cc: =?utf-8?b?546L6LSH?= <yun.wang@linux.alibaba.com>
-Cc: Guo Ren <guoren@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: edc15cafcbfa3 ("tracing: Avoid unnecessary multiple recursion checks")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 905ae01c4ae2 ("Add a reference to ucounts for each cred")
+Link: https://lkml.kernel.org/r/7k0ias0uf.fsf_-_@disp2133
+Tested-by: Yu Zhao <yuzhao@google.com>
+Reviewed-by: Alexey Gladkov <legion@kernel.org>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 
-diff --git a/include/linux/trace_recursion.h b/include/linux/trace_recursion.h
-index a9f9c5714e65..fe95f0922526 100644
---- a/include/linux/trace_recursion.h
-+++ b/include/linux/trace_recursion.h
-@@ -16,23 +16,8 @@
-  *  When function tracing occurs, the following steps are made:
-  *   If arch does not support a ftrace feature:
-  *    call internal function (uses INTERNAL bits) which calls...
-- *   If callback is registered to the "global" list, the list
-- *    function is called and recursion checks the GLOBAL bits.
-- *    then this function calls...
-  *   The function callback, which can use the FTRACE bits to
-  *    check for recursion.
-- *
-- * Now if the arch does not support a feature, and it calls
-- * the global list function which calls the ftrace callback
-- * all three of these steps will do a recursion protection.
-- * There's no reason to do one if the previous caller already
-- * did. The recursion that we are protecting against will
-- * go through the same steps again.
-- *
-- * To prevent the multiple recursion checks, if a recursion
-- * bit is set that is higher than the MAX bit of the current
-- * check, then we know that the check was made by the previous
-- * caller, and we can skip the current check.
-  */
- enum {
- 	/* Function recursion bits */
-@@ -40,12 +25,14 @@ enum {
- 	TRACE_FTRACE_NMI_BIT,
- 	TRACE_FTRACE_IRQ_BIT,
- 	TRACE_FTRACE_SIRQ_BIT,
-+	TRACE_FTRACE_TRANSITION_BIT,
- 
--	/* INTERNAL_BITs must be greater than FTRACE_BITs */
-+	/* Internal use recursion bits */
- 	TRACE_INTERNAL_BIT,
- 	TRACE_INTERNAL_NMI_BIT,
- 	TRACE_INTERNAL_IRQ_BIT,
- 	TRACE_INTERNAL_SIRQ_BIT,
-+	TRACE_INTERNAL_TRANSITION_BIT,
- 
- 	TRACE_BRANCH_BIT,
- /*
-@@ -86,12 +73,6 @@ enum {
- 	 */
- 	TRACE_GRAPH_NOTRACE_BIT,
- 
--	/*
--	 * When transitioning between context, the preempt_count() may
--	 * not be correct. Allow for a single recursion to cover this case.
--	 */
--	TRACE_TRANSITION_BIT,
--
- 	/* Used to prevent recursion recording from recursing. */
- 	TRACE_RECORD_RECURSION_BIT,
- };
-@@ -113,12 +94,10 @@ enum {
- #define TRACE_CONTEXT_BITS	4
- 
- #define TRACE_FTRACE_START	TRACE_FTRACE_BIT
--#define TRACE_FTRACE_MAX	((1 << (TRACE_FTRACE_START + TRACE_CONTEXT_BITS)) - 1)
- 
- #define TRACE_LIST_START	TRACE_INTERNAL_BIT
--#define TRACE_LIST_MAX		((1 << (TRACE_LIST_START + TRACE_CONTEXT_BITS)) - 1)
- 
--#define TRACE_CONTEXT_MASK	TRACE_LIST_MAX
-+#define TRACE_CONTEXT_MASK	((1 << (TRACE_LIST_START + TRACE_CONTEXT_BITS)) - 1)
- 
- /*
-  * Used for setting context
-@@ -132,6 +111,7 @@ enum {
- 	TRACE_CTX_IRQ,
- 	TRACE_CTX_SOFTIRQ,
- 	TRACE_CTX_NORMAL,
-+	TRACE_CTX_TRANSITION,
- };
- 
- static __always_inline int trace_get_context_bit(void)
-@@ -160,45 +140,34 @@ extern void ftrace_record_recursion(unsigned long ip, unsigned long parent_ip);
+diff --git a/kernel/cred.c b/kernel/cred.c
+index 16c05dfbec4d..1ae0b4948a5a 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -225,8 +225,6 @@ struct cred *cred_alloc_blank(void)
+ #ifdef CONFIG_DEBUG_CREDENTIALS
+ 	new->magic = CRED_MAGIC;
  #endif
- 
- static __always_inline int trace_test_and_set_recursion(unsigned long ip, unsigned long pip,
--							int start, int max)
-+							int start)
- {
- 	unsigned int val = READ_ONCE(current->trace_recursion);
- 	int bit;
- 
--	/* A previous recursion check was made */
--	if ((val & TRACE_CONTEXT_MASK) > max)
--		return 0;
+-	new->ucounts = get_ucounts(&init_ucounts);
 -
- 	bit = trace_get_context_bit() + start;
- 	if (unlikely(val & (1 << bit))) {
- 		/*
- 		 * It could be that preempt_count has not been updated during
- 		 * a switch between contexts. Allow for a single recursion.
- 		 */
--		bit = TRACE_TRANSITION_BIT;
-+		bit = TRACE_CTX_TRANSITION + start;
- 		if (val & (1 << bit)) {
- 			do_ftrace_record_recursion(ip, pip);
- 			return -1;
- 		}
--	} else {
--		/* Normal check passed, clear the transition to allow it again */
--		val &= ~(1 << TRACE_TRANSITION_BIT);
+ 	if (security_cred_alloc_blank(new, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
+ 
+diff --git a/security/keys/process_keys.c b/security/keys/process_keys.c
+index e3d79a7b6db6..b5d5333ab330 100644
+--- a/security/keys/process_keys.c
++++ b/security/keys/process_keys.c
+@@ -918,6 +918,13 @@ void key_change_session_keyring(struct callback_head *twork)
+ 		return;
  	}
  
- 	val |= 1 << bit;
- 	current->trace_recursion = val;
- 	barrier();
- 
--	return bit + 1;
-+	return bit;
- }
- 
- static __always_inline void trace_clear_recursion(int bit)
- {
--	if (!bit)
--		return;
--
- 	barrier();
--	bit--;
- 	trace_recursion_clear(bit);
- }
- 
-@@ -214,7 +183,7 @@ static __always_inline void trace_clear_recursion(int bit)
- static __always_inline int ftrace_test_recursion_trylock(unsigned long ip,
- 							 unsigned long parent_ip)
- {
--	return trace_test_and_set_recursion(ip, parent_ip, TRACE_FTRACE_START, TRACE_FTRACE_MAX);
-+	return trace_test_and_set_recursion(ip, parent_ip, TRACE_FTRACE_START);
- }
- 
- /**
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 7efbc8aaf7f6..635fbdc9d589 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -6977,7 +6977,7 @@ __ftrace_ops_list_func(unsigned long ip, unsigned long parent_ip,
- 	struct ftrace_ops *op;
- 	int bit;
- 
--	bit = trace_test_and_set_recursion(ip, parent_ip, TRACE_LIST_START, TRACE_LIST_MAX);
-+	bit = trace_test_and_set_recursion(ip, parent_ip, TRACE_LIST_START);
- 	if (bit < 0)
- 		return;
- 
-@@ -7052,7 +7052,7 @@ static void ftrace_ops_assist_func(unsigned long ip, unsigned long parent_ip,
- {
- 	int bit;
- 
--	bit = trace_test_and_set_recursion(ip, parent_ip, TRACE_LIST_START, TRACE_LIST_MAX);
-+	bit = trace_test_and_set_recursion(ip, parent_ip, TRACE_LIST_START);
- 	if (bit < 0)
- 		return;
++	/* If get_ucounts fails more bits are needed in the refcount */
++	if (unlikely(!get_ucounts(old->ucounts))) {
++		WARN_ONCE(1, "In %s get_ucounts failed\n", __func__);
++		put_cred(new);
++		return;
++	}
++
+ 	new->  uid	= old->  uid;
+ 	new-> euid	= old-> euid;
+ 	new-> suid	= old-> suid;
+@@ -927,6 +934,7 @@ void key_change_session_keyring(struct callback_head *twork)
+ 	new-> sgid	= old-> sgid;
+ 	new->fsgid	= old->fsgid;
+ 	new->user	= get_uid(old->user);
++	new->ucounts	= old->ucounts;
+ 	new->user_ns	= get_user_ns(old->user_ns);
+ 	new->group_info	= get_group_info(old->group_info);
  
 
