@@ -2,36 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D7DD4388BE
-	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:53:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E9684388C1
+	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:57:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230355AbhJXLzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Oct 2021 07:55:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59698 "EHLO mail.kernel.org"
+        id S229868AbhJXL7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Oct 2021 07:59:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229867AbhJXLzy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 Oct 2021 07:55:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFC4260EBD;
-        Sun, 24 Oct 2021 11:53:33 +0000 (UTC)
+        id S229867AbhJXL7c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 24 Oct 2021 07:59:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3D3F60524;
+        Sun, 24 Oct 2021 11:57:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635076414;
-        bh=xFTl1FaNN8PW90boVgFgGtwSBxzb1R7y79iONkzR69Y=;
+        s=korg; t=1635076631;
+        bh=rRlNDbh9/DqEkYBJ4BtlhsbqREtPLe7GXrIz0zuCL0A=;
         h=Subject:To:Cc:From:Date:From;
-        b=Jh23x8NG6aHGiFAEB1nhjOery/KMCjgmQSGGIzb4SDMl6VGUEpZPpOv/hIGie2Gbq
-         jaq2H66apZg3gUleBxUlKQ33hBtWfX8J90LOpWanNlMCK3Z+qn2tRsqbLh28QN0AWr
-         fIBhsQt05YKXigRqO2rnj9fzJWpD4MQOhrMsoa1I=
-Subject: FAILED: patch "[PATCH] mm, slub: fix two bugs in slab_debug_trace_open()" failed to apply to 5.14-stable tree
-To:     linmiaohe@huawei.com, akpm@linux-foundation.org,
-        andreyknvl@gmail.com, bharata@linux.ibm.com, cl@linux.com,
-        faiyazm@codeaurora.org, gregkh@linuxfoundation.org, guro@fb.com,
-        iamjoonsoo.kim@lge.com, keescook@chromium.org, penberg@kernel.org,
-        rientjes@google.com, ryabinin.a.a@gmail.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz
+        b=xCxdKBf9bMpq8LPMSgITbyzb4kEfzsWskho3uZAfxY41h/I7CBAW9q/1xiQxTW75V
+         yR49yKx+xPPx2VU/HJ8yCjw9oO8JiZhwy5WdYEnRoH908FjI/Lzr6yhXkMW+nbEuQh
+         5PmGnTUOZZwTh810S89i7XQL7Pvi9JygR4FHIOac=
+Subject: FAILED: patch "[PATCH] KVM: x86: check for interrupts before deciding whether to" failed to apply to 5.10-stable tree
+To:     pbonzini@redhat.com, seanjc@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Oct 2021 13:53:32 +0200
-Message-ID: <163507641218149@kroah.com>
+Date:   Sun, 24 Oct 2021 13:57:09 +0200
+Message-ID: <16350766297207@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,70 +45,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2127d22509aec3a83dffb2a3c736df7ba747a7ce Mon Sep 17 00:00:00 2001
-From: Miaohe Lin <linmiaohe@huawei.com>
-Date: Mon, 18 Oct 2021 15:15:52 -0700
-Subject: [PATCH] mm, slub: fix two bugs in slab_debug_trace_open()
+From de7cd3f6761f49bef044ec49493d88737a70f1a6 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Wed, 20 Oct 2021 06:27:36 -0400
+Subject: [PATCH] KVM: x86: check for interrupts before deciding whether to
+ exit the fast path
 
-Patch series "Fixups for slub".
+The kvm_x86_sync_pir_to_irr callback can sometimes set KVM_REQ_EVENT.
+If that happens exactly at the time that an exit is handled as
+EXIT_FASTPATH_REENTER_GUEST, vcpu_enter_guest will go incorrectly
+through the loop that calls kvm_x86_run, instead of processing
+the request promptly.
 
-This series contains various bug fixes for slub.  We fix memoryleak,
-use-afer-free, NULL pointer dereferencing and so on in slub.  More
-details can be found in the respective changelogs.
+Fixes: 379a3c8ee444 ("KVM: VMX: Optimize posted-interrupt delivery for timer fastpath")
+Cc: stable@vger.kernel.org
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-This patch (of 5):
-
-It's possible that __seq_open_private() will return NULL.  So we should
-check it before using lest dereferencing NULL pointer.  And in error
-paths, we forgot to release private buffer via seq_release_private().
-Memory will leak in these paths.
-
-Link: https://lkml.kernel.org/r/20210916123920.48704-1-linmiaohe@huawei.com
-Link: https://lkml.kernel.org/r/20210916123920.48704-2-linmiaohe@huawei.com
-Fixes: 64dd68497be7 ("mm: slub: move sysfs slab alloc/free interfaces to debugfs")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Faiyaz Mohammed <faiyazm@codeaurora.org>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Bharata B Rao <bharata@linux.ibm.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/slub.c b/mm/slub.c
-index 3d2025f7163b..ed160b6c54f8 100644
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -6108,9 +6108,14 @@ static int slab_debug_trace_open(struct inode *inode, struct file *filep)
- 	struct kmem_cache *s = file_inode(filep)->i_private;
- 	unsigned long *obj_map;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 0c8b5129effd..381384a54790 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9643,14 +9643,14 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+ 		if (likely(exit_fastpath != EXIT_FASTPATH_REENTER_GUEST))
+ 			break;
  
-+	if (!t)
-+		return -ENOMEM;
+-                if (unlikely(kvm_vcpu_exit_request(vcpu))) {
++		if (vcpu->arch.apicv_active)
++			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
 +
- 	obj_map = bitmap_alloc(oo_objects(s->oo), GFP_KERNEL);
--	if (!obj_map)
-+	if (!obj_map) {
-+		seq_release_private(inode, filep);
- 		return -ENOMEM;
++		if (unlikely(kvm_vcpu_exit_request(vcpu))) {
+ 			exit_fastpath = EXIT_FASTPATH_EXIT_HANDLED;
+ 			break;
+ 		}
+-
+-		if (vcpu->arch.apicv_active)
+-			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
+-        }
 +	}
  
- 	if (strcmp(filep->f_path.dentry->d_name.name, "alloc_traces") == 0)
- 		alloc = TRACK_ALLOC;
-@@ -6119,6 +6124,7 @@ static int slab_debug_trace_open(struct inode *inode, struct file *filep)
- 
- 	if (!alloc_loc_track(t, PAGE_SIZE / sizeof(struct location), GFP_KERNEL)) {
- 		bitmap_free(obj_map);
-+		seq_release_private(inode, filep);
- 		return -ENOMEM;
- 	}
- 
+ 	/*
+ 	 * Do this here before restoring debug registers on the host.  And
 
