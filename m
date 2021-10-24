@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D419943886A
-	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:09:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD7FC43886C
+	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231528AbhJXLLg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Oct 2021 07:11:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47814 "EHLO mail.kernel.org"
+        id S231564AbhJXLLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Oct 2021 07:11:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229867AbhJXLLf (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sun, 24 Oct 2021 07:11:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0943560F22;
-        Sun, 24 Oct 2021 11:09:14 +0000 (UTC)
+        id S231563AbhJXLLk (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sun, 24 Oct 2021 07:11:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB4B860F22;
+        Sun, 24 Oct 2021 11:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635073755;
-        bh=0faB9DoZt4Jv2BOHjzgqwc2xGpD+5OCQYclBe2paXVU=;
+        s=korg; t=1635073760;
+        bh=oswHiB/s9Y8J+sXUopl9WLoN91JzXLrMDHZx59tALfM=;
         h=Subject:To:From:Date:From;
-        b=DEo3GgLeSvsaSCPjminHY4Fwqs35/s89MUpxyzKVmY69RxOkM03NxJ/fQ0p/Swnw+
-         fsKgUAXwqEemzp4VjjGLSlkaBOHmZnvba4U8ruYzBKPu8vu0iLDY4WMc2MPTx6UXLA
-         NfyZs6kNmerQJuCk87hLliOLK/4l7Zb17aKpz7PA=
-Subject: patch "iio: dac: ad5446: Fix ad5622_write() return value" added to char-misc-testing
-To:     pekka.korpinen@iki.fi, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=RowDYze/Cr+GUVn8E/WmWyOzANX78z6MI+4SCVymAaq/xhuetMuM4JGCsEvQjJBm/
+         UY83uCzbn5y8cH0k9WQmsbglClEBtxr/mQ1a+9VRfNeoTmF8a8CjrLpIRGZHGnOLRW
+         +prvy6fvKpmWr0qvWNAg+AjDg8nCcpSAmwBQjnVE=
+Subject: patch "iio: buffer: check return value of kstrdup_const()" added to char-misc-testing
+To:     yangyingliang@huawei.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, hulkci@huawei.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Oct 2021 13:09:09 +0200
-Message-ID: <16350737492175@kroah.com>
+Date:   Sun, 24 Oct 2021 13:09:10 +0200
+Message-ID: <1635073750209153@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: dac: ad5446: Fix ad5622_write() return value
+    iio: buffer: check return value of kstrdup_const()
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -51,50 +51,57 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 558df982d4ead9cac628153d0d7b60feae05ddc8 Mon Sep 17 00:00:00 2001
-From: Pekka Korpinen <pekka.korpinen@iki.fi>
-Date: Wed, 29 Sep 2021 21:57:55 +0300
-Subject: iio: dac: ad5446: Fix ad5622_write() return value
+From 2c0ad3f0cc04dec489552a21b80cd6d708bea96d Mon Sep 17 00:00:00 2001
+From: Yang Yingliang <yangyingliang@huawei.com>
+Date: Wed, 13 Oct 2021 12:04:38 +0800
+Subject: iio: buffer: check return value of kstrdup_const()
 
-On success i2c_master_send() returns the number of bytes written. The
-call from iio_write_channel_info(), however, expects the return value to
-be zero on success.
+Check return value of kstrdup_const() in iio_buffer_wrap_attr(),
+or it will cause null-ptr-deref in kernfs_name_hash() when calling
+device_add() as follows:
 
-This bug causes incorrect consumption of the sysfs buffer in
-iio_write_channel_info(). When writing more than two characters to
-out_voltage0_raw, the ad5446 write handler is called multiple times
-causing unexpected behavior.
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+RIP: 0010:strlen+0x0/0x20
+Call Trace:
+ kernfs_name_hash+0x22/0x110
+ kernfs_find_ns+0x11d/0x390
+ kernfs_remove_by_name_ns+0x3b/0xb0
+ remove_files.isra.1+0x7b/0x190
+ internal_create_group+0x7f1/0xbb0
+ internal_create_groups+0xa3/0x150
+ device_add+0x8f0/0x2020
+ cdev_device_add+0xc3/0x160
+ __iio_device_register+0x1427/0x1b40 [industrialio]
+ __devm_iio_device_register+0x22/0x80 [industrialio]
+ adjd_s311_probe+0x195/0x200 [adjd_s311]
+ i2c_device_probe+0xa07/0xbb0
 
-Fixes: 3ec36a2cf0d5 ("iio:ad5446: Add support for I2C based DACs")
-Signed-off-by: Pekka Korpinen <pekka.korpinen@iki.fi>
-Link: https://lore.kernel.org/r/20210929185755.2384-1-pekka.korpinen@iki.fi
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 15097c7a1adc ("iio: buffer: wrap all buffer attributes into iio_dev_attr")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20211013040438.1689277-1-yangyingliang@huawei.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/dac/ad5446.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/iio/industrialio-buffer.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/iio/dac/ad5446.c b/drivers/iio/dac/ad5446.c
-index 488ec69967d6..e50718422411 100644
---- a/drivers/iio/dac/ad5446.c
-+++ b/drivers/iio/dac/ad5446.c
-@@ -531,8 +531,15 @@ static int ad5622_write(struct ad5446_state *st, unsigned val)
- {
- 	struct i2c_client *client = to_i2c_client(st->dev);
- 	__be16 data = cpu_to_be16(val);
-+	int ret;
+diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
+index a95cc2da56be..55802da1deee 100644
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -1312,6 +1312,11 @@ static struct attribute *iio_buffer_wrap_attr(struct iio_buffer *buffer,
+ 	iio_attr->buffer = buffer;
+ 	memcpy(&iio_attr->dev_attr, dattr, sizeof(iio_attr->dev_attr));
+ 	iio_attr->dev_attr.attr.name = kstrdup_const(attr->name, GFP_KERNEL);
++	if (!iio_attr->dev_attr.attr.name) {
++		kfree(iio_attr);
++		return NULL;
++	}
 +
-+	ret = i2c_master_send(client, (char *)&data, sizeof(data));
-+	if (ret < 0)
-+		return ret;
-+	if (ret != sizeof(data))
-+		return -EIO;
+ 	sysfs_attr_init(&iio_attr->dev_attr.attr);
  
--	return i2c_master_send(client, (char *)&data, sizeof(data));
-+	return 0;
- }
- 
- /*
+ 	list_add(&iio_attr->l, &buffer->buffer_attr_list);
 -- 
 2.33.1
 
