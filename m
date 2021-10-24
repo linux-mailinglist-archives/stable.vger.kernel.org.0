@@ -2,128 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19E62438B50
-	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 20:15:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77980438C03
+	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 23:10:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231538AbhJXSRl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Oct 2021 14:17:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51850 "EHLO
+        id S231864AbhJXVMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Oct 2021 17:12:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230520AbhJXSRk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Oct 2021 14:17:40 -0400
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9074C061745
-        for <stable@vger.kernel.org>; Sun, 24 Oct 2021 11:15:19 -0700 (PDT)
-Received: by mail-pf1-x42c.google.com with SMTP id m14so8571771pfc.9
-        for <stable@vger.kernel.org>; Sun, 24 Oct 2021 11:15:19 -0700 (PDT)
+        with ESMTP id S231610AbhJXVMT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Oct 2021 17:12:19 -0400
+Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C069C061745
+        for <stable@vger.kernel.org>; Sun, 24 Oct 2021 14:09:58 -0700 (PDT)
+Received: by mail-lj1-x233.google.com with SMTP id 145so4610242ljj.1
+        for <stable@vger.kernel.org>; Sun, 24 Oct 2021 14:09:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=dukAIiOzcSA5AD0pOKnzS7GLFPE36Nv6wjNj1xjNoMI=;
-        b=GfPogLbcrLTIR2c2ZjhjaE2MXxpQIMQKevCEDwB/hpxAX5gUwo5M1kHPIdB0B2x4dq
-         WLRb8HePZ3XnV6GN3YTNkK+Rh4mvho+mzRbA2Za/ZE/QJYuPhqO9LCsNZWWkYqZt7Gns
-         i2v58NQUZzPNclY8KOrcTGGTDJ/NW6zK9sS/C1M0x2xq4BrRMSMs/ajENwYLLwmfajfg
-         Ufj/4qjT/S1NUmE4/qyzn36oSlF4urOfBD6WnCFjUXxyxAImvsxhK2AtPK/7mglT6zZ/
-         BG6TFItaUi/hcbUUtsdNZ9ytbkxyN8rOC9Jim6ehSayAP1qsHWbXGGt2xOKMbi4lvBS+
-         7n5g==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=vFAdDSdKatUr6JRjcKkr/+bpZM+7j83T9fyuwg8k+Z4=;
+        b=FWQY4cVf6pREKtaWH9QI9Aocz2xs8NTJoPWlEjVmb3AS15+BUGbgcAKXNGlnzIC6aK
+         upzWRuWmugvFpXalI8IfMtrdD2TjY3eWYqF7oMkjJu0FgVZS+FbBHeDLbF5cn5dAmjYD
+         cz9RhbsczeqEkNVyFRGqMVTyZrvjzvb/O3GhJP4U5wYkwLyvIdp2Sgac9A9F/8mH1clq
+         bj5Hrvht+khwaXSO6LzgnfTeanwH1DS/lhokaWDnue2/OIdbqb/zlrAQwIbzb/R3sQnw
+         PLtd7l7QQ6t+lbbYl+mU4gNPOA6qpKIvSE7JcKfq61BJ77iW+ThEqvaHKlaasWulcowV
+         i3XQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=dukAIiOzcSA5AD0pOKnzS7GLFPE36Nv6wjNj1xjNoMI=;
-        b=bz7v5grNEqfkcwvTe4uflpuVeBF32kHKaerwRkdr1kujvA2QTUNjAkFb/d/zrutmcs
-         ottCPkIay4ZkmOW2GZ/iW6FFJzoTEVnZRaTa+F4jY7xVS6Kk5UmIKPdi8Nt4Rf4uy/sL
-         DuVUZ01JhMQA/VFW4zcC9AmIs+80Bj5tWUco9z9BXdotfKwuVc764dGW7ZRqPs4GO4nI
-         OJAxFbjVE+MwP9oj5lJqKuc+yV0ZRibEc8jHWATu+q4FjwYpQJkIj8ac3k4niyAzN0at
-         QxO/nFHlutB/Xf2V8jSMnuSM7OzDysmWrHZlYuk8ZYBw44+KalJeMBEf0ILrbg2KQ1vQ
-         7REw==
-X-Gm-Message-State: AOAM531AwwEVdLKq2rQbOF0RcETQqlXTmOTJeV2X973gFSS2JVwDrND5
-        rvPaRtZ7unkQTwyZGT93L49aAz10WAWj4Mjy
-X-Google-Smtp-Source: ABdhPJz9cOvrQQNGjnaHH/LFx2TVZnh2sfNJ2K8J6XPMacaiOp9A63VbULzosHmtVB5771ScCTCLEA==
-X-Received: by 2002:a63:be4b:: with SMTP id g11mr9991650pgo.46.1635099319187;
-        Sun, 24 Oct 2021 11:15:19 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a11sm17781936pfv.11.2021.10.24.11.15.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 24 Oct 2021 11:15:18 -0700 (PDT)
-Message-ID: <6175a2b6.1c69fb81.183e1.da8c@mx.google.com>
-Date:   Sun, 24 Oct 2021 11:15:18 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=vFAdDSdKatUr6JRjcKkr/+bpZM+7j83T9fyuwg8k+Z4=;
+        b=TMWio67oOERhw9TP0tAzxIyWJDj8nRs6tK5/h7kLWh8DPKQpYQBxSmv37flx70rOGl
+         dhArggST8wWYTrHd1hUCS8z0PLoHaYmBK0Yx3037NgjCio+RHxSDSy1ZYJtkTK3VH7/2
+         +MO4kzXjuV+KNd5JQfJ6zL1iN8/UfV/dcKzFTd7ntorXhGqKcu4iNGrM5jTzHp/mMHq2
+         /jKu613vN+NjAb3tRqnJT/1TW7dpXFbI0SJgWHPHordN+eVvmAqC1sHyWHlldSneMMSQ
+         +6rSt1D+Bj+g8YNmYel5wGghWQ224esxPXTVyUgawLroxFbve7fvC9nYE/gOuc3SMoie
+         ++ww==
+X-Gm-Message-State: AOAM5303tcxKKhN82uZAjNhVRp9sH5QqNH850n7HtZcHWMFn6O+ZE1zV
+        /GorprTmxIyo3ngC1h05346U6UYoZoJgWPnmHoDK+g==
+X-Google-Smtp-Source: ABdhPJxKA5zxWB6X10wDcO3IwJzTWj31ZG/+9qs1bK3p713Bu71+iyIOOHDYSCN+E1PT43P/8dj9+yHQs5UfeIlkPIg=
+X-Received: by 2002:a05:651c:111:: with SMTP id a17mr14278890ljb.145.1635109796637;
+ Sun, 24 Oct 2021 14:09:56 -0700 (PDT)
 MIME-Version: 1.0
+References: <20211018112201.25424-1-noralf@tronnes.org>
+In-Reply-To: <20211018112201.25424-1-noralf@tronnes.org>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Sun, 24 Oct 2021 23:09:45 +0200
+Message-ID: <CACRpkdZQSB+McOGK9HZUNAr2p+FX=6ddbY=5-sQ8difh1pEqGg@mail.gmail.com>
+Subject: Re: [PATCH] gpio: dln2: Fix interrupts when replugging the device
+To:     =?UTF-8?Q?Noralf_Tr=C3=B8nnes?= <noralf@tronnes.org>
+Cc:     "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable <stable@vger.kernel.org>,
+        Daniel Baluta <daniel.baluta@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.14.14-124-g710e5bbf51e3
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.14 baseline: 184 runs,
- 1 regressions (v5.14.14-124-g710e5bbf51e3)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 184 runs, 1 regressions (v5.14.14-124-g710e5=
-bbf51e3)
+On Mon, Oct 18, 2021 at 1:23 PM Noralf Tr=C3=B8nnes <noralf@tronnes.org> wr=
+ote:
 
-Regressions Summary
--------------------
+> When replugging the device the following message shows up:
+>
+> gpio gpiochip2: (dln2): detected irqchip that is shared with multiple gpi=
+ochips: please fix the driver.
+>
+> This also has the effect that interrupts won't work.
+> The same problem would also show up if multiple devices where plugged in.
+>
+> Fix this by allocating the irq_chip data structure per instance like othe=
+r
+> drivers do.
+>
+> I don't know when this problem appeared, but it is present in 5.10.
+>
+> Cc: <stable@vger.kernel.org> # 5.10+
+> Cc: Daniel Baluta <daniel.baluta@gmail.com>
+> Signed-off-by: Noralf Tr=C3=B8nnes <noralf@tronnes.org>
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.14-124-g710e5bbf51e3/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.14-124-g710e5bbf51e3
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      710e5bbf51e30d3dc6558a26e9ea5e040bc5033a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/617572b90c1fa8ff673358df
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.14-=
-124-g710e5bbf51e3/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.14-=
-124-g710e5bbf51e3/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/617572b90c1fa8ff67335=
-8e0
-        new failure (last pass: v5.14.14-64-gb66eb77f69e4) =
-
- =20
+Yours,
+Linus Walleij
