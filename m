@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD7FC43886C
-	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9237543886D
+	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:09:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231564AbhJXLLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Oct 2021 07:11:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47924 "EHLO mail.kernel.org"
+        id S231569AbhJXLLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Oct 2021 07:11:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231563AbhJXLLk (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sun, 24 Oct 2021 07:11:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB4B860F22;
-        Sun, 24 Oct 2021 11:09:19 +0000 (UTC)
+        id S231563AbhJXLLm (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sun, 24 Oct 2021 07:11:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D8F060F6F;
+        Sun, 24 Oct 2021 11:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635073760;
-        bh=oswHiB/s9Y8J+sXUopl9WLoN91JzXLrMDHZx59tALfM=;
+        s=korg; t=1635073762;
+        bh=4H/ImnFlr5I0sS5kTX+VB/toi+2H5w7orRYGm0orm4U=;
         h=Subject:To:From:Date:From;
-        b=RowDYze/Cr+GUVn8E/WmWyOzANX78z6MI+4SCVymAaq/xhuetMuM4JGCsEvQjJBm/
-         UY83uCzbn5y8cH0k9WQmsbglClEBtxr/mQ1a+9VRfNeoTmF8a8CjrLpIRGZHGnOLRW
-         +prvy6fvKpmWr0qvWNAg+AjDg8nCcpSAmwBQjnVE=
-Subject: patch "iio: buffer: check return value of kstrdup_const()" added to char-misc-testing
+        b=vm/cbsOJnlu5MJT6TF50r4XswdzecZ/DOgVW692IHKAWVG89pNnCqq7vDqtbth6/J
+         P0h01t/GeX0WmU5ifuFFvgq6DRhhLYX0/GPxqXXTs4CUUPQclkiBGEVBgh48c7IWH7
+         DPaZf2uLCDrdyiMGbfg8ZA4MuONc6N1VCkkLD8Y8=
+Subject: patch "iio: buffer: Fix memory leak in __iio_buffer_alloc_sysfs_and_mask()" added to char-misc-testing
 To:     yangyingliang@huawei.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, hulkci@huawei.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Oct 2021 13:09:10 +0200
-Message-ID: <1635073750209153@kroah.com>
+Date:   Sun, 24 Oct 2021 13:09:11 +0200
+Message-ID: <163507375120155@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: buffer: check return value of kstrdup_const()
+    iio: buffer: Fix memory leak in __iio_buffer_alloc_sysfs_and_mask()
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -51,57 +51,81 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 2c0ad3f0cc04dec489552a21b80cd6d708bea96d Mon Sep 17 00:00:00 2001
+From 9a2ff8009e53296e47de72d5af0bc31cd53274ff Mon Sep 17 00:00:00 2001
 From: Yang Yingliang <yangyingliang@huawei.com>
-Date: Wed, 13 Oct 2021 12:04:38 +0800
-Subject: iio: buffer: check return value of kstrdup_const()
+Date: Wed, 13 Oct 2021 17:43:43 +0800
+Subject: iio: buffer: Fix memory leak in __iio_buffer_alloc_sysfs_and_mask()
 
-Check return value of kstrdup_const() in iio_buffer_wrap_attr(),
-or it will cause null-ptr-deref in kernfs_name_hash() when calling
-device_add() as follows:
+When iio_buffer_wrap_attr() returns NULL or buffer->buffer_group.name alloc
+fails, the 'attr' which is allocated in __iio_buffer_alloc_sysfs_and_mask()
+is not freed, and cause memory leak.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-RIP: 0010:strlen+0x0/0x20
-Call Trace:
- kernfs_name_hash+0x22/0x110
- kernfs_find_ns+0x11d/0x390
- kernfs_remove_by_name_ns+0x3b/0xb0
- remove_files.isra.1+0x7b/0x190
- internal_create_group+0x7f1/0xbb0
- internal_create_groups+0xa3/0x150
- device_add+0x8f0/0x2020
- cdev_device_add+0xc3/0x160
- __iio_device_register+0x1427/0x1b40 [industrialio]
- __devm_iio_device_register+0x22/0x80 [industrialio]
- adjd_s311_probe+0x195/0x200 [adjd_s311]
- i2c_device_probe+0xa07/0xbb0
+unreferenced object 0xffff888014882a00 (size 64):
+  comm "i2c-adjd_s311-8", pid 424, jiffies 4294907737 (age 44.396s)
+  hex dump (first 32 bytes):
+    00 0f 8a 15 80 88 ff ff 00 0e 8a 15 80 88 ff ff  ................
+    80 04 8a 15 80 88 ff ff 80 05 8a 15 80 88 ff ff  ................
+  backtrace:
+    [<0000000021752e67>] __kmalloc+0x1af/0x3c0
+    [<0000000043e8305c>] iio_buffers_alloc_sysfs_and_mask+0xe73/0x1570 [industrialio]
+    [<00000000b7aa5a17>] __iio_device_register+0x483/0x1a30 [industrialio]
+    [<000000003fa0fb2f>] __devm_iio_device_register+0x23/0x90 [industrialio]
+    [<000000003ab040cf>] adjd_s311_probe+0x19c/0x200 [adjd_s311]
+    [<0000000080458969>] i2c_device_probe+0xa31/0xbe0
+    [<00000000e20678ad>] really_probe+0x299/0xc30
+    [<000000006bea9b27>] __driver_probe_device+0x357/0x500
+    [<00000000e1df10d4>] driver_probe_device+0x4e/0x140
+    [<0000000003661beb>] __device_attach_driver+0x257/0x340
+    [<000000005bb4aa26>] bus_for_each_drv+0x166/0x1e0
+    [<00000000272c5236>] __device_attach+0x272/0x420
+    [<00000000d52a96ae>] bus_probe_device+0x1eb/0x2a0
+    [<00000000129f7737>] device_add+0xbf0/0x1f90
+    [<000000005eed4e52>] i2c_new_client_device+0x622/0xb20
+    [<00000000b85a9c43>] new_device_store+0x1fa/0x420
+
+This patch fix to free it before the error return.
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Fixes: 15097c7a1adc ("iio: buffer: wrap all buffer attributes into iio_dev_attr")
+Fixes: d9a625744ed0 ("iio: core: merge buffer/ & scan_elements/ attributes")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211013040438.1689277-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20211013094343.315275-1-yangyingliang@huawei.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/industrialio-buffer.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/iio/industrialio-buffer.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
-index a95cc2da56be..55802da1deee 100644
+index 55802da1deee..e2587237dbf9 100644
 --- a/drivers/iio/industrialio-buffer.c
 +++ b/drivers/iio/industrialio-buffer.c
-@@ -1312,6 +1312,11 @@ static struct attribute *iio_buffer_wrap_attr(struct iio_buffer *buffer,
- 	iio_attr->buffer = buffer;
- 	memcpy(&iio_attr->dev_attr, dattr, sizeof(iio_attr->dev_attr));
- 	iio_attr->dev_attr.attr.name = kstrdup_const(attr->name, GFP_KERNEL);
-+	if (!iio_attr->dev_attr.attr.name) {
-+		kfree(iio_attr);
-+		return NULL;
-+	}
-+
- 	sysfs_attr_init(&iio_attr->dev_attr.attr);
+@@ -1536,6 +1536,7 @@ static int __iio_buffer_alloc_sysfs_and_mask(struct iio_buffer *buffer,
+ 		       sizeof(struct attribute *) * buffer_attrcount);
  
- 	list_add(&iio_attr->l, &buffer->buffer_attr_list);
+ 	buffer_attrcount += ARRAY_SIZE(iio_buffer_attrs);
++	buffer->buffer_group.attrs = attr;
+ 
+ 	for (i = 0; i < buffer_attrcount; i++) {
+ 		struct attribute *wrapped;
+@@ -1543,7 +1544,7 @@ static int __iio_buffer_alloc_sysfs_and_mask(struct iio_buffer *buffer,
+ 		wrapped = iio_buffer_wrap_attr(buffer, attr[i]);
+ 		if (!wrapped) {
+ 			ret = -ENOMEM;
+-			goto error_free_scan_mask;
++			goto error_free_buffer_attrs;
+ 		}
+ 		attr[i] = wrapped;
+ 	}
+@@ -1558,8 +1559,6 @@ static int __iio_buffer_alloc_sysfs_and_mask(struct iio_buffer *buffer,
+ 		goto error_free_buffer_attrs;
+ 	}
+ 
+-	buffer->buffer_group.attrs = attr;
+-
+ 	ret = iio_device_register_sysfs_group(indio_dev, &buffer->buffer_group);
+ 	if (ret)
+ 		goto error_free_buffer_attr_group_name;
 -- 
 2.33.1
 
