@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C46A5438899
-	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:30:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37C7943889A
+	for <lists+stable@lfdr.de>; Sun, 24 Oct 2021 13:30:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230403AbhJXLch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Oct 2021 07:32:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49668 "EHLO mail.kernel.org"
+        id S230520AbhJXLck (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Oct 2021 07:32:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229867AbhJXLch (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 Oct 2021 07:32:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 142FB60F57;
-        Sun, 24 Oct 2021 11:30:16 +0000 (UTC)
+        id S229867AbhJXLck (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 24 Oct 2021 07:32:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F7A960F9C;
+        Sun, 24 Oct 2021 11:30:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635075016;
-        bh=/sP78IqDvYVZL59V8WFm0MOhhc1993NGhu8/72gghkM=;
+        s=korg; t=1635075019;
+        bh=O/XXxlvnewlhtsLYk2no5sryV+O06SOMwcUc+p8CoWA=;
         h=Subject:To:Cc:From:Date:From;
-        b=jBzAXXEE5TRFX8H2+2sg7V/yokCfm3YB1gQjtlkFb5UCXC4cQAYRV93zM8oEwhwd2
-         I7yWYxtjkPZihD//G8TDs9YtJ0g0umhO2X3hqb+UhlxwlmbJFdI7vcdJiTGiFRUMvq
-         Tp13+Gx0Adl6jd+fQZejRogQtQp2tSV6bJM8GU8I=
-Subject: FAILED: patch "[PATCH] tracing: Have all levels of checks prevent recursion" failed to apply to 5.4-stable tree
+        b=mQCb2K4s9+x5GS4GeMpA8dDYElZFkcBK5q0AHe4gOyQ+KXxqi+XLvhCJWiKzssnfV
+         loD0WEpB1tDXHbzpuWfnIssg6m9+aQnivpg0perAYcapJIJPUSKZ9qO4QvTFlA07M6
+         3ywBxsLUStc9Uv7uVEDE+TzFVR4YnR3HydkixxRg=
+Subject: FAILED: patch "[PATCH] tracing: Have all levels of checks prevent recursion" failed to apply to 4.19-stable tree
 To:     rostedt@goodmis.org, James.Bottomley@hansenpartnership.com,
         aou@eecs.berkeley.edu, benh@kernel.crashing.org, bp@alien8.de,
         colin.king@canonical.com, deller@gmx.de, guoren@kernel.org,
@@ -33,8 +33,8 @@ To:     rostedt@goodmis.org, James.Bottomley@hansenpartnership.com,
         yun.wang@linux.alibaba.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 24 Oct 2021 13:30:14 +0200
-Message-ID: <163507501494210@kroah.com>
+Date:   Sun, 24 Oct 2021 13:30:17 +0200
+Message-ID: <163507501713625@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
