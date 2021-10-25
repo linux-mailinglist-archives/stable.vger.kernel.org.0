@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73DC143A1D2
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:40:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF33F43A1DB
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:40:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236232AbhJYTml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:42:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57940 "EHLO mail.kernel.org"
+        id S235916AbhJYTnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:43:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237274AbhJYTkg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:40:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9237961175;
-        Mon, 25 Oct 2021 19:36:00 +0000 (UTC)
+        id S237343AbhJYTlA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:41:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 071576108B;
+        Mon, 25 Oct 2021 19:36:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190561;
-        bh=aVFKg7oukX3E00uSNcU7A9NRtC8TcVyuxoJxIZPT8XE=;
+        s=korg; t=1635190588;
+        bh=vRHzNcXnElohylG8vHAs3FdlvtUBG0NqM44TteqQrcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ybnrgK2Kjw6nsGn1UjscJ21Dxo4C0eNo29Eq4KvjXSVmPwuRNMezodkWbMAHxdfPP
-         BVeZsKapIlCnVxT/TaQ8FPrkVNvyU8iPINptRetRUw4rpNmw8BbFV51jFut8zoUjjU
-         CjkOb3hFBjjrJskoWqcd419FrAt440TDfSPIegDM=
+        b=t1YlrRpiIUtDBXl8pEZcR37CS86EfhXYfeg5jxrw+8wuUvlt4tApkFjRiUtGIUUwN
+         DSgy3TPretiGiq/pCTGNLZe2H/RUP85Ty+Xrpog0J8RFga/kcWIt0LObbXhuYt8J5y
+         5FHrp1r/VjnhnbWs1ptwBxo6mKzOpIbMK2QDRxlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 004/169] arm: dts: vexpress-v2p-ca9: Fix the SMB unit-address
-Date:   Mon, 25 Oct 2021 21:13:05 +0200
-Message-Id: <20211025191018.299018408@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 005/169] ARM: dts: at91: sama5d2_som1_ek: disable ISC node by default
+Date:   Mon, 25 Oct 2021 21:13:06 +0200
+Message-Id: <20211025191018.430965918@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -41,51 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 2e9edc07df2ec6f835222151fa4e536e9e54856a ]
+[ Upstream commit 4348cc10da6377a86940beb20ad357933b8f91bb ]
 
-Based on 'ranges', the 'bus@4000000' node unit-address is off by 1 '0'.
+Without a sensor node, the ISC will simply fail to probe, as the
+corresponding port node is missing.
+It is then logical to disable the node in the devicetree.
+If we add a port with a connection to a sensor endpoint, ISC can be enabled.
 
-Link: https://lore.kernel.org/r/20210819184239.1192395-5-robh@kernel.org
-Cc: Andre Przywara <andre.przywara@arm.com>
-Cc: Sudeep Holla <sudeep.holla@arm.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20210902121358.503589-1-eugen.hristev@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/vexpress-v2m.dtsi    | 2 +-
- arch/arm/boot/dts/vexpress-v2p-ca9.dts | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/at91-sama5d27_som1_ek.dts | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/vexpress-v2m.dtsi b/arch/arm/boot/dts/vexpress-v2m.dtsi
-index ec13ceb9ed36..79ba83d1f620 100644
---- a/arch/arm/boot/dts/vexpress-v2m.dtsi
-+++ b/arch/arm/boot/dts/vexpress-v2m.dtsi
-@@ -19,7 +19,7 @@
-  */
+diff --git a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
+index 8034e5dacc80..949df688c5f1 100644
+--- a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
++++ b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
+@@ -71,7 +71,6 @@
+ 			isc: isc@f0008000 {
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_isc_base &pinctrl_isc_data_8bit &pinctrl_isc_data_9_10 &pinctrl_isc_data_11_12>;
+-				status = "okay";
+ 			};
  
- / {
--	bus@4000000 {
-+	bus@40000000 {
- 		motherboard {
- 			model = "V2M-P1";
- 			arm,hbi = <0x190>;
-diff --git a/arch/arm/boot/dts/vexpress-v2p-ca9.dts b/arch/arm/boot/dts/vexpress-v2p-ca9.dts
-index 4c5847955856..1317f0f58d53 100644
---- a/arch/arm/boot/dts/vexpress-v2p-ca9.dts
-+++ b/arch/arm/boot/dts/vexpress-v2p-ca9.dts
-@@ -295,7 +295,7 @@
- 		};
- 	};
- 
--	smb: bus@4000000 {
-+	smb: bus@40000000 {
- 		compatible = "simple-bus";
- 
- 		#address-cells = <2>;
+ 			qspi1: spi@f0024000 {
 -- 
 2.33.0
 
