@@ -2,120 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECE0D439194
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 10:40:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AC7A43919C
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 10:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231241AbhJYImz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 04:42:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44248 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231940AbhJYImv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 04:42:51 -0400
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B67DBC061745
-        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 01:40:29 -0700 (PDT)
-Received: by mail-pg1-x533.google.com with SMTP id h193so10220450pgc.1
-        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 01:40:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=B6xdWW+anDKFfHco8Ej/bsDLOxs3ZcvO5DVZ9AAVCik=;
-        b=ifSDsXUX1us8SWt0J8Bb1GTOPPSK7cWvMooRQQaUnExVPwo7SzTK33Gswn6/VNhCA9
-         bMeis3orGXtFBYUSu4KbrUX5WVePYhoh0CZ0sQ9OyFw85P9BlElLhiLSyxS2+7N1muRR
-         kQBXlE3+4J/6qKpn6pyShoHFWTBjAflkwhiiZ/PPlin0hAiixY6Jc7kTycQBffiT2mIl
-         XcQCcCCikWgJKSzyvlBB/lkvpZClf15H0TP++HJSzuP3ITergMd2QedJ95kt6bKWPBD9
-         g/dWVJciyiUw3mSdOd9d7uKj1TH0zqLlQhnIPazvE48vkqKltjcKEBDbrFc4Va76AeF/
-         RsEA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=B6xdWW+anDKFfHco8Ej/bsDLOxs3ZcvO5DVZ9AAVCik=;
-        b=4soRionGxNwMu42J9KNqPu5YxW2+yJbpmgmJgZ1/wVG+Pt6EcPZI/Goem9QmnNwOKc
-         6Wt7kF47Gioj1hubXDgL0ZewjWHexDCZ1DlehgE31YYnjZtAs5IBnElncV6pJDTZZCvf
-         mMeocnid5MhQvl70W0pUWFSmpfrtCzKwv7AclthXupCUFXs0H9yimU3tPGeO0PcuDYs0
-         BX8G8l90EDLnXI8Ikp0DeMCv4EStPkKxpVabU6EIO8HWr22+2EclOtdwBABiAVlFslCq
-         jak/EP9QWDoKdhbIBVPDTJcKVHDwogg51zcnpbmqNAkljdEQGZheQWcaH0iDprz7YMO+
-         TbYA==
-X-Gm-Message-State: AOAM532cbAvaoZCVbEZ1FOLdijJ68lwxDV/KyRbjU3IMRsJkV6JGzG/a
-        OtcI8fvfw/jPnER7Zx30kByQa141t6Vl3toQ
-X-Google-Smtp-Source: ABdhPJyOlO7J7K0otPfM1/R/RhHtaaWT8EjYcW11RiZSp6hvj1/UMwaGlIt672ymbKamg6KXk0AAUQ==
-X-Received: by 2002:a65:6658:: with SMTP id z24mr12991740pgv.266.1635151229066;
-        Mon, 25 Oct 2021 01:40:29 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t11sm3912980pgi.73.2021.10.25.01.40.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Oct 2021 01:40:28 -0700 (PDT)
-Message-ID: <61766d7c.1c69fb81.222e.9c2d@mx.google.com>
-Date:   Mon, 25 Oct 2021 01:40:28 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S232168AbhJYIol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 04:44:41 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48552 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232151AbhJYIok (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 04:44:40 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19P6B0j7002297
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 04:42:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=x9XO6NAp/U9ph+aZ6edFg3PfoRKGH6HNca3PiKpsnZM=;
+ b=HyVOLexOOU4vhjTi22dCYjkkH5/NOJD5IBsDJYXTUclGE8kU6COP2D2QHlN/0630qjeB
+ dIHS2bFWPm/6MZtbCspMDtg8qkCn6V+R97agPFjjZLlBVZbQ1Sbfyi9qHVcMEqLa6KFw
+ yls1tabcamXphJSO8u4/N/B+in8pCV33ViV/iygFvrxHeBlhqkiQFng6ykuK5upOgsnl
+ uI9T7SKiQ0SGFPUA3TwlAi3MhuMW+WFBKB760NH6S7l1ClgIc6jLmlcawa3BmpvA2xFK
+ kVaWlFML3jVhbWzZU2HwbtIr6k0tontAFV0iIN7yzOMPwedjkrJ8awjMjDydedeRoTqC Mg== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3bvy9q4nrn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 04:42:17 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19P8Ylql010776
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 08:42:16 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3bva19kk02-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 08:42:16 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19P8gCqH54395328
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 25 Oct 2021 08:42:12 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7F97A4C058;
+        Mon, 25 Oct 2021 08:42:12 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5EE664C052;
+        Mon, 25 Oct 2021 08:42:12 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 25 Oct 2021 08:42:12 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     stable@vger.kernel.org
+Cc:     Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: [PATCH v2 5.14 0/2] s390/pci: fix zpci_zdev_put() on reserve
+Date:   Mon, 25 Oct 2021 10:42:10 +0200
+Message-Id: <20211025084212.3366683-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.155-52-g038259934764
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 161 runs,
- 1 regressions (v5.4.155-52-g038259934764)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: UB79T2OTskkzcF8Zyf1Bfh5p5tFuaSI_
+X-Proofpoint-GUID: UB79T2OTskkzcF8Zyf1Bfh5p5tFuaSI_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-25_02,2021-10-25_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ spamscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
+ mlxlogscore=712 clxscore=1011 suspectscore=0 malwarescore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110250050
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 161 runs, 1 regressions (v5.4.155-52-g0382599=
-34764)
+Hi Greg, Hi Sasha,
 
-Regressions Summary
--------------------
+Please take this backport of the upstream commit a46044a92add ("s390/pci: fix
+zpci_zdev_put() on reserve") for the v5.14 stable series. After adding the
+prerequisite commit 02368b7cf6c7 ("s390/pci: cleanup resources only if
+necessary") both it and the original upstream patch apply cleanly. I have also
+tested them with the original problem situation on top of v5.14.14 and
+confirmed the issue to be fixed.
 
-platform  | arch  | lab           | compiler | defconfig | regressions
-----------+-------+---------------+----------+-----------+------------
-hip07-d05 | arm64 | lab-collabora | gcc-10   | defconfig | 1          =
+Thanks,
+Niklas
 
+Changes since v2:
+- Correct upstream commit hash
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.155-52-g038259934764/plan/baseline/
+Niklas Schnelle (2):
+  s390/pci: cleanup resources only if necessary
+  s390/pci: fix zpci_zdev_put() on reserve
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.155-52-g038259934764
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      03825993476478d2b48a06a7b31465e5b0fba429 =
+ arch/s390/include/asm/pci.h        |  2 ++
+ arch/s390/pci/pci.c                | 48 ++++++++++++++++++++++++++----
+ arch/s390/pci/pci_event.c          |  4 +--
+ drivers/pci/hotplug/s390_pci_hpc.c |  9 +-----
+ 4 files changed, 47 insertions(+), 16 deletions(-)
 
+-- 
+2.25.1
 
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch  | lab           | compiler | defconfig | regressions
-----------+-------+---------------+----------+-----------+------------
-hip07-d05 | arm64 | lab-collabora | gcc-10   | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61763a9672ca91c100335911
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.155-5=
-2-g038259934764/arm64/defconfig/gcc-10/lab-collabora/baseline-hip07-d05.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.155-5=
-2-g038259934764/arm64/defconfig/gcc-10/lab-collabora/baseline-hip07-d05.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61763a9672ca91c100335=
-912
-        new failure (last pass: v5.4.155-52-g00d0519619ad) =
-
- =20
