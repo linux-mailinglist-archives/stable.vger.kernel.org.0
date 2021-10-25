@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3429C439F6D
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:18:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A922143A133
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234608AbhJYTUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:20:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37694 "EHLO mail.kernel.org"
+        id S235949AbhJYThh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234697AbhJYTTl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:19:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF5ED610A5;
-        Mon, 25 Oct 2021 19:17:17 +0000 (UTC)
+        id S236496AbhJYTev (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:34:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDA1760FDC;
+        Mon, 25 Oct 2021 19:31:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189438;
-        bh=5+O5luxEq+ZJHTsBpfKr8ocub3IP1PsSW3FLEVO+9B8=;
+        s=korg; t=1635190267;
+        bh=A12vJG/IntlvEzY70YMt9ZcQI0BSVV7aJhjxFDoAqrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mlnQXSVCMY8x0eaD8T5MKeAMBgnU8oc3k4dTbO/wQoEAIWJOqMwtMWTgPI0ZK2Gvp
-         Veip8jBvcFx9XPIx/2iuwPsUWDZAIPAD/g9uwy+R6nRzBN77eq1N+QD8eMhUJK2Ih8
-         qwF57Wj/ISZyLRIh2kh/eLeiPXoICN27hneQlHv4=
+        b=oPIuljchvu8QDukKL8JaoKudamp034qptz9kqQp7cP8C3hlSoUDNCaEs5Tz38Icpl
+         uBdAFLgKsrbReCzWVTMwChdT+Aipto/afTlFJSYhEXXvijJvbs+MZKtIy7efVlqDFq
+         PkvAXO1QCkrmC+wfzepz0JN7IeEYY0W4ZvkeCUbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 41/44] usbnet: sanity check for maxpacket
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 25/95] net: hns3: add limit ets dwrr bandwidth cannot be 0
 Date:   Mon, 25 Oct 2021 21:14:22 +0200
-Message-Id: <20211025190936.928156150@linuxfoundation.org>
+Message-Id: <20211025191000.537591150@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-commit 397430b50a363d8b7bdda00522123f82df6adc5e upstream.
+[ Upstream commit 731797fdffa3d083db536e2fdd07ceb050bb40b1 ]
 
-maxpacket of 0 makes no sense and oopses as we need to divide
-by it. Give up.
+If ets dwrr bandwidth of tc is set to 0, the hardware will switch to SP
+mode. In this case, this tc may occupy all the tx bandwidth if it has
+huge traffic, so it violates the purpose of the user setting.
 
-V2: fixed typo in log and stylistic issues
+To fix this problem, limit the ets dwrr bandwidth must greater than 0.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211021122944.21816-1-oneukum@suse.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cacde272dd00 ("net: hns3: Add hclge_dcb module for the support of DCB feature")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/usbnet.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -1730,6 +1730,10 @@ usbnet_probe (struct usb_interface *udev
- 	if (!dev->rx_urb_size)
- 		dev->rx_urb_size = dev->hard_mtu;
- 	dev->maxpacket = usb_maxpacket (dev->udev, dev->out, 1);
-+	if (dev->maxpacket == 0) {
-+		/* that is a broken device */
-+		goto out4;
-+	}
- 
- 	/* let userspace know we have a random address */
- 	if (ether_addr_equal(net->dev_addr, node_id))
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+index 28a90ead4795..8e6085753b9f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+@@ -134,6 +134,15 @@ static int hclge_ets_validate(struct hclge_dev *hdev, struct ieee_ets *ets,
+ 				*changed = true;
+ 			break;
+ 		case IEEE_8021QAZ_TSA_ETS:
++			/* The hardware will switch to sp mode if bandwidth is
++			 * 0, so limit ets bandwidth must be greater than 0.
++			 */
++			if (!ets->tc_tx_bw[i]) {
++				dev_err(&hdev->pdev->dev,
++					"tc%u ets bw cannot be 0\n", i);
++				return -EINVAL;
++			}
++
+ 			if (hdev->tm_info.tc_info[i].tc_sch_mode !=
+ 				HCLGE_SCH_MODE_DWRR)
+ 				*changed = true;
+-- 
+2.33.0
+
 
 
