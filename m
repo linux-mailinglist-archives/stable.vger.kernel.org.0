@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C506043A02B
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D883439FF1
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:23:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234451AbhJYT3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:29:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40188 "EHLO mail.kernel.org"
+        id S232699AbhJYTZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:25:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235292AbhJYT0k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:26:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 590766108C;
-        Mon, 25 Oct 2021 19:23:20 +0000 (UTC)
+        id S234743AbhJYTX4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:23:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A37F9610A1;
+        Mon, 25 Oct 2021 19:21:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189801;
-        bh=Kw7lkG9kOuWj0W+L7dSn2mt0ZsB27lwqqvz5rScPANU=;
+        s=korg; t=1635189693;
+        bh=iXn6Jih01pc9c2ujcf4Dm/YwYxbow9CFLEPGx1h3crU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A93SDyFJ8Yi/F6b2pyar8xToSd68RR8bXoo5omhWSXVR0lbaNO900jzghoTK3oSs/
-         wZlIp1nEEpe0U7mMuwxYfNqGNPv+Uo3f/yyb5odDpF9KsD3GIU2Kkw9tgND5HyFPco
-         akY2OMy8S2n28umhNWPFzDhttjHupKTDdnIWyLPQ=
+        b=rfam4SSOmIUacQgH/DFOy60CojS2M13leaqSB1A4D3jMoVVNehX+oknd0QboBrSdy
+         gU5FYkWB16hSzYguNjaTlPIHRWt07q4bxsqBmyeSKMHheG1GFJ/TP1V8HZ4WM3FHnp
+         vk3Fs/oWR0gDIrnBU04dZ7ZkeCCETvUbnYH6lhII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 03/37] xtensa: xtfpga: Try software restart before simulating CPU reset
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Ayumi Nakamichi <ayumi.nakamichi.kf@renesas.com>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.14 08/30] can: rcar_can: fix suspend/resume
 Date:   Mon, 25 Oct 2021 21:14:28 +0200
-Message-Id: <20211025190928.971632271@linuxfoundation.org>
+Message-Id: <20211025190925.096335295@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
-References: <20211025190926.680827862@linuxfoundation.org>
+In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
+References: <20211025190922.089277904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 012e974501a270d8dfd4ee2039e1fdf7579c907e ]
+commit f7c05c3987dcfde9a4e8c2d533db013fabebca0d upstream.
 
-Rebooting xtensa images loaded with the '-kernel' option in qemu does
-not work. When executing a reboot command, the qemu session either hangs
-or experiences an endless sequence of error messages.
+If the driver was not opened, rcar_can_suspend() should not call
+clk_disable() because the clock was not enabled.
 
-  Kernel panic - not syncing: Unrecoverable error in exception handler
-
-Reset code jumps to the CPU restart address, but Linux can not recover
-from there because code and data in the kernel init sections have been
-discarded and overwritten at this point.
-
-XTFPGA platforms have a means to reset the CPU by writing 0xdead into a
-specific FPGA IO address. When used in QEMU the kernel image loaded with
-the '-kernel' option gets restored to its original state allowing the
-machine to boot successfully.
-
-Use that mechanism to attempt a platform reset. If it does not work,
-fall back to the existing mechanism.
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fd1159318e55 ("can: add Renesas R-Car CAN driver")
+Link: https://lore.kernel.org/all/20210924075556.223685-1-yoshihiro.shimoda.uh@renesas.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Tested-by: Ayumi Nakamichi <ayumi.nakamichi.kf@renesas.com>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Tested-by: Biju Das <biju.das.jz@bp.renesas.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/platforms/xtfpga/setup.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/can/rcar/rcar_can.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/arch/xtensa/platforms/xtfpga/setup.c b/arch/xtensa/platforms/xtfpga/setup.c
-index 982e7c22e7ca..db5122765f16 100644
---- a/arch/xtensa/platforms/xtfpga/setup.c
-+++ b/arch/xtensa/platforms/xtfpga/setup.c
-@@ -54,8 +54,12 @@ void platform_power_off(void)
+--- a/drivers/net/can/rcar/rcar_can.c
++++ b/drivers/net/can/rcar/rcar_can.c
+@@ -857,10 +857,12 @@ static int __maybe_unused rcar_can_suspe
+ 	struct rcar_can_priv *priv = netdev_priv(ndev);
+ 	u16 ctlr;
  
- void platform_restart(void)
- {
--	/* Flush and reset the mmu, simulate a processor reset, and
--	 * jump to the reset vector. */
-+	/* Try software reset first. */
-+	WRITE_ONCE(*(u32 *)XTFPGA_SWRST_VADDR, 0xdead);
+-	if (netif_running(ndev)) {
+-		netif_stop_queue(ndev);
+-		netif_device_detach(ndev);
+-	}
++	if (!netif_running(ndev))
++		return 0;
 +
-+	/* If software reset did not work, flush and reset the mmu,
-+	 * simulate a processor reset, and jump to the reset vector.
-+	 */
- 	cpu_reset();
- 	/* control never gets here */
++	netif_stop_queue(ndev);
++	netif_device_detach(ndev);
++
+ 	ctlr = readw(&priv->regs->ctlr);
+ 	ctlr |= RCAR_CAN_CTLR_CANM_HALT;
+ 	writew(ctlr, &priv->regs->ctlr);
+@@ -879,6 +881,9 @@ static int __maybe_unused rcar_can_resum
+ 	u16 ctlr;
+ 	int err;
+ 
++	if (!netif_running(ndev))
++		return 0;
++
+ 	err = clk_enable(priv->clk);
+ 	if (err) {
+ 		netdev_err(ndev, "clk_enable() failed, error %d\n", err);
+@@ -892,10 +897,9 @@ static int __maybe_unused rcar_can_resum
+ 	writew(ctlr, &priv->regs->ctlr);
+ 	priv->can.state = CAN_STATE_ERROR_ACTIVE;
+ 
+-	if (netif_running(ndev)) {
+-		netif_device_attach(ndev);
+-		netif_start_queue(ndev);
+-	}
++	netif_device_attach(ndev);
++	netif_start_queue(ndev);
++
+ 	return 0;
  }
--- 
-2.33.0
-
+ 
 
 
