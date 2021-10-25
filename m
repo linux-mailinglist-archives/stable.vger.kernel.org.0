@@ -2,31 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12D1A43A1D4
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:40:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73FC143A20C
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236301AbhJYTmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:42:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60450 "EHLO mail.kernel.org"
+        id S235642AbhJYTop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:44:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237262AbhJYTkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:40:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED8C661165;
-        Mon, 25 Oct 2021 19:35:52 +0000 (UTC)
+        id S236945AbhJYTlw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:41:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6305161184;
+        Mon, 25 Oct 2021 19:36:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190553;
-        bh=NKK1Ftoap0zWIXPa89GBg0INsb3GdsBuXkFgg0dB5yY=;
+        s=korg; t=1635190617;
+        bh=vjwLFw9pgANuK9TG71AsJEVkX6MUy+j94W9z9q5Dh6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JO8sA0e43M9Tsg4SvzXEg815vDidfCtwSmxIbdICH4RgDrZTJaN/pLMqlcZYOxYFy
-         AXDLwl9Wwv+EWbN+0O+83GzmycdY2DJZIMV49+MRvl7AMvlYCqUkWedIvamLazV6Y1
-         KiBVpLXic19maD3w1JsMYjGVrZt+9B5nlPSKpCqI=
+        b=ygP1SFKtJ3cgWQ2ZQQSIfd165C9JWa9nWpkKfR57PdXj7nCUMX2ZbRmLNWuNT3S3w
+         WXgLy9CvlzFi5/zgNCmM2E0fbLQczLGG6RUQnWnueHchOj1KroYE/EfP2185Qf2qpw
+         lOkyusqUr27/Q274VuF6iXq277aUcxd/TQEmfWho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.14 002/169] parisc: math-emu: Fix fall-through warnings
-Date:   Mon, 25 Oct 2021 21:13:03 +0200
-Message-Id: <20211025191018.071334463@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Daniel Palmer <daniel@thingy.jp>,
+        Rob Landley <rob@landley.net>,
+        Yoshinori Sato <ysato@users.osdn.me>,
+        Rich Felker <dalias@libc.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.14 003/169] sh: pgtable-3level: fix cast to pointer from integer of different size
+Date:   Mon, 25 Oct 2021 21:13:04 +0200
+Message-Id: <20211025191018.181512762@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -38,393 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 6f1fce595b78b775d7fb585c15c2dc3a6994f96e upstream.
+commit e8e9f1e6327005be9656aa135aeb9dfdaf6b3032 upstream.
 
-Fix lots of fallthrough warnings, e.g.:
-arch/parisc/math-emu/fpudispatch.c:323:33: warning: this statement may fall through [-Wimplicit-fallthrough=]
+If X2TLB=y (CPU_SHX2=y or CPU_SHX3=y, e.g. migor_defconfig), pgd_t.pgd
+is "unsigned long long", causing:
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+    In file included from arch/sh/include/asm/pgtable.h:13,
+		     from include/linux/pgtable.h:6,
+		     from include/linux/mm.h:33,
+		     from arch/sh/kernel/asm-offsets.c:14:
+    arch/sh/include/asm/pgtable-3level.h: In function `pud_pgtable':
+    arch/sh/include/asm/pgtable-3level.h:37:9: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+       37 |  return (pmd_t *)pud_val(pud);
+	  |         ^
+
+Fix this by adding an intermediate cast to "unsigned long", which is
+basically what the old code did before.
+
+Link: https://lkml.kernel.org/r/2c2eef3c9a2f57e5609100a4864715ccf253d30f.1631713483.git.geert+renesas@glider.be
+Fixes: 9cf6fa2458443118 ("mm: rename pud_page_vaddr to pud_pgtable and make it return pmd_t *")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Daniel Palmer <daniel@thingy.jp>
+Acked-by: Rob Landley <rob@landley.net>
+Cc: Yoshinori Sato <ysato@users.osdn.me>
+Cc: Rich Felker <dalias@libc.org>
+Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
+Cc: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/math-emu/fpudispatch.c |   56 +++++++++++++++++++++++++++++++++++--
- 1 file changed, 53 insertions(+), 3 deletions(-)
+ arch/sh/include/asm/pgtable-3level.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/parisc/math-emu/fpudispatch.c
-+++ b/arch/parisc/math-emu/fpudispatch.c
-@@ -310,12 +310,15 @@ decode_0c(u_int ir, u_int class, u_int s
- 					r1 &= ~3;
- 					fpregs[t+3] = fpregs[r1+3];
- 					fpregs[t+2] = fpregs[r1+2];
-+					fallthrough;
- 				    case 1: /* double */
- 					fpregs[t+1] = fpregs[r1+1];
-+					fallthrough;
- 				    case 0: /* single */
- 					fpregs[t] = fpregs[r1];
- 					return(NOEXCEPTION);
- 				}
-+				BUG();
- 			case 3: /* FABS */
- 				switch (fmt) {
- 				    case 2: /* illegal */
-@@ -325,13 +328,16 @@ decode_0c(u_int ir, u_int class, u_int s
- 					r1 &= ~3;
- 					fpregs[t+3] = fpregs[r1+3];
- 					fpregs[t+2] = fpregs[r1+2];
-+					fallthrough;
- 				    case 1: /* double */
- 					fpregs[t+1] = fpregs[r1+1];
-+					fallthrough;
- 				    case 0: /* single */
- 					/* copy and clear sign bit */
- 					fpregs[t] = fpregs[r1] & 0x7fffffff;
- 					return(NOEXCEPTION);
- 				}
-+				BUG();
- 			case 6: /* FNEG */
- 				switch (fmt) {
- 				    case 2: /* illegal */
-@@ -341,13 +347,16 @@ decode_0c(u_int ir, u_int class, u_int s
- 					r1 &= ~3;
- 					fpregs[t+3] = fpregs[r1+3];
- 					fpregs[t+2] = fpregs[r1+2];
-+					fallthrough;
- 				    case 1: /* double */
- 					fpregs[t+1] = fpregs[r1+1];
-+					fallthrough;
- 				    case 0: /* single */
- 					/* copy and invert sign bit */
- 					fpregs[t] = fpregs[r1] ^ 0x80000000;
- 					return(NOEXCEPTION);
- 				}
-+				BUG();
- 			case 7: /* FNEGABS */
- 				switch (fmt) {
- 				    case 2: /* illegal */
-@@ -357,13 +366,16 @@ decode_0c(u_int ir, u_int class, u_int s
- 					r1 &= ~3;
- 					fpregs[t+3] = fpregs[r1+3];
- 					fpregs[t+2] = fpregs[r1+2];
-+					fallthrough;
- 				    case 1: /* double */
- 					fpregs[t+1] = fpregs[r1+1];
-+					fallthrough;
- 				    case 0: /* single */
- 					/* copy and set sign bit */
- 					fpregs[t] = fpregs[r1] | 0x80000000;
- 					return(NOEXCEPTION);
- 				}
-+				BUG();
- 			case 4: /* FSQRT */
- 				switch (fmt) {
- 				    case 0:
-@@ -376,6 +388,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 				    case 3: /* quad not implemented */
- 					return(MAJOR_0C_EXCP);
- 				}
-+				BUG();
- 			case 5: /* FRND */
- 				switch (fmt) {
- 				    case 0:
-@@ -389,7 +402,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 					return(MAJOR_0C_EXCP);
- 				}
- 		} /* end of switch (subop) */
--
-+		BUG();
- 	case 1: /* class 1 */
- 		df = extru(ir,fpdfpos,2); /* get dest format */
- 		if ((df & 2) || (fmt & 2)) {
-@@ -419,6 +432,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 				    case 3: /* dbl/dbl */
- 					return(MAJOR_0C_EXCP);
- 				}
-+				BUG();
- 			case 1: /* FCNVXF */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -434,6 +448,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 					return(dbl_to_dbl_fcnvxf(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 2: /* FCNVFX */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -449,6 +464,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 					return(dbl_to_dbl_fcnvfx(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 3: /* FCNVFXT */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -464,6 +480,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 					return(dbl_to_dbl_fcnvfxt(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 5: /* FCNVUF (PA2.0 only) */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -479,6 +496,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 					return(dbl_to_dbl_fcnvuf(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 6: /* FCNVFU (PA2.0 only) */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -494,6 +512,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 					return(dbl_to_dbl_fcnvfu(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 7: /* FCNVFUT (PA2.0 only) */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -509,10 +528,11 @@ decode_0c(u_int ir, u_int class, u_int s
- 					return(dbl_to_dbl_fcnvfut(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 4: /* undefined */
- 				return(MAJOR_0C_EXCP);
- 		} /* end of switch subop */
--
-+		BUG();
- 	case 2: /* class 2 */
- 		fpu_type_flags=fpregs[FPU_TYPE_FLAG_POS];
- 		r2 = extru(ir, fpr2pos, 5) * sizeof(double)/sizeof(u_int);
-@@ -590,6 +610,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 				    case 3: /* quad not implemented */
- 					return(MAJOR_0C_EXCP);
- 				}
-+				BUG();
- 			case 1: /* FTEST */
- 				switch (fmt) {
- 				    case 0:
-@@ -609,8 +630,10 @@ decode_0c(u_int ir, u_int class, u_int s
- 				    case 3:
- 					return(MAJOR_0C_EXCP);
- 				}
-+				BUG();
- 		    } /* end of switch subop */
- 		} /* end of else for PA1.0 & PA1.1 */
-+		BUG();
- 	case 3: /* class 3 */
- 		r2 = extru(ir,fpr2pos,5) * sizeof(double)/sizeof(u_int);
- 		if (r2 == 0)
-@@ -633,6 +656,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 				    case 3: /* quad not implemented */
- 					return(MAJOR_0C_EXCP);
- 				}
-+				BUG();
- 			case 1: /* FSUB */
- 				switch (fmt) {
- 				    case 0:
-@@ -645,6 +669,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 				    case 3: /* quad not implemented */
- 					return(MAJOR_0C_EXCP);
- 				}
-+				BUG();
- 			case 2: /* FMPY */
- 				switch (fmt) {
- 				    case 0:
-@@ -657,6 +682,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 				    case 3: /* quad not implemented */
- 					return(MAJOR_0C_EXCP);
- 				}
-+				BUG();
- 			case 3: /* FDIV */
- 				switch (fmt) {
- 				    case 0:
-@@ -669,6 +695,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 				    case 3: /* quad not implemented */
- 					return(MAJOR_0C_EXCP);
- 				}
-+				BUG();
- 			case 4: /* FREM */
- 				switch (fmt) {
- 				    case 0:
-@@ -681,6 +708,7 @@ decode_0c(u_int ir, u_int class, u_int s
- 				    case 3: /* quad not implemented */
- 					return(MAJOR_0C_EXCP);
- 				}
-+				BUG();
- 		} /* end of class 3 switch */
- 	} /* end of switch(class) */
+--- a/arch/sh/include/asm/pgtable-3level.h
++++ b/arch/sh/include/asm/pgtable-3level.h
+@@ -34,7 +34,7 @@ typedef struct { unsigned long long pmd;
  
-@@ -736,10 +764,12 @@ u_int fpregs[];
- 					return(MAJOR_0E_EXCP);
- 				    case 1: /* double */
- 					fpregs[t+1] = fpregs[r1+1];
-+					fallthrough;
- 				    case 0: /* single */
- 					fpregs[t] = fpregs[r1];
- 					return(NOEXCEPTION);
- 				}
-+				BUG();
- 			case 3: /* FABS */
- 				switch (fmt) {
- 				    case 2:
-@@ -747,10 +777,12 @@ u_int fpregs[];
- 					return(MAJOR_0E_EXCP);
- 				    case 1: /* double */
- 					fpregs[t+1] = fpregs[r1+1];
-+					fallthrough;
- 				    case 0: /* single */
- 					fpregs[t] = fpregs[r1] & 0x7fffffff;
- 					return(NOEXCEPTION);
- 				}
-+				BUG();
- 			case 6: /* FNEG */
- 				switch (fmt) {
- 				    case 2:
-@@ -758,10 +790,12 @@ u_int fpregs[];
- 					return(MAJOR_0E_EXCP);
- 				    case 1: /* double */
- 					fpregs[t+1] = fpregs[r1+1];
-+					fallthrough;
- 				    case 0: /* single */
- 					fpregs[t] = fpregs[r1] ^ 0x80000000;
- 					return(NOEXCEPTION);
- 				}
-+				BUG();
- 			case 7: /* FNEGABS */
- 				switch (fmt) {
- 				    case 2:
-@@ -769,10 +803,12 @@ u_int fpregs[];
- 					return(MAJOR_0E_EXCP);
- 				    case 1: /* double */
- 					fpregs[t+1] = fpregs[r1+1];
-+					fallthrough;
- 				    case 0: /* single */
- 					fpregs[t] = fpregs[r1] | 0x80000000;
- 					return(NOEXCEPTION);
- 				}
-+				BUG();
- 			case 4: /* FSQRT */
- 				switch (fmt) {
- 				    case 0:
-@@ -785,6 +821,7 @@ u_int fpregs[];
- 				    case 3:
- 					return(MAJOR_0E_EXCP);
- 				}
-+				BUG();
- 			case 5: /* FRMD */
- 				switch (fmt) {
- 				    case 0:
-@@ -798,7 +835,7 @@ u_int fpregs[];
- 					return(MAJOR_0E_EXCP);
- 				}
- 		} /* end of switch (subop */
--	
-+		BUG();
- 	case 1: /* class 1 */
- 		df = extru(ir,fpdfpos,2); /* get dest format */
- 		/*
-@@ -826,6 +863,7 @@ u_int fpregs[];
- 				    case 3: /* dbl/dbl */
- 					return(MAJOR_0E_EXCP);
- 				}
-+				BUG();
- 			case 1: /* FCNVXF */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -841,6 +879,7 @@ u_int fpregs[];
- 					return(dbl_to_dbl_fcnvxf(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 2: /* FCNVFX */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -856,6 +895,7 @@ u_int fpregs[];
- 					return(dbl_to_dbl_fcnvfx(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 3: /* FCNVFXT */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -871,6 +911,7 @@ u_int fpregs[];
- 					return(dbl_to_dbl_fcnvfxt(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 5: /* FCNVUF (PA2.0 only) */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -886,6 +927,7 @@ u_int fpregs[];
- 					return(dbl_to_dbl_fcnvuf(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 6: /* FCNVFU (PA2.0 only) */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -901,6 +943,7 @@ u_int fpregs[];
- 					return(dbl_to_dbl_fcnvfu(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 7: /* FCNVFUT (PA2.0 only) */
- 				switch(fmt) {
- 				    case 0: /* sgl/sgl */
-@@ -916,9 +959,11 @@ u_int fpregs[];
- 					return(dbl_to_dbl_fcnvfut(&fpregs[r1],0,
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 4: /* undefined */
- 				return(MAJOR_0C_EXCP);
- 		} /* end of switch subop */
-+		BUG();
- 	case 2: /* class 2 */
- 		/*
- 		 * Be careful out there.
-@@ -994,6 +1039,7 @@ u_int fpregs[];
- 				}
- 		    } /* end of switch subop */
- 		} /* end of else for PA1.0 & PA1.1 */
-+		BUG();
- 	case 3: /* class 3 */
- 		/*
- 		 * Be careful out there.
-@@ -1026,6 +1072,7 @@ u_int fpregs[];
- 					return(dbl_fadd(&fpregs[r1],&fpregs[r2],
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 1: /* FSUB */
- 				switch (fmt) {
- 				    case 0:
-@@ -1035,6 +1082,7 @@ u_int fpregs[];
- 					return(dbl_fsub(&fpregs[r1],&fpregs[r2],
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 2: /* FMPY or XMPYU */
- 				/*
- 				 * check for integer multiply (x bit set)
-@@ -1071,6 +1119,7 @@ u_int fpregs[];
- 					       &fpregs[r2],&fpregs[t],status));
- 				    }
- 				}
-+				BUG();
- 			case 3: /* FDIV */
- 				switch (fmt) {
- 				    case 0:
-@@ -1080,6 +1129,7 @@ u_int fpregs[];
- 					return(dbl_fdiv(&fpregs[r1],&fpregs[r2],
- 						&fpregs[t],status));
- 				}
-+				BUG();
- 			case 4: /* FREM */
- 				switch (fmt) {
- 				    case 0:
+ static inline pmd_t *pud_pgtable(pud_t pud)
+ {
+-	return (pmd_t *)pud_val(pud);
++	return (pmd_t *)(unsigned long)pud_val(pud);
+ }
+ 
+ /* only used by the stubbed out hugetlb gup code, should never be called */
 
 
