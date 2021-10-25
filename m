@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0A3943A11C
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E702439F4F
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235239AbhJYThT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53486 "EHLO mail.kernel.org"
+        id S234384AbhJYTTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:19:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236351AbhJYTeY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:34:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B09060F4F;
-        Mon, 25 Oct 2021 19:30:08 +0000 (UTC)
+        id S234087AbhJYTSu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:18:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 076D660F70;
+        Mon, 25 Oct 2021 19:16:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190209;
-        bh=0vH2pZ5lJX1o2ioJ7yBBOpymPgfh1Le9YXmOgwXvUJw=;
+        s=korg; t=1635189387;
+        bh=nHpmElIgjm6PRFonSP4b8cwbFdME/BCl8zsf809HFVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klV+boViok6VG1eqXG6/WlkWyYGkNtU2IFK88BGS+SxWSO3zYaVazdLyK7bfJwtD0
-         Ok8lzM0pUWKumWO6Num1ss3+rQQ5NIgKXdggk9bMT27D8wrYP3Har+PyJ0RQlSt77k
-         yPr1ogJ0vj84Kqbmah44vVPYQhpPw1AmFRufzLMA=
+        b=XbTr21zwYpSenOvU6/tR363gSyqDwDOiG8PnfABGH/OeyJT5jHgav6tLnovU8Ue7C
+         XFzlh3PhtHIZvXKM6zpGeCBXjJD9IByvqJTmmiYaZxt9qzjeRABFzjarsjYBEGEjkp
+         GW6+lIh9oCRJT0ZvZR3Szi6QN8LrtlDMO5twcsy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 18/95] lan78xx: select CRC32
-Date:   Mon, 25 Oct 2021 21:14:15 +0200
-Message-Id: <20211025190959.572375902@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Xiaolong Huang <butterflyhuangxx@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 35/44] isdn: cpai: check ctr->cnr to avoid array index out of bound
+Date:   Mon, 25 Oct 2021 21:14:16 +0200
+Message-Id: <20211025190935.831780647@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
+References: <20211025190928.054676643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+From: Xiaolong Huang <butterflyhuangxx@gmail.com>
 
-[ Upstream commit 46393d61a328d7c4e3264252dae891921126c674 ]
+commit 1f3e2e97c003f80c4b087092b225c8787ff91e4d upstream.
 
-Fix the following build/link error by adding a dependency on the CRC32
-routines:
+The cmtp_add_connection() would add a cmtp session to a controller
+and run a kernel thread to process cmtp.
 
-  ld: drivers/net/usb/lan78xx.o: in function `lan78xx_set_multicast':
-  lan78xx.c:(.text+0x48cf): undefined reference to `crc32_le'
+	__module_get(THIS_MODULE);
+	session->task = kthread_run(cmtp_session, session, "kcmtpd_ctr_%d",
+								session->num);
 
-The actual use of crc32_le() comes indirectly through ether_crc().
+During this process, the kernel thread would call detach_capi_ctr()
+to detach a register controller. if the controller
+was not attached yet, detach_capi_ctr() would
+trigger an array-index-out-bounds bug.
 
-Fixes: 55d7de9de6c30 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[   46.866069][ T6479] UBSAN: array-index-out-of-bounds in
+drivers/isdn/capi/kcapi.c:483:21
+[   46.867196][ T6479] index -1 is out of range for type 'capi_ctr *[32]'
+[   46.867982][ T6479] CPU: 1 PID: 6479 Comm: kcmtpd_ctr_0 Not tainted
+5.15.0-rc2+ #8
+[   46.869002][ T6479] Hardware name: QEMU Standard PC (i440FX + PIIX,
+1996), BIOS 1.14.0-2 04/01/2014
+[   46.870107][ T6479] Call Trace:
+[   46.870473][ T6479]  dump_stack_lvl+0x57/0x7d
+[   46.870974][ T6479]  ubsan_epilogue+0x5/0x40
+[   46.871458][ T6479]  __ubsan_handle_out_of_bounds.cold+0x43/0x48
+[   46.872135][ T6479]  detach_capi_ctr+0x64/0xc0
+[   46.872639][ T6479]  cmtp_session+0x5c8/0x5d0
+[   46.873131][ T6479]  ? __init_waitqueue_head+0x60/0x60
+[   46.873712][ T6479]  ? cmtp_add_msgpart+0x120/0x120
+[   46.874256][ T6479]  kthread+0x147/0x170
+[   46.874709][ T6479]  ? set_kthread_struct+0x40/0x40
+[   46.875248][ T6479]  ret_from_fork+0x1f/0x30
+[   46.875773][ T6479]
+
+Signed-off-by: Xiaolong Huang <butterflyhuangxx@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20211008065830.305057-1-butterflyhuangxx@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/isdn/capi/kcapi.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/usb/Kconfig b/drivers/net/usb/Kconfig
-index 4efad42b9aa9..867ff2ee8ecf 100644
---- a/drivers/net/usb/Kconfig
-+++ b/drivers/net/usb/Kconfig
-@@ -117,6 +117,7 @@ config USB_LAN78XX
- 	select PHYLIB
- 	select MICROCHIP_PHY
- 	select FIXED_PHY
-+	select CRC32
- 	help
- 	  This option adds support for Microchip LAN78XX based USB 2
- 	  & USB 3 10/100/1000 Ethernet adapters.
--- 
-2.33.0
-
+--- a/drivers/isdn/capi/kcapi.c
++++ b/drivers/isdn/capi/kcapi.c
+@@ -564,6 +564,11 @@ int detach_capi_ctr(struct capi_ctr *ctr
+ 
+ 	ctr_down(ctr, CAPI_CTR_DETACHED);
+ 
++	if (ctr->cnr < 1 || ctr->cnr - 1 >= CAPI_MAXCONTR) {
++		err = -EINVAL;
++		goto unlock_out;
++	}
++
+ 	if (capi_controller[ctr->cnr - 1] != ctr) {
+ 		err = -EINVAL;
+ 		goto unlock_out;
 
 
