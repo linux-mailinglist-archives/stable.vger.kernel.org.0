@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 453E343A129
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9E6643A28E
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231231AbhJYTh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49322 "EHLO mail.kernel.org"
+        id S237259AbhJYTuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:50:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236413AbhJYTeh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:34:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 450EC610A1;
-        Mon, 25 Oct 2021 19:30:41 +0000 (UTC)
+        id S238061AbhJYTr5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:47:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 025D5611AD;
+        Mon, 25 Oct 2021 19:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190243;
-        bh=fJO2zM3lNbBpdnT+XD0C2MDUrkXfNfKA8UFUJvPhCpM=;
+        s=korg; t=1635190845;
+        bh=RREGMakANUjXXW5QLWxqSaL+Q7LMCBsC7dAZLWMRhRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b5EhlRgTreLUceRMWntrapQt8BG/GPYu/vEVXDODZe8CyOiNMoOWjv/yGs/8becmq
-         IoP17/qoeeoaQx2Muo1frDuPYfRgno60edKvWemw1GInuH/pvQwdjs6rSCMOWyyjLL
-         paR1+K1j3uA5PdzelFqh73Y2EXynSOQfyJRUzPPk=
+        b=nZ0SATbcPXAthKScoeXSQZelEy1TgYFlhKviaVmOAR/YWQaKvRm4NsxUNJuGg8uEa
+         I32E/X5FZuYsZ7lN6z4qYHfarQOvSBXL4OyZ0NpD1PzXb5JY2cyCiWlO+gWwsbL4Hf
+         vdCBXTRkYaBJ0P0NAr/4xJ+jbM1IpJiEihosr8tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 11/95] NFSD: Keep existing listeners on portlist error
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.14 067/169] can: peak_pci: peak_pci_remove(): fix UAF
 Date:   Mon, 25 Oct 2021 21:14:08 +0200
-Message-Id: <20211025190958.504059365@linuxfoundation.org>
+Message-Id: <20211025191025.983556510@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit c20106944eb679fa3ab7e686fe5f6ba30fbc51e5 ]
+commit 949fe9b35570361bc6ee2652f89a0561b26eec98 upstream.
 
-If nfsd has existing listening sockets without any processes, then an error
-returned from svc_create_xprt() for an additional transport will remove
-those existing listeners.  We're seeing this in practice when userspace
-attempts to create rpcrdma transports without having the rpcrdma modules
-present before creating nfsd kernel processes.  Fix this by checking for
-existing sockets before calling nfsd_destroy().
+When remove the module peek_pci, referencing 'chan' again after
+releasing 'dev' will cause UAF.
 
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by releasing 'dev' later.
+
+The following log reveals it:
+
+[   35.961814 ] BUG: KASAN: use-after-free in peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.963414 ] Read of size 8 at addr ffff888136998ee8 by task modprobe/5537
+[   35.965513 ] Call Trace:
+[   35.965718 ]  dump_stack_lvl+0xa8/0xd1
+[   35.966028 ]  print_address_description+0x87/0x3b0
+[   35.966420 ]  kasan_report+0x172/0x1c0
+[   35.966725 ]  ? peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.967137 ]  ? trace_irq_enable_rcuidle+0x10/0x170
+[   35.967529 ]  ? peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.967945 ]  __asan_report_load8_noabort+0x14/0x20
+[   35.968346 ]  peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.968752 ]  pci_device_remove+0xa9/0x250
+
+Fixes: e6d9c80b7ca1 ("can: peak_pci: add support of some new PEAK-System PCI cards")
+Link: https://lore.kernel.org/all/1634192913-15639-1-git-send-email-zheyuma97@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfsctl.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/can/sja1000/peak_pci.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
-index ddf2b375632b..21c4ffda5f94 100644
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -792,7 +792,10 @@ out_close:
- 		svc_xprt_put(xprt);
- 	}
- out_err:
--	nfsd_destroy(net);
-+	if (!list_empty(&nn->nfsd_serv->sv_permsocks))
-+		nn->nfsd_serv->sv_nrthreads--;
-+	 else
-+		nfsd_destroy(net);
- 	return err;
- }
+--- a/drivers/net/can/sja1000/peak_pci.c
++++ b/drivers/net/can/sja1000/peak_pci.c
+@@ -729,16 +729,15 @@ static void peak_pci_remove(struct pci_d
+ 		struct net_device *prev_dev = chan->prev_dev;
  
--- 
-2.33.0
-
+ 		dev_info(&pdev->dev, "removing device %s\n", dev->name);
++		/* do that only for first channel */
++		if (!prev_dev && chan->pciec_card)
++			peak_pciec_remove(chan->pciec_card);
+ 		unregister_sja1000dev(dev);
+ 		free_sja1000dev(dev);
+ 		dev = prev_dev;
+ 
+-		if (!dev) {
+-			/* do that only for first channel */
+-			if (chan->pciec_card)
+-				peak_pciec_remove(chan->pciec_card);
++		if (!dev)
+ 			break;
+-		}
+ 		priv = netdev_priv(dev);
+ 		chan = priv->priv;
+ 	}
 
 
