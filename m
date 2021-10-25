@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66F25439FD3
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:22:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2018C43A281
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234608AbhJYTY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:24:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38954 "EHLO mail.kernel.org"
+        id S236933AbhJYTtb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:49:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235020AbhJYTXM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:23:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9021B61090;
-        Mon, 25 Oct 2021 19:20:46 +0000 (UTC)
+        id S237968AbhJYTq6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:46:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80E9D6120D;
+        Mon, 25 Oct 2021 19:40:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189647;
-        bh=pyocyy54/NGLyXEIFdjU4zUuvGkPatfqXtJF3ap9ZWQ=;
+        s=korg; t=1635190802;
+        bh=TD6/T9X43wYxT6EJ6NjhoPf92aJMxzpa2w4AK3IGcK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HDd/6REEc2FY4fPZMibtOLjWmnh5jIxYFwMT67c5sn4uDv0erDbCdHbwqlhyQJDZ0
-         tMBVSrna0Xho7uXAVzAAdZJHNGCu6Lr0j9F0ywD7YKguMkpjQXLbDzx48qG/MJVFiV
-         Zmi8d/FVClcK9AHkg5EYELxLNJ/kYVqE7TfdDOqw=
+        b=D66x0aR2vXUoxVvkb/pMtTVxJAt3RT8L8tGclhpGCdTJ89ASm3crcM2aZ1sHhC4nN
+         ux1wbYSmlvIrQPDPlfJ5IkxiRll+BaMh1gYGqQnk9GkKKHJnvqiTb80qLFBydoFjrf
+         fURx44FovDsEiBYWUfk+YW4uI1r7Bao1cSdYLMUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 28/50] NFSD: Keep existing listeners on portlist error
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.14 074/169] can: j1939: j1939_xtp_rx_rts_session_new(): abort TP less than 9 bytes
 Date:   Mon, 25 Oct 2021 21:14:15 +0200
-Message-Id: <20211025190938.227783010@linuxfoundation.org>
+Message-Id: <20211025191026.761790773@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit c20106944eb679fa3ab7e686fe5f6ba30fbc51e5 ]
+commit a4fbe70c5cb746441d56b28cf88161d9e0e25378 upstream.
 
-If nfsd has existing listening sockets without any processes, then an error
-returned from svc_create_xprt() for an additional transport will remove
-those existing listeners.  We're seeing this in practice when userspace
-attempts to create rpcrdma transports without having the rpcrdma modules
-present before creating nfsd kernel processes.  Fix this by checking for
-existing sockets before calling nfsd_destroy().
+The receiver should abort TP if 'total message size' in TP.CM_RTS and
+TP.CM_BAM is less than 9 or greater than 1785 [1], but currently the
+j1939 stack only checks the upper bound and the receiver will accept
+the following broadcast message:
 
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  vcan1  18ECFF00   [8]  20 08 00 02 FF 00 23 01
+  vcan1  18EBFF00   [8]  01 00 00 00 00 00 00 00
+  vcan1  18EBFF00   [8]  02 00 FF FF FF FF FF FF
+
+This patch adds check for the lower bound and abort illegal TP.
+
+[1] SAE-J1939-82 A.3.4 Row 2 and A.3.6 Row 6.
+
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Link: https://lore.kernel.org/all/1634203601-3460-1-git-send-email-zhangchangzhong@huawei.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfsctl.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/can/j1939/j1939-priv.h |    1 +
+ net/can/j1939/transport.c  |    2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
-index f704f90db36c..2418b9d829ae 100644
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -765,7 +765,10 @@ out_close:
- 		svc_xprt_put(xprt);
- 	}
- out_err:
--	nfsd_destroy(net);
-+	if (!list_empty(&nn->nfsd_serv->sv_permsocks))
-+		nn->nfsd_serv->sv_nrthreads--;
-+	 else
-+		nfsd_destroy(net);
- 	return err;
- }
+--- a/net/can/j1939/j1939-priv.h
++++ b/net/can/j1939/j1939-priv.h
+@@ -326,6 +326,7 @@ int j1939_session_activate(struct j1939_
+ void j1939_tp_schedule_txtimer(struct j1939_session *session, int msec);
+ void j1939_session_timers_cancel(struct j1939_session *session);
  
--- 
-2.33.0
-
++#define J1939_MIN_TP_PACKET_SIZE 9
+ #define J1939_MAX_TP_PACKET_SIZE (7 * 0xff)
+ #define J1939_MAX_ETP_PACKET_SIZE (7 * 0x00ffffff)
+ 
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -1596,6 +1596,8 @@ j1939_session *j1939_xtp_rx_rts_session_
+ 			abort = J1939_XTP_ABORT_FAULT;
+ 		else if (len > priv->tp_max_packet_size)
+ 			abort = J1939_XTP_ABORT_RESOURCE;
++		else if (len < J1939_MIN_TP_PACKET_SIZE)
++			abort = J1939_XTP_ABORT_FAULT;
+ 	}
+ 
+ 	if (abort != J1939_XTP_NO_ABORT) {
 
 
