@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C4B343A308
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:53:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC4F943A1AF
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:39:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235171AbhJYTzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:55:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41888 "EHLO mail.kernel.org"
+        id S237337AbhJYTk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:40:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238842AbhJYTxl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:53:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 416AE60E97;
-        Mon, 25 Oct 2021 19:44:41 +0000 (UTC)
+        id S235652AbhJYTi5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:38:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7039260FE8;
+        Mon, 25 Oct 2021 19:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635191083;
-        bh=idzmCTmScLE7SpFvK5YW4508KB+pnHmJiBrp0tWnMB4=;
+        s=korg; t=1635190509;
+        bh=02YwnfmFrZi1SpE/rAkEiZ5VMyY+g2fwF2DZCzd8JBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JwFm+NU1Riar0gUB8/B6+Lt2aqZ+EwRJKf5dub+g8P8BVZgGzcp/MvDwb7ZH+yWXq
-         A/eTeVZzKFvesLWhIQOWjIcsgwZau0H+o7+Suk4lHmTGW5Gx061lwSwNc3xdxZwHoA
-         X4Nkehh9+lRO5MKfDLni3ypmJn5Q71+LmPpZJdpw=
+        b=uGhZdgEFqMlXqfebNtwbdCRNtfJy/qC+c6q61Jb7l1YR2WkSZRbC6s+TnMYjiioin
+         kc820G+WWO/no+baaY9CHSPeU93JajUASGy3eq6xpsinwK/MZ4KwqKZTMdA1va3h8j
+         q+PYix8Ets0Ns/Eyi54GgY+rv3losso+QYNGo4Cw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 141/169] ALSA: hda: avoid write to STATESTS if controller is in reset
-Date:   Mon, 25 Oct 2021 21:15:22 +0200
-Message-Id: <20211025191035.472273015@linuxfoundation.org>
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 86/95] can: isotp: isotp_sendmsg(): fix TX buffer concurrent access in isotp_sendmsg()
+Date:   Mon, 25 Oct 2021 21:15:23 +0200
+Message-Id: <20211025191009.268468171@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +41,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit b37a15188eae9d4c49c5bb035e0c8d4058e4d9b3 ]
+commit 43a08c3bdac4cb42eff8fe5e2278bffe0c5c3daa upstream.
 
-The snd_hdac_bus_reset_link() contains logic to clear STATESTS register
-before performing controller reset. This code dates back to an old
-bugfix in commit e8a7f136f5ed ("[ALSA] hda-intel - Improve HD-audio
-codec probing robustness"). Originally the code was added to
-azx_reset().
+When isotp_sendmsg() concurrent, tx.state of all TX processes can be
+ISOTP_IDLE. The conditions so->tx.state != ISOTP_IDLE and
+wq_has_sleeper(&so->wait) can not protect TX buffer from being
+accessed by multiple TX processes.
 
-The code was moved around in commit a41d122449be ("ALSA: hda - Embed bus
-into controller object") and ended up to snd_hdac_bus_reset_link() and
-called primarily via snd_hdac_bus_init_chip().
+We can use cmpxchg() to try to modify tx.state to ISOTP_SENDING firstly.
+If the modification of the previous process succeed, the later process
+must wait tx.state to ISOTP_IDLE firstly. Thus, we can ensure TX buffer
+is accessed by only one process at the same time. And we should also
+restore the original tx.state at the subsequent error processes.
 
-The logic to clear STATESTS is correct when snd_hdac_bus_init_chip() is
-called when controller is not in reset. In this case, STATESTS can be
-cleared. This can be useful e.g. when forcing a controller reset to retry
-codec probe. A normal non-power-on reset will not clear the bits.
-
-However, this old logic is problematic when controller is already in
-reset. The HDA specification states that controller must be taken out of
-reset before writing to registers other than GCTL.CRST (1.0a spec,
-3.3.7). The write to STATESTS in snd_hdac_bus_reset_link() will be lost
-if the controller is already in reset per the HDA specification mentioned.
-
-This has been harmless on older hardware. On newer generation of Intel
-PCIe based HDA controllers, if configured to report issues, this write
-will emit an unsupported request error. If ACPI Platform Error Interface
-(APEI) is enabled in kernel, this will end up to kernel log.
-
-Fix the code in snd_hdac_bus_reset_link() to only clear the STATESTS if
-the function is called when controller is not in reset. Otherwise
-clearing the bits is not possible and should be skipped.
-
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20211012142935.3731820-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/all/c2517874fbdf4188585cf9ddf67a8fa74d5dbde5.1633764159.git.william.xuanziyang@huawei.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/hda/hdac_controller.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/can/isotp.c |   40 +++++++++++++++++++++++++++-------------
+ 1 file changed, 27 insertions(+), 13 deletions(-)
 
-diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
-index 062da7a7a586..f7bd6e2db085 100644
---- a/sound/hda/hdac_controller.c
-+++ b/sound/hda/hdac_controller.c
-@@ -421,8 +421,9 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
- 	if (!full_reset)
- 		goto skip_reset;
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -121,7 +121,7 @@ enum {
+ struct tpcon {
+ 	int idx;
+ 	int len;
+-	u8 state;
++	u32 state;
+ 	u8 bs;
+ 	u8 sn;
+ 	u8 ll_dl;
+@@ -846,6 +846,7 @@ static int isotp_sendmsg(struct socket *
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct isotp_sock *so = isotp_sk(sk);
++	u32 old_state = so->tx.state;
+ 	struct sk_buff *skb;
+ 	struct net_device *dev;
+ 	struct canfd_frame *cf;
+@@ -858,39 +859,45 @@ static int isotp_sendmsg(struct socket *
+ 		return -EADDRNOTAVAIL;
  
--	/* clear STATESTS */
--	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
-+	/* clear STATESTS if not in reset */
-+	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
-+		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
+ 	/* we do not support multiple buffers - for now */
+-	if (so->tx.state != ISOTP_IDLE || wq_has_sleeper(&so->wait)) {
+-		if (msg->msg_flags & MSG_DONTWAIT)
+-			return -EAGAIN;
++	if (cmpxchg(&so->tx.state, ISOTP_IDLE, ISOTP_SENDING) != ISOTP_IDLE ||
++	    wq_has_sleeper(&so->wait)) {
++		if (msg->msg_flags & MSG_DONTWAIT) {
++			err = -EAGAIN;
++			goto err_out;
++		}
  
- 	/* reset controller */
- 	snd_hdac_bus_enter_link_reset(bus);
--- 
-2.33.0
-
+ 		/* wait for complete transmission of current pdu */
+ 		err = wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
+ 		if (err)
+-			return err;
++			goto err_out;
+ 	}
+ 
+-	if (!size || size > MAX_MSG_LENGTH)
+-		return -EINVAL;
++	if (!size || size > MAX_MSG_LENGTH) {
++		err = -EINVAL;
++		goto err_out;
++	}
+ 
+ 	err = memcpy_from_msg(so->tx.buf, msg, size);
+ 	if (err < 0)
+-		return err;
++		goto err_out;
+ 
+ 	dev = dev_get_by_index(sock_net(sk), so->ifindex);
+-	if (!dev)
+-		return -ENXIO;
++	if (!dev) {
++		err = -ENXIO;
++		goto err_out;
++	}
+ 
+ 	skb = sock_alloc_send_skb(sk, so->ll.mtu + sizeof(struct can_skb_priv),
+ 				  msg->msg_flags & MSG_DONTWAIT, &err);
+ 	if (!skb) {
+ 		dev_put(dev);
+-		return err;
++		goto err_out;
+ 	}
+ 
+ 	can_skb_reserve(skb);
+ 	can_skb_prv(skb)->ifindex = dev->ifindex;
+ 	can_skb_prv(skb)->skbcnt = 0;
+ 
+-	so->tx.state = ISOTP_SENDING;
+ 	so->tx.len = size;
+ 	so->tx.idx = 0;
+ 
+@@ -949,7 +956,7 @@ static int isotp_sendmsg(struct socket *
+ 	if (err) {
+ 		pr_notice_once("can-isotp: %s: can_send_ret %d\n",
+ 			       __func__, err);
+-		return err;
++		goto err_out;
+ 	}
+ 
+ 	if (wait_tx_done) {
+@@ -961,6 +968,13 @@ static int isotp_sendmsg(struct socket *
+ 	}
+ 
+ 	return size;
++
++err_out:
++	so->tx.state = old_state;
++	if (so->tx.state == ISOTP_IDLE)
++		wake_up_interruptible(&so->wait);
++
++	return err;
+ }
+ 
+ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
 
 
