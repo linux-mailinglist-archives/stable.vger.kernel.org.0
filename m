@@ -2,47 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C2043A15E
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4906A43A04B
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236550AbhJYTiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:38:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53558 "EHLO mail.kernel.org"
+        id S235326AbhJYT3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235172AbhJYTfh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:35:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D1A86109D;
-        Mon, 25 Oct 2021 19:32:52 +0000 (UTC)
+        id S235460AbhJYT2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:28:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D78A61156;
+        Mon, 25 Oct 2021 19:24:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190373;
-        bh=WouTT5nKQHmeccXdB8dVONW/Be3x973bW5UTCRq4lcA=;
+        s=korg; t=1635189893;
+        bh=fGHkWFFjgamQ7uIYfc3mv+dcwTe2RZfno3L6rMpP+Jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=104yymZbjnb1dOprZsUCfWWJgViXDAKpS5IhKNToZ2/0En22iOr074aaZ5kArO5yn
-         EZNAihQ4PXCMCmRUPIrYEMCfr0KzS+T/1OF9mJBzXzP96y9l7RZVFKxrjgZB/JcSO9
-         o1JeEPzKxfJriN59HyzvVu/69o7QtizmxVay4r64=
+        b=gF5QXFEj4eFLj8y9DNVi/+ipRQFAmFFKS3xNjDoaK1nbbw1awRDf8KdoKx7bj/Esd
+         rsnu3HyRKHq6yOPOJmnubw12IZhEvw79Md5jaU9P3/s7/P1HOXRlNHTcQcBcl6I52T
+         LVS0Dc4KpU70AKBb4/67658TGUZ+hVr0UEtDU8KU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Bharata B Rao <bharata@linux.ibm.com>,
-        Christoph Lameter <cl@linux.com>,
-        David Rientjes <rientjes@google.com>,
-        Faiyaz Mohammed <faiyazm@codeaurora.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Pekka Enberg <penberg@kernel.org>,
-        Roman Gushchin <guro@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 59/95] mm, slub: fix mismatch between reconstructed freelist depth and cnt
-Date:   Mon, 25 Oct 2021 21:14:56 +0200
-Message-Id: <20211025191005.502876648@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 32/37] ALSA: hda: avoid write to STATESTS if controller is in reset
+Date:   Mon, 25 Oct 2021 21:14:57 +0200
+Message-Id: <20211025190934.806046498@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,72 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-commit 899447f669da76cc3605665e1a95ee877bc464cc upstream.
+[ Upstream commit b37a15188eae9d4c49c5bb035e0c8d4058e4d9b3 ]
 
-If object's reuse is delayed, it will be excluded from the reconstructed
-freelist.  But we forgot to adjust the cnt accordingly.  So there will
-be a mismatch between reconstructed freelist depth and cnt.  This will
-lead to free_debug_processing() complaining about freelist count or a
-incorrect slub inuse count.
+The snd_hdac_bus_reset_link() contains logic to clear STATESTS register
+before performing controller reset. This code dates back to an old
+bugfix in commit e8a7f136f5ed ("[ALSA] hda-intel - Improve HD-audio
+codec probing robustness"). Originally the code was added to
+azx_reset().
 
-Link: https://lkml.kernel.org/r/20210916123920.48704-3-linmiaohe@huawei.com
-Fixes: c3895391df38 ("kasan, slub: fix handling of kasan_slab_free hook")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Bharata B Rao <bharata@linux.ibm.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Faiyaz Mohammed <faiyazm@codeaurora.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The code was moved around in commit a41d122449be ("ALSA: hda - Embed bus
+into controller object") and ended up to snd_hdac_bus_reset_link() and
+called primarily via snd_hdac_bus_init_chip().
+
+The logic to clear STATESTS is correct when snd_hdac_bus_init_chip() is
+called when controller is not in reset. In this case, STATESTS can be
+cleared. This can be useful e.g. when forcing a controller reset to retry
+codec probe. A normal non-power-on reset will not clear the bits.
+
+However, this old logic is problematic when controller is already in
+reset. The HDA specification states that controller must be taken out of
+reset before writing to registers other than GCTL.CRST (1.0a spec,
+3.3.7). The write to STATESTS in snd_hdac_bus_reset_link() will be lost
+if the controller is already in reset per the HDA specification mentioned.
+
+This has been harmless on older hardware. On newer generation of Intel
+PCIe based HDA controllers, if configured to report issues, this write
+will emit an unsupported request error. If ACPI Platform Error Interface
+(APEI) is enabled in kernel, this will end up to kernel log.
+
+Fix the code in snd_hdac_bus_reset_link() to only clear the STATESTS if
+the function is called when controller is not in reset. Otherwise
+clearing the bits is not possible and should be skipped.
+
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20211012142935.3731820-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slub.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ sound/hda/hdac_controller.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -1543,7 +1543,8 @@ static __always_inline bool slab_free_ho
- }
+diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
+index 74244d8e2909..a65e8c0c630d 100644
+--- a/sound/hda/hdac_controller.c
++++ b/sound/hda/hdac_controller.c
+@@ -390,8 +390,9 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
+ 	if (!full_reset)
+ 		goto skip_reset;
  
- static inline bool slab_free_freelist_hook(struct kmem_cache *s,
--					   void **head, void **tail)
-+					   void **head, void **tail,
-+					   int *cnt)
- {
+-	/* clear STATESTS */
+-	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
++	/* clear STATESTS if not in reset */
++	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
++		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
  
- 	void *object;
-@@ -1578,6 +1579,12 @@ static inline bool slab_free_freelist_ho
- 			*head = object;
- 			if (!*tail)
- 				*tail = object;
-+		} else {
-+			/*
-+			 * Adjust the reconstructed freelist depth
-+			 * accordingly if object's reuse is delayed.
-+			 */
-+			--(*cnt);
- 		}
- 	} while (object != old_tail);
- 
-@@ -3137,7 +3144,7 @@ static __always_inline void slab_free(st
- 	 * With KASAN enabled slab_free_freelist_hook modifies the freelist
- 	 * to remove objects, whose reuse must be delayed.
- 	 */
--	if (slab_free_freelist_hook(s, &head, &tail))
-+	if (slab_free_freelist_hook(s, &head, &tail, &cnt))
- 		do_slab_free(s, page, head, tail, cnt, addr);
- }
- 
+ 	/* reset controller */
+ 	snd_hdac_bus_enter_link_reset(bus);
+-- 
+2.33.0
+
 
 
