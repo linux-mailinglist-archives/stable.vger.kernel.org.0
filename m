@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22BF243A32C
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CE9243A188
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237482AbhJYT4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:56:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42722 "EHLO mail.kernel.org"
+        id S236453AbhJYTjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:39:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237993AbhJYTxA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:53:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F77261246;
-        Mon, 25 Oct 2021 19:44:10 +0000 (UTC)
+        id S235266AbhJYThT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:37:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55321610CF;
+        Mon, 25 Oct 2021 19:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635191051;
-        bh=4JPQVIHWVjf9kbAJr6+3FH509KcOpC7ie1Fmg5TEGko=;
+        s=korg; t=1635190442;
+        bh=I2PjY6OdnOUedBdm83hMHSwW0WGvgKcfX0vGlUKOx3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XLzFpgPKIFDiM5TWWt3UTZJfgMdUQOHyaWaM1zg6V0lM405P5n2JLpUnzy8O1FaZs
-         zwYrx3Q0NC4KCosMjB53RU+4Gbp8ArPPK9Ao0QAWciVYSZV94Jb07C8YVkVq4/i+Wg
-         E8XEt5MRX/SflC1COuOUGuQQtokdFemLYcDo31bQ=
+        b=N1HPwscIC7oDJkPVUfgRgRz6/Qrc4fHIiYdOS7IJrX8PeAiJhMSk7F0ChvpuqAJRq
+         NObJdc6PgoCv2dFSC8ehV7SEzM4lWNLakALq17SoS4sr82P4nLw13m/rhUk7GRI489
+         +o0o/189UPksY5OOhlGLaBNmro2YhS4BIliVE17M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Forney <mforney@mforney.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 133/169] objtool: Update section header before relocations
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 77/95] ALSA: hda: avoid write to STATESTS if controller is in reset
 Date:   Mon, 25 Oct 2021 21:15:14 +0200
-Message-Id: <20211025191034.546980699@linuxfoundation.org>
+Message-Id: <20211025191008.112786128@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,152 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Forney <mforney@mforney.org>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 86e1e054e0d2105cf32b0266cf1a64e6c26424f7 ]
+[ Upstream commit b37a15188eae9d4c49c5bb035e0c8d4058e4d9b3 ]
 
-The libelf implementation from elftoolchain has a safety check in
-gelf_update_rel[a] to check that the data corresponds to a section
-that has type SHT_REL[A] [0]. If the relocation is updated before
-the section header is updated with the proper type, this check
-fails.
+The snd_hdac_bus_reset_link() contains logic to clear STATESTS register
+before performing controller reset. This code dates back to an old
+bugfix in commit e8a7f136f5ed ("[ALSA] hda-intel - Improve HD-audio
+codec probing robustness"). Originally the code was added to
+azx_reset().
 
-To fix this, update the section header first, before the relocations.
-Previously, the section size was calculated in elf_rebuild_reloc_section
-by counting the number of entries in the reloc_list. However, we
-now need the size during elf_write so instead keep a running total
-and add to it for every new relocation.
+The code was moved around in commit a41d122449be ("ALSA: hda - Embed bus
+into controller object") and ended up to snd_hdac_bus_reset_link() and
+called primarily via snd_hdac_bus_init_chip().
 
-[0] https://sourceforge.net/p/elftoolchain/mailman/elftoolchain-developers/thread/CAGw6cBtkZro-8wZMD2ULkwJ39J+tHtTtAWXufMjnd3cQ7XG54g@mail.gmail.com/
+The logic to clear STATESTS is correct when snd_hdac_bus_init_chip() is
+called when controller is not in reset. In this case, STATESTS can be
+cleared. This can be useful e.g. when forcing a controller reset to retry
+codec probe. A normal non-power-on reset will not clear the bits.
 
-Signed-off-by: Michael Forney <mforney@mforney.org>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lore.kernel.org/r/20210509000103.11008-2-mforney@mforney.org
+However, this old logic is problematic when controller is already in
+reset. The HDA specification states that controller must be taken out of
+reset before writing to registers other than GCTL.CRST (1.0a spec,
+3.3.7). The write to STATESTS in snd_hdac_bus_reset_link() will be lost
+if the controller is already in reset per the HDA specification mentioned.
+
+This has been harmless on older hardware. On newer generation of Intel
+PCIe based HDA controllers, if configured to report issues, this write
+will emit an unsupported request error. If ACPI Platform Error Interface
+(APEI) is enabled in kernel, this will end up to kernel log.
+
+Fix the code in snd_hdac_bus_reset_link() to only clear the STATESTS if
+the function is called when controller is not in reset. Otherwise
+clearing the bits is not possible and should be skipped.
+
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20211012142935.3731820-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/elf.c | 46 +++++++++++++++++----------------------------
- 1 file changed, 17 insertions(+), 29 deletions(-)
+ sound/hda/hdac_controller.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
-index 6cf4c0f11906..a9c2bebd7576 100644
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -509,6 +509,7 @@ int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
- 	list_add_tail(&reloc->list, &sec->reloc->reloc_list);
- 	elf_hash_add(reloc, &reloc->hash, reloc_hash(reloc));
+diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
+index b98449fd92f3..522d1897659c 100644
+--- a/sound/hda/hdac_controller.c
++++ b/sound/hda/hdac_controller.c
+@@ -421,8 +421,9 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
+ 	if (!full_reset)
+ 		goto skip_reset;
  
-+	sec->reloc->sh.sh_size += sec->reloc->sh.sh_entsize;
- 	sec->reloc->changed = true;
+-	/* clear STATESTS */
+-	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
++	/* clear STATESTS if not in reset */
++	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
++		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
  
- 	return 0;
-@@ -979,26 +980,23 @@ static struct section *elf_create_reloc_section(struct elf *elf,
- 	}
- }
- 
--static int elf_rebuild_rel_reloc_section(struct section *sec, int nr)
-+static int elf_rebuild_rel_reloc_section(struct section *sec)
- {
- 	struct reloc *reloc;
--	int idx = 0, size;
-+	int idx = 0;
- 	void *buf;
- 
- 	/* Allocate a buffer for relocations */
--	size = nr * sizeof(GElf_Rel);
--	buf = malloc(size);
-+	buf = malloc(sec->sh.sh_size);
- 	if (!buf) {
- 		perror("malloc");
- 		return -1;
- 	}
- 
- 	sec->data->d_buf = buf;
--	sec->data->d_size = size;
-+	sec->data->d_size = sec->sh.sh_size;
- 	sec->data->d_type = ELF_T_REL;
- 
--	sec->sh.sh_size = size;
--
- 	idx = 0;
- 	list_for_each_entry(reloc, &sec->reloc_list, list) {
- 		reloc->rel.r_offset = reloc->offset;
-@@ -1013,26 +1011,23 @@ static int elf_rebuild_rel_reloc_section(struct section *sec, int nr)
- 	return 0;
- }
- 
--static int elf_rebuild_rela_reloc_section(struct section *sec, int nr)
-+static int elf_rebuild_rela_reloc_section(struct section *sec)
- {
- 	struct reloc *reloc;
--	int idx = 0, size;
-+	int idx = 0;
- 	void *buf;
- 
- 	/* Allocate a buffer for relocations with addends */
--	size = nr * sizeof(GElf_Rela);
--	buf = malloc(size);
-+	buf = malloc(sec->sh.sh_size);
- 	if (!buf) {
- 		perror("malloc");
- 		return -1;
- 	}
- 
- 	sec->data->d_buf = buf;
--	sec->data->d_size = size;
-+	sec->data->d_size = sec->sh.sh_size;
- 	sec->data->d_type = ELF_T_RELA;
- 
--	sec->sh.sh_size = size;
--
- 	idx = 0;
- 	list_for_each_entry(reloc, &sec->reloc_list, list) {
- 		reloc->rela.r_offset = reloc->offset;
-@@ -1050,16 +1045,9 @@ static int elf_rebuild_rela_reloc_section(struct section *sec, int nr)
- 
- static int elf_rebuild_reloc_section(struct elf *elf, struct section *sec)
- {
--	struct reloc *reloc;
--	int nr;
--
--	nr = 0;
--	list_for_each_entry(reloc, &sec->reloc_list, list)
--		nr++;
--
- 	switch (sec->sh.sh_type) {
--	case SHT_REL:  return elf_rebuild_rel_reloc_section(sec, nr);
--	case SHT_RELA: return elf_rebuild_rela_reloc_section(sec, nr);
-+	case SHT_REL:  return elf_rebuild_rel_reloc_section(sec);
-+	case SHT_RELA: return elf_rebuild_rela_reloc_section(sec);
- 	default:       return -1;
- 	}
- }
-@@ -1119,12 +1107,6 @@ int elf_write(struct elf *elf)
- 	/* Update changed relocation sections and section headers: */
- 	list_for_each_entry(sec, &elf->sections, list) {
- 		if (sec->changed) {
--			if (sec->base &&
--			    elf_rebuild_reloc_section(elf, sec)) {
--				WARN("elf_rebuild_reloc_section");
--				return -1;
--			}
--
- 			s = elf_getscn(elf->elf, sec->idx);
- 			if (!s) {
- 				WARN_ELF("elf_getscn");
-@@ -1135,6 +1117,12 @@ int elf_write(struct elf *elf)
- 				return -1;
- 			}
- 
-+			if (sec->base &&
-+			    elf_rebuild_reloc_section(elf, sec)) {
-+				WARN("elf_rebuild_reloc_section");
-+				return -1;
-+			}
-+
- 			sec->changed = false;
- 			elf->changed = true;
- 		}
+ 	/* reset controller */
+ 	snd_hdac_bus_enter_link_reset(bus);
 -- 
 2.33.0
 
