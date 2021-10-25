@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1341143A22C
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:44:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F01943A22E
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:44:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237272AbhJYTpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:45:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59364 "EHLO mail.kernel.org"
+        id S237016AbhJYTpq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:45:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237420AbhJYTnh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:43:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7285A6115C;
-        Mon, 25 Oct 2021 19:37:53 +0000 (UTC)
+        id S237433AbhJYTnl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:43:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 851B6611C3;
+        Mon, 25 Oct 2021 19:37:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190674;
-        bh=u/qQM1UwUGSCz6+revutruyyLKl9Cqwd2FYne25gnKs=;
+        s=korg; t=1635190678;
+        bh=oSOFX6gN9ZslATLTtvNZuSK1HRF6eDhmkYrEuFeD9t8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NSkzYuA2BtQ6igOlWmyXX7SuOIhJCK1ibg/LVhtG4b3Lw9M8/eN6W1OiY+sY28wbS
-         pb5b+WZ4rJkDpexVRFJFV9Q4Fq5R1G4z7qU5iLheOBu1yrlYhVo/2eNyYbvPoxuOPm
-         N3SRO4tc5xb2TUi7r7Q8NNK0NcEL8mHuOQcTT4VA=
+        b=W2lJWkSsFfkwW5BdaDdBffmnVfsc0bjaYtCqQMud22S2cFYT43tNYMMK6r4NsUcKW
+         r/QhW7VyoGzqIU9JsQBII+k1m/Y2r70S3McSnOMUBSlFhX4/6uddQSfPnuZs+Ln2am
+         1m/iv7PBdcLqkbAyU42K5jm6IsqD/Lt9UBdOAzNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 026/169] dma-debug: fix sg checks in debug_dma_map_sg()
-Date:   Mon, 25 Oct 2021 21:13:27 +0200
-Message-Id: <20211025191021.146334747@linuxfoundation.org>
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 027/169] ASoC: wm8960: Fix clock configuration on slave mode
+Date:   Mon, 25 Oct 2021 21:13:28 +0200
+Message-Id: <20211025191021.293663378@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -40,77 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 293d92cbbd2418ca2ba43fed07f1b92e884d1c77 ]
+[ Upstream commit 6b9b546dc00797c74bef491668ce5431ff54e1e2 ]
 
-The following warning occurred sporadically on s390:
-DMA-API: nvme 0006:00:00.0: device driver maps memory from kernel text or rodata [addr=0000000048cc5e2f] [len=131072]
-WARNING: CPU: 4 PID: 825 at kernel/dma/debug.c:1083 check_for_illegal_area+0xa8/0x138
+There is a noise issue for 8kHz sample rate on slave mode.
+Compared with master mode, the difference is the DACDIV
+setting, after correcting the DACDIV, the noise is gone.
 
-It is a false-positive warning, due to broken logic in debug_dma_map_sg().
-check_for_illegal_area() checks for overlay of sg elements with kernel text
-or rodata. It is called with sg_dma_len(s) instead of s->length as
-parameter. After the call to ->map_sg(), sg_dma_len() will contain the
-length of possibly combined sg elements in the DMA address space, and not
-the individual sg element length, which would be s->length.
+There is no noise issue for 48kHz sample rate, because
+the default value of DACDIV is correct for 48kHz.
 
-The check will then use the physical start address of an sg element, and
-add the DMA length for the overlap check, which could result in the false
-warning, because the DMA length can be larger than the actual single sg
-element length.
+So wm8960_configure_clocking() should be functional for
+ADC and DAC function even if it is slave mode.
 
-In addition, the call to check_for_illegal_area() happens in the iteration
-over mapped_ents, which will not include all individual sg elements if
-any of them were combined in ->map_sg().
+In order to be compatible for old use case, just add
+condition for checking that sysclk is zero with
+slave mode.
 
-Fix this by using s->length instead of sg_dma_len(s). Also put the call to
-check_for_illegal_area() in a separate loop, iterating over all the
-individual sg elements ("nents" instead of "mapped_ents").
-
-While at it, as suggested by Robin Murphy, also move check_for_stack()
-inside the new loop, as it is similarly concerned with validating the
-individual sg elements.
-
-Link: https://lore.kernel.org/lkml/20210705185252.4074653-1-gerald.schaefer@linux.ibm.com
-Fixes: 884d05970bfb ("dma-debug: use sg_dma_len accessor")
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 0e50b51aa22f ("ASoC: wm8960: Let wm8960 driver configure its bit clock and frame clock")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/1634102224-3922-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/debug.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/soc/codecs/wm8960.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index 70519f67556f..fad3c77c1da1 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -1299,6 +1299,12 @@ void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 	if (unlikely(dma_debug_disabled()))
- 		return;
+diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
+index 9e621a254392..499604f1e178 100644
+--- a/sound/soc/codecs/wm8960.c
++++ b/sound/soc/codecs/wm8960.c
+@@ -742,9 +742,16 @@ static int wm8960_configure_clocking(struct snd_soc_component *component)
+ 	int i, j, k;
+ 	int ret;
  
-+	for_each_sg(sg, s, nents, i) {
-+		check_for_stack(dev, sg_page(s), s->offset);
-+		if (!PageHighMem(sg_page(s)))
-+			check_for_illegal_area(dev, sg_virt(s), s->length);
-+	}
-+
- 	for_each_sg(sg, s, mapped_ents, i) {
- 		entry = dma_entry_alloc();
- 		if (!entry)
-@@ -1314,12 +1320,6 @@ void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 		entry->sg_call_ents   = nents;
- 		entry->sg_mapped_ents = mapped_ents;
+-	if (!(iface1 & (1<<6))) {
+-		dev_dbg(component->dev,
+-			"Codec is slave mode, no need to configure clock\n");
++	/*
++	 * For Slave mode clocking should still be configured,
++	 * so this if statement should be removed, but some platform
++	 * may not work if the sysclk is not configured, to avoid such
++	 * compatible issue, just add '!wm8960->sysclk' condition in
++	 * this if statement.
++	 */
++	if (!(iface1 & (1 << 6)) && !wm8960->sysclk) {
++		dev_warn(component->dev,
++			 "slave mode, but proceeding with no clock configuration\n");
+ 		return 0;
+ 	}
  
--		check_for_stack(dev, sg_page(s), s->offset);
--
--		if (!PageHighMem(sg_page(s))) {
--			check_for_illegal_area(dev, sg_virt(s), sg_dma_len(s));
--		}
--
- 		check_sg_segment(dev, s);
- 
- 		add_dma_entry(entry);
 -- 
 2.33.0
 
