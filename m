@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 911B943A172
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C9C143A051
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235625AbhJYTi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:38:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53202 "EHLO mail.kernel.org"
+        id S235868AbhJYT3v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236316AbhJYTgp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:36:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF9AD6108B;
-        Mon, 25 Oct 2021 19:33:29 +0000 (UTC)
+        id S235445AbhJYT2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:28:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBB4761076;
+        Mon, 25 Oct 2021 19:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190410;
-        bh=j+QF2LcPO7hmfNxMDbnM5e9gK1V7JghTd8HSxp1SmkM=;
+        s=korg; t=1635189889;
+        bh=ZrsSBy57D8kFBiyUQ0yK6wBXOGDqNSH03H8z0Pjfs1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XWvmwpqKFJt8C7kCbrJy5NFzaThsywsD+BnL2UHXlhfDOOJMkMzXL8dmcS2hTt77g
-         h160B3XcRrJiGx8Cntt7x7vcdsn1DDkD0IIShJew1cEhTT7PuZq/tBeq0Aex6q1+FX
-         6WTz/VDr3sYkmWt6ulIciCpOgQBIu2tEs3UlsEgc=
+        b=UY64KpKeSW+WqYb98NTN9CgIwS0Ed1x5F+GtR3XyuPpDyGQKCX15dn6fkoZhrx4Jm
+         PQi4+0anMpq5A2hG76137m5uu6L+9Ew42muE9X5vVZtUG0DWHA29S4BLrlIgQu15oB
+         frFmybJLFjMwaEj3YV4W1sVSgFShioECDmlRIy80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Clarkson <sc@lambdal.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 51/95] ALSA: hda/realtek: Add quirk for Clevo PC50HS
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Lin Ma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 23/37] nfc: nci: fix the UAF of rf_conn_info object
 Date:   Mon, 25 Oct 2021 21:14:48 +0200
-Message-Id: <20211025191003.998346890@linuxfoundation.org>
+Message-Id: <20211025190932.930213006@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Clarkson <sc@lambdal.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit aef454b40288158b850aab13e3d2a8c406779401 upstream.
+commit 1b1499a817c90fd1ce9453a2c98d2a01cca0e775 upstream.
 
-Apply existing PCI quirk to the Clevo PC50HS and related models to fix
-audio output on the built in speakers.
+The nci_core_conn_close_rsp_packet() function will release the conn_info
+with given conn_id. However, it needs to set the rf_conn_info to NULL to
+prevent other routines like nci_rf_intf_activated_ntf_packet() to trigger
+the UAF.
 
-Signed-off-by: Steven Clarkson <sc@lambdal.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211014133554.1326741-1-sc@lambdal.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/nfc/nci/rsp.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2547,6 +2547,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1558, 0x65d2, "Clevo PB51R[CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65e1, "Clevo PB51[ED][DF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65e5, "Clevo PC50D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x65f1, "Clevo PC50HS", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+--- a/net/nfc/nci/rsp.c
++++ b/net/nfc/nci/rsp.c
+@@ -289,6 +289,8 @@ static void nci_core_conn_close_rsp_pack
+ 							 ndev->cur_conn_id);
+ 		if (conn_info) {
+ 			list_del(&conn_info->list);
++			if (conn_info == ndev->rf_conn_info)
++				ndev->rf_conn_info = NULL;
+ 			devm_kfree(&ndev->nfc_dev->dev, conn_info);
+ 		}
+ 	}
 
 
