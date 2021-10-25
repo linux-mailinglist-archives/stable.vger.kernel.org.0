@@ -2,47 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2084343A15F
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BB7F43A079
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:28:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236574AbhJYTiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:38:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53590 "EHLO mail.kernel.org"
+        id S233118AbhJYT3v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235180AbhJYTfh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:35:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95D3C60F4F;
-        Mon, 25 Oct 2021 19:32:59 +0000 (UTC)
+        id S235482AbhJYT2j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:28:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE09F60E97;
+        Mon, 25 Oct 2021 19:25:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190380;
-        bh=GtNUhLFz86P7gP09g68mPzVaSVkrdDu9Ld/BXgUrqIo=;
+        s=korg; t=1635189901;
+        bh=dxWCpeC257qELOOsTKiKYGOm24lYGntSVC67WrQwO8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DqL5C3NWY0dzSqt9TA8pndKkgaN+m/fZWglyvQuG8G7GQO3PWW+crRtK47nozMYyB
-         aBJ0CI6FKErKrrYD6PRobbjdkH82Gq5Xf6Uf6WzGsXP+UHn/ovB6oE/DXLJHv2YNCV
-         Y9vuksyS74LHXuwGuOmohysDoz4aNpMXz8+6El9U=
+        b=MIGi6ZDSU+F8ENs+CtfunMmQox12bc4Pp+yWFx4mhf+Grshda6M91DWfhHlQyvUrj
+         yiEsodeKsb2BhV8uCJblX5lc6YRHhmsELD2O3GIAKL35OcNoBBLNB8O8NjY2QAt5s/
+         tBMXE6tVkjyiDjaROdznFX0mQPsHUGYBWzMWaT94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Bharata B Rao <bharata@linux.ibm.com>,
-        Christoph Lameter <cl@linux.com>,
-        David Rientjes <rientjes@google.com>,
-        Faiyaz Mohammed <faiyazm@codeaurora.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Pekka Enberg <penberg@kernel.org>,
-        Roman Gushchin <guro@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 61/95] mm, slub: fix incorrect memcg slab count for bulk free
-Date:   Mon, 25 Oct 2021 21:14:58 +0200
-Message-Id: <20211025191005.770461024@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 34/37] usbnet: sanity check for maxpacket
+Date:   Mon, 25 Oct 2021 21:14:59 +0200
+Message-Id: <20211025190935.277486500@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,49 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 3ddd60268c24bcac9d744404cc277e9dc52fe6b6 upstream.
+commit 397430b50a363d8b7bdda00522123f82df6adc5e upstream.
 
-kmem_cache_free_bulk() will call memcg_slab_free_hook() for all objects
-when doing bulk free.  So we shouldn't call memcg_slab_free_hook() again
-for bulk free to avoid incorrect memcg slab count.
+maxpacket of 0 makes no sense and oopses as we need to divide
+by it. Give up.
 
-Link: https://lkml.kernel.org/r/20210916123920.48704-6-linmiaohe@huawei.com
-Fixes: d1b2cf6cb84a ("mm: memcg/slab: uncharge during kmem_cache_free_bulk()")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Bharata B Rao <bharata@linux.ibm.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Faiyaz Mohammed <faiyazm@codeaurora.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+V2: fixed typo in log and stylistic issues
+
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211021122944.21816-1-oneukum@suse.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slub.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/usb/usbnet.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -3100,7 +3100,9 @@ static __always_inline void do_slab_free
- 	struct kmem_cache_cpu *c;
- 	unsigned long tid;
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -1784,6 +1784,10 @@ usbnet_probe (struct usb_interface *udev
+ 	if (!dev->rx_urb_size)
+ 		dev->rx_urb_size = dev->hard_mtu;
+ 	dev->maxpacket = usb_maxpacket (dev->udev, dev->out, 1);
++	if (dev->maxpacket == 0) {
++		/* that is a broken device */
++		goto out4;
++	}
  
--	memcg_slab_free_hook(s, &head, 1);
-+	/* memcg_slab_free_hook() is already called for bulk free. */
-+	if (!tail)
-+		memcg_slab_free_hook(s, &head, 1);
- redo:
- 	/*
- 	 * Determine the currently cpus per cpu slab.
+ 	/* let userspace know we have a random address */
+ 	if (ether_addr_equal(net->dev_addr, node_id))
 
 
