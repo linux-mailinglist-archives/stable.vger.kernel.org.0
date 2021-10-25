@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EFB143A160
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E23AC43A104
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236683AbhJYTiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:38:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53560 "EHLO mail.kernel.org"
+        id S235648AbhJYThB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235171AbhJYTfh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:35:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C3506105A;
-        Mon, 25 Oct 2021 19:32:56 +0000 (UTC)
+        id S235905AbhJYTcr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:32:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B36661163;
+        Mon, 25 Oct 2021 19:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190376;
-        bh=zbKQ1sBdjgOxJMMGjfW9LsPtXSkoQfTPpBNAz5r5MHg=;
+        s=korg; t=1635190125;
+        bh=M7rXbJcmXm7/mYr1xFFv/WvVbqRK4BgrJ9RlUhIcZy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNiqjQ+ongfCQHZeyzpLeXSg1a2heVuHrAenhWpR7BMTlWmur/9U1wYeo0MdMq5Zs
-         h79oQodKp+OU7DOuhOBc07OGXPZbI/Z7Wjd3oxovVFIv7/C0d2ymry/XGXucJIK1DL
-         tGnOCkMD+aJjIW7c9uK+DRyHmGnwcnkV2+EZFAoI=
+        b=AmUTYjrtL4pj5PRP1CqPMHafu8eJuaYnRWLSWCD0XsJj5mFAPV8xQSraKJfuSF6Bj
+         NpCoRei5GFpgrgn4AKGIRwfIMnhsfP9Wj/UdsRzvuO511WivkIA32swAqhnqr6NEoN
+         0POxQ9SHkMpdlv0gkWHGpjcZGxg+/cwu07vyG58s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,12 +37,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Roman Gushchin <guro@fb.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 60/95] mm, slub: fix potential memoryleak in kmem_cache_open()
+Subject: [PATCH 5.4 40/58] mm, slub: fix potential memoryleak in kmem_cache_open()
 Date:   Mon, 25 Oct 2021 21:14:57 +0200
-Message-Id: <20211025191005.622375123@linuxfoundation.org>
+Message-Id: <20211025190944.020648444@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -83,7 +83,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/mm/slub.c
 +++ b/mm/slub.c
-@@ -3832,8 +3832,8 @@ static int kmem_cache_open(struct kmem_c
+@@ -3734,8 +3734,8 @@ static int kmem_cache_open(struct kmem_c
  	if (alloc_kmem_cache_cpus(s))
  		return 0;
  
