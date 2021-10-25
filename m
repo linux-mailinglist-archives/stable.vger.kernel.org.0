@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40C3943A095
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:33:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0360743A134
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233313AbhJYTcL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:32:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49900 "EHLO mail.kernel.org"
+        id S235964AbhJYThj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235024AbhJYTaH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:30:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9605860F4F;
-        Mon, 25 Oct 2021 19:27:14 +0000 (UTC)
+        id S236538AbhJYTey (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:34:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CEFE6103C;
+        Mon, 25 Oct 2021 19:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190035;
-        bh=CQhYz4gpC9CmNZZ0INanewalAqtQdaZ4buwe0BUolP4=;
+        s=korg; t=1635190284;
+        bh=YtplX7ENlKSo0YXZkDaEXzwPNtKcowSANbe0onNv4PM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MX/ETEkxXLbQUO0ECxpG5FwGpAVpegWkdqMyLh6QsfhVvm9VsX2D06dNlo+RQioME
-         /hgUhlWh4g8d9peQZF+PZ8PQI2AV3X54vCrsyVC5AJwoyqy+ypia7UJD8bYn8WGJKu
-         RYNiYnBQjOXdISqQ3tjs1L7enXUJgzEgiprbvyiw=
+        b=h12wF4SztfzKFmyKj9+KdHxfSWB21mpDDOg2PfZrXa+7cOXdbm+/0rJOn4csGB18q
+         xsoL9vXukfCiyADi2Yq9IiwRYfJbn/5y7+1o5tVlze5dEimfjD0NgqBO3dQIsWqzx0
+         16ahoL+737qQEMAFKXDqNTX8RNWx7O1bm4i+9KHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/58] net: stmmac: Fix E2E delay mechanism
+        stable@vger.kernel.org,
+        "Sottas Guillaume (LMB)" <Guillaume.Sottas@liebherr.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 37/95] can: isotp: isotp_sendmsg(): fix return error on FC timeout on TX path
 Date:   Mon, 25 Oct 2021 21:14:34 +0200
-Message-Id: <20211025190940.238358845@linuxfoundation.org>
+Message-Id: <20211025191002.183693059@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kurt Kanzenbach <kurt@linutronix.de>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 3cb958027cb8b78d3ee639ce9af54c2ef1bf964f ]
+commit d674a8f123b4096d85955c7eaabec688f29724c9 upstream.
 
-When utilizing End to End delay mechanism, the following error messages show up:
+When the a large chunk of data send and the receiver does not send a
+Flow Control frame back in time, the sendmsg() does not return a error
+code, but the number of bytes sent corresponding to the size of the
+packet.
 
-|root@ehl1:~# ptp4l --tx_timestamp_timeout=50 -H -i eno2 -E -m
-|ptp4l[950.573]: selected /dev/ptp3 as PTP clock
-|ptp4l[950.586]: port 1: INITIALIZING to LISTENING on INIT_COMPLETE
-|ptp4l[950.586]: port 0: INITIALIZING to LISTENING on INIT_COMPLETE
-|ptp4l[952.879]: port 1: new foreign master 001395.fffe.4897b4-1
-|ptp4l[956.879]: selected best master clock 001395.fffe.4897b4
-|ptp4l[956.879]: port 1: assuming the grand master role
-|ptp4l[956.879]: port 1: LISTENING to GRAND_MASTER on RS_GRAND_MASTER
-|ptp4l[962.017]: port 1: received DELAY_REQ without timestamp
-|ptp4l[962.273]: port 1: received DELAY_REQ without timestamp
-|ptp4l[963.090]: port 1: received DELAY_REQ without timestamp
+If a timeout occurs the isotp_tx_timer_handler() is fired, sets
+sk->sk_err and calls the sk->sk_error_report() function. It was
+wrongly expected that the error would be propagated to user space in
+every case. For isotp_sendmsg() blocking on wait_event_interruptible()
+this is not the case.
 
-Commit f2fb6b6275eb ("net: stmmac: enable timestamp snapshot for required PTP
-packets in dwmac v5.10a") already addresses this problem for the dwmac
-v5.10. However, same holds true for all dwmacs above version v4.10. Correct the
-check accordingly. Afterwards everything works as expected.
+This patch fixes the problem by checking if sk->sk_err is set and
+returning the error to user space.
 
-Tested on Intel Atom(R) x6414RE Processor.
-
-Fixes: 14f347334bf2 ("net: stmmac: Correctly take timestamp for PTPv2")
-Fixes: f2fb6b6275eb ("net: stmmac: enable timestamp snapshot for required PTP packets in dwmac v5.10a")
-Suggested-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://github.com/hartkopp/can-isotp/issues/42
+Link: https://github.com/hartkopp/can-isotp/pull/43
+Link: https://lore.kernel.org/all/20210507091839.1366379-1-mkl@pengutronix.de
+Cc: stable@vger.kernel.org
+Reported-by: Sottas Guillaume (LMB) <Guillaume.Sottas@liebherr.com>
+Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/isotp.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 835ac178bc8c..94c652b9a0a8 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -604,7 +604,7 @@ static int stmmac_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
- 			config.rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
- 			ptp_v2 = PTP_TCR_TSVER2ENA;
- 			snap_type_sel = PTP_TCR_SNAPTYPSEL_1;
--			if (priv->synopsys_id != DWMAC_CORE_5_10)
-+			if (priv->synopsys_id < DWMAC_CORE_4_10)
- 				ts_event_en = PTP_TCR_TSEVNTENA;
- 			ptp_over_ipv4_udp = PTP_TCR_TSIPV4ENA;
- 			ptp_over_ipv6_udp = PTP_TCR_TSIPV6ENA;
--- 
-2.33.0
-
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -953,6 +953,9 @@ static int isotp_sendmsg(struct socket *
+ 	if (wait_tx_done) {
+ 		/* wait for complete transmission of current pdu */
+ 		wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
++
++		if (sk->sk_err)
++			return -sk->sk_err;
+ 	}
+ 
+ 	return size;
 
 
