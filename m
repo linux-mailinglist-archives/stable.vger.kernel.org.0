@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C53843A055
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 120C843A171
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234990AbhJYT3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:29:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48426 "EHLO mail.kernel.org"
+        id S235227AbhJYTi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:38:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235582AbhJYT2s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:28:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F403E6108B;
-        Mon, 25 Oct 2021 19:25:15 +0000 (UTC)
+        id S236525AbhJYTgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:36:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12DCE61108;
+        Mon, 25 Oct 2021 19:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189916;
-        bh=HMlC0kyHkKpsgtW/taxnEk5MdFnACBK2zvKsMtI2K2Y=;
+        s=korg; t=1635190418;
+        bh=sbWB9pK/RdTgERQKSX/SJQrI2ggIiBKS1cz1sCRFJWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0LbOtW6csYPLfKp2ja0Fk2Dvg63OLhMDM5FKm05gB9lRthHgOYjllsOolEwYg9bRn
-         JqmHWyArU8yuwsunRovbFPF9YnhqVFkmPV/DEi8hFpqsaigSzYpx0BwmyS1Ja7lmrf
-         ynge3MHhI+sLXn93sjxlX6LriQXB/hixY/f0zcKU=
+        b=jXM8gs7FZqTEBEXfVB80qMuTDioom6T+1QWrVKpImBWX7r8EobsF1WlbfSo787C6j
+         RrX2weN3lz7rwrZaerUNjHyi0F1vpcg+GbzzL9dlWgvGDlpmikvTNJHXu2Ojk1+yOw
+         m7lcNQc+orWcNPtw61ikVF2aPfom80LJjaS/KUOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.19 25/37] netfilter: Kconfig: use default y instead of m for bool config option
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.10 53/95] audit: fix possible null-pointer dereference in audit_filter_rules
 Date:   Mon, 25 Oct 2021 21:14:50 +0200
-Message-Id: <20211025190933.275647478@linuxfoundation.org>
+Message-Id: <20211025191004.266994337@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
-References: <20211025190926.680827862@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,30 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@gmail.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-commit 77076934afdcd46516caf18ed88b2f88025c9ddb upstream.
+commit 6e3ee990c90494561921c756481d0e2125d8b895 upstream.
 
-This option, NF_CONNTRACK_SECMARK, is a bool, so it can never be 'm'.
+Fix  possible null-pointer dereference in audit_filter_rules.
 
-Fixes: 33b8e77605620 ("[NETFILTER]: Add CONFIG_NETFILTER_ADVANCED option")
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+audit_filter_rules() error: we previously assumed 'ctx' could be null
+
+Cc: stable@vger.kernel.org
+Fixes: bf361231c295 ("audit: add saddr_fam filter field")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/Kconfig |    2 +-
+ kernel/auditsc.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/Kconfig
-+++ b/net/netfilter/Kconfig
-@@ -93,7 +93,7 @@ config NF_CONNTRACK_MARK
- config NF_CONNTRACK_SECMARK
- 	bool  'Connection tracking security mark support'
- 	depends on NETWORK_SECMARK
--	default m if NETFILTER_ADVANCED=n
-+	default y if NETFILTER_ADVANCED=n
- 	help
- 	  This option enables security markings to be applied to
- 	  connections.  Typically they are copied to connections from
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -653,7 +653,7 @@ static int audit_filter_rules(struct tas
+ 			result = audit_comparator(audit_loginuid_set(tsk), f->op, f->val);
+ 			break;
+ 		case AUDIT_SADDR_FAM:
+-			if (ctx->sockaddr)
++			if (ctx && ctx->sockaddr)
+ 				result = audit_comparator(ctx->sockaddr->ss_family,
+ 							  f->op, f->val);
+ 			break;
 
 
