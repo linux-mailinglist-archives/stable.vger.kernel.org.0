@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7609643A0FC
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 991FC43A2F6
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232361AbhJYTgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:36:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48434 "EHLO mail.kernel.org"
+        id S235795AbhJYTzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:55:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235037AbhJYTbl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:31:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FEC6610D2;
-        Mon, 25 Oct 2021 19:27:52 +0000 (UTC)
+        id S238750AbhJYTve (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:51:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DE00610CF;
+        Mon, 25 Oct 2021 19:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190073;
-        bh=rAPVWK/ctba25aFhxtjqoTOEQ7TqCHXv5BXQ05DtXaw=;
+        s=korg; t=1635190991;
+        bh=JzAe8crW01rzHWg9TFoqmT9ua9HGs/dKKEYPC8vrt9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tfZ1IT4PxFWJLa50jOQlm3vKS9qEJnaUM7QcFD2IoMVSohiXQqjgG8Wb5NXJ/sHU
-         RkbO+oiGRvN8r5fAxPuocabaFkDjCW48DjllK5Qdqe+TPda/yfuDVjo/R4U1HVS0FH
-         IlRtgraahjQ/Dhak4tlMyTrL+z00PV3C3IIUhyok=
+        b=ofJ2OGKS0emA5AbWe2FxKIei4o8Mmwgaee8lNpZ9i8r6wUrRaPYSiA2Muzct0en2O
+         8vQDBdD6g1dpEaagB8Lf3MEkzEnZnu6Vk/AGCU3mkmkIvTCAWLjYe3ekzuTKb5YQRd
+         7KaePS9H8PtDzo61VVyYPyU7r0YfMau2rDcZv1DI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 43/58] netfilter: Kconfig: use default y instead of m for bool config option
+Subject: [PATCH 5.14 119/169] selftests: netfilter: remove stray bash debug line
 Date:   Mon, 25 Oct 2021 21:15:00 +0200
-Message-Id: <20211025190944.412724931@linuxfoundation.org>
+Message-Id: <20211025191033.008360955@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,30 +39,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 77076934afdcd46516caf18ed88b2f88025c9ddb upstream.
+commit 3e6ed7703dae6838c104d73d3e76e9b79f5c0528 upstream.
 
-This option, NF_CONNTRACK_SECMARK, is a bool, so it can never be 'm'.
+This should not be there.
 
-Fixes: 33b8e77605620 ("[NETFILTER]: Add CONFIG_NETFILTER_ADVANCED option")
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+Fixes: 2de03b45236f ("selftests: netfilter: add flowtable test script")
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/netfilter/nft_flowtable.sh |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/netfilter/Kconfig
-+++ b/net/netfilter/Kconfig
-@@ -94,7 +94,7 @@ config NF_CONNTRACK_MARK
- config NF_CONNTRACK_SECMARK
- 	bool  'Connection tracking security mark support'
- 	depends on NETWORK_SECMARK
--	default m if NETFILTER_ADVANCED=n
-+	default y if NETFILTER_ADVANCED=n
- 	help
- 	  This option enables security markings to be applied to
- 	  connections.  Typically they are copied to connections from
+--- a/tools/testing/selftests/netfilter/nft_flowtable.sh
++++ b/tools/testing/selftests/netfilter/nft_flowtable.sh
+@@ -199,7 +199,6 @@ fi
+ # test basic connectivity
+ if ! ip netns exec ns1 ping -c 1 -q 10.0.2.99 > /dev/null; then
+   echo "ERROR: ns1 cannot reach ns2" 1>&2
+-  bash
+   exit 1
+ fi
+ 
 
 
