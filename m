@@ -2,90 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DEE543A7F8
-	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 01:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF8743A808
+	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 01:15:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233235AbhJYXIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 19:08:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46052 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232740AbhJYXIr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 19:08:47 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE797C061745;
-        Mon, 25 Oct 2021 16:06:24 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id l186so5739594pge.7;
-        Mon, 25 Oct 2021 16:06:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=Ngur52vg7le9KRvczk5/psRZTKMdl8rWkzVC3BsUces=;
-        b=bQXrA0XFz+8io8NpFWSmkS/qNCDktHdZEU2oAtP8kUGOYkXgAQ2nW+HoLIgsTzDCab
-         r9MEnqKSKPLyQeDc07ytH5fCPwq2YBlkyVgAVGZU3KGQ5UP3y6+BkYUm8fbTVKtFTOKA
-         jGEQBR0RWkG0ZrHUSTEll2LWTijtIpEfgzfASjIp84e2It6LqR3VgK0wZqLQorUHEHW3
-         CyoIvMlFOCY7PN4/lhWl3dLHXpla5GCGTlFXpsOl5fKzbT5koZXQCsRedDKn2kQk0Rwa
-         aoc4qFjJ1EOxlNSDKTU1SjOn6wmejVsh2h6XtTqNrZn/Hl5Ktp7PIt6WElNXl5p0sdIG
-         NfiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=Ngur52vg7le9KRvczk5/psRZTKMdl8rWkzVC3BsUces=;
-        b=SXqWgbtp9FU6z7LdKWoP6bwxTca/j24+YMRgDUG3NRE13r5gl0XU5yhgs4uGApZA5k
-         KJzM2yydHdjJQJIQCuUHglYYwiQHqvlnEan9tBKSbZ0qk1xE6KsI23NuwAIbUZXymI33
-         RXWA5OKMdPTjWUXzHVpKmVPwCej1W9+QoLz1Et8AjoUpa30yZ6YALbB2FnD2ohqOM9to
-         0rxwAsIr3I5zckC0u+FgK4+A0XEHVPLG6qYZ5V+S3LYdfJ6n+sWq53VZo37pa6992qxG
-         Fes/fCsXLFqGcY8HzmsLjnMXf/m48S74/I+th6q+eVXFXbs7wf+I0wx5kDgjIB7P/QVl
-         KxEw==
-X-Gm-Message-State: AOAM532lBPGQfvNFHKr7w5lh4eZDeVUVPMtKCx5IH9ZMGcWjIC5mtiDc
-        dN4melpXxc9FRbcwTLNibh6nEiB9Ydj6LJZYeTA=
-X-Google-Smtp-Source: ABdhPJxskO/c26xs/AfTlO03drP6mxWy3oeU1wk3aWSPC4s5eYvvSwZK479zdgz74SuiTuKDtwUWTg==
-X-Received: by 2002:a62:e901:0:b0:47b:f1bc:55e4 with SMTP id j1-20020a62e901000000b0047bf1bc55e4mr8498524pfh.0.1635203183643;
-        Mon, 25 Oct 2021 16:06:23 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id c8sm6802301pgh.40.2021.10.25.16.06.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Oct 2021 16:06:23 -0700 (PDT)
-Message-ID: <6177386f.1c69fb81.b404a.1255@mx.google.com>
-Date:   Mon, 25 Oct 2021 16:06:23 -0700 (PDT)
-X-Google-Original-Date: Mon, 25 Oct 2021 23:06:22 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-Subject: RE: [PATCH 5.14 000/169] 5.14.15-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S234024AbhJYXR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 19:17:57 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:60818 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232664AbhJYXR5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 19:17:57 -0400
+Received: from mailhost.synopsys.com (sv2-mailhost2.synopsys.com [10.205.2.134])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client CN "mailhost.synopsys.com", Issuer "SNPSica2" (verified OK))
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id F0C8D40D6F;
+        Mon, 25 Oct 2021 23:15:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1635203734; bh=EnXupqPwA5Q2pZBJt8IAoeR41osyVgghdi5Jb1sc4Mo=;
+        h=Date:From:Subject:To:Cc:From;
+        b=WyJKImh2Z6Q+i4F+auNP3URYwBE4DudqvSzQjS7MnQOW6zdbS9rJqeH1YJo04GqDs
+         iX9jUzRZiNZHj+qjNbXt3PxA5DP+UDKSk+lIeWh0yPxpaRIxoZSuONiLgKdzsb2ZJY
+         TuV1t+82o5zgb58xcgskUN5kuclX28hFsk42PcGAHXZ9EJCkZomNQB1NLbPpakfo1t
+         VGMi8KayQTQL763gcFhwW+UcmL3230AEDKXp4Ted5PoP2y462d2VCGhCeWP5ZrOsQk
+         ZugtAsHTbw/M1SP+zFmvlePYM1o1i/2DR4+AI96L71CnGMl60BJox7sPj1wyHCQgGY
+         /L54ghgRuOrAA==
+Received: from te-lab16-v2 (nanobot.internal.synopsys.com [10.204.48.11])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (Client did not present a certificate)
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id 7634EA0096;
+        Mon, 25 Oct 2021 23:15:32 +0000 (UTC)
+Received: by te-lab16-v2 (sSMTP sendmail emulation); Mon, 25 Oct 2021 16:15:32 -0700
+Date:   Mon, 25 Oct 2021 16:15:32 -0700
+Message-Id: <1541737108266a97208ff827805be1f32852590c.1635202893.git.Thinh.Nguyen@synopsys.com>
+X-SNPS-Relay: synopsys.com
+From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH] usb: dwc3: core: Revise GHWPARAMS9 offset
+To:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        linux-usb@vger.kernel.org
+Cc:     John Youn <John.Youn@synopsys.com>, <stable@vger.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 25 Oct 2021 21:13:01 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.14.15 release.
-> There are 169 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 27 Oct 2021 19:08:09 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.15-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+During our predesign phase for DWC_usb32, the GHWPARAMS9 register offset
+was 0xc680. We revised our final design, and the GHWPARAMS9 offset is
+now moved to 0xc6e8 on release.
 
-5.14.15-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 16710380d3aa ("usb: dwc3: Capture new capability register GHWPARAMS9")
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+---
+ drivers/usb/dwc3/core.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index 620c8d3914d7..5c491d0a19d7 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -143,7 +143,7 @@
+ #define DWC3_GHWPARAMS8		0xc600
+ #define DWC3_GUCTL3		0xc60c
+ #define DWC3_GFLADJ		0xc630
+-#define DWC3_GHWPARAMS9		0xc680
++#define DWC3_GHWPARAMS9		0xc6e0
+ 
+ /* Device Registers */
+ #define DWC3_DCFG		0xc700
+
+base-commit: e8d6336d9d7198013a7b307107908242a7a53b23
+-- 
+2.28.0
 
