@@ -2,129 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BD014391F2
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 11:06:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E36B439216
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 11:12:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230128AbhJYJIW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 05:08:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50074 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232273AbhJYJIV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 05:08:21 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5E8DC061745
-        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 02:05:59 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id y1so7453781plk.10
-        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 02:05:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ipMfkw/ZXfZIYCBN7rvm7iV6v3yehuT0mcKesYpygf8=;
-        b=VVppArO8y4Afs7iVt4jkJroF9WwTNr319dpR7xpRaCLM1c2qsvT4EHjU39027W7xQv
-         cJoysWNTKH2laKUbnlBx3PwZISCalYm5n1GAiIVAoyVXqjDYn1/+TYiZXhNuJOBki9MX
-         vNkKn9glfzdjENuS3+Y/BgLH0kUwHdgOM/bW0py+ywUCeJeqrd1WdCJ1+fXtqCudei9e
-         RLbZrSCD0pPvplpGhokHt/p6TYRMOc3VpmUgxrv6/hDGys4xem4dNdD2hIdVGLp7ia7l
-         SsMzXg9d/3R/U1IzOcK9P3fAEZfNMNtO30UfoNR21NcS99O53aCGQCXDFMHMQRnVsjtk
-         ABXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ipMfkw/ZXfZIYCBN7rvm7iV6v3yehuT0mcKesYpygf8=;
-        b=SxrfJVaaCqqU7TfVpLrlJn0jA09X+krhF3gjdH43343gGSujzZ2CsfdNnpvqmPpi9S
-         cob06rttnufsGYI1anz+x4AKLeUwR+W5oTDGp3ri6I6tImmHNIuM+b854kZGUD4yD7jw
-         1cZufHI37oHuSOv26EyP4FGsILAvIzGERPbSwy0Hkhbz4ORBcNcA+xE3lpyINnOtAvtf
-         JEJtx6yNJWN4RkVireXyckPV4d7ke5supcJiA8ysXAYs9CP6q/Zwqp6QOFrJVRpEmkyk
-         wxjrWi1ioZdE8+jKveRvli+injaeTNuDWND096y5yiplcxOWeVP57MV1e56UPSxc4u6D
-         VVFQ==
-X-Gm-Message-State: AOAM532lgl9cGzFpdzxTcwBwU/2D975sdNU7+gfrcvGJMbfiMTk1mMCX
-        3+glqtadC6fI0vv4GOa5ZiX73hmAXBh3tg==
-X-Google-Smtp-Source: ABdhPJwZ7c20RMcdysKxKYeV+pFtloYLDrPb1ATd6fYgabt4K6wBdjwBXAUDGwn5nBAovO9XW+QZAg==
-X-Received: by 2002:a17:903:189:b0:140:5f35:437 with SMTP id z9-20020a170903018900b001405f350437mr2169534plg.56.1635152759348;
-        Mon, 25 Oct 2021 02:05:59 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l14sm21453936pjq.13.2021.10.25.02.05.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Oct 2021 02:05:59 -0700 (PDT)
-Message-ID: <61767377.1c69fb81.6ab0e.9dd5@mx.google.com>
-Date:   Mon, 25 Oct 2021 02:05:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S232386AbhJYJOW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 05:14:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41452 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232259AbhJYJOW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 05:14:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E140E60F4F;
+        Mon, 25 Oct 2021 09:11:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1635153120;
+        bh=Ge/ZmxDDKhtclAEjb2Apl1QgMwz8va+DZpGZb8nrUM0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vv1WXthRBlSt8hhdoKG516l7VHI+LLAN5AjZd1xswgL5Sj8xr0kt4uMHfRHwyLQGS
+         ctw5lyXqavVId+vib542UByNafwj7lKEOVSzcCHtVIv0VF6y0vF3nIB5UvhelHkGR5
+         5JCGC6Vr4juICuQJvCzpirReOt9vsPf73WCYmgus=
+Date:   Mon, 25 Oct 2021 11:11:57 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 1/1] s390/pci: fix zpci_zdev_put() on reserve
+Message-ID: <YXZ03dkv7UB8l8Il@kroah.com>
+References: <20211025090026.3392254-1-schnelle@linux.ibm.com>
+ <20211025090026.3392254-2-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.14.14-159-g1edf0cf850d7
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.14 baseline: 168 runs,
- 1 regressions (v5.14.14-159-g1edf0cf850d7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211025090026.3392254-2-schnelle@linux.ibm.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 168 runs, 1 regressions (v5.14.14-159-g1edf0=
-cf850d7)
+On Mon, Oct 25, 2021 at 11:00:26AM +0200, Niklas Schnelle wrote:
+> commit a46044a92add6a400f4dada7b943b30221f7cc80 upstream.
+> 
+> Since commit 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
+> the reference count of a zpci_dev is incremented between
+> pcibios_add_device() and pcibios_release_device() which was supposed to
+> prevent the zpci_dev from being freed while the common PCI code has
+> access to it. It was missed however that the handling of zPCI
+> availability events assumed that once zpci_zdev_put() was called no
+> later availability event would still see the device. With the previously
+> mentioned commit however this assumption no longer holds and we must
+> make sure that we only drop the initial long-lived reference the zPCI
+> subsystem holds exactly once.
+> 
+> Do so by introducing a zpci_device_reserved() function that handles when
+> a device is reserved. Here we make sure the zpci_dev will not be
+> considered for further events by removing it from the zpci_list.
+> 
+> This also means that the device actually stays in the
+> ZPCI_FN_STATE_RESERVED state between the time we know it has been
+> reserved and the final reference going away. We thus need to consider it
+> a real state instead of just a conceptual state after the removal. The
+> final cleanup of PCI resources, removal from zbus, and destruction of
+> the IOMMU stays in zpci_release_device() to make sure holders of the
+> reference do see valid data until the release.
+> 
+> Fixes: 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+> Link: https://lore.kernel.org/r/20211012093425.2247924-1-schnelle@linux.ibm.com
+> ---
+>  arch/s390/include/asm/pci.h        |  3 ++
+>  arch/s390/pci/pci.c                | 45 ++++++++++++++++++++++++++----
+>  arch/s390/pci/pci_event.c          |  4 +--
+>  drivers/pci/hotplug/s390_pci_hpc.c |  9 +-----
+>  4 files changed, 46 insertions(+), 15 deletions(-)
 
-Regressions Summary
--------------------
+Does not apply:
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.14-159-g1edf0cf850d7/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.14-159-g1edf0cf850d7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1edf0cf850d73a4ca01c16192bd82a43e478f027 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61763f9a6c5f087a473358dc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.14-=
-159-g1edf0cf850d7/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.14-=
-159-g1edf0cf850d7/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+Applying patch s390-pci-fix-zpci_zdev_put-on-reserve.patch
+patching file arch/s390/include/asm/pci.h
+patching file arch/s390/pci/pci.c
+Hunk #3 FAILED at 835.
+Hunk #4 succeeded at 843 (offset 1 line).
+1 out of 4 hunks FAILED -- rejects in file arch/s390/pci/pci.c
+patching file arch/s390/pci/pci_event.c
+patching file drivers/pci/hotplug/s390_pci_hpc.c
 
 
+What did you make this against?
 
-  * baseline.login: https://kernelci.org/test/case/id/61763f9a6c5f087a47335=
-8dd
-        failing since 0 day (last pass: v5.14.14-64-gb66eb77f69e4, first fa=
-il: v5.14.14-124-g710e5bbf51e3) =
+Ah, that's due to another patch we have in the queue right now.  I'll go
+fix this up by hand, thanks!
 
- =20
+greg k-h
