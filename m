@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C95A43A33C
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3474E43A36C
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:57:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239628AbhJYT5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:57:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41568 "EHLO mail.kernel.org"
+        id S235645AbhJYT7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:59:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235665AbhJYTzR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:55:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0251A61264;
-        Mon, 25 Oct 2021 19:45:47 +0000 (UTC)
+        id S238619AbhJYTzl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:55:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0548C6108C;
+        Mon, 25 Oct 2021 19:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635191148;
-        bh=GQauiEiZWjT6g6XlaIRAgDzLNBd+7L8QzEW6BmuAmRU=;
+        s=korg; t=1635191152;
+        bh=wuFZicMrDScwrhJuZUqHzbDVP6yj1UXVtjdVU8s47sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5afHbJJdYZ1fkS1d2AKUqYav5Xhr2R1b6xxsYAvHnIhe76nlJK7sWJkc7auyu7It
-         hM4jpKoCJN8D28WnQHL54gKWIo0gata2sJpl7ae5yaG78HuTpP9wZsYWdJTmawSIG3
-         yDSCCsNQsFD/kXV5nc577EfBn2k6SWE4avVuAvtU=
+        b=ay3O4QgWu1v4iEnl/ZFxpdCjGRaQrjzJolTmYzm8/OyQCJvPZTb4ncCCz6GUlxBd5
+         gWkpjCm8/ZRal0hSmDY8X8b8Ajs63IeErpPwDsUdVrngzMLiUSKLl1KZbyRCONhLZj
+         OE4lD5ZYbnXnoigaO5arX7fBoD92NZx0YnN2lpTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Edmund Dea <edmund.j.dea@intel.com>,
+        Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 157/169] net/mlx5: Lag, change multipath and bonding to be mutually exclusive
-Date:   Mon, 25 Oct 2021 21:15:38 +0200
-Message-Id: <20211025191037.302298900@linuxfoundation.org>
+Subject: [PATCH 5.14 158/169] drm/kmb: Enable alpha blended second plane
+Date:   Mon, 25 Oct 2021 21:15:39 +0200
+Message-Id: <20211025191037.424205587@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -41,140 +42,270 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Dickman <maord@nvidia.com>
+From: Edmund Dea <edmund.j.dea@intel.com>
 
-[ Upstream commit 14fe2471c62816ba82546fb68369d957c3a58b59 ]
+[ Upstream commit c026565fe9be813fe826f7e5533ed763283af5f0 ]
 
-Both multipath and bonding events are changing the HW LAG state
-independently.
-Handling one of the features events while the other is already
-enabled can cause unwanted behavior, for example handling
-bonding event while multipath enabled will disable the lag and
-cause multipath to stop working.
+Enable one additional plane that is alpha blended on top
+of the primary plane.
 
-Fix it by ignoring bonding event while in multipath and ignoring FIB
-events while in bonding mode.
+This also fixes the below warnings when building with
+-Warray-bounds:
 
-Fixes: 544fe7c2e654 ("net/mlx5e: Activate HW multipath and handle port affinity based on FIB events")
-Signed-off-by: Maor Dickman <maord@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+drivers/gpu/drm/kmb/kmb_plane.c:135:20: warning: array subscript 3 is
+above array bounds of 'struct layer_status[1]' [-Warray-bounds]
+drivers/gpu/drm/kmb/kmb_plane.c:132:20: warning: array subscript 2 is
+above array bounds of 'struct layer_status[1]' [-Warray-bounds]
+drivers/gpu/drm/kmb/kmb_plane.c:129:20: warning: array subscript 1 is
+above array bounds of 'struct layer_status[1]' [-Warray-bounds]
+
+v2: corrected previous patch dependecies so it builds
+
+Signed-off-by: Edmund Dea <edmund.j.dea@intel.com>
+Signed-off-by: Anitha Chrisanthus <anitha.chrisanthus@intel.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.kernel.org/project/dri-devel/patch/20210728003126.1425028-13-anitha.chrisanthus@intel.com/
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c |  2 ++
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c     |  2 ++
- drivers/net/ethernet/mellanox/mlx5/core/lag.c       |  4 ++++
- drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c    | 13 ++++++++-----
- drivers/net/ethernet/mellanox/mlx5/core/lag_mp.h    |  2 ++
- include/linux/mlx5/driver.h                         |  1 -
- 6 files changed, 18 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/kmb/kmb_drv.c   |  8 ++--
+ drivers/gpu/drm/kmb/kmb_drv.h   |  5 ++
+ drivers/gpu/drm/kmb/kmb_plane.c | 81 +++++++++++++++++++++++++++++----
+ drivers/gpu/drm/kmb/kmb_plane.h |  5 +-
+ drivers/gpu/drm/kmb/kmb_regs.h  |  3 ++
+ 5 files changed, 87 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
-index 1e2d117082d4..603d9884b6bd 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
-@@ -10,6 +10,8 @@
- #include "en_tc.h"
- #include "rep/tc.h"
- #include "rep/neigh.h"
-+#include "lag.h"
-+#include "lag_mp.h"
+diff --git a/drivers/gpu/drm/kmb/kmb_drv.c b/drivers/gpu/drm/kmb/kmb_drv.c
+index bb7eca9e13ae..d3091bf38cc0 100644
+--- a/drivers/gpu/drm/kmb/kmb_drv.c
++++ b/drivers/gpu/drm/kmb/kmb_drv.c
+@@ -173,10 +173,10 @@ static int kmb_setup_mode_config(struct drm_device *drm)
+ 	ret = drmm_mode_config_init(drm);
+ 	if (ret)
+ 		return ret;
+-	drm->mode_config.min_width = KMB_MIN_WIDTH;
+-	drm->mode_config.min_height = KMB_MIN_HEIGHT;
+-	drm->mode_config.max_width = KMB_MAX_WIDTH;
+-	drm->mode_config.max_height = KMB_MAX_HEIGHT;
++	drm->mode_config.min_width = KMB_FB_MIN_WIDTH;
++	drm->mode_config.min_height = KMB_FB_MIN_HEIGHT;
++	drm->mode_config.max_width = KMB_FB_MAX_WIDTH;
++	drm->mode_config.max_height = KMB_FB_MAX_HEIGHT;
+ 	drm->mode_config.funcs = &kmb_mode_config_funcs;
  
- struct mlx5e_tc_tun_route_attr {
- 	struct net_device *out_dev;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index 6eba574c5a36..c757209b47ee 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -72,6 +72,8 @@
- #include "lib/fs_chains.h"
- #include "diag/en_tc_tracepoint.h"
- #include <asm/div64.h>
-+#include "lag.h"
-+#include "lag_mp.h"
+ 	ret = kmb_setup_crtc(drm);
+diff --git a/drivers/gpu/drm/kmb/kmb_drv.h b/drivers/gpu/drm/kmb/kmb_drv.h
+index 178aa14f2efc..5869890b8fc7 100644
+--- a/drivers/gpu/drm/kmb/kmb_drv.h
++++ b/drivers/gpu/drm/kmb/kmb_drv.h
+@@ -20,6 +20,11 @@
+ #define DRIVER_MAJOR			1
+ #define DRIVER_MINOR			1
  
- #define nic_chains(priv) ((priv)->fs.tc.chains)
- #define MLX5_MH_ACT_SZ MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto)
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-index 814440aae1ae..be6e7e10b252 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-@@ -375,6 +375,10 @@ static void mlx5_do_bond(struct mlx5_lag *ldev)
- 	if (!mlx5_lag_is_ready(ldev)) {
- 		do_bond = false;
- 	} else {
-+		/* VF LAG is in multipath mode, ignore bond change requests */
-+		if (mlx5_lag_is_multipath(dev0))
-+			return;
++#define KMB_FB_MAX_WIDTH		1920
++#define KMB_FB_MAX_HEIGHT		1080
++#define KMB_FB_MIN_WIDTH		1
++#define KMB_FB_MIN_HEIGHT		1
 +
- 		tracker = ldev->tracker;
+ #define KMB_LCD_DEFAULT_CLK		200000000
+ #define KMB_SYS_CLK_MHZ			500
  
- 		do_bond = tracker.is_bonded && mlx5_lag_check_prereq(ldev);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c b/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
-index 516bfc2bd797..577e5d02bfdd 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
-@@ -9,20 +9,23 @@
- #include "eswitch.h"
- #include "lib/mlx5.h"
+diff --git a/drivers/gpu/drm/kmb/kmb_plane.c b/drivers/gpu/drm/kmb/kmb_plane.c
+index 45cb096455b5..00404ba4126d 100644
+--- a/drivers/gpu/drm/kmb/kmb_plane.c
++++ b/drivers/gpu/drm/kmb/kmb_plane.c
+@@ -113,9 +113,10 @@ static int kmb_plane_atomic_check(struct drm_plane *plane,
+ 	if (ret)
+ 		return ret;
  
-+static bool __mlx5_lag_is_multipath(struct mlx5_lag *ldev)
-+{
-+	return !!(ldev->flags & MLX5_LAG_FLAG_MULTIPATH);
-+}
-+
- static bool mlx5_lag_multipath_check_prereq(struct mlx5_lag *ldev)
- {
- 	if (!mlx5_lag_is_ready(ldev))
- 		return false;
+-	if (new_plane_state->crtc_w > KMB_MAX_WIDTH || new_plane_state->crtc_h > KMB_MAX_HEIGHT)
+-		return -EINVAL;
+-	if (new_plane_state->crtc_w < KMB_MIN_WIDTH || new_plane_state->crtc_h < KMB_MIN_HEIGHT)
++	if (new_plane_state->crtc_w > KMB_FB_MAX_WIDTH ||
++	    new_plane_state->crtc_h > KMB_FB_MAX_HEIGHT ||
++	    new_plane_state->crtc_w < KMB_FB_MIN_WIDTH ||
++	    new_plane_state->crtc_h < KMB_FB_MIN_HEIGHT)
+ 		return -EINVAL;
  
-+	if (__mlx5_lag_is_active(ldev) && !__mlx5_lag_is_multipath(ldev))
-+		return false;
-+
- 	return mlx5_esw_multipath_prereq(ldev->pf[MLX5_LAG_P1].dev,
- 					 ldev->pf[MLX5_LAG_P2].dev);
+ 	/* Due to HW limitations, changing plane height or width after
+@@ -306,6 +307,44 @@ static void config_csc(struct kmb_drm_private *kmb, int plane_id)
+ 	kmb_write_lcd(kmb, LCD_LAYERn_CSC_OFF3(plane_id), csc_coef_lcd[11]);
  }
  
--static bool __mlx5_lag_is_multipath(struct mlx5_lag *ldev)
--{
--	return !!(ldev->flags & MLX5_LAG_FLAG_MULTIPATH);
--}
--
- bool mlx5_lag_is_multipath(struct mlx5_core_dev *dev)
++static void kmb_plane_set_alpha(struct kmb_drm_private *kmb,
++				const struct drm_plane_state *state,
++				unsigned char plane_id,
++				unsigned int *val)
++{
++	u16 plane_alpha = state->alpha;
++	u16 pixel_blend_mode = state->pixel_blend_mode;
++	int has_alpha = state->fb->format->has_alpha;
++
++	if (plane_alpha != DRM_BLEND_ALPHA_OPAQUE)
++		*val |= LCD_LAYER_ALPHA_STATIC;
++
++	if (has_alpha) {
++		switch (pixel_blend_mode) {
++		case DRM_MODE_BLEND_PIXEL_NONE:
++			break;
++		case DRM_MODE_BLEND_PREMULTI:
++			*val |= LCD_LAYER_ALPHA_EMBED | LCD_LAYER_ALPHA_PREMULT;
++			break;
++		case DRM_MODE_BLEND_COVERAGE:
++			*val |= LCD_LAYER_ALPHA_EMBED;
++			break;
++		default:
++			DRM_DEBUG("Missing pixel blend mode case (%s == %ld)\n",
++				  __stringify(pixel_blend_mode),
++				  (long)pixel_blend_mode);
++			break;
++		}
++	}
++
++	if (plane_alpha == DRM_BLEND_ALPHA_OPAQUE && !has_alpha) {
++		*val &= LCD_LAYER_ALPHA_DISABLED;
++		return;
++	}
++
++	kmb_write_lcd(kmb, LCD_LAYERn_ALPHA(plane_id), plane_alpha);
++}
++
+ static void kmb_plane_atomic_update(struct drm_plane *plane,
+ 				    struct drm_atomic_state *state)
  {
- 	struct mlx5_lag *ldev;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.h b/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.h
-index 729c839397a8..dea199e79bed 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.h
-@@ -24,12 +24,14 @@ struct lag_mp {
- void mlx5_lag_mp_reset(struct mlx5_lag *ldev);
- int mlx5_lag_mp_init(struct mlx5_lag *ldev);
- void mlx5_lag_mp_cleanup(struct mlx5_lag *ldev);
-+bool mlx5_lag_is_multipath(struct mlx5_core_dev *dev);
+@@ -333,11 +372,12 @@ static void kmb_plane_atomic_update(struct drm_plane *plane,
+ 	fb = new_plane_state->fb;
+ 	if (!fb)
+ 		return;
++
+ 	num_planes = fb->format->num_planes;
+ 	kmb_plane = to_kmb_plane(plane);
+-	plane_id = kmb_plane->id;
  
- #else /* CONFIG_MLX5_ESWITCH */
+ 	kmb = to_kmb(plane->dev);
++	plane_id = kmb_plane->id;
  
- static inline void mlx5_lag_mp_reset(struct mlx5_lag *ldev) {};
- static inline int mlx5_lag_mp_init(struct mlx5_lag *ldev) { return 0; }
- static inline void mlx5_lag_mp_cleanup(struct mlx5_lag *ldev) {}
-+bool mlx5_lag_is_multipath(struct mlx5_core_dev *dev) { return false; }
+ 	spin_lock_irq(&kmb->irq_lock);
+ 	if (kmb->kmb_under_flow || kmb->kmb_flush_done) {
+@@ -431,20 +471,32 @@ static void kmb_plane_atomic_update(struct drm_plane *plane,
+ 		config_csc(kmb, plane_id);
+ 	}
  
- #endif /* CONFIG_MLX5_ESWITCH */
- #endif /* __MLX5_LAG_MP_H__ */
-diff --git a/include/linux/mlx5/driver.h b/include/linux/mlx5/driver.h
-index 25a8be58d289..9b8add8eac0c 100644
---- a/include/linux/mlx5/driver.h
-+++ b/include/linux/mlx5/driver.h
-@@ -1135,7 +1135,6 @@ int mlx5_cmd_create_vport_lag(struct mlx5_core_dev *dev);
- int mlx5_cmd_destroy_vport_lag(struct mlx5_core_dev *dev);
- bool mlx5_lag_is_roce(struct mlx5_core_dev *dev);
- bool mlx5_lag_is_sriov(struct mlx5_core_dev *dev);
--bool mlx5_lag_is_multipath(struct mlx5_core_dev *dev);
- bool mlx5_lag_is_active(struct mlx5_core_dev *dev);
- struct net_device *mlx5_lag_get_roce_netdev(struct mlx5_core_dev *dev);
- u8 mlx5_lag_get_slave_port(struct mlx5_core_dev *dev,
++	kmb_plane_set_alpha(kmb, plane->state, plane_id, &val);
++
+ 	kmb_write_lcd(kmb, LCD_LAYERn_CFG(plane_id), val);
+ 
++	/* Configure LCD_CONTROL */
++	ctrl = kmb_read_lcd(kmb, LCD_CONTROL);
++
++	/* Set layer blending config */
++	ctrl &= ~LCD_CTRL_ALPHA_ALL;
++	ctrl |= LCD_CTRL_ALPHA_BOTTOM_VL1 |
++		LCD_CTRL_ALPHA_BLEND_VL2;
++
++	ctrl &= ~LCD_CTRL_ALPHA_BLEND_BKGND_DISABLE;
++
+ 	switch (plane_id) {
+ 	case LAYER_0:
+-		ctrl = LCD_CTRL_VL1_ENABLE;
++		ctrl |= LCD_CTRL_VL1_ENABLE;
+ 		break;
+ 	case LAYER_1:
+-		ctrl = LCD_CTRL_VL2_ENABLE;
++		ctrl |= LCD_CTRL_VL2_ENABLE;
+ 		break;
+ 	case LAYER_2:
+-		ctrl = LCD_CTRL_GL1_ENABLE;
++		ctrl |= LCD_CTRL_GL1_ENABLE;
+ 		break;
+ 	case LAYER_3:
+-		ctrl = LCD_CTRL_GL2_ENABLE;
++		ctrl |= LCD_CTRL_GL2_ENABLE;
+ 		break;
+ 	}
+ 
+@@ -456,7 +508,7 @@ static void kmb_plane_atomic_update(struct drm_plane *plane,
+ 	 */
+ 	ctrl |= LCD_CTRL_VHSYNC_IDLE_LVL;
+ 
+-	kmb_set_bitmask_lcd(kmb, LCD_CONTROL, ctrl);
++	kmb_write_lcd(kmb, LCD_CONTROL, ctrl);
+ 
+ 	/* Enable pipeline AXI read transactions for the DMA
+ 	 * after setting graphics layers. This must be done
+@@ -531,6 +583,9 @@ struct kmb_plane *kmb_plane_init(struct drm_device *drm)
+ 	enum drm_plane_type plane_type;
+ 	const u32 *plane_formats;
+ 	int num_plane_formats;
++	unsigned int blend_caps = BIT(DRM_MODE_BLEND_PIXEL_NONE) |
++				  BIT(DRM_MODE_BLEND_PREMULTI)   |
++				  BIT(DRM_MODE_BLEND_COVERAGE);
+ 
+ 	for (i = 0; i < KMB_MAX_PLANES; i++) {
+ 		plane = drmm_kzalloc(drm, sizeof(*plane), GFP_KERNEL);
+@@ -562,8 +617,16 @@ struct kmb_plane *kmb_plane_init(struct drm_device *drm)
+ 		drm_dbg(drm, "%s : %d i=%d type=%d",
+ 			__func__, __LINE__,
+ 			  i, plane_type);
++		drm_plane_create_alpha_property(&plane->base_plane);
++
++		drm_plane_create_blend_mode_property(&plane->base_plane,
++						     blend_caps);
++
++		drm_plane_create_zpos_immutable_property(&plane->base_plane, i);
++
+ 		drm_plane_helper_add(&plane->base_plane,
+ 				     &kmb_plane_helper_funcs);
++
+ 		if (plane_type == DRM_PLANE_TYPE_PRIMARY) {
+ 			primary = plane;
+ 			kmb->plane = plane;
+diff --git a/drivers/gpu/drm/kmb/kmb_plane.h b/drivers/gpu/drm/kmb/kmb_plane.h
+index 99207b35365c..b51144044fe8 100644
+--- a/drivers/gpu/drm/kmb/kmb_plane.h
++++ b/drivers/gpu/drm/kmb/kmb_plane.h
+@@ -35,6 +35,9 @@
+ #define POSSIBLE_CRTCS 1
+ #define to_kmb_plane(x) container_of(x, struct kmb_plane, base_plane)
+ 
++#define POSSIBLE_CRTCS		1
++#define KMB_MAX_PLANES		2
++
+ enum layer_id {
+ 	LAYER_0,
+ 	LAYER_1,
+@@ -43,8 +46,6 @@ enum layer_id {
+ 	/* KMB_MAX_PLANES */
+ };
+ 
+-#define KMB_MAX_PLANES 1
+-
+ enum sub_plane_id {
+ 	Y_PLANE,
+ 	U_PLANE,
+diff --git a/drivers/gpu/drm/kmb/kmb_regs.h b/drivers/gpu/drm/kmb/kmb_regs.h
+index 48150569f702..9756101b0d32 100644
+--- a/drivers/gpu/drm/kmb/kmb_regs.h
++++ b/drivers/gpu/drm/kmb/kmb_regs.h
+@@ -43,8 +43,10 @@
+ #define LCD_CTRL_OUTPUT_ENABLED			  BIT(19)
+ #define LCD_CTRL_BPORCH_ENABLE			  BIT(21)
+ #define LCD_CTRL_FPORCH_ENABLE			  BIT(22)
++#define LCD_CTRL_ALPHA_BLEND_BKGND_DISABLE	  BIT(23)
+ #define LCD_CTRL_PIPELINE_DMA			  BIT(28)
+ #define LCD_CTRL_VHSYNC_IDLE_LVL		  BIT(31)
++#define LCD_CTRL_ALPHA_ALL			  (0xff << 6)
+ 
+ /* interrupts */
+ #define LCD_INT_STATUS				(0x4 * 0x001)
+@@ -115,6 +117,7 @@
+ #define LCD_LAYER_ALPHA_EMBED			BIT(5)
+ #define LCD_LAYER_ALPHA_COMBI			(LCD_LAYER_ALPHA_STATIC | \
+ 						      LCD_LAYER_ALPHA_EMBED)
++#define LCD_LAYER_ALPHA_DISABLED		~(LCD_LAYER_ALPHA_COMBI)
+ /* RGB multiplied with alpha */
+ #define LCD_LAYER_ALPHA_PREMULT			BIT(6)
+ #define LCD_LAYER_INVERT_COL			BIT(7)
 -- 
 2.33.0
 
