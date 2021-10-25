@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AFE443A1A3
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:38:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A15F743A1C2
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:39:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235802AbhJYTkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:40:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53862 "EHLO mail.kernel.org"
+        id S234878AbhJYTlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236992AbhJYTic (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:38:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D29C160200;
-        Mon, 25 Oct 2021 19:34:31 +0000 (UTC)
+        id S237172AbhJYTjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:39:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB185610A5;
+        Mon, 25 Oct 2021 19:35:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190472;
-        bh=WXQ7kJB7CaUzclXDdKnK/iKKQKb3gnadMMfA2wO534U=;
+        s=korg; t=1635190546;
+        bh=yFALp7j9unSO8Xh/sFaf1zan7gz0EW4O4Lmi8rG8/rA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1/r+B13l3aDR2/9+ftKjvW9EfvJEaGjR45JM/9WdALT/Pv16Nrt2GWhEvV3QL+v/
-         uVq3rLOLv1lHG7+RENePjiVPwTO9uRNNllNmWdd8ck30L13X7GhGA4r8qeJ/Jr8K56
-         0GR+oD4DA5T7sV5cPO+8JGz6UBaduLIKPJ91LTPs=
+        b=T+3fbIFkzhrCuo+MhpttIeyIaeIg3DwLeWFP9W8AqzB9w/4mntO8SU975aCsdSGy7
+         y+57HRNVK3J+MVZdmNKmuQowIIyfpdNIKfzdYlSWLmtnv+YLOadba3KcFEnP5PfMfk
+         ZJ2jRHvCTqjJlcx/oqpfmurInL0hkBBp5/LUQ1QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 84/95] net: hns3: fix for miscalculation of rx unused desc
-Date:   Mon, 25 Oct 2021 21:15:21 +0200
-Message-Id: <20211025191008.999506899@linuxfoundation.org>
+        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        John Garry <john.garry@huawei.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 85/95] scsi: core: Fix shost->cmd_per_lun calculation in scsi_add_host_with_dma()
+Date:   Mon, 25 Oct 2021 21:15:22 +0200
+Message-Id: <20211025191009.140868550@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
 References: <20211025190956.374447057@linuxfoundation.org>
@@ -41,99 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit 9f9f0f19994b42b3e5e8735d41b9c5136828a76c ]
+commit 50b6cb3516365cb69753b006be2b61c966b70588 upstream.
 
-rx unused desc is the desc that need attatching new buffer
-before refilling to hw to receive new packet, the number of
-desc need attatching new buffer is calculated using next_to_use
-and next_to_clean. when next_to_use == next_to_clean, currently
-hns3 driver assumes that all the desc has the buffer attatched,
-but 'next_to_use == next_to_clean' also means all the desc need
-attatching new buffer if hw has comsumed all the desc and the
-driver has not attatched any buffer to the desc yet.
+After commit ea2f0f77538c ("scsi: core: Cap scsi_host cmd_per_lun at
+can_queue"), a 416-CPU VM running on Hyper-V hangs during boot because the
+hv_storvsc driver sets scsi_driver.can_queue to an integer value that
+exceeds SHRT_MAX, and hence scsi_add_host_with_dma() sets
+shost->cmd_per_lun to a negative "short" value.
 
-This patch adds 'refill' in desc_cb to indicate whether a new
-buffer has been refilled to a desc.
+Use min_t(int, ...) to work around the issue.
 
-Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211008043546.6006-1-decui@microsoft.com
+Fixes: ea2f0f77538c ("scsi: core: Cap scsi_host cmd_per_lun at can_queue")
+Cc: stable@vger.kernel.org
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 8 ++++++++
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.h | 1 +
- 2 files changed, 9 insertions(+)
+ drivers/scsi/hosts.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 568ac6b321fa..ae7cd73c823b 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -2421,6 +2421,7 @@ static void hns3_buffer_detach(struct hns3_enet_ring *ring, int i)
- {
- 	hns3_unmap_buffer(ring, &ring->desc_cb[i]);
- 	ring->desc[i].addr = 0;
-+	ring->desc_cb[i].refill = 0;
- }
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -220,7 +220,8 @@ int scsi_add_host_with_dma(struct Scsi_H
+ 		goto fail;
+ 	}
  
- static void hns3_free_buffer_detach(struct hns3_enet_ring *ring, int i,
-@@ -2498,6 +2499,7 @@ static int hns3_alloc_and_attach_buffer(struct hns3_enet_ring *ring, int i)
- 		return ret;
+-	shost->cmd_per_lun = min_t(short, shost->cmd_per_lun,
++	/* Use min_t(int, ...) in case shost->can_queue exceeds SHRT_MAX */
++	shost->cmd_per_lun = min_t(int, shost->cmd_per_lun,
+ 				   shost->can_queue);
  
- 	ring->desc[i].addr = cpu_to_le64(ring->desc_cb[i].dma);
-+	ring->desc_cb[i].refill = 1;
- 
- 	return 0;
- }
-@@ -2528,12 +2530,14 @@ static void hns3_replace_buffer(struct hns3_enet_ring *ring, int i,
- 	hns3_unmap_buffer(ring, &ring->desc_cb[i]);
- 	ring->desc_cb[i] = *res_cb;
- 	ring->desc[i].addr = cpu_to_le64(ring->desc_cb[i].dma);
-+	ring->desc_cb[i].refill = 1;
- 	ring->desc[i].rx.bd_base_info = 0;
- }
- 
- static void hns3_reuse_buffer(struct hns3_enet_ring *ring, int i)
- {
- 	ring->desc_cb[i].reuse_flag = 0;
-+	ring->desc_cb[i].refill = 1;
- 	ring->desc[i].addr = cpu_to_le64(ring->desc_cb[i].dma +
- 					 ring->desc_cb[i].page_offset);
- 	ring->desc[i].rx.bd_base_info = 0;
-@@ -2631,6 +2635,9 @@ static int hns3_desc_unused(struct hns3_enet_ring *ring)
- 	int ntc = ring->next_to_clean;
- 	int ntu = ring->next_to_use;
- 
-+	if (unlikely(ntc == ntu && !ring->desc_cb[ntc].refill))
-+		return ring->desc_num;
-+
- 	return ((ntc >= ntu) ? 0 : ring->desc_num) + ntc - ntu;
- }
- 
-@@ -2907,6 +2914,7 @@ static void hns3_rx_ring_move_fw(struct hns3_enet_ring *ring)
- {
- 	ring->desc[ring->next_to_clean].rx.bd_base_info &=
- 		cpu_to_le32(~BIT(HNS3_RXD_VLD_B));
-+	ring->desc_cb[ring->next_to_clean].refill = 0;
- 	ring->next_to_clean += 1;
- 
- 	if (unlikely(ring->next_to_clean == ring->desc_num))
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-index a8ad7ccae20e..54d02ea4aaa7 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-@@ -283,6 +283,7 @@ struct hns3_desc_cb {
- 	u32 length;     /* length of the buffer */
- 
- 	u16 reuse_flag;
-+	u16 refill;
- 
- 	/* desc type, used by the ring user to mark the type of the priv data */
- 	u16 type;
--- 
-2.33.0
-
+ 	error = scsi_init_sense_cache(shost);
 
 
