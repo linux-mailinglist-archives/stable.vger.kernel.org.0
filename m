@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4915A439F75
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:19:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5E63439FAF
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:21:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234721AbhJYTUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:20:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38042 "EHLO mail.kernel.org"
+        id S231748AbhJYTXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:23:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234547AbhJYTTw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:19:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13E3A61078;
-        Mon, 25 Oct 2021 19:17:28 +0000 (UTC)
+        id S234783AbhJYTWB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:22:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79C7F610EA;
+        Mon, 25 Oct 2021 19:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189450;
-        bh=ZRVUPx2uGfFZEyzf7HVtEtVAo2ZffGGhO+E00unNCwM=;
+        s=korg; t=1635189578;
+        bh=6KaK6RnVPDbO2lV/+9Ca3txKPwMLULQk7yN2RcOQQK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vc1p1yX3ifXcOlmw9zGxV9SptE0Jr7A2mUdamCWRMOh38EGF7LyieZV/Bgs8btTNV
-         K7pMfFItfbMs8gIkTkjtfBUD58zsmvw9eyUcVQXpGhGRMohSMOdpBGfPClvV6BfOe+
-         yhExdP7UOs9p7hWqLENqZatlGSCwauzSuuiCD+Rc=
+        b=KC7wnumM0XYaaOSd7+vb+L7eKX/07mS5nKMcCSLDDpeGv2c1H6lYWfdLd61yvKF5w
+         K84BjarFNEtY60zYsbaP0KLpPxHOjaRMBMWz06Uhxr8rC8TdpM7KRWzcAAjx/78mK/
+         cjMt4qeRJQzQjEhfacV1mznWDKa0baZXn/Hu+mxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.4 44/44] ARM: 9122/1: select HAVE_FUTEX_CMPXCHG
+        stable@vger.kernel.org, Brendan Grieve <brendan@grieve.com.au>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 38/50] ALSA: usb-audio: Provide quirk for Sennheiser GSP670 Headset
 Date:   Mon, 25 Oct 2021 21:14:25 +0200
-Message-Id: <20211025190937.446321165@linuxfoundation.org>
+Message-Id: <20211025190939.727055302@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
+References: <20211025190932.542632625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Brendan Grieve <brendan@grieve.com.au>
 
-commit 9d417cbe36eee7afdd85c2e871685f8dab7c2dba upstream.
+commit 3c414eb65c294719a91a746260085363413f91c1 upstream.
 
-tglx notes:
-  This function [futex_detect_cmpxchg] is only needed when an
-  architecture has to runtime discover whether the CPU supports it or
-  not.  ARM has unconditional support for this, so the obvious thing to
-  do is the below.
+As per discussion at: https://github.com/szszoke/sennheiser-gsp670-pulseaudio-profile/issues/13
 
-Fixes linkage failure from Clang randconfigs:
-kernel/futex.o:(.text.fixup+0x5c): relocation truncated to fit: R_ARM_JUMP24 against `.init.text'
-and boot failures for CONFIG_THUMB2_KERNEL.
+The GSP670 has 2 playback and 1 recording device that by default are
+detected in an incompatible order for alsa. This may have been done to make
+it compatible for the console by the manufacturer and only affects the
+latest firmware which uses its own ID.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/325
+This quirk will resolve this by reordering the channels.
 
-Comments from Nick Desaulniers:
-
- See-also: 03b8c7b623c8 ("futex: Allow architectures to skip
- futex_atomic_cmpxchg_inatomic() test")
-
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: stable@vger.kernel.org # v3.14+
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Brendan Grieve <brendan@grieve.com.au>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211015025335.196592-1-brendan@grieve.com.au
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/quirks-table.h |   32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -51,6 +51,7 @@ config ARM
- 	select HAVE_FTRACE_MCOUNT_RECORD if (!XIP_KERNEL)
- 	select HAVE_FUNCTION_GRAPH_TRACER if (!THUMB2_KERNEL)
- 	select HAVE_FUNCTION_TRACER if (!XIP_KERNEL)
-+	select HAVE_FUTEX_CMPXCHG if FUTEX
- 	select HAVE_GENERIC_DMA_COHERENT
- 	select HAVE_HW_BREAKPOINT if (PERF_EVENTS && (CPU_V6 || CPU_V6K || CPU_V7))
- 	select HAVE_IDE if PCI || ISA || PCMCIA
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -3446,5 +3446,37 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge
+ 		}
+ 	}
+ },
++{
++	/*
++	 * Sennheiser GSP670
++	 * Change order of interfaces loaded
++	 */
++	USB_DEVICE(0x1395, 0x0300),
++	.bInterfaceClass = USB_CLASS_PER_INTERFACE,
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = &(const struct snd_usb_audio_quirk[]) {
++			// Communication
++			{
++				.ifnum = 3,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			// Recording
++			{
++				.ifnum = 4,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			// Main
++			{
++				.ifnum = 1,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
+ 
+ #undef USB_DEVICE_VENDOR_SPEC
 
 
