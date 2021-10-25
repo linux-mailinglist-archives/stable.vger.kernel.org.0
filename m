@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AF90439FBD
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:21:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2028343A287
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233907AbhJYTX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:23:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41524 "EHLO mail.kernel.org"
+        id S237361AbhJYTti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:49:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234944AbhJYTWk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:22:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 920C8610A1;
-        Mon, 25 Oct 2021 19:20:14 +0000 (UTC)
+        id S237975AbhJYTq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:46:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0C7B61213;
+        Mon, 25 Oct 2021 19:40:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189615;
-        bh=uh+onX4lya15jpShJDlMJOjftqDM96kehkwXOaOh+Xc=;
+        s=korg; t=1635190810;
+        bh=n4ynzoPHoK4pGF06439qMuhRxl6fsygKlu01XYMCsuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qLD0tEgSr3Nsq/7Q35YwN2WvDRB65KCVA3gXJxCgAnjvxmGz9f1eGBcirOPacTjQD
-         YjwFN6RYladMQNa5YrzRLcaKFO7TnQIzGEFvVwcKBTto/5d5MtT3j6TZTFTW0KFa7t
-         jbbjQXsfUrhKKkX56rhybfRUQp8DZL5n10Hj3oGU=
+        b=eB9y7IR+lQ/tUPTYBt9HHciVJYuIR68glT5iG3SHczBpGwzPg3QtQ2J7Y5EGmhD0U
+         j+aJlam9INRSiG8y8ylsqyaRm73f9PM7SKincCc+HZ+vIOq7oq13p8q9rLjdTRCfGQ
+         EN0EnxHyIF+J8orX6yuFW4pmGJQhjBQFdXuQWKFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 30/50] NIOS2: irqflags: rename a redefined register name
+        stable@vger.kernel.org, Patrick Donnelly <pdonnell@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>, Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.14 076/169] ceph: fix handling of "meta" errors
 Date:   Mon, 25 Oct 2021 21:14:17 +0200
-Message-Id: <20211025190938.549332978@linuxfoundation.org>
+Message-Id: <20211025191027.010161192@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +40,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 4cce60f15c04d69eff6ffc539ab09137dbe15070 ]
+commit 1bd85aa65d0e7b5e4d09240f492f37c569fdd431 upstream.
 
-Both arch/nios2/ and drivers/mmc/host/tmio_mmc.c define a macro
-with the name "CTL_STATUS". Change the one in arch/nios2/ to be
-"CTL_FSTATUS" (flags status) to eliminate the build warning.
+Currently, we check the wb_err too early for directories, before all of
+the unsafe child requests have been waited on. In order to fix that we
+need to check the mapping->wb_err later nearer to the end of ceph_fsync.
 
-In file included from ../drivers/mmc/host/tmio_mmc.c:22:
-drivers/mmc/host/tmio_mmc.h:31: warning: "CTL_STATUS" redefined
-   31 | #define CTL_STATUS 0x1c
-arch/nios2/include/asm/registers.h:14: note: this is the location of the previous definition
-   14 | #define CTL_STATUS      0
+We also have an overly-complex method for tracking errors after
+blocklisting. The errors recorded in cleanup_session_requests go to a
+completely separate field in the inode, but we end up reporting them the
+same way we would for any other error (in fsync).
 
-Fixes: b31ebd8055ea ("nios2: Nios2 registers")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+There's no real benefit to tracking these errors in two different
+places, since the only reporting mechanism for them is in fsync, and
+we'd need to advance them both every time.
+
+Given that, we can just remove i_meta_err, and convert the places that
+used it to instead just use mapping->wb_err instead. That also fixes
+the original problem by ensuring that we do a check_and_advance of the
+wb_err at the end of the fsync op.
+
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/52864
+Reported-by: Patrick Donnelly <pdonnell@redhat.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nios2/include/asm/irqflags.h  | 4 ++--
- arch/nios2/include/asm/registers.h | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ fs/ceph/caps.c       |   12 +++---------
+ fs/ceph/file.c       |    1 -
+ fs/ceph/inode.c      |    2 --
+ fs/ceph/mds_client.c |   17 +++++------------
+ fs/ceph/super.h      |    3 ---
+ 5 files changed, 8 insertions(+), 27 deletions(-)
 
-diff --git a/arch/nios2/include/asm/irqflags.h b/arch/nios2/include/asm/irqflags.h
-index 75ab92e639f8..0338fcb88203 100644
---- a/arch/nios2/include/asm/irqflags.h
-+++ b/arch/nios2/include/asm/irqflags.h
-@@ -22,7 +22,7 @@
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -2264,7 +2264,6 @@ static int unsafe_request_wait(struct in
  
- static inline unsigned long arch_local_save_flags(void)
+ int ceph_fsync(struct file *file, loff_t start, loff_t end, int datasync)
  {
--	return RDCTL(CTL_STATUS);
-+	return RDCTL(CTL_FSTATUS);
+-	struct ceph_file_info *fi = file->private_data;
+ 	struct inode *inode = file->f_mapping->host;
+ 	struct ceph_inode_info *ci = ceph_inode(inode);
+ 	u64 flush_tid;
+@@ -2299,14 +2298,9 @@ int ceph_fsync(struct file *file, loff_t
+ 	if (err < 0)
+ 		ret = err;
+ 
+-	if (errseq_check(&ci->i_meta_err, READ_ONCE(fi->meta_err))) {
+-		spin_lock(&file->f_lock);
+-		err = errseq_check_and_advance(&ci->i_meta_err,
+-					       &fi->meta_err);
+-		spin_unlock(&file->f_lock);
+-		if (err < 0)
+-			ret = err;
+-	}
++	err = file_check_and_advance_wb_err(file);
++	if (err < 0)
++		ret = err;
+ out:
+ 	dout("fsync %p%s result=%d\n", inode, datasync ? " datasync" : "", ret);
+ 	return ret;
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -233,7 +233,6 @@ static int ceph_init_file_info(struct in
+ 
+ 	spin_lock_init(&fi->rw_contexts_lock);
+ 	INIT_LIST_HEAD(&fi->rw_contexts);
+-	fi->meta_err = errseq_sample(&ci->i_meta_err);
+ 	fi->filp_gen = READ_ONCE(ceph_inode_to_client(inode)->filp_gen);
+ 
+ 	return 0;
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -541,8 +541,6 @@ struct inode *ceph_alloc_inode(struct su
+ 
+ 	ceph_fscache_inode_init(ci);
+ 
+-	ci->i_meta_err = 0;
+-
+ 	return &ci->vfs_inode;
  }
  
- /*
-@@ -31,7 +31,7 @@ static inline unsigned long arch_local_save_flags(void)
-  */
- static inline void arch_local_irq_restore(unsigned long flags)
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -1479,7 +1479,6 @@ static void cleanup_session_requests(str
  {
--	WRCTL(CTL_STATUS, flags);
-+	WRCTL(CTL_FSTATUS, flags);
- }
+ 	struct ceph_mds_request *req;
+ 	struct rb_node *p;
+-	struct ceph_inode_info *ci;
  
- static inline void arch_local_irq_disable(void)
-diff --git a/arch/nios2/include/asm/registers.h b/arch/nios2/include/asm/registers.h
-index 615bce19b546..33824f2ad1ab 100644
---- a/arch/nios2/include/asm/registers.h
-+++ b/arch/nios2/include/asm/registers.h
-@@ -24,7 +24,7 @@
+ 	dout("cleanup_session_requests mds%d\n", session->s_mds);
+ 	mutex_lock(&mdsc->mutex);
+@@ -1488,16 +1487,10 @@ static void cleanup_session_requests(str
+ 				       struct ceph_mds_request, r_unsafe_item);
+ 		pr_warn_ratelimited(" dropping unsafe request %llu\n",
+ 				    req->r_tid);
+-		if (req->r_target_inode) {
+-			/* dropping unsafe change of inode's attributes */
+-			ci = ceph_inode(req->r_target_inode);
+-			errseq_set(&ci->i_meta_err, -EIO);
+-		}
+-		if (req->r_unsafe_dir) {
+-			/* dropping unsafe directory operation */
+-			ci = ceph_inode(req->r_unsafe_dir);
+-			errseq_set(&ci->i_meta_err, -EIO);
+-		}
++		if (req->r_target_inode)
++			mapping_set_error(req->r_target_inode->i_mapping, -EIO);
++		if (req->r_unsafe_dir)
++			mapping_set_error(req->r_unsafe_dir->i_mapping, -EIO);
+ 		__unregister_request(mdsc, req);
+ 	}
+ 	/* zero r_attempts, so kick_requests() will re-send requests */
+@@ -1664,7 +1657,7 @@ static int remove_session_caps_cb(struct
+ 		spin_unlock(&mdsc->cap_dirty_lock);
+ 
+ 		if (dirty_dropped) {
+-			errseq_set(&ci->i_meta_err, -EIO);
++			mapping_set_error(inode->i_mapping, -EIO);
+ 
+ 			if (ci->i_wrbuffer_ref_head == 0 &&
+ 			    ci->i_wr_ref == 0 &&
+--- a/fs/ceph/super.h
++++ b/fs/ceph/super.h
+@@ -430,8 +430,6 @@ struct ceph_inode_info {
+ #ifdef CONFIG_CEPH_FSCACHE
+ 	struct fscache_cookie *fscache;
  #endif
+-	errseq_t i_meta_err;
+-
+ 	struct inode vfs_inode; /* at end */
+ };
  
- /* control register numbers */
--#define CTL_STATUS	0
-+#define CTL_FSTATUS	0
- #define CTL_ESTATUS	1
- #define CTL_BSTATUS	2
- #define CTL_IENABLE	3
--- 
-2.33.0
-
+@@ -775,7 +773,6 @@ struct ceph_file_info {
+ 	spinlock_t rw_contexts_lock;
+ 	struct list_head rw_contexts;
+ 
+-	errseq_t meta_err;
+ 	u32 filp_gen;
+ 	atomic_t num_locks;
+ };
 
 
