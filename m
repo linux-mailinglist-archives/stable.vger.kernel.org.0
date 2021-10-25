@@ -2,68 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A938E439250
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 11:27:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 899D74394AD
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 13:21:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229846AbhJYJ3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 05:29:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54702 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232589AbhJYJ3X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 05:29:23 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4923C061220
-        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 02:26:18 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id g8so8802810edb.2
-        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 02:26:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=11NI8rJSPz43D1gV7A+JL1F9+LdB46OYj4gEDUOX0Xg=;
-        b=l1JtppPsxOyqU/HDYJ1X1XQUSY3p7PWwq3LCUAjoL2XUpX0LvLFvNF4d5u5ER88xFq
-         7xpcPUZ0KUVnOCtWh5megKJCFhHW7Ddb5RFUfhccp4uQS33TS5uSK1pKxrgGH1JdTxKe
-         GLWtpMUOp0iBiwlvDBFiFoZlOCHW7uvNzjmb+KIaVZgCTdbSVZJ4cSrPH5uRvIJ4URsh
-         5c7cn0GAzqNzWl7nO+mXm/nApJNRvzKhwlZC/JDWEfbBxtcKANjO1tK5PElPp8ysLg0A
-         PbMfRTtp/n1/wTaJoUdOJ91EfIjd47RQCWtOKhG6kxdpME/38F7Bw7dHsJ27BQC+N7CP
-         N0ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=11NI8rJSPz43D1gV7A+JL1F9+LdB46OYj4gEDUOX0Xg=;
-        b=LUIRslIRglwTiYfnk22sLXCx3IIl4Rz1D/2/UmfOC2t+nSVXTIrXZH9k9WURiBPb0k
-         8xTPM/8BN2fcbP/+yE6GQdJT7UWLqs/qpN5+6cuX8CZYTLWs690mdzxTw2uyuifqfoXe
-         usUBqlDxerUH+wnTbFvBCv7qp0t/AD2nuSQupY5SlU2/HEH9CIw/v922TrGHSk+eyigA
-         EnZjitZ2qBVG1ChRVqx2TQ5YL8uSUTYcYXhIKJW5TSWjl0ujBkNOYBtkBoLP+Qd9vk4H
-         9BcYSkoX+AlvTi9cA0obKf0UBj7jk7qJqyqUvhR2fYwxmJuQ9GBj2rln/adFMiL+9r1l
-         xK6w==
-X-Gm-Message-State: AOAM533g9YUi4aSatXv26vOX6W8hdr0/bYs+VAhjVl4VtiH2gf0CTEcr
-        M2sYU2kk1vdNyfmtywyJAJ7tAKwr898J2/WQi/A=
-X-Google-Smtp-Source: ABdhPJxjh9omHlKxakMzVgsEOTtLObgIvz1xnSDzG557QQ5hJ14g/l2B+odiqOeNxdcLkZVsThhApMmN3pOljOCg/ac=
-X-Received: by 2002:a17:907:6da3:: with SMTP id sb35mr19905987ejc.519.1635153977372;
- Mon, 25 Oct 2021 02:26:17 -0700 (PDT)
+        id S232950AbhJYLYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 07:24:04 -0400
+Received: from mga11.intel.com ([192.55.52.93]:43251 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231586AbhJYLXB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 07:23:01 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10147"; a="227078939"
+X-IronPort-AV: E=Sophos;i="5.87,180,1631602800"; 
+   d="scan'208";a="227078939"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2021 04:20:37 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.87,180,1631602800"; 
+   d="scan'208";a="634705359"
+Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.199]) ([10.237.72.199])
+  by fmsmga001.fm.intel.com with ESMTP; 25 Oct 2021 04:20:35 -0700
+To:     youling 257 <youling257@gmail.com>
+Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
+        pkondeti@codeaurora.org, stable@vger.kernel.org
+References: <20211008092547.3996295-5-mathias.nyman@linux.intel.com>
+ <20211022105913.7671-1-youling257@gmail.com>
+ <CAOzgRdY8+Wm-Ane==RQTvEe4aKa40+h1VF9JSg8WQsm-XH0ZCw@mail.gmail.com>
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: Re: [PATCH 4/5] xhci: Fix command ring pointer corruption while
+ aborting a command
+Message-ID: <8c3cd8f7-0bd1-0ec4-2f58-6122ae7ef270@linux.intel.com>
+Date:   Mon, 25 Oct 2021 14:21:57 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.8.1
 MIME-Version: 1.0
-Received: by 2002:a17:906:6a29:0:0:0:0 with HTTP; Mon, 25 Oct 2021 02:26:16
- -0700 (PDT)
-Reply-To: ms.lisahugh000@gmail.com
-From:   MS LISA HUGH <safi.kabore360@gmail.com>
-Date:   Mon, 25 Oct 2021 11:26:16 +0200
-Message-ID: <CAAoJS38ZFt4=z7pOJzcf1BMH_gR0sXzadO018wZ0Ea8QufZ4+A@mail.gmail.com>
-Subject: QUICK REPLY AND DETAILS >>MS LISA HUGH.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAOzgRdY8+Wm-Ane==RQTvEe4aKa40+h1VF9JSg8WQsm-XH0ZCw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+Hi
 
-I am Ms Lisa Hugh accountant and files keeping by profession with the bank.
+>> This patch cause suspend to disk resume usb not work, xhci_hcd 0000:00:14.0:
+>> Abort failed to stop command ring: -110.
 
-I need Your help for this transfer($4,500,000,00 ,U.S.DOLLARS)to your
-bank account with your co-operation for both of us benefit.
+Thanks for the report, this is odd.
 
-Please send the follow below,
-1)AGE....2)TELEPHONE NUMBER,,,,,...,3)COUNTRY.....4)OCCUPATION......
-Thanks.
-Ms Lisa Hugh
+Could you double check that by reverting this patch resume start working again.
+
+If this is the case maybe we need to write all 64bits before this xHC hardware reacts to
+CRCR register changes.
+
+Maybe following changes on top of current patch could help:
+
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 311597bba80e..32665637d5e5 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -366,7 +366,7 @@ static void xhci_handle_stopped_cmd_ring(struct xhci_hcd *xhci,
+ /* Must be called with xhci->lock held, releases and aquires lock back */
+ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
+ {
+-	u32 temp_32;
++	u64 crcr;
+	int ret;
+ 
+	xhci_dbg(xhci, "Abort command ring\n");
+@@ -375,13 +375,15 @@ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
+ 
+	/*
+	 * The control bits like command stop, abort are located in lower
+-	 * dword of the command ring control register. Limit the write
+-	 * to the lower dword to avoid corrupting the command ring pointer
+-        * in case if the command ring is stopped by the time upper dword
+-	 * is written.
++	 * dword of the command ring control register. Some hw require all
++	 * 64 bits to be written, starting with lower dword.
++	 * Make sure the upper dword is valid to avoid corrupting the command
++	 * ring pointer in case if the command ring is stopped by the time upper
++	 * dword is written.
+	 */
+-	temp_32 = readl(&xhci->op_regs->cmd_ring);
+-	writel(temp_32 | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
++	crcr = xhci_trb_virt_to_dma(xhci->cmd_ring->deq_seg,
++				    xhci->cmd_ring->dequeue);
++	xhci_write_64(xhci, crcr | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
+
+	/* Section 4.6.1.2 of xHCI 1.0 spec says software should also time the
+	 * completion of the Command Abort operation. If CRR is not negated in 5
+
+-Mathias
