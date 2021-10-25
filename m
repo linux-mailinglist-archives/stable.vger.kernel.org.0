@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B6B743A11A
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A16943A285
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235672AbhJYThR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
+        id S237265AbhJYTth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:49:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236311AbhJYTeQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:34:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA97D600D3;
-        Mon, 25 Oct 2021 19:29:58 +0000 (UTC)
+        id S237967AbhJYTq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:46:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA075611C7;
+        Mon, 25 Oct 2021 19:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190199;
-        bh=Mayt8WWNnjzHeMKdc0UAkdpP5zCctwZ8VketLaO98Ew=;
+        s=korg; t=1635190794;
+        bh=Ps6lIDaXjSpwSIMUsGNCTVWdQiy/a2kNcif61VQEJsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1v6A+127RKeGhSH9EIL1A41z8gC1+el3hXdBBpJBRwGtpiNzOw8Db07XD7NVjjYi2
-         YvPLTGdeog05uKYGDBXHKFJQPS8iWqVD6oPExZJCp0x3277OUfANecW75d84xknIea
-         ajC4tArQ+rHRI31nhb/n87RA45+SiNPnd0ejfCyU=
+        b=XoUENZeEpzgLBepWJiQKIoUt3LQffSM5y5keqX9lChOx4jRyN3Dowrvtw+SNQQUcb
+         MiiBETeW3i3Hzqp6zWl1BheRmnjJJXmNYBiH/jLc0Mzuf1Hg52tYhmMkjgj8khCGz8
+         1z4xQ2J76ZsMFgHxVFKBhPstsePnF2oBaFcUnOtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 16/95] netfilter: ip6t_rt: fix rt0_hdr parsing in rt_mt6
+        stable@vger.kernel.org,
+        syzbot+85d9878b19c94f9019ad@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.14 072/169] can: j1939: j1939_netdev_start(): fix UAF for rx_kref of j1939_priv
 Date:   Mon, 25 Oct 2021 21:14:13 +0200
-Message-Id: <20211025190959.263826408@linuxfoundation.org>
+Message-Id: <20211025191026.543745998@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,146 +42,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit a482c5e00a9b5a194085bcd372ac36141028becb ]
+commit d9d52a3ebd284882f5562c88e55991add5d01586 upstream.
 
-In rt_mt6(), when it's a nonlinear skb, the 1st skb_header_pointer()
-only copies sizeof(struct ipv6_rt_hdr) to _route that rh points to.
-The access by ((const struct rt0_hdr *)rh)->reserved will overflow
-the buffer. So this access should be moved below the 2nd call to
-skb_header_pointer().
+It will trigger UAF for rx_kref of j1939_priv as following.
 
-Besides, after the 2nd skb_header_pointer(), its return value should
-also be checked, othersize, *rp may cause null-pointer-ref.
+        cpu0                                    cpu1
+j1939_sk_bind(socket0, ndev0, ...)
+j1939_netdev_start
+                                        j1939_sk_bind(socket1, ndev0, ...)
+                                        j1939_netdev_start
+j1939_priv_set
+                                        j1939_priv_get_by_ndev_locked
+j1939_jsk_add
+.....
+j1939_netdev_stop
+kref_put_lock(&priv->rx_kref, ...)
+                                        kref_get(&priv->rx_kref, ...)
+                                        REFCOUNT_WARN("addition on 0;...")
 
-v1->v2:
-  - clean up some old debugging log.
+====================================================
+refcount_t: addition on 0; use-after-free.
+WARNING: CPU: 1 PID: 20874 at lib/refcount.c:25 refcount_warn_saturate+0x169/0x1e0
+RIP: 0010:refcount_warn_saturate+0x169/0x1e0
+Call Trace:
+ j1939_netdev_start+0x68b/0x920
+ j1939_sk_bind+0x426/0xeb0
+ ? security_socket_bind+0x83/0xb0
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The rx_kref's kref_get() and kref_put() should use j1939_netdev_lock to
+protect.
+
+Fixes: 9d71dd0c70099 ("can: add support of SAE J1939 protocol")
+Link: https://lore.kernel.org/all/20210926104757.2021540-1-william.xuanziyang@huawei.com
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+85d9878b19c94f9019ad@syzkaller.appspotmail.com
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/netfilter/ip6t_rt.c | 48 +++++-------------------------------
- 1 file changed, 6 insertions(+), 42 deletions(-)
+ net/can/j1939/main.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/netfilter/ip6t_rt.c b/net/ipv6/netfilter/ip6t_rt.c
-index 733c83d38b30..4ad8b2032f1f 100644
---- a/net/ipv6/netfilter/ip6t_rt.c
-+++ b/net/ipv6/netfilter/ip6t_rt.c
-@@ -25,12 +25,7 @@ MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
- static inline bool
- segsleft_match(u_int32_t min, u_int32_t max, u_int32_t id, bool invert)
- {
--	bool r;
--	pr_debug("segsleft_match:%c 0x%x <= 0x%x <= 0x%x\n",
--		 invert ? '!' : ' ', min, id, max);
--	r = (id >= min && id <= max) ^ invert;
--	pr_debug(" result %s\n", r ? "PASS" : "FAILED");
--	return r;
-+	return (id >= min && id <= max) ^ invert;
- }
+--- a/net/can/j1939/main.c
++++ b/net/can/j1939/main.c
+@@ -249,11 +249,14 @@ struct j1939_priv *j1939_netdev_start(st
+ 	struct j1939_priv *priv, *priv_new;
+ 	int ret;
  
- static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
-@@ -65,30 +60,6 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
- 		return false;
+-	priv = j1939_priv_get_by_ndev(ndev);
++	spin_lock(&j1939_netdev_lock);
++	priv = j1939_priv_get_by_ndev_locked(ndev);
+ 	if (priv) {
+ 		kref_get(&priv->rx_kref);
++		spin_unlock(&j1939_netdev_lock);
+ 		return priv;
  	}
++	spin_unlock(&j1939_netdev_lock);
  
--	pr_debug("IPv6 RT LEN %u %u ", hdrlen, rh->hdrlen);
--	pr_debug("TYPE %04X ", rh->type);
--	pr_debug("SGS_LEFT %u %02X\n", rh->segments_left, rh->segments_left);
--
--	pr_debug("IPv6 RT segsleft %02X ",
--		 segsleft_match(rtinfo->segsleft[0], rtinfo->segsleft[1],
--				rh->segments_left,
--				!!(rtinfo->invflags & IP6T_RT_INV_SGS)));
--	pr_debug("type %02X %02X %02X ",
--		 rtinfo->rt_type, rh->type,
--		 (!(rtinfo->flags & IP6T_RT_TYP) ||
--		  ((rtinfo->rt_type == rh->type) ^
--		   !!(rtinfo->invflags & IP6T_RT_INV_TYP))));
--	pr_debug("len %02X %04X %02X ",
--		 rtinfo->hdrlen, hdrlen,
--		 !(rtinfo->flags & IP6T_RT_LEN) ||
--		  ((rtinfo->hdrlen == hdrlen) ^
--		   !!(rtinfo->invflags & IP6T_RT_INV_LEN)));
--	pr_debug("res %02X %02X %02X ",
--		 rtinfo->flags & IP6T_RT_RES,
--		 ((const struct rt0_hdr *)rh)->reserved,
--		 !((rtinfo->flags & IP6T_RT_RES) &&
--		   (((const struct rt0_hdr *)rh)->reserved)));
--
- 	ret = (segsleft_match(rtinfo->segsleft[0], rtinfo->segsleft[1],
- 			      rh->segments_left,
- 			      !!(rtinfo->invflags & IP6T_RT_INV_SGS))) &&
-@@ -107,22 +78,22 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
- 						       reserved),
- 					sizeof(_reserved),
- 					&_reserved);
-+		if (!rp) {
-+			par->hotdrop = true;
-+			return false;
-+		}
- 
- 		ret = (*rp == 0);
+ 	priv = j1939_priv_create(ndev);
+ 	if (!priv)
+@@ -269,10 +272,10 @@ struct j1939_priv *j1939_netdev_start(st
+ 		/* Someone was faster than us, use their priv and roll
+ 		 * back our's.
+ 		 */
++		kref_get(&priv_new->rx_kref);
+ 		spin_unlock(&j1939_netdev_lock);
+ 		dev_put(ndev);
+ 		kfree(priv);
+-		kref_get(&priv_new->rx_kref);
+ 		return priv_new;
  	}
- 
--	pr_debug("#%d ", rtinfo->addrnr);
- 	if (!(rtinfo->flags & IP6T_RT_FST)) {
- 		return ret;
- 	} else if (rtinfo->flags & IP6T_RT_FST_NSTRICT) {
--		pr_debug("Not strict ");
- 		if (rtinfo->addrnr > (unsigned int)((hdrlen - 8) / 16)) {
--			pr_debug("There isn't enough space\n");
- 			return false;
- 		} else {
- 			unsigned int i = 0;
- 
--			pr_debug("#%d ", rtinfo->addrnr);
- 			for (temp = 0;
- 			     temp < (unsigned int)((hdrlen - 8) / 16);
- 			     temp++) {
-@@ -138,26 +109,20 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
- 					return false;
- 				}
- 
--				if (ipv6_addr_equal(ap, &rtinfo->addrs[i])) {
--					pr_debug("i=%d temp=%d;\n", i, temp);
-+				if (ipv6_addr_equal(ap, &rtinfo->addrs[i]))
- 					i++;
--				}
- 				if (i == rtinfo->addrnr)
- 					break;
- 			}
--			pr_debug("i=%d #%d\n", i, rtinfo->addrnr);
- 			if (i == rtinfo->addrnr)
- 				return ret;
- 			else
- 				return false;
- 		}
- 	} else {
--		pr_debug("Strict ");
- 		if (rtinfo->addrnr > (unsigned int)((hdrlen - 8) / 16)) {
--			pr_debug("There isn't enough space\n");
- 			return false;
- 		} else {
--			pr_debug("#%d ", rtinfo->addrnr);
- 			for (temp = 0; temp < rtinfo->addrnr; temp++) {
- 				ap = skb_header_pointer(skb,
- 							ptr
-@@ -173,7 +138,6 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
- 				if (!ipv6_addr_equal(ap, &rtinfo->addrs[temp]))
- 					break;
- 			}
--			pr_debug("temp=%d #%d\n", temp, rtinfo->addrnr);
- 			if (temp == rtinfo->addrnr &&
- 			    temp == (unsigned int)((hdrlen - 8) / 16))
- 				return ret;
--- 
-2.33.0
-
+ 	j1939_priv_set(ndev, priv);
 
 
