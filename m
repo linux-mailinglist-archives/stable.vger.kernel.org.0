@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1D3743A155
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68D1043A101
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236321AbhJYTiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:38:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
+        id S235598AbhJYTg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:36:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234833AbhJYTff (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:35:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 163F26101C;
-        Mon, 25 Oct 2021 19:32:44 +0000 (UTC)
+        id S235695AbhJYTcU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:32:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2137610EA;
+        Mon, 25 Oct 2021 19:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190365;
+        s=korg; t=1635190113;
         bh=rJboFWYOlFxCjJ2sD+ydfZ3t2qyUBerEkypslsxgIkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ei8XwRfnvK3Td+MvMjdgYUXLOU75M+lJ/cfMK1wbwJybAkYxAiDV4NXg0xIkM++ds
-         8wMdWHSQ6e7UDznfRZnB7lhKKu1/Xx1MFD7CVdsURaIfv6knl8tsCK49DfLxsfMH9n
-         EhLeFPdWzXsRF1PDrW0BvZ2E87JtxiEzdusgTWkg=
+        b=VimwtUdVdqbw87IctZaW23HlunKR6gknuewD74IizZRXIO/xlJ2i0m046LHVDKN1o
+         RESsEXP0WevExRsva8NVa4hL0ph6k8rWwyCRqzLJKjU+jWc2CBXqjl5rDdbANaNqKm
+         g9Gv6nYiNLetnCeSI1CP1remau8c/z6+hh5vA/3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 57/95] KVM: PPC: Book3S HV: Make idle_kvm_start_guest() return 0 if it went to guest
+Subject: [PATCH 5.4 37/58] KVM: PPC: Book3S HV: Make idle_kvm_start_guest() return 0 if it went to guest
 Date:   Mon, 25 Oct 2021 21:14:54 +0200
-Message-Id: <20211025191005.243158991@linuxfoundation.org>
+Message-Id: <20211025190943.632946696@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
