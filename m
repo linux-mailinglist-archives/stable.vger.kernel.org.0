@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2028343A287
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9360343A05A
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237361AbhJYTti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:49:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38052 "EHLO mail.kernel.org"
+        id S235448AbhJYT36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237975AbhJYTq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:46:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0C7B61213;
-        Mon, 25 Oct 2021 19:40:09 +0000 (UTC)
+        id S235743AbhJYT3H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:29:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95F7B61177;
+        Mon, 25 Oct 2021 19:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190810;
-        bh=n4ynzoPHoK4pGF06439qMuhRxl6fsygKlu01XYMCsuw=;
+        s=korg; t=1635189945;
+        bh=NKK1Ftoap0zWIXPa89GBg0INsb3GdsBuXkFgg0dB5yY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eB9y7IR+lQ/tUPTYBt9HHciVJYuIR68glT5iG3SHczBpGwzPg3QtQ2J7Y5EGmhD0U
-         j+aJlam9INRSiG8y8ylsqyaRm73f9PM7SKincCc+HZ+vIOq7oq13p8q9rLjdTRCfGQ
-         EN0EnxHyIF+J8orX6yuFW4pmGJQhjBQFdXuQWKFo=
+        b=C865NyDjB0NDvammIGnyX3rqq75unrZxYDM1CFaz6dNVJTPcaHt2xxJj9sBYZyZ9H
+         lxn4Awr7b83Up1xin+vhV1mo8tBQd9lLpsYj7fZ+ESkytxlOVkwcncr2NhSv+baze2
+         q9xhSL90YHga2XTrnBx2js+omXWrbYQHtgtbwsnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick Donnelly <pdonnell@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>, Xiubo Li <xiubli@redhat.com>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.14 076/169] ceph: fix handling of "meta" errors
-Date:   Mon, 25 Oct 2021 21:14:17 +0200
-Message-Id: <20211025191027.010161192@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.4 01/58] parisc: math-emu: Fix fall-through warnings
+Date:   Mon, 25 Oct 2021 21:14:18 +0200
+Message-Id: <20211025190937.804410116@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,150 +40,393 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Helge Deller <deller@gmx.de>
 
-commit 1bd85aa65d0e7b5e4d09240f492f37c569fdd431 upstream.
+commit 6f1fce595b78b775d7fb585c15c2dc3a6994f96e upstream.
 
-Currently, we check the wb_err too early for directories, before all of
-the unsafe child requests have been waited on. In order to fix that we
-need to check the mapping->wb_err later nearer to the end of ceph_fsync.
+Fix lots of fallthrough warnings, e.g.:
+arch/parisc/math-emu/fpudispatch.c:323:33: warning: this statement may fall through [-Wimplicit-fallthrough=]
 
-We also have an overly-complex method for tracking errors after
-blocklisting. The errors recorded in cleanup_session_requests go to a
-completely separate field in the inode, but we end up reporting them the
-same way we would for any other error (in fsync).
-
-There's no real benefit to tracking these errors in two different
-places, since the only reporting mechanism for them is in fsync, and
-we'd need to advance them both every time.
-
-Given that, we can just remove i_meta_err, and convert the places that
-used it to instead just use mapping->wb_err instead. That also fixes
-the original problem by ensuring that we do a check_and_advance of the
-wb_err at the end of the fsync op.
-
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/52864
-Reported-by: Patrick Donnelly <pdonnell@redhat.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Xiubo Li <xiubli@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/caps.c       |   12 +++---------
- fs/ceph/file.c       |    1 -
- fs/ceph/inode.c      |    2 --
- fs/ceph/mds_client.c |   17 +++++------------
- fs/ceph/super.h      |    3 ---
- 5 files changed, 8 insertions(+), 27 deletions(-)
+ arch/parisc/math-emu/fpudispatch.c |   56 +++++++++++++++++++++++++++++++++++--
+ 1 file changed, 53 insertions(+), 3 deletions(-)
 
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -2264,7 +2264,6 @@ static int unsafe_request_wait(struct in
- 
- int ceph_fsync(struct file *file, loff_t start, loff_t end, int datasync)
- {
--	struct ceph_file_info *fi = file->private_data;
- 	struct inode *inode = file->f_mapping->host;
- 	struct ceph_inode_info *ci = ceph_inode(inode);
- 	u64 flush_tid;
-@@ -2299,14 +2298,9 @@ int ceph_fsync(struct file *file, loff_t
- 	if (err < 0)
- 		ret = err;
- 
--	if (errseq_check(&ci->i_meta_err, READ_ONCE(fi->meta_err))) {
--		spin_lock(&file->f_lock);
--		err = errseq_check_and_advance(&ci->i_meta_err,
--					       &fi->meta_err);
--		spin_unlock(&file->f_lock);
--		if (err < 0)
--			ret = err;
--	}
-+	err = file_check_and_advance_wb_err(file);
-+	if (err < 0)
-+		ret = err;
- out:
- 	dout("fsync %p%s result=%d\n", inode, datasync ? " datasync" : "", ret);
- 	return ret;
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -233,7 +233,6 @@ static int ceph_init_file_info(struct in
- 
- 	spin_lock_init(&fi->rw_contexts_lock);
- 	INIT_LIST_HEAD(&fi->rw_contexts);
--	fi->meta_err = errseq_sample(&ci->i_meta_err);
- 	fi->filp_gen = READ_ONCE(ceph_inode_to_client(inode)->filp_gen);
- 
- 	return 0;
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -541,8 +541,6 @@ struct inode *ceph_alloc_inode(struct su
- 
- 	ceph_fscache_inode_init(ci);
- 
--	ci->i_meta_err = 0;
+--- a/arch/parisc/math-emu/fpudispatch.c
++++ b/arch/parisc/math-emu/fpudispatch.c
+@@ -310,12 +310,15 @@ decode_0c(u_int ir, u_int class, u_int s
+ 					r1 &= ~3;
+ 					fpregs[t+3] = fpregs[r1+3];
+ 					fpregs[t+2] = fpregs[r1+2];
++					fallthrough;
+ 				    case 1: /* double */
+ 					fpregs[t+1] = fpregs[r1+1];
++					fallthrough;
+ 				    case 0: /* single */
+ 					fpregs[t] = fpregs[r1];
+ 					return(NOEXCEPTION);
+ 				}
++				BUG();
+ 			case 3: /* FABS */
+ 				switch (fmt) {
+ 				    case 2: /* illegal */
+@@ -325,13 +328,16 @@ decode_0c(u_int ir, u_int class, u_int s
+ 					r1 &= ~3;
+ 					fpregs[t+3] = fpregs[r1+3];
+ 					fpregs[t+2] = fpregs[r1+2];
++					fallthrough;
+ 				    case 1: /* double */
+ 					fpregs[t+1] = fpregs[r1+1];
++					fallthrough;
+ 				    case 0: /* single */
+ 					/* copy and clear sign bit */
+ 					fpregs[t] = fpregs[r1] & 0x7fffffff;
+ 					return(NOEXCEPTION);
+ 				}
++				BUG();
+ 			case 6: /* FNEG */
+ 				switch (fmt) {
+ 				    case 2: /* illegal */
+@@ -341,13 +347,16 @@ decode_0c(u_int ir, u_int class, u_int s
+ 					r1 &= ~3;
+ 					fpregs[t+3] = fpregs[r1+3];
+ 					fpregs[t+2] = fpregs[r1+2];
++					fallthrough;
+ 				    case 1: /* double */
+ 					fpregs[t+1] = fpregs[r1+1];
++					fallthrough;
+ 				    case 0: /* single */
+ 					/* copy and invert sign bit */
+ 					fpregs[t] = fpregs[r1] ^ 0x80000000;
+ 					return(NOEXCEPTION);
+ 				}
++				BUG();
+ 			case 7: /* FNEGABS */
+ 				switch (fmt) {
+ 				    case 2: /* illegal */
+@@ -357,13 +366,16 @@ decode_0c(u_int ir, u_int class, u_int s
+ 					r1 &= ~3;
+ 					fpregs[t+3] = fpregs[r1+3];
+ 					fpregs[t+2] = fpregs[r1+2];
++					fallthrough;
+ 				    case 1: /* double */
+ 					fpregs[t+1] = fpregs[r1+1];
++					fallthrough;
+ 				    case 0: /* single */
+ 					/* copy and set sign bit */
+ 					fpregs[t] = fpregs[r1] | 0x80000000;
+ 					return(NOEXCEPTION);
+ 				}
++				BUG();
+ 			case 4: /* FSQRT */
+ 				switch (fmt) {
+ 				    case 0:
+@@ -376,6 +388,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 				    case 3: /* quad not implemented */
+ 					return(MAJOR_0C_EXCP);
+ 				}
++				BUG();
+ 			case 5: /* FRND */
+ 				switch (fmt) {
+ 				    case 0:
+@@ -389,7 +402,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 					return(MAJOR_0C_EXCP);
+ 				}
+ 		} /* end of switch (subop) */
 -
- 	return &ci->vfs_inode;
- }
- 
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -1479,7 +1479,6 @@ static void cleanup_session_requests(str
- {
- 	struct ceph_mds_request *req;
- 	struct rb_node *p;
--	struct ceph_inode_info *ci;
- 
- 	dout("cleanup_session_requests mds%d\n", session->s_mds);
- 	mutex_lock(&mdsc->mutex);
-@@ -1488,16 +1487,10 @@ static void cleanup_session_requests(str
- 				       struct ceph_mds_request, r_unsafe_item);
- 		pr_warn_ratelimited(" dropping unsafe request %llu\n",
- 				    req->r_tid);
--		if (req->r_target_inode) {
--			/* dropping unsafe change of inode's attributes */
--			ci = ceph_inode(req->r_target_inode);
--			errseq_set(&ci->i_meta_err, -EIO);
--		}
--		if (req->r_unsafe_dir) {
--			/* dropping unsafe directory operation */
--			ci = ceph_inode(req->r_unsafe_dir);
--			errseq_set(&ci->i_meta_err, -EIO);
--		}
-+		if (req->r_target_inode)
-+			mapping_set_error(req->r_target_inode->i_mapping, -EIO);
-+		if (req->r_unsafe_dir)
-+			mapping_set_error(req->r_unsafe_dir->i_mapping, -EIO);
- 		__unregister_request(mdsc, req);
- 	}
- 	/* zero r_attempts, so kick_requests() will re-send requests */
-@@ -1664,7 +1657,7 @@ static int remove_session_caps_cb(struct
- 		spin_unlock(&mdsc->cap_dirty_lock);
- 
- 		if (dirty_dropped) {
--			errseq_set(&ci->i_meta_err, -EIO);
-+			mapping_set_error(inode->i_mapping, -EIO);
- 
- 			if (ci->i_wrbuffer_ref_head == 0 &&
- 			    ci->i_wr_ref == 0 &&
---- a/fs/ceph/super.h
-+++ b/fs/ceph/super.h
-@@ -430,8 +430,6 @@ struct ceph_inode_info {
- #ifdef CONFIG_CEPH_FSCACHE
- 	struct fscache_cookie *fscache;
- #endif
--	errseq_t i_meta_err;
++		BUG();
+ 	case 1: /* class 1 */
+ 		df = extru(ir,fpdfpos,2); /* get dest format */
+ 		if ((df & 2) || (fmt & 2)) {
+@@ -419,6 +432,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 				    case 3: /* dbl/dbl */
+ 					return(MAJOR_0C_EXCP);
+ 				}
++				BUG();
+ 			case 1: /* FCNVXF */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -434,6 +448,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 					return(dbl_to_dbl_fcnvxf(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 2: /* FCNVFX */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -449,6 +464,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 					return(dbl_to_dbl_fcnvfx(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 3: /* FCNVFXT */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -464,6 +480,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 					return(dbl_to_dbl_fcnvfxt(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 5: /* FCNVUF (PA2.0 only) */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -479,6 +496,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 					return(dbl_to_dbl_fcnvuf(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 6: /* FCNVFU (PA2.0 only) */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -494,6 +512,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 					return(dbl_to_dbl_fcnvfu(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 7: /* FCNVFUT (PA2.0 only) */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -509,10 +528,11 @@ decode_0c(u_int ir, u_int class, u_int s
+ 					return(dbl_to_dbl_fcnvfut(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 4: /* undefined */
+ 				return(MAJOR_0C_EXCP);
+ 		} /* end of switch subop */
 -
- 	struct inode vfs_inode; /* at end */
- };
++		BUG();
+ 	case 2: /* class 2 */
+ 		fpu_type_flags=fpregs[FPU_TYPE_FLAG_POS];
+ 		r2 = extru(ir, fpr2pos, 5) * sizeof(double)/sizeof(u_int);
+@@ -590,6 +610,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 				    case 3: /* quad not implemented */
+ 					return(MAJOR_0C_EXCP);
+ 				}
++				BUG();
+ 			case 1: /* FTEST */
+ 				switch (fmt) {
+ 				    case 0:
+@@ -609,8 +630,10 @@ decode_0c(u_int ir, u_int class, u_int s
+ 				    case 3:
+ 					return(MAJOR_0C_EXCP);
+ 				}
++				BUG();
+ 		    } /* end of switch subop */
+ 		} /* end of else for PA1.0 & PA1.1 */
++		BUG();
+ 	case 3: /* class 3 */
+ 		r2 = extru(ir,fpr2pos,5) * sizeof(double)/sizeof(u_int);
+ 		if (r2 == 0)
+@@ -633,6 +656,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 				    case 3: /* quad not implemented */
+ 					return(MAJOR_0C_EXCP);
+ 				}
++				BUG();
+ 			case 1: /* FSUB */
+ 				switch (fmt) {
+ 				    case 0:
+@@ -645,6 +669,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 				    case 3: /* quad not implemented */
+ 					return(MAJOR_0C_EXCP);
+ 				}
++				BUG();
+ 			case 2: /* FMPY */
+ 				switch (fmt) {
+ 				    case 0:
+@@ -657,6 +682,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 				    case 3: /* quad not implemented */
+ 					return(MAJOR_0C_EXCP);
+ 				}
++				BUG();
+ 			case 3: /* FDIV */
+ 				switch (fmt) {
+ 				    case 0:
+@@ -669,6 +695,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 				    case 3: /* quad not implemented */
+ 					return(MAJOR_0C_EXCP);
+ 				}
++				BUG();
+ 			case 4: /* FREM */
+ 				switch (fmt) {
+ 				    case 0:
+@@ -681,6 +708,7 @@ decode_0c(u_int ir, u_int class, u_int s
+ 				    case 3: /* quad not implemented */
+ 					return(MAJOR_0C_EXCP);
+ 				}
++				BUG();
+ 		} /* end of class 3 switch */
+ 	} /* end of switch(class) */
  
-@@ -775,7 +773,6 @@ struct ceph_file_info {
- 	spinlock_t rw_contexts_lock;
- 	struct list_head rw_contexts;
- 
--	errseq_t meta_err;
- 	u32 filp_gen;
- 	atomic_t num_locks;
- };
+@@ -736,10 +764,12 @@ u_int fpregs[];
+ 					return(MAJOR_0E_EXCP);
+ 				    case 1: /* double */
+ 					fpregs[t+1] = fpregs[r1+1];
++					fallthrough;
+ 				    case 0: /* single */
+ 					fpregs[t] = fpregs[r1];
+ 					return(NOEXCEPTION);
+ 				}
++				BUG();
+ 			case 3: /* FABS */
+ 				switch (fmt) {
+ 				    case 2:
+@@ -747,10 +777,12 @@ u_int fpregs[];
+ 					return(MAJOR_0E_EXCP);
+ 				    case 1: /* double */
+ 					fpregs[t+1] = fpregs[r1+1];
++					fallthrough;
+ 				    case 0: /* single */
+ 					fpregs[t] = fpregs[r1] & 0x7fffffff;
+ 					return(NOEXCEPTION);
+ 				}
++				BUG();
+ 			case 6: /* FNEG */
+ 				switch (fmt) {
+ 				    case 2:
+@@ -758,10 +790,12 @@ u_int fpregs[];
+ 					return(MAJOR_0E_EXCP);
+ 				    case 1: /* double */
+ 					fpregs[t+1] = fpregs[r1+1];
++					fallthrough;
+ 				    case 0: /* single */
+ 					fpregs[t] = fpregs[r1] ^ 0x80000000;
+ 					return(NOEXCEPTION);
+ 				}
++				BUG();
+ 			case 7: /* FNEGABS */
+ 				switch (fmt) {
+ 				    case 2:
+@@ -769,10 +803,12 @@ u_int fpregs[];
+ 					return(MAJOR_0E_EXCP);
+ 				    case 1: /* double */
+ 					fpregs[t+1] = fpregs[r1+1];
++					fallthrough;
+ 				    case 0: /* single */
+ 					fpregs[t] = fpregs[r1] | 0x80000000;
+ 					return(NOEXCEPTION);
+ 				}
++				BUG();
+ 			case 4: /* FSQRT */
+ 				switch (fmt) {
+ 				    case 0:
+@@ -785,6 +821,7 @@ u_int fpregs[];
+ 				    case 3:
+ 					return(MAJOR_0E_EXCP);
+ 				}
++				BUG();
+ 			case 5: /* FRMD */
+ 				switch (fmt) {
+ 				    case 0:
+@@ -798,7 +835,7 @@ u_int fpregs[];
+ 					return(MAJOR_0E_EXCP);
+ 				}
+ 		} /* end of switch (subop */
+-	
++		BUG();
+ 	case 1: /* class 1 */
+ 		df = extru(ir,fpdfpos,2); /* get dest format */
+ 		/*
+@@ -826,6 +863,7 @@ u_int fpregs[];
+ 				    case 3: /* dbl/dbl */
+ 					return(MAJOR_0E_EXCP);
+ 				}
++				BUG();
+ 			case 1: /* FCNVXF */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -841,6 +879,7 @@ u_int fpregs[];
+ 					return(dbl_to_dbl_fcnvxf(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 2: /* FCNVFX */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -856,6 +895,7 @@ u_int fpregs[];
+ 					return(dbl_to_dbl_fcnvfx(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 3: /* FCNVFXT */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -871,6 +911,7 @@ u_int fpregs[];
+ 					return(dbl_to_dbl_fcnvfxt(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 5: /* FCNVUF (PA2.0 only) */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -886,6 +927,7 @@ u_int fpregs[];
+ 					return(dbl_to_dbl_fcnvuf(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 6: /* FCNVFU (PA2.0 only) */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -901,6 +943,7 @@ u_int fpregs[];
+ 					return(dbl_to_dbl_fcnvfu(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 7: /* FCNVFUT (PA2.0 only) */
+ 				switch(fmt) {
+ 				    case 0: /* sgl/sgl */
+@@ -916,9 +959,11 @@ u_int fpregs[];
+ 					return(dbl_to_dbl_fcnvfut(&fpregs[r1],0,
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 4: /* undefined */
+ 				return(MAJOR_0C_EXCP);
+ 		} /* end of switch subop */
++		BUG();
+ 	case 2: /* class 2 */
+ 		/*
+ 		 * Be careful out there.
+@@ -994,6 +1039,7 @@ u_int fpregs[];
+ 				}
+ 		    } /* end of switch subop */
+ 		} /* end of else for PA1.0 & PA1.1 */
++		BUG();
+ 	case 3: /* class 3 */
+ 		/*
+ 		 * Be careful out there.
+@@ -1026,6 +1072,7 @@ u_int fpregs[];
+ 					return(dbl_fadd(&fpregs[r1],&fpregs[r2],
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 1: /* FSUB */
+ 				switch (fmt) {
+ 				    case 0:
+@@ -1035,6 +1082,7 @@ u_int fpregs[];
+ 					return(dbl_fsub(&fpregs[r1],&fpregs[r2],
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 2: /* FMPY or XMPYU */
+ 				/*
+ 				 * check for integer multiply (x bit set)
+@@ -1071,6 +1119,7 @@ u_int fpregs[];
+ 					       &fpregs[r2],&fpregs[t],status));
+ 				    }
+ 				}
++				BUG();
+ 			case 3: /* FDIV */
+ 				switch (fmt) {
+ 				    case 0:
+@@ -1080,6 +1129,7 @@ u_int fpregs[];
+ 					return(dbl_fdiv(&fpregs[r1],&fpregs[r2],
+ 						&fpregs[t],status));
+ 				}
++				BUG();
+ 			case 4: /* FREM */
+ 				switch (fmt) {
+ 				    case 0:
 
 
