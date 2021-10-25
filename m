@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA29443A01A
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E59E43A301
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:53:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233976AbhJYT1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:27:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43206 "EHLO mail.kernel.org"
+        id S234844AbhJYTzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:55:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235138AbhJYTZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:25:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76B9B600D3;
-        Mon, 25 Oct 2021 19:22:53 +0000 (UTC)
+        id S237333AbhJYTwj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:52:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F4F36112D;
+        Mon, 25 Oct 2021 19:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189775;
-        bh=T9+djNcTWqVcnqAmS5CnPP2liFS7nuabBQOfxmTxT5M=;
+        s=korg; t=1635191026;
+        bh=+nCuYCAGzKAFX1CyeujOj1khmu5TCUt2LzxFOYDqaU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gzI1d0q+ICz6oaef6v2ljDn94kSu16F6CKtubTFs9GK+XiimM8fp0eOMpnYT78D9
-         pwgLoabxYsTLixCDdxMA0Pg7NYPsTdg/AHJl4iaoXrCYBsad9en1hQ75qebGLzX8Dk
-         9DLBY7XrFttj/qUFSfVlvKT1pJQmV7Q1EDCiNA7M=
+        b=WSwGAsSWE335srUurXl8OtTiiOHOqHY6GVAjXGPxFkFVW7SzHIeeheEKdWpP/Qwxn
+         VE2PhAGqMvbPaleSFGOKZHvvFsG2KDOXxL2wSIbjrPhyB0Pmd24FgQz5eILb/P6r1v
+         qXyJfB9jBNw+pcYFGS4GD4LDTFzxlBCvRvX7RWiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
-        Yanfei Xu <yanfei.xu@windriver.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 28/30] net: mdiobus: Fix memory leak in __mdiobus_register
-Date:   Mon, 25 Oct 2021 21:14:48 +0200
-Message-Id: <20211025190929.031296555@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 108/169] KVM: SEV-ES: keep INS functions together
+Date:   Mon, 25 Oct 2021 21:14:49 +0200
+Message-Id: <20211025191031.770175381@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
-References: <20211025190922.089277904@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanfei Xu <yanfei.xu@windriver.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
+commit 4fa4b38dae6fc6a3695695add8c18fa8b6a05a1a upstream.
 
-Once device_register() failed, we should call put_device() to
-decrement reference count for cleanup. Or it will cause memory
-leak.
+Make the diff a little nicer when we actually get to fixing
+the bug.  No functional change intended.
 
-BUG: memory leak
-unreferenced object 0xffff888114032e00 (size 256):
-  comm "kworker/1:3", pid 2960, jiffies 4294943572 (age 15.920s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 2e 03 14 81 88 ff ff  ................
-    08 2e 03 14 81 88 ff ff 90 76 65 82 ff ff ff ff  .........ve.....
-  backtrace:
-    [<ffffffff8265cfab>] kmalloc include/linux/slab.h:591 [inline]
-    [<ffffffff8265cfab>] kzalloc include/linux/slab.h:721 [inline]
-    [<ffffffff8265cfab>] device_private_init drivers/base/core.c:3203 [inline]
-    [<ffffffff8265cfab>] device_add+0x89b/0xdf0 drivers/base/core.c:3253
-    [<ffffffff828dd643>] __mdiobus_register+0xc3/0x450 drivers/net/phy/mdio_bus.c:537
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
-    [<ffffffff82660916>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
-    [<ffffffff8265cd0b>] device_add+0x5fb/0xdf0 drivers/base/core.c:3359
-    [<ffffffff82c343b9>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2170
-    [<ffffffff82c4473c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
-
-BUG: memory leak
-unreferenced object 0xffff888116f06900 (size 32):
-  comm "kworker/0:2", pid 2670, jiffies 4294944448 (age 7.160s)
-  hex dump (first 32 bytes):
-    75 73 62 2d 30 30 31 3a 30 30 33 00 00 00 00 00  usb-001:003.....
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff81484516>] kstrdup+0x36/0x70 mm/util.c:60
-    [<ffffffff814845a3>] kstrdup_const+0x53/0x80 mm/util.c:83
-    [<ffffffff82296ba2>] kvasprintf_const+0xc2/0x110 lib/kasprintf.c:48
-    [<ffffffff82358d4b>] kobject_set_name_vargs+0x3b/0xe0 lib/kobject.c:289
-    [<ffffffff826575f3>] dev_set_name+0x63/0x90 drivers/base/core.c:3147
-    [<ffffffff828dd63b>] __mdiobus_register+0xbb/0x450 drivers/net/phy/mdio_bus.c:535
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
-
-Reported-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Fixes: 7ed9abfe8e9f ("KVM: SVM: Support string IO operations for an SEV-ES guest")
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/mdio_bus.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/x86.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -354,6 +354,7 @@ int __mdiobus_register(struct mii_bus *b
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
-+		put_device(&bus->dev);
- 		return -EINVAL;
- 	}
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -12320,15 +12320,6 @@ int kvm_sev_es_mmio_read(struct kvm_vcpu
+ }
+ EXPORT_SYMBOL_GPL(kvm_sev_es_mmio_read);
  
+-static int complete_sev_es_emulated_ins(struct kvm_vcpu *vcpu)
+-{
+-	memcpy(vcpu->arch.sev_pio_data, vcpu->arch.pio_data,
+-	       vcpu->arch.pio.count * vcpu->arch.pio.size);
+-	vcpu->arch.pio.count = 0;
+-
+-	return 1;
+-}
+-
+ static int kvm_sev_es_outs(struct kvm_vcpu *vcpu, unsigned int size,
+ 			   unsigned int port, unsigned int count)
+ {
+@@ -12344,6 +12335,15 @@ static int kvm_sev_es_outs(struct kvm_vc
+ 	return 0;
+ }
+ 
++static int complete_sev_es_emulated_ins(struct kvm_vcpu *vcpu)
++{
++	memcpy(vcpu->arch.sev_pio_data, vcpu->arch.pio_data,
++	       vcpu->arch.pio.count * vcpu->arch.pio.size);
++	vcpu->arch.pio.count = 0;
++
++	return 1;
++}
++
+ static int kvm_sev_es_ins(struct kvm_vcpu *vcpu, unsigned int size,
+ 			  unsigned int port, unsigned int count)
+ {
 
 
