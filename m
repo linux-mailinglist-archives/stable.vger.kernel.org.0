@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C800A43A0F7
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FD7043A046
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234145AbhJYTgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:36:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48424 "EHLO mail.kernel.org"
+        id S235226AbhJYT3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234924AbhJYTbe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:31:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3D4B60FDC;
-        Mon, 25 Oct 2021 19:27:36 +0000 (UTC)
+        id S235347AbhJYT2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:28:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E25C60FE8;
+        Mon, 25 Oct 2021 19:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190057;
-        bh=Ps6lIDaXjSpwSIMUsGNCTVWdQiy/a2kNcif61VQEJsI=;
+        s=korg; t=1635189880;
+        bh=SaBFZLhzJ/iBCfoHhVHYZLj56Nj4Rwcz/JC8rNlTGQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IuDYegUM34nfigY9WijNckLUtrkPDS8ye7kbMTB1vSGeH+Ytagl0cIvBgtIP+k3w+
-         mXWa/jYswR3EXHlQEoEQI17YJDj9kO/R70TtcBSU0voaJKfSPNQH6YLFkUXHnA38Jy
-         eCzdAsUAeBwwWcF00/GduvgbI6umocYMn2eF0S+w=
+        b=cI6xza1ToHfKIQHC2JLzSdDGqNDS/ORYTd2AMCyXKcPxITEajUI8staJiQxb8IhBI
+         H+8O6zuzD7CtGTprlQFXVoZisXEe82Fyp0a/OCu6rMm39cGj5SvBtU4aemI+MxrNZD
+         GgazAINi8VYO7HKc4KiPpKkgXT6z8OptAbayZcVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+85d9878b19c94f9019ad@syzkaller.appspotmail.com,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 23/58] can: j1939: j1939_netdev_start(): fix UAF for rx_kref of j1939_priv
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Gang He <ghe@suse.com>, Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>,
+        Jun Piao <piaojun@huawei.com>,
+        "Markov, Andrey" <Markov.Andrey@Dell.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 15/37] ocfs2: fix data corruption after conversion from inline format
 Date:   Mon, 25 Oct 2021 21:14:40 +0200
-Message-Id: <20211025190941.317000148@linuxfoundation.org>
+Message-Id: <20211025190931.269729378@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,79 +47,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-commit d9d52a3ebd284882f5562c88e55991add5d01586 upstream.
+commit 5314454ea3ff6fc746eaf71b9a7ceebed52888fa upstream.
 
-It will trigger UAF for rx_kref of j1939_priv as following.
+Commit 6dbf7bb55598 ("fs: Don't invalidate page buffers in
+block_write_full_page()") uncovered a latent bug in ocfs2 conversion
+from inline inode format to a normal inode format.
 
-        cpu0                                    cpu1
-j1939_sk_bind(socket0, ndev0, ...)
-j1939_netdev_start
-                                        j1939_sk_bind(socket1, ndev0, ...)
-                                        j1939_netdev_start
-j1939_priv_set
-                                        j1939_priv_get_by_ndev_locked
-j1939_jsk_add
-.....
-j1939_netdev_stop
-kref_put_lock(&priv->rx_kref, ...)
-                                        kref_get(&priv->rx_kref, ...)
-                                        REFCOUNT_WARN("addition on 0;...")
+The code in ocfs2_convert_inline_data_to_extents() attempts to zero out
+the whole cluster allocated for file data by grabbing, zeroing, and
+dirtying all pages covering this cluster.  However these pages are
+beyond i_size, thus writeback code generally ignores these dirty pages
+and no blocks were ever actually zeroed on the disk.
 
-====================================================
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 1 PID: 20874 at lib/refcount.c:25 refcount_warn_saturate+0x169/0x1e0
-RIP: 0010:refcount_warn_saturate+0x169/0x1e0
-Call Trace:
- j1939_netdev_start+0x68b/0x920
- j1939_sk_bind+0x426/0xeb0
- ? security_socket_bind+0x83/0xb0
+This oversight was fixed by commit 693c241a5f6a ("ocfs2: No need to zero
+pages past i_size.") for standard ocfs2 write path, inline conversion
+path was apparently forgotten; the commit log also has a reasoning why
+the zeroing actually is not needed.
 
-The rx_kref's kref_get() and kref_put() should use j1939_netdev_lock to
-protect.
+After commit 6dbf7bb55598, things became worse as writeback code stopped
+invalidating buffers on pages beyond i_size and thus these pages end up
+with clean PageDirty bit but with buffers attached to these pages being
+still dirty.  So when a file is converted from inline format, then
+writeback triggers, and then the file is grown so that these pages
+become valid, the invalid dirtiness state is preserved,
+mark_buffer_dirty() does nothing on these pages (buffers are already
+dirty) but page is never written back because it is clean.  So data
+written to these pages is lost once pages are reclaimed.
 
-Fixes: 9d71dd0c70099 ("can: add support of SAE J1939 protocol")
-Link: https://lore.kernel.org/all/20210926104757.2021540-1-william.xuanziyang@huawei.com
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+85d9878b19c94f9019ad@syzkaller.appspotmail.com
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Simple reproducer for the problem is:
+
+  xfs_io -f -c "pwrite 0 2000" -c "pwrite 2000 2000" -c "fsync" \
+    -c "pwrite 4000 2000" ocfs2_file
+
+After unmounting and mounting the fs again, you can observe that end of
+'ocfs2_file' has lost its contents.
+
+Fix the problem by not doing the pointless zeroing during conversion
+from inline format similarly as in the standard write path.
+
+[akpm@linux-foundation.org: fix whitespace, per Joseph]
+
+Link: https://lkml.kernel.org/r/20210930095405.21433-1-jack@suse.cz
+Fixes: 6dbf7bb55598 ("fs: Don't invalidate page buffers in block_write_full_page()")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Tested-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Acked-by: Gang He <ghe@suse.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: "Markov, Andrey" <Markov.Andrey@Dell.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/j1939/main.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/ocfs2/alloc.c |   46 ++++++++++++----------------------------------
+ 1 file changed, 12 insertions(+), 34 deletions(-)
 
---- a/net/can/j1939/main.c
-+++ b/net/can/j1939/main.c
-@@ -249,11 +249,14 @@ struct j1939_priv *j1939_netdev_start(st
- 	struct j1939_priv *priv, *priv_new;
- 	int ret;
+--- a/fs/ocfs2/alloc.c
++++ b/fs/ocfs2/alloc.c
+@@ -7048,7 +7048,7 @@ void ocfs2_set_inode_data_inline(struct
+ int ocfs2_convert_inline_data_to_extents(struct inode *inode,
+ 					 struct buffer_head *di_bh)
+ {
+-	int ret, i, has_data, num_pages = 0;
++	int ret, has_data, num_pages = 0;
+ 	int need_free = 0;
+ 	u32 bit_off, num;
+ 	handle_t *handle;
+@@ -7057,26 +7057,17 @@ int ocfs2_convert_inline_data_to_extents
+ 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
+ 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
+ 	struct ocfs2_alloc_context *data_ac = NULL;
+-	struct page **pages = NULL;
+-	loff_t end = osb->s_clustersize;
++	struct page *page = NULL;
+ 	struct ocfs2_extent_tree et;
+ 	int did_quota = 0;
  
--	priv = j1939_priv_get_by_ndev(ndev);
-+	spin_lock(&j1939_netdev_lock);
-+	priv = j1939_priv_get_by_ndev_locked(ndev);
- 	if (priv) {
- 		kref_get(&priv->rx_kref);
-+		spin_unlock(&j1939_netdev_lock);
- 		return priv;
+ 	has_data = i_size_read(inode) ? 1 : 0;
+ 
+ 	if (has_data) {
+-		pages = kcalloc(ocfs2_pages_per_cluster(osb->sb),
+-				sizeof(struct page *), GFP_NOFS);
+-		if (pages == NULL) {
+-			ret = -ENOMEM;
+-			mlog_errno(ret);
+-			return ret;
+-		}
+-
+ 		ret = ocfs2_reserve_clusters(osb, 1, &data_ac);
+ 		if (ret) {
+ 			mlog_errno(ret);
+-			goto free_pages;
++			goto out;
+ 		}
  	}
-+	spin_unlock(&j1939_netdev_lock);
  
- 	priv = j1939_priv_create(ndev);
- 	if (!priv)
-@@ -269,10 +272,10 @@ struct j1939_priv *j1939_netdev_start(st
- 		/* Someone was faster than us, use their priv and roll
- 		 * back our's.
+@@ -7096,7 +7087,8 @@ int ocfs2_convert_inline_data_to_extents
+ 	}
+ 
+ 	if (has_data) {
+-		unsigned int page_end;
++		unsigned int page_end = min_t(unsigned, PAGE_SIZE,
++							osb->s_clustersize);
+ 		u64 phys;
+ 
+ 		ret = dquot_alloc_space_nodirty(inode,
+@@ -7120,15 +7112,8 @@ int ocfs2_convert_inline_data_to_extents
  		 */
-+		kref_get(&priv_new->rx_kref);
- 		spin_unlock(&j1939_netdev_lock);
- 		dev_put(ndev);
- 		kfree(priv);
--		kref_get(&priv_new->rx_kref);
- 		return priv_new;
+ 		block = phys = ocfs2_clusters_to_blocks(inode->i_sb, bit_off);
+ 
+-		/*
+-		 * Non sparse file systems zero on extend, so no need
+-		 * to do that now.
+-		 */
+-		if (!ocfs2_sparse_alloc(osb) &&
+-		    PAGE_SIZE < osb->s_clustersize)
+-			end = PAGE_SIZE;
+-
+-		ret = ocfs2_grab_eof_pages(inode, 0, end, pages, &num_pages);
++		ret = ocfs2_grab_eof_pages(inode, 0, page_end, &page,
++					   &num_pages);
+ 		if (ret) {
+ 			mlog_errno(ret);
+ 			need_free = 1;
+@@ -7139,20 +7124,15 @@ int ocfs2_convert_inline_data_to_extents
+ 		 * This should populate the 1st page for us and mark
+ 		 * it up to date.
+ 		 */
+-		ret = ocfs2_read_inline_data(inode, pages[0], di_bh);
++		ret = ocfs2_read_inline_data(inode, page, di_bh);
+ 		if (ret) {
+ 			mlog_errno(ret);
+ 			need_free = 1;
+ 			goto out_unlock;
+ 		}
+ 
+-		page_end = PAGE_SIZE;
+-		if (PAGE_SIZE > osb->s_clustersize)
+-			page_end = osb->s_clustersize;
+-
+-		for (i = 0; i < num_pages; i++)
+-			ocfs2_map_and_dirty_page(inode, handle, 0, page_end,
+-						 pages[i], i > 0, &phys);
++		ocfs2_map_and_dirty_page(inode, handle, 0, page_end, page, 0,
++					 &phys);
  	}
- 	j1939_priv_set(ndev, priv);
+ 
+ 	spin_lock(&oi->ip_lock);
+@@ -7183,8 +7163,8 @@ int ocfs2_convert_inline_data_to_extents
+ 	}
+ 
+ out_unlock:
+-	if (pages)
+-		ocfs2_unlock_and_free_pages(pages, num_pages);
++	if (page)
++		ocfs2_unlock_and_free_pages(&page, num_pages);
+ 
+ out_commit:
+ 	if (ret < 0 && did_quota)
+@@ -7208,8 +7188,6 @@ out_commit:
+ out:
+ 	if (data_ac)
+ 		ocfs2_free_alloc_context(data_ac);
+-free_pages:
+-	kfree(pages);
+ 	return ret;
+ }
+ 
 
 
