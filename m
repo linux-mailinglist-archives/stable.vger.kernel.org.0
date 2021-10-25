@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB489439F43
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:16:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 900AB43A282
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234429AbhJYTTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:19:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36400 "EHLO mail.kernel.org"
+        id S236160AbhJYTtd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:49:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234559AbhJYTSk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:18:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BE2E61090;
-        Mon, 25 Oct 2021 19:16:17 +0000 (UTC)
+        id S237966AbhJYTq6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:46:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83CB461208;
+        Mon, 25 Oct 2021 19:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189378;
-        bh=3nzARtnUIwmZ7Ln1TUgyXOZPqMLx4g/YocxRcSV56RE=;
+        s=korg; t=1635190798;
+        bh=NrQgn9bc0tPgd+GccU8516edMKipbeF9wiI+ndUsYBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w2zw8SX1zZwyN5uCq/B8VSlMjbBZjAL8A6lCo8XLTIzGgraOAsC8CHVBhaokCLO32
-         Q39uqX7Y0rAWCvd/nkQXklfReA+/GBVPiTRuxLGVZziQWI3+NykK831ciDzQYs9al+
-         Is7f+Q5vvU14glT3PBo73TDPqBRRBQphgWJBGHCQ=
+        b=y5C/sW5J8DwtOO0yK4cC8QhBRgQUq915y3ZlQJFUxbLnwpiPphcUlBWg3x/wXeWvX
+         Z/eRDTXNeoFugWdWcp1ZSyBhdCKiQURuz/BzHXOEd4Qbu/u75knXm7MfNzxrNDn/zq
+         1wlT1/sQBetIaLaLmxLPSO7pQl/NfFimEZCYZW0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4.4 32/44] ASoC: DAPM: Fix missing kctl change notifications
-Date:   Mon, 25 Oct 2021 21:14:13 +0200
-Message-Id: <20211025190935.238114232@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.14 073/169] can: j1939: j1939_xtp_rx_dat_one(): cancel session if receive TP.DT with error length
+Date:   Mon, 25 Oct 2021 21:14:14 +0200
+Message-Id: <20211025191026.654550692@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 5af82c81b2c49cfb1cad84d9eb6eab0e3d1c4842 upstream.
+commit 379743985ab6cfe2cbd32067cf4ed497baca6d06 upstream.
 
-The put callback of a kcontrol is supposed to return 1 when the value
-is changed, and this will be notified to user-space.  However, some
-DAPM kcontrols always return 0 (except for errors), hence the
-user-space misses the update of a control value.
+According to SAE-J1939-21, the data length of TP.DT must be 8 bytes, so
+cancel session when receive unexpected TP.DT message.
 
-This patch corrects the behavior by properly returning 1 when the
-value gets updated.
-
-Reported-and-tested-by: Hans de Goede <hdegoede@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211006141712.2439-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Link: https://lore.kernel.org/all/1632972800-45091-1-git-send-email-zhangchangzhong@huawei.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-dapm.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ net/can/j1939/transport.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2377,6 +2377,7 @@ static int snd_soc_dapm_set_pin(struct s
- 				const char *pin, int status)
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -1770,6 +1770,7 @@ static void j1939_xtp_rx_dpo(struct j193
+ static void j1939_xtp_rx_dat_one(struct j1939_session *session,
+ 				 struct sk_buff *skb)
  {
- 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
-+	int ret = 0;
++	enum j1939_xtp_abort abort = J1939_XTP_ABORT_FAULT;
+ 	struct j1939_priv *priv = session->priv;
+ 	struct j1939_sk_buff_cb *skcb;
+ 	struct sk_buff *se_skb = NULL;
+@@ -1784,9 +1785,11 @@ static void j1939_xtp_rx_dat_one(struct
  
- 	dapm_assert_locked(dapm);
+ 	skcb = j1939_skb_to_cb(skb);
+ 	dat = skb->data;
+-	if (skb->len <= 1)
++	if (skb->len != 8) {
+ 		/* makes no sense */
++		abort = J1939_XTP_ABORT_UNEXPECTED_DATA;
+ 		goto out_session_cancel;
++	}
  
-@@ -2389,13 +2390,14 @@ static int snd_soc_dapm_set_pin(struct s
- 		dapm_mark_dirty(w, "pin configuration");
- 		dapm_widget_invalidate_input_paths(w);
- 		dapm_widget_invalidate_output_paths(w);
-+		ret = 1;
- 	}
- 
- 	w->connected = status;
- 	if (status == 0)
- 		w->force = 0;
- 
--	return 0;
-+	return ret;
+ 	switch (session->last_cmd) {
+ 	case 0xff:
+@@ -1884,7 +1887,7 @@ static void j1939_xtp_rx_dat_one(struct
+  out_session_cancel:
+ 	kfree_skb(se_skb);
+ 	j1939_session_timers_cancel(session);
+-	j1939_session_cancel(session, J1939_XTP_ABORT_FAULT);
++	j1939_session_cancel(session, abort);
+ 	j1939_session_put(session);
  }
  
- /**
-@@ -3290,14 +3292,15 @@ int snd_soc_dapm_put_pin_switch(struct s
- {
- 	struct snd_soc_card *card = snd_kcontrol_chip(kcontrol);
- 	const char *pin = (const char *)kcontrol->private_value;
-+	int ret;
- 
- 	if (ucontrol->value.integer.value[0])
--		snd_soc_dapm_enable_pin(&card->dapm, pin);
-+		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
- 	else
--		snd_soc_dapm_disable_pin(&card->dapm, pin);
-+		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
- 
- 	snd_soc_dapm_sync(&card->dapm);
--	return 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(snd_soc_dapm_put_pin_switch);
- 
-@@ -3657,7 +3660,7 @@ static int snd_soc_dapm_dai_link_put(str
- 
- 	w->params_select = ucontrol->value.enumerated.item[0];
- 
--	return 0;
-+	return 1;
- }
- 
- int snd_soc_dapm_new_pcm(struct snd_soc_card *card,
 
 
