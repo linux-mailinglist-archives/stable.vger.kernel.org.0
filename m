@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 944BD43A316
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F02B43A1B7
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:39:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237408AbhJYT4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:56:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42070 "EHLO mail.kernel.org"
+        id S236794AbhJYTlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:41:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238978AbhJYTxy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:53:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4C5661263;
-        Mon, 25 Oct 2021 19:44:54 +0000 (UTC)
+        id S236402AbhJYTjV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:39:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAF4460F4F;
+        Mon, 25 Oct 2021 19:35:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635191095;
-        bh=wBMMXcHsacMg/RF9mmTos5XgdKFwCwBPUKoV0FrRWks=;
+        s=korg; t=1635190516;
+        bh=jjPhpuHUAotgOOslBDWPqGVeTG5Lq5x05VBjB2A/OSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HeeGkB+9i/K1xlwVSylxCy4WOJyoXRJlEtQExoOMy+vxcEz3v/3i+jGPjo4E3rGAd
-         PQIr9WQPSKgA2X+8dglNMT32w8BSQNJhehBQcM9Qg5mCVySf4J/UDsWQgFSXeSOmO3
-         gCBWNreyRGnxNLbeT4A/Et+ZVFm5ui2YNCRuoBr0=
+        b=kCnafDMSNXGIZ1iu9hbLFOy7mPQw2mTyf96xiW8z/pzBZ1YOnr8gz6mNbMKiX1CkK
+         0Js6FwJjEwxAiR2tVSH8bhM8IaLBESuskPbM7pRJW5w9Sx32YgtXZ8nzlc8jWUXpQX
+         e0nvy9EUXHbPI87h/JWzBOCgB3Q9Lo22LNdJawUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 143/169] spi-mux: Fix false-positive lockdep splats
+        stable@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.10 87/95] s390/pci: fix zpci_zdev_put() on reserve
 Date:   Mon, 25 Oct 2021 21:15:24 +0200
-Message-Id: <20211025191035.702202966@linuxfoundation.org>
+Message-Id: <20211025191009.402634017@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,81 +39,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-[ Upstream commit 16a8e2fbb2d49111004efc1c7342e083eafabeb0 ]
+commit a46044a92add6a400f4dada7b943b30221f7cc80 upstream.
 
-io_mutex is taken by spi_setup() and spi-mux's .setup() callback calls
-spi_setup() which results in a nested lock of io_mutex.
+Since commit 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
+the reference count of a zpci_dev is incremented between
+pcibios_add_device() and pcibios_release_device() which was supposed to
+prevent the zpci_dev from being freed while the common PCI code has
+access to it. It was missed however that the handling of zPCI
+availability events assumed that once zpci_zdev_put() was called no
+later availability event would still see the device. With the previously
+mentioned commit however this assumption no longer holds and we must
+make sure that we only drop the initial long-lived reference the zPCI
+subsystem holds exactly once.
 
-add_lock is taken by spi_add_device(). The device_add() call in there
-can result in calling spi-mux's .probe() callback which registers its
-own spi controller which in turn results in spi_add_device() being
-called again.
+Do so by introducing a zpci_device_reserved() function that handles when
+a device is reserved. Here we make sure the zpci_dev will not be
+considered for further events by removing it from the zpci_list.
 
-To fix this initialize the controller's locks already in
-spi_alloc_controller() to give spi_mux_probe() a chance to set the
-lockdep subclass.
+This also means that the device actually stays in the
+ZPCI_FN_STATE_RESERVED state between the time we know it has been
+reserved and the final reference going away. We thus need to consider it
+a real state instead of just a conceptual state after the removal. The
+final cleanup of PCI resources, removal from zbus, and destruction of
+the IOMMU stays in zpci_release_device() to make sure holders of the
+reference do see valid data until the release.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20211013133710.2679703-2-u.kleine-koenig@pengutronix.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
+Cc: stable@vger.kernel.org
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/spi/spi-mux.c |  7 +++++++
- drivers/spi/spi.c     | 12 ++++++------
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ arch/s390/include/asm/pci.h        |    3 ++
+ arch/s390/pci/pci.c                |   45 ++++++++++++++++++++++++++++++++-----
+ arch/s390/pci/pci_event.c          |    4 +--
+ drivers/pci/hotplug/s390_pci_hpc.c |    9 -------
+ 4 files changed, 46 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/spi/spi-mux.c b/drivers/spi/spi-mux.c
-index 9708b7827ff7..f5d32ec4634e 100644
---- a/drivers/spi/spi-mux.c
-+++ b/drivers/spi/spi-mux.c
-@@ -137,6 +137,13 @@ static int spi_mux_probe(struct spi_device *spi)
- 	priv = spi_controller_get_devdata(ctlr);
- 	priv->spi = spi;
- 
-+	/*
-+	 * Increase lockdep class as these lock are taken while the parent bus
-+	 * already holds their instance's lock.
-+	 */
-+	lockdep_set_subclass(&ctlr->io_mutex, 1);
-+	lockdep_set_subclass(&ctlr->add_lock, 1);
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -205,6 +205,9 @@ int zpci_create_device(u32 fid, u32 fh,
+ void zpci_remove_device(struct zpci_dev *zdev, bool set_error);
+ int zpci_enable_device(struct zpci_dev *);
+ int zpci_disable_device(struct zpci_dev *);
++void zpci_device_reserved(struct zpci_dev *zdev);
++bool zpci_is_device_configured(struct zpci_dev *zdev);
 +
- 	priv->mux = devm_mux_control_get(&spi->dev, NULL);
- 	if (IS_ERR(priv->mux)) {
- 		ret = dev_err_probe(&spi->dev, PTR_ERR(priv->mux),
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 2c342bded058..3093e0041158 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2549,6 +2549,12 @@ struct spi_controller *__spi_alloc_controller(struct device *dev,
- 		return NULL;
+ int zpci_register_ioat(struct zpci_dev *, u8, u64, u64, u64);
+ int zpci_unregister_ioat(struct zpci_dev *, u8);
+ void zpci_remove_reserved_devices(void);
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -92,7 +92,7 @@ void zpci_remove_reserved_devices(void)
+ 	spin_unlock(&zpci_list_lock);
  
- 	device_initialize(&ctlr->dev);
-+	INIT_LIST_HEAD(&ctlr->queue);
-+	spin_lock_init(&ctlr->queue_lock);
-+	spin_lock_init(&ctlr->bus_lock_spinlock);
-+	mutex_init(&ctlr->bus_lock_mutex);
-+	mutex_init(&ctlr->io_mutex);
-+	mutex_init(&ctlr->add_lock);
- 	ctlr->bus_num = -1;
- 	ctlr->num_chipselect = 1;
- 	ctlr->slave = slave;
-@@ -2821,12 +2827,6 @@ int spi_register_controller(struct spi_controller *ctlr)
- 			return id;
- 		ctlr->bus_num = id;
+ 	list_for_each_entry_safe(zdev, tmp, &remove, entry)
+-		zpci_zdev_put(zdev);
++		zpci_device_reserved(zdev);
+ }
+ 
+ int pci_domain_nr(struct pci_bus *bus)
+@@ -787,6 +787,39 @@ error:
+ 	return rc;
+ }
+ 
++bool zpci_is_device_configured(struct zpci_dev *zdev)
++{
++	enum zpci_state state = zdev->state;
++
++	return state != ZPCI_FN_STATE_RESERVED &&
++		state != ZPCI_FN_STATE_STANDBY;
++}
++
++/**
++ * zpci_device_reserved() - Mark device as resverved
++ * @zdev: the zpci_dev that was reserved
++ *
++ * Handle the case that a given zPCI function was reserved by another system.
++ * After a call to this function the zpci_dev can not be found via
++ * get_zdev_by_fid() anymore but may still be accessible via existing
++ * references though it will not be functional anymore.
++ */
++void zpci_device_reserved(struct zpci_dev *zdev)
++{
++	if (zdev->has_hp_slot)
++		zpci_exit_slot(zdev);
++	/*
++	 * Remove device from zpci_list as it is going away. This also
++	 * makes sure we ignore subsequent zPCI events for this device.
++	 */
++	spin_lock(&zpci_list_lock);
++	list_del(&zdev->entry);
++	spin_unlock(&zpci_list_lock);
++	zdev->state = ZPCI_FN_STATE_RESERVED;
++	zpci_dbg(3, "rsv fid:%x\n", zdev->fid);
++	zpci_zdev_put(zdev);
++}
++
+ void zpci_release_device(struct kref *kref)
+ {
+ 	struct zpci_dev *zdev = container_of(kref, struct zpci_dev, kref);
+@@ -802,6 +835,12 @@ void zpci_release_device(struct kref *kr
+ 	case ZPCI_FN_STATE_STANDBY:
+ 		if (zdev->has_hp_slot)
+ 			zpci_exit_slot(zdev);
++		spin_lock(&zpci_list_lock);
++		list_del(&zdev->entry);
++		spin_unlock(&zpci_list_lock);
++		zpci_dbg(3, "rsv fid:%x\n", zdev->fid);
++		fallthrough;
++	case ZPCI_FN_STATE_RESERVED:
+ 		zpci_cleanup_bus_resources(zdev);
+ 		zpci_bus_device_unregister(zdev);
+ 		zpci_destroy_iommu(zdev);
+@@ -809,10 +848,6 @@ void zpci_release_device(struct kref *kr
+ 	default:
+ 		break;
  	}
--	INIT_LIST_HEAD(&ctlr->queue);
--	spin_lock_init(&ctlr->queue_lock);
--	spin_lock_init(&ctlr->bus_lock_spinlock);
--	mutex_init(&ctlr->bus_lock_mutex);
--	mutex_init(&ctlr->io_mutex);
--	mutex_init(&ctlr->add_lock);
- 	ctlr->bus_lock_flag = 0;
- 	init_completion(&ctlr->xfer_completion);
- 	if (!ctlr->max_dma_len)
--- 
-2.33.0
-
+-
+-	spin_lock(&zpci_list_lock);
+-	list_del(&zdev->entry);
+-	spin_unlock(&zpci_list_lock);
+ 	zpci_dbg(3, "rem fid:%x\n", zdev->fid);
+ 	kfree(zdev);
+ }
+--- a/arch/s390/pci/pci_event.c
++++ b/arch/s390/pci/pci_event.c
+@@ -146,7 +146,7 @@ static void __zpci_event_availability(st
+ 		zdev->state = ZPCI_FN_STATE_STANDBY;
+ 		if (!clp_get_state(ccdf->fid, &state) &&
+ 		    state == ZPCI_FN_STATE_RESERVED) {
+-			zpci_zdev_put(zdev);
++			zpci_device_reserved(zdev);
+ 		}
+ 		break;
+ 	case 0x0306: /* 0x308 or 0x302 for multiple devices */
+@@ -156,7 +156,7 @@ static void __zpci_event_availability(st
+ 	case 0x0308: /* Standby -> Reserved */
+ 		if (!zdev)
+ 			break;
+-		zpci_zdev_put(zdev);
++		zpci_device_reserved(zdev);
+ 		break;
+ 	default:
+ 		break;
+--- a/drivers/pci/hotplug/s390_pci_hpc.c
++++ b/drivers/pci/hotplug/s390_pci_hpc.c
+@@ -109,14 +109,7 @@ static int get_power_status(struct hotpl
+ 	struct zpci_dev *zdev = container_of(hotplug_slot, struct zpci_dev,
+ 					     hotplug_slot);
+ 
+-	switch (zdev->state) {
+-	case ZPCI_FN_STATE_STANDBY:
+-		*value = 0;
+-		break;
+-	default:
+-		*value = 1;
+-		break;
+-	}
++	*value = zpci_is_device_configured(zdev) ? 1 : 0;
+ 	return 0;
+ }
+ 
 
 
