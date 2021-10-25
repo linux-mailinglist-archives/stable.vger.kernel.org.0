@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C696D439F37
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:16:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 516AB439F83
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:19:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234472AbhJYTSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:18:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35724 "EHLO mail.kernel.org"
+        id S234576AbhJYTVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:21:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234066AbhJYTSN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:18:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EDC06103C;
-        Mon, 25 Oct 2021 19:15:50 +0000 (UTC)
+        id S234612AbhJYTU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:20:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4EA3610A6;
+        Mon, 25 Oct 2021 19:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189351;
-        bh=yv4RZWeAP8xaERlvArIBsNSnH4pyc2GV012z6VHt/4s=;
+        s=korg; t=1635189484;
+        bh=97Bl2w8k6t+KF/0Fghoko3xAG4ySwYScghWGfLjGblY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7vCq0xThdQSKRR7uoTwvheV34EQXJAqk/iZEuAw50S/u5idrZR1JTkQqk64gBMwb
-         7L1R+t/3eCifbORweTNIuY7fIrpxiUw/r+yUADoDLaPym723HJrdWUh2vt70svg/7a
-         WybT4zUXi5+On9Adf6dccXW0v/QsA7JRiHeDXTYY=
+        b=b9uzzwYrqf1n3Ac6OTnMdM70YQHkviUgNnv4Uo/Bv/VUuD0ZFl8LkekNjw+IM29S7
+         gktBWof45BwGJyErY5naNszn5NeJcKmnBXH2qmvBo+OUJpPK6YdZoNi7kYtYqVY6k8
+         jO7Yrjm78I1EVFTH2TBii7qVSbE61n90oARkvBpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 13/44] net: arc: select CRC32
+        stable@vger.kernel.org,
+        Michael Cullen <michael@michaelcullen.name>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 07/50] Input: xpad - add support for another USB ID of Nacon GC-100
 Date:   Mon, 25 Oct 2021 21:13:54 +0200
-Message-Id: <20211025190931.378407339@linuxfoundation.org>
+Message-Id: <20211025190934.208525494@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
+References: <20211025190932.542632625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+From: Michael Cullen <michael@michaelcullen.name>
 
-commit e599ee234ad4fdfe241d937bbabd96e0d8f9d868 upstream.
+commit 3378a07daa6cdd11e042797454c706d1c69f9ca6 upstream.
 
-Fix the following build/link error by adding a dependency on the CRC32
-routines:
+The Nacon GX100XF is already mapped, but it seems there is a Nacon
+GC-100 (identified as NC5136Wht PCGC-100WHITE though I believe other
+colours exist) with a different USB ID when in XInput mode.
 
-  ld: drivers/net/ethernet/arc/emac_main.o: in function `arc_emac_set_rx_mode':
-  emac_main.c:(.text+0xb11): undefined reference to `crc32_le'
-
-The crc32_le() call comes through the ether_crc_le() call in
-arc_emac_set_rx_mode().
-
-[v2: moved the select to ARC_EMAC_CORE; the Makefile is a bit confusing,
-but the error comes from emac_main.o, which is part of the arc_emac module,
-which in turn is enabled by CONFIG_ARC_EMAC_CORE. Note that arc_emac is
-different from emac_arc...]
-
-Fixes: 775dd682e2b0ec ("arc_emac: implement promiscuous mode and multicast filtering")
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Link: https://lore.kernel.org/r/20211012093446.1575-1-vegard.nossum@oracle.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Michael Cullen <michael@michaelcullen.name>
+Link: https://lore.kernel.org/r/20211015192051.5196-1-michael@michaelcullen.name
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/arc/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/joystick/xpad.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/arc/Kconfig
-+++ b/drivers/net/ethernet/arc/Kconfig
-@@ -19,6 +19,7 @@ config ARC_EMAC_CORE
- 	tristate
- 	select MII
- 	select PHYLIB
-+	select CRC32
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -348,6 +348,7 @@ static const struct xpad_device {
+ 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
+ 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
+ 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
+ 	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
+@@ -464,6 +465,7 @@ static const struct usb_device_id xpad_t
+ 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
+ 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
+ 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
++	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
+ 	{ }
+ };
  
- config ARC_EMAC
- 	tristate "ARC EMAC support"
 
 
