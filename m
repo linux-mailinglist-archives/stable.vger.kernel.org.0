@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DAA43A2B8
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 949A243A04C
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236156AbhJYTvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:51:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37198 "EHLO mail.kernel.org"
+        id S235839AbhJYT3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237015AbhJYTtk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:49:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A569961248;
-        Mon, 25 Oct 2021 19:41:51 +0000 (UTC)
+        id S231442AbhJYT1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:27:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9ADB06112D;
+        Mon, 25 Oct 2021 19:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190913;
-        bh=5p8bZG8z4p9WGxRfQLTTQFOry9/dc9pJK+hpBQ75HDQ=;
+        s=korg; t=1635189828;
+        bh=0wFitQqf99HsEpCzMQH91BM2topCFOK6sfiIcLLqbFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wm+GCXtf3BN8nO+g0EDOzPMiXQsuYTVDmENo3GqP+HvNwCz0hi7VWciliEHIy6r2+
-         JTUdSsT3RVjmBpEKGaVgEwv+CF0zHD3DkBBr60M2BV6IjzW0V3X76oqWIMjsFEUDTK
-         gTpEj6pTq13u95MNtz8KPzUigKGDQip7VINQggpI=
+        b=fD2uAeEuP5azRCFueOPKBszJvi6Q7GkhNEo1JYZnwupL4L7d9YcerYRaFwTTPhwwc
+         iUxE8nLGfs291eMVKu6QOjfsTIwQ9Vc29UX+V4hL5EUeMNkyLeVtDJg1AMdCDOl5QL
+         rIkahGr/VBxyR1+M+URmT9/0ah0/kbTmZCVRQjV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Bharata B Rao <bharata@linux.ibm.com>,
-        Christoph Lameter <cl@linux.com>,
-        David Rientjes <rientjes@google.com>,
-        Faiyaz Mohammed <faiyazm@codeaurora.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Pekka Enberg <penberg@kernel.org>,
-        Roman Gushchin <guro@fb.com>,
+        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Barret Rhoden <brho@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.14 100/169] mm, slub: fix mismatch between reconstructed freelist depth and cnt
-Date:   Mon, 25 Oct 2021 21:14:41 +0200
-Message-Id: <20211025191030.534001211@linuxfoundation.org>
+Subject: [PATCH 4.19 17/37] elfcore: correct reference to CONFIG_UML
+Date:   Mon, 25 Oct 2021 21:14:42 +0200
+Message-Id: <20211025190931.764531467@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,72 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-commit 899447f669da76cc3605665e1a95ee877bc464cc upstream.
+commit b0e901280d9860a0a35055f220e8e457f300f40a upstream.
 
-If object's reuse is delayed, it will be excluded from the reconstructed
-freelist.  But we forgot to adjust the cnt accordingly.  So there will
-be a mismatch between reconstructed freelist depth and cnt.  This will
-lead to free_debug_processing() complaining about freelist count or a
-incorrect slub inuse count.
+Commit 6e7b64b9dd6d ("elfcore: fix building with clang") introduces
+special handling for two architectures, ia64 and User Mode Linux.
+However, the wrong name, i.e., CONFIG_UM, for the intended Kconfig
+symbol for User-Mode Linux was used.
 
-Link: https://lkml.kernel.org/r/20210916123920.48704-3-linmiaohe@huawei.com
-Fixes: c3895391df38 ("kasan, slub: fix handling of kasan_slab_free hook")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Bharata B Rao <bharata@linux.ibm.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Faiyaz Mohammed <faiyazm@codeaurora.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Roman Gushchin <guro@fb.com>
+Although the directory for User Mode Linux is ./arch/um; the Kconfig
+symbol for this architecture is called CONFIG_UML.
+
+Luckily, ./scripts/checkkconfigsymbols.py warns on non-existing configs:
+
+  UM
+  Referencing files: include/linux/elfcore.h
+  Similar symbols: UML, NUMA
+
+Correct the name of the config to the intended one.
+
+[akpm@linux-foundation.org: fix um/x86_64, per Catalin]
+  Link: https://lkml.kernel.org/r/20211006181119.2851441-1-catalin.marinas@arm.com
+  Link: https://lkml.kernel.org/r/YV6pejGzLy5ppEpt@arm.com
+
+Link: https://lkml.kernel.org/r/20211006082209.417-1-lukas.bulwahn@gmail.com
+Fixes: 6e7b64b9dd6d ("elfcore: fix building with clang")
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Barret Rhoden <brho@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slub.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ include/linux/elfcore.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -1629,7 +1629,8 @@ static __always_inline bool slab_free_ho
+--- a/include/linux/elfcore.h
++++ b/include/linux/elfcore.h
+@@ -58,7 +58,7 @@ static inline int elf_core_copy_task_xfp
  }
+ #endif
  
- static inline bool slab_free_freelist_hook(struct kmem_cache *s,
--					   void **head, void **tail)
-+					   void **head, void **tail,
-+					   int *cnt)
- {
- 
- 	void *object;
-@@ -1656,6 +1657,12 @@ static inline bool slab_free_freelist_ho
- 			*head = object;
- 			if (!*tail)
- 				*tail = object;
-+		} else {
-+			/*
-+			 * Adjust the reconstructed freelist depth
-+			 * accordingly if object's reuse is delayed.
-+			 */
-+			--(*cnt);
- 		}
- 	} while (object != old_tail);
- 
-@@ -3210,7 +3217,7 @@ static __always_inline void slab_free(st
- 	 * With KASAN enabled slab_free_freelist_hook modifies the freelist
- 	 * to remove objects, whose reuse must be delayed.
- 	 */
--	if (slab_free_freelist_hook(s, &head, &tail))
-+	if (slab_free_freelist_hook(s, &head, &tail, &cnt))
- 		do_slab_free(s, page, head, tail, cnt, addr);
- }
- 
+-#if defined(CONFIG_UM) || defined(CONFIG_IA64)
++#if (defined(CONFIG_UML) && defined(CONFIG_X86_32)) || defined(CONFIG_IA64)
+ /*
+  * These functions parameterize elf_core_dump in fs/binfmt_elf.c to write out
+  * extra segments containing the gate DSO contents.  Dumping its
 
 
