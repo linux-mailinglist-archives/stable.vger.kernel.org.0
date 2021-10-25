@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60CD743A048
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D56D43A2B6
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:49:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235252AbhJYT3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:29:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48092 "EHLO mail.kernel.org"
+        id S234596AbhJYTvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:51:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235346AbhJYT2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:28:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A09E61139;
-        Mon, 25 Oct 2021 19:24:34 +0000 (UTC)
+        id S236134AbhJYTti (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:49:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA7C661108;
+        Mon, 25 Oct 2021 19:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189876;
-        bh=cmk0RP38NN1vE0MQXQVLilmNUQCYQAVw/M+Ouy94bZg=;
+        s=korg; t=1635190908;
+        bh=5pE0lFSjvAajVgu0Aa+jEAe8SoNog+r8Es7wuCC9jg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NKyfND+B2u5OJfi4g6pbDNod+XZbdM+V3ob4P33+Ga1feof/SL8i/JTbTl4tMqE59
-         jTer3rI90Yrj9fsFQo9vEJF1ZpY/aA/vNiD1Rsies3fI2WKBrwVw/uH08ETQmgW4mn
-         jDrdToL7z/QiltPp0DVnGTMAfKN9h1elpLB0Pj8s=
+        b=mt8rq4a/xE7gYFT/NdI0zW5Z5rRmNqqlOBJHzxwvRVP3RLFXXgtDDJcyYu6ou6uxR
+         /E6lbwKIMWp5X8dPdMKGXp+eOSKUha0lWd7n6DBZfL7npUi8CVvI0E0bjEqOEwx4Yn
+         6YMBxIRwK4d67MwpBk0m5DT2GNGvPKF2YGQcOBCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 14/37] can: peak_pci: peak_pci_remove(): fix UAF
-Date:   Mon, 25 Oct 2021 21:14:39 +0200
-Message-Id: <20211025190931.043816831@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.14 099/169] powerpc/idle: Dont corrupt back chain when going idle
+Date:   Mon, 25 Oct 2021 21:14:40 +0200
+Message-Id: <20211025191030.390317661@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
-References: <20211025190926.680827862@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +38,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 949fe9b35570361bc6ee2652f89a0561b26eec98 upstream.
+commit 496c5fe25c377ddb7815c4ce8ecfb676f051e9b6 upstream.
 
-When remove the module peek_pci, referencing 'chan' again after
-releasing 'dev' will cause UAF.
+In isa206_idle_insn_mayloss() we store various registers into the stack
+red zone, which is allowed.
 
-Fix this by releasing 'dev' later.
+However inside the IDLE_STATE_ENTER_SEQ_NORET macro we save r2 again,
+to 0(r1), which corrupts the stack back chain.
 
-The following log reveals it:
+We used to do the same in isa206_idle_insn_mayloss() itself, but we
+fixed that in 73287caa9210 ("powerpc64/idle: Fix SP offsets when saving
+GPRs"), however we missed that the macro also corrupts the back chain.
 
-[   35.961814 ] BUG: KASAN: use-after-free in peak_pci_remove+0x16f/0x270 [peak_pci]
-[   35.963414 ] Read of size 8 at addr ffff888136998ee8 by task modprobe/5537
-[   35.965513 ] Call Trace:
-[   35.965718 ]  dump_stack_lvl+0xa8/0xd1
-[   35.966028 ]  print_address_description+0x87/0x3b0
-[   35.966420 ]  kasan_report+0x172/0x1c0
-[   35.966725 ]  ? peak_pci_remove+0x16f/0x270 [peak_pci]
-[   35.967137 ]  ? trace_irq_enable_rcuidle+0x10/0x170
-[   35.967529 ]  ? peak_pci_remove+0x16f/0x270 [peak_pci]
-[   35.967945 ]  __asan_report_load8_noabort+0x14/0x20
-[   35.968346 ]  peak_pci_remove+0x16f/0x270 [peak_pci]
-[   35.968752 ]  pci_device_remove+0xa9/0x250
+Corrupting the back chain is bad for debuggability but doesn't
+necessarily cause a bug.
 
-Fixes: e6d9c80b7ca1 ("can: peak_pci: add support of some new PEAK-System PCI cards")
-Link: https://lore.kernel.org/all/1634192913-15639-1-git-send-email-zheyuma97@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+However we recently changed the stack handling in some KVM code, and it
+now relies on the stack back chain being valid when it returns. The
+corruption causes that code to return with r1 pointing somewhere in
+kernel data, at some point LR is restored from the stack and we branch
+to NULL or somewhere else invalid.
+
+Only affects Power8 hosts running KVM guests, with dynamic_mt_modes
+enabled (which it is by default).
+
+The fixes tag below points to the commit that changed the KVM stack
+handling, exposing this bug. The actual corruption of the back chain has
+always existed since 948cf67c4726 ("powerpc: Add NAP mode support on
+Power7 in HV mode").
+
+Fixes: 9b4416c5095c ("KVM: PPC: Book3S HV: Fix stack handling in idle_kvm_start_guest()")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211020094826.3222052-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/sja1000/peak_pci.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/powerpc/kernel/idle_book3s.S |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/net/can/sja1000/peak_pci.c
-+++ b/drivers/net/can/sja1000/peak_pci.c
-@@ -739,16 +739,15 @@ static void peak_pci_remove(struct pci_d
- 		struct net_device *prev_dev = chan->prev_dev;
- 
- 		dev_info(&pdev->dev, "removing device %s\n", dev->name);
-+		/* do that only for first channel */
-+		if (!prev_dev && chan->pciec_card)
-+			peak_pciec_remove(chan->pciec_card);
- 		unregister_sja1000dev(dev);
- 		free_sja1000dev(dev);
- 		dev = prev_dev;
- 
--		if (!dev) {
--			/* do that only for first channel */
--			if (chan->pciec_card)
--				peak_pciec_remove(chan->pciec_card);
-+		if (!dev)
- 			break;
--		}
- 		priv = netdev_priv(dev);
- 		chan = priv->priv;
- 	}
+--- a/arch/powerpc/kernel/idle_book3s.S
++++ b/arch/powerpc/kernel/idle_book3s.S
+@@ -126,14 +126,16 @@ _GLOBAL(idle_return_gpr_loss)
+ /*
+  * This is the sequence required to execute idle instructions, as
+  * specified in ISA v2.07 (and earlier). MSR[IR] and MSR[DR] must be 0.
+- *
+- * The 0(r1) slot is used to save r2 in isa206, so use that here.
++ * We have to store a GPR somewhere, ptesync, then reload it, and create
++ * a false dependency on the result of the load. It doesn't matter which
++ * GPR we store, or where we store it. We have already stored r2 to the
++ * stack at -8(r1) in isa206_idle_insn_mayloss, so use that.
+  */
+ #define IDLE_STATE_ENTER_SEQ_NORET(IDLE_INST)			\
+ 	/* Magic NAP/SLEEP/WINKLE mode enter sequence */	\
+-	std	r2,0(r1);					\
++	std	r2,-8(r1);					\
+ 	ptesync;						\
+-	ld	r2,0(r1);					\
++	ld	r2,-8(r1);					\
+ 236:	cmpd	cr0,r2,r2;					\
+ 	bne	236b;						\
+ 	IDLE_INST;						\
 
 
