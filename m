@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 742B8439FD0
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:22:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2C8F43A2FC
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234313AbhJYTYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:24:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37694 "EHLO mail.kernel.org"
+        id S237682AbhJYTzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:55:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234981AbhJYTXJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:23:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E416E61100;
-        Mon, 25 Oct 2021 19:20:38 +0000 (UTC)
+        id S237734AbhJYTts (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:49:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 436E06124A;
+        Mon, 25 Oct 2021 19:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189639;
-        bh=xPORa5NBRmvXy/WNEhc6nsuoOJuoOBvLh8HI7MWt5nw=;
+        s=korg; t=1635190921;
+        bh=K3+SaxvkrwV/W9djGHzCVpWcQIlGR9BGbA+DJOCbpj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkTDVfKeY6MQCEldCxaz4mWr5G8+IGtCpugrwTwlJwEIluRNbSHYRfTT9BsFzsdxZ
-         4hFffjr8F6T2ata1puPLyXzv5ZIPysRfbwBy17sMPooBkR1/stHHV4Lntqg2HFJVIJ
-         KqrEumpnZUZdSTZzDhsIdFBsub7zkhcBVMct7bUQ=
+        b=1GANwCn6PDpJI6e2MtqC+2v5xcj3tkXZmqeDFItjseScZgTgeZUFchUOshK0BKlxy
+         Cz47eMh3sJ/bZjI3H/9aYyCAh3kLM/E4fuTPn9uJvnbc2K3pdUF8qSLqWMv3R4ygw0
+         FjJhc5mrBruUiZnJMivBYnIxNggLJ0GL67o3+TL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Barret Rhoden <brho@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 36/50] elfcore: correct reference to CONFIG_UML
-Date:   Mon, 25 Oct 2021 21:14:23 +0200
-Message-Id: <20211025190939.446228216@linuxfoundation.org>
+Subject: [PATCH 5.14 083/169] elfcore: correct reference to CONFIG_UML
+Date:   Mon, 25 Oct 2021 21:14:24 +0200
+Message-Id: <20211025191027.802923341@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -87,9 +87,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/include/linux/elfcore.h
 +++ b/include/linux/elfcore.h
-@@ -55,7 +55,7 @@ static inline int elf_core_copy_task_xfp
- }
+@@ -109,7 +109,7 @@ static inline int elf_core_copy_task_fpr
  #endif
+ }
  
 -#if defined(CONFIG_UM) || defined(CONFIG_IA64)
 +#if (defined(CONFIG_UML) && defined(CONFIG_X86_32)) || defined(CONFIG_IA64)
