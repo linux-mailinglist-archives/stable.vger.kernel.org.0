@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00DDA43A151
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A449343A057
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236305AbhJYTiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:38:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48098 "EHLO mail.kernel.org"
+        id S235415AbhJYT34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235577AbhJYTbx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:31:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B8186112D;
-        Mon, 25 Oct 2021 19:28:18 +0000 (UTC)
+        id S235587AbhJYT2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:28:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1C7F6115C;
+        Mon, 25 Oct 2021 19:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190099;
-        bh=o56mM3vtnNfozBIeTbdveuDnEJMQQsMN9P88ld7H8tQ=;
+        s=korg; t=1635189919;
+        bh=pNZwSpSFEOCU7NUQbTWtrABmKlokw4WqU2KF4TizP0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=opK6TTHESKbOkk0IriR2ePOy0lKkqv+PIZGM6PXAvfpi+KnI7uBI8U+VLllpgMb7e
-         DhLOJpof0UQDZJBMgQ/Ls81Kw9F4DUmryMsGONYrl+MmbfKVvJA6bcqd1U2yQCQAtS
-         G0AraPxxICmoXS7MECR6soo/mfFrB/2azyNjJuC0=
+        b=C6MFEVoHooz4EiyRlgXVbMOX8h9zz8HQqj1pL3OuJbZFPK5ab5sOFo81MuBzjVw+K
+         XqZPy1Cv9M+6lPjhabLjjOjJ8oPA9uGvd8g7d6fPfJ73cz6wl4o2KHgroOZSnZZXs6
+         GbFyKSAH9vGe/IuU0o1fYA0l6XVbA92qedTnS3p0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.4 33/58] ASoC: DAPM: Fix missing kctl change notifications
-Date:   Mon, 25 Oct 2021 21:14:50 +0200
-Message-Id: <20211025190943.023924057@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        David Gow <davidgow@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 26/37] gcc-plugins/structleak: add makefile var for disabling structleak
+Date:   Mon, 25 Oct 2021 21:14:51 +0200
+Message-Id: <20211025190933.482057424@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Brendan Higgins <brendanhiggins@google.com>
 
-commit 5af82c81b2c49cfb1cad84d9eb6eab0e3d1c4842 upstream.
+[ Upstream commit 554afc3b9797511e3245864e32aebeb6abbab1e3 ]
 
-The put callback of a kcontrol is supposed to return 1 when the value
-is changed, and this will be notified to user-space.  However, some
-DAPM kcontrols always return 0 (except for errors), hence the
-user-space misses the update of a control value.
+KUnit and structleak don't play nice, so add a makefile variable for
+enabling structleak when it complains.
 
-This patch corrects the behavior by properly returning 1 when the
-value gets updated.
-
-Reported-and-tested-by: Hans de Goede <hdegoede@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211006141712.2439-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Co-developed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+Reviewed-by: David Gow <davidgow@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-dapm.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ scripts/Makefile.gcc-plugins | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2546,6 +2546,7 @@ static int snd_soc_dapm_set_pin(struct s
- 				const char *pin, int status)
- {
- 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
-+	int ret = 0;
+diff --git a/scripts/Makefile.gcc-plugins b/scripts/Makefile.gcc-plugins
+index 0a482f341576..93ca13e4f8f9 100644
+--- a/scripts/Makefile.gcc-plugins
++++ b/scripts/Makefile.gcc-plugins
+@@ -17,6 +17,10 @@ gcc-plugin-cflags-$(CONFIG_GCC_PLUGIN_STRUCTLEAK_VERBOSE)	\
+ 		+= -fplugin-arg-structleak_plugin-verbose
+ gcc-plugin-cflags-$(CONFIG_GCC_PLUGIN_STRUCTLEAK_BYREF_ALL)	\
+ 		+= -fplugin-arg-structleak_plugin-byref-all
++ifdef CONFIG_GCC_PLUGIN_STRUCTLEAK
++    DISABLE_STRUCTLEAK_PLUGIN += -fplugin-arg-structleak_plugin-disable
++endif
++export DISABLE_STRUCTLEAK_PLUGIN
+ gcc-plugin-cflags-$(CONFIG_GCC_PLUGIN_STRUCTLEAK)		\
+ 		+= -DSTRUCTLEAK_PLUGIN
  
- 	dapm_assert_locked(dapm);
- 
-@@ -2558,13 +2559,14 @@ static int snd_soc_dapm_set_pin(struct s
- 		dapm_mark_dirty(w, "pin configuration");
- 		dapm_widget_invalidate_input_paths(w);
- 		dapm_widget_invalidate_output_paths(w);
-+		ret = 1;
- 	}
- 
- 	w->connected = status;
- 	if (status == 0)
- 		w->force = 0;
- 
--	return 0;
-+	return ret;
- }
- 
- /**
-@@ -3580,14 +3582,15 @@ int snd_soc_dapm_put_pin_switch(struct s
- {
- 	struct snd_soc_card *card = snd_kcontrol_chip(kcontrol);
- 	const char *pin = (const char *)kcontrol->private_value;
-+	int ret;
- 
- 	if (ucontrol->value.integer.value[0])
--		snd_soc_dapm_enable_pin(&card->dapm, pin);
-+		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
- 	else
--		snd_soc_dapm_disable_pin(&card->dapm, pin);
-+		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
- 
- 	snd_soc_dapm_sync(&card->dapm);
--	return 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(snd_soc_dapm_put_pin_switch);
- 
-@@ -4029,7 +4032,7 @@ static int snd_soc_dapm_dai_link_put(str
- 
- 	rtd->params_select = ucontrol->value.enumerated.item[0];
- 
--	return 0;
-+	return 1;
- }
- 
- static void
+-- 
+2.33.0
+
 
 
