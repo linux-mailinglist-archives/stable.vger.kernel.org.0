@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34599439F81
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:19:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC5B743A248
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:45:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232644AbhJYTVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:21:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38664 "EHLO mail.kernel.org"
+        id S237219AbhJYTrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:47:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234600AbhJYTUX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:20:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6768B610C9;
-        Mon, 25 Oct 2021 19:18:00 +0000 (UTC)
+        id S236615AbhJYTo5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:44:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B408611BD;
+        Mon, 25 Oct 2021 19:38:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189480;
-        bh=o86vtXUV4131K8TJF7T3Do477KsQhv26QQ/gZby7KJM=;
+        s=korg; t=1635190711;
+        bh=p083Oy0zE8zyg5YCC16SQDusyyr2P7h6Ag0nLhy/GQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bzpBqOOFvL7H97LmR3usa122XcGqM1kLbqTCDn+4ciAdKZbdePf5JsqPXM1AIYRt5
-         tMRrECdB81ZiyaSYPJ3Y5Mbt66h3K6/fqYMK9XFgiRxmU0qOWDLy3jzJmaWUELDWYv
-         tn9mk90ILzAdc7pLG5Dz0aAxkujvscmJNETgO99c=
+        b=0otxlVzQvN3NlpxbchgAPNL9Id6etRZy6M3eHo77IAacnhZdNfngF/lu9xvY+bV6v
+         MhzmBrIUN+qtvJCe0gW85Rd7R2jkgJhZXLGSbGtJcOD013Gmx679stqtvypaZefO/L
+         SYtkdnWK3h3U4SiyzoWCCak3GhAxIETjLq7wSCBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Jianhua <chris.zjh@huawei.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.9 06/50] efi: Change down_interruptible() in virt_efi_reset_system() to down_trylock()
+        stable@vger.kernel.org, Sasha Neftin <sasha.neftin@intel.com>,
+        Mark Pearson <markpearson@lenovo.com>,
+        Nechama Kraus <nechamax.kraus@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 052/169] e1000e: Fix packet loss on Tiger Lake and later
 Date:   Mon, 25 Oct 2021 21:13:53 +0200
-Message-Id: <20211025190934.014662189@linuxfoundation.org>
+Message-Id: <20211025191024.267219772@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Jianhua <chris.zjh@huawei.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-commit 38fa3206bf441911258e5001ac8b6738693f8d82 upstream.
+[ Upstream commit 639e298f432fb058a9496ea16863f53b1ce935fe ]
 
-While reboot the system by sysrq, the following bug will be occur.
+Update the HW MAC initialization flow. Do not gate DMA clock from
+the modPHY block. Keeping this clock will prevent dropped packets
+sent in burst mode on the Kumeran interface.
 
-BUG: sleeping function called from invalid context at kernel/locking/semaphore.c:90
-in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 10052, name: rc.shutdown
-CPU: 3 PID: 10052 Comm: rc.shutdown Tainted: G        W O      5.10.0 #1
-Call trace:
- dump_backtrace+0x0/0x1c8
- show_stack+0x18/0x28
- dump_stack+0xd0/0x110
- ___might_sleep+0x14c/0x160
- __might_sleep+0x74/0x88
- down_interruptible+0x40/0x118
- virt_efi_reset_system+0x3c/0xd0
- efi_reboot+0xd4/0x11c
- machine_restart+0x60/0x9c
- emergency_restart+0x1c/0x2c
- sysrq_handle_reboot+0x1c/0x2c
- __handle_sysrq+0xd0/0x194
- write_sysrq_trigger+0xbc/0xe4
- proc_reg_write+0xd4/0xf0
- vfs_write+0xa8/0x148
- ksys_write+0x6c/0xd8
- __arm64_sys_write+0x18/0x28
- el0_svc_common.constprop.3+0xe4/0x16c
- do_el0_svc+0x1c/0x2c
- el0_svc+0x20/0x30
- el0_sync_handler+0x80/0x17c
- el0_sync+0x158/0x180
-
-The reason for this problem is that irq has been disabled in
-machine_restart() and then it calls down_interruptible() in
-virt_efi_reset_system(), which would occur sleep in irq context,
-it is dangerous! Commit 99409b935c9a("locking/semaphore: Add
-might_sleep() to down_*() family") add might_sleep() in
-down_interruptible(), so the bug info is here. down_trylock()
-can solve this problem, cause there is no might_sleep.
-
---------
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Zhang Jianhua <chris.zjh@huawei.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=213651
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=213377
+Fixes: fb776f5d57ee ("e1000e: Add support for Tiger Lake")
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Mark Pearson <markpearson@lenovo.com>
+Tested-by: Nechama Kraus <nechamax.kraus@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/runtime-wrappers.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c | 11 ++++++++++-
+ drivers/net/ethernet/intel/e1000e/ich8lan.h |  3 +++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
---- a/drivers/firmware/efi/runtime-wrappers.c
-+++ b/drivers/firmware/efi/runtime-wrappers.c
-@@ -259,7 +259,7 @@ static void virt_efi_reset_system(int re
- 				  unsigned long data_size,
- 				  efi_char16_t *data)
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index a80336c4319b..58a96a0cf4aa 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -4804,7 +4804,7 @@ static s32 e1000_reset_hw_ich8lan(struct e1000_hw *hw)
+ static s32 e1000_init_hw_ich8lan(struct e1000_hw *hw)
  {
--	if (down_interruptible(&efi_runtime_lock)) {
-+	if (down_trylock(&efi_runtime_lock)) {
- 		pr_warn("failed to invoke the reset_system() runtime service:\n"
- 			"could not get exclusive access to the firmware\n");
- 		return;
+ 	struct e1000_mac_info *mac = &hw->mac;
+-	u32 ctrl_ext, txdctl, snoop;
++	u32 ctrl_ext, txdctl, snoop, fflt_dbg;
+ 	s32 ret_val;
+ 	u16 i;
+ 
+@@ -4863,6 +4863,15 @@ static s32 e1000_init_hw_ich8lan(struct e1000_hw *hw)
+ 		snoop = (u32)~(PCIE_NO_SNOOP_ALL);
+ 	e1000e_set_pcie_no_snoop(hw, snoop);
+ 
++	/* Enable workaround for packet loss issue on TGP PCH
++	 * Do not gate DMA clock from the modPHY block
++	 */
++	if (mac->type >= e1000_pch_tgp) {
++		fflt_dbg = er32(FFLT_DBG);
++		fflt_dbg |= E1000_FFLT_DBG_DONT_GATE_WAKE_DMA_CLK;
++		ew32(FFLT_DBG, fflt_dbg);
++	}
++
+ 	ctrl_ext = er32(CTRL_EXT);
+ 	ctrl_ext |= E1000_CTRL_EXT_RO_DIS;
+ 	ew32(CTRL_EXT, ctrl_ext);
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.h b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+index e757896287eb..8f2a8f4ce0ee 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.h
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+@@ -286,6 +286,9 @@
+ /* Proprietary Latency Tolerance Reporting PCI Capability */
+ #define E1000_PCI_LTR_CAP_LPT		0xA8
+ 
++/* Don't gate wake DMA clock */
++#define E1000_FFLT_DBG_DONT_GATE_WAKE_DMA_CLK	0x1000
++
+ void e1000e_write_protect_nvm_ich8lan(struct e1000_hw *hw);
+ void e1000e_set_kmrn_lock_loss_workaround_ich8lan(struct e1000_hw *hw,
+ 						  bool state);
+-- 
+2.33.0
+
 
 
