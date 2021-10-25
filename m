@@ -2,39 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4159043A1DA
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:40:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E35B43A232
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:44:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235717AbhJYTm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:42:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60810 "EHLO mail.kernel.org"
+        id S235285AbhJYTqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:46:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237328AbhJYTk6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:40:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 564126115A;
-        Mon, 25 Oct 2021 19:36:24 +0000 (UTC)
+        id S237525AbhJYTnw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:43:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50ED4611AF;
+        Mon, 25 Oct 2021 19:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190585;
-        bh=sd3zvU0WPnXXuXfSlXu+WUjd1HBO5uCDKHkTws2cNuY=;
+        s=korg; t=1635190687;
+        bh=qYsNP/l+MZRZIRFNJdlObLPFTqVPQVpYD6kvhsBtoNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zK2VeW/1txNghIsMLy9FUOfuWlpNglW6wE6W6lGx26mLM02mRleqpEmV8yu2YYFCo
-         qo9PM6+QNqU5Z941zO2pRVcaY41G1pF89ThLh33gBq6A+dfizvjvbdNvU8IrZu0s0+
-         5Mw+RcrLKfMMfR0QX7VrUc1MKcZ00RPBpggF3sQA=
+        b=xsVIKCHxvOoPMEf5QziyoFcz5Ua6gD5FSERroYGeFMTaYjy1b0tQK/4M7orQk3ghf
+         T/OEHwpczaJnv24auafAxi7qNXhntc4Hlr37Q63qTNhX6XSuq5JQexllnMoDLA8FXm
+         G98X8lwYjpLH2w1p1gkY4ZmgRo8RYs/OHGxnPs8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
         Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Kirill Marinushkin <kmarinushkin@birdec.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        alsa-devel@alsa-project.org, Peter Rosin <peda@axentia.se>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 018/169] ASoC: pcm512x: Mend accesses to the I2S_1 and I2S_2 registers
-Date:   Mon, 25 Oct 2021 21:13:19 +0200
-Message-Id: <20211025191019.970769595@linuxfoundation.org>
+Subject: [PATCH 5.14 019/169] ASoC: fsl_xcvr: Fix channel swap issue with ARC
+Date:   Mon, 25 Oct 2021 21:13:20 +0200
+Message-Id: <20211025191020.107936717@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -46,57 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Rosin <peda@axentia.se>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 3f4b57ad07d9237acf1b8cff3f8bf530cacef87a ]
+[ Upstream commit 74b7ee0e7b61838a0a161a84d105aeff0d042646 ]
 
-Commit 25d27c4f68d2 ("ASoC: pcm512x: Add support for more data formats")
-breaks the TSE-850 device, which is using a pcm5142 in I2S and
-CBM_CFS mode (maybe not relevant). Without this fix, the result
-is:
+With pause and resume test for ARC, there is occasionally
+channel swap issue. The reason is that currently driver set
+the DPATH out of reset first, then start the DMA, the first
+data got from FIFO may not be the Left channel.
 
-pcm512x 0-004c: Failed to set data format: -16
+Moving DPATH out of reset operation after the dma enablement
+to fix this issue.
 
-And after that, no sound.
-
-This fix is not 100% correct. The datasheet of at least the pcm5142
-states that four bits (0xcc) in the I2S_1 register are "RSV"
-("Reserved. Do not access.") and no hint is given as to what the
-initial values are supposed to be. So, specifying defaults for
-these bits is wrong. But perhaps better than a broken driver?
-
-Fixes: 25d27c4f68d2 ("ASoC: pcm512x: Add support for more data formats")
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: Kirill Marinushkin <kmarinushkin@birdec.com>
-Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Reviewed-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/2d221984-7a2e-7006-0f8a-ffb5f64ee885@axentia.se
+Fixes: 28564486866f ("ASoC: fsl_xcvr: Add XCVR ASoC CPU DAI driver")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1631265510-27384-1-git-send-email-shengjiu.wang@nxp.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/pcm512x.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/fsl/fsl_xcvr.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/codecs/pcm512x.c b/sound/soc/codecs/pcm512x.c
-index 4dc844f3c1fc..60dee41816dc 100644
---- a/sound/soc/codecs/pcm512x.c
-+++ b/sound/soc/codecs/pcm512x.c
-@@ -116,6 +116,8 @@ static const struct reg_default pcm512x_reg_defaults[] = {
- 	{ PCM512x_FS_SPEED_MODE,     0x00 },
- 	{ PCM512x_IDAC_1,            0x01 },
- 	{ PCM512x_IDAC_2,            0x00 },
-+	{ PCM512x_I2S_1,             0x02 },
-+	{ PCM512x_I2S_2,             0x00 },
- };
+diff --git a/sound/soc/fsl/fsl_xcvr.c b/sound/soc/fsl/fsl_xcvr.c
+index 477d16713e72..a9b6c2b0c871 100644
+--- a/sound/soc/fsl/fsl_xcvr.c
++++ b/sound/soc/fsl/fsl_xcvr.c
+@@ -487,8 +487,9 @@ static int fsl_xcvr_prepare(struct snd_pcm_substream *substream,
+ 		return ret;
+ 	}
  
- static bool pcm512x_readable(struct device *dev, unsigned int reg)
+-	/* clear DPATH RESET */
++	/* set DPATH RESET */
+ 	m_ctl |= FSL_XCVR_EXT_CTRL_DPTH_RESET(tx);
++	v_ctl |= FSL_XCVR_EXT_CTRL_DPTH_RESET(tx);
+ 	ret = regmap_update_bits(xcvr->regmap, FSL_XCVR_EXT_CTRL, m_ctl, v_ctl);
+ 	if (ret < 0) {
+ 		dev_err(dai->dev, "Error while setting EXT_CTRL: %d\n", ret);
+@@ -590,10 +591,6 @@ static void fsl_xcvr_shutdown(struct snd_pcm_substream *substream,
+ 		val  |= FSL_XCVR_EXT_CTRL_CMDC_RESET(tx);
+ 	}
+ 
+-	/* set DPATH RESET */
+-	mask |= FSL_XCVR_EXT_CTRL_DPTH_RESET(tx);
+-	val  |= FSL_XCVR_EXT_CTRL_DPTH_RESET(tx);
+-
+ 	ret = regmap_update_bits(xcvr->regmap, FSL_XCVR_EXT_CTRL, mask, val);
+ 	if (ret < 0) {
+ 		dev_err(dai->dev, "Err setting DPATH RESET: %d\n", ret);
+@@ -643,6 +640,16 @@ static int fsl_xcvr_trigger(struct snd_pcm_substream *substream, int cmd,
+ 			dev_err(dai->dev, "Failed to enable DMA: %d\n", ret);
+ 			return ret;
+ 		}
++
++		/* clear DPATH RESET */
++		ret = regmap_update_bits(xcvr->regmap, FSL_XCVR_EXT_CTRL,
++					 FSL_XCVR_EXT_CTRL_DPTH_RESET(tx),
++					 0);
++		if (ret < 0) {
++			dev_err(dai->dev, "Failed to clear DPATH RESET: %d\n", ret);
++			return ret;
++		}
++
+ 		break;
+ 	case SNDRV_PCM_TRIGGER_STOP:
+ 	case SNDRV_PCM_TRIGGER_SUSPEND:
 -- 
 2.33.0
 
