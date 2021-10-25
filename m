@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FE2B439F4B
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:17:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10026439F32
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234266AbhJYTTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:19:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
+        id S234310AbhJYTSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:18:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234256AbhJYTR7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:17:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0F0B6105A;
-        Mon, 25 Oct 2021 19:15:35 +0000 (UTC)
+        id S234123AbhJYTSE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:18:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D9FD60FE8;
+        Mon, 25 Oct 2021 19:15:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189337;
-        bh=U8RWI+ebkRlcn5U+fuezUV3XbWXlN+5igTpJ7kSL7EQ=;
+        s=korg; t=1635189342;
+        bh=gNRHkcxNAhkS63JpCBusgv0NtAF1h969xehizz1tV6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NL0V4Q6szqN6iSHdiYPa+lSUGxGDMffR1XGOb0yy4BNNbidNZXArIH3+d+sd6D2A4
-         YGjCQcG36fLXP47euPFt8oWwGbYM1Yo+g6BoSBgkWuo/5egVvk/rXwseQRam3CdMec
-         UAi/Zc8NkipOPYiOYC3RegE5a6MtAp/m+WukwEbI=
+        b=QuSsKuEUBVqv+7v72/CaRxcDMPlceRUnPwT5zneRidGy0HJs3xwItHuTcg2YUVc8/
+         2ysIt8oJY37XQr5FaoQIoi+N3B419Wu4UEdnOQhnFCenobriwlU61pfuw1bOAhpY3S
+         zCzX0o9oWK4yuca6caBqKIZCVv+OsSk16hdQfbZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Alexandru Ardelean <ardeleanalex@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.4 10/44] iio: adc128s052: Fix the error handling path of adc128_probe()
-Date:   Mon, 25 Oct 2021 21:13:51 +0200
-Message-Id: <20211025190930.724385130@linuxfoundation.org>
+Subject: [PATCH 4.4 11/44] iio: ssp_sensors: add more range checking in ssp_parse_dataframe()
+Date:   Mon, 25 Oct 2021 21:13:52 +0200
+Message-Id: <20211025190930.935892826@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
 References: <20211025190928.054676643@linuxfoundation.org>
@@ -42,42 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit bbcf40816b547b3c37af49168950491d20d81ce1 upstream.
+commit 8167c9a375ccceed19048ad9d68cb2d02ed276e0 upstream.
 
-A successful 'regulator_enable()' call should be balanced by a
-corresponding 'regulator_disable()' call in the error handling path of the
-probe, as already done in the remove function.
+The "idx" is validated at the start of the loop but it gets incremented
+during the iteration so it needs to be checked again.
 
-Update the error handling path accordingly.
-
-Fixes: 913b86468674 ("iio: adc: Add TI ADC128S052")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
-Link: https://lore.kernel.org/r/85189f1cfcf6f5f7b42d8730966f2a074b07b5f5.1629542160.git.christophe.jaillet@wanadoo.fr
+Fixes: 50dd64d57eee ("iio: common: ssp_sensors: Add sensorhub driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20210909091336.GA26312@kili
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ti-adc128s052.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/iio/common/ssp_sensors/ssp_spi.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/ti-adc128s052.c
-+++ b/drivers/iio/adc/ti-adc128s052.c
-@@ -159,7 +159,13 @@ static int adc128_probe(struct spi_devic
- 	mutex_init(&adc->lock);
+--- a/drivers/iio/common/ssp_sensors/ssp_spi.c
++++ b/drivers/iio/common/ssp_sensors/ssp_spi.c
+@@ -286,6 +286,8 @@ static int ssp_parse_dataframe(struct ss
+ 	for (idx = 0; idx < len;) {
+ 		switch (dataframe[idx++]) {
+ 		case SSP_MSG2AP_INST_BYPASS_DATA:
++			if (idx >= len)
++				return -EPROTO;
+ 			sd = dataframe[idx++];
+ 			if (sd < 0 || sd >= SSP_SENSOR_MAX) {
+ 				dev_err(SSP_DEV,
+@@ -295,10 +297,13 @@ static int ssp_parse_dataframe(struct ss
  
- 	ret = iio_device_register(indio_dev);
-+	if (ret)
-+		goto err_disable_regulator;
- 
-+	return 0;
-+
-+err_disable_regulator:
-+	regulator_disable(adc->reg);
- 	return ret;
- }
- 
+ 			if (indio_devs[sd]) {
+ 				spd = iio_priv(indio_devs[sd]);
+-				if (spd->process_data)
++				if (spd->process_data) {
++					if (idx >= len)
++						return -EPROTO;
+ 					spd->process_data(indio_devs[sd],
+ 							  &dataframe[idx],
+ 							  data->timestamp);
++				}
+ 			} else {
+ 				dev_err(SSP_DEV, "no client for frame\n");
+ 			}
+@@ -306,6 +311,8 @@ static int ssp_parse_dataframe(struct ss
+ 			idx += ssp_offset_map[sd];
+ 			break;
+ 		case SSP_MSG2AP_INST_DEBUG_DATA:
++			if (idx >= len)
++				return -EPROTO;
+ 			sd = ssp_print_mcu_debug(dataframe, &idx, len);
+ 			if (sd) {
+ 				dev_err(SSP_DEV,
 
 
