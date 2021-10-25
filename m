@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7C5443A10F
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22BF243A32C
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234913AbhJYThL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49320 "EHLO mail.kernel.org"
+        id S237482AbhJYT4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:56:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236176AbhJYTdl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:33:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2E6761177;
-        Mon, 25 Oct 2021 19:29:16 +0000 (UTC)
+        id S237993AbhJYTxA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:53:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F77261246;
+        Mon, 25 Oct 2021 19:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190157;
-        bh=pw+g9uqhyfyHd9pZd8pNNIEmXfL04D2FURuJLm3OOso=;
+        s=korg; t=1635191051;
+        bh=4JPQVIHWVjf9kbAJr6+3FH509KcOpC7ie1Fmg5TEGko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pz7PIm/2SFo9aEwyNluVhvzYNPks7x12myYylUC7ub01wbaGuW6u6tlcXm3vG8yNi
-         WKPYfNvZ12P9q1xrQgD9TaEJVtH9Q1lS5KGkZWN80VjN2yMjdrixiDW95ju/r85mz8
-         sSYnWt9EflM2qBymQWCSUSTXZiuYAYYQ9xzOlsgk=
+        b=XLzFpgPKIFDiM5TWWt3UTZJfgMdUQOHyaWaM1zg6V0lM405P5n2JLpUnzy8O1FaZs
+         zwYrx3Q0NC4KCosMjB53RU+4Gbp8ArPPK9Ao0QAWciVYSZV94Jb07C8YVkVq4/i+Wg
+         E8XEt5MRX/SflC1COuOUGuQQtokdFemLYcDo31bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.4 57/58] ARM: 9122/1: select HAVE_FUTEX_CMPXCHG
+        stable@vger.kernel.org, Michael Forney <mforney@mforney.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 133/169] objtool: Update section header before relocations
 Date:   Mon, 25 Oct 2021 21:15:14 +0200
-Message-Id: <20211025190947.171093540@linuxfoundation.org>
+Message-Id: <20211025191034.546980699@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +41,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Michael Forney <mforney@mforney.org>
 
-commit 9d417cbe36eee7afdd85c2e871685f8dab7c2dba upstream.
+[ Upstream commit 86e1e054e0d2105cf32b0266cf1a64e6c26424f7 ]
 
-tglx notes:
-  This function [futex_detect_cmpxchg] is only needed when an
-  architecture has to runtime discover whether the CPU supports it or
-  not.  ARM has unconditional support for this, so the obvious thing to
-  do is the below.
+The libelf implementation from elftoolchain has a safety check in
+gelf_update_rel[a] to check that the data corresponds to a section
+that has type SHT_REL[A] [0]. If the relocation is updated before
+the section header is updated with the proper type, this check
+fails.
 
-Fixes linkage failure from Clang randconfigs:
-kernel/futex.o:(.text.fixup+0x5c): relocation truncated to fit: R_ARM_JUMP24 against `.init.text'
-and boot failures for CONFIG_THUMB2_KERNEL.
+To fix this, update the section header first, before the relocations.
+Previously, the section size was calculated in elf_rebuild_reloc_section
+by counting the number of entries in the reloc_list. However, we
+now need the size during elf_write so instead keep a running total
+and add to it for every new relocation.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/325
+[0] https://sourceforge.net/p/elftoolchain/mailman/elftoolchain-developers/thread/CAGw6cBtkZro-8wZMD2ULkwJ39J+tHtTtAWXufMjnd3cQ7XG54g@mail.gmail.com/
 
-Comments from Nick Desaulniers:
-
- See-also: 03b8c7b623c8 ("futex: Allow architectures to skip
- futex_atomic_cmpxchg_inatomic() test")
-
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: stable@vger.kernel.org # v3.14+
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Michael Forney <mforney@mforney.org>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lore.kernel.org/r/20210509000103.11008-2-mforney@mforney.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ tools/objtool/elf.c | 46 +++++++++++++++++----------------------------
+ 1 file changed, 17 insertions(+), 29 deletions(-)
 
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -85,6 +85,7 @@ config ARM
- 	select HAVE_FTRACE_MCOUNT_RECORD if !XIP_KERNEL
- 	select HAVE_FUNCTION_GRAPH_TRACER if !THUMB2_KERNEL && !CC_IS_CLANG
- 	select HAVE_FUNCTION_TRACER if !XIP_KERNEL && (CC_IS_GCC || CLANG_VERSION >= 100000)
-+	select HAVE_FUTEX_CMPXCHG if FUTEX
- 	select HAVE_GCC_PLUGINS
- 	select HAVE_HW_BREAKPOINT if PERF_EVENTS && (CPU_V6 || CPU_V6K || CPU_V7)
- 	select HAVE_IDE if PCI || ISA || PCMCIA
+diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
+index 6cf4c0f11906..a9c2bebd7576 100644
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -509,6 +509,7 @@ int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
+ 	list_add_tail(&reloc->list, &sec->reloc->reloc_list);
+ 	elf_hash_add(reloc, &reloc->hash, reloc_hash(reloc));
+ 
++	sec->reloc->sh.sh_size += sec->reloc->sh.sh_entsize;
+ 	sec->reloc->changed = true;
+ 
+ 	return 0;
+@@ -979,26 +980,23 @@ static struct section *elf_create_reloc_section(struct elf *elf,
+ 	}
+ }
+ 
+-static int elf_rebuild_rel_reloc_section(struct section *sec, int nr)
++static int elf_rebuild_rel_reloc_section(struct section *sec)
+ {
+ 	struct reloc *reloc;
+-	int idx = 0, size;
++	int idx = 0;
+ 	void *buf;
+ 
+ 	/* Allocate a buffer for relocations */
+-	size = nr * sizeof(GElf_Rel);
+-	buf = malloc(size);
++	buf = malloc(sec->sh.sh_size);
+ 	if (!buf) {
+ 		perror("malloc");
+ 		return -1;
+ 	}
+ 
+ 	sec->data->d_buf = buf;
+-	sec->data->d_size = size;
++	sec->data->d_size = sec->sh.sh_size;
+ 	sec->data->d_type = ELF_T_REL;
+ 
+-	sec->sh.sh_size = size;
+-
+ 	idx = 0;
+ 	list_for_each_entry(reloc, &sec->reloc_list, list) {
+ 		reloc->rel.r_offset = reloc->offset;
+@@ -1013,26 +1011,23 @@ static int elf_rebuild_rel_reloc_section(struct section *sec, int nr)
+ 	return 0;
+ }
+ 
+-static int elf_rebuild_rela_reloc_section(struct section *sec, int nr)
++static int elf_rebuild_rela_reloc_section(struct section *sec)
+ {
+ 	struct reloc *reloc;
+-	int idx = 0, size;
++	int idx = 0;
+ 	void *buf;
+ 
+ 	/* Allocate a buffer for relocations with addends */
+-	size = nr * sizeof(GElf_Rela);
+-	buf = malloc(size);
++	buf = malloc(sec->sh.sh_size);
+ 	if (!buf) {
+ 		perror("malloc");
+ 		return -1;
+ 	}
+ 
+ 	sec->data->d_buf = buf;
+-	sec->data->d_size = size;
++	sec->data->d_size = sec->sh.sh_size;
+ 	sec->data->d_type = ELF_T_RELA;
+ 
+-	sec->sh.sh_size = size;
+-
+ 	idx = 0;
+ 	list_for_each_entry(reloc, &sec->reloc_list, list) {
+ 		reloc->rela.r_offset = reloc->offset;
+@@ -1050,16 +1045,9 @@ static int elf_rebuild_rela_reloc_section(struct section *sec, int nr)
+ 
+ static int elf_rebuild_reloc_section(struct elf *elf, struct section *sec)
+ {
+-	struct reloc *reloc;
+-	int nr;
+-
+-	nr = 0;
+-	list_for_each_entry(reloc, &sec->reloc_list, list)
+-		nr++;
+-
+ 	switch (sec->sh.sh_type) {
+-	case SHT_REL:  return elf_rebuild_rel_reloc_section(sec, nr);
+-	case SHT_RELA: return elf_rebuild_rela_reloc_section(sec, nr);
++	case SHT_REL:  return elf_rebuild_rel_reloc_section(sec);
++	case SHT_RELA: return elf_rebuild_rela_reloc_section(sec);
+ 	default:       return -1;
+ 	}
+ }
+@@ -1119,12 +1107,6 @@ int elf_write(struct elf *elf)
+ 	/* Update changed relocation sections and section headers: */
+ 	list_for_each_entry(sec, &elf->sections, list) {
+ 		if (sec->changed) {
+-			if (sec->base &&
+-			    elf_rebuild_reloc_section(elf, sec)) {
+-				WARN("elf_rebuild_reloc_section");
+-				return -1;
+-			}
+-
+ 			s = elf_getscn(elf->elf, sec->idx);
+ 			if (!s) {
+ 				WARN_ELF("elf_getscn");
+@@ -1135,6 +1117,12 @@ int elf_write(struct elf *elf)
+ 				return -1;
+ 			}
+ 
++			if (sec->base &&
++			    elf_rebuild_reloc_section(elf, sec)) {
++				WARN("elf_rebuild_reloc_section");
++				return -1;
++			}
++
+ 			sec->changed = false;
+ 			elf->changed = true;
+ 		}
+-- 
+2.33.0
+
 
 
