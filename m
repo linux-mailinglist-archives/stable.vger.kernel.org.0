@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 985E743A222
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:44:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28FC443A229
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:44:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236992AbhJYTpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:45:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58964 "EHLO mail.kernel.org"
+        id S237207AbhJYTph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:45:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237040AbhJYTnX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:43:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94403610EA;
-        Mon, 25 Oct 2021 19:37:40 +0000 (UTC)
+        id S237402AbhJYTng (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:43:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92B236112F;
+        Mon, 25 Oct 2021 19:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190662;
-        bh=R4AlfhHQrrwlU615CMvwMHsdnRiRMgjDXaLB02MIEtA=;
+        s=korg; t=1635190666;
+        bh=4qRojGq1/efZNWYMCbmU9TRiIk0DdEoCaOqKrf8hOkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t92fhQKr3IfrbkU8hUSfxSsDYbCbaXx6lGwFfksly38eOUyGek/AINQygfqXRzmlS
-         TH3ZrSx+66y1oALQR2pkww0k9RwOQKwNi5W1m9ZXyoo2+1Q/47zFw8cAfA6DdZFGKr
-         gT3kYD5OCpzJUfXgpGDKuEQRdNp5A3QovYTFegKo=
+        b=1Kjp7Gm1P7ZTZwatVCQ0goxCv3a7nxTpnaG+6YnwrGDcmdQrMGHVnyTBOZlRowQQo
+         NXQKWNWsPMDi323iIEgHsN2ukAgl3l3utBCcxqqy+5hPHpH1ttlIiDv+RKh5q0avWC
+         cTaU75ht9+0SeEAITvmyx2BmmJa4Z13ni222st48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quentin Perret <qperret@google.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 023/169] KVM: arm64: Release mmap_lock when using VM_SHARED with MTE
-Date:   Mon, 25 Oct 2021 21:13:24 +0200
-Message-Id: <20211025191020.700306629@linuxfoundation.org>
+        stable@vger.kernel.org, Juhee Kang <claudiajkang@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 024/169] netfilter: xt_IDLETIMER: fix panic that occurs when timer_type has garbage value
+Date:   Mon, 25 Oct 2021 21:13:25 +0200
+Message-Id: <20211025191020.849184458@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -39,41 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Perret <qperret@google.com>
+From: Juhee Kang <claudiajkang@gmail.com>
 
-[ Upstream commit 6e6a8ef088e1222cb1250942f51ad9c1ab219ab2 ]
+[ Upstream commit 902c0b1887522a099aa4e1e6b4b476c2fe5dd13e ]
 
-VM_SHARED mappings are currently forbidden in a memslot with MTE to
-prevent two VMs racing to sanitise the same page. However, this check
-is performed while holding current->mm's mmap_lock, but fails to release
-it. Fix this by releasing the lock when needed.
+Currently, when the rule related to IDLETIMER is added, idletimer_tg timer
+structure is initialized by kmalloc on executing idletimer_tg_create
+function. However, in this process timer->timer_type is not defined to
+a specific value. Thus, timer->timer_type has garbage value and it occurs
+kernel panic. So, this commit fixes the panic by initializing
+timer->timer_type using kzalloc instead of kmalloc.
 
-Fixes: ea7fc1bb1cd1 ("KVM: arm64: Introduce MTE VM feature")
-Signed-off-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211005122031.809857-1-qperret@google.com
+Test commands:
+    # iptables -A OUTPUT -j IDLETIMER --timeout 1 --label test
+    $ cat /sys/class/xt_idletimer/timers/test
+      Killed
+
+Splat looks like:
+    BUG: KASAN: user-memory-access in alarm_expires_remaining+0x49/0x70
+    Read of size 8 at addr 0000002e8c7bc4c8 by task cat/917
+    CPU: 12 PID: 917 Comm: cat Not tainted 5.14.0+ #3 79940a339f71eb14fc81aee1757a20d5bf13eb0e
+    Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+    Call Trace:
+     dump_stack_lvl+0x6e/0x9c
+     kasan_report.cold+0x112/0x117
+     ? alarm_expires_remaining+0x49/0x70
+     __asan_load8+0x86/0xb0
+     alarm_expires_remaining+0x49/0x70
+     idletimer_tg_show+0xe5/0x19b [xt_IDLETIMER 11219304af9316a21bee5ba9d58f76a6b9bccc6d]
+     dev_attr_show+0x3c/0x60
+     sysfs_kf_seq_show+0x11d/0x1f0
+     ? device_remove_bin_file+0x20/0x20
+     kernfs_seq_show+0xa4/0xb0
+     seq_read_iter+0x29c/0x750
+     kernfs_fop_read_iter+0x25a/0x2c0
+     ? __fsnotify_parent+0x3d1/0x570
+     ? iov_iter_init+0x70/0x90
+     new_sync_read+0x2a7/0x3d0
+     ? __x64_sys_llseek+0x230/0x230
+     ? rw_verify_area+0x81/0x150
+     vfs_read+0x17b/0x240
+     ksys_read+0xd9/0x180
+     ? vfs_write+0x460/0x460
+     ? do_syscall_64+0x16/0xc0
+     ? lockdep_hardirqs_on+0x79/0x120
+     __x64_sys_read+0x43/0x50
+     do_syscall_64+0x3b/0xc0
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
+    RIP: 0033:0x7f0cdc819142
+    Code: c0 e9 c2 fe ff ff 50 48 8d 3d 3a ca 0a 00 e8 f5 19 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
+    RSP: 002b:00007fff28eee5b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+    RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007f0cdc819142
+    RDX: 0000000000020000 RSI: 00007f0cdc032000 RDI: 0000000000000003
+    RBP: 00007f0cdc032000 R08: 00007f0cdc031010 R09: 0000000000000000
+    R10: 0000000000000022 R11: 0000000000000246 R12: 00005607e9ee31f0
+    R13: 0000000000000003 R14: 0000000000020000 R15: 0000000000020000
+
+Fixes: 68983a354a65 ("netfilter: xtables: Add snapshot of hardidletimer target")
+Signed-off-by: Juhee Kang <claudiajkang@gmail.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/mmu.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/netfilter/xt_IDLETIMER.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
-index 0625bf2353c2..3fcdacfee579 100644
---- a/arch/arm64/kvm/mmu.c
-+++ b/arch/arm64/kvm/mmu.c
-@@ -1477,8 +1477,10 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
- 		 * when updating the PG_mte_tagged page flag, see
- 		 * sanitise_mte_tags for more details.
- 		 */
--		if (kvm_has_mte(kvm) && vma->vm_flags & VM_SHARED)
--			return -EINVAL;
-+		if (kvm_has_mte(kvm) && vma->vm_flags & VM_SHARED) {
-+			ret = -EINVAL;
-+			break;
-+		}
+diff --git a/net/netfilter/xt_IDLETIMER.c b/net/netfilter/xt_IDLETIMER.c
+index 7b2f359bfce4..2f7cf5ecebf4 100644
+--- a/net/netfilter/xt_IDLETIMER.c
++++ b/net/netfilter/xt_IDLETIMER.c
+@@ -137,7 +137,7 @@ static int idletimer_tg_create(struct idletimer_tg_info *info)
+ {
+ 	int ret;
  
- 		if (vma->vm_flags & VM_PFNMAP) {
- 			/* IO region dirty page logging not allowed */
+-	info->timer = kmalloc(sizeof(*info->timer), GFP_KERNEL);
++	info->timer = kzalloc(sizeof(*info->timer), GFP_KERNEL);
+ 	if (!info->timer) {
+ 		ret = -ENOMEM;
+ 		goto out;
 -- 
 2.33.0
 
