@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 870F1439FEA
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD60D43A087
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233029AbhJYTZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:25:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43016 "EHLO mail.kernel.org"
+        id S235025AbhJYTbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:31:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234573AbhJYTXr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:23:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8682E610CB;
-        Mon, 25 Oct 2021 19:21:24 +0000 (UTC)
+        id S235251AbhJYT3j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:29:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FCC86109E;
+        Mon, 25 Oct 2021 19:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189685;
-        bh=qhaCZx6BNWG/ZqHFqRlhrhaajLRK8kzMCv9bBm2DLD8=;
+        s=korg; t=1635189993;
+        bh=i3x32t0DViQo5tomkyE3aFgtL9d+uXP+HPLqJL2LXX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B35Ul9nUoOrQT6uRqA7fwrPofZolulBX65dVhZPJp9ktfbVDSk/89wvMQks7cP5MI
-         Y8iT41NJQwxpCddHPqILYasJihYABjQSDjJ9v20ObGqNCGUnt9RoOqnWObyn42p1Ql
-         y0Y5T943XimEyKW50LHjNhYLHVjL42RFc/Sxlk+0=
+        b=R4FYRECb9lsMJS2kDPHZEJfEhtPATaAMJBsAOTFfZah1GkxaxFOVWGPlaa1dLykm+
+         a55A+wQ9IEF8BwMZpHZ4BSBUe1q2NFYtJ2UFX+GgFjdbxCme8IiTb9ynhte6l6OW3E
+         BaWNDr9bIDMI1jHhr/BuGC6EeRBI9EBo2xKD2FAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
-        Julian Anastasov <ja@ssi.bg>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/30] netfilter: ipvs: make global sysctl readonly in non-init netns
+Subject: [PATCH 5.4 09/58] ASoC: wm8960: Fix clock configuration on slave mode
 Date:   Mon, 25 Oct 2021 21:14:26 +0200
-Message-Id: <20211025190924.469356731@linuxfoundation.org>
+Message-Id: <20211025190939.061829662@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
-References: <20211025190922.089277904@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 174c376278949c44aad89c514a6b5db6cee8db59 ]
+[ Upstream commit 6b9b546dc00797c74bef491668ce5431ff54e1e2 ]
 
-Because the data pointer of net/ipv4/vs/debug_level is not updated per
-netns, it must be marked as read-only in non-init netns.
+There is a noise issue for 8kHz sample rate on slave mode.
+Compared with master mode, the difference is the DACDIV
+setting, after correcting the DACDIV, the noise is gone.
 
-Fixes: c6d2d445d8de ("IPVS: netns, final patch enabling network name space.")
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Acked-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+There is no noise issue for 48kHz sample rate, because
+the default value of DACDIV is correct for 48kHz.
+
+So wm8960_configure_clocking() should be functional for
+ADC and DAC function even if it is slave mode.
+
+In order to be compatible for old use case, just add
+condition for checking that sysclk is zero with
+slave mode.
+
+Fixes: 0e50b51aa22f ("ASoC: wm8960: Let wm8960 driver configure its bit clock and frame clock")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/1634102224-3922-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipvs/ip_vs_ctl.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/codecs/wm8960.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
-index eea0144aada7..ecc16d8c1cc3 100644
---- a/net/netfilter/ipvs/ip_vs_ctl.c
-+++ b/net/netfilter/ipvs/ip_vs_ctl.c
-@@ -3987,6 +3987,11 @@ static int __net_init ip_vs_control_net_init_sysctl(struct netns_ipvs *ipvs)
- 	tbl[idx++].data = &ipvs->sysctl_conn_reuse_mode;
- 	tbl[idx++].data = &ipvs->sysctl_schedule_icmp;
- 	tbl[idx++].data = &ipvs->sysctl_ignore_tunneled;
-+#ifdef CONFIG_IP_VS_DEBUG
-+	/* Global sysctls must be ro in non-init netns */
-+	if (!net_eq(net, &init_net))
-+		tbl[idx++].mode = 0444;
-+#endif
+diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
+index 708fc4ed54ed..512f8899dcbb 100644
+--- a/sound/soc/codecs/wm8960.c
++++ b/sound/soc/codecs/wm8960.c
+@@ -752,9 +752,16 @@ static int wm8960_configure_clocking(struct snd_soc_component *component)
+ 	int i, j, k;
+ 	int ret;
  
- 	ipvs->sysctl_hdr = register_net_sysctl(net, "net/ipv4/vs", tbl);
- 	if (ipvs->sysctl_hdr == NULL) {
+-	if (!(iface1 & (1<<6))) {
+-		dev_dbg(component->dev,
+-			"Codec is slave mode, no need to configure clock\n");
++	/*
++	 * For Slave mode clocking should still be configured,
++	 * so this if statement should be removed, but some platform
++	 * may not work if the sysclk is not configured, to avoid such
++	 * compatible issue, just add '!wm8960->sysclk' condition in
++	 * this if statement.
++	 */
++	if (!(iface1 & (1 << 6)) && !wm8960->sysclk) {
++		dev_warn(component->dev,
++			 "slave mode, but proceeding with no clock configuration\n");
+ 		return 0;
+ 	}
+ 
 -- 
 2.33.0
 
