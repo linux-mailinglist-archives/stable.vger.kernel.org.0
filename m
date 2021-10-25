@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4419943A297
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:48:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36744439F5D
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236475AbhJYTuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:50:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37198 "EHLO mail.kernel.org"
+        id S234678AbhJYTTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:19:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235807AbhJYTrj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:47:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFFB26120F;
-        Mon, 25 Oct 2021 19:40:32 +0000 (UTC)
+        id S234294AbhJYTTM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:19:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED022610A1;
+        Mon, 25 Oct 2021 19:16:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190834;
-        bh=Irk5BOovECyv1i+k+iUluUzu19D7+zndtv6i3g6hng0=;
+        s=korg; t=1635189409;
+        bh=9AvXhGyKZjGJmMQatpWmELdKmiWyNhDfhmljIpmGST0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZ+5c71JTieLgiUTrT+yI/mVGp5ettiH3iIya/ZmKdSn89UFCrAknISfNHYoXHieS
-         gAJZYt5VoYqed7FDwRZKIqytQW6kNZWCoj7JU7zX3kpfhEBxx9WTdccbK0iKxfXMxv
-         DgGfuE/ZGm9r1Dx5PSd+xPiXZ3F39tGOp6PLCkmk=
+        b=myS4TcBQWTQlMq20emPHxwQET8OhPGCGc25Gyf49F0Nu4nX59M8gSw+wHpwFxX4c6
+         uKBpR1kq+OWs7XvLGqkOApp/KCxZwfUtGi30w+pOLifI7Aipxt6y2PCvrux7j6MmXk
+         zue3BKJ3+eWuUrrxfC4KkLw1SfaJhAp3VrSsUpQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richie Pearn <richard.pearn@nxp.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        ClaudiuManoilclaudiu.manoil@nxp.com
-Subject: [PATCH 5.14 064/169] net: enetc: make sure all traffic classes can send large frames
+        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
+        Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 24/44] netfilter: ipvs: make global sysctl readonly in non-init netns
 Date:   Mon, 25 Oct 2021 21:14:05 +0200
-Message-Id: <20211025191025.620627045@linuxfoundation.org>
+Message-Id: <20211025190933.546292776@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
+References: <20211025190928.054676643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-[ Upstream commit e378f4967c8edd64c680f2e279cb646ee06b6f2d ]
+[ Upstream commit 174c376278949c44aad89c514a6b5db6cee8db59 ]
 
-The enetc driver does not implement .ndo_change_mtu, instead it
-configures the MAC register field PTC{Traffic Class}MSDUR[MAXSDU]
-statically to a large value during probe time.
+Because the data pointer of net/ipv4/vs/debug_level is not updated per
+netns, it must be marked as read-only in non-init netns.
 
-The driver used to configure only the max SDU for traffic class 0, and
-that was fine while the driver could only use traffic class 0. But with
-the introduction of mqprio, sending a large frame into any other TC than
-0 is broken.
-
-This patch fixes that by replicating per traffic class the static
-configuration done in enetc_configure_port_mac().
-
-Fixes: cbe9e835946f ("enetc: Enable TC offloading with mqprio")
-Reported-by: Richie Pearn <richard.pearn@nxp.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: <Claudiu Manoil <claudiu.manoil@nxp.com>
-Link: https://lore.kernel.org/r/20211020173340.1089992-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c6d2d445d8de ("IPVS: netns, final patch enabling network name space.")
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc_pf.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/netfilter/ipvs/ip_vs_ctl.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-index cf00709caea4..3ac324509f43 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -517,10 +517,13 @@ static void enetc_port_si_configure(struct enetc_si *si)
+diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
+index 1adbcdda2158..dccaa816c17b 100644
+--- a/net/netfilter/ipvs/ip_vs_ctl.c
++++ b/net/netfilter/ipvs/ip_vs_ctl.c
+@@ -3922,6 +3922,11 @@ static int __net_init ip_vs_control_net_init_sysctl(struct netns_ipvs *ipvs)
+ 	tbl[idx++].data = &ipvs->sysctl_conn_reuse_mode;
+ 	tbl[idx++].data = &ipvs->sysctl_schedule_icmp;
+ 	tbl[idx++].data = &ipvs->sysctl_ignore_tunneled;
++#ifdef CONFIG_IP_VS_DEBUG
++	/* Global sysctls must be ro in non-init netns */
++	if (!net_eq(net, &init_net))
++		tbl[idx++].mode = 0444;
++#endif
  
- static void enetc_configure_port_mac(struct enetc_hw *hw)
- {
-+	int tc;
-+
- 	enetc_port_wr(hw, ENETC_PM0_MAXFRM,
- 		      ENETC_SET_MAXFRM(ENETC_RX_MAXFRM_SIZE));
- 
--	enetc_port_wr(hw, ENETC_PTCMSDUR(0), ENETC_MAC_MAXFRM_SIZE);
-+	for (tc = 0; tc < 8; tc++)
-+		enetc_port_wr(hw, ENETC_PTCMSDUR(tc), ENETC_MAC_MAXFRM_SIZE);
- 
- 	enetc_port_wr(hw, ENETC_PM0_CMD_CFG, ENETC_PM0_CMD_PHY_TX_EN |
- 		      ENETC_PM0_CMD_TXP	| ENETC_PM0_PROMISC);
+ 	ipvs->sysctl_hdr = register_net_sysctl(net, "net/ipv4/vs", tbl);
+ 	if (ipvs->sysctl_hdr == NULL) {
 -- 
 2.33.0
 
