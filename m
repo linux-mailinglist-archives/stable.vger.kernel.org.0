@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CE9243A188
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ECB343A10E
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236453AbhJYTjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:39:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
+        id S234739AbhJYThK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235266AbhJYThT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:37:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55321610CF;
-        Mon, 25 Oct 2021 19:34:01 +0000 (UTC)
+        id S236178AbhJYTdl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:33:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D98260200;
+        Mon, 25 Oct 2021 19:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190442;
-        bh=I2PjY6OdnOUedBdm83hMHSwW0WGvgKcfX0vGlUKOx3E=;
+        s=korg; t=1635190162;
+        bh=0xsAHHJHjUVBcW/QgHeKPiQYyWZE+XY7c89wOQiUFeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1HPwscIC7oDJkPVUfgRgRz6/Qrc4fHIiYdOS7IJrX8PeAiJhMSk7F0ChvpuqAJRq
-         NObJdc6PgoCv2dFSC8ehV7SEzM4lWNLakALq17SoS4sr82P4nLw13m/rhUk7GRI489
-         +o0o/189UPksY5OOhlGLaBNmro2YhS4BIliVE17M=
+        b=H1jRCxYAqBM5oxoxOq5X1vCRrHfqh/O72+7oW78yUdlArFUAlIszZ9A+PKZVFjKeK
+         DmLjvI3nOVxWjpIcMN8lVZaRDf6GvOOw+CBmmxYrqiAGmJ6PR4HDUsXRWgw25Vs0R0
+         zQxmmITzssTH7w7xJHgug+jM7OaW7b+hu0GP4Tcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 77/95] ALSA: hda: avoid write to STATESTS if controller is in reset
-Date:   Mon, 25 Oct 2021 21:15:14 +0200
-Message-Id: <20211025191008.112786128@linuxfoundation.org>
+        Fabien Dessenne <fabien.dessenne@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 58/58] pinctrl: stm32: use valid pin identifier in stm32_pinctrl_resume()
+Date:   Mon, 25 Oct 2021 21:15:15 +0200
+Message-Id: <20211025190947.321499484@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Fabien Dessenne <fabien.dessenne@foss.st.com>
 
-[ Upstream commit b37a15188eae9d4c49c5bb035e0c8d4058e4d9b3 ]
+commit c370bb474016ab9edfdabd7c08a88dd13a71ddbd upstream.
 
-The snd_hdac_bus_reset_link() contains logic to clear STATESTS register
-before performing controller reset. This code dates back to an old
-bugfix in commit e8a7f136f5ed ("[ALSA] hda-intel - Improve HD-audio
-codec probing robustness"). Originally the code was added to
-azx_reset().
+When resuming from low power, the driver attempts to restore the
+configuration of some pins. This is done by a call to:
+  stm32_pinctrl_restore_gpio_regs(struct stm32_pinctrl *pctl, u32 pin)
+where 'pin' must be a valid pin value (i.e. matching some 'groups->pin').
+Fix the current implementation which uses some wrong 'pin' value.
 
-The code was moved around in commit a41d122449be ("ALSA: hda - Embed bus
-into controller object") and ended up to snd_hdac_bus_reset_link() and
-called primarily via snd_hdac_bus_init_chip().
-
-The logic to clear STATESTS is correct when snd_hdac_bus_init_chip() is
-called when controller is not in reset. In this case, STATESTS can be
-cleared. This can be useful e.g. when forcing a controller reset to retry
-codec probe. A normal non-power-on reset will not clear the bits.
-
-However, this old logic is problematic when controller is already in
-reset. The HDA specification states that controller must be taken out of
-reset before writing to registers other than GCTL.CRST (1.0a spec,
-3.3.7). The write to STATESTS in snd_hdac_bus_reset_link() will be lost
-if the controller is already in reset per the HDA specification mentioned.
-
-This has been harmless on older hardware. On newer generation of Intel
-PCIe based HDA controllers, if configured to report issues, this write
-will emit an unsupported request error. If ACPI Platform Error Interface
-(APEI) is enabled in kernel, this will end up to kernel log.
-
-Fix the code in snd_hdac_bus_reset_link() to only clear the STATESTS if
-the function is called when controller is not in reset. Otherwise
-clearing the bits is not possible and should be skipped.
-
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20211012142935.3731820-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e2f3cf18c3e2 ("pinctrl: stm32: add suspend/resume management")
+Signed-off-by: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Link: https://lore.kernel.org/r/20211008122517.617633-1-fabien.dessenne@foss.st.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/hda/hdac_controller.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/pinctrl/stm32/pinctrl-stm32.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
-index b98449fd92f3..522d1897659c 100644
---- a/sound/hda/hdac_controller.c
-+++ b/sound/hda/hdac_controller.c
-@@ -421,8 +421,9 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
- 	if (!full_reset)
- 		goto skip_reset;
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -1554,8 +1554,8 @@ int __maybe_unused stm32_pinctrl_resume(
+ 	struct stm32_pinctrl_group *g = pctl->groups;
+ 	int i;
  
--	/* clear STATESTS */
--	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
-+	/* clear STATESTS if not in reset */
-+	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
-+		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
+-	for (i = g->pin; i < g->pin + pctl->ngroups; i++)
+-		stm32_pinctrl_restore_gpio_regs(pctl, i);
++	for (i = 0; i < pctl->ngroups; i++, g++)
++		stm32_pinctrl_restore_gpio_regs(pctl, g->pin);
  
- 	/* reset controller */
- 	snd_hdac_bus_enter_link_reset(bus);
--- 
-2.33.0
-
+ 	return 0;
+ }
 
 
