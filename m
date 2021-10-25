@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F2A043A179
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AD4D43A33E
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235747AbhJYTjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:39:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52126 "EHLO mail.kernel.org"
+        id S239687AbhJYT53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:57:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236190AbhJYThA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:37:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 303C161106;
-        Mon, 25 Oct 2021 19:33:53 +0000 (UTC)
+        id S235571AbhJYTzI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:55:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B52461261;
+        Mon, 25 Oct 2021 19:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190433;
-        bh=AUqUU8MogCa7JJnv8XVEV8H16bZRliFWnzCQozhgL3o=;
+        s=korg; t=1635191128;
+        bh=CujmvpHIs6lbGStzSlLrCfn8XAToEiZUTO4Y5Fj20hA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vEffDeLMoNTpME50e1DrSsmOm7Z2hieb5b0ZUuF6slUCryMdjI1/NgcKJeH5X33h+
-         QStt9mTghiFYEKfqPvqpFceKV8xwQgjgiUPvc/Y/CfaYCGNzs+ObVR4U6xONindbZI
-         N1NvdngZG3T90XQsSHj4NZeQQ0OXy0pHzx4BGaKU=
+        b=q0iT3NePbRLID9dzydnnT6ZH+YNSvkas5gd44ZpeCf7Sx3tj22ywqTUcqax8ZYjWB
+         U9/3iBx0q6YyqWYBt+aIh8YrOdblbjSMvc04WRkvIIFhOoVv845OYuGiSbEtLj5GNS
+         ekdVb4Ax9IgnMzf0Lo2MKi4ekjCwKz9vDJn+Nbvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 75/95] isdn: mISDN: Fix sleeping function called from invalid context
+Subject: [PATCH 5.14 131/169] bitfield: build kunit tests without structleak plugin
 Date:   Mon, 25 Oct 2021 21:15:12 +0200
-Message-Id: <20211025191007.817353181@linuxfoundation.org>
+Message-Id: <20211025191034.321207574@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,78 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 6510e80a0b81b5d814e3aea6297ba42f5e76f73c ]
+[ Upstream commit a8cf90332ae3e2b53813a146a99261b6a5e16a73 ]
 
-The driver can call card->isac.release() function from an atomic
-context.
+The structleak plugin causes the stack frame size to grow immensely:
 
-Fix this by calling this function after releasing the lock.
+lib/bitfield_kunit.c: In function 'test_bitfields_constants':
+lib/bitfield_kunit.c:93:1: error: the frame size of 7440 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
 
-The following log reveals it:
+Turn it off in this file.
 
-[   44.168226 ] BUG: sleeping function called from invalid context at kernel/workqueue.c:3018
-[   44.168941 ] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 5475, name: modprobe
-[   44.169574 ] INFO: lockdep is turned off.
-[   44.169899 ] irq event stamp: 0
-[   44.170160 ] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-[   44.170627 ] hardirqs last disabled at (0): [<ffffffff814209ed>] copy_process+0x132d/0x3e00
-[   44.171240 ] softirqs last  enabled at (0): [<ffffffff81420a1a>] copy_process+0x135a/0x3e00
-[   44.171852 ] softirqs last disabled at (0): [<0000000000000000>] 0x0
-[   44.172318 ] Preemption disabled at:
-[   44.172320 ] [<ffffffffa009b0a9>] nj_release+0x69/0x500 [netjet]
-[   44.174441 ] Call Trace:
-[   44.174630 ]  dump_stack_lvl+0xa8/0xd1
-[   44.174912 ]  dump_stack+0x15/0x17
-[   44.175166 ]  ___might_sleep+0x3a2/0x510
-[   44.175459 ]  ? nj_release+0x69/0x500 [netjet]
-[   44.175791 ]  __might_sleep+0x82/0xe0
-[   44.176063 ]  ? start_flush_work+0x20/0x7b0
-[   44.176375 ]  start_flush_work+0x33/0x7b0
-[   44.176672 ]  ? trace_irq_enable_rcuidle+0x85/0x170
-[   44.177034 ]  ? kasan_quarantine_put+0xaa/0x1f0
-[   44.177372 ]  ? kasan_quarantine_put+0xaa/0x1f0
-[   44.177711 ]  __flush_work+0x11a/0x1a0
-[   44.177991 ]  ? flush_work+0x20/0x20
-[   44.178257 ]  ? lock_release+0x13c/0x8f0
-[   44.178550 ]  ? __kasan_check_write+0x14/0x20
-[   44.178872 ]  ? do_raw_spin_lock+0x148/0x360
-[   44.179187 ]  ? read_lock_is_recursive+0x20/0x20
-[   44.179530 ]  ? __kasan_check_read+0x11/0x20
-[   44.179846 ]  ? do_raw_spin_unlock+0x55/0x900
-[   44.180168 ]  ? ____kasan_slab_free+0x116/0x140
-[   44.180505 ]  ? _raw_spin_unlock_irqrestore+0x41/0x60
-[   44.180878 ]  ? skb_queue_purge+0x1a3/0x1c0
-[   44.181189 ]  ? kfree+0x13e/0x290
-[   44.181438 ]  flush_work+0x17/0x20
-[   44.181695 ]  mISDN_freedchannel+0xe8/0x100
-[   44.182006 ]  isac_release+0x210/0x260 [mISDNipac]
-[   44.182366 ]  nj_release+0xf6/0x500 [netjet]
-[   44.182685 ]  nj_remove+0x48/0x70 [netjet]
-[   44.182989 ]  pci_device_remove+0xa9/0x250
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/netjet.c | 2 +-
+ lib/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/netjet.c b/drivers/isdn/hardware/mISDN/netjet.c
-index 2a1ddd47a096..a52f275f8263 100644
---- a/drivers/isdn/hardware/mISDN/netjet.c
-+++ b/drivers/isdn/hardware/mISDN/netjet.c
-@@ -949,8 +949,8 @@ nj_release(struct tiger_hw *card)
- 		nj_disable_hwirq(card);
- 		mode_tiger(&card->bc[0], ISDN_P_NONE);
- 		mode_tiger(&card->bc[1], ISDN_P_NONE);
--		card->isac.release(&card->isac);
- 		spin_unlock_irqrestore(&card->lock, flags);
-+		card->isac.release(&card->isac);
- 		release_region(card->base, card->base_s);
- 		card->base_s = 0;
- 	}
+diff --git a/lib/Makefile b/lib/Makefile
+index 5efd1b435a37..a841be5244ac 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -351,7 +351,7 @@ obj-$(CONFIG_OBJAGG) += objagg.o
+ obj-$(CONFIG_PLDMFW) += pldmfw/
+ 
+ # KUnit tests
+-CFLAGS_bitfield_kunit.o := $(call cc-option,-Wframe-larger-than=10240)
++CFLAGS_bitfield_kunit.o := $(DISABLE_STRUCTLEAK_PLUGIN)
+ obj-$(CONFIG_BITFIELD_KUNIT) += bitfield_kunit.o
+ obj-$(CONFIG_LIST_KUNIT_TEST) += list-test.o
+ obj-$(CONFIG_LINEAR_RANGES_TEST) += test_linear_ranges.o
 -- 
 2.33.0
 
