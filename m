@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26AAA43A098
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:33:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F3D6439FFF
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:24:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235115AbhJYTcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:32:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49320 "EHLO mail.kernel.org"
+        id S234163AbhJYT0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:26:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235365AbhJYT3o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:29:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8EF360724;
-        Mon, 25 Oct 2021 19:26:43 +0000 (UTC)
+        id S234826AbhJYTYa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:24:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 584E4610C7;
+        Mon, 25 Oct 2021 19:21:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190004;
-        bh=NrQgn9bc0tPgd+GccU8516edMKipbeF9wiI+ndUsYBo=;
+        s=korg; t=1635189715;
+        bh=uWSMRQp8x7z7WCWUEVqeCoL1GrYntoAvijG7iS+iWfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OR8dwaT7sX1jjA7D5h+CTRy+SFPfQeO65gxo8b1MBRGGC/JtnnQnZwWQQBCwwBXAS
-         Xjtc7eQ/L0W7ywsr/dfti9uGuaxJdR8DUKfB5ZXlreDgPM/SolflEUdJZ5F8edXqVY
-         4rczvjyLelshjQCE3EZ5vEFRF0Wp3uOFtB6UyT1U=
+        b=WFU1ADnROQPO2JqwXS8q+7To/zydxHPEqslRCPcmpX2iTsUnGPhLQeThulUqzilAn
+         IlQE9NCJQWbpXacApzNgJ9BKw9EIIW0pIZQSJd8TAvWPjGcvF55oyLMe6sZawqWnVZ
+         censFWlPTMTn4A+aPBh8JUgRbmY5HrIYT/mi5oHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 24/58] can: j1939: j1939_xtp_rx_dat_one(): cancel session if receive TP.DT with error length
+        stable@vger.kernel.org, Herve Codina <herve.codina@bootlin.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 21/30] net: stmmac: add support for dwmac 3.40a
 Date:   Mon, 25 Oct 2021 21:14:41 +0200
-Message-Id: <20211025190941.484754696@linuxfoundation.org>
+Message-Id: <20211025190927.865910556@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
+References: <20211025190922.089277904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Herve Codina <herve.codina@bootlin.com>
 
-commit 379743985ab6cfe2cbd32067cf4ed497baca6d06 upstream.
+[ Upstream commit 9cb1d19f47fafad7dcf7c8564e633440c946cfd7 ]
 
-According to SAE-J1939-21, the data length of TP.DT must be 8 bytes, so
-cancel session when receive unexpected TP.DT message.
+dwmac 3.40a is an old ip version that can be found on SPEAr3xx soc.
 
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Link: https://lore.kernel.org/all/1632972800-45091-1-git-send-email-zhangchangzhong@huawei.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/transport.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c   | 1 +
+ drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -1770,6 +1770,7 @@ static void j1939_xtp_rx_dpo(struct j193
- static void j1939_xtp_rx_dat_one(struct j1939_session *session,
- 				 struct sk_buff *skb)
- {
-+	enum j1939_xtp_abort abort = J1939_XTP_ABORT_FAULT;
- 	struct j1939_priv *priv = session->priv;
- 	struct j1939_sk_buff_cb *skcb;
- 	struct sk_buff *se_skb = NULL;
-@@ -1784,9 +1785,11 @@ static void j1939_xtp_rx_dat_one(struct
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
+index 3304095c934c..47842a796c3b 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
+@@ -71,6 +71,7 @@ err_remove_config_dt:
  
- 	skcb = j1939_skb_to_cb(skb);
- 	dat = skb->data;
--	if (skb->len <= 1)
-+	if (skb->len != 8) {
- 		/* makes no sense */
-+		abort = J1939_XTP_ABORT_UNEXPECTED_DATA;
- 		goto out_session_cancel;
+ static const struct of_device_id dwmac_generic_match[] = {
+ 	{ .compatible = "st,spear600-gmac"},
++	{ .compatible = "snps,dwmac-3.40a"},
+ 	{ .compatible = "snps,dwmac-3.50a"},
+ 	{ .compatible = "snps,dwmac-3.610"},
+ 	{ .compatible = "snps,dwmac-3.70a"},
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+index d48cc32dc507..d008e9d1518b 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+@@ -458,6 +458,14 @@ stmmac_probe_config_dt(struct platform_device *pdev, const char **mac)
+ 		plat->pmt = 1;
+ 	}
+ 
++	if (of_device_is_compatible(np, "snps,dwmac-3.40a")) {
++		plat->has_gmac = 1;
++		plat->enh_desc = 1;
++		plat->tx_coe = 1;
++		plat->bugged_jumbo = 1;
++		plat->pmt = 1;
 +	}
- 
- 	switch (session->last_cmd) {
- 	case 0xff:
-@@ -1884,7 +1887,7 @@ static void j1939_xtp_rx_dat_one(struct
-  out_session_cancel:
- 	kfree_skb(se_skb);
- 	j1939_session_timers_cancel(session);
--	j1939_session_cancel(session, J1939_XTP_ABORT_FAULT);
-+	j1939_session_cancel(session, abort);
- 	j1939_session_put(session);
- }
- 
++
+ 	if (of_device_is_compatible(np, "snps,dwmac-4.00") ||
+ 	    of_device_is_compatible(np, "snps,dwmac-4.10a")) {
+ 		plat->has_gmac4 = 1;
+-- 
+2.33.0
+
 
 
