@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA71B439F31
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:15:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7EDE43A114
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234500AbhJYTSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:18:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
+        id S235474AbhJYThP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233987AbhJYTRk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:17:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F232B600D3;
-        Mon, 25 Oct 2021 19:15:16 +0000 (UTC)
+        id S236223AbhJYTdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:33:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61CF660F70;
+        Mon, 25 Oct 2021 19:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189317;
-        bh=eEyOtvoc3xqN8DzFW9FIa9KJoMprXbBPbIFhL9Vi7rY=;
+        s=korg; t=1635190179;
+        bh=pS3NwPU5wtw4KcfK7qzVyZHdhWZZgTELk8qV9NoY6ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vH0I+ooPP4b0YEgfmXNayQ1Ntk0zcAIbmK35oORxxE+MX/iG3VZK9mgZ8/GuZkfIS
-         mIUbD/50fjnXzP8xJRplq/4UZP3NwgXLqZeAIKOZ+lWM8hydQmedIWrHchsb2QtOXY
-         FBSuvbiYTuyj6YOCFvIlK/oU8ChHcJAH6eXHKGjs=
+        b=lkyhfyemJ1SzPt6cj4EV/hGfyZYheTqxX2U+rhXoTHAh+eJJ8I/68SjuLj7mpRlsH
+         UnxNii+9kZ+eNQnAH/dkmu988cQcVvA6Nda2ghQc/TK4vrUahkUdmIdinYPKwcfMMF
+         cWuY6BMRVEH05kbEjZclHXo9uWV05uWpysKZrJYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 19/44] NFC: digital: fix possible memory leak in digital_in_send_sdd_req()
+        stable@vger.kernel.org, Kamal Mostafa <kamal@canonical.com>
+Subject: [PATCH 5.10 03/95] io_uring: fix splice_fd_in checks backport typo
 Date:   Mon, 25 Oct 2021 21:14:00 +0200
-Message-Id: <20211025190932.648253354@linuxfoundation.org>
+Message-Id: <20211025190956.861015682@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +38,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Kamal Mostafa <kamal@canonical.com>
 
-commit 291c932fc3692e4d211a445ba8aa35663831bac7 upstream.
+The linux-5.10.y backport of commit "io_uring: add ->splice_fd_in checks"
+includes a typo: "|" where "||" should be. (The original upstream commit
+is fine.)
 
-'skb' is allocated in digital_in_send_sdd_req(), but not free when
-digital_in_send_cmd() failed, which will cause memory leak. Fix it
-by freeing 'skb' if digital_in_send_cmd() return failed.
-
-Fixes: 2c66daecc409 ("NFC Digital: Add NFC-A technology support")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 54eb6211b979 ("io_uring: add ->splice_fd_in checks")
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org # v5.10
+Signed-off-by: Kamal Mostafa <kamal@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/digital_technology.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/io_uring.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/nfc/digital_technology.c
-+++ b/net/nfc/digital_technology.c
-@@ -473,8 +473,12 @@ static int digital_in_send_sdd_req(struc
- 	*skb_put(skb, sizeof(u8)) = sel_cmd;
- 	*skb_put(skb, sizeof(u8)) = DIGITAL_SDD_REQ_SEL_PAR;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5559,7 +5559,7 @@ static int io_timeout_remove_prep(struct
+ 		return -EINVAL;
+ 	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->buf_index || sqe->len || sqe->timeout_flags |
++	if (sqe->ioprio || sqe->buf_index || sqe->len || sqe->timeout_flags ||
+ 	    sqe->splice_fd_in)
+ 		return -EINVAL;
  
--	return digital_in_send_cmd(ddev, skb, 30, digital_in_recv_sdd_res,
--				   target);
-+	rc = digital_in_send_cmd(ddev, skb, 30, digital_in_recv_sdd_res,
-+				 target);
-+	if (rc)
-+		kfree_skb(skb);
-+
-+	return rc;
- }
- 
- static void digital_in_recv_sens_res(struct nfc_digital_dev *ddev, void *arg,
 
 
