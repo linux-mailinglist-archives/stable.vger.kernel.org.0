@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D0CE439F2C
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3C8C439F79
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:19:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233976AbhJYTSB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:18:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35362 "EHLO mail.kernel.org"
+        id S234166AbhJYTVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:21:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232904AbhJYTRo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:17:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 453026101C;
-        Mon, 25 Oct 2021 19:15:20 +0000 (UTC)
+        id S234078AbhJYTUA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:20:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 000D96109E;
+        Mon, 25 Oct 2021 19:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189322;
-        bh=NsnvHBtfrB7JTvTJxoyc14T4KqvhNTSri0+FiRhQ19k=;
+        s=korg; t=1635189457;
+        bh=HEILqjhA195KOm743w6KJSXk62kpXF/4FXJ8kcTGj1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YyT4e8Ap0nEDMaQXUBtnT3FyS5lV4MmR5wwTFL1HCU/MqmEOnw9r803AhKYMoxRy7
-         gCm6Xwn6VKRxTVGMXTKgi7o0bUUqpZsw8cMwwzpzbxeXD+r+y2uC1BtHYKxmruq4Vb
-         YbXz4rK5C98bfnvDJ2Iv3q0yHjlHI6fEDY+pm+rM=
+        b=F5wXG+KVY3jyDGi6lsViohzxZM+9hI4D50MlTMekt95oFzY82bX90bWZMLwWNb14x
+         BBsW8wwlTpYjpsjCvlb4SRsdiscWAODzD3NYqW4Zoy4GDUha52kX2pQX3di5WYTotc
+         jj+feLvhyjWcDUsQ9/WZYf4t+iBL0qq0seO/KQSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksander Morgado <aleksander@aleksander.es>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 07/44] USB: serial: qcserial: add EM9191 QDL support
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        John Keeping <john@metanate.com>
+Subject: [PATCH 4.9 01/50] ALSA: seq: Fix a potential UAF by wrong private_free call order
 Date:   Mon, 25 Oct 2021 21:13:48 +0200
-Message-Id: <20211025190930.135658023@linuxfoundation.org>
+Message-Id: <20211025190933.031333717@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
+References: <20211025190932.542632625@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,40 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Morgado <aleksander@aleksander.es>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 11c52d250b34a0862edc29db03fbec23b30db6da upstream.
+commit 1f8763c59c4ec6254d629fe77c0a52220bd907aa upstream.
 
-When the module boots into QDL download mode it exposes the 1199:90d2
-ids, which can be mapped to the qcserial driver, and used to run
-firmware upgrades (e.g. with the qmi-firmware-update program).
+John Keeping reported and posted a patch for a potential UAF in
+rawmidi sequencer destruction: the snd_rawmidi_dev_seq_free() may be
+called after the associated rawmidi object got already freed.
+After a deeper look, it turned out that the bug is rather the
+incorrect private_free call order for a snd_seq_device.  The
+snd_seq_device private_free gets called at the release callback of the
+sequencer device object, while this was rather expected to be executed
+at the snd_device call chains that runs at the beginning of the whole
+card-free procedure.  It's been broken since the rewrite of
+sequencer-device binding (although it hasn't surfaced because the
+sequencer device release happens usually right along with the card
+device release).
 
-  T:  Bus=01 Lev=03 Prnt=08 Port=03 Cnt=01 Dev#= 10 Spd=480 MxCh= 0
-  D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-  P:  Vendor=1199 ProdID=90d2 Rev=00.00
-  S:  Manufacturer=Sierra Wireless, Incorporated
-  S:  Product=Sierra Wireless EM9191
-  S:  SerialNumber=8W0382004102A109
-  C:  #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=2mA
-  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=10 Driver=qcserial
+This patch corrects the private_free call to be done in the right
+place, at snd_seq_device_dev_free().
 
-Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 7c37ae5c625a ("ALSA: seq: Rewrite sequencer device binding with standard bus")
+Reported-and-tested-by: John Keeping <john@metanate.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210930114114.8645-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/qcserial.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/core/seq/seq_device.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/serial/qcserial.c
-+++ b/drivers/usb/serial/qcserial.c
-@@ -169,6 +169,7 @@ static const struct usb_device_id id_tab
- 	{DEVICE_SWI(0x1199, 0x907b)},	/* Sierra Wireless EM74xx */
- 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
- 	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
-+	{DEVICE_SWI(0x1199, 0x90d2)},	/* Sierra Wireless EM9191 QDL */
- 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
- 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
- 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
+--- a/sound/core/seq/seq_device.c
++++ b/sound/core/seq/seq_device.c
+@@ -162,6 +162,8 @@ static int snd_seq_device_dev_free(struc
+ 	struct snd_seq_device *dev = device->device_data;
+ 
+ 	cancel_autoload_drivers();
++	if (dev->private_free)
++		dev->private_free(dev);
+ 	put_device(&dev->dev);
+ 	return 0;
+ }
+@@ -189,11 +191,7 @@ static int snd_seq_device_dev_disconnect
+ 
+ static void snd_seq_dev_release(struct device *dev)
+ {
+-	struct snd_seq_device *sdev = to_seq_dev(dev);
+-
+-	if (sdev->private_free)
+-		sdev->private_free(sdev);
+-	kfree(sdev);
++	kfree(to_seq_dev(dev));
+ }
+ 
+ /*
 
 
