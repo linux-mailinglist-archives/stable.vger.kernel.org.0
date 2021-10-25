@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A26C439FB0
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 870F1439FEA
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:23:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233018AbhJYTXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:23:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40718 "EHLO mail.kernel.org"
+        id S233029AbhJYTZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:25:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233693AbhJYTWE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:22:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3B4861078;
-        Mon, 25 Oct 2021 19:19:41 +0000 (UTC)
+        id S234573AbhJYTXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:23:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8682E610CB;
+        Mon, 25 Oct 2021 19:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189582;
-        bh=yPnI18qngDXNZlB95vqBC3qE+n8BE0dzrAezjQCXLM0=;
+        s=korg; t=1635189685;
+        bh=qhaCZx6BNWG/ZqHFqRlhrhaajLRK8kzMCv9bBm2DLD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gdWpd39xGOW8+dwc08QzritIcUADqYLGzMT3eSwzxKezx3R0KhDtoULhn5qsOLSup
-         xoVGGtxPyCfYk1kAAmxOFlkgHphA3NEmYb6nRPzsuf1tcs4kFUCO2f55Oi4xYtg8Hw
-         tqhGZgvl2RWMDdzS6AL1iaZ4XANbY8Liapaq5ifE=
+        b=B35Ul9nUoOrQT6uRqA7fwrPofZolulBX65dVhZPJp9ktfbVDSk/89wvMQks7cP5MI
+         Y8iT41NJQwxpCddHPqILYasJihYABjQSDjJ9v20ObGqNCGUnt9RoOqnWObyn42p1Ql
+         y0Y5T943XimEyKW50LHjNhYLHVjL42RFc/Sxlk+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4.9 39/50] ASoC: DAPM: Fix missing kctl change notifications
+        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
+        Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 06/30] netfilter: ipvs: make global sysctl readonly in non-init netns
 Date:   Mon, 25 Oct 2021 21:14:26 +0200
-Message-Id: <20211025190939.880322576@linuxfoundation.org>
+Message-Id: <20211025190924.469356731@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
+References: <20211025190922.089277904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Antoine Tenart <atenart@kernel.org>
 
-commit 5af82c81b2c49cfb1cad84d9eb6eab0e3d1c4842 upstream.
+[ Upstream commit 174c376278949c44aad89c514a6b5db6cee8db59 ]
 
-The put callback of a kcontrol is supposed to return 1 when the value
-is changed, and this will be notified to user-space.  However, some
-DAPM kcontrols always return 0 (except for errors), hence the
-user-space misses the update of a control value.
+Because the data pointer of net/ipv4/vs/debug_level is not updated per
+netns, it must be marked as read-only in non-init netns.
 
-This patch corrects the behavior by properly returning 1 when the
-value gets updated.
-
-Reported-and-tested-by: Hans de Goede <hdegoede@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211006141712.2439-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c6d2d445d8de ("IPVS: netns, final patch enabling network name space.")
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-dapm.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ net/netfilter/ipvs/ip_vs_ctl.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2410,6 +2410,7 @@ static int snd_soc_dapm_set_pin(struct s
- 				const char *pin, int status)
- {
- 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
-+	int ret = 0;
+diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
+index eea0144aada7..ecc16d8c1cc3 100644
+--- a/net/netfilter/ipvs/ip_vs_ctl.c
++++ b/net/netfilter/ipvs/ip_vs_ctl.c
+@@ -3987,6 +3987,11 @@ static int __net_init ip_vs_control_net_init_sysctl(struct netns_ipvs *ipvs)
+ 	tbl[idx++].data = &ipvs->sysctl_conn_reuse_mode;
+ 	tbl[idx++].data = &ipvs->sysctl_schedule_icmp;
+ 	tbl[idx++].data = &ipvs->sysctl_ignore_tunneled;
++#ifdef CONFIG_IP_VS_DEBUG
++	/* Global sysctls must be ro in non-init netns */
++	if (!net_eq(net, &init_net))
++		tbl[idx++].mode = 0444;
++#endif
  
- 	dapm_assert_locked(dapm);
- 
-@@ -2422,13 +2423,14 @@ static int snd_soc_dapm_set_pin(struct s
- 		dapm_mark_dirty(w, "pin configuration");
- 		dapm_widget_invalidate_input_paths(w);
- 		dapm_widget_invalidate_output_paths(w);
-+		ret = 1;
- 	}
- 
- 	w->connected = status;
- 	if (status == 0)
- 		w->force = 0;
- 
--	return 0;
-+	return ret;
- }
- 
- /**
-@@ -3323,14 +3325,15 @@ int snd_soc_dapm_put_pin_switch(struct s
- {
- 	struct snd_soc_card *card = snd_kcontrol_chip(kcontrol);
- 	const char *pin = (const char *)kcontrol->private_value;
-+	int ret;
- 
- 	if (ucontrol->value.integer.value[0])
--		snd_soc_dapm_enable_pin(&card->dapm, pin);
-+		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
- 	else
--		snd_soc_dapm_disable_pin(&card->dapm, pin);
-+		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
- 
- 	snd_soc_dapm_sync(&card->dapm);
--	return 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(snd_soc_dapm_put_pin_switch);
- 
-@@ -3706,7 +3709,7 @@ static int snd_soc_dapm_dai_link_put(str
- 
- 	w->params_select = ucontrol->value.enumerated.item[0];
- 
--	return 0;
-+	return 1;
- }
- 
- int snd_soc_dapm_new_pcm(struct snd_soc_card *card,
+ 	ipvs->sysctl_hdr = register_net_sysctl(net, "net/ipv4/vs", tbl);
+ 	if (ipvs->sysctl_hdr == NULL) {
+-- 
+2.33.0
+
 
 
