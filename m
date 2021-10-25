@@ -2,71 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38CEC43A4AD
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 22:27:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4D5B43A4D1
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 22:38:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232764AbhJYU3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 16:29:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37484 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237300AbhJYU32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 16:29:28 -0400
-Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6DB5C06966A
-        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 13:26:29 -0700 (PDT)
-Received: by mail-lf1-x132.google.com with SMTP id u21so16216777lff.8
-        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 13:26:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=xXJD2UZE5yCm3R1ZvfXI4Zth9wvxkS5DWaOeJeHlVpE=;
-        b=bEKJuksHxwx3hwgo3JdEdnE6KvyqT8SeB2bE5DzZRngF2JcqkcpLXwUZtwd0tSh3gi
-         4Ob1jggZthirus7NvxlEAS5za+7TfPAC+KxoJTumP1ArG/ZwKG7goDSuwn2ZB+2RcHX6
-         WKIZ2CN6lVVvJ5Rns/etvGcLsR/PRN8hesMuJmObUR4eRudQptpfnW+oQQLfH3x4Z/Iu
-         kK03lpz6BJVLnKMdl1vzjp7/fdh0RMTJKcJ3d9ksLqe7di7rR3S4x9zI6b0BHY1zJPlB
-         dTfkeXWck04Zya8ecbFxUNGvXO7NUpCG3sj4JAGdjCF8WraOdJRJNH1aFklicuakyXTj
-         HUCw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=xXJD2UZE5yCm3R1ZvfXI4Zth9wvxkS5DWaOeJeHlVpE=;
-        b=vzWS+FB8/XTzAe8LYfDKFHkVzaOVnoDau2z5AkS5XRp6PzYahLADfumuF//rFGBPtA
-         9a7Y/xmZIGhvU1EfmMNONmIBimPXBt26Dkq8o2GNPm/s9a6+Q8LUAA54+hvvM3se+DKB
-         HTDsIJx/Dklr5B8uTAFJT86C1HRybYDJD7uenZzmf5M6eJ8kbqG57ZE8+OSmGzWJvryu
-         qd+HxyPRrtajj204jW2vxNV+ID5BWi6p5sRjFCDsVNRQDx3AsgK2BgGV1N9Nl3fex9S7
-         VYqfZcGuC1r9/NYdQKtjszZm306mfbkmLwm8fiUHdlL7NtNHxTsHBuvnTMr2jW+zzFtX
-         jJcg==
-X-Gm-Message-State: AOAM530GsMSXP2cEyRRij4PFG1pJOuFE+zKNM1FNl3Rk11lmJS+gicUh
-        w0BLWo3j8H4wvNIhCwORVHshUrj5wY8HI1vffkE=
-X-Google-Smtp-Source: ABdhPJzzoiu3eFprLuLFIfX/tHrpVDDAljpEkMQd1qh7+o9Ze8RIf7bLSL36Um/vo3YMQlI02w7hjqR4Uz7or/0pdbA=
-X-Received: by 2002:a05:6512:6ce:: with SMTP id u14mr19526254lff.45.1635193587745;
- Mon, 25 Oct 2021 13:26:27 -0700 (PDT)
+        id S232036AbhJYUk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 16:40:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57504 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231264AbhJYUkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 16:40:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD76C60EB4;
+        Mon, 25 Oct 2021 20:38:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1635194310;
+        bh=pvCgqoU5iIW5eGqixHfTahU0J0rZVbyMKjmQ9lz+ZlU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BMeA3VDky7FENzU7p4UsSp/z2OQDYvMBqEMX1aPiCMijOQJ26ffYG7sWfurzMxzyY
+         7HNGyZCAbRLx4RYjex6wI00V9XKjphHXhPnW2YGnV093+VvZFEd9y1Gw26uquprts/
+         2hwborgLhTIgrOSwajd96NP79M7BsXe3Fb0QpElya1MIC/ZZDm+eg4idYaKm2fHaiB
+         QstFVAq5Gpp0dKFxjUZu/Ko5U1PhGEoQdbRLJiDcL52rq5IWDsfOS/sPqtgN77OeLT
+         6GaZfPLTUYmi0nLIbuI3+DqtO5YbdMn2f+UMQvApeBV1kCM6no0vsoHV7ek7eRKkQ1
+         HObhH01qEnmyQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, kvm@vger.kernel.org
+Subject: [PATCH MANUALSEL 5.14 1/5] KVM: X86: fix lazy allocation of rmaps
+Date:   Mon, 25 Oct 2021 16:38:23 -0400
+Message-Id: <20211025203828.1404503-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Sender: izedfrank333@gmail.com
-Received: by 2002:ac2:4436:0:0:0:0:0 with HTTP; Mon, 25 Oct 2021 13:26:27
- -0700 (PDT)
-From:   Aisha Al-Qaddafi <aisha.gdaff21@gmail.com>
-Date:   Mon, 25 Oct 2021 21:26:27 +0100
-X-Google-Sender-Auth: 8MfEnBFZf5og7ESYDZA-NmS_Fhs
-Message-ID: <CAFNE3Fi2=hSKC2eP+V8Mo4rKWJX3VxBn210Z5apvpOBXU_3jCg@mail.gmail.com>
-Subject: My Dear Friend,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Assalamu alaikum, I came across your e-mail contact prior to a private
-search while in need of your assistance. I am Aisha Al-Qaddafi, the
-only biological, Daughter of Former President of Libya Col. Muammar
-Al-Qaddafi. Am a single Mother and a Widow with three Children. I have
-investment funds worth Twenty Seven Million Five Hundred Thousand
-United State Dollar ($27.500.000.00 ) and i need a trusted  investment
-Manager/Partner because of my current refugee status, however, I am
-interested in you for investment project assistance in your country.
-If you are willing to handle this project on my behalf kindly reply
-urgently to enable me to provide you more information about the
-investment
-funds.
-Best Regards
+From: Paolo Bonzini <pbonzini@redhat.com>
+
+[ Upstream commit fa13843d1565d4c5b3aeb9be3343b313416bef46 ]
+
+If allocation of rmaps fails, but some of the pointers have already been written,
+those pointers can be cleaned up when the memslot is freed, or even reused later
+for another attempt at allocating the rmaps.  Therefore there is no need to
+WARN, as done for example in memslot_rmap_alloc, but the allocation *must* be
+skipped lest KVM will overwrite the previous pointer and will indeed leak memory.
+
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/x86/kvm/x86.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 4b0e866e9f08..60d9aa0ab389 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -11341,7 +11341,8 @@ static int memslot_rmap_alloc(struct kvm_memory_slot *slot,
+ 		int lpages = gfn_to_index(slot->base_gfn + npages - 1,
+ 					  slot->base_gfn, level) + 1;
+ 
+-		WARN_ON(slot->arch.rmap[i]);
++		if (slot->arch.rmap[i])
++			continue;
+ 
+ 		slot->arch.rmap[i] = kvcalloc(lpages, sz, GFP_KERNEL_ACCOUNT);
+ 		if (!slot->arch.rmap[i]) {
+-- 
+2.33.0
+
