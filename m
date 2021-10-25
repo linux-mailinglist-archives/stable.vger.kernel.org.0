@@ -2,93 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 181184391DA
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 10:59:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC834391E8
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 11:00:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232388AbhJYJBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 05:01:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:36152 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232371AbhJYJBd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 05:01:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1635152350;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=OzTYvmR+Baxf4vvutXG9y4UJh2DkglRXKqKaxVfskag=;
-        b=VuGkDbgFL0RGyvNjrAxqVvc2yiy+d78WfAGs/ngA6u6/gXWmYvIkCiygsdzXwn7ITlKnfE
-        ekMkeHOoEk5AaZkBWwjBaEuIIDPx7V0fjoeij9SDwz5CzdzTJneF68jNPgT7uZ7D7fz/pK
-        28OmnNgkPOXQKic86VVPG13pK4pBMvE=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-428-Ous8Q5sZM1GaOhmoJOHd9A-1; Mon, 25 Oct 2021 04:59:09 -0400
-X-MC-Unique: Ous8Q5sZM1GaOhmoJOHd9A-1
-Received: by mail-ed1-f71.google.com with SMTP id g6-20020a056402424600b003dd2b85563bso6525971edb.7
-        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 01:59:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=OzTYvmR+Baxf4vvutXG9y4UJh2DkglRXKqKaxVfskag=;
-        b=Rec+P5sOzApHTE/bxd9AgPPUyniH7mXTi3KbaClTRHgxr4H43dd7ApyGx4HsmzJTIq
-         YI41b9OSDjIEMwuClG6F9EFDeBDui+JdTolQiQOFKrDq7dOCPfIgUOeSeTCCJb5GXGLO
-         3hE+kAODeHFWl2HUqfEdyBw2GxEljbhU/9SsZijwcml4nhy3zw7gAEv1bifwmQPoPoxD
-         YDH6HssfM9wHhsXja6gsD/+qmi6GC1xe95sdJtyz+5zJvVvvdbGNF2YA2Qz/F0vMS7XU
-         +Jn57tX25lgL+pav+sZoM6hVLW+WCjrSElu7mNcymi0oPYHcuJQi/4QUtfQR4XYI0AKD
-         B3oA==
-X-Gm-Message-State: AOAM532kb4f5YPHEqS0ZNIlQJAAISRUPTkQbwcNEf8uUuNciN02sGk7o
-        iTMeuu3w/4tccxLk66XtA5QnYeGkTPk8ugEIhLGsbu+oKUeOgrym5BsTOuPczZn73nuU2jLNMZH
-        9mplLOpG0Z6LSqcGp
-X-Received: by 2002:a17:907:7f11:: with SMTP id qf17mr10287103ejc.437.1635152348474;
-        Mon, 25 Oct 2021 01:59:08 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzkmP22ASf0et7zE/OEQYMrGgdxDWBcd2eTY+zIf1qIM2FQEJlIVcKFfdA+RQYOcmccNWPBtw==
-X-Received: by 2002:a17:907:7f11:: with SMTP id qf17mr10287084ejc.437.1635152348257;
-        Mon, 25 Oct 2021 01:59:08 -0700 (PDT)
-Received: from ?IPV6:2001:b07:6468:f312:63a7:c72e:ea0e:6045? ([2001:b07:6468:f312:63a7:c72e:ea0e:6045])
-        by smtp.gmail.com with ESMTPSA id he14sm3901907ejc.34.2021.10.25.01.59.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 Oct 2021 01:59:07 -0700 (PDT)
-Message-ID: <707a0a5d-413e-b80d-89be-17bfca8fc44c@redhat.com>
-Date:   Mon, 25 Oct 2021 10:59:04 +0200
+        id S232153AbhJYJDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 05:03:01 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32070 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231940AbhJYJCy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 05:02:54 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19P6uZMt015760
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 05:00:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=mQSJHbuxSb/WzwWaTRw5T1O0ZSUSQMlTsKlEd7kylW4=;
+ b=mmYIWNw6CwAq1LoZeYvjVYY33iBwyic4AguanganPu6469MBTCmq9DNfiw7v914YH30b
+ a35IYVYyH+d8vnebwr25YxyJZadpvsWVaq97/vce/6E2OEz2AaflvahQTjjYq4ffc3ya
+ GRRZcA1NonEafMMClr2oIffQdvgMtXpRKvVOgjpW8o9G3gqw6c6w2cqBcD8LGqmPxOew
+ +caER6A7/P5G09abs4krO1KL6i2MJIHC+CmwBUKzgczJlRBjYmibXp78PnOG+VIPUriS
+ h1kN1UnlD8a68OWBrAzUDiQkji5tlvytt7xL8FOFbTDAd4lxWz9hYRmuwbnUo3Akv/i9 IQ== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bvyj44wnc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 05:00:31 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19P8wfO8013524
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 09:00:30 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3bv9njbvc0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 09:00:30 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19P8sLqX43909390
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 25 Oct 2021 08:54:21 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 83D7742061;
+        Mon, 25 Oct 2021 09:00:26 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 635A742049;
+        Mon, 25 Oct 2021 09:00:26 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 25 Oct 2021 09:00:26 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     stable@vger.kernel.org
+Cc:     Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: [PATCH 5.10 0/1] s390/pci: fix zpci_zdev_put() on reserve
+Date:   Mon, 25 Oct 2021 11:00:25 +0200
+Message-Id: <20211025090026.3392254-1-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.0
-Subject: Re: [PATCH 1/8] KVM: SEV-ES: fix length of string I/O
-Content-Language: en-US
-To:     Marc Orr <marcorr@google.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        fwilhelm@google.com, seanjc@google.com, oupton@google.com,
-        stable@vger.kernel.org
-References: <20211013165616.19846-1-pbonzini@redhat.com>
- <20211013165616.19846-2-pbonzini@redhat.com>
- <CAA03e5F8qvkbnPNvDHjrnM1hLs2fu5L_Mxtuhi3T5Y7u+_ydrw@mail.gmail.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <CAA03e5F8qvkbnPNvDHjrnM1hLs2fu5L_Mxtuhi3T5Y7u+_ydrw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: knHIoaSGxSVnCQoaCOTIJieAhK_SBVV3
+X-Proofpoint-ORIG-GUID: knHIoaSGxSVnCQoaCOTIJieAhK_SBVV3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-25_02,2021-10-25_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 impostorscore=0 spamscore=0 mlxscore=0 adultscore=0
+ phishscore=0 bulkscore=0 malwarescore=0 priorityscore=1501 mlxlogscore=666
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110250050
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25/10/21 03:31, Marc Orr wrote:
-> I could be missing something, but I'm pretty sure that this is wrong.
-> The GHCB spec says that `exit_info_2` is the `rep` count. Not the
-> string length.
-> 
-> For example, given a `rep outsw` instruction, with `ECX` set to `8`,
-> the rep count written into `SW_EXITINFO2` should be eight x86 words
-> (i.e., 16 bytes) and the IO size should be one x86 word (i.e., 2
-> bytes). In other words, the code was correct before this patch. This
-> patch is incorrectly dividing the rep count by the IO size, causing
-> the string IO to be truncated.
+Hi Greg, Hi Sasha,
 
-Then what's wrong is _also_ the call to setup_vmgexit_scratch, because 
-that one definitely expects bytes:
+Please take this backport of the upstream commit a46044a92add ("s390/pci: fix
+zpci_zdev_put() on reserve") for the v5.10 stable series. Unlike the v5.14
+series we do *NOT* include commit 023cc3cb1e4b ("s390/pci: cleanup resources only if
+necessary") either as a separate commit subsumed. We don't yet have the
+zdev->has_resource attribute that was added as part of v5.13 and do not need it
+for this fix.
 
-                 scratch_va = kzalloc(len, GFP_KERNEL_ACCOUNT);
+Thanks,
+Niklas
 
-Paolo
+Niklas Schnelle (1):
+  s390/pci: fix zpci_zdev_put() on reserve
+
+ arch/s390/include/asm/pci.h        |  3 ++
+ arch/s390/pci/pci.c                | 45 ++++++++++++++++++++++++++----
+ arch/s390/pci/pci_event.c          |  4 +--
+ drivers/pci/hotplug/s390_pci_hpc.c |  9 +-----
+ 4 files changed, 46 insertions(+), 15 deletions(-)
+
+-- 
+2.25.1
 
