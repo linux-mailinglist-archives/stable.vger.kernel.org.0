@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C36AF43A27D
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12B4A439F94
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:19:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236854AbhJYTt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:49:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37930 "EHLO mail.kernel.org"
+        id S234855AbhJYTWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:22:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237884AbhJYTqk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:46:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 646F8611C1;
-        Mon, 25 Oct 2021 19:39:44 +0000 (UTC)
+        id S234550AbhJYTVC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:21:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D900610CF;
+        Mon, 25 Oct 2021 19:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190786;
-        bh=h9NcphN82hRB/YW97j9KUPQ/d5eoeyBJyyVP4zbjNMU=;
+        s=korg; t=1635189519;
+        bh=mHL1+/sGFYkWBjJdyj/s4p2sjcui4IVOvEEToKqYAoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVklzFx2KIZ/Lpymk01YvhEa3FzhhaQNBivPl34yWdjhrCJhhvzqC+MTZDZzac4It
-         p643mt2r0t3eKzqWd11SMwPHuhYKnwhirz+9cryL7qAMEB6fectGeH/KT8pfipObuW
-         zudza5ViMVHL4J2fHNRPIW8U/LscY390rLthUUTU=
+        b=xDjj/hNqkZraxTv1hu5jgfLLU+5kMHkKNjDa5xS88CpRrGZrauJ4KEcaI+AqGo4RY
+         ZYZ5gGegKhXiuz8HYGJQf1/oeqlkrWb+n+EBwEeZDZiN4T33YlfTKd/quU8OqV1vqR
+         +an86IIKp03X6WN5AnjAR8OcnUKr0pJMAHap4uPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.14 070/169] can: isotp: isotp_sendmsg(): fix TX buffer concurrent access in isotp_sendmsg()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>
+Subject: [PATCH 4.9 24/50] drm/msm/dsi: fix off by one in dsi_bus_clk_enable error handling
 Date:   Mon, 25 Oct 2021 21:14:11 +0200
-Message-Id: <20211025191026.335737563@linuxfoundation.org>
+Message-Id: <20211025190937.555999473@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
+References: <20211025190932.542632625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,142 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 43a08c3bdac4cb42eff8fe5e2278bffe0c5c3daa upstream.
+commit c8f01ffc83923a91e8087aaa077de13354a7aa59 upstream.
 
-When isotp_sendmsg() concurrent, tx.state of all TX processes can be
-ISOTP_IDLE. The conditions so->tx.state != ISOTP_IDLE and
-wq_has_sleeper(&so->wait) can not protect TX buffer from being
-accessed by multiple TX processes.
+This disables a lock which wasn't enabled and it does not disable
+the first lock in the array.
 
-We can use cmpxchg() to try to modify tx.state to ISOTP_SENDING firstly.
-If the modification of the previous process succeed, the later process
-must wait tx.state to ISOTP_IDLE firstly. Thus, we can ensure TX buffer
-is accessed by only one process at the same time. And we should also
-restore the original tx.state at the subsequent error processes.
-
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://lore.kernel.org/all/c2517874fbdf4188585cf9ddf67a8fa74d5dbde5.1633764159.git.william.xuanziyang@huawei.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 6e0eb52eba9e ("drm/msm/dsi: Parse bus clocks from a list")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20211001123409.GG2283@kili
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/isotp.c |   46 +++++++++++++++++++++++++++++++---------------
- 1 file changed, 31 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi_host.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -121,7 +121,7 @@ enum {
- struct tpcon {
- 	int idx;
- 	int len;
--	u8 state;
-+	u32 state;
- 	u8 bs;
- 	u8 sn;
- 	u8 ll_dl;
-@@ -848,6 +848,7 @@ static int isotp_sendmsg(struct socket *
- {
- 	struct sock *sk = sock->sk;
- 	struct isotp_sock *so = isotp_sk(sk);
-+	u32 old_state = so->tx.state;
- 	struct sk_buff *skb;
- 	struct net_device *dev;
- 	struct canfd_frame *cf;
-@@ -860,47 +861,55 @@ static int isotp_sendmsg(struct socket *
- 		return -EADDRNOTAVAIL;
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -439,7 +439,7 @@ static int dsi_bus_clk_enable(struct msm
  
- 	/* we do not support multiple buffers - for now */
--	if (so->tx.state != ISOTP_IDLE || wq_has_sleeper(&so->wait)) {
--		if (msg->msg_flags & MSG_DONTWAIT)
--			return -EAGAIN;
-+	if (cmpxchg(&so->tx.state, ISOTP_IDLE, ISOTP_SENDING) != ISOTP_IDLE ||
-+	    wq_has_sleeper(&so->wait)) {
-+		if (msg->msg_flags & MSG_DONTWAIT) {
-+			err = -EAGAIN;
-+			goto err_out;
-+		}
+ 	return 0;
+ err:
+-	for (; i > 0; i--)
++	while (--i >= 0)
+ 		clk_disable_unprepare(msm_host->bus_clks[i]);
  
- 		/* wait for complete transmission of current pdu */
- 		err = wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
- 		if (err)
--			return err;
-+			goto err_out;
- 	}
- 
--	if (!size || size > MAX_MSG_LENGTH)
--		return -EINVAL;
-+	if (!size || size > MAX_MSG_LENGTH) {
-+		err = -EINVAL;
-+		goto err_out;
-+	}
- 
- 	/* take care of a potential SF_DL ESC offset for TX_DL > 8 */
- 	off = (so->tx.ll_dl > CAN_MAX_DLEN) ? 1 : 0;
- 
- 	/* does the given data fit into a single frame for SF_BROADCAST? */
- 	if ((so->opt.flags & CAN_ISOTP_SF_BROADCAST) &&
--	    (size > so->tx.ll_dl - SF_PCI_SZ4 - ae - off))
--		return -EINVAL;
-+	    (size > so->tx.ll_dl - SF_PCI_SZ4 - ae - off)) {
-+		err = -EINVAL;
-+		goto err_out;
-+	}
- 
- 	err = memcpy_from_msg(so->tx.buf, msg, size);
- 	if (err < 0)
--		return err;
-+		goto err_out;
- 
- 	dev = dev_get_by_index(sock_net(sk), so->ifindex);
--	if (!dev)
--		return -ENXIO;
-+	if (!dev) {
-+		err = -ENXIO;
-+		goto err_out;
-+	}
- 
- 	skb = sock_alloc_send_skb(sk, so->ll.mtu + sizeof(struct can_skb_priv),
- 				  msg->msg_flags & MSG_DONTWAIT, &err);
- 	if (!skb) {
- 		dev_put(dev);
--		return err;
-+		goto err_out;
- 	}
- 
- 	can_skb_reserve(skb);
- 	can_skb_prv(skb)->ifindex = dev->ifindex;
- 	can_skb_prv(skb)->skbcnt = 0;
- 
--	so->tx.state = ISOTP_SENDING;
- 	so->tx.len = size;
- 	so->tx.idx = 0;
- 
-@@ -956,7 +965,7 @@ static int isotp_sendmsg(struct socket *
- 	if (err) {
- 		pr_notice_once("can-isotp: %s: can_send_ret %pe\n",
- 			       __func__, ERR_PTR(err));
--		return err;
-+		goto err_out;
- 	}
- 
- 	if (wait_tx_done) {
-@@ -968,6 +977,13 @@ static int isotp_sendmsg(struct socket *
- 	}
- 
- 	return size;
-+
-+err_out:
-+	so->tx.state = old_state;
-+	if (so->tx.state == ISOTP_IDLE)
-+		wake_up_interruptible(&so->wait);
-+
-+	return err;
- }
- 
- static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
+ 	return ret;
 
 
