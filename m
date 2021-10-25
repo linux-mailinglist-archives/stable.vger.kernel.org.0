@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8869439FFC
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E502943A13A
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234929AbhJYT0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:26:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
+        id S236109AbhJYThw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232541AbhJYTYa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:24:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97179610C9;
-        Mon, 25 Oct 2021 19:21:44 +0000 (UTC)
+        id S236627AbhJYTfA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:35:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6FA7610FD;
+        Mon, 25 Oct 2021 19:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189705;
-        bh=K1h5jKK043EJdDCrS31Ei7AesqHWZdzlKdbFdwvWj+4=;
+        s=korg; t=1635190305;
+        bh=TD6/T9X43wYxT6EJ6NjhoPf92aJMxzpa2w4AK3IGcK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJC2owjbsh03bxAuTNudqrtGIbz8DWdYFpvSGy5WqNUP348ku0L05hHjKTh9OV6st
-         rMLiZWtHKOEaIswGYyQuTwLDZjK/Gc8dP5qbtRY+mD0KXV6NhHguTJhmRY108p79v5
-         mXcp/EQdY3c4DRJsBTMnugg1QxWu+Ue9VGnSj/dg=
+        b=ogeS8KsbLhuFDAAGWljb9jsu38vzVRtLkEiKoblxsmIUyBw0vCH66sEBYdOQd9+m6
+         3x1Zza63l5GojQk6Mj3WuIgNskyRy9m7jW8ZTFGxmcT9rPnZT87xN9efB8lNZdtGaR
+         pfucmBtGT4VF1HzpjE4HvTbLSCmXkej7AGozK4kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.14 19/30] netfilter: Kconfig: use default y instead of m for bool config option
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 42/95] can: j1939: j1939_xtp_rx_rts_session_new(): abort TP less than 9 bytes
 Date:   Mon, 25 Oct 2021 21:14:39 +0200
-Message-Id: <20211025190927.535951770@linuxfoundation.org>
+Message-Id: <20211025191002.844934664@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
-References: <20211025190922.089277904@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,30 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@gmail.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 77076934afdcd46516caf18ed88b2f88025c9ddb upstream.
+commit a4fbe70c5cb746441d56b28cf88161d9e0e25378 upstream.
 
-This option, NF_CONNTRACK_SECMARK, is a bool, so it can never be 'm'.
+The receiver should abort TP if 'total message size' in TP.CM_RTS and
+TP.CM_BAM is less than 9 or greater than 1785 [1], but currently the
+j1939 stack only checks the upper bound and the receiver will accept
+the following broadcast message:
 
-Fixes: 33b8e77605620 ("[NETFILTER]: Add CONFIG_NETFILTER_ADVANCED option")
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+  vcan1  18ECFF00   [8]  20 08 00 02 FF 00 23 01
+  vcan1  18EBFF00   [8]  01 00 00 00 00 00 00 00
+  vcan1  18EBFF00   [8]  02 00 FF FF FF FF FF FF
+
+This patch adds check for the lower bound and abort illegal TP.
+
+[1] SAE-J1939-82 A.3.4 Row 2 and A.3.6 Row 6.
+
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Link: https://lore.kernel.org/all/1634203601-3460-1-git-send-email-zhangchangzhong@huawei.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/j1939/j1939-priv.h |    1 +
+ net/can/j1939/transport.c  |    2 ++
+ 2 files changed, 3 insertions(+)
 
---- a/net/netfilter/Kconfig
-+++ b/net/netfilter/Kconfig
-@@ -75,7 +75,7 @@ config NF_CONNTRACK_MARK
- config NF_CONNTRACK_SECMARK
- 	bool  'Connection tracking security mark support'
- 	depends on NETWORK_SECMARK
--	default m if NETFILTER_ADVANCED=n
-+	default y if NETFILTER_ADVANCED=n
- 	help
- 	  This option enables security markings to be applied to
- 	  connections.  Typically they are copied to connections from
+--- a/net/can/j1939/j1939-priv.h
++++ b/net/can/j1939/j1939-priv.h
+@@ -326,6 +326,7 @@ int j1939_session_activate(struct j1939_
+ void j1939_tp_schedule_txtimer(struct j1939_session *session, int msec);
+ void j1939_session_timers_cancel(struct j1939_session *session);
+ 
++#define J1939_MIN_TP_PACKET_SIZE 9
+ #define J1939_MAX_TP_PACKET_SIZE (7 * 0xff)
+ #define J1939_MAX_ETP_PACKET_SIZE (7 * 0x00ffffff)
+ 
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -1596,6 +1596,8 @@ j1939_session *j1939_xtp_rx_rts_session_
+ 			abort = J1939_XTP_ABORT_FAULT;
+ 		else if (len > priv->tp_max_packet_size)
+ 			abort = J1939_XTP_ABORT_RESOURCE;
++		else if (len < J1939_MIN_TP_PACKET_SIZE)
++			abort = J1939_XTP_ABORT_FAULT;
+ 	}
+ 
+ 	if (abort != J1939_XTP_NO_ABORT) {
 
 
