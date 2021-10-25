@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA7ED43A13E
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08CF543A2FE
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236168AbhJYThy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53590 "EHLO mail.kernel.org"
+        id S237706AbhJYTzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:55:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236622AbhJYTfA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:35:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8A8961106;
-        Mon, 25 Oct 2021 19:31:40 +0000 (UTC)
+        id S236782AbhJYTtY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:49:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE97C61184;
+        Mon, 25 Oct 2021 19:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190301;
-        bh=NrQgn9bc0tPgd+GccU8516edMKipbeF9wiI+ndUsYBo=;
+        s=korg; t=1635190899;
+        bh=jX8oLkjFFqTvA6DxKsaB1LJrVxL87LonVxv4sXsVfWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bv/nIwjYE2qRc+5WnnbYnBX/PkodYAYjugV6S8LGJqjsX3NKa9LkH9P03nEEp4XUG
-         8QErLlx7AUH/+AKpr3ORq8YzkNPkakVkzToU79OsNeqERv1DMZ2HuX8dm82CZsdN7+
-         dDzAOi5nluywoGUNu5R/TUt03fnppyatbz2nHRJw=
+        b=dFozKNs3nOZ53YRslek5mK1ak1uEutJFJ4BYfdc1wbS3zKq0MRKnsYQSqwM4oUHJ4
+         DbvYYvL8YKkYMRMNe9+JNX0XBIh9yenJaaz4o34y6Z3GgKVz6dhnymc0ZGpiNmMikW
+         Eu3B9+njN3b61QakPHUs8Nnh6MsPefO9z9t8MQ+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 41/95] can: j1939: j1939_xtp_rx_dat_one(): cancel session if receive TP.DT with error length
-Date:   Mon, 25 Oct 2021 21:14:38 +0200
-Message-Id: <20211025191002.726895026@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.14 098/169] KVM: PPC: Book3S HV: Make idle_kvm_start_guest() return 0 if it went to guest
+Date:   Mon, 25 Oct 2021 21:14:39 +0200
+Message-Id: <20211025191030.254701041@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +38,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 379743985ab6cfe2cbd32067cf4ed497baca6d06 upstream.
+commit cdeb5d7d890e14f3b70e8087e745c4a6a7d9f337 upstream.
 
-According to SAE-J1939-21, the data length of TP.DT must be 8 bytes, so
-cancel session when receive unexpected TP.DT message.
+We call idle_kvm_start_guest() from power7_offline() if the thread has
+been requested to enter KVM. We pass it the SRR1 value that was returned
+from power7_idle_insn() which tells us what sort of wakeup we're
+processing.
 
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Link: https://lore.kernel.org/all/1632972800-45091-1-git-send-email-zhangchangzhong@huawei.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Depending on the SRR1 value we pass in, the KVM code might enter the
+guest, or it might return to us to do some host action if the wakeup
+requires it.
+
+If idle_kvm_start_guest() is able to handle the wakeup, and enter the
+guest it is supposed to indicate that by returning a zero SRR1 value to
+us.
+
+That was the behaviour prior to commit 10d91611f426 ("powerpc/64s:
+Reimplement book3s idle code in C"), however in that commit the
+handling of SRR1 was reworked, and the zeroing behaviour was lost.
+
+Returning from idle_kvm_start_guest() without zeroing the SRR1 value can
+confuse the host offline code, causing the guest to crash and other
+weirdness.
+
+Fixes: 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in C")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211015133929.832061-2-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/j1939/transport.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/powerpc/kvm/book3s_hv_rmhandlers.S |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -1770,6 +1770,7 @@ static void j1939_xtp_rx_dpo(struct j193
- static void j1939_xtp_rx_dat_one(struct j1939_session *session,
- 				 struct sk_buff *skb)
- {
-+	enum j1939_xtp_abort abort = J1939_XTP_ABORT_FAULT;
- 	struct j1939_priv *priv = session->priv;
- 	struct j1939_sk_buff_cb *skcb;
- 	struct sk_buff *se_skb = NULL;
-@@ -1784,9 +1785,11 @@ static void j1939_xtp_rx_dat_one(struct
+--- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
++++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+@@ -264,6 +264,7 @@ _GLOBAL(idle_kvm_start_guest)
+ 	stdu	r1, -SWITCH_FRAME_SIZE(r4)
+ 	// Switch to new frame on emergency stack
+ 	mr	r1, r4
++	std	r3, 32(r1)	// Save SRR1 wakeup value
+ 	SAVE_NVGPRS(r1)
  
- 	skcb = j1939_skb_to_cb(skb);
- 	dat = skb->data;
--	if (skb->len <= 1)
-+	if (skb->len != 8) {
- 		/* makes no sense */
-+		abort = J1939_XTP_ABORT_UNEXPECTED_DATA;
- 		goto out_session_cancel;
-+	}
+ 	/*
+@@ -315,6 +316,10 @@ kvm_unsplit_wakeup:
  
- 	switch (session->last_cmd) {
- 	case 0xff:
-@@ -1884,7 +1887,7 @@ static void j1939_xtp_rx_dat_one(struct
-  out_session_cancel:
- 	kfree_skb(se_skb);
- 	j1939_session_timers_cancel(session);
--	j1939_session_cancel(session, J1939_XTP_ABORT_FAULT);
-+	j1939_session_cancel(session, abort);
- 	j1939_session_put(session);
- }
+ kvm_secondary_got_guest:
  
++	// About to go to guest, clear saved SRR1
++	li	r0, 0
++	std	r0, 32(r1)
++
+ 	/* Set HSTATE_DSCR(r13) to something sensible */
+ 	ld	r6, PACA_DSCR_DEFAULT(r13)
+ 	std	r6, HSTATE_DSCR(r13)
+@@ -394,8 +399,8 @@ kvm_no_guest:
+ 	mfspr	r4, SPRN_LPCR
+ 	rlwimi	r4, r3, 0, LPCR_PECE0 | LPCR_PECE1
+ 	mtspr	SPRN_LPCR, r4
+-	/* set up r3 for return */
+-	mfspr	r3,SPRN_SRR1
++	// Return SRR1 wakeup value, or 0 if we went into the guest
++	ld	r3, 32(r1)
+ 	REST_NVGPRS(r1)
+ 	ld	r1, 0(r1)	// Switch back to caller stack
+ 	ld	r0, 16(r1)	// Reload LR
 
 
