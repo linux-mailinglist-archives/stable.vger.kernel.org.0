@@ -2,108 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B368D439095
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 09:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BF884390CB
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 10:04:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231802AbhJYHvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 03:51:46 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:34893 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229723AbhJYHvq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 03:51:46 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id D2EA25C0174;
-        Mon, 25 Oct 2021 03:49:21 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 25 Oct 2021 03:49:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=kdLwoTB8i3G/ZvdoG/COo/Jt5C/
-        YuqEPOfkB3SWTpUI=; b=mNjEjw8qGlwLPntihdb6Ox0wUjQz/FPDjzFUAdTwlGi
-        sVoFrvNK0/swo2d7wfoWfehyiPtyB+B75dx4C7zJE74CCZ+530aKozbxGnzkBmm7
-        yO7QhNHoJkX0BIUDxJvy/APIqrkHGxt41uT3ig54FsOZYpqzz67sY3MOxUxzlowW
-        8xT3QDu7zD8cfCkvtKFHgwymwDZujSfwF40FxGS4XA+m15G9jedmFnfv8CKsz+ZN
-        VeKY6scxxSZfXFOxcYahJ+ImmAw2L1EpbN9GxC3jP1YV9peRzMrjsRne1yczENuF
-        U22cyW+FKco+vQFzMFN/NiTAEe+n7sZHJ8WdDlI2IIA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=kdLwoT
-        B8i3G/ZvdoG/COo/Jt5C/YuqEPOfkB3SWTpUI=; b=iY/v+ChvBPaae+NW8vqe4X
-        ME2Yi6LZwkVZYtnhd/MRXbQj/fHT57+RpV/dOjSJfVrIbjXFlPV3ItvhKhMw22St
-        62HT2i4Td3b5/o3nl5yzuwB0hb4tUZ2vqbPcJWW3ulkvfSto6Apt2lFRFdYEQv6H
-        P51BFZ02g7v2z4NMXvMoyf1UOW91nWruqMmqizvKaJhc7sIkAtf2Yn38UQWFSKfa
-        YV/CrsvY8XH49xAmcd5JcX0RkWxg6vNUTa2P5mKhBFXHQY2EAwNMA9WgQyQPm52I
-        kkpK3cA/BhQCkZtZPklGW8eVouZxktFypyreQy2w1VBaT418psxrVenpUc2mJjcA
-        ==
-X-ME-Sender: <xms:gWF2YU4EkQ0lj3_ng7eSZPkiKmo5s8E-M7moATpl0pr2W9K4Tlar-g>
-    <xme:gWF2YV4Fe_Q6E-itaJOnE-YeUCH_1ZB2Rezr0fDRetrAk_tw4Ja2k3duoj1IcP7nK
-    ZywdGZwHHkp8w>
-X-ME-Received: <xmr:gWF2YTcVPA1B2wJFMjcPX950PmUsdAEACmAIzTyqn7FHUIGmugwRIF-Y29NdMENl-RSBwwlYqfpNIVkDdCwil8c7zQDZjOUo>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrvdefgedguddvvdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
-    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:gWF2YZLeOyOBtvXdJCSItlZkNnC0Cieet8-3_PPzYVhWjTTxmAEUJw>
-    <xmx:gWF2YYK0UNHV-FT0UgpxxgjY1_BUtWuvcN-x9dITuo9LwL1IrqGorg>
-    <xmx:gWF2YaxDSEY7zu28UaQRXICc2Eq9rT9fuO3UBGUeAD-6uyMVH8NtJA>
-    <xmx:gWF2YfUPGa2Ao47c43dKls1VRuuzxnMnC1rGEKm2va0PkR1B-ZzLtA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 25 Oct 2021 03:49:21 -0400 (EDT)
-Date:   Mon, 25 Oct 2021 09:49:19 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 5.14 2/2] s390/pci: fix zpci_zdev_put() on reserve
-Message-ID: <YXZhf5c0iFleZfqs@kroah.com>
-References: <20211021141341.344756-1-schnelle@linux.ibm.com>
- <20211021141341.344756-3-schnelle@linux.ibm.com>
+        id S230345AbhJYIHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 04:07:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35938 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229547AbhJYIHA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 04:07:00 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85391C061745
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 01:04:38 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id u6-20020a17090a3fc600b001a00250584aso10767335pjm.4
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 01:04:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=/uWN14G8R2uyPX3x7tnpk5DVKm88gZKUlcvRm0Fo3Dw=;
+        b=LA6EiBoSYLrm1WwUlVILtXdbsAVxl39wNhUG4M8D6kisYDOkYlLA+OC8ESuCnva1+Q
+         oAuCHIIzEfbhoS5qtoom5tC1xC4S11g68CiRYpXDS+xohdKOsyKlhwPeDepcNDmu3Zsb
+         rFX5g3UTg3alEurGuLIPVByIq5yEK/1/kM9XEH5wfbBzsItXX/XOwEMWdh9kXOZodvuJ
+         4hVy42FbRkihvDeneG/lAkPh+8SX+RYMqfou5kPeWSJoBmBnk4FEqK5EouRMo0XaF9OY
+         jccspl6RgAyn5/PLPWssGCC8JPUYElC2YJoe0p+K/0FngGYs8ILx7W2FUiqd6nRSaBAy
+         mKIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=/uWN14G8R2uyPX3x7tnpk5DVKm88gZKUlcvRm0Fo3Dw=;
+        b=tFbRaE6GTZMsmBaWjrarErhWj/K1R5cgaP1cnkg80ecO06IaykJo2Y8HGVMqw+Nb8c
+         fPBd8gzOcLGi4nikY1gzv7dj3HWNJfBWhrDkIF/gMdbd57oBd+4SQhzg9RFnIpBQhM9c
+         IRP7XJJYxFhUc5qHi0GG3P2kA61O565bAfyxAww1gjQyK1S+zSvTnM9Rmt7VnNyA2Ky4
+         +h3CIEE71sdDIXu9Mgyp3a704q+wDvjE+9wpHmuwyU1YdI87rIdac0MPBmNxud3ILNoZ
+         YhJGJyDk7QOF2q4V5AtXG9hn0ww4+w67bnWzNeZKRwNZMTQFgU37z2rZyUHNmTy2bp+d
+         W8cA==
+X-Gm-Message-State: AOAM530bbmnUOEKUVW7EDNvtPdaxydVC35kXjfLdWyfeAQv2LRVsrI0v
+        eYGn5OmcoOZXkhKlZ00OcdFbQLq6y1E9MRKN
+X-Google-Smtp-Source: ABdhPJxu2kK9CLN227xxOBWZKDp2ekBu/lCFlEu0JX9gbnku3YpqS+jtthyN+AFotAQGbv+Wu8wi+w==
+X-Received: by 2002:a17:90b:3e87:: with SMTP id rj7mr34038584pjb.88.1635149077920;
+        Mon, 25 Oct 2021 01:04:37 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 141sm4505613pge.23.2021.10.25.01.04.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Oct 2021 01:04:37 -0700 (PDT)
+Message-ID: <61766515.1c69fb81.233ad.b1ea@mx.google.com>
+Date:   Mon, 25 Oct 2021 01:04:37 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211021141341.344756-3-schnelle@linux.ibm.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.213-32-g94e226c62a68
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.19 baseline: 144 runs,
+ 1 regressions (v4.19.213-32-g94e226c62a68)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 21, 2021 at 04:13:41PM +0200, Niklas Schnelle wrote:
-> commit a46044a92add6a400f4dada7b943b30221f7cc80 upstream.
-> 
-> Since commit 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
-> the reference count of a zpci_dev is incremented between
-> pcibios_add_device() and pcibios_release_device() which was supposed to
-> prevent the zpci_dev from being freed while the common PCI code has
-> access to it. It was missed however that the handling of zPCI
-> availability events assumed that once zpci_zdev_put() was called no
-> later availability event would still see the device. With the previously
-> mentioned commit however this assumption no longer holds and we must
-> make sure that we only drop the initial long-lived reference the zPCI
-> subsystem holds exactly once.
-> 
-> Do so by introducing a zpci_device_reserved() function that handles when
-> a device is reserved. Here we make sure the zpci_dev will not be
-> considered for further events by removing it from the zpci_list.
-> 
-> This also means that the device actually stays in the
-> ZPCI_FN_STATE_RESERVED state between the time we know it has been
-> reserved and the final reference going away. We thus need to consider it
-> a real state instead of just a conceptual state after the removal. The
-> final cleanup of PCI resources, removal from zbus, and destruction of
-> the IOMMU stays in zpci_release_device() to make sure holders of the
-> reference do see valid data until the release.
-> 
-> Fixes: 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+stable-rc/queue/4.19 baseline: 144 runs, 1 regressions (v4.19.213-32-g94e22=
+6c62a68)
 
-This is also needed for 5.10.y, can you please provide a working
-backport for that tree too?
+Regressions Summary
+-------------------
 
-thanks,
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-greg k-h
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.213-32-g94e226c62a68/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.213-32-g94e226c62a68
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      94e226c62a68cec69092dcbfc3853dc471a5503d =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61762f5f0cc60ae26b3358fb
+
+  Results:     5 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.213=
+-32-g94e226c62a68/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.213=
+-32-g94e226c62a68/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61762f5f0cc60ae=
+26b3358fe
+        new failure (last pass: v4.19.213-32-gb53d26df8c1e)
+        2 lines
+
+    2021-10-25T04:15:17.717544  <8>[   21.642272] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-10-25T04:15:17.764703  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/107
+    2021-10-25T04:15:17.774462  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
