@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3393743A20B
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59FAD43A20E
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:43:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236469AbhJYToo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:44:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59604 "EHLO mail.kernel.org"
+        id S236504AbhJYToq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:44:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236878AbhJYTlw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236934AbhJYTlw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Oct 2021 15:41:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0135F61106;
-        Mon, 25 Oct 2021 19:36:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A120B61108;
+        Mon, 25 Oct 2021 19:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190611;
-        bh=xZOhryl0XSWzplWr+qj+2hR8QhvZpt1hEK2PI5GGjlQ=;
+        s=korg; t=1635190614;
+        bh=tZDxhnml6J/pYC6SCT4v70fUfCAV5raH4h8fIzLk93Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRGk1yrgD02Z7BtAS9am2YgKLf8jITSaU/nXJPoJT2a560TDIF2RERrZfV+N5GpLW
-         xTYpSv8BlljnJhVtROxzj6fWLk5tpLReBg07Vi/FhNIpZBpO+tQKZyCANNbHcvoTwZ
-         KniGa7FnENdHjA+Oa8R6no9AAZzllqeUWUCefjyQ=
+        b=dZkqKur3oW1B8RyqEV+QIrq48V7pN6si4xddatzIDhW9DTvUJt1kXtDtuSuS8RU1l
+         UG+NS/x6Wh6PjrcYF6w8MjagtYwWFRkI0b6T0MGYBhhlP58Nsdn/7zEmmPb+ixcDHU
+         MAdvHPxpOuxgl9KkOCuyVzoVYl5G08e8EYI+OEDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 011/169] xtensa: xtfpga: use CONFIG_USE_OF instead of CONFIG_OF
-Date:   Mon, 25 Oct 2021 21:13:12 +0200
-Message-Id: <20211025191019.139729288@linuxfoundation.org>
+Subject: [PATCH 5.14 012/169] xtensa: xtfpga: Try software restart before simulating CPU reset
+Date:   Mon, 25 Oct 2021 21:13:13 +0200
+Message-Id: <20211025191019.250578878@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -39,39 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit f3d7c2cdf6dc0d5402ec29c3673893b3542c5ad1 ]
+[ Upstream commit 012e974501a270d8dfd4ee2039e1fdf7579c907e ]
 
-Use platform data to initialize xtfpga device drivers when CONFIG_USE_OF
-is not selected. This fixes xtfpga networking when CONFIG_USE_OF is not
-selected but CONFIG_OF is.
+Rebooting xtensa images loaded with the '-kernel' option in qemu does
+not work. When executing a reboot command, the qemu session either hangs
+or experiences an endless sequence of error messages.
 
+  Kernel panic - not syncing: Unrecoverable error in exception handler
+
+Reset code jumps to the CPU restart address, but Linux can not recover
+from there because code and data in the kernel init sections have been
+discarded and overwritten at this point.
+
+XTFPGA platforms have a means to reset the CPU by writing 0xdead into a
+specific FPGA IO address. When used in QEMU the kernel image loaded with
+the '-kernel' option gets restored to its original state allowing the
+machine to boot successfully.
+
+Use that mechanism to attempt a platform reset. If it does not work,
+fall back to the existing mechanism.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/platforms/xtfpga/setup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/xtensa/platforms/xtfpga/setup.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/arch/xtensa/platforms/xtfpga/setup.c b/arch/xtensa/platforms/xtfpga/setup.c
-index 4f7d6142d41f..59b7f11f2a3e 100644
+index 59b7f11f2a3e..538e6748e85a 100644
 --- a/arch/xtensa/platforms/xtfpga/setup.c
 +++ b/arch/xtensa/platforms/xtfpga/setup.c
-@@ -66,7 +66,7 @@ void __init platform_calibrate_ccount(void)
+@@ -51,8 +51,12 @@ void platform_power_off(void)
  
- #endif
- 
--#ifdef CONFIG_OF
-+#ifdef CONFIG_USE_OF
- 
- static void __init xtfpga_clk_setup(struct device_node *np)
+ void platform_restart(void)
  {
-@@ -284,4 +284,4 @@ static int __init xtavnet_init(void)
-  */
- arch_initcall(xtavnet_init);
- 
--#endif /* CONFIG_OF */
-+#endif /* CONFIG_USE_OF */
+-	/* Flush and reset the mmu, simulate a processor reset, and
+-	 * jump to the reset vector. */
++	/* Try software reset first. */
++	WRITE_ONCE(*(u32 *)XTFPGA_SWRST_VADDR, 0xdead);
++
++	/* If software reset did not work, flush and reset the mmu,
++	 * simulate a processor reset, and jump to the reset vector.
++	 */
+ 	cpu_reset();
+ 	/* control never gets here */
+ }
 -- 
 2.33.0
 
