@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD4D43A33E
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CEE743A10B
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239687AbhJYT53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:57:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42724 "EHLO mail.kernel.org"
+        id S232421AbhJYThI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235571AbhJYTzI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:55:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B52461261;
-        Mon, 25 Oct 2021 19:45:27 +0000 (UTC)
+        id S236123AbhJYTdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:33:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 658F161179;
+        Mon, 25 Oct 2021 19:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635191128;
-        bh=CujmvpHIs6lbGStzSlLrCfn8XAToEiZUTO4Y5Fj20hA=;
+        s=korg; t=1635190149;
+        bh=xVZTo5T4KrfC9S8sFKtShoQPdw37wurz9TeoXWiYCQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q0iT3NePbRLID9dzydnnT6ZH+YNSvkas5gd44ZpeCf7Sx3tj22ywqTUcqax8ZYjWB
-         U9/3iBx0q6YyqWYBt+aIh8YrOdblbjSMvc04WRkvIIFhOoVv845OYuGiSbEtLj5GNS
-         ekdVb4Ax9IgnMzf0Lo2MKi4ekjCwKz9vDJn+Nbvs=
+        b=fpUinaSQEB6XQBQF+ISUyD+F9tpgWOEgzhKuuR46lIGemqrImUM6Eo//quw7ls3TD
+         7dOFFedHLlXJVwwHEUEm2iIeEH8CX+Fex/ef4yhaG7cbWeL69ktR5NnRbi2rZGXN/x
+         KocrdUhzjlC7klEftYmbmXTpkFU4TREF2CnWI1CI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 131/169] bitfield: build kunit tests without structleak plugin
+        stable@vger.kernel.org,
+        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
+        Yanfei Xu <yanfei.xu@windriver.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 55/58] net: mdiobus: Fix memory leak in __mdiobus_register
 Date:   Mon, 25 Oct 2021 21:15:12 +0200
-Message-Id: <20211025191034.321207574@linuxfoundation.org>
+Message-Id: <20211025190946.814460157@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Yanfei Xu <yanfei.xu@windriver.com>
 
-[ Upstream commit a8cf90332ae3e2b53813a146a99261b6a5e16a73 ]
+commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
 
-The structleak plugin causes the stack frame size to grow immensely:
+Once device_register() failed, we should call put_device() to
+decrement reference count for cleanup. Or it will cause memory
+leak.
 
-lib/bitfield_kunit.c: In function 'test_bitfields_constants':
-lib/bitfield_kunit.c:93:1: error: the frame size of 7440 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
+BUG: memory leak
+unreferenced object 0xffff888114032e00 (size 256):
+  comm "kworker/1:3", pid 2960, jiffies 4294943572 (age 15.920s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 08 2e 03 14 81 88 ff ff  ................
+    08 2e 03 14 81 88 ff ff 90 76 65 82 ff ff ff ff  .........ve.....
+  backtrace:
+    [<ffffffff8265cfab>] kmalloc include/linux/slab.h:591 [inline]
+    [<ffffffff8265cfab>] kzalloc include/linux/slab.h:721 [inline]
+    [<ffffffff8265cfab>] device_private_init drivers/base/core.c:3203 [inline]
+    [<ffffffff8265cfab>] device_add+0x89b/0xdf0 drivers/base/core.c:3253
+    [<ffffffff828dd643>] __mdiobus_register+0xc3/0x450 drivers/net/phy/mdio_bus.c:537
+    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
+    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
+    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
+    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
+    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
+    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
+    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
+    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
+    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
+    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
+    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
+    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
+    [<ffffffff82660916>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
+    [<ffffffff8265cd0b>] device_add+0x5fb/0xdf0 drivers/base/core.c:3359
+    [<ffffffff82c343b9>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2170
+    [<ffffffff82c4473c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
 
-Turn it off in this file.
+BUG: memory leak
+unreferenced object 0xffff888116f06900 (size 32):
+  comm "kworker/0:2", pid 2670, jiffies 4294944448 (age 7.160s)
+  hex dump (first 32 bytes):
+    75 73 62 2d 30 30 31 3a 30 30 33 00 00 00 00 00  usb-001:003.....
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff81484516>] kstrdup+0x36/0x70 mm/util.c:60
+    [<ffffffff814845a3>] kstrdup_const+0x53/0x80 mm/util.c:83
+    [<ffffffff82296ba2>] kvasprintf_const+0xc2/0x110 lib/kasprintf.c:48
+    [<ffffffff82358d4b>] kobject_set_name_vargs+0x3b/0xe0 lib/kobject.c:289
+    [<ffffffff826575f3>] dev_set_name+0x63/0x90 drivers/base/core.c:3147
+    [<ffffffff828dd63b>] __mdiobus_register+0xbb/0x450 drivers/net/phy/mdio_bus.c:535
+    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
+    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
+    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
+    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
+    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
+    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
+    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
+    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
+    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
+    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
+    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
+    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
+Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/mdio_bus.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/lib/Makefile b/lib/Makefile
-index 5efd1b435a37..a841be5244ac 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -351,7 +351,7 @@ obj-$(CONFIG_OBJAGG) += objagg.o
- obj-$(CONFIG_PLDMFW) += pldmfw/
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -395,6 +395,7 @@ int __mdiobus_register(struct mii_bus *b
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
++		put_device(&bus->dev);
+ 		return -EINVAL;
+ 	}
  
- # KUnit tests
--CFLAGS_bitfield_kunit.o := $(call cc-option,-Wframe-larger-than=10240)
-+CFLAGS_bitfield_kunit.o := $(DISABLE_STRUCTLEAK_PLUGIN)
- obj-$(CONFIG_BITFIELD_KUNIT) += bitfield_kunit.o
- obj-$(CONFIG_LIST_KUNIT_TEST) += list-test.o
- obj-$(CONFIG_LINEAR_RANGES_TEST) += test_linear_ranges.o
--- 
-2.33.0
-
 
 
