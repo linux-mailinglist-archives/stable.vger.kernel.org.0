@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DAFF43A28B
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30B45439FA6
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:20:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237740AbhJYTtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:49:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37200 "EHLO mail.kernel.org"
+        id S233835AbhJYTXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:23:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235795AbhJYTrj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:47:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6982D61175;
-        Mon, 25 Oct 2021 19:40:28 +0000 (UTC)
+        id S234599AbhJYTVj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:21:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A67B361090;
+        Mon, 25 Oct 2021 19:19:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190829;
-        bh=0f/BXzjxs9tmgXqUtDtCJB2ekv/peecuahvjaj/O1hI=;
+        s=korg; t=1635189556;
+        bh=ZTx2RGK6/uUo76yMQab4Aitw7wnqlN+cYmIJPHUoJrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xi1CgumU+Se7P6EHB9bI+hI6Dga4sN3Oy6aN7dOAaD9bjE68IX2iGWX7DdZbOdgnE
-         gjqtT6zGBHg+ICzMeBqX/j6SBDWZX/SSF0s8nbXzEZ8Ekcc18psno+h0fnMcQuWPrZ
-         HeBWGH+/8/R2s30fovBrkguBSJs5KqEvgc4Sw3A4=
+        b=Dm1KcyxYTMUvHi50SaSB+b1rvzmc8qboJvOi9YOvQHLlqr8sySTUTQFOi6ziRokvF
+         XO2sDiIzityy/oOrhGbtU57KJsyYLPwHgXnV2zd4A/PbcwrVGgV4bpsVOa0T6yuhhC
+         07oDaNZgAhXac1te0FyvpDzMKYfhK5psrD+QvdLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        ClaudiuManoilclaudiu.manoil@nxp.com
-Subject: [PATCH 5.14 063/169] net: enetc: fix ethtool counter name for PM0_TERR
-Date:   Mon, 25 Oct 2021 21:14:04 +0200
-Message-Id: <20211025191025.475886557@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 18/50] ethernet: s2io: fix setting mac address during resume
+Date:   Mon, 25 Oct 2021 21:14:05 +0200
+Message-Id: <20211025190936.459787199@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
+References: <20211025190932.542632625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit fb8dc5fc8cbdfd62ecd16493848aee2f42ed84d9 ]
+commit 40507e7aada8422c38aafa0c8a1a09e4623c712a upstream.
 
-There are two counters named "MAC tx frames", one of them is actually
-incorrect. The correct name for that counter should be "MAC tx error
-frames", which is symmetric to the existing "MAC rx error frames".
+After recent cleanups, gcc started warning about a suspicious
+memcpy() call during the s2io_io_resume() function:
 
-Fixes: 16eb4c85c964 ("enetc: Add ethtool statistics")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: <Claudiu Manoil <claudiu.manoil@nxp.com>
-Link: https://lore.kernel.org/r/20211020165206.1069889-1-vladimir.oltean@nxp.com
+In function '__dev_addr_set',
+    inlined from 'eth_hw_addr_set' at include/linux/etherdevice.h:318:2,
+    inlined from 's2io_set_mac_addr' at drivers/net/ethernet/neterion/s2io.c:5205:2,
+    inlined from 's2io_io_resume' at drivers/net/ethernet/neterion/s2io.c:8569:7:
+arch/x86/include/asm/string_32.h:182:25: error: '__builtin_memcpy' accessing 6 bytes at offsets 0 and 2 overlaps 4 bytes at offset 2 [-Werror=restrict]
+  182 | #define memcpy(t, f, n) __builtin_memcpy(t, f, n)
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+include/linux/netdevice.h:4648:9: note: in expansion of macro 'memcpy'
+ 4648 |         memcpy(dev->dev_addr, addr, len);
+      |         ^~~~~~
+
+What apparently happened is that an old cleanup changed the calling
+conventions for s2io_set_mac_addr() from taking an ethernet address
+as a character array to taking a struct sockaddr, but one of the
+callers was not changed at the same time.
+
+Change it to instead call the low-level do_s2io_prog_unicast() function
+that still takes the old argument type.
+
+Fixes: 2fd376884558 ("S2io: Added support set_mac_address driver entry point")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20211013143613.2049096-1-arnd@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc_ethtool.c | 2 +-
+ drivers/net/ethernet/neterion/s2io.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c b/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c
-index ebccaf02411c..8b618c15984d 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c
-@@ -157,7 +157,7 @@ static const struct {
- 	{ ENETC_PM0_TFRM,   "MAC tx frames" },
- 	{ ENETC_PM0_TFCS,   "MAC tx fcs errors" },
- 	{ ENETC_PM0_TVLAN,  "MAC tx VLAN frames" },
--	{ ENETC_PM0_TERR,   "MAC tx frames" },
-+	{ ENETC_PM0_TERR,   "MAC tx frame errors" },
- 	{ ENETC_PM0_TUCA,   "MAC tx unicast frames" },
- 	{ ENETC_PM0_TMCA,   "MAC tx multicast frames" },
- 	{ ENETC_PM0_TBCA,   "MAC tx broadcast frames" },
--- 
-2.33.0
-
+--- a/drivers/net/ethernet/neterion/s2io.c
++++ b/drivers/net/ethernet/neterion/s2io.c
+@@ -8618,7 +8618,7 @@ static void s2io_io_resume(struct pci_de
+ 			return;
+ 		}
+ 
+-		if (s2io_set_mac_addr(netdev, netdev->dev_addr) == FAILURE) {
++		if (do_s2io_prog_unicast(netdev, netdev->dev_addr) == FAILURE) {
+ 			s2io_card_down(sp);
+ 			pr_err("Can't restore mac addr after reset.\n");
+ 			return;
 
 
