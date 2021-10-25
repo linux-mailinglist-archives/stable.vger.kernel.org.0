@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D71A43A334
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99F2B43A15C
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239549AbhJYT5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:57:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42722 "EHLO mail.kernel.org"
+        id S236455AbhJYTiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:38:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235497AbhJYTzI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:55:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08F2F610A6;
-        Mon, 25 Oct 2021 19:45:31 +0000 (UTC)
+        id S235309AbhJYTbo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:31:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B31F61139;
+        Mon, 25 Oct 2021 19:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635191132;
-        bh=IIrpcUVTztwdklgZWMopXjqbhWQ1Nlwy6rmpCXx5ZZE=;
+        s=korg; t=1635190084;
+        bh=NPNYp8OuvMiUMTw3xADCPe+MPBgemo9Lz4wNpgaXrQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iEI5zUtpi4zMjUMyiDF/2vg7yUgyS/frFPjFqJx7+IjLJfbPvIU05ZwT5MPwTpTpX
-         33TR2Hzus+Oaus/6CWNQDt221amW/S4/y7nATRk8kK4/8x0o9lk3RY/6GNvGWsev6y
-         NCTtFKier2IPf3tdXPXvEyUvNOfH8wSW6PSd8+jA=
+        b=Rzm/EGbcnsp/vhAakKowpxfRiOEF2Q0Fnaoo78WHtgWOi2OYWrOR8QKbzwVtB574M
+         WvTA9vBmnAVd29WI76r+o6migLubHZez3YZnYtv9CDI/Wsr9rC1va7CeNIGmpYCeNE
+         WBYkBwjSSLsTEV19M7gqlWOmCOEljKd9wYO4jrRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Daniel Abrecht <public@danielabrecht.ch>,
-        Emil Velikov <emil.l.velikov@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Stefan Agner <stefan@agner.ch>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: [PATCH 5.14 122/169] drm: mxsfb: Fix NULL pointer dereference crash on unload
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 46/58] btrfs: deal with errors when checking if a dir entry exists during log replay
 Date:   Mon, 25 Oct 2021 21:15:03 +0200
-Message-Id: <20211025191033.309049783@linuxfoundation.org>
+Message-Id: <20211025190945.326788692@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +40,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 3cfc183052c3dbf8eae57b6c1685dab00ed3db4a upstream.
+[ Upstream commit 77a5b9e3d14cbce49ceed2766b2003c034c066dc ]
 
-The mxsfb->crtc.funcs may already be NULL when unloading the driver,
-in which case calling mxsfb_irq_disable() via drm_irq_uninstall() from
-mxsfb_unload() leads to NULL pointer dereference.
+Currently inode_in_dir() ignores errors returned from
+btrfs_lookup_dir_index_item() and from btrfs_lookup_dir_item(), treating
+any errors as if the directory entry does not exists in the fs/subvolume
+tree, which is obviously not correct, as we can get errors such as -EIO
+when reading extent buffers while searching the fs/subvolume's tree.
 
-Since all we care about is masking the IRQ and mxsfb->base is still
-valid, just use that to clear and mask the IRQ.
+Fix that by making inode_in_dir() return the errors and making its only
+caller, add_inode_ref(), deal with returned errors as well.
 
-Fixes: ae1ed00932819 ("drm: mxsfb: Stop using DRM simple display pipeline helper")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Daniel Abrecht <public@danielabrecht.ch>
-Cc: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Stefan Agner <stefan@agner.ch>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211016210446.171616-1-marex@denx.de
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mxsfb/mxsfb_drv.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/btrfs/tree-log.c | 47 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 29 insertions(+), 18 deletions(-)
 
---- a/drivers/gpu/drm/mxsfb/mxsfb_drv.c
-+++ b/drivers/gpu/drm/mxsfb/mxsfb_drv.c
-@@ -268,7 +268,11 @@ static void mxsfb_irq_disable(struct drm
- 	struct mxsfb_drm_private *mxsfb = drm->dev_private;
- 
- 	mxsfb_enable_axi_clk(mxsfb);
--	mxsfb->crtc.funcs->disable_vblank(&mxsfb->crtc);
-+
-+	/* Disable and clear VBLANK IRQ */
-+	writel(CTRL1_CUR_FRAME_DONE_IRQ_EN, mxsfb->base + LCDC_CTRL1 + REG_CLR);
-+	writel(CTRL1_CUR_FRAME_DONE_IRQ, mxsfb->base + LCDC_CTRL1 + REG_CLR);
-+
- 	mxsfb_disable_axi_clk(mxsfb);
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 9d358dafef36..f34205569987 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -900,9 +900,11 @@ out:
  }
  
+ /*
+- * helper function to see if a given name and sequence number found
+- * in an inode back reference are already in a directory and correctly
+- * point to this inode
++ * See if a given name and sequence number found in an inode back reference are
++ * already in a directory and correctly point to this inode.
++ *
++ * Returns: < 0 on error, 0 if the directory entry does not exists and 1 if it
++ * exists.
+  */
+ static noinline int inode_in_dir(struct btrfs_root *root,
+ 				 struct btrfs_path *path,
+@@ -911,29 +913,35 @@ static noinline int inode_in_dir(struct btrfs_root *root,
+ {
+ 	struct btrfs_dir_item *di;
+ 	struct btrfs_key location;
+-	int match = 0;
++	int ret = 0;
+ 
+ 	di = btrfs_lookup_dir_index_item(NULL, root, path, dirid,
+ 					 index, name, name_len, 0);
+-	if (di && !IS_ERR(di)) {
++	if (IS_ERR(di)) {
++		if (PTR_ERR(di) != -ENOENT)
++			ret = PTR_ERR(di);
++		goto out;
++	} else if (di) {
+ 		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
+ 		if (location.objectid != objectid)
+ 			goto out;
+-	} else
++	} else {
+ 		goto out;
+-	btrfs_release_path(path);
++	}
+ 
++	btrfs_release_path(path);
+ 	di = btrfs_lookup_dir_item(NULL, root, path, dirid, name, name_len, 0);
+-	if (di && !IS_ERR(di)) {
+-		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
+-		if (location.objectid != objectid)
+-			goto out;
+-	} else
++	if (IS_ERR(di)) {
++		ret = PTR_ERR(di);
+ 		goto out;
+-	match = 1;
++	} else if (di) {
++		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
++		if (location.objectid == objectid)
++			ret = 1;
++	}
+ out:
+ 	btrfs_release_path(path);
+-	return match;
++	return ret;
+ }
+ 
+ /*
+@@ -1500,10 +1508,12 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 		if (ret)
+ 			goto out;
+ 
+-		/* if we already have a perfect match, we're done */
+-		if (!inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
+-					btrfs_ino(BTRFS_I(inode)), ref_index,
+-					name, namelen)) {
++		ret = inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
++				   btrfs_ino(BTRFS_I(inode)), ref_index,
++				   name, namelen);
++		if (ret < 0) {
++			goto out;
++		} else if (ret == 0) {
+ 			/*
+ 			 * look for a conflicting back reference in the
+ 			 * metadata. if we find one we have to unlink that name
+@@ -1561,6 +1571,7 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 
+ 			btrfs_update_inode(trans, root, inode);
+ 		}
++		/* Else, ret == 1, we already have a perfect match, we're done. */
+ 
+ 		ref_ptr = (unsigned long)(ref_ptr + ref_struct_size) + namelen;
+ 		kfree(name);
+-- 
+2.33.0
+
 
 
