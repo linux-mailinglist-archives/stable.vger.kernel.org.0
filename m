@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D56D43A2B6
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50930439FFD
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:24:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234596AbhJYTvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:51:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37142 "EHLO mail.kernel.org"
+        id S235107AbhJYT0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:26:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236134AbhJYTti (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:49:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA7C661108;
-        Mon, 25 Oct 2021 19:41:46 +0000 (UTC)
+        id S234824AbhJYTYa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:24:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44FE961106;
+        Mon, 25 Oct 2021 19:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190908;
-        bh=5pE0lFSjvAajVgu0Aa+jEAe8SoNog+r8Es7wuCC9jg0=;
+        s=korg; t=1635189710;
+        bh=X0b7bApjH+6xUBKRzfuhxtRm8g7Jemtwsgkhyi6Y7cM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mt8rq4a/xE7gYFT/NdI0zW5Z5rRmNqqlOBJHzxwvRVP3RLFXXgtDDJcyYu6ou6uxR
-         /E6lbwKIMWp5X8dPdMKGXp+eOSKUha0lWd7n6DBZfL7npUi8CVvI0E0bjEqOEwx4Yn
-         6YMBxIRwK4d67MwpBk0m5DT2GNGvPKF2YGQcOBCI=
+        b=SbOvh6B/sXtushYHd1/OEhWxfzf6Y/JV+uUyXZbWqheXtJ91+OhJL4P9o4rTNzJ27
+         9FS0vREOgp4Q8mmpKIgkwhZN9lgyPD9azHmzdHoj3cwM87toaPVumLqYI+SvQueNtT
+         WevWkbBIC8JiEiTSbVCoUr9k5WInN0/0i4iU10IA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.14 099/169] powerpc/idle: Dont corrupt back chain when going idle
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 20/30] btrfs: deal with errors when checking if a dir entry exists during log replay
 Date:   Mon, 25 Oct 2021 21:14:40 +0200
-Message-Id: <20211025191030.390317661@linuxfoundation.org>
+Message-Id: <20211025190927.701832804@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
+References: <20211025190922.089277904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,67 +40,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 496c5fe25c377ddb7815c4ce8ecfb676f051e9b6 upstream.
+[ Upstream commit 77a5b9e3d14cbce49ceed2766b2003c034c066dc ]
 
-In isa206_idle_insn_mayloss() we store various registers into the stack
-red zone, which is allowed.
+Currently inode_in_dir() ignores errors returned from
+btrfs_lookup_dir_index_item() and from btrfs_lookup_dir_item(), treating
+any errors as if the directory entry does not exists in the fs/subvolume
+tree, which is obviously not correct, as we can get errors such as -EIO
+when reading extent buffers while searching the fs/subvolume's tree.
 
-However inside the IDLE_STATE_ENTER_SEQ_NORET macro we save r2 again,
-to 0(r1), which corrupts the stack back chain.
+Fix that by making inode_in_dir() return the errors and making its only
+caller, add_inode_ref(), deal with returned errors as well.
 
-We used to do the same in isa206_idle_insn_mayloss() itself, but we
-fixed that in 73287caa9210 ("powerpc64/idle: Fix SP offsets when saving
-GPRs"), however we missed that the macro also corrupts the back chain.
-
-Corrupting the back chain is bad for debuggability but doesn't
-necessarily cause a bug.
-
-However we recently changed the stack handling in some KVM code, and it
-now relies on the stack back chain being valid when it returns. The
-corruption causes that code to return with r1 pointing somewhere in
-kernel data, at some point LR is restored from the stack and we branch
-to NULL or somewhere else invalid.
-
-Only affects Power8 hosts running KVM guests, with dynamic_mt_modes
-enabled (which it is by default).
-
-The fixes tag below points to the commit that changed the KVM stack
-handling, exposing this bug. The actual corruption of the back chain has
-always existed since 948cf67c4726 ("powerpc: Add NAP mode support on
-Power7 in HV mode").
-
-Fixes: 9b4416c5095c ("KVM: PPC: Book3S HV: Fix stack handling in idle_kvm_start_guest()")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211020094826.3222052-1-mpe@ellerman.id.au
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/idle_book3s.S |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/btrfs/tree-log.c | 47 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 29 insertions(+), 18 deletions(-)
 
---- a/arch/powerpc/kernel/idle_book3s.S
-+++ b/arch/powerpc/kernel/idle_book3s.S
-@@ -126,14 +126,16 @@ _GLOBAL(idle_return_gpr_loss)
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 08ab7ab909a8..372a10130ced 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -901,9 +901,11 @@ out:
+ }
+ 
  /*
-  * This is the sequence required to execute idle instructions, as
-  * specified in ISA v2.07 (and earlier). MSR[IR] and MSR[DR] must be 0.
-- *
-- * The 0(r1) slot is used to save r2 in isa206, so use that here.
-+ * We have to store a GPR somewhere, ptesync, then reload it, and create
-+ * a false dependency on the result of the load. It doesn't matter which
-+ * GPR we store, or where we store it. We have already stored r2 to the
-+ * stack at -8(r1) in isa206_idle_insn_mayloss, so use that.
+- * helper function to see if a given name and sequence number found
+- * in an inode back reference are already in a directory and correctly
+- * point to this inode
++ * See if a given name and sequence number found in an inode back reference are
++ * already in a directory and correctly point to this inode.
++ *
++ * Returns: < 0 on error, 0 if the directory entry does not exists and 1 if it
++ * exists.
   */
- #define IDLE_STATE_ENTER_SEQ_NORET(IDLE_INST)			\
- 	/* Magic NAP/SLEEP/WINKLE mode enter sequence */	\
--	std	r2,0(r1);					\
-+	std	r2,-8(r1);					\
- 	ptesync;						\
--	ld	r2,0(r1);					\
-+	ld	r2,-8(r1);					\
- 236:	cmpd	cr0,r2,r2;					\
- 	bne	236b;						\
- 	IDLE_INST;						\
+ static noinline int inode_in_dir(struct btrfs_root *root,
+ 				 struct btrfs_path *path,
+@@ -912,29 +914,35 @@ static noinline int inode_in_dir(struct btrfs_root *root,
+ {
+ 	struct btrfs_dir_item *di;
+ 	struct btrfs_key location;
+-	int match = 0;
++	int ret = 0;
+ 
+ 	di = btrfs_lookup_dir_index_item(NULL, root, path, dirid,
+ 					 index, name, name_len, 0);
+-	if (di && !IS_ERR(di)) {
++	if (IS_ERR(di)) {
++		if (PTR_ERR(di) != -ENOENT)
++			ret = PTR_ERR(di);
++		goto out;
++	} else if (di) {
+ 		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
+ 		if (location.objectid != objectid)
+ 			goto out;
+-	} else
++	} else {
+ 		goto out;
+-	btrfs_release_path(path);
++	}
+ 
++	btrfs_release_path(path);
+ 	di = btrfs_lookup_dir_item(NULL, root, path, dirid, name, name_len, 0);
+-	if (di && !IS_ERR(di)) {
+-		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
+-		if (location.objectid != objectid)
+-			goto out;
+-	} else
++	if (IS_ERR(di)) {
++		ret = PTR_ERR(di);
+ 		goto out;
+-	match = 1;
++	} else if (di) {
++		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
++		if (location.objectid == objectid)
++			ret = 1;
++	}
+ out:
+ 	btrfs_release_path(path);
+-	return match;
++	return ret;
+ }
+ 
+ /*
+@@ -1319,10 +1327,12 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 		if (ret)
+ 			goto out;
+ 
+-		/* if we already have a perfect match, we're done */
+-		if (!inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
+-					btrfs_ino(BTRFS_I(inode)), ref_index,
+-					name, namelen)) {
++		ret = inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
++				   btrfs_ino(BTRFS_I(inode)), ref_index,
++				   name, namelen);
++		if (ret < 0) {
++			goto out;
++		} else if (ret == 0) {
+ 			/*
+ 			 * look for a conflicting back reference in the
+ 			 * metadata. if we find one we have to unlink that name
+@@ -1355,6 +1365,7 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 
+ 			btrfs_update_inode(trans, root, inode);
+ 		}
++		/* Else, ret == 1, we already have a perfect match, we're done. */
+ 
+ 		ref_ptr = (unsigned long)(ref_ptr + ref_struct_size) + namelen;
+ 		kfree(name);
+-- 
+2.33.0
+
 
 
