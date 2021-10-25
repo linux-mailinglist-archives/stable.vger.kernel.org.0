@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D1A43A1AB
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:38:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EAE143A108
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235411AbhJYTk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:40:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53236 "EHLO mail.kernel.org"
+        id S236624AbhJYThH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237110AbhJYTit (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:38:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50E2E60E97;
-        Mon, 25 Oct 2021 19:34:56 +0000 (UTC)
+        id S236113AbhJYTde (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:33:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B6BF61166;
+        Mon, 25 Oct 2021 19:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190497;
-        bh=kDzUY+TY0srqy4pJ9vW70pzP6B4vvtzWWRM+X8PjjT0=;
+        s=korg; t=1635190137;
+        bh=7bLD1MUDdpch80iXr8BwoGJ4m7QmXbw+3iJAhOjMmvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OuD1SapaKuSomJxscO5gremzB2iXNyiz412ASC+3YHN/ms7RgqS6sCwdz6SBShupS
-         HXV2UdC2F4lzQUQAfwuy495k1dc6W+5MROHwSJZBDAB78xtuqI0QYDcszKDSeDQGjR
-         phXeo0ZZ3/6C+vXcy9gw9dm22RXWlkTq04mRFHEI=
+        b=WwNVejpNsGUZ6GmhMxtVTUkAjCfkPW+qAq9SuK0i1qhsrfmmSZUPcyi498nG6Po1Q
+         CpdImICFFHJXAfxKRb+zv1gVLNgw4Si+3tYRevUvl2FwIu+DhqsH4ljaXeAb6qvMNt
+         IXMgoMmVY2uWmehnG1T4tKk8knj/RmW55HM8YoYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 72/95] btrfs: deal with errors when checking if a dir entry exists during log replay
+Subject: [PATCH 5.4 52/58] Input: snvs_pwrkey - add clk handling
 Date:   Mon, 25 Oct 2021 21:15:09 +0200
-Message-Id: <20211025191007.341880123@linuxfoundation.org>
+Message-Id: <20211025190946.361691383@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,118 +42,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 77a5b9e3d14cbce49ceed2766b2003c034c066dc ]
+[ Upstream commit d997cc1715df7b6c3df798881fb9941acf0079f8 ]
 
-Currently inode_in_dir() ignores errors returned from
-btrfs_lookup_dir_index_item() and from btrfs_lookup_dir_item(), treating
-any errors as if the directory entry does not exists in the fs/subvolume
-tree, which is obviously not correct, as we can get errors such as -EIO
-when reading extent buffers while searching the fs/subvolume's tree.
+On i.MX7S and i.MX8M* (but not i.MX6*) the pwrkey device has an
+associated clock. Accessing the registers requires that this clock is
+enabled. Binding the driver on at least i.MX7S and i.MX8MP while not
+having the clock enabled results in a complete hang of the machine.
+(This usually only happens if snvs_pwrkey is built as a module and the
+rtc-snvs driver isn't already bound because at bootup the required clk
+is on and only gets disabled when the clk framework disables unused clks
+late during boot.)
 
-Fix that by making inode_in_dir() return the errors and making its only
-caller, add_inode_ref(), deal with returned errors as well.
+This completes the fix in commit 135be16d3505 ("ARM: dts: imx7s: add
+snvs clock to pwrkey").
 
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20211013062848.2667192-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 47 ++++++++++++++++++++++++++++-----------------
- 1 file changed, 29 insertions(+), 18 deletions(-)
+ drivers/input/keyboard/snvs_pwrkey.c | 29 ++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index c3bb5c4375ab..3b93a98fd544 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -894,9 +894,11 @@ out:
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+index e76b7a400a1c..248bb86f4b3f 100644
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -3,6 +3,7 @@
+ // Driver for the IMX SNVS ON/OFF Power Key
+ // Copyright (C) 2015 Freescale Semiconductor, Inc. All Rights Reserved.
+ 
++#include <linux/clk.h>
+ #include <linux/device.h>
+ #include <linux/err.h>
+ #include <linux/init.h>
+@@ -81,6 +82,11 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
  }
  
- /*
-- * helper function to see if a given name and sequence number found
-- * in an inode back reference are already in a directory and correctly
-- * point to this inode
-+ * See if a given name and sequence number found in an inode back reference are
-+ * already in a directory and correctly point to this inode.
-+ *
-+ * Returns: < 0 on error, 0 if the directory entry does not exists and 1 if it
-+ * exists.
-  */
- static noinline int inode_in_dir(struct btrfs_root *root,
- 				 struct btrfs_path *path,
-@@ -905,29 +907,35 @@ static noinline int inode_in_dir(struct btrfs_root *root,
++static void imx_snvs_pwrkey_disable_clk(void *data)
++{
++	clk_disable_unprepare(data);
++}
++
+ static void imx_snvs_pwrkey_act(void *pdata)
  {
- 	struct btrfs_dir_item *di;
- 	struct btrfs_key location;
--	int match = 0;
-+	int ret = 0;
+ 	struct pwrkey_drv_data *pd = pdata;
+@@ -93,6 +99,7 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 	struct pwrkey_drv_data *pdata = NULL;
+ 	struct input_dev *input = NULL;
+ 	struct device_node *np;
++	struct clk *clk;
+ 	int error;
  
- 	di = btrfs_lookup_dir_index_item(NULL, root, path, dirid,
- 					 index, name, name_len, 0);
--	if (di && !IS_ERR(di)) {
-+	if (IS_ERR(di)) {
-+		if (PTR_ERR(di) != -ENOENT)
-+			ret = PTR_ERR(di);
-+		goto out;
-+	} else if (di) {
- 		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
- 		if (location.objectid != objectid)
- 			goto out;
--	} else
-+	} else {
- 		goto out;
--	btrfs_release_path(path);
+ 	/* Get SNVS register Page */
+@@ -115,6 +122,28 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 		dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
+ 	}
+ 
++	clk = devm_clk_get_optional(&pdev->dev, NULL);
++	if (IS_ERR(clk)) {
++		dev_err(&pdev->dev, "Failed to get snvs clock (%pe)\n", clk);
++		return PTR_ERR(clk);
 +	}
- 
-+	btrfs_release_path(path);
- 	di = btrfs_lookup_dir_item(NULL, root, path, dirid, name, name_len, 0);
--	if (di && !IS_ERR(di)) {
--		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
--		if (location.objectid != objectid)
--			goto out;
--	} else
-+	if (IS_ERR(di)) {
-+		ret = PTR_ERR(di);
- 		goto out;
--	match = 1;
-+	} else if (di) {
-+		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
-+		if (location.objectid == objectid)
-+			ret = 1;
++
++	error = clk_prepare_enable(clk);
++	if (error) {
++		dev_err(&pdev->dev, "Failed to enable snvs clock (%pe)\n",
++			ERR_PTR(error));
++		return error;
 +	}
- out:
- 	btrfs_release_path(path);
--	return match;
-+	return ret;
- }
++
++	error = devm_add_action_or_reset(&pdev->dev,
++					 imx_snvs_pwrkey_disable_clk, clk);
++	if (error) {
++		dev_err(&pdev->dev,
++			"Failed to register clock cleanup handler (%pe)\n",
++			ERR_PTR(error));
++		return error;
++	}
++
+ 	pdata->wakeup = of_property_read_bool(np, "wakeup-source");
  
- /*
-@@ -1477,10 +1485,12 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
- 		if (ret)
- 			goto out;
- 
--		/* if we already have a perfect match, we're done */
--		if (!inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
--					btrfs_ino(BTRFS_I(inode)), ref_index,
--					name, namelen)) {
-+		ret = inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
-+				   btrfs_ino(BTRFS_I(inode)), ref_index,
-+				   name, namelen);
-+		if (ret < 0) {
-+			goto out;
-+		} else if (ret == 0) {
- 			/*
- 			 * look for a conflicting back reference in the
- 			 * metadata. if we find one we have to unlink that name
-@@ -1538,6 +1548,7 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
- 
- 			btrfs_update_inode(trans, root, inode);
- 		}
-+		/* Else, ret == 1, we already have a perfect match, we're done. */
- 
- 		ref_ptr = (unsigned long)(ref_ptr + ref_struct_size) + namelen;
- 		kfree(name);
+ 	pdata->irq = platform_get_irq(pdev, 0);
 -- 
 2.33.0
 
