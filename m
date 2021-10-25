@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 284C843A044
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3135243A132
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235193AbhJYT3e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:29:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48098 "EHLO mail.kernel.org"
+        id S235582AbhJYThi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235352AbhJYT2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:28:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDA1D6113B;
-        Mon, 25 Oct 2021 19:24:43 +0000 (UTC)
+        id S236512AbhJYTew (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:34:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FF9A610D2;
+        Mon, 25 Oct 2021 19:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189884;
-        bh=KCAGzqHHbF0daqZGWKDTxoMRoQg6+sBe85+/4TbKvHo=;
+        s=korg; t=1635190276;
+        bh=imYs0xhtK3lqwNFItWp6NgWljM8Kd40DAJey7PhxkwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LlEOPl3TmYtp78eGlE7mZDDQDGzw5hyrkfLTMZ7BrscvtsYSEWH536STFaCsOCsie
-         89Kn4QiFuy3KZB5LHaM3RAPSRaUPAJKHgJ4sTr2uAkufH8pMhmGtPcEZZscnyvHebc
-         I/sYs2qH4eUySnakLtNlwcpVGCAh79bi9DniI7Fg=
+        b=dZYTmTT7E/Al/2jt5WRd/EBJfHGo77U/57GreyscM3Ua/yWiz2jcNpfaZjR9HzX1I
+         Z+YxFc1QTAegO06v3IfB41qvpHfnDc6aOw4NgXHGj/dC9IAQr1L9AwY+6S+u/v9Tqe
+         qIyAPK3STPBreJ8nEskA0CTE3V4TYWJFJM5FOQU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/37] ASoC: wm8960: Fix clock configuration on slave mode
-Date:   Mon, 25 Oct 2021 21:14:31 +0200
-Message-Id: <20211025190929.547841507@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 35/95] can: peak_usb: pcan_usb_fd_decode_status(): fix back to ERROR_ACTIVE state notification
+Date:   Mon, 25 Oct 2021 21:14:32 +0200
+Message-Id: <20211025191001.940133857@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
-References: <20211025190926.680827862@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Stephane Grosjean <s.grosjean@peak-system.com>
 
-[ Upstream commit 6b9b546dc00797c74bef491668ce5431ff54e1e2 ]
+commit 3d031abc7e7249573148871180c28ecedb5e27df upstream.
 
-There is a noise issue for 8kHz sample rate on slave mode.
-Compared with master mode, the difference is the DACDIV
-setting, after correcting the DACDIV, the noise is gone.
+This corrects the lack of notification of a return to ERROR_ACTIVE
+state for USB - CANFD devices from PEAK-System.
 
-There is no noise issue for 48kHz sample rate, because
-the default value of DACDIV is correct for 48kHz.
-
-So wm8960_configure_clocking() should be functional for
-ADC and DAC function even if it is slave mode.
-
-In order to be compatible for old use case, just add
-condition for checking that sysclk is zero with
-slave mode.
-
-Fixes: 0e50b51aa22f ("ASoC: wm8960: Let wm8960 driver configure its bit clock and frame clock")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/1634102224-3922-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0a25e1f4f185 ("can: peak_usb: add support for PEAK new CANFD USB adapters")
+Link: https://lore.kernel.org/all/20210929142111.55757-1-s.grosjean@peak-system.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wm8960.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
-index 88e869d16714..abd5c12764f0 100644
---- a/sound/soc/codecs/wm8960.c
-+++ b/sound/soc/codecs/wm8960.c
-@@ -755,9 +755,16 @@ static int wm8960_configure_clocking(struct snd_soc_component *component)
- 	int i, j, k;
- 	int ret;
- 
--	if (!(iface1 & (1<<6))) {
--		dev_dbg(component->dev,
--			"Codec is slave mode, no need to configure clock\n");
-+	/*
-+	 * For Slave mode clocking should still be configured,
-+	 * so this if statement should be removed, but some platform
-+	 * may not work if the sysclk is not configured, to avoid such
-+	 * compatible issue, just add '!wm8960->sysclk' condition in
-+	 * this if statement.
-+	 */
-+	if (!(iface1 & (1 << 6)) && !wm8960->sysclk) {
-+		dev_warn(component->dev,
-+			 "slave mode, but proceeding with no clock configuration\n");
- 		return 0;
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+@@ -551,11 +551,10 @@ static int pcan_usb_fd_decode_status(str
+ 	} else if (sm->channel_p_w_b & PUCAN_BUS_WARNING) {
+ 		new_state = CAN_STATE_ERROR_WARNING;
+ 	} else {
+-		/* no error bit (so, no error skb, back to active state) */
+-		dev->can.state = CAN_STATE_ERROR_ACTIVE;
++		/* back to (or still in) ERROR_ACTIVE state */
++		new_state = CAN_STATE_ERROR_ACTIVE;
+ 		pdev->bec.txerr = 0;
+ 		pdev->bec.rxerr = 0;
+-		return 0;
  	}
  
--- 
-2.33.0
-
+ 	/* state hasn't changed */
 
 
