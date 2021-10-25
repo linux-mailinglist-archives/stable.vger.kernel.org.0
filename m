@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65B0A439F39
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:16:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE86439F85
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:19:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234186AbhJYTSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:18:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35992 "EHLO mail.kernel.org"
+        id S233470AbhJYTVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:21:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234410AbhJYTSR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:18:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70F6260FE8;
-        Mon, 25 Oct 2021 19:15:54 +0000 (UTC)
+        id S234767AbhJYTUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:20:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17573610EA;
+        Mon, 25 Oct 2021 19:18:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189355;
-        bh=bXSiPAoFKFdLrx8TAXvX24v0hbHCH3+uHGa41WMBPPw=;
+        s=korg; t=1635189489;
+        bh=NsnvHBtfrB7JTvTJxoyc14T4KqvhNTSri0+FiRhQ19k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGJJ0m9uEmASK/SQ2RydE8wOiiwqjR2L28HsrvP02NNPMk7aQuawHepPsCxCByVsC
-         5I33qNDY/W22HmdsxtGqB/BJLcdfWAu9Jrizou7v/jcpn32lGT/o5il+1QUxwztbnS
-         Q5j6EUDrC57Fy3edcwx2fEOfq4BgCflnrN86SgOQ=
+        b=s+WX+Od73L6/VrH2pIZLYfaBWs9nSbCHDg0iuQAhVushWIocfQ8g85Vvxa+tlgVBG
+         ZfZeWyhcxd3nnYV/a8TxkRjq0uEaUNNLwP6uj/jDHSBBMPPF8YDdZMv1vLPYlZ2Lvx
+         LRBOW58wXI///tcgjTxmuOLtgNLYHoqSkwVBlRX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Florian fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 14/44] net: korina: select CRC32
+        stable@vger.kernel.org,
+        Aleksander Morgado <aleksander@aleksander.es>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 08/50] USB: serial: qcserial: add EM9191 QDL support
 Date:   Mon, 25 Oct 2021 21:13:55 +0200
-Message-Id: <20211025190931.624683869@linuxfoundation.org>
+Message-Id: <20211025190934.476230148@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
+References: <20211025190932.542632625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+From: Aleksander Morgado <aleksander@aleksander.es>
 
-commit 427f974d9727ca681085ddcd0530c97ab5811ae0 upstream.
+commit 11c52d250b34a0862edc29db03fbec23b30db6da upstream.
 
-Fix the following build/link error by adding a dependency on the CRC32
-routines:
+When the module boots into QDL download mode it exposes the 1199:90d2
+ids, which can be mapped to the qcserial driver, and used to run
+firmware upgrades (e.g. with the qmi-firmware-update program).
 
-  ld: drivers/net/ethernet/korina.o: in function `korina_multicast_list':
-  korina.c:(.text+0x1af): undefined reference to `crc32_le'
+  T:  Bus=01 Lev=03 Prnt=08 Port=03 Cnt=01 Dev#= 10 Spd=480 MxCh= 0
+  D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+  P:  Vendor=1199 ProdID=90d2 Rev=00.00
+  S:  Manufacturer=Sierra Wireless, Incorporated
+  S:  Product=Sierra Wireless EM9191
+  S:  SerialNumber=8W0382004102A109
+  C:  #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=2mA
+  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=10 Driver=qcserial
 
-Fixes: ef11291bcd5f9 ("Add support the Korina (IDT RC32434) Ethernet MAC")
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Acked-by: Florian fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20211012152509.21771-1-vegard.nossum@oracle.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/Kconfig |    1 +
+ drivers/usb/serial/qcserial.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/Kconfig
-+++ b/drivers/net/ethernet/Kconfig
-@@ -95,6 +95,7 @@ config JME
- config KORINA
- 	tristate "Korina (IDT RC32434) Ethernet support"
- 	depends on MIKROTIK_RB532
-+	select CRC32
- 	---help---
- 	  If you have a Mikrotik RouterBoard 500 or IDT RC32434
- 	  based system say Y. Otherwise say N.
+--- a/drivers/usb/serial/qcserial.c
++++ b/drivers/usb/serial/qcserial.c
+@@ -169,6 +169,7 @@ static const struct usb_device_id id_tab
+ 	{DEVICE_SWI(0x1199, 0x907b)},	/* Sierra Wireless EM74xx */
+ 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
+ 	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
++	{DEVICE_SWI(0x1199, 0x90d2)},	/* Sierra Wireless EM9191 QDL */
+ 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
 
 
