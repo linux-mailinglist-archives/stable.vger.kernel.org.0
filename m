@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C76543A038
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B4F743A16F
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234976AbhJYT30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:29:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42692 "EHLO mail.kernel.org"
+        id S234636AbhJYTi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:38:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235323AbhJYT1U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:27:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DA2361151;
-        Mon, 25 Oct 2021 19:24:04 +0000 (UTC)
+        id S236898AbhJYTgc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:36:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5172C610C8;
+        Mon, 25 Oct 2021 19:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189845;
-        bh=GbPtMjnRnj2hSIL3N+ldjX4XsK6eHgNk2S73vTgVJJU=;
+        s=korg; t=1635190403;
+        bh=O0h+dirvFotMv2Za8enP7HDUcXnoF5nYPQtG5ozqOvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bYs5RAJeJGv9yX7hhX1klUl/oYQCj9rmfBRfo0WDqosoYgRbPXmdXewfhokWHCqv2
-         5Grw6A2nrZTMj2FPGdNgyFSXWq6+DcsczHQEhu5XKOA/utnxIx3rw4gWpyRkrdLlAp
-         UhAjaQjQchgtO4RrFjJmZMyuiCrXbKMYsLKZmVJY=
+        b=Xf8Mn+tzTDpU9XeF/4CoxJYIDhf6SbbLTJoJKvKOtyUy87nFu7lY94ClqoM7SFJ49
+         JRSMa9HrPmQIw9Wi1qacourZLqcPSyNaXkl4rOmZO6Ry8fULJ9Y29LOBXxlEyqzBFF
+         aZ+5Sl0hqYJPwVhc4G68uZul5zMUh3fi1RtlZjg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4.19 21/37] ASoC: DAPM: Fix missing kctl change notifications
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Hao Sun <sunhao.th@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 49/95] vfs: check fd has read access in kernel_read_file_from_fd()
 Date:   Mon, 25 Oct 2021 21:14:46 +0200
-Message-Id: <20211025190932.574997007@linuxfoundation.org>
+Message-Id: <20211025191003.715441924@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
-References: <20211025190926.680827862@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 5af82c81b2c49cfb1cad84d9eb6eab0e3d1c4842 upstream.
+commit 032146cda85566abcd1c4884d9d23e4e30a07e9a upstream.
 
-The put callback of a kcontrol is supposed to return 1 when the value
-is changed, and this will be notified to user-space.  However, some
-DAPM kcontrols always return 0 (except for errors), hence the
-user-space misses the update of a control value.
+If we open a file without read access and then pass the fd to a syscall
+whose implementation calls kernel_read_file_from_fd(), we get a warning
+from __kernel_read():
 
-This patch corrects the behavior by properly returning 1 when the
-value gets updated.
+        if (WARN_ON_ONCE(!(file->f_mode & FMODE_READ)))
 
-Reported-and-tested-by: Hans de Goede <hdegoede@redhat.com>
+This currently affects both finit_module() and kexec_file_load(), but it
+could affect other syscalls in the future.
+
+Link: https://lkml.kernel.org/r/20211007220110.600005-1-willy@infradead.org
+Fixes: b844f0ecbc56 ("vfs: define kernel_copy_file_from_fd()")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Mimi Zohar <zohar@linux.ibm.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211006141712.2439-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-dapm.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ fs/kernel_read_file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2515,6 +2515,7 @@ static int snd_soc_dapm_set_pin(struct s
- 				const char *pin, int status)
- {
- 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
-+	int ret = 0;
+--- a/fs/kernel_read_file.c
++++ b/fs/kernel_read_file.c
+@@ -178,7 +178,7 @@ int kernel_read_file_from_fd(int fd, lof
+ 	struct fd f = fdget(fd);
+ 	int ret = -EBADF;
  
- 	dapm_assert_locked(dapm);
+-	if (!f.file)
++	if (!f.file || !(f.file->f_mode & FMODE_READ))
+ 		goto out;
  
-@@ -2527,13 +2528,14 @@ static int snd_soc_dapm_set_pin(struct s
- 		dapm_mark_dirty(w, "pin configuration");
- 		dapm_widget_invalidate_input_paths(w);
- 		dapm_widget_invalidate_output_paths(w);
-+		ret = 1;
- 	}
- 
- 	w->connected = status;
- 	if (status == 0)
- 		w->force = 0;
- 
--	return 0;
-+	return ret;
- }
- 
- /**
-@@ -3461,14 +3463,15 @@ int snd_soc_dapm_put_pin_switch(struct s
- {
- 	struct snd_soc_card *card = snd_kcontrol_chip(kcontrol);
- 	const char *pin = (const char *)kcontrol->private_value;
-+	int ret;
- 
- 	if (ucontrol->value.integer.value[0])
--		snd_soc_dapm_enable_pin(&card->dapm, pin);
-+		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
- 	else
--		snd_soc_dapm_disable_pin(&card->dapm, pin);
-+		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
- 
- 	snd_soc_dapm_sync(&card->dapm);
--	return 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(snd_soc_dapm_put_pin_switch);
- 
-@@ -3858,7 +3861,7 @@ static int snd_soc_dapm_dai_link_put(str
- 
- 	w->params_select = ucontrol->value.enumerated.item[0];
- 
--	return 0;
-+	return 1;
- }
- 
- static void
+ 	ret = kernel_read_file(f.file, offset, buf, buf_size, file_size, id);
 
 
