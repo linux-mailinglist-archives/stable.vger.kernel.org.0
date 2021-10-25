@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C43A43A144
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C506043A02B
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236188AbhJYTh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51546 "EHLO mail.kernel.org"
+        id S234451AbhJYT3S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236660AbhJYTfD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:35:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 479B9603E5;
-        Mon, 25 Oct 2021 19:32:08 +0000 (UTC)
+        id S235292AbhJYT0k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:26:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 590766108C;
+        Mon, 25 Oct 2021 19:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190329;
-        bh=OaManoyddLXjqRvxOTuMW98sSUZrZV8ZN0DMlLKwaUE=;
+        s=korg; t=1635189801;
+        bh=Kw7lkG9kOuWj0W+L7dSn2mt0ZsB27lwqqvz5rScPANU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pvV77Hh6ILnjaWgoGoWaY/SYY+5Qjv5Wu51px/7+mf1sax9rVbulM/ACaIGYlNkCc
-         og8wDlWtMuk6nrol90fRAmI90+Zp+SUcpiecFIaBl+LlUS1hr7yEVvqn6UUiilHeAv
-         Zt3Y0cVSaEzDp60Xh22eJYbkCwgfXc4poG0nYbjo=
+        b=A93SDyFJ8Yi/F6b2pyar8xToSd68RR8bXoo5omhWSXVR0lbaNO900jzghoTK3oSs/
+         wZlIp1nEEpe0U7mMuwxYfNqGNPv+Uo3f/yyb5odDpF9KsD3GIU2Kkw9tgND5HyFPco
+         akY2OMy8S2n28umhNWPFzDhttjHupKTDdnIWyLPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Neftin <sasha.neftin@intel.com>,
-        Mark Pearson <markpearson@lenovo.com>,
-        Nechama Kraus <nechamax.kraus@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 30/95] e1000e: Fix packet loss on Tiger Lake and later
-Date:   Mon, 25 Oct 2021 21:14:27 +0200
-Message-Id: <20211025191001.275291909@linuxfoundation.org>
+Subject: [PATCH 4.19 03/37] xtensa: xtfpga: Try software restart before simulating CPU reset
+Date:   Mon, 25 Oct 2021 21:14:28 +0200
+Message-Id: <20211025190928.971632271@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,70 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Neftin <sasha.neftin@intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 639e298f432fb058a9496ea16863f53b1ce935fe ]
+[ Upstream commit 012e974501a270d8dfd4ee2039e1fdf7579c907e ]
 
-Update the HW MAC initialization flow. Do not gate DMA clock from
-the modPHY block. Keeping this clock will prevent dropped packets
-sent in burst mode on the Kumeran interface.
+Rebooting xtensa images loaded with the '-kernel' option in qemu does
+not work. When executing a reboot command, the qemu session either hangs
+or experiences an endless sequence of error messages.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=213651
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=213377
-Fixes: fb776f5d57ee ("e1000e: Add support for Tiger Lake")
-Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Mark Pearson <markpearson@lenovo.com>
-Tested-by: Nechama Kraus <nechamax.kraus@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+  Kernel panic - not syncing: Unrecoverable error in exception handler
+
+Reset code jumps to the CPU restart address, but Linux can not recover
+from there because code and data in the kernel init sections have been
+discarded and overwritten at this point.
+
+XTFPGA platforms have a means to reset the CPU by writing 0xdead into a
+specific FPGA IO address. When used in QEMU the kernel image loaded with
+the '-kernel' option gets restored to its original state allowing the
+machine to boot successfully.
+
+Use that mechanism to attempt a platform reset. If it does not work,
+fall back to the existing mechanism.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/ich8lan.c | 11 ++++++++++-
- drivers/net/ethernet/intel/e1000e/ich8lan.h |  3 +++
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ arch/xtensa/platforms/xtfpga/setup.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
-index 854c585de2e1..3cbb8d1ed67f 100644
---- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
-+++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
-@@ -4811,7 +4811,7 @@ static s32 e1000_reset_hw_ich8lan(struct e1000_hw *hw)
- static s32 e1000_init_hw_ich8lan(struct e1000_hw *hw)
+diff --git a/arch/xtensa/platforms/xtfpga/setup.c b/arch/xtensa/platforms/xtfpga/setup.c
+index 982e7c22e7ca..db5122765f16 100644
+--- a/arch/xtensa/platforms/xtfpga/setup.c
++++ b/arch/xtensa/platforms/xtfpga/setup.c
+@@ -54,8 +54,12 @@ void platform_power_off(void)
+ 
+ void platform_restart(void)
  {
- 	struct e1000_mac_info *mac = &hw->mac;
--	u32 ctrl_ext, txdctl, snoop;
-+	u32 ctrl_ext, txdctl, snoop, fflt_dbg;
- 	s32 ret_val;
- 	u16 i;
- 
-@@ -4870,6 +4870,15 @@ static s32 e1000_init_hw_ich8lan(struct e1000_hw *hw)
- 		snoop = (u32)~(PCIE_NO_SNOOP_ALL);
- 	e1000e_set_pcie_no_snoop(hw, snoop);
- 
-+	/* Enable workaround for packet loss issue on TGP PCH
-+	 * Do not gate DMA clock from the modPHY block
+-	/* Flush and reset the mmu, simulate a processor reset, and
+-	 * jump to the reset vector. */
++	/* Try software reset first. */
++	WRITE_ONCE(*(u32 *)XTFPGA_SWRST_VADDR, 0xdead);
++
++	/* If software reset did not work, flush and reset the mmu,
++	 * simulate a processor reset, and jump to the reset vector.
 +	 */
-+	if (mac->type >= e1000_pch_tgp) {
-+		fflt_dbg = er32(FFLT_DBG);
-+		fflt_dbg |= E1000_FFLT_DBG_DONT_GATE_WAKE_DMA_CLK;
-+		ew32(FFLT_DBG, fflt_dbg);
-+	}
-+
- 	ctrl_ext = er32(CTRL_EXT);
- 	ctrl_ext |= E1000_CTRL_EXT_RO_DIS;
- 	ew32(CTRL_EXT, ctrl_ext);
-diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.h b/drivers/net/ethernet/intel/e1000e/ich8lan.h
-index e757896287eb..8f2a8f4ce0ee 100644
---- a/drivers/net/ethernet/intel/e1000e/ich8lan.h
-+++ b/drivers/net/ethernet/intel/e1000e/ich8lan.h
-@@ -286,6 +286,9 @@
- /* Proprietary Latency Tolerance Reporting PCI Capability */
- #define E1000_PCI_LTR_CAP_LPT		0xA8
- 
-+/* Don't gate wake DMA clock */
-+#define E1000_FFLT_DBG_DONT_GATE_WAKE_DMA_CLK	0x1000
-+
- void e1000e_write_protect_nvm_ich8lan(struct e1000_hw *hw);
- void e1000e_set_kmrn_lock_loss_workaround_ich8lan(struct e1000_hw *hw,
- 						  bool state);
+ 	cpu_reset();
+ 	/* control never gets here */
+ }
 -- 
 2.33.0
 
