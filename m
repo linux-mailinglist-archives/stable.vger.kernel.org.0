@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4920043A21E
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC39843A21A
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:44:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234699AbhJYTpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:45:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60712 "EHLO mail.kernel.org"
+        id S235088AbhJYTpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:45:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235552AbhJYTm5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:42:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B826260F46;
-        Mon, 25 Oct 2021 19:37:12 +0000 (UTC)
+        id S235114AbhJYTmz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:42:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E88B9604DA;
+        Mon, 25 Oct 2021 19:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190633;
-        bh=Mayt8WWNnjzHeMKdc0UAkdpP5zCctwZ8VketLaO98Ew=;
+        s=korg; t=1635190636;
+        bh=M382PLZ/K/YBMjgcssAYfVLYzIP3siptLRA4cfMSCpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wLnEuHXaibg9diu3SGR2u54T+3cxBd6M0rXGtX7fygI/WKnra3aIHFja0dyVg9hLU
-         Rcgv2LfBQXnykja5rEBGo2uZimtW3LQ5ZztX68kVdRXdSDp5vVb6UmlS6MXqOK++Vt
-         DKrsg+5Hcp09yKYPvtILvriTjYXNvch4544q5bdg=
+        b=NUSmYD5+vi7zejlYHZCNzsfv548e5UfoGEAZz3bHbSpdVV4gq6NIPEN3M4QcyoxsR
+         VwrSdm+n4OnyixLK+khzt6JNVbVXkxDTyHAvySQiEadhdPvX62k+WyQzIuNl9boCou
+         3zIlF47AlooFz/Ri1OcTxCT4JO4OusqMpYLlkBNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
+        Julian Anastasov <ja@ssi.bg>,
         Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 032/169] netfilter: ip6t_rt: fix rt0_hdr parsing in rt_mt6
-Date:   Mon, 25 Oct 2021 21:13:33 +0200
-Message-Id: <20211025191022.012510927@linuxfoundation.org>
+Subject: [PATCH 5.14 033/169] netfilter: ipvs: make global sysctl readonly in non-init netns
+Date:   Mon, 25 Oct 2021 21:13:34 +0200
+Message-Id: <20211025191022.121868324@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -42,144 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-[ Upstream commit a482c5e00a9b5a194085bcd372ac36141028becb ]
+[ Upstream commit 174c376278949c44aad89c514a6b5db6cee8db59 ]
 
-In rt_mt6(), when it's a nonlinear skb, the 1st skb_header_pointer()
-only copies sizeof(struct ipv6_rt_hdr) to _route that rh points to.
-The access by ((const struct rt0_hdr *)rh)->reserved will overflow
-the buffer. So this access should be moved below the 2nd call to
-skb_header_pointer().
+Because the data pointer of net/ipv4/vs/debug_level is not updated per
+netns, it must be marked as read-only in non-init netns.
 
-Besides, after the 2nd skb_header_pointer(), its return value should
-also be checked, othersize, *rp may cause null-pointer-ref.
-
-v1->v2:
-  - clean up some old debugging log.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Florian Westphal <fw@strlen.de>
+Fixes: c6d2d445d8de ("IPVS: netns, final patch enabling network name space.")
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Acked-by: Julian Anastasov <ja@ssi.bg>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/netfilter/ip6t_rt.c | 48 +++++-------------------------------
- 1 file changed, 6 insertions(+), 42 deletions(-)
+ net/netfilter/ipvs/ip_vs_ctl.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/ipv6/netfilter/ip6t_rt.c b/net/ipv6/netfilter/ip6t_rt.c
-index 733c83d38b30..4ad8b2032f1f 100644
---- a/net/ipv6/netfilter/ip6t_rt.c
-+++ b/net/ipv6/netfilter/ip6t_rt.c
-@@ -25,12 +25,7 @@ MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
- static inline bool
- segsleft_match(u_int32_t min, u_int32_t max, u_int32_t id, bool invert)
- {
--	bool r;
--	pr_debug("segsleft_match:%c 0x%x <= 0x%x <= 0x%x\n",
--		 invert ? '!' : ' ', min, id, max);
--	r = (id >= min && id <= max) ^ invert;
--	pr_debug(" result %s\n", r ? "PASS" : "FAILED");
--	return r;
-+	return (id >= min && id <= max) ^ invert;
- }
+diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
+index c25097092a06..29ec3ef63edc 100644
+--- a/net/netfilter/ipvs/ip_vs_ctl.c
++++ b/net/netfilter/ipvs/ip_vs_ctl.c
+@@ -4090,6 +4090,11 @@ static int __net_init ip_vs_control_net_init_sysctl(struct netns_ipvs *ipvs)
+ 	tbl[idx++].data = &ipvs->sysctl_conn_reuse_mode;
+ 	tbl[idx++].data = &ipvs->sysctl_schedule_icmp;
+ 	tbl[idx++].data = &ipvs->sysctl_ignore_tunneled;
++#ifdef CONFIG_IP_VS_DEBUG
++	/* Global sysctls must be ro in non-init netns */
++	if (!net_eq(net, &init_net))
++		tbl[idx++].mode = 0444;
++#endif
  
- static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
-@@ -65,30 +60,6 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
- 		return false;
- 	}
- 
--	pr_debug("IPv6 RT LEN %u %u ", hdrlen, rh->hdrlen);
--	pr_debug("TYPE %04X ", rh->type);
--	pr_debug("SGS_LEFT %u %02X\n", rh->segments_left, rh->segments_left);
--
--	pr_debug("IPv6 RT segsleft %02X ",
--		 segsleft_match(rtinfo->segsleft[0], rtinfo->segsleft[1],
--				rh->segments_left,
--				!!(rtinfo->invflags & IP6T_RT_INV_SGS)));
--	pr_debug("type %02X %02X %02X ",
--		 rtinfo->rt_type, rh->type,
--		 (!(rtinfo->flags & IP6T_RT_TYP) ||
--		  ((rtinfo->rt_type == rh->type) ^
--		   !!(rtinfo->invflags & IP6T_RT_INV_TYP))));
--	pr_debug("len %02X %04X %02X ",
--		 rtinfo->hdrlen, hdrlen,
--		 !(rtinfo->flags & IP6T_RT_LEN) ||
--		  ((rtinfo->hdrlen == hdrlen) ^
--		   !!(rtinfo->invflags & IP6T_RT_INV_LEN)));
--	pr_debug("res %02X %02X %02X ",
--		 rtinfo->flags & IP6T_RT_RES,
--		 ((const struct rt0_hdr *)rh)->reserved,
--		 !((rtinfo->flags & IP6T_RT_RES) &&
--		   (((const struct rt0_hdr *)rh)->reserved)));
--
- 	ret = (segsleft_match(rtinfo->segsleft[0], rtinfo->segsleft[1],
- 			      rh->segments_left,
- 			      !!(rtinfo->invflags & IP6T_RT_INV_SGS))) &&
-@@ -107,22 +78,22 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
- 						       reserved),
- 					sizeof(_reserved),
- 					&_reserved);
-+		if (!rp) {
-+			par->hotdrop = true;
-+			return false;
-+		}
- 
- 		ret = (*rp == 0);
- 	}
- 
--	pr_debug("#%d ", rtinfo->addrnr);
- 	if (!(rtinfo->flags & IP6T_RT_FST)) {
- 		return ret;
- 	} else if (rtinfo->flags & IP6T_RT_FST_NSTRICT) {
--		pr_debug("Not strict ");
- 		if (rtinfo->addrnr > (unsigned int)((hdrlen - 8) / 16)) {
--			pr_debug("There isn't enough space\n");
- 			return false;
- 		} else {
- 			unsigned int i = 0;
- 
--			pr_debug("#%d ", rtinfo->addrnr);
- 			for (temp = 0;
- 			     temp < (unsigned int)((hdrlen - 8) / 16);
- 			     temp++) {
-@@ -138,26 +109,20 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
- 					return false;
- 				}
- 
--				if (ipv6_addr_equal(ap, &rtinfo->addrs[i])) {
--					pr_debug("i=%d temp=%d;\n", i, temp);
-+				if (ipv6_addr_equal(ap, &rtinfo->addrs[i]))
- 					i++;
--				}
- 				if (i == rtinfo->addrnr)
- 					break;
- 			}
--			pr_debug("i=%d #%d\n", i, rtinfo->addrnr);
- 			if (i == rtinfo->addrnr)
- 				return ret;
- 			else
- 				return false;
- 		}
- 	} else {
--		pr_debug("Strict ");
- 		if (rtinfo->addrnr > (unsigned int)((hdrlen - 8) / 16)) {
--			pr_debug("There isn't enough space\n");
- 			return false;
- 		} else {
--			pr_debug("#%d ", rtinfo->addrnr);
- 			for (temp = 0; temp < rtinfo->addrnr; temp++) {
- 				ap = skb_header_pointer(skb,
- 							ptr
-@@ -173,7 +138,6 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
- 				if (!ipv6_addr_equal(ap, &rtinfo->addrs[temp]))
- 					break;
- 			}
--			pr_debug("temp=%d #%d\n", temp, rtinfo->addrnr);
- 			if (temp == rtinfo->addrnr &&
- 			    temp == (unsigned int)((hdrlen - 8) / 16))
- 				return ret;
+ 	ipvs->sysctl_hdr = register_net_sysctl(net, "net/ipv4/vs", tbl);
+ 	if (ipvs->sysctl_hdr == NULL) {
 -- 
 2.33.0
 
