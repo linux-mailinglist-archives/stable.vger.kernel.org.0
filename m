@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CB4F43A254
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:45:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37527439F3B
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236560AbhJYTrq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:47:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37256 "EHLO mail.kernel.org"
+        id S234276AbhJYTSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:18:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237261AbhJYTpn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:45:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B893C6105A;
-        Mon, 25 Oct 2021 19:39:19 +0000 (UTC)
+        id S234515AbhJYTSW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:18:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11461600D3;
+        Mon, 25 Oct 2021 19:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190761;
-        bh=8o9HeoF9TYmr3BSU3uQgAMEZYVboF3r+myI7DK6BUf8=;
+        s=korg; t=1635189360;
+        bh=T6sqSzknxN+29LWj2D1Fygfur49sOyVzp9bbeAszR4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TaTPNwer+P6hE/e024STLMeKIgpFoq6upSPGTzbOfomCOK0XF6Eef+7q0GyAI1BAq
-         abI7yJaioUU/FA5Ks9/dT6Dwsxfnc5LT507C50FIWW03jjtGLDBW5H/7/9eRPrv7YP
-         kqSfusWHIZWkL4EcvtvDfOs7y5yR68ZQ9ImzE8ic=
+        b=gm257RKYABfD0F9AGRwgRG0DoPC2NXdj+HGkG6hedWPaSu+GqSgIqCILwQ8KHYIMp
+         zv6gisiOX22E9fo2+MEK9VinnnQXvl/kD3GX08vCwi2vJ7TzPWZIpLEVsK7KBn57zT
+         peCucoCrusnYvqVkXB1LP4b7Jft4N32nAl/Q6TEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 045/169] net: hns3: reset DWRR of unused tc to zero
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.4 05/44] efi/cper: use stack buffer for error record decoding
 Date:   Mon, 25 Oct 2021 21:13:46 +0200
-Message-Id: <20211025191023.496526616@linuxfoundation.org>
+Message-Id: <20211025190929.800977864@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
+References: <20211025190928.054676643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit b63fcaab959807282e9822e659034edf95fc8bd1 ]
+commit b3a72ca80351917cc23f9e24c35f3c3979d3c121 upstream.
 
-Currently, DWRR of tc will be initialized to a fixed value when this tc
-is enabled, but it is not been reset to 0 when this tc is disabled. It
-cause a problem that the DWRR of unused tc is not 0 after using tc tool
-to add and delete multi-tc parameters.
+Joe reports that using a statically allocated buffer for converting CPER
+error records into human readable text is probably a bad idea. Even
+though we are not aware of any actual issues, a stack buffer is clearly
+a better choice here anyway, so let's move the buffer into the stack
+frames of the two functions that refer to it.
 
-For examples, after enabling 4 TCs and restoring to 1 TC by follow
-tc commands:
-
-$ tc qdisc add dev eth0 root mqprio num_tc 4 map 0 1 2 3 0 1 2 3 queues \
-  8@0 8@8 8@16 8@24 hw 1 mode channel
-$ tc qdisc del dev eth0 root
-
-Now there is just one TC is enabled for eth0, but the tc info querying by
-debugfs is shown as follow:
-
-$ cat /mnt/hns3/0000:7d:00.0/tm/tc_sch_info
-enabled tc number: 1
-weight_offset: 14
-TC    MODE  WEIGHT
-0     dwrr    100
-1     dwrr    100
-2     dwrr    100
-3     dwrr    100
-4     dwrr      0
-5     dwrr      0
-6     dwrr      0
-7     dwrr      0
-
-This patch fixes it by resetting DWRR of tc to 0 when tc is disabled.
-
-Fixes: 848440544b41 ("net: hns3: Add support of TX Scheduler & Shaper to HNS3 driver")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Reported-by: Joe Perches <joe@perches.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/firmware/efi/cper.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-index f314dbd3ce11..95074e91a846 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-@@ -752,6 +752,8 @@ static void hclge_tm_pg_info_init(struct hclge_dev *hdev)
- 		hdev->tm_info.pg_info[i].tc_bit_map = hdev->hw_tc_map;
- 		for (k = 0; k < hdev->tm_info.num_tc; k++)
- 			hdev->tm_info.pg_info[i].tc_dwrr[k] = BW_PERCENT;
-+		for (; k < HNAE3_MAX_TC; k++)
-+			hdev->tm_info.pg_info[i].tc_dwrr[k] = 0;
- 	}
- }
+--- a/drivers/firmware/efi/cper.c
++++ b/drivers/firmware/efi/cper.c
+@@ -35,8 +35,6 @@
  
--- 
-2.33.0
-
+ #define INDENT_SP	" "
+ 
+-static char rcd_decode_str[CPER_REC_LEN];
+-
+ /*
+  * CPER record ID need to be unique even after reboot, because record
+  * ID is used as index for ERST storage, while CPER records from
+@@ -293,6 +291,7 @@ const char *cper_mem_err_unpack(struct t
+ 				struct cper_mem_err_compact *cmem)
+ {
+ 	const char *ret = trace_seq_buffer_ptr(p);
++	char rcd_decode_str[CPER_REC_LEN];
+ 
+ 	if (cper_mem_err_location(cmem, rcd_decode_str))
+ 		trace_seq_printf(p, "%s", rcd_decode_str);
+@@ -307,6 +306,7 @@ static void cper_print_mem(const char *p
+ 	int len)
+ {
+ 	struct cper_mem_err_compact cmem;
++	char rcd_decode_str[CPER_REC_LEN];
+ 
+ 	/* Don't trust UEFI 2.1/2.2 structure with bad validation bits */
+ 	if (len == sizeof(struct cper_sec_mem_err_old) &&
 
 
