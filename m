@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F02B43A1B7
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F6D043A314
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236794AbhJYTlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:41:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58964 "EHLO mail.kernel.org"
+        id S236800AbhJYT4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:56:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236402AbhJYTjV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:39:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAF4460F4F;
-        Mon, 25 Oct 2021 19:35:15 +0000 (UTC)
+        id S239001AbhJYTx6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:53:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1C1A6115C;
+        Mon, 25 Oct 2021 19:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190516;
-        bh=jjPhpuHUAotgOOslBDWPqGVeTG5Lq5x05VBjB2A/OSU=;
+        s=korg; t=1635191099;
+        bh=Nd41AlNRRDX+vpmy08L5K1D8lYLZRjspNAArwUd00nI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kCnafDMSNXGIZ1iu9hbLFOy7mPQw2mTyf96xiW8z/pzBZ1YOnr8gz6mNbMKiX1CkK
-         0Js6FwJjEwxAiR2tVSH8bhM8IaLBESuskPbM7pRJW5w9Sx32YgtXZ8nzlc8jWUXpQX
-         e0nvy9EUXHbPI87h/JWzBOCgB3Q9Lo22LNdJawUY=
+        b=d2wQKpnlqNfWEw406z1BCTPQUU6mNoZlL5s6gC4zhSRPSaP/dZlfJdPOCYhR+3jen
+         4prpTjqmvhaJWCvXVM7Gh6uRXiJCv3b6SFV2O0xpWx2LFw2ckYHSYyvenWv/SUVTpS
+         7L3Y85oAr14wupDOp6/o7ZEOJX0GV6mcNxkGkNaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.10 87/95] s390/pci: fix zpci_zdev_put() on reserve
-Date:   Mon, 25 Oct 2021 21:15:24 +0200
-Message-Id: <20211025191009.402634017@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Shunsuke Nakamura <nakamura.shun@fujitsu.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 144/169] libperf test evsel: Fix build error on !x86 architectures
+Date:   Mon, 25 Oct 2021 21:15:25 +0200
+Message-Id: <20211025191035.818355041@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,170 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Shunsuke Nakamura <nakamura.shun@fujitsu.com>
 
-commit a46044a92add6a400f4dada7b943b30221f7cc80 upstream.
+[ Upstream commit f304c8d949f9adc2ef51304b63e49d5ea1c2d288 ]
 
-Since commit 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
-the reference count of a zpci_dev is incremented between
-pcibios_add_device() and pcibios_release_device() which was supposed to
-prevent the zpci_dev from being freed while the common PCI code has
-access to it. It was missed however that the handling of zPCI
-availability events assumed that once zpci_zdev_put() was called no
-later availability event would still see the device. With the previously
-mentioned commit however this assumption no longer holds and we must
-make sure that we only drop the initial long-lived reference the zPCI
-subsystem holds exactly once.
+In test_stat_user_read, following build error occurs except i386 and
+x86_64 architectures:
 
-Do so by introducing a zpci_device_reserved() function that handles when
-a device is reserved. Here we make sure the zpci_dev will not be
-considered for further events by removing it from the zpci_list.
+tests/test-evsel.c:129:31: error: variable 'pc' set but not used [-Werror=unused-but-set-variable]
+  struct perf_event_mmap_page *pc;
 
-This also means that the device actually stays in the
-ZPCI_FN_STATE_RESERVED state between the time we know it has been
-reserved and the final reference going away. We thus need to consider it
-a real state instead of just a conceptual state after the removal. The
-final cleanup of PCI resources, removal from zbus, and destruction of
-the IOMMU stays in zpci_release_device() to make sure holders of the
-reference do see valid data until the release.
+Fix build error.
 
-Fixes: 2a671f77ee49 ("s390/pci: fix use after free of zpci_dev")
-Cc: stable@vger.kernel.org
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Shunsuke Nakamura <nakamura.shun@fujitsu.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20211006095703.477826-1-nakamura.shun@fujitsu.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/pci.h        |    3 ++
- arch/s390/pci/pci.c                |   45 ++++++++++++++++++++++++++++++++-----
- arch/s390/pci/pci_event.c          |    4 +--
- drivers/pci/hotplug/s390_pci_hpc.c |    9 -------
- 4 files changed, 46 insertions(+), 15 deletions(-)
+ tools/lib/perf/tests/test-evsel.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -205,6 +205,9 @@ int zpci_create_device(u32 fid, u32 fh,
- void zpci_remove_device(struct zpci_dev *zdev, bool set_error);
- int zpci_enable_device(struct zpci_dev *);
- int zpci_disable_device(struct zpci_dev *);
-+void zpci_device_reserved(struct zpci_dev *zdev);
-+bool zpci_is_device_configured(struct zpci_dev *zdev);
-+
- int zpci_register_ioat(struct zpci_dev *, u8, u64, u64, u64);
- int zpci_unregister_ioat(struct zpci_dev *, u8);
- void zpci_remove_reserved_devices(void);
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -92,7 +92,7 @@ void zpci_remove_reserved_devices(void)
- 	spin_unlock(&zpci_list_lock);
+diff --git a/tools/lib/perf/tests/test-evsel.c b/tools/lib/perf/tests/test-evsel.c
+index a184e4861627..9abd4c0bf6db 100644
+--- a/tools/lib/perf/tests/test-evsel.c
++++ b/tools/lib/perf/tests/test-evsel.c
+@@ -148,6 +148,7 @@ static int test_stat_user_read(int event)
+ 	__T("failed to mmap evsel", err == 0);
  
- 	list_for_each_entry_safe(zdev, tmp, &remove, entry)
--		zpci_zdev_put(zdev);
-+		zpci_device_reserved(zdev);
- }
+ 	pc = perf_evsel__mmap_base(evsel, 0, 0);
++	__T("failed to get mmapped address", pc);
  
- int pci_domain_nr(struct pci_bus *bus)
-@@ -787,6 +787,39 @@ error:
- 	return rc;
- }
- 
-+bool zpci_is_device_configured(struct zpci_dev *zdev)
-+{
-+	enum zpci_state state = zdev->state;
-+
-+	return state != ZPCI_FN_STATE_RESERVED &&
-+		state != ZPCI_FN_STATE_STANDBY;
-+}
-+
-+/**
-+ * zpci_device_reserved() - Mark device as resverved
-+ * @zdev: the zpci_dev that was reserved
-+ *
-+ * Handle the case that a given zPCI function was reserved by another system.
-+ * After a call to this function the zpci_dev can not be found via
-+ * get_zdev_by_fid() anymore but may still be accessible via existing
-+ * references though it will not be functional anymore.
-+ */
-+void zpci_device_reserved(struct zpci_dev *zdev)
-+{
-+	if (zdev->has_hp_slot)
-+		zpci_exit_slot(zdev);
-+	/*
-+	 * Remove device from zpci_list as it is going away. This also
-+	 * makes sure we ignore subsequent zPCI events for this device.
-+	 */
-+	spin_lock(&zpci_list_lock);
-+	list_del(&zdev->entry);
-+	spin_unlock(&zpci_list_lock);
-+	zdev->state = ZPCI_FN_STATE_RESERVED;
-+	zpci_dbg(3, "rsv fid:%x\n", zdev->fid);
-+	zpci_zdev_put(zdev);
-+}
-+
- void zpci_release_device(struct kref *kref)
- {
- 	struct zpci_dev *zdev = container_of(kref, struct zpci_dev, kref);
-@@ -802,6 +835,12 @@ void zpci_release_device(struct kref *kr
- 	case ZPCI_FN_STATE_STANDBY:
- 		if (zdev->has_hp_slot)
- 			zpci_exit_slot(zdev);
-+		spin_lock(&zpci_list_lock);
-+		list_del(&zdev->entry);
-+		spin_unlock(&zpci_list_lock);
-+		zpci_dbg(3, "rsv fid:%x\n", zdev->fid);
-+		fallthrough;
-+	case ZPCI_FN_STATE_RESERVED:
- 		zpci_cleanup_bus_resources(zdev);
- 		zpci_bus_device_unregister(zdev);
- 		zpci_destroy_iommu(zdev);
-@@ -809,10 +848,6 @@ void zpci_release_device(struct kref *kr
- 	default:
- 		break;
- 	}
--
--	spin_lock(&zpci_list_lock);
--	list_del(&zdev->entry);
--	spin_unlock(&zpci_list_lock);
- 	zpci_dbg(3, "rem fid:%x\n", zdev->fid);
- 	kfree(zdev);
- }
---- a/arch/s390/pci/pci_event.c
-+++ b/arch/s390/pci/pci_event.c
-@@ -146,7 +146,7 @@ static void __zpci_event_availability(st
- 		zdev->state = ZPCI_FN_STATE_STANDBY;
- 		if (!clp_get_state(ccdf->fid, &state) &&
- 		    state == ZPCI_FN_STATE_RESERVED) {
--			zpci_zdev_put(zdev);
-+			zpci_device_reserved(zdev);
- 		}
- 		break;
- 	case 0x0306: /* 0x308 or 0x302 for multiple devices */
-@@ -156,7 +156,7 @@ static void __zpci_event_availability(st
- 	case 0x0308: /* Standby -> Reserved */
- 		if (!zdev)
- 			break;
--		zpci_zdev_put(zdev);
-+		zpci_device_reserved(zdev);
- 		break;
- 	default:
- 		break;
---- a/drivers/pci/hotplug/s390_pci_hpc.c
-+++ b/drivers/pci/hotplug/s390_pci_hpc.c
-@@ -109,14 +109,7 @@ static int get_power_status(struct hotpl
- 	struct zpci_dev *zdev = container_of(hotplug_slot, struct zpci_dev,
- 					     hotplug_slot);
- 
--	switch (zdev->state) {
--	case ZPCI_FN_STATE_STANDBY:
--		*value = 0;
--		break;
--	default:
--		*value = 1;
--		break;
--	}
-+	*value = zpci_is_device_configured(zdev) ? 1 : 0;
- 	return 0;
- }
- 
+ #if defined(__i386__) || defined(__x86_64__)
+ 	__T("userspace counter access not supported", pc->cap_user_rdpmc);
+-- 
+2.33.0
+
 
 
