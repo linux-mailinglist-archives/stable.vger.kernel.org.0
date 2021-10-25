@@ -2,181 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4A5B4395BF
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 14:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D93E4395E6
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 14:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232823AbhJYMOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 08:14:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53124 "EHLO mail.kernel.org"
+        id S233136AbhJYMTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 08:19:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232730AbhJYMOh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 08:14:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A844760FDA;
-        Mon, 25 Oct 2021 12:12:15 +0000 (UTC)
+        id S233066AbhJYMTn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 08:19:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC02A61027;
+        Mon, 25 Oct 2021 12:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635163935;
-        bh=v30rtrxj73SBSsaMh1xs42dYppy3X1ftgTu3Cs0j0nU=;
+        s=k20201202; t=1635164239;
+        bh=YFwLRyGwAZtnL++iA+D5m4TYup42zCL/qnKUOAkiau0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oHwJpntodlhDh6K1X4S9eoXw/h86PKhrqpxVd1VYfttyeCkY2ACH1il2Ch9wcctIF
-         oMnGqjtlXYkSXXDhgGebrPrKINXOWnj178ic5BdI+5l25PSbwN2UyHlA61xQLFRyP2
-         F84M8P+u1tBhlMzttLt//sfGvWFitxSb13YuGY0CzHnu4PigKgT8zZN/iFVbYuG/GO
-         0u+wX5YzmAYbTFcwQmbwNhEQMZHZQjWQ0dK2fBg+j1Lox5qcFdAX5/GKnJvnJVKR2V
-         yz3sq/hH+DXWgHvfcK4b74b/9W1Gmhf7RwHMwiv2DcHlowXFXh1f6/cXx4iLN7b22D
-         h+T7nZLvmzfyQ==
+        b=tcAem/Oa4ouXbgBwyvGsBAbDs3XORSwVwDp0O8C6aTMznlsQ1v+foKJw/G2kZhKx3
+         FT8hIhkgnWxgufgCUYXNdUQk598fw9axFjVbAbXjlR9lgeQPRdHt5LlvRrN4xjwG/s
+         MBH2IxZtoM5CjIXsRhaA3OQbanNwgjGgTCfGj04yBeeoAq5l7NlvzUxkEbi4zxXdbB
+         iUHB8Np6mH+yEnNU7R3u5/bcAkCiJW/hIPuQkOMnODnjFWY/+sog0Lmb4NqdBI4lLQ
+         gXQfObHDDwx+wLwuqRJdkA+8N97b+7S8cjIVR21SwdksArZmu40r7r7hX40UKmHlf+
+         2FnNUZDwkff9w==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1meypa-0001iJ-Fi; Mon, 25 Oct 2021 14:11:58 +0200
+        id 1meyuU-0001mF-Eu; Mon, 25 Oct 2021 14:17:02 +0200
 From:   Johan Hovold <johan@kernel.org>
-To:     Takashi Iwai <tiwai@suse.com>
-Cc:     Jaroslav Kysela <perex@perex.cz>, alsa-devel@alsa-project.org,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH 2/2] sound: line6: fix control and interrupt message timeouts
-Date:   Mon, 25 Oct 2021 14:11:42 +0200
-Message-Id: <20211025121142.6531-3-johan@kernel.org>
+To:     Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     Mike Isely <isely@pobox.com>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        linux-media@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/8] media: mceusb: fix control-message timeouts
+Date:   Mon, 25 Oct 2021 14:16:34 +0200
+Message-Id: <20211025121641.6759-2-johan@kernel.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211025121142.6531-1-johan@kernel.org>
-References: <20211025121142.6531-1-johan@kernel.org>
+In-Reply-To: <20211025121641.6759-1-johan@kernel.org>
+References: <20211025121641.6759-1-johan@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-USB control and interrupt message timeouts are specified in milliseconds
-and should specifically not vary with CONFIG_HZ.
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-Fixes: 705ececd1c60 ("Staging: add line6 usb driver")
-Cc: stable@vger.kernel.org      # 2.6.30
+Fixes: 66e89522aff7 ("V4L/DVB: IR: add mceusb IR receiver driver")
+Cc: stable@vger.kernel.org      # 2.6.36
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- sound/usb/line6/driver.c   | 14 +++++++-------
- sound/usb/line6/driver.h   |  2 +-
- sound/usb/line6/podhd.c    |  6 +++---
- sound/usb/line6/toneport.c |  2 +-
- 4 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/media/rc/mceusb.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/sound/usb/line6/driver.c b/sound/usb/line6/driver.c
-index 9602929b7de9..59faa5a9a714 100644
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -113,12 +113,12 @@ int line6_send_raw_message(struct usb_line6 *line6, const char *buffer,
- 			retval = usb_interrupt_msg(line6->usbdev,
- 						usb_sndintpipe(line6->usbdev, properties->ep_ctrl_w),
- 						(char *)frag_buf, frag_size,
--						&partial, LINE6_TIMEOUT * HZ);
-+						&partial, LINE6_TIMEOUT);
- 		} else {
- 			retval = usb_bulk_msg(line6->usbdev,
- 						usb_sndbulkpipe(line6->usbdev, properties->ep_ctrl_w),
- 						(char *)frag_buf, frag_size,
--						&partial, LINE6_TIMEOUT * HZ);
-+						&partial, LINE6_TIMEOUT);
- 		}
+diff --git a/drivers/media/rc/mceusb.c b/drivers/media/rc/mceusb.c
+index e03dd1f0144f..7a8a889d54a2 100644
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -1429,7 +1429,7 @@ static void mceusb_gen1_init(struct mceusb_dev *ir)
+ 	 */
+ 	ret = usb_control_msg(ir->usbdev, usb_rcvctrlpipe(ir->usbdev, 0),
+ 			      USB_REQ_SET_ADDRESS, USB_TYPE_VENDOR, 0, 0,
+-			      data, USB_CTRL_MSG_SZ, HZ * 3);
++			      data, USB_CTRL_MSG_SZ, 3000);
+ 	dev_dbg(dev, "set address - ret = %d", ret);
+ 	dev_dbg(dev, "set address - data[0] = %d, data[1] = %d",
+ 						data[0], data[1]);
+@@ -1437,20 +1437,20 @@ static void mceusb_gen1_init(struct mceusb_dev *ir)
+ 	/* set feature: bit rate 38400 bps */
+ 	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+ 			      USB_REQ_SET_FEATURE, USB_TYPE_VENDOR,
+-			      0xc04e, 0x0000, NULL, 0, HZ * 3);
++			      0xc04e, 0x0000, NULL, 0, 3000);
  
- 		if (retval) {
-@@ -347,7 +347,7 @@ int line6_read_data(struct usb_line6 *line6, unsigned address, void *data,
- 	ret = usb_control_msg_send(usbdev, 0, 0x67,
- 				   USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
- 				   (datalen << 8) | 0x21, address, NULL, 0,
--				   LINE6_TIMEOUT * HZ, GFP_KERNEL);
-+				   LINE6_TIMEOUT, GFP_KERNEL);
- 	if (ret) {
- 		dev_err(line6->ifcdev, "read request failed (error %d)\n", ret);
- 		goto exit;
-@@ -360,7 +360,7 @@ int line6_read_data(struct usb_line6 *line6, unsigned address, void *data,
- 		ret = usb_control_msg_recv(usbdev, 0, 0x67,
- 					   USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
- 					   0x0012, 0x0000, &len, 1,
--					   LINE6_TIMEOUT * HZ, GFP_KERNEL);
-+					   LINE6_TIMEOUT, GFP_KERNEL);
- 		if (ret) {
- 			dev_err(line6->ifcdev,
- 				"receive length failed (error %d)\n", ret);
-@@ -387,7 +387,7 @@ int line6_read_data(struct usb_line6 *line6, unsigned address, void *data,
- 	/* receive the result: */
- 	ret = usb_control_msg_recv(usbdev, 0, 0x67,
- 				   USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--				   0x0013, 0x0000, data, datalen, LINE6_TIMEOUT * HZ,
-+				   0x0013, 0x0000, data, datalen, LINE6_TIMEOUT,
- 				   GFP_KERNEL);
- 	if (ret)
- 		dev_err(line6->ifcdev, "read failed (error %d)\n", ret);
-@@ -417,7 +417,7 @@ int line6_write_data(struct usb_line6 *line6, unsigned address, void *data,
+ 	dev_dbg(dev, "set feature - ret = %d", ret);
  
- 	ret = usb_control_msg_send(usbdev, 0, 0x67,
- 				   USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
--				   0x0022, address, data, datalen, LINE6_TIMEOUT * HZ,
-+				   0x0022, address, data, datalen, LINE6_TIMEOUT,
- 				   GFP_KERNEL);
- 	if (ret) {
- 		dev_err(line6->ifcdev,
-@@ -430,7 +430,7 @@ int line6_write_data(struct usb_line6 *line6, unsigned address, void *data,
+ 	/* bRequest 4: set char length to 8 bits */
+ 	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+ 			      4, USB_TYPE_VENDOR,
+-			      0x0808, 0x0000, NULL, 0, HZ * 3);
++			      0x0808, 0x0000, NULL, 0, 3000);
+ 	dev_dbg(dev, "set char length - retB = %d", ret);
  
- 		ret = usb_control_msg_recv(usbdev, 0, 0x67,
- 					   USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--					   0x0012, 0x0000, status, 1, LINE6_TIMEOUT * HZ,
-+					   0x0012, 0x0000, status, 1, LINE6_TIMEOUT,
- 					   GFP_KERNEL);
- 		if (ret) {
- 			dev_err(line6->ifcdev,
-diff --git a/sound/usb/line6/driver.h b/sound/usb/line6/driver.h
-index 71d3da1db8c8..ecf3a2b39c7e 100644
---- a/sound/usb/line6/driver.h
-+++ b/sound/usb/line6/driver.h
-@@ -27,7 +27,7 @@
- #define LINE6_FALLBACK_INTERVAL 10
- #define LINE6_FALLBACK_MAXPACKETSIZE 16
+ 	/* bRequest 2: set handshaking to use DTR/DSR */
+ 	ret = usb_control_msg(ir->usbdev, usb_sndctrlpipe(ir->usbdev, 0),
+ 			      2, USB_TYPE_VENDOR,
+-			      0x0000, 0x0100, NULL, 0, HZ * 3);
++			      0x0000, 0x0100, NULL, 0, 3000);
+ 	dev_dbg(dev, "set handshake  - retC = %d", ret);
  
--#define LINE6_TIMEOUT 1
-+#define LINE6_TIMEOUT 1000
- #define LINE6_BUFSIZE_LISTEN 64
- #define LINE6_MIDI_MESSAGE_MAXLEN 256
- 
-diff --git a/sound/usb/line6/podhd.c b/sound/usb/line6/podhd.c
-index 28794a35949d..b24bc82f89e3 100644
---- a/sound/usb/line6/podhd.c
-+++ b/sound/usb/line6/podhd.c
-@@ -190,7 +190,7 @@ static int podhd_dev_start(struct usb_line6_podhd *pod)
- 	ret = usb_control_msg_send(usbdev, 0,
- 					0x67, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
- 					0x11, 0,
--					NULL, 0, LINE6_TIMEOUT * HZ, GFP_KERNEL);
-+					NULL, 0, LINE6_TIMEOUT, GFP_KERNEL);
- 	if (ret) {
- 		dev_err(pod->line6.ifcdev, "read request failed (error %d)\n", ret);
- 		goto exit;
-@@ -200,7 +200,7 @@ static int podhd_dev_start(struct usb_line6_podhd *pod)
- 	ret = usb_control_msg_recv(usbdev, 0, 0x67,
- 					USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
- 					0x11, 0x0,
--					init_bytes, 3, LINE6_TIMEOUT * HZ, GFP_KERNEL);
-+					init_bytes, 3, LINE6_TIMEOUT, GFP_KERNEL);
- 	if (ret) {
- 		dev_err(pod->line6.ifcdev,
- 			"receive length failed (error %d)\n", ret);
-@@ -220,7 +220,7 @@ static int podhd_dev_start(struct usb_line6_podhd *pod)
- 					USB_REQ_SET_FEATURE,
- 					USB_TYPE_STANDARD | USB_RECIP_DEVICE | USB_DIR_OUT,
- 					1, 0,
--					NULL, 0, LINE6_TIMEOUT * HZ, GFP_KERNEL);
-+					NULL, 0, LINE6_TIMEOUT, GFP_KERNEL);
- exit:
- 	return ret;
- }
-diff --git a/sound/usb/line6/toneport.c b/sound/usb/line6/toneport.c
-index 4e5693c97aa4..e33df58740a9 100644
---- a/sound/usb/line6/toneport.c
-+++ b/sound/usb/line6/toneport.c
-@@ -128,7 +128,7 @@ static int toneport_send_cmd(struct usb_device *usbdev, int cmd1, int cmd2)
- 
- 	ret = usb_control_msg_send(usbdev, 0, 0x67,
- 				   USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
--				   cmd1, cmd2, NULL, 0, LINE6_TIMEOUT * HZ,
-+				   cmd1, cmd2, NULL, 0, LINE6_TIMEOUT,
- 				   GFP_KERNEL);
- 
- 	if (ret) {
+ 	/* device resume */
 -- 
 2.32.0
 
