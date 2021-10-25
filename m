@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 363A2439F35
+	by mail.lfdr.de (Postfix) with ESMTP id C696D439F37
 	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:16:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234418AbhJYTSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:18:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35532 "EHLO mail.kernel.org"
+        id S234472AbhJYTSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:18:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234441AbhJYTSJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:18:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2538600D3;
-        Mon, 25 Oct 2021 19:15:45 +0000 (UTC)
+        id S234066AbhJYTSN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:18:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EDC06103C;
+        Mon, 25 Oct 2021 19:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189347;
-        bh=LJlDaRBgePqAvT2+QHa8/PRFb0ox9bnspEkX9m8EXJs=;
+        s=korg; t=1635189351;
+        bh=yv4RZWeAP8xaERlvArIBsNSnH4pyc2GV012z6VHt/4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qGxYLCO9kfZxTGYg+Q5AO2zq89FZQ1qAm465HOq/QgqnKuXBPfR7Oa7JUiZp/A4+K
-         WHk3WUVCZ5kwzG03jVZF7658k4ldflAObSrU3mFJB8SE9/KGVqth3KVUB6c5t8JA7f
-         AcTgjOPQhnqMiwENM9fdtHVwoNN1lspeNkklTDxM=
+        b=J7vCq0xThdQSKRR7uoTwvheV34EQXJAqk/iZEuAw50S/u5idrZR1JTkQqk64gBMwb
+         7L1R+t/3eCifbORweTNIuY7fIrpxiUw/r+yUADoDLaPym723HJrdWUh2vt70svg/7a
+         WybT4zUXi5+On9Adf6dccXW0v/QsA7JRiHeDXTYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.4 12/44] iio: ssp_sensors: fix error code in ssp_print_mcu_debug()
-Date:   Mon, 25 Oct 2021 21:13:53 +0200
-Message-Id: <20211025190931.152656708@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 13/44] net: arc: select CRC32
+Date:   Mon, 25 Oct 2021 21:13:54 +0200
+Message-Id: <20211025190931.378407339@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
 References: <20211025190928.054676643@linuxfoundation.org>
@@ -41,35 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Vegard Nossum <vegard.nossum@oracle.com>
 
-commit 4170d3dd1467e9d78cb9af374b19357dc324b328 upstream.
+commit e599ee234ad4fdfe241d937bbabd96e0d8f9d868 upstream.
 
-The ssp_print_mcu_debug() function should return negative error codes on
-error.  Returning "length" is meaningless.  This change does not affect
-runtime because the callers only care about zero/non-zero.
+Fix the following build/link error by adding a dependency on the CRC32
+routines:
 
-Reported-by: Jonathan Cameron <jic23@kernel.org>
-Fixes: 50dd64d57eee ("iio: common: ssp_sensors: Add sensorhub driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20210914105333.GA11657@kili
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+  ld: drivers/net/ethernet/arc/emac_main.o: in function `arc_emac_set_rx_mode':
+  emac_main.c:(.text+0xb11): undefined reference to `crc32_le'
+
+The crc32_le() call comes through the ether_crc_le() call in
+arc_emac_set_rx_mode().
+
+[v2: moved the select to ARC_EMAC_CORE; the Makefile is a bit confusing,
+but the error comes from emac_main.o, which is part of the arc_emac module,
+which in turn is enabled by CONFIG_ARC_EMAC_CORE. Note that arc_emac is
+different from emac_arc...]
+
+Fixes: 775dd682e2b0ec ("arc_emac: implement promiscuous mode and multicast filtering")
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+Link: https://lore.kernel.org/r/20211012093446.1575-1-vegard.nossum@oracle.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/common/ssp_sensors/ssp_spi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/arc/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/common/ssp_sensors/ssp_spi.c
-+++ b/drivers/iio/common/ssp_sensors/ssp_spi.c
-@@ -147,7 +147,7 @@ static int ssp_print_mcu_debug(char *dat
- 	if (length > received_len - *data_index || length <= 0) {
- 		ssp_dbg("[SSP]: MSG From MCU-invalid debug length(%d/%d)\n",
- 			length, received_len);
--		return length ? length : -EPROTO;
-+		return -EPROTO;
- 	}
+--- a/drivers/net/ethernet/arc/Kconfig
++++ b/drivers/net/ethernet/arc/Kconfig
+@@ -19,6 +19,7 @@ config ARC_EMAC_CORE
+ 	tristate
+ 	select MII
+ 	select PHYLIB
++	select CRC32
  
- 	ssp_dbg("[SSP]: MSG From MCU - %s\n", &data_frame[*data_index]);
+ config ARC_EMAC
+ 	tristate "ARC EMAC support"
 
 
