@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A302F43A1D8
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:40:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4159043A1DA
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:40:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236762AbhJYTm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:42:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60762 "EHLO mail.kernel.org"
+        id S235717AbhJYTm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:42:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235426AbhJYTk4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:40:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7A0361076;
-        Mon, 25 Oct 2021 19:36:20 +0000 (UTC)
+        id S237328AbhJYTk6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:40:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 564126115A;
+        Mon, 25 Oct 2021 19:36:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190581;
-        bh=IiVPHgpmKoj/XNLaDMi6p22Bte+NWgOZMssOSwCHoNU=;
+        s=korg; t=1635190585;
+        bh=sd3zvU0WPnXXuXfSlXu+WUjd1HBO5uCDKHkTws2cNuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9yV62GqsppHeCEIsbmb1Pa3W5yFsyva8hNzTQ6WV/B85Cp0NTvsmKDoOVxJO4CRJ
-         yLiqbBoQkNZVWNno50Jz5HoLwZF1i6uo4VzmI/x56kwbnwijdSPdtDacfNhA6wywlQ
-         aGpifyKexuAzVXupZf/0FidLkVm+FJDoX4HfxsBY=
+        b=zK2VeW/1txNghIsMLy9FUOfuWlpNglW6wE6W6lGx26mLM02mRleqpEmV8yu2YYFCo
+         qo9PM6+QNqU5Z941zO2pRVcaY41G1pF89ThLh33gBq6A+dfizvjvbdNvU8IrZu0s0+
+         5Mw+RcrLKfMMfR0QX7VrUc1MKcZ00RPBpggF3sQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Kirill Marinushkin <kmarinushkin@birdec.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        alsa-devel@alsa-project.org, Peter Rosin <peda@axentia.se>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 017/169] powerpc/bpf: Emit stf barrier instruction sequences for BPF_NOSPEC
-Date:   Mon, 25 Oct 2021 21:13:18 +0200
-Message-Id: <20211025191019.820946482@linuxfoundation.org>
+Subject: [PATCH 5.14 018/169] ASoC: pcm512x: Mend accesses to the I2S_1 and I2S_2 registers
+Date:   Mon, 25 Oct 2021 21:13:19 +0200
+Message-Id: <20211025191019.970769595@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -41,158 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Peter Rosin <peda@axentia.se>
 
-[ Upstream commit b7540d62509453263604a155bf2d5f0ed450cba2 ]
+[ Upstream commit 3f4b57ad07d9237acf1b8cff3f8bf530cacef87a ]
 
-Emit similar instruction sequences to commit a048a07d7f4535
-("powerpc/64s: Add support for a store forwarding barrier at kernel
-entry/exit") when encountering BPF_NOSPEC.
+Commit 25d27c4f68d2 ("ASoC: pcm512x: Add support for more data formats")
+breaks the TSE-850 device, which is using a pcm5142 in I2S and
+CBM_CFS mode (maybe not relevant). Without this fix, the result
+is:
 
-Mitigations are enabled depending on what the firmware advertises. In
-particular, we do not gate these mitigations based on current settings,
-just like in x86. Due to this, we don't need to take any action if
-mitigations are enabled or disabled at runtime.
+pcm512x 0-004c: Failed to set data format: -16
 
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/956570cbc191cd41f8274bed48ee757a86dac62a.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
+And after that, no sound.
+
+This fix is not 100% correct. The datasheet of at least the pcm5142
+states that four bits (0xcc) in the I2S_1 register are "RSV"
+("Reserved. Do not access.") and no hint is given as to what the
+initial values are supposed to be. So, specifying defaults for
+these bits is wrong. But perhaps better than a broken driver?
+
+Fixes: 25d27c4f68d2 ("ASoC: pcm512x: Add support for more data formats")
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: Kirill Marinushkin <kmarinushkin@birdec.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: alsa-devel@alsa-project.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Reviewed-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/2d221984-7a2e-7006-0f8a-ffb5f64ee885@axentia.se
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/net/bpf_jit64.h      |  8 ++---
- arch/powerpc/net/bpf_jit_comp64.c | 55 ++++++++++++++++++++++++++++---
- 2 files changed, 55 insertions(+), 8 deletions(-)
+ sound/soc/codecs/pcm512x.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/net/bpf_jit64.h b/arch/powerpc/net/bpf_jit64.h
-index 7b713edfa7e2..b63b35e45e55 100644
---- a/arch/powerpc/net/bpf_jit64.h
-+++ b/arch/powerpc/net/bpf_jit64.h
-@@ -16,18 +16,18 @@
-  * with our redzone usage.
-  *
-  *		[	prev sp		] <-------------
-- *		[   nv gpr save area	] 6*8		|
-+ *		[   nv gpr save area	] 5*8		|
-  *		[    tail_call_cnt	] 8		|
-- *		[    local_tmp_var	] 8		|
-+ *		[    local_tmp_var	] 16		|
-  * fp (r31) -->	[   ebpf stack space	] upto 512	|
-  *		[     frame header	] 32/112	|
-  * sp (r1) --->	[    stack pointer	] --------------
-  */
+diff --git a/sound/soc/codecs/pcm512x.c b/sound/soc/codecs/pcm512x.c
+index 4dc844f3c1fc..60dee41816dc 100644
+--- a/sound/soc/codecs/pcm512x.c
++++ b/sound/soc/codecs/pcm512x.c
+@@ -116,6 +116,8 @@ static const struct reg_default pcm512x_reg_defaults[] = {
+ 	{ PCM512x_FS_SPEED_MODE,     0x00 },
+ 	{ PCM512x_IDAC_1,            0x01 },
+ 	{ PCM512x_IDAC_2,            0x00 },
++	{ PCM512x_I2S_1,             0x02 },
++	{ PCM512x_I2S_2,             0x00 },
+ };
  
- /* for gpr non volatile registers BPG_REG_6 to 10 */
--#define BPF_PPC_STACK_SAVE	(6*8)
-+#define BPF_PPC_STACK_SAVE	(5*8)
- /* for bpf JIT code internal usage */
--#define BPF_PPC_STACK_LOCALS	16
-+#define BPF_PPC_STACK_LOCALS	24
- /* stack frame excluding BPF stack, ensure this is quadword aligned */
- #define BPF_PPC_STACKFRAME	(STACK_FRAME_MIN_SIZE + \
- 				 BPF_PPC_STACK_LOCALS + BPF_PPC_STACK_SAVE)
-diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
-index 2ea1c3f6e287..8b5157ccfeba 100644
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -15,6 +15,7 @@
- #include <linux/if_vlan.h>
- #include <asm/kprobes.h>
- #include <linux/bpf.h>
-+#include <asm/security_features.h>
- 
- #include "bpf_jit64.h"
- 
-@@ -35,9 +36,9 @@ static inline bool bpf_has_stack_frame(struct codegen_context *ctx)
-  *		[	prev sp		] <-------------
-  *		[	  ...       	] 		|
-  * sp (r1) --->	[    stack pointer	] --------------
-- *		[   nv gpr save area	] 6*8
-+ *		[   nv gpr save area	] 5*8
-  *		[    tail_call_cnt	] 8
-- *		[    local_tmp_var	] 8
-+ *		[    local_tmp_var	] 16
-  *		[   unused red zone	] 208 bytes protected
-  */
- static int bpf_jit_stack_local(struct codegen_context *ctx)
-@@ -45,12 +46,12 @@ static int bpf_jit_stack_local(struct codegen_context *ctx)
- 	if (bpf_has_stack_frame(ctx))
- 		return STACK_FRAME_MIN_SIZE + ctx->stack_size;
- 	else
--		return -(BPF_PPC_STACK_SAVE + 16);
-+		return -(BPF_PPC_STACK_SAVE + 24);
- }
- 
- static int bpf_jit_stack_tailcallcnt(struct codegen_context *ctx)
- {
--	return bpf_jit_stack_local(ctx) + 8;
-+	return bpf_jit_stack_local(ctx) + 16;
- }
- 
- static int bpf_jit_stack_offsetof(struct codegen_context *ctx, int reg)
-@@ -272,10 +273,33 @@ static int bpf_jit_emit_tail_call(u32 *image, struct codegen_context *ctx, u32 o
- 	return 0;
- }
- 
-+/*
-+ * We spill into the redzone always, even if the bpf program has its own stackframe.
-+ * Offsets hardcoded based on BPF_PPC_STACK_SAVE -- see bpf_jit_stack_local()
-+ */
-+void bpf_stf_barrier(void);
-+
-+asm (
-+"		.global bpf_stf_barrier		;"
-+"	bpf_stf_barrier:			;"
-+"		std	21,-64(1)		;"
-+"		std	22,-56(1)		;"
-+"		sync				;"
-+"		ld	21,-64(1)		;"
-+"		ld	22,-56(1)		;"
-+"		ori	31,31,0			;"
-+"		.rept 14			;"
-+"		b	1f			;"
-+"	1:					;"
-+"		.endr				;"
-+"		blr				;"
-+);
-+
- /* Assemble the body code between the prologue & epilogue */
- int bpf_jit_build_body(struct bpf_prog *fp, u32 *image, struct codegen_context *ctx,
- 		       u32 *addrs, bool extra_pass)
- {
-+	enum stf_barrier_type stf_barrier = stf_barrier_type_get();
- 	const struct bpf_insn *insn = fp->insnsi;
- 	int flen = fp->len;
- 	int i, ret;
-@@ -646,6 +670,29 @@ emit_clear:
- 		 * BPF_ST NOSPEC (speculation barrier)
- 		 */
- 		case BPF_ST | BPF_NOSPEC:
-+			if (!security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) ||
-+					!security_ftr_enabled(SEC_FTR_STF_BARRIER))
-+				break;
-+
-+			switch (stf_barrier) {
-+			case STF_BARRIER_EIEIO:
-+				EMIT(PPC_RAW_EIEIO() | 0x02000000);
-+				break;
-+			case STF_BARRIER_SYNC_ORI:
-+				EMIT(PPC_RAW_SYNC());
-+				EMIT(PPC_RAW_LD(b2p[TMP_REG_1], _R13, 0));
-+				EMIT(PPC_RAW_ORI(_R31, _R31, 0));
-+				break;
-+			case STF_BARRIER_FALLBACK:
-+				EMIT(PPC_RAW_MFLR(b2p[TMP_REG_1]));
-+				PPC_LI64(12, dereference_kernel_function_descriptor(bpf_stf_barrier));
-+				EMIT(PPC_RAW_MTCTR(12));
-+				EMIT(PPC_RAW_BCTRL());
-+				EMIT(PPC_RAW_MTLR(b2p[TMP_REG_1]));
-+				break;
-+			case STF_BARRIER_NONE:
-+				break;
-+			}
- 			break;
- 
- 		/*
+ static bool pcm512x_readable(struct device *dev, unsigned int reg)
 -- 
 2.33.0
 
