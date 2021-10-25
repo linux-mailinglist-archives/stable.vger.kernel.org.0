@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E288E4395E3
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 14:17:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A2DE439600
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 14:18:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233110AbhJYMTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 08:19:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56240 "EHLO mail.kernel.org"
+        id S233118AbhJYMTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 08:19:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233050AbhJYMTm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 08:19:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0C0A60C49;
+        id S233062AbhJYMTn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 08:19:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D04906105A;
         Mon, 25 Oct 2021 12:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1635164239;
-        bh=7d3GsoZlk7VxSqbdvZGXBxZwrd/QRiQTPgUG8+Yg36Q=;
+        bh=bHMyDNovNe9zehRCGFFe8UpbUFbhhC6sMj7mtZpO1qM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJuFDCmMbtIHZTS6fpsu9QARRxvWZtDx2+Sy5BQO7MYqD3K7Ljjp3+Jk4u0bdnyFi
-         aF/4YTxnI+nrKx4UUEdWw5ocP6anMD+KPCVeSDROndKEfZ/RCQJ9sKDaZcYFiSpWLq
-         sOuUlUYgLzGPwI3QEbMPSieG8MWNL6N0cOvf2ADqai+PyMAo39DyMoBZWxH1cO63S0
-         VfXutzfrQgb/aRWySt9LVl3vfQ6zcndID/gfldXY2mJetEe1EaF4hh+Fw8xTAAulHw
-         F3g422SPIRgiuK94U8pZ0Ludw0llSyBXaD9KldM6y/KEeM6zdeXP8wt7CVr7z9eQg3
-         hIDM3iArvkupw==
+        b=BmikNBtqhvCcR27Eb+ZkZ44xZ80+i+VWyTFaoTWyGxoEie0daNYfX+kfriVCzXgYx
+         Cdq46dBQ31u1kdWPpNJPvgF1w8xDq1M+5rT7XcIzIOj7FEBf0qzDJ+kjdd9clPS10e
+         epLD6Eb97oyy9WEj1c/jjYLIgfmHJUBheItJsjk6+FOU7TFNT3tDACXDJ7L2zHr4h5
+         +lyT7fA07dWTU9bPFLTx0e4lh67R2oklqd61TinbwQEjnHpP2p2JyDF/5VqrwCvZV/
+         A1xuqx0ukvV2VXGUwTSocPKavCTJ/o4wnjDH8VGp+zHFsCN0ug7ofvU3M8KPfI8HCx
+         0PaBkTR25Gv+A==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1meyuU-0001mJ-Jt; Mon, 25 Oct 2021 14:17:02 +0200
+        id 1meyuU-0001mM-MP; Mon, 25 Oct 2021 14:17:02 +0200
 From:   Johan Hovold <johan@kernel.org>
 To:     Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab@kernel.org>
@@ -34,9 +34,9 @@ Cc:     Mike Isely <isely@pobox.com>,
         linux-media@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         stable@vger.kernel.org
-Subject: [PATCH 3/8] media: flexcop-usb: fix control-message timeouts
-Date:   Mon, 25 Oct 2021 14:16:36 +0200
-Message-Id: <20211025121641.6759-4-johan@kernel.org>
+Subject: [PATCH 4/8] media: cpia2: fix control-message timeouts
+Date:   Mon, 25 Oct 2021 14:16:37 +0200
+Message-Id: <20211025121641.6759-5-johan@kernel.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20211025121641.6759-1-johan@kernel.org>
 References: <20211025121641.6759-1-johan@kernel.org>
@@ -49,90 +49,35 @@ X-Mailing-List: stable@vger.kernel.org
 USB control-message timeouts are specified in milliseconds and should
 specifically not vary with CONFIG_HZ.
 
-Note that the driver was multiplying some of the timeout values with HZ
-twice resulting in 3000-second timeouts with HZ=1000.
-
-Also note that two of the timeout defines are currently unused.
-
-Fixes: 2154be651b90 ("[media] redrat3: new rc-core IR transceiver device driver")
-Cc: stable@vger.kernel.org      # 3.0
+Fixes: ab33d5071de7 ("V4L/DVB (3376): Add cpia2 camera support")
+Cc: stable@vger.kernel.org      # 2.6.17
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/media/usb/b2c2/flexcop-usb.c | 10 +++++-----
- drivers/media/usb/b2c2/flexcop-usb.h | 12 ++++++------
- 2 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/media/usb/cpia2/cpia2_usb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/b2c2/flexcop-usb.c b/drivers/media/usb/b2c2/flexcop-usb.c
-index 5d38171b7638..bfeb92d93de3 100644
---- a/drivers/media/usb/b2c2/flexcop-usb.c
-+++ b/drivers/media/usb/b2c2/flexcop-usb.c
-@@ -87,7 +87,7 @@ static int flexcop_usb_readwrite_dw(struct flexcop_device *fc, u16 wRegOffsPCI,
- 			0,
- 			fc_usb->data,
- 			sizeof(u32),
--			B2C2_WAIT_FOR_OPERATION_RDW * HZ);
-+			B2C2_WAIT_FOR_OPERATION_RDW);
+diff --git a/drivers/media/usb/cpia2/cpia2_usb.c b/drivers/media/usb/cpia2/cpia2_usb.c
+index 76aac06f9fb8..cba03b286473 100644
+--- a/drivers/media/usb/cpia2/cpia2_usb.c
++++ b/drivers/media/usb/cpia2/cpia2_usb.c
+@@ -550,7 +550,7 @@ static int write_packet(struct usb_device *udev,
+ 			       0,	/* index */
+ 			       buf,	/* buffer */
+ 			       size,
+-			       HZ);
++			       1000);
  
- 	if (ret != sizeof(u32)) {
- 		err("error while %s dword from %d (%d).", read ? "reading" :
-@@ -155,7 +155,7 @@ static int flexcop_usb_v8_memory_req(struct flexcop_usb *fc_usb,
- 			wIndex,
- 			fc_usb->data,
- 			buflen,
--			nWaitTime * HZ);
-+			nWaitTime);
- 	if (ret != buflen)
- 		ret = -EIO;
+ 	kfree(buf);
+ 	return ret;
+@@ -582,7 +582,7 @@ static int read_packet(struct usb_device *udev,
+ 			       0,	/* index */
+ 			       buf,	/* buffer */
+ 			       size,
+-			       HZ);
++			       1000);
  
-@@ -248,13 +248,13 @@ static int flexcop_usb_i2c_req(struct flexcop_i2c_adapter *i2c,
- 		/* DKT 020208 - add this to support special case of DiSEqC */
- 	case USB_FUNC_I2C_CHECKWRITE:
- 		pipe = B2C2_USB_CTRL_PIPE_OUT;
--		nWaitTime = 2;
-+		nWaitTime = 2000;
- 		request_type |= USB_DIR_OUT;
- 		break;
- 	case USB_FUNC_I2C_READ:
- 	case USB_FUNC_I2C_REPEATREAD:
- 		pipe = B2C2_USB_CTRL_PIPE_IN;
--		nWaitTime = 2;
-+		nWaitTime = 2000;
- 		request_type |= USB_DIR_IN;
- 		break;
- 	default:
-@@ -281,7 +281,7 @@ static int flexcop_usb_i2c_req(struct flexcop_i2c_adapter *i2c,
- 			wIndex,
- 			fc_usb->data,
- 			buflen,
--			nWaitTime * HZ);
-+			nWaitTime);
- 
- 	if (ret != buflen)
- 		ret = -EIO;
-diff --git a/drivers/media/usb/b2c2/flexcop-usb.h b/drivers/media/usb/b2c2/flexcop-usb.h
-index 2f230bf72252..c7cca1a5ee59 100644
---- a/drivers/media/usb/b2c2/flexcop-usb.h
-+++ b/drivers/media/usb/b2c2/flexcop-usb.h
-@@ -91,13 +91,13 @@ typedef enum {
- 	UTILITY_SRAM_TESTVERIFY     = 0x16,
- } flexcop_usb_utility_function_t;
- 
--#define B2C2_WAIT_FOR_OPERATION_RW (1*HZ)
--#define B2C2_WAIT_FOR_OPERATION_RDW (3*HZ)
--#define B2C2_WAIT_FOR_OPERATION_WDW (1*HZ)
-+#define B2C2_WAIT_FOR_OPERATION_RW 1000
-+#define B2C2_WAIT_FOR_OPERATION_RDW 3000
-+#define B2C2_WAIT_FOR_OPERATION_WDW 1000
- 
--#define B2C2_WAIT_FOR_OPERATION_V8READ (3*HZ)
--#define B2C2_WAIT_FOR_OPERATION_V8WRITE (3*HZ)
--#define B2C2_WAIT_FOR_OPERATION_V8FLASH (3*HZ)
-+#define B2C2_WAIT_FOR_OPERATION_V8READ 3000
-+#define B2C2_WAIT_FOR_OPERATION_V8WRITE 3000
-+#define B2C2_WAIT_FOR_OPERATION_V8FLASH 3000
- 
- typedef enum {
- 	V8_MEMORY_PAGE_DVB_CI = 0x20,
+ 	if (ret >= 0)
+ 		memcpy(registers, buf, size);
 -- 
 2.32.0
 
