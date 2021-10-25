@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AF14439FB7
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7E1443A2AC
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233804AbhJYTXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:23:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39788 "EHLO mail.kernel.org"
+        id S238667AbhJYTvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:51:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234912AbhJYTWc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:22:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33BD26103C;
-        Mon, 25 Oct 2021 19:20:07 +0000 (UTC)
+        id S238484AbhJYTs7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:48:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A06C66121E;
+        Mon, 25 Oct 2021 19:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189609;
-        bh=doc7mFVoN1+KAVOoT/ejQ/gIFA+0kecIC14EUT3j4N4=;
+        s=korg; t=1635190874;
+        bh=7dGhASNRKxMtyoG0S7uiTFoPBDnI7rhtYzOpM2p0oP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cJUjO2DU4c2b4jEeeygA2mvprquriep/iQRWXe5uZt9faCpvAvbPp5/9dcdY9LaZ3
-         6waXE+K3Hu0NUYU/8dp5scGU1DYao0YIUSpS9U5Zu0RkkVb0aboj3RdJrfvC/wibqq
-         6obYQcyq4l3i163IIsCnhwgrifkimQknqAT6W1kc=
+        b=aJr1ZZQdsZ5j++APVaPfgqwJVajDIv1DMZkVZGV2mV69tTP3Zl9JVjru8I5XfTB+U
+         jBfjVe8riPBaxz7Y2O6PZfsKbYY+tA0FgaeA3+1lNgQBgd2itIcnyvhelVVJadTV6l
+         KcAVZB9GkQturMVO9O4zyJ3ssTRBQimmZRKB9Aj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 46/50] ALSA: hda: avoid write to STATESTS if controller is in reset
+        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 092/169] net: dsa: mt7530: correct ds->num_ports
 Date:   Mon, 25 Oct 2021 21:14:33 +0200
-Message-Id: <20211025190941.056643450@linuxfoundation.org>
+Message-Id: <20211025191028.978360803@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +39,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: DENG Qingfang <dqfext@gmail.com>
 
-[ Upstream commit b37a15188eae9d4c49c5bb035e0c8d4058e4d9b3 ]
+commit 342afce10d6f61c443c95e244f812d4766f73f53 upstream.
 
-The snd_hdac_bus_reset_link() contains logic to clear STATESTS register
-before performing controller reset. This code dates back to an old
-bugfix in commit e8a7f136f5ed ("[ALSA] hda-intel - Improve HD-audio
-codec probing robustness"). Originally the code was added to
-azx_reset().
+Setting ds->num_ports to DSA_MAX_PORTS made DSA core allocate unnecessary
+dsa_port's and call mt7530_port_disable for non-existent ports.
 
-The code was moved around in commit a41d122449be ("ALSA: hda - Embed bus
-into controller object") and ended up to snd_hdac_bus_reset_link() and
-called primarily via snd_hdac_bus_init_chip().
+Set it to MT7530_NUM_PORTS to fix that, and dsa_is_user_port check in
+port_enable/disable is no longer required.
 
-The logic to clear STATESTS is correct when snd_hdac_bus_init_chip() is
-called when controller is not in reset. In this case, STATESTS can be
-cleared. This can be useful e.g. when forcing a controller reset to retry
-codec probe. A normal non-power-on reset will not clear the bits.
-
-However, this old logic is problematic when controller is already in
-reset. The HDA specification states that controller must be taken out of
-reset before writing to registers other than GCTL.CRST (1.0a spec,
-3.3.7). The write to STATESTS in snd_hdac_bus_reset_link() will be lost
-if the controller is already in reset per the HDA specification mentioned.
-
-This has been harmless on older hardware. On newer generation of Intel
-PCIe based HDA controllers, if configured to report issues, this write
-will emit an unsupported request error. If ACPI Platform Error Interface
-(APEI) is enabled in kernel, this will end up to kernel log.
-
-Fix the code in snd_hdac_bus_reset_link() to only clear the STATESTS if
-the function is called when controller is not in reset. Otherwise
-clearing the bits is not possible and should be skipped.
-
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20211012142935.3731820-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/hda/hdac_controller.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/dsa/mt7530.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
-index 00c6af2ae1c2..f0e112906c68 100644
---- a/sound/hda/hdac_controller.c
-+++ b/sound/hda/hdac_controller.c
-@@ -389,8 +389,9 @@ static int azx_reset(struct hdac_bus *bus, bool full_reset)
- 	if (!full_reset)
- 		goto skip_reset;
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -1031,9 +1031,6 @@ mt7530_port_enable(struct dsa_switch *ds
+ {
+ 	struct mt7530_priv *priv = ds->priv;
  
--	/* clear STATESTS */
--	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
-+	/* clear STATESTS if not in reset */
-+	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
-+		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
+-	if (!dsa_is_user_port(ds, port))
+-		return 0;
+-
+ 	mutex_lock(&priv->reg_mutex);
  
- 	/* reset controller */
- 	snd_hdac_bus_enter_link_reset(bus);
--- 
-2.33.0
-
+ 	/* Allow the user port gets connected to the cpu port and also
+@@ -1056,9 +1053,6 @@ mt7530_port_disable(struct dsa_switch *d
+ {
+ 	struct mt7530_priv *priv = ds->priv;
+ 
+-	if (!dsa_is_user_port(ds, port))
+-		return;
+-
+ 	mutex_lock(&priv->reg_mutex);
+ 
+ 	/* Clear up all port matrix which could be restored in the next
+@@ -3132,7 +3126,7 @@ mt7530_probe(struct mdio_device *mdiodev
+ 		return -ENOMEM;
+ 
+ 	priv->ds->dev = &mdiodev->dev;
+-	priv->ds->num_ports = DSA_MAX_PORTS;
++	priv->ds->num_ports = MT7530_NUM_PORTS;
+ 
+ 	/* Use medatek,mcm property to distinguish hardware type that would
+ 	 * casues a little bit differences on power-on sequence.
 
 
