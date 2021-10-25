@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBB5C43A14D
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBC1043A145
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236280AbhJYTiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:38:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52126 "EHLO mail.kernel.org"
+        id S234396AbhJYTiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:38:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232813AbhJYTfQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:35:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A005660EFE;
-        Mon, 25 Oct 2021 19:32:35 +0000 (UTC)
+        id S235314AbhJYTcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:32:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0791C611BD;
+        Mon, 25 Oct 2021 19:28:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190357;
-        bh=maRFXtQ1lx3G6s9oivxxtVSwlcxrbiWrzBNhxA4uE38=;
+        s=korg; t=1635190106;
+        bh=3KAaVflUzHq2MNaSlzL9XMoFFPSco4C9eLInPYqAdVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIT0XMERI55hHiITUYZTu/94H8qe4gQlOpoiV9jvXwXVlFRYXDhGg/GrgNTHx4sx9
-         a2CFyOL+bmL3RUqp1um8G7qDVDz6iJ4nFXMCzXcPvirKqd9hW2ZL4ZKbCRlhKrJY1s
-         ptRdq2AwWMZHOV79TxU36V8lRXi0tmv47zwedi2Q=
+        b=phTjwv0ojjFIdTlDqQi/7kaAdXZwUhRt90EFZEQ8SVkY1S0ZT3fD9R630S6f32ztT
+         D6S6avuyzMpTrBuiPtbbaHA0RCJJwgkOwAdn1fveUpsfat+U4La2uspTi9+Fdi0Sy8
+         u/ALF0nftQ+xhPT0geDqgPl7JX3DPCKoacMivjcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "Christopher M. Riedl" <cmr@codefail.de>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 55/95] powerpc64/idle: Fix SP offsets when saving GPRs
+Subject: [PATCH 5.4 35/58] powerpc64/idle: Fix SP offsets when saving GPRs
 Date:   Mon, 25 Oct 2021 21:14:52 +0200
-Message-Id: <20211025191004.943027833@linuxfoundation.org>
+Message-Id: <20211025190943.310240815@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,7 +62,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/powerpc/kernel/idle_book3s.S
 +++ b/arch/powerpc/kernel/idle_book3s.S
-@@ -52,28 +52,32 @@ _GLOBAL(isa300_idle_stop_mayloss)
+@@ -50,28 +50,32 @@ _GLOBAL(isa300_idle_stop_mayloss)
  	std	r1,PACAR1(r13)
  	mflr	r4
  	mfcr	r5
@@ -117,7 +117,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	/* 168 bytes */
  	PPC_STOP
  	b	.	/* catch bugs */
-@@ -89,8 +93,8 @@ _GLOBAL(isa300_idle_stop_mayloss)
+@@ -87,8 +91,8 @@ _GLOBAL(isa300_idle_stop_mayloss)
   */
  _GLOBAL(idle_return_gpr_loss)
  	ld	r1,PACAR1(r13)
@@ -128,7 +128,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	mtlr	r4
  	mtcr	r5
  	/*
-@@ -98,25 +102,25 @@ _GLOBAL(idle_return_gpr_loss)
+@@ -96,25 +100,25 @@ _GLOBAL(idle_return_gpr_loss)
  	 * from PACATOC. This could be avoided for that less common case
  	 * if KVM saved its r2.
  	 */
@@ -173,7 +173,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	blr
  
  /*
-@@ -154,28 +158,32 @@ _GLOBAL(isa206_idle_insn_mayloss)
+@@ -152,28 +156,32 @@ _GLOBAL(isa206_idle_insn_mayloss)
  	std	r1,PACAR1(r13)
  	mflr	r4
  	mfcr	r5
