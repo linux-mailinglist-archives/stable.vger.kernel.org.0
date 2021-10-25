@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0945843A2FF
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:53:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C53843A055
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238011AbhJYTzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:55:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42474 "EHLO mail.kernel.org"
+        id S234990AbhJYT3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237340AbhJYTwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:52:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5699A6113E;
-        Mon, 25 Oct 2021 19:43:50 +0000 (UTC)
+        id S235582AbhJYT2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:28:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F403E6108B;
+        Mon, 25 Oct 2021 19:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635191031;
-        bh=Fakm2LNz3isYtSaSCUdlCrJmZFgluWjBbJuA0mEu4I0=;
+        s=korg; t=1635189916;
+        bh=HMlC0kyHkKpsgtW/taxnEk5MdFnACBK2zvKsMtI2K2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1ggvizT3wb8f8bHrkdL74q0KivRmuRlI4vw18Af611w02Cv5U21IUfxKpduipJp3
-         uzvAyDam9GnXw3JjhRYqrB696KIKkYwB8dxzmZ0y5EYbz+rkP4jzIHf2g4v0lJFRyY
-         qkQafqDVLUCTvQQqP33fxFA8E9PuRQP9zuUEgI4k=
+        b=0LbOtW6csYPLfKp2ja0Fk2Dvg63OLhMDM5FKm05gB9lRthHgOYjllsOolEwYg9bRn
+         JqmHWyArU8yuwsunRovbFPF9YnhqVFkmPV/DEi8hFpqsaigSzYpx0BwmyS1Ja7lmrf
+         ynge3MHhI+sLXn93sjxlX6LriQXB/hixY/f0zcKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.14 109/169] KVM: SEV-ES: fix length of string I/O
+        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 25/37] netfilter: Kconfig: use default y instead of m for bool config option
 Date:   Mon, 25 Oct 2021 21:14:50 +0200
-Message-Id: <20211025191031.878969762@linuxfoundation.org>
+Message-Id: <20211025190933.275647478@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +39,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Vegard Nossum <vegard.nossum@gmail.com>
 
-commit 019057bd73d1751fdfec41e43148baf3303d98f9 upstream.
+commit 77076934afdcd46516caf18ed88b2f88025c9ddb upstream.
 
-The size of the data in the scratch buffer is not divided by the size of
-each port I/O operation, so vcpu->arch.pio.count ends up being larger
-than it should be by a factor of size.
+This option, NF_CONNTRACK_SECMARK, is a bool, so it can never be 'm'.
 
-Cc: stable@vger.kernel.org
-Fixes: 7ed9abfe8e9f ("KVM: SVM: Support string IO operations for an SEV-ES guest")
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 33b8e77605620 ("[NETFILTER]: Add CONFIG_NETFILTER_ADVANCED option")
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/sev.c |    2 +-
+ net/netfilter/Kconfig |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -2591,7 +2591,7 @@ int sev_es_string_io(struct vcpu_svm *sv
- 		return -EINVAL;
- 
- 	return kvm_sev_es_string_io(&svm->vcpu, size, port,
--				    svm->ghcb_sa, svm->ghcb_sa_len, in);
-+				    svm->ghcb_sa, svm->ghcb_sa_len / size, in);
- }
- 
- void sev_es_init_vmcb(struct vcpu_svm *svm)
+--- a/net/netfilter/Kconfig
++++ b/net/netfilter/Kconfig
+@@ -93,7 +93,7 @@ config NF_CONNTRACK_MARK
+ config NF_CONNTRACK_SECMARK
+ 	bool  'Connection tracking security mark support'
+ 	depends on NETWORK_SECMARK
+-	default m if NETFILTER_ADVANCED=n
++	default y if NETFILTER_ADVANCED=n
+ 	help
+ 	  This option enables security markings to be applied to
+ 	  connections.  Typically they are copied to connections from
 
 
