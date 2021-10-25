@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A027843A12B
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C36AF43A27D
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235679AbhJYTh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
+        id S236854AbhJYTt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:49:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236463AbhJYTer (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:34:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28C1B611AD;
-        Mon, 25 Oct 2021 19:30:53 +0000 (UTC)
+        id S237884AbhJYTqk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:46:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 646F8611C1;
+        Mon, 25 Oct 2021 19:39:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190255;
-        bh=v/FdeHnaRWW/wxO5CjQupOhXXOhIIAGcNSJzwamPsSU=;
+        s=korg; t=1635190786;
+        bh=h9NcphN82hRB/YW97j9KUPQ/d5eoeyBJyyVP4zbjNMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7p+iJJDaGnsYjUE+B69bZjWNa+oWYyE5ACVwxSD6NbkwGNrSAph7sHy/MdkFqe6A
-         ZVdeQQxNdWEDyzZK9oLk3pcIFth/yybRuR31EqYkUYJ1SSGUOjczHxHwh36RsZTEwT
-         YYOTSsKKalb1v/upaPxC+vJyIiO/GTg+FSyALuUI=
+        b=BVklzFx2KIZ/Lpymk01YvhEa3FzhhaQNBivPl34yWdjhrCJhhvzqC+MTZDZzac4It
+         p643mt2r0t3eKzqWd11SMwPHuhYKnwhirz+9cryL7qAMEB6fectGeH/KT8pfipObuW
+         zudza5ViMVHL4J2fHNRPIW8U/LscY390rLthUUTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 14/95] ASoC: wm8960: Fix clock configuration on slave mode
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.14 070/169] can: isotp: isotp_sendmsg(): fix TX buffer concurrent access in isotp_sendmsg()
 Date:   Mon, 25 Oct 2021 21:14:11 +0200
-Message-Id: <20211025190958.954700333@linuxfoundation.org>
+Message-Id: <20211025191026.335737563@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +41,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 6b9b546dc00797c74bef491668ce5431ff54e1e2 ]
+commit 43a08c3bdac4cb42eff8fe5e2278bffe0c5c3daa upstream.
 
-There is a noise issue for 8kHz sample rate on slave mode.
-Compared with master mode, the difference is the DACDIV
-setting, after correcting the DACDIV, the noise is gone.
+When isotp_sendmsg() concurrent, tx.state of all TX processes can be
+ISOTP_IDLE. The conditions so->tx.state != ISOTP_IDLE and
+wq_has_sleeper(&so->wait) can not protect TX buffer from being
+accessed by multiple TX processes.
 
-There is no noise issue for 48kHz sample rate, because
-the default value of DACDIV is correct for 48kHz.
+We can use cmpxchg() to try to modify tx.state to ISOTP_SENDING firstly.
+If the modification of the previous process succeed, the later process
+must wait tx.state to ISOTP_IDLE firstly. Thus, we can ensure TX buffer
+is accessed by only one process at the same time. And we should also
+restore the original tx.state at the subsequent error processes.
 
-So wm8960_configure_clocking() should be functional for
-ADC and DAC function even if it is slave mode.
-
-In order to be compatible for old use case, just add
-condition for checking that sysclk is zero with
-slave mode.
-
-Fixes: 0e50b51aa22f ("ASoC: wm8960: Let wm8960 driver configure its bit clock and frame clock")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/1634102224-3922-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/all/c2517874fbdf4188585cf9ddf67a8fa74d5dbde5.1633764159.git.william.xuanziyang@huawei.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wm8960.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ net/can/isotp.c |   46 +++++++++++++++++++++++++++++++---------------
+ 1 file changed, 31 insertions(+), 15 deletions(-)
 
-diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
-index 9d325555e219..618692e2e0e4 100644
---- a/sound/soc/codecs/wm8960.c
-+++ b/sound/soc/codecs/wm8960.c
-@@ -742,9 +742,16 @@ static int wm8960_configure_clocking(struct snd_soc_component *component)
- 	int i, j, k;
- 	int ret;
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -121,7 +121,7 @@ enum {
+ struct tpcon {
+ 	int idx;
+ 	int len;
+-	u8 state;
++	u32 state;
+ 	u8 bs;
+ 	u8 sn;
+ 	u8 ll_dl;
+@@ -848,6 +848,7 @@ static int isotp_sendmsg(struct socket *
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct isotp_sock *so = isotp_sk(sk);
++	u32 old_state = so->tx.state;
+ 	struct sk_buff *skb;
+ 	struct net_device *dev;
+ 	struct canfd_frame *cf;
+@@ -860,47 +861,55 @@ static int isotp_sendmsg(struct socket *
+ 		return -EADDRNOTAVAIL;
  
--	if (!(iface1 & (1<<6))) {
--		dev_dbg(component->dev,
--			"Codec is slave mode, no need to configure clock\n");
-+	/*
-+	 * For Slave mode clocking should still be configured,
-+	 * so this if statement should be removed, but some platform
-+	 * may not work if the sysclk is not configured, to avoid such
-+	 * compatible issue, just add '!wm8960->sysclk' condition in
-+	 * this if statement.
-+	 */
-+	if (!(iface1 & (1 << 6)) && !wm8960->sysclk) {
-+		dev_warn(component->dev,
-+			 "slave mode, but proceeding with no clock configuration\n");
- 		return 0;
+ 	/* we do not support multiple buffers - for now */
+-	if (so->tx.state != ISOTP_IDLE || wq_has_sleeper(&so->wait)) {
+-		if (msg->msg_flags & MSG_DONTWAIT)
+-			return -EAGAIN;
++	if (cmpxchg(&so->tx.state, ISOTP_IDLE, ISOTP_SENDING) != ISOTP_IDLE ||
++	    wq_has_sleeper(&so->wait)) {
++		if (msg->msg_flags & MSG_DONTWAIT) {
++			err = -EAGAIN;
++			goto err_out;
++		}
+ 
+ 		/* wait for complete transmission of current pdu */
+ 		err = wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
+ 		if (err)
+-			return err;
++			goto err_out;
  	}
  
--- 
-2.33.0
-
+-	if (!size || size > MAX_MSG_LENGTH)
+-		return -EINVAL;
++	if (!size || size > MAX_MSG_LENGTH) {
++		err = -EINVAL;
++		goto err_out;
++	}
+ 
+ 	/* take care of a potential SF_DL ESC offset for TX_DL > 8 */
+ 	off = (so->tx.ll_dl > CAN_MAX_DLEN) ? 1 : 0;
+ 
+ 	/* does the given data fit into a single frame for SF_BROADCAST? */
+ 	if ((so->opt.flags & CAN_ISOTP_SF_BROADCAST) &&
+-	    (size > so->tx.ll_dl - SF_PCI_SZ4 - ae - off))
+-		return -EINVAL;
++	    (size > so->tx.ll_dl - SF_PCI_SZ4 - ae - off)) {
++		err = -EINVAL;
++		goto err_out;
++	}
+ 
+ 	err = memcpy_from_msg(so->tx.buf, msg, size);
+ 	if (err < 0)
+-		return err;
++		goto err_out;
+ 
+ 	dev = dev_get_by_index(sock_net(sk), so->ifindex);
+-	if (!dev)
+-		return -ENXIO;
++	if (!dev) {
++		err = -ENXIO;
++		goto err_out;
++	}
+ 
+ 	skb = sock_alloc_send_skb(sk, so->ll.mtu + sizeof(struct can_skb_priv),
+ 				  msg->msg_flags & MSG_DONTWAIT, &err);
+ 	if (!skb) {
+ 		dev_put(dev);
+-		return err;
++		goto err_out;
+ 	}
+ 
+ 	can_skb_reserve(skb);
+ 	can_skb_prv(skb)->ifindex = dev->ifindex;
+ 	can_skb_prv(skb)->skbcnt = 0;
+ 
+-	so->tx.state = ISOTP_SENDING;
+ 	so->tx.len = size;
+ 	so->tx.idx = 0;
+ 
+@@ -956,7 +965,7 @@ static int isotp_sendmsg(struct socket *
+ 	if (err) {
+ 		pr_notice_once("can-isotp: %s: can_send_ret %pe\n",
+ 			       __func__, ERR_PTR(err));
+-		return err;
++		goto err_out;
+ 	}
+ 
+ 	if (wait_tx_done) {
+@@ -968,6 +977,13 @@ static int isotp_sendmsg(struct socket *
+ 	}
+ 
+ 	return size;
++
++err_out:
++	so->tx.state = old_state;
++	if (so->tx.state == ISOTP_IDLE)
++		wake_up_interruptible(&so->wait);
++
++	return err;
+ }
+ 
+ static int isotp_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
 
 
