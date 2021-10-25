@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EBD943A139
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6955743A043
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236088AbhJYThw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53558 "EHLO mail.kernel.org"
+        id S235066AbhJYT3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236618AbhJYTe7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:34:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54652610A6;
-        Mon, 25 Oct 2021 19:31:36 +0000 (UTC)
+        id S235097AbhJYT1p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:27:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BE5560EFE;
+        Mon, 25 Oct 2021 19:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190297;
-        bh=Ps6lIDaXjSpwSIMUsGNCTVWdQiy/a2kNcif61VQEJsI=;
+        s=korg; t=1635189868;
+        bh=iXn6Jih01pc9c2ujcf4Dm/YwYxbow9CFLEPGx1h3crU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acm6vJM9COGAXxBRo63J4i2WwdA7nAVs9AQfL1+8FvnbMH2KACECx312HRckL2ece
-         4JGfZ2wfmZAuqm03nGm1P9mko7luCbk13KTjpJ2eHeNRoWyv15AzU0OX8fdVIlCKCV
-         l3lkC/FYYZro+orBpywAQafI8EOEoe9Idqui/0/g=
+        b=DaXsEMTqWt56+LhqduWuCsIk9eN6Ao52dJpMmjuYzqY2m8EOULpW5BwoeBImW+AEW
+         LkIiPBnPs75TK9s0GwZx7fbiXW0b0jmQ90AoGf7Jtep0/MbaaYEjS/Y14O7UCwoDFT
+         P3TnQ7o/9B1mZHHBwuAcptpqnPktjFSucw1rhxbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+85d9878b19c94f9019ad@syzkaller.appspotmail.com,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Ayumi Nakamichi <ayumi.nakamichi.kf@renesas.com>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 40/95] can: j1939: j1939_netdev_start(): fix UAF for rx_kref of j1939_priv
+Subject: [PATCH 4.19 12/37] can: rcar_can: fix suspend/resume
 Date:   Mon, 25 Oct 2021 21:14:37 +0200
-Message-Id: <20211025191002.609165845@linuxfoundation.org>
+Message-Id: <20211025190930.658769124@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,79 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit d9d52a3ebd284882f5562c88e55991add5d01586 upstream.
+commit f7c05c3987dcfde9a4e8c2d533db013fabebca0d upstream.
 
-It will trigger UAF for rx_kref of j1939_priv as following.
+If the driver was not opened, rcar_can_suspend() should not call
+clk_disable() because the clock was not enabled.
 
-        cpu0                                    cpu1
-j1939_sk_bind(socket0, ndev0, ...)
-j1939_netdev_start
-                                        j1939_sk_bind(socket1, ndev0, ...)
-                                        j1939_netdev_start
-j1939_priv_set
-                                        j1939_priv_get_by_ndev_locked
-j1939_jsk_add
-.....
-j1939_netdev_stop
-kref_put_lock(&priv->rx_kref, ...)
-                                        kref_get(&priv->rx_kref, ...)
-                                        REFCOUNT_WARN("addition on 0;...")
-
-====================================================
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 1 PID: 20874 at lib/refcount.c:25 refcount_warn_saturate+0x169/0x1e0
-RIP: 0010:refcount_warn_saturate+0x169/0x1e0
-Call Trace:
- j1939_netdev_start+0x68b/0x920
- j1939_sk_bind+0x426/0xeb0
- ? security_socket_bind+0x83/0xb0
-
-The rx_kref's kref_get() and kref_put() should use j1939_netdev_lock to
-protect.
-
-Fixes: 9d71dd0c70099 ("can: add support of SAE J1939 protocol")
-Link: https://lore.kernel.org/all/20210926104757.2021540-1-william.xuanziyang@huawei.com
+Fixes: fd1159318e55 ("can: add Renesas R-Car CAN driver")
+Link: https://lore.kernel.org/all/20210924075556.223685-1-yoshihiro.shimoda.uh@renesas.com
 Cc: stable@vger.kernel.org
-Reported-by: syzbot+85d9878b19c94f9019ad@syzkaller.appspotmail.com
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Tested-by: Ayumi Nakamichi <ayumi.nakamichi.kf@renesas.com>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Tested-by: Biju Das <biju.das.jz@bp.renesas.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/j1939/main.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/can/rcar/rcar_can.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/net/can/j1939/main.c
-+++ b/net/can/j1939/main.c
-@@ -249,11 +249,14 @@ struct j1939_priv *j1939_netdev_start(st
- 	struct j1939_priv *priv, *priv_new;
- 	int ret;
+--- a/drivers/net/can/rcar/rcar_can.c
++++ b/drivers/net/can/rcar/rcar_can.c
+@@ -857,10 +857,12 @@ static int __maybe_unused rcar_can_suspe
+ 	struct rcar_can_priv *priv = netdev_priv(ndev);
+ 	u16 ctlr;
  
--	priv = j1939_priv_get_by_ndev(ndev);
-+	spin_lock(&j1939_netdev_lock);
-+	priv = j1939_priv_get_by_ndev_locked(ndev);
- 	if (priv) {
- 		kref_get(&priv->rx_kref);
-+		spin_unlock(&j1939_netdev_lock);
- 		return priv;
- 	}
-+	spin_unlock(&j1939_netdev_lock);
+-	if (netif_running(ndev)) {
+-		netif_stop_queue(ndev);
+-		netif_device_detach(ndev);
+-	}
++	if (!netif_running(ndev))
++		return 0;
++
++	netif_stop_queue(ndev);
++	netif_device_detach(ndev);
++
+ 	ctlr = readw(&priv->regs->ctlr);
+ 	ctlr |= RCAR_CAN_CTLR_CANM_HALT;
+ 	writew(ctlr, &priv->regs->ctlr);
+@@ -879,6 +881,9 @@ static int __maybe_unused rcar_can_resum
+ 	u16 ctlr;
+ 	int err;
  
- 	priv = j1939_priv_create(ndev);
- 	if (!priv)
-@@ -269,10 +272,10 @@ struct j1939_priv *j1939_netdev_start(st
- 		/* Someone was faster than us, use their priv and roll
- 		 * back our's.
- 		 */
-+		kref_get(&priv_new->rx_kref);
- 		spin_unlock(&j1939_netdev_lock);
- 		dev_put(ndev);
- 		kfree(priv);
--		kref_get(&priv_new->rx_kref);
- 		return priv_new;
- 	}
- 	j1939_priv_set(ndev, priv);
++	if (!netif_running(ndev))
++		return 0;
++
+ 	err = clk_enable(priv->clk);
+ 	if (err) {
+ 		netdev_err(ndev, "clk_enable() failed, error %d\n", err);
+@@ -892,10 +897,9 @@ static int __maybe_unused rcar_can_resum
+ 	writew(ctlr, &priv->regs->ctlr);
+ 	priv->can.state = CAN_STATE_ERROR_ACTIVE;
+ 
+-	if (netif_running(ndev)) {
+-		netif_device_attach(ndev);
+-		netif_start_queue(ndev);
+-	}
++	netif_device_attach(ndev);
++	netif_start_queue(ndev);
++
+ 	return 0;
+ }
+ 
 
 
