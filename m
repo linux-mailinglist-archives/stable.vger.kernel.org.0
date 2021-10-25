@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D1043A101
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02AB643A2D3
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:52:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235598AbhJYTg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:36:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52126 "EHLO mail.kernel.org"
+        id S235286AbhJYTxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:53:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235695AbhJYTcU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:32:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2137610EA;
-        Mon, 25 Oct 2021 19:28:32 +0000 (UTC)
+        id S238660AbhJYTvA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:51:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3743760E75;
+        Mon, 25 Oct 2021 19:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190113;
-        bh=rJboFWYOlFxCjJ2sD+ydfZ3t2qyUBerEkypslsxgIkw=;
+        s=korg; t=1635190966;
+        bh=EnoDjRZNeWMBEV5pFdsiCUsyHCHqbezOCF3FWUhiANs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VimwtUdVdqbw87IctZaW23HlunKR6gknuewD74IizZRXIO/xlJ2i0m046LHVDKN1o
-         RESsEXP0WevExRsva8NVa4hL0ph6k8rWwyCRqzLJKjU+jWc2CBXqjl5rDdbANaNqKm
-         g9Gv6nYiNLetnCeSI1CP1remau8c/z6+hh5vA/3I=
+        b=Nn/EZ4gXe3FgWKepKX75H+M1kl4Zxyar7wbYHmebbjBEN7PIKj6gDecQ8C7KLtWYs
+         A5smzvpxvKuwY+CzP0whxdd/hjVz8GkhVksICm4H6ttZ0voKkqVI6R4ez1O3gN0JqB
+         YAoLZqoSQuedM14Yhox6EE6WD0Mh2F/kCBrqZ7FA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 37/58] KVM: PPC: Book3S HV: Make idle_kvm_start_guest() return 0 if it went to guest
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 113/169] KVM: x86: check for interrupts before deciding whether to exit the fast path
 Date:   Mon, 25 Oct 2021 21:14:54 +0200
-Message-Id: <20211025190943.632946696@linuxfoundation.org>
+Message-Id: <20211025191032.315857412@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,71 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit cdeb5d7d890e14f3b70e8087e745c4a6a7d9f337 upstream.
+commit de7cd3f6761f49bef044ec49493d88737a70f1a6 upstream.
 
-We call idle_kvm_start_guest() from power7_offline() if the thread has
-been requested to enter KVM. We pass it the SRR1 value that was returned
-from power7_idle_insn() which tells us what sort of wakeup we're
-processing.
+The kvm_x86_sync_pir_to_irr callback can sometimes set KVM_REQ_EVENT.
+If that happens exactly at the time that an exit is handled as
+EXIT_FASTPATH_REENTER_GUEST, vcpu_enter_guest will go incorrectly
+through the loop that calls kvm_x86_run, instead of processing
+the request promptly.
 
-Depending on the SRR1 value we pass in, the KVM code might enter the
-guest, or it might return to us to do some host action if the wakeup
-requires it.
-
-If idle_kvm_start_guest() is able to handle the wakeup, and enter the
-guest it is supposed to indicate that by returning a zero SRR1 value to
-us.
-
-That was the behaviour prior to commit 10d91611f426 ("powerpc/64s:
-Reimplement book3s idle code in C"), however in that commit the
-handling of SRR1 was reworked, and the zeroing behaviour was lost.
-
-Returning from idle_kvm_start_guest() without zeroing the SRR1 value can
-confuse the host offline code, causing the guest to crash and other
-weirdness.
-
-Fixes: 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in C")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211015133929.832061-2-mpe@ellerman.id.au
+Fixes: 379a3c8ee444 ("KVM: VMX: Optimize posted-interrupt delivery for timer fastpath")
+Cc: stable@vger.kernel.org
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_hv_rmhandlers.S |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/x86/kvm/x86.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-+++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-@@ -301,6 +301,7 @@ _GLOBAL(idle_kvm_start_guest)
- 	stdu	r1, -SWITCH_FRAME_SIZE(r4)
- 	// Switch to new frame on emergency stack
- 	mr	r1, r4
-+	std	r3, 32(r1)	// Save SRR1 wakeup value
- 	SAVE_NVGPRS(r1)
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9642,14 +9642,14 @@ static int vcpu_enter_guest(struct kvm_v
+ 		if (likely(exit_fastpath != EXIT_FASTPATH_REENTER_GUEST))
+ 			break;
+ 
+-                if (unlikely(kvm_vcpu_exit_request(vcpu))) {
++		if (vcpu->arch.apicv_active)
++			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
++
++		if (unlikely(kvm_vcpu_exit_request(vcpu))) {
+ 			exit_fastpath = EXIT_FASTPATH_EXIT_HANDLED;
+ 			break;
+ 		}
+-
+-		if (vcpu->arch.apicv_active)
+-			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
+-        }
++	}
  
  	/*
-@@ -352,6 +353,10 @@ kvm_unsplit_wakeup:
- 
- kvm_secondary_got_guest:
- 
-+	// About to go to guest, clear saved SRR1
-+	li	r0, 0
-+	std	r0, 32(r1)
-+
- 	/* Set HSTATE_DSCR(r13) to something sensible */
- 	ld	r6, PACA_DSCR_DEFAULT(r13)
- 	std	r6, HSTATE_DSCR(r13)
-@@ -443,8 +448,8 @@ kvm_no_guest:
- 	mfspr	r4, SPRN_LPCR
- 	rlwimi	r4, r3, 0, LPCR_PECE0 | LPCR_PECE1
- 	mtspr	SPRN_LPCR, r4
--	/* set up r3 for return */
--	mfspr	r3,SPRN_SRR1
-+	// Return SRR1 wakeup value, or 0 if we went into the guest
-+	ld	r3, 32(r1)
- 	REST_NVGPRS(r1)
- 	ld	r1, 0(r1)	// Switch back to caller stack
- 	ld	r0, 16(r1)	// Reload LR
+ 	 * Do this here before restoring debug registers on the host.  And
 
 
