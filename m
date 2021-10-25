@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 617CC43A00D
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:25:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6DA643A04F
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235035AbhJYT0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:26:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39156 "EHLO mail.kernel.org"
+        id S235849AbhJYT3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235020AbhJYTZE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:25:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A18860724;
-        Mon, 25 Oct 2021 19:22:13 +0000 (UTC)
+        id S235096AbhJYT1U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:27:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C5D5610C7;
+        Mon, 25 Oct 2021 19:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189734;
-        bh=0wFitQqf99HsEpCzMQH91BM2topCFOK6sfiIcLLqbFI=;
+        s=korg; t=1635189849;
+        bh=5tYRPSgD9ptvnUyJMOWtxQ/xLK9z0JyO6R7rJe5/Gkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nxwETVCwgXow9aYYIbcMSdsQk2YrbRTbJXg0Nf3Joui6wlTASaiZa/82bTtDu0LFw
-         cRzo9Wd+7AuW0/D0qOKvLz2BO15vU2O/x0LM4CFnDuGmlAINtfCQROxJ2q26L7iBBS
-         PEPiAtDpSdckBkrCl+1pjcV0CJnviTsQeEYwNAqo=
+        b=FHtmkbkiijQ3RLmAHNsIhSSHaF9714dh1LzbhFNOmKKvtdcUd7G6Kmm2lw+2YgclR
+         ALuKIZMZ5HEHbbAtq8Y2AjpVGzWalncL+XYy7ehmbJvQkHmvLBWI2iUHmfUV4k2qxX
+         XPCm6H8gCTK+IdBhEXULEHrPLXMIan5t04jZukTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Barret Rhoden <brho@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 13/30] elfcore: correct reference to CONFIG_UML
+        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 08/37] lan78xx: select CRC32
 Date:   Mon, 25 Oct 2021 21:14:33 +0200
-Message-Id: <20211025190926.144818719@linuxfoundation.org>
+Message-Id: <20211025190929.904594844@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
-References: <20211025190922.089277904@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Vegard Nossum <vegard.nossum@oracle.com>
 
-commit b0e901280d9860a0a35055f220e8e457f300f40a upstream.
+[ Upstream commit 46393d61a328d7c4e3264252dae891921126c674 ]
 
-Commit 6e7b64b9dd6d ("elfcore: fix building with clang") introduces
-special handling for two architectures, ia64 and User Mode Linux.
-However, the wrong name, i.e., CONFIG_UM, for the intended Kconfig
-symbol for User-Mode Linux was used.
+Fix the following build/link error by adding a dependency on the CRC32
+routines:
 
-Although the directory for User Mode Linux is ./arch/um; the Kconfig
-symbol for this architecture is called CONFIG_UML.
+  ld: drivers/net/usb/lan78xx.o: in function `lan78xx_set_multicast':
+  lan78xx.c:(.text+0x48cf): undefined reference to `crc32_le'
 
-Luckily, ./scripts/checkkconfigsymbols.py warns on non-existing configs:
+The actual use of crc32_le() comes indirectly through ether_crc().
 
-  UM
-  Referencing files: include/linux/elfcore.h
-  Similar symbols: UML, NUMA
-
-Correct the name of the config to the intended one.
-
-[akpm@linux-foundation.org: fix um/x86_64, per Catalin]
-  Link: https://lkml.kernel.org/r/20211006181119.2851441-1-catalin.marinas@arm.com
-  Link: https://lkml.kernel.org/r/YV6pejGzLy5ppEpt@arm.com
-
-Link: https://lkml.kernel.org/r/20211006082209.417-1-lukas.bulwahn@gmail.com
-Fixes: 6e7b64b9dd6d ("elfcore: fix building with clang")
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Barret Rhoden <brho@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 55d7de9de6c30 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/elfcore.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/elfcore.h
-+++ b/include/linux/elfcore.h
-@@ -58,7 +58,7 @@ static inline int elf_core_copy_task_xfp
- }
- #endif
- 
--#if defined(CONFIG_UM) || defined(CONFIG_IA64)
-+#if (defined(CONFIG_UML) && defined(CONFIG_X86_32)) || defined(CONFIG_IA64)
- /*
-  * These functions parameterize elf_core_dump in fs/binfmt_elf.c to write out
-  * extra segments containing the gate DSO contents.  Dumping its
+diff --git a/drivers/net/usb/Kconfig b/drivers/net/usb/Kconfig
+index cc2fd1957765..23fa0e2a75ff 100644
+--- a/drivers/net/usb/Kconfig
++++ b/drivers/net/usb/Kconfig
+@@ -116,6 +116,7 @@ config USB_LAN78XX
+ 	select PHYLIB
+ 	select MICROCHIP_PHY
+ 	select FIXED_PHY
++	select CRC32
+ 	help
+ 	  This option adds support for Microchip LAN78XX based USB 2
+ 	  & USB 3 10/100/1000 Ethernet adapters.
+-- 
+2.33.0
+
 
 
