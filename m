@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16CBE43A029
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D001843A05E
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234604AbhJYT3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:29:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39974 "EHLO mail.kernel.org"
+        id S235467AbhJYTaA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:30:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234954AbhJYT0Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:26:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9548B610A6;
-        Mon, 25 Oct 2021 19:23:10 +0000 (UTC)
+        id S235746AbhJYT3H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:29:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F75961166;
+        Mon, 25 Oct 2021 19:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189792;
-        bh=t0D97tyNHfJ/dkvA9wcXR6/ikyKglEVqBfbjrKMlvK0=;
+        s=korg; t=1635189949;
+        bh=yXLbsg3x+I/rte+J64RRq+gVzgk3Xq/TV92Jmjr7ifg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIsJgRTtx2U8RdySuUSBW3fkFr5S9XAjEBcoKHRvR73NYPpFvs+YCXJCq88VpUOcv
-         mOVuuJZCKneWZ4Y+h7nPBS4H1qswA47lUk4ZewbpRejQcSnSaSFIvhcMRcDG1w6ClX
-         yZPQA+KuuuuU+SQ9G0oh3f1ItyqolUemxmNh8lEM=
+        b=YJCNSDmImK0qCCg3O21bliU7T7N83RFuWENZmtJwGUKuAT50/IXFk3YZrBaTahoi5
+         kEH/skNkf+r3VWVIY4PfM0QWhzflM5Y/v5eHNZfOs+ErtT7miSYQf20U/WK4L9h0Xb
+         iMHSOAWzAXorusVVyOa4paQulmqcUXsFYsMOAjLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
+        Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/37] ARM: dts: at91: sama5d2_som1_ek: disable ISC node by default
-Date:   Mon, 25 Oct 2021 21:14:26 +0200
-Message-Id: <20211025190928.536289840@linuxfoundation.org>
+Subject: [PATCH 5.4 10/58] netfilter: ipvs: make global sysctl readonly in non-init netns
+Date:   Mon, 25 Oct 2021 21:14:27 +0200
+Message-Id: <20211025190939.193930036@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
-References: <20211025190926.680827862@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,35 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-[ Upstream commit 4348cc10da6377a86940beb20ad357933b8f91bb ]
+[ Upstream commit 174c376278949c44aad89c514a6b5db6cee8db59 ]
 
-Without a sensor node, the ISC will simply fail to probe, as the
-corresponding port node is missing.
-It is then logical to disable the node in the devicetree.
-If we add a port with a connection to a sensor endpoint, ISC can be enabled.
+Because the data pointer of net/ipv4/vs/debug_level is not updated per
+netns, it must be marked as read-only in non-init netns.
 
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20210902121358.503589-1-eugen.hristev@microchip.com
+Fixes: c6d2d445d8de ("IPVS: netns, final patch enabling network name space.")
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-sama5d27_som1_ek.dts | 1 -
- 1 file changed, 1 deletion(-)
+ net/netfilter/ipvs/ip_vs_ctl.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-index e86e0c00eb6b..f37af915a37e 100644
---- a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-@@ -106,7 +106,6 @@
- 			isc: isc@f0008000 {
- 				pinctrl-names = "default";
- 				pinctrl-0 = <&pinctrl_isc_base &pinctrl_isc_data_8bit &pinctrl_isc_data_9_10 &pinctrl_isc_data_11_12>;
--				status = "okay";
- 			};
+diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
+index f93fa0e21097..07242503d74d 100644
+--- a/net/netfilter/ipvs/ip_vs_ctl.c
++++ b/net/netfilter/ipvs/ip_vs_ctl.c
+@@ -4047,6 +4047,11 @@ static int __net_init ip_vs_control_net_init_sysctl(struct netns_ipvs *ipvs)
+ 	tbl[idx++].data = &ipvs->sysctl_conn_reuse_mode;
+ 	tbl[idx++].data = &ipvs->sysctl_schedule_icmp;
+ 	tbl[idx++].data = &ipvs->sysctl_ignore_tunneled;
++#ifdef CONFIG_IP_VS_DEBUG
++	/* Global sysctls must be ro in non-init netns */
++	if (!net_eq(net, &init_net))
++		tbl[idx++].mode = 0444;
++#endif
  
- 			spi0: spi@f8000000 {
+ 	ipvs->sysctl_hdr = register_net_sysctl(net, "net/ipv4/vs", tbl);
+ 	if (ipvs->sysctl_hdr == NULL) {
 -- 
 2.33.0
 
