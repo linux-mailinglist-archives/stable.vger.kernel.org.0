@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D55DB4395DA
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 14:17:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6E284395E0
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 14:17:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233071AbhJYMTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 08:19:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56222 "EHLO mail.kernel.org"
+        id S233105AbhJYMTo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 08:19:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232838AbhJYMTm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232455AbhJYMTm (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Oct 2021 08:19:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD1A060ED4;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5C0460555;
         Mon, 25 Oct 2021 12:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1635164239;
-        bh=L0WJ7+5+qewdB7If++5UO/OXlrBLv8K7CfrRjdsjZGM=;
+        bh=UB12+Dycc6GEIdWE3BW/yQ4o2454bP5RnbmKCx2jaAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b0zhdSrm88MzrpZEGr47ltIFcbqARd7v3mGvuH+4Noqnnq4UfmCmzlFMeUGorDzBW
-         G5DV0V/RKq9QB/NuvEtPhUDMlzORi/vRVVtIUW2sNuQyNfByhH3GFfHx16yJ0JCnRz
-         p7VJJGYdayVmQR3KE0Y9eDJB+fiUY9gRC4qhwP/W8R1AlnvC19yGryLv3aEMHepsH2
-         W1NDrOKmK6kDoievkOhw0LWAlMcYmCU/mijoN66iHCQnuf08RJUysDKWz3LBblgFUb
-         kQBR8I/wBJ6sNriOyUGB5Yw1TQ36pQ/pL8v1zCYgIm+gFU14TJf0f+Rv0gk5d42ewe
-         OdpeaO5IlJboQ==
+        b=o14BBX8D0y4R5IVly34dWIXF7bWeZrdPavDEd/uGhfq/F4QY7aDHf6G4VTgud4/al
+         wE1uOU4B+V5/pdT69qEWbwXQnlhBt4yKO4DI7HZkWLx01Iu3NSMO7hHptq9ol58YkO
+         A9fiByuivwuIZyATw3Fev5vl85uaK6BIVcl4tf17iyam4RV5W1nA+jWIkfR9JwqRAq
+         ml8Ohnm3NCEtKrv360kHOKsJLgNB0SUh/1WvTpuHOWuhO/IqAXcKsE6AusRpqFIajx
+         vUjjd8n4rmVVk3kBxZYzzka6z6hktGZhb47rrZSjH2Ikpjhj2qVDdUFM4vAfWwMEZJ
+         h39WoUhIuqLNQ==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1meyuU-0001mP-Oa; Mon, 25 Oct 2021 14:17:02 +0200
+        id 1meyuU-0001mS-R8; Mon, 25 Oct 2021 14:17:02 +0200
 From:   Johan Hovold <johan@kernel.org>
 To:     Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab@kernel.org>
@@ -34,9 +34,9 @@ Cc:     Mike Isely <isely@pobox.com>,
         linux-media@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         stable@vger.kernel.org
-Subject: [PATCH 5/8] media: em28xx: fix control-message timeouts
-Date:   Mon, 25 Oct 2021 14:16:38 +0200
-Message-Id: <20211025121641.6759-6-johan@kernel.org>
+Subject: [PATCH 6/8] media: pvrusb2: fix control-message timeouts
+Date:   Mon, 25 Oct 2021 14:16:39 +0200
+Message-Id: <20211025121641.6759-7-johan@kernel.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20211025121641.6759-1-johan@kernel.org>
 References: <20211025121641.6759-1-johan@kernel.org>
@@ -49,35 +49,53 @@ X-Mailing-List: stable@vger.kernel.org
 USB control-message timeouts are specified in milliseconds and should
 specifically not vary with CONFIG_HZ.
 
-Fixes: a6c2ba283565 ("[PATCH] v4l: 716: support for em28xx board family")
-Cc: stable@vger.kernel.org      # 2.6.16
+Fixes: d855497edbfb ("V4L/DVB (4228a): pvrusb2 to kernel 2.6.18")
+Cc: stable@vger.kernel.org      # 2.6.18
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/media/usb/em28xx/em28xx-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/usb/em28xx/em28xx-core.c b/drivers/media/usb/em28xx/em28xx-core.c
-index 584fa400cd7d..f366bb47ec6d 100644
---- a/drivers/media/usb/em28xx/em28xx-core.c
-+++ b/drivers/media/usb/em28xx/em28xx-core.c
-@@ -89,7 +89,7 @@ int em28xx_read_reg_req_len(struct em28xx *dev, u8 req, u16 reg,
- 	mutex_lock(&dev->ctrl_urb_lock);
- 	ret = usb_control_msg(udev, pipe, req,
- 			      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			      0x0000, reg, dev->urb_buf, len, HZ);
-+			      0x0000, reg, dev->urb_buf, len, 1000);
- 	if (ret < 0) {
- 		em28xx_regdbg("(pipe 0x%08x): IN:  %02x %02x %02x %02x %02x %02x %02x %02x  failed with error %i\n",
- 			      pipe,
-@@ -158,7 +158,7 @@ int em28xx_write_regs_req(struct em28xx *dev, u8 req, u16 reg, char *buf,
- 	memcpy(dev->urb_buf, buf, len);
- 	ret = usb_control_msg(udev, pipe, req,
- 			      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			      0x0000, reg, dev->urb_buf, len, HZ);
-+			      0x0000, reg, dev->urb_buf, len, 1000);
- 	mutex_unlock(&dev->ctrl_urb_lock);
+diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+index d38dee1792e4..3915d551d59e 100644
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -1467,7 +1467,7 @@ static int pvr2_upload_firmware1(struct pvr2_hdw *hdw)
+ 	for (address = 0; address < fwsize; address += 0x800) {
+ 		memcpy(fw_ptr, fw_entry->data + address, 0x800);
+ 		ret += usb_control_msg(hdw->usb_dev, pipe, 0xa0, 0x40, address,
+-				       0, fw_ptr, 0x800, HZ);
++				       0, fw_ptr, 0x800, 1000);
+ 	}
  
+ 	trace_firmware("Upload done, releasing device's CPU");
+@@ -1605,7 +1605,7 @@ int pvr2_upload_firmware2(struct pvr2_hdw *hdw)
+ 			((u32 *)fw_ptr)[icnt] = swab32(((u32 *)fw_ptr)[icnt]);
+ 
+ 		ret |= usb_bulk_msg(hdw->usb_dev, pipe, fw_ptr,bcnt,
+-				    &actual_length, HZ);
++				    &actual_length, 1000);
+ 		ret |= (actual_length != bcnt);
+ 		if (ret) break;
+ 		fw_done += bcnt;
+@@ -3438,7 +3438,7 @@ void pvr2_hdw_cpufw_set_enabled(struct pvr2_hdw *hdw,
+ 						      0xa0,0xc0,
+ 						      address,0,
+ 						      hdw->fw_buffer+address,
+-						      0x800,HZ);
++						      0x800,1000);
+ 				if (ret < 0) break;
+ 			}
+ 
+@@ -3977,7 +3977,7 @@ void pvr2_hdw_cpureset_assert(struct pvr2_hdw *hdw,int val)
+ 	/* Write the CPUCS register on the 8051.  The lsb of the register
+ 	   is the reset bit; a 1 asserts reset while a 0 clears it. */
+ 	pipe = usb_sndctrlpipe(hdw->usb_dev, 0);
+-	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,HZ);
++	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,1000);
  	if (ret < 0) {
+ 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
+ 			   "cpureset_assert(%d) error=%d",val,ret);
 -- 
 2.32.0
 
