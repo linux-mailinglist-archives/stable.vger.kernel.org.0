@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99F2B43A15C
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A781743A156
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236455AbhJYTiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:38:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48472 "EHLO mail.kernel.org"
+        id S236364AbhJYTiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:38:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235309AbhJYTbo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:31:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B31F61139;
-        Mon, 25 Oct 2021 19:28:03 +0000 (UTC)
+        id S235472AbhJYTbt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:31:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CACAE6103C;
+        Mon, 25 Oct 2021 19:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190084;
-        bh=NPNYp8OuvMiUMTw3xADCPe+MPBgemo9Lz4wNpgaXrQ4=;
+        s=korg; t=1635190087;
+        bh=PEbV/gwh078nHq2wvrKs9Xvb0s44ClECQf9/ILGiQMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rzm/EGbcnsp/vhAakKowpxfRiOEF2Q0Fnaoo78WHtgWOi2OYWrOR8QKbzwVtB574M
-         WvTA9vBmnAVd29WI76r+o6migLubHZez3YZnYtv9CDI/Wsr9rC1va7CeNIGmpYCeNE
-         WBYkBwjSSLsTEV19M7gqlWOmCOEljKd9wYO4jrRY=
+        b=pKD5R3eWmQdfx5O6Hs2Xg3wgMtfzuMRsJQ3S5fZZ3KPx6oi1xUPNl3El9WYW56ydX
+         5OScsWbo4/jdaW6F951q9wd9cv93JHByDOLafuADrOQRilAOm46Hr56Xlog6lBszhs
+         phv88ZyYP8xLiro9q4SAysG68mlwh5k/DhzVWypE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Herve Codina <herve.codina@bootlin.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 46/58] btrfs: deal with errors when checking if a dir entry exists during log replay
-Date:   Mon, 25 Oct 2021 21:15:03 +0200
-Message-Id: <20211025190945.326788692@linuxfoundation.org>
+Subject: [PATCH 5.4 47/58] net: stmmac: add support for dwmac 3.40a
+Date:   Mon, 25 Oct 2021 21:15:04 +0200
+Message-Id: <20211025190945.565650390@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
 References: <20211025190937.555108060@linuxfoundation.org>
@@ -40,118 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Herve Codina <herve.codina@bootlin.com>
 
-[ Upstream commit 77a5b9e3d14cbce49ceed2766b2003c034c066dc ]
+[ Upstream commit 9cb1d19f47fafad7dcf7c8564e633440c946cfd7 ]
 
-Currently inode_in_dir() ignores errors returned from
-btrfs_lookup_dir_index_item() and from btrfs_lookup_dir_item(), treating
-any errors as if the directory entry does not exists in the fs/subvolume
-tree, which is obviously not correct, as we can get errors such as -EIO
-when reading extent buffers while searching the fs/subvolume's tree.
+dwmac 3.40a is an old ip version that can be found on SPEAr3xx soc.
 
-Fix that by making inode_in_dir() return the errors and making its only
-caller, add_inode_ref(), deal with returned errors as well.
-
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 47 ++++++++++++++++++++++++++++-----------------
- 1 file changed, 29 insertions(+), 18 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c   | 1 +
+ drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 9d358dafef36..f34205569987 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -900,9 +900,11 @@ out:
- }
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
+index fad503820e04..b3365b34cac7 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
+@@ -71,6 +71,7 @@ err_remove_config_dt:
  
- /*
-- * helper function to see if a given name and sequence number found
-- * in an inode back reference are already in a directory and correctly
-- * point to this inode
-+ * See if a given name and sequence number found in an inode back reference are
-+ * already in a directory and correctly point to this inode.
-+ *
-+ * Returns: < 0 on error, 0 if the directory entry does not exists and 1 if it
-+ * exists.
-  */
- static noinline int inode_in_dir(struct btrfs_root *root,
- 				 struct btrfs_path *path,
-@@ -911,29 +913,35 @@ static noinline int inode_in_dir(struct btrfs_root *root,
- {
- 	struct btrfs_dir_item *di;
- 	struct btrfs_key location;
--	int match = 0;
-+	int ret = 0;
+ static const struct of_device_id dwmac_generic_match[] = {
+ 	{ .compatible = "st,spear600-gmac"},
++	{ .compatible = "snps,dwmac-3.40a"},
+ 	{ .compatible = "snps,dwmac-3.50a"},
+ 	{ .compatible = "snps,dwmac-3.610"},
+ 	{ .compatible = "snps,dwmac-3.70a"},
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+index 678aa2b001e0..a46fea472bc4 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+@@ -505,6 +505,14 @@ stmmac_probe_config_dt(struct platform_device *pdev, const char **mac)
+ 		plat->pmt = 1;
+ 	}
  
- 	di = btrfs_lookup_dir_index_item(NULL, root, path, dirid,
- 					 index, name, name_len, 0);
--	if (di && !IS_ERR(di)) {
-+	if (IS_ERR(di)) {
-+		if (PTR_ERR(di) != -ENOENT)
-+			ret = PTR_ERR(di);
-+		goto out;
-+	} else if (di) {
- 		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
- 		if (location.objectid != objectid)
- 			goto out;
--	} else
-+	} else {
- 		goto out;
--	btrfs_release_path(path);
++	if (of_device_is_compatible(np, "snps,dwmac-3.40a")) {
++		plat->has_gmac = 1;
++		plat->enh_desc = 1;
++		plat->tx_coe = 1;
++		plat->bugged_jumbo = 1;
++		plat->pmt = 1;
 +	}
- 
-+	btrfs_release_path(path);
- 	di = btrfs_lookup_dir_item(NULL, root, path, dirid, name, name_len, 0);
--	if (di && !IS_ERR(di)) {
--		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
--		if (location.objectid != objectid)
--			goto out;
--	} else
-+	if (IS_ERR(di)) {
-+		ret = PTR_ERR(di);
- 		goto out;
--	match = 1;
-+	} else if (di) {
-+		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
-+		if (location.objectid == objectid)
-+			ret = 1;
-+	}
- out:
- 	btrfs_release_path(path);
--	return match;
-+	return ret;
- }
- 
- /*
-@@ -1500,10 +1508,12 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
- 		if (ret)
- 			goto out;
- 
--		/* if we already have a perfect match, we're done */
--		if (!inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
--					btrfs_ino(BTRFS_I(inode)), ref_index,
--					name, namelen)) {
-+		ret = inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
-+				   btrfs_ino(BTRFS_I(inode)), ref_index,
-+				   name, namelen);
-+		if (ret < 0) {
-+			goto out;
-+		} else if (ret == 0) {
- 			/*
- 			 * look for a conflicting back reference in the
- 			 * metadata. if we find one we have to unlink that name
-@@ -1561,6 +1571,7 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
- 
- 			btrfs_update_inode(trans, root, inode);
- 		}
-+		/* Else, ret == 1, we already have a perfect match, we're done. */
- 
- 		ref_ptr = (unsigned long)(ref_ptr + ref_struct_size) + namelen;
- 		kfree(name);
++
+ 	if (of_device_is_compatible(np, "snps,dwmac-4.00") ||
+ 	    of_device_is_compatible(np, "snps,dwmac-4.10a") ||
+ 	    of_device_is_compatible(np, "snps,dwmac-4.20a")) {
 -- 
 2.33.0
 
