@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EDA143A065
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B229743A143
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235595AbhJYTaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:30:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48434 "EHLO mail.kernel.org"
+        id S236218AbhJYTiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:38:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235600AbhJYT2t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:28:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CA57600D3;
-        Mon, 25 Oct 2021 19:25:24 +0000 (UTC)
+        id S235508AbhJYTcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:32:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEC056115B;
+        Mon, 25 Oct 2021 19:28:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189926;
-        bh=xBssUU0xY8dwNne6bBv5uYX0fazMU7RtbYLzyYl1aLo=;
+        s=korg; t=1635190109;
+        bh=LrfCRFasqvuXbG5tf0T/B1fhv+UmrMhZx2uqMllI/PU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=atgvqk76igImpcy7uxTxon0sa7fgU1HtrKgyC6+CydA+Y633EF+GGDggpX2aQTcMS
-         d8aZ8Rkn5lJqzdsGSgGyL9j3++IJhtaI4hihL/PUzU+bWUjxrnEaaENNfvP70f5E3Q
-         25q8oPOzy0Tt9Fsv126HbS7uwxdqFuyZf7wXsAEw=
+        b=QvdCvgivm0ED3JlXuCy0yvMACP++DjlhXZvJDJaEbjgluVFG0QZcAvCuCiNUT4ujj
+         xOtCq15Ogb+MAmxCmPzVYP87EqlD2EFOadz679TGadIjimGETY+Sb1bPYKNMmZVyi6
+         /oJ/sf191ZoXSaaaBFEXFyRIivMvf9ypErposf1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herve Codina <herve.codina@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/37] net: stmmac: add support for dwmac 3.40a
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 36/58] KVM: PPC: Book3S HV: Fix stack handling in idle_kvm_start_guest()
 Date:   Mon, 25 Oct 2021 21:14:53 +0200
-Message-Id: <20211025190933.862096853@linuxfoundation.org>
+Message-Id: <20211025190943.461705114@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
-References: <20211025190926.680827862@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +38,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herve Codina <herve.codina@bootlin.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 9cb1d19f47fafad7dcf7c8564e633440c946cfd7 ]
+commit 9b4416c5095c20e110c82ae602c254099b83b72f upstream.
 
-dwmac 3.40a is an old ip version that can be found on SPEAr3xx soc.
+In commit 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in
+C") kvm_start_guest() became idle_kvm_start_guest(). The old code
+allocated a stack frame on the emergency stack, but didn't use the
+frame to store anything, and also didn't store anything in its caller's
+frame.
 
-Signed-off-by: Herve Codina <herve.codina@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+idle_kvm_start_guest() on the other hand is written more like a normal C
+function, it creates a frame on entry, and also stores CR/LR into its
+callers frame (per the ABI). The problem is that there is no caller
+frame on the emergency stack.
+
+The emergency stack for a given CPU is allocated with:
+
+  paca_ptrs[i]->emergency_sp = alloc_stack(limit, i) + THREAD_SIZE;
+
+So emergency_sp actually points to the first address above the emergency
+stack allocation for a given CPU, we must not store above it without
+first decrementing it to create a frame. This is different to the
+regular kernel stack, paca->kstack, which is initialised to point at an
+initial frame that is ready to use.
+
+idle_kvm_start_guest() stores the backchain, CR and LR all of which
+write outside the allocation for the emergency stack. It then creates a
+stack frame and saves the non-volatile registers. Unfortunately the
+frame it creates is not large enough to fit the non-volatiles, and so
+the saving of the non-volatile registers also writes outside the
+emergency stack allocation.
+
+The end result is that we corrupt whatever is at 0-24 bytes, and 112-248
+bytes above the emergency stack allocation.
+
+In practice this has gone unnoticed because the memory immediately above
+the emergency stack happens to be used for other stack allocations,
+either another CPUs mc_emergency_sp or an IRQ stack. See the order of
+calls to irqstack_early_init() and emergency_stack_init().
+
+The low addresses of another stack are the top of that stack, and so are
+only used if that stack is under extreme pressue, which essentially
+never happens in practice - and if it did there's a high likelyhood we'd
+crash due to that stack overflowing.
+
+Still, we shouldn't be corrupting someone else's stack, and it is purely
+luck that we aren't corrupting something else.
+
+To fix it we save CR/LR into the caller's frame using the existing r1 on
+entry, we then create a SWITCH_FRAME_SIZE frame (which has space for
+pt_regs) on the emergency stack with the backchain pointing to the
+existing stack, and then finally we switch to the new frame on the
+emergency stack.
+
+Fixes: 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in C")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211015133929.832061-1-mpe@ellerman.id.au
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c   | 1 +
- drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ arch/powerpc/kvm/book3s_hv_rmhandlers.S |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
-index fad503820e04..b3365b34cac7 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
-@@ -71,6 +71,7 @@ err_remove_config_dt:
+--- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
++++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+@@ -292,13 +292,15 @@ kvm_novcpu_exit:
+  * r3 contains the SRR1 wakeup value, SRR1 is trashed.
+  */
+ _GLOBAL(idle_kvm_start_guest)
+-	ld	r4,PACAEMERGSP(r13)
+ 	mfcr	r5
+ 	mflr	r0
+-	std	r1,0(r4)
+-	std	r5,8(r4)
+-	std	r0,16(r4)
+-	subi	r1,r4,STACK_FRAME_OVERHEAD
++	std	r5, 8(r1)	// Save CR in caller's frame
++	std	r0, 16(r1)	// Save LR in caller's frame
++	// Create frame on emergency stack
++	ld	r4, PACAEMERGSP(r13)
++	stdu	r1, -SWITCH_FRAME_SIZE(r4)
++	// Switch to new frame on emergency stack
++	mr	r1, r4
+ 	SAVE_NVGPRS(r1)
  
- static const struct of_device_id dwmac_generic_match[] = {
- 	{ .compatible = "st,spear600-gmac"},
-+	{ .compatible = "snps,dwmac-3.40a"},
- 	{ .compatible = "snps,dwmac-3.50a"},
- 	{ .compatible = "snps,dwmac-3.610"},
- 	{ .compatible = "snps,dwmac-3.70a"},
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-index 2b800ce1d5bf..05f5084158bf 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -469,6 +469,14 @@ stmmac_probe_config_dt(struct platform_device *pdev, const char **mac)
- 		plat->pmt = 1;
- 	}
- 
-+	if (of_device_is_compatible(np, "snps,dwmac-3.40a")) {
-+		plat->has_gmac = 1;
-+		plat->enh_desc = 1;
-+		plat->tx_coe = 1;
-+		plat->bugged_jumbo = 1;
-+		plat->pmt = 1;
-+	}
-+
- 	if (of_device_is_compatible(np, "snps,dwmac-4.00") ||
- 	    of_device_is_compatible(np, "snps,dwmac-4.10a") ||
- 	    of_device_is_compatible(np, "snps,dwmac-4.20a")) {
--- 
-2.33.0
-
+ 	/*
+@@ -444,10 +446,9 @@ kvm_no_guest:
+ 	/* set up r3 for return */
+ 	mfspr	r3,SPRN_SRR1
+ 	REST_NVGPRS(r1)
+-	addi	r1, r1, STACK_FRAME_OVERHEAD
+-	ld	r0, 16(r1)
+-	ld	r5, 8(r1)
+-	ld	r1, 0(r1)
++	ld	r1, 0(r1)	// Switch back to caller stack
++	ld	r0, 16(r1)	// Reload LR
++	ld	r5, 8(r1)	// Reload CR
+ 	mtlr	r0
+ 	mtcr	r5
+ 	blr
 
 
