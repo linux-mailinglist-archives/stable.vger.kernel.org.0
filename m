@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D706439F2D
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 318C843A272
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233958AbhJYTSC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:18:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35450 "EHLO mail.kernel.org"
+        id S235040AbhJYTtU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:49:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234379AbhJYTRt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:17:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B396A60FE8;
-        Mon, 25 Oct 2021 19:15:25 +0000 (UTC)
+        id S236346AbhJYTog (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:44:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F3EC60200;
+        Mon, 25 Oct 2021 19:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189327;
-        bh=UPV6SijOhIBsx5RkosXNn2LuMKAv7+0P01x+4i6Y2wE=;
+        s=korg; t=1635190694;
+        bh=r7TYuYIZvlJ8m8xyhwiFCIrPeI5zr1lwbKu4NznIqHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xUuWaKnU76++lsYRJfhx/Eiof+T4VKZwO+kF9YDO7Qm4BV+CnqBrdC0Ozajplhnsy
-         sao6z0Iw8c50E/vw1RuG7f7Mr7+ShKZ3sdCnzpGBICI8P0GGHory7rTKt5RM3xRdm+
-         CtvADb7SDQb7T2cQq5KQTM92x+fYdsQhC0kdto7c=
+        b=gX2KL2WVB0JUiAMpod03RV4hjOqB/+O5jgpwhnT7zF0iIwejwX98o3O/OMgpYDpcE
+         DMqXqbvE7ON3aJRe9LPQi2NUUoGgkIuJJI083HhVw5JypdedgF4DigcMW+nzmilzEM
+         FMKMRmHG9NWJqcvhjHlfce74Hk6GKfuNOak8aj1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 08/44] USB: serial: option: add Telit LE910Cx composition 0x1204
+        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 048/169] net: hns3: fix vf reset workqueue cannot exit
 Date:   Mon, 25 Oct 2021 21:13:49 +0200
-Message-Id: <20211025190930.337702099@linuxfoundation.org>
+Message-Id: <20211025191023.847697897@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Yufeng Mo <moyufeng@huawei.com>
 
-commit f5a8a07edafed8bede17a95ef8940fe3a57a77d5 upstream.
+[ Upstream commit 1385cc81baeb3bd8cbbbcdc1557f038ac1712529 ]
 
-Add the following Telit LE910Cx composition:
+The task of VF reset is performed through the workqueue. It checks the
+value of hdev->reset_pending to determine whether to exit the loop.
+However, the value of hdev->reset_pending may also be assigned by
+the interrupt function hclgevf_misc_irq_handle(), which may cause the
+loop fail to exit and keep occupying the workqueue. This loop is not
+necessary, so remove it and the workqueue will be rescheduled if the
+reset needs to be retried or a new reset occurs.
 
-0x1204: tty, adb, mbim, tty, tty, tty, tty
-
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20211004105655.8515-1-dnlplm@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1cc9bc6e5867 ("net: hns3: split hclgevf_reset() into preparing and rebuilding part")
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1209,6 +1209,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1203, 0xff),	/* Telit LE910Cx (RNDIS) */
- 	  .driver_info = NCTRL(2) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1204, 0xff),	/* Telit LE910Cx (MBIM) */
-+	  .driver_info = NCTRL(0) | RSVD(1) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920),
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 22cf66004dfa..b8414f684e89 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -2271,9 +2271,9 @@ static void hclgevf_reset_service_task(struct hclgevf_dev *hdev)
+ 		hdev->reset_attempts = 0;
+ 
+ 		hdev->last_reset_time = jiffies;
+-		while ((hdev->reset_type =
+-			hclgevf_get_reset_level(hdev, &hdev->reset_pending))
+-		       != HNAE3_NONE_RESET)
++		hdev->reset_type =
++			hclgevf_get_reset_level(hdev, &hdev->reset_pending);
++		if (hdev->reset_type != HNAE3_NONE_RESET)
+ 			hclgevf_reset(hdev);
+ 	} else if (test_and_clear_bit(HCLGEVF_RESET_REQUESTED,
+ 				      &hdev->reset_state)) {
+-- 
+2.33.0
+
 
 
