@@ -2,107 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 631D243A125
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25F44439FEE
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:23:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235263AbhJYThX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53596 "EHLO mail.kernel.org"
+        id S234179AbhJYTZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:25:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236399AbhJYTef (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:34:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A88F6109D;
-        Mon, 25 Oct 2021 19:30:26 +0000 (UTC)
+        id S232681AbhJYTYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:24:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00EF0610EA;
+        Mon, 25 Oct 2021 19:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190227;
-        bh=l+aJgEfVuDl8zzpogCNlpLYbkm6U/2dZP1qpAopXYrA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iSKNNvVgepXZktQsoujKPyBTjPCQr8hbhFTI1CCBIi+WedGUNhkgbqsfDcadg1mf4
-         8MOHoJzHVwlef8T7U4x5hajQW3VN+fbqLJaLS6vr1vGmdY+u/Vqcrl+YlrCWeuKkw7
-         WDJLabCj0igoreNryzzybTYM2ajOFitLvPoEMrQA=
+        s=korg; t=1635189697;
+        bh=FavWrc+/gSGmd1ilQYxBaRBYCGOMoQijymLt7DAipsw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=NOYXeG/qp3Uqm2hQ4psbuztHWyU97Vm8xcbmEt5sZqrREkDHtae7rHvPSCIQFchpR
+         RU8SggXXuYJPvN4NPLgR/bCk6HpOfhzWaeXf05Oq/bztW3ffXzSKSRO2Dv1OqRXJHy
+         SsBU7ZpdG8Dk32JR9iV7kZkktamiQvRjjCWYESpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 23/95] powerpc/smp: do not decrement idle task preempt count in CPU offline
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.14 00/30] 4.14.253-rc1 review
 Date:   Mon, 25 Oct 2021 21:14:20 +0200
-Message-Id: <20211025191000.277041864@linuxfoundation.org>
+Message-Id: <20211025190922.089277904@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.253-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.253-rc1
+X-KernelTest-Deadline: 2021-10-27T19:09+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+This is the start of the stable review cycle for the 4.14.253 release.
+There are 30 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 787252a10d9422f3058df9a4821f389e5326c440 ]
+Responses should be made by Wed, 27 Oct 2021 19:07:44 +0000.
+Anything received after that time might be too late.
 
-With PREEMPT_COUNT=y, when a CPU is offlined and then onlined again, we
-get:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.253-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-BUG: scheduling while atomic: swapper/1/0/0x00000000
-no locks held by swapper/1/0.
-CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.15.0-rc2+ #100
-Call Trace:
- dump_stack_lvl+0xac/0x108
- __schedule_bug+0xac/0xe0
- __schedule+0xcf8/0x10d0
- schedule_idle+0x3c/0x70
- do_idle+0x2d8/0x4a0
- cpu_startup_entry+0x38/0x40
- start_secondary+0x2ec/0x3a0
- start_secondary_prolog+0x10/0x14
+thanks,
 
-This is because powerpc's arch_cpu_idle_dead() decrements the idle task's
-preempt count, for reasons explained in commit a7c2bb8279d2 ("powerpc:
-Re-enable preemption before cpu_die()"), specifically "start_secondary()
-expects a preempt_count() of 0."
+greg k-h
 
-However, since commit 2c669ef6979c ("powerpc/preempt: Don't touch the idle
-task's preempt_count during hotplug") and commit f1a0a376ca0c ("sched/core:
-Initialize the idle task with preemption disabled"), that justification no
-longer holds.
+-------------
+Pseudo-Shortlog of commits:
 
-The idle task isn't supposed to re-enable preemption, so remove the
-vestigial preempt_enable() from the CPU offline path.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.253-rc1
 
-Tested with pseries and powernv in qemu, and pseries on PowerVM.
+Nick Desaulniers <ndesaulniers@google.com>
+    ARM: 9122/1: select HAVE_FUTEX_CMPXCHG
 
-Fixes: 2c669ef6979c ("powerpc/preempt: Don't touch the idle task's preempt_count during hotplug")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211015173902.2278118-1-nathanl@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/powerpc/kernel/smp.c | 2 --
- 1 file changed, 2 deletions(-)
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracing: Have all levels of checks prevent recursion
 
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 91f274134884..452cbf98bfd7 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -1578,8 +1578,6 @@ void __cpu_die(unsigned int cpu)
- 
- void arch_cpu_idle_dead(void)
- {
--	sched_preempt_enable_no_resched();
--
- 	/*
- 	 * Disable on the down path. This will be re-enabled by
- 	 * start_secondary() via start_secondary_resume() below
--- 
-2.33.0
+Yanfei Xu <yanfei.xu@windriver.com>
+    net: mdiobus: Fix memory leak in __mdiobus_register
 
+Oliver Neukum <oneukum@suse.com>
+    usbnet: sanity check for maxpacket
+
+Dexuan Cui <decui@microsoft.com>
+    scsi: core: Fix shost->cmd_per_lun calculation in scsi_add_host_with_dma()
+
+Kai Vehmanen <kai.vehmanen@linux.intel.com>
+    ALSA: hda: avoid write to STATESTS if controller is in reset
+
+Prashant Malani <pmalani@chromium.org>
+    platform/x86: intel_scu_ipc: Update timeout value in comment
+
+Zheyu Ma <zheyuma97@gmail.com>
+    isdn: mISDN: Fix sleeping function called from invalid context
+
+Herve Codina <herve.codina@bootlin.com>
+    ARM: dts: spear3xx: Fix gmac node
+
+Herve Codina <herve.codina@bootlin.com>
+    net: stmmac: add support for dwmac 3.40a
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: deal with errors when checking if a dir entry exists during log replay
+
+Vegard Nossum <vegard.nossum@gmail.com>
+    netfilter: Kconfig: use 'default y' instead of 'm' for bool config option
+
+Xiaolong Huang <butterflyhuangxx@gmail.com>
+    isdn: cpai: check ctr->cnr to avoid array index out of bound
+
+Lin Ma <linma@zju.edu.cn>
+    nfc: nci: fix the UAF of rf_conn_info object
+
+Takashi Iwai <tiwai@suse.de>
+    ASoC: DAPM: Fix missing kctl change notifications
+
+Brendan Grieve <brendan@grieve.com.au>
+    ALSA: usb-audio: Provide quirk for Sennheiser GSP670 Headset
+
+Matthew Wilcox (Oracle) <willy@infradead.org>
+    vfs: check fd has read access in kernel_read_file_from_fd()
+
+Lukas Bulwahn <lukas.bulwahn@gmail.com>
+    elfcore: correct reference to CONFIG_UML
+
+Valentin Vidic <vvidic@valentin-vidic.from.hr>
+    ocfs2: mount fails with buffer overflow in strlen
+
+Jan Kara <jack@suse.cz>
+    ocfs2: fix data corruption after conversion from inline format
+
+Zheyu Ma <zheyuma97@gmail.com>
+    can: peak_pci: peak_pci_remove(): fix UAF
+
+Stephane Grosjean <s.grosjean@peak-system.com>
+    can: peak_usb: pcan_usb_fd_decode_status(): fix back to ERROR_ACTIVE state notification
+
+Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+    can: rcar_can: fix suspend/resume
+
+Randy Dunlap <rdunlap@infradead.org>
+    NIOS2: irqflags: rename a redefined register name
+
+Antoine Tenart <atenart@kernel.org>
+    netfilter: ipvs: make global sysctl readonly in non-init netns
+
+Benjamin Coddington <bcodding@redhat.com>
+    NFSD: Keep existing listeners on portlist error
+
+Guenter Roeck <linux@roeck-us.net>
+    xtensa: xtfpga: Try software restart before simulating CPU reset
+
+Max Filippov <jcmvbkbc@gmail.com>
+    xtensa: xtfpga: use CONFIG_USE_OF instead of CONFIG_OF
+
+Eugen Hristev <eugen.hristev@microchip.com>
+    ARM: dts: at91: sama5d2_som1_ek: disable ISC node by default
+
+Josef Bacik <jbacik@fb.com>
+    btrfs: always wait on ordered extents at fsync time
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/arm/Kconfig                                   |  1 +
+ arch/arm/boot/dts/at91-sama5d27_som1_ek.dts        |  1 -
+ arch/arm/boot/dts/spear3xx.dtsi                    |  2 +-
+ arch/nios2/include/asm/irqflags.h                  |  4 +-
+ arch/nios2/include/asm/registers.h                 |  2 +-
+ arch/xtensa/platforms/xtfpga/setup.c               | 12 ++--
+ drivers/isdn/capi/kcapi.c                          |  5 ++
+ drivers/isdn/hardware/mISDN/netjet.c               |  2 +-
+ drivers/net/can/rcar/rcar_can.c                    | 20 ++++---
+ drivers/net/can/sja1000/peak_pci.c                 |  9 ++-
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c         |  5 +-
+ .../net/ethernet/stmicro/stmmac/dwmac-generic.c    |  1 +
+ .../net/ethernet/stmicro/stmmac/stmmac_platform.c  |  8 +++
+ drivers/net/phy/mdio_bus.c                         |  1 +
+ drivers/net/usb/usbnet.c                           |  4 ++
+ drivers/platform/x86/intel_scu_ipc.c               |  2 +-
+ drivers/scsi/hosts.c                               |  3 +-
+ fs/btrfs/file.c                                    | 56 ++-----------------
+ fs/btrfs/tree-log.c                                | 47 ++++++++++------
+ fs/exec.c                                          |  2 +-
+ fs/nfsd/nfsctl.c                                   |  5 +-
+ fs/ocfs2/alloc.c                                   | 46 ++++------------
+ fs/ocfs2/super.c                                   | 14 +++--
+ include/linux/elfcore.h                            |  2 +-
+ kernel/trace/ftrace.c                              |  4 +-
+ kernel/trace/trace.h                               | 64 +++++++---------------
+ kernel/trace/trace_functions.c                     |  2 +-
+ net/netfilter/Kconfig                              |  2 +-
+ net/netfilter/ipvs/ip_vs_ctl.c                     |  5 ++
+ net/nfc/nci/rsp.c                                  |  2 +
+ sound/hda/hdac_controller.c                        |  5 +-
+ sound/soc/soc-dapm.c                               | 13 +++--
+ sound/usb/quirks-table.h                           | 32 +++++++++++
+ 34 files changed, 191 insertions(+), 196 deletions(-)
 
 
