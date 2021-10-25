@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E96943A013
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E17F43A09E
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235227AbhJYT1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:27:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42554 "EHLO mail.kernel.org"
+        id S235509AbhJYTc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:32:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235110AbhJYTZR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:25:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0B5B60FDC;
-        Mon, 25 Oct 2021 19:22:29 +0000 (UTC)
+        id S235904AbhJYTa0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:30:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 755736105A;
+        Mon, 25 Oct 2021 19:27:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189750;
-        bh=ZrsSBy57D8kFBiyUQ0yK6wBXOGDqNSH03H8z0Pjfs1g=;
+        s=korg; t=1635190047;
+        bh=imYs0xhtK3lqwNFItWp6NgWljM8Kd40DAJey7PhxkwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mvSaS118kcwdse+zP0BHBIZUTHZ3w4aXqPq37RrXNhUdmt70qk4GC50m7mWk1BLgU
-         EY2QfKj6EbOmgDrhy5ZX+5QYYq6fzpAH1bfQRfNFhd+x/pbf/Vo8LAK0nkE+2AE71V
-         raGoVmSS2YndxcQd0dvmpQpwFVUED2dT3nfeVcsI=
+        b=HwO64JCvc4ot9ywIGpEV5ntSuUK9/OcZrcXn7dRIPfUZP1B+TEkOyXQ2n8ccl4xqv
+         0IBL5kNXEJ3pTXfCDiBAlQtxxvDRnUJUdE6RE0SLVT6+QOtNArVzZ6B9GoLweCeFEu
+         udebl7FytD0uD/KrH+XOGnab1z41RAedrvpy6XEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 17/30] nfc: nci: fix the UAF of rf_conn_info object
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 20/58] can: peak_usb: pcan_usb_fd_decode_status(): fix back to ERROR_ACTIVE state notification
 Date:   Mon, 25 Oct 2021 21:14:37 +0200
-Message-Id: <20211025190927.150505682@linuxfoundation.org>
+Message-Id: <20211025190940.810484650@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
-References: <20211025190922.089277904@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Stephane Grosjean <s.grosjean@peak-system.com>
 
-commit 1b1499a817c90fd1ce9453a2c98d2a01cca0e775 upstream.
+commit 3d031abc7e7249573148871180c28ecedb5e27df upstream.
 
-The nci_core_conn_close_rsp_packet() function will release the conn_info
-with given conn_id. However, it needs to set the rf_conn_info to NULL to
-prevent other routines like nci_rf_intf_activated_ntf_packet() to trigger
-the UAF.
+This corrects the lack of notification of a return to ERROR_ACTIVE
+state for USB - CANFD devices from PEAK-System.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0a25e1f4f185 ("can: peak_usb: add support for PEAK new CANFD USB adapters")
+Link: https://lore.kernel.org/all/20210929142111.55757-1-s.grosjean@peak-system.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/nci/rsp.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/net/nfc/nci/rsp.c
-+++ b/net/nfc/nci/rsp.c
-@@ -289,6 +289,8 @@ static void nci_core_conn_close_rsp_pack
- 							 ndev->cur_conn_id);
- 		if (conn_info) {
- 			list_del(&conn_info->list);
-+			if (conn_info == ndev->rf_conn_info)
-+				ndev->rf_conn_info = NULL;
- 			devm_kfree(&ndev->nfc_dev->dev, conn_info);
- 		}
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
+@@ -551,11 +551,10 @@ static int pcan_usb_fd_decode_status(str
+ 	} else if (sm->channel_p_w_b & PUCAN_BUS_WARNING) {
+ 		new_state = CAN_STATE_ERROR_WARNING;
+ 	} else {
+-		/* no error bit (so, no error skb, back to active state) */
+-		dev->can.state = CAN_STATE_ERROR_ACTIVE;
++		/* back to (or still in) ERROR_ACTIVE state */
++		new_state = CAN_STATE_ERROR_ACTIVE;
+ 		pdev->bec.txerr = 0;
+ 		pdev->bec.rxerr = 0;
+-		return 0;
  	}
+ 
+ 	/* state hasn't changed */
 
 
