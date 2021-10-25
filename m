@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59FAD43A20E
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:43:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BA7743A1E4
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236504AbhJYToq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:44:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59602 "EHLO mail.kernel.org"
+        id S236125AbhJYTnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:43:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236934AbhJYTlw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:41:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A120B61108;
-        Mon, 25 Oct 2021 19:36:53 +0000 (UTC)
+        id S237311AbhJYTkz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:40:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16AAB6117A;
+        Mon, 25 Oct 2021 19:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190614;
-        bh=tZDxhnml6J/pYC6SCT4v70fUfCAV5raH4h8fIzLk93Y=;
+        s=korg; t=1635190564;
+        bh=wSUNtwspCiBziGygOKz+u7vgx1HAmosmIvcke+ir+3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dZkqKur3oW1B8RyqEV+QIrq48V7pN6si4xddatzIDhW9DTvUJt1kXtDtuSuS8RU1l
-         UG+NS/x6Wh6PjrcYF6w8MjagtYwWFRkI0b6T0MGYBhhlP58Nsdn/7zEmmPb+ixcDHU
-         MAdvHPxpOuxgl9KkOCuyVzoVYl5G08e8EYI+OEDs=
+        b=HLAwU/kGwg0lzK1zYFkhcRjv8WM8NheYbQ1C61Qbtx450y4WY0xZrQlAv9iKktYbt
+         mls92Z4uJQS838kiZpWqWyqzeS/DYvemfWo22KdCfJ9gjg8zSxbJmzxc60dQlFEcJ9
+         6wuUZCdqakFRYBDzxYFurwQGJrdgHMSEf5qSIskg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
+        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 012/169] xtensa: xtfpga: Try software restart before simulating CPU reset
-Date:   Mon, 25 Oct 2021 21:13:13 +0200
-Message-Id: <20211025191019.250578878@linuxfoundation.org>
+Subject: [PATCH 5.14 013/169] NFSD: Keep existing listeners on portlist error
+Date:   Mon, 25 Oct 2021 21:13:14 +0200
+Message-Id: <20211025191019.357343859@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -40,54 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-[ Upstream commit 012e974501a270d8dfd4ee2039e1fdf7579c907e ]
+[ Upstream commit c20106944eb679fa3ab7e686fe5f6ba30fbc51e5 ]
 
-Rebooting xtensa images loaded with the '-kernel' option in qemu does
-not work. When executing a reboot command, the qemu session either hangs
-or experiences an endless sequence of error messages.
+If nfsd has existing listening sockets without any processes, then an error
+returned from svc_create_xprt() for an additional transport will remove
+those existing listeners.  We're seeing this in practice when userspace
+attempts to create rpcrdma transports without having the rpcrdma modules
+present before creating nfsd kernel processes.  Fix this by checking for
+existing sockets before calling nfsd_destroy().
 
-  Kernel panic - not syncing: Unrecoverable error in exception handler
-
-Reset code jumps to the CPU restart address, but Linux can not recover
-from there because code and data in the kernel init sections have been
-discarded and overwritten at this point.
-
-XTFPGA platforms have a means to reset the CPU by writing 0xdead into a
-specific FPGA IO address. When used in QEMU the kernel image loaded with
-the '-kernel' option gets restored to its original state allowing the
-machine to boot successfully.
-
-Use that mechanism to attempt a platform reset. If it does not work,
-fall back to the existing mechanism.
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/platforms/xtfpga/setup.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/nfsd/nfsctl.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/xtensa/platforms/xtfpga/setup.c b/arch/xtensa/platforms/xtfpga/setup.c
-index 59b7f11f2a3e..538e6748e85a 100644
---- a/arch/xtensa/platforms/xtfpga/setup.c
-+++ b/arch/xtensa/platforms/xtfpga/setup.c
-@@ -51,8 +51,12 @@ void platform_power_off(void)
- 
- void platform_restart(void)
- {
--	/* Flush and reset the mmu, simulate a processor reset, and
--	 * jump to the reset vector. */
-+	/* Try software reset first. */
-+	WRITE_ONCE(*(u32 *)XTFPGA_SWRST_VADDR, 0xdead);
-+
-+	/* If software reset did not work, flush and reset the mmu,
-+	 * simulate a processor reset, and jump to the reset vector.
-+	 */
- 	cpu_reset();
- 	/* control never gets here */
+diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
+index 09ae1a0873d0..070e5dd03e26 100644
+--- a/fs/nfsd/nfsctl.c
++++ b/fs/nfsd/nfsctl.c
+@@ -793,7 +793,10 @@ out_close:
+ 		svc_xprt_put(xprt);
+ 	}
+ out_err:
+-	nfsd_destroy(net);
++	if (!list_empty(&nn->nfsd_serv->sv_permsocks))
++		nn->nfsd_serv->sv_nrthreads--;
++	 else
++		nfsd_destroy(net);
+ 	return err;
  }
+ 
 -- 
 2.33.0
 
