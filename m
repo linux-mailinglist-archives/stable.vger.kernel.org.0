@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2AA1439C3F
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 18:59:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 749E4439C40
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 19:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234189AbhJYRCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 13:02:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54594 "EHLO mail.kernel.org"
+        id S234209AbhJYRCS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 13:02:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234197AbhJYRCN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 13:02:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60BE560E97;
-        Mon, 25 Oct 2021 16:59:49 +0000 (UTC)
+        id S234169AbhJYRCO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 13:02:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8325060F22;
+        Mon, 25 Oct 2021 16:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635181191;
-        bh=hmxSbDvM4ZcRl+Fcq6W66HT1l11XXxkQzDz0t4FTSg0=;
+        s=k20201202; t=1635181192;
+        bh=7ws+I935y9f8B2ecOxeRyLCo+VOgQQB4j6S/b/0MAOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJXeIOTXtPPwMyjnEUzFcmRAfZEv8k7J4SRiq2jK11GC4R5P4JOrQRLD0z7Ai5sdD
-         jLNagpW5ddBEzu5J3WS2I/xJ5z5SIkJNttTvVy8IZfUTaMX2zI9TZN/27zMV+3Y/Tw
-         Exrayqzx8hclzm5we8WF8ZSC/NdmjWDz8TsrsAWlGvZCkmjTqQX7XJ3421SAWxEbYV
-         cr8DViF8FdtlwfObMTCwk0+6e5cG8vKl0GuukLqYO6sIP3clQ+Uj/YDW+dQxCu0Yya
-         5FFm/Zfq2gPFLzEKZ4XXGRI2n3Gb3DafDsDhpyRo7is7xTHB3e74PJfdEanBnzx/Kn
-         63bqPFEKz2GGw==
+        b=nanS7ujgh2Gl2Wm2wIPD9s2fbUp7GvVrNj6dfQDrCNS/i+wIbf8XNFGEufLvW8+MO
+         i1QedOhVr8cKBFJE45/c0MR9tOiYKUU9714olhbNIFpJ8Ro7w9XiWWwa+r2HigT+2G
+         LmxOTcSOAAd93jtJU+j8MSJa0lYi3FrZBQ20aDadyBhc2kKR1vL5xbwWy3j8PnBjV6
+         uv6uhiBbkIdbgpN6SWXJq7yuZl8xqYEgThNGfpfVyS9ANxZB3dnujWAttFBBfCXrEK
+         l4A7v9JC9fcCaQ52MPddOBwJ8+DK0qCl53JC7Gn9FKHq22P+gKg4o7IqYEKnH5/Hvn
+         LySuoIKPewW+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Davide Baldo <davide@baldo.me>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, jeremy.szu@canonical.com, kailang@realtek.com,
-        hui.wang@canonical.com, chris.chiu@canonical.com, cam@neo-zeon.de,
-        pshou@realtek.com, wse@tuxedocomputers.com, sami@loone.fi,
-        eliadevito@gmail.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.14 05/18] ALSA: hda/realtek: Fixes HP Spectre x360 15-eb1xxx speakers
-Date:   Mon, 25 Oct 2021 12:59:18 -0400
-Message-Id: <20211025165939.1393655-5-sashal@kernel.org>
+Cc:     Kele Huang <huangkele@bytedance.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, richardcochran@gmail.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 06/18] ptp: fix error print of ptp_kvm on X86_64 platform
+Date:   Mon, 25 Oct 2021 12:59:19 -0400
+Message-Id: <20211025165939.1393655-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211025165939.1393655-1-sashal@kernel.org>
 References: <20211025165939.1393655-1-sashal@kernel.org>
@@ -45,121 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Baldo <davide@baldo.me>
+From: Kele Huang <huangkele@bytedance.com>
 
-[ Upstream commit d94befbb5ae379f6dfd4fa6d460eacc09fa7b9c3 ]
+[ Upstream commit c2402d43d183b11445aed921e7bebcd47ef222f1 ]
 
-In laptop 'HP Spectre x360 Convertible 15-eb1xxx/8811' both front and
-rear speakers are silent, this patch fixes that by overriding the pin
-layout and by initializing the amplifier which needs a GPIO pin to be
-set to 1 then 0, similar to the existing HP Spectre x360 14 model.
+Commit a86ed2cfa13c5 ("ptp: Don't print an error if ptp_kvm is not supported")
+fixes the error message print on ARM platform by only concerning about
+the case that the error returned from kvm_arch_ptp_init() is not -EOPNOTSUPP.
+Although the ARM platform returns -EOPNOTSUPP if ptp_kvm is not supported
+while X86_64 platform returns -KVM_EOPNOTSUPP, both error codes share the
+same value 95.
 
-In order to have volume control, both front and rear speakers were
-forced to use the DAC1.
+Actually kvm_arch_ptp_init() on X86_64 platform can return three kinds of
+errors (-KVM_ENOSYS, -KVM_EOPNOTSUPP and -KVM_EFAULT). The problem is that
+-KVM_EOPNOTSUPP is masked out and -KVM_EFAULT is ignored among them.
+This patch fixes this by returning them to ptp_kvm_init() respectively.
 
-This patch also correctly map the mute LED but since there is no
-microphone on/off switch exposed by the alsa subsystem it never turns
-on by itself.
-
-There are still known audio issues in this laptop: headset microphone
-doesn't work, the button to mute/unmute microphone is not yet mapped,
-the LED of the mute/unmute speakers doesn't seems to be exposed via
-GPIO and never turns on.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213953
-Signed-off-by: Davide Baldo <davide@baldo.me>
-Link: https://lore.kernel.org/r/20211015072121.5287-1-davide@baldo.me
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kele Huang <huangkele@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 46 +++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ drivers/ptp/ptp_kvm_x86.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 8e6ff50f0f94..a628b2c050bd 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6418,6 +6418,44 @@ static void alc_fixup_no_int_mic(struct hda_codec *codec,
- 	}
+diff --git a/drivers/ptp/ptp_kvm_x86.c b/drivers/ptp/ptp_kvm_x86.c
+index d0096cd7096a..4991054a2135 100644
+--- a/drivers/ptp/ptp_kvm_x86.c
++++ b/drivers/ptp/ptp_kvm_x86.c
+@@ -31,10 +31,10 @@ int kvm_arch_ptp_init(void)
+ 
+ 	ret = kvm_hypercall2(KVM_HC_CLOCK_PAIRING, clock_pair_gpa,
+ 			     KVM_CLOCK_PAIRING_WALLCLOCK);
+-	if (ret == -KVM_ENOSYS || ret == -KVM_EOPNOTSUPP)
++	if (ret == -KVM_ENOSYS)
+ 		return -ENODEV;
+ 
+-	return 0;
++	return ret;
  }
  
-+/* GPIO1 = amplifier on/off
-+ * GPIO3 = mic mute LED
-+ */
-+static void alc285_fixup_hp_spectre_x360_eb1(struct hda_codec *codec,
-+					  const struct hda_fixup *fix, int action)
-+{
-+	static const hda_nid_t conn[] = { 0x02 };
-+
-+	struct alc_spec *spec = codec->spec;
-+	static const struct hda_pintbl pincfgs[] = {
-+		{ 0x14, 0x90170110 },  /* front/high speakers */
-+		{ 0x17, 0x90170130 },  /* back/bass speakers */
-+		{ }
-+	};
-+
-+	//enable micmute led
-+	alc_fixup_hp_gpio_led(codec, action, 0x00, 0x04);
-+
-+	switch (action) {
-+	case HDA_FIXUP_ACT_PRE_PROBE:
-+		spec->micmute_led_polarity = 1;
-+		/* needed for amp of back speakers */
-+		spec->gpio_mask |= 0x01;
-+		spec->gpio_dir |= 0x01;
-+		snd_hda_apply_pincfgs(codec, pincfgs);
-+		/* share DAC to have unified volume control */
-+		snd_hda_override_conn_list(codec, 0x14, ARRAY_SIZE(conn), conn);
-+		snd_hda_override_conn_list(codec, 0x17, ARRAY_SIZE(conn), conn);
-+		break;
-+	case HDA_FIXUP_ACT_INIT:
-+		/* need to toggle GPIO to enable the amp of back speakers */
-+		alc_update_gpio_data(codec, 0x01, true);
-+		msleep(100);
-+		alc_update_gpio_data(codec, 0x01, false);
-+		break;
-+	}
-+}
-+
- static void alc285_fixup_hp_spectre_x360(struct hda_codec *codec,
- 					  const struct hda_fixup *fix, int action)
- {
-@@ -6570,6 +6608,7 @@ enum {
- 	ALC269_FIXUP_HP_DOCK_GPIO_MIC1_LED,
- 	ALC280_FIXUP_HP_9480M,
- 	ALC245_FIXUP_HP_X360_AMP,
-+	ALC285_FIXUP_HP_SPECTRE_X360_EB1,
- 	ALC288_FIXUP_DELL_HEADSET_MODE,
- 	ALC288_FIXUP_DELL1_MIC_NO_PRESENCE,
- 	ALC288_FIXUP_DELL_XPS_13,
-@@ -8263,6 +8302,10 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc285_fixup_hp_spectre_x360,
- 	},
-+	[ALC285_FIXUP_HP_SPECTRE_X360_EB1] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc285_fixup_hp_spectre_x360_eb1
-+	},
- 	[ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc285_fixup_ideapad_s740_coef,
-@@ -8597,6 +8640,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x87f7, "HP Spectre x360 14", ALC245_FIXUP_HP_X360_AMP),
- 	SND_PCI_QUIRK(0x103c, 0x8805, "HP ProBook 650 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x880d, "HP EliteBook 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8811, "HP Spectre x360 15-eb1xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
-+	SND_PCI_QUIRK(0x103c, 0x8812, "HP Spectre x360 15-eb1xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
- 	SND_PCI_QUIRK(0x103c, 0x8846, "HP EliteBook 850 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8847, "HP EliteBook x360 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x884b, "HP EliteBook 840 Aero G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
-@@ -9018,6 +9063,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
- 	{.id = ALC245_FIXUP_HP_X360_AMP, .name = "alc245-hp-x360-amp"},
- 	{.id = ALC295_FIXUP_HP_OMEN, .name = "alc295-hp-omen"},
- 	{.id = ALC285_FIXUP_HP_SPECTRE_X360, .name = "alc285-hp-spectre-x360"},
-+	{.id = ALC285_FIXUP_HP_SPECTRE_X360_EB1, .name = "alc285-hp-spectre-x360-eb1"},
- 	{.id = ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP, .name = "alc287-ideapad-bass-spk-amp"},
- 	{.id = ALC623_FIXUP_LENOVO_THINKSTATION_P340, .name = "alc623-lenovo-thinkstation-p340"},
- 	{.id = ALC255_FIXUP_ACER_HEADPHONE_AND_MIC, .name = "alc255-acer-headphone-and-mic"},
+ int kvm_arch_ptp_get_clock(struct timespec64 *ts)
 -- 
 2.33.0
 
