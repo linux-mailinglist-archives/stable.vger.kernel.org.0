@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDAC9439F23
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C997439FAE
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:21:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233951AbhJYTRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:17:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35020 "EHLO mail.kernel.org"
+        id S233720AbhJYTXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:23:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234015AbhJYTRb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:17:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1290460FE8;
-        Mon, 25 Oct 2021 19:15:07 +0000 (UTC)
+        id S233594AbhJYTVw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:21:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B1F1610C8;
+        Mon, 25 Oct 2021 19:19:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189308;
-        bh=mIfWHTo6F5vNmIUpGiI4Mgv2twSJ0V9JjEE+iJXG1q8=;
+        s=korg; t=1635189570;
+        bh=gU2vMTAAa3nBkBTgSpYWKFBTfdz2wmsODH7b8zx5kvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MIW5lp43lMW3BKbPvLbr31OOkhntfATfabyKqByLsRpnY1iL4KQ4ZuLKl4tFpkcfa
-         nc3WHbQQO7nOddk0Vgdm9oNBR+ZtQodwYYkdkpeeJ4+RWrgFLsD+8WnWCOcww4w93E
-         WLtHtAZdWV7KRqPZ//01imzpLY6GkI6sKjaOd9ds=
+        b=Jngn7YqzwCpLWAL2B8Zs0EL+AIk1Y32r+ta1Xby0pBNSk3apfZnJUFGkCi0ITlSqY
+         MY3Ka1RN4NUBHR6asW4h4XnpP9VZdatonnV34Nrjn0VMy8+HE58N2DjYe4/5OIrW/2
+         R2TIZosjuejrsxoq5ybImWS9KMoXOsw4tPXUQhs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 17/44] nfc: fix error handling of nfc_proto_register()
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Alexandru Ardelean <ardeleanalex@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 11/50] iio: adc128s052: Fix the error handling path of adc128_probe()
 Date:   Mon, 25 Oct 2021 21:13:58 +0200
-Message-Id: <20211025190932.273315119@linuxfoundation.org>
+Message-Id: <20211025190935.143760273@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
+References: <20211025190932.542632625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 0911ab31896f0e908540746414a77dd63912748d upstream.
+commit bbcf40816b547b3c37af49168950491d20d81ce1 upstream.
 
-When nfc proto id is using, nfc_proto_register() return -EBUSY error
-code, but forgot to unregister proto. Fix it by adding proto_unregister()
-in the error handling case.
+A successful 'regulator_enable()' call should be balanced by a
+corresponding 'regulator_disable()' call in the error handling path of the
+probe, as already done in the remove function.
 
-Fixes: c7fe3b52c128 ("NFC: add NFC socket family")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20211013034932.2833737-1-william.xuanziyang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Update the error handling path accordingly.
+
+Fixes: 913b86468674 ("iio: adc: Add TI ADC128S052")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Link: https://lore.kernel.org/r/85189f1cfcf6f5f7b42d8730966f2a074b07b5f5.1629542160.git.christophe.jaillet@wanadoo.fr
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/af_nfc.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iio/adc/ti-adc128s052.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/net/nfc/af_nfc.c
-+++ b/net/nfc/af_nfc.c
-@@ -72,6 +72,9 @@ int nfc_proto_register(const struct nfc_
- 		proto_tab[nfc_proto->id] = nfc_proto;
- 	write_unlock(&proto_tab_lock);
+--- a/drivers/iio/adc/ti-adc128s052.c
++++ b/drivers/iio/adc/ti-adc128s052.c
+@@ -169,7 +169,13 @@ static int adc128_probe(struct spi_devic
+ 	mutex_init(&adc->lock);
  
-+	if (rc)
-+		proto_unregister(nfc_proto->proto);
+ 	ret = iio_device_register(indio_dev);
++	if (ret)
++		goto err_disable_regulator;
+ 
++	return 0;
 +
- 	return rc;
++err_disable_regulator:
++	regulator_disable(adc->reg);
+ 	return ret;
  }
- EXPORT_SYMBOL(nfc_proto_register);
+ 
 
 
