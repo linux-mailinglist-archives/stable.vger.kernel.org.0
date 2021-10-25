@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D929C43A220
+	by mail.lfdr.de (Postfix) with ESMTP id 4920043A21E
 	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:44:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236736AbhJYTpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:45:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57940 "EHLO mail.kernel.org"
+        id S234699AbhJYTpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:45:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236149AbhJYTmh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:42:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A30C560238;
-        Mon, 25 Oct 2021 19:37:09 +0000 (UTC)
+        id S235552AbhJYTm5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:42:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B826260F46;
+        Mon, 25 Oct 2021 19:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190630;
-        bh=fFdN2I5CoC7BHpUjF2gdbFeZ+AtyiRK6Y53biS+Cq5U=;
+        s=korg; t=1635190633;
+        bh=Mayt8WWNnjzHeMKdc0UAkdpP5zCctwZ8VketLaO98Ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7nEjiQ8a3PZtADApo26rLu9/Woi1OOWm0YyMTomIcdb3SPU3kuHEvGwAg45eIcKW
-         pnVfnM+/mk/zlVxa+/MPBVVQMQ9Nicmn1aDVAJ+HbLlRu5ItSYZBn/svI00my7GiPi
-         H2QlbQEK4H5Fwn298MHRNajI9htTRAZAoigE8gUA=
+        b=wLnEuHXaibg9diu3SGR2u54T+3cxBd6M0rXGtX7fygI/WKnra3aIHFja0dyVg9hLU
+         Rcgv2LfBQXnykja5rEBGo2uZimtW3LQ5ZztX68kVdRXdSDp5vVb6UmlS6MXqOK++Vt
+         DKrsg+5Hcp09yKYPvtILvriTjYXNvch4544q5bdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 031/169] ice: Print the api_patch as part of the fw.mgmt.api
-Date:   Mon, 25 Oct 2021 21:13:32 +0200
-Message-Id: <20211025191021.901290749@linuxfoundation.org>
+Subject: [PATCH 5.14 032/169] netfilter: ip6t_rt: fix rt0_hdr parsing in rt_mt6
+Date:   Mon, 25 Oct 2021 21:13:33 +0200
+Message-Id: <20211025191022.012510927@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -41,126 +42,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit b726ddf984a56a385c9df406a66c221f3a77c951 ]
+[ Upstream commit a482c5e00a9b5a194085bcd372ac36141028becb ]
 
-Currently when a user uses "devlink dev info", the fw.mgmt.api will be
-the major.minor numbers as shown below:
+In rt_mt6(), when it's a nonlinear skb, the 1st skb_header_pointer()
+only copies sizeof(struct ipv6_rt_hdr) to _route that rh points to.
+The access by ((const struct rt0_hdr *)rh)->reserved will overflow
+the buffer. So this access should be moved below the 2nd call to
+skb_header_pointer().
 
-devlink dev info pci/0000:3b:00.0
-pci/0000:3b:00.0:
-  driver ice
-  serial_number 00-01-00-ff-ff-00-00-00
-  versions:
-      fixed:
-        board.id K91258-000
-      running:
-        fw.mgmt 6.1.2
-        fw.mgmt.api 1.7 <--- No patch number included
-        fw.mgmt.build 0xd75e7d06
-        fw.mgmt.srev 5
-        fw.undi 1.2992.0
-        fw.undi.srev 5
-        fw.psid.api 3.10
-        fw.bundle_id 0x800085cc
-        fw.app.name ICE OS Default Package
-        fw.app 1.3.27.0
-        fw.app.bundle_id 0xc0000001
-        fw.netlist 3.10.2000-3.1e.0
-        fw.netlist.build 0x2a76e110
-      stored:
-        fw.mgmt.srev 5
-        fw.undi 1.2992.0
-        fw.undi.srev 5
-        fw.psid.api 3.10
-        fw.bundle_id 0x800085cc
-        fw.netlist 3.10.2000-3.1e.0
-        fw.netlist.build 0x2a76e110
+Besides, after the 2nd skb_header_pointer(), its return value should
+also be checked, othersize, *rp may cause null-pointer-ref.
 
-There are many features in the driver that depend on the major, minor,
-and patch version of the FW. Without the patch number in the output for
-fw.mgmt.api debugging issues related to the FW API version is difficult.
-Also, using major.minor.patch aligns with the existing firmware version
-which uses a 3 digit value.
+v1->v2:
+  - clean up some old debugging log.
 
-Fix this by making the fw.mgmt.api print the major.minor.patch
-versions. Shown below is the result:
-
-devlink dev info pci/0000:3b:00.0
-pci/0000:3b:00.0:
-  driver ice
-  serial_number 00-01-00-ff-ff-00-00-00
-  versions:
-      fixed:
-        board.id K91258-000
-      running:
-        fw.mgmt 6.1.2
-        fw.mgmt.api 1.7.9 <--- patch number included
-        fw.mgmt.build 0xd75e7d06
-        fw.mgmt.srev 5
-        fw.undi 1.2992.0
-        fw.undi.srev 5
-        fw.psid.api 3.10
-        fw.bundle_id 0x800085cc
-        fw.app.name ICE OS Default Package
-        fw.app 1.3.27.0
-        fw.app.bundle_id 0xc0000001
-        fw.netlist 3.10.2000-3.1e.0
-        fw.netlist.build 0x2a76e110
-      stored:
-        fw.mgmt.srev 5
-        fw.undi 1.2992.0
-        fw.undi.srev 5
-        fw.psid.api 3.10
-        fw.bundle_id 0x800085cc
-        fw.netlist 3.10.2000-3.1e.0
-        fw.netlist.build 0x2a76e110
-
-Fixes: ff2e5c700e08 ("ice: add basic handler for devlink .info_get")
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/devlink/ice.rst     | 9 +++++----
- drivers/net/ethernet/intel/ice/ice_devlink.c | 3 ++-
- 2 files changed, 7 insertions(+), 5 deletions(-)
+ net/ipv6/netfilter/ip6t_rt.c | 48 +++++-------------------------------
+ 1 file changed, 6 insertions(+), 42 deletions(-)
 
-diff --git a/Documentation/networking/devlink/ice.rst b/Documentation/networking/devlink/ice.rst
-index a432dc419fa4..5d97cee9457b 100644
---- a/Documentation/networking/devlink/ice.rst
-+++ b/Documentation/networking/devlink/ice.rst
-@@ -30,10 +30,11 @@ The ``ice`` driver reports the following versions
-         PHY, link, etc.
-     * - ``fw.mgmt.api``
-       - running
--      - 1.5
--      - 2-digit version number of the API exported over the AdminQ by the
--        management firmware. Used by the driver to identify what commands
--        are supported.
-+      - 1.5.1
-+      - 3-digit version number (major.minor.patch) of the API exported over
-+        the AdminQ by the management firmware. Used by the driver to
-+        identify what commands are supported. Historical versions of the
-+        kernel only displayed a 2-digit version number (major.minor).
-     * - ``fw.mgmt.build``
-       - running
-       - 0x305d955f
-diff --git a/drivers/net/ethernet/intel/ice/ice_devlink.c b/drivers/net/ethernet/intel/ice/ice_devlink.c
-index 7fe6e8ea39f0..64bea7659cf7 100644
---- a/drivers/net/ethernet/intel/ice/ice_devlink.c
-+++ b/drivers/net/ethernet/intel/ice/ice_devlink.c
-@@ -63,7 +63,8 @@ static int ice_info_fw_api(struct ice_pf *pf, struct ice_info_ctx *ctx)
+diff --git a/net/ipv6/netfilter/ip6t_rt.c b/net/ipv6/netfilter/ip6t_rt.c
+index 733c83d38b30..4ad8b2032f1f 100644
+--- a/net/ipv6/netfilter/ip6t_rt.c
++++ b/net/ipv6/netfilter/ip6t_rt.c
+@@ -25,12 +25,7 @@ MODULE_AUTHOR("Andras Kis-Szabo <kisza@sch.bme.hu>");
+ static inline bool
+ segsleft_match(u_int32_t min, u_int32_t max, u_int32_t id, bool invert)
  {
- 	struct ice_hw *hw = &pf->hw;
- 
--	snprintf(ctx->buf, sizeof(ctx->buf), "%u.%u", hw->api_maj_ver, hw->api_min_ver);
-+	snprintf(ctx->buf, sizeof(ctx->buf), "%u.%u.%u", hw->api_maj_ver,
-+		 hw->api_min_ver, hw->api_patch);
- 
- 	return 0;
+-	bool r;
+-	pr_debug("segsleft_match:%c 0x%x <= 0x%x <= 0x%x\n",
+-		 invert ? '!' : ' ', min, id, max);
+-	r = (id >= min && id <= max) ^ invert;
+-	pr_debug(" result %s\n", r ? "PASS" : "FAILED");
+-	return r;
++	return (id >= min && id <= max) ^ invert;
  }
+ 
+ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
+@@ -65,30 +60,6 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
+ 		return false;
+ 	}
+ 
+-	pr_debug("IPv6 RT LEN %u %u ", hdrlen, rh->hdrlen);
+-	pr_debug("TYPE %04X ", rh->type);
+-	pr_debug("SGS_LEFT %u %02X\n", rh->segments_left, rh->segments_left);
+-
+-	pr_debug("IPv6 RT segsleft %02X ",
+-		 segsleft_match(rtinfo->segsleft[0], rtinfo->segsleft[1],
+-				rh->segments_left,
+-				!!(rtinfo->invflags & IP6T_RT_INV_SGS)));
+-	pr_debug("type %02X %02X %02X ",
+-		 rtinfo->rt_type, rh->type,
+-		 (!(rtinfo->flags & IP6T_RT_TYP) ||
+-		  ((rtinfo->rt_type == rh->type) ^
+-		   !!(rtinfo->invflags & IP6T_RT_INV_TYP))));
+-	pr_debug("len %02X %04X %02X ",
+-		 rtinfo->hdrlen, hdrlen,
+-		 !(rtinfo->flags & IP6T_RT_LEN) ||
+-		  ((rtinfo->hdrlen == hdrlen) ^
+-		   !!(rtinfo->invflags & IP6T_RT_INV_LEN)));
+-	pr_debug("res %02X %02X %02X ",
+-		 rtinfo->flags & IP6T_RT_RES,
+-		 ((const struct rt0_hdr *)rh)->reserved,
+-		 !((rtinfo->flags & IP6T_RT_RES) &&
+-		   (((const struct rt0_hdr *)rh)->reserved)));
+-
+ 	ret = (segsleft_match(rtinfo->segsleft[0], rtinfo->segsleft[1],
+ 			      rh->segments_left,
+ 			      !!(rtinfo->invflags & IP6T_RT_INV_SGS))) &&
+@@ -107,22 +78,22 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
+ 						       reserved),
+ 					sizeof(_reserved),
+ 					&_reserved);
++		if (!rp) {
++			par->hotdrop = true;
++			return false;
++		}
+ 
+ 		ret = (*rp == 0);
+ 	}
+ 
+-	pr_debug("#%d ", rtinfo->addrnr);
+ 	if (!(rtinfo->flags & IP6T_RT_FST)) {
+ 		return ret;
+ 	} else if (rtinfo->flags & IP6T_RT_FST_NSTRICT) {
+-		pr_debug("Not strict ");
+ 		if (rtinfo->addrnr > (unsigned int)((hdrlen - 8) / 16)) {
+-			pr_debug("There isn't enough space\n");
+ 			return false;
+ 		} else {
+ 			unsigned int i = 0;
+ 
+-			pr_debug("#%d ", rtinfo->addrnr);
+ 			for (temp = 0;
+ 			     temp < (unsigned int)((hdrlen - 8) / 16);
+ 			     temp++) {
+@@ -138,26 +109,20 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
+ 					return false;
+ 				}
+ 
+-				if (ipv6_addr_equal(ap, &rtinfo->addrs[i])) {
+-					pr_debug("i=%d temp=%d;\n", i, temp);
++				if (ipv6_addr_equal(ap, &rtinfo->addrs[i]))
+ 					i++;
+-				}
+ 				if (i == rtinfo->addrnr)
+ 					break;
+ 			}
+-			pr_debug("i=%d #%d\n", i, rtinfo->addrnr);
+ 			if (i == rtinfo->addrnr)
+ 				return ret;
+ 			else
+ 				return false;
+ 		}
+ 	} else {
+-		pr_debug("Strict ");
+ 		if (rtinfo->addrnr > (unsigned int)((hdrlen - 8) / 16)) {
+-			pr_debug("There isn't enough space\n");
+ 			return false;
+ 		} else {
+-			pr_debug("#%d ", rtinfo->addrnr);
+ 			for (temp = 0; temp < rtinfo->addrnr; temp++) {
+ 				ap = skb_header_pointer(skb,
+ 							ptr
+@@ -173,7 +138,6 @@ static bool rt_mt6(const struct sk_buff *skb, struct xt_action_param *par)
+ 				if (!ipv6_addr_equal(ap, &rtinfo->addrs[temp]))
+ 					break;
+ 			}
+-			pr_debug("temp=%d #%d\n", temp, rtinfo->addrnr);
+ 			if (temp == rtinfo->addrnr &&
+ 			    temp == (unsigned int)((hdrlen - 8) / 16))
+ 				return ret;
 -- 
 2.33.0
 
