@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFE6A439F7B
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:19:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB2F43A242
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234434AbhJYTVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:21:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38296 "EHLO mail.kernel.org"
+        id S236831AbhJYTrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:47:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234573AbhJYTUE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:20:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30C9F6103C;
-        Mon, 25 Oct 2021 19:17:40 +0000 (UTC)
+        id S236106AbhJYTo6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:44:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B87A060E97;
+        Mon, 25 Oct 2021 19:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189461;
-        bh=oFeud0A2uIlaNfeGkWC8QwUsaeEnJjXyeWUwVPbfCdI=;
+        s=korg; t=1635190727;
+        bh=7tBYm1ODoqwlUagp5EX5UQQrBDcqT4sUxILv3p7tMP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xqWPoWaA5tb+a6fOMiIn3t/nNgRr329Fsedb66dS/bUKIKlKyBXz81BBbDm14ZEDV
-         HIjVOHqTY+q7W182yvOMUIPLwZrBqIfNrIrsVq0mA0ExZnuXHiZqbgu88X5zvxYN2V
-         9Bj7usjC43pFYJo4fNOJdVvS3So5Q9BGfxp4mlqk=
+        b=urNd7K7up0xNNeB95D/AeMLrxxhAnMqvCEd62y36jEaMCcFERIYUPJo+m+3HEIOCn
+         6yCCsoimM3nWsWqe2bPMQWeK+fJRYScpIG9z9ZD5e5jilLFAkiagMW3kdnP4lQBbBz
+         iQvUGhQAQ0Z24+mdsVmkynCUeQFnwah+X5IV1aBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 4.9 10/50] nvmem: Fix shift-out-of-bound (UBSAN) with byte size cells
+        stable@vger.kernel.org, Emeel Hakim <ehakim@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 056/169] net/mlx5e: IPsec: Fix work queue entry ethernet segment checksum flags
 Date:   Mon, 25 Oct 2021 21:13:57 +0200
-Message-Id: <20211025190934.921745976@linuxfoundation.org>
+Message-Id: <20211025191024.700291644@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Emeel Hakim <ehakim@nvidia.com>
 
-commit 5d388fa01fa6eb310ac023a363a6cb216d9d8fe9 upstream.
+[ Upstream commit 1d000323940137332d4d62c6332b6daf5f07aba7 ]
 
-If a cell has 'nbits' equal to a multiple of BITS_PER_BYTE the logic
+Current Work Queue Entry (WQE) checksum (csum) flags in the ethernet
+segment (eseg) in case of IPsec crypto offload datapath are not aligned
+with PRM/HW expectations.
 
- *p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
+Currently the driver always sets the l3_inner_csum flag in case of IPsec
+because of the wrong usage of skb->encapsulation as indicator for inner
+IPsec header since skb->encapsulation is always ON for IPsec packets
+since IPsec itself is an encapsulation protocol. The above forced a
+failing attempts of calculating csum of non-existing segments (like in
+the IP|ESP|TCP packet case which does not have an l3_inner) which led
+to lots of packet drops hence the low throughput.
 
-will become undefined behavior because nbits modulo BITS_PER_BYTE is 0, and we
-subtract one from that making a large number that is then shifted more than the
-number of bits that fit into an unsigned long.
+Fix by using xo->inner_ipproto as indicator for inner IPsec header
+instead of skb->encapsulation in addition to setting the csum flags
+as following:
+* Tunnel Mode:
+* Pkt: MAC  IP     ESP  IP    L4
+* CSUM: l3_cs | l3_inner_cs | l4_inner_cs
+*
+* Transport Mode:
+* Pkt: MAC  IP     ESP  L4
+* CSUM: l3_cs [ | l4_cs (checksum partial case)]
+*
+* Tunnel(VXLAN TCP/UDP) over Transport Mode
+* Pkt: MAC  IP     ESP  UDP  VXLAN  IP    L4
+* CSUM: l3_cs | l3_inner_cs | l4_inner_cs
 
-UBSAN reports this problem:
-
- UBSAN: shift-out-of-bounds in drivers/nvmem/core.c:1386:8
- shift exponent 64 is too large for 64-bit type 'unsigned long'
- CPU: 6 PID: 7 Comm: kworker/u16:0 Not tainted 5.15.0-rc3+ #9
- Hardware name: Google Lazor (rev3+) with KB Backlight (DT)
- Workqueue: events_unbound deferred_probe_work_func
- Call trace:
-  dump_backtrace+0x0/0x170
-  show_stack+0x24/0x30
-  dump_stack_lvl+0x64/0x7c
-  dump_stack+0x18/0x38
-  ubsan_epilogue+0x10/0x54
-  __ubsan_handle_shift_out_of_bounds+0x180/0x194
-  __nvmem_cell_read+0x1ec/0x21c
-  nvmem_cell_read+0x58/0x94
-  nvmem_cell_read_variable_common+0x4c/0xb0
-  nvmem_cell_read_variable_le_u32+0x40/0x100
-  a6xx_gpu_init+0x170/0x2f4
-  adreno_bind+0x174/0x284
-  component_bind_all+0xf0/0x264
-  msm_drm_bind+0x1d8/0x7a0
-  try_to_bring_up_master+0x164/0x1ac
-  __component_add+0xbc/0x13c
-  component_add+0x20/0x2c
-  dp_display_probe+0x340/0x384
-  platform_probe+0xc0/0x100
-  really_probe+0x110/0x304
-  __driver_probe_device+0xb8/0x120
-  driver_probe_device+0x4c/0xfc
-  __device_attach_driver+0xb0/0x128
-  bus_for_each_drv+0x90/0xdc
-  __device_attach+0xc8/0x174
-  device_initial_probe+0x20/0x2c
-  bus_probe_device+0x40/0xa4
-  deferred_probe_work_func+0x7c/0xb8
-  process_one_work+0x128/0x21c
-  process_scheduled_works+0x40/0x54
-  worker_thread+0x1ec/0x2a8
-  kthread+0x138/0x158
-  ret_from_fork+0x10/0x20
-
-Fix it by making sure there are any bits to mask out.
-
-Fixes: 69aba7948cbe ("nvmem: Add a simple NVMEM framework for consumers")
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20211013124511.18726-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f1267798c980 ("net/mlx5: Fix checksum issue of VXLAN and IPsec crypto offload")
+Signed-off-by: Emeel Hakim <ehakim@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../net/ethernet/mellanox/mlx5/core/en_tx.c   | 20 ++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -967,7 +967,8 @@ static inline void nvmem_shift_read_buff
- 		*p-- = 0;
- 
- 	/* clear msb bits if any leftover in the last byte */
--	*p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
-+	if (cell->nbits % BITS_PER_BYTE)
-+		*p &= GENMASK((cell->nbits % BITS_PER_BYTE) - 1, 0);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
+index c63d78eda606..188994d091c5 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
+@@ -213,19 +213,18 @@ static inline void mlx5e_insert_vlan(void *start, struct sk_buff *skb, u16 ihs)
+ 	memcpy(&vhdr->h_vlan_encapsulated_proto, skb->data + cpy1_sz, cpy2_sz);
  }
  
- static int __nvmem_cell_read(struct nvmem_device *nvmem,
+-/* If packet is not IP's CHECKSUM_PARTIAL (e.g. icmd packet),
+- * need to set L3 checksum flag for IPsec
+- */
+ static void
+ ipsec_txwqe_build_eseg_csum(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+ 			    struct mlx5_wqe_eth_seg *eseg)
+ {
++	struct xfrm_offload *xo = xfrm_offload(skb);
++
+ 	eseg->cs_flags = MLX5_ETH_WQE_L3_CSUM;
+-	if (skb->encapsulation) {
+-		eseg->cs_flags |= MLX5_ETH_WQE_L3_INNER_CSUM;
++	if (xo->inner_ipproto) {
++		eseg->cs_flags |= MLX5_ETH_WQE_L4_INNER_CSUM | MLX5_ETH_WQE_L3_INNER_CSUM;
++	} else if (likely(skb->ip_summed == CHECKSUM_PARTIAL)) {
++		eseg->cs_flags |= MLX5_ETH_WQE_L4_CSUM;
+ 		sq->stats->csum_partial_inner++;
+-	} else {
+-		sq->stats->csum_partial++;
+ 	}
+ }
+ 
+@@ -234,6 +233,11 @@ mlx5e_txwqe_build_eseg_csum(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+ 			    struct mlx5e_accel_tx_state *accel,
+ 			    struct mlx5_wqe_eth_seg *eseg)
+ {
++	if (unlikely(mlx5e_ipsec_eseg_meta(eseg))) {
++		ipsec_txwqe_build_eseg_csum(sq, skb, eseg);
++		return;
++	}
++
+ 	if (likely(skb->ip_summed == CHECKSUM_PARTIAL)) {
+ 		eseg->cs_flags = MLX5_ETH_WQE_L3_CSUM;
+ 		if (skb->encapsulation) {
+@@ -249,8 +253,6 @@ mlx5e_txwqe_build_eseg_csum(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+ 		eseg->cs_flags = MLX5_ETH_WQE_L3_CSUM | MLX5_ETH_WQE_L4_CSUM;
+ 		sq->stats->csum_partial++;
+ #endif
+-	} else if (unlikely(mlx5e_ipsec_eseg_meta(eseg))) {
+-		ipsec_txwqe_build_eseg_csum(sq, skb, eseg);
+ 	} else
+ 		sq->stats->csum_none++;
+ }
+-- 
+2.33.0
+
 
 
