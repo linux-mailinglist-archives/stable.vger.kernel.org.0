@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B2984397FE
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 15:59:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 442D9439805
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 16:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232978AbhJYOBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 10:01:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52408 "EHLO mail.kernel.org"
+        id S233054AbhJYOEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 10:04:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233054AbhJYOBv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 10:01:51 -0400
+        id S233203AbhJYOEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 10:04:14 -0400
 Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C6C160EC0;
-        Mon, 25 Oct 2021 13:59:27 +0000 (UTC)
-Date:   Mon, 25 Oct 2021 09:59:25 -0400
+        by mail.kernel.org (Postfix) with ESMTPSA id 3318F60E0B;
+        Mon, 25 Oct 2021 14:01:50 +0000 (UTC)
+Date:   Mon, 25 Oct 2021 10:01:48 -0400
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     <gregkh@linuxfoundation.org>
 Cc:     James.Bottomley@hansenpartnership.com, aou@eecs.berkeley.edu,
@@ -30,10 +30,10 @@ Cc:     James.Bottomley@hansenpartnership.com, aou@eecs.berkeley.edu,
         torvalds@linux-foundation.org, yun.wang@linux.alibaba.com,
         <stable@vger.kernel.org>
 Subject: Re: FAILED: patch "[PATCH] tracing: Have all levels of checks
- prevent recursion" failed to apply to 5.4-stable tree
-Message-ID: <20211025095925.6e96a129@gandalf.local.home>
-In-Reply-To: <163507501494210@kroah.com>
-References: <163507501494210@kroah.com>
+ prevent recursion" failed to apply to 4.19-stable tree
+Message-ID: <20211025100148.61deba41@gandalf.local.home>
+In-Reply-To: <163507501713625@kroah.com>
+References: <163507501713625@kroah.com>
 X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -42,10 +42,10 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 24 Oct 2021 13:30:14 +0200
+On Sun, 24 Oct 2021 13:30:17 +0200
 <gregkh@linuxfoundation.org> wrote:
 
-> The patch below does not apply to the 5.4-stable tree.
+> The patch below does not apply to the 4.19-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -53,13 +53,11 @@ On Sun, 24 Oct 2021 13:30:14 +0200
 > thanks,
 > 
 > greg k-h
-> 
 >
 
-The below should be the fix for 5.4.
+Below should be the fix for 4.19 and 4.14
 
 -- Steve
-
 
 >From ed65df63a39a3f6ed04f7258de8b6789e5021c18 Mon Sep 17 00:00:00 2001
 From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
@@ -184,7 +182,7 @@ Index: linux-test.git/kernel/trace/trace.h
 ===================================================================
 --- linux-test.git.orig/kernel/trace/trace.h
 +++ linux-test.git/kernel/trace/trace.h
-@@ -518,23 +518,8 @@ struct tracer {
+@@ -467,23 +467,8 @@ struct tracer {
   *  When function tracing occurs, the following steps are made:
   *   If arch does not support a ftrace feature:
   *    call internal function (uses INTERNAL bits) which calls...
@@ -208,7 +206,7 @@ Index: linux-test.git/kernel/trace/trace.h
   */
  enum {
  	TRACE_BUFFER_BIT,
-@@ -547,12 +532,14 @@ enum {
+@@ -496,12 +481,14 @@ enum {
  	TRACE_FTRACE_NMI_BIT,
  	TRACE_FTRACE_IRQ_BIT,
  	TRACE_FTRACE_SIRQ_BIT,
@@ -224,10 +222,10 @@ Index: linux-test.git/kernel/trace/trace.h
  
  	TRACE_BRANCH_BIT,
  /*
-@@ -592,12 +579,6 @@ enum {
- 	 * function is called to clear it.
- 	 */
- 	TRACE_GRAPH_NOTRACE_BIT,
+@@ -534,12 +521,6 @@ enum {
+ 
+ 	TRACE_GRAPH_DEPTH_START_BIT,
+ 	TRACE_GRAPH_DEPTH_END_BIT,
 -
 -	/*
 -	 * When transitioning between context, the preempt_count() may
@@ -237,7 +235,7 @@ Index: linux-test.git/kernel/trace/trace.h
  };
  
  #define trace_recursion_set(bit)	do { (current)->trace_recursion |= (1<<(bit)); } while (0)
-@@ -617,12 +598,18 @@ enum {
+@@ -559,12 +540,18 @@ enum {
  #define TRACE_CONTEXT_BITS	4
  
  #define TRACE_FTRACE_START	TRACE_FTRACE_BIT
@@ -259,7 +257,7 @@ Index: linux-test.git/kernel/trace/trace.h
  
  static __always_inline int trace_get_context_bit(void)
  {
-@@ -630,59 +617,48 @@ static __always_inline int trace_get_con
+@@ -572,59 +559,48 @@ static __always_inline int trace_get_con
  
  	if (in_interrupt()) {
  		if (in_nmi())
@@ -331,7 +329,7 @@ Index: linux-test.git/kernel/trace/ftrace.c
 ===================================================================
 --- linux-test.git.orig/kernel/trace/ftrace.c
 +++ linux-test.git/kernel/trace/ftrace.c
-@@ -6336,7 +6336,7 @@ __ftrace_ops_list_func(unsigned long ip,
+@@ -6327,7 +6327,7 @@ __ftrace_ops_list_func(unsigned long ip,
  	struct ftrace_ops *op;
  	int bit;
  
@@ -340,7 +338,7 @@ Index: linux-test.git/kernel/trace/ftrace.c
  	if (bit < 0)
  		return;
  
-@@ -6411,7 +6411,7 @@ static void ftrace_ops_assist_func(unsig
+@@ -6399,7 +6399,7 @@ static void ftrace_ops_assist_func(unsig
  {
  	int bit;
  
