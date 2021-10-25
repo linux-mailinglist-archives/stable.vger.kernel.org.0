@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B57E439F3F
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:16:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A027843A12B
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234533AbhJYTSv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:18:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36218 "EHLO mail.kernel.org"
+        id S235679AbhJYTh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234462AbhJYTSc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:18:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCFE26108C;
-        Mon, 25 Oct 2021 19:16:08 +0000 (UTC)
+        id S236463AbhJYTer (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:34:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28C1B611AD;
+        Mon, 25 Oct 2021 19:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189369;
-        bh=xPORa5NBRmvXy/WNEhc6nsuoOJuoOBvLh8HI7MWt5nw=;
+        s=korg; t=1635190255;
+        bh=v/FdeHnaRWW/wxO5CjQupOhXXOhIIAGcNSJzwamPsSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GGkt9+KhJasNq5QGZNal/WXPZHtgLBAEEkUSMDCEs661F1q5fbMtU1HHrAacWY9vv
-         nrtSEbIJBJoNfwdbOQUQat4GnR+E0mf4DXhRslZQSqmsBdTFsvJPhc6OxDeTDqYV9Y
-         6z5M6e1STV7NBYQ77sIC1e0wG+dfVqUpHihhSzfc=
+        b=j7p+iJJDaGnsYjUE+B69bZjWNa+oWYyE5ACVwxSD6NbkwGNrSAph7sHy/MdkFqe6A
+         ZVdeQQxNdWEDyzZK9oLk3pcIFth/yybRuR31EqYkUYJ1SSGUOjczHxHwh36RsZTEwT
+         YYOTSsKKalb1v/upaPxC+vJyIiO/GTg+FSyALuUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Barret Rhoden <brho@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 30/44] elfcore: correct reference to CONFIG_UML
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 14/95] ASoC: wm8960: Fix clock configuration on slave mode
 Date:   Mon, 25 Oct 2021 21:14:11 +0200
-Message-Id: <20211025190934.833510406@linuxfoundation.org>
+Message-Id: <20211025190958.954700333@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-commit b0e901280d9860a0a35055f220e8e457f300f40a upstream.
+[ Upstream commit 6b9b546dc00797c74bef491668ce5431ff54e1e2 ]
 
-Commit 6e7b64b9dd6d ("elfcore: fix building with clang") introduces
-special handling for two architectures, ia64 and User Mode Linux.
-However, the wrong name, i.e., CONFIG_UM, for the intended Kconfig
-symbol for User-Mode Linux was used.
+There is a noise issue for 8kHz sample rate on slave mode.
+Compared with master mode, the difference is the DACDIV
+setting, after correcting the DACDIV, the noise is gone.
 
-Although the directory for User Mode Linux is ./arch/um; the Kconfig
-symbol for this architecture is called CONFIG_UML.
+There is no noise issue for 48kHz sample rate, because
+the default value of DACDIV is correct for 48kHz.
 
-Luckily, ./scripts/checkkconfigsymbols.py warns on non-existing configs:
+So wm8960_configure_clocking() should be functional for
+ADC and DAC function even if it is slave mode.
 
-  UM
-  Referencing files: include/linux/elfcore.h
-  Similar symbols: UML, NUMA
+In order to be compatible for old use case, just add
+condition for checking that sysclk is zero with
+slave mode.
 
-Correct the name of the config to the intended one.
-
-[akpm@linux-foundation.org: fix um/x86_64, per Catalin]
-  Link: https://lkml.kernel.org/r/20211006181119.2851441-1-catalin.marinas@arm.com
-  Link: https://lkml.kernel.org/r/YV6pejGzLy5ppEpt@arm.com
-
-Link: https://lkml.kernel.org/r/20211006082209.417-1-lukas.bulwahn@gmail.com
-Fixes: 6e7b64b9dd6d ("elfcore: fix building with clang")
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Barret Rhoden <brho@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0e50b51aa22f ("ASoC: wm8960: Let wm8960 driver configure its bit clock and frame clock")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/1634102224-3922-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/elfcore.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/wm8960.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/include/linux/elfcore.h
-+++ b/include/linux/elfcore.h
-@@ -55,7 +55,7 @@ static inline int elf_core_copy_task_xfp
- }
- #endif
+diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
+index 9d325555e219..618692e2e0e4 100644
+--- a/sound/soc/codecs/wm8960.c
++++ b/sound/soc/codecs/wm8960.c
+@@ -742,9 +742,16 @@ static int wm8960_configure_clocking(struct snd_soc_component *component)
+ 	int i, j, k;
+ 	int ret;
  
--#if defined(CONFIG_UM) || defined(CONFIG_IA64)
-+#if (defined(CONFIG_UML) && defined(CONFIG_X86_32)) || defined(CONFIG_IA64)
- /*
-  * These functions parameterize elf_core_dump in fs/binfmt_elf.c to write out
-  * extra segments containing the gate DSO contents.  Dumping its
+-	if (!(iface1 & (1<<6))) {
+-		dev_dbg(component->dev,
+-			"Codec is slave mode, no need to configure clock\n");
++	/*
++	 * For Slave mode clocking should still be configured,
++	 * so this if statement should be removed, but some platform
++	 * may not work if the sysclk is not configured, to avoid such
++	 * compatible issue, just add '!wm8960->sysclk' condition in
++	 * this if statement.
++	 */
++	if (!(iface1 & (1 << 6)) && !wm8960->sysclk) {
++		dev_warn(component->dev,
++			 "slave mode, but proceeding with no clock configuration\n");
+ 		return 0;
+ 	}
+ 
+-- 
+2.33.0
+
 
 
