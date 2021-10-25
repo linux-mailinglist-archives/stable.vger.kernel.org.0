@@ -2,35 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CEE743A10B
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0495143A10D
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232421AbhJYThI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48434 "EHLO mail.kernel.org"
+        id S234702AbhJYThJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236123AbhJYTdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:33:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 658F161179;
-        Mon, 25 Oct 2021 19:29:08 +0000 (UTC)
+        id S236175AbhJYTdl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:33:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D76566108C;
+        Mon, 25 Oct 2021 19:29:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190149;
-        bh=xVZTo5T4KrfC9S8sFKtShoQPdw37wurz9TeoXWiYCQs=;
+        s=korg; t=1635190154;
+        bh=9VCnK70vChvgrpVMnyncWkvZP/YWNozCKWay4znuVEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fpUinaSQEB6XQBQF+ISUyD+F9tpgWOEgzhKuuR46lIGemqrImUM6Eo//quw7ls3TD
-         7dOFFedHLlXJVwwHEUEm2iIeEH8CX+Fex/ef4yhaG7cbWeL69ktR5NnRbi2rZGXN/x
-         KocrdUhzjlC7klEftYmbmXTpkFU4TREF2CnWI1CI=
+        b=Y4gjE7IBoS8l79kdZRkkGSqEJQPjwf6W/mT4gSxyHhOo43XLEEWbT/0xhLgckTdf4
+         FoFxy1dy+/lQpmBGWci+0x2GAFXyOJjZb+WhbK+UYUxa0oCQO0E3x5sp4rOuFlFdrE
+         HPfes1BLScoARLf1BF7ff79J8YbJYeyIYQp2+QCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
-        Yanfei Xu <yanfei.xu@windriver.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 55/58] net: mdiobus: Fix memory leak in __mdiobus_register
-Date:   Mon, 25 Oct 2021 21:15:12 +0200
-Message-Id: <20211025190946.814460157@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Petr Mladek <pmladek@suse.com>, Ingo Molnar <mingo@redhat.com>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Jisheng Zhang <jszhang@kernel.org>,
+        =?utf-8?b?546L6LSH?= <yun.wang@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 56/58] tracing: Have all levels of checks prevent recursion
+Date:   Mon, 25 Oct 2021 21:15:13 +0200
+Message-Id: <20211025190947.006854532@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
 References: <20211025190937.555108060@linuxfoundation.org>
@@ -42,89 +63,306 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanfei Xu <yanfei.xu@windriver.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
+commit ed65df63a39a3f6ed04f7258de8b6789e5021c18 upstream.
 
-Once device_register() failed, we should call put_device() to
-decrement reference count for cleanup. Or it will cause memory
-leak.
+While writing an email explaining the "bit = 0" logic for a discussion on
+making ftrace_test_recursion_trylock() disable preemption, I discovered a
+path that makes the "not do the logic if bit is zero" unsafe.
 
-BUG: memory leak
-unreferenced object 0xffff888114032e00 (size 256):
-  comm "kworker/1:3", pid 2960, jiffies 4294943572 (age 15.920s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 2e 03 14 81 88 ff ff  ................
-    08 2e 03 14 81 88 ff ff 90 76 65 82 ff ff ff ff  .........ve.....
-  backtrace:
-    [<ffffffff8265cfab>] kmalloc include/linux/slab.h:591 [inline]
-    [<ffffffff8265cfab>] kzalloc include/linux/slab.h:721 [inline]
-    [<ffffffff8265cfab>] device_private_init drivers/base/core.c:3203 [inline]
-    [<ffffffff8265cfab>] device_add+0x89b/0xdf0 drivers/base/core.c:3253
-    [<ffffffff828dd643>] __mdiobus_register+0xc3/0x450 drivers/net/phy/mdio_bus.c:537
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
-    [<ffffffff82660916>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
-    [<ffffffff8265cd0b>] device_add+0x5fb/0xdf0 drivers/base/core.c:3359
-    [<ffffffff82c343b9>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2170
-    [<ffffffff82c4473c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+The recursion logic is done in hot paths like the function tracer. Thus,
+any code executed causes noticeable overhead. Thus, tricks are done to try
+to limit the amount of code executed. This included the recursion testing
+logic.
 
-BUG: memory leak
-unreferenced object 0xffff888116f06900 (size 32):
-  comm "kworker/0:2", pid 2670, jiffies 4294944448 (age 7.160s)
-  hex dump (first 32 bytes):
-    75 73 62 2d 30 30 31 3a 30 30 33 00 00 00 00 00  usb-001:003.....
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff81484516>] kstrdup+0x36/0x70 mm/util.c:60
-    [<ffffffff814845a3>] kstrdup_const+0x53/0x80 mm/util.c:83
-    [<ffffffff82296ba2>] kvasprintf_const+0xc2/0x110 lib/kasprintf.c:48
-    [<ffffffff82358d4b>] kobject_set_name_vargs+0x3b/0xe0 lib/kobject.c:289
-    [<ffffffff826575f3>] dev_set_name+0x63/0x90 drivers/base/core.c:3147
-    [<ffffffff828dd63b>] __mdiobus_register+0xbb/0x450 drivers/net/phy/mdio_bus.c:535
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
+Having recursion testing is important, as there are many paths that can
+end up in an infinite recursion cycle when tracing every function in the
+kernel. Thus protection is needed to prevent that from happening.
 
-Reported-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Because it is OK to recurse due to different running context levels (e.g.
+an interrupt preempts a trace, and then a trace occurs in the interrupt
+handler), a set of bits are used to know which context one is in (normal,
+softirq, irq and NMI). If a recursion occurs in the same level, it is
+prevented*.
+
+Then there are infrastructure levels of recursion as well. When more than
+one callback is attached to the same function to trace, it calls a loop
+function to iterate over all the callbacks. Both the callbacks and the
+loop function have recursion protection. The callbacks use the
+"ftrace_test_recursion_trylock()" which has a "function" set of context
+bits to test, and the loop function calls the internal
+trace_test_and_set_recursion() directly, with an "internal" set of bits.
+
+If an architecture does not implement all the features supported by ftrace
+then the callbacks are never called directly, and the loop function is
+called instead, which will implement the features of ftrace.
+
+Since both the loop function and the callbacks do recursion protection, it
+was seemed unnecessary to do it in both locations. Thus, a trick was made
+to have the internal set of recursion bits at a more significant bit
+location than the function bits. Then, if any of the higher bits were set,
+the logic of the function bits could be skipped, as any new recursion
+would first have to go through the loop function.
+
+This is true for architectures that do not support all the ftrace
+features, because all functions being traced must first go through the
+loop function before going to the callbacks. But this is not true for
+architectures that support all the ftrace features. That's because the
+loop function could be called due to two callbacks attached to the same
+function, but then a recursion function inside the callback could be
+called that does not share any other callback, and it will be called
+directly.
+
+i.e.
+
+ traced_function_1: [ more than one callback tracing it ]
+   call loop_func
+
+ loop_func:
+   trace_recursion set internal bit
+   call callback
+
+ callback:
+   trace_recursion [ skipped because internal bit is set, return 0 ]
+   call traced_function_2
+
+ traced_function_2: [ only traced by above callback ]
+   call callback
+
+ callback:
+   trace_recursion [ skipped because internal bit is set, return 0 ]
+   call traced_function_2
+
+ [ wash, rinse, repeat, BOOM! out of shampoo! ]
+
+Thus, the "bit == 0 skip" trick is not safe, unless the loop function is
+call for all functions.
+
+Since we want to encourage architectures to implement all ftrace features,
+having them slow down due to this extra logic may encourage the
+maintainers to update to the latest ftrace features. And because this
+logic is only safe for them, remove it completely.
+
+ [*] There is on layer of recursion that is allowed, and that is to allow
+     for the transition between interrupt context (normal -> softirq ->
+     irq -> NMI), because a trace may occur before the context update is
+     visible to the trace recursion logic.
+
+Link: https://lore.kernel.org/all/609b565a-ed6e-a1da-f025-166691b5d994@linux.alibaba.com/
+Link: https://lkml.kernel.org/r/20211018154412.09fcad3c@gandalf.local.home
+
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Miroslav Benes <mbenes@suse.cz>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Jisheng Zhang <jszhang@kernel.org>
+Cc: =?utf-8?b?546L6LSH?= <yun.wang@linux.alibaba.com>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: edc15cafcbfa3 ("tracing: Avoid unnecessary multiple recursion checks")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/phy/mdio_bus.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -395,6 +395,7 @@ int __mdiobus_register(struct mii_bus *b
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
-+		put_device(&bus->dev);
- 		return -EINVAL;
+---
+ kernel/trace/ftrace.c          |    4 +-
+ kernel/trace/trace.h           |   64 ++++++++++++-----------------------------
+ kernel/trace/trace_functions.c |    2 -
+ 3 files changed, 23 insertions(+), 47 deletions(-)
+
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -6336,7 +6336,7 @@ __ftrace_ops_list_func(unsigned long ip,
+ 	struct ftrace_ops *op;
+ 	int bit;
+ 
+-	bit = trace_test_and_set_recursion(TRACE_LIST_START, TRACE_LIST_MAX);
++	bit = trace_test_and_set_recursion(TRACE_LIST_START);
+ 	if (bit < 0)
+ 		return;
+ 
+@@ -6411,7 +6411,7 @@ static void ftrace_ops_assist_func(unsig
+ {
+ 	int bit;
+ 
+-	bit = trace_test_and_set_recursion(TRACE_LIST_START, TRACE_LIST_MAX);
++	bit = trace_test_and_set_recursion(TRACE_LIST_START);
+ 	if (bit < 0)
+ 		return;
+ 
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -518,23 +518,8 @@ struct tracer {
+  *  When function tracing occurs, the following steps are made:
+  *   If arch does not support a ftrace feature:
+  *    call internal function (uses INTERNAL bits) which calls...
+- *   If callback is registered to the "global" list, the list
+- *    function is called and recursion checks the GLOBAL bits.
+- *    then this function calls...
+  *   The function callback, which can use the FTRACE bits to
+  *    check for recursion.
+- *
+- * Now if the arch does not suppport a feature, and it calls
+- * the global list function which calls the ftrace callback
+- * all three of these steps will do a recursion protection.
+- * There's no reason to do one if the previous caller already
+- * did. The recursion that we are protecting against will
+- * go through the same steps again.
+- *
+- * To prevent the multiple recursion checks, if a recursion
+- * bit is set that is higher than the MAX bit of the current
+- * check, then we know that the check was made by the previous
+- * caller, and we can skip the current check.
+  */
+ enum {
+ 	TRACE_BUFFER_BIT,
+@@ -547,12 +532,14 @@ enum {
+ 	TRACE_FTRACE_NMI_BIT,
+ 	TRACE_FTRACE_IRQ_BIT,
+ 	TRACE_FTRACE_SIRQ_BIT,
++	TRACE_FTRACE_TRANSITION_BIT,
+ 
+-	/* INTERNAL_BITs must be greater than FTRACE_BITs */
++	/* Internal use recursion bits */
+ 	TRACE_INTERNAL_BIT,
+ 	TRACE_INTERNAL_NMI_BIT,
+ 	TRACE_INTERNAL_IRQ_BIT,
+ 	TRACE_INTERNAL_SIRQ_BIT,
++	TRACE_INTERNAL_TRANSITION_BIT,
+ 
+ 	TRACE_BRANCH_BIT,
+ /*
+@@ -592,12 +579,6 @@ enum {
+ 	 * function is called to clear it.
+ 	 */
+ 	TRACE_GRAPH_NOTRACE_BIT,
+-
+-	/*
+-	 * When transitioning between context, the preempt_count() may
+-	 * not be correct. Allow for a single recursion to cover this case.
+-	 */
+-	TRACE_TRANSITION_BIT,
+ };
+ 
+ #define trace_recursion_set(bit)	do { (current)->trace_recursion |= (1<<(bit)); } while (0)
+@@ -617,12 +598,18 @@ enum {
+ #define TRACE_CONTEXT_BITS	4
+ 
+ #define TRACE_FTRACE_START	TRACE_FTRACE_BIT
+-#define TRACE_FTRACE_MAX	((1 << (TRACE_FTRACE_START + TRACE_CONTEXT_BITS)) - 1)
+ 
+ #define TRACE_LIST_START	TRACE_INTERNAL_BIT
+-#define TRACE_LIST_MAX		((1 << (TRACE_LIST_START + TRACE_CONTEXT_BITS)) - 1)
+ 
+-#define TRACE_CONTEXT_MASK	TRACE_LIST_MAX
++#define TRACE_CONTEXT_MASK	((1 << (TRACE_LIST_START + TRACE_CONTEXT_BITS)) - 1)
++
++enum {
++	TRACE_CTX_NMI,
++	TRACE_CTX_IRQ,
++	TRACE_CTX_SOFTIRQ,
++	TRACE_CTX_NORMAL,
++	TRACE_CTX_TRANSITION,
++};
+ 
+ static __always_inline int trace_get_context_bit(void)
+ {
+@@ -630,59 +617,48 @@ static __always_inline int trace_get_con
+ 
+ 	if (in_interrupt()) {
+ 		if (in_nmi())
+-			bit = 0;
++			bit = TRACE_CTX_NMI;
+ 
+ 		else if (in_irq())
+-			bit = 1;
++			bit = TRACE_CTX_IRQ;
+ 		else
+-			bit = 2;
++			bit = TRACE_CTX_SOFTIRQ;
+ 	} else
+-		bit = 3;
++		bit = TRACE_CTX_NORMAL;
+ 
+ 	return bit;
+ }
+ 
+-static __always_inline int trace_test_and_set_recursion(int start, int max)
++static __always_inline int trace_test_and_set_recursion(int start)
+ {
+ 	unsigned int val = current->trace_recursion;
+ 	int bit;
+ 
+-	/* A previous recursion check was made */
+-	if ((val & TRACE_CONTEXT_MASK) > max)
+-		return 0;
+-
+ 	bit = trace_get_context_bit() + start;
+ 	if (unlikely(val & (1 << bit))) {
+ 		/*
+ 		 * It could be that preempt_count has not been updated during
+ 		 * a switch between contexts. Allow for a single recursion.
+ 		 */
+-		bit = TRACE_TRANSITION_BIT;
++		bit = start + TRACE_CTX_TRANSITION;
+ 		if (trace_recursion_test(bit))
+ 			return -1;
+ 		trace_recursion_set(bit);
+ 		barrier();
+-		return bit + 1;
++		return bit;
  	}
+ 
+-	/* Normal check passed, clear the transition to allow it again */
+-	trace_recursion_clear(TRACE_TRANSITION_BIT);
+-
+ 	val |= 1 << bit;
+ 	current->trace_recursion = val;
+ 	barrier();
+ 
+-	return bit + 1;
++	return bit;
+ }
+ 
+ static __always_inline void trace_clear_recursion(int bit)
+ {
+ 	unsigned int val = current->trace_recursion;
+ 
+-	if (!bit)
+-		return;
+-
+-	bit--;
+ 	bit = 1 << bit;
+ 	val &= ~bit;
+ 
+--- a/kernel/trace/trace_functions.c
++++ b/kernel/trace/trace_functions.c
+@@ -138,7 +138,7 @@ function_trace_call(unsigned long ip, un
+ 	pc = preempt_count();
+ 	preempt_disable_notrace();
+ 
+-	bit = trace_test_and_set_recursion(TRACE_FTRACE_START, TRACE_FTRACE_MAX);
++	bit = trace_test_and_set_recursion(TRACE_FTRACE_START);
+ 	if (bit < 0)
+ 		goto out;
  
 
 
