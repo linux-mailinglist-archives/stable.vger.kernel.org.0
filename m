@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1546143A130
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 284C843A044
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234827AbhJYThh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53296 "EHLO mail.kernel.org"
+        id S235193AbhJYT3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236497AbhJYTev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:34:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C444610C9;
-        Mon, 25 Oct 2021 19:31:10 +0000 (UTC)
+        id S235352AbhJYT2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:28:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDA1D6113B;
+        Mon, 25 Oct 2021 19:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190272;
-        bh=sar/z/w4qR9CJKAI5xfU7jrqVsF2Lv/f8Gtqkggy47g=;
+        s=korg; t=1635189884;
+        bh=KCAGzqHHbF0daqZGWKDTxoMRoQg6+sBe85+/4TbKvHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P0BdNU5Z1wGYcIgxA6kf1orRDyXt4aF6vipAOFXPOUd1QE/LIdsOQOUzRWbVl4buW
-         fADBMNuFxL4axZ7QUUkCIvNvBWvm3n1wTxKaiwHr4D+LwleOpf3E0SOimjZDX40B2f
-         sKd/ZLK6VcOcBzKHswt4FxTxF9pkBVst105600uM=
+        b=LlEOPl3TmYtp78eGlE7mZDDQDGzw5hyrkfLTMZ7BrscvtsYSEWH536STFaCsOCsie
+         89Kn4QiFuy3KZB5LHaM3RAPSRaUPAJKHgJ4sTr2uAkufH8pMhmGtPcEZZscnyvHebc
+         I/sYs2qH4eUySnakLtNlwcpVGCAh79bi9DniI7Fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Ayumi Nakamichi <ayumi.nakamichi.kf@renesas.com>,
-        Ulrich Hecht <uli+renesas@fpond.eu>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 34/95] can: rcar_can: fix suspend/resume
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 06/37] ASoC: wm8960: Fix clock configuration on slave mode
 Date:   Mon, 25 Oct 2021 21:14:31 +0200
-Message-Id: <20211025191001.791285516@linuxfoundation.org>
+Message-Id: <20211025190929.547841507@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-commit f7c05c3987dcfde9a4e8c2d533db013fabebca0d upstream.
+[ Upstream commit 6b9b546dc00797c74bef491668ce5431ff54e1e2 ]
 
-If the driver was not opened, rcar_can_suspend() should not call
-clk_disable() because the clock was not enabled.
+There is a noise issue for 8kHz sample rate on slave mode.
+Compared with master mode, the difference is the DACDIV
+setting, after correcting the DACDIV, the noise is gone.
 
-Fixes: fd1159318e55 ("can: add Renesas R-Car CAN driver")
-Link: https://lore.kernel.org/all/20210924075556.223685-1-yoshihiro.shimoda.uh@renesas.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Tested-by: Ayumi Nakamichi <ayumi.nakamichi.kf@renesas.com>
-Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Tested-by: Biju Das <biju.das.jz@bp.renesas.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+There is no noise issue for 48kHz sample rate, because
+the default value of DACDIV is correct for 48kHz.
+
+So wm8960_configure_clocking() should be functional for
+ADC and DAC function even if it is slave mode.
+
+In order to be compatible for old use case, just add
+condition for checking that sysclk is zero with
+slave mode.
+
+Fixes: 0e50b51aa22f ("ASoC: wm8960: Let wm8960 driver configure its bit clock and frame clock")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/1634102224-3922-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/rcar/rcar_can.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ sound/soc/codecs/wm8960.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/drivers/net/can/rcar/rcar_can.c
-+++ b/drivers/net/can/rcar/rcar_can.c
-@@ -846,10 +846,12 @@ static int __maybe_unused rcar_can_suspe
- 	struct rcar_can_priv *priv = netdev_priv(ndev);
- 	u16 ctlr;
+diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
+index 88e869d16714..abd5c12764f0 100644
+--- a/sound/soc/codecs/wm8960.c
++++ b/sound/soc/codecs/wm8960.c
+@@ -755,9 +755,16 @@ static int wm8960_configure_clocking(struct snd_soc_component *component)
+ 	int i, j, k;
+ 	int ret;
  
--	if (netif_running(ndev)) {
--		netif_stop_queue(ndev);
--		netif_device_detach(ndev);
--	}
-+	if (!netif_running(ndev))
-+		return 0;
-+
-+	netif_stop_queue(ndev);
-+	netif_device_detach(ndev);
-+
- 	ctlr = readw(&priv->regs->ctlr);
- 	ctlr |= RCAR_CAN_CTLR_CANM_HALT;
- 	writew(ctlr, &priv->regs->ctlr);
-@@ -868,6 +870,9 @@ static int __maybe_unused rcar_can_resum
- 	u16 ctlr;
- 	int err;
+-	if (!(iface1 & (1<<6))) {
+-		dev_dbg(component->dev,
+-			"Codec is slave mode, no need to configure clock\n");
++	/*
++	 * For Slave mode clocking should still be configured,
++	 * so this if statement should be removed, but some platform
++	 * may not work if the sysclk is not configured, to avoid such
++	 * compatible issue, just add '!wm8960->sysclk' condition in
++	 * this if statement.
++	 */
++	if (!(iface1 & (1 << 6)) && !wm8960->sysclk) {
++		dev_warn(component->dev,
++			 "slave mode, but proceeding with no clock configuration\n");
+ 		return 0;
+ 	}
  
-+	if (!netif_running(ndev))
-+		return 0;
-+
- 	err = clk_enable(priv->clk);
- 	if (err) {
- 		netdev_err(ndev, "clk_enable() failed, error %d\n", err);
-@@ -881,10 +886,9 @@ static int __maybe_unused rcar_can_resum
- 	writew(ctlr, &priv->regs->ctlr);
- 	priv->can.state = CAN_STATE_ERROR_ACTIVE;
- 
--	if (netif_running(ndev)) {
--		netif_device_attach(ndev);
--		netif_start_queue(ndev);
--	}
-+	netif_device_attach(ndev);
-+	netif_start_queue(ndev);
-+
- 	return 0;
- }
- 
+-- 
+2.33.0
+
 
 
