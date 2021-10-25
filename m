@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91C2143A11E
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FE6343A120
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235280AbhJYThT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53560 "EHLO mail.kernel.org"
+        id S235269AbhJYThU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236386AbhJYTeb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236385AbhJYTeb (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Oct 2021 15:34:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D45BD61076;
-        Mon, 25 Oct 2021 19:30:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D16A06105A;
+        Mon, 25 Oct 2021 19:30:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190212;
-        bh=QJWbsBUjiiYg2wkcVaQlEPkz8CYbjwERtgzCpyZLfSQ=;
+        s=korg; t=1635190216;
+        bh=LvZovDiefMcuzEhHW6Vys6fhOjjhDgkFlWG7PhP4Uu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I8jajgO6c3B7BeGUiThPxdqyJm4oU7oEISFTNUY4gAdz94H1tg5bnzrVU2hDHKRSj
-         Da1vo2plUcaYvBuc/8xu2+bKp0dPbCNjB5su8Y5U5tbvRVw596lxAFuEGZbgxug3fQ
-         dUGQazDooQJYIz+zIKsa9+jLjCsg/eHE06twnhtg=
+        b=AVYTYF0vu9v1O+udO6I27YzEwG2TZbmrRtYMeo7MChjVI2xsfeg+95o1nfPQCB0YW
+         EhS7PzurBgXB4qPgrmKqADeOSgpmSbyUW4vBpNvHxwpWFWVxz8B+DH/2981WckqGcQ
+         SvXfq98aS0KrqO0Pk45aO+A4Bu4jsxjnXI0rEKdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonard Crestez <cdleonard@gmail.com>,
+        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
         David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 19/95] tcp: md5: Fix overlap between vrf and non-vrf keys
-Date:   Mon, 25 Oct 2021 21:14:16 +0200
-Message-Id: <20211025190959.710730154@linuxfoundation.org>
+Subject: [PATCH 5.10 20/95] ipv6: When forwarding count rx stats on the orig netdev
+Date:   Mon, 25 Oct 2021 21:14:17 +0200
+Message-Id: <20211025190959.834497342@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
 References: <20211025190956.374447057@linuxfoundation.org>
@@ -41,82 +41,270 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leonard Crestez <cdleonard@gmail.com>
+From: Stephen Suryaputra <ssuryaextr@gmail.com>
 
-[ Upstream commit 86f1e3a8489f6a0232c1f3bc2bdb379f5ccdecec ]
+[ Upstream commit 0857d6f8c759d95f89d0436f86cdfd189ef99f20 ]
 
-With net.ipv4.tcp_l3mdev_accept=1 it is possible for a listen socket to
-accept connection from the same client address in different VRFs. It is
-also possible to set different MD5 keys for these clients which differ
-only in the tcpm_l3index field.
+Commit bdb7cc643fc9 ("ipv6: Count interface receive statistics on the
+ingress netdev") does not work when ip6_forward() executes on the skbs
+with vrf-enslaved netdev. Use IP6CB(skb)->iif to get to the right one.
 
-This appears to work when distinguishing between different VRFs but not
-between non-VRF and VRF connections. In particular:
+Add a selftest script to verify.
 
- * tcp_md5_do_lookup_exact will match a non-vrf key against a vrf key.
-This means that adding a key with l3index != 0 after a key with l3index
-== 0 will cause the earlier key to be deleted. Both keys can be present
-if the non-vrf key is added later.
- * _tcp_md5_do_lookup can match a non-vrf key before a vrf key. This
-casues failures if the passwords differ.
-
-Fix this by making tcp_md5_do_lookup_exact perform an actual exact
-comparison on l3index and by making  __tcp_md5_do_lookup perfer
-vrf-bound keys above other considerations like prefixlen.
-
-Fixes: dea53bb80e07 ("tcp: Add l3index to tcp_md5sig_key and md5 functions")
-Signed-off-by: Leonard Crestez <cdleonard@gmail.com>
+Fixes: bdb7cc643fc9 ("ipv6: Count interface receive statistics on the ingress netdev")
+Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
 Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20211014130845.410602-1-ssuryaextr@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_ipv4.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ net/ipv6/ip6_output.c                         |   3 +-
+ .../testing/selftests/net/forwarding/Makefile |   1 +
+ .../net/forwarding/forwarding.config.sample   |   2 +
+ .../net/forwarding/ip6_forward_instats_vrf.sh | 172 ++++++++++++++++++
+ tools/testing/selftests/net/forwarding/lib.sh |   8 +
+ 5 files changed, 185 insertions(+), 1 deletion(-)
+ create mode 100755 tools/testing/selftests/net/forwarding/ip6_forward_instats_vrf.sh
 
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index 71395e745bc5..017cd666387f 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1022,6 +1022,20 @@ static void tcp_v4_reqsk_destructor(struct request_sock *req)
- DEFINE_STATIC_KEY_FALSE(tcp_md5_needed);
- EXPORT_SYMBOL(tcp_md5_needed);
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 72a673a43a75..c2f8e69d7d7a 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -487,13 +487,14 @@ static bool ip6_pkt_too_big(const struct sk_buff *skb, unsigned int mtu)
  
-+static bool better_md5_match(struct tcp_md5sig_key *old, struct tcp_md5sig_key *new)
+ int ip6_forward(struct sk_buff *skb)
+ {
+-	struct inet6_dev *idev = __in6_dev_get_safely(skb->dev);
+ 	struct dst_entry *dst = skb_dst(skb);
+ 	struct ipv6hdr *hdr = ipv6_hdr(skb);
+ 	struct inet6_skb_parm *opt = IP6CB(skb);
+ 	struct net *net = dev_net(dst->dev);
++	struct inet6_dev *idev;
+ 	u32 mtu;
+ 
++	idev = __in6_dev_get_safely(dev_get_by_index_rcu(net, IP6CB(skb)->iif));
+ 	if (net->ipv6.devconf_all->forwarding == 0)
+ 		goto error;
+ 
+diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
+index 250fbb2d1625..881e680c2e9c 100644
+--- a/tools/testing/selftests/net/forwarding/Makefile
++++ b/tools/testing/selftests/net/forwarding/Makefile
+@@ -9,6 +9,7 @@ TEST_PROGS = bridge_igmp.sh \
+ 	gre_inner_v4_multipath.sh \
+ 	gre_inner_v6_multipath.sh \
+ 	gre_multipath.sh \
++	ip6_forward_instats_vrf.sh \
+ 	ip6gre_inner_v4_multipath.sh \
+ 	ip6gre_inner_v6_multipath.sh \
+ 	ipip_flat_gre_key.sh \
+diff --git a/tools/testing/selftests/net/forwarding/forwarding.config.sample b/tools/testing/selftests/net/forwarding/forwarding.config.sample
+index b802c14d2950..e5e2fbeca22e 100644
+--- a/tools/testing/selftests/net/forwarding/forwarding.config.sample
++++ b/tools/testing/selftests/net/forwarding/forwarding.config.sample
+@@ -39,3 +39,5 @@ NETIF_CREATE=yes
+ # Timeout (in seconds) before ping exits regardless of how many packets have
+ # been sent or received
+ PING_TIMEOUT=5
++# IPv6 traceroute utility name.
++TROUTE6=traceroute6
+diff --git a/tools/testing/selftests/net/forwarding/ip6_forward_instats_vrf.sh b/tools/testing/selftests/net/forwarding/ip6_forward_instats_vrf.sh
+new file mode 100755
+index 000000000000..9f5b3e2e5e95
+--- /dev/null
++++ b/tools/testing/selftests/net/forwarding/ip6_forward_instats_vrf.sh
+@@ -0,0 +1,172 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++
++# Test ipv6 stats on the incoming if when forwarding with VRF
++
++ALL_TESTS="
++	ipv6_ping
++	ipv6_in_too_big_err
++	ipv6_in_hdr_err
++	ipv6_in_addr_err
++	ipv6_in_discard
++"
++
++NUM_NETIFS=4
++source lib.sh
++
++h1_create()
 +{
-+	if (!old)
-+		return true;
-+
-+	/* l3index always overrides non-l3index */
-+	if (old->l3index && new->l3index == 0)
-+		return false;
-+	if (old->l3index == 0 && new->l3index)
-+		return true;
-+
-+	return old->prefixlen < new->prefixlen;
++	simple_if_init $h1 2001:1:1::2/64
++	ip -6 route add vrf v$h1 2001:1:2::/64 via 2001:1:1::1
 +}
 +
- /* Find the Key structure for an address.  */
- struct tcp_md5sig_key *__tcp_md5_do_lookup(const struct sock *sk, int l3index,
- 					   const union tcp_md5_addr *addr,
-@@ -1059,8 +1073,7 @@ struct tcp_md5sig_key *__tcp_md5_do_lookup(const struct sock *sk, int l3index,
- 			match = false;
- 		}
++h1_destroy()
++{
++	ip -6 route del vrf v$h1 2001:1:2::/64 via 2001:1:1::1
++	simple_if_fini $h1 2001:1:1::2/64
++}
++
++router_create()
++{
++	vrf_create router
++	__simple_if_init $rtr1 router 2001:1:1::1/64
++	__simple_if_init $rtr2 router 2001:1:2::1/64
++	mtu_set $rtr2 1280
++}
++
++router_destroy()
++{
++	mtu_restore $rtr2
++	__simple_if_fini $rtr2 2001:1:2::1/64
++	__simple_if_fini $rtr1 2001:1:1::1/64
++	vrf_destroy router
++}
++
++h2_create()
++{
++	simple_if_init $h2 2001:1:2::2/64
++	ip -6 route add vrf v$h2 2001:1:1::/64 via 2001:1:2::1
++	mtu_set $h2 1280
++}
++
++h2_destroy()
++{
++	mtu_restore $h2
++	ip -6 route del vrf v$h2 2001:1:1::/64 via 2001:1:2::1
++	simple_if_fini $h2 2001:1:2::2/64
++}
++
++setup_prepare()
++{
++	h1=${NETIFS[p1]}
++	rtr1=${NETIFS[p2]}
++
++	rtr2=${NETIFS[p3]}
++	h2=${NETIFS[p4]}
++
++	vrf_prepare
++	h1_create
++	router_create
++	h2_create
++
++	forwarding_enable
++}
++
++cleanup()
++{
++	pre_cleanup
++
++	forwarding_restore
++
++	h2_destroy
++	router_destroy
++	h1_destroy
++	vrf_cleanup
++}
++
++ipv6_in_too_big_err()
++{
++	RET=0
++
++	local t0=$(ipv6_stats_get $rtr1 Ip6InTooBigErrors)
++	local vrf_name=$(master_name_get $h1)
++
++	# Send too big packets
++	ip vrf exec $vrf_name \
++		$PING6 -s 1300 2001:1:2::2 -c 1 -w $PING_TIMEOUT &> /dev/null
++
++	local t1=$(ipv6_stats_get $rtr1 Ip6InTooBigErrors)
++	test "$((t1 - t0))" -ne 0
++	check_err $?
++	log_test "Ip6InTooBigErrors"
++}
++
++ipv6_in_hdr_err()
++{
++	RET=0
++
++	local t0=$(ipv6_stats_get $rtr1 Ip6InHdrErrors)
++	local vrf_name=$(master_name_get $h1)
++
++	# Send packets with hop limit 1, easiest with traceroute6 as some ping6
++	# doesn't allow hop limit to be specified
++	ip vrf exec $vrf_name \
++		$TROUTE6 2001:1:2::2 &> /dev/null
++
++	local t1=$(ipv6_stats_get $rtr1 Ip6InHdrErrors)
++	test "$((t1 - t0))" -ne 0
++	check_err $?
++	log_test "Ip6InHdrErrors"
++}
++
++ipv6_in_addr_err()
++{
++	RET=0
++
++	local t0=$(ipv6_stats_get $rtr1 Ip6InAddrErrors)
++	local vrf_name=$(master_name_get $h1)
++
++	# Disable forwarding temporary while sending the packet
++	sysctl -qw net.ipv6.conf.all.forwarding=0
++	ip vrf exec $vrf_name \
++		$PING6 2001:1:2::2 -c 1 -w $PING_TIMEOUT &> /dev/null
++	sysctl -qw net.ipv6.conf.all.forwarding=1
++
++	local t1=$(ipv6_stats_get $rtr1 Ip6InAddrErrors)
++	test "$((t1 - t0))" -ne 0
++	check_err $?
++	log_test "Ip6InAddrErrors"
++}
++
++ipv6_in_discard()
++{
++	RET=0
++
++	local t0=$(ipv6_stats_get $rtr1 Ip6InDiscards)
++	local vrf_name=$(master_name_get $h1)
++
++	# Add a policy to discard
++	ip xfrm policy add dst 2001:1:2::2/128 dir fwd action block
++	ip vrf exec $vrf_name \
++		$PING6 2001:1:2::2 -c 1 -w $PING_TIMEOUT &> /dev/null
++	ip xfrm policy del dst 2001:1:2::2/128 dir fwd
++
++	local t1=$(ipv6_stats_get $rtr1 Ip6InDiscards)
++	test "$((t1 - t0))" -ne 0
++	check_err $?
++	log_test "Ip6InDiscards"
++}
++ipv6_ping()
++{
++	RET=0
++
++	ping6_test $h1 2001:1:2::2
++}
++
++trap cleanup EXIT
++
++setup_prepare
++setup_wait
++tests_run
++
++exit $EXIT_STATUS
+diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+index 927f9ba49e08..be6fa808d219 100644
+--- a/tools/testing/selftests/net/forwarding/lib.sh
++++ b/tools/testing/selftests/net/forwarding/lib.sh
+@@ -674,6 +674,14 @@ qdisc_parent_stats_get()
+ 	    | jq '.[] | select(.parent == "'"$parent"'") | '"$selector"
+ }
  
--		if (match && (!best_match ||
--			      key->prefixlen > best_match->prefixlen))
-+		if (match && better_md5_match(best_match, key))
- 			best_match = key;
- 	}
- 	return best_match;
-@@ -1090,7 +1103,7 @@ static struct tcp_md5sig_key *tcp_md5_do_lookup_exact(const struct sock *sk,
- 				 lockdep_sock_is_held(sk)) {
- 		if (key->family != family)
- 			continue;
--		if (key->l3index && key->l3index != l3index)
-+		if (key->l3index != l3index)
- 			continue;
- 		if (!memcmp(&key->addr, addr, size) &&
- 		    key->prefixlen == prefixlen)
++ipv6_stats_get()
++{
++	local dev=$1; shift
++	local stat=$1; shift
++
++	cat /proc/net/dev_snmp6/$dev | grep "^$stat" | cut -f2
++}
++
+ humanize()
+ {
+ 	local speed=$1; shift
 -- 
 2.33.0
 
