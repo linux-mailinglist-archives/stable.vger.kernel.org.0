@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC2C243A21C
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:44:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0158A43A21D
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:44:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234674AbhJYTpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:45:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60704 "EHLO mail.kernel.org"
+        id S235615AbhJYTpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:45:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235709AbhJYTmz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235901AbhJYTmz (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Oct 2021 15:42:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D64EF611BF;
-        Mon, 25 Oct 2021 19:37:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 528AF60F9B;
+        Mon, 25 Oct 2021 19:37:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190639;
-        bh=gS7qoFrJdXGE1q4BHPxmCDb8TqlAljlvorPg4eBZB1o=;
+        s=korg; t=1635190641;
+        bh=3V4+SYR8nCsRuv/2CSmd85zpx/MnDr9ej1uaaSTwjQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYuTlJdV0noNZEWWx9/G+Onv8+/GcJT5MisBYmV0emE4ui1a3Qv7125WItL7a2phS
-         ZGR6dqIguNa0xJyGyo6/IKYwVVqYjLu8uSVj9FK+0RpmOolIHwsDU/e0Wddrx7b0uC
-         l40Q/NVyTdNw1en7HOpmj1lobPpi14yErUDbPh6A=
+        b=s3yVFHQaJl+33EGz8JmmAILKyFoD2eN1JWHRq/6VGVxDIwvUvZcDUjK6w1dy3CPEw
+         ysh4/p9nYKzfgI558wGcz0N7NOIVG+r8AzIZoMFm65JN7NTZrrc8Tec8HpY2+Ld85W
+         E2iqhPK/ys3uXP1CtmtZQFGklJ3Be8n61GCzA4pU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 034/169] sctp: fix transport encap_port update in sctp_vtag_verify
-Date:   Mon, 25 Oct 2021 21:13:35 +0200
-Message-Id: <20211025191022.234000002@linuxfoundation.org>
+Subject: [PATCH 5.14 035/169] lan78xx: select CRC32
+Date:   Mon, 25 Oct 2021 21:13:36 +0200
+Message-Id: <20211025191022.346071638@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -40,42 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Vegard Nossum <vegard.nossum@oracle.com>
 
-[ Upstream commit 075718fdaf0efe20223571236c1bf14ca35a7aa1 ]
+[ Upstream commit 46393d61a328d7c4e3264252dae891921126c674 ]
 
-transport encap_port update should be updated when sctp_vtag_verify()
-succeeds, namely, returns 1, not returns 0. Correct it in this patch.
+Fix the following build/link error by adding a dependency on the CRC32
+routines:
 
-While at it, also fix the indentation.
+  ld: drivers/net/usb/lan78xx.o: in function `lan78xx_set_multicast':
+  lan78xx.c:(.text+0x48cf): undefined reference to `crc32_le'
 
-Fixes: a1dd2cf2f1ae ("sctp: allow changing transport encap_port by peer packets")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
+The actual use of crc32_le() comes indirectly through ether_crc().
+
+Fixes: 55d7de9de6c30 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sctp/sm.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/usb/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/net/sctp/sm.h b/include/net/sctp/sm.h
-index 2eb6d7c2c931..f37c7a558d6d 100644
---- a/include/net/sctp/sm.h
-+++ b/include/net/sctp/sm.h
-@@ -384,11 +384,11 @@ sctp_vtag_verify(const struct sctp_chunk *chunk,
- 	 * Verification Tag value does not match the receiver's own
- 	 * tag value, the receiver shall silently discard the packet...
- 	 */
--        if (ntohl(chunk->sctp_hdr->vtag) == asoc->c.my_vtag)
--                return 1;
-+	if (ntohl(chunk->sctp_hdr->vtag) != asoc->c.my_vtag)
-+		return 0;
- 
- 	chunk->transport->encap_port = SCTP_INPUT_CB(chunk->skb)->encap_port;
--	return 0;
-+	return 1;
- }
- 
- /* Check VTAG of the packet matches the sender's own tag and the T bit is
+diff --git a/drivers/net/usb/Kconfig b/drivers/net/usb/Kconfig
+index f87f17503373..b554054a7560 100644
+--- a/drivers/net/usb/Kconfig
++++ b/drivers/net/usb/Kconfig
+@@ -117,6 +117,7 @@ config USB_LAN78XX
+ 	select PHYLIB
+ 	select MICROCHIP_PHY
+ 	select FIXED_PHY
++	select CRC32
+ 	help
+ 	  This option adds support for Microchip LAN78XX based USB 2
+ 	  & USB 3 10/100/1000 Ethernet adapters.
 -- 
 2.33.0
 
