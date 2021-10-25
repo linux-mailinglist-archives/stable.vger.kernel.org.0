@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 991FC43A2F6
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDC2443A17C
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235795AbhJYTzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:55:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41842 "EHLO mail.kernel.org"
+        id S236009AbhJYTjG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:39:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238750AbhJYTve (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:51:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DE00610CF;
-        Mon, 25 Oct 2021 19:43:09 +0000 (UTC)
+        id S236763AbhJYTfr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:35:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAAF7610A1;
+        Mon, 25 Oct 2021 19:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190991;
-        bh=JzAe8crW01rzHWg9TFoqmT9ua9HGs/dKKEYPC8vrt9Y=;
+        s=korg; t=1635190388;
+        bh=OUv7N9wsLoXbm/vtjTvBM+lAVo4HBcOkZSejorIWfg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ofJ2OGKS0emA5AbWe2FxKIei4o8Mmwgaee8lNpZ9i8r6wUrRaPYSiA2Muzct0en2O
-         8vQDBdD6g1dpEaagB8Lf3MEkzEnZnu6Vk/AGCU3mkmkIvTCAWLjYe3ekzuTKb5YQRd
-         7KaePS9H8PtDzo61VVyYPyU7r0YfMau2rDcZv1DI=
+        b=xNYsrDR8Ves3F+7NaXFT2Y26Yl93i5F2OjzflG4qLhWa+PysoiojHD+gx6J9bcl0E
+         EuR+jgmyIsnzxRY6jcC4K0z9LYpezVES1l3siUjRt/3zoM3rHsdhGmlq+Kzdn3y3LN
+         z/MVJjmAnddEkA1kNHeSdMm9FYLpwSWd6ijOqjxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.14 119/169] selftests: netfilter: remove stray bash debug line
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Lin Ma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 63/95] nfc: nci: fix the UAF of rf_conn_info object
 Date:   Mon, 25 Oct 2021 21:15:00 +0200
-Message-Id: <20211025191033.008360955@linuxfoundation.org>
+Message-Id: <20211025191006.088765237@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,29 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit 3e6ed7703dae6838c104d73d3e76e9b79f5c0528 upstream.
+commit 1b1499a817c90fd1ce9453a2c98d2a01cca0e775 upstream.
 
-This should not be there.
+The nci_core_conn_close_rsp_packet() function will release the conn_info
+with given conn_id. However, it needs to set the rf_conn_info to NULL to
+prevent other routines like nci_rf_intf_activated_ntf_packet() to trigger
+the UAF.
 
-Fixes: 2de03b45236f ("selftests: netfilter: add flowtable test script")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/netfilter/nft_flowtable.sh |    1 -
- 1 file changed, 1 deletion(-)
+ net/nfc/nci/rsp.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/tools/testing/selftests/netfilter/nft_flowtable.sh
-+++ b/tools/testing/selftests/netfilter/nft_flowtable.sh
-@@ -199,7 +199,6 @@ fi
- # test basic connectivity
- if ! ip netns exec ns1 ping -c 1 -q 10.0.2.99 > /dev/null; then
-   echo "ERROR: ns1 cannot reach ns2" 1>&2
--  bash
-   exit 1
- fi
- 
+--- a/net/nfc/nci/rsp.c
++++ b/net/nfc/nci/rsp.c
+@@ -277,6 +277,8 @@ static void nci_core_conn_close_rsp_pack
+ 							 ndev->cur_conn_id);
+ 		if (conn_info) {
+ 			list_del(&conn_info->list);
++			if (conn_info == ndev->rf_conn_info)
++				ndev->rf_conn_info = NULL;
+ 			devm_kfree(&ndev->nfc_dev->dev, conn_info);
+ 		}
+ 	}
 
 
