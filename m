@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C9C143A051
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADAD443A106
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235868AbhJYT3v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:29:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48326 "EHLO mail.kernel.org"
+        id S234697AbhJYThC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:37:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235445AbhJYT2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:28:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBB4761076;
-        Mon, 25 Oct 2021 19:24:47 +0000 (UTC)
+        id S236077AbhJYTdV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:33:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E16D861151;
+        Mon, 25 Oct 2021 19:28:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189889;
-        bh=ZrsSBy57D8kFBiyUQ0yK6wBXOGDqNSH03H8z0Pjfs1g=;
+        s=korg; t=1635190129;
+        bh=q72grEGsA/M9v70EZaZBx8+5D7xCeMOKyt5p0JTowps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UY64KpKeSW+WqYb98NTN9CgIwS0Ed1x5F+GtR3XyuPpDyGQKCX15dn6fkoZhrx4Jm
-         PQi4+0anMpq5A2hG76137m5uu6L+9Ew42muE9X5vVZtUG0DWHA29S4BLrlIgQu15oB
-         frFmybJLFjMwaEj3YV4W1sVSgFShioECDmlRIy80=
+        b=PRgaHyMP3UPy/OV+l4UgaTVl5IRnfHT4L71vwIzjVdvULyaJI2sGBxaWuJSNxgFjy
+         heWva7DYwS6Z9CbZwkGQjfbLUSdCmRoizx9C54v0xCjhU7uJIPe+R6SQJ1+PzaZGMJ
+         ayyzSal31gLLOc+GkC/0LufVdBgtG3IhKWQcyN1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 23/37] nfc: nci: fix the UAF of rf_conn_info object
+        stable@vger.kernel.org, Brendan Grieve <brendan@grieve.com.au>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 31/58] ALSA: usb-audio: Provide quirk for Sennheiser GSP670 Headset
 Date:   Mon, 25 Oct 2021 21:14:48 +0200
-Message-Id: <20211025190932.930213006@linuxfoundation.org>
+Message-Id: <20211025190942.699719316@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
-References: <20211025190926.680827862@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Brendan Grieve <brendan@grieve.com.au>
 
-commit 1b1499a817c90fd1ce9453a2c98d2a01cca0e775 upstream.
+commit 3c414eb65c294719a91a746260085363413f91c1 upstream.
 
-The nci_core_conn_close_rsp_packet() function will release the conn_info
-with given conn_id. However, it needs to set the rf_conn_info to NULL to
-prevent other routines like nci_rf_intf_activated_ntf_packet() to trigger
-the UAF.
+As per discussion at: https://github.com/szszoke/sennheiser-gsp670-pulseaudio-profile/issues/13
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The GSP670 has 2 playback and 1 recording device that by default are
+detected in an incompatible order for alsa. This may have been done to make
+it compatible for the console by the manufacturer and only affects the
+latest firmware which uses its own ID.
+
+This quirk will resolve this by reordering the channels.
+
+Signed-off-by: Brendan Grieve <brendan@grieve.com.au>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211015025335.196592-1-brendan@grieve.com.au
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/nci/rsp.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/usb/quirks-table.h |   32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
---- a/net/nfc/nci/rsp.c
-+++ b/net/nfc/nci/rsp.c
-@@ -289,6 +289,8 @@ static void nci_core_conn_close_rsp_pack
- 							 ndev->cur_conn_id);
- 		if (conn_info) {
- 			list_del(&conn_info->list);
-+			if (conn_info == ndev->rf_conn_info)
-+				ndev->rf_conn_info = NULL;
- 			devm_kfree(&ndev->nfc_dev->dev, conn_info);
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -3806,5 +3806,37 @@ ALC1220_VB_DESKTOP(0x26ce, 0x0a01), /* A
  		}
  	}
+ },
++{
++	/*
++	 * Sennheiser GSP670
++	 * Change order of interfaces loaded
++	 */
++	USB_DEVICE(0x1395, 0x0300),
++	.bInterfaceClass = USB_CLASS_PER_INTERFACE,
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = &(const struct snd_usb_audio_quirk[]) {
++			// Communication
++			{
++				.ifnum = 3,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			// Recording
++			{
++				.ifnum = 4,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			// Main
++			{
++				.ifnum = 1,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
+ 
+ #undef USB_DEVICE_VENDOR_SPEC
 
 
