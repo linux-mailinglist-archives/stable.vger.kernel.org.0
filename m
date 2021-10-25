@@ -2,182 +2,361 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7755D439863
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 16:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 011D5439898
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 16:31:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232336AbhJYOYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 10:24:13 -0400
-Received: from mga06.intel.com ([134.134.136.31]:57661 "EHLO mga06.intel.com"
+        id S233118AbhJYOda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 10:33:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231302AbhJYOYN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 10:24:13 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10147"; a="290495922"
-X-IronPort-AV: E=Sophos;i="5.87,180,1631602800"; 
-   d="scan'208";a="290495922"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2021 07:21:50 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,180,1631602800"; 
-   d="scan'208";a="493740148"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.171])
-  by fmsmga007.fm.intel.com with SMTP; 25 Oct 2021 07:21:48 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Mon, 25 Oct 2021 17:21:47 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH] drm/i915: Fix type1 DVI DP dual mode adapter heuristic for modern platforms
-Date:   Mon, 25 Oct 2021 17:21:47 +0300
-Message-Id: <20211025142147.23897-1-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.32.0
+        id S232865AbhJYOd3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 10:33:29 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13E8760F0F;
+        Mon, 25 Oct 2021 14:31:04 +0000 (UTC)
+Date:   Mon, 25 Oct 2021 10:31:03 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     <gregkh@linuxfoundation.org>
+Cc:     James.Bottomley@hansenpartnership.com, aou@eecs.berkeley.edu,
+        benh@kernel.crashing.org, bp@alien8.de, colin.king@canonical.com,
+        deller@gmx.de, guoren@kernel.org, hpa@zytor.com, jikos@kernel.org,
+        joe.lawrence@redhat.com, jpoimboe@redhat.com, jszhang@kernel.org,
+        mbenes@suse.cz, mhiramat@kernel.org, mingo@redhat.com,
+        mpe@ellerman.id.au, npiggin@gmail.com, palmer@dabbelt.com,
+        paul.walmsley@sifive.com, paulus@samba.org, peterz@infradead.org,
+        pmladek@suse.com, tglx@linutronix.de,
+        torvalds@linux-foundation.org, yun.wang@linux.alibaba.com,
+        <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] tracing: Have all levels of checks
+ prevent recursion" failed to apply to 4.9-stable tree
+Message-ID: <20211025103103.3c96521b@gandalf.local.home>
+In-Reply-To: <163507502363143@kroah.com>
+References: <163507502363143@kroah.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On Sun, 24 Oct 2021 13:30:23 +0200
+<gregkh@linuxfoundation.org> wrote:
 
-Looks like we never updated intel_bios_is_port_dp_dual_mode() when
-the VBT port mapping became erratic on modern platforms. This
-is causing us to look up the wrong child device and thus throwing
-the heuristic off (ie. we might end looking at a child device for
-a genuine DP++ port when we were supposed to look at one for a
-native HDMI port).
+> The patch below does not apply to the 4.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Fix it up by not using the outdated port_mapping[] in
-intel_bios_is_port_dp_dual_mode() and rely on
-intel_bios_encoder_data_lookup() instead.
+This should fix 4.9 and 4.4.
 
+-- Steve
+
+>From ed65df63a39a3f6ed04f7258de8b6789e5021c18 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Date: Mon, 18 Oct 2021 15:44:12 -0400
+Subject: [PATCH] tracing: Have all levels of checks prevent recursion
+
+While writing an email explaining the "bit = 0" logic for a discussion on
+making ftrace_test_recursion_trylock() disable preemption, I discovered a
+path that makes the "not do the logic if bit is zero" unsafe.
+
+The recursion logic is done in hot paths like the function tracer. Thus,
+any code executed causes noticeable overhead. Thus, tricks are done to try
+to limit the amount of code executed. This included the recursion testing
+logic.
+
+Having recursion testing is important, as there are many paths that can
+end up in an infinite recursion cycle when tracing every function in the
+kernel. Thus protection is needed to prevent that from happening.
+
+Because it is OK to recurse due to different running context levels (e.g.
+an interrupt preempts a trace, and then a trace occurs in the interrupt
+handler), a set of bits are used to know which context one is in (normal,
+softirq, irq and NMI). If a recursion occurs in the same level, it is
+prevented*.
+
+Then there are infrastructure levels of recursion as well. When more than
+one callback is attached to the same function to trace, it calls a loop
+function to iterate over all the callbacks. Both the callbacks and the
+loop function have recursion protection. The callbacks use the
+"ftrace_test_recursion_trylock()" which has a "function" set of context
+bits to test, and the loop function calls the internal
+trace_test_and_set_recursion() directly, with an "internal" set of bits.
+
+If an architecture does not implement all the features supported by ftrace
+then the callbacks are never called directly, and the loop function is
+called instead, which will implement the features of ftrace.
+
+Since both the loop function and the callbacks do recursion protection, it
+was seemed unnecessary to do it in both locations. Thus, a trick was made
+to have the internal set of recursion bits at a more significant bit
+location than the function bits. Then, if any of the higher bits were set,
+the logic of the function bits could be skipped, as any new recursion
+would first have to go through the loop function.
+
+This is true for architectures that do not support all the ftrace
+features, because all functions being traced must first go through the
+loop function before going to the callbacks. But this is not true for
+architectures that support all the ftrace features. That's because the
+loop function could be called due to two callbacks attached to the same
+function, but then a recursion function inside the callback could be
+called that does not share any other callback, and it will be called
+directly.
+
+i.e.
+
+ traced_function_1: [ more than one callback tracing it ]
+   call loop_func
+
+ loop_func:
+   trace_recursion set internal bit
+   call callback
+
+ callback:
+   trace_recursion [ skipped because internal bit is set, return 0 ]
+   call traced_function_2
+
+ traced_function_2: [ only traced by above callback ]
+   call callback
+
+ callback:
+   trace_recursion [ skipped because internal bit is set, return 0 ]
+   call traced_function_2
+
+ [ wash, rinse, repeat, BOOM! out of shampoo! ]
+
+Thus, the "bit == 0 skip" trick is not safe, unless the loop function is
+call for all functions.
+
+Since we want to encourage architectures to implement all ftrace features,
+having them slow down due to this extra logic may encourage the
+maintainers to update to the latest ftrace features. And because this
+logic is only safe for them, remove it completely.
+
+ [*] There is on layer of recursion that is allowed, and that is to allow
+     for the transition between interrupt context (normal -> softirq ->
+     irq -> NMI), because a trace may occur before the context update is
+     visible to the trace recursion logic.
+
+Link: https://lore.kernel.org/all/609b565a-ed6e-a1da-f025-166691b5d994@linux.alibaba.com/
+Link: https://lkml.kernel.org/r/20211018154412.09fcad3c@gandalf.local.home
+
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Miroslav Benes <mbenes@suse.cz>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Jisheng Zhang <jszhang@kernel.org>
+Cc: =?utf-8?b?546L6LSH?= <yun.wang@linux.alibaba.com>
+Cc: Guo Ren <guoren@kernel.org>
 Cc: stable@vger.kernel.org
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4138
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- drivers/gpu/drm/i915/display/intel_bios.c | 85 +++++++++++++++++------
- 1 file changed, 63 insertions(+), 22 deletions(-)
+Fixes: edc15cafcbfa3 ("tracing: Avoid unnecessary multiple recursion checks")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
-index f9776ca85de3..2b1423a43437 100644
---- a/drivers/gpu/drm/i915/display/intel_bios.c
-+++ b/drivers/gpu/drm/i915/display/intel_bios.c
-@@ -1707,6 +1707,39 @@ static void sanitize_aux_ch(struct intel_bios_encoder_data *devdata,
- 	child->aux_channel = 0;
+Index: linux-test.git/kernel/trace/trace.h
+===================================================================
+--- linux-test.git.orig/kernel/trace/trace.h
++++ linux-test.git/kernel/trace/trace.h
+@@ -446,23 +446,8 @@ struct tracer {
+  *  When function tracing occurs, the following steps are made:
+  *   If arch does not support a ftrace feature:
+  *    call internal function (uses INTERNAL bits) which calls...
+- *   If callback is registered to the "global" list, the list
+- *    function is called and recursion checks the GLOBAL bits.
+- *    then this function calls...
+  *   The function callback, which can use the FTRACE bits to
+  *    check for recursion.
+- *
+- * Now if the arch does not suppport a feature, and it calls
+- * the global list function which calls the ftrace callback
+- * all three of these steps will do a recursion protection.
+- * There's no reason to do one if the previous caller already
+- * did. The recursion that we are protecting against will
+- * go through the same steps again.
+- *
+- * To prevent the multiple recursion checks, if a recursion
+- * bit is set that is higher than the MAX bit of the current
+- * check, then we know that the check was made by the previous
+- * caller, and we can skip the current check.
+  */
+ enum {
+ 	TRACE_BUFFER_BIT,
+@@ -475,12 +460,14 @@ enum {
+ 	TRACE_FTRACE_NMI_BIT,
+ 	TRACE_FTRACE_IRQ_BIT,
+ 	TRACE_FTRACE_SIRQ_BIT,
++	TRACE_FTRACE_TRANSITION_BIT,
+ 
+-	/* INTERNAL_BITs must be greater than FTRACE_BITs */
++	/* Internal use recursion bits */
+ 	TRACE_INTERNAL_BIT,
+ 	TRACE_INTERNAL_NMI_BIT,
+ 	TRACE_INTERNAL_IRQ_BIT,
+ 	TRACE_INTERNAL_SIRQ_BIT,
++	TRACE_INTERNAL_TRANSITION_BIT,
+ 
+ 	TRACE_BRANCH_BIT,
+ /*
+@@ -491,12 +478,6 @@ enum {
+  * can only be modified by current, we can reuse trace_recursion.
+  */
+ 	TRACE_IRQ_BIT,
+-
+-	/*
+-	 * When transitioning between context, the preempt_count() may
+-	 * not be correct. Allow for a single recursion to cover this case.
+-	 */
+-	TRACE_TRANSITION_BIT,
+ };
+ 
+ #define trace_recursion_set(bit)	do { (current)->trace_recursion |= (1<<(bit)); } while (0)
+@@ -506,12 +487,18 @@ enum {
+ #define TRACE_CONTEXT_BITS	4
+ 
+ #define TRACE_FTRACE_START	TRACE_FTRACE_BIT
+-#define TRACE_FTRACE_MAX	((1 << (TRACE_FTRACE_START + TRACE_CONTEXT_BITS)) - 1)
+ 
+ #define TRACE_LIST_START	TRACE_INTERNAL_BIT
+-#define TRACE_LIST_MAX		((1 << (TRACE_LIST_START + TRACE_CONTEXT_BITS)) - 1)
+ 
+-#define TRACE_CONTEXT_MASK	TRACE_LIST_MAX
++#define TRACE_CONTEXT_MASK	((1 << (TRACE_LIST_START + TRACE_CONTEXT_BITS)) - 1)
++
++enum {
++	TRACE_CTX_NMI,
++	TRACE_CTX_IRQ,
++	TRACE_CTX_SOFTIRQ,
++	TRACE_CTX_NORMAL,
++	TRACE_CTX_TRANSITION,
++};
+ 
+ static __always_inline int trace_get_context_bit(void)
+ {
+@@ -519,59 +506,48 @@ static __always_inline int trace_get_con
+ 
+ 	if (in_interrupt()) {
+ 		if (in_nmi())
+-			bit = 0;
++			bit = TRACE_CTX_NMI;
+ 
+ 		else if (in_irq())
+-			bit = 1;
++			bit = TRACE_CTX_IRQ;
+ 		else
+-			bit = 2;
++			bit = TRACE_CTX_SOFTIRQ;
+ 	} else
+-		bit = 3;
++		bit = TRACE_CTX_NORMAL;
+ 
+ 	return bit;
  }
  
-+static u8 dvo_port_type(u8 dvo_port)
-+{
-+	switch (dvo_port) {
-+	case DVO_PORT_HDMIA:
-+	case DVO_PORT_HDMIB:
-+	case DVO_PORT_HDMIC:
-+	case DVO_PORT_HDMID:
-+	case DVO_PORT_HDMIE:
-+	case DVO_PORT_HDMIF:
-+	case DVO_PORT_HDMIG:
-+	case DVO_PORT_HDMIH:
-+	case DVO_PORT_HDMII:
-+		return DVO_PORT_HDMIA;
-+	case DVO_PORT_DPA:
-+	case DVO_PORT_DPB:
-+	case DVO_PORT_DPC:
-+	case DVO_PORT_DPD:
-+	case DVO_PORT_DPE:
-+	case DVO_PORT_DPF:
-+	case DVO_PORT_DPG:
-+	case DVO_PORT_DPH:
-+	case DVO_PORT_DPI:
-+		return DVO_PORT_DPA;
-+	case DVO_PORT_MIPIA:
-+	case DVO_PORT_MIPIB:
-+	case DVO_PORT_MIPIC:
-+	case DVO_PORT_MIPID:
-+		return DVO_PORT_MIPIA;
-+	default:
-+		return dvo_port;
-+	}
-+}
-+
- static enum port __dvo_port_to_port(int n_ports, int n_dvo,
- 				    const int port_mapping[][3], u8 dvo_port)
+-static __always_inline int trace_test_and_set_recursion(int start, int max)
++static __always_inline int trace_test_and_set_recursion(int start)
  {
-@@ -2623,35 +2656,17 @@ bool intel_bios_is_port_edp(struct drm_i915_private *i915, enum port port)
- 	return false;
- }
+ 	unsigned int val = current->trace_recursion;
+ 	int bit;
  
--static bool child_dev_is_dp_dual_mode(const struct child_device_config *child,
--				      enum port port)
-+static bool child_dev_is_dp_dual_mode(const struct child_device_config *child)
- {
--	static const struct {
--		u16 dp, hdmi;
--	} port_mapping[] = {
--		/*
--		 * Buggy VBTs may declare DP ports as having
--		 * HDMI type dvo_port :( So let's check both.
--		 */
--		[PORT_B] = { DVO_PORT_DPB, DVO_PORT_HDMIB, },
--		[PORT_C] = { DVO_PORT_DPC, DVO_PORT_HDMIC, },
--		[PORT_D] = { DVO_PORT_DPD, DVO_PORT_HDMID, },
--		[PORT_E] = { DVO_PORT_DPE, DVO_PORT_HDMIE, },
--		[PORT_F] = { DVO_PORT_DPF, DVO_PORT_HDMIF, },
--	};
+-	/* A previous recursion check was made */
+-	if ((val & TRACE_CONTEXT_MASK) > max)
+-		return 0;
 -
--	if (port == PORT_A || port >= ARRAY_SIZE(port_mapping))
--		return false;
--
- 	if ((child->device_type & DEVICE_TYPE_DP_DUAL_MODE_BITS) !=
- 	    (DEVICE_TYPE_DP_DUAL_MODE & DEVICE_TYPE_DP_DUAL_MODE_BITS))
- 		return false;
- 
--	if (child->dvo_port == port_mapping[port].dp)
-+	if (dvo_port_type(child->dvo_port) == DVO_PORT_DPA)
- 		return true;
- 
- 	/* Only accept a HDMI dvo_port as DP++ if it has an AUX channel */
--	if (child->dvo_port == port_mapping[port].hdmi &&
-+	if (dvo_port_type(child->dvo_port) == DVO_PORT_HDMIA &&
- 	    child->aux_channel != 0)
- 		return true;
- 
-@@ -2661,10 +2676,36 @@ static bool child_dev_is_dp_dual_mode(const struct child_device_config *child,
- bool intel_bios_is_port_dp_dual_mode(struct drm_i915_private *i915,
- 				     enum port port)
- {
-+	static const struct {
-+		u16 dp, hdmi;
-+	} port_mapping[] = {
-+		/*
-+		 * Buggy VBTs may declare DP ports as having
-+		 * HDMI type dvo_port :( So let's check both.
-+		 */
-+		[PORT_B] = { DVO_PORT_DPB, DVO_PORT_HDMIB, },
-+		[PORT_C] = { DVO_PORT_DPC, DVO_PORT_HDMIC, },
-+		[PORT_D] = { DVO_PORT_DPD, DVO_PORT_HDMID, },
-+		[PORT_E] = { DVO_PORT_DPE, DVO_PORT_HDMIE, },
-+		[PORT_F] = { DVO_PORT_DPF, DVO_PORT_HDMIF, },
-+	};
- 	const struct intel_bios_encoder_data *devdata;
- 
-+	if (HAS_DDI(i915)) {
-+		const struct intel_bios_encoder_data *devdata;
-+
-+		devdata = intel_bios_encoder_data_lookup(i915, port);
-+
-+		return devdata && child_dev_is_dp_dual_mode(&devdata->child);
-+	}
-+
-+	if (port == PORT_A || port >= ARRAY_SIZE(port_mapping))
-+		return false;
-+
- 	list_for_each_entry(devdata, &i915->vbt.display_devices, node) {
--		if (child_dev_is_dp_dual_mode(&devdata->child, port))
-+		if ((devdata->child.dvo_port == port_mapping[port].dp ||
-+		     devdata->child.dvo_port == port_mapping[port].hdmi) &&
-+		    child_dev_is_dp_dual_mode(&devdata->child))
- 			return true;
+ 	bit = trace_get_context_bit() + start;
+ 	if (unlikely(val & (1 << bit))) {
+ 		/*
+ 		 * It could be that preempt_count has not been updated during
+ 		 * a switch between contexts. Allow for a single recursion.
+ 		 */
+-		bit = TRACE_TRANSITION_BIT;
++		bit = start + TRACE_CTX_TRANSITION;
+ 		if (trace_recursion_test(bit))
+ 			return -1;
+ 		trace_recursion_set(bit);
+ 		barrier();
+-		return bit + 1;
++		return bit;
  	}
  
--- 
-2.32.0
-
+-	/* Normal check passed, clear the transition to allow it again */
+-	trace_recursion_clear(TRACE_TRANSITION_BIT);
+-
+ 	val |= 1 << bit;
+ 	current->trace_recursion = val;
+ 	barrier();
+ 
+-	return bit + 1;
++	return bit;
+ }
+ 
+ static __always_inline void trace_clear_recursion(int bit)
+ {
+ 	unsigned int val = current->trace_recursion;
+ 
+-	if (!bit)
+-		return;
+-
+-	bit--;
+ 	bit = 1 << bit;
+ 	val &= ~bit;
+ 
+Index: linux-test.git/kernel/trace/ftrace.c
+===================================================================
+--- linux-test.git.orig/kernel/trace/ftrace.c
++++ linux-test.git/kernel/trace/ftrace.c
+@@ -5288,7 +5288,7 @@ __ftrace_ops_list_func(unsigned long ip,
+ 	struct ftrace_ops *op;
+ 	int bit;
+ 
+-	bit = trace_test_and_set_recursion(TRACE_LIST_START, TRACE_LIST_MAX);
++	bit = trace_test_and_set_recursion(TRACE_LIST_START);
+ 	if (bit < 0)
+ 		return;
+ 
+@@ -5363,7 +5363,7 @@ static void ftrace_ops_assist_func(unsig
+ {
+ 	int bit;
+ 
+-	bit = trace_test_and_set_recursion(TRACE_LIST_START, TRACE_LIST_MAX);
++	bit = trace_test_and_set_recursion(TRACE_LIST_START);
+ 	if (bit < 0)
+ 		return;
+ 
+Index: linux-test.git/kernel/trace/trace_functions.c
+===================================================================
+--- linux-test.git.orig/kernel/trace/trace_functions.c
++++ linux-test.git/kernel/trace/trace_functions.c
+@@ -137,7 +137,7 @@ function_trace_call(unsigned long ip, un
+ 	pc = preempt_count();
+ 	preempt_disable_notrace();
+ 
+-	bit = trace_test_and_set_recursion(TRACE_FTRACE_START, TRACE_FTRACE_MAX);
++	bit = trace_test_and_set_recursion(TRACE_FTRACE_START);
+ 	if (bit < 0)
+ 		goto out;
+ 
