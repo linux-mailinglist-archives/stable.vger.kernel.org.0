@@ -2,47 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 497FF43A102
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D55243A2EA
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235903AbhJYTg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:36:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48370 "EHLO mail.kernel.org"
+        id S232361AbhJYTym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:54:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235777AbhJYTc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:32:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4FBF6115A;
-        Mon, 25 Oct 2021 19:28:40 +0000 (UTC)
+        id S237218AbhJYTvA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:51:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C98A66115B;
+        Mon, 25 Oct 2021 19:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190121;
-        bh=iGU5cIuAvJ/uiVvay9MjxSK1rq9mfR2mMKbqmdDwqmY=;
+        s=korg; t=1635190975;
+        bh=x7FdPGNgdlQfZVlHo+wv44F7iyvy7qD7oVU94eQ3Bmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HhSAAwxOVe4Lw40IgP6SKoL3OpYQpENt7GMjmjEkqALSwaFY9ifWE5BLp6KIike5S
-         xtE+p7k1XvE/w7cPIF3r5bIK7v55/UdwpBa4u5gmy3wTcZU3hLl8J0eSr0iuyfTAJX
-         ojd4VHe+o6Mf6vw3OGEI0dTJtC2wykgfnVMs/zzA=
+        b=jFTAu23jz8/nddCLyY0FzIiNdIQKD3umwpYE1CMM6gX6UiRUnRsWYL6FIbAisbDo3
+         8g4Y/YjJtdsRbhaiZrKNRN5kz4AkeCqWY+bLIjK56pd+PtjkS784qXGiyGelMFxUfy
+         bFGFwKUIc1Yg4E/iuO8t/nkCL8BHBJbX6Fw2aqpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Bharata B Rao <bharata@linux.ibm.com>,
-        Christoph Lameter <cl@linux.com>,
-        David Rientjes <rientjes@google.com>,
-        Faiyaz Mohammed <faiyazm@codeaurora.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Pekka Enberg <penberg@kernel.org>,
-        Roman Gushchin <guro@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 39/58] mm, slub: fix mismatch between reconstructed freelist depth and cnt
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 115/169] KVM: x86: remove unnecessary arguments from complete_emulator_pio_in
 Date:   Mon, 25 Oct 2021 21:14:56 +0200
-Message-Id: <20211025190943.894918734@linuxfoundation.org>
+Message-Id: <20211025191032.536826293@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,71 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 899447f669da76cc3605665e1a95ee877bc464cc upstream.
+commit 6b5efc930bbc8c97e4a1fe2ccb9a6f286365a56d upstream.
 
-If object's reuse is delayed, it will be excluded from the reconstructed
-freelist.  But we forgot to adjust the cnt accordingly.  So there will
-be a mismatch between reconstructed freelist depth and cnt.  This will
-lead to free_debug_processing() complaining about freelist count or a
-incorrect slub inuse count.
+complete_emulator_pio_in can expect that vcpu->arch.pio has been filled in,
+and therefore does not need the size and count arguments.  This makes things
+nicer when the function is called directly from a complete_userspace_io
+callback.
 
-Link: https://lkml.kernel.org/r/20210916123920.48704-3-linmiaohe@huawei.com
-Fixes: c3895391df38 ("kasan, slub: fix handling of kasan_slab_free hook")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Bharata B Rao <bharata@linux.ibm.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Faiyaz Mohammed <faiyazm@codeaurora.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+No functional change intended.
+
+Cc: stable@vger.kernel.org
+Fixes: 7ed9abfe8e9f ("KVM: SVM: Support string IO operations for an SEV-ES guest")
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slub.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/x86/kvm/x86.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -1455,7 +1455,8 @@ static __always_inline bool slab_free_ho
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6936,11 +6936,12 @@ static int __emulator_pio_in(struct kvm_
+ 	return emulator_pio_in_out(vcpu, size, port, count, true);
  }
  
- static inline bool slab_free_freelist_hook(struct kmem_cache *s,
--					   void **head, void **tail)
-+					   void **head, void **tail,
-+					   int *cnt)
+-static void complete_emulator_pio_in(struct kvm_vcpu *vcpu, int size,
+-				    unsigned short port, void *val)
++static void complete_emulator_pio_in(struct kvm_vcpu *vcpu, void *val)
  {
+-	memcpy(val, vcpu->arch.pio_data, size * vcpu->arch.pio.count);
+-	trace_kvm_pio(KVM_PIO_IN, port, size, vcpu->arch.pio.count, vcpu->arch.pio_data);
++	int size = vcpu->arch.pio.size;
++	unsigned count = vcpu->arch.pio.count;
++	memcpy(val, vcpu->arch.pio_data, size * count);
++	trace_kvm_pio(KVM_PIO_IN, vcpu->arch.pio.port, size, count, vcpu->arch.pio_data);
+ 	vcpu->arch.pio.count = 0;
+ }
  
- 	void *object;
-@@ -1490,6 +1491,12 @@ static inline bool slab_free_freelist_ho
- 			*head = object;
- 			if (!*tail)
- 				*tail = object;
-+		} else {
-+			/*
-+			 * Adjust the reconstructed freelist depth
-+			 * accordingly if object's reuse is delayed.
-+			 */
-+			--(*cnt);
- 		}
- 	} while (object != old_tail);
+@@ -6958,7 +6959,7 @@ static int emulator_pio_in(struct kvm_vc
+ 	}
  
-@@ -3049,7 +3056,7 @@ static __always_inline void slab_free(st
- 	 * With KASAN enabled slab_free_freelist_hook modifies the freelist
- 	 * to remove objects, whose reuse must be delayed.
- 	 */
--	if (slab_free_freelist_hook(s, &head, &tail))
-+	if (slab_free_freelist_hook(s, &head, &tail, &cnt))
- 		do_slab_free(s, page, head, tail, cnt, addr);
+ 	WARN_ON(count != vcpu->arch.pio.count);
+-	complete_emulator_pio_in(vcpu, size, port, val);
++	complete_emulator_pio_in(vcpu, val);
+ 	return 1;
  }
  
 
