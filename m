@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E19B2439CB5
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 19:03:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FF85439CB9
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 19:03:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234336AbhJYRF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 13:05:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56282 "EHLO mail.kernel.org"
+        id S234917AbhJYRF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 13:05:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234559AbhJYRDd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 13:03:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BEBE6108B;
-        Mon, 25 Oct 2021 17:01:01 +0000 (UTC)
+        id S234130AbhJYRDe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 13:03:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB6DA60F9B;
+        Mon, 25 Oct 2021 17:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635181262;
-        bh=d4GjubSI5FvHm9L9ONnj5WKmwCv3od+nXjxOfix8DNY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ACCc1Cvts8R7Ifl/QwkRfdgvI+xxEoqRhZJjVG8JUmRO0LA89c2cTWIG8c5dKQ/bc
-         n4q8klRbGqisOH4U7CJgcljlaZYcjVl9QDN/WhDRhHQxQkesQPM9DPnTLzIjqRBEA5
-         nmDi2P8o5LunQiGTRxjZEED8syFO5AbjRkALwcJtM392Io8nELJEAPoJDr/vT4eR1s
-         8tMZ9HXy5utzFL/tWaEbRWCc+3s48QRLQkm7z9KZNr4mLu66tBRlyhYZzcItnTVDmm
-         Fq9Iy2OO+p7U/ji3Tb+dXS58yRe0mWaJYfSkX54ciS1O09flo1JG3HdxMv5Nw90fU3
-         kaQLbqZJH2zDg==
+        s=k20201202; t=1635181270;
+        bh=zqr4NZeobS5Azao8C6sJQLXnJpUv8X39ZljwqHQlOBA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=PCabCGZfnjeqYmFqr1si7oaNhhxegSIV689yAaveq0eCZKkVMYvYi2QEt53NGL9UO
+         HfrvOVcqqMv3QAWkRdlBhjtrdDTwvJVM9ZzWxo0g+EwOnfyEOtsklhr9stkYfB7xFM
+         iezIdyBG8ITDDKuwJND0/7cw0lCHzGwEZIibQuw1ZtD7hdWf9yZt/B6aRluE5TznZE
+         6LaXEOkEV4PFEF40C6UkoDyOCUwLr7A6g/5l7d0AvjyMCSyV2Qp2RPUuE1qmrn+sgu
+         ZlWBJ/AJw22KBlqDEh4RZuOf64XhLjE77+qfS5mgNYJCPQ8JFAleEpBv3qfLwjwr2j
+         VIfadrOXUwCyw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Wei Liu <wei.liu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, kys@microsoft.com,
-        haiyangz@microsoft.com, sthemmin@microsoft.com,
-        decui@microsoft.com, linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 9/9] hyperv/vmbus: include linux/bitops.h
-Date:   Mon, 25 Oct 2021 13:00:48 -0400
-Message-Id: <20211025170048.1394542-9-sashal@kernel.org>
+Cc:     Ming Lei <ming.lei@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Changhui Zhong <czhong@redhat.com>,
+        Yi Zhang <yi.zhang@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 1/7] scsi: core: Put LLD module refcnt after SCSI device is released
+Date:   Mon, 25 Oct 2021 13:00:56 -0400
+Message-Id: <20211025170103.1394651-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211025170048.1394542-1-sashal@kernel.org>
-References: <20211025170048.1394542-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,43 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 8017c99680fa65e1e8d999df1583de476a187830 ]
+[ Upstream commit f2b85040acec9a928b4eb1b57a989324e8e38d3f ]
 
-On arm64 randconfig builds, hyperv sometimes fails with this
-error:
+SCSI host release is triggered when SCSI device is freed. We have to make
+sure that the low-level device driver module won't be unloaded before SCSI
+host instance is released because shost->hostt is required in the release
+handler.
 
-In file included from drivers/hv/hv_trace.c:3:
-In file included from drivers/hv/hyperv_vmbus.h:16:
-In file included from arch/arm64/include/asm/sync_bitops.h:5:
-arch/arm64/include/asm/bitops.h:11:2: error: only <linux/bitops.h> can be included directly
-In file included from include/asm-generic/bitops/hweight.h:5:
-include/asm-generic/bitops/arch_hweight.h:9:9: error: implicit declaration of function '__sw_hweight32' [-Werror,-Wimplicit-function-declaration]
-include/asm-generic/bitops/atomic.h:17:7: error: implicit declaration of function 'BIT_WORD' [-Werror,-Wimplicit-function-declaration]
+Make sure to put LLD module refcnt after SCSI device is released.
 
-Include the correct header first.
+Fixes a kernel panic of 'BUG: unable to handle page fault for address'
+reported by Changhui and Yi.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211018131929.2260087-1-arnd@kernel.org
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Link: https://lore.kernel.org/r/20211008050118.1440686-1-ming.lei@redhat.com
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Changhui Zhong <czhong@redhat.com>
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/hyperv_vmbus.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/scsi.c       | 4 +++-
+ drivers/scsi/scsi_sysfs.c | 9 +++++++++
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
-index cabcb66e7c5e..356382a340b2 100644
---- a/drivers/hv/hyperv_vmbus.h
-+++ b/drivers/hv/hyperv_vmbus.h
-@@ -13,6 +13,7 @@
- #define _HYPERV_VMBUS_H
+diff --git a/drivers/scsi/scsi.c b/drivers/scsi/scsi.c
+index fc1356d101b0..febe29a9b8b0 100644
+--- a/drivers/scsi/scsi.c
++++ b/drivers/scsi/scsi.c
+@@ -575,8 +575,10 @@ EXPORT_SYMBOL(scsi_device_get);
+  */
+ void scsi_device_put(struct scsi_device *sdev)
+ {
+-	module_put(sdev->host->hostt->module);
++	struct module *mod = sdev->host->hostt->module;
++
+ 	put_device(&sdev->sdev_gendev);
++	module_put(mod);
+ }
+ EXPORT_SYMBOL(scsi_device_put);
  
- #include <linux/list.h>
-+#include <linux/bitops.h>
- #include <asm/sync_bitops.h>
- #include <asm/hyperv-tlfs.h>
- #include <linux/atomic.h>
+diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+index 186f779fa60c..d4be13892b26 100644
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -431,9 +431,12 @@ static void scsi_device_dev_release_usercontext(struct work_struct *work)
+ 	struct list_head *this, *tmp;
+ 	struct scsi_vpd *vpd_pg80 = NULL, *vpd_pg83 = NULL;
+ 	unsigned long flags;
++	struct module *mod;
+ 
+ 	sdev = container_of(work, struct scsi_device, ew.work);
+ 
++	mod = sdev->host->hostt->module;
++
+ 	scsi_dh_release_device(sdev);
+ 
+ 	parent = sdev->sdev_gendev.parent;
+@@ -474,11 +477,17 @@ static void scsi_device_dev_release_usercontext(struct work_struct *work)
+ 
+ 	if (parent)
+ 		put_device(parent);
++	module_put(mod);
+ }
+ 
+ static void scsi_device_dev_release(struct device *dev)
+ {
+ 	struct scsi_device *sdp = to_scsi_device(dev);
++
++	/* Set module pointer as NULL in case of module unloading */
++	if (!try_module_get(sdp->host->hostt->module))
++		sdp->host->hostt->module = NULL;
++
+ 	execute_in_process_context(scsi_device_dev_release_usercontext,
+ 				   &sdp->ew);
+ }
 -- 
 2.33.0
 
