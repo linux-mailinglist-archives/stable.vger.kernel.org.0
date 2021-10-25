@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A20D843A2A1
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:48:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07D6A43A149
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238066AbhJYTun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:50:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37926 "EHLO mail.kernel.org"
+        id S236229AbhJYTiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:38:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238330AbhJYTsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:48:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF45C610F8;
-        Mon, 25 Oct 2021 19:41:00 +0000 (UTC)
+        id S236709AbhJYTfG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:35:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DF4A60C4B;
+        Mon, 25 Oct 2021 19:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190861;
-        bh=rv2NPfVC2HSHDVBMPz7O055TEb+8/M5TGlQ4Vu98OEk=;
+        s=korg; t=1635190342;
+        bh=cc1GL83gT3Dxfcuqd6jBoPymTs4TLnGIBDuRj5MXjxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tfgVomYRhUq5EUO3iE2eFzEw6iG1fq4tfAWjMSgi9UaUBzULaanr+A+gRAE4RNqV9
-         mFU/b4Tvx8dUQtnhLsI9J+HSXDrZijz/qg5C6McCSMoZ/6TbO8188VdSrdMRAh6K6f
-         GboNjpV7OXXedDFqt509npwBl1WYi4cA+vppP+3k=
+        b=PtqtMYOqp/BQaFpz4Z0YPiblcBafbYyuoTeEgnOExHgB6CjXrPTN3RFjWZVWb5W5F
+         OWoqBjyc0ZTKGva16sAFIF8OXVGEdaFhx61+75x5vOvfpd8cldnR0LlB03bc/Z62qJ
+         vklfvodhNO7w4uIj0mtJNdu4gl+Bd25W3mPKPE2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.14 089/169] ASoC: nau8824: Fix headphone vs headset, button-press detection no longer working
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        ClaudiuManoilclaudiu.manoil@nxp.com
+Subject: [PATCH 5.10 33/95] net: enetc: fix ethtool counter name for PM0_TERR
 Date:   Mon, 25 Oct 2021 21:14:30 +0200
-Message-Id: <20211025191028.473126387@linuxfoundation.org>
+Message-Id: <20211025191001.676347785@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 42871e95a3afea8956d8cc567ea725b33a837775 upstream.
+[ Upstream commit fb8dc5fc8cbdfd62ecd16493848aee2f42ed84d9 ]
 
-Commit 1d25684e2251 ("ASoC: nau8824: Fix open coded prefix handling")
-replaced the nau8824_dapm_enable_pin() helper with direct calls to
-snd_soc_dapm_enable_pin(), but the helper was using
-snd_soc_dapm_force_enable_pin() and not forcing the MICBIAS + SAR
-supplies on breaks headphone vs headset and button-press detection.
+There are two counters named "MAC tx frames", one of them is actually
+incorrect. The correct name for that counter should be "MAC tx error
+frames", which is symmetric to the existing "MAC rx error frames".
 
-Replace the snd_soc_dapm_enable_pin() calls with
-snd_soc_dapm_force_enable_pin() to fix this.
-
-Cc: stable@vger.kernel.org
-Fixes: 1d25684e2251 ("ASoC: nau8824: Fix open coded prefix handling")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210929201512.460360-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 16eb4c85c964 ("enetc: Add ethtool statistics")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: <Claudiu Manoil <claudiu.manoil@nxp.com>
+Link: https://lore.kernel.org/r/20211020165206.1069889-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/nau8824.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/enetc/enetc_ethtool.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/codecs/nau8824.c
-+++ b/sound/soc/codecs/nau8824.c
-@@ -867,8 +867,8 @@ static void nau8824_jdet_work(struct wor
- 	struct regmap *regmap = nau8824->regmap;
- 	int adc_value, event = 0, event_mask = 0;
- 
--	snd_soc_dapm_enable_pin(dapm, "MICBIAS");
--	snd_soc_dapm_enable_pin(dapm, "SAR");
-+	snd_soc_dapm_force_enable_pin(dapm, "MICBIAS");
-+	snd_soc_dapm_force_enable_pin(dapm, "SAR");
- 	snd_soc_dapm_sync(dapm);
- 
- 	msleep(100);
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c b/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c
+index 89e558135432..9c1690f64a02 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_ethtool.c
+@@ -157,7 +157,7 @@ static const struct {
+ 	{ ENETC_PM0_TFRM,   "MAC tx frames" },
+ 	{ ENETC_PM0_TFCS,   "MAC tx fcs errors" },
+ 	{ ENETC_PM0_TVLAN,  "MAC tx VLAN frames" },
+-	{ ENETC_PM0_TERR,   "MAC tx frames" },
++	{ ENETC_PM0_TERR,   "MAC tx frame errors" },
+ 	{ ENETC_PM0_TUCA,   "MAC tx unicast frames" },
+ 	{ ENETC_PM0_TMCA,   "MAC tx multicast frames" },
+ 	{ ENETC_PM0_TBCA,   "MAC tx broadcast frames" },
+-- 
+2.33.0
+
 
 
