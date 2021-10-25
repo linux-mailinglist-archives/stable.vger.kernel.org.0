@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 673CC439546
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 13:52:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43E14439558
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 13:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbhJYLyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 07:54:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41512 "EHLO mail.kernel.org"
+        id S230168AbhJYL4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 07:56:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229704AbhJYLyr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 07:54:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E59D660F46;
-        Mon, 25 Oct 2021 11:52:24 +0000 (UTC)
+        id S231835AbhJYL4j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 07:56:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FD3061027;
+        Mon, 25 Oct 2021 11:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635162744;
-        bh=erij8O9V4iK0XPCjra19lOi8jI0hAW7huw4GIocOO80=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mmrkYYdbW1Jow2nv08jTazOX7hxL1Q2oXGeKM3c9xoRJTYO9hiiJwb8bUpGhCJwOG
-         GSqKfm7AGpABcRHGuVzYDWopnnyMSBhI3cZSkpK/UT3GiuCOMpIPZdUADXyBaq5yuo
-         GPrgnGa7i8gAYzg57GzB7QRogeaYb1W/FO7xdKy7OTk0m9Tf66VCdZHndreHnz7u9H
-         z8gOSwEqQ3brNmeW23uKEgi2VJmXMkg+yReaPMfX+519eLgVB31Gwok2WexGyvV+AK
-         byayhiqpSO9LtO+SaEkistLM5qtp6Q+EYqh6OZJsW9R0ESsomlkWmOGkCmUzHxCifO
-         NYUylBkfR1lYA==
+        s=k20201202; t=1635162857;
+        bh=YDaGvnW29RXV7XM/rAbNb6WCpfjPhf7k8y9aqrr8FiM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=RVsl9hLtMhXwTB5Mw48Oz5jmVRapGBXa4svqWsgHdhLc5qAkqTNPa/rgL8FoDzyPq
+         Hzy03LLoGSJgrZqTavKUSDKMEdZI+p20FjPdncI3N7NGTDcvzpMf8azCwxSxEZ71XX
+         3Qtc4Ibj0XQ8XBifTBXdZllXNLCMzw2Sooe07jMilpDu3tvh58wlDt6s8Xg5ijrcHO
+         95vXeqZzvICffg1vP6gltPzbKJteIbgt1k7FCwMsnzrsZZxh6N3uOE4/voKrE53ipy
+         O6BMe1Tdhdx6aHr7Bhj1tFa7llt9TyUUgY0VAD1TdWTKFqU+AYvd28QMuO5hMihxYl
+         Fq2KfmMtZ3K/g==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1meyWN-0001Io-Rh; Mon, 25 Oct 2021 13:52:07 +0200
+        id 1meyYB-0001Kr-Qz; Mon, 25 Oct 2021 13:53:59 +0200
 From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH 2/2] USB: iowarrior: fix control-message timeouts
-Date:   Mon, 25 Oct 2021 13:51:59 +0200
-Message-Id: <20211025115159.4954-3-johan@kernel.org>
+To:     Dave Airlie <airlied@redhat.com>
+Cc:     Sean Paul <sean@poorly.run>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/udl: fix control-message timeout
+Date:   Mon, 25 Oct 2021 13:53:53 +0200
+Message-Id: <20211025115353.5089-1-johan@kernel.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211025115159.4954-1-johan@kernel.org>
-References: <20211025115159.4954-1-johan@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -46,49 +47,26 @@ X-Mailing-List: stable@vger.kernel.org
 USB control-message timeouts are specified in milliseconds and should
 specifically not vary with CONFIG_HZ.
 
-Use the common control-message timeout define for the five-second
-timeout and drop the driver-specific one.
-
-Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
-Cc: stable@vger.kernel.org      # 2.6.21
+Fixes: 5320918b9a87 ("drm/udl: initial UDL driver (v4)")
+Cc: stable@vger.kernel.org      # 3.4
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/misc/iowarrior.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/udl/udl_connector.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/misc/iowarrior.c b/drivers/usb/misc/iowarrior.c
-index efbd317f2f25..988a8c02e7e2 100644
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -99,10 +99,6 @@ struct iowarrior {
- /*    globals   */
- /*--------------*/
- 
--/*
-- *  USB spec identifies 5 second timeouts.
-- */
--#define GET_TIMEOUT 5
- #define USB_REQ_GET_REPORT  0x01
- //#if 0
- static int usb_get_report(struct usb_device *dev,
-@@ -114,7 +110,7 @@ static int usb_get_report(struct usb_device *dev,
- 			       USB_DIR_IN | USB_TYPE_CLASS |
- 			       USB_RECIP_INTERFACE, (type << 8) + id,
- 			       inter->desc.bInterfaceNumber, buf, size,
--			       GET_TIMEOUT*HZ);
-+			       USB_CTRL_GET_TIMEOUT);
- }
- //#endif
- 
-@@ -129,7 +125,7 @@ static int usb_set_report(struct usb_interface *intf, unsigned char type,
- 			       USB_TYPE_CLASS | USB_RECIP_INTERFACE,
- 			       (type << 8) + id,
- 			       intf->cur_altsetting->desc.bInterfaceNumber, buf,
--			       size, HZ);
-+			       size, 1000);
- }
- 
- /*---------------------*/
+diff --git a/drivers/gpu/drm/udl/udl_connector.c b/drivers/gpu/drm/udl/udl_connector.c
+index 3750fd216131..930574ad2bca 100644
+--- a/drivers/gpu/drm/udl/udl_connector.c
++++ b/drivers/gpu/drm/udl/udl_connector.c
+@@ -30,7 +30,7 @@ static int udl_get_edid_block(void *data, u8 *buf, unsigned int block,
+ 		int bval = (i + block * EDID_LENGTH) << 8;
+ 		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+ 				      0x02, (0x80 | (0x02 << 5)), bval,
+-				      0xA1, read_buff, 2, HZ);
++				      0xA1, read_buff, 2, 1000);
+ 		if (ret < 1) {
+ 			DRM_ERROR("Read EDID byte %d failed err %x\n", i, ret);
+ 			kfree(read_buff);
 -- 
 2.32.0
 
