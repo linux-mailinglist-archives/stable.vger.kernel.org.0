@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E502943A13A
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60CD743A048
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236109AbhJYThw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53596 "EHLO mail.kernel.org"
+        id S235252AbhJYT3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236627AbhJYTfA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:35:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6FA7610FD;
-        Mon, 25 Oct 2021 19:31:44 +0000 (UTC)
+        id S235346AbhJYT2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:28:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A09E61139;
+        Mon, 25 Oct 2021 19:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190305;
-        bh=TD6/T9X43wYxT6EJ6NjhoPf92aJMxzpa2w4AK3IGcK8=;
+        s=korg; t=1635189876;
+        bh=cmk0RP38NN1vE0MQXQVLilmNUQCYQAVw/M+Ouy94bZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ogeS8KsbLhuFDAAGWljb9jsu38vzVRtLkEiKoblxsmIUyBw0vCH66sEBYdOQd9+m6
-         3x1Zza63l5GojQk6Mj3WuIgNskyRy9m7jW8ZTFGxmcT9rPnZT87xN9efB8lNZdtGaR
-         pfucmBtGT4VF1HzpjE4HvTbLSCmXkej7AGozK4kg=
+        b=NKyfND+B2u5OJfi4g6pbDNod+XZbdM+V3ob4P33+Ga1feof/SL8i/JTbTl4tMqE59
+         jTer3rI90Yrj9fsFQo9vEJF1ZpY/aA/vNiD1Rsies3fI2WKBrwVw/uH08ETQmgW4mn
+         jDrdToL7z/QiltPp0DVnGTMAfKN9h1elpLB0Pj8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 42/95] can: j1939: j1939_xtp_rx_rts_session_new(): abort TP less than 9 bytes
+Subject: [PATCH 4.19 14/37] can: peak_pci: peak_pci_remove(): fix UAF
 Date:   Mon, 25 Oct 2021 21:14:39 +0200
-Message-Id: <20211025191002.844934664@linuxfoundation.org>
+Message-Id: <20211025190931.043816831@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit a4fbe70c5cb746441d56b28cf88161d9e0e25378 upstream.
+commit 949fe9b35570361bc6ee2652f89a0561b26eec98 upstream.
 
-The receiver should abort TP if 'total message size' in TP.CM_RTS and
-TP.CM_BAM is less than 9 or greater than 1785 [1], but currently the
-j1939 stack only checks the upper bound and the receiver will accept
-the following broadcast message:
+When remove the module peek_pci, referencing 'chan' again after
+releasing 'dev' will cause UAF.
 
-  vcan1  18ECFF00   [8]  20 08 00 02 FF 00 23 01
-  vcan1  18EBFF00   [8]  01 00 00 00 00 00 00 00
-  vcan1  18EBFF00   [8]  02 00 FF FF FF FF FF FF
+Fix this by releasing 'dev' later.
 
-This patch adds check for the lower bound and abort illegal TP.
+The following log reveals it:
 
-[1] SAE-J1939-82 A.3.4 Row 2 and A.3.6 Row 6.
+[   35.961814 ] BUG: KASAN: use-after-free in peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.963414 ] Read of size 8 at addr ffff888136998ee8 by task modprobe/5537
+[   35.965513 ] Call Trace:
+[   35.965718 ]  dump_stack_lvl+0xa8/0xd1
+[   35.966028 ]  print_address_description+0x87/0x3b0
+[   35.966420 ]  kasan_report+0x172/0x1c0
+[   35.966725 ]  ? peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.967137 ]  ? trace_irq_enable_rcuidle+0x10/0x170
+[   35.967529 ]  ? peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.967945 ]  __asan_report_load8_noabort+0x14/0x20
+[   35.968346 ]  peak_pci_remove+0x16f/0x270 [peak_pci]
+[   35.968752 ]  pci_device_remove+0xa9/0x250
 
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Link: https://lore.kernel.org/all/1634203601-3460-1-git-send-email-zhangchangzhong@huawei.com
+Fixes: e6d9c80b7ca1 ("can: peak_pci: add support of some new PEAK-System PCI cards")
+Link: https://lore.kernel.org/all/1634192913-15639-1-git-send-email-zheyuma97@gmail.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/j1939/j1939-priv.h |    1 +
- net/can/j1939/transport.c  |    2 ++
- 2 files changed, 3 insertions(+)
+ drivers/net/can/sja1000/peak_pci.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/net/can/j1939/j1939-priv.h
-+++ b/net/can/j1939/j1939-priv.h
-@@ -326,6 +326,7 @@ int j1939_session_activate(struct j1939_
- void j1939_tp_schedule_txtimer(struct j1939_session *session, int msec);
- void j1939_session_timers_cancel(struct j1939_session *session);
+--- a/drivers/net/can/sja1000/peak_pci.c
++++ b/drivers/net/can/sja1000/peak_pci.c
+@@ -739,16 +739,15 @@ static void peak_pci_remove(struct pci_d
+ 		struct net_device *prev_dev = chan->prev_dev;
  
-+#define J1939_MIN_TP_PACKET_SIZE 9
- #define J1939_MAX_TP_PACKET_SIZE (7 * 0xff)
- #define J1939_MAX_ETP_PACKET_SIZE (7 * 0x00ffffff)
+ 		dev_info(&pdev->dev, "removing device %s\n", dev->name);
++		/* do that only for first channel */
++		if (!prev_dev && chan->pciec_card)
++			peak_pciec_remove(chan->pciec_card);
+ 		unregister_sja1000dev(dev);
+ 		free_sja1000dev(dev);
+ 		dev = prev_dev;
  
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -1596,6 +1596,8 @@ j1939_session *j1939_xtp_rx_rts_session_
- 			abort = J1939_XTP_ABORT_FAULT;
- 		else if (len > priv->tp_max_packet_size)
- 			abort = J1939_XTP_ABORT_RESOURCE;
-+		else if (len < J1939_MIN_TP_PACKET_SIZE)
-+			abort = J1939_XTP_ABORT_FAULT;
+-		if (!dev) {
+-			/* do that only for first channel */
+-			if (chan->pciec_card)
+-				peak_pciec_remove(chan->pciec_card);
++		if (!dev)
+ 			break;
+-		}
+ 		priv = netdev_priv(dev);
+ 		chan = priv->priv;
  	}
- 
- 	if (abort != J1939_XTP_NO_ABORT) {
 
 
