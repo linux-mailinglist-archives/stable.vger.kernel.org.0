@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A85D9439FB1
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 127C8439FED
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:23:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233543AbhJYTXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:23:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39276 "EHLO mail.kernel.org"
+        id S234676AbhJYTZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:25:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234842AbhJYTWJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:22:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C03C960EBC;
-        Mon, 25 Oct 2021 19:19:45 +0000 (UTC)
+        id S234717AbhJYTXv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:23:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 633726108C;
+        Mon, 25 Oct 2021 19:21:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189586;
-        bh=ZrsSBy57D8kFBiyUQ0yK6wBXOGDqNSH03H8z0Pjfs1g=;
+        s=korg; t=1635189689;
+        bh=uh+onX4lya15jpShJDlMJOjftqDM96kehkwXOaOh+Xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VwWiMbdN971HgmQRoFeQZK9aFUxa21f86IX4uTyWQGD6DajC9NKgufxISChN9wShB
-         rviBMJ+2USZbF+nfqKwTunu0PJIT+5eOLyIoaRRBm6yb2zM/FVekPrFUjcsdINENaC
-         lGhoEbsLaDeXY4IGizmTnrVcjw8lvUZfszEzW+jc=
+        b=GM7JbEJPXp/wYQBYAaeJGgmysnuWtjJvn8XvWuO6dejbMBjU1QQke4wnDHw7052bS
+         +RGV539S7qtonOGIpsX7b7vLp7ChRan+5w4XR0p7XbV+Xqv8Bhd+QKIuUs2WYM2nEq
+         MWusT09TcqxBWA29sjo0M3/+yvvoTK/u4FwsZXL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 40/50] nfc: nci: fix the UAF of rf_conn_info object
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 07/30] NIOS2: irqflags: rename a redefined register name
 Date:   Mon, 25 Oct 2021 21:14:27 +0200
-Message-Id: <20211025190940.041027108@linuxfoundation.org>
+Message-Id: <20211025190924.766630949@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
+References: <20211025190922.089277904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 1b1499a817c90fd1ce9453a2c98d2a01cca0e775 upstream.
+[ Upstream commit 4cce60f15c04d69eff6ffc539ab09137dbe15070 ]
 
-The nci_core_conn_close_rsp_packet() function will release the conn_info
-with given conn_id. However, it needs to set the rf_conn_info to NULL to
-prevent other routines like nci_rf_intf_activated_ntf_packet() to trigger
-the UAF.
+Both arch/nios2/ and drivers/mmc/host/tmio_mmc.c define a macro
+with the name "CTL_STATUS". Change the one in arch/nios2/ to be
+"CTL_FSTATUS" (flags status) to eliminate the build warning.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In file included from ../drivers/mmc/host/tmio_mmc.c:22:
+drivers/mmc/host/tmio_mmc.h:31: warning: "CTL_STATUS" redefined
+   31 | #define CTL_STATUS 0x1c
+arch/nios2/include/asm/registers.h:14: note: this is the location of the previous definition
+   14 | #define CTL_STATUS      0
+
+Fixes: b31ebd8055ea ("nios2: Nios2 registers")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/nci/rsp.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/nios2/include/asm/irqflags.h  | 4 ++--
+ arch/nios2/include/asm/registers.h | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/nfc/nci/rsp.c
-+++ b/net/nfc/nci/rsp.c
-@@ -289,6 +289,8 @@ static void nci_core_conn_close_rsp_pack
- 							 ndev->cur_conn_id);
- 		if (conn_info) {
- 			list_del(&conn_info->list);
-+			if (conn_info == ndev->rf_conn_info)
-+				ndev->rf_conn_info = NULL;
- 			devm_kfree(&ndev->nfc_dev->dev, conn_info);
- 		}
- 	}
+diff --git a/arch/nios2/include/asm/irqflags.h b/arch/nios2/include/asm/irqflags.h
+index 75ab92e639f8..0338fcb88203 100644
+--- a/arch/nios2/include/asm/irqflags.h
++++ b/arch/nios2/include/asm/irqflags.h
+@@ -22,7 +22,7 @@
+ 
+ static inline unsigned long arch_local_save_flags(void)
+ {
+-	return RDCTL(CTL_STATUS);
++	return RDCTL(CTL_FSTATUS);
+ }
+ 
+ /*
+@@ -31,7 +31,7 @@ static inline unsigned long arch_local_save_flags(void)
+  */
+ static inline void arch_local_irq_restore(unsigned long flags)
+ {
+-	WRCTL(CTL_STATUS, flags);
++	WRCTL(CTL_FSTATUS, flags);
+ }
+ 
+ static inline void arch_local_irq_disable(void)
+diff --git a/arch/nios2/include/asm/registers.h b/arch/nios2/include/asm/registers.h
+index 615bce19b546..33824f2ad1ab 100644
+--- a/arch/nios2/include/asm/registers.h
++++ b/arch/nios2/include/asm/registers.h
+@@ -24,7 +24,7 @@
+ #endif
+ 
+ /* control register numbers */
+-#define CTL_STATUS	0
++#define CTL_FSTATUS	0
+ #define CTL_ESTATUS	1
+ #define CTL_BSTATUS	2
+ #define CTL_IENABLE	3
+-- 
+2.33.0
+
 
 
