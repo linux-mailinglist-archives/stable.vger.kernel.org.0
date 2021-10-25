@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0582A43A01F
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C9EF43A2B0
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:49:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234569AbhJYT1w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:27:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42630 "EHLO mail.kernel.org"
+        id S236527AbhJYTvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:51:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234637AbhJYTZS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:25:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69872601FF;
-        Mon, 25 Oct 2021 19:22:32 +0000 (UTC)
+        id S238526AbhJYTtC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:49:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2818861106;
+        Mon, 25 Oct 2021 19:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189753;
-        bh=nHpmElIgjm6PRFonSP4b8cwbFdME/BCl8zsf809HFVM=;
+        s=korg; t=1635190894;
+        bh=4YWK8YQ/UiVM+ddsm64SVdz/ByGf+J5v/Lv4c2utpzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AntoZ/6SZyBbhY2X6T8kBkhnf4c0jO4ovaAaX2BSnrX7PaYvlkJI5la2udXAO6u0z
-         BkJryMHtWjZK4VMGfzgLgtwI30ngG48KpkrNFdioaiiHUvKLAXySg13WoSPOtbWsaW
-         vaSt9xiVpPUT5dFsuq7FZrtgedgjtRKWuXK2gYAA=
+        b=x/OtvoQxrpBXuQyG41Kb5qeL/JeK2z6ouKVEquCcyuniTPY9kYkLpg8i8PIjN5aAp
+         1iTsFdZ/UBbrtDiqN+sfRr7/rvkyGC9uCSjhex+P0/yz+0y2ZcAqPqcgiiE97O7uQP
+         4F58adSw/pKh1PManz4n+oPLY6D5f24jvm/aa0AE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Xiaolong Huang <butterflyhuangxx@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 18/30] isdn: cpai: check ctr->cnr to avoid array index out of bound
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.14 097/169] KVM: PPC: Book3S HV: Fix stack handling in idle_kvm_start_guest()
 Date:   Mon, 25 Oct 2021 21:14:38 +0200
-Message-Id: <20211025190927.359212666@linuxfoundation.org>
+Message-Id: <20211025191030.083326501@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
-References: <20211025190922.089277904@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +38,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolong Huang <butterflyhuangxx@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 1f3e2e97c003f80c4b087092b225c8787ff91e4d upstream.
+commit 9b4416c5095c20e110c82ae602c254099b83b72f upstream.
 
-The cmtp_add_connection() would add a cmtp session to a controller
-and run a kernel thread to process cmtp.
+In commit 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in
+C") kvm_start_guest() became idle_kvm_start_guest(). The old code
+allocated a stack frame on the emergency stack, but didn't use the
+frame to store anything, and also didn't store anything in its caller's
+frame.
 
-	__module_get(THIS_MODULE);
-	session->task = kthread_run(cmtp_session, session, "kcmtpd_ctr_%d",
-								session->num);
+idle_kvm_start_guest() on the other hand is written more like a normal C
+function, it creates a frame on entry, and also stores CR/LR into its
+callers frame (per the ABI). The problem is that there is no caller
+frame on the emergency stack.
 
-During this process, the kernel thread would call detach_capi_ctr()
-to detach a register controller. if the controller
-was not attached yet, detach_capi_ctr() would
-trigger an array-index-out-bounds bug.
+The emergency stack for a given CPU is allocated with:
 
-[   46.866069][ T6479] UBSAN: array-index-out-of-bounds in
-drivers/isdn/capi/kcapi.c:483:21
-[   46.867196][ T6479] index -1 is out of range for type 'capi_ctr *[32]'
-[   46.867982][ T6479] CPU: 1 PID: 6479 Comm: kcmtpd_ctr_0 Not tainted
-5.15.0-rc2+ #8
-[   46.869002][ T6479] Hardware name: QEMU Standard PC (i440FX + PIIX,
-1996), BIOS 1.14.0-2 04/01/2014
-[   46.870107][ T6479] Call Trace:
-[   46.870473][ T6479]  dump_stack_lvl+0x57/0x7d
-[   46.870974][ T6479]  ubsan_epilogue+0x5/0x40
-[   46.871458][ T6479]  __ubsan_handle_out_of_bounds.cold+0x43/0x48
-[   46.872135][ T6479]  detach_capi_ctr+0x64/0xc0
-[   46.872639][ T6479]  cmtp_session+0x5c8/0x5d0
-[   46.873131][ T6479]  ? __init_waitqueue_head+0x60/0x60
-[   46.873712][ T6479]  ? cmtp_add_msgpart+0x120/0x120
-[   46.874256][ T6479]  kthread+0x147/0x170
-[   46.874709][ T6479]  ? set_kthread_struct+0x40/0x40
-[   46.875248][ T6479]  ret_from_fork+0x1f/0x30
-[   46.875773][ T6479]
+  paca_ptrs[i]->emergency_sp = alloc_stack(limit, i) + THREAD_SIZE;
 
-Signed-off-by: Xiaolong Huang <butterflyhuangxx@gmail.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211008065830.305057-1-butterflyhuangxx@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+So emergency_sp actually points to the first address above the emergency
+stack allocation for a given CPU, we must not store above it without
+first decrementing it to create a frame. This is different to the
+regular kernel stack, paca->kstack, which is initialised to point at an
+initial frame that is ready to use.
+
+idle_kvm_start_guest() stores the backchain, CR and LR all of which
+write outside the allocation for the emergency stack. It then creates a
+stack frame and saves the non-volatile registers. Unfortunately the
+frame it creates is not large enough to fit the non-volatiles, and so
+the saving of the non-volatile registers also writes outside the
+emergency stack allocation.
+
+The end result is that we corrupt whatever is at 0-24 bytes, and 112-248
+bytes above the emergency stack allocation.
+
+In practice this has gone unnoticed because the memory immediately above
+the emergency stack happens to be used for other stack allocations,
+either another CPUs mc_emergency_sp or an IRQ stack. See the order of
+calls to irqstack_early_init() and emergency_stack_init().
+
+The low addresses of another stack are the top of that stack, and so are
+only used if that stack is under extreme pressue, which essentially
+never happens in practice - and if it did there's a high likelyhood we'd
+crash due to that stack overflowing.
+
+Still, we shouldn't be corrupting someone else's stack, and it is purely
+luck that we aren't corrupting something else.
+
+To fix it we save CR/LR into the caller's frame using the existing r1 on
+entry, we then create a SWITCH_FRAME_SIZE frame (which has space for
+pt_regs) on the emergency stack with the backchain pointing to the
+existing stack, and then finally we switch to the new frame on the
+emergency stack.
+
+Fixes: 10d91611f426 ("powerpc/64s: Reimplement book3s idle code in C")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211015133929.832061-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/isdn/capi/kcapi.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/powerpc/kvm/book3s_hv_rmhandlers.S |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/isdn/capi/kcapi.c
-+++ b/drivers/isdn/capi/kcapi.c
-@@ -564,6 +564,11 @@ int detach_capi_ctr(struct capi_ctr *ctr
+--- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
++++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+@@ -255,13 +255,15 @@ kvm_novcpu_exit:
+  * r3 contains the SRR1 wakeup value, SRR1 is trashed.
+  */
+ _GLOBAL(idle_kvm_start_guest)
+-	ld	r4,PACAEMERGSP(r13)
+ 	mfcr	r5
+ 	mflr	r0
+-	std	r1,0(r4)
+-	std	r5,8(r4)
+-	std	r0,16(r4)
+-	subi	r1,r4,STACK_FRAME_OVERHEAD
++	std	r5, 8(r1)	// Save CR in caller's frame
++	std	r0, 16(r1)	// Save LR in caller's frame
++	// Create frame on emergency stack
++	ld	r4, PACAEMERGSP(r13)
++	stdu	r1, -SWITCH_FRAME_SIZE(r4)
++	// Switch to new frame on emergency stack
++	mr	r1, r4
+ 	SAVE_NVGPRS(r1)
  
- 	ctr_down(ctr, CAPI_CTR_DETACHED);
- 
-+	if (ctr->cnr < 1 || ctr->cnr - 1 >= CAPI_MAXCONTR) {
-+		err = -EINVAL;
-+		goto unlock_out;
-+	}
-+
- 	if (capi_controller[ctr->cnr - 1] != ctr) {
- 		err = -EINVAL;
- 		goto unlock_out;
+ 	/*
+@@ -395,10 +397,9 @@ kvm_no_guest:
+ 	/* set up r3 for return */
+ 	mfspr	r3,SPRN_SRR1
+ 	REST_NVGPRS(r1)
+-	addi	r1, r1, STACK_FRAME_OVERHEAD
+-	ld	r0, 16(r1)
+-	ld	r5, 8(r1)
+-	ld	r1, 0(r1)
++	ld	r1, 0(r1)	// Switch back to caller stack
++	ld	r0, 16(r1)	// Reload LR
++	ld	r5, 8(r1)	// Reload CR
+ 	mtlr	r0
+ 	mtcr	r5
+ 	blr
 
 
