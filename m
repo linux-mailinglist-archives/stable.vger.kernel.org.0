@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 949A243A04C
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C89A643A094
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235839AbhJYT3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:29:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42394 "EHLO mail.kernel.org"
+        id S235523AbhJYTcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:32:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231442AbhJYT1A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:27:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9ADB06112D;
-        Mon, 25 Oct 2021 19:23:46 +0000 (UTC)
+        id S235369AbhJYT3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:29:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D78C6610C7;
+        Mon, 25 Oct 2021 19:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189828;
-        bh=0wFitQqf99HsEpCzMQH91BM2topCFOK6sfiIcLLqbFI=;
+        s=korg; t=1635190008;
+        bh=TD6/T9X43wYxT6EJ6NjhoPf92aJMxzpa2w4AK3IGcK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fD2uAeEuP5azRCFueOPKBszJvi6Q7GkhNEo1JYZnwupL4L7d9YcerYRaFwTTPhwwc
-         iUxE8nLGfs291eMVKu6QOjfsTIwQ9Vc29UX+V4hL5EUeMNkyLeVtDJg1AMdCDOl5QL
-         rIkahGr/VBxyR1+M+URmT9/0ah0/kbTmZCVRQjV8=
+        b=15hhqTc7+dTGrRKYpbBYWOYcKJeXj4MOSNKyL7Lw/WAR6+XHJx8DHQFLHjPbpN47Y
+         WSARUIfMaVRsvZs7E8G8N+7Pi48KPwuhEpsWTVHTOFdr7LDOqmfwYNbKubuI60L6pa
+         UCFvBsBxYmwMYWxdby0PR6eSUeG9+8GkXi32qop0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Barret Rhoden <brho@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 17/37] elfcore: correct reference to CONFIG_UML
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 25/58] can: j1939: j1939_xtp_rx_rts_session_new(): abort TP less than 9 bytes
 Date:   Mon, 25 Oct 2021 21:14:42 +0200
-Message-Id: <20211025190931.764531467@linuxfoundation.org>
+Message-Id: <20211025190941.650975292@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
-References: <20211025190926.680827862@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit b0e901280d9860a0a35055f220e8e457f300f40a upstream.
+commit a4fbe70c5cb746441d56b28cf88161d9e0e25378 upstream.
 
-Commit 6e7b64b9dd6d ("elfcore: fix building with clang") introduces
-special handling for two architectures, ia64 and User Mode Linux.
-However, the wrong name, i.e., CONFIG_UM, for the intended Kconfig
-symbol for User-Mode Linux was used.
+The receiver should abort TP if 'total message size' in TP.CM_RTS and
+TP.CM_BAM is less than 9 or greater than 1785 [1], but currently the
+j1939 stack only checks the upper bound and the receiver will accept
+the following broadcast message:
 
-Although the directory for User Mode Linux is ./arch/um; the Kconfig
-symbol for this architecture is called CONFIG_UML.
+  vcan1  18ECFF00   [8]  20 08 00 02 FF 00 23 01
+  vcan1  18EBFF00   [8]  01 00 00 00 00 00 00 00
+  vcan1  18EBFF00   [8]  02 00 FF FF FF FF FF FF
 
-Luckily, ./scripts/checkkconfigsymbols.py warns on non-existing configs:
+This patch adds check for the lower bound and abort illegal TP.
 
-  UM
-  Referencing files: include/linux/elfcore.h
-  Similar symbols: UML, NUMA
+[1] SAE-J1939-82 A.3.4 Row 2 and A.3.6 Row 6.
 
-Correct the name of the config to the intended one.
-
-[akpm@linux-foundation.org: fix um/x86_64, per Catalin]
-  Link: https://lkml.kernel.org/r/20211006181119.2851441-1-catalin.marinas@arm.com
-  Link: https://lkml.kernel.org/r/YV6pejGzLy5ppEpt@arm.com
-
-Link: https://lkml.kernel.org/r/20211006082209.417-1-lukas.bulwahn@gmail.com
-Fixes: 6e7b64b9dd6d ("elfcore: fix building with clang")
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Barret Rhoden <brho@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Link: https://lore.kernel.org/all/1634203601-3460-1-git-send-email-zhangchangzhong@huawei.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/elfcore.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/j1939/j1939-priv.h |    1 +
+ net/can/j1939/transport.c  |    2 ++
+ 2 files changed, 3 insertions(+)
 
---- a/include/linux/elfcore.h
-+++ b/include/linux/elfcore.h
-@@ -58,7 +58,7 @@ static inline int elf_core_copy_task_xfp
- }
- #endif
+--- a/net/can/j1939/j1939-priv.h
++++ b/net/can/j1939/j1939-priv.h
+@@ -326,6 +326,7 @@ int j1939_session_activate(struct j1939_
+ void j1939_tp_schedule_txtimer(struct j1939_session *session, int msec);
+ void j1939_session_timers_cancel(struct j1939_session *session);
  
--#if defined(CONFIG_UM) || defined(CONFIG_IA64)
-+#if (defined(CONFIG_UML) && defined(CONFIG_X86_32)) || defined(CONFIG_IA64)
- /*
-  * These functions parameterize elf_core_dump in fs/binfmt_elf.c to write out
-  * extra segments containing the gate DSO contents.  Dumping its
++#define J1939_MIN_TP_PACKET_SIZE 9
+ #define J1939_MAX_TP_PACKET_SIZE (7 * 0xff)
+ #define J1939_MAX_ETP_PACKET_SIZE (7 * 0x00ffffff)
+ 
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -1596,6 +1596,8 @@ j1939_session *j1939_xtp_rx_rts_session_
+ 			abort = J1939_XTP_ABORT_FAULT;
+ 		else if (len > priv->tp_max_packet_size)
+ 			abort = J1939_XTP_ABORT_RESOURCE;
++		else if (len < J1939_MIN_TP_PACKET_SIZE)
++			abort = J1939_XTP_ABORT_FAULT;
+ 	}
+ 
+ 	if (abort != J1939_XTP_NO_ABORT) {
 
 
