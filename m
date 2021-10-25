@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 963D6439FA1
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:20:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAD0D43A29D
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234135AbhJYTWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:22:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38608 "EHLO mail.kernel.org"
+        id S233772AbhJYTud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:50:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234505AbhJYTVZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:21:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C742601FF;
-        Mon, 25 Oct 2021 19:19:02 +0000 (UTC)
+        id S237459AbhJYTrY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:47:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B1ED611CB;
+        Mon, 25 Oct 2021 19:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189543;
-        bh=yv4RZWeAP8xaERlvArIBsNSnH4pyc2GV012z6VHt/4s=;
+        s=korg; t=1635190821;
+        bh=Z7a3wzQB/hssMjpN8UOeL/XqmTnt9B6oAdAifSdnf+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5CVPLFyQZmVORoyEP1gRv21kZpURGxYnIePuPboG9wkequYi8XkqMBYGLM+W55OH
-         3ovmiv8y2sKFos5lNimc6ZR7s1qNnMsGNzNIbc6+AlmTM4klH5AP7onFPUwKv5sGO1
-         Vt7mm211AeXf+uvddD/23UNdy6y7NK7fJ6q1F3KU=
+        b=zYP5ndwUVxblvUjziBT87S3bWEF/FXIUUTmj5f5AVy9xWMD+e4vHXZUfXxBZSKcgd
+         C4PLKgcBWjJt1undV0tD0S88S2rEcQzGRmPSOk2qzBigMLCcN0fahjn8niV8IYjINV
+         1WMzRNFCabYlXE8dIuVh7kIX+XZTJhIn9B6y9H/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 15/50] net: arc: select CRC32
+        stable@vger.kernel.org,
+        Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 061/169] drm/kmb: Corrected typo in handle_lcd_irq
 Date:   Mon, 25 Oct 2021 21:14:02 +0200
-Message-Id: <20211025190935.891157942@linuxfoundation.org>
+Message-Id: <20211025191025.220333170@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+From: Anitha Chrisanthus <anitha.chrisanthus@intel.com>
 
-commit e599ee234ad4fdfe241d937bbabd96e0d8f9d868 upstream.
+[ Upstream commit 004d2719806fb8e355c1bccd538e82c04319d391 ]
 
-Fix the following build/link error by adding a dependency on the CRC32
-routines:
+Check for Overflow bits for layer3 in the irq handler.
 
-  ld: drivers/net/ethernet/arc/emac_main.o: in function `arc_emac_set_rx_mode':
-  emac_main.c:(.text+0xb11): undefined reference to `crc32_le'
-
-The crc32_le() call comes through the ether_crc_le() call in
-arc_emac_set_rx_mode().
-
-[v2: moved the select to ARC_EMAC_CORE; the Makefile is a bit confusing,
-but the error comes from emac_main.o, which is part of the arc_emac module,
-which in turn is enabled by CONFIG_ARC_EMAC_CORE. Note that arc_emac is
-different from emac_arc...]
-
-Fixes: 775dd682e2b0ec ("arc_emac: implement promiscuous mode and multicast filtering")
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Link: https://lore.kernel.org/r/20211012093446.1575-1-vegard.nossum@oracle.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7f7b96a8a0a1 ("drm/kmb: Add support for KeemBay Display")
+Signed-off-by: Anitha Chrisanthus <anitha.chrisanthus@intel.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211013233632.471892-5-anitha.chrisanthus@intel.com
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/arc/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/kmb/kmb_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/arc/Kconfig
-+++ b/drivers/net/ethernet/arc/Kconfig
-@@ -19,6 +19,7 @@ config ARC_EMAC_CORE
- 	tristate
- 	select MII
- 	select PHYLIB
-+	select CRC32
- 
- config ARC_EMAC
- 	tristate "ARC EMAC support"
+diff --git a/drivers/gpu/drm/kmb/kmb_drv.c b/drivers/gpu/drm/kmb/kmb_drv.c
+index f54392ec4fab..bb7eca9e13ae 100644
+--- a/drivers/gpu/drm/kmb/kmb_drv.c
++++ b/drivers/gpu/drm/kmb/kmb_drv.c
+@@ -381,7 +381,7 @@ static irqreturn_t handle_lcd_irq(struct drm_device *dev)
+ 		if (val & LAYER3_DMA_FIFO_UNDERFLOW)
+ 			drm_dbg(&kmb->drm,
+ 				"LAYER3:GL1 DMA UNDERFLOW val = 0x%lx", val);
+-		if (val & LAYER3_DMA_FIFO_UNDERFLOW)
++		if (val & LAYER3_DMA_FIFO_OVERFLOW)
+ 			drm_dbg(&kmb->drm,
+ 				"LAYER3:GL1 DMA OVERFLOW val = 0x%lx", val);
+ 	}
+-- 
+2.33.0
+
 
 
