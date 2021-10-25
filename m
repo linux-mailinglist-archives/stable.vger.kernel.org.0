@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC695439FE1
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:23:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50CB943A003
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:24:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235234AbhJYTZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:25:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
+        id S235032AbhJYT0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:26:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234145AbhJYTWX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:22:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF185610FC;
-        Mon, 25 Oct 2021 19:20:00 +0000 (UTC)
+        id S234992AbhJYTYr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:24:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 088126113E;
+        Mon, 25 Oct 2021 19:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189601;
-        bh=1hDDKPFMJeNG8aC4u1Bz+JJb9z8HGt06R9e7A0KG3hM=;
+        s=korg; t=1635189726;
+        bh=odDtNmFM160GU3N+1syaFfjSYp9Ik2a02nflTDqdKXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJOAJCzRhZ5ddof1czv3upu2oR5npae353iKM2zsntTbQPd6lFnlz2K6RpehNZEAh
-         R5aQsGLInyRoDyjla7O4u9p9DL26uvLDJZO4WbkNHsfQjYmSy2stSk1Itbqv5ykkfJ
-         maz+5CpTE1KVbzqfHvjs2nYdrZvm02CZ2GhzAwtY=
+        b=Unj6AVmnr1MDjPSL8STw6yvoxVMeVjS+R/8Bf0L9v5JjsWLDHZFL1ofMP8dLaJ+eK
+         dfdhDT6/d6KR6n5c4gdGXafoVU+9M90ivqNmx6LcztVMHtZbe7SkGyUBnUC0VKuZmc
+         8qjkzlhikxt20657wehEi+JSIqGAvEFOEMlquiK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 44/50] isdn: mISDN: Fix sleeping function called from invalid context
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Gang He <ghe@suse.com>, Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>,
+        Jun Piao <piaojun@huawei.com>,
+        "Markov, Andrey" <Markov.Andrey@Dell.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 11/30] ocfs2: fix data corruption after conversion from inline format
 Date:   Mon, 25 Oct 2021 21:14:31 +0200
-Message-Id: <20211025190940.711805032@linuxfoundation.org>
+Message-Id: <20211025190925.651873574@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
+References: <20211025190922.089277904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +47,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 6510e80a0b81b5d814e3aea6297ba42f5e76f73c ]
+commit 5314454ea3ff6fc746eaf71b9a7ceebed52888fa upstream.
 
-The driver can call card->isac.release() function from an atomic
-context.
+Commit 6dbf7bb55598 ("fs: Don't invalidate page buffers in
+block_write_full_page()") uncovered a latent bug in ocfs2 conversion
+from inline inode format to a normal inode format.
 
-Fix this by calling this function after releasing the lock.
+The code in ocfs2_convert_inline_data_to_extents() attempts to zero out
+the whole cluster allocated for file data by grabbing, zeroing, and
+dirtying all pages covering this cluster.  However these pages are
+beyond i_size, thus writeback code generally ignores these dirty pages
+and no blocks were ever actually zeroed on the disk.
 
-The following log reveals it:
+This oversight was fixed by commit 693c241a5f6a ("ocfs2: No need to zero
+pages past i_size.") for standard ocfs2 write path, inline conversion
+path was apparently forgotten; the commit log also has a reasoning why
+the zeroing actually is not needed.
 
-[   44.168226 ] BUG: sleeping function called from invalid context at kernel/workqueue.c:3018
-[   44.168941 ] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 5475, name: modprobe
-[   44.169574 ] INFO: lockdep is turned off.
-[   44.169899 ] irq event stamp: 0
-[   44.170160 ] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-[   44.170627 ] hardirqs last disabled at (0): [<ffffffff814209ed>] copy_process+0x132d/0x3e00
-[   44.171240 ] softirqs last  enabled at (0): [<ffffffff81420a1a>] copy_process+0x135a/0x3e00
-[   44.171852 ] softirqs last disabled at (0): [<0000000000000000>] 0x0
-[   44.172318 ] Preemption disabled at:
-[   44.172320 ] [<ffffffffa009b0a9>] nj_release+0x69/0x500 [netjet]
-[   44.174441 ] Call Trace:
-[   44.174630 ]  dump_stack_lvl+0xa8/0xd1
-[   44.174912 ]  dump_stack+0x15/0x17
-[   44.175166 ]  ___might_sleep+0x3a2/0x510
-[   44.175459 ]  ? nj_release+0x69/0x500 [netjet]
-[   44.175791 ]  __might_sleep+0x82/0xe0
-[   44.176063 ]  ? start_flush_work+0x20/0x7b0
-[   44.176375 ]  start_flush_work+0x33/0x7b0
-[   44.176672 ]  ? trace_irq_enable_rcuidle+0x85/0x170
-[   44.177034 ]  ? kasan_quarantine_put+0xaa/0x1f0
-[   44.177372 ]  ? kasan_quarantine_put+0xaa/0x1f0
-[   44.177711 ]  __flush_work+0x11a/0x1a0
-[   44.177991 ]  ? flush_work+0x20/0x20
-[   44.178257 ]  ? lock_release+0x13c/0x8f0
-[   44.178550 ]  ? __kasan_check_write+0x14/0x20
-[   44.178872 ]  ? do_raw_spin_lock+0x148/0x360
-[   44.179187 ]  ? read_lock_is_recursive+0x20/0x20
-[   44.179530 ]  ? __kasan_check_read+0x11/0x20
-[   44.179846 ]  ? do_raw_spin_unlock+0x55/0x900
-[   44.180168 ]  ? ____kasan_slab_free+0x116/0x140
-[   44.180505 ]  ? _raw_spin_unlock_irqrestore+0x41/0x60
-[   44.180878 ]  ? skb_queue_purge+0x1a3/0x1c0
-[   44.181189 ]  ? kfree+0x13e/0x290
-[   44.181438 ]  flush_work+0x17/0x20
-[   44.181695 ]  mISDN_freedchannel+0xe8/0x100
-[   44.182006 ]  isac_release+0x210/0x260 [mISDNipac]
-[   44.182366 ]  nj_release+0xf6/0x500 [netjet]
-[   44.182685 ]  nj_remove+0x48/0x70 [netjet]
-[   44.182989 ]  pci_device_remove+0xa9/0x250
+After commit 6dbf7bb55598, things became worse as writeback code stopped
+invalidating buffers on pages beyond i_size and thus these pages end up
+with clean PageDirty bit but with buffers attached to these pages being
+still dirty.  So when a file is converted from inline format, then
+writeback triggers, and then the file is grown so that these pages
+become valid, the invalid dirtiness state is preserved,
+mark_buffer_dirty() does nothing on these pages (buffers are already
+dirty) but page is never written back because it is clean.  So data
+written to these pages is lost once pages are reclaimed.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Simple reproducer for the problem is:
+
+  xfs_io -f -c "pwrite 0 2000" -c "pwrite 2000 2000" -c "fsync" \
+    -c "pwrite 4000 2000" ocfs2_file
+
+After unmounting and mounting the fs again, you can observe that end of
+'ocfs2_file' has lost its contents.
+
+Fix the problem by not doing the pointless zeroing during conversion
+from inline format similarly as in the standard write path.
+
+[akpm@linux-foundation.org: fix whitespace, per Joseph]
+
+Link: https://lkml.kernel.org/r/20210930095405.21433-1-jack@suse.cz
+Fixes: 6dbf7bb55598 ("fs: Don't invalidate page buffers in block_write_full_page()")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Tested-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Acked-by: Gang He <ghe@suse.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: "Markov, Andrey" <Markov.Andrey@Dell.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/isdn/hardware/mISDN/netjet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/alloc.c |   46 ++++++++++++----------------------------------
+ 1 file changed, 12 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/netjet.c b/drivers/isdn/hardware/mISDN/netjet.c
-index 6dea4c180c49..feada9d7cbcc 100644
---- a/drivers/isdn/hardware/mISDN/netjet.c
-+++ b/drivers/isdn/hardware/mISDN/netjet.c
-@@ -963,8 +963,8 @@ nj_release(struct tiger_hw *card)
- 		nj_disable_hwirq(card);
- 		mode_tiger(&card->bc[0], ISDN_P_NONE);
- 		mode_tiger(&card->bc[1], ISDN_P_NONE);
--		card->isac.release(&card->isac);
- 		spin_unlock_irqrestore(&card->lock, flags);
-+		card->isac.release(&card->isac);
- 		release_region(card->base, card->base_s);
- 		card->base_s = 0;
+--- a/fs/ocfs2/alloc.c
++++ b/fs/ocfs2/alloc.c
+@@ -6885,7 +6885,7 @@ void ocfs2_set_inode_data_inline(struct
+ int ocfs2_convert_inline_data_to_extents(struct inode *inode,
+ 					 struct buffer_head *di_bh)
+ {
+-	int ret, i, has_data, num_pages = 0;
++	int ret, has_data, num_pages = 0;
+ 	int need_free = 0;
+ 	u32 bit_off, num;
+ 	handle_t *handle;
+@@ -6894,26 +6894,17 @@ int ocfs2_convert_inline_data_to_extents
+ 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
+ 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
+ 	struct ocfs2_alloc_context *data_ac = NULL;
+-	struct page **pages = NULL;
+-	loff_t end = osb->s_clustersize;
++	struct page *page = NULL;
+ 	struct ocfs2_extent_tree et;
+ 	int did_quota = 0;
+ 
+ 	has_data = i_size_read(inode) ? 1 : 0;
+ 
+ 	if (has_data) {
+-		pages = kcalloc(ocfs2_pages_per_cluster(osb->sb),
+-				sizeof(struct page *), GFP_NOFS);
+-		if (pages == NULL) {
+-			ret = -ENOMEM;
+-			mlog_errno(ret);
+-			return ret;
+-		}
+-
+ 		ret = ocfs2_reserve_clusters(osb, 1, &data_ac);
+ 		if (ret) {
+ 			mlog_errno(ret);
+-			goto free_pages;
++			goto out;
+ 		}
  	}
--- 
-2.33.0
-
+ 
+@@ -6933,7 +6924,8 @@ int ocfs2_convert_inline_data_to_extents
+ 	}
+ 
+ 	if (has_data) {
+-		unsigned int page_end;
++		unsigned int page_end = min_t(unsigned, PAGE_SIZE,
++							osb->s_clustersize);
+ 		u64 phys;
+ 
+ 		ret = dquot_alloc_space_nodirty(inode,
+@@ -6957,15 +6949,8 @@ int ocfs2_convert_inline_data_to_extents
+ 		 */
+ 		block = phys = ocfs2_clusters_to_blocks(inode->i_sb, bit_off);
+ 
+-		/*
+-		 * Non sparse file systems zero on extend, so no need
+-		 * to do that now.
+-		 */
+-		if (!ocfs2_sparse_alloc(osb) &&
+-		    PAGE_SIZE < osb->s_clustersize)
+-			end = PAGE_SIZE;
+-
+-		ret = ocfs2_grab_eof_pages(inode, 0, end, pages, &num_pages);
++		ret = ocfs2_grab_eof_pages(inode, 0, page_end, &page,
++					   &num_pages);
+ 		if (ret) {
+ 			mlog_errno(ret);
+ 			need_free = 1;
+@@ -6976,20 +6961,15 @@ int ocfs2_convert_inline_data_to_extents
+ 		 * This should populate the 1st page for us and mark
+ 		 * it up to date.
+ 		 */
+-		ret = ocfs2_read_inline_data(inode, pages[0], di_bh);
++		ret = ocfs2_read_inline_data(inode, page, di_bh);
+ 		if (ret) {
+ 			mlog_errno(ret);
+ 			need_free = 1;
+ 			goto out_unlock;
+ 		}
+ 
+-		page_end = PAGE_SIZE;
+-		if (PAGE_SIZE > osb->s_clustersize)
+-			page_end = osb->s_clustersize;
+-
+-		for (i = 0; i < num_pages; i++)
+-			ocfs2_map_and_dirty_page(inode, handle, 0, page_end,
+-						 pages[i], i > 0, &phys);
++		ocfs2_map_and_dirty_page(inode, handle, 0, page_end, page, 0,
++					 &phys);
+ 	}
+ 
+ 	spin_lock(&oi->ip_lock);
+@@ -7020,8 +7000,8 @@ int ocfs2_convert_inline_data_to_extents
+ 	}
+ 
+ out_unlock:
+-	if (pages)
+-		ocfs2_unlock_and_free_pages(pages, num_pages);
++	if (page)
++		ocfs2_unlock_and_free_pages(&page, num_pages);
+ 
+ out_commit:
+ 	if (ret < 0 && did_quota)
+@@ -7045,8 +7025,6 @@ out_commit:
+ out:
+ 	if (data_ac)
+ 		ocfs2_free_alloc_context(data_ac);
+-free_pages:
+-	kfree(pages);
+ 	return ret;
+ }
+ 
 
 
