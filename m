@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB9B743A37B
+	by mail.lfdr.de (Postfix) with ESMTP id 1A8CD43A379
 	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236694AbhJYT7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:59:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45828 "EHLO mail.kernel.org"
+        id S237540AbhJYT7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:59:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239739AbhJYT5m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:57:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BF89610A1;
-        Mon, 25 Oct 2021 19:47:18 +0000 (UTC)
+        id S239590AbhJYT5R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:57:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 680A8604E9;
+        Mon, 25 Oct 2021 19:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635191240;
-        bh=97ZUhmMDrGdkMHGVQHTdkRq5N+3J492gzu4FCUCq5EQ=;
+        s=korg; t=1635191226;
+        bh=poHfKEKcaa3Wq/cUYUnu3W1u8sNh7rD55zd37I8iG9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LrA5sJv1a6zuucSNb0SnEWOfokdG85fGz1PryIY9NeZrC7eQn6fUX04q5vlainJIg
-         xERYueVizL1YnzbDiT0zlGxhtchQfnb/ZdKb+crOmE7g7oglo786GDunIIh8U9N3bb
-         c1sP3GLtmhnoC8VGJO5odcmfgR3dc/w5wDbF39Sc=
+        b=ltNylPYTJCMMGKC0o+VL0ia06G9ODFlwFUdsmyzB6p4gTc8wV2n8NvsKrr+o7erTN
+         i2PfqyHI8TDNISniCEjqYfgec6QV2lz9hMwtUqBxjAzcJK0FBwTsF40G2KxURh6iQY
+         KMIOzMWevPuI9cVUGB8gFl6d30u3b8L7bDFuWUuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com,
-        Yanfei Xu <yanfei.xu@windriver.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 166/169] net: mdiobus: Fix memory leak in __mdiobus_register
-Date:   Mon, 25 Oct 2021 21:15:47 +0200
-Message-Id: <20211025191038.493053796@linuxfoundation.org>
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Mark Pearson <markpearson@lenovo.com>,
+        Nechama Kraus <nechamax.kraus@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 167/169] e1000e: Separate TGP board type from SPT
+Date:   Mon, 25 Oct 2021 21:15:48 +0200
+Message-Id: <20211025191038.642305524@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -42,89 +45,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanfei Xu <yanfei.xu@windriver.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-commit ab609f25d19858513919369ff3d9a63c02cd9e2e upstream.
+[ Upstream commit 280db5d420090a24e4e41f9ddcbf37920a598572 ]
 
-Once device_register() failed, we should call put_device() to
-decrement reference count for cleanup. Or it will cause memory
-leak.
+We have the same LAN controller on different PCHs. Separate TGP board
+type from SPT which will allow for specific fixes to be applied for
+TGP platforms.
 
-BUG: memory leak
-unreferenced object 0xffff888114032e00 (size 256):
-  comm "kworker/1:3", pid 2960, jiffies 4294943572 (age 15.920s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 08 2e 03 14 81 88 ff ff  ................
-    08 2e 03 14 81 88 ff ff 90 76 65 82 ff ff ff ff  .........ve.....
-  backtrace:
-    [<ffffffff8265cfab>] kmalloc include/linux/slab.h:591 [inline]
-    [<ffffffff8265cfab>] kzalloc include/linux/slab.h:721 [inline]
-    [<ffffffff8265cfab>] device_private_init drivers/base/core.c:3203 [inline]
-    [<ffffffff8265cfab>] device_add+0x89b/0xdf0 drivers/base/core.c:3253
-    [<ffffffff828dd643>] __mdiobus_register+0xc3/0x450 drivers/net/phy/mdio_bus.c:537
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
-    [<ffffffff82660916>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
-    [<ffffffff8265cd0b>] device_add+0x5fb/0xdf0 drivers/base/core.c:3359
-    [<ffffffff82c343b9>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2170
-    [<ffffffff82c4473c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
-
-BUG: memory leak
-unreferenced object 0xffff888116f06900 (size 32):
-  comm "kworker/0:2", pid 2670, jiffies 4294944448 (age 7.160s)
-  hex dump (first 32 bytes):
-    75 73 62 2d 30 30 31 3a 30 30 33 00 00 00 00 00  usb-001:003.....
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff81484516>] kstrdup+0x36/0x70 mm/util.c:60
-    [<ffffffff814845a3>] kstrdup_const+0x53/0x80 mm/util.c:83
-    [<ffffffff82296ba2>] kvasprintf_const+0xc2/0x110 lib/kasprintf.c:48
-    [<ffffffff82358d4b>] kobject_set_name_vargs+0x3b/0xe0 lib/kobject.c:289
-    [<ffffffff826575f3>] dev_set_name+0x63/0x90 drivers/base/core.c:3147
-    [<ffffffff828dd63b>] __mdiobus_register+0xbb/0x450 drivers/net/phy/mdio_bus.c:535
-    [<ffffffff828cb835>] __devm_mdiobus_register+0x75/0xf0 drivers/net/phy/mdio_devres.c:87
-    [<ffffffff82b92a00>] ax88772_init_mdio drivers/net/usb/asix_devices.c:676 [inline]
-    [<ffffffff82b92a00>] ax88772_bind+0x330/0x480 drivers/net/usb/asix_devices.c:786
-    [<ffffffff82baa33f>] usbnet_probe+0x3ff/0xdf0 drivers/net/usb/usbnet.c:1745
-    [<ffffffff82c36e17>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82661d17>] call_driver_probe drivers/base/dd.c:517 [inline]
-    [<ffffffff82661d17>] really_probe.part.0+0xe7/0x380 drivers/base/dd.c:596
-    [<ffffffff826620bc>] really_probe drivers/base/dd.c:558 [inline]
-    [<ffffffff826620bc>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:751
-    [<ffffffff826621ba>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:781
-    [<ffffffff82662a26>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:898
-    [<ffffffff8265eca7>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff826625a2>] __device_attach+0x122/0x260 drivers/base/dd.c:969
-
-Reported-by: syzbot+398e7dc692ddbbb4cfec@syzkaller.appspotmail.com
-Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Tested-by: Mark Pearson <markpearson@lenovo.com>
+Tested-by: Nechama Kraus <nechamax.kraus@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/e1000e/e1000.h   |  4 ++-
+ drivers/net/ethernet/intel/e1000e/ich8lan.c | 20 ++++++++++++++
+ drivers/net/ethernet/intel/e1000e/netdev.c  | 29 +++++++++++----------
+ 3 files changed, 38 insertions(+), 15 deletions(-)
 
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -548,6 +548,7 @@ int __mdiobus_register(struct mii_bus *b
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
-+		put_device(&bus->dev);
- 		return -EINVAL;
- 	}
+diff --git a/drivers/net/ethernet/intel/e1000e/e1000.h b/drivers/net/ethernet/intel/e1000e/e1000.h
+index 5b2143f4b1f8..3178efd98006 100644
+--- a/drivers/net/ethernet/intel/e1000e/e1000.h
++++ b/drivers/net/ethernet/intel/e1000e/e1000.h
+@@ -113,7 +113,8 @@ enum e1000_boards {
+ 	board_pch2lan,
+ 	board_pch_lpt,
+ 	board_pch_spt,
+-	board_pch_cnp
++	board_pch_cnp,
++	board_pch_tgp
+ };
  
+ struct e1000_ps_page {
+@@ -499,6 +500,7 @@ extern const struct e1000_info e1000_pch2_info;
+ extern const struct e1000_info e1000_pch_lpt_info;
+ extern const struct e1000_info e1000_pch_spt_info;
+ extern const struct e1000_info e1000_pch_cnp_info;
++extern const struct e1000_info e1000_pch_tgp_info;
+ extern const struct e1000_info e1000_es2_info;
+ 
+ void e1000e_ptp_init(struct e1000_adapter *adapter);
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index 58a96a0cf4aa..f8b3e758a8d2 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -5992,3 +5992,23 @@ const struct e1000_info e1000_pch_cnp_info = {
+ 	.phy_ops		= &ich8_phy_ops,
+ 	.nvm_ops		= &spt_nvm_ops,
+ };
++
++const struct e1000_info e1000_pch_tgp_info = {
++	.mac			= e1000_pch_tgp,
++	.flags			= FLAG_IS_ICH
++				  | FLAG_HAS_WOL
++				  | FLAG_HAS_HW_TIMESTAMP
++				  | FLAG_HAS_CTRLEXT_ON_LOAD
++				  | FLAG_HAS_AMT
++				  | FLAG_HAS_FLASH
++				  | FLAG_HAS_JUMBO_FRAMES
++				  | FLAG_APME_IN_WUC,
++	.flags2			= FLAG2_HAS_PHY_STATS
++				  | FLAG2_HAS_EEE,
++	.pba			= 26,
++	.max_hw_frame_size	= 9022,
++	.get_variants		= e1000_get_variants_ich8lan,
++	.mac_ops		= &ich8_mac_ops,
++	.phy_ops		= &ich8_phy_ops,
++	.nvm_ops		= &spt_nvm_ops,
++};
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index 757a54c39eef..774f849027f0 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -51,6 +51,7 @@ static const struct e1000_info *e1000_info_tbl[] = {
+ 	[board_pch_lpt]		= &e1000_pch_lpt_info,
+ 	[board_pch_spt]		= &e1000_pch_spt_info,
+ 	[board_pch_cnp]		= &e1000_pch_cnp_info,
++	[board_pch_tgp]		= &e1000_pch_tgp_info,
+ };
+ 
+ struct e1000_reg_info {
+@@ -7844,20 +7845,20 @@ static const struct pci_device_id e1000_pci_tbl[] = {
+ 	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_CMP_I219_V11), board_pch_cnp },
+ 	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_CMP_I219_LM12), board_pch_spt },
+ 	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_CMP_I219_V12), board_pch_spt },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_LM13), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_V13), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_LM14), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_V14), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_LM15), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_V15), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_LM16), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_V16), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_LM17), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_V17), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_LM18), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_V18), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_LM19), board_pch_cnp },
+-	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_V19), board_pch_cnp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_LM13), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_V13), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_LM14), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_V14), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_LM15), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_TGP_I219_V15), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_LM16), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_V16), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_LM17), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_ADP_I219_V17), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_LM18), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_V18), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_LM19), board_pch_tgp },
++	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_PCH_MTP_I219_V19), board_pch_tgp },
+ 
+ 	{ 0, 0, 0, 0, 0, 0, 0 }	/* terminate list */
+ };
+-- 
+2.33.0
+
 
 
