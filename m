@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A02643A18D
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4175743A194
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236600AbhJYTjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:39:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53590 "EHLO mail.kernel.org"
+        id S236636AbhJYTjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:39:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235950AbhJYThi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:37:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6554F6112F;
-        Mon, 25 Oct 2021 19:34:16 +0000 (UTC)
+        id S236111AbhJYThs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:37:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A433161156;
+        Mon, 25 Oct 2021 19:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190457;
-        bh=k3RiOuM5K7QKBU+V8Imh8UWGzOhlJunZsEgA8lD7ZJ4=;
+        s=korg; t=1635190461;
+        bh=HXxcEZkhUosgw1IG6ymcrCCdbYBn+vhOIUFyNhvoLqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XuWASicn6X4BddqkMb2+LtxLk3emXhi+2GuWVgwX/GvPIDKWT7RDYPgiWsOHUbZqc
-         8XJZI8QdQ+8X5UxKLODlauln2pjPCek6LLgXiuNk1WL+JS7nfp5Q/uE+BImpE25QS4
-         xCN9z2svzWMe1SdWse/3uqXA3BgyM3Isa4UEG6AU=
+        b=QZSLB1sVb3JWZtZ+tvjRQ6hF1gzn2T6LSKrF9/Yfd+dnLXckzjt1IBC6iMP9Bdmtg
+         dCTIHvzOryQ5DJZ49IoWZF59BzuOkkVJsxlQcXs6KKXn7LqY5i9E36mMCw706avQ9V
+         nN8Ql3ol4vuvv3JmC2yRaOX9k083mageN8q433U4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Li Feng <fengli@smartx.com>,
-        Mike Christie <michael.christie@oracle.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Joy Gu <jgu@purestorage.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 81/95] scsi: iscsi: Fix set_param() handling
-Date:   Mon, 25 Oct 2021 21:15:18 +0200
-Message-Id: <20211025191008.600748982@linuxfoundation.org>
+Subject: [PATCH 5.10 82/95] scsi: qla2xxx: Fix a memory leak in an error path of qla2x00_process_els()
+Date:   Mon, 25 Oct 2021 21:15:19 +0200
+Message-Id: <20211025191008.730093385@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
 References: <20211025190956.374447057@linuxfoundation.org>
@@ -42,43 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Joy Gu <jgu@purestorage.com>
 
-[ Upstream commit 187a580c9e7895978dcd1e627b9c9e7e3d13ca96 ]
+[ Upstream commit 7fb223d0ad801f633c78cbe42b1d1b55f5d163ad ]
 
-In commit 9e67600ed6b8 ("scsi: iscsi: Fix race condition between login and
-sync thread") we meant to add a check where before we call ->set_param() we
-make sure the iscsi_cls_connection is bound. The problem is that between
-versions 4 and 5 of the patch the deletion of the unchecked set_param()
-call was dropped so we ended up with 2 calls. As a result we can still hit
-a crash where we access the unbound connection on the first call.
+Commit 8c0eb596baa5 ("[SCSI] qla2xxx: Fix a memory leak in an error path of
+qla2x00_process_els()"), intended to change:
 
-This patch removes that first call.
+        bsg_job->request->msgcode == FC_BSG_HST_ELS_NOLOGIN
 
-Fixes: 9e67600ed6b8 ("scsi: iscsi: Fix race condition between login and sync thread")
-Link: https://lore.kernel.org/r/20211010161904.60471-1-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Li Feng <fengli@smartx.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
+to:
+
+        bsg_job->request->msgcode != FC_BSG_RPT_ELS
+
+but changed it to:
+
+        bsg_job->request->msgcode == FC_BSG_RPT_ELS
+
+instead.
+
+Change the == to a != to avoid leaking the fcport structure or freeing
+unallocated memory.
+
+Link: https://lore.kernel.org/r/20211012191834.90306-2-jgu@purestorage.com
+Fixes: 8c0eb596baa5 ("[SCSI] qla2xxx: Fix a memory leak in an error path of qla2x00_process_els()")
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Joy Gu <jgu@purestorage.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_bsg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 41772b88610a..3f7fa8de3642 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2907,8 +2907,6 @@ iscsi_set_param(struct iscsi_transport *transport, struct iscsi_uevent *ev)
- 			session->recovery_tmo = value;
- 		break;
- 	default:
--		err = transport->set_param(conn, ev->u.set_param.param,
--					   data, ev->u.set_param.len);
- 		if ((conn->state == ISCSI_CONN_BOUND) ||
- 			(conn->state == ISCSI_CONN_UP)) {
- 			err = transport->set_param(conn, ev->u.set_param.param,
+diff --git a/drivers/scsi/qla2xxx/qla_bsg.c b/drivers/scsi/qla2xxx/qla_bsg.c
+index 7fa085969a63..1fd292a6ac88 100644
+--- a/drivers/scsi/qla2xxx/qla_bsg.c
++++ b/drivers/scsi/qla2xxx/qla_bsg.c
+@@ -414,7 +414,7 @@ done_unmap_sg:
+ 	goto done_free_fcport;
+ 
+ done_free_fcport:
+-	if (bsg_request->msgcode == FC_BSG_RPT_ELS)
++	if (bsg_request->msgcode != FC_BSG_RPT_ELS)
+ 		qla2x00_free_fcport(fcport);
+ done:
+ 	return rval;
 -- 
 2.33.0
 
