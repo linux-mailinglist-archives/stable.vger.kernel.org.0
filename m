@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A922143A133
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33DD743A307
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:53:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235949AbhJYThh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49900 "EHLO mail.kernel.org"
+        id S235490AbhJYTzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:55:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236496AbhJYTev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:34:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDA1760FDC;
-        Mon, 25 Oct 2021 19:31:06 +0000 (UTC)
+        id S236789AbhJYTtY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:49:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E9BC61247;
+        Mon, 25 Oct 2021 19:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190267;
-        bh=A12vJG/IntlvEzY70YMt9ZcQI0BSVV7aJhjxFDoAqrw=;
+        s=korg; t=1635190903;
+        bh=t1Gycd020CfYNxPxWwT1r/i5yG/k7GbSWh4GVBNXRWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oPIuljchvu8QDukKL8JaoKudamp034qptz9kqQp7cP8C3hlSoUDNCaEs5Tz38Icpl
-         uBdAFLgKsrbReCzWVTMwChdT+Aipto/afTlFJSYhEXXvijJvbs+MZKtIy7efVlqDFq
-         PkvAXO1QCkrmC+wfzepz0JN7IeEYY0W4ZvkeCUbo=
+        b=UHon48HZLHX4dGaQO0e6EJSJyA3S2AJxdV8r8JX/83e+yE+qsDxz1s4nOb0cQwDbE
+         yTa28DQ6F+qAwoePMJQXALPwzE7q5uTEmW3oMe6ScvTlOdGAeJFsCDQ7JyqHtWhf3K
+         xr0Yl5nplC2girbm0N4UFMO+zneoJ4Phk3YnX/Tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 25/95] net: hns3: add limit ets dwrr bandwidth cannot be 0
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        Li Wang <liwang@redhat.com>, Peter Xu <peterx@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.14 081/169] userfaultfd: fix a race between writeprotect and exit_mmap()
 Date:   Mon, 25 Oct 2021 21:14:22 +0200
-Message-Id: <20211025191000.537591150@linuxfoundation.org>
+Message-Id: <20211025191027.587825008@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Nadav Amit <namit@vmware.com>
 
-[ Upstream commit 731797fdffa3d083db536e2fdd07ceb050bb40b1 ]
+commit cb185d5f1ebf900f4ae3bf84cee212e6dd035aca upstream.
 
-If ets dwrr bandwidth of tc is set to 0, the hardware will switch to SP
-mode. In this case, this tc may occupy all the tx bandwidth if it has
-huge traffic, so it violates the purpose of the user setting.
+A race is possible when a process exits, its VMAs are removed by
+exit_mmap() and at the same time userfaultfd_writeprotect() is called.
 
-To fix this problem, limit the ets dwrr bandwidth must greater than 0.
+The race was detected by KASAN on a development kernel, but it appears
+to be possible on vanilla kernels as well.
 
-Fixes: cacde272dd00 ("net: hns3: Add hclge_dcb module for the support of DCB feature")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Use mmget_not_zero() to prevent the race as done in other userfaultfd
+operations.
+
+Link: https://lkml.kernel.org/r/20210921200247.25749-1-namit@vmware.com
+Fixes: 63b2d4174c4ad ("userfaultfd: wp: add the writeprotect API to userfaultfd ioctl")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Tested-by: Li  Wang <liwang@redhat.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/userfaultfd.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-index 28a90ead4795..8e6085753b9f 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-@@ -134,6 +134,15 @@ static int hclge_ets_validate(struct hclge_dev *hdev, struct ieee_ets *ets,
- 				*changed = true;
- 			break;
- 		case IEEE_8021QAZ_TSA_ETS:
-+			/* The hardware will switch to sp mode if bandwidth is
-+			 * 0, so limit ets bandwidth must be greater than 0.
-+			 */
-+			if (!ets->tc_tx_bw[i]) {
-+				dev_err(&hdev->pdev->dev,
-+					"tc%u ets bw cannot be 0\n", i);
-+				return -EINVAL;
-+			}
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -1826,9 +1826,15 @@ static int userfaultfd_writeprotect(stru
+ 	if (mode_wp && mode_dontwake)
+ 		return -EINVAL;
+ 
+-	ret = mwriteprotect_range(ctx->mm, uffdio_wp.range.start,
+-				  uffdio_wp.range.len, mode_wp,
+-				  &ctx->mmap_changing);
++	if (mmget_not_zero(ctx->mm)) {
++		ret = mwriteprotect_range(ctx->mm, uffdio_wp.range.start,
++					  uffdio_wp.range.len, mode_wp,
++					  &ctx->mmap_changing);
++		mmput(ctx->mm);
++	} else {
++		return -ESRCH;
++	}
 +
- 			if (hdev->tm_info.tc_info[i].tc_sch_mode !=
- 				HCLGE_SCH_MODE_DWRR)
- 				*changed = true;
--- 
-2.33.0
-
+ 	if (ret)
+ 		return ret;
+ 
 
 
