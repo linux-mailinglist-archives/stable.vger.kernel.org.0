@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E2B843A02C
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A27C43A0F9
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234435AbhJYT3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:29:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44288 "EHLO mail.kernel.org"
+        id S235323AbhJYTgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:36:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235297AbhJYT0l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:26:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C72C3610EA;
-        Mon, 25 Oct 2021 19:23:28 +0000 (UTC)
+        id S235069AbhJYTbe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:31:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FF0E610A0;
+        Mon, 25 Oct 2021 19:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189809;
-        bh=dDFNmYnqmBuK3mo9ePkSyqJtnw43sKhDZ558/J8yPwk=;
+        s=korg; t=1635190059;
+        bh=XlCGsMCWOHEHV/AFZhrJJSHYCWE1nvERRj9rl7xlaFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GIRtE6R25V8sq3fi9ud+pp6hRLG2xQwgTNBKcPRx3TsDBxYnwrg+sxvV5JoOvBfNp
-         f7CxyF0uXLYJKqog8Ded6V7UaPGcqxTPnYJmRqj9djzSMLywXKUoX+VGO8TBkaUW/y
-         gHo8YSJdXsGNH0jdnNnJ5kFzNIjoP2mPvr0AQvg4=
+        b=ylpoXVzDoXrUFd5wrXlIAnnjiIuTlfzFGWyIYG9uGoN4C3vvjY9PnSshj8bhFAn0z
+         UOUF/MrRHLMw3vxwbs+kBLNE5uxGmW85qBwTF81YDEeDjwMRuOEmXp97zLKpx9QF7M
+         b7DLw+wC2h6VK2k3gH8ZW45Ob1ki6hAkYzYMd65c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/37] dma-debug: fix sg checks in debug_dma_map_sg()
-Date:   Mon, 25 Oct 2021 21:14:30 +0200
-Message-Id: <20211025190929.360415863@linuxfoundation.org>
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 14/58] net: hns3: reset DWRR of unused tc to zero
+Date:   Mon, 25 Oct 2021 21:14:31 +0200
+Message-Id: <20211025190939.763439338@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
-References: <20211025190926.680827862@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,77 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-[ Upstream commit 293d92cbbd2418ca2ba43fed07f1b92e884d1c77 ]
+[ Upstream commit b63fcaab959807282e9822e659034edf95fc8bd1 ]
 
-The following warning occurred sporadically on s390:
-DMA-API: nvme 0006:00:00.0: device driver maps memory from kernel text or rodata [addr=0000000048cc5e2f] [len=131072]
-WARNING: CPU: 4 PID: 825 at kernel/dma/debug.c:1083 check_for_illegal_area+0xa8/0x138
+Currently, DWRR of tc will be initialized to a fixed value when this tc
+is enabled, but it is not been reset to 0 when this tc is disabled. It
+cause a problem that the DWRR of unused tc is not 0 after using tc tool
+to add and delete multi-tc parameters.
 
-It is a false-positive warning, due to broken logic in debug_dma_map_sg().
-check_for_illegal_area() checks for overlay of sg elements with kernel text
-or rodata. It is called with sg_dma_len(s) instead of s->length as
-parameter. After the call to ->map_sg(), sg_dma_len() will contain the
-length of possibly combined sg elements in the DMA address space, and not
-the individual sg element length, which would be s->length.
+For examples, after enabling 4 TCs and restoring to 1 TC by follow
+tc commands:
 
-The check will then use the physical start address of an sg element, and
-add the DMA length for the overlap check, which could result in the false
-warning, because the DMA length can be larger than the actual single sg
-element length.
+$ tc qdisc add dev eth0 root mqprio num_tc 4 map 0 1 2 3 0 1 2 3 queues \
+  8@0 8@8 8@16 8@24 hw 1 mode channel
+$ tc qdisc del dev eth0 root
 
-In addition, the call to check_for_illegal_area() happens in the iteration
-over mapped_ents, which will not include all individual sg elements if
-any of them were combined in ->map_sg().
+Now there is just one TC is enabled for eth0, but the tc info querying by
+debugfs is shown as follow:
 
-Fix this by using s->length instead of sg_dma_len(s). Also put the call to
-check_for_illegal_area() in a separate loop, iterating over all the
-individual sg elements ("nents" instead of "mapped_ents").
+$ cat /mnt/hns3/0000:7d:00.0/tm/tc_sch_info
+enabled tc number: 1
+weight_offset: 14
+TC    MODE  WEIGHT
+0     dwrr    100
+1     dwrr    100
+2     dwrr    100
+3     dwrr    100
+4     dwrr      0
+5     dwrr      0
+6     dwrr      0
+7     dwrr      0
 
-While at it, as suggested by Robin Murphy, also move check_for_stack()
-inside the new loop, as it is similarly concerned with validating the
-individual sg elements.
+This patch fixes it by resetting DWRR of tc to 0 when tc is disabled.
 
-Link: https://lore.kernel.org/lkml/20210705185252.4074653-1-gerald.schaefer@linux.ibm.com
-Fixes: 884d05970bfb ("dma-debug: use sg_dma_len accessor")
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 848440544b41 ("net: hns3: Add support of TX Scheduler & Shaper to HNS3 driver")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/debug.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index 3a2397444076..1c82b0d25498 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -1422,6 +1422,12 @@ void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 	if (unlikely(dma_debug_disabled()))
- 		return;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+index 62399cc1c5a6..d98f0e2ec7aa 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+@@ -633,6 +633,8 @@ static void hclge_tm_pg_info_init(struct hclge_dev *hdev)
+ 		hdev->tm_info.pg_info[i].tc_bit_map = hdev->hw_tc_map;
+ 		for (k = 0; k < hdev->tm_info.num_tc; k++)
+ 			hdev->tm_info.pg_info[i].tc_dwrr[k] = BW_PERCENT;
++		for (; k < HNAE3_MAX_TC; k++)
++			hdev->tm_info.pg_info[i].tc_dwrr[k] = 0;
+ 	}
+ }
  
-+	for_each_sg(sg, s, nents, i) {
-+		check_for_stack(dev, sg_page(s), s->offset);
-+		if (!PageHighMem(sg_page(s)))
-+			check_for_illegal_area(dev, sg_virt(s), s->length);
-+	}
-+
- 	for_each_sg(sg, s, mapped_ents, i) {
- 		entry = dma_entry_alloc();
- 		if (!entry)
-@@ -1437,12 +1443,6 @@ void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 		entry->sg_call_ents   = nents;
- 		entry->sg_mapped_ents = mapped_ents;
- 
--		check_for_stack(dev, sg_page(s), s->offset);
--
--		if (!PageHighMem(sg_page(s))) {
--			check_for_illegal_area(dev, sg_virt(s), sg_dma_len(s));
--		}
--
- 		check_sg_segment(dev, s);
- 
- 		add_dma_entry(entry);
 -- 
 2.33.0
 
