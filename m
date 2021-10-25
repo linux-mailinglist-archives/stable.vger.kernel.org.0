@@ -2,311 +2,320 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FE6343A120
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EE1043A099
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235269AbhJYThU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53558 "EHLO mail.kernel.org"
+        id S235535AbhJYTcO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:32:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236385AbhJYTeb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:34:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D16A06105A;
-        Mon, 25 Oct 2021 19:30:15 +0000 (UTC)
+        id S235263AbhJYT3k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:29:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7033B60200;
+        Mon, 25 Oct 2021 19:26:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190216;
-        bh=LvZovDiefMcuzEhHW6Vys6fhOjjhDgkFlWG7PhP4Uu8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVYTYF0vu9v1O+udO6I27YzEwG2TZbmrRtYMeo7MChjVI2xsfeg+95o1nfPQCB0YW
-         EhS7PzurBgXB4qPgrmKqADeOSgpmSbyUW4vBpNvHxwpWFWVxz8B+DH/2981WckqGcQ
-         SvXfq98aS0KrqO0Pk45aO+A4Bu4jsxjnXI0rEKdw=
+        s=korg; t=1635189997;
+        bh=RMzx8ckQvKIK2SUHZ6gWHvYV36iQACbormCM9VToE58=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XVAh690BBEUB5Nr/diuMZ9DiQyKC4GRkaBt94OuLAutEVM6quhPfpJa6RndFekG9C
+         eaN0EkSoPoUOV2mWhvfFwQg7T9LWIx/s3x0mhAvEv/wcZQ33Dro/Ixy/bnMDiMV5Gj
+         OdCGvkJmOP0ChfFLYc1Pd7IjjcylT1GQLutHMa9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 20/95] ipv6: When forwarding count rx stats on the orig netdev
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/58] 5.4.156-rc1 review
 Date:   Mon, 25 Oct 2021 21:14:17 +0200
-Message-Id: <20211025190959.834497342@linuxfoundation.org>
+Message-Id: <20211025190937.555108060@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.156-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.156-rc1
+X-KernelTest-Deadline: 2021-10-27T19:09+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Suryaputra <ssuryaextr@gmail.com>
+This is the start of the stable review cycle for the 5.4.156 release.
+There are 58 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 0857d6f8c759d95f89d0436f86cdfd189ef99f20 ]
+Responses should be made by Wed, 27 Oct 2021 19:07:44 +0000.
+Anything received after that time might be too late.
 
-Commit bdb7cc643fc9 ("ipv6: Count interface receive statistics on the
-ingress netdev") does not work when ip6_forward() executes on the skbs
-with vrf-enslaved netdev. Use IP6CB(skb)->iif to get to the right one.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.156-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-Add a selftest script to verify.
+thanks,
 
-Fixes: bdb7cc643fc9 ("ipv6: Count interface receive statistics on the ingress netdev")
-Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20211014130845.410602-1-ssuryaextr@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/ipv6/ip6_output.c                         |   3 +-
- .../testing/selftests/net/forwarding/Makefile |   1 +
- .../net/forwarding/forwarding.config.sample   |   2 +
- .../net/forwarding/ip6_forward_instats_vrf.sh | 172 ++++++++++++++++++
- tools/testing/selftests/net/forwarding/lib.sh |   8 +
- 5 files changed, 185 insertions(+), 1 deletion(-)
- create mode 100755 tools/testing/selftests/net/forwarding/ip6_forward_instats_vrf.sh
+greg k-h
 
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index 72a673a43a75..c2f8e69d7d7a 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -487,13 +487,14 @@ static bool ip6_pkt_too_big(const struct sk_buff *skb, unsigned int mtu)
- 
- int ip6_forward(struct sk_buff *skb)
- {
--	struct inet6_dev *idev = __in6_dev_get_safely(skb->dev);
- 	struct dst_entry *dst = skb_dst(skb);
- 	struct ipv6hdr *hdr = ipv6_hdr(skb);
- 	struct inet6_skb_parm *opt = IP6CB(skb);
- 	struct net *net = dev_net(dst->dev);
-+	struct inet6_dev *idev;
- 	u32 mtu;
- 
-+	idev = __in6_dev_get_safely(dev_get_by_index_rcu(net, IP6CB(skb)->iif));
- 	if (net->ipv6.devconf_all->forwarding == 0)
- 		goto error;
- 
-diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
-index 250fbb2d1625..881e680c2e9c 100644
---- a/tools/testing/selftests/net/forwarding/Makefile
-+++ b/tools/testing/selftests/net/forwarding/Makefile
-@@ -9,6 +9,7 @@ TEST_PROGS = bridge_igmp.sh \
- 	gre_inner_v4_multipath.sh \
- 	gre_inner_v6_multipath.sh \
- 	gre_multipath.sh \
-+	ip6_forward_instats_vrf.sh \
- 	ip6gre_inner_v4_multipath.sh \
- 	ip6gre_inner_v6_multipath.sh \
- 	ipip_flat_gre_key.sh \
-diff --git a/tools/testing/selftests/net/forwarding/forwarding.config.sample b/tools/testing/selftests/net/forwarding/forwarding.config.sample
-index b802c14d2950..e5e2fbeca22e 100644
---- a/tools/testing/selftests/net/forwarding/forwarding.config.sample
-+++ b/tools/testing/selftests/net/forwarding/forwarding.config.sample
-@@ -39,3 +39,5 @@ NETIF_CREATE=yes
- # Timeout (in seconds) before ping exits regardless of how many packets have
- # been sent or received
- PING_TIMEOUT=5
-+# IPv6 traceroute utility name.
-+TROUTE6=traceroute6
-diff --git a/tools/testing/selftests/net/forwarding/ip6_forward_instats_vrf.sh b/tools/testing/selftests/net/forwarding/ip6_forward_instats_vrf.sh
-new file mode 100755
-index 000000000000..9f5b3e2e5e95
---- /dev/null
-+++ b/tools/testing/selftests/net/forwarding/ip6_forward_instats_vrf.sh
-@@ -0,0 +1,172 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+
-+# Test ipv6 stats on the incoming if when forwarding with VRF
-+
-+ALL_TESTS="
-+	ipv6_ping
-+	ipv6_in_too_big_err
-+	ipv6_in_hdr_err
-+	ipv6_in_addr_err
-+	ipv6_in_discard
-+"
-+
-+NUM_NETIFS=4
-+source lib.sh
-+
-+h1_create()
-+{
-+	simple_if_init $h1 2001:1:1::2/64
-+	ip -6 route add vrf v$h1 2001:1:2::/64 via 2001:1:1::1
-+}
-+
-+h1_destroy()
-+{
-+	ip -6 route del vrf v$h1 2001:1:2::/64 via 2001:1:1::1
-+	simple_if_fini $h1 2001:1:1::2/64
-+}
-+
-+router_create()
-+{
-+	vrf_create router
-+	__simple_if_init $rtr1 router 2001:1:1::1/64
-+	__simple_if_init $rtr2 router 2001:1:2::1/64
-+	mtu_set $rtr2 1280
-+}
-+
-+router_destroy()
-+{
-+	mtu_restore $rtr2
-+	__simple_if_fini $rtr2 2001:1:2::1/64
-+	__simple_if_fini $rtr1 2001:1:1::1/64
-+	vrf_destroy router
-+}
-+
-+h2_create()
-+{
-+	simple_if_init $h2 2001:1:2::2/64
-+	ip -6 route add vrf v$h2 2001:1:1::/64 via 2001:1:2::1
-+	mtu_set $h2 1280
-+}
-+
-+h2_destroy()
-+{
-+	mtu_restore $h2
-+	ip -6 route del vrf v$h2 2001:1:1::/64 via 2001:1:2::1
-+	simple_if_fini $h2 2001:1:2::2/64
-+}
-+
-+setup_prepare()
-+{
-+	h1=${NETIFS[p1]}
-+	rtr1=${NETIFS[p2]}
-+
-+	rtr2=${NETIFS[p3]}
-+	h2=${NETIFS[p4]}
-+
-+	vrf_prepare
-+	h1_create
-+	router_create
-+	h2_create
-+
-+	forwarding_enable
-+}
-+
-+cleanup()
-+{
-+	pre_cleanup
-+
-+	forwarding_restore
-+
-+	h2_destroy
-+	router_destroy
-+	h1_destroy
-+	vrf_cleanup
-+}
-+
-+ipv6_in_too_big_err()
-+{
-+	RET=0
-+
-+	local t0=$(ipv6_stats_get $rtr1 Ip6InTooBigErrors)
-+	local vrf_name=$(master_name_get $h1)
-+
-+	# Send too big packets
-+	ip vrf exec $vrf_name \
-+		$PING6 -s 1300 2001:1:2::2 -c 1 -w $PING_TIMEOUT &> /dev/null
-+
-+	local t1=$(ipv6_stats_get $rtr1 Ip6InTooBigErrors)
-+	test "$((t1 - t0))" -ne 0
-+	check_err $?
-+	log_test "Ip6InTooBigErrors"
-+}
-+
-+ipv6_in_hdr_err()
-+{
-+	RET=0
-+
-+	local t0=$(ipv6_stats_get $rtr1 Ip6InHdrErrors)
-+	local vrf_name=$(master_name_get $h1)
-+
-+	# Send packets with hop limit 1, easiest with traceroute6 as some ping6
-+	# doesn't allow hop limit to be specified
-+	ip vrf exec $vrf_name \
-+		$TROUTE6 2001:1:2::2 &> /dev/null
-+
-+	local t1=$(ipv6_stats_get $rtr1 Ip6InHdrErrors)
-+	test "$((t1 - t0))" -ne 0
-+	check_err $?
-+	log_test "Ip6InHdrErrors"
-+}
-+
-+ipv6_in_addr_err()
-+{
-+	RET=0
-+
-+	local t0=$(ipv6_stats_get $rtr1 Ip6InAddrErrors)
-+	local vrf_name=$(master_name_get $h1)
-+
-+	# Disable forwarding temporary while sending the packet
-+	sysctl -qw net.ipv6.conf.all.forwarding=0
-+	ip vrf exec $vrf_name \
-+		$PING6 2001:1:2::2 -c 1 -w $PING_TIMEOUT &> /dev/null
-+	sysctl -qw net.ipv6.conf.all.forwarding=1
-+
-+	local t1=$(ipv6_stats_get $rtr1 Ip6InAddrErrors)
-+	test "$((t1 - t0))" -ne 0
-+	check_err $?
-+	log_test "Ip6InAddrErrors"
-+}
-+
-+ipv6_in_discard()
-+{
-+	RET=0
-+
-+	local t0=$(ipv6_stats_get $rtr1 Ip6InDiscards)
-+	local vrf_name=$(master_name_get $h1)
-+
-+	# Add a policy to discard
-+	ip xfrm policy add dst 2001:1:2::2/128 dir fwd action block
-+	ip vrf exec $vrf_name \
-+		$PING6 2001:1:2::2 -c 1 -w $PING_TIMEOUT &> /dev/null
-+	ip xfrm policy del dst 2001:1:2::2/128 dir fwd
-+
-+	local t1=$(ipv6_stats_get $rtr1 Ip6InDiscards)
-+	test "$((t1 - t0))" -ne 0
-+	check_err $?
-+	log_test "Ip6InDiscards"
-+}
-+ipv6_ping()
-+{
-+	RET=0
-+
-+	ping6_test $h1 2001:1:2::2
-+}
-+
-+trap cleanup EXIT
-+
-+setup_prepare
-+setup_wait
-+tests_run
-+
-+exit $EXIT_STATUS
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 927f9ba49e08..be6fa808d219 100644
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -674,6 +674,14 @@ qdisc_parent_stats_get()
- 	    | jq '.[] | select(.parent == "'"$parent"'") | '"$selector"
- }
- 
-+ipv6_stats_get()
-+{
-+	local dev=$1; shift
-+	local stat=$1; shift
-+
-+	cat /proc/net/dev_snmp6/$dev | grep "^$stat" | cut -f2
-+}
-+
- humanize()
- {
- 	local speed=$1; shift
--- 
-2.33.0
+-------------
+Pseudo-Shortlog of commits:
 
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.156-rc1
+
+Fabien Dessenne <fabien.dessenne@foss.st.com>
+    pinctrl: stm32: use valid pin identifier in stm32_pinctrl_resume()
+
+Nick Desaulniers <ndesaulniers@google.com>
+    ARM: 9122/1: select HAVE_FUTEX_CMPXCHG
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracing: Have all levels of checks prevent recursion
+
+Yanfei Xu <yanfei.xu@windriver.com>
+    net: mdiobus: Fix memory leak in __mdiobus_register
+
+Oliver Neukum <oneukum@suse.com>
+    usbnet: sanity check for maxpacket
+
+Dexuan Cui <decui@microsoft.com>
+    scsi: core: Fix shost->cmd_per_lun calculation in scsi_add_host_with_dma()
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    Input: snvs_pwrkey - add clk handling
+
+Kai Vehmanen <kai.vehmanen@linux.intel.com>
+    ALSA: hda: avoid write to STATESTS if controller is in reset
+
+Prashant Malani <pmalani@chromium.org>
+    platform/x86: intel_scu_ipc: Update timeout value in comment
+
+Zheyu Ma <zheyuma97@gmail.com>
+    isdn: mISDN: Fix sleeping function called from invalid context
+
+Herve Codina <herve.codina@bootlin.com>
+    ARM: dts: spear3xx: Fix gmac node
+
+Herve Codina <herve.codina@bootlin.com>
+    net: stmmac: add support for dwmac 3.40a
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: deal with errors when checking if a dir entry exists during log replay
+
+Brendan Higgins <brendanhiggins@google.com>
+    gcc-plugins/structleak: add makefile var for disabling structleak
+
+Florian Westphal <fw@strlen.de>
+    selftests: netfilter: remove stray bash debug line
+
+Vegard Nossum <vegard.nossum@gmail.com>
+    netfilter: Kconfig: use 'default y' instead of 'm' for bool config option
+
+Xiaolong Huang <butterflyhuangxx@gmail.com>
+    isdn: cpai: check ctr->cnr to avoid array index out of bound
+
+Lin Ma <linma@zju.edu.cn>
+    nfc: nci: fix the UAF of rf_conn_info object
+
+Miaohe Lin <linmiaohe@huawei.com>
+    mm, slub: fix potential memoryleak in kmem_cache_open()
+
+Miaohe Lin <linmiaohe@huawei.com>
+    mm, slub: fix mismatch between reconstructed freelist depth and cnt
+
+Michael Ellerman <mpe@ellerman.id.au>
+    powerpc/idle: Don't corrupt back chain when going idle
+
+Michael Ellerman <mpe@ellerman.id.au>
+    KVM: PPC: Book3S HV: Make idle_kvm_start_guest() return 0 if it went to guest
+
+Michael Ellerman <mpe@ellerman.id.au>
+    KVM: PPC: Book3S HV: Fix stack handling in idle_kvm_start_guest()
+
+Christopher M. Riedl <cmr@codefail.de>
+    powerpc64/idle: Fix SP offsets when saving GPRs
+
+Gaosheng Cui <cuigaosheng1@huawei.com>
+    audit: fix possible null-pointer dereference in audit_filter_rules
+
+Takashi Iwai <tiwai@suse.de>
+    ASoC: DAPM: Fix missing kctl change notifications
+
+Steven Clarkson <sc@lambdal.com>
+    ALSA: hda/realtek: Add quirk for Clevo PC50HS
+
+Brendan Grieve <brendan@grieve.com.au>
+    ALSA: usb-audio: Provide quirk for Sennheiser GSP670 Headset
+
+Matthew Wilcox (Oracle) <willy@infradead.org>
+    vfs: check fd has read access in kernel_read_file_from_fd()
+
+Lukas Bulwahn <lukas.bulwahn@gmail.com>
+    elfcore: correct reference to CONFIG_UML
+
+Valentin Vidic <vvidic@valentin-vidic.from.hr>
+    ocfs2: mount fails with buffer overflow in strlen
+
+Jan Kara <jack@suse.cz>
+    ocfs2: fix data corruption after conversion from inline format
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: fix handling of "meta" errors
+
+Zhang Changzhong <zhangchangzhong@huawei.com>
+    can: j1939: j1939_xtp_rx_rts_session_new(): abort TP less than 9 bytes
+
+Zhang Changzhong <zhangchangzhong@huawei.com>
+    can: j1939: j1939_xtp_rx_dat_one(): cancel session if receive TP.DT with error length
+
+Ziyang Xuan <william.xuanziyang@huawei.com>
+    can: j1939: j1939_netdev_start(): fix UAF for rx_kref of j1939_priv
+
+Ziyang Xuan <william.xuanziyang@huawei.com>
+    can: j1939: j1939_tp_rxtimer(): fix errant alert in j1939_tp_rxtimer
+
+Zheyu Ma <zheyuma97@gmail.com>
+    can: peak_pci: peak_pci_remove(): fix UAF
+
+Stephane Grosjean <s.grosjean@peak-system.com>
+    can: peak_usb: pcan_usb_fd_decode_status(): fix back to ERROR_ACTIVE state notification
+
+Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+    can: rcar_can: fix suspend/resume
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: enetc: fix ethtool counter name for PM0_TERR
+
+Kurt Kanzenbach <kurt@linutronix.de>
+    net: stmmac: Fix E2E delay mechanism
+
+Peng Li <lipeng321@huawei.com>
+    net: hns3: disable sriov before unload hclge layer
+
+Guangbin Huang <huangguangbin2@huawei.com>
+    net: hns3: add limit ets dwrr bandwidth cannot be 0
+
+Guangbin Huang <huangguangbin2@huawei.com>
+    net: hns3: reset DWRR of unused tc to zero
+
+Randy Dunlap <rdunlap@infradead.org>
+    NIOS2: irqflags: rename a redefined register name
+
+Aleksander Jan Bajkowski <olek2@wp.pl>
+    net: dsa: lantiq_gswip: fix register definition
+
+Vegard Nossum <vegard.nossum@oracle.com>
+    lan78xx: select CRC32
+
+Antoine Tenart <atenart@kernel.org>
+    netfilter: ipvs: make global sysctl readonly in non-init netns
+
+Shengjiu Wang <shengjiu.wang@nxp.com>
+    ASoC: wm8960: Fix clock configuration on slave mode
+
+Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+    dma-debug: fix sg checks in debug_dma_map_sg()
+
+Benjamin Coddington <bcodding@redhat.com>
+    NFSD: Keep existing listeners on portlist error
+
+Guenter Roeck <linux@roeck-us.net>
+    xtensa: xtfpga: Try software restart before simulating CPU reset
+
+Max Filippov <jcmvbkbc@gmail.com>
+    xtensa: xtfpga: use CONFIG_USE_OF instead of CONFIG_OF
+
+Eugen Hristev <eugen.hristev@microchip.com>
+    ARM: dts: at91: sama5d2_som1_ek: disable ISC node by default
+
+Sumit Garg <sumit.garg@linaro.org>
+    tee: optee: Fix missing devices unregister during optee_remove
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    net: switchdev: do not propagate bridge updates across bridges
+
+Helge Deller <deller@gmx.de>
+    parisc: math-emu: Fix fall-through warnings
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/arm/Kconfig                                   |   1 +
+ arch/arm/boot/dts/at91-sama5d27_som1_ek.dts        |   1 -
+ arch/arm/boot/dts/spear3xx.dtsi                    |   2 +-
+ arch/nios2/include/asm/irqflags.h                  |   4 +-
+ arch/nios2/include/asm/registers.h                 |   2 +-
+ arch/parisc/math-emu/fpudispatch.c                 |  56 +++++++-
+ arch/powerpc/kernel/idle_book3s.S                  | 148 +++++++++++----------
+ arch/powerpc/kvm/book3s_hv_rmhandlers.S            |  28 ++--
+ arch/xtensa/platforms/xtfpga/setup.c               |  12 +-
+ drivers/input/keyboard/snvs_pwrkey.c               |  29 ++++
+ drivers/isdn/capi/kcapi.c                          |   5 +
+ drivers/isdn/hardware/mISDN/netjet.c               |   2 +-
+ drivers/net/can/rcar/rcar_can.c                    |  20 +--
+ drivers/net/can/sja1000/peak_pci.c                 |   9 +-
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c         |   5 +-
+ drivers/net/dsa/lantiq_gswip.c                     |   2 +-
+ .../net/ethernet/freescale/enetc/enetc_ethtool.c   |   2 +-
+ drivers/net/ethernet/hisilicon/hns3/hnae3.c        |  21 +++
+ drivers/net/ethernet/hisilicon/hns3/hnae3.h        |   1 +
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c |   9 ++
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_main.c    |   1 +
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c  |   2 +
+ .../net/ethernet/stmicro/stmmac/dwmac-generic.c    |   1 +
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |   2 +-
+ .../net/ethernet/stmicro/stmmac/stmmac_platform.c  |   8 ++
+ drivers/net/phy/mdio_bus.c                         |   1 +
+ drivers/net/usb/Kconfig                            |   1 +
+ drivers/net/usb/usbnet.c                           |   4 +
+ drivers/pinctrl/stm32/pinctrl-stm32.c              |   4 +-
+ drivers/platform/x86/intel_scu_ipc.c               |   2 +-
+ drivers/scsi/hosts.c                               |   3 +-
+ drivers/tee/optee/core.c                           |   3 +
+ drivers/tee/optee/device.c                         |  22 +++
+ drivers/tee/optee/optee_private.h                  |   1 +
+ fs/btrfs/tree-log.c                                |  47 ++++---
+ fs/ceph/caps.c                                     |  12 +-
+ fs/ceph/file.c                                     |   1 -
+ fs/ceph/inode.c                                    |   2 -
+ fs/ceph/mds_client.c                               |  17 +--
+ fs/ceph/super.h                                    |   3 -
+ fs/exec.c                                          |   2 +-
+ fs/nfsd/nfsctl.c                                   |   5 +-
+ fs/ocfs2/alloc.c                                   |  46 ++-----
+ fs/ocfs2/super.c                                   |  14 +-
+ include/linux/elfcore.h                            |   2 +-
+ kernel/auditsc.c                                   |   2 +-
+ kernel/dma/debug.c                                 |  12 +-
+ kernel/trace/ftrace.c                              |   4 +-
+ kernel/trace/trace.h                               |  64 +++------
+ kernel/trace/trace_functions.c                     |   2 +-
+ mm/slub.c                                          |  13 +-
+ net/can/j1939/j1939-priv.h                         |   1 +
+ net/can/j1939/main.c                               |   7 +-
+ net/can/j1939/transport.c                          |  14 +-
+ net/netfilter/Kconfig                              |   2 +-
+ net/netfilter/ipvs/ip_vs_ctl.c                     |   5 +
+ net/nfc/nci/rsp.c                                  |   2 +
+ net/switchdev/switchdev.c                          |   9 ++
+ scripts/Makefile.gcc-plugins                       |   4 +
+ sound/hda/hdac_controller.c                        |   5 +-
+ sound/pci/hda/patch_realtek.c                      |   1 +
+ sound/soc/codecs/wm8960.c                          |  13 +-
+ sound/soc/soc-dapm.c                               |  13 +-
+ sound/usb/quirks-table.h                           |  32 +++++
+ tools/testing/selftests/netfilter/nft_flowtable.sh |   1 -
+ 66 files changed, 495 insertions(+), 280 deletions(-)
 
 
