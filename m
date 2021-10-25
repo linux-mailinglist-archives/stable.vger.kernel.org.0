@@ -2,47 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E23AC43A104
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0929443A2D6
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:52:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235648AbhJYThB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48384 "EHLO mail.kernel.org"
+        id S235870AbhJYTxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:53:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235905AbhJYTcr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:32:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B36661163;
-        Mon, 25 Oct 2021 19:28:44 +0000 (UTC)
+        id S238682AbhJYTvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:51:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BB9B603E5;
+        Mon, 25 Oct 2021 19:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190125;
-        bh=M7rXbJcmXm7/mYr1xFFv/WvVbqRK4BgrJ9RlUhIcZy8=;
+        s=korg; t=1635190982;
+        bh=IWpy3qXsnx98AkyFL5J1pkZOcZWvBFjI+MP1nGSc7nU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AmUTYjrtL4pj5PRP1CqPMHafu8eJuaYnRWLSWCD0XsJj5mFAPV8xQSraKJfuSF6Bj
-         NpCoRei5GFpgrgn4AKGIRwfIMnhsfP9Wj/UdsRzvuO511WivkIA32swAqhnqr6NEoN
-         0POxQ9SHkMpdlv0gkWHGpjcZGxg+/cwu07vyG58s=
+        b=mW2qEQVp47NR1VDUowssC5pwXlGh9oHAK2dCtSxPIcKlEqgn/fdUF4m7YHZgmJCHq
+         3l0jNOOLEZ8d4M9QYiwVx6Nxg8L7e1vYbXdhDfvoMWzMwXdHuSyT6IX60KXuphS3HY
+         LZCUTk5AOohHKCuc6i7Xm/vQx6w5wLMuJ7GyH/3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Bharata B Rao <bharata@linux.ibm.com>,
-        Christoph Lameter <cl@linux.com>,
-        David Rientjes <rientjes@google.com>,
-        Faiyaz Mohammed <faiyazm@codeaurora.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Pekka Enberg <penberg@kernel.org>,
-        Roman Gushchin <guro@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 40/58] mm, slub: fix potential memoryleak in kmem_cache_open()
-Date:   Mon, 25 Oct 2021 21:14:57 +0200
-Message-Id: <20211025190944.020648444@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Xiaolong Huang <butterflyhuangxx@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.14 117/169] isdn: cpai: check ctr->cnr to avoid array index out of bound
+Date:   Mon, 25 Oct 2021 21:14:58 +0200
+Message-Id: <20211025191032.780376265@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,47 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Xiaolong Huang <butterflyhuangxx@gmail.com>
 
-commit 9037c57681d25e4dcc442d940d6dbe24dd31f461 upstream.
+commit 1f3e2e97c003f80c4b087092b225c8787ff91e4d upstream.
 
-In error path, the random_seq of slub cache might be leaked.  Fix this
-by using __kmem_cache_release() to release all the relevant resources.
+The cmtp_add_connection() would add a cmtp session to a controller
+and run a kernel thread to process cmtp.
 
-Link: https://lkml.kernel.org/r/20210916123920.48704-4-linmiaohe@huawei.com
-Fixes: 210e7a43fa90 ("mm: SLUB freelist randomization")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Bharata B Rao <bharata@linux.ibm.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Faiyaz Mohammed <faiyazm@codeaurora.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+	__module_get(THIS_MODULE);
+	session->task = kthread_run(cmtp_session, session, "kcmtpd_ctr_%d",
+								session->num);
+
+During this process, the kernel thread would call detach_capi_ctr()
+to detach a register controller. if the controller
+was not attached yet, detach_capi_ctr() would
+trigger an array-index-out-bounds bug.
+
+[   46.866069][ T6479] UBSAN: array-index-out-of-bounds in
+drivers/isdn/capi/kcapi.c:483:21
+[   46.867196][ T6479] index -1 is out of range for type 'capi_ctr *[32]'
+[   46.867982][ T6479] CPU: 1 PID: 6479 Comm: kcmtpd_ctr_0 Not tainted
+5.15.0-rc2+ #8
+[   46.869002][ T6479] Hardware name: QEMU Standard PC (i440FX + PIIX,
+1996), BIOS 1.14.0-2 04/01/2014
+[   46.870107][ T6479] Call Trace:
+[   46.870473][ T6479]  dump_stack_lvl+0x57/0x7d
+[   46.870974][ T6479]  ubsan_epilogue+0x5/0x40
+[   46.871458][ T6479]  __ubsan_handle_out_of_bounds.cold+0x43/0x48
+[   46.872135][ T6479]  detach_capi_ctr+0x64/0xc0
+[   46.872639][ T6479]  cmtp_session+0x5c8/0x5d0
+[   46.873131][ T6479]  ? __init_waitqueue_head+0x60/0x60
+[   46.873712][ T6479]  ? cmtp_add_msgpart+0x120/0x120
+[   46.874256][ T6479]  kthread+0x147/0x170
+[   46.874709][ T6479]  ? set_kthread_struct+0x40/0x40
+[   46.875248][ T6479]  ret_from_fork+0x1f/0x30
+[   46.875773][ T6479]
+
+Signed-off-by: Xiaolong Huang <butterflyhuangxx@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20211008065830.305057-1-butterflyhuangxx@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/isdn/capi/kcapi.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -3734,8 +3734,8 @@ static int kmem_cache_open(struct kmem_c
- 	if (alloc_kmem_cache_cpus(s))
- 		return 0;
+--- a/drivers/isdn/capi/kcapi.c
++++ b/drivers/isdn/capi/kcapi.c
+@@ -480,6 +480,11 @@ int detach_capi_ctr(struct capi_ctr *ctr
  
--	free_kmem_cache_nodes(s);
- error:
-+	__kmem_cache_release(s);
- 	return -EINVAL;
- }
+ 	ctr_down(ctr, CAPI_CTR_DETACHED);
  
++	if (ctr->cnr < 1 || ctr->cnr - 1 >= CAPI_MAXCONTR) {
++		err = -EINVAL;
++		goto unlock_out;
++	}
++
+ 	if (capi_controller[ctr->cnr - 1] != ctr) {
+ 		err = -EINVAL;
+ 		goto unlock_out;
 
 
