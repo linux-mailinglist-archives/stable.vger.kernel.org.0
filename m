@@ -2,95 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C20C243A615
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 23:44:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA0C43A62E
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 23:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231296AbhJYVqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 17:46:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55878 "EHLO
+        id S233116AbhJYVxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 17:53:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230201AbhJYVqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 17:46:39 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D492C061745;
-        Mon, 25 Oct 2021 14:44:17 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id f8so2044179plo.12;
-        Mon, 25 Oct 2021 14:44:17 -0700 (PDT)
+        with ESMTP id S232613AbhJYVxN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 17:53:13 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7664FC061745
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 14:50:50 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id m42so12001612wms.2
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 14:50:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=BH7A55640DKrzB5hvumGyqffc9nxKnZV26J7qLVkD3k=;
-        b=QXPKzgmjzH4uqeQRuqDvLOjXJqAl1meT6/tPH3y2G1nOtceQqXXusmlnkqZm5tmuv4
-         iYYUQXBrDhg+NB8nUlpx4MRk3enm5phRXaF4ApJbCWOEojN4g2WN0JESgJ5gKw2cEKgs
-         XI5YNXJoXxc4pAzkd+PMJ0FrpN3Bld0ynT+1dk46h2V1QVARXfehL1Z6ehJk4BgRgyz4
-         ivf/5DugYt2GiXUYJ2z1ITmChz8TaSpN3ahsy65viHVzS6RaZX+T+wpyKrPJ0n4RXCtd
-         HgxNw0s1YkDyUTkRiXryaB8i1HX4AIHHF8T9RSUZK28Yr0gODWYlAI7UheG1KLYblt3m
-         M/Rw==
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=/Yjg0Se6z3bXQRU2+BbfYbjk3UB2U0b3w/1mQflW5Xk=;
+        b=FmECVIQQc+jWYqfcv7a6T50YsJS/Oxtw61PXb885iAGeJ0lGu3Txl5jLvzMzhwfqEV
+         OkMtotfhk7mFPpDVrYDVXUbHEPMVUI8hHfVNKbq+kBVbqpSTCdtJOkVLUVFdu5BQ7Vpb
+         K0Pi6S1DpUaGx1LScLqEwII7gWhsMnnBzL2bawv7MivJPPeKjBP3P9zleraUy0poGY5s
+         NC5hUcm+eUP0+/BoutuXp8+t9kZlZ76yb9BTXFDHhp0284hP2R0XMcQ5Fcl/gBQpHo7I
+         4B7FCqQ/PiMBVWGKYF6UMek0adxAT7WjEfQ7RbSy3XgDTd9cbJgRGI9lGcxwrnM3V6N9
+         V5fA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=BH7A55640DKrzB5hvumGyqffc9nxKnZV26J7qLVkD3k=;
-        b=CT/G+RBT1QcQeLg3HALrWLWC/ghvLgMFXppwK+/YTw6KP3m6sL5Iw1hENUir1gA3Mt
-         1kZDqvuImm3MrEPmI/dK9ptVqdwBIG8G0t1EJouc2gCHcm/CEMMA2vQp7h4Cgz00dc3D
-         ZjHdUQpnKYKYr/60HJYkvWM6TenYnx5KnridXsM0lpQx22f8D3ch7AFXx5ZtJZfrevNV
-         hegFQWjilUicCdUgyPLx4NLjUN87YD34Tge9/l6enJLntrlWOL8hl7FPcvqubjl/rox7
-         LGdcYGBmWlF335QcQ4FI/LZ/L5HOLAlFmOibjxjrfU1cAMCukhU3qFZ0tSHjTN1O8Mle
-         vEnw==
-X-Gm-Message-State: AOAM530pRHf7wdwiQZQIu1zCYw5ofNU5D2WZuAnI1QH+/vTNqFz0frcW
-        Nga8J5jXOtnWjexi3wwqb2eN6PvwD20=
-X-Google-Smtp-Source: ABdhPJwJ4Dl2vr3K70GnZxARvUI2/czHgZWu+jTttZ7I73IwDpx9QSxKLMPubsyrwjKvUJQKzaLd1A==
-X-Received: by 2002:a17:90b:4d88:: with SMTP id oj8mr35163750pjb.175.1635198256085;
-        Mon, 25 Oct 2021 14:44:16 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id bg15sm8088787pjb.15.2021.10.25.14.44.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 Oct 2021 14:44:15 -0700 (PDT)
-Subject: Re: [PATCH 5.14 000/169] 5.14.15-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20211025191017.756020307@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <cf7c766c-047a-ea13-cddc-ec47dc36136c@gmail.com>
-Date:   Mon, 25 Oct 2021 14:44:14 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=/Yjg0Se6z3bXQRU2+BbfYbjk3UB2U0b3w/1mQflW5Xk=;
+        b=oFlzQj3yF27yPaJZ7EnInM7J3sbJD7GIddipDQSQwIV7tTh0jrzkPs4G8kCKo6L+NG
+         gi6Ys5bE57IwCxeszOpcoF6IK1E78lNQ3Z/3tiDjLw9AWNZERbezt2xDf/1d5jnAeyRu
+         QUfCY2arOpgwhLGRqGoce+Cw+suRY9tmMEXnqEs9vJM/krfQCl+mXhj38k0NyOEMtm53
+         Y4zJ76OCvecest8S03rMuTYGLR7gmy2o4iydi740LaBOuaWq1wGR5rEfbMmvbj/v28ip
+         rkhZZ0AM7y6jwGf1CzttrlvEJ0IB9XtY2KpryjoSijSAPQdQ1y/cWgXGRSKHYQqRKj/U
+         i0CQ==
+X-Gm-Message-State: AOAM530q+c4GyKVVoQdz51zj7pptb6TEuiR/mOsJq0CDhwH58M2AlOGC
+        f3PAuUExHaYjtZnYwvSgUumsznvG9YbdeYUf0HE=
+X-Google-Smtp-Source: ABdhPJylQMFHVoyKbHAkIDx+G2lv+kKs7OOeMSO9b16CRqvJVOt+f2BaaDZVLttX6x7i7+iAP9YyzBnMxdIvYRo0mwk=
+X-Received: by 2002:a05:600c:354d:: with SMTP id i13mr22465929wmq.189.1635198648954;
+ Mon, 25 Oct 2021 14:50:48 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Reply-To: martinafrancis022@gmail.com
+Sender: softworkdaniel6@gmail.com
+Received: by 2002:a1c:ac03:0:0:0:0:0 with HTTP; Mon, 25 Oct 2021 14:50:46
+ -0700 (PDT)
+From:   Martina Francis <martinafrancis655@gmail.com>
+Date:   Mon, 25 Oct 2021 14:50:46 -0700
+X-Google-Sender-Auth: QpNGCbN9B3__Hnv2R8AtCoBF4Us
+Message-ID: <CAOiCfsfFtEz6Kb6mdJwtNBscuBK30K4ZRv=SKa7KwgJ7sJXd-Q@mail.gmail.com>
+Subject: =?UTF-8?Q?Dobry_dzie=C5=84_moja_droga?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/25/21 12:13 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.14.15 release.
-> There are 169 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 27 Oct 2021 19:08:09 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.15-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+--=20
+Dobry dzie=C5=84 moja droga,
+Jak si=C4=99 masz i twoja rodzina,
+jestem pani Martina Francis, chora kobieta pisz=C4=85ca ze szpitalnego
+=C5=82=C3=B3=C5=BCka z powodu niebezpiecznego raka i udaru m=C3=B3zgu, kt=
+=C3=B3ry mnie
+zaatakowa=C5=82. Mam fundusz darowizn w wysoko=C5=9Bci ( 2 700 000,00 $)
+MILION=C3=93W USD Chc=C4=99 przekaza=C4=87 za po=C5=9Brednictwem Twojej pom=
+ocy na projekt
+charytatywny
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Prosz=C4=99 wr=C3=B3ci=C4=87 do mnie po wi=C4=99cej szczeg=C3=B3=C5=82=C3=
+=B3w.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Twoja siostra,
+Pani Martina Francis.
