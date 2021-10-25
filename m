@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD60D43A087
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:33:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16CBE43A029
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235025AbhJYTbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:31:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48428 "EHLO mail.kernel.org"
+        id S234604AbhJYT3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:29:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235251AbhJYT3j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:29:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FCC86109E;
-        Mon, 25 Oct 2021 19:26:32 +0000 (UTC)
+        id S234954AbhJYT0Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:26:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9548B610A6;
+        Mon, 25 Oct 2021 19:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189993;
-        bh=i3x32t0DViQo5tomkyE3aFgtL9d+uXP+HPLqJL2LXX0=;
+        s=korg; t=1635189792;
+        bh=t0D97tyNHfJ/dkvA9wcXR6/ikyKglEVqBfbjrKMlvK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4FYRECb9lsMJS2kDPHZEJfEhtPATaAMJBsAOTFfZah1GkxaxFOVWGPlaa1dLykm+
-         a55A+wQ9IEF8BwMZpHZ4BSBUe1q2NFYtJ2UFX+GgFjdbxCme8IiTb9ynhte6l6OW3E
-         BaWNDr9bIDMI1jHhr/BuGC6EeRBI9EBo2xKD2FAo=
+        b=SIsJgRTtx2U8RdySuUSBW3fkFr5S9XAjEBcoKHRvR73NYPpFvs+YCXJCq88VpUOcv
+         mOVuuJZCKneWZ4Y+h7nPBS4H1qswA47lUk4ZewbpRejQcSnSaSFIvhcMRcDG1w6ClX
+         yZPQA+KuuuuU+SQ9G0oh3f1ItyqolUemxmNh8lEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/58] ASoC: wm8960: Fix clock configuration on slave mode
+Subject: [PATCH 4.19 01/37] ARM: dts: at91: sama5d2_som1_ek: disable ISC node by default
 Date:   Mon, 25 Oct 2021 21:14:26 +0200
-Message-Id: <20211025190939.061829662@linuxfoundation.org>
+Message-Id: <20211025190928.536289840@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
+References: <20211025190926.680827862@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,58 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 6b9b546dc00797c74bef491668ce5431ff54e1e2 ]
+[ Upstream commit 4348cc10da6377a86940beb20ad357933b8f91bb ]
 
-There is a noise issue for 8kHz sample rate on slave mode.
-Compared with master mode, the difference is the DACDIV
-setting, after correcting the DACDIV, the noise is gone.
+Without a sensor node, the ISC will simply fail to probe, as the
+corresponding port node is missing.
+It is then logical to disable the node in the devicetree.
+If we add a port with a connection to a sensor endpoint, ISC can be enabled.
 
-There is no noise issue for 48kHz sample rate, because
-the default value of DACDIV is correct for 48kHz.
-
-So wm8960_configure_clocking() should be functional for
-ADC and DAC function even if it is slave mode.
-
-In order to be compatible for old use case, just add
-condition for checking that sysclk is zero with
-slave mode.
-
-Fixes: 0e50b51aa22f ("ASoC: wm8960: Let wm8960 driver configure its bit clock and frame clock")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/1634102224-3922-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20210902121358.503589-1-eugen.hristev@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8960.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/at91-sama5d27_som1_ek.dts | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
-index 708fc4ed54ed..512f8899dcbb 100644
---- a/sound/soc/codecs/wm8960.c
-+++ b/sound/soc/codecs/wm8960.c
-@@ -752,9 +752,16 @@ static int wm8960_configure_clocking(struct snd_soc_component *component)
- 	int i, j, k;
- 	int ret;
+diff --git a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
+index e86e0c00eb6b..f37af915a37e 100644
+--- a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
++++ b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
+@@ -106,7 +106,6 @@
+ 			isc: isc@f0008000 {
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&pinctrl_isc_base &pinctrl_isc_data_8bit &pinctrl_isc_data_9_10 &pinctrl_isc_data_11_12>;
+-				status = "okay";
+ 			};
  
--	if (!(iface1 & (1<<6))) {
--		dev_dbg(component->dev,
--			"Codec is slave mode, no need to configure clock\n");
-+	/*
-+	 * For Slave mode clocking should still be configured,
-+	 * so this if statement should be removed, but some platform
-+	 * may not work if the sysclk is not configured, to avoid such
-+	 * compatible issue, just add '!wm8960->sysclk' condition in
-+	 * this if statement.
-+	 */
-+	if (!(iface1 & (1 << 6)) && !wm8960->sysclk) {
-+		dev_warn(component->dev,
-+			 "slave mode, but proceeding with no clock configuration\n");
- 		return 0;
- 	}
- 
+ 			spi0: spi@f8000000 {
 -- 
 2.33.0
 
