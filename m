@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B8743A09B
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:33:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35319439FE5
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:23:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234690AbhJYTcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:32:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48430 "EHLO mail.kernel.org"
+        id S234833AbhJYTZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235248AbhJYT3j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:29:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36D57610A1;
-        Mon, 25 Oct 2021 19:26:27 +0000 (UTC)
+        id S231723AbhJYTXo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:23:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04CDA6103C;
+        Mon, 25 Oct 2021 19:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189988;
-        bh=A+xA6S2LXaLNQPtvew3AIRpn7/U3flGMhQ+IumnNWBo=;
+        s=korg; t=1635189681;
+        bh=h3OshlrKzJ5LZMoAMLCu5XevmATvo6gO6WSAgy4xjgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I4RCE3NTSbppfLfM4gk9RLYw+USAvXreb9JgqCcSD7+t2es7IjkGs3+h2rO92zhiD
-         U2zx2clv3koa67BO8YteAC0V9rHcotNPRldslIErRqbL+Jz60SdVr/x/qSliOz2Zr4
-         q75l5l15psW2KYksBfjkBW1NKYjPxGit4ZdJ7XrU=
+        b=o/Obw4lo17yStG2hnkp9EcE1cfMG4+CJRxWz1+Sy4RRnw0/oBD+F1BCqcbOvRG714
+         c01MQTuSqBkwlz4ge4MSpxmUyNMlScVei4d2DCaDh0g7qvAqKmn3mK6hD3K/30GzS/
+         0bHtYHtdW8S0cqvuWB1RWSvpe/MCU7EXg1+ZO0wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/58] dma-debug: fix sg checks in debug_dma_map_sg()
+        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 05/30] NFSD: Keep existing listeners on portlist error
 Date:   Mon, 25 Oct 2021 21:14:25 +0200
-Message-Id: <20211025190938.913563700@linuxfoundation.org>
+Message-Id: <20211025190924.259563061@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
+References: <20211025190922.089277904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,77 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-[ Upstream commit 293d92cbbd2418ca2ba43fed07f1b92e884d1c77 ]
+[ Upstream commit c20106944eb679fa3ab7e686fe5f6ba30fbc51e5 ]
 
-The following warning occurred sporadically on s390:
-DMA-API: nvme 0006:00:00.0: device driver maps memory from kernel text or rodata [addr=0000000048cc5e2f] [len=131072]
-WARNING: CPU: 4 PID: 825 at kernel/dma/debug.c:1083 check_for_illegal_area+0xa8/0x138
+If nfsd has existing listening sockets without any processes, then an error
+returned from svc_create_xprt() for an additional transport will remove
+those existing listeners.  We're seeing this in practice when userspace
+attempts to create rpcrdma transports without having the rpcrdma modules
+present before creating nfsd kernel processes.  Fix this by checking for
+existing sockets before calling nfsd_destroy().
 
-It is a false-positive warning, due to broken logic in debug_dma_map_sg().
-check_for_illegal_area() checks for overlay of sg elements with kernel text
-or rodata. It is called with sg_dma_len(s) instead of s->length as
-parameter. After the call to ->map_sg(), sg_dma_len() will contain the
-length of possibly combined sg elements in the DMA address space, and not
-the individual sg element length, which would be s->length.
-
-The check will then use the physical start address of an sg element, and
-add the DMA length for the overlap check, which could result in the false
-warning, because the DMA length can be larger than the actual single sg
-element length.
-
-In addition, the call to check_for_illegal_area() happens in the iteration
-over mapped_ents, which will not include all individual sg elements if
-any of them were combined in ->map_sg().
-
-Fix this by using s->length instead of sg_dma_len(s). Also put the call to
-check_for_illegal_area() in a separate loop, iterating over all the
-individual sg elements ("nents" instead of "mapped_ents").
-
-While at it, as suggested by Robin Murphy, also move check_for_stack()
-inside the new loop, as it is similarly concerned with validating the
-individual sg elements.
-
-Link: https://lore.kernel.org/lkml/20210705185252.4074653-1-gerald.schaefer@linux.ibm.com
-Fixes: 884d05970bfb ("dma-debug: use sg_dma_len accessor")
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/debug.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/nfsd/nfsctl.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index 01e893cf9b9f..b28665f4d8c7 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -1354,6 +1354,12 @@ void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 	if (unlikely(dma_debug_disabled()))
- 		return;
+diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
+index d44402241d9e..50465ee502c7 100644
+--- a/fs/nfsd/nfsctl.c
++++ b/fs/nfsd/nfsctl.c
+@@ -788,7 +788,10 @@ out_close:
+ 		svc_xprt_put(xprt);
+ 	}
+ out_err:
+-	nfsd_destroy(net);
++	if (!list_empty(&nn->nfsd_serv->sv_permsocks))
++		nn->nfsd_serv->sv_nrthreads--;
++	 else
++		nfsd_destroy(net);
+ 	return err;
+ }
  
-+	for_each_sg(sg, s, nents, i) {
-+		check_for_stack(dev, sg_page(s), s->offset);
-+		if (!PageHighMem(sg_page(s)))
-+			check_for_illegal_area(dev, sg_virt(s), s->length);
-+	}
-+
- 	for_each_sg(sg, s, mapped_ents, i) {
- 		entry = dma_entry_alloc();
- 		if (!entry)
-@@ -1369,12 +1375,6 @@ void debug_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 		entry->sg_call_ents   = nents;
- 		entry->sg_mapped_ents = mapped_ents;
- 
--		check_for_stack(dev, sg_page(s), s->offset);
--
--		if (!PageHighMem(sg_page(s))) {
--			check_for_illegal_area(dev, sg_virt(s), sg_dma_len(s));
--		}
--
- 		check_sg_segment(dev, s);
- 
- 		add_dma_entry(entry);
 -- 
 2.33.0
 
