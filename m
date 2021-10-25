@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B229743A143
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 673BB43A157
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236218AbhJYTiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:38:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48338 "EHLO mail.kernel.org"
+        id S236340AbhJYTiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:38:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235508AbhJYTcI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:32:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEC056115B;
-        Mon, 25 Oct 2021 19:28:28 +0000 (UTC)
+        id S234857AbhJYTff (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:35:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86FF760FE8;
+        Mon, 25 Oct 2021 19:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190109;
+        s=korg; t=1635190362;
         bh=LrfCRFasqvuXbG5tf0T/B1fhv+UmrMhZx2uqMllI/PU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QvdCvgivm0ED3JlXuCy0yvMACP++DjlhXZvJDJaEbjgluVFG0QZcAvCuCiNUT4ujj
-         xOtCq15Ogb+MAmxCmPzVYP87EqlD2EFOadz679TGadIjimGETY+Sb1bPYKNMmZVyi6
-         /oJ/sf191ZoXSaaaBFEXFyRIivMvf9ypErposf1k=
+        b=AhhLSppE+cm6g9Et3g3lwsXDgZ+XmAZRlN8ziNA4MgL7pUKQeOx0mW64KjMBPxqiq
+         p/Rnd3tj8Z8wVhPTyS8HJ7Mmi65p+opeQlSrgxejImj7RyGP1u8FRvKUeZzigFDvQ2
+         vb/FEM7lBWjvGmu5B/VMbWW8rdNZjyW1UK5hGzvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 36/58] KVM: PPC: Book3S HV: Fix stack handling in idle_kvm_start_guest()
+Subject: [PATCH 5.10 56/95] KVM: PPC: Book3S HV: Fix stack handling in idle_kvm_start_guest()
 Date:   Mon, 25 Oct 2021 21:14:53 +0200
-Message-Id: <20211025190943.461705114@linuxfoundation.org>
+Message-Id: <20211025191005.125380718@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
