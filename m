@@ -2,87 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B39A2439195
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 10:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 181184391DA
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 10:59:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232153AbhJYInR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 04:43:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44340 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232399AbhJYInR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 04:43:17 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 244D3C061745
-        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 01:40:55 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id y78so4633511wmc.0
-        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 01:40:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=PXO9vIvASbXW/KezcJEkCWT7bDbSSwlLiI7vdiVw5cE=;
-        b=znCzIaxlm6qkunSFMXwlFrJ6COaG7wwhBk1n9z+BxFvEO40H/JYCrbOJJGbYyw52u5
-         gbNlnl15ZcuoUAOlAMQcI2dp4ZEbZsbv+4lpEnSR2FlHsiS+5HAlNzBu+KOsVpHZxC3y
-         Gm3Cijl6MSIp6jb+ewgMJ65/+KTQxyYiOE4rurEiNj73Jx4mu4rQ4H17syVd6WpOmJfr
-         2On03RxstJ0STrzbEvBS/upsmGXgUhQk+eCxdHvN7VNZ4tsdFCc5cx70X0HLoRFvkKue
-         M0zcJ7UQWwIATfYnfiSUCOQb+AGaBew6d9HUtHQLVeIIoh0fhCq8iBXHTLTP+aK0cqHn
-         rRuw==
+        id S232388AbhJYJBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 05:01:33 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:36152 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232371AbhJYJBd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Oct 2021 05:01:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635152350;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=OzTYvmR+Baxf4vvutXG9y4UJh2DkglRXKqKaxVfskag=;
+        b=VuGkDbgFL0RGyvNjrAxqVvc2yiy+d78WfAGs/ngA6u6/gXWmYvIkCiygsdzXwn7ITlKnfE
+        ekMkeHOoEk5AaZkBWwjBaEuIIDPx7V0fjoeij9SDwz5CzdzTJneF68jNPgT7uZ7D7fz/pK
+        28OmnNgkPOXQKic86VVPG13pK4pBMvE=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-428-Ous8Q5sZM1GaOhmoJOHd9A-1; Mon, 25 Oct 2021 04:59:09 -0400
+X-MC-Unique: Ous8Q5sZM1GaOhmoJOHd9A-1
+Received: by mail-ed1-f71.google.com with SMTP id g6-20020a056402424600b003dd2b85563bso6525971edb.7
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 01:59:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=PXO9vIvASbXW/KezcJEkCWT7bDbSSwlLiI7vdiVw5cE=;
-        b=gOaDDqYSDHRCM8iEMOXl41JzQgYWDWMm2eEAnysZHce0WAYPuKXMuscHtsBaMTeOh/
-         AiZftLc0X1xqjVXRsCbHw0TKjEnZ4UenlqYEMqOz10GhWmKOx+cFbBsriZ4PClT+wtNR
-         bDlDxcEziesJQ9gDy6QAGIun2wGJ3JdIM1d3SoTvmJUkIP/z/a4PQjgz6FDKw9v0mtF6
-         X7xU/W+H8dXA1VNyMqLpa8Wz4y/RGgRWq/Zq48tSE48f/tYzS+7HtINwvh1amLeQqSKi
-         VY0TAz5sfS+NH5ffrtvN2Wvk1KZCT4GbSREUZ7ox12pSlWjb/xUTijZy4DeiCAdhvO03
-         tVVQ==
-X-Gm-Message-State: AOAM530XrrMSJ+XICcjokbr5rSYtGH6QqvL/8Dxewzy7kLD/+loH2NjK
-        5K/QEagViTtYkGAbF4vCLiPMdsk8ZA0=
-X-Google-Smtp-Source: ABdhPJwbsL5sfXXoXBA09rJMwqJ+FinTCoxAqG4Vn/lbZZbZ5xxQTAqk0lkApv+lXgjEi+Y749fOZg==
-X-Received: by 2002:a1c:ac03:: with SMTP id v3mr48056418wme.13.1635151253493;
-        Mon, 25 Oct 2021 01:40:53 -0700 (PDT)
-Received: from localhost.localdomain ([88.160.176.23])
-        by smtp.gmail.com with ESMTPSA id u1sm9239414wrt.97.2021.10.25.01.40.52
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 25 Oct 2021 01:40:53 -0700 (PDT)
-From:   Loic Poulain <loic.poulain@linaro.org>
-To:     mani@kernel.org
-Cc:     linux-arm-msm@vger.kernel.org, hemantk@codeaurora.org,
-        bbhatt@codeaurora.org, Loic Poulain <loic.poulain@linaro.org>,
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=OzTYvmR+Baxf4vvutXG9y4UJh2DkglRXKqKaxVfskag=;
+        b=Rec+P5sOzApHTE/bxd9AgPPUyniH7mXTi3KbaClTRHgxr4H43dd7ApyGx4HsmzJTIq
+         YI41b9OSDjIEMwuClG6F9EFDeBDui+JdTolQiQOFKrDq7dOCPfIgUOeSeTCCJb5GXGLO
+         3hE+kAODeHFWl2HUqfEdyBw2GxEljbhU/9SsZijwcml4nhy3zw7gAEv1bifwmQPoPoxD
+         YDH6HssfM9wHhsXja6gsD/+qmi6GC1xe95sdJtyz+5zJvVvvdbGNF2YA2Qz/F0vMS7XU
+         +Jn57tX25lgL+pav+sZoM6hVLW+WCjrSElu7mNcymi0oPYHcuJQi/4QUtfQR4XYI0AKD
+         B3oA==
+X-Gm-Message-State: AOAM532kb4f5YPHEqS0ZNIlQJAAISRUPTkQbwcNEf8uUuNciN02sGk7o
+        iTMeuu3w/4tccxLk66XtA5QnYeGkTPk8ugEIhLGsbu+oKUeOgrym5BsTOuPczZn73nuU2jLNMZH
+        9mplLOpG0Z6LSqcGp
+X-Received: by 2002:a17:907:7f11:: with SMTP id qf17mr10287103ejc.437.1635152348474;
+        Mon, 25 Oct 2021 01:59:08 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzkmP22ASf0et7zE/OEQYMrGgdxDWBcd2eTY+zIf1qIM2FQEJlIVcKFfdA+RQYOcmccNWPBtw==
+X-Received: by 2002:a17:907:7f11:: with SMTP id qf17mr10287084ejc.437.1635152348257;
+        Mon, 25 Oct 2021 01:59:08 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:63a7:c72e:ea0e:6045? ([2001:b07:6468:f312:63a7:c72e:ea0e:6045])
+        by smtp.gmail.com with ESMTPSA id he14sm3901907ejc.34.2021.10.25.01.59.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 Oct 2021 01:59:07 -0700 (PDT)
+Message-ID: <707a0a5d-413e-b80d-89be-17bfca8fc44c@redhat.com>
+Date:   Mon, 25 Oct 2021 10:59:04 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [PATCH 1/8] KVM: SEV-ES: fix length of string I/O
+Content-Language: en-US
+To:     Marc Orr <marcorr@google.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        fwilhelm@google.com, seanjc@google.com, oupton@google.com,
         stable@vger.kernel.org
-Subject: [PATCH] mhi: pci_generic: Graceful shutdown on freeze
-Date:   Mon, 25 Oct 2021 10:52:20 +0200
-Message-Id: <1635151940-22147-1-git-send-email-loic.poulain@linaro.org>
-X-Mailer: git-send-email 2.7.4
+References: <20211013165616.19846-1-pbonzini@redhat.com>
+ <20211013165616.19846-2-pbonzini@redhat.com>
+ <CAA03e5F8qvkbnPNvDHjrnM1hLs2fu5L_Mxtuhi3T5Y7u+_ydrw@mail.gmail.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <CAA03e5F8qvkbnPNvDHjrnM1hLs2fu5L_Mxtuhi3T5Y7u+_ydrw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There is no reason for shutting down MHI ungracefully on freeze,
-this causes the MHI host stack & device stack to not be aligned
-anymore since the proper MHI reset sequence is not performed for
-ungraceful shutdown.
+On 25/10/21 03:31, Marc Orr wrote:
+> I could be missing something, but I'm pretty sure that this is wrong.
+> The GHCB spec says that `exit_info_2` is the `rep` count. Not the
+> string length.
+> 
+> For example, given a `rep outsw` instruction, with `ECX` set to `8`,
+> the rep count written into `SW_EXITINFO2` should be eight x86 words
+> (i.e., 16 bytes) and the IO size should be one x86 word (i.e., 2
+> bytes). In other words, the code was correct before this patch. This
+> patch is incorrectly dividing the rep count by the IO size, causing
+> the string IO to be truncated.
 
-Cc: stable@vger.kernel.org
-Fixes: 5f0c2ee1fe8d ("bus: mhi: pci-generic: Fix hibernation")
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
----
- drivers/bus/mhi/pci_generic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Then what's wrong is _also_ the call to setup_vmgexit_scratch, because 
+that one definitely expects bytes:
 
-diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 6a42425..d4a3ce2 100644
---- a/drivers/bus/mhi/pci_generic.c
-+++ b/drivers/bus/mhi/pci_generic.c
-@@ -1018,7 +1018,7 @@ static int __maybe_unused mhi_pci_freeze(struct device *dev)
- 	 * context.
- 	 */
- 	if (test_and_clear_bit(MHI_PCI_DEV_STARTED, &mhi_pdev->status)) {
--		mhi_power_down(mhi_cntrl, false);
-+		mhi_power_down(mhi_cntrl, true);
- 		mhi_unprepare_after_power_down(mhi_cntrl);
- 	}
- 
--- 
-2.7.4
+                 scratch_va = kzalloc(len, GFP_KERNEL_ACCOUNT);
+
+Paolo
 
