@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0115743A076
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:28:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3429C439F6D
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:18:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234984AbhJYTav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:30:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48384 "EHLO mail.kernel.org"
+        id S234608AbhJYTUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:20:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234917AbhJYT3Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:29:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02DBF61179;
-        Mon, 25 Oct 2021 19:26:14 +0000 (UTC)
+        id S234697AbhJYTTl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:19:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF5ED610A5;
+        Mon, 25 Oct 2021 19:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189976;
-        bh=2i/SmkelTVJDN4ukHIRESkLDHoefkzHPPIw9v0mXuDk=;
+        s=korg; t=1635189438;
+        bh=5+O5luxEq+ZJHTsBpfKr8ocub3IP1PsSW3FLEVO+9B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dT4OtmwqNSndP9LCJy/COFVCQOabMulD1N/J8fBrC4DcZA80Mk/Eh2Tnf4Wz3SY8F
-         g19p+M5jm3TqQs5szWfZ0IJYrxRDbnCOIgeJKwI6/d6JytS0NBE/F7tWj60LX1OE3d
-         HDoPLYVk+XX4QlMinC6+9J4Ke+3T3aU3VtHEwgws=
+        b=mlnQXSVCMY8x0eaD8T5MKeAMBgnU8oc3k4dTbO/wQoEAIWJOqMwtMWTgPI0ZK2Gvp
+         Veip8jBvcFx9XPIx/2iuwPsUWDZAIPAD/g9uwy+R6nRzBN77eq1N+QD8eMhUJK2Ih8
+         qwF57Wj/ISZyLRIh2kh/eLeiPXoICN27hneQlHv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 05/58] xtensa: xtfpga: use CONFIG_USE_OF instead of CONFIG_OF
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 41/44] usbnet: sanity check for maxpacket
 Date:   Mon, 25 Oct 2021 21:14:22 +0200
-Message-Id: <20211025190938.488785599@linuxfoundation.org>
+Message-Id: <20211025190936.928156150@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
+References: <20211025190928.054676643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit f3d7c2cdf6dc0d5402ec29c3673893b3542c5ad1 ]
+commit 397430b50a363d8b7bdda00522123f82df6adc5e upstream.
 
-Use platform data to initialize xtfpga device drivers when CONFIG_USE_OF
-is not selected. This fixes xtfpga networking when CONFIG_USE_OF is not
-selected but CONFIG_OF is.
+maxpacket of 0 makes no sense and oopses as we need to divide
+by it. Give up.
 
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+V2: fixed typo in log and stylistic issues
+
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211021122944.21816-1-oneukum@suse.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/platforms/xtfpga/setup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/usbnet.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/xtensa/platforms/xtfpga/setup.c b/arch/xtensa/platforms/xtfpga/setup.c
-index 829115bb381f..61c5e2c45439 100644
---- a/arch/xtensa/platforms/xtfpga/setup.c
-+++ b/arch/xtensa/platforms/xtfpga/setup.c
-@@ -81,7 +81,7 @@ void __init platform_calibrate_ccount(void)
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -1730,6 +1730,10 @@ usbnet_probe (struct usb_interface *udev
+ 	if (!dev->rx_urb_size)
+ 		dev->rx_urb_size = dev->hard_mtu;
+ 	dev->maxpacket = usb_maxpacket (dev->udev, dev->out, 1);
++	if (dev->maxpacket == 0) {
++		/* that is a broken device */
++		goto out4;
++	}
  
- #endif
- 
--#ifdef CONFIG_OF
-+#ifdef CONFIG_USE_OF
- 
- static void __init xtfpga_clk_setup(struct device_node *np)
- {
-@@ -299,4 +299,4 @@ static int __init xtavnet_init(void)
-  */
- arch_initcall(xtavnet_init);
- 
--#endif /* CONFIG_OF */
-+#endif /* CONFIG_USE_OF */
--- 
-2.33.0
-
+ 	/* let userspace know we have a random address */
+ 	if (ether_addr_equal(net->dev_addr, node_id))
 
 
