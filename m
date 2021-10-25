@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 037EA43A107
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54D1A43A1AB
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:38:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235645AbhJYThD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48426 "EHLO mail.kernel.org"
+        id S235411AbhJYTk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:40:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236078AbhJYTdV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:33:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF08761165;
-        Mon, 25 Oct 2021 19:28:52 +0000 (UTC)
+        id S237110AbhJYTit (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:38:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50E2E60E97;
+        Mon, 25 Oct 2021 19:34:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190133;
-        bh=0ib/fyncMVs4ScXTsWlrVN7bq7ulpIxKD7GDX5t04zY=;
+        s=korg; t=1635190497;
+        bh=kDzUY+TY0srqy4pJ9vW70pzP6B4vvtzWWRM+X8PjjT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iREejO74zkugp8gEkKFDZqSDHnh7LTlRV0F7/5AHrnYhu88p7prpO0UdgLU8yMjXQ
-         yBt5fxEDlrt4we+Bq2P4SOXCtmX8tu3bEDWgJWz+nEJsLK3bByoNg7efbU7VpxJKLK
-         MH0gJuyUIGbGnhzvmV+PsbYsBnH611kZfX0ZQ20w=
+        b=OuD1SapaKuSomJxscO5gremzB2iXNyiz412ASC+3YHN/ms7RgqS6sCwdz6SBShupS
+         HXV2UdC2F4lzQUQAfwuy495k1dc6W+5MROHwSJZBDAB78xtuqI0QYDcszKDSeDQGjR
+         phXeo0ZZ3/6C+vXcy9gw9dm22RXWlkTq04mRFHEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 51/58] ALSA: hda: avoid write to STATESTS if controller is in reset
-Date:   Mon, 25 Oct 2021 21:15:08 +0200
-Message-Id: <20211025190946.220310318@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 72/95] btrfs: deal with errors when checking if a dir entry exists during log replay
+Date:   Mon, 25 Oct 2021 21:15:09 +0200
+Message-Id: <20211025191007.341880123@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +40,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit b37a15188eae9d4c49c5bb035e0c8d4058e4d9b3 ]
+[ Upstream commit 77a5b9e3d14cbce49ceed2766b2003c034c066dc ]
 
-The snd_hdac_bus_reset_link() contains logic to clear STATESTS register
-before performing controller reset. This code dates back to an old
-bugfix in commit e8a7f136f5ed ("[ALSA] hda-intel - Improve HD-audio
-codec probing robustness"). Originally the code was added to
-azx_reset().
+Currently inode_in_dir() ignores errors returned from
+btrfs_lookup_dir_index_item() and from btrfs_lookup_dir_item(), treating
+any errors as if the directory entry does not exists in the fs/subvolume
+tree, which is obviously not correct, as we can get errors such as -EIO
+when reading extent buffers while searching the fs/subvolume's tree.
 
-The code was moved around in commit a41d122449be ("ALSA: hda - Embed bus
-into controller object") and ended up to snd_hdac_bus_reset_link() and
-called primarily via snd_hdac_bus_init_chip().
+Fix that by making inode_in_dir() return the errors and making its only
+caller, add_inode_ref(), deal with returned errors as well.
 
-The logic to clear STATESTS is correct when snd_hdac_bus_init_chip() is
-called when controller is not in reset. In this case, STATESTS can be
-cleared. This can be useful e.g. when forcing a controller reset to retry
-codec probe. A normal non-power-on reset will not clear the bits.
-
-However, this old logic is problematic when controller is already in
-reset. The HDA specification states that controller must be taken out of
-reset before writing to registers other than GCTL.CRST (1.0a spec,
-3.3.7). The write to STATESTS in snd_hdac_bus_reset_link() will be lost
-if the controller is already in reset per the HDA specification mentioned.
-
-This has been harmless on older hardware. On newer generation of Intel
-PCIe based HDA controllers, if configured to report issues, this write
-will emit an unsupported request error. If ACPI Platform Error Interface
-(APEI) is enabled in kernel, this will end up to kernel log.
-
-Fix the code in snd_hdac_bus_reset_link() to only clear the STATESTS if
-the function is called when controller is not in reset. Otherwise
-clearing the bits is not possible and should be skipped.
-
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20211012142935.3731820-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/hdac_controller.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/btrfs/tree-log.c | 47 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 29 insertions(+), 18 deletions(-)
 
-diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
-index 7e7be8e4dcf9..87ba66dcfd47 100644
---- a/sound/hda/hdac_controller.c
-+++ b/sound/hda/hdac_controller.c
-@@ -395,8 +395,9 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
- 	if (!full_reset)
- 		goto skip_reset;
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index c3bb5c4375ab..3b93a98fd544 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -894,9 +894,11 @@ out:
+ }
  
--	/* clear STATESTS */
--	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
-+	/* clear STATESTS if not in reset */
-+	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
-+		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
+ /*
+- * helper function to see if a given name and sequence number found
+- * in an inode back reference are already in a directory and correctly
+- * point to this inode
++ * See if a given name and sequence number found in an inode back reference are
++ * already in a directory and correctly point to this inode.
++ *
++ * Returns: < 0 on error, 0 if the directory entry does not exists and 1 if it
++ * exists.
+  */
+ static noinline int inode_in_dir(struct btrfs_root *root,
+ 				 struct btrfs_path *path,
+@@ -905,29 +907,35 @@ static noinline int inode_in_dir(struct btrfs_root *root,
+ {
+ 	struct btrfs_dir_item *di;
+ 	struct btrfs_key location;
+-	int match = 0;
++	int ret = 0;
  
- 	/* reset controller */
- 	snd_hdac_bus_enter_link_reset(bus);
+ 	di = btrfs_lookup_dir_index_item(NULL, root, path, dirid,
+ 					 index, name, name_len, 0);
+-	if (di && !IS_ERR(di)) {
++	if (IS_ERR(di)) {
++		if (PTR_ERR(di) != -ENOENT)
++			ret = PTR_ERR(di);
++		goto out;
++	} else if (di) {
+ 		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
+ 		if (location.objectid != objectid)
+ 			goto out;
+-	} else
++	} else {
+ 		goto out;
+-	btrfs_release_path(path);
++	}
+ 
++	btrfs_release_path(path);
+ 	di = btrfs_lookup_dir_item(NULL, root, path, dirid, name, name_len, 0);
+-	if (di && !IS_ERR(di)) {
+-		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
+-		if (location.objectid != objectid)
+-			goto out;
+-	} else
++	if (IS_ERR(di)) {
++		ret = PTR_ERR(di);
+ 		goto out;
+-	match = 1;
++	} else if (di) {
++		btrfs_dir_item_key_to_cpu(path->nodes[0], di, &location);
++		if (location.objectid == objectid)
++			ret = 1;
++	}
+ out:
+ 	btrfs_release_path(path);
+-	return match;
++	return ret;
+ }
+ 
+ /*
+@@ -1477,10 +1485,12 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 		if (ret)
+ 			goto out;
+ 
+-		/* if we already have a perfect match, we're done */
+-		if (!inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
+-					btrfs_ino(BTRFS_I(inode)), ref_index,
+-					name, namelen)) {
++		ret = inode_in_dir(root, path, btrfs_ino(BTRFS_I(dir)),
++				   btrfs_ino(BTRFS_I(inode)), ref_index,
++				   name, namelen);
++		if (ret < 0) {
++			goto out;
++		} else if (ret == 0) {
+ 			/*
+ 			 * look for a conflicting back reference in the
+ 			 * metadata. if we find one we have to unlink that name
+@@ -1538,6 +1548,7 @@ static noinline int add_inode_ref(struct btrfs_trans_handle *trans,
+ 
+ 			btrfs_update_inode(trans, root, inode);
+ 		}
++		/* Else, ret == 1, we already have a perfect match, we're done. */
+ 
+ 		ref_ptr = (unsigned long)(ref_ptr + ref_struct_size) + namelen;
+ 		kfree(name);
 -- 
 2.33.0
 
