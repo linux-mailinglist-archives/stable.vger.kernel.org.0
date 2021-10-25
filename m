@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D6F7439FC8
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:22:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF65E439F59
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234827AbhJYTYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:24:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
+        id S234116AbhJYTTo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:19:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233861AbhJYTXA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:23:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7321610D2;
-        Mon, 25 Oct 2021 19:20:23 +0000 (UTC)
+        id S234223AbhJYTTE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:19:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4F20600D3;
+        Mon, 25 Oct 2021 19:16:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189624;
-        bh=aSmZfjkgSa7Iut3ph86BQ+Tim2lJcrhYwRH/lVerHc4=;
+        s=korg; t=1635189401;
+        bh=vckJ+27QpxEAGzTzJ96GNZUN5D4JFQ/i+rJ7uthyoX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WnTkB1+xXkHtIaErFNcD9IMSVu8YdDxkd/YTpNoLJ4rqEtgUz1Yz7qp2qmfIw3jcz
-         325ZpdauCLNkGShaFaIwjmJdyG6nR5T8YV4R1DVJyYpUQi67kyMATOsapJiT95YkQ+
-         kXaxMULbQUpjWOtvooDQNPCQ6O9WOGGiMqj5TzGc=
+        b=Cd2okzJ8rMpuu3/hgedU6KNSwvsTsqmO07+0jmqeYFgYweCoSkJc6D2i0hAQKGIof
+         M4LIyEztLwEZMKFjbbHPgK7uk68vg9TzaRPQ9+eJdC8JBjP+2gL2B3/aDLLuY7nHw6
+         39Ykkfo+SoQgOkmGpxILY4sZ7DQJftjFapdoDowo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.9 32/50] can: peak_usb: pcan_usb_fd_decode_status(): fix back to ERROR_ACTIVE state notification
-Date:   Mon, 25 Oct 2021 21:14:19 +0200
-Message-Id: <20211025190938.832111797@linuxfoundation.org>
+        stable@vger.kernel.org, Prashant Malani <pmalani@chromium.org>,
+        Benson Leung <bleung@chromium.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 39/44] platform/x86: intel_scu_ipc: Update timeout value in comment
+Date:   Mon, 25 Oct 2021 21:14:20 +0200
+Message-Id: <20211025190936.533555927@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
+References: <20211025190928.054676643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+From: Prashant Malani <pmalani@chromium.org>
 
-commit 3d031abc7e7249573148871180c28ecedb5e27df upstream.
+[ Upstream commit a0c5814b9933f25ecb6de169483c5b88cf632bca ]
 
-This corrects the lack of notification of a return to ERROR_ACTIVE
-state for USB - CANFD devices from PEAK-System.
+The comment decribing the IPC timeout hadn't been updated when the
+actual timeout was changed from 3 to 5 seconds in
+commit a7d53dbbc70a ("platform/x86: intel_scu_ipc: Increase virtual
+timeout from 3 to 5 seconds") .
 
-Fixes: 0a25e1f4f185 ("can: peak_usb: add support for PEAK new CANFD USB adapters")
-Link: https://lore.kernel.org/all/20210929142111.55757-1-s.grosjean@peak-system.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since the value is anyway updated to 10s now, take this opportunity to
+update the value in the comment too.
+
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Cc: Benson Leung <bleung@chromium.org>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Link: https://lore.kernel.org/r/20210928101932.2543937-4-pmalani@chromium.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_fd.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/platform/x86/intel_scu_ipc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_fd.c
-@@ -559,11 +559,10 @@ static int pcan_usb_fd_decode_status(str
- 	} else if (sm->channel_p_w_b & PUCAN_BUS_WARNING) {
- 		new_state = CAN_STATE_ERROR_WARNING;
- 	} else {
--		/* no error bit (so, no error skb, back to active state) */
--		dev->can.state = CAN_STATE_ERROR_ACTIVE;
-+		/* back to (or still in) ERROR_ACTIVE state */
-+		new_state = CAN_STATE_ERROR_ACTIVE;
- 		pdev->bec.txerr = 0;
- 		pdev->bec.rxerr = 0;
--		return 0;
- 	}
+diff --git a/drivers/platform/x86/intel_scu_ipc.c b/drivers/platform/x86/intel_scu_ipc.c
+index f94b730540e2..04cabcbd8aaa 100644
+--- a/drivers/platform/x86/intel_scu_ipc.c
++++ b/drivers/platform/x86/intel_scu_ipc.c
+@@ -188,7 +188,7 @@ static inline int busy_loop(struct intel_scu_ipc_dev *scu)
+ 	return 0;
+ }
  
- 	/* state hasn't changed */
+-/* Wait till ipc ioc interrupt is received or timeout in 3 HZ */
++/* Wait till ipc ioc interrupt is received or timeout in 10 HZ */
+ static inline int ipc_wait_for_interrupt(struct intel_scu_ipc_dev *scu)
+ {
+ 	int status;
+-- 
+2.33.0
+
 
 
