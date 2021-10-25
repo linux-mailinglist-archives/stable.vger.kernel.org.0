@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C3AC43A0FE
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D74643A313
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:55:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235546AbhJYTg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:36:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48092 "EHLO mail.kernel.org"
+        id S236715AbhJYT4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:56:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234626AbhJYTbw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:31:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F89B61106;
-        Mon, 25 Oct 2021 19:28:10 +0000 (UTC)
+        id S239000AbhJYTx6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:53:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D016660EFE;
+        Mon, 25 Oct 2021 19:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190091;
-        bh=1PWDdXOYgPQxFcs9sYBfKiqlEMzfxUNWi0HZXt5Al5Q=;
+        s=korg; t=1635191103;
+        bh=OYEiy43p50mFVcpQF0Wr04GWdZWgFGozhCJvTMAK0Wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nPn2E5Hrp9QYrlY96u8RBLWr5o9RA3gGzLajMq0D8G6vJ1gNYfuGCPPunbKkazWAm
-         3/PG6P0aip8inUIfoIeJ7gX5AP8QqUerXPkO/+BELaWElsXV7ojzmqCddlmY5awV10
-         NyyvbgX6Zt336zSYTWU6V2RInLmvYSEwLcMy/0nA=
+        b=zAkcECkOx0hiKudi6UMsjPzd8vSBrwHAINGf8cS+T7FIJLaqt23keI3546RfOiPhD
+         hdD0V78ocIgqkytT0xeIZWMBlYMi7Ri60mLZsXu/O5VTOrNJRB5DiyOJjwIEBpKi6g
+         NlajE3Zb66lBreZGDNIOzV+hX8ql1oijl+K6pvkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herve Codina <herve.codina@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Daniel Latypov <dlatypov@google.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 48/58] ARM: dts: spear3xx: Fix gmac node
-Date:   Mon, 25 Oct 2021 21:15:05 +0200
-Message-Id: <20211025190945.750507586@linuxfoundation.org>
+Subject: [PATCH 5.14 125/169] kunit: fix reference count leak in kfree_at_end
+Date:   Mon, 25 Oct 2021 21:15:06 +0200
+Message-Id: <20211025191033.622601318@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herve Codina <herve.codina@bootlin.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 6636fec29cdf6665bd219564609e8651f6ddc142 ]
+[ Upstream commit f62314b1ced25c58b86e044fc951cd6a1ea234cf ]
 
-On SPEAr3xx, ethernet driver is not compatible with the SPEAr600
-one.
-Indeed, SPEAr3xx uses an earlier version of this IP (v3.40) and
-needs some driver tuning compare to SPEAr600.
+The reference counting issue happens in the normal path of
+kfree_at_end(). When kunit_alloc_and_get_resource() is invoked, the
+function forgets to handle the returned resource object, whose refcount
+increased inside, causing a refcount leak.
 
-The v3.40 IP support was added to stmmac driver and this patch
-fixes this issue and use the correct compatible string for
-SPEAr3xx
+Fix this issue by calling kunit_alloc_resource() instead of
+kunit_alloc_and_get_resource().
 
-Signed-off-by: Herve Codina <herve.codina@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixed the following when applying:
+Shuah Khan <skhan@linuxfoundation.org>
+
+CHECK: Alignment should match open parenthesis
++	kunit_alloc_resource(test, NULL, kfree_res_free, GFP_KERNEL,
+ 				     (void *)to_free);
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Reviewed-by: Daniel Latypov <dlatypov@google.com>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/spear3xx.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/kunit/executor_test.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/spear3xx.dtsi b/arch/arm/boot/dts/spear3xx.dtsi
-index f266b7b03482..cc88ebe7a60c 100644
---- a/arch/arm/boot/dts/spear3xx.dtsi
-+++ b/arch/arm/boot/dts/spear3xx.dtsi
-@@ -47,7 +47,7 @@
- 		};
+diff --git a/lib/kunit/executor_test.c b/lib/kunit/executor_test.c
+index cdbe54b16501..e14a18af573d 100644
+--- a/lib/kunit/executor_test.c
++++ b/lib/kunit/executor_test.c
+@@ -116,8 +116,8 @@ static void kfree_at_end(struct kunit *test, const void *to_free)
+ 	/* kfree() handles NULL already, but avoid allocating a no-op cleanup. */
+ 	if (IS_ERR_OR_NULL(to_free))
+ 		return;
+-	kunit_alloc_and_get_resource(test, NULL, kfree_res_free, GFP_KERNEL,
+-				     (void *)to_free);
++	kunit_alloc_resource(test, NULL, kfree_res_free, GFP_KERNEL,
++			     (void *)to_free);
+ }
  
- 		gmac: eth@e0800000 {
--			compatible = "st,spear600-gmac";
-+			compatible = "snps,dwmac-3.40a";
- 			reg = <0xe0800000 0x8000>;
- 			interrupts = <23 22>;
- 			interrupt-names = "macirq", "eth_wake_irq";
+ static struct kunit_suite *alloc_fake_suite(struct kunit *test,
 -- 
 2.33.0
 
