@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9F9143A08F
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E0D43A01E
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235220AbhJYTbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:31:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48092 "EHLO mail.kernel.org"
+        id S233279AbhJYT1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:27:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235867AbhJYT3v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:29:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5171D61076;
-        Mon, 25 Oct 2021 19:26:58 +0000 (UTC)
+        id S234832AbhJYTZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:25:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE32760187;
+        Mon, 25 Oct 2021 19:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190020;
-        bh=Vyjw8B7CPzpyYAr/Tfdc5MUjW9cAQQto4phhtHoy4Kg=;
+        s=korg; t=1635189760;
+        bh=u17dEBACuhhNVBqaU2GsXt7cKqeBlviZJa2K65iEX3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D83ivoR6nz5GOj0Qk5SQrwa97PGaVTWvSVKqqt04uXlkncpgDtGN7a8HkYFlgHpjV
-         BWTE2P4GzDogMBGRT/GxFOl3PhXQ1dV0BpPzyTzGUW6pd6zcWi7aWSgVtFppXfPzBV
-         jj2AF/tzHX49brjLQrZD3Oi8kl0fdWNpS68/g2E4=
+        b=C0bFT0F3MRJB2Aijl1ZpHGRUtLVLnGu+9YQLEE2ZxT81MokfmN7VslgGlFXwuDa51
+         Xtac7RjTkBZE5+2x/wJjXvpSuOTgbO8gn6IZBOzQNk67gQ8acHdnJyhrAAKxeNBcYB
+         Eg26XSrRybSyfWMdWXf760VPjxKSjxnLAL+/jhpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 28/58] ocfs2: mount fails with buffer overflow in strlen
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 25/30] ALSA: hda: avoid write to STATESTS if controller is in reset
 Date:   Mon, 25 Oct 2021 21:14:45 +0200
-Message-Id: <20211025190942.160115120@linuxfoundation.org>
+Message-Id: <20211025190928.463687915@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
-References: <20211025190937.555108060@linuxfoundation.org>
+In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
+References: <20211025190922.089277904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,87 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-commit b15fa9224e6e1239414525d8d556d824701849fc upstream.
+[ Upstream commit b37a15188eae9d4c49c5bb035e0c8d4058e4d9b3 ]
 
-Starting with kernel 5.11 built with CONFIG_FORTIFY_SOURCE mouting an
-ocfs2 filesystem with either o2cb or pcmk cluster stack fails with the
-trace below.  Problem seems to be that strings for cluster stack and
-cluster name are not guaranteed to be null terminated in the disk
-representation, while strlcpy assumes that the source string is always
-null terminated.  This causes a read outside of the source string
-triggering the buffer overflow detection.
+The snd_hdac_bus_reset_link() contains logic to clear STATESTS register
+before performing controller reset. This code dates back to an old
+bugfix in commit e8a7f136f5ed ("[ALSA] hda-intel - Improve HD-audio
+codec probing robustness"). Originally the code was added to
+azx_reset().
 
-  detected buffer overflow in strlen
-  ------------[ cut here ]------------
-  kernel BUG at lib/string.c:1149!
-  invalid opcode: 0000 [#1] SMP PTI
-  CPU: 1 PID: 910 Comm: mount.ocfs2 Not tainted 5.14.0-1-amd64 #1
-    Debian 5.14.6-2
-  RIP: 0010:fortify_panic+0xf/0x11
-  ...
-  Call Trace:
-   ocfs2_initialize_super.isra.0.cold+0xc/0x18 [ocfs2]
-   ocfs2_fill_super+0x359/0x19b0 [ocfs2]
-   mount_bdev+0x185/0x1b0
-   legacy_get_tree+0x27/0x40
-   vfs_get_tree+0x25/0xb0
-   path_mount+0x454/0xa20
-   __x64_sys_mount+0x103/0x140
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+The code was moved around in commit a41d122449be ("ALSA: hda - Embed bus
+into controller object") and ended up to snd_hdac_bus_reset_link() and
+called primarily via snd_hdac_bus_init_chip().
 
-Link: https://lkml.kernel.org/r/20210929180654.32460-1-vvidic@valentin-vidic.from.hr
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The logic to clear STATESTS is correct when snd_hdac_bus_init_chip() is
+called when controller is not in reset. In this case, STATESTS can be
+cleared. This can be useful e.g. when forcing a controller reset to retry
+codec probe. A normal non-power-on reset will not clear the bits.
+
+However, this old logic is problematic when controller is already in
+reset. The HDA specification states that controller must be taken out of
+reset before writing to registers other than GCTL.CRST (1.0a spec,
+3.3.7). The write to STATESTS in snd_hdac_bus_reset_link() will be lost
+if the controller is already in reset per the HDA specification mentioned.
+
+This has been harmless on older hardware. On newer generation of Intel
+PCIe based HDA controllers, if configured to report issues, this write
+will emit an unsupported request error. If ACPI Platform Error Interface
+(APEI) is enabled in kernel, this will end up to kernel log.
+
+Fix the code in snd_hdac_bus_reset_link() to only clear the STATESTS if
+the function is called when controller is not in reset. Otherwise
+clearing the bits is not possible and should be skipped.
+
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20211012142935.3731820-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/super.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ sound/hda/hdac_controller.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/ocfs2/super.c
-+++ b/fs/ocfs2/super.c
-@@ -2150,11 +2150,17 @@ static int ocfs2_initialize_super(struct
- 	}
+diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
+index 778b42ba90b8..5ae72134159a 100644
+--- a/sound/hda/hdac_controller.c
++++ b/sound/hda/hdac_controller.c
+@@ -389,8 +389,9 @@ int snd_hdac_bus_reset_link(struct hdac_bus *bus, bool full_reset)
+ 	if (!full_reset)
+ 		goto skip_reset;
  
- 	if (ocfs2_clusterinfo_valid(osb)) {
-+		/*
-+		 * ci_stack and ci_cluster in ocfs2_cluster_info may not be null
-+		 * terminated, so make sure no overflow happens here by using
-+		 * memcpy. Destination strings will always be null terminated
-+		 * because osb is allocated using kzalloc.
-+		 */
- 		osb->osb_stackflags =
- 			OCFS2_RAW_SB(di)->s_cluster_info.ci_stackflags;
--		strlcpy(osb->osb_cluster_stack,
-+		memcpy(osb->osb_cluster_stack,
- 		       OCFS2_RAW_SB(di)->s_cluster_info.ci_stack,
--		       OCFS2_STACK_LABEL_LEN + 1);
-+		       OCFS2_STACK_LABEL_LEN);
- 		if (strlen(osb->osb_cluster_stack) != OCFS2_STACK_LABEL_LEN) {
- 			mlog(ML_ERROR,
- 			     "couldn't mount because of an invalid "
-@@ -2163,9 +2169,9 @@ static int ocfs2_initialize_super(struct
- 			status = -EINVAL;
- 			goto bail;
- 		}
--		strlcpy(osb->osb_cluster_name,
-+		memcpy(osb->osb_cluster_name,
- 			OCFS2_RAW_SB(di)->s_cluster_info.ci_cluster,
--			OCFS2_CLUSTER_NAME_LEN + 1);
-+			OCFS2_CLUSTER_NAME_LEN);
- 	} else {
- 		/* The empty string is identical with classic tools that
- 		 * don't know about s_cluster_info. */
+-	/* clear STATESTS */
+-	snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
++	/* clear STATESTS if not in reset */
++	if (snd_hdac_chip_readb(bus, GCTL) & AZX_GCTL_RESET)
++		snd_hdac_chip_writew(bus, STATESTS, STATESTS_INT_MASK);
+ 
+ 	/* reset controller */
+ 	snd_hdac_bus_enter_link_reset(bus);
+-- 
+2.33.0
+
 
 
