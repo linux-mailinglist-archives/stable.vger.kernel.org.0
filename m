@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A65C4439F0E
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:14:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A42A743A24F
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233773AbhJYTRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:17:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34284 "EHLO mail.kernel.org"
+        id S237200AbhJYTrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:47:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233754AbhJYTQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:16:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8990560EFE;
-        Mon, 25 Oct 2021 19:14:36 +0000 (UTC)
+        id S236963AbhJYTph (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:45:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 989976109D;
+        Mon, 25 Oct 2021 19:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189277;
-        bh=5pHCfnAcUKJFUGqE+TMe4QX3BpuIx6Kf9xjGpidmRKg=;
+        s=korg; t=1635190749;
+        bh=3GHBGgFKEuYkfDIgIZouqZUoruLRBdCsBABTL9cyo5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZlAwvZ1mfid2uj9pL9xsNc3LtHlavghSZsNVEfW9SwLrU3TtZaIeDFWe6v7mTSGi
-         fNlEc6T0LoAz8B4BqsbCGMXKo+Rl1D/1epJAWJYXgS4VmkjJ2xz+fYPZePYoXBq27O
-         vH4IOgNS4dpKBizzFCIHaGT2qmuiLpKo/rPixbEA=
+        b=y+41trFCJ1NVWu8VXhybO8molzXVzmdDEy+2boLiBaboh3G+uYl15BN+bPJ8EYxOQ
+         rl6Lf7gdoqoUi+HPFJrP9e+2eYBEoiZmmSNSjJwtV0JVW9H0ySA5Mr+qXxNzuDPUyR
+         OsVW+o7Ol3e9/JfCafjWevo/rK7FUUWPkL7D7SCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.4 02/44] s390: fix strrchr() implementation
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 042/169] net: dsa: Fix an error handling path in dsa_switch_parse_ports_of()
 Date:   Mon, 25 Oct 2021 21:13:43 +0200
-Message-Id: <20211025190929.107136716@linuxfoundation.org>
+Message-Id: <20211025191023.128738811@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 8e0ab8e26b72a80e991c66a8abc16e6c856abe3d upstream.
+[ Upstream commit ba69fd9101f20a6d05a96ab743341d4e7b1a2178 ]
 
-Fix two problems found in the strrchr() implementation for s390
-architectures: evaluate empty strings (return the string address instead of
-NULL, if '\0' is passed as second argument); evaluate the first character
-of non-empty strings (the current implementation stops at the second).
+If we return before the end of the 'for_each_child_of_node()' iterator, the
+reference taken on 'port' must be released.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Reported-by: Heiko Carstens <hca@linux.ibm.com> (incorrect behavior with empty strings)
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Link: https://lore.kernel.org/r/20211005120836.60630-1-roberto.sassu@huawei.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add the missing 'of_node_put()' calls.
+
+Fixes: 83c0afaec7b7 ("net: dsa: Add new binding implementation")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/15d5310d1d55ad51c1af80775865306d92432e03.1634587046.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/lib/string.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ net/dsa/dsa2.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/arch/s390/lib/string.c
-+++ b/arch/s390/lib/string.c
-@@ -225,14 +225,13 @@ EXPORT_SYMBOL(strcmp);
-  */
- char * strrchr(const char * s, int c)
- {
--       size_t len = __strend(s) - s;
-+	ssize_t len = __strend(s) - s;
+diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
+index 76ed5ef0e36a..28326ca34b52 100644
+--- a/net/dsa/dsa2.c
++++ b/net/dsa/dsa2.c
+@@ -1283,12 +1283,15 @@ static int dsa_switch_parse_ports_of(struct dsa_switch *ds,
  
--       if (len)
--	       do {
--		       if (s[len] == (char) c)
--			       return (char *) s + len;
--	       } while (--len > 0);
--       return NULL;
-+	do {
-+		if (s[len] == (char)c)
-+			return (char *)s + len;
-+	} while (--len >= 0);
-+	return NULL;
- }
- EXPORT_SYMBOL(strrchr);
+ 	for_each_available_child_of_node(ports, port) {
+ 		err = of_property_read_u32(port, "reg", &reg);
+-		if (err)
++		if (err) {
++			of_node_put(port);
+ 			goto out_put_node;
++		}
  
+ 		if (reg >= ds->num_ports) {
+ 			dev_err(ds->dev, "port %pOF index %u exceeds num_ports (%zu)\n",
+ 				port, reg, ds->num_ports);
++			of_node_put(port);
+ 			err = -EINVAL;
+ 			goto out_put_node;
+ 		}
+@@ -1296,8 +1299,10 @@ static int dsa_switch_parse_ports_of(struct dsa_switch *ds,
+ 		dp = dsa_to_port(ds, reg);
+ 
+ 		err = dsa_port_parse_of(dp, port);
+-		if (err)
++		if (err) {
++			of_node_put(port);
+ 			goto out_put_node;
++		}
+ 	}
+ 
+ out_put_node:
+-- 
+2.33.0
+
 
 
