@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9DA343A021
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D7643A09C
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:33:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234732AbhJYT1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:27:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41026 "EHLO mail.kernel.org"
+        id S235693AbhJYTcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:32:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235226AbhJYTZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:25:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23F0A60F70;
-        Mon, 25 Oct 2021 19:22:25 +0000 (UTC)
+        id S233909AbhJYTaT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:30:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BDE8600D3;
+        Mon, 25 Oct 2021 19:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189747;
-        bh=5eom8NlZLabZLJh/uza/J8ZttkYQ4oSOl0sUK6XhPQI=;
+        s=korg; t=1635190043;
+        bh=vLMDtiIQc3byFZ9GILvjob3+0iH6Z2PEnp0OgoYDEow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzqVF8Xv117uu54ZFXUAYy5OaRiHsPfng4lYScEFmqnJKikTmMu2C+d+VbUZQoonE
-         c6IjNY3QfbjW5qt5g8aLvRc/CYmDm5Piaj1EXI2+dFkIWjVTv/0o3p7aO4WwMxdhFW
-         WTpjC0ipOFP3Q5HdonaY4ro6NlOyMkGDC7dle1qA=
+        b=B9FfRLg8hgWipAJNTsz0xYtkaSXOfGJAa/84SxHkddnvQ/NmiHGmReijIbL4E9ZMt
+         9txGu5mcZzUVudFFNROGEMeAYbAEpUCx4spujW73CqzDNCG2sha9xB7h5Lr/j7zAWN
+         RYGD1fiTYz7oxismKiNVAMkE9jFFhwdKiiZIRQSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4.14 16/30] ASoC: DAPM: Fix missing kctl change notifications
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Ayumi Nakamichi <ayumi.nakamichi.kf@renesas.com>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 19/58] can: rcar_can: fix suspend/resume
 Date:   Mon, 25 Oct 2021 21:14:36 +0200
-Message-Id: <20211025190926.890741543@linuxfoundation.org>
+Message-Id: <20211025190940.621863789@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190922.089277904@linuxfoundation.org>
-References: <20211025190922.089277904@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 5af82c81b2c49cfb1cad84d9eb6eab0e3d1c4842 upstream.
+commit f7c05c3987dcfde9a4e8c2d533db013fabebca0d upstream.
 
-The put callback of a kcontrol is supposed to return 1 when the value
-is changed, and this will be notified to user-space.  However, some
-DAPM kcontrols always return 0 (except for errors), hence the
-user-space misses the update of a control value.
+If the driver was not opened, rcar_can_suspend() should not call
+clk_disable() because the clock was not enabled.
 
-This patch corrects the behavior by properly returning 1 when the
-value gets updated.
-
-Reported-and-tested-by: Hans de Goede <hdegoede@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211006141712.2439-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: fd1159318e55 ("can: add Renesas R-Car CAN driver")
+Link: https://lore.kernel.org/all/20210924075556.223685-1-yoshihiro.shimoda.uh@renesas.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Tested-by: Ayumi Nakamichi <ayumi.nakamichi.kf@renesas.com>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Tested-by: Biju Das <biju.das.jz@bp.renesas.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-dapm.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/can/rcar/rcar_can.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2495,6 +2495,7 @@ static int snd_soc_dapm_set_pin(struct s
- 				const char *pin, int status)
- {
- 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
-+	int ret = 0;
+--- a/drivers/net/can/rcar/rcar_can.c
++++ b/drivers/net/can/rcar/rcar_can.c
+@@ -848,10 +848,12 @@ static int __maybe_unused rcar_can_suspe
+ 	struct rcar_can_priv *priv = netdev_priv(ndev);
+ 	u16 ctlr;
  
- 	dapm_assert_locked(dapm);
+-	if (netif_running(ndev)) {
+-		netif_stop_queue(ndev);
+-		netif_device_detach(ndev);
+-	}
++	if (!netif_running(ndev))
++		return 0;
++
++	netif_stop_queue(ndev);
++	netif_device_detach(ndev);
++
+ 	ctlr = readw(&priv->regs->ctlr);
+ 	ctlr |= RCAR_CAN_CTLR_CANM_HALT;
+ 	writew(ctlr, &priv->regs->ctlr);
+@@ -870,6 +872,9 @@ static int __maybe_unused rcar_can_resum
+ 	u16 ctlr;
+ 	int err;
  
-@@ -2507,13 +2508,14 @@ static int snd_soc_dapm_set_pin(struct s
- 		dapm_mark_dirty(w, "pin configuration");
- 		dapm_widget_invalidate_input_paths(w);
- 		dapm_widget_invalidate_output_paths(w);
-+		ret = 1;
- 	}
++	if (!netif_running(ndev))
++		return 0;
++
+ 	err = clk_enable(priv->clk);
+ 	if (err) {
+ 		netdev_err(ndev, "clk_enable() failed, error %d\n", err);
+@@ -883,10 +888,9 @@ static int __maybe_unused rcar_can_resum
+ 	writew(ctlr, &priv->regs->ctlr);
+ 	priv->can.state = CAN_STATE_ERROR_ACTIVE;
  
- 	w->connected = status;
- 	if (status == 0)
- 		w->force = 0;
- 
--	return 0;
-+	return ret;
+-	if (netif_running(ndev)) {
+-		netif_device_attach(ndev);
+-		netif_start_queue(ndev);
+-	}
++	netif_device_attach(ndev);
++	netif_start_queue(ndev);
++
+ 	return 0;
  }
  
- /**
-@@ -3441,14 +3443,15 @@ int snd_soc_dapm_put_pin_switch(struct s
- {
- 	struct snd_soc_card *card = snd_kcontrol_chip(kcontrol);
- 	const char *pin = (const char *)kcontrol->private_value;
-+	int ret;
- 
- 	if (ucontrol->value.integer.value[0])
--		snd_soc_dapm_enable_pin(&card->dapm, pin);
-+		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
- 	else
--		snd_soc_dapm_disable_pin(&card->dapm, pin);
-+		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
- 
- 	snd_soc_dapm_sync(&card->dapm);
--	return 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(snd_soc_dapm_put_pin_switch);
- 
-@@ -3824,7 +3827,7 @@ static int snd_soc_dapm_dai_link_put(str
- 
- 	w->params_select = ucontrol->value.enumerated.item[0];
- 
--	return 0;
-+	return 1;
- }
- 
- int snd_soc_dapm_new_pcm(struct snd_soc_card *card,
 
 
