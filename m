@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9E6643A28E
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDA7D439F8E
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237259AbhJYTuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:50:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37366 "EHLO mail.kernel.org"
+        id S234715AbhJYTWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:22:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238061AbhJYTr5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:47:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 025D5611AD;
-        Mon, 25 Oct 2021 19:40:44 +0000 (UTC)
+        id S234793AbhJYTUt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:20:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 496E861078;
+        Mon, 25 Oct 2021 19:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190845;
-        bh=RREGMakANUjXXW5QLWxqSaL+Q7LMCBsC7dAZLWMRhRQ=;
+        s=korg; t=1635189506;
+        bh=eEyOtvoc3xqN8DzFW9FIa9KJoMprXbBPbIFhL9Vi7rY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZ0SATbcPXAthKScoeXSQZelEy1TgYFlhKviaVmOAR/YWQaKvRm4NsxUNJuGg8uEa
-         I32E/X5FZuYsZ7lN6z4qYHfarQOvSBXL4OyZ0NpD1PzXb5JY2cyCiWlO+gWwsbL4Hf
-         vdCBXTRkYaBJ0P0NAr/4xJ+jbM1IpJiEihosr8tw=
+        b=I7Bw8AaTYqLh9yVTZe7UiX8unwN1/EmxDWXCEcBOl/SUr4QQ/5rj2HnOWjI8XqhmJ
+         O4WZv738EqCX2RRv/04/zDHA7tn/KxWpfX3CdKuqRJaA7EylENuqAsgnNE5jNfcOBS
+         Ng5WsuUfYblEzRMP9g8SaNZ5al/cki2SUSjhy+vM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.14 067/169] can: peak_pci: peak_pci_remove(): fix UAF
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 21/50] NFC: digital: fix possible memory leak in digital_in_send_sdd_req()
 Date:   Mon, 25 Oct 2021 21:14:08 +0200
-Message-Id: <20211025191025.983556510@linuxfoundation.org>
+Message-Id: <20211025190937.029417913@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
+References: <20211025190932.542632625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-commit 949fe9b35570361bc6ee2652f89a0561b26eec98 upstream.
+commit 291c932fc3692e4d211a445ba8aa35663831bac7 upstream.
 
-When remove the module peek_pci, referencing 'chan' again after
-releasing 'dev' will cause UAF.
+'skb' is allocated in digital_in_send_sdd_req(), but not free when
+digital_in_send_cmd() failed, which will cause memory leak. Fix it
+by freeing 'skb' if digital_in_send_cmd() return failed.
 
-Fix this by releasing 'dev' later.
-
-The following log reveals it:
-
-[   35.961814 ] BUG: KASAN: use-after-free in peak_pci_remove+0x16f/0x270 [peak_pci]
-[   35.963414 ] Read of size 8 at addr ffff888136998ee8 by task modprobe/5537
-[   35.965513 ] Call Trace:
-[   35.965718 ]  dump_stack_lvl+0xa8/0xd1
-[   35.966028 ]  print_address_description+0x87/0x3b0
-[   35.966420 ]  kasan_report+0x172/0x1c0
-[   35.966725 ]  ? peak_pci_remove+0x16f/0x270 [peak_pci]
-[   35.967137 ]  ? trace_irq_enable_rcuidle+0x10/0x170
-[   35.967529 ]  ? peak_pci_remove+0x16f/0x270 [peak_pci]
-[   35.967945 ]  __asan_report_load8_noabort+0x14/0x20
-[   35.968346 ]  peak_pci_remove+0x16f/0x270 [peak_pci]
-[   35.968752 ]  pci_device_remove+0xa9/0x250
-
-Fixes: e6d9c80b7ca1 ("can: peak_pci: add support of some new PEAK-System PCI cards")
-Link: https://lore.kernel.org/all/1634192913-15639-1-git-send-email-zheyuma97@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 2c66daecc409 ("NFC Digital: Add NFC-A technology support")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/sja1000/peak_pci.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ net/nfc/digital_technology.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/sja1000/peak_pci.c
-+++ b/drivers/net/can/sja1000/peak_pci.c
-@@ -729,16 +729,15 @@ static void peak_pci_remove(struct pci_d
- 		struct net_device *prev_dev = chan->prev_dev;
+--- a/net/nfc/digital_technology.c
++++ b/net/nfc/digital_technology.c
+@@ -473,8 +473,12 @@ static int digital_in_send_sdd_req(struc
+ 	*skb_put(skb, sizeof(u8)) = sel_cmd;
+ 	*skb_put(skb, sizeof(u8)) = DIGITAL_SDD_REQ_SEL_PAR;
  
- 		dev_info(&pdev->dev, "removing device %s\n", dev->name);
-+		/* do that only for first channel */
-+		if (!prev_dev && chan->pciec_card)
-+			peak_pciec_remove(chan->pciec_card);
- 		unregister_sja1000dev(dev);
- 		free_sja1000dev(dev);
- 		dev = prev_dev;
+-	return digital_in_send_cmd(ddev, skb, 30, digital_in_recv_sdd_res,
+-				   target);
++	rc = digital_in_send_cmd(ddev, skb, 30, digital_in_recv_sdd_res,
++				 target);
++	if (rc)
++		kfree_skb(skb);
++
++	return rc;
+ }
  
--		if (!dev) {
--			/* do that only for first channel */
--			if (chan->pciec_card)
--				peak_pciec_remove(chan->pciec_card);
-+		if (!dev)
- 			break;
--		}
- 		priv = netdev_priv(dev);
- 		chan = priv->priv;
- 	}
+ static void digital_in_recv_sens_res(struct nfc_digital_dev *ddev, void *arg,
 
 
