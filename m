@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E63439FAF
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B81543A2CB
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:50:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231748AbhJYTXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:23:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39156 "EHLO mail.kernel.org"
+        id S234668AbhJYTwm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:52:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234783AbhJYTWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:22:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79C7F610EA;
-        Mon, 25 Oct 2021 19:19:37 +0000 (UTC)
+        id S238601AbhJYTtz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:49:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 410F560C49;
+        Mon, 25 Oct 2021 19:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189578;
-        bh=6KaK6RnVPDbO2lV/+9Ca3txKPwMLULQk7yN2RcOQQK0=;
+        s=korg; t=1635190925;
+        bh=O0h+dirvFotMv2Za8enP7HDUcXnoF5nYPQtG5ozqOvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KC7wnumM0XYaaOSd7+vb+L7eKX/07mS5nKMcCSLDDpeGv2c1H6lYWfdLd61yvKF5w
-         K84BjarFNEtY60zYsbaP0KLpPxHOjaRMBMWz06Uhxr8rC8TdpM7KRWzcAAjx/78mK/
-         cjMt4qeRJQzQjEhfacV1mznWDKa0baZXn/Hu+mxw=
+        b=1/96avNCF1wC8W8+Zhd5kbYKL9QwfvLJj7U41ekvzp2SUAorsuzddpqK6YABFFSTF
+         z1mEQ+TCv3TOxKpbpel1PXny/PTz2fW315BJV4lB+779aG7PG4YLsYA5852Hqh49yA
+         J5lkgN66C6D0sec84UXvBvKuu+auDMss/oxGw8jU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Grieve <brendan@grieve.com.au>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 38/50] ALSA: usb-audio: Provide quirk for Sennheiser GSP670 Headset
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Hao Sun <sunhao.th@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.14 084/169] vfs: check fd has read access in kernel_read_file_from_fd()
 Date:   Mon, 25 Oct 2021 21:14:25 +0200
-Message-Id: <20211025190939.727055302@linuxfoundation.org>
+Message-Id: <20211025191027.909179636@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brendan Grieve <brendan@grieve.com.au>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 3c414eb65c294719a91a746260085363413f91c1 upstream.
+commit 032146cda85566abcd1c4884d9d23e4e30a07e9a upstream.
 
-As per discussion at: https://github.com/szszoke/sennheiser-gsp670-pulseaudio-profile/issues/13
+If we open a file without read access and then pass the fd to a syscall
+whose implementation calls kernel_read_file_from_fd(), we get a warning
+from __kernel_read():
 
-The GSP670 has 2 playback and 1 recording device that by default are
-detected in an incompatible order for alsa. This may have been done to make
-it compatible for the console by the manufacturer and only affects the
-latest firmware which uses its own ID.
+        if (WARN_ON_ONCE(!(file->f_mode & FMODE_READ)))
 
-This quirk will resolve this by reordering the channels.
+This currently affects both finit_module() and kexec_file_load(), but it
+could affect other syscalls in the future.
 
-Signed-off-by: Brendan Grieve <brendan@grieve.com.au>
+Link: https://lkml.kernel.org/r/20211007220110.600005-1-willy@infradead.org
+Fixes: b844f0ecbc56 ("vfs: define kernel_copy_file_from_fd()")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Mimi Zohar <zohar@linux.ibm.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211015025335.196592-1-brendan@grieve.com.au
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks-table.h |   32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ fs/kernel_read_file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3446,5 +3446,37 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge
- 		}
- 	}
- },
-+{
-+	/*
-+	 * Sennheiser GSP670
-+	 * Change order of interfaces loaded
-+	 */
-+	USB_DEVICE(0x1395, 0x0300),
-+	.bInterfaceClass = USB_CLASS_PER_INTERFACE,
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = &(const struct snd_usb_audio_quirk[]) {
-+			// Communication
-+			{
-+				.ifnum = 3,
-+				.type = QUIRK_AUDIO_STANDARD_INTERFACE
-+			},
-+			// Recording
-+			{
-+				.ifnum = 4,
-+				.type = QUIRK_AUDIO_STANDARD_INTERFACE
-+			},
-+			// Main
-+			{
-+				.ifnum = 1,
-+				.type = QUIRK_AUDIO_STANDARD_INTERFACE
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
+--- a/fs/kernel_read_file.c
++++ b/fs/kernel_read_file.c
+@@ -178,7 +178,7 @@ int kernel_read_file_from_fd(int fd, lof
+ 	struct fd f = fdget(fd);
+ 	int ret = -EBADF;
  
- #undef USB_DEVICE_VENDOR_SPEC
+-	if (!f.file)
++	if (!f.file || !(f.file->f_mode & FMODE_READ))
+ 		goto out;
+ 
+ 	ret = kernel_read_file(f.file, offset, buf, buf_size, file_size, id);
 
 
