@@ -2,85 +2,260 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BBAE43A23E
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F637439F15
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:14:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235859AbhJYTrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:47:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36294 "EHLO mail.kernel.org"
+        id S233864AbhJYTRP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:17:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236658AbhJYTpA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:45:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65D0960FE8;
-        Mon, 25 Oct 2021 19:38:54 +0000 (UTC)
+        id S233886AbhJYTRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:17:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8BB060FE8;
+        Mon, 25 Oct 2021 19:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190735;
-        bh=rOKT46R8nlrWPIv3/unPX30Wj7vV5fuFnqLtSGKAk3M=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iizsq3K4hz53sUazOFg9Utx1sckYtgalQs4kIlk3uz6uzaeV5dKwEIt/riz4MLYk+
-         Kxx7qfUl87nvoapljfjLv06MGsxxQVXN3NIxbkixFW2AS0Mb8r9Tn5yMFCRY5m1BfH
-         c1wbJdUZoZJOHd3eEo0s7728fMfdcrSn7hOJtCwg=
+        s=korg; t=1635189290;
+        bh=rCBOAifzoEE75nHikRKLCSt+2i0cxaHBkfDoFQjgMaA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=L5JH3ILPe8pry5AYkfCYXph5KBkG/ixiCDxQVKXQjI+E6dkiCCsm9kvBBsc4sPDU5
+         L2/ku3BRWv9wqtaVxV2jqwLn5/DoONVVafccWHZHEMzm9yu0mYnFd24wUVNUoWPoOp
+         iAYiZ9iE6i0DBnTOqtdS5L8O9xdz9bUI8mlMCGSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Blakey <paulb@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 040/169] net/sched: act_ct: Fix byte count on fragmented packets
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/44] 4.4.290-rc1 review
 Date:   Mon, 25 Oct 2021 21:13:41 +0200
-Message-Id: <20211025191022.912740631@linuxfoundation.org>
+Message-Id: <20211025190928.054676643@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.290-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.290-rc1
+X-KernelTest-Deadline: 2021-10-27T19:09+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Blakey <paulb@nvidia.com>
+This is the start of the stable review cycle for the 4.4.290 release.
+There are 44 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 2dc4e9e88cfcc38454d52b01ed3422238c134003 ]
+Responses should be made by Wed, 27 Oct 2021 19:07:44 +0000.
+Anything received after that time might be too late.
 
-First fragmented packets (frag offset = 0) byte len is zeroed
-when stolen by ip_defrag(). And since act_ct update the stats
-only afterwards (at end of execute), bytes aren't correctly
-accounted for such packets.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.290-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-To fix this, move stats update to start of action execute.
+thanks,
 
-Fixes: b57dc7c13ea9 ("net/sched: Introduce action ct")
-Signed-off-by: Paul Blakey <paulb@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/sched/act_ct.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+greg k-h
 
-diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
-index 1b4b3514c94f..07f4dce7b535 100644
---- a/net/sched/act_ct.c
-+++ b/net/sched/act_ct.c
-@@ -960,6 +960,7 @@ static int tcf_ct_act(struct sk_buff *skb, const struct tc_action *a,
- 	tmpl = p->tmpl;
- 
- 	tcf_lastuse_update(&c->tcf_tm);
-+	tcf_action_update_bstats(&c->common, skb);
- 
- 	if (clear) {
- 		qdisc_skb_cb(skb)->post_ct = false;
-@@ -1049,7 +1050,6 @@ out_push:
- 
- 	qdisc_skb_cb(skb)->post_ct = true;
- out_clear:
--	tcf_action_update_bstats(&c->common, skb);
- 	if (defrag)
- 		qdisc_skb_cb(skb)->pkt_len = skb->len;
- 	return retval;
--- 
-2.33.0
+-------------
+Pseudo-Shortlog of commits:
 
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.290-rc1
+
+Nick Desaulniers <ndesaulniers@google.com>
+    ARM: 9122/1: select HAVE_FUTEX_CMPXCHG
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracing: Have all levels of checks prevent recursion
+
+Yanfei Xu <yanfei.xu@windriver.com>
+    net: mdiobus: Fix memory leak in __mdiobus_register
+
+Oliver Neukum <oneukum@suse.com>
+    usbnet: sanity check for maxpacket
+
+Kai Vehmanen <kai.vehmanen@linux.intel.com>
+    ALSA: hda: avoid write to STATESTS if controller is in reset
+
+Prashant Malani <pmalani@chromium.org>
+    platform/x86: intel_scu_ipc: Update timeout value in comment
+
+Zheyu Ma <zheyuma97@gmail.com>
+    isdn: mISDN: Fix sleeping function called from invalid context
+
+Herve Codina <herve.codina@bootlin.com>
+    ARM: dts: spear3xx: Fix gmac node
+
+Vegard Nossum <vegard.nossum@gmail.com>
+    netfilter: Kconfig: use 'default y' instead of 'm' for bool config option
+
+Xiaolong Huang <butterflyhuangxx@gmail.com>
+    isdn: cpai: check ctr->cnr to avoid array index out of bound
+
+Lin Ma <linma@zju.edu.cn>
+    nfc: nci: fix the UAF of rf_conn_info object
+
+Zheng Liang <zhengliang6@huawei.com>
+    ovl: fix missing negative dentry check in ovl_rename()
+
+Takashi Iwai <tiwai@suse.de>
+    ASoC: DAPM: Fix missing kctl change notifications
+
+Brendan Grieve <brendan@grieve.com.au>
+    ALSA: usb-audio: Provide quirk for Sennheiser GSP670 Headset
+
+Lukas Bulwahn <lukas.bulwahn@gmail.com>
+    elfcore: correct reference to CONFIG_UML
+
+Valentin Vidic <vvidic@valentin-vidic.from.hr>
+    ocfs2: mount fails with buffer overflow in strlen
+
+Zheyu Ma <zheyuma97@gmail.com>
+    can: peak_pci: peak_pci_remove(): fix UAF
+
+Stephane Grosjean <s.grosjean@peak-system.com>
+    can: peak_usb: pcan_usb_fd_decode_status(): fix back to ERROR_ACTIVE state notification
+
+Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+    can: rcar_can: fix suspend/resume
+
+Randy Dunlap <rdunlap@infradead.org>
+    NIOS2: irqflags: rename a redefined register name
+
+Antoine Tenart <atenart@kernel.org>
+    netfilter: ipvs: make global sysctl readonly in non-init netns
+
+Benjamin Coddington <bcodding@redhat.com>
+    NFSD: Keep existing listeners on portlist error
+
+Vegard Nossum <vegard.nossum@oracle.com>
+    r8152: select CRC32 and CRYPTO/CRYPTO_HASH/CRYPTO_SHA256
+
+Colin Ian King <colin.king@canonical.com>
+    drm/msm: Fix null pointer dereference on pointer edp
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    pata_legacy: fix a couple uninitialized variable bugs
+
+Ziyang Xuan <william.xuanziyang@huawei.com>
+    NFC: digital: fix possible memory leak in digital_in_send_sdd_req()
+
+Ziyang Xuan <william.xuanziyang@huawei.com>
+    NFC: digital: fix possible memory leak in digital_tg_listen_mdaa()
+
+Ziyang Xuan <william.xuanziyang@huawei.com>
+    nfc: fix error handling of nfc_proto_register()
+
+Arnd Bergmann <arnd@arndb.de>
+    ethernet: s2io: fix setting mac address during resume
+
+Nanyong Sun <sunnanyong@huawei.com>
+    net: encx24j600: check error in devm_regmap_init_encx24j600
+
+Vegard Nossum <vegard.nossum@oracle.com>
+    net: korina: select CRC32
+
+Vegard Nossum <vegard.nossum@oracle.com>
+    net: arc: select CRC32
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    iio: ssp_sensors: fix error code in ssp_print_mcu_debug()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    iio: ssp_sensors: add more range checking in ssp_parse_dataframe()
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    iio: adc128s052: Fix the error handling path of 'adc128_probe()'
+
+Stephen Boyd <swboyd@chromium.org>
+    nvmem: Fix shift-out-of-bound (UBSAN) with byte size cells
+
+Daniele Palmas <dnlplm@gmail.com>
+    USB: serial: option: add Telit LE910Cx composition 0x1204
+
+Aleksander Morgado <aleksander@aleksander.es>
+    USB: serial: qcserial: add EM9191 QDL support
+
+Michael Cullen <michael@michaelcullen.name>
+    Input: xpad - add support for another USB ID of Nacon GC-100
+
+Ard Biesheuvel <ardb@kernel.org>
+    efi/cper: use stack buffer for error record decoding
+
+Arnd Bergmann <arnd@arndb.de>
+    cb710: avoid NULL pointer subtraction
+
+Nikolay Martynov <mar.kolya@gmail.com>
+    xhci: Enable trust tx length quirk for Fresco FL11 USB controller
+
+Roberto Sassu <roberto.sassu@huawei.com>
+    s390: fix strrchr() implementation
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: seq: Fix a potential UAF by wrong private_free call order
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/arm/Kconfig                                   |  1 +
+ arch/arm/boot/dts/spear3xx.dtsi                    |  2 +-
+ arch/nios2/include/asm/irqflags.h                  |  4 +-
+ arch/nios2/include/asm/registers.h                 |  2 +-
+ arch/s390/lib/string.c                             | 15 +++--
+ drivers/ata/pata_legacy.c                          |  6 +-
+ drivers/firmware/efi/cper.c                        |  4 +-
+ drivers/gpu/drm/msm/edp/edp_ctrl.c                 |  3 +-
+ drivers/iio/adc/ti-adc128s052.c                    |  6 ++
+ drivers/iio/common/ssp_sensors/ssp_spi.c           | 11 +++-
+ drivers/input/joystick/xpad.c                      |  2 +
+ drivers/isdn/capi/kcapi.c                          |  5 ++
+ drivers/isdn/hardware/mISDN/netjet.c               |  2 +-
+ drivers/misc/cb710/sgbuf2.c                        |  2 +-
+ drivers/net/can/rcar_can.c                         | 20 ++++---
+ drivers/net/can/sja1000/peak_pci.c                 |  9 ++-
+ drivers/net/can/usb/peak_usb/pcan_usb_fd.c         |  5 +-
+ drivers/net/ethernet/Kconfig                       |  1 +
+ drivers/net/ethernet/arc/Kconfig                   |  1 +
+ drivers/net/ethernet/microchip/encx24j600-regmap.c | 10 +++-
+ drivers/net/ethernet/microchip/encx24j600.c        |  5 +-
+ drivers/net/ethernet/microchip/encx24j600_hw.h     |  4 +-
+ drivers/net/ethernet/neterion/s2io.c               |  2 +-
+ drivers/net/phy/mdio_bus.c                         |  1 +
+ drivers/net/usb/Kconfig                            |  4 ++
+ drivers/net/usb/usbnet.c                           |  4 ++
+ drivers/nvmem/core.c                               |  3 +-
+ drivers/platform/x86/intel_scu_ipc.c               |  2 +-
+ drivers/usb/host/xhci-pci.c                        |  2 +
+ drivers/usb/serial/option.c                        |  2 +
+ drivers/usb/serial/qcserial.c                      |  1 +
+ fs/nfsd/nfsctl.c                                   |  5 +-
+ fs/ocfs2/super.c                                   | 14 +++--
+ fs/overlayfs/dir.c                                 | 10 +++-
+ include/linux/elfcore.h                            |  2 +-
+ kernel/trace/ftrace.c                              |  4 +-
+ kernel/trace/trace.h                               | 64 +++++++---------------
+ kernel/trace/trace_functions.c                     |  2 +-
+ net/netfilter/Kconfig                              |  2 +-
+ net/netfilter/ipvs/ip_vs_ctl.c                     |  5 ++
+ net/nfc/af_nfc.c                                   |  3 +
+ net/nfc/digital_core.c                             |  9 ++-
+ net/nfc/digital_technology.c                       |  8 ++-
+ net/nfc/nci/rsp.c                                  |  2 +
+ sound/core/seq/seq_device.c                        |  8 +--
+ sound/hda/hdac_controller.c                        |  5 +-
+ sound/soc/soc-dapm.c                               | 13 +++--
+ sound/usb/quirks-table.h                           | 32 +++++++++++
+ 49 files changed, 213 insertions(+), 120 deletions(-)
 
 
