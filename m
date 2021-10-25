@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D77DE439F17
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A3FA43A276
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233920AbhJYTRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:17:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34664 "EHLO mail.kernel.org"
+        id S236171AbhJYTtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:49:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233909AbhJYTRR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:17:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6E4B60F70;
-        Mon, 25 Oct 2021 19:14:53 +0000 (UTC)
+        id S237482AbhJYTpw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:45:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5A29610A6;
+        Mon, 25 Oct 2021 19:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189294;
-        bh=97Bl2w8k6t+KF/0Fghoko3xAG4ySwYScghWGfLjGblY=;
+        s=korg; t=1635190766;
+        bh=FnqM45JuIb+yznojqWwEuDpjDc9Nr2odAkZAX/+GiJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgNJzYtLM/n+2AU+Nq+05ur8sQ+6MNwdrboNb1uJPanP1BNo7qwchKDH720wWg//I
-         SqHYog27pyhQN58JYRr2y4eakgEU6/raCBTXq/CH7vkU6R5L7Ah0daSnRmrG7dLv4y
-         mai5+1ju6DnDKKkYzzaeGv+fItVRRAVCfowblRO0=
+        b=ebMLdFwOLgzGZa+nASxWteP28d8XsP74Bc5uo34UjUyQev4RcLoF7ahQcvRHCePPY
+         OIPA7lq+aas5O3xij0MZymmRZfiJwEP7KobQV96JJMf4VL65QFTES+xEKRCMTJwGmS
+         9RiMFbvSJLb64i+eL/EIPV5syyLLLRIzX/+njnxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Cullen <michael@michaelcullen.name>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.4 06/44] Input: xpad - add support for another USB ID of Nacon GC-100
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 046/169] net: hns3: add limit ets dwrr bandwidth cannot be 0
 Date:   Mon, 25 Oct 2021 21:13:47 +0200
-Message-Id: <20211025190929.955867171@linuxfoundation.org>
+Message-Id: <20211025191023.619761507@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
-References: <20211025190928.054676643@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Cullen <michael@michaelcullen.name>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-commit 3378a07daa6cdd11e042797454c706d1c69f9ca6 upstream.
+[ Upstream commit 731797fdffa3d083db536e2fdd07ceb050bb40b1 ]
 
-The Nacon GX100XF is already mapped, but it seems there is a Nacon
-GC-100 (identified as NC5136Wht PCGC-100WHITE though I believe other
-colours exist) with a different USB ID when in XInput mode.
+If ets dwrr bandwidth of tc is set to 0, the hardware will switch to SP
+mode. In this case, this tc may occupy all the tx bandwidth if it has
+huge traffic, so it violates the purpose of the user setting.
 
-Signed-off-by: Michael Cullen <michael@michaelcullen.name>
-Link: https://lore.kernel.org/r/20211015192051.5196-1-michael@michaelcullen.name
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix this problem, limit the ets dwrr bandwidth must greater than 0.
+
+Fixes: cacde272dd00 ("net: hns3: Add hclge_dcb module for the support of DCB feature")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/joystick/xpad.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -348,6 +348,7 @@ static const struct xpad_device {
- 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
-+	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
- 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
- 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
- 	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
-@@ -464,6 +465,7 @@ static const struct usb_device_id xpad_t
- 	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
- 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
- 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
-+	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
- 	{ }
- };
- 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+index c90bfde2aecf..c60d0626062c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+@@ -133,6 +133,15 @@ static int hclge_ets_validate(struct hclge_dev *hdev, struct ieee_ets *ets,
+ 				*changed = true;
+ 			break;
+ 		case IEEE_8021QAZ_TSA_ETS:
++			/* The hardware will switch to sp mode if bandwidth is
++			 * 0, so limit ets bandwidth must be greater than 0.
++			 */
++			if (!ets->tc_tx_bw[i]) {
++				dev_err(&hdev->pdev->dev,
++					"tc%u ets bw cannot be 0\n", i);
++				return -EINVAL;
++			}
++
+ 			if (hdev->tm_info.tc_info[i].tc_sch_mode !=
+ 				HCLGE_SCH_MODE_DWRR)
+ 				*changed = true;
+-- 
+2.33.0
+
 
 
