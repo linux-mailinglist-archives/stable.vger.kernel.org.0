@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F305343A1E7
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 338AC43A205
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:43:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235614AbhJYTnI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:43:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60708 "EHLO mail.kernel.org"
+        id S235180AbhJYToZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:44:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237309AbhJYTkz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237321AbhJYTkz (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 25 Oct 2021 15:40:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB78461078;
-        Mon, 25 Oct 2021 19:36:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBE2A6103C;
+        Mon, 25 Oct 2021 19:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190573;
-        bh=qDhyRId+UWpwNGcUe5x4C00yBCvIZXaKd9twqcgkJY4=;
+        s=korg; t=1635190577;
+        bh=r7q/Jt6fKX8t/2XQqPMcxhYkCP1HTRYax9oCST3Aj0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iBSg1u/CgSaMRQ9Y9e/AKhqpqeN4nnphkeVfBpaLidS1D0/X0emdtfwnFO9iMwDZL
-         fX/g3sS0XBGzm+UdK9u7fupOs+8FM8aL8q2WjZg4IsB+jUi9NisGWVoA89c2x3opkT
-         WoMlo1fwKXszvt/1iq5aXoZV9RXMclyAyAAVmYnw=
+        b=MRHU1Ogz0K+r6ksRsVmJJ8+UehJ9dWHXJcVgyJnpYKrMNdaES5cN0HG4G0On9YCnL
+         Djkp4COtg3m313FyikeeFD8zCcsE+8eQOgsYB+Xcp0/mrcld6as6x3eYYHX9qanIkN
+         /p1zXDTHzH7z1X4JHeWXzPM8bhLFE0t4k/k3mOh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
         "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Song Liu <songliubraving@fb.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 015/169] powerpc/bpf: Validate branch ranges
-Date:   Mon, 25 Oct 2021 21:13:16 +0200
-Message-Id: <20211025191019.591597495@linuxfoundation.org>
+Subject: [PATCH 5.14 016/169] powerpc/security: Add a helper to query stf_barrier type
+Date:   Mon, 25 Oct 2021 21:13:17 +0200
+Message-Id: <20211025191019.697558270@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -45,153 +43,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit 3832ba4e283d7052b783dab8311df7e3590fed93 ]
+[ Upstream commit 030905920f32e91a52794937f67434ac0b3ea41a ]
 
-Add checks to ensure that we never emit branch instructions with
-truncated branch offsets.
+Add a helper to return the stf_barrier type for the current processor.
 
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Tested-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Song Liu <songliubraving@fb.com>
-Acked-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/71d33a6b7603ec1013c9734dd8bdd4ff5e929142.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/3bd5d7f96ea1547991ac2ce3137dc2b220bae285.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/net/bpf_jit.h        | 26 ++++++++++++++++++++------
- arch/powerpc/net/bpf_jit_comp.c   |  6 +++++-
- arch/powerpc/net/bpf_jit_comp32.c |  8 ++++++--
- arch/powerpc/net/bpf_jit_comp64.c |  8 ++++++--
- 4 files changed, 37 insertions(+), 11 deletions(-)
+ arch/powerpc/include/asm/security_features.h | 5 +++++
+ arch/powerpc/kernel/security.c               | 5 +++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/arch/powerpc/net/bpf_jit.h b/arch/powerpc/net/bpf_jit.h
-index 935ea95b6635..7e9b978b768e 100644
---- a/arch/powerpc/net/bpf_jit.h
-+++ b/arch/powerpc/net/bpf_jit.h
-@@ -24,16 +24,30 @@
- #define EMIT(instr)		PLANT_INSTR(image, ctx->idx, instr)
- 
- /* Long jump; (unconditional 'branch') */
--#define PPC_JMP(dest)		EMIT(PPC_INST_BRANCH |			      \
--				     (((dest) - (ctx->idx * 4)) & 0x03fffffc))
-+#define PPC_JMP(dest)							      \
-+	do {								      \
-+		long offset = (long)(dest) - (ctx->idx * 4);		      \
-+		if (!is_offset_in_branch_range(offset)) {		      \
-+			pr_err_ratelimited("Branch offset 0x%lx (@%u) out of range\n", offset, ctx->idx);			\
-+			return -ERANGE;					      \
-+		}							      \
-+		EMIT(PPC_INST_BRANCH | (offset & 0x03fffffc));		      \
-+	} while (0)
-+
- /* blr; (unconditional 'branch' with link) to absolute address */
- #define PPC_BL_ABS(dest)	EMIT(PPC_INST_BL |			      \
- 				     (((dest) - (unsigned long)(image + ctx->idx)) & 0x03fffffc))
- /* "cond" here covers BO:BI fields. */
--#define PPC_BCC_SHORT(cond, dest)	EMIT(PPC_INST_BRANCH_COND |	      \
--					     (((cond) & 0x3ff) << 16) |	      \
--					     (((dest) - (ctx->idx * 4)) &     \
--					      0xfffc))
-+#define PPC_BCC_SHORT(cond, dest)					      \
-+	do {								      \
-+		long offset = (long)(dest) - (ctx->idx * 4);		      \
-+		if (!is_offset_in_cond_branch_range(offset)) {		      \
-+			pr_err_ratelimited("Conditional branch offset 0x%lx (@%u) out of range\n", offset, ctx->idx);		\
-+			return -ERANGE;					      \
-+		}							      \
-+		EMIT(PPC_INST_BRANCH_COND | (((cond) & 0x3ff) << 16) | (offset & 0xfffc));					\
-+	} while (0)
-+
- /* Sign-extended 32-bit immediate load */
- #define PPC_LI32(d, i)		do {					      \
- 		if ((int)(uintptr_t)(i) >= -32768 &&			      \
-diff --git a/arch/powerpc/net/bpf_jit_comp.c b/arch/powerpc/net/bpf_jit_comp.c
-index 53aefee3fe70..fcbf7a917c56 100644
---- a/arch/powerpc/net/bpf_jit_comp.c
-+++ b/arch/powerpc/net/bpf_jit_comp.c
-@@ -210,7 +210,11 @@ skip_init_ctx:
- 		/* Now build the prologue, body code & epilogue for real. */
- 		cgctx.idx = 0;
- 		bpf_jit_build_prologue(code_base, &cgctx);
--		bpf_jit_build_body(fp, code_base, &cgctx, addrs, extra_pass);
-+		if (bpf_jit_build_body(fp, code_base, &cgctx, addrs, extra_pass)) {
-+			bpf_jit_binary_free(bpf_hdr);
-+			fp = org_fp;
-+			goto out_addrs;
-+		}
- 		bpf_jit_build_epilogue(code_base, &cgctx);
- 
- 		if (bpf_jit_enable > 1)
-diff --git a/arch/powerpc/net/bpf_jit_comp32.c b/arch/powerpc/net/bpf_jit_comp32.c
-index a7759aa8043d..0da31d41d413 100644
---- a/arch/powerpc/net/bpf_jit_comp32.c
-+++ b/arch/powerpc/net/bpf_jit_comp32.c
-@@ -200,7 +200,7 @@ void bpf_jit_emit_func_call_rel(u32 *image, struct codegen_context *ctx, u64 fun
- 	}
+diff --git a/arch/powerpc/include/asm/security_features.h b/arch/powerpc/include/asm/security_features.h
+index 792eefaf230b..27574f218b37 100644
+--- a/arch/powerpc/include/asm/security_features.h
++++ b/arch/powerpc/include/asm/security_features.h
+@@ -39,6 +39,11 @@ static inline bool security_ftr_enabled(u64 feature)
+ 	return !!(powerpc_security_features & feature);
  }
  
--static void bpf_jit_emit_tail_call(u32 *image, struct codegen_context *ctx, u32 out)
-+static int bpf_jit_emit_tail_call(u32 *image, struct codegen_context *ctx, u32 out)
++#ifdef CONFIG_PPC_BOOK3S_64
++enum stf_barrier_type stf_barrier_type_get(void);
++#else
++static inline enum stf_barrier_type stf_barrier_type_get(void) { return STF_BARRIER_NONE; }
++#endif
+ 
+ // Features indicating support for Spectre/Meltdown mitigations
+ 
+diff --git a/arch/powerpc/kernel/security.c b/arch/powerpc/kernel/security.c
+index cc51fa52e783..e723ff77cc9b 100644
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -263,6 +263,11 @@ static int __init handle_no_stf_barrier(char *p)
+ 
+ early_param("no_stf_barrier", handle_no_stf_barrier);
+ 
++enum stf_barrier_type stf_barrier_type_get(void)
++{
++	return stf_enabled_flush_types;
++}
++
+ /* This is the generic flag used by other architectures */
+ static int __init handle_ssbd(char *p)
  {
- 	/*
- 	 * By now, the eBPF program has already setup parameters in r3-r6
-@@ -261,7 +261,9 @@ static void bpf_jit_emit_tail_call(u32 *image, struct codegen_context *ctx, u32
- 	bpf_jit_emit_common_epilogue(image, ctx);
- 
- 	EMIT(PPC_RAW_BCTR());
-+
- 	/* out: */
-+	return 0;
- }
- 
- /* Assemble the body code between the prologue & epilogue */
-@@ -1090,7 +1092,9 @@ cond_branch:
- 		 */
- 		case BPF_JMP | BPF_TAIL_CALL:
- 			ctx->seen |= SEEN_TAILCALL;
--			bpf_jit_emit_tail_call(image, ctx, addrs[i + 1]);
-+			ret = bpf_jit_emit_tail_call(image, ctx, addrs[i + 1]);
-+			if (ret < 0)
-+				return ret;
- 			break;
- 
- 		default:
-diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
-index dff4a2930970..2ea1c3f6e287 100644
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -206,7 +206,7 @@ void bpf_jit_emit_func_call_rel(u32 *image, struct codegen_context *ctx, u64 fun
- 	EMIT(PPC_RAW_BCTRL());
- }
- 
--static void bpf_jit_emit_tail_call(u32 *image, struct codegen_context *ctx, u32 out)
-+static int bpf_jit_emit_tail_call(u32 *image, struct codegen_context *ctx, u32 out)
- {
- 	/*
- 	 * By now, the eBPF program has already setup parameters in r3, r4 and r5
-@@ -267,7 +267,9 @@ static void bpf_jit_emit_tail_call(u32 *image, struct codegen_context *ctx, u32
- 	bpf_jit_emit_common_epilogue(image, ctx);
- 
- 	EMIT(PPC_RAW_BCTR());
-+
- 	/* out: */
-+	return 0;
- }
- 
- /* Assemble the body code between the prologue & epilogue */
-@@ -1006,7 +1008,9 @@ cond_branch:
- 		 */
- 		case BPF_JMP | BPF_TAIL_CALL:
- 			ctx->seen |= SEEN_TAILCALL;
--			bpf_jit_emit_tail_call(image, ctx, addrs[i + 1]);
-+			ret = bpf_jit_emit_tail_call(image, ctx, addrs[i + 1]);
-+			if (ret < 0)
-+				return ret;
- 			break;
- 
- 		default:
 -- 
 2.33.0
 
