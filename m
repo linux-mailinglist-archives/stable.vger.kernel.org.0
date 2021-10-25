@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B80A4439CBB
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 19:03:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C08EF439D05
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 19:08:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234966AbhJYRFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 13:05:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56318 "EHLO mail.kernel.org"
+        id S234388AbhJYRK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 13:10:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234262AbhJYRDe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 13:03:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69D2460FE8;
-        Mon, 25 Oct 2021 17:01:11 +0000 (UTC)
+        id S234596AbhJYRDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 13:03:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43AAE61027;
+        Mon, 25 Oct 2021 17:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635181272;
-        bh=q7Q+qaHQXxKtTdLOzrU+axS9O1AHz6CsjUf1HE8HpYk=;
+        s=k20201202; t=1635181274;
+        bh=doOLAH2kCv/3+qYJKorjzb/pfvFoGs3s+FDwAxY7kqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtvfMiYhNZYFwI+UsgLzt1HwBX82wcu13R90/166cWK0IjhYwgeN9onKhJVTUZI8x
-         JTtFKRvXk28hSof7JbDZ2A32Y5KvgZwkFPpcYDmeMQ2QSw7sFZnYTOxdS4zvICD3v8
-         g2RpkY62YSVF/sKRJJf96/8GToYFLpzgsmj7SskIjIWjcRrZQZNVBTvZ0AO54BnwAt
-         cHleK9ANorSeobfqsMqjgU3HOS7CKIxWf8v+YNQowk6rRJF2QxLWcaJgeUM85WtkPA
-         W9gGQctIbQ+VRQ8MhGnjKdRhMXcXHAbwYhZGk/J8VMhp9UCbQ1xixYTttJrtto9HjF
-         dc9qjRnWwuWFg==
+        b=Hu+JjLh/4yEUrmV89DavhMCI0kk5ULcn94J1gnWt++E1tW79+x0eFc6+hb0uVuZxY
+         ofEYs8GMh5W+gD2QiqPaQxvNTDpkqULfIn4ihUREBb48b61Z6p0vxD7hZ/d0650NEK
+         nBjUsCmE9A8glTWrvpJdbJ4m2xwjxJ4oeZbnidvzicKnqA9aFm8WTy48q33K/SzDtA
+         6miCbw7UDeBL6MBxf4+wrBsRfyz5KJdG5ewU2PqiB3geYbIPhuHY1GYRya3zm+OwjF
+         klA59AXkciWhGC0E2H84xs/9jNCv4uWoskJyevcYNcTDjWGR6tjsiaP1pAPKNNiuVz
+         CHGwVoW23AZ7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, sgoutham@marvell.com,
-        kuba@kernel.org, linux-arm-kernel@lists.infradead.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 2/7] cavium: Return negative value when pci_alloc_irq_vectors() fails
-Date:   Mon, 25 Oct 2021 13:00:57 -0400
-Message-Id: <20211025170103.1394651-2-sashal@kernel.org>
+Cc:     Dmitry Bogdanov <d.bogdanov@yadro.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, njavali@marvell.com,
+        GR-QLogic-Storage-Upstream@marvell.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 3/7] scsi: qla2xxx: Fix unmap of already freed sgl
+Date:   Mon, 25 Oct 2021 13:00:58 -0400
+Message-Id: <20211025170103.1394651-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211025170103.1394651-1-sashal@kernel.org>
 References: <20211025170103.1394651-1-sashal@kernel.org>
@@ -44,33 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Dmitry Bogdanov <d.bogdanov@yadro.com>
 
-[ Upstream commit b2cddb44bddc1a9c5949a978bb454bba863264db ]
+[ Upstream commit 4a8f71014b4d56c4fb287607e844c0a9f68f46d9 ]
 
-During the process of driver probing, the probe function should return < 0
-for failure, otherwise, the kernel will treat value > 0 as success.
+The sgl is freed in the target stack in target_release_cmd_kref() before
+calling qlt_free_cmd() but there is an unmap of sgl in qlt_free_cmd() that
+causes a panic if sgl is not yet DMA unmapped:
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+NIP dma_direct_unmap_sg+0xdc/0x180
+LR  dma_direct_unmap_sg+0xc8/0x180
+Call Trace:
+ ql_dbg_prefix+0x68/0xc0 [qla2xxx] (unreliable)
+ dma_unmap_sg_attrs+0x54/0xf0
+ qlt_unmap_sg.part.19+0x54/0x1c0 [qla2xxx]
+ qlt_free_cmd+0x124/0x1d0 [qla2xxx]
+ tcm_qla2xxx_release_cmd+0x4c/0xa0 [tcm_qla2xxx]
+ target_put_sess_cmd+0x198/0x370 [target_core_mod]
+ transport_generic_free_cmd+0x6c/0x1b0 [target_core_mod]
+ tcm_qla2xxx_complete_free+0x6c/0x90 [tcm_qla2xxx]
+
+The sgl may be left unmapped in error cases of response sending.  For
+instance, qlt_rdy_to_xfer() maps sgl and exits when session is being
+deleted keeping the sgl mapped.
+
+This patch removes use-after-free of the sgl and ensures that the sgl is
+unmapped for any command that was not sent to firmware.
+
+Link: https://lore.kernel.org/r/20211018122650.11846-1-d.bogdanov@yadro.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/thunder/nic_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_target.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/thunder/nic_main.c b/drivers/net/ethernet/cavium/thunder/nic_main.c
-index 90497a27df18..7c0a67f1f43f 100644
---- a/drivers/net/ethernet/cavium/thunder/nic_main.c
-+++ b/drivers/net/ethernet/cavium/thunder/nic_main.c
-@@ -1175,7 +1175,7 @@ static int nic_register_interrupts(struct nicpf *nic)
- 		dev_err(&nic->pdev->dev,
- 			"Request for #%d msix vectors failed, returned %d\n",
- 			   nic->num_vec, ret);
--		return 1;
-+		return ret;
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index ec54c8f34bc8..5fbac85d7adf 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -3216,8 +3216,7 @@ int qlt_xmit_response(struct qla_tgt_cmd *cmd, int xmit_type,
+ 			"RESET-RSP online/active/old-count/new-count = %d/%d/%d/%d.\n",
+ 			vha->flags.online, qla2x00_reset_active(vha),
+ 			cmd->reset_count, qpair->chip_reset);
+-		spin_unlock_irqrestore(qpair->qp_lock_ptr, flags);
+-		return 0;
++		goto out_unmap_unlock;
  	}
  
- 	/* Register mailbox interrupt handler */
+ 	/* Does F/W have an IOCBs for this request */
+@@ -3339,10 +3338,6 @@ int qlt_rdy_to_xfer(struct qla_tgt_cmd *cmd)
+ 	prm.sg = NULL;
+ 	prm.req_cnt = 1;
+ 
+-	/* Calculate number of entries and segments required */
+-	if (qlt_pci_map_calc_cnt(&prm) != 0)
+-		return -EAGAIN;
+-
+ 	if (!qpair->fw_started || (cmd->reset_count != qpair->chip_reset) ||
+ 	    (cmd->sess && cmd->sess->deleted)) {
+ 		/*
+@@ -3358,6 +3353,10 @@ int qlt_rdy_to_xfer(struct qla_tgt_cmd *cmd)
+ 		return 0;
+ 	}
+ 
++	/* Calculate number of entries and segments required */
++	if (qlt_pci_map_calc_cnt(&prm) != 0)
++		return -EAGAIN;
++
+ 	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
+ 	/* Does F/W have an IOCBs for this request */
+ 	res = qlt_check_reserve_free_req(qpair, prm.req_cnt);
+@@ -3785,9 +3784,6 @@ void qlt_free_cmd(struct qla_tgt_cmd *cmd)
+ 
+ 	BUG_ON(cmd->cmd_in_wq);
+ 
+-	if (cmd->sg_mapped)
+-		qlt_unmap_sg(cmd->vha, cmd);
+-
+ 	if (!cmd->q_full)
+ 		qlt_decr_num_pend_cmds(cmd->vha);
+ 
 -- 
 2.33.0
 
