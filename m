@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D595143A32D
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6436043A190
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:37:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238284AbhJYT4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:56:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42724 "EHLO mail.kernel.org"
+        id S236077AbhJYTjm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:39:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237994AbhJYTxA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:53:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F5E26125F;
-        Mon, 25 Oct 2021 19:44:13 +0000 (UTC)
+        id S235812AbhJYThh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:37:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0758061139;
+        Mon, 25 Oct 2021 19:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635191055;
-        bh=Q+oSItXz8XNwMKnpYzachn3wiNr0U+SLu/xfED1vmFM=;
+        s=korg; t=1635190449;
+        bh=rVjZnonIjs9iQhf+25GYEN+yAKjpStAF8+G+vHXsZYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VtKCc8PJtE2axBA2IFxXDYxfOh74sM9Q90dpnrah3MDSICYMX+28KwS1T1vle15Bt
-         LinNS3gzkl2DNs+/1yzfqgM9A5K9OvYaKENV3P604H0zqDT2y2VQF5/wlv7w8E0jpc
-         iQH6h4KdbiixyDk+s6MlJb5GoLgP0ZJ6whfp5EnU=
+        b=nwLixBjPGcVYbtwF8v8UxYGTza35x83qdR16M0ZmmOVNyRh4kpMpzX8URKA7mDkA0
+         77GLNyfOj65frRL8taG2iyY1r6BfWs4G8LmPXlxrzw6z3GTjZR10s3rm49vptDhvc3
+         AKa46rqQukBP27dj9dieEoCZHbrUGTYfkCm4ynd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 134/169] ALSA: hda: intel: Allow repeatedly probing on codec configuration errors
-Date:   Mon, 25 Oct 2021 21:15:15 +0200
-Message-Id: <20211025191034.659649242@linuxfoundation.org>
+Subject: [PATCH 5.10 79/95] perf/x86/msr: Add Sapphire Rapids CPU support
+Date:   Mon, 25 Oct 2021 21:15:16 +0200
+Message-Id: <20211025191008.353678713@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,289 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit c0f1886de7e173865f1a0fa7680a1c07954a987f ]
+[ Upstream commit 71920ea97d6d1d800ee8b51951dc3fda3f5dc698 ]
 
-It seems that a few recent AMD systems show the codec configuration
-errors at the early boot, while loading the driver at a later stage
-works magically.  Although the root cause of the error isn't clear,
-it's certainly not bad to allow retrying the codec probe in such a
-case if that helps.
+SMI_COUNT MSR is supported on Sapphire Rapids CPU.
 
-This patch adds the capability for retrying the probe upon codec probe
-errors on the certain AMD platforms.  The probe_work is changed to a
-delayed work, and at the secondary call, it'll jump to the codec
-probing.
-
-Note that, not only adding the re-probing, this includes the behavior
-changes in the codec configuration function.  Namely,
-snd_hda_codec_configure() won't unregister the codec at errors any
-longer.  Instead, its caller, azx_codec_configure() unregisters the
-codecs with the probe failures *if* any codec has been successfully
-configured.  If all codec probe failed, it doesn't unregister but let
-it re-probed -- which is the most case we're seeing and this patch
-tries to improve.
-
-Even if the driver doesn't re-probe or give up, it will go to the
-"free-all" error path, hence the leftover codecs shall be disabled /
-deleted in anyway.
-
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1190801
-Link: https://lore.kernel.org/r/20211006141940.2897-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/1633551137-192083-1-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/hda_codec.h      |  1 +
- sound/pci/hda/hda_bind.c       | 20 +++++++++++---------
- sound/pci/hda/hda_codec.c      |  1 +
- sound/pci/hda/hda_controller.c | 24 ++++++++++++++++--------
- sound/pci/hda/hda_controller.h |  2 +-
- sound/pci/hda/hda_intel.c      | 29 +++++++++++++++++++++++------
- sound/pci/hda/hda_intel.h      |  4 +++-
- 7 files changed, 56 insertions(+), 25 deletions(-)
+ arch/x86/events/msr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/sound/hda_codec.h b/include/sound/hda_codec.h
-index 2e8d51937acd..47d2cad21b56 100644
---- a/include/sound/hda_codec.h
-+++ b/include/sound/hda_codec.h
-@@ -225,6 +225,7 @@ struct hda_codec {
- #endif
+diff --git a/arch/x86/events/msr.c b/arch/x86/events/msr.c
+index 4be8f9cabd07..ca8ce64df2ce 100644
+--- a/arch/x86/events/msr.c
++++ b/arch/x86/events/msr.c
+@@ -68,6 +68,7 @@ static bool test_intel(int idx, void *data)
+ 	case INTEL_FAM6_BROADWELL_D:
+ 	case INTEL_FAM6_BROADWELL_G:
+ 	case INTEL_FAM6_BROADWELL_X:
++	case INTEL_FAM6_SAPPHIRERAPIDS_X:
  
- 	/* misc flags */
-+	unsigned int configured:1; /* codec was configured */
- 	unsigned int in_freeing:1; /* being released */
- 	unsigned int registered:1; /* codec was registered */
- 	unsigned int display_power_control:1; /* needs display power */
-diff --git a/sound/pci/hda/hda_bind.c b/sound/pci/hda/hda_bind.c
-index e8dee24c309d..50a58fb5ad9c 100644
---- a/sound/pci/hda/hda_bind.c
-+++ b/sound/pci/hda/hda_bind.c
-@@ -304,29 +304,31 @@ int snd_hda_codec_configure(struct hda_codec *codec)
- {
- 	int err;
- 
-+	if (codec->configured)
-+		return 0;
-+
- 	if (is_generic_config(codec))
- 		codec->probe_id = HDA_CODEC_ID_GENERIC;
- 	else
- 		codec->probe_id = 0;
- 
--	err = snd_hdac_device_register(&codec->core);
--	if (err < 0)
--		return err;
-+	if (!device_is_registered(&codec->core.dev)) {
-+		err = snd_hdac_device_register(&codec->core);
-+		if (err < 0)
-+			return err;
-+	}
- 
- 	if (!codec->preset)
- 		codec_bind_module(codec);
- 	if (!codec->preset) {
- 		err = codec_bind_generic(codec);
- 		if (err < 0) {
--			codec_err(codec, "Unable to bind the codec\n");
--			goto error;
-+			codec_dbg(codec, "Unable to bind the codec\n");
-+			return err;
- 		}
- 	}
- 
-+	codec->configured = 1;
- 	return 0;
--
-- error:
--	snd_hdac_device_unregister(&codec->core);
--	return err;
- }
- EXPORT_SYMBOL_GPL(snd_hda_codec_configure);
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index 7a717e151156..8afcce6478cd 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -791,6 +791,7 @@ void snd_hda_codec_cleanup_for_unbind(struct hda_codec *codec)
- 	snd_array_free(&codec->nids);
- 	remove_conn_list(codec);
- 	snd_hdac_regmap_exit(&codec->core);
-+	codec->configured = 0;
- }
- EXPORT_SYMBOL_GPL(snd_hda_codec_cleanup_for_unbind);
- 
-diff --git a/sound/pci/hda/hda_controller.c b/sound/pci/hda/hda_controller.c
-index ca2f2ecd1488..5a49ee4f6ce0 100644
---- a/sound/pci/hda/hda_controller.c
-+++ b/sound/pci/hda/hda_controller.c
-@@ -25,6 +25,7 @@
- #include <sound/core.h>
- #include <sound/initval.h>
- #include "hda_controller.h"
-+#include "hda_local.h"
- 
- #define CREATE_TRACE_POINTS
- #include "hda_controller_trace.h"
-@@ -1259,17 +1260,24 @@ EXPORT_SYMBOL_GPL(azx_probe_codecs);
- int azx_codec_configure(struct azx *chip)
- {
- 	struct hda_codec *codec, *next;
-+	int success = 0;
- 
--	/* use _safe version here since snd_hda_codec_configure() deregisters
--	 * the device upon error and deletes itself from the bus list.
--	 */
--	list_for_each_codec_safe(codec, next, &chip->bus) {
--		snd_hda_codec_configure(codec);
-+	list_for_each_codec(codec, &chip->bus) {
-+		if (!snd_hda_codec_configure(codec))
-+			success++;
- 	}
- 
--	if (!azx_bus(chip)->num_codecs)
--		return -ENODEV;
--	return 0;
-+	if (success) {
-+		/* unregister failed codecs if any codec has been probed */
-+		list_for_each_codec_safe(codec, next, &chip->bus) {
-+			if (!codec->configured) {
-+				codec_err(codec, "Unable to configure, disabling\n");
-+				snd_hdac_device_unregister(&codec->core);
-+			}
-+		}
-+	}
-+
-+	return success ? 0 : -ENODEV;
- }
- EXPORT_SYMBOL_GPL(azx_codec_configure);
- 
-diff --git a/sound/pci/hda/hda_controller.h b/sound/pci/hda/hda_controller.h
-index 68f9668788ea..324cba13c7ba 100644
---- a/sound/pci/hda/hda_controller.h
-+++ b/sound/pci/hda/hda_controller.h
-@@ -41,7 +41,7 @@
- /* 24 unused */
- #define AZX_DCAPS_COUNT_LPIB_DELAY  (1 << 25)	/* Take LPIB as delay */
- #define AZX_DCAPS_PM_RUNTIME	(1 << 26)	/* runtime PM support */
--/* 27 unused */
-+#define AZX_DCAPS_RETRY_PROBE	(1 << 27)	/* retry probe if no codec is configured */
- #define AZX_DCAPS_CORBRP_SELF_CLEAR (1 << 28)	/* CORBRP clears itself after reset */
- #define AZX_DCAPS_NO_MSI64      (1 << 29)	/* Stick to 32-bit MSIs */
- #define AZX_DCAPS_SEPARATE_STREAM_TAG	(1 << 30) /* capture and playback use separate stream tag */
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 0062c18b646a..89f135a6a1f6 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -307,7 +307,8 @@ enum {
- /* quirks for AMD SB */
- #define AZX_DCAPS_PRESET_AMD_SB \
- 	(AZX_DCAPS_NO_TCSEL | AZX_DCAPS_AMD_WORKAROUND |\
--	 AZX_DCAPS_SNOOP_TYPE(ATI) | AZX_DCAPS_PM_RUNTIME)
-+	 AZX_DCAPS_SNOOP_TYPE(ATI) | AZX_DCAPS_PM_RUNTIME |\
-+	 AZX_DCAPS_RETRY_PROBE)
- 
- /* quirks for Nvidia */
- #define AZX_DCAPS_PRESET_NVIDIA \
-@@ -1730,7 +1731,7 @@ static void azx_check_snoop_available(struct azx *chip)
- 
- static void azx_probe_work(struct work_struct *work)
- {
--	struct hda_intel *hda = container_of(work, struct hda_intel, probe_work);
-+	struct hda_intel *hda = container_of(work, struct hda_intel, probe_work.work);
- 	azx_probe_continue(&hda->chip);
- }
- 
-@@ -1839,7 +1840,7 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
- 	}
- 
- 	/* continue probing in work context as may trigger request module */
--	INIT_WORK(&hda->probe_work, azx_probe_work);
-+	INIT_DELAYED_WORK(&hda->probe_work, azx_probe_work);
- 
- 	*rchip = chip;
- 
-@@ -2170,7 +2171,7 @@ static int azx_probe(struct pci_dev *pci,
- #endif
- 
- 	if (schedule_probe)
--		schedule_work(&hda->probe_work);
-+		schedule_delayed_work(&hda->probe_work, 0);
- 
- 	dev++;
- 	if (chip->disabled)
-@@ -2256,6 +2257,11 @@ static int azx_probe_continue(struct azx *chip)
- 	int dev = chip->dev_index;
- 	int err;
- 
-+	if (chip->disabled || hda->init_failed)
-+		return -EIO;
-+	if (hda->probe_retry)
-+		goto probe_retry;
-+
- 	to_hda_bus(bus)->bus_probing = 1;
- 	hda->probe_continued = 1;
- 
-@@ -2317,10 +2323,20 @@ static int azx_probe_continue(struct azx *chip)
- #endif
- 	}
- #endif
-+
-+ probe_retry:
- 	if (bus->codec_mask && !(probe_only[dev] & 1)) {
- 		err = azx_codec_configure(chip);
--		if (err < 0)
-+		if (err) {
-+			if ((chip->driver_caps & AZX_DCAPS_RETRY_PROBE) &&
-+			    ++hda->probe_retry < 60) {
-+				schedule_delayed_work(&hda->probe_work,
-+						      msecs_to_jiffies(1000));
-+				return 0; /* keep things up */
-+			}
-+			dev_err(chip->card->dev, "Cannot probe codecs, giving up\n");
- 			goto out_free;
-+		}
- 	}
- 
- 	err = snd_card_register(chip->card);
-@@ -2350,6 +2366,7 @@ out_free:
- 		display_power(chip, false);
- 	complete_all(&hda->probe_wait);
- 	to_hda_bus(bus)->bus_probing = 0;
-+	hda->probe_retry = 0;
- 	return 0;
- }
- 
-@@ -2375,7 +2392,7 @@ static void azx_remove(struct pci_dev *pci)
- 		 * device during cancel_work_sync() call.
- 		 */
- 		device_unlock(&pci->dev);
--		cancel_work_sync(&hda->probe_work);
-+		cancel_delayed_work_sync(&hda->probe_work);
- 		device_lock(&pci->dev);
- 
- 		snd_card_free(card);
-diff --git a/sound/pci/hda/hda_intel.h b/sound/pci/hda/hda_intel.h
-index 3fb119f09040..0f39418f9328 100644
---- a/sound/pci/hda/hda_intel.h
-+++ b/sound/pci/hda/hda_intel.h
-@@ -14,7 +14,7 @@ struct hda_intel {
- 
- 	/* sync probing */
- 	struct completion probe_wait;
--	struct work_struct probe_work;
-+	struct delayed_work probe_work;
- 
- 	/* card list (for power_save trigger) */
- 	struct list_head list;
-@@ -30,6 +30,8 @@ struct hda_intel {
- 	unsigned int freed:1; /* resources already released */
- 
- 	bool need_i915_power:1; /* the hda controller needs i915 power */
-+
-+	int probe_retry;	/* being probe-retry */
- };
- 
- #endif
+ 	case INTEL_FAM6_ATOM_SILVERMONT:
+ 	case INTEL_FAM6_ATOM_SILVERMONT_D:
 -- 
 2.33.0
 
