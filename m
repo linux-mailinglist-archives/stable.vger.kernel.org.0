@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2294643A30C
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:53:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AFE443A1A3
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237208AbhJYTzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:55:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41884 "EHLO mail.kernel.org"
+        id S235802AbhJYTkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:40:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238819AbhJYTxj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:53:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBFA560187;
-        Mon, 25 Oct 2021 19:44:37 +0000 (UTC)
+        id S236992AbhJYTic (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:38:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D29C160200;
+        Mon, 25 Oct 2021 19:34:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635191078;
-        bh=KFnpR3lRalZKIi/oR7bSejsa6GG/jUswuDKycLcVR9E=;
+        s=korg; t=1635190472;
+        bh=WXQ7kJB7CaUzclXDdKnK/iKKQKb3gnadMMfA2wO534U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNRX20FspMdJv/dqWFKaTsRhdZAZlX5Xr6HUz6WQ/L8HlWyTdscuiqWWp7HQmA70d
-         zAU0bOpoeR/zBB2bbFvZm6qJIwF9ICVQ2ss20AvQFpnK4xHUAuR/7pMuxJ54LbHtTf
-         fP07BzzidLKT9K6eV71U3a++K0mUGhNHsPolVYF4=
+        b=H1/r+B13l3aDR2/9+ftKjvW9EfvJEaGjR45JM/9WdALT/Pv16Nrt2GWhEvV3QL+v/
+         uVq3rLOLv1lHG7+RENePjiVPwTO9uRNNllNmWdd8ck30L13X7GhGA4r8qeJ/Jr8K56
+         0GR+oD4DA5T7sV5cPO+8JGz6UBaduLIKPJ91LTPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 140/169] platform/x86: intel_scu_ipc: Update timeout value in comment
+Subject: [PATCH 5.10 84/95] net: hns3: fix for miscalculation of rx unused desc
 Date:   Mon, 25 Oct 2021 21:15:21 +0200
-Message-Id: <20211025191035.332304601@linuxfoundation.org>
+Message-Id: <20211025191008.999506899@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
+References: <20211025190956.374447057@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +41,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Yunsheng Lin <linyunsheng@huawei.com>
 
-[ Upstream commit a0c5814b9933f25ecb6de169483c5b88cf632bca ]
+[ Upstream commit 9f9f0f19994b42b3e5e8735d41b9c5136828a76c ]
 
-The comment decribing the IPC timeout hadn't been updated when the
-actual timeout was changed from 3 to 5 seconds in
-commit a7d53dbbc70a ("platform/x86: intel_scu_ipc: Increase virtual
-timeout from 3 to 5 seconds") .
+rx unused desc is the desc that need attatching new buffer
+before refilling to hw to receive new packet, the number of
+desc need attatching new buffer is calculated using next_to_use
+and next_to_clean. when next_to_use == next_to_clean, currently
+hns3 driver assumes that all the desc has the buffer attatched,
+but 'next_to_use == next_to_clean' also means all the desc need
+attatching new buffer if hw has comsumed all the desc and the
+driver has not attatched any buffer to the desc yet.
 
-Since the value is anyway updated to 10s now, take this opportunity to
-update the value in the comment too.
+This patch adds 'refill' in desc_cb to indicate whether a new
+buffer has been refilled to a desc.
 
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Cc: Benson Leung <bleung@chromium.org>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Link: https://lore.kernel.org/r/20210928101932.2543937-4-pmalani@chromium.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_scu_ipc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 8 ++++++++
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.h | 1 +
+ 2 files changed, 9 insertions(+)
 
-diff --git a/drivers/platform/x86/intel_scu_ipc.c b/drivers/platform/x86/intel_scu_ipc.c
-index daf199a9984b..121037d0a933 100644
---- a/drivers/platform/x86/intel_scu_ipc.c
-+++ b/drivers/platform/x86/intel_scu_ipc.c
-@@ -247,7 +247,7 @@ static inline int busy_loop(struct intel_scu_ipc_dev *scu)
- 	return -ETIMEDOUT;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 568ac6b321fa..ae7cd73c823b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -2421,6 +2421,7 @@ static void hns3_buffer_detach(struct hns3_enet_ring *ring, int i)
+ {
+ 	hns3_unmap_buffer(ring, &ring->desc_cb[i]);
+ 	ring->desc[i].addr = 0;
++	ring->desc_cb[i].refill = 0;
  }
  
--/* Wait till ipc ioc interrupt is received or timeout in 3 HZ */
-+/* Wait till ipc ioc interrupt is received or timeout in 10 HZ */
- static inline int ipc_wait_for_interrupt(struct intel_scu_ipc_dev *scu)
+ static void hns3_free_buffer_detach(struct hns3_enet_ring *ring, int i,
+@@ -2498,6 +2499,7 @@ static int hns3_alloc_and_attach_buffer(struct hns3_enet_ring *ring, int i)
+ 		return ret;
+ 
+ 	ring->desc[i].addr = cpu_to_le64(ring->desc_cb[i].dma);
++	ring->desc_cb[i].refill = 1;
+ 
+ 	return 0;
+ }
+@@ -2528,12 +2530,14 @@ static void hns3_replace_buffer(struct hns3_enet_ring *ring, int i,
+ 	hns3_unmap_buffer(ring, &ring->desc_cb[i]);
+ 	ring->desc_cb[i] = *res_cb;
+ 	ring->desc[i].addr = cpu_to_le64(ring->desc_cb[i].dma);
++	ring->desc_cb[i].refill = 1;
+ 	ring->desc[i].rx.bd_base_info = 0;
+ }
+ 
+ static void hns3_reuse_buffer(struct hns3_enet_ring *ring, int i)
  {
- 	int status;
+ 	ring->desc_cb[i].reuse_flag = 0;
++	ring->desc_cb[i].refill = 1;
+ 	ring->desc[i].addr = cpu_to_le64(ring->desc_cb[i].dma +
+ 					 ring->desc_cb[i].page_offset);
+ 	ring->desc[i].rx.bd_base_info = 0;
+@@ -2631,6 +2635,9 @@ static int hns3_desc_unused(struct hns3_enet_ring *ring)
+ 	int ntc = ring->next_to_clean;
+ 	int ntu = ring->next_to_use;
+ 
++	if (unlikely(ntc == ntu && !ring->desc_cb[ntc].refill))
++		return ring->desc_num;
++
+ 	return ((ntc >= ntu) ? 0 : ring->desc_num) + ntc - ntu;
+ }
+ 
+@@ -2907,6 +2914,7 @@ static void hns3_rx_ring_move_fw(struct hns3_enet_ring *ring)
+ {
+ 	ring->desc[ring->next_to_clean].rx.bd_base_info &=
+ 		cpu_to_le32(~BIT(HNS3_RXD_VLD_B));
++	ring->desc_cb[ring->next_to_clean].refill = 0;
+ 	ring->next_to_clean += 1;
+ 
+ 	if (unlikely(ring->next_to_clean == ring->desc_num))
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+index a8ad7ccae20e..54d02ea4aaa7 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
+@@ -283,6 +283,7 @@ struct hns3_desc_cb {
+ 	u32 length;     /* length of the buffer */
+ 
+ 	u16 reuse_flag;
++	u16 refill;
+ 
+ 	/* desc type, used by the ring user to mark the type of the priv data */
+ 	u16 type;
 -- 
 2.33.0
 
