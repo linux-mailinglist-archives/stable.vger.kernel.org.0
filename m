@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A16943A285
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:47:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7953439F97
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:20:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237265AbhJYTth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:49:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38046 "EHLO mail.kernel.org"
+        id S234258AbhJYTW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:22:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237967AbhJYTq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:46:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA075611C7;
-        Mon, 25 Oct 2021 19:39:53 +0000 (UTC)
+        id S234463AbhJYTVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:21:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5DE56103C;
+        Mon, 25 Oct 2021 19:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190794;
-        bh=Ps6lIDaXjSpwSIMUsGNCTVWdQiy/a2kNcif61VQEJsI=;
+        s=korg; t=1635189527;
+        bh=BBTq1XMHgxZOIYSLL3kcvMpjtwUESCOr80d3awmgXKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XoUENZeEpzgLBepWJiQKIoUt3LQffSM5y5keqX9lChOx4jRyN3Dowrvtw+SNQQUcb
-         MiiBETeW3i3Hzqp6zWl1BheRmnjJJXmNYBiH/jLc0Mzuf1Hg52tYhmMkjgj8khCGz8
-         1z4xQ2J76ZsMFgHxVFKBhPstsePnF2oBaFcUnOtI=
+        b=ZfQbl/uj6S9X0Ytg8ppIxNaijHrs5fM+tdVKtwdb6HhvKDw1Hc4T/TGSvGGN98NR3
+         ayknAz7WGbAXQ6kwqMLh0L924E4Czcuxn5FcKuJau1jvToaBjaAc69JXx9oBIJ7Sw4
+         jQKQGBCeRC9mY7pQ9jlYSn1+Rx5wYJ3epVWB+AlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+85d9878b19c94f9019ad@syzkaller.appspotmail.com,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.14 072/169] can: j1939: j1939_netdev_start(): fix UAF for rx_kref of j1939_priv
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 26/50] xtensa: xtfpga: use CONFIG_USE_OF instead of CONFIG_OF
 Date:   Mon, 25 Oct 2021 21:14:13 +0200
-Message-Id: <20211025191026.543745998@linuxfoundation.org>
+Message-Id: <20211025190937.877836180@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
-References: <20211025191017.756020307@linuxfoundation.org>
+In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
+References: <20211025190932.542632625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,79 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit d9d52a3ebd284882f5562c88e55991add5d01586 upstream.
+[ Upstream commit f3d7c2cdf6dc0d5402ec29c3673893b3542c5ad1 ]
 
-It will trigger UAF for rx_kref of j1939_priv as following.
+Use platform data to initialize xtfpga device drivers when CONFIG_USE_OF
+is not selected. This fixes xtfpga networking when CONFIG_USE_OF is not
+selected but CONFIG_OF is.
 
-        cpu0                                    cpu1
-j1939_sk_bind(socket0, ndev0, ...)
-j1939_netdev_start
-                                        j1939_sk_bind(socket1, ndev0, ...)
-                                        j1939_netdev_start
-j1939_priv_set
-                                        j1939_priv_get_by_ndev_locked
-j1939_jsk_add
-.....
-j1939_netdev_stop
-kref_put_lock(&priv->rx_kref, ...)
-                                        kref_get(&priv->rx_kref, ...)
-                                        REFCOUNT_WARN("addition on 0;...")
-
-====================================================
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 1 PID: 20874 at lib/refcount.c:25 refcount_warn_saturate+0x169/0x1e0
-RIP: 0010:refcount_warn_saturate+0x169/0x1e0
-Call Trace:
- j1939_netdev_start+0x68b/0x920
- j1939_sk_bind+0x426/0xeb0
- ? security_socket_bind+0x83/0xb0
-
-The rx_kref's kref_get() and kref_put() should use j1939_netdev_lock to
-protect.
-
-Fixes: 9d71dd0c70099 ("can: add support of SAE J1939 protocol")
-Link: https://lore.kernel.org/all/20210926104757.2021540-1-william.xuanziyang@huawei.com
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+85d9878b19c94f9019ad@syzkaller.appspotmail.com
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/main.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/xtensa/platforms/xtfpga/setup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/can/j1939/main.c
-+++ b/net/can/j1939/main.c
-@@ -249,11 +249,14 @@ struct j1939_priv *j1939_netdev_start(st
- 	struct j1939_priv *priv, *priv_new;
- 	int ret;
+diff --git a/arch/xtensa/platforms/xtfpga/setup.c b/arch/xtensa/platforms/xtfpga/setup.c
+index 42285f35d313..982e7c22e7ca 100644
+--- a/arch/xtensa/platforms/xtfpga/setup.c
++++ b/arch/xtensa/platforms/xtfpga/setup.c
+@@ -85,7 +85,7 @@ void __init platform_calibrate_ccount(void)
  
--	priv = j1939_priv_get_by_ndev(ndev);
-+	spin_lock(&j1939_netdev_lock);
-+	priv = j1939_priv_get_by_ndev_locked(ndev);
- 	if (priv) {
- 		kref_get(&priv->rx_kref);
-+		spin_unlock(&j1939_netdev_lock);
- 		return priv;
- 	}
-+	spin_unlock(&j1939_netdev_lock);
+ #endif
  
- 	priv = j1939_priv_create(ndev);
- 	if (!priv)
-@@ -269,10 +272,10 @@ struct j1939_priv *j1939_netdev_start(st
- 		/* Someone was faster than us, use their priv and roll
- 		 * back our's.
- 		 */
-+		kref_get(&priv_new->rx_kref);
- 		spin_unlock(&j1939_netdev_lock);
- 		dev_put(ndev);
- 		kfree(priv);
--		kref_get(&priv_new->rx_kref);
- 		return priv_new;
- 	}
- 	j1939_priv_set(ndev, priv);
+-#ifdef CONFIG_OF
++#ifdef CONFIG_USE_OF
+ 
+ static void __init xtfpga_clk_setup(struct device_node *np)
+ {
+@@ -303,4 +303,4 @@ static int __init xtavnet_init(void)
+  */
+ arch_initcall(xtavnet_init);
+ 
+-#endif /* CONFIG_OF */
++#endif /* CONFIG_USE_OF */
+-- 
+2.33.0
+
 
 
