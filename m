@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC07F43A371
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:57:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1332C43A374
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:57:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237058AbhJYT7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:59:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42078 "EHLO mail.kernel.org"
+        id S237433AbhJYT7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:59:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238063AbhJYT4A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:56:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DCF9611C1;
-        Mon, 25 Oct 2021 19:46:20 +0000 (UTC)
+        id S238682AbhJYT42 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:56:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 628A261250;
+        Mon, 25 Oct 2021 19:46:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635191182;
-        bh=zLzP8MrJRYIhDm6FAqz1hOTnK6Rub1ZHl8XPTbOKq6I=;
+        s=korg; t=1635191191;
+        bh=1xegg9otK+EYQE5/gQFWIgDapWZg9gOwTNJfiEqWEog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hd56uzVzC4UiVkhqPQze8RUf10scvbH2GZhmfU6Rep8DYWM83257+C3vPSjilx6ND
-         v0IQtPzVfOriEwZ4YDuUBtrtxxNc7v33/5QCYOjBL4elHUGzfE+6o3WbhgPxR7rdhX
-         wak8LefqsVC6v+4TSelvNJxEsRroY4RP/PXl1QW8=
+        b=J0JvGJbpChtZodBqZwUU1tPU1vu/Q52O0jZO7WrBxjvwSlsHMnSCUuKSkY8XzIm1V
+         HIsO8EcMLK88ArB+F4sAJbHvdFLjFF9nSNJzXEvyIJpG6UIoqWPYkWZ+C874z6/8vy
+         QCNHrItilks7QH7CTYggntRZE16P+OJYvii5PRXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Venkata Prasad Potturu <potturu@codeaurora.org>,
+        Srinivasa Rao Mandadapu <srivasam@codeaurora.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 147/169] Input: snvs_pwrkey - add clk handling
-Date:   Mon, 25 Oct 2021 21:15:28 +0200
-Message-Id: <20211025191036.173237293@linuxfoundation.org>
+Subject: [PATCH 5.14 148/169] ASoC: codec: wcd938x: Add irq config support
+Date:   Mon, 25 Oct 2021 21:15:29 +0200
+Message-Id: <20211025191036.315557077@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
 References: <20211025191017.756020307@linuxfoundation.org>
@@ -42,91 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
 
-[ Upstream commit d997cc1715df7b6c3df798881fb9941acf0079f8 ]
+[ Upstream commit 214174d9f56c7f81f4860a26b6b8b961a6b92654 ]
 
-On i.MX7S and i.MX8M* (but not i.MX6*) the pwrkey device has an
-associated clock. Accessing the registers requires that this clock is
-enabled. Binding the driver on at least i.MX7S and i.MX8MP while not
-having the clock enabled results in a complete hang of the machine.
-(This usually only happens if snvs_pwrkey is built as a module and the
-rtc-snvs driver isn't already bound because at bootup the required clk
-is on and only gets disabled when the clk framework disables unused clks
-late during boot.)
+This patch fixes compilation error in wcd98x codec driver.
 
-This completes the fix in commit 135be16d3505 ("ARM: dts: imx7s: add
-snvs clock to pwrkey").
+Fixes: 045442228868 ("ASoC: codecs: wcd938x: add audio routing and Kconfig")
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20211013062848.2667192-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Venkata Prasad Potturu <potturu@codeaurora.org>
+Signed-off-by: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/1633614675-27122-1-git-send-email-srivasam@codeaurora.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/snvs_pwrkey.c | 29 ++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ sound/soc/codecs/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
-index 2f5e3ab5ed63..65286762b02a 100644
---- a/drivers/input/keyboard/snvs_pwrkey.c
-+++ b/drivers/input/keyboard/snvs_pwrkey.c
-@@ -3,6 +3,7 @@
- // Driver for the IMX SNVS ON/OFF Power Key
- // Copyright (C) 2015 Freescale Semiconductor, Inc. All Rights Reserved.
- 
-+#include <linux/clk.h>
- #include <linux/device.h>
- #include <linux/err.h>
- #include <linux/init.h>
-@@ -99,6 +100,11 @@ static irqreturn_t imx_snvs_pwrkey_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+static void imx_snvs_pwrkey_disable_clk(void *data)
-+{
-+	clk_disable_unprepare(data);
-+}
-+
- static void imx_snvs_pwrkey_act(void *pdata)
- {
- 	struct pwrkey_drv_data *pd = pdata;
-@@ -111,6 +117,7 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
- 	struct pwrkey_drv_data *pdata;
- 	struct input_dev *input;
- 	struct device_node *np;
-+	struct clk *clk;
- 	int error;
- 	u32 vid;
- 
-@@ -134,6 +141,28 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
- 		dev_warn(&pdev->dev, "KEY_POWER without setting in dts\n");
- 	}
- 
-+	clk = devm_clk_get_optional(&pdev->dev, NULL);
-+	if (IS_ERR(clk)) {
-+		dev_err(&pdev->dev, "Failed to get snvs clock (%pe)\n", clk);
-+		return PTR_ERR(clk);
-+	}
-+
-+	error = clk_prepare_enable(clk);
-+	if (error) {
-+		dev_err(&pdev->dev, "Failed to enable snvs clock (%pe)\n",
-+			ERR_PTR(error));
-+		return error;
-+	}
-+
-+	error = devm_add_action_or_reset(&pdev->dev,
-+					 imx_snvs_pwrkey_disable_clk, clk);
-+	if (error) {
-+		dev_err(&pdev->dev,
-+			"Failed to register clock cleanup handler (%pe)\n",
-+			ERR_PTR(error));
-+		return error;
-+	}
-+
- 	pdata->wakeup = of_property_read_bool(np, "wakeup-source");
- 
- 	pdata->irq = platform_get_irq(pdev, 0);
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index db16071205ba..dd1ae611fc2a 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -1564,6 +1564,7 @@ config SND_SOC_WCD938X
+ config SND_SOC_WCD938X_SDW
+ 	tristate "WCD9380/WCD9385 Codec - SDW"
+ 	select SND_SOC_WCD938X
++	select REGMAP_IRQ
+ 	depends on SOUNDWIRE
+ 	select REGMAP_SOUNDWIRE
+ 	help
 -- 
 2.33.0
 
