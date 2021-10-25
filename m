@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50DFC43A02F
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60C6543A067
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:27:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234755AbhJYT3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:29:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40432 "EHLO mail.kernel.org"
+        id S235316AbhJYTaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:30:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235298AbhJYT0l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:26:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D642610CB;
-        Mon, 25 Oct 2021 19:23:24 +0000 (UTC)
+        id S235802AbhJYT3N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:29:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CF6E610C8;
+        Mon, 25 Oct 2021 19:25:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189805;
-        bh=sCtYATWhwOmOQOxHj9i5kDiYLJ2uPI8BE2sb55f/YOc=;
+        s=korg; t=1635189957;
+        bh=AJHvRsZfg3DKD7dTJ2YP1IZPcUKT9wDdx9SBMhxRlCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l9pSDPz6ETSIkC/0aHo7ShnV5Id4H3Q9VLc1XeqQ7p5j3OdPCwAsB3JKSCFQO1yQk
-         himsEN53EyCavKOXlhRUX1XBVozUFVktFHVoAptoTAGXnbnN9crqFCv7mU+j+W86a3
-         7pzCMpHmIQDVKOi59Ukn8VNo92kRkC7auXPw/Jz4=
+        b=gHvP+nu3arIN8vpD0QlQpmMsvvJiPN+k+tea9IBxWTZ5ub5JEH8HSREizvf9RlhWL
+         kA5ZGQgIFHjMvtX+Uf5dMZYh9Q/SSy/Hil0liOw2LMOHiuRThMHiBk2Qrujd9sT6Ow
+         ahbeKgC9k/bhHWXIRS3PISwInERAi3DCiRCePW9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/37] NFSD: Keep existing listeners on portlist error
+Subject: [PATCH 5.4 12/58] net: dsa: lantiq_gswip: fix register definition
 Date:   Mon, 25 Oct 2021 21:14:29 +0200
-Message-Id: <20211025190929.143886782@linuxfoundation.org>
+Message-Id: <20211025190939.485130115@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190926.680827862@linuxfoundation.org>
-References: <20211025190926.680827862@linuxfoundation.org>
+In-Reply-To: <20211025190937.555108060@linuxfoundation.org>
+References: <20211025190937.555108060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit c20106944eb679fa3ab7e686fe5f6ba30fbc51e5 ]
+[ Upstream commit 66d262804a2276721eac86cf18fcd61046149193 ]
 
-If nfsd has existing listening sockets without any processes, then an error
-returned from svc_create_xprt() for an additional transport will remove
-those existing listeners.  We're seeing this in practice when userspace
-attempts to create rpcrdma transports without having the rpcrdma modules
-present before creating nfsd kernel processes.  Fix this by checking for
-existing sockets before calling nfsd_destroy().
+I compared the register definitions with the D-Link DWR-966
+GPL sources and found that the PUAFD field definition was
+incorrect. This definition is unused and causes no issues.
 
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 14fceff4771e ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfsctl.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/dsa/lantiq_gswip.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
-index cb69660d0779..ff9899cc9913 100644
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -788,7 +788,10 @@ out_close:
- 		svc_xprt_put(xprt);
- 	}
- out_err:
--	nfsd_destroy(net);
-+	if (!list_empty(&nn->nfsd_serv->sv_permsocks))
-+		nn->nfsd_serv->sv_nrthreads--;
-+	 else
-+		nfsd_destroy(net);
- 	return err;
- }
+diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
+index 3225de0f655f..60e36f46f8ab 100644
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -229,7 +229,7 @@
+ #define GSWIP_SDMA_PCTRLp(p)		(0xBC0 + ((p) * 0x6))
+ #define  GSWIP_SDMA_PCTRL_EN		BIT(0)	/* SDMA Port Enable */
+ #define  GSWIP_SDMA_PCTRL_FCEN		BIT(1)	/* Flow Control Enable */
+-#define  GSWIP_SDMA_PCTRL_PAUFWD	BIT(1)	/* Pause Frame Forwarding */
++#define  GSWIP_SDMA_PCTRL_PAUFWD	BIT(3)	/* Pause Frame Forwarding */
  
+ #define GSWIP_TABLE_ACTIVE_VLAN		0x01
+ #define GSWIP_TABLE_VLAN_MAPPING	0x02
 -- 
 2.33.0
 
