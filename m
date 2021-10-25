@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECE6543A12A
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:35:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5639543A290
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235649AbhJYTh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:37:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51546 "EHLO mail.kernel.org"
+        id S237377AbhJYTuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:50:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236432AbhJYTei (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:34:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBF8261184;
-        Mon, 25 Oct 2021 19:30:45 +0000 (UTC)
+        id S238065AbhJYTr5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:47:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 049F261214;
+        Mon, 25 Oct 2021 19:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635190246;
-        bh=4qRojGq1/efZNWYMCbmU9TRiIk0DdEoCaOqKrf8hOkQ=;
+        s=korg; t=1635190849;
+        bh=JemFNvA4/QXcof/Gj6LnAX7JPYug6cOblT0fkwSJ7MM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uahj9xnvY90Wjmb7TfUhZCrV6YwA9RxaI+hKK6llAaO3BMEeogGzTgGQ3NxrdCu3b
-         DfsLld4a7RJI/CirqNDaRrlw2VSwVZBQ1mmkEEx2EeOyw+VIiMQTO+bOIEkPLuXOV6
-         fAiwbWVaZl4RWdI56ghiyFAe352aHQ/1wOoKRdo0=
+        b=PPyJHUOpUb1fG3qNFHATEhBFDf5E4Yn3UNajLyzS/GT31hmzGDKhdCY9lM5Pn6NfE
+         3MTyFKi/eaeTGGDqxQcItA6fCqRIp5jQoejA2XG1vb8Nh8uUO8J8aASGazOEhY0bgz
+         4cJG8yqstLZjhhFQHjTDt050G6SsTDyhm3nKcOkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juhee Kang <claudiajkang@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 12/95] netfilter: xt_IDLETIMER: fix panic that occurs when timer_type has garbage value
+        stable@vger.kernel.org,
+        "Sottas Guillaume (LMB)" <Guillaume.Sottas@liebherr.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.14 068/169] can: isotp: isotp_sendmsg(): fix return error on FC timeout on TX path
 Date:   Mon, 25 Oct 2021 21:14:09 +0200
-Message-Id: <20211025190958.656785010@linuxfoundation.org>
+Message-Id: <20211025191026.106618535@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190956.374447057@linuxfoundation.org>
-References: <20211025190956.374447057@linuxfoundation.org>
+In-Reply-To: <20211025191017.756020307@linuxfoundation.org>
+References: <20211025191017.756020307@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,86 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juhee Kang <claudiajkang@gmail.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 902c0b1887522a099aa4e1e6b4b476c2fe5dd13e ]
+commit d674a8f123b4096d85955c7eaabec688f29724c9 upstream.
 
-Currently, when the rule related to IDLETIMER is added, idletimer_tg timer
-structure is initialized by kmalloc on executing idletimer_tg_create
-function. However, in this process timer->timer_type is not defined to
-a specific value. Thus, timer->timer_type has garbage value and it occurs
-kernel panic. So, this commit fixes the panic by initializing
-timer->timer_type using kzalloc instead of kmalloc.
+When the a large chunk of data send and the receiver does not send a
+Flow Control frame back in time, the sendmsg() does not return a error
+code, but the number of bytes sent corresponding to the size of the
+packet.
 
-Test commands:
-    # iptables -A OUTPUT -j IDLETIMER --timeout 1 --label test
-    $ cat /sys/class/xt_idletimer/timers/test
-      Killed
+If a timeout occurs the isotp_tx_timer_handler() is fired, sets
+sk->sk_err and calls the sk->sk_error_report() function. It was
+wrongly expected that the error would be propagated to user space in
+every case. For isotp_sendmsg() blocking on wait_event_interruptible()
+this is not the case.
 
-Splat looks like:
-    BUG: KASAN: user-memory-access in alarm_expires_remaining+0x49/0x70
-    Read of size 8 at addr 0000002e8c7bc4c8 by task cat/917
-    CPU: 12 PID: 917 Comm: cat Not tainted 5.14.0+ #3 79940a339f71eb14fc81aee1757a20d5bf13eb0e
-    Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-    Call Trace:
-     dump_stack_lvl+0x6e/0x9c
-     kasan_report.cold+0x112/0x117
-     ? alarm_expires_remaining+0x49/0x70
-     __asan_load8+0x86/0xb0
-     alarm_expires_remaining+0x49/0x70
-     idletimer_tg_show+0xe5/0x19b [xt_IDLETIMER 11219304af9316a21bee5ba9d58f76a6b9bccc6d]
-     dev_attr_show+0x3c/0x60
-     sysfs_kf_seq_show+0x11d/0x1f0
-     ? device_remove_bin_file+0x20/0x20
-     kernfs_seq_show+0xa4/0xb0
-     seq_read_iter+0x29c/0x750
-     kernfs_fop_read_iter+0x25a/0x2c0
-     ? __fsnotify_parent+0x3d1/0x570
-     ? iov_iter_init+0x70/0x90
-     new_sync_read+0x2a7/0x3d0
-     ? __x64_sys_llseek+0x230/0x230
-     ? rw_verify_area+0x81/0x150
-     vfs_read+0x17b/0x240
-     ksys_read+0xd9/0x180
-     ? vfs_write+0x460/0x460
-     ? do_syscall_64+0x16/0xc0
-     ? lockdep_hardirqs_on+0x79/0x120
-     __x64_sys_read+0x43/0x50
-     do_syscall_64+0x3b/0xc0
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
-    RIP: 0033:0x7f0cdc819142
-    Code: c0 e9 c2 fe ff ff 50 48 8d 3d 3a ca 0a 00 e8 f5 19 02 00 0f 1f 44 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 0f 05 <48> 3d 00 f0 ff ff 77 56 c3 0f 1f 44 00 00 48 83 ec 28 48 89 54 24
-    RSP: 002b:00007fff28eee5b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
-    RAX: ffffffffffffffda RBX: 0000000000020000 RCX: 00007f0cdc819142
-    RDX: 0000000000020000 RSI: 00007f0cdc032000 RDI: 0000000000000003
-    RBP: 00007f0cdc032000 R08: 00007f0cdc031010 R09: 0000000000000000
-    R10: 0000000000000022 R11: 0000000000000246 R12: 00005607e9ee31f0
-    R13: 0000000000000003 R14: 0000000000020000 R15: 0000000000020000
+This patch fixes the problem by checking if sk->sk_err is set and
+returning the error to user space.
 
-Fixes: 68983a354a65 ("netfilter: xtables: Add snapshot of hardidletimer target")
-Signed-off-by: Juhee Kang <claudiajkang@gmail.com>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://github.com/hartkopp/can-isotp/issues/42
+Link: https://github.com/hartkopp/can-isotp/pull/43
+Link: https://lore.kernel.org/all/20210507091839.1366379-1-mkl@pengutronix.de
+Cc: stable@vger.kernel.org
+Reported-by: Sottas Guillaume (LMB) <Guillaume.Sottas@liebherr.com>
+Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/xt_IDLETIMER.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/isotp.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/netfilter/xt_IDLETIMER.c b/net/netfilter/xt_IDLETIMER.c
-index 7b2f359bfce4..2f7cf5ecebf4 100644
---- a/net/netfilter/xt_IDLETIMER.c
-+++ b/net/netfilter/xt_IDLETIMER.c
-@@ -137,7 +137,7 @@ static int idletimer_tg_create(struct idletimer_tg_info *info)
- {
- 	int ret;
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -960,6 +960,9 @@ static int isotp_sendmsg(struct socket *
+ 	if (wait_tx_done) {
+ 		/* wait for complete transmission of current pdu */
+ 		wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
++
++		if (sk->sk_err)
++			return -sk->sk_err;
+ 	}
  
--	info->timer = kmalloc(sizeof(*info->timer), GFP_KERNEL);
-+	info->timer = kzalloc(sizeof(*info->timer), GFP_KERNEL);
- 	if (!info->timer) {
- 		ret = -ENOMEM;
- 		goto out;
--- 
-2.33.0
-
+ 	return size;
 
 
