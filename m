@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5860A439FA3
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:20:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17A31439F5A
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 21:17:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234674AbhJYTXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 15:23:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
+        id S234636AbhJYTTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 15:19:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234580AbhJYTV3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 15:21:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02C0360F70;
-        Mon, 25 Oct 2021 19:19:05 +0000 (UTC)
+        id S234512AbhJYTTH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 15:19:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEE1D6108C;
+        Mon, 25 Oct 2021 19:16:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635189547;
-        bh=rGEGOVTG7NjLsVh4LCsCyOEzTg4hIZ0RYtpaRoMxrbY=;
+        s=korg; t=1635189404;
+        bh=u8O7nu3IFo70M67z9E3h7OH31dB0utrND8ayViNyC0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MAX93Ytawiw6q7HlkG2j/OX2qBsigLEBVSBn5nIf+ydy1OC086okaCD2PEDYUhc/m
-         TJW62YLrPt44S7fTydSLrf+5i0XkfWPB9R3I4vQ1ApfR2m3G4KfEHvuM+N5Tua3rEg
-         /4pmxPFIFG1cErK34rb2U150HAbfTWxAhGtaH5X8=
+        b=DQfDoPXxLCg3bWRHeO2rtzmLg0aehFsM0P2wtzE74VLaaG6fbpo9LMfjZiwXLYH6w
+         R6AQ3s+cg6/3IoK7uLpP03YMjKDPXhoX4G+3xrghL540bEI2ufFexEDLVaImflHWme
+         /ToIGSNIh9ubeJpeGXyRrI0ka8j3p/RE88+vQyfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Florian fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 16/50] net: korina: select CRC32
+        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 22/44] r8152: select CRC32 and CRYPTO/CRYPTO_HASH/CRYPTO_SHA256
 Date:   Mon, 25 Oct 2021 21:14:03 +0200
-Message-Id: <20211025190936.063244652@linuxfoundation.org>
+Message-Id: <20211025190933.182936891@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211025190932.542632625@linuxfoundation.org>
-References: <20211025190932.542632625@linuxfoundation.org>
+In-Reply-To: <20211025190928.054676643@linuxfoundation.org>
+References: <20211025190928.054676643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +41,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vegard Nossum <vegard.nossum@oracle.com>
 
-commit 427f974d9727ca681085ddcd0530c97ab5811ae0 upstream.
+commit 9973a43012b6ad1720dbc4d5faf5302c28635b8c upstream.
 
-Fix the following build/link error by adding a dependency on the CRC32
-routines:
+Fix the following build/link errors by adding a dependency on
+CRYPTO, CRYPTO_HASH, CRYPTO_SHA256 and CRC32:
 
-  ld: drivers/net/ethernet/korina.o: in function `korina_multicast_list':
-  korina.c:(.text+0x1af): undefined reference to `crc32_le'
+  ld: drivers/net/usb/r8152.o: in function `rtl8152_fw_verify_checksum':
+  r8152.c:(.text+0x2b2a): undefined reference to `crypto_alloc_shash'
+  ld: r8152.c:(.text+0x2bed): undefined reference to `crypto_shash_digest'
+  ld: r8152.c:(.text+0x2c50): undefined reference to `crypto_destroy_tfm'
+  ld: drivers/net/usb/r8152.o: in function `_rtl8152_set_rx_mode':
+  r8152.c:(.text+0xdcb0): undefined reference to `crc32_le'
 
-Fixes: ef11291bcd5f9 ("Add support the Korina (IDT RC32434) Ethernet MAC")
-Cc: Arnd Bergmann <arnd@arndb.de>
+Fixes: 9370f2d05a2a1 ("r8152: support request_firmware for RTL8153")
+Fixes: ac718b69301c7 ("net/usb: new driver for RTL8152")
 Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Acked-by: Florian fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20211012152509.21771-1-vegard.nossum@oracle.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/usb/Kconfig |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/ethernet/Kconfig
-+++ b/drivers/net/ethernet/Kconfig
-@@ -96,6 +96,7 @@ config JME
- config KORINA
- 	tristate "Korina (IDT RC32434) Ethernet support"
- 	depends on MIKROTIK_RB532
+--- a/drivers/net/usb/Kconfig
++++ b/drivers/net/usb/Kconfig
+@@ -98,6 +98,10 @@ config USB_RTL8150
+ config USB_RTL8152
+ 	tristate "Realtek RTL8152/RTL8153 Based USB Ethernet Adapters"
+ 	select MII
 +	select CRC32
- 	---help---
- 	  If you have a Mikrotik RouterBoard 500 or IDT RC32434
- 	  based system say Y. Otherwise say N.
++	select CRYPTO
++	select CRYPTO_HASH
++	select CRYPTO_SHA256
+ 	help
+ 	  This option adds support for Realtek RTL8152 based USB 2.0
+ 	  10/100 Ethernet adapters and RTL8153 based USB 3.0 10/100/1000
 
 
