@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C72E439CDF
-	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 19:04:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 177F5439CCB
+	for <lists+stable@lfdr.de>; Mon, 25 Oct 2021 19:04:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234296AbhJYRHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Oct 2021 13:07:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55940 "EHLO mail.kernel.org"
+        id S234388AbhJYRGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Oct 2021 13:06:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234459AbhJYREO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Oct 2021 13:04:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69B13610D2;
-        Mon, 25 Oct 2021 17:01:29 +0000 (UTC)
+        id S234752AbhJYREP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Oct 2021 13:04:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC965610F8;
+        Mon, 25 Oct 2021 17:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635181290;
-        bh=400Nh6Ud5p6IB0VRpwhYfffj5ss6oI+bK9BzysJ6Fis=;
+        s=k20201202; t=1635181291;
+        bh=pRLxevLNK+VLccwFTxdV5IN3i4Qvy57n1CoEynGu42o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkc7qW5sC5ynkXgsd5L3fIeQKYz5oJMUiUJT7IvuzlkJoWUDFovjUpoMq8y/X+b+W
-         T7xazzTr1mRo0uB0xDrGyfN6gpinkBXTwu7sjPYrYpZtOkhqEiMEAH2LsU/vM+IacF
-         VOCY8sUyI9+cz8Kgr7ZXadpDSOyxMjQbJsPbUT3lZZE3DLSRQHoE3vKUpsOPT2n2f+
-         HGJXCbzBI5qaYoXWJbcsjWMaX/BCnz/rGzVV27FiuxZqMqzbhceNRgmksSWOlme6CC
-         zNcM8YvtdbkRsgsNLNXBqG2OoAAlGNVrZXcRHedSSQ3BQeBkm+eJ9fMkG5/DJzzd9Z
-         jfgYIHnyO7CAw==
+        b=sDYihPe9Y6tESQ7//sWMvDB8W/IdOhbgq1oJlEjnn3R5J6j4UlZYPcUalvZHaWpD1
+         W1jXjisNuXp/JWfHYlsMj8dl2IY6ayz1uutkVHpUPDBEYL9OP+WudS1BKdrM1AHDk9
+         IpgEareKtpjXq1lzRXvJrG+JRCugI+BAsWOaGN41hypdrIfIWox2/woP3wrvzP6Zks
+         X+4l5ce1aCVHHav6ifgW3O25lUj3yewCSVy0PkOEIYdjA01mLACqj69rEh1SFZM5KO
+         Aju6QBmpXFAL4x4xR+N3jY9pKMPjJ2WuEgz+mS6OOtxWu9sIcxHkPdzq9L9ROlfQtX
+         tfJOZJvY4W1Ww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Neukum <oneukum@suse.com>,
-        syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 6/7] usbnet: sanity check for maxpacket
-Date:   Mon, 25 Oct 2021 13:01:19 -0400
-Message-Id: <20211025170120.1394792-6-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Wei Liu <wei.liu@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, kys@microsoft.com,
+        haiyangz@microsoft.com, sthemmin@microsoft.com,
+        decui@microsoft.com, linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 7/7] hyperv/vmbus: include linux/bitops.h
+Date:   Mon, 25 Oct 2021 13:01:20 -0400
+Message-Id: <20211025170120.1394792-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211025170120.1394792-1-sashal@kernel.org>
 References: <20211025170120.1394792-1-sashal@kernel.org>
@@ -45,40 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 397430b50a363d8b7bdda00522123f82df6adc5e ]
+[ Upstream commit 8017c99680fa65e1e8d999df1583de476a187830 ]
 
-maxpacket of 0 makes no sense and oopses as we need to divide
-by it. Give up.
+On arm64 randconfig builds, hyperv sometimes fails with this
+error:
 
-V2: fixed typo in log and stylistic issues
+In file included from drivers/hv/hv_trace.c:3:
+In file included from drivers/hv/hyperv_vmbus.h:16:
+In file included from arch/arm64/include/asm/sync_bitops.h:5:
+arch/arm64/include/asm/bitops.h:11:2: error: only <linux/bitops.h> can be included directly
+In file included from include/asm-generic/bitops/hweight.h:5:
+include/asm-generic/bitops/arch_hweight.h:9:9: error: implicit declaration of function '__sw_hweight32' [-Werror,-Wimplicit-function-declaration]
+include/asm-generic/bitops/atomic.h:17:7: error: implicit declaration of function 'BIT_WORD' [-Werror,-Wimplicit-function-declaration]
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211021122944.21816-1-oneukum@suse.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Include the correct header first.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20211018131929.2260087-1-arnd@kernel.org
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/usbnet.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hv/hyperv_vmbus.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
-index cb9a18eda798..1703da29bdee 100644
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -1788,6 +1788,10 @@ usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
- 	if (!dev->rx_urb_size)
- 		dev->rx_urb_size = dev->hard_mtu;
- 	dev->maxpacket = usb_maxpacket (dev->udev, dev->out, 1);
-+	if (dev->maxpacket == 0) {
-+		/* that is a broken device */
-+		goto out4;
-+	}
+diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
+index a166de6efd99..0996a246c80b 100644
+--- a/drivers/hv/hyperv_vmbus.h
++++ b/drivers/hv/hyperv_vmbus.h
+@@ -26,6 +26,7 @@
+ #define _HYPERV_VMBUS_H
  
- 	/* let userspace know we have a random address */
- 	if (ether_addr_equal(net->dev_addr, node_id))
+ #include <linux/list.h>
++#include <linux/bitops.h>
+ #include <asm/sync_bitops.h>
+ #include <linux/atomic.h>
+ #include <linux/hyperv.h>
 -- 
 2.33.0
 
