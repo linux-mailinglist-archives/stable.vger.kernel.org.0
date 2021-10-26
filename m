@@ -2,79 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF3743B3F8
-	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 16:26:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E8043B45E
+	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 16:36:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234992AbhJZO2g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Oct 2021 10:28:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54558 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234622AbhJZO2g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 10:28:36 -0400
-Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7412EC061745
-        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 07:26:12 -0700 (PDT)
-Received: by mail-io1-xd35.google.com with SMTP id f9so2056598ioo.11
-        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 07:26:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=Vbed56XR8+kAJBfUzToOWDqn95NDJTDu28wJmq6AaGg=;
-        b=qGC0ucrwyrt8j1I723BVTmeWfMVD0UM/HX9rsG676yk6Mgf5bpY3LTMi4Pnn3bmUS1
-         he8HeRLC1bhMgmZ6u+g+2q2L2Z0yUbVrZuDSYnfu9X6YC0vxeKKiJfeDYzofPfebQszI
-         15JGO6zKK0l16yZF7pB8aKHjjI5j9W7d0HlEHnSxqX+6hkqXwosGA7b0f7KautL4Xlue
-         so0VTj3pITwBWbRlzDxwwO2XhVR8FNNNP9E50X5vZECMxO9S5br7uyOy6xk+dDYpguId
-         9z4TyMVLk7YohwWYtCQ3MzSPsCTdYKTgzIogUgStnmfirCbCMngEqe1VPd6JM4VuTDYU
-         3rig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=Vbed56XR8+kAJBfUzToOWDqn95NDJTDu28wJmq6AaGg=;
-        b=7ZlOYokw0sn+iEj4IcNRs4CeQUYj3qjHycAQxlM9xfkCn53e3GdjxxSswfzPcHpPVl
-         9lv6qo4h0dprWt/ocBqiXtzWniZsTVKd4lgHtM7W3Ly4d2Ek1iQJORR7R6tWOuBVFHJc
-         hnC4gY+u9TMYmskcOOKxlHWRZA7dGlc1LPlLULMTe9YmzFF15M+pEo38FBtSFXqw+wrl
-         ysdVBh3x1FUxgfQGwF2H221k8nGLE0TumzWpCdBrMiWFbXxHOSktlMqwgIE1Qxdn/4fq
-         KfP0kmavWedlpYpxlGjFNwaDEIGmWs9U9U37wpPpR8i1RaKOMe1sTTRmQoylY8X9oUzp
-         fVDQ==
-X-Gm-Message-State: AOAM531AzlsGFFywUucrU0/8MiAAqjUQrfJJEg5e9TaEHbVSMm5/mTuE
-        V2Y2eVTvBKm2TfYaXSxZVUdkAV2yzFWKbgZfsPU=
-X-Google-Smtp-Source: ABdhPJxfXMOKl1JsoRB7KpeW6zrX2/IIbQ4pDvmoq/3bw8nUJOm+3cdgnqwZwgqvGYR63M6IDLnjR8A3LAag/zMnsNI=
-X-Received: by 2002:a05:6602:2bf7:: with SMTP id d23mr15310224ioy.187.1635258371754;
- Tue, 26 Oct 2021 07:26:11 -0700 (PDT)
+        id S236754AbhJZOjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Oct 2021 10:39:19 -0400
+Received: from smtp71.ord1c.emailsrvr.com ([108.166.43.71]:39247 "EHLO
+        smtp71.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236825AbhJZOjH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 10:39:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
+        s=20190130-41we5z8j; t=1635258435;
+        bh=ygMxfHxoiBiJdno19BOD9W/2ZmzB4nrg+CxY+1M83Oc=;
+        h=Subject:To:From:Date:From;
+        b=b7kc31AKRuIW7MUJFJq1+/EhUiYSHYYAEy2tSs7ePZLT7pWivTeesLhki+rNGoyn1
+         Pt15TlXKXAobqAADdJ+F3wSoXajaN5SEGAKV0+6SVQ28e0OYDDY0xmOsB9x68esY/O
+         ulAT/RgSwAGWi1BIfrXYc24qhUm95wAZs70Hil1Q=
+X-Auth-ID: abbotti@mev.co.uk
+Received: by smtp9.relay.ord1c.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 6A98C200FB;
+        Tue, 26 Oct 2021 10:27:14 -0400 (EDT)
+Subject: Re: [PATCH 2/5] comedi: dt9812: fix DMA buffers on stack
+To:     Johan Hovold <johan@kernel.org>,
+        H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20211025114532.4599-1-johan@kernel.org>
+ <20211025114532.4599-3-johan@kernel.org>
+From:   Ian Abbott <abbotti@mev.co.uk>
+Organization: MEV Ltd.
+Message-ID: <ecdee752-72c3-c48a-fee2-49dccf115d71@mev.co.uk>
+Date:   Tue, 26 Oct 2021 15:27:13 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Received: by 2002:a02:2125:0:0:0:0:0 with HTTP; Tue, 26 Oct 2021 07:26:11
- -0700 (PDT)
-Reply-To: info.rgicompanyltd@gmail.com
-From:   RGI CO LTD <infomail.rgicompanyltd@gmail.com>
-Date:   Tue, 26 Oct 2021 02:26:11 -1200
-Message-ID: <CAG=YAYhpHmeLdeV2US0yya42M8OdjnAZJoA7R1+_y0t7=etByQ@mail.gmail.com>
-Subject: WE CAN DO BUSINESS TOGETHER
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20211025114532.4599-3-johan@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+X-Classification-ID: e21ebda7-67d4-45a0-b931-c527437faa1d-1-1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 25/10/2021 12:45, Johan Hovold wrote:
+> USB transfer buffers are typically mapped for DMA and must not be
+> allocated on the stack or transfers will fail.
+> 
+> Allocate proper transfer buffers in the various command helpers and
+> return an error on short transfers instead of acting on random stack
+> data.
+> 
+> Note that this also fixes a stack info leak on systems where DMA is not
+> used as 32 bytes are always sent to the device regardless of how short
+> the command is.
+> 
+> Fixes: 63274cd7d38a ("Staging: comedi: add usb dt9812 driver")
+> Cc: stable@vger.kernel.org      # 2.6.29
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>   drivers/comedi/drivers/dt9812.c | 109 ++++++++++++++++++++++++--------
+>   1 file changed, 82 insertions(+), 27 deletions(-)
+> 
+> diff --git a/drivers/comedi/drivers/dt9812.c b/drivers/comedi/drivers/dt9812.c
+> index 634f57730c1e..f15c306f2d06 100644
+> --- a/drivers/comedi/drivers/dt9812.c
+> +++ b/drivers/comedi/drivers/dt9812.c
+> @@ -32,6 +32,7 @@
+>   #include <linux/kernel.h>
+>   #include <linux/module.h>
+>   #include <linux/errno.h>
+> +#include <linux/slab.h>
+>   #include <linux/uaccess.h>
+>   
+>   #include "../comedi_usb.h"
+> @@ -237,22 +238,41 @@ static int dt9812_read_info(struct comedi_device *dev,
+>   {
+>   	struct usb_device *usb = comedi_to_usb_dev(dev);
+>   	struct dt9812_private *devpriv = dev->private;
+> -	struct dt9812_usb_cmd cmd;
+> +	struct dt9812_usb_cmd *cmd;
+>   	int count, ret;
+> +	u8 *tbuf;
+>   
+> -	cmd.cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
+> -	cmd.u.flash_data_info.address =
+> +	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
+> +	if (!cmd)
+> +		return -ENOMEM;
+> +
+> +	cmd->cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
+> +	cmd->u.flash_data_info.address =
+>   	    cpu_to_le16(DT9812_DIAGS_BOARD_INFO_ADDR + offset);
+> -	cmd.u.flash_data_info.numbytes = cpu_to_le16(buf_size);
+> +	cmd->u.flash_data_info.numbytes = cpu_to_le16(buf_size);
+>   
+>   	/* DT9812 only responds to 32 byte writes!! */
+>   	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+> -			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
+> +			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
+> +	kfree(cmd);
+>   	if (ret)
+>   		return ret;
+>   
+> -	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+> -			    buf, buf_size, &count, DT9812_USB_TIMEOUT);
+> +	tbuf = kmalloc(buf_size, GFP_KERNEL);
+> +	if (!tbuf)
+> +		return -ENOMEM;
+> +
+> +	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+> +			   tbuf, buf_size, &count, DT9812_USB_TIMEOUT);
+> +	if (!ret) {
+> +		if (count == buf_size)
+> +			memcpy(buf, tbuf, buf_size);
+> +		else
+> +			ret = -EREMOTEIO;
+> +	}
+> +	kfree(tbuf);
+> +
+> +	return ret;
+>   }
+
+I suggest doing all the allocations up front so it doesn't leave an 
+unread reply message in the unlikely event that the tbuf allocation 
+fails.  (It could even allocate a single buffer for both the command and 
+the reply since they are not needed at the same time.)
+
+Ditto for the other functions in the patch.
+
 -- 
-Good Day.
-
-RGI Genealogical Investigators specializes in probate research to locate
-missing funds, inherited funds and consignment around the world. We can
-also help you find wills, obtain copies of certificates. Recently a woman
-from Rothschild family one of the richest and famous family in the city of
-Hesse-Kassel Frankfurt Germany that has been suffering from (hepatocellular
-of the liver) and unstable health challenge contacted our company that we
-should contact a trustworthy business minded person who is capable to
-invest her funds in a lucrative business.
-
-Our service fee is 2% of the funds and we will be paid after you received
-the funds. The funds transfer process should take just a matter of days as
-we have the mechanism and expertise to get this done very quickly. Please
-if you find this letter offensive ignore it and accept our apologies, but
-if interested get back to us as soon as possible.
-
-CONTACT ME FOR MORE INFORMATION
-
-Warmest Regards,
-Dr.Ryan J.Wood, CEO
+-=( Ian Abbott <abbotti@mev.co.uk> || MEV Ltd. is a company  )=-
+-=( registered in England & Wales.  Regd. number: 02862268.  )=-
+-=( Regd. addr.: S11 & 12 Building 67, Europa Business Park, )=-
+-=( Bird Hall Lane, STOCKPORT, SK3 0XA, UK. || www.mev.co.uk )=-
