@@ -2,124 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD01043B5DC
-	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 17:41:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40B1343B6A8
+	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 18:14:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237124AbhJZPnm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Oct 2021 11:43:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44096 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237057AbhJZPnj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 11:43:39 -0400
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CD93C06122B
-        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 08:40:52 -0700 (PDT)
-Received: by mail-lj1-x236.google.com with SMTP id n7so17020709ljp.5
-        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 08:40:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=9JGWO5jt5QtIvnBeSd0VahxH9KJ8Ngd7aKYQ3TRmWp4=;
-        b=l2eP8kM2v64pFzuyyl8uOFKlFsPMlKgu6nnHVfMCPdQcboDCBDOmjuw0LUnrnUA68/
-         Y9Du49VrgR8hzTI2lL8jYGRLZ3N/CdAj2UJa//D5Me0NsdW1XrxIUELXxar8F7tQUHFu
-         T9BdjUzWCTFDoNcGquFwDDivn7fM1bRYMrOqW3QpKqpkZ9d2vepoEGz8jmRhH58Woyci
-         VcW/VYfg3j+oRkS8ezSEbsIK9VqX2cRXWU9PXXZRW+x+1gfk05kp1Zi+YGHKjNhwPO42
-         QZSEsV2bLE5Wf7E27EzkFUeqV07DltcwQ47yJa3z1Jz4Di36WWw96qjcs2I02GUBJTvw
-         phqA==
+        id S235205AbhJZQRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Oct 2021 12:17:03 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:33483 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230409AbhJZQRD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 12:17:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635264879;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nAAzOJIZshLT5gRfcvPfI+wHgBi/Zbeh5mViB3wqN9Y=;
+        b=O/lDzm7zZYqbdiM1iFXgFqqruPyAljILclxOJXGiQgsYFLR62kPq69THQPjipJr6kbER8a
+        hfyR7N0EoUCYeJLA+nTj7nFyrwuNw5FhXzFbtHv8V/NtvcjvzOx7/GBGkjTMtHhLeluxwR
+        oq4E70Ce2H1+NDhXJXoxtvyOzHVgbBw=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-299-abUdZJiVNkaqghr6V0XuAA-1; Tue, 26 Oct 2021 12:14:37 -0400
+X-MC-Unique: abUdZJiVNkaqghr6V0XuAA-1
+Received: by mail-ed1-f69.google.com with SMTP id d11-20020a50cd4b000000b003da63711a8aso10029122edj.20
+        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 09:14:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9JGWO5jt5QtIvnBeSd0VahxH9KJ8Ngd7aKYQ3TRmWp4=;
-        b=cQ5SfN03Yt/Y+VKtqXSGGKmlovglnAaPR19MDuWIHq9Wciuzj8fgjNMQBddd1i+Jha
-         0ZoTk2UKQznrYp+66vcHtDkJ/7y3IbbEDknqpo1ymXq2aT16Ae0HXQBoHk+EjPnDl7kN
-         spx8wTmiLTB60Lwa+X3SW9/iV1Tjq8uAQBNaPgX/CM5vGTx4cVQGDoK+gfC82ZeBU6ue
-         MezQShOjlp/sd8mgX41YY7CGqZOPliy2p9+6QHsz+4n9PRKF6BiG2oKHYZ8VvbbfnFur
-         k0ISwUYTAUhbjqDVnuieoqq42RAPWQO2Hr9BImZFpcjje1vNJTfTOqT+Xfxb5QJIbDIx
-         n+cw==
-X-Gm-Message-State: AOAM53203P+k5/26IeI82ZUELKL/Mfw1loq+ZLiXoqCrtFXiA4tXeS3h
-        m87JPlU0qMMt09a+tbXbCKXhKB6A1goqzNrQgGuskQ==
-X-Google-Smtp-Source: ABdhPJxxOsxXey/zZUMsKaDVg3dujNtrb2v5kzU7OfyCjPJ0s85CzbTm/9BZ3RdZ4fBQvppT3W8byIBy4h5Ka655VpI=
-X-Received: by 2002:a05:651c:907:: with SMTP id e7mr28394579ljq.300.1635262849171;
- Tue, 26 Oct 2021 08:40:49 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=nAAzOJIZshLT5gRfcvPfI+wHgBi/Zbeh5mViB3wqN9Y=;
+        b=WD4+BlPcGGL57cr5mMRQPvaWoIDf22CkvNF0kBEhLNdfnN1hAoMPm46MIZYs8KzxLf
+         ce4LpeuIlyUj8CYhO/qdbeFI3ebMlv8AyMfOj+qcD20Rga43HU3wEzGB/lJ7feMQdoPj
+         9FpqEABDg0b8RS4a/0crryG+SZ0bynCauYd2rlRFHGN+cjjto2RyPw3Bwv9+nDZ7//Ry
+         IG6rra9REqi5IFVeNC751/IQxWiIdq6KCRNltlPnX8oenrLsePe7WIPe4TRHs2PYp7mF
+         dC9LNdvsrQk+SzzHUFiXkzrCAH1vooJpBnLzh44OkZl25ag2lNWELnw/ZGroHXrI0qwk
+         scZA==
+X-Gm-Message-State: AOAM531cvjlg33h7eUupA2EFUpymElk1cqwvkYx6N/LoEpsZVub7gBbR
+        kAfvN1rTVGbTOyRvEwOP12a1k0haJCTxlBJBmnixPdsXAQJVB7Yv9Figf7mJvUM5az3TCe8B7f8
+        ywkqDEDqwjoRPmXxU
+X-Received: by 2002:a17:906:2bd5:: with SMTP id n21mr31835020ejg.337.1635264876465;
+        Tue, 26 Oct 2021 09:14:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzsmXT1S2dUXbLniu/Vt6Q3qHqeqq2MVl17CxSLBokD1O3xPho3oeqmwVbFxih2dz8J6zWXgA==
+X-Received: by 2002:a17:906:2bd5:: with SMTP id n21mr31834996ejg.337.1635264876220;
+        Tue, 26 Oct 2021 09:14:36 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id cb17sm3694530edb.11.2021.10.26.09.14.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 Oct 2021 09:14:35 -0700 (PDT)
+Message-ID: <9c88dadb-8cae-9bbe-1241-dfc06afe13d5@redhat.com>
+Date:   Tue, 26 Oct 2021 18:14:34 +0200
 MIME-Version: 1.0
-References: <20211026070812.9359-1-wenbin.mei@mediatek.com>
-In-Reply-To: <20211026070812.9359-1-wenbin.mei@mediatek.com>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Tue, 26 Oct 2021 17:40:12 +0200
-Message-ID: <CAPDyKFpGSrMkFg1PkRaH6zePOqH7aSbjfoCk6AhWgwGnSkoNAw@mail.gmail.com>
-Subject: Re: [PATCH] mmc: cqhci: clear HALT state after CQE enable
-To:     Wenbin Mei <wenbin.mei@mediatek.com>
-Cc:     Adrian Hunter <adrian.hunter@intel.com>,
-        Ritesh Harjani <riteshh@codeaurora.org>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [PATCH MANUALSEL 5.14 1/5] KVM: X86: fix lazy allocation of rmaps
+Content-Language: en-US
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Cc:     tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, kvm@vger.kernel.org
+References: <20211025203828.1404503-1-sashal@kernel.org>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20211025203828.1404503-1-sashal@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 26 Oct 2021 at 09:08, Wenbin Mei <wenbin.mei@mediatek.com> wrote:
->
-> While mmc0 enter suspend state, we need halt CQE to send legacy cmd(flush
-> cache) and disable cqe, for resume back, we enable CQE and not clear HALT
-> state.
-> In this case MediaTek mmc host controller will keep the value for HALT
-> state after CQE disable/enable flow, so the next CQE transfer after resume
-> will be timeout due to CQE is in HALT state, the log as below:
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: timeout for tag 2
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: ============ CQHCI REGISTER DUMP ===========
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: Caps:      0x100020b6 | Version:  0x00000510
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: Config:    0x00001103 | Control:  0x00000001
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: Int stat:  0x00000000 | Int enab: 0x00000006
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: Int sig:   0x00000006 | Int Coal: 0x00000000
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: TDL base:  0xfd05f000 | TDL up32: 0x00000000
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: Doorbell:  0x8000203c | TCN:      0x00000000
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: Dev queue: 0x00000000 | Dev Pend: 0x00000000
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: Task clr:  0x00000000 | SSC1:     0x00001000
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: SSC2:      0x00000001 | DCMD rsp: 0x00000000
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: RED mask:  0xfdf9a080 | TERRI:    0x00000000
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: Resp idx:  0x00000000 | Resp arg: 0x00000000
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: CRNQP:     0x00000000 | CRNQDUN:  0x00000000
-> <4>.(4)[318:kworker/4:1H]mmc0: cqhci: CRNQIS:    0x00000000 | CRNQIE:   0x00000000
->
-> This change check HALT state after CQE enable, if CQE is in HALT state, we
-> will clear it.
->
-> Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
-> Cc: stable@vger.kernel.org
-
-Applied for fixes and by adding a fixes tag, thanks!
-
-Fixes: a4080225f51d ("mmc: cqhci: support for command queue enabled host")
-
-Kind regards
-Uffe
-
-
+On 25/10/21 22:38, Sasha Levin wrote:
+> From: Paolo Bonzini <pbonzini@redhat.com>
+> 
+> [ Upstream commit fa13843d1565d4c5b3aeb9be3343b313416bef46 ]
+> 
+> If allocation of rmaps fails, but some of the pointers have already been written,
+> those pointers can be cleaned up when the memslot is freed, or even reused later
+> for another attempt at allocating the rmaps.  Therefore there is no need to
+> WARN, as done for example in memslot_rmap_alloc, but the allocation *must* be
+> skipped lest KVM will overwrite the previous pointer and will indeed leak memory.
+> 
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->  drivers/mmc/host/cqhci-core.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/mmc/host/cqhci-core.c b/drivers/mmc/host/cqhci-core.c
-> index ca8329d55f43..b0d30c35c390 100644
-> --- a/drivers/mmc/host/cqhci-core.c
-> +++ b/drivers/mmc/host/cqhci-core.c
-> @@ -282,6 +282,9 @@ static void __cqhci_enable(struct cqhci_host *cq_host)
->
->         cqhci_writel(cq_host, cqcfg, CQHCI_CFG);
->
-> +       if (cqhci_readl(cq_host, CQHCI_CTL) & CQHCI_HALT)
-> +               cqhci_writel(cq_host, 0, CQHCI_CTL);
-> +
->         mmc->cqe_on = true;
->
->         if (cq_host->ops->enable)
-> --
-> 2.25.1
->
+>   arch/x86/kvm/x86.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 4b0e866e9f08..60d9aa0ab389 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -11341,7 +11341,8 @@ static int memslot_rmap_alloc(struct kvm_memory_slot *slot,
+>   		int lpages = gfn_to_index(slot->base_gfn + npages - 1,
+>   					  slot->base_gfn, level) + 1;
+>   
+> -		WARN_ON(slot->arch.rmap[i]);
+> +		if (slot->arch.rmap[i])
+> +			continue;
+>   
+>   		slot->arch.rmap[i] = kvcalloc(lpages, sz, GFP_KERNEL_ACCOUNT);
+>   		if (!slot->arch.rmap[i]) {
+> 
+
+NACK
+
+There is no lazy allocation of rmaps in 5.14, and any failure to 
+allocate goes straight to memslot_rmap_free followed by return -ENOMEM. 
+  So the WARN_ON is justified there.
+
+Paolo
+
