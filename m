@@ -2,117 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 036DC43ABD5
-	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 07:45:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0527A43AC44
+	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 08:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234186AbhJZFsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Oct 2021 01:48:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42292 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231148AbhJZFsR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Oct 2021 01:48:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AD1060E05;
-        Tue, 26 Oct 2021 05:45:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635227154;
-        bh=TIjVkFEWJB7q7GF6lS61TRk3nmEo51a0DU9X6QcW9hY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KhbpyYsNXErwr2o99+8NA/bqELaVNukCD+dHr4vMMMnSZ9mSAgrON3mR5Vwt4UOJx
-         V+hL5MeobyUOoRdjGF9LCqyFjkrRhXsatzF6HUrmKMEEIQnY8ZZFi2oJduqYOothtA
-         LFAw0L4KGWtt9o3cuk0IpVlpj0OR4rNqQVc/bEQc=
-Date:   Tue, 26 Oct 2021 07:45:49 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "chenxiaosong (A)" <chenxiaosong2@huawei.com>
-Cc:     viro@zeniv.linux.org.uk, stable@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dhowells@redhat.com, yukuai3@huawei.com, yi.zhang@huawei.com,
-        zhangxiaoxu5@huawei.com
-Subject: Re: [PATCH 4.19,v2] VFS: Fix fuseblk memory leak caused by mount
- concurrency
-Message-ID: <YXeWDSLo4+MuOg4+@kroah.com>
-References: <20211013095101.641329-1-chenxiaosong2@huawei.com>
- <YWawy0J9JfStEku0@kroah.com>
- <429d87b0-3a53-052a-a304-0afa8d51900d@huawei.com>
- <860c36c4-3668-1388-66d1-a07d463c2ad9@huawei.com>
- <YXAL7K88XGWXckWe@kroah.com>
- <209361bb-9e15-ebaf-2ff8-5846d5bfbbc2@huawei.com>
+        id S232976AbhJZG1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Oct 2021 02:27:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58178 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229635AbhJZG1Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 02:27:25 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45CAFC061745
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 23:25:02 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id e59-20020a9d01c1000000b00552c91a99f7so18371257ote.6
+        for <stable@vger.kernel.org>; Mon, 25 Oct 2021 23:25:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=35/sI5GFOqOz/eriEA4kI0EoAqM1EW851nbPRiqwX0E=;
+        b=lQ457nYw3bXIdbpf80bzT+HytvzT219f0KWPepy8wkMj7a151bxTy0tdzLPxBiVfG5
+         aqvCIjms67fpMob7uHYKdw5fnvCaZ/s37yABJgt/lWxCj73t+k+uLNpmbyuJDWTLEQI8
+         rOn6Nb51QP6NWyHxmiGN6sd03BKNMzVYjSlapyZoYkL3Vx7ljQmXPo3TWJvB2M2hUQHg
+         /6USS8iCkbzZWHsjMDcJs1em3NjTYRTQkGgMqK7xvOTDisjVnYsXKKeosFtx59S2Ge74
+         JwsG8RPlkGYTugfLCMlH5OqICXnlNGxuHdtGF6TJS6+k37VTyCy2NU8gcc6Yloasghav
+         8c5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=35/sI5GFOqOz/eriEA4kI0EoAqM1EW851nbPRiqwX0E=;
+        b=ah5yYbqluIdQ9GDV64kkX0CB+rQ4mzfqdskiAbZwiOl7L/pCMic7Qf8/Htv3a09bds
+         6xrPYz+CBT9cFToAXCx9Z5fNQ0vfhrhxBZWlymYKYyO4d4Ltid7djGh25Cc/JUEoRH+a
+         oiMCKizUf+To4QFhIm8trzjvDYpWcdZ1NW+3cwxAGqAbNnOxeeu6ZjCtmFkuNfPWhTSG
+         PTrM5DNkraisaPZPrERrbpj1CIPBCIx1XIEltyphPloCBbfsPPX6B58FzRS39U1+vqi/
+         XONT+qjMCF2IYwQfJF09vEtdk18mxhDiDiqsvre7IpwRa+bTN1OmfdjBLFczPqRA5LaA
+         qEjg==
+X-Gm-Message-State: AOAM533WXW8Duq0NT6WjtrurXxFZOoCv2gtuyWDpSdeX8iviATpAQQ5k
+        efrubl22yXP9xyR238BCmfIjdn+Nmv4RFgLqP0c=
+X-Google-Smtp-Source: ABdhPJyaK1fSUwkG2JAhpqXYfC5vsFUDegpIISx4TtqLdlJMPfoBN0mjLbgLeLUqMjni0Hff6JT76oqDuLL6+BFzAkI=
+X-Received: by 2002:a9d:396:: with SMTP id f22mr17506218otf.327.1635229501246;
+ Mon, 25 Oct 2021 23:25:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <209361bb-9e15-ebaf-2ff8-5846d5bfbbc2@huawei.com>
+Received: by 2002:a05:6838:7e94:0:0:0:0 with HTTP; Mon, 25 Oct 2021 23:25:00
+ -0700 (PDT)
+Reply-To: mairarosa915@gmail.com
+From:   "Mrs. Maira Rosa" <r.rafaelloanfirm@gmail.com>
+Date:   Mon, 25 Oct 2021 23:25:00 -0700
+Message-ID: <CADtJoYxQjrg99rB657_yh_E+VR3t85bBoW6i3-TZS1on=QnJXA@mail.gmail.com>
+Subject: Re:
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 26, 2021 at 10:18:11AM +0800, chenxiaosong (A) wrote:
-> 
-> 
-> 在 2021/10/20 20:30, Greg KH 写道:
-> > On Wed, Oct 13, 2021 at 06:49:06PM +0800, chenxiaosong (A) wrote:
-> > > 在 2021/10/13 18:38, chenxiaosong (A) 写道:
-> > > > 在 2021/10/13 18:11, Greg KH 写道:
-> > > > > On Wed, Oct 13, 2021 at 05:51:01PM +0800, ChenXiaoSong wrote:
-> > > > > > If two processes mount same superblock, memory leak occurs:
-> > > > > > 
-> > > > > > CPU0               |  CPU1
-> > > > > > do_new_mount       |  do_new_mount
-> > > > > >     fs_set_subtype   |    fs_set_subtype
-> > > > > >       kstrdup        |
-> > > > > >                      |      kstrdup
-> > > > > >       memrory leak   |
-> > > > > > 
-> > > > > > Fix this by adding a write lock while calling fs_set_subtype.
-> > > > > > 
-> > > > > > Linus's tree already have refactoring patchset [1], one of them
-> > > > > > can fix this bug:
-> > > > > >           c30da2e981a7 (fuse: convert to use the new mount API)
-> > > > > > 
-> > > > > > Since we did not merge the refactoring patchset in this branch,
-> > > > > > I create this patch.
-> > > > > > 
-> > > > > > [1] https://patchwork.kernel.org/project/linux-fsdevel/patch/20190903113640.7984-3-mszeredi@redhat.com/
-> > > > > > 
-> > > > > > 
-> > > > > > Fixes: 79c0b2df79eb (add filesystem subtype support)
-> > > > > > Cc: David Howells <dhowells@redhat.com>
-> > > > > > Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-> > > > > > ---
-> > > > > > v1: Can not mount sshfs ([PATCH linux-4.19.y] VFS: Fix fuseblk
-> > > > > > memory leak caused by mount concurrency)
-> > > > > > v2: Use write lock while writing superblock
-> > > > > > 
-> > > > > >    fs/namespace.c | 9 ++++++---
-> > > > > >    1 file changed, 6 insertions(+), 3 deletions(-)
-> > > > > 
-> > > > > As you are referring to a fuse-only patch above, why are you trying to
-> > > > > resolve this issue in the core namespace code instead?
-> > > > > 
-> > > > > How does fuse have anything to do with this?
-> > > > > 
-> > > > > confused,
-> > > > > 
-> > > > > greg k-h
-> > > > > .
-> > > > > 
-> > > > 
-> > > > Now, only `fuse_fs_type` and `fuseblk_fs_type` has `FS_HAS_SUBTYPE` flag
-> > > > in kernel code, but maybe there is a filesystem module(`struct
-> > > > file_system_type` has `FS_HAS_SUBTYPE` flag). And only mounting fuseblk
-> > > > filesystem(e.g. ntfs) will occur memory leak now.
-> > > 
-> > > How about updating the subject as: VFS: Fix memory leak caused by mounting
-> > > fs with subtype concurrency?
-> > 
-> > That would be a better idea, but still, this is not obvious that this is
-> > the correct fix at all...
-> > .
-> > 
-> Why is this patch not correct? Can you tell me more about it? Thanks.
-
-You need to prove that it is correct, and you need to get maintainers to
-approve it.
-
-thanks,
-
-greg k-h
+--=20
+Meine Entscheidung, Sie zu kontaktieren, ist, weil bei mir vor kurzem
+Lungenkrebs diagnostiziert wurde und der Arzt sagte, dass ich weniger
+als 6 Wochen zu leben habe. Seit mir diese pl=C3=B6tzliche Nachricht
+bekannt wurde, denke ich =C3=BCber mein Leben in der Vergangenheit nach. Es
+ist schmerzlich, dass wir nach =C3=BCber 26 Jahren friedlicher Ehe mit
+meinem verstorbenen Ehemann Malachi das einzige Kind verloren haben,
+das unseren zahlreichen Reichtum geerbt h=C3=A4tte. In der Vergangenheit
+habe ich angemessene Spenden an die Opfer des Erdbebens in Haiti und
+k=C3=BCrzlich an dieselben Opfer in Japan und Thailand geleistet. Jetzt, wo
+sich mein Gesundheitszustand allm=C3=A4hlich verschlechtert, kann ich all
+dies nicht mehr alleine tun. Ich habe den starken Wunsch, den Armen
+und Bed=C3=BCrftigen die Hand zu reichen, aber ich w=C3=BCrde es vorziehen,=
+ dies
+mit der Hilfe einer freundlichen Person fortzusetzen. Ich m=C3=B6chte, dass
+Sie die folgenden Fragen beantworten: ((1) Wenn ich (15,5)F=C3=BCnfzehn
+Millionen f=C3=BCnfhunderttausend US-Dollar an Sie spende, k=C3=B6nnen Sie =
+diese
+dann sinnvoll einsetzen, um meinen Herzenswunsch zu erf=C3=BCllen, arme
+Menschen um Sie herum zu unterst=C3=BCtzen? (2) Werden Sie im Namen meines
+Mannes und mir eine Wohlt=C3=A4tigkeitsstiftung gr=C3=BCnden? Ich m=C3=B6ch=
+te, dass
+Sie in meiner Erinnerung ein Heim f=C3=BCr mutterlose Babys einrichten,
+wenn ich weg bin, und dann 40% f=C3=BCr Ihre Bem=C3=BChungen behalten. Bitt=
+e
+antworten Sie mir so schnell wie m=C3=B6glich f=C3=BCr weitere Details.
