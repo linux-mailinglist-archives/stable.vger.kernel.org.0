@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BB2A43AC9F
-	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 09:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29D1143ACAA
+	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 09:08:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229487AbhJZHJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Oct 2021 03:09:13 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:48634 "EHLO
+        id S230467AbhJZHKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Oct 2021 03:10:43 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:51654 "EHLO
         mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S230467AbhJZHJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 03:09:12 -0400
-X-UUID: 60955ca12e494260b8cd3ecb77638c75-20211026
-X-UUID: 60955ca12e494260b8cd3ecb77638c75-20211026
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw02.mediatek.com
+        with ESMTP id S230433AbhJZHKm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 03:10:42 -0400
+X-UUID: c034a33ab7fa4c408a95c9d376f5c907-20211026
+X-UUID: c034a33ab7fa4c408a95c9d376f5c907-20211026
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
         (envelope-from <wenbin.mei@mediatek.com>)
         (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1803144527; Tue, 26 Oct 2021 15:06:47 +0800
-Received: from mtkexhb01.mediatek.inc (172.21.101.102) by
+        with ESMTP id 1373369586; Tue, 26 Oct 2021 15:08:16 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
  mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.2.792.15; Tue, 26 Oct 2021 15:06:46 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by mtkexhb01.mediatek.inc
- (172.21.101.102) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 26 Oct
- 2021 15:06:45 +0800
+ 15.2.792.15; Tue, 26 Oct 2021 15:08:14 +0800
 Received: from localhost.localdomain (10.17.3.154) by mtkcas10.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 26 Oct 2021 15:06:45 +0800
+ Transport; Tue, 26 Oct 2021 15:08:13 +0800
 From:   Wenbin Mei <wenbin.mei@mediatek.com>
-To:     Chaotian Jing <chaotian.jing@mediatek.com>
-CC:     Wenbin Mei <wenbin.mei@mediatek.com>, <stable@vger.kernel.org>
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+CC:     Adrian Hunter <adrian.hunter@intel.com>,
+        Ritesh Harjani <riteshh@codeaurora.org>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        "Matthias Brugger" <matthias.bgg@gmail.com>,
+        <linux-mmc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <srv_heupstream@mediatek.com>,
+        "Wenbin Mei" <wenbin.mei@mediatek.com>, <stable@vger.kernel.org>
 Subject: [PATCH] mmc: cqhci: clear HALT state after CQE enable
-Date:   Tue, 26 Oct 2021 15:06:44 +0800
-Message-ID: <20211026070644.9303-1-wenbin.mei@mediatek.com>
+Date:   Tue, 26 Oct 2021 15:08:12 +0800
+Message-ID: <20211026070812.9359-1-wenbin.mei@mediatek.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
