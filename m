@@ -2,68 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24CDD43B32F
-	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 15:31:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8AB043B3DB
+	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 16:21:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235207AbhJZNeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Oct 2021 09:34:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42034 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235308AbhJZNeC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 09:34:02 -0400
-Received: from mail-ua1-x92f.google.com (mail-ua1-x92f.google.com [IPv6:2607:f8b0:4864:20::92f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47CFFC061745
-        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 06:31:38 -0700 (PDT)
-Received: by mail-ua1-x92f.google.com with SMTP id e10so29175384uab.3
-        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 06:31:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=11NI8rJSPz43D1gV7A+JL1F9+LdB46OYj4gEDUOX0Xg=;
-        b=Q9AWRp5OxCodg9dlq7lpGXvEdAL6L2/+qDbzOdm6a01NAUMQTX8x8PiO6FtkmcLmOC
-         zcQvWOmttziZL3CK2y7fwevB+HG7LrnCLPTiZ6H4CVoVQn1HqEjk6pgyNrim4CgA26lm
-         UnP03PU3unKDal1H4T+H0e9CsEBIDDtDYp+B4Ztn0Ept7RSiw8Ha78sXuWvuIe/enSFR
-         6snNgufRKwoppnMzhErM2AEMPV/ZWyrtQF3Vjbb+d24K4K6QV55qn265sSWtwQE/eynA
-         n62l5IyITdLdjapPFxRm309TsgK6eSrlDTfHiXc+p9M60EeXxNXmvGYesTXw5yBq7vcg
-         3CHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=11NI8rJSPz43D1gV7A+JL1F9+LdB46OYj4gEDUOX0Xg=;
-        b=2USHajKnbKIa7SFPSRf+hkXES+Q1xC2nFoW8bVrvies4j68LBosH0pg0J8KLTYVVk2
-         R9pgKSou2ECG3asIpJqYlT0UHhUUxnojG5sfxM+/OOfPG3aTBB7aIdW/edwotbDG66pv
-         yDl0Kd24j6zHgCs9Ws5cRUWD0hf+5exPbdtiOFzZWLsKeDNiejwN1CEAbtDF74PQeAYA
-         YTTHa370HEPnU9fuG4vTQqoUmjByTg1yv9iESDf30hjVwrB6XgEFoT+e9qhbQp5ETotd
-         S1FCBso+m3WqrsVxIKISgcWpHvc57bHRMmHtljPnx2IEDI/NTAK3P3nfWQRUXXTUNwI5
-         geng==
-X-Gm-Message-State: AOAM5335ejKLkuF2QfHjaotQfCz4aW0rmeyw9em6I7B2yupx+Lsdbq5X
-        mtj7dsImHOC129a/ZSBfojVlx2xUsly5Bye9690=
-X-Google-Smtp-Source: ABdhPJxrv1+4MMRYRznOSTZdMGnmr5KqOIeq5xkSNu8kLHT5yfLbaqxA6Qw2HrL4GnAXsMEkilW3M3VhbrBFIljctec=
-X-Received: by 2002:a67:e1cd:: with SMTP id p13mr23571193vsl.29.1635255097443;
- Tue, 26 Oct 2021 06:31:37 -0700 (PDT)
+        id S236469AbhJZOYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Oct 2021 10:24:08 -0400
+Received: from smtp95.ord1d.emailsrvr.com ([184.106.54.95]:57498 "EHLO
+        smtp95.ord1d.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233382AbhJZOYH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 10:24:07 -0400
+X-Greylist: delayed 552 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Oct 2021 10:24:07 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
+        s=20190130-41we5z8j; t=1635257549;
+        bh=+4cb5meI4blfHPvJYISdY1ggOGQPN9CfCZDwjUGLC2M=;
+        h=Subject:To:From:Date:From;
+        b=NRZzEnMFGrC5X4Hc1B1RL9z+RT5V8FIDaUQwhldIyCOZAHGUnT+83W8RETj5lrzHM
+         SPfYis0X9JfwtxyISRZd45SbRpNBLk7E+qdYSbPB4PmrylHO4ihZ3Ma3vE3ZR7M0T+
+         BEnwq5KAS++kk6uey0mmKf3yZoEQZdFAZXDD8BDU=
+X-Auth-ID: abbotti@mev.co.uk
+Received: by smtp12.relay.ord1d.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id C1E97E0115;
+        Tue, 26 Oct 2021 10:12:28 -0400 (EDT)
+Subject: Re: [PATCH 1/5] comedi: ni_usb6501: fix NULL-deref in command paths
+To:     Johan Hovold <johan@kernel.org>,
+        H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Luca Ellero <luca.ellero@brickedbrain.com>
+References: <20211025114532.4599-1-johan@kernel.org>
+ <20211025114532.4599-2-johan@kernel.org>
+From:   Ian Abbott <abbotti@mev.co.uk>
+Organization: MEV Ltd.
+Message-ID: <be9dcb4f-3594-e756-78e3-74750a49fe91@mev.co.uk>
+Date:   Tue, 26 Oct 2021 15:12:28 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Received: by 2002:a59:d99a:0:b0:238:32b6:5c7a with HTTP; Tue, 26 Oct 2021
- 06:31:37 -0700 (PDT)
-Reply-To: ms.lisahugh000@gmail.com
-From:   Ms Lisa Hugh <lisahugh531@gmail.com>
-Date:   Tue, 26 Oct 2021 15:31:37 +0200
-Message-ID: <CAFnQ+S4PFQUwuv8RNB4K6oyZz1NG1_xhWpsH84F+49jH1QACyQ@mail.gmail.com>
-Subject: QUICK REPLY AND DETAILS >>MS LISA HUGH.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20211025114532.4599-2-johan@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+X-Classification-ID: ffc54a2e-ba37-4dec-b7bf-ea32ca4e0a9e-1-1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+On 25/10/2021 12:45, Johan Hovold wrote:
+> The driver uses endpoint-sized USB transfer buffers but had no sanity
+> checks on the sizes. This can lead to zero-size-pointer dereferences or
+> overflowed transfer buffers in ni6501_port_command() and
+> ni6501_counter_command() if a (malicious) device has smaller max-packet
+> sizes than expected (or when doing descriptor fuzz testing).
+> 
+> Add the missing sanity checks to probe().
+> 
+> Fixes: a03bb00e50ab ("staging: comedi: add NI USB-6501 support")
+> Cc: stable@vger.kernel.org      # 3.18
+> Cc: Luca Ellero <luca.ellero@brickedbrain.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>   drivers/comedi/drivers/ni_usb6501.c | 8 ++++++++
+>   1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/comedi/drivers/ni_usb6501.c b/drivers/comedi/drivers/ni_usb6501.c
+> index 5b6d9d783b2f..eb2e5c23f25d 100644
+> --- a/drivers/comedi/drivers/ni_usb6501.c
+> +++ b/drivers/comedi/drivers/ni_usb6501.c
+> @@ -144,6 +144,10 @@ static const u8 READ_COUNTER_RESPONSE[]	= {0x00, 0x01, 0x00, 0x10,
+>   					   0x00, 0x00, 0x00, 0x02,
+>   					   0x00, 0x00, 0x00, 0x00};
+>   
+> +/* Largest supported packets */
+> +static const size_t TX_MAX_SIZE	= sizeof(SET_PORT_DIR_REQUEST);
+> +static const size_t RX_MAX_SIZE	= sizeof(READ_PORT_RESPONSE);
+> +
+>   enum commands {
+>   	READ_PORT,
+>   	WRITE_PORT,
+> @@ -486,12 +490,16 @@ static int ni6501_find_endpoints(struct comedi_device *dev)
+>   		ep_desc = &iface_desc->endpoint[i].desc;
+>   
+>   		if (usb_endpoint_is_bulk_in(ep_desc)) {
+> +			if (usb_endpoint_maxp(ep_desc) < RX_MAX_SIZE)
+> +				continue;
+>   			if (!devpriv->ep_rx)
+>   				devpriv->ep_rx = ep_desc;
+>   			continue;
+>   		}
+>   
+>   		if (usb_endpoint_is_bulk_out(ep_desc)) {
+> +			if (usb_endpoint_maxp(ep_desc) < TX_MAX_SIZE)
+> +				continue;
+>   			if (!devpriv->ep_tx)
+>   				devpriv->ep_tx = ep_desc;
+>   			continue;
+> 
 
-I am Ms Lisa Hugh accountant and files keeping by profession with the bank.
+Perhaps it should return an error if the first encountered bulk-in 
+endpoint has the wrong size or the first encountered bulk-out endpoint 
+has the wrong size. Something like:
 
-I need Your help for this transfer($4,500,000,00 ,U.S.DOLLARS)to your
-bank account with your co-operation for both of us benefit.
+		if (usb_endpoint_is_bulk_in(ep_desc)) {
+			if (!devpriv->ep_rx) {
+				if (usb_endpoint_maxp(ep_desc) < RX_MAX_SIZE)
+					break;
+			}
+			continue;
 
-Please send the follow below,
-1)AGE....2)TELEPHONE NUMBER,,,,,...,3)COUNTRY.....4)OCCUPATION......
-Thanks.
-Ms Lisa Hugh
+(similar for bulk-out with TX_MAX_SIZE)
+
+-- 
+-=( Ian Abbott <abbotti@mev.co.uk> || MEV Ltd. is a company  )=-
+-=( registered in England & Wales.  Regd. number: 02862268.  )=-
+-=( Regd. addr.: S11 & 12 Building 67, Europa Business Park, )=-
+-=( Bird Hall Lane, STOCKPORT, SK3 0XA, UK. || www.mev.co.uk )=-
