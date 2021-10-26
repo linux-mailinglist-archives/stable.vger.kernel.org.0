@@ -2,72 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BE0243B3D2
-	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 16:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FF3743B3F8
+	for <lists+stable@lfdr.de>; Tue, 26 Oct 2021 16:26:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235424AbhJZOWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Oct 2021 10:22:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42746 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232907AbhJZOWb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Oct 2021 10:22:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 5F7696108D;
-        Tue, 26 Oct 2021 14:20:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635258007;
-        bh=BCP26ij8aQiPlP+YPKgPF+AgJTQ9BjYADpVl6K6OnPU=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=e9N77GVHn/fmNK7hs2n+6WWwy/JycojbDwEvCHCD5EkNVBIu1BYb0ZfP5Gp61ijP3
-         LRMuTQRe63DmHD9snaSVSq8/69RQvVQLZTWteerMfA2G0MHDC+IfjJoC+BSjNuFPKa
-         +d6WfP6b77Jmle7bDbV3rvuxPH0k4NkXEW67kCoH4CjPNJqmzy6J19QnA8wz/rMbxj
-         zQEOJRmqaebB07WvZEZ/HQfcPMK5oy2+PA6z2PXTSlDRc3qp5EANQw1DmoaGqDx5ov
-         LXwXudvu2KsYLyb17ABNyFFB/jl2AnaOR6VGI+wA3KkXVk8oFHG3WGTRPAjxUrHykI
-         HsE3SW2voErTQ==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 4F80C608FE;
-        Tue, 26 Oct 2021 14:20:07 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S234992AbhJZO2g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Oct 2021 10:28:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54558 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234622AbhJZO2g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 10:28:36 -0400
+Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7412EC061745
+        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 07:26:12 -0700 (PDT)
+Received: by mail-io1-xd35.google.com with SMTP id f9so2056598ioo.11
+        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 07:26:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=Vbed56XR8+kAJBfUzToOWDqn95NDJTDu28wJmq6AaGg=;
+        b=qGC0ucrwyrt8j1I723BVTmeWfMVD0UM/HX9rsG676yk6Mgf5bpY3LTMi4Pnn3bmUS1
+         he8HeRLC1bhMgmZ6u+g+2q2L2Z0yUbVrZuDSYnfu9X6YC0vxeKKiJfeDYzofPfebQszI
+         15JGO6zKK0l16yZF7pB8aKHjjI5j9W7d0HlEHnSxqX+6hkqXwosGA7b0f7KautL4Xlue
+         so0VTj3pITwBWbRlzDxwwO2XhVR8FNNNP9E50X5vZECMxO9S5br7uyOy6xk+dDYpguId
+         9z4TyMVLk7YohwWYtCQ3MzSPsCTdYKTgzIogUgStnmfirCbCMngEqe1VPd6JM4VuTDYU
+         3rig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=Vbed56XR8+kAJBfUzToOWDqn95NDJTDu28wJmq6AaGg=;
+        b=7ZlOYokw0sn+iEj4IcNRs4CeQUYj3qjHycAQxlM9xfkCn53e3GdjxxSswfzPcHpPVl
+         9lv6qo4h0dprWt/ocBqiXtzWniZsTVKd4lgHtM7W3Ly4d2Ek1iQJORR7R6tWOuBVFHJc
+         hnC4gY+u9TMYmskcOOKxlHWRZA7dGlc1LPlLULMTe9YmzFF15M+pEo38FBtSFXqw+wrl
+         ysdVBh3x1FUxgfQGwF2H221k8nGLE0TumzWpCdBrMiWFbXxHOSktlMqwgIE1Qxdn/4fq
+         KfP0kmavWedlpYpxlGjFNwaDEIGmWs9U9U37wpPpR8i1RaKOMe1sTTRmQoylY8X9oUzp
+         fVDQ==
+X-Gm-Message-State: AOAM531AzlsGFFywUucrU0/8MiAAqjUQrfJJEg5e9TaEHbVSMm5/mTuE
+        V2Y2eVTvBKm2TfYaXSxZVUdkAV2yzFWKbgZfsPU=
+X-Google-Smtp-Source: ABdhPJxfXMOKl1JsoRB7KpeW6zrX2/IIbQ4pDvmoq/3bw8nUJOm+3cdgnqwZwgqvGYR63M6IDLnjR8A3LAag/zMnsNI=
+X-Received: by 2002:a05:6602:2bf7:: with SMTP id d23mr15310224ioy.187.1635258371754;
+ Tue, 26 Oct 2021 07:26:11 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH] net: lan78xx: fix division by zero in send path
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <163525800732.18574.12890707438455809679.git-patchwork-notify@kernel.org>
-Date:   Tue, 26 Oct 2021 14:20:07 +0000
-References: <20211026103617.5686-1-johan@kernel.org>
-In-Reply-To: <20211026103617.5686-1-johan@kernel.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     woojung.huh@microchip.com, UNGLinuxDriver@microchip.com,
-        davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Woojung.Huh@microchip.com
+Received: by 2002:a02:2125:0:0:0:0:0 with HTTP; Tue, 26 Oct 2021 07:26:11
+ -0700 (PDT)
+Reply-To: info.rgicompanyltd@gmail.com
+From:   RGI CO LTD <infomail.rgicompanyltd@gmail.com>
+Date:   Tue, 26 Oct 2021 02:26:11 -1200
+Message-ID: <CAG=YAYhpHmeLdeV2US0yya42M8OdjnAZJoA7R1+_y0t7=etByQ@mail.gmail.com>
+Subject: WE CAN DO BUSINESS TOGETHER
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net.git (master)
-by David S. Miller <davem@davemloft.net>:
-
-On Tue, 26 Oct 2021 12:36:17 +0200 you wrote:
-> Add the missing endpoint max-packet sanity check to probe() to avoid
-> division by zero in lan78xx_tx_bh() in case a malicious device has
-> broken descriptors (or when doing descriptor fuzz testing).
-> 
-> Note that USB core will reject URBs submitted for endpoints with zero
-> wMaxPacketSize but that drivers doing packet-size calculations still
-> need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
-> endpoint descriptors with maxpacket=0")).
-> 
-> [...]
-
-Here is the summary with links:
-  - net: lan78xx: fix division by zero in send path
-    https://git.kernel.org/netdev/net/c/db6c3c064f5d
-
-You are awesome, thank you!
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Good Day.
 
+RGI Genealogical Investigators specializes in probate research to locate
+missing funds, inherited funds and consignment around the world. We can
+also help you find wills, obtain copies of certificates. Recently a woman
+from Rothschild family one of the richest and famous family in the city of
+Hesse-Kassel Frankfurt Germany that has been suffering from (hepatocellular
+of the liver) and unstable health challenge contacted our company that we
+should contact a trustworthy business minded person who is capable to
+invest her funds in a lucrative business.
 
+Our service fee is 2% of the funds and we will be paid after you received
+the funds. The funds transfer process should take just a matter of days as
+we have the mechanism and expertise to get this done very quickly. Please
+if you find this letter offensive ignore it and accept our apologies, but
+if interested get back to us as soon as possible.
+
+CONTACT ME FOR MORE INFORMATION
+
+Warmest Regards,
+Dr.Ryan J.Wood, CEO
