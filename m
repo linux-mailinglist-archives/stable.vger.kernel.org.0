@@ -2,142 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AB6F43BD01
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 00:10:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3E4A43BD14
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 00:15:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239898AbhJZWMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Oct 2021 18:12:25 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:23053 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239996AbhJZWLl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 18:11:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1635286156;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Vy6PPGM60NhhG/vPxIrAMMpUbjuWRrGExhH//zrjdYg=;
-        b=gGHBc1z16sHjo+5GJTNKEFFp/NX/l+8g/AlUs8EZlTVMjlMQHH1hpTyXMVA5alzndMpErx
-        8RLSIWEj/ngoA7MpYFSlFGaRK2oU2XYdmTlk/Rf/m0PoXpRDYiUkfmBdoBSDtKcZnWt730
-        tztWOAahWnsW6dofUGjwwbWyf3hfClI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-12-Gp2RiTImMM-z0UzjuvwC2A-1; Tue, 26 Oct 2021 18:09:13 -0400
-X-MC-Unique: Gp2RiTImMM-z0UzjuvwC2A-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 96B008066F4;
-        Tue, 26 Oct 2021 22:09:11 +0000 (UTC)
-Received: from emerald.lyude.net (unknown [10.22.18.207])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 579AD5F4E0;
-        Tue, 26 Oct 2021 22:09:09 +0000 (UTC)
-From:   Lyude Paul <lyude@redhat.com>
-To:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        nouveau@lists.freedesktop.org
-Cc:     Satadru Pramanik <satadru@gmail.com>, stable@vger.kernel.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v4 1/5] drm/i915: Add support for panels with VESA backlights with PWM enable/disable
-Date:   Tue, 26 Oct 2021 18:08:44 -0400
-Message-Id: <20211026220848.439530-2-lyude@redhat.com>
-In-Reply-To: <20211026220848.439530-1-lyude@redhat.com>
-References: <20211026220848.439530-1-lyude@redhat.com>
+        id S235260AbhJZWSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Oct 2021 18:18:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50190 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232718AbhJZWSF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 18:18:05 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85F48C061570
+        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 15:15:41 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id ls14-20020a17090b350e00b001a00e2251c8so561928pjb.4
+        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 15:15:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=GPBL5QocSvSsLVsWlQvgP0l2Y8cbvr1LzNfq8kUKOpk=;
+        b=sa8XODtJDxOIKAfbJhLqAaZ3mglelq7zgDoaLLbvKbAVnfh5IotMRifozsynl1S5U5
+         AqcgIrLufWAd4sEZ7KODUaQWVDBkC7FmJ6u6Sj+8FVUJyNqRXkC/7DD5d331KzuLEiyY
+         S3deUl2soJkagrM6hKg2/Z8wlkEYsxCI1KfKminWgDAgUO6zB+kWKnbOFv5Res1Gkn5+
+         nKr0kcjX7Lmevfxr9QskFcq8Hxnh3eyAl8D/Q9y3vBy5UBlfT6m2jOVJvHlvbmea5u/X
+         kDZNhGyXVTAgc2G5Q87Agr1KI2nTOUrX1BpE0a09dmpeIkeI5OPN7icotBnhquzJLFXb
+         Os8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=GPBL5QocSvSsLVsWlQvgP0l2Y8cbvr1LzNfq8kUKOpk=;
+        b=LDAxS/gromG8XrFqK7q+fv/ieZzc/blyBW/m7iosp2UgZsLcCZm0BwwO1Sbaq6otzJ
+         Xn9S/Lfd7cIiwSQT8fL4LhlCDjyhTurAc5nSWer3GP/cEgvF/DA4485ritJ1Li1PYkef
+         5lNq84Qtoa/sdg/uVl1D5uoTFhx5CxM/FoKG24zVgWQWYvzVDEHgvZ8VZlJBiy0QJlUJ
+         pGjwPKWoAbk7FL2Szs2IwP4MmB5vxzPgDmQOv0/Yu9NSnYOmdMKRhLgZ8z6uHdw6yOqC
+         mOexuq0ajouUmYAEw8NmCfpZ0igYxgryC3X8AJ5vGnFfo1s/SUOnqr2U08GMQ00UOijM
+         QKwA==
+X-Gm-Message-State: AOAM531sr5YyiCJt8bxQYfNmL0Tfw8ui5WaXhJTBgPjrh0E13ZwMwJDW
+        e6OkvMaHoWg4XZlUHHtU9oIrYtuByL+ClEAY
+X-Google-Smtp-Source: ABdhPJwx1G92Plbuo/qbvP9YUe1/aNs9CZtTPxEt9akfrNWUfQJZkzdCWog0JF8aKDNP0yXSLToKcg==
+X-Received: by 2002:a17:90b:207:: with SMTP id fy7mr1612578pjb.145.1635286540992;
+        Tue, 26 Oct 2021 15:15:40 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l11sm25633955pfu.55.2021.10.26.15.15.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Oct 2021 15:15:40 -0700 (PDT)
+Message-ID: <61787e0c.1c69fb81.dd8cd.1bdc@mx.google.com>
+Date:   Tue, 26 Oct 2021 15:15:40 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.213-36-gb94013ec6bbb
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.19 baseline: 120 runs,
+ 1 regressions (v4.19.213-36-gb94013ec6bbb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This simply adds proper support for panel backlights that can be controlled
-via VESA's backlight control protocol, but which also require that we
-enable and disable the backlight via PWM instead of via the DPCD interface.
-We also enable this by default, in order to fix some people's backlights
-that were broken by not having this enabled.
+stable-rc/queue/4.19 baseline: 120 runs, 1 regressions (v4.19.213-36-gb9401=
+3ec6bbb)
 
-For reference, backlights that require this and use VESA's backlight
-interface tend to be laptops with hybrid GPUs, but this very well may
-change in the future.
+Regressions Summary
+-------------------
 
-v4:
-* Make sure that we call intel_backlight_level_to_pwm() in
-  intel_dp_aux_vesa_enable_backlight() - vsyrjala
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://gitlab.freedesktop.org/drm/intel/-/issues/3680
-Fixes: fe7d52bccab6 ("drm/i915/dp: Don't use DPCD backlights that need PWM enable/disable")
-Cc: <stable@vger.kernel.org> # v5.12+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- .../drm/i915/display/intel_dp_aux_backlight.c | 27 ++++++++++++++-----
- 1 file changed, 21 insertions(+), 6 deletions(-)
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
-index 569d17b4d00f..f05b71c01b8e 100644
---- a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
-@@ -293,6 +293,13 @@ intel_dp_aux_vesa_enable_backlight(const struct intel_crtc_state *crtc_state,
- 	struct intel_panel *panel = &connector->panel;
- 	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
- 
-+	if (!panel->backlight.edp.vesa.info.aux_enable) {
-+		u32 pwm_level = intel_backlight_invert_pwm_level(connector,
-+								 panel->backlight.pwm_level_max);
-+
-+		panel->backlight.pwm_funcs->enable(crtc_state, conn_state, pwm_level);
-+	}
-+
- 	drm_edp_backlight_enable(&intel_dp->aux, &panel->backlight.edp.vesa.info, level);
- }
- 
-@@ -304,6 +311,10 @@ static void intel_dp_aux_vesa_disable_backlight(const struct drm_connector_state
- 	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
- 
- 	drm_edp_backlight_disable(&intel_dp->aux, &panel->backlight.edp.vesa.info);
-+
-+	if (!panel->backlight.edp.vesa.info.aux_enable)
-+		panel->backlight.pwm_funcs->disable(old_conn_state,
-+						    intel_backlight_invert_pwm_level(connector, 0));
- }
- 
- static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector, enum pipe pipe)
-@@ -321,6 +332,15 @@ static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector,
- 	if (ret < 0)
- 		return ret;
- 
-+	if (!panel->backlight.edp.vesa.info.aux_enable) {
-+		ret = panel->backlight.pwm_funcs->setup(connector, pipe);
-+		if (ret < 0) {
-+			drm_err(&i915->drm,
-+				"Failed to setup PWM backlight controls for eDP backlight: %d\n",
-+				ret);
-+			return ret;
-+		}
-+	}
- 	panel->backlight.max = panel->backlight.edp.vesa.info.max;
- 	panel->backlight.min = 0;
- 	if (current_mode == DP_EDP_BACKLIGHT_CONTROL_MODE_DPCD) {
-@@ -340,12 +360,7 @@ intel_dp_aux_supports_vesa_backlight(struct intel_connector *connector)
- 	struct intel_dp *intel_dp = intel_attached_dp(connector);
- 	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
- 
--	/* TODO: We currently only support AUX only backlight configurations, not backlights which
--	 * require a mix of PWM and AUX controls to work. In the mean time, these machines typically
--	 * work just fine using normal PWM controls anyway.
--	 */
--	if ((intel_dp->edp_dpcd[1] & DP_EDP_BACKLIGHT_AUX_ENABLE_CAP) &&
--	    drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
-+	if (drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
- 		drm_dbg_kms(&i915->drm, "AUX Backlight Control Supported!\n");
- 		return true;
- 	}
--- 
-2.31.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.213-36-gb94013ec6bbb/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.213-36-gb94013ec6bbb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      b94013ec6bbbc1627a45925360e3c26e67616a06 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/617846f503260b1a9c3358ed
+
+  Results:     5 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.213=
+-36-gb94013ec6bbb/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.213=
+-36-gb94013ec6bbb/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/617846f503260b1=
+a9c3358f0
+        new failure (last pass: v4.19.213-36-g72599f780657)
+        2 lines
+
+    2021-10-26T18:20:21.755654  <8>[   21.110565] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-10-26T18:20:21.799190  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/108
+    2021-10-26T18:20:21.808306  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-10-26T18:20:21.822524  <8>[   21.179443] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
