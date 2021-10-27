@@ -2,120 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE40043BDB0
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 01:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D315A43BEA9
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 02:55:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240219AbhJZXS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Oct 2021 19:18:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35294 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240216AbhJZXSZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 19:18:25 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78411C061570
-        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 16:16:01 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id m26so924304pff.3
-        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 16:16:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=kkrvIjNzohCrJ7uboWF2hCicyi5h/vtE+q4iPecryAA=;
-        b=gA1Q8zB07xISWx7fQgz/ihuOWafuxSAe+8pn7vhaWd5x1yRzCheZ5q1ZJfFlRnev3q
-         rlMKvru7kDIzOyGSICqnBf/Xw9h4uAplj5Aa6SP+X6U6+Fa8uVwekKsYIn8JozaPbF/s
-         Yv+cO7aHqmBzpTme3HixrV4SOj/cvqc2IhWCGnLwr6wBr7ZBPlAu8EDTJfGC6QJUwMri
-         HRlTg7oI6r0+pgyMmLadhAfC+5YlX6snqv1TQPyvqmtq/VtHhkG887kEp4YdtXPlUhy8
-         4ByHRCBhz3vZ8Krkd+l6Frr6FgTsSJy9ZPo4s624SHwwWgGud+2A7h1rJ9PemZs3REV9
-         2kJQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=kkrvIjNzohCrJ7uboWF2hCicyi5h/vtE+q4iPecryAA=;
-        b=V7Bl6sfGSGS/+v2FNQWdcvauLiBgbJoNEvASJqrTunOfwPV7sE2O+cOKheT11wLB8Y
-         j+39RPn5d8qmRA+O++G9vFzxadCHjrmbd3Hu+JuzbCBKk+wgoPIbjU2GcSmOw9rC0aPI
-         H1n4OqVtpwPB4+3Tf7rixj+fzKONxZBimCTRFW1aErMwzY3FKPVNY0lO+2zVgrFss3e/
-         2A4ql2zSzSVWCoMeiBAs/AdSrIiUHQ8G2qkCNdOlBnaPMHII0P8MrB1kx7Gni7ShqKzk
-         tOSGcqdfz13FhptkmP5Osov0H+L5PVxE6qEQ+m9gr3nbzq2E5Z1MTlkWnAENUtbSy7tk
-         RlXA==
-X-Gm-Message-State: AOAM531xt42SO+2csTLzdW/Mje94j4RybWQ/+JGpHj1b6tNJOezB757W
-        19dzd01puvE2OMcT8Jsn5bdhQvlsEtTt87yq
-X-Google-Smtp-Source: ABdhPJzD35Eg4yWGKkQYIY0DEVIUTGmuPKRa6Ki4Uv/mGEKrkIMMcIfD8Q+y4Zey3P4AMvmO/yLMmw==
-X-Received: by 2002:a63:8f5a:: with SMTP id r26mr14677591pgn.50.1635290160873;
-        Tue, 26 Oct 2021 16:16:00 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y19sm5124851pfn.23.2021.10.26.16.16.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Oct 2021 16:16:00 -0700 (PDT)
-Message-ID: <61788c30.1c69fb81.d5bc5.e2e1@mx.google.com>
-Date:   Tue, 26 Oct 2021 16:16:00 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S236131AbhJ0A5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Oct 2021 20:57:52 -0400
+Received: from mailgw01.mediatek.com ([60.244.123.138]:33852 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S232410AbhJ0A5v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 20:57:51 -0400
+X-UUID: b2ad23b1aa9443eaa969d3190fcc4121-20211027
+X-UUID: b2ad23b1aa9443eaa969d3190fcc4121-20211027
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
+        (envelope-from <wenbin.mei@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1685992770; Wed, 27 Oct 2021 08:55:24 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.792.15; Wed, 27 Oct 2021 08:55:23 +0800
+Received: from localhost.localdomain (10.17.3.154) by mtkcas10.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Wed, 27 Oct 2021 08:55:22 +0800
+From:   Wenbin Mei <wenbin.mei@mediatek.com>
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+CC:     Adrian Hunter <adrian.hunter@intel.com>,
+        Ritesh Harjani <riteshh@codeaurora.org>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        "Matthias Brugger" <matthias.bgg@gmail.com>,
+        <linux-mmc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <srv_heupstream@mediatek.com>,
+        "Wenbin Mei" <wenbin.mei@mediatek.com>, <stable@vger.kernel.org>
+Subject: [PATCH v2] mmc: cqhci: clear HALT state after CQE enable
+Date:   Wed, 27 Oct 2021 08:55:20 +0800
+Message-ID: <20211027005520.14481-1-wenbin.mei@mediatek.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.155-57-g682a02fc84db
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 131 runs,
- 1 regressions (v5.4.155-57-g682a02fc84db)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 131 runs, 1 regressions (v5.4.155-57-g682a02f=
-c84db)
+While mmc0 enter suspend state, we need halt CQE to send legacy cmd(flush
+cache) and disable cqe, for resume back, we enable CQE and not clear HALT
+state.
+In this case MediaTek mmc host controller will keep the value for HALT
+state after CQE disable/enable flow, so the next CQE transfer after resume
+will be timeout due to CQE is in HALT state, the log as below:
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: timeout for tag 2
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: ============ CQHCI REGISTER DUMP ===========
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Caps:      0x100020b6 | Version:  0x00000510
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Config:    0x00001103 | Control:  0x00000001
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Int stat:  0x00000000 | Int enab: 0x00000006
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Int sig:   0x00000006 | Int Coal: 0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: TDL base:  0xfd05f000 | TDL up32: 0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Doorbell:  0x8000203c | TCN:      0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Dev queue: 0x00000000 | Dev Pend: 0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Task clr:  0x00000000 | SSC1:     0x00001000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: SSC2:      0x00000001 | DCMD rsp: 0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: RED mask:  0xfdf9a080 | TERRI:    0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Resp idx:  0x00000000 | Resp arg: 0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: CRNQP:     0x00000000 | CRNQDUN:  0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: CRNQIS:    0x00000000 | CRNQIE:   0x00000000
 
-Regressions Summary
--------------------
+This change check HALT state after CQE enable, if CQE is in HALT state, we
+will clear it.
 
-platform  | arch  | lab           | compiler | defconfig | regressions
-----------+-------+---------------+----------+-----------+------------
-hip07-d05 | arm64 | lab-collabora | gcc-10   | defconfig | 1          =
+Fixes: a4080225f51d ("mmc: cqhci: support for command queue enabled host")
+Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/mmc/host/cqhci-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
+diff --git a/drivers/mmc/host/cqhci-core.c b/drivers/mmc/host/cqhci-core.c
+index ca8329d55f43..b0d30c35c390 100644
+--- a/drivers/mmc/host/cqhci-core.c
++++ b/drivers/mmc/host/cqhci-core.c
+@@ -282,6 +282,9 @@ static void __cqhci_enable(struct cqhci_host *cq_host)
+ 
+ 	cqhci_writel(cq_host, cqcfg, CQHCI_CFG);
+ 
++	if (cqhci_readl(cq_host, CQHCI_CTL) & CQHCI_HALT)
++		cqhci_writel(cq_host, 0, CQHCI_CTL);
++
+ 	mmc->cqe_on = true;
+ 
+ 	if (cq_host->ops->enable)
+-- 
+2.25.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.155-57-g682a02fc84db/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.155-57-g682a02fc84db
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      682a02fc84db08216631e08c934c73c00a78bba2 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch  | lab           | compiler | defconfig | regressions
-----------+-------+---------------+----------+-----------+------------
-hip07-d05 | arm64 | lab-collabora | gcc-10   | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6178670bb50a0b85f533590f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.155-5=
-7-g682a02fc84db/arm64/defconfig/gcc-10/lab-collabora/baseline-hip07-d05.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.155-5=
-7-g682a02fc84db/arm64/defconfig/gcc-10/lab-collabora/baseline-hip07-d05.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6178670bb50a0b85f5335=
-910
-        new failure (last pass: v5.4.155-56-g13177975f7b1) =
-
- =20
