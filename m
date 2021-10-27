@@ -2,85 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DCE143D335
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 22:52:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC48243D33B
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 22:53:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237231AbhJ0UzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 16:55:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47766 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234080AbhJ0UzG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 16:55:06 -0400
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F6A5C061570
-        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 13:52:40 -0700 (PDT)
-Received: by mail-wr1-x42e.google.com with SMTP id g7so5218777wrb.2
-        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 13:52:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=Z5gHQzYD7PoAYoDzL4RlC0n9kbSf85NznLeRtNS5u38=;
-        b=Z75V0PSi9ToaS2LD0BKpGeHDcZ9vHvaNyLE0UoDvVDITVIa+Hd7Ba2HJN0k2dQgLde
-         FpIoFUgz7Td38tlXA646d+Zs3AqLZOxI75VFKaAypvZcKyWh4pAON6olZt5K1NJCfa7W
-         NaTqrILdDwwJllmkx1U7E2M1rn9hsg9WY5O9RP5UB1RMHZfhYlbeYSMywdwtiZMsCeKH
-         FEnhCEw+/N92htZaDK8f5fQQ2bHG40jchuzGBsZhnXMlPlgUxQ8kx4nhJXaqh86nklHR
-         7+ftjpfS0xt5sdN310PJeuLwwkRuw6CJiTUiVTzh0qfwBHWnPKaxouiEyOesM3faZ4Td
-         Ftnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=Z5gHQzYD7PoAYoDzL4RlC0n9kbSf85NznLeRtNS5u38=;
-        b=f1+HxyEKdwuJOGjYYkrPHjirOM2EMnpco17dsn03q3KZti4txynncPBq6P0qokKo/U
-         tS5FtDJub+nPqximyTWX4BTQsG7A+IcgtZA5MBq2gDVbH91WtL2itgFeqFcASZED//kM
-         8P2UXVuUz9sPwZBiRLcbUP6Pbbt+imTIMMQKtVZgRsMVcNH8cYkeG+mVofm1GAUwNSvE
-         XHmiBYEZ4vZZBx75eG6/JD0lB9WS0UxBh4uJ3FxRWmE92qPBPvP4LkEyzj4WovELP0sJ
-         iW30BKQb1V/WPUOgUorxsiiKoAxQdoannmQ1qS7PLoZ3H9h2h0hvHUxA8MABmBJFmHjq
-         cbZw==
-X-Gm-Message-State: AOAM533uAugwJ++HXykqAGZL0oqKwTkR7hcPRCxSBmw2lm1FLq3d8ban
-        wvfShgdYKQmPEHaXNApsuy4gxSfqt705KCyqAL8=
-X-Google-Smtp-Source: ABdhPJwCk4kd/tNqY/zEuIcewXgiUY0/PoLbResuIA195iNO5AihDRIyqaG8j/B08u6t1nuVo5toDXh6UI16SWxZUCo=
-X-Received: by 2002:a5d:500b:: with SMTP id e11mr8326240wrt.205.1635367958905;
- Wed, 27 Oct 2021 13:52:38 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a05:6000:2ac:0:0:0:0 with HTTP; Wed, 27 Oct 2021 13:52:38
- -0700 (PDT)
-Reply-To: kenndyjohnson080@gmail.com
-From:   kenndy johnson <chichirich666@gmail.com>
-Date:   Wed, 27 Oct 2021 21:52:38 +0100
-Message-ID: <CAEWe2bZ-vUm3M6enEvn1xbwptTLZWUF9YfXDC9bLXdYUfOnkfg@mail.gmail.com>
-Subject: Dear Friend,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S244086AbhJ0Uz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 16:55:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47686 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S244084AbhJ0Uz6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Oct 2021 16:55:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA91D6109E;
+        Wed, 27 Oct 2021 20:53:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1635368011;
+        bh=zdJMv/mcj2CSAz9FcD1BLV11LsawzqVlhl6XTfTo+yU=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=aBN6tBRiJHK7zgB6g4Onng7fU3uF0uidbUnpgzP53zxq/tXivVzJgRl1j62oYPSGf
+         Jrod8DKfnHR6VnSJdnrG96os3vY9iXIilyp305YLdHGhmw4CoxpU002qA6DabhnZfm
+         SXz5GWAOKHoIq144LxnUYWzEGZ+KseHoHI2W29fk=
+Date:   Wed, 27 Oct 2021 13:53:28 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Yang Shi <shy828301@gmail.com>
+Cc:     Song Liu <songliubraving@fb.com>, Hugh Dickins <hughd@google.com>,
+        "sunhao.th@gmail.com" <sunhao.th@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        "andrea.righi@canonical.com" <andrea.righi@canonical.com>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] mm: khugepaged: skip huge page collapse for special
+ files
+Message-Id: <20211027135328.001e4582a9535e8e4be785bb@linux-foundation.org>
+In-Reply-To: <CAHbLzkqTW9U3VvTu1Ki5v_cLRC9gHW+znBukg_ycergE0JWj-A@mail.gmail.com>
+References: <20211027195221.3825-1-shy828301@gmail.com>
+        <C8C6E50C-D300-40D4-AA5C-490F673BADFE@fb.com>
+        <CAHbLzkqTW9U3VvTu1Ki5v_cLRC9gHW+znBukg_ycergE0JWj-A@mail.gmail.com>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+On Wed, 27 Oct 2021 13:44:37 -0700 Yang Shi <shy828301@gmail.com> wrote:
 
-My name is Mr. kenndy. johnson I am working with one of the UBA
-banks in Burkina Faso. Here in this bank existed a dormant account for
-many years, which belong to one of our late foreign customer. The
-amount in this account stands at $19 million's dollars
+> > > --- a/mm/khugepaged.c
+> > > +++ b/mm/khugepaged.c
+> > > @@ -445,22 +445,25 @@ static bool hugepage_vma_check(struct vm_area_struct *vma,
+> > >       if (!transhuge_vma_enabled(vma, vm_flags))
+> > >               return false;
+> > >
+> > > -     /* Enabled via shmem mount options or sysfs settings. */
+> > > -     if (shmem_file(vma->vm_file) && shmem_huge_enabled(vma)) {
+> > > +     if (vma->vm_file)
+> > >               return IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) - vma->vm_pgoff,
+> > >                               HPAGE_PMD_NR);
+> >
+> > Am I misreading this? If we return here for vma->vm_file, the following
+> > logic (shmem_file(), etc.) would be skipped, no?
+> 
+> Oh, yes, you are right. My mistake.
+> 
+> Andrew,
+> 
+> Could you please apply the below fix?
 
- US Dollars.
-
-I was very fortunate to come across the deceased customer's security
-file during documentation of old and abandoned customer=E2=80=99s files for=
- an
-official documentation and audit of the year 2021.
-
-I want a foreign account where the bank will transfer this fund. I
-know you would be surprised to read this message, especially from
-someone relatively unknown to you. But, do not worry yourself so much.
-This is a genuine, risk free and legal business transaction. All
-details shall be sent to you as soon as I receive your response.
-
-If you are really sure of your sincerity, trustworthiness,
-accountability and confidentiality over this transaction, reply back
-to me through my alternative email address: kenndyjohnson080@gmail.com
-Best regards,
-
-Mr. kenndy johnson,
+um, how well tested are these changes?
