@@ -2,180 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8926243CC05
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 16:22:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC6B43CC6A
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 16:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237952AbhJ0OZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 10:25:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42244 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242517AbhJ0OYW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 10:24:22 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6D59C061570
-        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 07:21:56 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id m26so2895300pff.3
-        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 07:21:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=LcgMg779T/gdBXlrNU3YHrX7Gk6gacaR5KBJWJtm+pg=;
-        b=aZB0T1FFZxSGyIpj59SsCIORPIGrEoeVOClNLIUCiUOsG5zahPLh7gqzsZH/29YSPU
-         C7+5bsEj80wNpWA5naRezLjvxAifOnrOsScbYdvczPPmY0CIj7bTgPvZt17L8o8lqq/p
-         fVT87s96rdixTjLDQ2F5MfYqhemxGZyJUnxj/OFZ1dmAqnGR51QhkCSG/x1Ncvzs8sp9
-         MJTisyKwWzCzSjBmf1VpUTNKHeR/6d0DyiQ9hfOGH+j9iAk+Yh6hUzuRnOusxD+PmdXm
-         Vta71sU1BItic0lHoRmoc97RnlWO0esPgWRA9CIskTN5a+J4cOvJWsIsKDfprIJIG3Dh
-         Os7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=LcgMg779T/gdBXlrNU3YHrX7Gk6gacaR5KBJWJtm+pg=;
-        b=IOxkLNdUci3xdx3VWCJ4G/RkrfWpk7Kk08pGwyLdbClRXgIWvDYGCVKDMOQ3CVEpIw
-         F6MlFE1mc6wjeXH+j89uRvsHWGd2vhv4CEu4wm+s/rxEoEFjx2RUYzrZf+zqIMrfQ6zK
-         8z55kc6d2eJtGhCOdwZZo3w4171KcizwWwF4qh0w0KXEkV7cRRQQdgjzcIBqVCRrS0GI
-         ZMJBPcNFdrXjJfEz3Kjsu6KSAmSQc6TXKyVeq+nVeDLZMpILxiSiixjFid+nF/jq2Fld
-         EK7aWDbK4YvrLLPhRboZiOF8mmhG8Py7ZheDY0O9szQ/1bimHr7WSefUNcjg3G9ftfLR
-         Tuyg==
-X-Gm-Message-State: AOAM530et06+WosfCcwDsyv5xspR+3uJmygoGzfhPVcTiXc+JnEFXXSI
-        BFeAu00CcIKpVnzs6l/zsBWtFlLVrgA=
-X-Google-Smtp-Source: ABdhPJy+gtXfVi2Tyiqe+BeTvidQTvDcUYUelFUBl7Qe7/pxsIKAYTZ/yS6QFsJsrvKFw03g9IHYjA==
-X-Received: by 2002:a63:9308:: with SMTP id b8mr24176255pge.104.1635344516390;
-        Wed, 27 Oct 2021 07:21:56 -0700 (PDT)
-Received: from bobo.ibm.com ([118.208.159.180])
-        by smtp.gmail.com with ESMTPSA id d14sm159979pfu.124.2021.10.27.07.21.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Oct 2021 07:21:56 -0700 (PDT)
-From:   Nicholas Piggin <npiggin@gmail.com>
-To:     linuxppc-dev@lists.ozlabs.org
-Cc:     Laurent Vivier <lvivier@redhat.com>, stable@vger.kernel.org,
-        Nicholas Piggin <npiggin@gmail.com>
-Subject: [PATCH v3] KVM: PPC: Tick accounting should defer vtime accounting 'til after IRQ handling
-Date:   Thu, 28 Oct 2021 00:21:50 +1000
-Message-Id: <20211027142150.3711582-1-npiggin@gmail.com>
-X-Mailer: git-send-email 2.23.0
+        id S237852AbhJ0Okz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 10:40:55 -0400
+Received: from new2-smtp.messagingengine.com ([66.111.4.224]:33727 "EHLO
+        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233962AbhJ0Oky (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 10:40:54 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailnew.nyi.internal (Postfix) with ESMTP id D86C1580593;
+        Wed, 27 Oct 2021 10:38:28 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 27 Oct 2021 10:38:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=EQW6ogjIJGDseBKZUZlDLFw/kgn
+        I54KQm+3+JLexLeQ=; b=uvkRd6h6Z3Um1spyfD5prX7NogFRDqd00IzR6h9MCbi
+        KpPsIyfw1eDNUtGsNF4NMP3hyYfOjG01KsHU2kGY1elvdUvYUxHqrJPI6f7oDbeE
+        NiQQMyXvFdGr5axZW/jiOqVKH2gnUj+WAoBbBEgib2skoaFACaZ1bKVJr/oGOcMV
+        qislhj+yviX7gjHE7ngXx0dKFzBxZpzFhgJpcYI/qjERefgmMvHAf4ixR++bnjWs
+        OsoDkW8z0ZrjiPFN6z+SrQuFtMGFKTJdAgOvQxLNp22JkLK/UOX/aqOirTrB4W3V
+        8WBCmr7MbTjfCncmJ2lVJ3PK+kFifFY7R2gjKz7P5yQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=EQW6og
+        jIJGDseBKZUZlDLFw/kgnI54KQm+3+JLexLeQ=; b=TtnoLK8NH2i9K7POTI4lJg
+        RAiELU7JDt/WJqrX/wSSMUOrf41saz3QfqnpITWqOuqGqLHGtKUdEM7b4oupVxFa
+        HTqRaX6+U5Jvou/dsu58F1VipvyNpo0FI98zPeB3IDY66Z/DFTMZQSAknqjFlNvG
+        ZfS1vpnskGBpXgE+E1XjM9uSlUWCgl//72XUjuZZPx3kIxztVA1Wt6LYXVsHVmBT
+        ZuW2GH9KDtkyF9r+f8sfF+qv6nuW2DtYoMoRDf9oen1UuAXWH7yy/Z0ihQjYqymJ
+        wcYD3qWhSedZj7Y/EHZzOfZBGgyTAbpWb5d6+yZHBbfjG+5vXPO69LB297zmfiQg
+        ==
+X-ME-Sender: <xms:ZGR5Yc64IzHl17nYyIuXFtALShF3rB_CfiTSzpC1XtpazIVGQzBQrQ>
+    <xme:ZGR5Yd7fHE6cV7J5m6-Z-QG1O6k53y0Txta45dqKAArko9d26cqdEDrjy7-PId5vE
+    Wm48OfQ1fBuIg>
+X-ME-Received: <xmr:ZGR5YbcddQ_82u0wClpsHvXNn9YCLbyYK8c2zGsE5rQRZHFlMarVLA2160zb6-lDMxBNrsZ-6MQThA2l_mqjcn9sJZf1ZOCi>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrvdegtddgjeehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
+    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
+    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:ZGR5YRJ9JykGewDtlddn7dSQuTBqe9rojq16uGlY8aGR7ChUisTZrQ>
+    <xmx:ZGR5YQIxCiUyyNg1NLFB91XYfjkOh7iIj2cRSm0zSYJn4byUvn_pkg>
+    <xmx:ZGR5YSxGHVjT911ASZFHR5gTFQb3rbIsJoZGi08bSbOdEXd8ipGLuw>
+    <xmx:ZGR5YdAHRwFXNcc53UiQU_f1aQWf21GXrPtKBzBLd_WjrnV-WqnnXQ>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 27 Oct 2021 10:38:28 -0400 (EDT)
+Date:   Wed, 27 Oct 2021 16:38:25 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     stable@vger.kernel.org, axboe@kernel.dk, asml.silence@gmail.com,
+        io-uring@vger.kernel.org,
+        syzbot+59d8a1f4e60c20c066cf@syzkaller.appspotmail.com
+Subject: Re: [PATCH 5.10 1/1] io_uring: fix double free in the
+ deferred/cancelled path
+Message-ID: <YXlkYWPlz3TwNH7Z@kroah.com>
+References: <20211027080128.1836624-1-lee.jones@linaro.org>
+ <YXkLVoAfCVNNPDSZ@kroah.com>
+ <YXkP533F8Dj+HAxY@google.com>
+ <YXkThoB6XUsmV8Yf@kroah.com>
+ <YXkVxVFg8e5Z33zV@google.com>
+ <YXlKKxRETze45IPv@kroah.com>
+ <YXlbdJRa6kTu2GEz@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YXlbdJRa6kTu2GEz@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Vivier <lvivier@redhat.com>
+On Wed, Oct 27, 2021 at 03:00:20PM +0100, Lee Jones wrote:
+> On Wed, 27 Oct 2021, Greg KH wrote:
+> 
+> > On Wed, Oct 27, 2021 at 10:03:01AM +0100, Lee Jones wrote:
+> > > On Wed, 27 Oct 2021, Greg KH wrote:
+> > > 
+> > > > On Wed, Oct 27, 2021 at 09:37:59AM +0100, Lee Jones wrote:
+> > > > > On Wed, 27 Oct 2021, Greg KH wrote:
+> > > > > 
+> > > > > > On Wed, Oct 27, 2021 at 09:01:28AM +0100, Lee Jones wrote:
+> > > > > > > 792bb6eb86233 ("io_uring: don't take uring_lock during iowq cancel")
+> > > > > > > inadvertently fixed this issue in v5.12.  This patch cherry-picks the
+> > > > > > > hunk of commit which does so.
+> > > > > > 
+> > > > > > Why can't we take all of that commit?  Why only part of it?
+> > > > > 
+> > > > > I don't know.
+> > > > > 
+> > > > > Why didn't the Stable team take it further than v5.11.y?
+> > > > 
+> > > > Look in the archives?  Did it not apply cleanly?
+> > > > 
+> > > > /me goes off and looks...
+> > > > 
+> > > > Looks like I asked for a backport, but no one did it, I only received a
+> > > > 5.11 version:
+> > > > 	https://lore.kernel.org/r/1839646480a26a2461eccc38a75e98998d2d6e11.1615375332.git.asml.silence@gmail.com
+> > > > 
+> > > > so a 5.10 version would be nice, as I said it failed as-is:
+> > > > 	https://lore.kernel.org/all/161460075611654@kroah.com/
+> > > 
+> > > Precisely.  This is the answer to your question:
+> > > 
+> > >   > > > Why can't we take all of that commit?  Why only part of it?
+> > > 
+> > > Same reason the Stable team didn't back-port it - it doesn't apply.
+> > > 
+> > > The second hunk is only relevant to v5.11+.
+> > 
+> > Great, then use the "normal" stable style, but down in the s-o-b area
+> > say "dropped second chunk as it is not relevant to 5.10.y".
+> 
+> Just to clarify, by "normal", you mean:
+> 
+>  - Take the original patch
+>  - Apply an "[ Upstream commit <id> ]" tag (or similar)
+>  - Remove the hunk that doesn't apply
+>  - Make a note of the aforementioned action
+>  - Submit to Stable
 
-Commit 112665286d08 ("KVM: PPC: Book3S HV: Context tracking exit guest
-context before enabling irqs") moved guest_exit() into the interrupt
-protected area to avoid wrong context warning (or worse). The problem is
-that tick-based time accounting has not yet been updated at this point
-(because it depends on the timer interrupt firing), so the guest time
-gets incorrectly accounted to system time.
+Yes.
 
-To fix the problem, follow the x86 fix in commit 160457140187 ("Defer
-vtime accounting 'til after IRQ handling"), and allow host IRQs to run
-before accounting the guest exit time.
+> Rather than submitting a bespoke patch.  Right?
 
-In the case vtime accounting is enabled, this is not required because TB
-is used directly for accounting.
+Correct.
 
-Before this patch, with CONFIG_TICK_CPU_ACCOUNTING=y in the host and a
-guest running a kernel compile, the 'guest' fields of /proc/stat are
-stuck at zero. With the patch they can be observed increasing roughly as
-expected.
+thanks,
 
-Fixes: e233d54d4d97 ("KVM: booke: use __kvm_guest_exit")
-Fixes: 112665286d08 ("KVM: PPC: Book3S HV: Context tracking exit guest context before enabling irqs")
-Cc: <stable@vger.kernel.org> # 5.12
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-[np: only required for tick accounting, add Book3E fix, tweak changelog]
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
----
-Since v2:
-- I took over the patch with Laurent's blessing.
-- Changed to avoid processing IRQs if we do have vtime accounting
-  enabled.
-- Changed so in either case the accounting is called with irqs disabled.
-- Added similar Book3E fix.
-- Rebased on upstream, tested, observed bug and confirmed fix.
-
- arch/powerpc/kvm/book3s_hv.c | 30 ++++++++++++++++++++++++++++--
- arch/powerpc/kvm/booke.c     | 16 +++++++++++++++-
- 2 files changed, 43 insertions(+), 3 deletions(-)
-
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 2acb1c96cfaf..7b74fc0a986b 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -3726,7 +3726,20 @@ static noinline void kvmppc_run_core(struct kvmppc_vcore *vc)
- 
- 	kvmppc_set_host_core(pcpu);
- 
--	guest_exit_irqoff();
-+	context_tracking_guest_exit();
-+	if (!vtime_accounting_enabled_this_cpu()) {
-+		local_irq_enable();
-+		/*
-+		 * Service IRQs here before vtime_account_guest_exit() so any
-+		 * ticks that occurred while running the guest are accounted to
-+		 * the guest. If vtime accounting is enabled, accounting uses
-+		 * TB rather than ticks, so it can be done without enabling
-+		 * interrupts here, which has the problem that it accounts
-+		 * interrupt processing overhead to the host.
-+		 */
-+		local_irq_disable();
-+	}
-+	vtime_account_guest_exit();
- 
- 	local_irq_enable();
- 
-@@ -4510,7 +4523,20 @@ int kvmhv_run_single_vcpu(struct kvm_vcpu *vcpu, u64 time_limit,
- 
- 	kvmppc_set_host_core(pcpu);
- 
--	guest_exit_irqoff();
-+	context_tracking_guest_exit();
-+	if (!vtime_accounting_enabled_this_cpu()) {
-+		local_irq_enable();
-+		/*
-+		 * Service IRQs here before vtime_account_guest_exit() so any
-+		 * ticks that occurred while running the guest are accounted to
-+		 * the guest. If vtime accounting is enabled, accounting uses
-+		 * TB rather than ticks, so it can be done without enabling
-+		 * interrupts here, which has the problem that it accounts
-+		 * interrupt processing overhead to the host.
-+		 */
-+		local_irq_disable();
-+	}
-+	vtime_account_guest_exit();
- 
- 	local_irq_enable();
- 
-diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
-index 977801c83aff..8c15c90dd3a9 100644
---- a/arch/powerpc/kvm/booke.c
-+++ b/arch/powerpc/kvm/booke.c
-@@ -1042,7 +1042,21 @@ int kvmppc_handle_exit(struct kvm_vcpu *vcpu, unsigned int exit_nr)
- 	}
- 
- 	trace_kvm_exit(exit_nr, vcpu);
--	guest_exit_irqoff();
-+
-+	context_tracking_guest_exit();
-+	if (!vtime_accounting_enabled_this_cpu()) {
-+		local_irq_enable();
-+		/*
-+		 * Service IRQs here before vtime_account_guest_exit() so any
-+		 * ticks that occurred while running the guest are accounted to
-+		 * the guest. If vtime accounting is enabled, accounting uses
-+		 * TB rather than ticks, so it can be done without enabling
-+		 * interrupts here, which has the problem that it accounts
-+		 * interrupt processing overhead to the host.
-+		 */
-+		local_irq_disable();
-+	}
-+	vtime_account_guest_exit();
- 
- 	local_irq_enable();
- 
--- 
-2.23.0
-
+greg k-h
