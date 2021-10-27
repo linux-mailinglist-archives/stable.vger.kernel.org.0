@@ -2,235 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDEAA43CBE4
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 16:19:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8926243CC05
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 16:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242534AbhJ0OV5 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 27 Oct 2021 10:21:57 -0400
-Received: from mga01.intel.com ([192.55.52.88]:22590 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242437AbhJ0OVu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Oct 2021 10:21:50 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10150"; a="253721655"
-X-IronPort-AV: E=Sophos;i="5.87,186,1631602800"; 
-   d="scan'208";a="253721655"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2021 07:19:22 -0700
-X-IronPort-AV: E=Sophos;i="5.87,186,1631602800"; 
-   d="scan'208";a="497888118"
-Received: from smaharan-mobl.gar.corp.intel.com (HELO localhost) ([10.251.214.195])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2021 07:19:19 -0700
-From:   Jani Nikula <jani.nikula@linux.intel.com>
-To:     Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915: Fix type1 DVI DP dual mode adapter heuristic for modern platforms
-In-Reply-To: <YXkX4zWnnVxbhuU1@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20211025142147.23897-1-ville.syrjala@linux.intel.com> <87cznsjbic.fsf@intel.com> <YXkX4zWnnVxbhuU1@intel.com>
-Date:   Wed, 27 Oct 2021 17:19:16 +0300
-Message-ID: <87mtmuh7ob.fsf@intel.com>
+        id S237952AbhJ0OZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 10:25:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42244 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242517AbhJ0OYW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 10:24:22 -0400
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6D59C061570
+        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 07:21:56 -0700 (PDT)
+Received: by mail-pf1-x436.google.com with SMTP id m26so2895300pff.3
+        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 07:21:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=LcgMg779T/gdBXlrNU3YHrX7Gk6gacaR5KBJWJtm+pg=;
+        b=aZB0T1FFZxSGyIpj59SsCIORPIGrEoeVOClNLIUCiUOsG5zahPLh7gqzsZH/29YSPU
+         C7+5bsEj80wNpWA5naRezLjvxAifOnrOsScbYdvczPPmY0CIj7bTgPvZt17L8o8lqq/p
+         fVT87s96rdixTjLDQ2F5MfYqhemxGZyJUnxj/OFZ1dmAqnGR51QhkCSG/x1Ncvzs8sp9
+         MJTisyKwWzCzSjBmf1VpUTNKHeR/6d0DyiQ9hfOGH+j9iAk+Yh6hUzuRnOusxD+PmdXm
+         Vta71sU1BItic0lHoRmoc97RnlWO0esPgWRA9CIskTN5a+J4cOvJWsIsKDfprIJIG3Dh
+         Os7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=LcgMg779T/gdBXlrNU3YHrX7Gk6gacaR5KBJWJtm+pg=;
+        b=IOxkLNdUci3xdx3VWCJ4G/RkrfWpk7Kk08pGwyLdbClRXgIWvDYGCVKDMOQ3CVEpIw
+         F6MlFE1mc6wjeXH+j89uRvsHWGd2vhv4CEu4wm+s/rxEoEFjx2RUYzrZf+zqIMrfQ6zK
+         8z55kc6d2eJtGhCOdwZZo3w4171KcizwWwF4qh0w0KXEkV7cRRQQdgjzcIBqVCRrS0GI
+         ZMJBPcNFdrXjJfEz3Kjsu6KSAmSQc6TXKyVeq+nVeDLZMpILxiSiixjFid+nF/jq2Fld
+         EK7aWDbK4YvrLLPhRboZiOF8mmhG8Py7ZheDY0O9szQ/1bimHr7WSefUNcjg3G9ftfLR
+         Tuyg==
+X-Gm-Message-State: AOAM530et06+WosfCcwDsyv5xspR+3uJmygoGzfhPVcTiXc+JnEFXXSI
+        BFeAu00CcIKpVnzs6l/zsBWtFlLVrgA=
+X-Google-Smtp-Source: ABdhPJy+gtXfVi2Tyiqe+BeTvidQTvDcUYUelFUBl7Qe7/pxsIKAYTZ/yS6QFsJsrvKFw03g9IHYjA==
+X-Received: by 2002:a63:9308:: with SMTP id b8mr24176255pge.104.1635344516390;
+        Wed, 27 Oct 2021 07:21:56 -0700 (PDT)
+Received: from bobo.ibm.com ([118.208.159.180])
+        by smtp.gmail.com with ESMTPSA id d14sm159979pfu.124.2021.10.27.07.21.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Oct 2021 07:21:56 -0700 (PDT)
+From:   Nicholas Piggin <npiggin@gmail.com>
+To:     linuxppc-dev@lists.ozlabs.org
+Cc:     Laurent Vivier <lvivier@redhat.com>, stable@vger.kernel.org,
+        Nicholas Piggin <npiggin@gmail.com>
+Subject: [PATCH v3] KVM: PPC: Tick accounting should defer vtime accounting 'til after IRQ handling
+Date:   Thu, 28 Oct 2021 00:21:50 +1000
+Message-Id: <20211027142150.3711582-1-npiggin@gmail.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 27 Oct 2021, Ville Syrjälä <ville.syrjala@linux.intel.com> wrote:
-> On Tue, Oct 26, 2021 at 02:01:15PM +0300, Jani Nikula wrote:
->> On Mon, 25 Oct 2021, Ville Syrjala <ville.syrjala@linux.intel.com> wrote:
->> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
->> >
->> > Looks like we never updated intel_bios_is_port_dp_dual_mode() when
->> > the VBT port mapping became erratic on modern platforms. This
->> > is causing us to look up the wrong child device and thus throwing
->> > the heuristic off (ie. we might end looking at a child device for
->> > a genuine DP++ port when we were supposed to look at one for a
->> > native HDMI port).
->> >
->> > Fix it up by not using the outdated port_mapping[] in
->> > intel_bios_is_port_dp_dual_mode() and rely on
->> > intel_bios_encoder_data_lookup() instead.
->> 
->> It's just crazy, we have like 7 port_mapping tables in intel_bios.c,
->> what happened?!
->> 
->> I wish we could unify all of this more.
->> 
->> >
->> > Cc: stable@vger.kernel.org
->> > Tested-by: Randy Dunlap <rdunlap@infradead.org>
->> > Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4138
->> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
->> > ---
->> >  drivers/gpu/drm/i915/display/intel_bios.c | 85 +++++++++++++++++------
->> >  1 file changed, 63 insertions(+), 22 deletions(-)
->> >
->> > diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
->> > index f9776ca85de3..2b1423a43437 100644
->> > --- a/drivers/gpu/drm/i915/display/intel_bios.c
->> > +++ b/drivers/gpu/drm/i915/display/intel_bios.c
->> > @@ -1707,6 +1707,39 @@ static void sanitize_aux_ch(struct intel_bios_encoder_data *devdata,
->> >  	child->aux_channel = 0;
->> >  }
->> >  
->> > +static u8 dvo_port_type(u8 dvo_port)
->> > +{
->> > +	switch (dvo_port) {
->> > +	case DVO_PORT_HDMIA:
->> > +	case DVO_PORT_HDMIB:
->> > +	case DVO_PORT_HDMIC:
->> > +	case DVO_PORT_HDMID:
->> > +	case DVO_PORT_HDMIE:
->> > +	case DVO_PORT_HDMIF:
->> > +	case DVO_PORT_HDMIG:
->> > +	case DVO_PORT_HDMIH:
->> > +	case DVO_PORT_HDMII:
->> > +		return DVO_PORT_HDMIA;
->> > +	case DVO_PORT_DPA:
->> > +	case DVO_PORT_DPB:
->> > +	case DVO_PORT_DPC:
->> > +	case DVO_PORT_DPD:
->> > +	case DVO_PORT_DPE:
->> > +	case DVO_PORT_DPF:
->> > +	case DVO_PORT_DPG:
->> > +	case DVO_PORT_DPH:
->> > +	case DVO_PORT_DPI:
->> > +		return DVO_PORT_DPA;
->> > +	case DVO_PORT_MIPIA:
->> > +	case DVO_PORT_MIPIB:
->> > +	case DVO_PORT_MIPIC:
->> > +	case DVO_PORT_MIPID:
->> > +		return DVO_PORT_MIPIA;
->> > +	default:
->> > +		return dvo_port;
->> > +	}
->> > +}
->> > +
->> >  static enum port __dvo_port_to_port(int n_ports, int n_dvo,
->> >  				    const int port_mapping[][3], u8 dvo_port)
->> >  {
->> > @@ -2623,35 +2656,17 @@ bool intel_bios_is_port_edp(struct drm_i915_private *i915, enum port port)
->> >  	return false;
->> >  }
->> >  
->> > -static bool child_dev_is_dp_dual_mode(const struct child_device_config *child,
->> > -				      enum port port)
->> > +static bool child_dev_is_dp_dual_mode(const struct child_device_config *child)
->> >  {
->> > -	static const struct {
->> > -		u16 dp, hdmi;
->> > -	} port_mapping[] = {
->> > -		/*
->> > -		 * Buggy VBTs may declare DP ports as having
->> > -		 * HDMI type dvo_port :( So let's check both.
->> > -		 */
->> > -		[PORT_B] = { DVO_PORT_DPB, DVO_PORT_HDMIB, },
->> > -		[PORT_C] = { DVO_PORT_DPC, DVO_PORT_HDMIC, },
->> > -		[PORT_D] = { DVO_PORT_DPD, DVO_PORT_HDMID, },
->> > -		[PORT_E] = { DVO_PORT_DPE, DVO_PORT_HDMIE, },
->> > -		[PORT_F] = { DVO_PORT_DPF, DVO_PORT_HDMIF, },
->> > -	};
->> > -
->> > -	if (port == PORT_A || port >= ARRAY_SIZE(port_mapping))
->> > -		return false;
->> > -
->> >  	if ((child->device_type & DEVICE_TYPE_DP_DUAL_MODE_BITS) !=
->> >  	    (DEVICE_TYPE_DP_DUAL_MODE & DEVICE_TYPE_DP_DUAL_MODE_BITS))
->> >  		return false;
->> >  
->> > -	if (child->dvo_port == port_mapping[port].dp)
->> > +	if (dvo_port_type(child->dvo_port) == DVO_PORT_DPA)
->> >  		return true;
->> 
->> I wonder, why do we care about dvo_port here, while we ignore the dvo
->> port DP/HDMI/DSI difference in parse_ddi_port()? I'm not really entirely
->> happy about adding another dvo port check method. :/
->
-> Because VBTs suck and sometimes a DP++ port is declared as DP (as
-> it should) but sometimes it's declared as HDMI instead. Hence the
-> additional "do we has aux ch?" check for the dvo_port==HDMI case to
-> make it at least try not to match native HDMI ports. I'm not sure
-> whether we could just always do the AUX CH check and ignore the
-> dvo_port entirely. Would need to look through a bunch of VBTs to
-> get some idea I suppose. But that would be too much change for a
-> bugfix anyway.
->
-> IIRC the other idea of just looking at the device_type bits was a
-> bust on at least vlv/chv.
+From: Laurent Vivier <lvivier@redhat.com>
 
-*sad trombone*
+Commit 112665286d08 ("KVM: PPC: Book3S HV: Context tracking exit guest
+context before enabling irqs") moved guest_exit() into the interrupt
+protected area to avoid wrong context warning (or worse). The problem is
+that tick-based time accounting has not yet been updated at this point
+(because it depends on the timer interrupt firing), so the guest time
+gets incorrectly accounted to system time.
 
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+To fix the problem, follow the x86 fix in commit 160457140187 ("Defer
+vtime accounting 'til after IRQ handling"), and allow host IRQs to run
+before accounting the guest exit time.
 
-The bikeshedding is that I think we should convert
-child_dev_is_dp_dual_mode() to the same style as the other
-intel_bios_encoder_supports_*() functions. And we could add the dual
-mode in "Port %c VBT info" logging in parse_ddi_port() too.
+In the case vtime accounting is enabled, this is not required because TB
+is used directly for accounting.
 
-In the long run I'd like to ensure encoder->devdata is non-NULL and
-valid for more platforms, so we could just call
-intel_bios_encoder_supports_dual_mode(encoder->devdata) directly, so we
-don't have to loop over ports every time.
+Before this patch, with CONFIG_TICK_CPU_ACCOUNTING=y in the host and a
+guest running a kernel compile, the 'guest' fields of /proc/stat are
+stuck at zero. With the patch they can be observed increasing roughly as
+expected.
 
-Anyway, all of this is just musing for future, can be follow-up.
+Fixes: e233d54d4d97 ("KVM: booke: use __kvm_guest_exit")
+Fixes: 112665286d08 ("KVM: PPC: Book3S HV: Context tracking exit guest context before enabling irqs")
+Cc: <stable@vger.kernel.org> # 5.12
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+[np: only required for tick accounting, add Book3E fix, tweak changelog]
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+---
+Since v2:
+- I took over the patch with Laurent's blessing.
+- Changed to avoid processing IRQs if we do have vtime accounting
+  enabled.
+- Changed so in either case the accounting is called with irqs disabled.
+- Added similar Book3E fix.
+- Rebased on upstream, tested, observed bug and confirmed fix.
 
-BR,
-Jani.
+ arch/powerpc/kvm/book3s_hv.c | 30 ++++++++++++++++++++++++++++--
+ arch/powerpc/kvm/booke.c     | 16 +++++++++++++++-
+ 2 files changed, 43 insertions(+), 3 deletions(-)
 
-
-
-
->
->> 
->> >  
->> >  	/* Only accept a HDMI dvo_port as DP++ if it has an AUX channel */
->> > -	if (child->dvo_port == port_mapping[port].hdmi &&
->> > +	if (dvo_port_type(child->dvo_port) == DVO_PORT_HDMIA &&
->> >  	    child->aux_channel != 0)
->> >  		return true;
->> >  
->> > @@ -2661,10 +2676,36 @@ static bool child_dev_is_dp_dual_mode(const struct child_device_config *child,
->> >  bool intel_bios_is_port_dp_dual_mode(struct drm_i915_private *i915,
->> >  				     enum port port)
->> >  {
->> > +	static const struct {
->> > +		u16 dp, hdmi;
->> > +	} port_mapping[] = {
->> > +		/*
->> > +		 * Buggy VBTs may declare DP ports as having
->> > +		 * HDMI type dvo_port :( So let's check both.
->> > +		 */
->> > +		[PORT_B] = { DVO_PORT_DPB, DVO_PORT_HDMIB, },
->> > +		[PORT_C] = { DVO_PORT_DPC, DVO_PORT_HDMIC, },
->> > +		[PORT_D] = { DVO_PORT_DPD, DVO_PORT_HDMID, },
->> > +		[PORT_E] = { DVO_PORT_DPE, DVO_PORT_HDMIE, },
->> > +		[PORT_F] = { DVO_PORT_DPF, DVO_PORT_HDMIF, },
->> > +	};
->> >  	const struct intel_bios_encoder_data *devdata;
->> >  
->> > +	if (HAS_DDI(i915)) {
->> > +		const struct intel_bios_encoder_data *devdata;
->> > +
->> > +		devdata = intel_bios_encoder_data_lookup(i915, port);
->> > +
->> > +		return devdata && child_dev_is_dp_dual_mode(&devdata->child);
->> > +	}
->> > +
->> > +	if (port == PORT_A || port >= ARRAY_SIZE(port_mapping))
->> > +		return false;
->> > +
->> >  	list_for_each_entry(devdata, &i915->vbt.display_devices, node) {
->> > -		if (child_dev_is_dp_dual_mode(&devdata->child, port))
->> > +		if ((devdata->child.dvo_port == port_mapping[port].dp ||
->> > +		     devdata->child.dvo_port == port_mapping[port].hdmi) &&
->> > +		    child_dev_is_dp_dual_mode(&devdata->child))
->> >  			return true;
->> >  	}
->> 
->> -- 
->> Jani Nikula, Intel Open Source Graphics Center
-
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 2acb1c96cfaf..7b74fc0a986b 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -3726,7 +3726,20 @@ static noinline void kvmppc_run_core(struct kvmppc_vcore *vc)
+ 
+ 	kvmppc_set_host_core(pcpu);
+ 
+-	guest_exit_irqoff();
++	context_tracking_guest_exit();
++	if (!vtime_accounting_enabled_this_cpu()) {
++		local_irq_enable();
++		/*
++		 * Service IRQs here before vtime_account_guest_exit() so any
++		 * ticks that occurred while running the guest are accounted to
++		 * the guest. If vtime accounting is enabled, accounting uses
++		 * TB rather than ticks, so it can be done without enabling
++		 * interrupts here, which has the problem that it accounts
++		 * interrupt processing overhead to the host.
++		 */
++		local_irq_disable();
++	}
++	vtime_account_guest_exit();
+ 
+ 	local_irq_enable();
+ 
+@@ -4510,7 +4523,20 @@ int kvmhv_run_single_vcpu(struct kvm_vcpu *vcpu, u64 time_limit,
+ 
+ 	kvmppc_set_host_core(pcpu);
+ 
+-	guest_exit_irqoff();
++	context_tracking_guest_exit();
++	if (!vtime_accounting_enabled_this_cpu()) {
++		local_irq_enable();
++		/*
++		 * Service IRQs here before vtime_account_guest_exit() so any
++		 * ticks that occurred while running the guest are accounted to
++		 * the guest. If vtime accounting is enabled, accounting uses
++		 * TB rather than ticks, so it can be done without enabling
++		 * interrupts here, which has the problem that it accounts
++		 * interrupt processing overhead to the host.
++		 */
++		local_irq_disable();
++	}
++	vtime_account_guest_exit();
+ 
+ 	local_irq_enable();
+ 
+diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
+index 977801c83aff..8c15c90dd3a9 100644
+--- a/arch/powerpc/kvm/booke.c
++++ b/arch/powerpc/kvm/booke.c
+@@ -1042,7 +1042,21 @@ int kvmppc_handle_exit(struct kvm_vcpu *vcpu, unsigned int exit_nr)
+ 	}
+ 
+ 	trace_kvm_exit(exit_nr, vcpu);
+-	guest_exit_irqoff();
++
++	context_tracking_guest_exit();
++	if (!vtime_accounting_enabled_this_cpu()) {
++		local_irq_enable();
++		/*
++		 * Service IRQs here before vtime_account_guest_exit() so any
++		 * ticks that occurred while running the guest are accounted to
++		 * the guest. If vtime accounting is enabled, accounting uses
++		 * TB rather than ticks, so it can be done without enabling
++		 * interrupts here, which has the problem that it accounts
++		 * interrupt processing overhead to the host.
++		 */
++		local_irq_disable();
++	}
++	vtime_account_guest_exit();
+ 
+ 	local_irq_enable();
+ 
 -- 
-Jani Nikula, Intel Open Source Graphics Center
+2.23.0
+
