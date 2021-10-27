@@ -2,111 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7845C43C5FF
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 11:03:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CD8743C615
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 11:06:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232113AbhJ0JFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 05:05:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53604 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231520AbhJ0JFa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 05:05:30 -0400
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BF9FC061745
-        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 02:03:05 -0700 (PDT)
-Received: by mail-wr1-x435.google.com with SMTP id z14so2853852wrg.6
-        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 02:03:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=m/lmfg8lrkJFw99bDPYgEC/M85U2yW6MPQbOK719Eac=;
-        b=c55XGKacwy9vWeUKJwi+1vmNzQUpF4OcfK85SURbp8fUvAMXbgZaSbE9V/JdWYTaw6
-         SCzO02w0G1e2Zl1OpxgrLJ9aAsgkY8jOFc8FLP+dY0s/uZPRN4VQe/yzFoE57w5M7/Yg
-         vuUU3nZJZ1xs3XEkVJdO9YHuuyueF9+fJKAT3M5GNpgUXUNJ1FqxH/LHXThQg2L/aUgI
-         U6/v2DI/aAhF3QuDdhWfq+25Yk159N21V4DDakSBGizToeOyMOfj+LokECPvdJQZzBE2
-         u/OdjHgsjFhP/82+VcjBv6jRk9PZlfL7D+hTN2C2ir8RqMWP06/PLmgvD364+4GUifgz
-         vigg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=m/lmfg8lrkJFw99bDPYgEC/M85U2yW6MPQbOK719Eac=;
-        b=t4YrzsDOTVKtYBU3uPKQ4IXf+D5FYKHZPnGDh/NKm/3uDKErsTZKfZlEOLELW0qwyI
-         v5PVtVyJQs01zBbUtNQamqG/UxQHPLqsbudZHq5Ea6VnxnsZcOCSJ9mRYO15ee3hYqAr
-         Q4RYc2Xcqo4GH7GFL4XeTm6L6QXzC4SnIw0zxJxzdVhYePofe5ngnnfurCmjJSnbHLtu
-         hiFF+Zh47GfTTQVDUWclIa5NIAgaTlYzDjbvtMBgzW9rKcvSM+gGEdxa/nDzmd4khYaw
-         s4yCxEasehCG1jSkpafbq3r9awLlh76NNe8rSBtATb4zCKhKiqhFcL7ibU+4HM/sIANz
-         I9SQ==
-X-Gm-Message-State: AOAM533j98SZD6RuRSNmk6/dcVoemRtRAkyMxUccydgr/2u6YQuuTSuU
-        3bILR6RoJnnqPs42eb1hja1i7w==
-X-Google-Smtp-Source: ABdhPJyjC2QuqWMe5pFr62dB8fh6LQPMeVykpGEWtlGNH3NBw+AL+uOyIjCFEtX8F9Eah9U7fKBW5g==
-X-Received: by 2002:adf:c183:: with SMTP id x3mr36753950wre.90.1635325383584;
-        Wed, 27 Oct 2021 02:03:03 -0700 (PDT)
-Received: from google.com ([95.148.6.207])
-        by smtp.gmail.com with ESMTPSA id b19sm2995765wmj.9.2021.10.27.02.03.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Oct 2021 02:03:03 -0700 (PDT)
-Date:   Wed, 27 Oct 2021 10:03:01 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, axboe@kernel.dk, asml.silence@gmail.com,
-        io-uring@vger.kernel.org,
-        syzbot+59d8a1f4e60c20c066cf@syzkaller.appspotmail.com
-Subject: Re: [PATCH 5.10 1/1] io_uring: fix double free in the
- deferred/cancelled path
-Message-ID: <YXkVxVFg8e5Z33zV@google.com>
-References: <20211027080128.1836624-1-lee.jones@linaro.org>
- <YXkLVoAfCVNNPDSZ@kroah.com>
- <YXkP533F8Dj+HAxY@google.com>
- <YXkThoB6XUsmV8Yf@kroah.com>
+        id S239921AbhJ0JI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 05:08:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33728 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232132AbhJ0JI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Oct 2021 05:08:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2199461039;
+        Wed, 27 Oct 2021 09:06:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1635325561;
+        bh=hBNFBmosy980W50NwGoL+Bn47zg/HLrLHxp0wsfh1TM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fAgpILfQAHf+tHoZMPMLWTYoqWLaBWiBeFTxJNucFW7qiin6IWgtWHEYUpG7tY9wE
+         QmrfdpyaZLm+e/WXJzAwzhJDbD6NoQVzI0S2E9XNqKrLDli9vntedVqPJ/rwmB629q
+         +xZ0w2sOLHRSyj34lzybXbQOBbI5ZkJIMZOalf71JP6YYqSB2+nF0ezrakHF9IRlhK
+         i98CR6XhkZ9Bs+PA5yIUX1w4ly4WlwEehBeHoi5OWCCtUF1a+f7UivX8AuCUPqfxsx
+         lC1bLjascYh7hAoPUqEoUnnxuFOFwPS+ZcihignJ1HSeB7nfPCWUW+Cfx8ey7uLrWp
+         NYtAOtUZxlj9w==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1mfesT-00038K-BI; Wed, 27 Oct 2021 11:05:45 +0200
+Date:   Wed, 27 Oct 2021 11:05:45 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Ian Abbott <abbotti@mev.co.uk>
+Cc:     H Hartley Sweeten <hsweeten@visionengravers.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 2/5] comedi: dt9812: fix DMA buffers on stack
+Message-ID: <YXkWaREjhd1+Law+@hovoldconsulting.com>
+References: <20211025114532.4599-1-johan@kernel.org>
+ <20211025114532.4599-3-johan@kernel.org>
+ <ecdee752-72c3-c48a-fee2-49dccf115d71@mev.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YXkThoB6XUsmV8Yf@kroah.com>
+In-Reply-To: <ecdee752-72c3-c48a-fee2-49dccf115d71@mev.co.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 27 Oct 2021, Greg KH wrote:
-
-> On Wed, Oct 27, 2021 at 09:37:59AM +0100, Lee Jones wrote:
-> > On Wed, 27 Oct 2021, Greg KH wrote:
+On Tue, Oct 26, 2021 at 03:27:13PM +0100, Ian Abbott wrote:
+> On 25/10/2021 12:45, Johan Hovold wrote:
+> > USB transfer buffers are typically mapped for DMA and must not be
+> > allocated on the stack or transfers will fail.
 > > 
-> > > On Wed, Oct 27, 2021 at 09:01:28AM +0100, Lee Jones wrote:
-> > > > 792bb6eb86233 ("io_uring: don't take uring_lock during iowq cancel")
-> > > > inadvertently fixed this issue in v5.12.  This patch cherry-picks the
-> > > > hunk of commit which does so.
-> > > 
-> > > Why can't we take all of that commit?  Why only part of it?
+> > Allocate proper transfer buffers in the various command helpers and
+> > return an error on short transfers instead of acting on random stack
+> > data.
 > > 
-> > I don't know.
+> > Note that this also fixes a stack info leak on systems where DMA is not
+> > used as 32 bytes are always sent to the device regardless of how short
+> > the command is.
 > > 
-> > Why didn't the Stable team take it further than v5.11.y?
+> > Fixes: 63274cd7d38a ("Staging: comedi: add usb dt9812 driver")
+> > Cc: stable@vger.kernel.org      # 2.6.29
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
+> > ---
+> >   drivers/comedi/drivers/dt9812.c | 109 ++++++++++++++++++++++++--------
+> >   1 file changed, 82 insertions(+), 27 deletions(-)
+> > 
+> > diff --git a/drivers/comedi/drivers/dt9812.c b/drivers/comedi/drivers/dt9812.c
+> > index 634f57730c1e..f15c306f2d06 100644
+> > --- a/drivers/comedi/drivers/dt9812.c
+> > +++ b/drivers/comedi/drivers/dt9812.c
+> > @@ -32,6 +32,7 @@
+> >   #include <linux/kernel.h>
+> >   #include <linux/module.h>
+> >   #include <linux/errno.h>
+> > +#include <linux/slab.h>
+> >   #include <linux/uaccess.h>
+> >   
+> >   #include "../comedi_usb.h"
+> > @@ -237,22 +238,41 @@ static int dt9812_read_info(struct comedi_device *dev,
+> >   {
+> >   	struct usb_device *usb = comedi_to_usb_dev(dev);
+> >   	struct dt9812_private *devpriv = dev->private;
+> > -	struct dt9812_usb_cmd cmd;
+> > +	struct dt9812_usb_cmd *cmd;
+> >   	int count, ret;
+> > +	u8 *tbuf;
+> >   
+> > -	cmd.cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
+> > -	cmd.u.flash_data_info.address =
+> > +	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
+> > +	if (!cmd)
+> > +		return -ENOMEM;
+> > +
+> > +	cmd->cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
+> > +	cmd->u.flash_data_info.address =
+> >   	    cpu_to_le16(DT9812_DIAGS_BOARD_INFO_ADDR + offset);
+> > -	cmd.u.flash_data_info.numbytes = cpu_to_le16(buf_size);
+> > +	cmd->u.flash_data_info.numbytes = cpu_to_le16(buf_size);
+> >   
+> >   	/* DT9812 only responds to 32 byte writes!! */
+> >   	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+> > -			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
+> > +			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
+> > +	kfree(cmd);
+> >   	if (ret)
+> >   		return ret;
+> >   
+> > -	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+> > -			    buf, buf_size, &count, DT9812_USB_TIMEOUT);
+> > +	tbuf = kmalloc(buf_size, GFP_KERNEL);
+> > +	if (!tbuf)
+> > +		return -ENOMEM;
+> > +
+> > +	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+> > +			   tbuf, buf_size, &count, DT9812_USB_TIMEOUT);
+> > +	if (!ret) {
+> > +		if (count == buf_size)
+> > +			memcpy(buf, tbuf, buf_size);
+> > +		else
+> > +			ret = -EREMOTEIO;
+> > +	}
+> > +	kfree(tbuf);
+> > +
+> > +	return ret;
+> >   }
 > 
-> Look in the archives?  Did it not apply cleanly?
-> 
-> /me goes off and looks...
-> 
-> Looks like I asked for a backport, but no one did it, I only received a
-> 5.11 version:
-> 	https://lore.kernel.org/r/1839646480a26a2461eccc38a75e98998d2d6e11.1615375332.git.asml.silence@gmail.com
-> 
-> so a 5.10 version would be nice, as I said it failed as-is:
-> 	https://lore.kernel.org/all/161460075611654@kroah.com/
+> I suggest doing all the allocations up front so it doesn't leave an 
+> unread reply message in the unlikely event that the tbuf allocation 
+> fails.  (It could even allocate a single buffer for both the command and 
+> the reply since they are not needed at the same time.)
 
-Precisely.  This is the answer to your question:
+These small allocations will currently never fail, but if they ever were
+to, there are other allocations done in the I/O path which would have
+the same effect if they failed. And if this ever happens, you certainly
+have bigger problems than worrying about the state of this device. :)
 
-  > > > Why can't we take all of that commit?  Why only part of it?
+That said, I'll see if I can reuse a single buffer without things
+getting too messy.
 
-Same reason the Stable team didn't back-port it - it doesn't apply.
-
-The second hunk is only relevant to v5.11+.
-
--- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Johan
