@@ -2,103 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 315AB43C6C1
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 11:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93DBB43C74D
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 12:03:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241266AbhJ0Jtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 05:49:42 -0400
-Received: from mail-wr1-f54.google.com ([209.85.221.54]:45784 "EHLO
-        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232462AbhJ0Jtl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 05:49:41 -0400
-Received: by mail-wr1-f54.google.com with SMTP id o14so3019497wra.12;
-        Wed, 27 Oct 2021 02:47:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=OFu06dK+pr0CiCz8sOgcK79FrtlXeRSMwN2V1c19Y+g=;
-        b=PVekN6iOoXgZF0K9+CAc42vb4oTIIJR5LYCBa38gd5Z68NVsXm13ni+VM/3Wo+ldmB
-         HD7p2gxb766IZM7gHbvIq0KC4WGSVmfmdv1pQwzZCprbjdzDYicLPjXgSmrym3K37+XP
-         0UOlpJDfdAMrM8nRMJ1D4au5487jrjQOpSWrM7+Pk1HtPFqovUgzMsMhzq/4gB49bgZV
-         T2hDGICrpKarKQMXyLuCMW75vUTI8cT1eSuQqjBfwUOebwqSa3ArvTUTp5pGrGPcS4Wz
-         ajcGmBvbRBfh2UCdPx0mXubCp6iLP3mw1ObnrjWp5dukWrgHQXhssb96KEnuLJQJoEfi
-         nKNg==
-X-Gm-Message-State: AOAM5303xyf4Z/bJ56V0iVOzzcNoFfDPMB1HLY+eeFOnfAFQeP+dM2bX
-        H2SRhl5FcVOqi0Thx+//5DV60AlfLXA=
-X-Google-Smtp-Source: ABdhPJwnwnvVmMMBHLZ9z8B7mrpO+Zjk/N650wkrIJV7BDv209YQktd8CepVv/XntNMIpr0kXmBYLg==
-X-Received: by 2002:a5d:6d8e:: with SMTP id l14mr38980717wrs.304.1635328035591;
-        Wed, 27 Oct 2021 02:47:15 -0700 (PDT)
-Received: from rocinante ([95.155.85.46])
-        by smtp.gmail.com with ESMTPSA id t12sm3051361wmq.44.2021.10.27.02.47.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Oct 2021 02:47:15 -0700 (PDT)
-Date:   Wed, 27 Oct 2021 11:47:14 +0200
-From:   Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>
-To:     Robin McCorkell <robin@mccorkell.me.uk>
-Cc:     Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] PCI: Limit REBAR quirk to just Sapphire RX 5600 XT
- Pulse
-Message-ID: <YXkgIjURbhdWo4YX@rocinante>
-References: <20211026212835.GA167500@bhelgaas>
- <20211026214513.25986-1-robin@mccorkell.me.uk>
+        id S236189AbhJ0KFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 06:05:52 -0400
+Received: from mga09.intel.com ([134.134.136.24]:33666 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231848AbhJ0KFw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Oct 2021 06:05:52 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10149"; a="229983757"
+X-IronPort-AV: E=Sophos;i="5.87,186,1631602800"; 
+   d="scan'208";a="229983757"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2021 03:03:27 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.87,186,1631602800"; 
+   d="scan'208";a="635669892"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.171])
+  by fmsmga001.fm.intel.com with SMTP; 27 Oct 2021 03:03:22 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Wed, 27 Oct 2021 13:03:22 +0300
+Date:   Wed, 27 Oct 2021 13:03:22 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Lyude Paul <lyude@redhat.com>
+Cc:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        nouveau@lists.freedesktop.org,
+        Satadru Pramanik <satadru@gmail.com>, stable@vger.kernel.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v4 1/5] drm/i915: Add support for panels with VESA
+ backlights with PWM enable/disable
+Message-ID: <YXkj6n/6U5ZaSRN7@intel.com>
+References: <20211026220848.439530-1-lyude@redhat.com>
+ <20211026220848.439530-2-lyude@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20211026214513.25986-1-robin@mccorkell.me.uk>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211026220848.439530-2-lyude@redhat.com>
+X-Patchwork-Hint: comment
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[+CC adding Bjorn as the PCI sub-system maintainer]
-
-Hi Robin,
-
-Thank you for sending the patch over!
-
-> A particular RX 5600 device requires a hack in the rebar logic, but the
-> current branch is too general and catches other devices too, breaking
-> them. This patch changes the branch to be more selective on the
-> particular revision.
+On Tue, Oct 26, 2021 at 06:08:44PM -0400, Lyude Paul wrote:
+> This simply adds proper support for panel backlights that can be controlled
+> via VESA's backlight control protocol, but which also require that we
+> enable and disable the backlight via PWM instead of via the DPCD interface.
+> We also enable this by default, in order to fix some people's backlights
+> that were broken by not having this enabled.
 > 
-> This patch fixes intermittent freezes on other RX 5600 devices where the
-> hack is unnecessary. Credit to all contributors in the linked issue on
-> the AMD bug tracker.
+> For reference, backlights that require this and use VESA's backlight
+> interface tend to be laptops with hybrid GPUs, but this very well may
+> change in the future.
 > 
-> See also: https://gitlab.freedesktop.org/drm/amd/-/issues/1707
-[...]
+> v4:
+> * Make sure that we call intel_backlight_level_to_pwm() in
+>   intel_dp_aux_vesa_enable_backlight() - vsyrjala
+> 
+> Signed-off-by: Lyude Paul <lyude@redhat.com>
+> Link: https://gitlab.freedesktop.org/drm/intel/-/issues/3680
+> Fixes: fe7d52bccab6 ("drm/i915/dp: Don't use DPCD backlights that need PWM enable/disable")
+> Cc: <stable@vger.kernel.org> # v5.12+
 
-The commit message could be improved a little bit so that it's more in
-preferred imperative tone describing what precisely is broken and how it
-fixes the problem for Sapphire RX 5600 XT and other ATI cards.  Also,
-consistent capitalisation of "REBAR" between the subject and the commit
-message would be a plus.
+Seems consistent enough.
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-There is also no need to add "this patch" - we also know that this is this
-very patch, especially since this isn't a series that comprises of multiple
-other patches.
+> ---
+>  .../drm/i915/display/intel_dp_aux_backlight.c | 27 ++++++++++++++-----
+>  1 file changed, 21 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+> index 569d17b4d00f..f05b71c01b8e 100644
+> --- a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+> +++ b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+> @@ -293,6 +293,13 @@ intel_dp_aux_vesa_enable_backlight(const struct intel_crtc_state *crtc_state,
+>  	struct intel_panel *panel = &connector->panel;
+>  	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
+>  
+> +	if (!panel->backlight.edp.vesa.info.aux_enable) {
+> +		u32 pwm_level = intel_backlight_invert_pwm_level(connector,
+> +								 panel->backlight.pwm_level_max);
+> +
+> +		panel->backlight.pwm_funcs->enable(crtc_state, conn_state, pwm_level);
+> +	}
+> +
+>  	drm_edp_backlight_enable(&intel_dp->aux, &panel->backlight.edp.vesa.info, level);
+>  }
+>  
+> @@ -304,6 +311,10 @@ static void intel_dp_aux_vesa_disable_backlight(const struct drm_connector_state
+>  	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
+>  
+>  	drm_edp_backlight_disable(&intel_dp->aux, &panel->backlight.edp.vesa.info);
+> +
+> +	if (!panel->backlight.edp.vesa.info.aux_enable)
+> +		panel->backlight.pwm_funcs->disable(old_conn_state,
+> +						    intel_backlight_invert_pwm_level(connector, 0));
+>  }
+>  
+>  static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector, enum pipe pipe)
+> @@ -321,6 +332,15 @@ static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector,
+>  	if (ret < 0)
+>  		return ret;
+>  
+> +	if (!panel->backlight.edp.vesa.info.aux_enable) {
+> +		ret = panel->backlight.pwm_funcs->setup(connector, pipe);
+> +		if (ret < 0) {
+> +			drm_err(&i915->drm,
+> +				"Failed to setup PWM backlight controls for eDP backlight: %d\n",
+> +				ret);
+> +			return ret;
+> +		}
+> +	}
+>  	panel->backlight.max = panel->backlight.edp.vesa.info.max;
+>  	panel->backlight.min = 0;
+>  	if (current_mode == DP_EDP_BACKLIGHT_CONTROL_MODE_DPCD) {
+> @@ -340,12 +360,7 @@ intel_dp_aux_supports_vesa_backlight(struct intel_connector *connector)
+>  	struct intel_dp *intel_dp = intel_attached_dp(connector);
+>  	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
+>  
+> -	/* TODO: We currently only support AUX only backlight configurations, not backlights which
+> -	 * require a mix of PWM and AUX controls to work. In the mean time, these machines typically
+> -	 * work just fine using normal PWM controls anyway.
+> -	 */
+> -	if ((intel_dp->edp_dpcd[1] & DP_EDP_BACKLIGHT_AUX_ENABLE_CAP) &&
+> -	    drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
+> +	if (drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
+>  		drm_dbg_kms(&i915->drm, "AUX Backlight Control Supported!\n");
+>  		return true;
+>  	}
+> -- 
+> 2.31.1
 
-Also, sine this is a v2, it would be nice to include a small changelog,
-even if the change is trivial, with helps as people don't have to go and
-read other e-mail threads to find out what was changed and why.
-
-> Reported-by: Simon May <@Socob on gitlab.freedesktop.com>
-> Tested-by: Kain Centeno <@kaincenteno on gitlab.freedesktop.com>
-> Tested-by: Tobias Jakobi <@tobiasjakobi on gitlab.freedesktop.com>
-> Suggested-by: lijo lazar <@lijo on gitlab.freedesktop.com>
-
-The above would be "gitlab.freedesktop.org", I believe.  Having said that,
-I am not sure if we can accept username handles to some remote Git hosting
-platform in lieu of proper, so to speak, e-mail addresses.
-
-[...]
->  	/* Sapphire RX 5600 XT Pulse has an invalid cap dword for BAR 0 */
->  	if (pdev->vendor == PCI_VENDOR_ID_ATI && pdev->device == 0x731f &&
-> -	    bar == 0 && cap == 0x7000)
-> +	    pdev->revision == 0xC1 && bar == 0 && cap == 0x7000)
-
-A small nitpick: lowercase hexadecimal values to match how it's been used
-in other places.
-
-	Krzysztof
+-- 
+Ville Syrjälä
+Intel
