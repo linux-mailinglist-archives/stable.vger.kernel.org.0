@@ -2,103 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1860F43C4C5
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 10:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D452743C4EA
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 10:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240809AbhJ0IOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 04:14:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46468 "EHLO mail.kernel.org"
+        id S235634AbhJ0IUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 04:20:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240787AbhJ0IOo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Oct 2021 04:14:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E85B1610A5;
-        Wed, 27 Oct 2021 08:12:18 +0000 (UTC)
+        id S235443AbhJ0IUH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Oct 2021 04:20:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 895E961075;
+        Wed, 27 Oct 2021 08:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635322339;
-        bh=7IGUs5zBZQaPqlnohFXICy0HDLEn9Ux9E9JxKQ/UU7Y=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qg9CRHNl0+/AA6u/+gYSJ9xcpQdAe+BZU+xBdaaByltKipueylMMMXT282EUa6kYl
-         nRHN8PTCFCbqSFGOzz5DbrTnX88zPzV7TaDycbWpIJc4yaJeP+VQzA9XxJzameC/rj
-         Fg9LW+8Ax5oixOQPtMEJ3SaWJKRql2sa02QZMo+mtMQZpTpBcf6K10EREIYHCfuMn2
-         gr2UoyJjYTKsx0fQHkLduc+nkoHvJqMg4ln3tfAD+w9yVm2+S+UKSAgMUsU+nLaQaI
-         D95ahlTxxOgYpmMRRZSakmel1yIQyJw8LVnvr4/I3iLpnamKYR1Zsap4ChCa+63V7w
-         hjBdL0+VtcoDQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1mfe2S-0001lk-Vr; Wed, 27 Oct 2021 10:12:01 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Kalle Valo <kvalo@codeaurora.org>
-Cc:     Amitkumar Karwar <amitkarwar@gmail.com>,
-        Ganapathi Bhat <ganapathi017@gmail.com>,
-        Sharvari Harisangam <sharvari.harisangam@nxp.com>,
-        Xinming Hu <huxinming820@gmail.com>,
-        Brian Norris <briannorris@chromium.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org,
-        Amitkumar Karwar <akarwar@marvell.com>
-Subject: [PATCH v2 3/3] mwifiex: fix division by zero in fw download path
-Date:   Wed, 27 Oct 2021 10:08:19 +0200
-Message-Id: <20211027080819.6675-4-johan@kernel.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211027080819.6675-1-johan@kernel.org>
-References: <20211027080819.6675-1-johan@kernel.org>
+        s=k20201202; t=1635322662;
+        bh=Tvs8vg13VA/N60SGK6ZS4NQQ46MxuCa+cpjFExD0Daw=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=JjXyaWFm5+bpVloyI/NRbuvHnPdVKLZqXdJ08y1XyKvm0fNT9cjzwDaOexTRLWUDr
+         tnbDZpDKXyFIHYHGMLdChj1DxKZ1PrXN+JRsdehnkacC/bLmuIAxSqb8FWsKJt4zIg
+         2YTF3n2fGcK3w2vig9rIMzLDhUzlZzt3wVOdNpJZ5z3xcuQgH2Cwy2a3Nqk/zpm051
+         mHI+qD9IrivYfb7CAb5ut1w9BURfuQm0p5AbtnV0vLrjazD0afdtTa5Ki/sgCdYSGa
+         WghaukezHFxt05rtuSNlKVFZ5SXkVjMTDaXqvt354KHbs8C875LJXPTqLEjwfBdMna
+         w9KEkLvaED8uA==
+Date:   Wed, 27 Oct 2021 10:17:39 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Andrej Shadura <andrew.shadura@collabora.co.uk>
+cc:     linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
+        stable@vger.kernel.org, kernel@collabora.com,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH v3 1/2] HID: u2fzero: clarify error check and length
+ calculations
+In-Reply-To: <20211019152917.79666-1-andrew.shadura@collabora.co.uk>
+Message-ID: <nycvar.YFH.7.76.2110271017280.12554@cbobk.fhfr.pm>
+References: <20211019152917.79666-1-andrew.shadura@collabora.co.uk>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add the missing endpoint sanity checks to probe() to avoid division by
-zero in mwifiex_write_data_sync() in case a malicious device has broken
-descriptors (or when doing descriptor fuzz testing).
+On Tue, 19 Oct 2021, Andrej Shadura wrote:
 
-Only add checks for the firmware-download boot stage, which require both
-command endpoints, for now. The driver looks like it will handle a
-missing endpoint during normal operation without oopsing, albeit not
-very gracefully as it will try to submit URBs to the default pipe and
-fail.
+> The previous commit fixed handling of incomplete packets but broke error
+> handling: offsetof returns an unsigned value (size_t), but when compared
+> against the signed return value, the return value is interpreted as if
+> it were unsigned, so negative return values are never less than the
+> offset.
+> 
+> To make the code easier to read, calculate the minimal packet length
+> once and separately, and assign it to a signed int variable to eliminate
+> unsigned math and the need for type casts. It then becomes immediately
+> obvious how the actual data length is calculated and why the return
+> value cannot be less than the minimal length.
+> 
+> Fixes: 22d65765f211 ("HID: u2fzero: ignore incomplete packets without data")
+> Fixes: 42337b9d4d95 ("HID: add driver for U2F Zero built-in LED and RNG")
+> Signed-off-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
 
-Note that USB core will reject URBs submitted for endpoints with zero
-wMaxPacketSize but that drivers doing packet-size calculations still
-need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
-endpoint descriptors with maxpacket=0")).
+Both now applied, thanks.
 
-Fixes: 4daffe354366 ("mwifiex: add support for Marvell USB8797 chipset")
-Cc: stable@vger.kernel.org      # 3.5
-Cc: Amitkumar Karwar <akarwar@marvell.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/net/wireless/marvell/mwifiex/usb.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
-
-diff --git a/drivers/net/wireless/marvell/mwifiex/usb.c b/drivers/net/wireless/marvell/mwifiex/usb.c
-index 426e39d4ccf0..9736aa0ab7fd 100644
---- a/drivers/net/wireless/marvell/mwifiex/usb.c
-+++ b/drivers/net/wireless/marvell/mwifiex/usb.c
-@@ -505,6 +505,22 @@ static int mwifiex_usb_probe(struct usb_interface *intf,
- 		}
- 	}
- 
-+	switch (card->usb_boot_state) {
-+	case USB8XXX_FW_DNLD:
-+		/* Reject broken descriptors. */
-+		if (!card->rx_cmd_ep || !card->tx_cmd_ep)
-+			return -ENODEV;
-+		if (card->bulk_out_maxpktsize == 0)
-+			return -ENODEV;
-+		break;
-+	case USB8XXX_FW_READY:
-+		/* Assume the driver can handle missing endpoints for now. */
-+		break;
-+	default:
-+		WARN_ON(1);
-+		return -ENODEV;
-+	}
-+
- 	usb_set_intfdata(intf, card);
- 
- 	ret = mwifiex_add_card(card, &card->fw_done, &usb_ops,
 -- 
-2.32.0
+Jiri Kosina
+SUSE Labs
 
