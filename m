@@ -2,184 +2,250 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DB0143BEED
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 03:19:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB7CE43BEFA
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 03:26:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237256AbhJ0BVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Oct 2021 21:21:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34262 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236966AbhJ0BVo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 21:21:44 -0400
-Received: from mail-qt1-x84a.google.com (mail-qt1-x84a.google.com [IPv6:2607:f8b0:4864:20::84a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0960C061570
-        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 18:19:19 -0700 (PDT)
-Received: by mail-qt1-x84a.google.com with SMTP id m15-20020a05622a118f00b002a7e570e9bcso699348qtk.9
-        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 18:19:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=tXBF8IPHrXnSIr0GZNWDZAEr0MXQPNCBVCwEca8TIMo=;
-        b=GU4Dsa3aUhwed3l5u1ByKWWvqupTtfJDlxC2YsdgHB6f0pBuk4ypKJa0/BG7tQ0RCc
-         E0E3RsmDa3L48jL0xzc+0JbNw8zOvjwzTu888jZOCDnw7DFG9987Ij5sYAtn4DoREO9V
-         w2EchOQ30pqD9rqHESWGMZWPSLKBP+0bkBZqBdY+y3qu4YzVKbfobOdI2CyvykQItDIs
-         sfgJK11oQeCuuSYxVDRzEjToiK5pO4E55kOvqaJLLinUGbHVTlxKmec6y1TqochwE9Cb
-         h1W6s1d8MBQRTQPHu6YmnrD1ZDhwylcziXIU4pwpvSoaSKzB0xZG4GXyxtsmzgbiGCwb
-         SyKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=tXBF8IPHrXnSIr0GZNWDZAEr0MXQPNCBVCwEca8TIMo=;
-        b=dYwRfRnK3GdjR0HsVo8VmqTF60zsg3R8PbJ6cUrlIm0HA55yZXz0txRx051HyepCZa
-         /qoidKNbAIwiwHX59ZDktaLMjBbLsF5jF4jDqa3hKi1ZZXPoFE7bl0PmZmOD55z/Bon5
-         lVrLER6vUOCrG9go2EDv3/Y9TinycHMm5ObWHBwFY4Xq7EwqHcusKsQAKCYSJKjQIJ6i
-         TeBzFWNdg9Ejg8puSL7ihu3Ub+fm8wl2c7TyV6Wbnp2Ji/r8Khh0DM7FDM62sPPvR2D6
-         nID3sEQn3JR2TQ+Tl7t0Cv4VqwxhHed909TG6d/gZOQd4RLLFZuRG936Ai/0j7srUxq9
-         h+Lw==
-X-Gm-Message-State: AOAM5318Jb7e4aQse3/xwU1s6kCiBnizu6lRF7WDS+rKZfmafENCuWpa
-        0OJ+IR7bXyDWuClywnfmmtJMHLxE97VNFN4=
-X-Google-Smtp-Source: ABdhPJyzttHnj9zHmxZU6jm7klx3kEHjC4Jg/LsIuYnI614jmLZSGY9gei/2uiOZloZGh2hKapyF4uQoS76nWmM=
-X-Received: from ramjiyani.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:2edd])
- (user=ramjiyani job=sendgmr) by 2002:ac8:5b8e:: with SMTP id
- a14mr28502874qta.391.1635297558699; Tue, 26 Oct 2021 18:19:18 -0700 (PDT)
-Date:   Wed, 27 Oct 2021 01:18:34 +0000
-Message-Id: <20211027011834.2497484-1-ramjiyani@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.33.0.1079.g6e70778dc9-goog
-Subject: [PATCH v5] aio: Add support for the POLLFREE
-From:   Ramji Jiyani <ramjiyani@google.com>
-To:     arnd@arndb.de, viro@zeniv.linux.org.uk, bcrl@kvack.org
-Cc:     hch@lst.de, kernel-team@android.com, linux-aio@kvack.org,
-        linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, oleg@redhat.com, ebiggers@kernel.org,
-        Ramji Jiyani <ramjiyani@google.com>,
-        Jeff Moyer <jmoyer@redhat.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S237425AbhJ0B2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Oct 2021 21:28:53 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:14867 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237208AbhJ0B2w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 21:28:52 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Hf9y54pN5z90MT;
+        Wed, 27 Oct 2021 09:26:21 +0800 (CST)
+Received: from kwepemm600008.china.huawei.com (7.193.23.88) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.15; Wed, 27 Oct 2021 09:26:24 +0800
+Received: from localhost.localdomain (10.175.112.125) by
+ kwepemm600008.china.huawei.com (7.193.23.88) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.15; Wed, 27 Oct 2021 09:26:23 +0800
+From:   Chen Huang <chenhuang5@huawei.com>
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <stable@vger.kernel.org>,
+        <linux-mm@kvack.org>, Chen Huang <chenhuang5@huawei.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.10.y] arm64: Avoid premature usercopy failure
+Date:   Wed, 27 Oct 2021 01:40:47 +0000
+Message-ID: <20211027014047.2317325-1-chenhuang5@huawei.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.112.125]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ kwepemm600008.china.huawei.com (7.193.23.88)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add support for the POLLFREE flag to force complete iocb inline in
-aio_poll_wake(). A thread may use it to signal it's exit and/or request
-to cleanup while pending poll request. In this case, aio_poll_wake()
-needs to make sure it doesn't keep any reference to the queue entry
-before returning from wake to avoid possible use after free via
-poll_cancel() path.
+From: Robin Murphy <robin.murphy@arm.com>
 
-UAF issue was found during binder and aio interactions in certain
-sequence of events [1].
+commit 295cf156231ca3f9e3a66bde7fab5e09c41835e0 upstream.
 
-The POLLFREE flag is no more exclusive to the epoll and is being
-shared with the aio. Remove comment from poll.h to avoid confusion.
+Al reminds us that the usercopy API must only return complete failure
+if absolutely nothing could be copied. Currently, if userspace does
+something silly like giving us an unaligned pointer to Device memory,
+or a size which overruns MTE tag bounds, we may fail to honour that
+requirement when faulting on a multi-byte access even though a smaller
+access could have succeeded.
 
-[1] https://lore.kernel.org/r/CAKUd0B_TCXRY4h1hTztfwWbNSFQqsudDLn2S_28csgWZmZAG3Q@mail.gmail.com/
+Add a mitigation to the fixup routines to fall back to a single-byte
+copy if we faulted on a larger access before anything has been written
+to the destination, to guarantee making *some* forward progress. We
+needn't be too concerned about the overall performance since this should
+only occur when callers are doing something a bit dodgy in the first
+place. Particularly broken userspace might still be able to trick
+generic_perform_write() into an infinite loop by targeting write() at
+an mmap() of some read-only device register where the fault-in load
+succeeds but any store synchronously aborts such that copy_to_user() is
+genuinely unable to make progress, but, well, don't do that...
 
-Fixes: af5c72b1fc7a ("Fix aio_poll() races")
-Signed-off-by: Ramji Jiyani <ramjiyani@google.com>
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org # 4.19+
+CC: stable@vger.kernel.org
+Reported-by: Chen Huang <chenhuang5@huawei.com>
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/dc03d5c675731a1f24a62417dba5429ad744234e.1626098433.git.robin.murphy@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Chen Huang <chenhuang5@huawei.com>
 ---
-Changes since v1:
-- Removed parenthesis around POLLFREE macro definition as per review.
-- Updated description to refer UAF issue discussion this patch fixes.
-- Updated description to remove reference to parenthesis change.
-- Added Reviewed-by from Jeff Moyer
+ arch/arm64/lib/copy_from_user.S | 13 ++++++++++---
+ arch/arm64/lib/copy_in_user.S   | 21 ++++++++++++++-------
+ arch/arm64/lib/copy_to_user.S   | 14 +++++++++++---
+ 3 files changed, 35 insertions(+), 13 deletions(-)
 
-Changes since v2:
-- Added Fixes tag.
-- Added stable tag for backporting on 4.19+ LTS releases
-
-Changes since v3:
-- Updated patch description
-- Updated Fixes tag to issue manifestation origin
-
-Changes since v4:
-- Added Reviewed-by from Christoph Hellwig
----
- fs/aio.c                        | 45 ++++++++++++++++++---------------
- include/uapi/asm-generic/poll.h |  2 +-
- 2 files changed, 26 insertions(+), 21 deletions(-)
-
-diff --git a/fs/aio.c b/fs/aio.c
-index 51b08ab01dff..5d539c05df42 100644
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -1674,6 +1674,7 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- {
- 	struct poll_iocb *req = container_of(wait, struct poll_iocb, wait);
- 	struct aio_kiocb *iocb = container_of(req, struct aio_kiocb, poll);
-+	struct kioctx *ctx = iocb->ki_ctx;
- 	__poll_t mask = key_to_poll(key);
- 	unsigned long flags;
- 
-@@ -1683,29 +1684,33 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 
- 	list_del_init(&req->wait.entry);
- 
--	if (mask && spin_trylock_irqsave(&iocb->ki_ctx->ctx_lock, flags)) {
--		struct kioctx *ctx = iocb->ki_ctx;
-+	/*
-+	 * Use irqsave/irqrestore because not all filesystems (e.g. fuse)
-+	 * call this function with IRQs disabled and because IRQs have to
-+	 * be disabled before ctx_lock is obtained.
-+	 */
-+	if (mask & POLLFREE) {
-+		/* Force complete iocb inline to remove refs to deleted entry */
-+		spin_lock_irqsave(&ctx->ctx_lock, flags);
-+	} else if (!(mask && spin_trylock_irqsave(&ctx->ctx_lock, flags))) {
-+		/* Can't complete iocb inline; schedule for later */
-+		schedule_work(&req->work);
-+		return 1;
-+	}
- 
--		/*
--		 * Try to complete the iocb inline if we can. Use
--		 * irqsave/irqrestore because not all filesystems (e.g. fuse)
--		 * call this function with IRQs disabled and because IRQs
--		 * have to be disabled before ctx_lock is obtained.
--		 */
--		list_del(&iocb->ki_list);
--		iocb->ki_res.res = mangle_poll(mask);
--		req->done = true;
--		if (iocb->ki_eventfd && eventfd_signal_allowed()) {
--			iocb = NULL;
--			INIT_WORK(&req->work, aio_poll_put_work);
--			schedule_work(&req->work);
--		}
--		spin_unlock_irqrestore(&ctx->ctx_lock, flags);
--		if (iocb)
--			iocb_put(iocb);
--	} else {
-+	/* complete iocb inline */
-+	list_del(&iocb->ki_list);
-+	iocb->ki_res.res = mangle_poll(mask);
-+	req->done = true;
-+	if (iocb->ki_eventfd && eventfd_signal_allowed()) {
-+		iocb = NULL;
-+		INIT_WORK(&req->work, aio_poll_put_work);
- 		schedule_work(&req->work);
- 	}
-+	spin_unlock_irqrestore(&ctx->ctx_lock, flags);
-+	if (iocb)
-+		iocb_put(iocb);
-+
- 	return 1;
- }
- 
-diff --git a/include/uapi/asm-generic/poll.h b/include/uapi/asm-generic/poll.h
-index 41b509f410bf..f9c520ce4bf4 100644
---- a/include/uapi/asm-generic/poll.h
-+++ b/include/uapi/asm-generic/poll.h
+diff --git a/arch/arm64/lib/copy_from_user.S b/arch/arm64/lib/copy_from_user.S
+index 0f8a3a9e3795..957a6d092d7a 100644
+--- a/arch/arm64/lib/copy_from_user.S
++++ b/arch/arm64/lib/copy_from_user.S
 @@ -29,7 +29,7 @@
- #define POLLRDHUP       0x2000
- #endif
+ 	.endm
  
--#define POLLFREE	(__force __poll_t)0x4000	/* currently only for epoll */
-+#define POLLFREE	(__force __poll_t)0x4000
+ 	.macro ldrh1 reg, ptr, val
+-	uao_user_alternative 9998f, ldrh, ldtrh, \reg, \ptr, \val
++	uao_user_alternative 9997f, ldrh, ldtrh, \reg, \ptr, \val
+ 	.endm
  
- #define POLL_BUSY_LOOP	(__force __poll_t)0x8000
+ 	.macro strh1 reg, ptr, val
+@@ -37,7 +37,7 @@
+ 	.endm
  
+ 	.macro ldr1 reg, ptr, val
+-	uao_user_alternative 9998f, ldr, ldtr, \reg, \ptr, \val
++	uao_user_alternative 9997f, ldr, ldtr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro str1 reg, ptr, val
+@@ -45,7 +45,7 @@
+ 	.endm
+ 
+ 	.macro ldp1 reg1, reg2, ptr, val
+-	uao_ldp 9998f, \reg1, \reg2, \ptr, \val
++	uao_ldp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ 	.macro stp1 reg1, reg2, ptr, val
+@@ -53,8 +53,10 @@
+ 	.endm
+ 
+ end	.req	x5
++srcin	.req	x15
+ SYM_FUNC_START(__arch_copy_from_user)
+ 	add	end, x0, x2
++	mov	srcin, x1
+ #include "copy_template.S"
+ 	mov	x0, #0				// Nothing to copy
+ 	ret
+@@ -63,6 +65,11 @@ EXPORT_SYMBOL(__arch_copy_from_user)
+ 
+ 	.section .fixup,"ax"
+ 	.align	2
++9997:	cmp	dst, dstin
++	b.ne	9998f
++	// Before being absolutely sure we couldn't copy anything, try harder
++USER(9998f, ldtrb tmp1w, [srcin])
++	strb	tmp1w, [dst], #1
+ 9998:	sub	x0, end, dst			// bytes not copied
+ 	ret
+ 	.previous
+diff --git a/arch/arm64/lib/copy_in_user.S b/arch/arm64/lib/copy_in_user.S
+index 80e37ada0ee1..35c01da09323 100644
+--- a/arch/arm64/lib/copy_in_user.S
++++ b/arch/arm64/lib/copy_in_user.S
+@@ -30,33 +30,34 @@
+ 	.endm
+ 
+ 	.macro ldrh1 reg, ptr, val
+-	uao_user_alternative 9998f, ldrh, ldtrh, \reg, \ptr, \val
++	uao_user_alternative 9997f, ldrh, ldtrh, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro strh1 reg, ptr, val
+-	uao_user_alternative 9998f, strh, sttrh, \reg, \ptr, \val
++	uao_user_alternative 9997f, strh, sttrh, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldr1 reg, ptr, val
+-	uao_user_alternative 9998f, ldr, ldtr, \reg, \ptr, \val
++	uao_user_alternative 9997f, ldr, ldtr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro str1 reg, ptr, val
+-	uao_user_alternative 9998f, str, sttr, \reg, \ptr, \val
++	uao_user_alternative 9997f, str, sttr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldp1 reg1, reg2, ptr, val
+-	uao_ldp 9998f, \reg1, \reg2, \ptr, \val
++	uao_ldp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ 	.macro stp1 reg1, reg2, ptr, val
+-	uao_stp 9998f, \reg1, \reg2, \ptr, \val
++	uao_stp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ end	.req	x5
+-
++srcin	.req	x15
+ SYM_FUNC_START(__arch_copy_in_user)
+ 	add	end, x0, x2
++	mov	srcin, x1
+ #include "copy_template.S"
+ 	mov	x0, #0
+ 	ret
+@@ -65,6 +66,12 @@ EXPORT_SYMBOL(__arch_copy_in_user)
+ 
+ 	.section .fixup,"ax"
+ 	.align	2
++9997:	cmp	dst, dstin
++	b.ne	9998f
++	// Before being absolutely sure we couldn't copy anything, try harder
++USER(9998f, ldtrb tmp1w, [srcin])
++USER(9998f, sttrb tmp1w, [dst])
++	add	dst, dst, #1
+ 9998:	sub	x0, end, dst			// bytes not copied
+ 	ret
+ 	.previous
+diff --git a/arch/arm64/lib/copy_to_user.S b/arch/arm64/lib/copy_to_user.S
+index 4ec59704b8f2..85705350ff35 100644
+--- a/arch/arm64/lib/copy_to_user.S
++++ b/arch/arm64/lib/copy_to_user.S
+@@ -32,7 +32,7 @@
+ 	.endm
+ 
+ 	.macro strh1 reg, ptr, val
+-	uao_user_alternative 9998f, strh, sttrh, \reg, \ptr, \val
++	uao_user_alternative 9997f, strh, sttrh, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldr1 reg, ptr, val
+@@ -40,7 +40,7 @@
+ 	.endm
+ 
+ 	.macro str1 reg, ptr, val
+-	uao_user_alternative 9998f, str, sttr, \reg, \ptr, \val
++	uao_user_alternative 9997f, str, sttr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldp1 reg1, reg2, ptr, val
+@@ -48,12 +48,14 @@
+ 	.endm
+ 
+ 	.macro stp1 reg1, reg2, ptr, val
+-	uao_stp 9998f, \reg1, \reg2, \ptr, \val
++	uao_stp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ end	.req	x5
++srcin	.req	x15
+ SYM_FUNC_START(__arch_copy_to_user)
+ 	add	end, x0, x2
++	mov	srcin, x1
+ #include "copy_template.S"
+ 	mov	x0, #0
+ 	ret
+@@ -62,6 +64,12 @@ EXPORT_SYMBOL(__arch_copy_to_user)
+ 
+ 	.section .fixup,"ax"
+ 	.align	2
++9997:	cmp	dst, dstin
++	b.ne	9998f
++	// Before being absolutely sure we couldn't copy anything, try harder
++	ldrb	tmp1w, [srcin]
++USER(9998f, sttrb tmp1w, [dst])
++	add	dst, dst, #1
+ 9998:	sub	x0, end, dst			// bytes not copied
+ 	ret
+ 	.previous
 -- 
-2.33.0.1079.g6e70778dc9-goog
+2.25.1
 
