@@ -2,105 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5366F43C5A1
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 10:53:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFC4D43C5A7
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 10:55:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234422AbhJ0Iz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 04:55:58 -0400
-Received: from new4-smtp.messagingengine.com ([66.111.4.230]:35087 "EHLO
-        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231566AbhJ0Izz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 04:55:55 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 516BD5803B4;
-        Wed, 27 Oct 2021 04:53:30 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 27 Oct 2021 04:53:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=PzUhDvrokiFxCCXtfqy6BykaRKV
-        weAU+HowWDW8QGL0=; b=YpMUtTsny7JWINhzaK679bCLmCPNrc/T9eQ7PHoSunH
-        qYRGIt46z1Zt0TAex1dRhp84ZKwqLYlTrar7m1N9qqKGLFNFBtlEpeyT+bvuYjdE
-        HnjA3LfdPJ0Uq1QVI+LvMyYlDAeecaBIBJ1Iuv6yBZqdoetEgRtDWcjgh7Onlq1t
-        aLZhfyU8aARxDqxg3Pi5zJCEhJSv8wAWasBowv2kD/Mn7hMhEUyLuHbH9t/mypt+
-        D5FoFbkxWo1UVL1tsQNZ1s3due5fzYJ4N9ewx/4PghTFFv2rxr6/g5yEa6h/G2JJ
-        UAYWJfSSn5H4qTjmUykC37P5YeGzlnt+LTYWOrwdS9Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=PzUhDv
-        rokiFxCCXtfqy6BykaRKVweAU+HowWDW8QGL0=; b=NR7V9MQgQgCZ2lBD++eQc7
-        +NAUNEuKv0Wtu/wNZSXjmttnWWZ+/7senvxbISNxKy5a/J4cnm07GHS3GE0P0uCQ
-        ZEyuMhofIEipDrP32PwT6OJyhx/fSL47Ht5ftjbD9uKbnfqACfvGIwFWMPypT69s
-        TaLHd3Hs7tQjjLmgQpPu1D+Zrh9tXsRi7dqI/0agI+kMA7rLGo/uMysVCruLigCE
-        klYau9naIefTgFPfiLFNu6lj9X9tr/RjbrNkmUFos/zeFsHuWoUuTfbj58wEJZvL
-        CsMXZ5Q2v7xvyBA56bQaUKn3gTfjJOdTsIUCEvs6Q74E1/mrfvvhfUdf3Vrp2DDg
-        ==
-X-ME-Sender: <xms:iRN5YWTjrBOmOTJ435zd3pVR30-lYXXeorcdf3GrSt1LvAbTy8PUuw>
-    <xme:iRN5YbzFDlUTVxhg3kAx7xlraVN5MIdntl8uyjVlQmxO_zgVfZPFknNHzJ295P9H-
-    7BAlqc-1VqSag>
-X-ME-Received: <xmr:iRN5YT1xocXXrKaoocwXzcDubalcevtCh2DaCODhwwWlP-z90agG-Y5-AImi_VMM8tzD_ghaWganiBxBvMAzpGK0TY6HrIW1>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrvdegtddgtdeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
-    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:iRN5YSBxmcASELrHn6WMCM55XucrHiD1ezruStC2L4iyJjyn8DVfsg>
-    <xmx:iRN5YfiuuyL997t_JdfmRYtVfbYzlkvMT0eXeaC4y0--hsndKRgF9w>
-    <xmx:iRN5YerrokYppWuS3DuwvYG_AuCMqrTN-JXUWe1qxkid8tpisVWX_w>
-    <xmx:ihN5YUbvyyEWu4X4Co8RafkIanKuv8YD5nPQ_h9r_GqGdrT6DBAwlA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 27 Oct 2021 04:53:29 -0400 (EDT)
-Date:   Wed, 27 Oct 2021 10:53:26 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     stable@vger.kernel.org, axboe@kernel.dk, asml.silence@gmail.com,
-        io-uring@vger.kernel.org,
-        syzbot+59d8a1f4e60c20c066cf@syzkaller.appspotmail.com
-Subject: Re: [PATCH 5.10 1/1] io_uring: fix double free in the
- deferred/cancelled path
-Message-ID: <YXkThoB6XUsmV8Yf@kroah.com>
-References: <20211027080128.1836624-1-lee.jones@linaro.org>
- <YXkLVoAfCVNNPDSZ@kroah.com>
- <YXkP533F8Dj+HAxY@google.com>
+        id S239608AbhJ0I5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 04:57:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58040 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231566AbhJ0I5d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Oct 2021 04:57:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E02660C51;
+        Wed, 27 Oct 2021 08:55:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1635324908;
+        bh=jsFQ2hTPk1o/ulS9XWmpRn7TcjUOhIqJs34hGUXQZ08=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=u20JBEpP23dqtrJiBCgr8MYA30VQEXwx5LDZt+duCBCQxoQedfaJVSonFvtc9HwmY
+         YYzxtCdI+nvFAA9BlZvmyVdtrYARMlOuTY5N4XgFA9iBgT09sM4vk4s83eM5p8ylB9
+         I9JdxW3h0utZCbq8PZS2aeQfEf4IwtIeLJfCFr5Mdtj263MafplBx0efD1Ynsla7/z
+         euiqL6tWvcq4HnppBBBf1erMWz8mgiCvopm6ihwFj8pMOyW6TBXSpUyJVJ5V1rroCj
+         3lRUqpChMaTzJ1SFT1mqAYSxOpYnR4rMf4TOLqkx582LbKJPd9OxzgQLzKvRD/atDy
+         v8DmDcnOiDMPg==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1mfehv-00037H-S0; Wed, 27 Oct 2021 10:54:52 +0200
+Date:   Wed, 27 Oct 2021 10:54:51 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Ian Abbott <abbotti@mev.co.uk>
+Cc:     H Hartley Sweeten <hsweeten@visionengravers.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Luca Ellero <luca.ellero@brickedbrain.com>
+Subject: Re: [PATCH 1/5] comedi: ni_usb6501: fix NULL-deref in command paths
+Message-ID: <YXkT24DuZHehBO/b@hovoldconsulting.com>
+References: <20211025114532.4599-1-johan@kernel.org>
+ <20211025114532.4599-2-johan@kernel.org>
+ <be9dcb4f-3594-e756-78e3-74750a49fe91@mev.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YXkP533F8Dj+HAxY@google.com>
+In-Reply-To: <be9dcb4f-3594-e756-78e3-74750a49fe91@mev.co.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 27, 2021 at 09:37:59AM +0100, Lee Jones wrote:
-> On Wed, 27 Oct 2021, Greg KH wrote:
-> 
-> > On Wed, Oct 27, 2021 at 09:01:28AM +0100, Lee Jones wrote:
-> > > 792bb6eb86233 ("io_uring: don't take uring_lock during iowq cancel")
-> > > inadvertently fixed this issue in v5.12.  This patch cherry-picks the
-> > > hunk of commit which does so.
+On Tue, Oct 26, 2021 at 03:12:28PM +0100, Ian Abbott wrote:
+> On 25/10/2021 12:45, Johan Hovold wrote:
+> > The driver uses endpoint-sized USB transfer buffers but had no sanity
+> > checks on the sizes. This can lead to zero-size-pointer dereferences or
+> > overflowed transfer buffers in ni6501_port_command() and
+> > ni6501_counter_command() if a (malicious) device has smaller max-packet
+> > sizes than expected (or when doing descriptor fuzz testing).
 > > 
-> > Why can't we take all of that commit?  Why only part of it?
+> > Add the missing sanity checks to probe().
+> > 
+> > Fixes: a03bb00e50ab ("staging: comedi: add NI USB-6501 support")
+> > Cc: stable@vger.kernel.org      # 3.18
+> > Cc: Luca Ellero <luca.ellero@brickedbrain.com>
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
+> > ---
+> >   drivers/comedi/drivers/ni_usb6501.c | 8 ++++++++
+> >   1 file changed, 8 insertions(+)
+> > 
+> > diff --git a/drivers/comedi/drivers/ni_usb6501.c b/drivers/comedi/drivers/ni_usb6501.c
+> > index 5b6d9d783b2f..eb2e5c23f25d 100644
+> > --- a/drivers/comedi/drivers/ni_usb6501.c
+> > +++ b/drivers/comedi/drivers/ni_usb6501.c
+> > @@ -144,6 +144,10 @@ static const u8 READ_COUNTER_RESPONSE[]	= {0x00, 0x01, 0x00, 0x10,
+> >   					   0x00, 0x00, 0x00, 0x02,
+> >   					   0x00, 0x00, 0x00, 0x00};
+> >   
+> > +/* Largest supported packets */
+> > +static const size_t TX_MAX_SIZE	= sizeof(SET_PORT_DIR_REQUEST);
+> > +static const size_t RX_MAX_SIZE	= sizeof(READ_PORT_RESPONSE);
+> > +
+> >   enum commands {
+> >   	READ_PORT,
+> >   	WRITE_PORT,
+> > @@ -486,12 +490,16 @@ static int ni6501_find_endpoints(struct comedi_device *dev)
+> >   		ep_desc = &iface_desc->endpoint[i].desc;
+> >   
+> >   		if (usb_endpoint_is_bulk_in(ep_desc)) {
+> > +			if (usb_endpoint_maxp(ep_desc) < RX_MAX_SIZE)
+> > +				continue;
+> >   			if (!devpriv->ep_rx)
+> >   				devpriv->ep_rx = ep_desc;
+> >   			continue;
+> >   		}
+> >   
+> >   		if (usb_endpoint_is_bulk_out(ep_desc)) {
+> > +			if (usb_endpoint_maxp(ep_desc) < TX_MAX_SIZE)
+> > +				continue;
+> >   			if (!devpriv->ep_tx)
+> >   				devpriv->ep_tx = ep_desc;
+> >   			continue;
+> > 
 > 
-> I don't know.
+> Perhaps it should return an error if the first encountered bulk-in 
+> endpoint has the wrong size or the first encountered bulk-out endpoint 
+> has the wrong size. Something like:
 > 
-> Why didn't the Stable team take it further than v5.11.y?
+> 		if (usb_endpoint_is_bulk_in(ep_desc)) {
+> 			if (!devpriv->ep_rx) {
+> 				if (usb_endpoint_maxp(ep_desc) < RX_MAX_SIZE)
+> 					break;
+> 			}
+> 			continue;
 
-Look in the archives?  Did it not apply cleanly?
+This is too convoluted, but I can move the max-packet sanity checks
+after the endpoint look-ups instead.
 
-/me goes off and looks...
+It doesn't really matter in the end as the real devices presumably only
+have two bulk endpoints.
 
-Looks like I asked for a backport, but no one did it, I only received a
-5.11 version:
-	https://lore.kernel.org/r/1839646480a26a2461eccc38a75e98998d2d6e11.1615375332.git.asml.silence@gmail.com
-
-so a 5.10 version would be nice, as I said it failed as-is:
-	https://lore.kernel.org/all/161460075611654@kroah.com/
-
-lore archives are your friend :)
-
-thanks,
-
-greg k-h
+Johan
