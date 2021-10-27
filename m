@@ -2,106 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A956C43D1E6
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 21:52:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0738843D217
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 22:08:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235520AbhJ0Tyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 15:54:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33868 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231656AbhJ0Tyu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 15:54:50 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B139DC061570;
-        Wed, 27 Oct 2021 12:52:24 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id u6-20020a17090a3fc600b001a00250584aso5998839pjm.4;
-        Wed, 27 Oct 2021 12:52:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=5sUNlB/oeM7v7Lajc1viu0P4O/wTbw1CkB2X041cqCg=;
-        b=kN+rFpi6Xvrq4I1a0elUch1TmP+0VipuO4agksFf6bPJaJ44eZ7R8sLkFRm1/jEuht
-         EB/9egA/hDHzDWAP9vIdLzBgs/TwmiPpnhSO9DgIStJ8eupi2EGvHzIu5MDpYTcJz4/D
-         jIOVplfvUDIZFXG7UhrrIhFo5lCHm8YJF35wKGev+i+ldz6sY3qOPtufj9Pf53IRNIyV
-         OFNFY9VcHXYBJoMZh9Z0J9IRP1zl5LULq6GpkjFajonSfmIN4gg59HqEVT6yOCoq3b0u
-         m9jadSPrK+pYgArBn4D0PrBCDoUDJL3zt+U6YZgJqtv/EQ3d+P7pSHa1uN4RAVxSy4IM
-         gOuQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=5sUNlB/oeM7v7Lajc1viu0P4O/wTbw1CkB2X041cqCg=;
-        b=yt/6lsOkXnw1m0QwbfLlsJMOG05JaaGRPck3Xly3nqdVRZFwyrGdzOsZ85ZnaFeKdD
-         k3T2iOFVrW4IuSMqpU0reKnA+FsM1rhyiLJPwdlR9sEB9D2+VIUpPnW+s/VI8B84mVwX
-         hJb493GlDFJvMJqBxWtL15yyVFbaSJilgKgImvUatr9ZcA0cgpsloRdqUvOQw3NnCu/4
-         x4ks7bZH6d4VYzZ7Af6fTzY19yw+21qAZZ3dB81uFwBa1Cl6Y2jRtRBz5HhPbSAP6Df4
-         j4We178mddDjqJCzDczxjxc0/YJFp9zIBD23YKzmbDl7rwZgkUeb9oer+FW2D3iun7bu
-         LGRg==
-X-Gm-Message-State: AOAM530flJbrz/MfCipNdf4Y1FOlIAer/jnL9UwAyaCPGEPGeJmI4bD1
-        ymDanWg5l6z8GgDMjs7Vkng=
-X-Google-Smtp-Source: ABdhPJxnhGGhyOcAl898TGV06elPp3eS65A6ugFkxNlpR9hmUWsA3aFLPh0FJumtdnL263vo43m+6Q==
-X-Received: by 2002:a17:903:1cd:b0:140:43f0:353c with SMTP id e13-20020a17090301cd00b0014043f0353cmr23652935plh.81.1635364344086;
-        Wed, 27 Oct 2021 12:52:24 -0700 (PDT)
-Received: from localhost.localdomain (c-73-93-239-127.hsd1.ca.comcast.net. [73.93.239.127])
-        by smtp.gmail.com with ESMTPSA id nr14sm509433pjb.24.2021.10.27.12.52.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Oct 2021 12:52:23 -0700 (PDT)
-From:   Yang Shi <shy828301@gmail.com>
-To:     hughd@google.com, sunhao.th@gmail.com, willy@infradead.org,
-        kirill.shutemov@linux.intel.com, songliubraving@fb.com,
-        andrea.righi@canonical.com, akpm@linux-foundation.org
-Cc:     shy828301@gmail.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] mm: khugepaged: skip huge page collapse for special files
-Date:   Wed, 27 Oct 2021 12:52:21 -0700
-Message-Id: <20211027195221.3825-1-shy828301@gmail.com>
-X-Mailer: git-send-email 2.26.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S240462AbhJ0UK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 16:10:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53554 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238558AbhJ0UK5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Oct 2021 16:10:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD5876023F;
+        Wed, 27 Oct 2021 20:08:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1635365312;
+        bh=VSRBlqm0ZaQBToR1GKMJIHCreMFIz+Kp4SYPvtsdJHM=;
+        h=Date:From:To:Subject:From;
+        b=MaQHkbLr9K2+uaj0shjBV0qrRzE2pmwN9VgEDA7xjnOXR/FaeG8urEnPeeR7J8agU
+         cGJQL6yWh/b1T3fNpbk1SiN9ZjT2gOb4nDlJkckRiraE7p0Z9J1XgmWH7AnBEmcQt7
+         mvQ7VlUTeIfqvDbfN810JBPMvneXjmgefA67jtuo=
+Date:   Wed, 27 Oct 2021 13:08:31 -0700
+From:   akpm@linux-foundation.org
+To:     andrea.righi@canonical.com, hughd@google.com,
+        kirill.shutemov@linux.intel.com, mm-commits@vger.kernel.org,
+        shy828301@gmail.com, songliubraving@fb.com, stable@vger.kernel.org,
+        sunhao.th@gmail.com, willy@infradead.org
+Subject:  +
+ mm-khugepaged-skip-huge-page-collapse-for-special-files.patch added to -mm
+ tree
+Message-ID: <20211027200831.Vl86m8C8a%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The read-only THP for filesystems would collapse THP for file opened
-readonly and mapped with VM_EXEC, the intended usecase is to avoid TLB
-miss for large text segment.  But it doesn't restrict the file types so
-THP could be collapsed for non-regular file, for example, block device,
-if it is opened readonly and mapped with EXEC permission.  This may
-cause bugs, like [1] and [2].
 
-This is definitely not intended usecase, so just collapsing THP for regular
-file in order to close the attack surface.
+The patch titled
+     Subject: mm: khugepaged: skip huge page collapse for special files
+has been added to the -mm tree.  Its filename is
+     mm-khugepaged-skip-huge-page-collapse-for-special-files.patch
+
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-khugepaged-skip-huge-page-collapse-for-special-files.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-khugepaged-skip-huge-page-collapse-for-special-files.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Yang Shi <shy828301@gmail.com>
+Subject: mm: khugepaged: skip huge page collapse for special files
+
+The read-only THP for filesystems will collapse THP for files opened
+readonly and mapped with VM_EXEC.  The intended usecase is to avoid TLB
+misses for large text segments.  But it doesn't restrict the file types so
+a THP could be collapsed for a non-regular file, for example, block
+device, if it is opened readonly and mapped with EXEC permission.  This
+may cause bugs, like [1] and [2].
+
+This is definitely not the intended usecase, so just collapse THP for
+regular files in order to close the attack surface.
 
 [1] https://lore.kernel.org/lkml/CACkBjsYwLYLRmX8GpsDpMthagWOjWWrNxqY6ZLNQVr6yx+f5vA@mail.gmail.com/
 [2] https://lore.kernel.org/linux-mm/000000000000c6a82505ce284e4c@google.com/
 
+Link: https://lkml.kernel.org/r/20211027195221.3825-1-shy828301@gmail.com
 Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Yang Shi <shy828301@gmail.com>
 Reported-by: Hao Sun <sunhao.th@gmail.com>
 Reported-by: syzbot+aae069be1de40fb11825@syzkaller.appspotmail.com
-Cc: Hao Sun <sunhao.th@gmail.com>
 Cc: Matthew Wilcox <willy@infradead.org>
 Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Cc: Song Liu <songliubraving@fb.com>
 Cc: Andrea Righi <andrea.righi@canonical.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Yang Shi <shy828301@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-The patch is basically based off the proposal from Hugh
-(https://lore.kernel.org/linux-mm/a07564a3-b2fc-9ffe-3ace-3f276075ea5c@google.com/).
-It seems Hugh is too busy to prepare the patch for formal submission (I
-didn't hear from him by pinging him a couple of times on mailing list),
-so I prepared the patch and added his SOB.
 
- mm/khugepaged.c | 17 ++++++++++-------
+ mm/khugepaged.c |   17 ++++++++++-------
  1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 045cc579f724..e91b7271275e 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -445,22 +445,25 @@ static bool hugepage_vma_check(struct vm_area_struct *vma,
+--- a/mm/khugepaged.c~mm-khugepaged-skip-huge-page-collapse-for-special-files
++++ a/mm/khugepaged.c
+@@ -445,22 +445,25 @@ static bool hugepage_vma_check(struct vm
  	if (!transhuge_vma_enabled(vma, vm_flags))
  		return false;
  
@@ -134,6 +126,16 @@ index 045cc579f724..e91b7271275e 100644
  	}
  
  	if (!vma->anon_vma || vma->vm_ops)
--- 
-2.26.2
+_
+
+Patches currently in -mm which might be from shy828301@gmail.com are
+
+mm-hwpoison-remove-the-unnecessary-thp-check.patch
+mm-filemap-check-if-thp-has-hwpoisoned-subpage-for-pmd-page-fault.patch
+mm-khugepaged-skip-huge-page-collapse-for-special-files.patch
+mm-filemap-coding-style-cleanup-for-filemap_map_pmd.patch
+mm-hwpoison-refactor-refcount-check-handling.patch
+mm-shmem-dont-truncate-page-if-memory-failure-happens.patch
+mm-hwpoison-handle-non-anonymous-thp-correctly.patch
+mm-migrate-make-demotion-knob-depend-on-migration.patch
 
