@@ -2,129 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FE3843CB62
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 16:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D483543CB7B
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 16:03:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237166AbhJ0OCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 10:02:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37156 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231707AbhJ0OCt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 10:02:49 -0400
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9A4DC061570
-        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 07:00:23 -0700 (PDT)
-Received: by mail-wr1-x42b.google.com with SMTP id d3so4340171wrh.8
-        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 07:00:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=VsY/FViuPLJJ0x97MC/uW0G6j8qKMPcqH4JsVsaJd28=;
-        b=pq7P7YMYIQH9NwuUkgLPVJUTai+lIGPlC5FaJMuPwNa2PuYaeQVV6XanW9YKTIm0HM
-         Q6lPrfldyu0HckCShW0yFEe6FisHQVrfyDrHElq2Ty2l7PMyMtDoLZM6YDp3E8aymfei
-         PVlgZk1Xlcx49k9Z/3qLhdC4r+bZGkySjjkUwXErZcezO8B0XVWGU/yA5rtpjE288Wso
-         +AO1Z78th+sxJ/q6dIJJIGYj61Pqtn9sSmgcS6DC9qzwUwyCnc2o0evzSis2MhsbA8qN
-         tzBG5/cv+N2re3xehzhcVd0iE/UJMGsSfyzqcyx+FBaNuv8qs57/I172ywbxO8ivoYaK
-         zIXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=VsY/FViuPLJJ0x97MC/uW0G6j8qKMPcqH4JsVsaJd28=;
-        b=m65ZoSox3dH/n1EXcnq5CthHWH3eIGZ/CbchBBrix4gKZbncAfLrRe/hgVUxCVA6Gz
-         XZF4rTmxTnunnlhSmVwDIf3nxm6jY2Cf5r1m5SrPZsdYDWImnX2KOq6jzpTnMFpbTfpO
-         YcBxymYnstVDn8ruqzhQ/gLAHvsVzh+unpEiDz83/yB5pZQxx1mIW+/rmpmd4Q/nwv0z
-         7/ZWwdN58V197RLnvgVbH4rPQ4h4ciFTuJLiuL4fQEDBTe8QvQyliIeyDhNhdny5JAXM
-         pIV12i81KnzVJuDTM12IcET/Jig2SJXw8sz0CD+V5S4157lzJS8A3E4jXXpJ8sqKOlJ5
-         U/LQ==
-X-Gm-Message-State: AOAM532A8uk7eMkbTdhsCsNT6iWI00ELRsv7BvIYB7EqbPP6NZ4yflmN
-        SvnUJ9kX1dgaAH83ISd3fWE+ow==
-X-Google-Smtp-Source: ABdhPJwpzln+cmk6xuo+GBK/V8sev59TI12TEYWN4Q4jok1Tu4vItFDTWfN7+4lRAlhHJH1dFTCkrw==
-X-Received: by 2002:a5d:5262:: with SMTP id l2mr13983077wrc.131.1635343222402;
-        Wed, 27 Oct 2021 07:00:22 -0700 (PDT)
-Received: from google.com ([95.148.6.207])
-        by smtp.gmail.com with ESMTPSA id o17sm3750549wmq.11.2021.10.27.07.00.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Oct 2021 07:00:21 -0700 (PDT)
-Date:   Wed, 27 Oct 2021 15:00:20 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, axboe@kernel.dk, asml.silence@gmail.com,
-        io-uring@vger.kernel.org,
-        syzbot+59d8a1f4e60c20c066cf@syzkaller.appspotmail.com
-Subject: Re: [PATCH 5.10 1/1] io_uring: fix double free in the
- deferred/cancelled path
-Message-ID: <YXlbdJRa6kTu2GEz@google.com>
-References: <20211027080128.1836624-1-lee.jones@linaro.org>
- <YXkLVoAfCVNNPDSZ@kroah.com>
- <YXkP533F8Dj+HAxY@google.com>
- <YXkThoB6XUsmV8Yf@kroah.com>
- <YXkVxVFg8e5Z33zV@google.com>
- <YXlKKxRETze45IPv@kroah.com>
+        id S237588AbhJ0OGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 10:06:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38304 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237581AbhJ0OGI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Oct 2021 10:06:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27DF660F38;
+        Wed, 27 Oct 2021 14:03:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1635343422;
+        bh=f+Ow0ADlK40WUEFmyZfF7nZqar2AcX92ZT6P/TxnJHY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=FW7/+eZiLJRKgFl95DKaYDAcBjvIHR9gY3vq9tf1RcIoc+tvm1fEILHr/G+H/3rih
+         5TAQhmfwDSHOmm9iuxs0t1wT8doify8KtSIH2Qw0b50RkCtPmR06/SZLMNHmRlE7/T
+         CLQggXhWog1nLr2WW9oIIiLGy39n8hKA57bZeKc+Sk6IOoJjEFlryCHfaLrEakFNmJ
+         z1FiJFKhJtCDWVqgN1wrPvxol22IpO4TkeuxB876hFuecFx3XIybSyQVsiJIeYczGa
+         D82PZPYp4gb3YS9HHGjAd4BtCWE/mvL5gFx7a2z/TvBNWbqieNOz102snmmkPBC7vI
+         uoWbFIc5gJ0JQ==
+Date:   Wed, 27 Oct 2021 07:03:41 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Ariel Elior <aelior@marvell.com>
+Cc:     Manish Chopra <manishc@marvell.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        "malin1024@gmail.com" <malin1024@gmail.com>,
+        Shai Malin <smalin@marvell.com>,
+        Omkar Kulkarni <okulkarni@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "GR-everest-linux-l2@marvell.com" <GR-everest-linux-l2@marvell.com>,
+        Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [EXT] Re: [PATCH net-next 1/2] bnx2x: Utilize firmware
+ 7.13.20.0
+Message-ID: <20211027070341.159b15fa@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <PH0PR18MB465598CDD29377C300C3184CC4859@PH0PR18MB4655.namprd18.prod.outlook.com>
+References: <20211026193717.2657-1-manishc@marvell.com>
+        <20211026140759.77dd8818@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        <PH0PR18MB465598CDD29377C300C3184CC4859@PH0PR18MB4655.namprd18.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YXlKKxRETze45IPv@kroah.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 27 Oct 2021, Greg KH wrote:
+On Wed, 27 Oct 2021 05:17:43 +0000 Ariel Elior wrote:
+> You may recall we had a discussion on this during our last FW upgrade too.
 
-> On Wed, Oct 27, 2021 at 10:03:01AM +0100, Lee Jones wrote:
-> > On Wed, 27 Oct 2021, Greg KH wrote:
-> > 
-> > > On Wed, Oct 27, 2021 at 09:37:59AM +0100, Lee Jones wrote:
-> > > > On Wed, 27 Oct 2021, Greg KH wrote:
-> > > > 
-> > > > > On Wed, Oct 27, 2021 at 09:01:28AM +0100, Lee Jones wrote:
-> > > > > > 792bb6eb86233 ("io_uring: don't take uring_lock during iowq cancel")
-> > > > > > inadvertently fixed this issue in v5.12.  This patch cherry-picks the
-> > > > > > hunk of commit which does so.
-> > > > > 
-> > > > > Why can't we take all of that commit?  Why only part of it?
-> > > > 
-> > > > I don't know.
-> > > > 
-> > > > Why didn't the Stable team take it further than v5.11.y?
-> > > 
-> > > Look in the archives?  Did it not apply cleanly?
-> > > 
-> > > /me goes off and looks...
-> > > 
-> > > Looks like I asked for a backport, but no one did it, I only received a
-> > > 5.11 version:
-> > > 	https://lore.kernel.org/r/1839646480a26a2461eccc38a75e98998d2d6e11.1615375332.git.asml.silence@gmail.com
-> > > 
-> > > so a 5.10 version would be nice, as I said it failed as-is:
-> > > 	https://lore.kernel.org/all/161460075611654@kroah.com/
-> > 
-> > Precisely.  This is the answer to your question:
-> > 
-> >   > > > Why can't we take all of that commit?  Why only part of it?
-> > 
-> > Same reason the Stable team didn't back-port it - it doesn't apply.
-> > 
-> > The second hunk is only relevant to v5.11+.
-> 
-> Great, then use the "normal" stable style, but down in the s-o-b area
-> say "dropped second chunk as it is not relevant to 5.10.y".
+"During our last FW upgrade" is pretty misleading here. The discussion
+seems to have been after user reported that you broke their systems:
 
-Just to clarify, by "normal", you mean:
+https://lore.kernel.org/netdev/ffbcf99c-8274-eca1-5166-efc0828ca05b@molgen.mpg.de/
 
- - Take the original patch
- - Apply an "[ Upstream commit <id> ]" tag (or similar)
- - Remove the hunk that doesn't apply
- - Make a note of the aforementioned action
- - Submit to Stable
+Now you want to make your users' lives even more miserable by pushing
+your changes into stable.
 
-Rather than submitting a bespoke patch.  Right?
+> Please note this is not FW which resides in flash, which may or may not be
+> updated during the life cycle of a specific board deployment, but rather an
+> initialization sequence recipe which happens to contain FW content (as well as
+> many other register and memory initializations) which is activated when driver
+> loads. We do have Flash based FW as well, with which we are fully backwards and
+> forwards compatible. There is no method to build the init sequence in a
+> backwards compatible mode for these devices - it would basically mean
+> duplicating most of the device interaction logic (control plane and data plane).
+> To support these products we need to be able to update this from time to time.
 
--- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+And the driver can't support two versions of init sequence because...?
+
+> Please note these devices are EOLing, and therefore this may well be the last
+> update to this FW.
+
+Solid argument.
+
+> The only theoretical way we can think of getting around this if we
+> had to is adding the entire thing as a huge header file and have the
+> driver compile with it. This would detach the dependency on the FW
+> file being present on disk, but has big disadvantages of making the
+> compiled driver huge, and bloating the kernel with redundant headers
+> filled with what is essentially a binary blob. We do make sure to add
+> the FW files to the FW sub tree in advance of modifying the drivers
+> to use them.
+
+All the patch is doing is changing some offsets. Why can't you just
+make the offset the driver uses dependent on the FW version?
+
+Would be great if the engineer who wrote the code could answer that.
