@@ -2,134 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45DED43D5CF
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 23:31:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6972B43D5D4
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 23:32:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230243AbhJ0VeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 17:34:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40604 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235673AbhJ0Vdx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Oct 2021 17:33:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07858610EA;
-        Wed, 27 Oct 2021 21:31:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1635370287;
-        bh=beP3V4E9bOCt9XZs5Xr/2QNQBFfPfNth7pyeESIUaBY=;
-        h=Date:From:To:Subject:From;
-        b=hjGG5DUh0p5bwaRUolCIYu4g/kfiqticZPQKY0GTHINpR0rZWxzfDzKltcxNXnaQF
-         GlpBp2RU8EXC2DhvlckXKnKWNAl68WgvajidzLgW+FwxFYnDo2OlJzNiFIQXUE/FWe
-         /cXVBMRNxspKn8D9rVo1A8Wj3KbZ3G8mdr1YeX+Y=
-Date:   Wed, 27 Oct 2021 14:31:25 -0700
-From:   akpm@linux-foundation.org
-To:     cfijalkovich@google.com, hughd@google.com, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, rongwei.wang@linux.alibaba.com,
-        shy828301@gmail.com, song@kernel.org, stable@vger.kernel.org,
-        william.kucharski@oracle.com, willy@infradead.org,
-        xuyu@linux.alibaba.com
-Subject:  +
- mm-thp-fix-incorrect-unmap-behavior-for-private-pages.patch added to -mm
- tree
-Message-ID: <20211027213125.Saf_Mg-fw%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S232590AbhJ0Ver (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 17:34:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56934 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233046AbhJ0Vem (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 17:34:42 -0400
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E707C061767;
+        Wed, 27 Oct 2021 14:32:16 -0700 (PDT)
+Received: by mail-ed1-x532.google.com with SMTP id w12so15826637edd.11;
+        Wed, 27 Oct 2021 14:32:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=0eLs1vKCdD9fRUqUY5RcYH11tOWYmTj/mhP+WyCuSws=;
+        b=bFn4mtu1GV4VL42GOaedj6+RTGWTSaRL10vA5lMTwhC9f/TSuaIgj4vt/kiSeQ0OG6
+         fZ7xUcbnD42u3FPpAML/7jbHVZRVs5vYJ4dG/COcZsYuLhtJLwRuOT6RklhqOYU3xSwC
+         LF6rdT+paQcIxhvWydHu3rpYUCbUgg+WGJWKx+9zyL4N1RD8BRrrT6omtw9lbGPHT0ui
+         fAZvCDSwqDILwokQeYTIqPvq6xNGHPoF4xkS4cHJnY6kWyqnENKL2pVuAR6Xj/tiOdya
+         8vGdaBx8VAVmMLjuT1/uh+3Vqb0cy73hZ2kpPm/es7QPo7SaiToP7Y3/HVXL1I9gMeXx
+         tIsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0eLs1vKCdD9fRUqUY5RcYH11tOWYmTj/mhP+WyCuSws=;
+        b=sieJ5aUag8Ltn68ftY5R5M/YIAFSpnCQxlLX5ZaWi5RIEc84cP7Rl/Mxr9lflazA4V
+         rRM8t79dtYghQ/EWmv7996elBKnvDk/PeC/Fhb3y2KFFVmof8fLL0wE5qn3n3Q0Kn8S4
+         VOZRMslwoXKYgVJW8sS7WhKMO6SVUPQRvHND14BRv/YOZcXe7UbspAwhLt1WmSek+xaP
+         SkA++3MBxqS8uiLR/3Lddgy770Sv6wjeEArwkkKuGeKcIAI++nKuwdfabXgKl9Q7VESL
+         tl1HirLzkAWcFG9QDnTd1xLYh1IX9RQWcAcwj6ZslAEYu8IfMWRmRK4fo6G/jwPNe3p2
+         gWtQ==
+X-Gm-Message-State: AOAM5330Po68zSzvVCQy8lDtyR8PDxJE4I0T8TsEwqJ//5kc4MSIMBnS
+        BQbWAVUtinbfzbM3V76SHyHbkD1YwiLw6WjRIcSbf5SMq3s=
+X-Google-Smtp-Source: ABdhPJxi08ueX1uJIQi3nNiPcLn92zuct9e+mWkRd0nfv01nssBA6LRbHDXqZtemi0VUtjzqzBhq3Z7fF4/sGrBMX7c=
+X-Received: by 2002:a50:8d52:: with SMTP id t18mr489479edt.71.1635370334982;
+ Wed, 27 Oct 2021 14:32:14 -0700 (PDT)
+MIME-Version: 1.0
+References: <20211027195221.3825-1-shy828301@gmail.com> <YXm7kHy8uTN1+RRc@casper.infradead.org>
+In-Reply-To: <YXm7kHy8uTN1+RRc@casper.infradead.org>
+From:   Yang Shi <shy828301@gmail.com>
+Date:   Wed, 27 Oct 2021 14:32:02 -0700
+Message-ID: <CAHbLzkrV1SuqZ8750yD6ZDM9D9uc8svrJ_gARrESq0kMspg+uw@mail.gmail.com>
+Subject: Re: [PATCH] mm: khugepaged: skip huge page collapse for special files
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     Hugh Dickins <hughd@google.com>, Hao Sun <sunhao.th@gmail.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Song Liu <songliubraving@fb.com>,
+        Andrea Righi <andrea.righi@canonical.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux MM <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Oct 27, 2021 at 1:50 PM Matthew Wilcox <willy@infradead.org> wrote:
+>
+> On Wed, Oct 27, 2021 at 12:52:21PM -0700, Yang Shi wrote:
+> > +++ b/mm/khugepaged.c
+> > @@ -445,22 +445,25 @@ static bool hugepage_vma_check(struct vm_area_struct *vma,
+> >       if (!transhuge_vma_enabled(vma, vm_flags))
+> >               return false;
+> >
+> > -     /* Enabled via shmem mount options or sysfs settings. */
+> > -     if (shmem_file(vma->vm_file) && shmem_huge_enabled(vma)) {
+> > +     if (vma->vm_file)
+> >               return IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) - vma->vm_pgoff,
+> >                               HPAGE_PMD_NR);
+> > -     }
+> > +
+> > +     /* Enabled via shmem mount options or sysfs settings. */
+> > +     if (shmem_file(vma->vm_file))
+> > +             return shmem_huge_enabled(vma);
+>
+> This doesn't make sense to me.  if vma->vm_file, we already returned,
+> so this is dead code.
 
-The patch titled
-     Subject: mm, thp: fix incorrect unmap behavior for private pages
-has been added to the -mm tree.  Its filename is
-     mm-thp-fix-incorrect-unmap-behavior-for-private-pages.patch
+Yes, Song mentioned the same thing. Fixed by an incremental patch.
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-thp-fix-incorrect-unmap-behavior-for-private-pages.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-thp-fix-incorrect-unmap-behavior-for-private-pages.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Rongwei Wang <rongwei.wang@linux.alibaba.com>
-Subject: mm, thp: fix incorrect unmap behavior for private pages
-
-When truncating pagecache on file THP, the private pages of a process
-should not be unmapped mapping.  This incorrect behavior on a dynamic
-shared libraries which will cause related processes to happen core dump.
-
-A simple test for a DSO (Prerequisite is the DSO mapped in file THP):
-
-int main(int argc, char *argv[])
-{
-	int fd;
-
-	fd = open(argv[1], O_WRONLY);
-	if (fd < 0) {
-		perror("open");
-	}
-
-	close(fd);
-	return 0;
-}
-
-The test only to open a target DSO, and do nothing.  But this operation
-will lead one or more process to happen core dump.  This patch mainly to
-fix this bug.
-
-Link: https://lkml.kernel.org/r/20211025092134.18562-3-rongwei.wang@linux.alibaba.com
-Fixes: eb6ecbed0aa2 ("mm, thp: relax the VM_DENYWRITE constraint on file-backed THPs")
-Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
-Tested-by: Xu Yu <xuyu@linux.alibaba.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Song Liu <song@kernel.org>
-Cc: William Kucharski <william.kucharski@oracle.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Collin Fijalkovich <cfijalkovich@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/open.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
-
---- a/fs/open.c~mm-thp-fix-incorrect-unmap-behavior-for-private-pages
-+++ a/fs/open.c
-@@ -857,8 +857,17 @@ static int do_dentry_open(struct file *f
- 		 */
- 		smp_mb();
- 		if (filemap_nr_thps(inode->i_mapping)) {
-+			struct address_space *mapping = inode->i_mapping;
-+
- 			filemap_invalidate_lock(inode->i_mapping);
--			truncate_pagecache(inode, 0);
-+			/*
-+			 * unmap_mapping_range just need to be called once
-+			 * here, because the private pages is not need to be
-+			 * unmapped mapping (e.g. data segment of dynamic
-+			 * shared libraries here).
-+			 */
-+			unmap_mapping_range(mapping, 0, 0, 0);
-+			truncate_inode_pages(mapping, 0);
- 			filemap_invalidate_unlock(inode->i_mapping);
- 		}
- 	}
-_
-
-Patches currently in -mm which might be from rongwei.wang@linux.alibaba.com are
-
-mm-thp-bail-out-early-in-collapse_file-for-writeback-page.patch
-mm-thp-lock-filemap-when-truncating-page-cache.patch
-mm-thp-fix-incorrect-unmap-behavior-for-private-pages.patch
-mm-damon-dbgfs-remove-unnecessary-variables.patch
-
+>
+> >       /* THP settings require madvise. */
+> >       if (!(vm_flags & VM_HUGEPAGE) && !khugepaged_always())
+> >               return false;
+> >
+> > -     /* Read-only file mappings need to be aligned for THP to work. */
+> > +     /* Only regular file is valid */
+> >       if (IS_ENABLED(CONFIG_READ_ONLY_THP_FOR_FS) && vma->vm_file &&
+> > -         !inode_is_open_for_write(vma->vm_file->f_inode) &&
+> >           (vm_flags & VM_EXEC)) {
+> > -             return IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) - vma->vm_pgoff,
+> > -                             HPAGE_PMD_NR);
+> > +             struct inode *inode = vma->vm_file->f_inode;
+> > +
+> > +             return !inode_is_open_for_write(inode) &&
+> > +                     S_ISREG(inode->i_mode);
+> >       }
+> >
+> >       if (!vma->anon_vma || vma->vm_ops)
+> > --
+> > 2.26.2
+> >
