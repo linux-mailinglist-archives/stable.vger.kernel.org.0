@@ -2,205 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85B2E43D6C2
-	for <lists+stable@lfdr.de>; Thu, 28 Oct 2021 00:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9EE043D6DE
+	for <lists+stable@lfdr.de>; Thu, 28 Oct 2021 00:44:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230049AbhJ0Wiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 18:38:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54784 "EHLO mail.kernel.org"
+        id S230081AbhJ0Wqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 18:46:40 -0400
+Received: from relay.sw.ru ([185.231.240.75]:45836 "EHLO relay.sw.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229484AbhJ0Wiz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Oct 2021 18:38:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02032610E7;
-        Wed, 27 Oct 2021 22:36:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1635374189;
-        bh=8/atn+gy29ua2j7FJ6QGpXCCHg0ulsREg7DYof+HuWw=;
-        h=Date:From:To:Subject:From;
-        b=QdklEWUF/waA9cOGhjr9qmQs7DdDMiOjSXrVUEte52czPNLU9toMYX8kHILWf7kkz
-         lvM2WxoLJUDfueEO4+scI+udFzTCCa/7wUWfWkBXx9XGLZZMntPdnFdKBQZzRGcEBt
-         g2xUZ9MG1wUCyStnECEyJTDi1MVqs6i8NMHRvDo8=
-Date:   Wed, 27 Oct 2021 15:36:28 -0700
-From:   akpm@linux-foundation.org
-To:     guro@fb.com, hannes@cmpxchg.org, mgorman@techsingularity.net,
-        mhocko@suse.com, mm-commits@vger.kernel.org,
-        penguin-kernel@i-love.sakura.ne.jp, shakeelb@google.com,
-        stable@vger.kernel.org, urezki@gmail.com, vbabka@suse.cz,
-        vdavydov.dev@gmail.com, vvs@virtuozzo.com
-Subject:  +
- memcg-prohibit-unconditional-exceeding-the-limit-of-dying-tasks.patch added
- to -mm tree
-Message-ID: <20211027223628.atM7LksM2%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S229836AbhJ0Wqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Oct 2021 18:46:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=virtuozzo.com; s=relay; h=MIME-Version:Message-Id:Date:Subject:From:
+        Content-Type; bh=yHdp9tOZ7y1Mwfs+YkJJ25dLtIO+Tt3gV9cviUbRGcA=; b=CyhB2X7sZcDq
+        En9KVWHoUzf7flwOVHxLNIQaAamPUGAa2XatDb8wK1m2fpChqukWeOBQTX1xjA3acPSCwU+Q/acYh
+        thknzRkIUYrBrc1AangJbDLZMbFoBTA21Hv6lO3JBP5tZKhlqggvT+MUFux4Orb2YI6XdP033kbwa
+        2FLiI=;
+Received: from [10.94.6.52] (helo=dhcp-172-16-24-175.sw.ru)
+        by relay.sw.ru with esmtp (Exim 4.94.2)
+        (envelope-from <alexander.mikhalitsyn@virtuozzo.com>)
+        id 1mfreT-007RG6-35; Thu, 28 Oct 2021 01:44:09 +0300
+From:   Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Alexander Mikhalitsyn <alexander@mihalicyn.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 0/2] shm: shm_rmid_forced feature fixes
+Date:   Thu, 28 Oct 2021 01:43:46 +0300
+Message-Id: <20211027224348.611025-1-alexander.mikhalitsyn@virtuozzo.com>
+X-Mailer: git-send-email 2.28.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+A long story behind all of that...
 
-The patch titled
-     Subject: memcg: prohibit unconditional exceeding the limit of dying tasks
-has been added to the -mm tree.  Its filename is
-     memcg-prohibit-unconditional-exceeding-the-limit-of-dying-tasks.patch
+Some time ago I met kernel crash after CRIU restore procedure,
+fortunately, it was CRIU restore, so, I had dump files and could
+do restore many times and crash reproduced easily. After some
+investigation I've constructed the minimal reproducer. It was
+found that it's use-after-free and it happens only if
+sysctl kernel.shm_rmid_forced = 1.
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/memcg-prohibit-unconditional-exceeding-the-limit-of-dying-tasks.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/memcg-prohibit-unconditional-exceeding-the-limit-of-dying-tasks.patch
+The key of the problem is that the exit_shm() function
+not handles shp's object destroy when task->sysvshm.shm_clist
+contains items from different IPC namespaces. In most cases
+this list will contain only items from one IPC namespace.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Why this list may contain object from different namespaces?
+Function exit_shm() designed to clean up this list always when
+process leaves IPC namespace. But we made a mistake a long time ago
+and not add exit_shm() call into setns() syscall procedures.
+1st second idea was just to add this call to setns() syscall but
+it's obviously changes semantics of setns() syscall and that's
+userspace-visible change. So, I gave up this idea.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+First real attempt to address the issue was just to omit forced destroy
+if we meet shp object not from current task IPC namespace [1]. But
+that was not the best idea because task->sysvshm.shm_clist was
+protected by rwsem which belongs to current task IPC namespace.
+It means that list corruption may occur.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Second approach is just extend exit_shm() to properly handle
+shp's from different IPC namespaces [2]. This is really
+non-trivial thing, I've put a lot of effort into that but
+not believed that it's possible to make it fully safe, clean
+and clear.
 
-------------------------------------------------------
-From: Vasily Averin <vvs@virtuozzo.com>
-Subject: memcg: prohibit unconditional exceeding the limit of dying tasks
+Thanks to the efforts of Manfred Spraul working and elegant
+solution was designed. Thanks a lot, Manfred!
 
-Memory cgroup charging allows killed or exiting tasks to exceed the hard
-limit.  It is assumed that the amount of the memory charged by those tasks
-is bound and most of the memory will get released while the task is
-exiting.  This is resembling a heuristic for the global OOM situation when
-tasks get access to memory reserves.  There is no global memory shortage
-at the memcg level so the memcg heuristic is more relieved.
+Eric also suggested the way to address the issue in
+("[RFC][PATCH] shm: In shm_exit destroy all created and never attached segments")
+Eric's idea was to maintain a list of shm_clists one per IPC namespace,
+use lock-less lists. But there is some extra memory consumption-related concerns.
 
-The above assumption is overly optimistic though.  E.g.  vmalloc can scale
-to really large requests and the heuristic would allow that.  We used to
-have an early break in the vmalloc allocator for killed tasks but this has
-been reverted by commit b8c8a338f75e ("Revert "vmalloc: back off when the
-current task is killed"").  There are likely other similar code paths
-which do not check for fatal signals in an allocation&charge loop.  Also
-there are some kernel objects charged to a memcg which are not bound to a
-process life time.
+Alternative solution which was suggested by me was implemented in
+("shm: reset shm_clist on setns but omit forced shm destroy")
+Idea is pretty simple, we add exit_shm() syscall to setns() but DO NOT
+destroy shm segments even if sysctl kernel.shm_rmid_forced = 1, we just
+clean up the task->sysvshm.shm_clist list. This chages semantics of
+setns() syscall a little bit but in comparision to "naive" solution
+when we just add exit_shm() without any special exclusions this looks
+like a safer option.
 
-It has been observed that it is not really hard to trigger these bypasses
-and cause global OOM situation.
+[1] https://lkml.org/lkml/2021/7/6/1108
+[2] https://lkml.org/lkml/2021/7/14/736
 
-One potential way to address these runaways would be to limit the amount
-of excess (similar to the global OOM with limited oom reserves).  This is
-certainly possible but it is not really clear how much of an excess is
-desirable and still protects from global OOMs as that would have to
-consider the overall memcg configuration.
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Andrei Vagin <avagin@gmail.com>
+Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+Cc: Vasily Averin <vvs@virtuozzo.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: Alexander Mikhalitsyn <alexander@mihalicyn.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
 
-This patch is addressing the problem by removing the heuristic altogether.
-Bypass is only allowed for requests which either cannot fail or where the
-failure is not desirable while excess should be still limited (e.g. 
-atomic requests).  Implementation wise a killed or dying task fails to
-charge if it has passed the OOM killer stage.  That should give all forms
-of reclaim chance to restore the limit before the failure (ENOMEM) and
-tell the caller to back off.
+Alexander Mikhalitsyn (2):
+  ipc: WARN if trying to remove ipc object which is absent
+  shm: extend forced shm destroy to support objects from several IPC
+    nses
 
-In addition, this patch renames should_force_charge() helper to
-task_is_dying() because now its use is not associated witch forced
-charging.
+ include/linux/ipc_namespace.h |  15 +++
+ include/linux/sched/task.h    |   2 +-
+ include/linux/shm.h           |   2 +-
+ ipc/shm.c                     | 170 +++++++++++++++++++++++++---------
+ ipc/util.c                    |   6 +-
+ 5 files changed, 145 insertions(+), 50 deletions(-)
 
-This patch depends on pagefault_out_of_memory() to not trigger
-out_of_memory(), because then a memcg failure can unwind to VM_FAULT_OOM
-and cause a global OOM killer.
-
-Link: https://lkml.kernel.org/r/8f5cebbb-06da-4902-91f0-6566fc4b4203@virtuozzo.com
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Suggested-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/memcontrol.c |   27 ++++++++-------------------
- 1 file changed, 8 insertions(+), 19 deletions(-)
-
---- a/mm/memcontrol.c~memcg-prohibit-unconditional-exceeding-the-limit-of-dying-tasks
-+++ a/mm/memcontrol.c
-@@ -234,7 +234,7 @@ enum res_type {
- 	     iter != NULL;				\
- 	     iter = mem_cgroup_iter(NULL, iter, NULL))
- 
--static inline bool should_force_charge(void)
-+static inline bool task_is_dying(void)
- {
- 	return tsk_is_oom_victim(current) || fatal_signal_pending(current) ||
- 		(current->flags & PF_EXITING);
-@@ -1624,7 +1624,7 @@ static bool mem_cgroup_out_of_memory(str
- 	 * A few threads which were not waiting at mutex_lock_killable() can
- 	 * fail to bail out. Therefore, check again after holding oom_lock.
- 	 */
--	ret = should_force_charge() || out_of_memory(&oc);
-+	ret = task_is_dying() || out_of_memory(&oc);
- 
- unlock:
- 	mutex_unlock(&oom_lock);
-@@ -2579,6 +2579,7 @@ static int try_charge_memcg(struct mem_c
- 	struct page_counter *counter;
- 	enum oom_status oom_status;
- 	unsigned long nr_reclaimed;
-+	bool passed_oom = false;
- 	bool may_swap = true;
- 	bool drained = false;
- 	unsigned long pflags;
-@@ -2614,15 +2615,6 @@ retry:
- 		goto force;
- 
- 	/*
--	 * Unlike in global OOM situations, memcg is not in a physical
--	 * memory shortage.  Allow dying and OOM-killed tasks to
--	 * bypass the last charges so that they can exit quickly and
--	 * free their memory.
--	 */
--	if (unlikely(should_force_charge()))
--		goto force;
--
--	/*
- 	 * Prevent unbounded recursion when reclaim operations need to
- 	 * allocate memory. This might exceed the limits temporarily,
- 	 * but we prefer facilitating memory reclaim and getting back
-@@ -2679,8 +2671,9 @@ retry:
- 	if (gfp_mask & __GFP_RETRY_MAYFAIL)
- 		goto nomem;
- 
--	if (fatal_signal_pending(current))
--		goto force;
-+	/* Avoid endless loop for tasks bypassed by the oom killer */
-+	if (passed_oom && task_is_dying())
-+		goto nomem;
- 
- 	/*
- 	 * keep retrying as long as the memcg oom killer is able to make
-@@ -2689,14 +2682,10 @@ retry:
- 	 */
- 	oom_status = mem_cgroup_oom(mem_over_limit, gfp_mask,
- 		       get_order(nr_pages * PAGE_SIZE));
--	switch (oom_status) {
--	case OOM_SUCCESS:
-+	if (oom_status == OOM_SUCCESS) {
-+		passed_oom = true;
- 		nr_retries = MAX_RECLAIM_RETRIES;
- 		goto retry;
--	case OOM_FAILED:
--		goto force;
--	default:
--		goto nomem;
- 	}
- nomem:
- 	if (!(gfp_mask & __GFP_NOFAIL))
-_
-
-Patches currently in -mm which might be from vvs@virtuozzo.com are
-
-mm-oom-pagefault_out_of_memory-dont-force-global-oom-for-dying-tasks.patch
-memcg-prohibit-unconditional-exceeding-the-limit-of-dying-tasks.patch
-mm-vmalloc-repair-warn_allocs-in-__vmalloc_area_node.patch
-vmalloc-back-off-when-the-current-task-is-oom-killed.patch
+-- 
+2.31.1
 
