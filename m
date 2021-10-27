@@ -2,93 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D483543CB7B
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 16:03:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D065743CDD0
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 17:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237588AbhJ0OGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 10:06:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38304 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237581AbhJ0OGI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Oct 2021 10:06:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27DF660F38;
-        Wed, 27 Oct 2021 14:03:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635343422;
-        bh=f+Ow0ADlK40WUEFmyZfF7nZqar2AcX92ZT6P/TxnJHY=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=FW7/+eZiLJRKgFl95DKaYDAcBjvIHR9gY3vq9tf1RcIoc+tvm1fEILHr/G+H/3rih
-         5TAQhmfwDSHOmm9iuxs0t1wT8doify8KtSIH2Qw0b50RkCtPmR06/SZLMNHmRlE7/T
-         CLQggXhWog1nLr2WW9oIIiLGy39n8hKA57bZeKc+Sk6IOoJjEFlryCHfaLrEakFNmJ
-         z1FiJFKhJtCDWVqgN1wrPvxol22IpO4TkeuxB876hFuecFx3XIybSyQVsiJIeYczGa
-         D82PZPYp4gb3YS9HHGjAd4BtCWE/mvL5gFx7a2z/TvBNWbqieNOz102snmmkPBC7vI
-         uoWbFIc5gJ0JQ==
-Date:   Wed, 27 Oct 2021 07:03:41 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Ariel Elior <aelior@marvell.com>
-Cc:     Manish Chopra <manishc@marvell.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        "malin1024@gmail.com" <malin1024@gmail.com>,
-        Shai Malin <smalin@marvell.com>,
-        Omkar Kulkarni <okulkarni@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "GR-everest-linux-l2@marvell.com" <GR-everest-linux-l2@marvell.com>,
-        Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [EXT] Re: [PATCH net-next 1/2] bnx2x: Utilize firmware
- 7.13.20.0
-Message-ID: <20211027070341.159b15fa@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <PH0PR18MB465598CDD29377C300C3184CC4859@PH0PR18MB4655.namprd18.prod.outlook.com>
-References: <20211026193717.2657-1-manishc@marvell.com>
-        <20211026140759.77dd8818@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-        <PH0PR18MB465598CDD29377C300C3184CC4859@PH0PR18MB4655.namprd18.prod.outlook.com>
+        id S238673AbhJ0Pm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 11:42:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60796 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238707AbhJ0Pm6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 11:42:58 -0400
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C343C061745
+        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 08:40:33 -0700 (PDT)
+Received: by mail-wr1-x433.google.com with SMTP id o14so4839729wra.12
+        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 08:40:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=HBxWl6LYwGRb58E32zkzz9VwsP7mpm0V9udu0IwC1Fg=;
+        b=jL5a+GVB71vvVgDaoqq0O3sdAkGtxotDiHj2DcxTKz+UBbg18PfkZuaYdkfCq3yHuK
+         FOUI3LBsJ4h0He919zrbPWSpO+VHxkTbd57Q7pan6efUDHP0b00h0Gp+Hq+7eZkEwmJ2
+         0Jm5RlR3xHEqzJ7qpW+CzyoubF7x3r1/J4Q3wUau8YNYmMaQVm/i9ZnQLV+5m0ASzhEa
+         2O33nRLTuzBM9MdqiRL03e5XmS5cZWQXWbDnzXiranSlKXGnALowb+85e8m6E9U2wN0/
+         h1HVYoJ7FpzjZcWny7pN5MHOjbotE/8YwKpk2nabeh/PJJHmsj37ncRvYvCKpBIoVN5D
+         yhqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=HBxWl6LYwGRb58E32zkzz9VwsP7mpm0V9udu0IwC1Fg=;
+        b=uf+4DoYoAI/lLR8ufD21eXJSeWY/EA2zo2mRL13UiDraV79CBiJCDCwsaqsRuaLcsI
+         ACg58bW5UPEnJdoWMh1EZCi5yoBzh+8UxdVWAou52wyC2JLT/WakEX2YZyr+i64H37+v
+         adGNZxNlEWfunGR2IxL3ZVDGbg9Nth5plYzq8g6mgKbaHN1XOM1SGff4GSrAKsMC0mN5
+         pgjvAMS1TSRKoFnq+ia/by6a+WRvrDhRQRSqIjH1qIfKK7UDsFCRh7HZDd46R18fDxNc
+         +0vu2u4W4cSlFzfvzalkENrthGjzwm7+dukMB/dCMcIHKR0wjJdz5tZtISgD1mNpNzzb
+         /ILQ==
+X-Gm-Message-State: AOAM532qMmSzXczwM4IcsoLutnpno7NZqIhRdfU6nwvwxW1ETRlO8qT4
+        bM5wMn8poCndDUfapJvuSyuerU++S2Tjeg==
+X-Google-Smtp-Source: ABdhPJxVfn1nrtEZjB8RMH1aVl7G12bbc2Edm5bxAXZUBE9cEHMMpz5u8i4eDDmNdpOFaB+m0RbDoQ==
+X-Received: by 2002:a5d:64ed:: with SMTP id g13mr31060743wri.87.1635349231366;
+        Wed, 27 Oct 2021 08:40:31 -0700 (PDT)
+Received: from localhost.localdomain ([95.148.6.207])
+        by smtp.gmail.com with ESMTPSA id u16sm3674284wmc.21.2021.10.27.08.40.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Oct 2021 08:40:30 -0700 (PDT)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     stable@vger.kernel.org, axboe@kernel.dk, asml.silence@gmail.com,
+        xiaoguang.wang@linux.alibaba.com
+Cc:     io-uring@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
+        Hao Xu <haoxu@linux.alibaba.com>,
+        syzbot+59d8a1f4e60c20c066cf@syzkaller.appspotmail.com,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH v5.10.y 1/1] io_uring: don't take uring_lock during iowq cancel
+Date:   Wed, 27 Oct 2021 15:08:02 +0100
+Message-Id: <20211027140802.1892780-1-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.33.0.1079.g6e70778dc9-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 27 Oct 2021 05:17:43 +0000 Ariel Elior wrote:
-> You may recall we had a discussion on this during our last FW upgrade too.
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-"During our last FW upgrade" is pretty misleading here. The discussion
-seems to have been after user reported that you broke their systems:
+[ Upstream commit 792bb6eb862333658bf1bd2260133f0507e2da8d ]
 
-https://lore.kernel.org/netdev/ffbcf99c-8274-eca1-5166-efc0828ca05b@molgen.mpg.de/
+[   97.866748] a.out/2890 is trying to acquire lock:
+[   97.867829] ffff8881046763e8 (&ctx->uring_lock){+.+.}-{3:3}, at:
+io_wq_submit_work+0x155/0x240
+[   97.869735]
+[   97.869735] but task is already holding lock:
+[   97.871033] ffff88810dfe0be8 (&ctx->uring_lock){+.+.}-{3:3}, at:
+__x64_sys_io_uring_enter+0x3f0/0x5b0
+[   97.873074]
+[   97.873074] other info that might help us debug this:
+[   97.874520]  Possible unsafe locking scenario:
+[   97.874520]
+[   97.875845]        CPU0
+[   97.876440]        ----
+[   97.877048]   lock(&ctx->uring_lock);
+[   97.877961]   lock(&ctx->uring_lock);
+[   97.878881]
+[   97.878881]  *** DEADLOCK ***
+[   97.878881]
+[   97.880341]  May be due to missing lock nesting notation
+[   97.880341]
+[   97.881952] 1 lock held by a.out/2890:
+[   97.882873]  #0: ffff88810dfe0be8 (&ctx->uring_lock){+.+.}-{3:3}, at:
+__x64_sys_io_uring_enter+0x3f0/0x5b0
+[   97.885108]
+[   97.885108] stack backtrace:
+[   97.890457] Call Trace:
+[   97.891121]  dump_stack+0xac/0xe3
+[   97.891972]  __lock_acquire+0xab6/0x13a0
+[   97.892940]  lock_acquire+0x2c3/0x390
+[   97.894894]  __mutex_lock+0xae/0x9f0
+[   97.901101]  io_wq_submit_work+0x155/0x240
+[   97.902112]  io_wq_cancel_cb+0x162/0x490
+[   97.904126]  io_async_find_and_cancel+0x3b/0x140
+[   97.905247]  io_issue_sqe+0x86d/0x13e0
+[   97.909122]  __io_queue_sqe+0x10b/0x550
+[   97.913971]  io_queue_sqe+0x235/0x470
+[   97.914894]  io_submit_sqes+0xcce/0xf10
+[   97.917872]  __x64_sys_io_uring_enter+0x3fb/0x5b0
+[   97.921424]  do_syscall_64+0x2d/0x40
+[   97.922329]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Now you want to make your users' lives even more miserable by pushing
-your changes into stable.
+While holding uring_lock, e.g. from inline execution, async cancel
+request may attempt cancellations through io_wq_submit_work, which may
+try to grab a lock. Delay it to task_work, so we do it from a clean
+context and don't have to worry about locking.
 
-> Please note this is not FW which resides in flash, which may or may not be
-> updated during the life cycle of a specific board deployment, but rather an
-> initialization sequence recipe which happens to contain FW content (as well as
-> many other register and memory initializations) which is activated when driver
-> loads. We do have Flash based FW as well, with which we are fully backwards and
-> forwards compatible. There is no method to build the init sequence in a
-> backwards compatible mode for these devices - it would basically mean
-> duplicating most of the device interaction logic (control plane and data plane).
-> To support these products we need to be able to update this from time to time.
+Cc: <stable@vger.kernel.org> # 5.5+
+Fixes: c07e6719511e ("io_uring: hold uring_lock while completing failed polled io in io_wq_submit_work()")
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Reported-by: Hao Xu <haoxu@linux.alibaba.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[Lee: The first hunk solves a different (double free) issue in v5.10.
+      Only the first hunk of the original patch is relevant to v5.10 AND
+      the first hunk of the original patch is only relevant to v5.10]
+Reported-by: syzbot+59d8a1f4e60c20c066cf@syzkaller.appspotmail.com
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ fs/io_uring.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-And the driver can't support two versions of init sequence because...?
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 26753d0cb4312..361f8ae96c36f 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2075,7 +2075,9 @@ static void io_req_task_cancel(struct callback_head *cb)
+ 	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 
++	mutex_lock(&ctx->uring_lock);
+ 	__io_req_task_cancel(req, -ECANCELED);
++	mutex_unlock(&ctx->uring_lock);
+ 	percpu_ref_put(&ctx->refs);
+ }
+ 
+-- 
+2.33.0.1079.g6e70778dc9-goog
 
-> Please note these devices are EOLing, and therefore this may well be the last
-> update to this FW.
-
-Solid argument.
-
-> The only theoretical way we can think of getting around this if we
-> had to is adding the entire thing as a huge header file and have the
-> driver compile with it. This would detach the dependency on the FW
-> file being present on disk, but has big disadvantages of making the
-> compiled driver huge, and bloating the kernel with redundant headers
-> filled with what is essentially a binary blob. We do make sure to add
-> the FW files to the FW sub tree in advance of modifying the drivers
-> to use them.
-
-All the patch is doing is changing some offsets. Why can't you just
-make the offset the driver uses dependent on the FW version?
-
-Would be great if the engineer who wrote the code could answer that.
