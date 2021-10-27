@@ -2,253 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9220343BF6D
-	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 04:15:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A635A43C086
+	for <lists+stable@lfdr.de>; Wed, 27 Oct 2021 05:09:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232901AbhJ0CR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Oct 2021 22:17:28 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:25314 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232231AbhJ0CR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 22:17:27 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HfBws6886zbhPY;
-        Wed, 27 Oct 2021 10:10:21 +0800 (CST)
-Received: from kwepemm600008.china.huawei.com (7.193.23.88) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.15; Wed, 27 Oct 2021 10:14:59 +0800
-Received: from localhost.localdomain (10.175.112.125) by
- kwepemm600008.china.huawei.com (7.193.23.88) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.15; Wed, 27 Oct 2021 10:14:58 +0800
-From:   Chen Huang <chenhuang5@huawei.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <stable@vger.kernel.org>,
-        <linux-mm@kvack.org>, Chen Huang <chenhuang5@huawei.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.19.y] arm64: Avoid premature usercopy failure
-Date:   Wed, 27 Oct 2021 02:29:07 +0000
-Message-ID: <20211027022907.2617558-1-chenhuang5@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        id S238902AbhJ0DL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Oct 2021 23:11:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59028 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238910AbhJ0DL3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Oct 2021 23:11:29 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5637AC0613B9
+        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 20:09:04 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id 5so4579728edw.7
+        for <stable@vger.kernel.org>; Tue, 26 Oct 2021 20:09:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=+OhYyTKGmAf5Y61RBhMkXMlQv+hOjswu4u5NSWPSjMI=;
+        b=Pa/9DhYKLfIneTeK6zms9OlaOCBm13tQ2vuyxy2Ouj9Np9aqou7qTjAQu3zbeuZZ0N
+         iA1WRa/P5652Ip4iNCdo3GoMWvwyCjQPrZrqoOYzw7n6QAld0+0CgtRZ9VrnCXky9biW
+         w26RdfAhEd2EYrest8xDSfY0JeAyhR4DMow8IQrjYu6iEwOFHj2ja3NoB2C1U8aii0kL
+         QculH8qdZsEA0KAhNqsqo5/Ml9qcmFb0T076wV7BeV1Di+YTosdmjwpqmBKE2bi7FoBH
+         sEsjtQCYrZZCoyY2oepkFvg1TcDhfymFrb+8e780aZTTI5AcDabdZxOb8a5tZb3PdHpS
+         NCFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=+OhYyTKGmAf5Y61RBhMkXMlQv+hOjswu4u5NSWPSjMI=;
+        b=RtNva1l92JVRefNpBzCKkXPpRO5BKudgD0EppAqHXlB3SvmxiQcMEqcgaBFm9oHdn0
+         JY/PWTL/nJhJxKeQ2tWO6HbMftiufZUJzNCWBXX/t+WUX0GxzlI7UC6zjYvV+XQXdZjc
+         FTSiiCBx3zhk9N0q+mDeYZAiqrGUeVaI4LQ4CGdV/D/bTO1CAo2c1zx911XEkqf3+heT
+         oO7avc0cCexsHHN8Hr/OUH6eazkdv6GpgbK0dxYYRcnjIGqKeuTsEw8DkaDQ7c42znhb
+         KhchDe0XuGz0v7TtPJ/bJ2R5Q4Oy0Mc+8U9QZi531+TzZNm36e5u6VrdGEdbFaKm90Qa
+         p+AQ==
+X-Gm-Message-State: AOAM532VVsiDg6WOUsMZPHC0PiB0BxcBzJKE2DF+cCPUYPM8fUWh2hZx
+        t1M6Q4n5/wu3zem01Sj9miIEIl4tPA5vuqjhpro=
+X-Google-Smtp-Source: ABdhPJx0aAikr6nbh5Vqwak8gFWsAynZQVKRJonXGU/PPdnqNxTmITS5edvrBEYd6FmAxgKaUlTAO9M+LgeyuYGoAHs=
+X-Received: by 2002:a17:906:f6c8:: with SMTP id jo8mr6931580ejb.305.1635304142749;
+ Tue, 26 Oct 2021 20:09:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.112.125]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- kwepemm600008.china.huawei.com (7.193.23.88)
-X-CFilter-Loop: Reflected
+Sender: sdavid46620@gmail.com
+Received: by 2002:a17:906:7094:0:0:0:0 with HTTP; Tue, 26 Oct 2021 20:09:02
+ -0700 (PDT)
+From:   "Mr. Mustafa Ali." <muafalia@gmail.com>
+Date:   Wed, 27 Oct 2021 04:09:02 +0100
+X-Google-Sender-Auth: CO1eBgJ9aOREsa77CcNsmKgRE88
+Message-ID: <CAE1Pi3pw4kepZy1Gq93-S+D+cf5pPTC3UMTrZNYOUdXuU8Y3VA@mail.gmail.com>
+Subject: Greetings Dear Friend.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+Hello Friend,
 
-commit 295cf156231ca3f9e3a66bde7fab5e09c41835e0 upstream.
+This message might meet you in utmost surprise. However, It's just my
+urgent need for a foreign partner that made me contact you for this
+transaction. I assured you of honesty and reliability to champion this
+business opportunity. I am a banker by profession in Turkey, and
+currently holding the post of Auditor in Standard Chartered Bank.
 
-Al reminds us that the usercopy API must only return complete failure
-if absolutely nothing could be copied. Currently, if userspace does
-something silly like giving us an unaligned pointer to Device memory,
-or a size which overruns MTE tag bounds, we may fail to honour that
-requirement when faulting on a multi-byte access even though a smaller
-access could have succeeded.
+I have the opportunity of transferring the leftover funds ($15 Million
+Dollars) of one of my clients who died along with his entire family in
+a crisis in Myanmar Asia. I am inviting you for a business deal where
+this money can be shared between us if you agree to my business
+proposal.
 
-Add a mitigation to the fixup routines to fall back to a single-byte
-copy if we faulted on a larger access before anything has been written
-to the destination, to guarantee making *some* forward progress. We
-needn't be too concerned about the overall performance since this should
-only occur when callers are doing something a bit dodgy in the first
-place. Particularly broken userspace might still be able to trick
-generic_perform_write() into an infinite loop by targeting write() at
-an mmap() of some read-only device register where the fault-in load
-succeeds but any store synchronously aborts such that copy_to_user() is
-genuinely unable to make progress, but, well, don't do that...
+Further details of the transfer will be forwarded to you immediately
+after I receive your return letter.
 
-CC: stable@vger.kernel.org
-Reported-by: Chen Huang <chenhuang5@huawei.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/dc03d5c675731a1f24a62417dba5429ad744234e.1626098433.git.robin.murphy@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Chen Huang <chenhuang5@huawei.com>
----
- arch/arm64/lib/copy_from_user.S | 13 ++++++++++---
- arch/arm64/lib/copy_in_user.S   | 20 ++++++++++++++------
- arch/arm64/lib/copy_to_user.S   | 14 +++++++++++---
- 3 files changed, 35 insertions(+), 12 deletions(-)
-
-diff --git a/arch/arm64/lib/copy_from_user.S b/arch/arm64/lib/copy_from_user.S
-index 96b22c0fa343..7cd6eeaa216c 100644
---- a/arch/arm64/lib/copy_from_user.S
-+++ b/arch/arm64/lib/copy_from_user.S
-@@ -39,7 +39,7 @@
- 	.endm
- 
- 	.macro ldrh1 ptr, regB, val
--	uao_user_alternative 9998f, ldrh, ldtrh, \ptr, \regB, \val
-+	uao_user_alternative 9997f, ldrh, ldtrh, \ptr, \regB, \val
- 	.endm
- 
- 	.macro strh1 ptr, regB, val
-@@ -47,7 +47,7 @@
- 	.endm
- 
- 	.macro ldr1 ptr, regB, val
--	uao_user_alternative 9998f, ldr, ldtr, \ptr, \regB, \val
-+	uao_user_alternative 9997f, ldr, ldtr, \ptr, \regB, \val
- 	.endm
- 
- 	.macro str1 ptr, regB, val
-@@ -55,7 +55,7 @@
- 	.endm
- 
- 	.macro ldp1 ptr, regB, regC, val
--	uao_ldp 9998f, \ptr, \regB, \regC, \val
-+	uao_ldp 9997f, \ptr, \regB, \regC, \val
- 	.endm
- 
- 	.macro stp1 ptr, regB, regC, val
-@@ -63,9 +63,11 @@
- 	.endm
- 
- end	.req	x5
-+srcin	.req	x15
- ENTRY(__arch_copy_from_user)
- 	uaccess_enable_not_uao x3, x4, x5
- 	add	end, x0, x2
-+	mov	srcin, x1
- #include "copy_template.S"
- 	uaccess_disable_not_uao x3, x4
- 	mov	x0, #0				// Nothing to copy
-@@ -74,6 +76,11 @@ ENDPROC(__arch_copy_from_user)
- 
- 	.section .fixup,"ax"
- 	.align	2
-+9997:	cmp	dst, dstin
-+	b.ne	9998f
-+	// Before being absolutely sure we couldn't copy anything, try harder
-+USER(9998f, ldtrb tmp1w, [srcin])
-+	strb	tmp1w, [dst], #1
- 9998:	sub	x0, end, dst			// bytes not copied
- 	uaccess_disable_not_uao x3, x4
- 	ret
-diff --git a/arch/arm64/lib/copy_in_user.S b/arch/arm64/lib/copy_in_user.S
-index e56c705f1f23..b20d3a0b3237 100644
---- a/arch/arm64/lib/copy_in_user.S
-+++ b/arch/arm64/lib/copy_in_user.S
-@@ -40,34 +40,36 @@
- 	.endm
- 
- 	.macro ldrh1 ptr, regB, val
--	uao_user_alternative 9998f, ldrh, ldtrh, \ptr, \regB, \val
-+	uao_user_alternative 9997f, ldrh, ldtrh, \ptr, \regB, \val
- 	.endm
- 
- 	.macro strh1 ptr, regB, val
--	uao_user_alternative 9998f, strh, sttrh, \ptr, \regB, \val
-+	uao_user_alternative 9997f, strh, sttrh, \ptr, \regB, \val
- 	.endm
- 
- 	.macro ldr1 ptr, regB, val
--	uao_user_alternative 9998f, ldr, ldtr, \ptr, \regB, \val
-+	uao_user_alternative 9997f, ldr, ldtr, \ptr, \regB, \val
- 	.endm
- 
- 	.macro str1 ptr, regB, val
--	uao_user_alternative 9998f, str, sttr, \ptr, \regB, \val
-+	uao_user_alternative 9997f, str, sttr, \ptr, \regB, \val
- 	.endm
- 
- 	.macro ldp1 ptr, regB, regC, val
--	uao_ldp 9998f, \ptr, \regB, \regC, \val
-+	uao_ldp 9997f, \ptr, \regB, \regC, \val
- 	.endm
- 
- 	.macro stp1 ptr, regB, regC, val
--	uao_stp 9998f, \ptr, \regB, \regC, \val
-+	uao_stp 9997f, \ptr, \regB, \regC, \val
- 	.endm
- 
- end	.req	x5
-+srcin	.req	x15
- 
- ENTRY(__arch_copy_in_user)
- 	uaccess_enable_not_uao x3, x4, x5
- 	add	end, x0, x2
-+	mov	srcin, x1
- #include "copy_template.S"
- 	uaccess_disable_not_uao x3, x4
- 	mov	x0, #0
-@@ -76,6 +78,12 @@ ENDPROC(__arch_copy_in_user)
- 
- 	.section .fixup,"ax"
- 	.align	2
-+9997:	cmp	dst, dstin
-+	b.ne	9998f
-+	// Before being absolutely sure we couldn't copy anything, try harder
-+USER(9998f, ldtrb tmp1w, [srcin])
-+USER(9998f, sttrb tmp1w, [dst])
-+	add	dst, dst, #1
- 9998:	sub	x0, end, dst			// bytes not copied
- 	uaccess_disable_not_uao x3, x4
- 	ret
-diff --git a/arch/arm64/lib/copy_to_user.S b/arch/arm64/lib/copy_to_user.S
-index 6b99b939c50f..cfdbb1fe8d51 100644
---- a/arch/arm64/lib/copy_to_user.S
-+++ b/arch/arm64/lib/copy_to_user.S
-@@ -42,7 +42,7 @@
- 	.endm
- 
- 	.macro strh1 ptr, regB, val
--	uao_user_alternative 9998f, strh, sttrh, \ptr, \regB, \val
-+	uao_user_alternative 9997f, strh, sttrh, \ptr, \regB, \val
- 	.endm
- 
- 	.macro ldr1 ptr, regB, val
-@@ -50,7 +50,7 @@
- 	.endm
- 
- 	.macro str1 ptr, regB, val
--	uao_user_alternative 9998f, str, sttr, \ptr, \regB, \val
-+	uao_user_alternative 9997f, str, sttr, \ptr, \regB, \val
- 	.endm
- 
- 	.macro ldp1 ptr, regB, regC, val
-@@ -58,13 +58,15 @@
- 	.endm
- 
- 	.macro stp1 ptr, regB, regC, val
--	uao_stp 9998f, \ptr, \regB, \regC, \val
-+	uao_stp 9997f, \ptr, \regB, \regC, \val
- 	.endm
- 
- end	.req	x5
-+srcin	.req	x15
- ENTRY(__arch_copy_to_user)
- 	uaccess_enable_not_uao x3, x4, x5
- 	add	end, x0, x2
-+	mov	srcin, x1
- #include "copy_template.S"
- 	uaccess_disable_not_uao x3, x4
- 	mov	x0, #0
-@@ -73,6 +75,12 @@ ENDPROC(__arch_copy_to_user)
- 
- 	.section .fixup,"ax"
- 	.align	2
-+9997:	cmp	dst, dstin
-+	b.ne	9998f
-+	// Before being absolutely sure we couldn't copy anything, try harder
-+	ldrb	tmp1w, [srcin]
-+USER(9998f, sttrb tmp1w, [dst])
-+	add	dst, dst, #1
- 9998:	sub	x0, end, dst			// bytes not copied
- 	uaccess_disable_not_uao x3, x4
- 	ret
--- 
-2.25.1
-
+Best Regards,
+Mr. Mustafa Ali.
+mustafa.ali@rahroco.com
