@@ -2,129 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CE7343D845
-	for <lists+stable@lfdr.de>; Thu, 28 Oct 2021 02:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6D3A43D947
+	for <lists+stable@lfdr.de>; Thu, 28 Oct 2021 04:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229635AbhJ1A7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Oct 2021 20:59:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46254 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229511AbhJ1A7S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 20:59:18 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1215AC061570
-        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 17:56:52 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id y1so3215935plk.10
-        for <stable@vger.kernel.org>; Wed, 27 Oct 2021 17:56:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=zkxEdUKoxg+5khwjvJ7eWJCVOFiLsUnJVePGgEGWsyA=;
-        b=hFddG8tY2ImPSlMtAo5A22um512Y2uvCeu/ZY7JsFSaE246YLR8PsEku6yiQjkPTNf
-         orJc0ZhHiYcitPiAj618co5wAxGKv/zYt40Fy3G5Y7BkFVKyO+FOVUnEFSXYvzkqoV2P
-         782F8/Cgdrz/fiSco0/FmEwCaAbrUAhBQQG11keMyNT0oEb5hp4S+SMpgDx4wUpHbP3K
-         PnDAEVBTDaW8a4u2mr/wG7G+o3gW5iQYbw2O3ijppDHx57WxYJqeStIacXlnkjwDDNc2
-         PY8bxpZ73wgMo3uzwTsINe1wwjIplAoQa/C9ngahqUBn/LtgmlcB9pKUqk4s9U/+j6F8
-         TE+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=zkxEdUKoxg+5khwjvJ7eWJCVOFiLsUnJVePGgEGWsyA=;
-        b=nUjXIrsOb0NRyBCuJvWTq3sL/rA+Ro01izHGGqX3j3FlOOtZBD+jzDW3vC5xFkXWWB
-         YYfNVh5QdEtoOReH0L+5r8/dl406WT5qOEuP9fC2sPJ/uT9E4iOcwd9i5sqqa6UWqlsh
-         jaTDuN9ePa3nxcKUeNT5KOpRnJ2ZM5v9887GDkdxKTcOEN2ASHOggu9Vwu9lZw3rTbZ+
-         3/IE1xGJ1X03DGiE8ZDxv4qoHNXxu7r1ypwCUhf/7wHAmUWwmVGd2/WaYTxmE24ZnGmF
-         FKgl9kX+eVLrHvLq2luRzJdEV59VnzqpZmsjen9YpdE4qkSGqhQN3T+OOAGoBwQT7XnJ
-         j3NA==
-X-Gm-Message-State: AOAM532mhrMHUt5qFE0M7TgBSwykT11bVlDkAVCMukXUIJM25kxWDkFX
-        uTYGfwiP7G/HRyQ86/mL0PXgEPGudxnz+gjGDGc=
-X-Google-Smtp-Source: ABdhPJyz4myHX5hR/GoEpbtMjsnmAkDnJcNsecWpAnoNVL+FSqQIuH/JanEfh2vGiTXdAHy5I6favg==
-X-Received: by 2002:a17:90b:1988:: with SMTP id mv8mr1094991pjb.193.1635382611474;
-        Wed, 27 Oct 2021 17:56:51 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d6sm1101458pfa.39.2021.10.27.17.56.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Oct 2021 17:56:51 -0700 (PDT)
-Message-ID: <6179f553.1c69fb81.37cc4.4fa6@mx.google.com>
-Date:   Wed, 27 Oct 2021 17:56:51 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229811AbhJ1CXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Oct 2021 22:23:24 -0400
+Received: from mailgw01.mediatek.com ([60.244.123.138]:44216 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S229809AbhJ1CXY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Oct 2021 22:23:24 -0400
+X-UUID: 1de94ce069ba4bd59c11ecb3b1595b5d-20211028
+X-UUID: 1de94ce069ba4bd59c11ecb3b1595b5d-20211028
+Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
+        (envelope-from <wenbin.mei@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 52249534; Thu, 28 Oct 2021 10:20:54 +0800
+Received: from mtkmbs10n1.mediatek.inc (172.21.101.34) by
+ mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
+ Thu, 28 Oct 2021 10:20:52 +0800
+Received: from localhost.localdomain (10.17.3.154) by mtkmbs10n1.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.2.792.15 via Frontend
+ Transport; Thu, 28 Oct 2021 10:20:52 +0800
+From:   Wenbin Mei <wenbin.mei@mediatek.com>
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+CC:     Matthias Brugger <matthias.bgg@gmail.com>,
+        Chaotian Jing <chaotian.jing@mediatek.com>,
+        Chun-Hung Wu <chun-hung.wu@mediatek.com>,
+        "Yong Mao" <yong.mao@mediatek.com>, <linux-mmc@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <srv_heupstream@mediatek.com>,
+        "Wenbin Mei" <wenbin.mei@mediatek.com>, <stable@vger.kernel.org>
+Subject: [PATCH] mmc: mediatek: move cqhci init behind ungate clock
+Date:   Thu, 28 Oct 2021 10:20:49 +0800
+Message-ID: <20211028022049.22129-1-wenbin.mei@mediatek.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.14.15-7-g2c815de0cfd2
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.14 baseline: 118 runs,
- 1 regressions (v5.14.15-7-g2c815de0cfd2)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 118 runs, 1 regressions (v5.14.15-7-g2c815de=
-0cfd2)
+We must enable clock before cqhci init, because crypto needs
+read information from CQHCI registers, otherwise, it will hang
+in MediaTek mmc host controller.
 
-Regressions Summary
--------------------
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
+Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
+Fixes: 88bd652b3c74 ("mmc: mediatek: command queue support")
+Cc: stable@vger.kernel.org
 ---
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ drivers/mmc/host/mtk-sd.c | 38 +++++++++++++++++++-------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
 
+diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
+index b124cfee05a1..943940b44e83 100644
+--- a/drivers/mmc/host/mtk-sd.c
++++ b/drivers/mmc/host/mtk-sd.c
+@@ -2656,6 +2656,25 @@ static int msdc_drv_probe(struct platform_device *pdev)
+ 		host->dma_mask = DMA_BIT_MASK(32);
+ 	mmc_dev(mmc)->dma_mask = &host->dma_mask;
+ 
++	host->timeout_clks = 3 * 1048576;
++	host->dma.gpd = dma_alloc_coherent(&pdev->dev,
++				2 * sizeof(struct mt_gpdma_desc),
++				&host->dma.gpd_addr, GFP_KERNEL);
++	host->dma.bd = dma_alloc_coherent(&pdev->dev,
++				MAX_BD_NUM * sizeof(struct mt_bdma_desc),
++				&host->dma.bd_addr, GFP_KERNEL);
++	if (!host->dma.gpd || !host->dma.bd) {
++		ret = -ENOMEM;
++		goto release_mem;
++	}
++	msdc_init_gpd_bd(host, &host->dma);
++	INIT_DELAYED_WORK(&host->req_timeout, msdc_request_timeout);
++	spin_lock_init(&host->lock);
++
++	platform_set_drvdata(pdev, mmc);
++	msdc_ungate_clock(host);
++	msdc_init_hw(host);
++
+ 	if (mmc->caps2 & MMC_CAP2_CQE) {
+ 		host->cq_host = devm_kzalloc(mmc->parent,
+ 					     sizeof(*host->cq_host),
+@@ -2676,25 +2695,6 @@ static int msdc_drv_probe(struct platform_device *pdev)
+ 		mmc->max_seg_size = 64 * 1024;
+ 	}
+ 
+-	host->timeout_clks = 3 * 1048576;
+-	host->dma.gpd = dma_alloc_coherent(&pdev->dev,
+-				2 * sizeof(struct mt_gpdma_desc),
+-				&host->dma.gpd_addr, GFP_KERNEL);
+-	host->dma.bd = dma_alloc_coherent(&pdev->dev,
+-				MAX_BD_NUM * sizeof(struct mt_bdma_desc),
+-				&host->dma.bd_addr, GFP_KERNEL);
+-	if (!host->dma.gpd || !host->dma.bd) {
+-		ret = -ENOMEM;
+-		goto release_mem;
+-	}
+-	msdc_init_gpd_bd(host, &host->dma);
+-	INIT_DELAYED_WORK(&host->req_timeout, msdc_request_timeout);
+-	spin_lock_init(&host->lock);
+-
+-	platform_set_drvdata(pdev, mmc);
+-	msdc_ungate_clock(host);
+-	msdc_init_hw(host);
+-
+ 	ret = devm_request_irq(&pdev->dev, host->irq, msdc_irq,
+ 			       IRQF_TRIGGER_NONE, pdev->name, host);
+ 	if (ret)
+-- 
+2.25.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.15-7-g2c815de0cfd2/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.15-7-g2c815de0cfd2
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2c815de0cfd2582f3ceff88c2ce806ba47f7cfed =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6179bee0a227d911553358ff
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.15-=
-7-g2c815de0cfd2/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.15-=
-7-g2c815de0cfd2/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
--xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6179bee0a227d91155335=
-900
-        failing since 3 days (last pass: v5.14.14-64-gb66eb77f69e4, first f=
-ail: v5.14.14-124-g710e5bbf51e3) =
-
- =20
