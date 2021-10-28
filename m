@@ -2,97 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8384043DBDA
-	for <lists+stable@lfdr.de>; Thu, 28 Oct 2021 09:21:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EC8043DC15
+	for <lists+stable@lfdr.de>; Thu, 28 Oct 2021 09:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229768AbhJ1HXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Oct 2021 03:23:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56026 "EHLO mail.kernel.org"
+        id S229925AbhJ1Hf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Oct 2021 03:35:56 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:44734 "EHLO m43-7.mailgun.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229656AbhJ1HXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 Oct 2021 03:23:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 686F560E54;
-        Thu, 28 Oct 2021 07:21:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1635405668;
-        bh=e/wyzVfkTV0dR6YteYW1jvF1J3q6I2+0CEvxKq0nxCE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JBkj/hcGqPxgoS4c4hfbNCE/wp/WzptPZxH+uLq1JsS0EkK8xuq2B+BFYT/M9kMdW
-         B4lilA5IPudFk9zJtUWeypRWHZ7ScqjZP4NOuaM9yorU8jk9wi/hIqpxA9d23HhHwP
-         C7RH/AcL97uMfN+5WAwkKf2+85pUtwc5Bcp05lYaO1hCYYYwnk0Q3u9p4ytVX0Kvef
-         mz7WaNfGSLj5r54b82U5boDP+OLa6+8TS2VerEyuxRIwCX5V07bCEvtvTPMSuBTaTY
-         D+D/jKbWRdviY1Qme+7BkNA36znep6njYk5ZeGs1LkQOkpyxmcXDRx0lAn4ZF71B34
-         0ujB0wUI0dsSA==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1mfziT-00023a-77; Thu, 28 Oct 2021 09:20:49 +0200
-Date:   Thu, 28 Oct 2021 09:20:49 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Brian Norris <briannorris@chromium.org>
-Cc:     Kalle Valo <kvalo@codeaurora.org>,
+        id S229813AbhJ1Hfz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 Oct 2021 03:35:55 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1635406409; h=Date: Message-ID: Cc: To: References:
+ In-Reply-To: From: Subject: Content-Transfer-Encoding: MIME-Version:
+ Content-Type: Sender; bh=F+z+0dB7BGOziQgInGvVCwFNwMPov/p7cow2cb6xehI=;
+ b=q1NAeaHJoODnndvln2JqpHTs/5gFfyJFk+S6Pu5RjxoGBdFcOfXeU5hrQQbdvvAHX/b7fFIu
+ pMDpUNQxKpMDUMuvTYyP+im4f2gbwH2C5+atmeL2y6YH+3T5PE9o2rTwONnawMpoDrwiVsUL
+ IM06CyFvNWxvN/vfJr2LyUKC1UI=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n01.prod.us-east-1.postgun.com with SMTP id
+ 617a523a545d7d365f99cad1 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Thu, 28 Oct 2021 07:33:14
+ GMT
+Sender: kvalo=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 95E73C43460; Thu, 28 Oct 2021 07:33:13 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.5 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        MISSING_DATE,SPF_FAIL,URIBL_BLOCKED autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from tykki.adurom.net (tynnyri.adurom.net [51.15.11.48])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 4C7E0C4338F;
+        Thu, 28 Oct 2021 07:33:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 smtp.codeaurora.org 4C7E0C4338F
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=codeaurora.org
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 1/4] ath10k: fix control-message timeout
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <20211025120522.6045-2-johan@kernel.org>
+References: <20211025120522.6045-2-johan@kernel.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Herton Ronaldo Krzesinski <herton@canonical.com>,
+        Hin-Tak Leung <htl10@users.sourceforge.net>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
         Amitkumar Karwar <amitkarwar@gmail.com>,
-        Ganapathi Bhat <ganapathi017@gmail.com>,
-        Sharvari Harisangam <sharvari.harisangam@nxp.com>,
-        Xinming Hu <huxinming820@gmail.com>,
+        Siva Rebbagondla <siva8118@gmail.com>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
         linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Amitkumar Karwar <akarwar@marvell.com>
-Subject: Re: [PATCH v2 3/3] mwifiex: fix division by zero in fw download path
-Message-ID: <YXpPUdj0wJG2L5ra@hovoldconsulting.com>
-References: <20211027080819.6675-1-johan@kernel.org>
- <20211027080819.6675-4-johan@kernel.org>
- <CA+ASDXMYbP3jQPeOpDDktHgp4X81AH41cgiLFgz-YHVPyZO1sw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+ASDXMYbP3jQPeOpDDktHgp4X81AH41cgiLFgz-YHVPyZO1sw@mail.gmail.com>
+        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org,
+        Erik Stromdahl <erik.stromdahl@gmail.com>
+User-Agent: pwcli/0.1.0-git (https://github.com/kvalo/pwcli/) Python/3.7.3
+Message-ID: <163540638853.24978.12157539503424520256.kvalo@codeaurora.org>
+Date:   Thu, 28 Oct 2021 07:33:13 +0000 (UTC)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 27, 2021 at 11:22:39AM -0700, Brian Norris wrote:
-> On Wed, Oct 27, 2021 at 1:12 AM Johan Hovold <johan@kernel.org> wrote:
-> > --- a/drivers/net/wireless/marvell/mwifiex/usb.c
-> > +++ b/drivers/net/wireless/marvell/mwifiex/usb.c
-> > @@ -505,6 +505,22 @@ static int mwifiex_usb_probe(struct usb_interface *intf,
-> >                 }
-> >         }
-> >
-> > +       switch (card->usb_boot_state) {
-> > +       case USB8XXX_FW_DNLD:
-> > +               /* Reject broken descriptors. */
-> > +               if (!card->rx_cmd_ep || !card->tx_cmd_ep)
-> > +                       return -ENODEV;
+Johan Hovold <johan@kernel.org> wrote:
+
+> USB control-message timeouts are specified in milliseconds and should
+> specifically not vary with CONFIG_HZ.
 > 
-> ^^ These two conditions are applicable to USB8XXX_FW_READY too, right?
+> Fixes: 4db66499df91 ("ath10k: add initial USB support")
+> Cc: stable@vger.kernel.org      # 4.14
+> Cc: Erik Stromdahl <erik.stromdahl@gmail.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 
-Right, but I didn't want to add an incomplete set of constraints.
+2 patches applied to ath-next branch of ath.git, thanks.
 
-I couldn't find any documentation (e.g. lsusb -v) for what the
-descriptors are supposed to look like, but judging from the code,
-something like
+528613232423 ath10k: fix control-message timeout
+a066d28a7e72 ath6kl: fix control-message timeout
 
-	if (!card->rx_cmd_ep || !card->tx_cmd_ep)
-		return -ENODEV;
-	if (!card->rx_data_ep || !card->port[0].tx_data_ep)
-		return -ENODEV;
+-- 
+https://patchwork.kernel.org/project/linux-wireless/patch/20211025120522.6045-2-johan@kernel.org/
 
-should do. But I'm not sure about the second tx endpoint,
-card->port[1].tx_data_ep, for which support was added later and which
-the driver appears to be able to manage without.
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
 
-Either way it has nothing to do with the division-by-zero and should be
-added separately.
-
-> > +               if (card->bulk_out_maxpktsize == 0)
-> > +                       return -ENODEV;
-> > +               break;
-> > +       case USB8XXX_FW_READY:
-> > +               /* Assume the driver can handle missing endpoints for now. */
-> > +               break;
-> > +       default:
-> > +               WARN_ON(1);
-> > +               return -ENODEV;
-> > +       }
-
-Johan
