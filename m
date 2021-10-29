@@ -2,129 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C020743FEC9
-	for <lists+stable@lfdr.de>; Fri, 29 Oct 2021 16:56:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C489E43FEFD
+	for <lists+stable@lfdr.de>; Fri, 29 Oct 2021 17:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229894AbhJ2O7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Oct 2021 10:59:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51798 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229968AbhJ2O7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Oct 2021 10:59:02 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15326C061570
-        for <stable@vger.kernel.org>; Fri, 29 Oct 2021 07:56:34 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id x5so340717pgk.11
-        for <stable@vger.kernel.org>; Fri, 29 Oct 2021 07:56:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=oaiD7/JnwyVy96xZZzFSS6wpe2m2XccwYUgbUNTXSQE=;
-        b=T9xwKroxLBcoXr9vg/XhiUDmERAbJg2mHELgatp49ScpG2tPuBQ+EchK2T8M3mE2E8
-         +MdaZ9hzevzhLh+pnAmt2YpMn/Vxrhi3gbiqQyykx4N9oN8mxIJXppPGi1BaHRRltcuJ
-         zREOLPlsywjqMxYmdFNUNAGwdqRIMn4We7ZyvwWrPp3Ky6h2OSozlNKPlnofQMZKeniu
-         W96sB4AXhl5xU8ukZTfx8iOa8lOujLjiZtGpdaJJBkBh66U+QndnLQ6CxqjeZnwYcBfy
-         +GQW4jLR0WvhBGQamK0tANlzgFw4t0W2/3wyLYHXlGG3Ji44y2ArFEM4bdhTr7W/Carn
-         exqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=oaiD7/JnwyVy96xZZzFSS6wpe2m2XccwYUgbUNTXSQE=;
-        b=ZDxmPTSmMBa4cfzcd2T0FlIjU692GGIeRRYDg2Wnx2wtY5dgRvPaN9D7N/osRchYWt
-         QfIcSq2tBiB4eeJSfW6Zxh6OO0h+LSjm6m/0Vh3rqGkai6KGpUbMcPSA96nP4bAS+wBq
-         /rbyN4+rmVupCFKPuSchO4wqIzpdpw9gnVrb0HedrAj4auv5LJJftqi2r2gNoWTxDFZ4
-         L8TH9zmKki9vfFByW370dy7cquuAFkYdC2dBUp3PTJXxbJgPRLWyWPmOAQKs5P1CLnru
-         4bE+opuEMn/ww/zZWizwlZvjhfdFLR8FRHtZoLqf3AOZMXJiaedLAAxUJzjU1OkalJTR
-         g9Zg==
-X-Gm-Message-State: AOAM532MMB9jMTtsPpGXX7wmYDdrwO0H8icNdr+BIB9qExMnjWpBeJXV
-        hDqnBjX125KjvdUizO+rXWj/8aqj2yD4mupB
-X-Google-Smtp-Source: ABdhPJxrvWmUxaaHEpN3U0xRaNeFft6vF3BrHqfdifFHWqX0wxzHear1FGxYglnaNoS444EtxzfzJQ==
-X-Received: by 2002:a65:6643:: with SMTP id z3mr8659761pgv.16.1635519393503;
-        Fri, 29 Oct 2021 07:56:33 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k22sm7649866pfu.148.2021.10.29.07.56.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Oct 2021 07:56:33 -0700 (PDT)
-Message-ID: <617c0ba1.1c69fb81.be5e1.4ebf@mx.google.com>
-Date:   Fri, 29 Oct 2021 07:56:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229900AbhJ2PH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Oct 2021 11:07:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59076 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229712AbhJ2PH2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 Oct 2021 11:07:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83CC761166;
+        Fri, 29 Oct 2021 15:04:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1635519900;
+        bh=MUYeiAaozhKHUbA+9acaxgzevRgCsoyWy0L9+v730e8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FVxnP24lmTk7GUjVwiXovLHeEWC8ZzMMn4bWo7WPQJM2N1RrYFETzL7ytQkOX6xtD
+         0fv0DIt1/4ReeAEuis7w6qLNvlv5DKmMpY0qCLTiUzS4z+GlDcLhXKt9FWavzm/ZtJ
+         cBg/kkrmDWAS/UmMbdjb1HIjl++ZcMlJR0Lg1mUg=
+Date:   Fri, 29 Oct 2021 17:04:57 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ovidiu Panait <ovidiu.panait@windriver.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 0/3] ipv4/ipv6: backport fixes for CVE-2021-20322
+Message-ID: <YXwNmcIcmOYTRhG2@kroah.com>
+References: <20211028190901.1839515-1-ovidiu.panait@windriver.com>
+ <YXulOpILxpS+ljKY@kroah.com>
+ <cdf08090-1f48-4a90-4c68-139b706fdd88@windriver.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.14.15-16-g77738d315c10
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.14 baseline: 163 runs,
- 1 regressions (v5.14.15-16-g77738d315c10)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cdf08090-1f48-4a90-4c68-139b706fdd88@windriver.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 163 runs, 1 regressions (v5.14.15-16-g77738d=
-315c10)
+On Fri, Oct 29, 2021 at 11:17:16AM +0300, Ovidiu Panait wrote:
+> Hi Greg,
+> 
+> On 29.10.2021 10:39, Greg KH wrote:
+> > [Please note: This e-mail is from an EXTERNAL e-mail address]
+> > 
+> > On Thu, Oct 28, 2021 at 10:08:58PM +0300, Ovidiu Panait wrote:
+> > > The following commits are needed to fix CVE-2021-20322:
+> > > ipv4:
+> > > [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6457378fe796815c973f631a1904e147d6ee33b1
+> > > [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=67d6d681e15b578c1725bad8ad079e05d1c48a8e
+> > > 
+> > > ipv6:
+> > > [3] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4785305c05b25a242e5314cc821f54ade4c18810
+> > > [4] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a00df2caffed3883c341d5685f830434312e4a43
+> > > 
+> > > Commit [2] is already present in 4.19 stable, so backport the
+> > > remaining three fixes with minor context adjustments.
+> > > 
+> > > Eric Dumazet (3):
+> > >    ipv4: use siphash instead of Jenkins in fnhe_hashfun()
+> > >    ipv6: use siphash in rt6_exception_hash()
+> > >    ipv6: make exception cache less predictible
+> > > 
+> > >   net/ipv4/route.c | 12 ++++++------
+> > >   net/ipv6/route.c | 25 ++++++++++++++++++-------
+> > >   2 files changed, 24 insertions(+), 13 deletions(-)
+> > > 
+> > > --
+> > > 2.25.1
+> > > 
+> > You sent 0/3 but only 2 patches showed up?
+> > 
+> > Can you please resend all 3?
+> 
+> I tried resending the full patchset, but the last patch is still not showing
+> up.
+> 
+> git send-email doesn't report any errors:
+> 
+> OK. Log says:
+> MAIL FROM:<ovidiu.panait@windriver.com>
+> RCPT TO:<stable@vger.kernel.org>
+> RCPT TO:<gregkh@linuxfoundation.org>
+> From: Ovidiu Panait <ovidiu.panait@windriver.com>
+> To: stable@vger.kernel.org
+> Cc: gregkh@linuxfoundation.org
+> Subject: [PATCH 4.19 3/3] ipv6: make exception cache less predictible
+> Date: Fri, 29 Oct 2021 10:50:27 +0300
+> Message-Id: <20211029075027.1910142-4-ovidiu.panait@windriver.com>
+> X-Mailer: git-send-email 2.25.1
+> In-Reply-To: <20211029075027.1910142-1-ovidiu.panait@windriver.com>
+> References: <20211029075027.1910142-1-ovidiu.panait@windriver.com>
+> MIME-Version: 1.0
+> Content-Transfer-Encoding: 8bit
+> 
+> Result: 250
+> 
+> 
+> I have attached the 4.19 backport of a00df2caffed ("ipv6: make exception
+> cache less predictible").
 
-Regressions Summary
--------------------
+Odd, it did not come to me either.  I've taken the attached file, thanks.
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.15-16-g77738d315c10/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.15-16-g77738d315c10
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      77738d315c10f6f12e48e80af49ee313f59d2456 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/617bdb91e55e86cff8335941
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.15-=
-16-g77738d315c10/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.15-=
-16-g77738d315c10/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/617bdb91e55e86cff8335=
-942
-        failing since 4 days (last pass: v5.14.14-64-gb66eb77f69e4, first f=
-ail: v5.14.14-124-g710e5bbf51e3) =
-
- =20
+greg k-h
