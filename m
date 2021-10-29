@@ -2,228 +2,288 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 756C643F899
-	for <lists+stable@lfdr.de>; Fri, 29 Oct 2021 10:10:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 884D243F8AC
+	for <lists+stable@lfdr.de>; Fri, 29 Oct 2021 10:18:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232424AbhJ2IMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Oct 2021 04:12:41 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:30825 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232396AbhJ2IMk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Oct 2021 04:12:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1635495010;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Xu96aStupZygtVSLHvKF+rN1vtm48eum6wSRQF0b9e4=;
-        b=KDTB7NtJvp7LvXn0CxD2NyvNyrZSfwLGv0d0+5+w1HAXk77rRWI2G4kWxCcUJz91qHvjkU
-        c13J9U+6uRXYNr5ONhkuln7FlQ8oKtBppS3FZedhtqtCtGdEnhcerMemB/EeOJIEGOBzht
-        tX5dtT576HPBu9QaUHiugGkeAbocM9A=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-152-qORkm1_AP4-H-OzguCcz0g-1; Fri, 29 Oct 2021 04:10:08 -0400
-X-MC-Unique: qORkm1_AP4-H-OzguCcz0g-1
-Received: by mail-ed1-f71.google.com with SMTP id r25-20020a05640216d900b003dca3501ab4so8406146edx.15
-        for <stable@vger.kernel.org>; Fri, 29 Oct 2021 01:10:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:from:to:cc:references:in-reply-to
-         :content-transfer-encoding;
-        bh=Xu96aStupZygtVSLHvKF+rN1vtm48eum6wSRQF0b9e4=;
-        b=CPhJ4lce4MTON6W9CNrHT0w+OiJsOEtwiT47ysepKM/HwjFqxkjAXunBX6ZbKzLUoH
-         OYRZ/i/WkbPPwnR+oERiFlxaSBe3bDhz5LJRHaZJI0e9vcETp4FXqFHv+OJT6sCyiNqS
-         5Rr5InGl91sZGTipsBSTmV/nzExZQU2K4mXpky4LCNMfXh/xwL8go5Qx7xlIbHGLpF6A
-         VeBMGllvv9Y5voUOR8vQt077u6i95+M03h6zCL/ZSK6b1nlzhFUIFv9fvx5qEwGO4cnd
-         rcpx58vlllX0aL8+/F1x5vsGCGezD8HIR4pgXpRcY8oXZ8oIXo10Ey8VoOcEZofI8Lib
-         bMNA==
-X-Gm-Message-State: AOAM530ZE0CVtR2yF3GT4z0ge07Du4IS67jHdnsRkMplKSVI/XIF9k+/
-        EdxUhFxy7DBYXYuf/hAGhrFJ0hh/6YR01KL7B3Snf/Aqwpyj+mfrZhnVng9Vb8wGokHrYqI7uvD
-        fTHpyDbg3CtH5tOli
-X-Received: by 2002:a17:907:a089:: with SMTP id hu9mr12035232ejc.70.1635495007380;
-        Fri, 29 Oct 2021 01:10:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz+2ZyHD1jzsaI7gKk3psM2BsN5hgt5uesc1AMIXYBo/23b9OFF/3dpCObBH8E8pCm21h7d1Q==
-X-Received: by 2002:a17:907:a089:: with SMTP id hu9mr12035214ejc.70.1635495007158;
-        Fri, 29 Oct 2021 01:10:07 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:c1e:bf00:1054:9d19:e0f0:8214? (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id ne2sm2519895ejc.44.2021.10.29.01.10.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 29 Oct 2021 01:10:06 -0700 (PDT)
-Message-ID: <82035130-d810-9f0b-259e-61280de1d81f@redhat.com>
-Date:   Fri, 29 Oct 2021 10:10:05 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH v5 1/2] x86/PCI: Ignore E820 reservations for bridge
- windows on newer systems
+        id S232414AbhJ2IUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Oct 2021 04:20:50 -0400
+Received: from mx0a-0064b401.pphosted.com ([205.220.166.238]:15890 "EHLO
+        mx0a-0064b401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232438AbhJ2IUt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Oct 2021 04:20:49 -0400
+Received: from pps.filterd (m0250810.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19T7uLpQ014216;
+        Fri, 29 Oct 2021 01:18:19 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=subject : to : cc
+ : references : from : message-id : date : in-reply-to : content-type :
+ mime-version; s=PPS06212021;
+ bh=MtZW+xb/VqfffBgoHg5+12/Z5RAl4D+IqDz1Mueywug=;
+ b=ZwGEIIeET7Ftvo4jBzlHrjmOWtEoM6gGxs29XSM3wbknw7rZVd0fm0wNgOUY/ef8B1I5
+ HZpocznU0d4ntV66E88lV2U/lqGbY072SUVL4w1uhScpBMfpi1RosGAew38t8dEzc7pL
+ 52T3UKvwMlL058Z7cJAcTcIjFavEcpZemFTTJFtx/+jE0L48gjZSGxqvclswJfAaCGw0
+ wQgInn0VVFXTzWa9X80nVA+hKfqAFVKESWCSOgWZAnlcl4t4xu7yuu0D1vm7mJqtlYIp
+ QpWh8JYwxuc2GkWS/VKjXsKfPD9a21ZKFjlSSdU7Ha7bc+/2M5/TEn31RtBReVRMBO08 EA== 
+Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2169.outbound.protection.outlook.com [104.47.56.169])
+        by mx0a-0064b401.pphosted.com with ESMTP id 3bycjw9h8j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 29 Oct 2021 01:18:19 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Rl0W4ab08K82QBRqIUKIgPCrPiEYXe0nGykMCx//DCnDJG3pDNHgX/PbQ6Pr5hoLK0OGnC6AxkzID+SiOuO4otmRpdfqhY8ULgPFXaALqHIXh2cn41yP2t2vBlHc4TYv36B6rlO5+GyhzUQMD92waAc1hVLgA1Iw0z6EghhNRejFkO/wefbm3m7MHh2gaPxb+3GbIe84kywGW6OviFT6H0VxyzCVhfkNgqllCi7NM/oyYp4P7cTF1xBQ6UpEequAupI0IgnPQxbrfp8v8gJ5eNMazPO4VfTrg/XuPm0cKF0bATdICRLmEFRpnFVPc/4zlnStsaLt96i5vw6RgZJaCA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=MtZW+xb/VqfffBgoHg5+12/Z5RAl4D+IqDz1Mueywug=;
+ b=bT/+lJq0K8+x8/t6uOBL1GZdavXppZxbztHuJTTPDsgB5zxJ3AHZgsMe9c2ZiaAvdAMwgDaky+qef7O+uNTztJUBOAmF8BWPaje7lKgPx0NcVLss8s1FHEQkn0O6wB2U3fsgMPxpIt1Bq8vCm5m4SpHID1Rw3Bn39dh6RvhI7zWnynDuhkDeVM/N58MswPOsPRaN/nkYguF+8rt/Tw5eD/Msw5kLWKi8t6IBEUYVwAVI+WpdoWFBiY7BongBO2C9PzpX1ypRqwUF4FYoh71NwB5OInwP934IcvlZK3cmUzuhTzEzYvVokRgBYoql+1suuf1+4IFXMm3p+Xan00gVeg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=windriver.com; dmarc=pass action=none
+ header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none
+ header.from=windriver.com;
+Received: from BN9PR11MB5321.namprd11.prod.outlook.com (2603:10b6:408:136::8)
+ by BN0PR11MB5727.namprd11.prod.outlook.com (2603:10b6:408:162::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4649.15; Fri, 29 Oct
+ 2021 08:18:17 +0000
+Received: from BN9PR11MB5321.namprd11.prod.outlook.com
+ ([fe80::98b4:7a11:22a8:3916]) by BN9PR11MB5321.namprd11.prod.outlook.com
+ ([fe80::98b4:7a11:22a8:3916%7]) with mapi id 15.20.4649.015; Fri, 29 Oct 2021
+ 08:18:17 +0000
+Subject: Re: [PATCH 4.19 0/3] ipv4/ipv6: backport fixes for CVE-2021-20322
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+References: <20211028190901.1839515-1-ovidiu.panait@windriver.com>
+ <YXulOpILxpS+ljKY@kroah.com>
+From:   Ovidiu Panait <ovidiu.panait@windriver.com>
+Message-ID: <cdf08090-1f48-4a90-4c68-139b706fdd88@windriver.com>
+Date:   Fri, 29 Oct 2021 11:17:16 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
+In-Reply-To: <YXulOpILxpS+ljKY@kroah.com>
+Content-Type: multipart/mixed;
+ boundary="------------36A833CC57B22FBD3667A872"
 Content-Language: en-US
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        =?UTF-8?Q?Krzysztof_Wilczy=c5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Myron Stowe <myron.stowe@redhat.com>,
-        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>, linux-acpi@vger.kernel.org,
-        linux-pci@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org,
-        =?UTF-8?Q?Benoit_Gr=c3=a9goire?= <benoitg@coeus.ca>,
-        Hui Wang <hui.wang@canonical.com>, stable@vger.kernel.org,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
-References: <20211022012034.GA2703195@bhelgaas>
- <75d1ef5a-13d9-9a67-0139-90b27b084c84@redhat.com>
-In-Reply-To: <75d1ef5a-13d9-9a67-0139-90b27b084c84@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: VI1PR08CA0125.eurprd08.prod.outlook.com
+ (2603:10a6:800:d4::27) To BN9PR11MB5321.namprd11.prod.outlook.com
+ (2603:10b6:408:136::8)
+MIME-Version: 1.0
+Received: from [128.224.125.152] (46.97.150.20) by VI1PR08CA0125.eurprd08.prod.outlook.com (2603:10a6:800:d4::27) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4649.14 via Frontend Transport; Fri, 29 Oct 2021 08:18:16 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: e28a87c2-355d-4d55-3137-08d99ab4a8e4
+X-MS-TrafficTypeDiagnostic: BN0PR11MB5727:
+X-Microsoft-Antispam-PRVS: <BN0PR11MB5727D29AB7AA459D8363A071FE879@BN0PR11MB5727.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: tTL3QNfVsxZA35nhiwV67ESYPkqCAT8p+kYr8VpdZQYdow5QQyEEtD6i2kNqePv8FKjJ36V2pKVR2N8n2AEfkSx7ZN4k5wmUuHyYKS/dg+KgVfBlnnO3PhMu1/VBAmKTg1D2WI/zG7Gty4XqNd95O1XnNqBf4hrJ+VF5dfU3ZlzPe/nr3xOz/DGB0xsZ05hnNT0Tk5nEzRsxNURJZEpZAlcTHwNU7osvERlsDlviFGe3+9wklE5tQqvUfLsANdGmuDm9ewcAaU9Kg3Lix8mtqE9JDprnc90QGkssul+ksqfbRVV9a9UWwF9/mXX6uxqj7k8i0vvs622wIpZvldPYNVJ2Jwyfgx7UFYAv+Y/e/FTMp032gQbUyvbHNGGy1l5FFwE6KHCXxY5+vz1rzYUfNrHk3titGNfZKrqqbe7XKe/P6OrfOHg9jw0yR1hhWAqp6ooLPPIlVTw3O5kQWo2Czk33l3mSx+NSEPXLv/RRxwrVvYNClFfhuyATeRcD5yY5AKZ92qqyZPYwbxhGsshHsRTLNcK1+eQcn9RS34LfoVX+je4GvbQOpKGkmSfsf8gTdKsNI2PKt54dImrHgHCd61zqHoPMxVfhEjBEMGms/tSlstTQzqCOAhxR9FHx5ReC/j1nG1B/GVYm4/9eDKw2IM0wTdyipQHiSAyB504a2WiGhQHGZ/jxM35Inah6bguKTZY3WtHNlT4ehrXK78g2a+wWWzgKlnXYmt8X+nhMMI/rlK+zfeHgTlYfUCFDf5K2Qjyn5zYyr+ZARe9/vQMUon1DwAS1svPcQWMlLniU+gE6Te8bpeogi+EKEsa34Wj84Ptj9DFwP4mdGJPXRYCOZfCttWwQ0LqaFQfvRHVo5pQHr7ZF/oMnYVmRwBCWG2PJPaDNNCy/6ERQpfJVGgZ5v7zoTysng3jM8LmTMm18Nd8=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5321.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(2906002)(83380400001)(8676002)(16576012)(38100700002)(52116002)(66476007)(316002)(186003)(4326008)(508600001)(36756003)(66556008)(38350700002)(235185007)(5660300002)(966005)(31696002)(956004)(33964004)(86362001)(2616005)(6486002)(31686004)(6916009)(53546011)(6706004)(26005)(44832011)(66946007)(8936002)(78286007)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?V2l5VittblQrSGYrZ0xBTEFwbnBLSW9XYU9Ralhwa29USktZUHJUSTJnU3Ir?=
+ =?utf-8?B?c3JjOWdidUpKUVdTNE9EZGZNdkloRldnVDg1UXAwOWZDcEZvaVpHc1NGczdn?=
+ =?utf-8?B?eUJYbk84Tm83RnltRTVtSnFFQXdsVndwY1Ntd0tkRG5SL0FwWFpYZnRTQ2sv?=
+ =?utf-8?B?RHRMTVVwdVRaY2cyM1JXM08wVC8xSmo0aUhRVElCWVpvc0FET3VjMHcrVE5M?=
+ =?utf-8?B?ZUJYOE85SG1oanB0SWIxcTVLeEYycVNlVXl5U3ZSV0V5VDNFb1Q4SVM1bWZq?=
+ =?utf-8?B?UmFEUTdQQ2M0aHhrYUZ0aWpJNDlYS3hmOVhONC9oZEt1QkpKRnF5N2ZoelFF?=
+ =?utf-8?B?RW5hZHlQYW5zUEFhZWZoTEVyKzlKY20vK2g4MGFEcmljdDVvTzhoTS9jT0lG?=
+ =?utf-8?B?SStDMzFGVmxWRjJuTVVsTGR2NXZ5cFBiVnprL1llNnVDbEhDMXJPTjRnbEZw?=
+ =?utf-8?B?VUNoK3lvRXhDcUNxY1FNVjcrQU9WaXV4dnZuM0dqblVOanpDeEk3WWFnYXBO?=
+ =?utf-8?B?eVowSkhRNUpHU3MwWnlJbk1pZnRWNFFScGwxdXJ2T0JzQjNjVVg4NStCaWJw?=
+ =?utf-8?B?eEszdEtob2hiSVk3V1NRbVB2T3pYb3RHcXRZZEFnOFFkdVYvQWF6QXVpQmMw?=
+ =?utf-8?B?ZFptcFZhckUyVG9SSjZCV1hmUng5ckhVdmtLN3FMZ2RBNjUwYWtDOWk3Yi9O?=
+ =?utf-8?B?WHhDdGZYTVQvVXVJOXUyUnpROERiMUU1dEl1cmdScEM3M1JTNFZtVkFaazRq?=
+ =?utf-8?B?N2RpUWVGeGRFN0h4M3kzOXJVWXgwcUFSQ3NoQ1AvbEtkZStobnZwU0RKdlBU?=
+ =?utf-8?B?czFxTTU4T0VsSHFxS3JuQVJXSzdWTmpwbUNqZFhua2hGSGwrS3FZNnFnMitR?=
+ =?utf-8?B?VDFGY0crYWJScXZXV3FOSE56Zkg2Tnk3aGZaeWxaem1kUXNnN2I2QjVEOEsw?=
+ =?utf-8?B?dGlHbU0xWVo0K20xTXUzU2RWbmVpYTBERjJkT2J6Wlp2c1U1Mys0ejNmQTlW?=
+ =?utf-8?B?V2ZicE9xdzJEKzZteis5cGNmckVQVTVFSUkyOC9rTXZWOFdCQlpLU3FmNzRR?=
+ =?utf-8?B?dnRpbXRnaFJLVVRyaXZwdHBTY00vVTY4N25WMElENUpaNEM0ZWxHelFuaWtO?=
+ =?utf-8?B?aFVjUzBOQjNabGd5T21mcXNCaWwzSG9XRlhVZ0lNcWY5ZnArQysrK3lWN0hD?=
+ =?utf-8?B?VDA1UDV6RnAyZlQrYlV5aGV1QXFZdkFod3hjM21pRG51aThEQUFleXlTUFRl?=
+ =?utf-8?B?MEpmYWtkSHNIVTBaRGE3eWZCUXhtWVZHSExDNW56dHZDbXdxMkVWMGZsbnRk?=
+ =?utf-8?B?U3NQdC8vazdsalhhczFidHlRL0hhTzhXalMrQllIWEoza0lpZlB1cFNJdkVH?=
+ =?utf-8?B?K1V1TGJpbkRQcFRlMUxZdmR2SnFhL3h3bnJ0a1I4OHhYdWdrZ1lOZFdsUTN2?=
+ =?utf-8?B?bkovT0FYWm5GcDg5dlA2NzlSelJJekRybVVXSnY2R21sME1CT1prSTVJN3dY?=
+ =?utf-8?B?cDRrWXlvUmZVNEdUQzR6UVdDOUFHSk5CNGVvQUlpeWtSVVZaV09tRThaY2hh?=
+ =?utf-8?B?WThSTnVWb09LWklJK2UyQklEZ0FUMllRbGdkanBzVXorbjZDMEpPTmN6QXR5?=
+ =?utf-8?B?bXIvb0NZbE9tbk5TY1JNNkdKUjArMU1jYnNtTVNrWGwyYUhRUDZHaitLWW5z?=
+ =?utf-8?B?NitGRDBoMnVFNGE0cG41cWZUMVlnNjFhRlFvTFRwakUvTWRoM2dDd2p3bmJK?=
+ =?utf-8?B?T1VhSTR6U256eFFQeTEraXZaT3p4dzV2b05MUlk4TWVZcjZFVjhHOFpTYTZF?=
+ =?utf-8?B?TTlDWFBsNUZyc21EbU9aa1Noc3NZTTRHaWhSaTBCQzZxSmFLQXZWSTFHeSs3?=
+ =?utf-8?B?SkxvMlpBdmljNCs0d0xpUTh0d0xQZVVMTklicStTSDJrS1k0MklLWHA0TGxS?=
+ =?utf-8?B?alViYXlmc29QSHphd0VrYUZSVjRMdWZRaTZaNEdHUG1NVGZncG1nZ2VoNmNz?=
+ =?utf-8?B?Ulk2bWJOV3Jlczl4SWxFWnc1RUxWOGRGL05BMEFLU0l3VERzZWNiZk50UGtS?=
+ =?utf-8?B?NFJSMGlqR3AwM25wdmZnZldCWE9hbWpTa1lwNHNibTJqWkpDbWhNa3h0NlJN?=
+ =?utf-8?B?T1B6Ly9lc2FOVmJjQ0tBOC9SbUs0MmNWUTRGRnp2Q3FwRW5NNGpRWDdmci9J?=
+ =?utf-8?B?T2NaRDRpN3YrNUNrajFoL3VZazB0cU1MV2FhcGNkOGFSVHd6ckN1STZCWTdn?=
+ =?utf-8?B?aUl5bzR3RXpnREdKeWxyMXlGaGNRPT0=?=
+X-OriginatorOrg: windriver.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e28a87c2-355d-4d55-3137-08d99ab4a8e4
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5321.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Oct 2021 08:18:16.9646
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: gVyRuTkLNyHLss55AJcnw63ydD/HbBe5eFJP1IQ7NTqmplUCY6fcPrIVxe1dJLnZQHlW+9sb48R/zqPFFtrim4KHTDn533uLg/qQVnhwRTM=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR11MB5727
+X-Proofpoint-ORIG-GUID: 713VV3Sh3K3NBy5zkHPmZkcVmtDIwGE8
+X-Proofpoint-GUID: 713VV3Sh3K3NBy5zkHPmZkcVmtDIwGE8
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-29_01,2021-10-26_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 spamscore=0 clxscore=1015 impostorscore=0 mlxscore=0
+ phishscore=0 lowpriorityscore=0 malwarescore=0 suspectscore=0
+ mlxlogscore=362 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2110150000 definitions=main-2110290047
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Bjorn,
+--------------36A833CC57B22FBD3667A872
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 10/22/21 11:53, Hans de Goede wrote:
-> Hi Bjorn,
-> 
-> On 10/22/21 03:20, Bjorn Helgaas wrote:
->> On Thu, Oct 21, 2021 at 07:15:57PM +0200, Hans de Goede wrote:
->>> On 10/20/21 23:14, Bjorn Helgaas wrote:
->>>> On Wed, Oct 20, 2021 at 12:23:26PM +0200, Hans de Goede wrote:
->>>>> On 10/19/21 23:52, Bjorn Helgaas wrote:
->>>>>> On Thu, Oct 14, 2021 at 08:39:42PM +0200, Hans de Goede wrote:
->>>>>>> Some BIOS-es contain a bug where they add addresses which map to system
->>>>>>> RAM in the PCI host bridge window returned by the ACPI _CRS method, see
->>>>>>> commit 4dc2287c1805 ("x86: avoid E820 regions when allocating address
->>>>>>> space").
->>>>>>>
->>>>>>> To work around this bug Linux excludes E820 reserved addresses when
->>>>>>> allocating addresses from the PCI host bridge window since 2010.
->>>>>>> ...
->>>>
->>>>>> I haven't seen anybody else eager to merge this, so I guess I'll stick
->>>>>> my neck out here.
->>>>>>
->>>>>> I applied this to my for-linus branch for v5.15.
->>>>>
->>>>> Thank you, and sorry about the build-errors which the lkp
->>>>> kernel-test-robot found.
->>>>>
->>>>> I've just send out a patch which fixes these build-errors
->>>>> (verified with both .config-s from the lkp reports).
->>>>> Feel free to squash this into the original patch (or keep
->>>>> them separate, whatever works for you).
->>>>
->>>> Thanks, I squashed the fix in.
->>>>
->>>> HOWEVER, I think it would be fairly risky to push this into v5.15.
->>>> We would be relying on the assumption that current machines have all
->>>> fixed the BIOS defect that 4dc2287c1805 addressed, and we have little
->>>> evidence for that.
->>>
->>> It is a 10 year old BIOS defect, so hopefully anything from 2018
->>> or later will not have it.
+Hi Greg,
+
+On 29.10.2021 10:39, Greg KH wrote:
+> [Please note: This e-mail is from an EXTERNAL e-mail address]
+>
+> On Thu, Oct 28, 2021 at 10:08:58PM +0300, Ovidiu Panait wrote:
+>> The following commits are needed to fix CVE-2021-20322:
+>> ipv4:
+>> [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6457378fe796815c973f631a1904e147d6ee33b1
+>> [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=67d6d681e15b578c1725bad8ad079e05d1c48a8e
 >>
->> We can hope.  AFAIK, Windows allocates space top-down, while Linux
->> allocates bottom-up, so I think it's quite possible these defects
->> would never be discovered or fixed.  In any event, I don't think we
->> have much evidence either way.
-> 
-> Ack.
-> 
->>>> I'm not sure there's significant benefit to having this in v5.15.
->>>> Yes, the mainline v5.15 kernel would work on the affected machines,
->>>> but I suspect most people with those machines are running distro
->>>> kernels, not mainline kernels.
->>>
->>> Fedora and Arch do follow mainline pretty closely and a lot of
->>> users are affected by this (see the large number of BugLinks in
->>> the commit).
->>>
->>> I completely understand why you are reluctant to push this out, but
->>> your argument about most distros not running mainline kernels also
->>> applies to chances of people where this may cause a regression
->>> running mainline kernels also being quite small.
+>> ipv6:
+>> [3] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4785305c05b25a242e5314cc821f54ade4c18810
+>> [4] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a00df2caffed3883c341d5685f830434312e4a43
 >>
->> True.
+>> Commit [2] is already present in 4.19 stable, so backport the
+>> remaining three fixes with minor context adjustments.
 >>
->>>> This issue has been around a long time, so it's not like a regression
->>>> that we just introduced.  If we fixed these machines and regressed
->>>> *other* machines, we'd be worse off than we are now.
->>>
->>> If we break one machine model and fix a whole bunch of other machines
->>> then in my book that is a win. Ideally we would not break anything,
->>> but we can only find out if we actually break anything if we ship
->>> the change.
+>> Eric Dumazet (3):
+>>    ipv4: use siphash instead of Jenkins in fnhe_hashfun()
+>>    ipv6: use siphash in rt6_exception_hash()
+>>    ipv6: make exception cache less predictible
 >>
->> I'm definitely not going to try the "fix many, break one" argument on
->> Linus.  Of course we want to fix systems, but IMO it's far better to
->> leave a system broken than it is to break one that used to work.
-> 
-> Right, what I meant to say with "a win" is a step in the right direction,
-> we definitely must address any regressions coming from this change as
-> soon as we learn about them.
-> 
->>>> In the meantime, here's another possibility for working around this.
->>>> What if we discarded remove_e820_regions() completely, but aligned the
->>>> problem _CRS windows a little more?  The 4dc2287c1805 case was this:
->>>>
->>>>   BIOS-e820: 00000000bfe4dc00 - 00000000c0000000 (reserved)
->>>>   pci_root PNP0A03:00: host bridge window [mem 0xbff00000-0xdfffffff]
->>>>
->>>> where the _CRS window was of size 0x20100000, i.e., 512M + 1M.  At
->>>> least in this particular case, we could avoid the problem by throwing
->>>> away that first 1M and aligning the window to a nice 3G boundary.
->>>> Maybe it would be worth giving up a small fraction (less than 0.2% in
->>>> this case) of questionable windows like this?
->>>
->>> The PCI BAR allocation code tries to fall back to the BIOS assigned
->>> resource if the allocation fails. That BIOS assigned resource might
->>> fall outside of the host bridge window after we round the address.
->>>
->>> My initial gut instinct here is that this has a bigger chance
->>> of breaking things then my change.
->>>
->>> In the beginning of the thread you said that ideally we would
->>> completely stop using the E820 reservations for PCI host bridge
->>> windows. Because in hindsight messing with the windows on all
->>> machines just to work around a clear BIOS bug in some was not a
->>> good idea.
->>>
->>> This address-rounding/-aligning you now suggest, is again
->>> messing with the windows on all machines just to work around
->>> a clear BIOS bug in some. At least that is how I see this.
+>>   net/ipv4/route.c | 12 ++++++------
+>>   net/ipv6/route.c | 25 ++++++++++++++++++-------
+>>   2 files changed, 24 insertions(+), 13 deletions(-)
 >>
->> That's true.  I assume Red Hat has a bunch of machines and hopefully
->> an archive of dmesg logs from them.  Those logs should contain good
->> E820 and _CRS information, so with a little scripting, maybe we could
->> get some idea of what's out there.
-> 
-> We do have a (large-ish) test-lab, but that contains almost exclusively
-> servers, where as the original problem was on Dell Precision laptops.
-> 
-> Also I'm not sure if I can get aggregate data from the lab's machines.
-> I can reserve time on any model we have to debug specific problems,
-> but that is targeting one specific model. I'll ask around about this.
+>> --
+>> 2.25.1
+>>
+> You sent 0/3 but only 2 patches showed up?
+>
+> Can you please resend all 3?
 
-So I had another idea to get us a whole bunch of dmesg outputs and that
-is to use the database collected by linux-hardware.org . The dmesg
-were already individually accessible by selecting a specific model machine,
-but I asked them if they could do a dump and I just got an email that a
-dmesg dump is now available here:
+I tried resending the full patchset, but the last patch is still not 
+showing up.
 
-https://github.com/linuxhw/Dmesg
+git send-email doesn't report any errors:
 
-Note be careful with the size of the repository - it will take ~3 gigabytes
-of network traffic and ~20 gigabytes of space on the drive to checkout it.
+OK. Log says:
+MAIL FROM:<ovidiu.panait@windriver.com>
+RCPT TO:<stable@vger.kernel.org>
+RCPT TO:<gregkh@linuxfoundation.org>
+From: Ovidiu Panait <ovidiu.panait@windriver.com>
+To: stable@vger.kernel.org
+Cc: gregkh@linuxfoundation.org
+Subject: [PATCH 4.19 3/3] ipv6: make exception cache less predictible
+Date: Fri, 29 Oct 2021 10:50:27 +0300
+Message-Id: <20211029075027.1910142-4-ovidiu.panait@windriver.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20211029075027.1910142-1-ovidiu.panait@windriver.com>
+References: <20211029075027.1910142-1-ovidiu.panait@windriver.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-So if you want dmesg outputs to grep through for e820 / host-bridge-window
-info, here you go.
+Result: 250
 
-Regards,
 
-Hans
+I have attached the 4.19 backport of a00df2caffed ("ipv6: make exception 
+cache less predictible").
 
+
+Ovidiu
+
+> thanks,
+>
+> greg k-h
+
+--------------36A833CC57B22FBD3667A872
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0003-ipv6-make-exception-cache-less-predictible.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="0003-ipv6-make-exception-cache-less-predictible.patch"
+
+From c9f6f8ebbc70e5cf357f80b77400f0233027b39d Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Sun, 29 Aug 2021 15:16:14 -0700
+Subject: [PATCH 4.19 3/3] ipv6: make exception cache less predictible
+
+commit a00df2caffed3883c341d5685f830434312e4a43 upstream.
+
+Even after commit 4785305c05b2 ("ipv6: use siphash in rt6_exception_hash()"),
+an attacker can still use brute force to learn some secrets from a victim
+linux host.
+
+One way to defeat these attacks is to make the max depth of the hash
+table bucket a random value.
+
+Before this patch, each bucket of the hash table used to store exceptions
+could contain 6 items under attack.
+
+After the patch, each bucket would contains a random number of items,
+between 6 and 10. The attacker can no longer infer secrets.
+
+This is slightly increasing memory size used by the hash table,
+we do not expect this to be a problem.
+
+Following patch is dealing with the same issue in IPv4.
+
+Fixes: 35732d01fe31 ("ipv6: introduce a hash table to store dst cache")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Keyu Man <kman001@ucr.edu>
+Cc: Wei Wang <weiwan@google.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[OP: adjusted context for 4.19 stable]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+---
+ net/ipv6/route.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index 9bc806a4ded6..d04f3951c5fb 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -1454,6 +1454,7 @@ static int rt6_insert_exception(struct rt6_info *nrt,
+ 	struct rt6_exception_bucket *bucket;
+ 	struct in6_addr *src_key = NULL;
+ 	struct rt6_exception *rt6_ex;
++	int max_depth;
+ 	int err = 0;
+ 
+ 	spin_lock_bh(&rt6_exception_lock);
+@@ -1515,7 +1516,9 @@ static int rt6_insert_exception(struct rt6_info *nrt,
+ 	bucket->depth++;
+ 	net->ipv6.rt6_stats->fib_rt_cache++;
+ 
+-	if (bucket->depth > FIB6_MAX_DEPTH)
++	/* Randomize max depth to avoid some side channels attacks. */
++	max_depth = FIB6_MAX_DEPTH + prandom_u32_max(FIB6_MAX_DEPTH);
++	while (bucket->depth > max_depth)
+ 		rt6_exception_remove_oldest(bucket);
+ 
+ out:
+-- 
+2.25.1
+
+
+--------------36A833CC57B22FBD3667A872--
