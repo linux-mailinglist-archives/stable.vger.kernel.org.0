@@ -2,159 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AD62440559
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 00:18:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B89BE4405AD
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 01:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231394AbhJ2WVR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Oct 2021 18:21:17 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:43997 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230325AbhJ2WVQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Oct 2021 18:21:16 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 2160A5C0174;
-        Fri, 29 Oct 2021 18:18:47 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Fri, 29 Oct 2021 18:18:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=4qxxtO
-        1Z9+doNE2lABc+fvUK72/uISVCrks1lvW+WaQ=; b=U5wIDMy9uUT4rPkdJzu3Ck
-        Vne/wo+YL2pw2A6hlvjAPM7U+p5Ao9iWAv/pdxLwvOdBbiMLP/L4i9KNDs5HApJw
-        m61aVwctXZzCvllmHjyPl0Av8/RPMf3vC69nsxXw2INHcRgRicicbSnoV/veZsq/
-        tmT3qvX9P7k9XasR2xbrgNcMoGq4/95usFoAiZSsYEHSpamdt9gpWFt3+6RokMkC
-        P3Kn2YQxP57Mn3Wd2+dMiN8AH5WVmKO1r6oKBj1k4Zxkm8skgUxfzQ4M90/r1kvq
-        WQuasfyxF3WH1xQy/CZ5OL6uI9H/qDsxnTQlCUTmL72IRX6Zh2JL0szocIuCY2ag
-        ==
-X-ME-Sender: <xms:RnN8YVspSbaCdxkzQxj_CWkz-4xDZaLS84iF9I49mrRzlbP-dm8QuA>
-    <xme:RnN8Yed5KKrfUGd1F2hxhG5Idyf_TbLaXq5Imm1vTwfk9V66yYr-F1x-RkIBsPnGC
-    U3xVUNrE8zezg>
-X-ME-Received: <xmr:RnN8YYzJFXtCMjSIk2xkdCtu16WZmbBAqnyUubva2doDuCoJTIwGxnhil9V0oyiGwmcrpLWtzbsi8ETf0I05enOmQ5GFfmMq>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrvdegiedgtddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehgtderredttdejnecuhfhrohhmpeforghrvghk
-    ucforghrtgiihihkohifshhkihdqifpkrhgvtghkihcuoehmrghrmhgrrhgvkhesihhnvh
-    hishhisghlvghthhhinhhgshhlrggsrdgtohhmqeenucggtffrrghtthgvrhhnpeetveff
-    iefghfekhffggeeffffhgeevieektedthfehveeiheeiiedtudegfeetffenucevlhhush
-    htvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehmrghrmhgrrhgvkhes
-    ihhnvhhishhisghlvghthhhinhhgshhlrggsrdgtohhm
-X-ME-Proxy: <xmx:RnN8YcMETnWD4FGYftpSXHPRXmAmETOloQqWxW5JYZhNIoWuGsryhA>
-    <xmx:RnN8YV_9hsQJXna6sbtqbcakQU2Z38U7REQtaFA0rkFVs5K0xSHLig>
-    <xmx:RnN8YcXXl2v-ip88bcdV0P8QWkfttpeQ2K35ii3MdcSOWmLLxelD_Q>
-    <xmx:R3N8YQaRt51VKEqxyUVd2Kvug-m2qdqQ3SGLmCc0iY_YYFx_yhH89w>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 29 Oct 2021 18:18:45 -0400 (EDT)
-Date:   Sat, 30 Oct 2021 00:18:42 +0200
-From:   Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>
-To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-        linux-kernel@vger.kernel.org,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] xen/balloon: add late_initcall_sync() for initial
- ballooning done
-Message-ID: <YXxzQhPvgAOkhGg/@mail-itl>
-References: <20211029142049.25198-1-jgross@suse.com>
- <11956c14-f1f7-70f0-40a6-aad31a264af6@oracle.com>
+        id S230388AbhJ2XMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Oct 2021 19:12:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50714 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229441AbhJ2XMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Oct 2021 19:12:36 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 923BFC061570
+        for <stable@vger.kernel.org>; Fri, 29 Oct 2021 16:10:07 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id nn3-20020a17090b38c300b001a03bb6c4ebso8355201pjb.1
+        for <stable@vger.kernel.org>; Fri, 29 Oct 2021 16:10:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Khuc1pXaYRofI6UFT+rSjF/BH8l2xaVqJxEXbWNhoCI=;
+        b=j8fihy9A+vPnYIT8fw/af9uk1vDrLXfUnYL7Y19yFfcmFAN142nUhBww+jcsbZbBJ0
+         nBf5oCCHnGN3Z1kU04lJYCZB1o8OG82JZqP78x7yL39g2jSfxAPDWS1FXEUclJQDi+wQ
+         7z5rz89qkltJ6fmszGfzOHbclRL0Zwsikf6es=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Khuc1pXaYRofI6UFT+rSjF/BH8l2xaVqJxEXbWNhoCI=;
+        b=hUQddBz9Xcfy8QV1mdPrlDHgpvOTZWnm8DFOpti1YYtlUHWBWjqFGa9pXtEKHNAPmI
+         llJmOlUwq5HP11rk7OW51K07AVVKjxKcZBW+hwBIiPxHthFbrjMYdb3q2L3CQcAYO9Je
+         B1q2R8Ggjk5/9eUqQEjEZrJyfIkACGlStxpFpP5wUEUuvKK8JXT7nzzy0fVhdu224LJ8
+         A2QFmFSPhID/BBV3TNtDpBd76RPEP/CXb/tt4jC6l8b4HC4H4cJMRvjzTk7DaaOHIdf/
+         LHVstJf6MzyNPJQmNIaayVrM8XlPwjlU9tSVqgOa6NPoRdr9NURAyS2dunBuu4CJyK8m
+         +cfQ==
+X-Gm-Message-State: AOAM53085qaYJudsP1yyfR348gq+d+dDiXVVI46UeL264EQytp3JufsS
+        fwYiZGR0H/bl2G07IdoDTaED6g==
+X-Google-Smtp-Source: ABdhPJwGxsHcbLvcYaXN2qrTqidhM1hKN02zmGXtgdzYbdQKgNcPjnuobNEDquVUL1R26dWR0qrPOg==
+X-Received: by 2002:a17:903:2451:b0:141:7907:674e with SMTP id l17-20020a170903245100b001417907674emr12386715pls.45.1635549006674;
+        Fri, 29 Oct 2021 16:10:06 -0700 (PDT)
+Received: from google.com ([2620:15c:202:201:be89:1308:1b03:6bc4])
+        by smtp.gmail.com with ESMTPSA id mi11sm11824219pjb.5.2021.10.29.16.10.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 Oct 2021 16:10:06 -0700 (PDT)
+Date:   Fri, 29 Oct 2021 16:10:04 -0700
+From:   Brian Norris <briannorris@chromium.org>
+To:     Sean Paul <sean@poorly.run>
+Cc:     Neil Armstrong <narmstrong@baylibre.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        dri-devel@lists.freedesktop.org,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org, Zain Wang <wzz@rock-chips.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sean Paul <seanpaul@chromium.org>
+Subject: Re: [PATCH] drm/bridge: analogix_dp: Make PSR-disable non-blocking
+Message-ID: <YXx/TJ6CAXHfTdrQ@google.com>
+References: <20211020161724.1.I67612ea073c3306c71b46a87be894f79707082df@changeid>
+ <20211021004015.GD2515@art_vandelay>
+ <CA+ASDXNNPHfAVuN_Q7UJR6GLaepHghtovDUKyMKrVM_UboiM2A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xKPG9ePjWpG+ScdL"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <11956c14-f1f7-70f0-40a6-aad31a264af6@oracle.com>
+In-Reply-To: <CA+ASDXNNPHfAVuN_Q7UJR6GLaepHghtovDUKyMKrVM_UboiM2A@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Oct 20, 2021 at 06:23:35PM -0700, Brian Norris wrote:
+> On Wed, Oct 20, 2021 at 5:40 PM Sean Paul <sean@poorly.run> wrote:
+> > The actual latency gains from doing this synchronously are minimal since the
+> > panel will display new content as soon as it can regardless of whether the
+> > kernel is blocking. There is likely a perceptual difference, but that's only
+> > because kernel is lying to userspace and skipping frames without consent.
+> 
+> Hmm, you might well be right about some of the first points (I'm still
+> learning the DRM framework), but I'm a bit skeptical that the
+> perceptual difference is "only" because we're cheating in some way.
+> I'm not doing science here, and it's certainly not a blinded test, but
+> I'm nearly certain this patch cuts out approx 50-80% of the cursor lag
+> I see without this patch (relative to the current Chrome OS kernel). I
+> don't see how cheating would produce a smoother cursor movement --
+> we'd still be dropping frames, and the movement would appear jumpy
+> somewhere along the way.
 
---xKPG9ePjWpG+ScdL
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 30 Oct 2021 00:18:42 +0200
-From: Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
-To: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-	linux-kernel@vger.kernel.org,
-	Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v3] xen/balloon: add late_initcall_sync() for initial
- ballooning done
+Aha, so I think I found {a,the} reason for some disagreement here:
+looking at the eDP PSR spec, I see that while the current implementation
+is looking for psr_state==DP_PSR_SINK_INACTIVE to signal PSR-exit
+completion, the spec shows an intermediate state
+(DP_PSR_SINK_ACTIVE_RESYNC == 4), where among other things, "the Sink
+device must display the incoming active frames from the Source device
+with no visible glitches and/or artifacts."
 
-On Fri, Oct 29, 2021 at 05:46:18PM -0400, Boris Ostrovsky wrote:
->=20
-> On 10/29/21 10:20 AM, Juergen Gross wrote:
-> > --- a/Documentation/ABI/stable/sysfs-devices-system-xen_memory
-> > +++ b/Documentation/ABI/stable/sysfs-devices-system-xen_memory
-> > @@ -84,3 +84,13 @@ Description:
-> >   		Control scrubbing pages before returning them to Xen for others dom=
-ains
-> >   		use. Can be set with xen_scrub_pages cmdline
-> >   		parameter. Default value controlled with CONFIG_XEN_SCRUB_PAGES_DEF=
-AULT.
-> > +
-> > +What:		/sys/devices/system/xen_memory/xen_memory0/boot_timeout
-> > +Date:		November 2021
-> > +KernelVersion:	5.16
-> > +Contact:	xen-devel@lists.xenproject.org
-> > +Description:
-> > +		The time (in seconds) to wait before giving up to boot in case
-> > +		initial ballooning fails to free enough memory. Applies only
-> > +		when running as HVM or PVH guest and started with less memory
-> > +		configured than allowed at max.
->=20
->=20
-> How is this going to be used? We only need this during boot.
->=20
->=20
-> > -		state =3D update_schedule(state);
-> > +		balloon_state =3D update_schedule(balloon_state);
->=20
->=20
-> Now that balloon_state has whole file scope it can probably be updated in=
-side update_schedule().
->=20
->=20
-> > +	while ((credit =3D current_credit()) < 0) {
-> > +		if (credit !=3D last_credit) {
-> > +			last_changed =3D jiffies;
-> > +			last_credit =3D credit;
-> > +		}
-> > +		if (balloon_state =3D=3D BP_ECANCELED) {
->=20
->=20
-> What about other states? We are really waiting for BP_DONE, aren't we?
+And it happens that we move to DP_PSR_SINK_ACTIVE_RESYNC somewhat
+quickly (on the order of 20-40ms), while the move to
+DP_PSR_SINK_INACTIVE is a good chunk longer (approx 60ms more). So
+pre-commit-6c836d965bad might have been cheating a little (we'd claim
+we're "done" about 20-40ms too early), but post-commit-6c836d965bad
+we're waiting about 60ms too long.
 
-BP_DONE is set also as an intermediate step:
+I'll send v2 to make this block for DP_PSR_SINK_ACTIVE_RESYNC ||
+DP_PSR_SINK_INACTIVE, which gets much or all of the same latency win,
+and I'll try to document the reasons, etc., better.
 
-                       balloon_state =3D decrease_reservation(n_pages,
-                                                            GFP_BALLOON);
-                       if (balloon_state =3D=3D BP_DONE && n_pages !=3D -cr=
-edit &&
-                            n_pages < totalreserve_pages)
-                               balloon_state =3D BP_EAGAIN;
+I'll probably also include a patch to drop the 'blocking' parameter,
+since it's unused, and gives the wrong idea about this state machine.
 
-It would be bad to finish waiting in this case.
+> In any case, I'm absolutely certain that mainline Linux performs much
+> much worse with PSR than the current CrOS kernel, but there are some
+> other potential reasons for that, such as the lack of an
+> input-notifier [1].
+...
+> [1] This got locked up in "controversy":
+> https://patchwork.kernel.org/project/linux-arm-kernel/patch/20180405095000.9756-25-enric.balletbo@collabora.com/
 
---=20
-Best Regards,
-Marek Marczykowski-G=C3=B3recki
-Invisible Things Lab
+While I'm here: I also played with this a bit, and I still haven't
+gotten all the details right, but I don't believe this alone will get
+the latency wins we'd like. We still need something like the above.
 
---xKPG9ePjWpG+ScdL
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhrpukzGPukRmQqkK24/THMrX1ywFAmF8c0IACgkQ24/THMrX
-1yxlhwf+OIifFECv8WTtmwBHvacvFlHzQBwagjrD83H3pw7ACJBLikt5YbfqVNBT
-VzYMegSAbgXVjURqPQgJefIylOcwwY+dk26sQS+6S5YtRZdJZX9z9GSNuqBxQzAv
-Sa1FNKGAuHyEdAgV23cPo5v4AdgIwbwV2NjPorIeOyVK1oOnvn+59SakN91TtmM9
-GGvgNCkzd8KpSG2dswucJqrRvR8Ng8Y/Vskg0QSdS5MKWgth64xWU6raTgyi8vSE
-2HjxLH8HYZM/kk+ZSUP2E3snLsJGHNnkwC15qFT1ui2EH/bJeqVSqJHWhBJ2bflH
-wbHj/ikVIoFBqMHXf8FJDsRqPzkBSg==
-=pMDf
------END PGP SIGNATURE-----
-
---xKPG9ePjWpG+ScdL--
+Brian
