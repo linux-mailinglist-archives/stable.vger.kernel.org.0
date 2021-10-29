@@ -2,51 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 760C943F7E0
-	for <lists+stable@lfdr.de>; Fri, 29 Oct 2021 09:33:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5536343F7EC
+	for <lists+stable@lfdr.de>; Fri, 29 Oct 2021 09:39:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230247AbhJ2Hfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Oct 2021 03:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37656 "EHLO mail.kernel.org"
+        id S232178AbhJ2HmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Oct 2021 03:42:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232211AbhJ2Hft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 Oct 2021 03:35:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29D8261130;
-        Fri, 29 Oct 2021 07:33:21 +0000 (UTC)
+        id S230247AbhJ2HmI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 Oct 2021 03:42:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42D4F61130;
+        Fri, 29 Oct 2021 07:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635492801;
-        bh=eZCesR13DldsHR5s9AvI5Mfes8FBqKCHNHHUtHtJflk=;
+        s=korg; t=1635493180;
+        bh=BNmRC5GOkwqx4Q/ZC/VJG0QRTVmUp7+tuwyuAU64yUQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=r5/6YU+Xz3aRDNGlDlIshFq/bnEezW9x7yllK0G8N3HE/x5jq0lkEn1NVcf9vzQ6i
-         QEOAvgokUTofZ1eodsnz1yluBh57zLhGN/nOE1QyU7bZN9arbwthVa6P9fldl61WYa
-         uXHsW7wglv5nhAuFFTw8kvaGtysIZfTpPcSNwHyY=
-Date:   Fri, 29 Oct 2021 09:33:19 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Tadeusz Struk <tadeusz.struk@linaro.org>
-Cc:     stable@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>,
-        Jan Kara <jack@suse.cz>
-Subject: Re: ext4: fix possible UAF when remounting r/o a mmp-protected file
- system
-Message-ID: <YXujv7dUe/Bc9A8C@kroah.com>
-References: <264a42f3-0475-215d-aaa5-5deb435f8360@linaro.org>
+        b=Q3+3YhU2P9T7ipwIiAtev3pKl4wwanz9lbtSd1j7kcQ8tv4YtEoOb6sS9wPhNJnuu
+         RVuqj8wx3Tzr6wH4Q0kbT60/qboELJxSEMOD2VopW3q9STFzl9g5cq8jIvW/ktlrKZ
+         D6Mz897N6M1mA/kw2VjaLYx6rJssRb46v31yccWw=
+Date:   Fri, 29 Oct 2021 09:39:38 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ovidiu Panait <ovidiu.panait@windriver.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 0/3] ipv4/ipv6: backport fixes for CVE-2021-20322
+Message-ID: <YXulOpILxpS+ljKY@kroah.com>
+References: <20211028190901.1839515-1-ovidiu.panait@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <264a42f3-0475-215d-aaa5-5deb435f8360@linaro.org>
+In-Reply-To: <20211028190901.1839515-1-ovidiu.panait@windriver.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 27, 2021 at 01:13:30PM -0700, Tadeusz Struk wrote:
-> Hi,
-> Upstream commit id: 61bb4a1c417e5b95d9edb4f887f131de32e419cb
+On Thu, Oct 28, 2021 at 10:08:58PM +0300, Ovidiu Panait wrote:
+> The following commits are needed to fix CVE-2021-20322:
+> ipv4:
+> [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6457378fe796815c973f631a1904e147d6ee33b1
+> [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=67d6d681e15b578c1725bad8ad079e05d1c48a8e
 > 
-> is still missing from stable 5.10 and syzkaller has found the gap:
+> ipv6:
+> [3] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4785305c05b25a242e5314cc821f54ade4c18810
+> [4] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a00df2caffed3883c341d5685f830434312e4a43
 > 
-> https://syzkaller.appspot.com/bug?id=990c7f09780460b8165714b9c9751ae8432587f3
+> Commit [2] is already present in 4.19 stable, so backport the
+> remaining three fixes with minor context adjustments.
 > 
-> It should be applied to stable kernels: 5.10
+> Eric Dumazet (3):
+>   ipv4: use siphash instead of Jenkins in fnhe_hashfun()
+>   ipv6: use siphash in rt6_exception_hash()
+>   ipv6: make exception cache less predictible
+> 
+>  net/ipv4/route.c | 12 ++++++------
+>  net/ipv6/route.c | 25 ++++++++++++++++++-------
+>  2 files changed, 24 insertions(+), 13 deletions(-)
+> 
+> -- 
+> 2.25.1
+> 
 
-Now queued up, thanks.
+You sent 0/3 but only 2 patches showed up?
+
+Can you please resend all 3?
+
+thanks,
 
 greg k-h
