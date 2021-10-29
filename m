@@ -2,136 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE07743FE8A
-	for <lists+stable@lfdr.de>; Fri, 29 Oct 2021 16:35:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FC5C43FE94
+	for <lists+stable@lfdr.de>; Fri, 29 Oct 2021 16:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229521AbhJ2Ohm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Oct 2021 10:37:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46946 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229501AbhJ2Ohl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Oct 2021 10:37:41 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88D5EC061570
-        for <stable@vger.kernel.org>; Fri, 29 Oct 2021 07:35:12 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id l186so10066663pge.7
-        for <stable@vger.kernel.org>; Fri, 29 Oct 2021 07:35:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0nb6njtW0otn71Jj0rfikYWV6MJRYkD8I/HZClZZSF8=;
-        b=NP6hfU0gQI1V0EVJsGWpc2T8RZ53lWIteyTtxHwRmHhlRN8jTHBK5hlPaN13lFzhQd
-         zxtC/bgHLsokDqNIS4VgRJVnX2gbGamCkUgMzbye411+YhtabExSXaM/GdRdwmIFv+8V
-         rTPB+w+ts6aurPLMrM5qec1aP3aKc+QB0d69V2JpgnPZ4e2e4XH+y+t77YWs27g5sADY
-         HSi/+DVS9Rs9yoGoWgyQuXie/Dv/fTcMFrMxsLk5tBwZ3nB81Vx0CySKVQUEWZNl7GWB
-         PA/8FJQb6iGtS9mb3zk1LfUY12BiyN7gwVfdogaidnJ6XXZMuDyJGk1kRe0uY3d5d2kw
-         eyTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0nb6njtW0otn71Jj0rfikYWV6MJRYkD8I/HZClZZSF8=;
-        b=lzxnsZgYduxxR5OD/KAnox4JHrByN7gUTFIrUwaSJ4r9BCclOOTThUqBIrO3K4AnAl
-         ednmi5cBJFVs1RnToQpJr8lycjmLEKNfsxdlR5hd5dbzntEsDYIW64EdR7LtBVIr6VoE
-         pKDd9nJtxC2lo1DoKw/9kJ5csNikHBO+AqfuznxfnEJfQP46aHdx2UVqvRVrI+5/xVvo
-         92Wd/UF6tPRCE9F+51AA4u+mJ+zsDWogWrgssso43qsJZpz0UhY+3lJFguX5p3T23HX3
-         FFcjJxR0GBNSLj/0RPRrV5oQbD7R4I1NEtsrYmP+sLLa9cgZLsIFk4ycVbo2zN4KQkEU
-         AN6g==
-X-Gm-Message-State: AOAM532f/9LEEkxzq8OOzwsZrSlR7d6kaU9RxDBDsITtNGaNZjSr+FBk
-        rOIRPwVila4W9SHXporXeWpAtYcXgRUjFPMg
-X-Google-Smtp-Source: ABdhPJyHTjokJAqUn8nPkCd2kk186yJNy/od8ngdzq/X4ua5tKnrPcguuNRWnWNN0Mlh21zSaHJkvg==
-X-Received: by 2002:aa7:96d0:0:b0:47c:efd:9ab4 with SMTP id h16-20020aa796d0000000b0047c0efd9ab4mr11463588pfq.30.1635518111818;
-        Fri, 29 Oct 2021 07:35:11 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g22sm7550477pfc.202.2021.10.29.07.35.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Oct 2021 07:35:11 -0700 (PDT)
-Message-ID: <617c069f.1c69fb81.c4b14.57da@mx.google.com>
-Date:   Fri, 29 Oct 2021 07:35:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229607AbhJ2OmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Oct 2021 10:42:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44674 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229626AbhJ2OmE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 Oct 2021 10:42:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C093610A0;
+        Fri, 29 Oct 2021 14:39:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1635518376;
+        bh=waqtTNOnEq+jNhHt7p9LG6WlkLMUV9k6npGddDvwtrY=;
+        h=Subject:To:Cc:From:Date:From;
+        b=dIM90vQ1hPsPBRO7c95+hPRaV6ogVy/63iWulQXlpg9POs1pFIcPQjcYq0Vx58OlN
+         0dUfkMeXg3SbDtr5sLRKphQnZNULRipvv+KXeuv9W+kAacfian87eVCFxX9FAGcrXL
+         xxBRdiOhvv81a14bmf6Q8Amwvfl6pAwqePZIE4I8=
+Subject: FAILED: patch "[PATCH] net/tls: Fix flipped sign in tls_err_abort() calls" failed to apply to 4.19-stable tree
+To:     daniel.m.jordan@oracle.com, davem@davemloft.net
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 29 Oct 2021 16:39:34 +0200
+Message-ID: <163551837423485@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.214-12-g143e6d0d992a
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 147 runs,
- 1 regressions (v4.19.214-12-g143e6d0d992a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 147 runs, 1 regressions (v4.19.214-12-g143e6=
-d0d992a)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+thanks,
 
+greg k-h
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.214-12-g143e6d0d992a/plan/baseline/
+------------------ original commit in Linus's tree ------------------
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.214-12-g143e6d0d992a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      143e6d0d992a82c90fe7ef0cea1c6434e005cfb8 =
+From da353fac65fede6b8b4cfe207f0d9408e3121105 Mon Sep 17 00:00:00 2001
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
+Date: Wed, 27 Oct 2021 17:59:20 -0400
+Subject: [PATCH] net/tls: Fix flipped sign in tls_err_abort() calls
 
+sk->sk_err appears to expect a positive value, a convention that ktls
+doesn't always follow and that leads to memory corruption in other code.
+For instance,
 
+    [kworker]
+    tls_encrypt_done(..., err=<negative error from crypto request>)
+      tls_err_abort(.., err)
+        sk->sk_err = err;
 
-Test Regressions
----------------- =
+    [task]
+    splice_from_pipe_feed
+      ...
+        tls_sw_do_sendpage
+          if (sk->sk_err) {
+            ret = -sk->sk_err;  // ret is positive
 
+    splice_from_pipe_feed (continued)
+      ret = actor(...)  // ret is still positive and interpreted as bytes
+                        // written, resulting in underflow of buf->len and
+                        // sd->len, leading to huge buf->offset and bogus
+                        // addresses computed in later calls to actor()
 
+Fix all tls_err_abort() callers to pass a negative error code
+consistently and centralize the error-prone sign flip there, throwing in
+a warning to catch future misuse and uninlining the function so it
+really does only warn once.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Cc: stable@vger.kernel.org
+Fixes: c46234ebb4d1e ("tls: RX path for ktls")
+Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 
+diff --git a/include/net/tls.h b/include/net/tls.h
+index 01d2e3744393..1fffb206f09f 100644
+--- a/include/net/tls.h
++++ b/include/net/tls.h
+@@ -358,6 +358,7 @@ int tls_sk_query(struct sock *sk, int optname, char __user *optval,
+ 		int __user *optlen);
+ int tls_sk_attach(struct sock *sk, int optname, char __user *optval,
+ 		  unsigned int optlen);
++void tls_err_abort(struct sock *sk, int err);
+ 
+ int tls_set_sw_offload(struct sock *sk, struct tls_context *ctx, int tx);
+ void tls_sw_strparser_arm(struct sock *sk, struct tls_context *ctx);
+@@ -466,12 +467,6 @@ static inline bool tls_is_sk_tx_device_offloaded(struct sock *sk)
+ #endif
+ }
+ 
+-static inline void tls_err_abort(struct sock *sk, int err)
+-{
+-	sk->sk_err = err;
+-	sk_error_report(sk);
+-}
+-
+ static inline bool tls_bigint_increment(unsigned char *seq, int len)
+ {
+ 	int i;
+@@ -512,7 +507,7 @@ static inline void tls_advance_record_sn(struct sock *sk,
+ 					 struct cipher_context *ctx)
+ {
+ 	if (tls_bigint_increment(ctx->rec_seq, prot->rec_seq_size))
+-		tls_err_abort(sk, EBADMSG);
++		tls_err_abort(sk, -EBADMSG);
+ 
+ 	if (prot->version != TLS_1_3_VERSION &&
+ 	    prot->cipher_type != TLS_CIPHER_CHACHA20_POLY1305)
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index d5d09bd817b7..1644f8baea19 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -35,6 +35,7 @@
+  * SOFTWARE.
+  */
+ 
++#include <linux/bug.h>
+ #include <linux/sched/signal.h>
+ #include <linux/module.h>
+ #include <linux/splice.h>
+@@ -43,6 +44,14 @@
+ #include <net/strparser.h>
+ #include <net/tls.h>
+ 
++noinline void tls_err_abort(struct sock *sk, int err)
++{
++	WARN_ON_ONCE(err >= 0);
++	/* sk->sk_err should contain a positive error code. */
++	sk->sk_err = -err;
++	sk_error_report(sk);
++}
++
+ static int __skb_nsg(struct sk_buff *skb, int offset, int len,
+                      unsigned int recursion_level)
+ {
+@@ -419,7 +428,7 @@ int tls_tx_records(struct sock *sk, int flags)
+ 
+ tx_err:
+ 	if (rc < 0 && rc != -EAGAIN)
+-		tls_err_abort(sk, EBADMSG);
++		tls_err_abort(sk, -EBADMSG);
+ 
+ 	return rc;
+ }
+@@ -763,7 +772,7 @@ static int tls_push_record(struct sock *sk, int flags,
+ 			       msg_pl->sg.size + prot->tail_size, i);
+ 	if (rc < 0) {
+ 		if (rc != -EINPROGRESS) {
+-			tls_err_abort(sk, EBADMSG);
++			tls_err_abort(sk, -EBADMSG);
+ 			if (split) {
+ 				tls_ctx->pending_open_record_frags = true;
+ 				tls_merge_open_record(sk, rec, tmp, orig_end);
+@@ -1827,7 +1836,7 @@ int tls_sw_recvmsg(struct sock *sk,
+ 		err = decrypt_skb_update(sk, skb, &msg->msg_iter,
+ 					 &chunk, &zc, async_capable);
+ 		if (err < 0 && err != -EINPROGRESS) {
+-			tls_err_abort(sk, EBADMSG);
++			tls_err_abort(sk, -EBADMSG);
+ 			goto recv_end;
+ 		}
+ 
+@@ -2007,7 +2016,7 @@ ssize_t tls_sw_splice_read(struct socket *sock,  loff_t *ppos,
+ 		}
+ 
+ 		if (err < 0) {
+-			tls_err_abort(sk, EBADMSG);
++			tls_err_abort(sk, -EBADMSG);
+ 			goto splice_read_end;
+ 		}
+ 		ctx->decrypted = 1;
 
-  Details:     https://kernelci.org/test/plan/id/617bd135582f28976d3358f7
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.214=
--12-g143e6d0d992a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.214=
--12-g143e6d0d992a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/617bd136582f289=
-76d3358fa
-        new failure (last pass: v4.19.214-7-ga1dea1931bd1)
-        2 lines
-
-    2021-10-29T10:46:56.533753  <8>[   21.088287] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-10-29T10:46:56.579536  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/112
-    2021-10-29T10:46:56.588886  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
