@@ -2,32 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF07E4408DA
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 14:57:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C72364408DF
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:01:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230153AbhJ3NA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:00:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42662 "EHLO mail.kernel.org"
+        id S229758AbhJ3ND5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:03:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230082AbhJ3NA2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:00:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2971860EB4;
-        Sat, 30 Oct 2021 12:57:58 +0000 (UTC)
+        id S229640AbhJ3ND5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:03:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98E44604DA;
+        Sat, 30 Oct 2021 13:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635598678;
-        bh=ky04Zk3rY6o0/Lys5MN/BO/lS0CBI/TXN1lwFVEUbEE=;
+        s=korg; t=1635598887;
+        bh=hNcenQTxQqBkYZwbLAqAIHQ2+fUEfPrAyd0elrpBMNA=;
         h=Subject:To:Cc:From:Date:From;
-        b=MUf3jDMu9l9llATa9snHJXp/8i/WfjsueHQn8ZaNYK/lXjCjXtJ/NhbrlVHGV1UyU
-         ZF96eJ7sIDviwlxWrEpkg5STFfWkSvut5+qaA9E/6FCqXUiIxSl9zMyBEJnp+cLjeN
-         uxh/1H78Pts9twy76P6iAa7hR9DMgoN1BObtn+YY=
-Subject: FAILED: patch "[PATCH] IB/qib: Protect from buffer overflow in struct" failed to apply to 4.14-stable tree
-To:     mike.marciniszyn@cornelisnetworks.com,
-        dennis.dalessandro@cornelisnetworks.com, ivansprundel@ioactive.com,
-        jgg@nvidia.com
+        b=AG7RVnNjZL1UpLMakirDzRtBK2HH5DF0lnVG+KkNfgRm+eyQDE+oBVHUHCTCRpiyQ
+         NfdJTTbxsffA/1v3587MNaysQcyndMQUQtpCGrItU5o+bqSixKIltb8lkvz8Mfc9NT
+         w6ovuagQhqQyJ2UVhDc7id/3Lv/gjFj5ZCdrbTW0=
+Subject: FAILED: patch "[PATCH] net: batman-adv: fix error handling" failed to apply to 4.4-stable tree
+To:     paskripkin@gmail.com, davem@davemloft.net, sven@narfation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 14:57:44 +0200
-Message-ID: <163559866445226@kroah.com>
+Date:   Sat, 30 Oct 2021 15:01:24 +0200
+Message-ID: <163559888490194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -47,114 +45,174 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d39bf40e55e666b5905fdbd46a0dced030ce87be Mon Sep 17 00:00:00 2001
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Date: Tue, 12 Oct 2021 13:55:19 -0400
-Subject: [PATCH] IB/qib: Protect from buffer overflow in struct
- qib_user_sdma_pkt fields
+From 6f68cd634856f8ca93bafd623ba5357e0f648c68 Mon Sep 17 00:00:00 2001
+From: Pavel Skripkin <paskripkin@gmail.com>
+Date: Sun, 24 Oct 2021 16:13:56 +0300
+Subject: [PATCH] net: batman-adv: fix error handling
 
-Overflowing either addrlimit or bytes_togo can allow userspace to trigger
-a buffer overflow of kernel memory. Check for overflows in all the places
-doing math on user controlled buffers.
+Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
+in wrong error handling in batadv_mesh_init().
 
-Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
-Link: https://lore.kernel.org/r/20211012175519.7298.77738.stgit@awfm-01.cornelisnetworks.com
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
+of any batadv_*_init() calls failure. This approach may work well, when
+there is some kind of indicator, which can tell which parts of batadv are
+initialized; but there isn't any.
 
-diff --git a/drivers/infiniband/hw/qib/qib_user_sdma.c b/drivers/infiniband/hw/qib/qib_user_sdma.c
-index a67599b5a550..ac11943a5ddb 100644
---- a/drivers/infiniband/hw/qib/qib_user_sdma.c
-+++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
-@@ -602,7 +602,7 @@ static int qib_user_sdma_coalesce(const struct qib_devdata *dd,
- /*
-  * How many pages in this iovec element?
-  */
--static int qib_user_sdma_num_pages(const struct iovec *iov)
-+static size_t qib_user_sdma_num_pages(const struct iovec *iov)
- {
- 	const unsigned long addr  = (unsigned long) iov->iov_base;
- 	const unsigned long  len  = iov->iov_len;
-@@ -658,7 +658,7 @@ static void qib_user_sdma_free_pkt_frag(struct device *dev,
- static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
- 				   struct qib_user_sdma_queue *pq,
- 				   struct qib_user_sdma_pkt *pkt,
--				   unsigned long addr, int tlen, int npages)
-+				   unsigned long addr, int tlen, size_t npages)
- {
- 	struct page *pages[8];
- 	int i, j;
-@@ -722,7 +722,7 @@ static int qib_user_sdma_pin_pkt(const struct qib_devdata *dd,
- 	unsigned long idx;
+All written above lead to cleaning up uninitialized fields. Even if we hide
+ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
+GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
+
+To fix these bugs we can unwind batadv_*_init() calls one by one.
+It is good approach for 2 reasons: 1) It fixes bugs on error handling
+path 2) It improves the performance, since we won't call unneeded
+batadv_*_free() functions.
+
+So, this patch makes all batadv_*_init() clean up all allocated memory
+before returning with an error to no call correspoing batadv_*_free()
+and open-codes batadv_mesh_free() with proper order to avoid touching
+uninitialized fields.
+
+Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
+Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
+index 1669744304c5..17687848daec 100644
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -1560,10 +1560,14 @@ int batadv_bla_init(struct batadv_priv *bat_priv)
+ 		return 0;
  
- 	for (idx = 0; idx < niov; idx++) {
--		const int npages = qib_user_sdma_num_pages(iov + idx);
-+		const size_t npages = qib_user_sdma_num_pages(iov + idx);
- 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
+ 	bat_priv->bla.claim_hash = batadv_hash_new(128);
+-	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.claim_hash)
++		return -ENOMEM;
  
- 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
-@@ -824,8 +824,8 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
- 		unsigned pktnw;
- 		unsigned pktnwc;
- 		int nfrags = 0;
--		int npages = 0;
--		int bytes_togo = 0;
-+		size_t npages = 0;
-+		size_t bytes_togo = 0;
- 		int tiddma = 0;
- 		int cfur;
+-	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
++	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.backbone_hash) {
++		batadv_hash_destroy(bat_priv->bla.claim_hash);
+ 		return -ENOMEM;
++	}
  
-@@ -885,7 +885,11 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
+ 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
+ 				   &batadv_claim_hash_lock_class_key);
+diff --git a/net/batman-adv/main.c b/net/batman-adv/main.c
+index 3ddd66e4c29e..5207cd8d6ad8 100644
+--- a/net/batman-adv/main.c
++++ b/net/batman-adv/main.c
+@@ -190,29 +190,41 @@ int batadv_mesh_init(struct net_device *soft_iface)
  
- 			npages += qib_user_sdma_num_pages(&iov[idx]);
+ 	bat_priv->gw.generation = 0;
  
--			bytes_togo += slen;
-+			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
-+			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
- 			pktnwc += slen >> 2;
- 			idx++;
- 			nfrags++;
-@@ -904,8 +908,7 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
- 		}
+-	ret = batadv_v_mesh_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
+-
+ 	ret = batadv_originator_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_orig;
++	}
  
- 		if (frag_size) {
--			int tidsmsize, n;
--			size_t pktsize;
-+			size_t tidsmsize, n, pktsize, sz, addrlimit;
+ 	ret = batadv_tt_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_tt;
++	}
++
++	ret = batadv_v_mesh_init(bat_priv);
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_v;
++	}
  
- 			n = npages*((2*PAGE_SIZE/frag_size)+1);
- 			pktsize = struct_size(pkt, addr, n);
-@@ -923,14 +926,24 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
- 			else
- 				tidsmsize = 0;
+ 	ret = batadv_bla_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_bla;
++	}
  
--			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
-+			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt = kmalloc(sz, GFP_KERNEL);
- 			if (!pkt) {
- 				ret = -ENOMEM;
- 				goto free_pbc;
- 			}
- 			pkt->largepkt = 1;
- 			pkt->frag_size = frag_size;
--			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
-+			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
-+					       &addrlimit) ||
-+			    addrlimit > type_max(typeof(pkt->addrlimit))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt->addrlimit = addrlimit;
+ 	ret = batadv_dat_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_dat;
++	}
  
- 			if (tiddma) {
- 				char *tidsm = (char *)pkt + pktsize;
+ 	ret = batadv_nc_mesh_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_nc;
++	}
+ 
+ 	batadv_gw_init(bat_priv);
+ 	batadv_mcast_init(bat_priv);
+@@ -222,8 +234,20 @@ int batadv_mesh_init(struct net_device *soft_iface)
+ 
+ 	return 0;
+ 
+-err:
+-	batadv_mesh_free(soft_iface);
++err_nc:
++	batadv_dat_free(bat_priv);
++err_dat:
++	batadv_bla_free(bat_priv);
++err_bla:
++	batadv_v_mesh_free(bat_priv);
++err_v:
++	batadv_tt_free(bat_priv);
++err_tt:
++	batadv_originator_free(bat_priv);
++err_orig:
++	batadv_purge_outstanding_packets(bat_priv, NULL);
++	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
++
+ 	return ret;
+ }
+ 
+diff --git a/net/batman-adv/network-coding.c b/net/batman-adv/network-coding.c
+index 9f06132e007d..0a7f1d36a6a8 100644
+--- a/net/batman-adv/network-coding.c
++++ b/net/batman-adv/network-coding.c
+@@ -152,8 +152,10 @@ int batadv_nc_mesh_init(struct batadv_priv *bat_priv)
+ 				   &batadv_nc_coding_hash_lock_class_key);
+ 
+ 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
+-	if (!bat_priv->nc.decoding_hash)
++	if (!bat_priv->nc.decoding_hash) {
++		batadv_hash_destroy(bat_priv->nc.coding_hash);
+ 		goto err;
++	}
+ 
+ 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
+ 				   &batadv_nc_decoding_hash_lock_class_key);
+diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
+index e0b3dace2020..4b7ad6684bc4 100644
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -4162,8 +4162,10 @@ int batadv_tt_init(struct batadv_priv *bat_priv)
+ 		return ret;
+ 
+ 	ret = batadv_tt_global_init(bat_priv);
+-	if (ret < 0)
++	if (ret < 0) {
++		batadv_tt_local_table_free(bat_priv);
+ 		return ret;
++	}
+ 
+ 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
+ 				     batadv_tt_tvlv_unicast_handler_v1,
 
