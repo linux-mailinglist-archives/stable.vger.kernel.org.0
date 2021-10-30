@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE5C4408BA
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 14:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 261474408BB
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 14:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231907AbhJ3M3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 08:29:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35336 "EHLO mail.kernel.org"
+        id S231895AbhJ3M3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 08:29:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231875AbhJ3M27 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 08:28:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CFAA60F92;
-        Sat, 30 Oct 2021 12:26:29 +0000 (UTC)
+        id S231875AbhJ3M3I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 08:29:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26FCF60F45;
+        Sat, 30 Oct 2021 12:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635596789;
-        bh=ub9Y82B9/lzXC946916RNtCALxJZrReE8ZL8kmdAgDY=;
+        s=korg; t=1635596798;
+        bh=HRYmXVHPQOp5rKHZcmSSn9aKRzU+IaDQZ/AG/tqYcMA=;
         h=Subject:To:Cc:From:Date:From;
-        b=tgNllNFpz2eMfcz3EnNoXruin09uu52SgKwLsIWJ6fAnoh6gl0yNNL40iLHV/goL2
-         Lsy3HdHOB3U6Smca3+/dUrp6T7li9IAjucPW0M/7uRJ9oHQkVWpTmDgX0gDy3pFO2z
-         UoH2kujM0hOIQExCCJhnpt3InOaFFR+GCS4n5sng=
-Subject: FAILED: patch "[PATCH] mm: khugepaged: skip huge page collapse for special files" failed to apply to 5.10-stable tree
+        b=Euz0tp2YBQd5SVTjOvGshZGTGJasm9Rl5Zceo3hpnP7BtzP3cTVDkx++9comd7tRa
+         5WVzbiI3TK4kDHYnrJpc2C1ekljP3aGG1JVV2C0MfERdaqJQBKeAIBDHyh5jLtXpmN
+         EeDJklkvQPNcaaXE94+PMKPUuy8ZaSQcA0mXx4aw=
+Subject: FAILED: patch "[PATCH] mm: khugepaged: skip huge page collapse for special files" failed to apply to 5.4-stable tree
 To:     shy828301@gmail.com, akpm@linux-foundation.org,
         andrea.righi@canonical.com, hughd@google.com,
         kirill.shutemov@linux.intel.com, songliubraving@fb.com,
@@ -28,8 +28,8 @@ To:     shy828301@gmail.com, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 14:26:27 +0200
-Message-ID: <1635596787134163@kroah.com>
+Date:   Sat, 30 Oct 2021 14:26:28 +0200
+Message-ID: <16355967889875@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -38,7 +38,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
