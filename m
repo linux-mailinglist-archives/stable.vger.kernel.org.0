@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D7E94408F5
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:08:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D284408F6
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:08:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230043AbhJ3NKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:10:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44674 "EHLO mail.kernel.org"
+        id S229758AbhJ3NKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:10:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229758AbhJ3NKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:10:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 386C561040;
-        Sat, 30 Oct 2021 13:08:09 +0000 (UTC)
+        id S229640AbhJ3NKq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:10:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B693260EFF;
+        Sat, 30 Oct 2021 13:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635599289;
-        bh=iot9tPwF38uR/Pxx7e85KLm3tJODBlIflkRTdEtuiL0=;
+        s=korg; t=1635599296;
+        bh=7v05NEdDhTOl4L/5d2Z1xoUF34v9dkBMoZHKL5VrJb8=;
         h=Subject:To:Cc:From:Date:From;
-        b=TJfLDgs4f9rj8ik0K1QP4Nwz0rMo6FzgJWmBC5PgL5dg/bRc/T1TbnEyonKbm1uuW
-         0WbR0YhpL756W2XYMImO6IjgH90vkzTKdzvIfUXsWFbTJOKFOeFMx562SIM++SrIws
-         chY5LICdc+zHWtpK++R8DVQtU5b8swKYq96BwU2s=
-Subject: FAILED: patch "[PATCH] net: hns3: fix pause config problem after autoneg disabled" failed to apply to 5.4-stable tree
-To:     huangguangbin2@huawei.com, davem@davemloft.net
+        b=Zkkf56o73d5F8NkGDQLVfsaBoEwfjRx5EnXEKZlSVzTtQDTDUF/3wji04dNutBErP
+         DLYAdiIWqZYXLz9DNhow5xIUVlfKYYrE0d3tIhv1tMCKFC6/sTbueKoUeF4TslSc4R
+         3zarNL0aNdktu6xR1isRVClJxqWPuy61LERrvPn4=
+Subject: FAILED: patch "[PATCH] net: hns3: fix data endian problem of some functions of" failed to apply to 5.4-stable tree
+To:     wangjie125@huawei.com, davem@davemloft.net,
+        huangguangbin2@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 15:07:59 +0200
-Message-ID: <1635599279188200@kroah.com>
+Date:   Sat, 30 Oct 2021 15:08:14 +0200
+Message-ID: <163559929415149@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -45,168 +46,121 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3bda2e5df476417b6d08967e2d84234a59d57b1c Mon Sep 17 00:00:00 2001
-From: Guangbin Huang <huangguangbin2@huawei.com>
-Date: Wed, 27 Oct 2021 20:11:43 +0800
-Subject: [PATCH] net: hns3: fix pause config problem after autoneg disabled
+From 2a21dab594a98c338c4bfbc31864cbca15888549 Mon Sep 17 00:00:00 2001
+From: Jie Wang <wangjie125@huawei.com>
+Date: Wed, 27 Oct 2021 20:11:46 +0800
+Subject: [PATCH] net: hns3: fix data endian problem of some functions of
+ debugfs
 
-If a TP port is configured by follow steps:
-1.ethtool -s ethx autoneg off speed 100 duplex full
-2.ethtool -A ethx rx on tx on
-3.ethtool -s ethx autoneg on(rx&tx negotiated pause results are off)
-4.ethtool -s ethx autoneg off speed 100 duplex full
+The member data in struct hclge_desc is type of __le32, it needs endian
+conversion before using it, and some functions of debugfs didn't do that,
+so this patch fixes it.
 
-In step 3, driver will set rx&tx pause parameters of hardware to off as
-pause parameters negotiated with link partner are off.
-
-After step 4, the "ethtool -a ethx" command shows both rx and tx pause
-parameters are on. However, pause parameters of hardware are still off
-and port has no flow control function actually.
-
-To fix this problem, if autoneg is disabled, driver uses its saved
-parameters to restore pause of hardware. If the speed is not changed in
-this case, there is no link state changed for phy, it will cause the pause
-parameter is not taken effect, so we need to force phy to go down and up.
-
-Fixes: aacbe27e82f0 ("net: hns3: modify how pause options is displayed")
+Fixes: c0ebebb9ccc1 ("net: hns3: Add "dcb register" status information query function")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
 Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-index d701451596c8..da3a593f6a56 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-@@ -568,6 +568,7 @@ struct hnae3_ae_ops {
- 			       u32 *auto_neg, u32 *rx_en, u32 *tx_en);
- 	int (*set_pauseparam)(struct hnae3_handle *handle,
- 			      u32 auto_neg, u32 rx_en, u32 tx_en);
-+	int (*restore_pauseparam)(struct hnae3_handle *handle);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+index 32f62cd2dd99..9cda8b3562b8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.c
+@@ -391,7 +391,7 @@ static int hclge_dbg_dump_mac(struct hclge_dev *hdev, char *buf, int len)
+ static int hclge_dbg_dump_dcb_qset(struct hclge_dev *hdev, char *buf, int len,
+ 				   int *pos)
+ {
+-	struct hclge_dbg_bitmap_cmd *bitmap;
++	struct hclge_dbg_bitmap_cmd req;
+ 	struct hclge_desc desc;
+ 	u16 qset_id, qset_num;
+ 	int ret;
+@@ -408,12 +408,12 @@ static int hclge_dbg_dump_dcb_qset(struct hclge_dev *hdev, char *buf, int len,
+ 		if (ret)
+ 			return ret;
  
- 	int (*set_autoneg)(struct hnae3_handle *handle, bool enable);
- 	int (*get_autoneg)(struct hnae3_handle *handle);
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-index 5ebd96f6833d..7d92dd273ed7 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-@@ -824,6 +824,26 @@ static int hns3_check_ksettings_param(const struct net_device *netdev,
+-		bitmap = (struct hclge_dbg_bitmap_cmd *)&desc.data[1];
++		req.bitmap = (u8)le32_to_cpu(desc.data[1]);
+ 
+ 		*pos += scnprintf(buf + *pos, len - *pos,
+ 				  "%04u           %#x            %#x             %#x               %#x\n",
+-				  qset_id, bitmap->bit0, bitmap->bit1,
+-				  bitmap->bit2, bitmap->bit3);
++				  qset_id, req.bit0, req.bit1, req.bit2,
++				  req.bit3);
+ 	}
+ 
+ 	return 0;
+@@ -422,7 +422,7 @@ static int hclge_dbg_dump_dcb_qset(struct hclge_dev *hdev, char *buf, int len,
+ static int hclge_dbg_dump_dcb_pri(struct hclge_dev *hdev, char *buf, int len,
+ 				  int *pos)
+ {
+-	struct hclge_dbg_bitmap_cmd *bitmap;
++	struct hclge_dbg_bitmap_cmd req;
+ 	struct hclge_desc desc;
+ 	u8 pri_id, pri_num;
+ 	int ret;
+@@ -439,12 +439,11 @@ static int hclge_dbg_dump_dcb_pri(struct hclge_dev *hdev, char *buf, int len,
+ 		if (ret)
+ 			return ret;
+ 
+-		bitmap = (struct hclge_dbg_bitmap_cmd *)&desc.data[1];
++		req.bitmap = (u8)le32_to_cpu(desc.data[1]);
+ 
+ 		*pos += scnprintf(buf + *pos, len - *pos,
+ 				  "%03u       %#x           %#x                %#x\n",
+-				  pri_id, bitmap->bit0, bitmap->bit1,
+-				  bitmap->bit2);
++				  pri_id, req.bit0, req.bit1, req.bit2);
+ 	}
+ 
+ 	return 0;
+@@ -453,7 +452,7 @@ static int hclge_dbg_dump_dcb_pri(struct hclge_dev *hdev, char *buf, int len,
+ static int hclge_dbg_dump_dcb_pg(struct hclge_dev *hdev, char *buf, int len,
+ 				 int *pos)
+ {
+-	struct hclge_dbg_bitmap_cmd *bitmap;
++	struct hclge_dbg_bitmap_cmd req;
+ 	struct hclge_desc desc;
+ 	u8 pg_id;
+ 	int ret;
+@@ -466,12 +465,11 @@ static int hclge_dbg_dump_dcb_pg(struct hclge_dev *hdev, char *buf, int len,
+ 		if (ret)
+ 			return ret;
+ 
+-		bitmap = (struct hclge_dbg_bitmap_cmd *)&desc.data[1];
++		req.bitmap = (u8)le32_to_cpu(desc.data[1]);
+ 
+ 		*pos += scnprintf(buf + *pos, len - *pos,
+ 				  "%03u      %#x           %#x               %#x\n",
+-				  pg_id, bitmap->bit0, bitmap->bit1,
+-				  bitmap->bit2);
++				  pg_id, req.bit0, req.bit1, req.bit2);
+ 	}
+ 
+ 	return 0;
+@@ -511,7 +509,7 @@ static int hclge_dbg_dump_dcb_queue(struct hclge_dev *hdev, char *buf, int len,
+ static int hclge_dbg_dump_dcb_port(struct hclge_dev *hdev, char *buf, int len,
+ 				   int *pos)
+ {
+-	struct hclge_dbg_bitmap_cmd *bitmap;
++	struct hclge_dbg_bitmap_cmd req;
+ 	struct hclge_desc desc;
+ 	u8 port_id = 0;
+ 	int ret;
+@@ -521,12 +519,12 @@ static int hclge_dbg_dump_dcb_port(struct hclge_dev *hdev, char *buf, int len,
+ 	if (ret)
+ 		return ret;
+ 
+-	bitmap = (struct hclge_dbg_bitmap_cmd *)&desc.data[1];
++	req.bitmap = (u8)le32_to_cpu(desc.data[1]);
+ 
+ 	*pos += scnprintf(buf + *pos, len - *pos, "port_mask: %#x\n",
+-			 bitmap->bit0);
++			 req.bit0);
+ 	*pos += scnprintf(buf + *pos, len - *pos, "port_shaping_pass: %#x\n",
+-			 bitmap->bit1);
++			 req.bit1);
+ 
  	return 0;
  }
- 
-+static int hns3_set_phy_link_ksettings(struct net_device *netdev,
-+				       const struct ethtool_link_ksettings *cmd)
-+{
-+	struct hnae3_handle *handle = hns3_get_handle(netdev);
-+	const struct hnae3_ae_ops *ops = handle->ae_algo->ops;
-+	int ret;
-+
-+	if (cmd->base.speed == SPEED_1000 &&
-+	    cmd->base.autoneg == AUTONEG_DISABLE)
-+		return -EINVAL;
-+
-+	if (cmd->base.autoneg == AUTONEG_DISABLE && ops->restore_pauseparam) {
-+		ret = ops->restore_pauseparam(handle);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return phy_ethtool_ksettings_set(netdev->phydev, cmd);
-+}
-+
- static int hns3_set_link_ksettings(struct net_device *netdev,
- 				   const struct ethtool_link_ksettings *cmd)
- {
-@@ -842,16 +862,11 @@ static int hns3_set_link_ksettings(struct net_device *netdev,
- 		  cmd->base.autoneg, cmd->base.speed, cmd->base.duplex);
- 
- 	/* Only support ksettings_set for netdev with phy attached for now */
--	if (netdev->phydev) {
--		if (cmd->base.speed == SPEED_1000 &&
--		    cmd->base.autoneg == AUTONEG_DISABLE)
--			return -EINVAL;
--
--		return phy_ethtool_ksettings_set(netdev->phydev, cmd);
--	} else if (test_bit(HNAE3_DEV_SUPPORT_PHY_IMP_B, ae_dev->caps) &&
--		   ops->set_phy_link_ksettings) {
-+	if (netdev->phydev)
-+		return hns3_set_phy_link_ksettings(netdev, cmd);
-+	else if (test_bit(HNAE3_DEV_SUPPORT_PHY_IMP_B, ae_dev->caps) &&
-+		 ops->set_phy_link_ksettings)
- 		return ops->set_phy_link_ksettings(handle, cmd);
--	}
- 
- 	if (ae_dev->dev_version < HNAE3_DEVICE_VERSION_V2)
- 		return -EOPNOTSUPP;
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index dcd40cc73082..c6b9806c75a5 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -11021,6 +11021,35 @@ static int hclge_set_pauseparam(struct hnae3_handle *handle, u32 auto_neg,
- 	return -EOPNOTSUPP;
- }
- 
-+static int hclge_restore_pauseparam(struct hnae3_handle *handle)
-+{
-+	struct hclge_vport *vport = hclge_get_vport(handle);
-+	struct hclge_dev *hdev = vport->back;
-+	u32 auto_neg, rx_pause, tx_pause;
-+	int ret;
-+
-+	hclge_get_pauseparam(handle, &auto_neg, &rx_pause, &tx_pause);
-+	/* when autoneg is disabled, the pause setting of phy has no effect
-+	 * unless the link goes down.
-+	 */
-+	ret = phy_suspend(hdev->hw.mac.phydev);
-+	if (ret)
-+		return ret;
-+
-+	phy_set_asym_pause(hdev->hw.mac.phydev, rx_pause, tx_pause);
-+
-+	ret = phy_resume(hdev->hw.mac.phydev);
-+	if (ret)
-+		return ret;
-+
-+	ret = hclge_mac_pause_setup_hw(hdev);
-+	if (ret)
-+		dev_err(&hdev->pdev->dev,
-+			"restore pauseparam error, ret = %d.\n", ret);
-+
-+	return ret;
-+}
-+
- static void hclge_get_ksettings_an_result(struct hnae3_handle *handle,
- 					  u8 *auto_neg, u32 *speed, u8 *duplex)
- {
-@@ -12984,6 +13013,7 @@ static const struct hnae3_ae_ops hclge_ops = {
- 	.halt_autoneg = hclge_halt_autoneg,
- 	.get_pauseparam = hclge_get_pauseparam,
- 	.set_pauseparam = hclge_set_pauseparam,
-+	.restore_pauseparam = hclge_restore_pauseparam,
- 	.set_mtu = hclge_set_mtu,
- 	.reset_queue = hclge_reset_tqp,
- 	.get_stats = hclge_get_stats,
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-index 95074e91a846..124791e4bfee 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-@@ -1435,7 +1435,7 @@ static int hclge_bp_setup_hw(struct hclge_dev *hdev, u8 tc)
- 	return 0;
- }
- 
--static int hclge_mac_pause_setup_hw(struct hclge_dev *hdev)
-+int hclge_mac_pause_setup_hw(struct hclge_dev *hdev)
- {
- 	bool tx_en, rx_en;
- 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
-index 2ee9b795f71d..4b2c3a788980 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
-@@ -244,6 +244,7 @@ int hclge_tm_get_pri_weight(struct hclge_dev *hdev, u8 pri_id, u8 *weight);
- int hclge_tm_get_pri_shaper(struct hclge_dev *hdev, u8 pri_id,
- 			    enum hclge_opcode_type cmd,
- 			    struct hclge_tm_shaper_para *para);
-+int hclge_mac_pause_setup_hw(struct hclge_dev *hdev);
- int hclge_tm_get_q_to_qs_map(struct hclge_dev *hdev, u16 q_id, u16 *qset_id);
- int hclge_tm_get_q_to_tc(struct hclge_dev *hdev, u16 q_id, u8 *tc_id);
- int hclge_tm_get_pg_to_pri_map(struct hclge_dev *hdev, u8 pg_id,
 
