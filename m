@@ -2,156 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9CE4405E4
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 01:51:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C99F94406FF
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 04:54:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231527AbhJ2Xxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Oct 2021 19:53:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59692 "EHLO
+        id S231530AbhJ3C5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Oct 2021 22:57:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231271AbhJ2Xxk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Oct 2021 19:53:40 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A10BC061570
-        for <stable@vger.kernel.org>; Fri, 29 Oct 2021 16:51:11 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id gn3so8254348pjb.0
-        for <stable@vger.kernel.org>; Fri, 29 Oct 2021 16:51:11 -0700 (PDT)
+        with ESMTP id S229700AbhJ3C5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Oct 2021 22:57:06 -0400
+Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B4C6C061570;
+        Fri, 29 Oct 2021 19:54:37 -0700 (PDT)
+Received: by mail-qt1-x82a.google.com with SMTP id r2so9677195qtw.12;
+        Fri, 29 Oct 2021 19:54:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sxU1ftYobtEORyRdUf7h2tFOilrdKEVZj9kWoFnHU+A=;
-        b=Cek8Pqoa3kTBzEvCHlQK6g03pKWiPdMuEbSIR2DvbOZhcYorZe4pfArMvrdOh2EPx+
-         VhME9N4YnvU6d2mW9PKjgaC7hbL5HfB3FLqPX6clmSQDQZ7QovPgPbHdWHI+1x2LGble
-         A1oBZf3NITgwgO1DEqHtoM4VF6WdNFm+kntGM=
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=jB7wLuFVeBRaCCuZXBeTJY8kZP4RLd0O4+lxl57Ejj8=;
+        b=bp3cs1RuPFFgh34vTSzop9PmgEAtvFBeGvPnagP/eExiK8w7UIeeGzHZANNFDzOjfv
+         oqkcB3LAIt5d5X0Tx13EWf89UT0itwa8yNtwvUfYYV9HE3twFjFKEQeYwgA5LQmf8yBx
+         WZ6fXj49FkZR1vezIuWnmAGRM8iQQYq26HiOSoVAzdtoTNKZzVJbZ+/Y7h0j0mBeUF/v
+         XJwi1HfFymuc6Bx9lSoxn+8f/fNyC6t62ektH44FoOLLi1YCzznAXQpXTqG1BSDXZBR4
+         8GukG25iRi+w26NZPCTgYre5tk9Hj7wpvhHjAJJfzRwyEOhNe6K5OxPng0EbzHW7pMJj
+         mM/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sxU1ftYobtEORyRdUf7h2tFOilrdKEVZj9kWoFnHU+A=;
-        b=i2bkky2mwAoWEKJoakUR7iD5thJQQquywY5gYSrQ0+m8AJ9r+GBBdL4VoIOfz8gssc
-         cPWKt+WKn0e7pytLQLA4517XWKSVlwMwePjvajwjOeEr7Us8kh926zQ074Y1KiH86uFq
-         0fBe11ifZW12Uf34DP/VwR4C7OOPa1QDqVOuaxxE95iusEnRKfpx9tKWECZs3kjB880W
-         T8ABFSjswyGbLq0x2sJk5lQFVNl1E7oTBz8G4Fag7/0djM91OQZsaOTa6lPILqfHb3l3
-         dvvlD9TuvArT+vBxs4rpVUw7JsJlO5bT30391WKxNEPsru3iNgxjeAOWmxcSlQmRAhva
-         Filw==
-X-Gm-Message-State: AOAM5307bN3lM4/0W6tXAKAjvr4TfXAPBgzX71xUwKBe5Vv5vyTK/SOM
-        Zm+3/zJn77KgaRUG+dG0S6yiCA==
-X-Google-Smtp-Source: ABdhPJw0BHR3PlSBXHziL290QIkCCOk3K2QATXZjWeBEI1Xs4J0qJGO+UQ/1pRQz91xOG39y0atcnA==
-X-Received: by 2002:a17:90b:3793:: with SMTP id mz19mr23238207pjb.6.1635551470729;
-        Fri, 29 Oct 2021 16:51:10 -0700 (PDT)
-Received: from localhost ([2620:15c:202:201:be89:1308:1b03:6bc4])
-        by smtp.gmail.com with UTF8SMTPSA id a15sm8507398pfv.64.2021.10.29.16.51.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 29 Oct 2021 16:51:10 -0700 (PDT)
-From:   Brian Norris <briannorris@chromium.org>
-To:     Andrzej Hajda <andrzej.hajda@intel.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Robert Foss <robert.foss@linaro.org>
-Cc:     Jonas Karlman <jonas@kwiboo.se>, dri-devel@lists.freedesktop.org,
-        Sean Paul <sean@poorly.run>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Brian Norris <briannorris@chromium.org>,
-        stable@vger.kernel.org, Zain Wang <wzz@rock-chips.com>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sean Paul <seanpaul@chromium.org>
-Subject: [PATCH v2] drm/bridge: analogix_dp: Make PSR-exit block less
-Date:   Fri, 29 Oct 2021 16:50:55 -0700
-Message-Id: <20211029165044.v2.1.I67612ea073c3306c71b46a87be894f79707082df@changeid>
-X-Mailer: git-send-email 2.33.1.1089.g2158813163f-goog
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jB7wLuFVeBRaCCuZXBeTJY8kZP4RLd0O4+lxl57Ejj8=;
+        b=M925VNHIuCP1/vQFw9FAN2hSHEPYiZR2XRVC3ZB+cFLQEIYKM+u6EmWuGHrv7OdIoS
+         qFJeCC97eTwTesvobaf9IptVX6i1Kv37iWsXBgkfgSb26SrI4NCMXVO5/LcAnNepjGVL
+         iApiM8nqsJEoV5UG7h7eru7QWK6/ny7NqRWiV6MWIkPdWCkb+XARIt1mP/InZgoYtT1h
+         qZ4UCXa5ysrREQbZzgeZDlTI/OpLxh+rHJPCemKAiwAtoEjbH37OuxkPE5i1AlaMpiZr
+         web76gddgJR0Ui1U/mztC1rRBh3XuISKX64/v7pFKG5tYHYvBax1mZnedf0nZGWGxc92
+         3gLw==
+X-Gm-Message-State: AOAM530+yzKZI0EDxBDwGYignQK9vWLiF0V8vk/xAAR4c/cJVeffsQpn
+        OJIbioOvUa8rg/baVXx4DjNB/lwnH9+b6kvosyKtjKZBsahJog==
+X-Google-Smtp-Source: ABdhPJxMa0vbfx6UgHhODBZymu7reXsvFbwtEjSJvWCgP57vbFVBw6Q9h2Y2pGjdEOLuQEhE3pq/+889F5L0aZRjZ/o=
+X-Received: by 2002:ac8:5cc5:: with SMTP id s5mr16045347qta.256.1635562476163;
+ Fri, 29 Oct 2021 19:54:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20211022232837.18988-1-ping.cheng@wacom.com> <CAF8JNhJKcB4n98SgD9Q-ETeF_465k7bqgijt+vDBLh5AqMWGrQ@mail.gmail.com>
+In-Reply-To: <CAF8JNhJKcB4n98SgD9Q-ETeF_465k7bqgijt+vDBLh5AqMWGrQ@mail.gmail.com>
+From:   Ping Cheng <pinglinux@gmail.com>
+Date:   Fri, 29 Oct 2021 19:54:24 -0700
+Message-ID: <CAF8JNhJQo3dbT7=2z1NV3+FkCBRuoW4uhWV6U=TEU6mOLf2w3w@mail.gmail.com>
+Subject: Re: [PATCH] HID: input: fix the incorrectly reported
+ BTN_TOOL_RUBBER/PEN tools
+To:     jikos@kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc:     linux-input@vger.kernel.org, stable@vger.kernel.org,
+        Jason Gerecke <killertofu@gmail.com>,
+        Tatsunosuke Tobita <junkpainting@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Prior to commit 6c836d965bad ("drm/rockchip: Use the helpers for PSR"),
-"PSR exit" used non-blocking analogix_dp_send_psr_spd(). The refactor
-started using the blocking variant, for a variety of reasons -- quoting
-Sean Paul's potentially-faulty memory:
+Ok, I know why no one follow-up with my patch. Life wasn't as simple
+as I wished for :).
 
-"""
- - To avoid racing a subsequent PSR entry (if exit takes a long time)
- - To avoid racing disable/modeset
- - We're not displaying new content while exiting PSR anyways, so there
-   is minimal utility in allowing frames to be submitted
- - We're lying to userspace telling them frames are on the screen when
-   we're just dropping them on the floor
-"""
+The patch missed one important fact: repeated events don't go into
+userland. They are filtered! We need to initiate another input_dev to
+hold all the past events for the coming tool, whether it is PEN or
+RUBBER. So, it is more like a simplified multi-pen case, right? What's
+your suggestions? Do we claim two tools for this particular use case?
 
-However, I'm finding that this blocking transition is causing upwards of
-60+ ms of unneeded latency on PSR-exit, to the point that initial cursor
-movements when leaving PSR are unbearably jumpy.
-
-It turns out that we need to meet in the middle somewhere: Sean is right
-that we were "lying to userspace" with a non-blocking PSR-exit, but the
-new blocking behavior is also waiting too long:
-
-According to the eDP specification, the sink device must support PSR
-entry transitions from both state 4 (ACTIVE_RESYNC) and state 0
-(INACTIVE). It also states that in ACTIVE_RESYNC, "the Sink device must
-display the incoming active frames from the Source device with no
-visible glitches and/or artifacts."
-
-Thus, for our purposes, we only need to wait for ACTIVE_RESYNC before
-moving on; we are ready to display video, and subsequent PSR-entry is
-safe.
-
-Tested on a Samsung Chromebook Plus (i.e., Rockchip RK3399 Gru Kevin),
-where this saves about 60ms of latency, for PSR-exit that used to
-take about 80ms.
-
-Fixes: 6c836d965bad ("drm/rockchip: Use the helpers for PSR")
-Cc: <stable@vger.kernel.org>
-Cc: Zain Wang <wzz@rock-chips.com>
-Cc: Tomasz Figa <tfiga@chromium.org>
-Cc: Heiko Stuebner <heiko@sntech.de>
-Cc: Sean Paul <seanpaul@chromium.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
----
-CC list is partially constructed from the commit message of the Fixed
-commit
-
-Changes in v2:
- - retitled subject (previous: "drm/bridge: analogix_dp: Make
-   PSR-disable non-blocking")
- - instead of completely non-blocking, make this "less"-blocking
- - more background (thanks Sean!)
- - more specification details
-
- drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-index cab6c8b92efd..f8e119e84ae2 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-@@ -998,11 +998,21 @@ int analogix_dp_send_psr_spd(struct analogix_dp_device *dp,
- 	if (!blocking)
- 		return 0;
- 
-+	/*
-+	 * db[1]==0: entering PSR, wait for fully active remote frame buffer.
-+	 * db[1]!=0: exiting PSR, wait for either
-+	 *  (a) ACTIVE_RESYNC - the sink "must display the
-+	 *      incoming active frames from the Source device with no visible
-+	 *      glitches and/or artifacts", even though timings may still be
-+	 *      re-synchronizing; or
-+	 *  (b) INACTIVE - the transition is fully complete.
-+	 */
- 	ret = readx_poll_timeout(analogix_dp_get_psr_status, dp, psr_status,
- 		psr_status >= 0 &&
- 		((vsc->db[1] && psr_status == DP_PSR_SINK_ACTIVE_RFB) ||
--		(!vsc->db[1] && psr_status == DP_PSR_SINK_INACTIVE)), 1500,
--		DP_TIMEOUT_PSR_LOOP_MS * 1000);
-+		(!vsc->db[1] && (psr_status == DP_PSR_SINK_ACTIVE_RESYNC ||
-+				 psr_status == DP_PSR_SINK_INACTIVE))),
-+		1500, DP_TIMEOUT_PSR_LOOP_MS * 1000);
- 	if (ret) {
- 		dev_warn(dp->dev, "Failed to apply PSR %d\n", ret);
- 		return ret;
--- 
-2.33.1.1089.g2158813163f-goog
-
+On Wed, Oct 27, 2021 at 12:06 PM Ping Cheng <pinglinux@gmail.com> wrote:
+>
+> Hi @Dmitry Torokhov and @Benjamin Tissoires,
+>
+> Do you have any comments about this patch? The issue and the logic
+> behind the fix has been explained in the commit comment and in the
+> code. Jiri is probably waiting for an acknowledgment from one of
+> you...
+>
+> Thank you,
+> Ping
+>
+> On Fri, Oct 22, 2021 at 4:29 PM Ping Cheng <pinglinux@gmail.com> wrote:
+> >
+> > The HID_QUIRK_INVERT caused BTN_TOOL_RUBBER events were reported at the
+> > same time as events for BTN_TOOL_PEN/PENCIL/etc, if HID_QUIRK_INVERT
+> > was set by a stylus' sideswitch. The reality is that a pen can only be
+> > a stylus (writing/drawing) or an eraser, but not both at the same time.
+> > This patch makes that logic correct.
+> >
+> > CC: stable@vger.kernel.org # 2.4+
+> > Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+> > Reviewed-by: Jason Gerecke <killertofu@gmail.com>
+> > Tested-by: Tatsunosuke Tobita <junkpainting@gmail.com>
+> > ---
+> >  drivers/hid/hid-input.c | 24 ++++++++++++++++++++----
+> >  1 file changed, 20 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> > index 4b5ebeacd283..85741a2d828d 100644
+> > --- a/drivers/hid/hid-input.c
+> > +++ b/drivers/hid/hid-input.c
+> > @@ -1344,12 +1344,28 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+> >         }
+> >
+> >         if (usage->hid == HID_DG_INRANGE) {
+> > +               /* when HID_QUIRK_INVERT is set by a stylus sideswitch, HID_DG_INRANGE could be
+> > +                * for stylus or eraser. Make sure events are only posted to the current valid tool:
+> > +                * BTN_TOOL_RUBBER vs BTN_TOOL_PEN/BTN_TOOL_PENCIL/BTN_TOOL_BRUSH/etc since a pen
+> > +                * can not be used as a stylus (to draw/write) and an erasaer at the same time
+> > +                */
+> > +               static unsigned int last_code = 0;
+> > +               unsigned int code = (*quirks & HID_QUIRK_INVERT) ? BTN_TOOL_RUBBER : usage->code;
+> >                 if (value) {
+> > -                       input_event(input, usage->type, (*quirks & HID_QUIRK_INVERT) ? BTN_TOOL_RUBBER : usage->code, 1);
+> > -                       return;
+> > +                       if (code != last_code) {
+> > +                               /* send the last tool out before allow the new one in */
+> > +                               if (last_code)
+> > +                                       input_event(input, usage->type, last_code, 0);
+> > +                               input_event(input, usage->type, code, 1);
+> > +                       }
+> > +                       last_code = code;
+> > +               } else {
+> > +                       /* only send the last valid tool out */
+> > +                       if (last_code)
+> > +                               input_event(input, usage->type, last_code, 0);
+> > +                       /* reset tool for next cycle */
+> > +                       last_code = 0;
+> >                 }
+> > -               input_event(input, usage->type, usage->code, 0);
+> > -               input_event(input, usage->type, BTN_TOOL_RUBBER, 0);
+> >                 return;
+> >         }
+> >
+> > --
+> > 2.25.1
+> >
