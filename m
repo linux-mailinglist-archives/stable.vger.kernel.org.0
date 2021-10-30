@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC7644408B9
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 14:26:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFE5C4408BA
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 14:26:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231932AbhJ3M2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 08:28:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35276 "EHLO mail.kernel.org"
+        id S231907AbhJ3M3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 08:29:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231907AbhJ3M2m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 08:28:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9CAC60F45;
-        Sat, 30 Oct 2021 12:26:11 +0000 (UTC)
+        id S231875AbhJ3M27 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 08:28:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CFAA60F92;
+        Sat, 30 Oct 2021 12:26:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635596772;
-        bh=WRChnOc7K+fbQnnV3gndGNdLpDQIEZbg+h6a4vxkcFE=;
+        s=korg; t=1635596789;
+        bh=ub9Y82B9/lzXC946916RNtCALxJZrReE8ZL8kmdAgDY=;
         h=Subject:To:Cc:From:Date:From;
-        b=oNEEKcGcnxeqKVuvppge5XZpo204gl7yiXktJMG3BCLgNRJh/cHF523sakZNU34Te
-         PkeHaeGv3fHZaggYq4MSwgbFaAIsUfYJT01OD+cOT6WBIoDHgwbotgNT+Op0dZwtHN
-         qtnNdo7zd9F524k16HQPyCZNgmAComSeLgaOBTU4=
-Subject: FAILED: patch "[PATCH] mm, thp: bail out early in collapse_file for writeback page" failed to apply to 5.4-stable tree
-To:     rongwei.wang@linux.alibaba.com, akpm@linux-foundation.org,
-        hughd@google.com, kirill.shutemov@linux.intel.com,
-        mike.kravetz@oracle.com, shy828301@gmail.com, song@kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        william.kucharski@oracle.com, willy@infradead.org,
-        xuyu@linux.alibaba.com
+        b=tgNllNFpz2eMfcz3EnNoXruin09uu52SgKwLsIWJ6fAnoh6gl0yNNL40iLHV/goL2
+         Lsy3HdHOB3U6Smca3+/dUrp6T7li9IAjucPW0M/7uRJ9oHQkVWpTmDgX0gDy3pFO2z
+         UoH2kujM0hOIQExCCJhnpt3InOaFFR+GCS4n5sng=
+Subject: FAILED: patch "[PATCH] mm: khugepaged: skip huge page collapse for special files" failed to apply to 5.10-stable tree
+To:     shy828301@gmail.com, akpm@linux-foundation.org,
+        andrea.righi@canonical.com, hughd@google.com,
+        kirill.shutemov@linux.intel.com, songliubraving@fb.com,
+        stable@vger.kernel.org, sunhao.th@gmail.com,
+        torvalds@linux-foundation.org, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 14:26:10 +0200
-Message-ID: <163559677070179@kroah.com>
+Date:   Sat, 30 Oct 2021 14:26:27 +0200
+Message-ID: <1635596787134163@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +38,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -50,101 +49,76 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 74c42e1baacf206338b1dd6b6199ac964512b5bb Mon Sep 17 00:00:00 2001
-From: Rongwei Wang <rongwei.wang@linux.alibaba.com>
-Date: Thu, 28 Oct 2021 14:36:27 -0700
-Subject: [PATCH] mm, thp: bail out early in collapse_file for writeback page
+From a4aeaa06d45e90f9b279f0b09de84bd00006e733 Mon Sep 17 00:00:00 2001
+From: Yang Shi <shy828301@gmail.com>
+Date: Thu, 28 Oct 2021 14:36:30 -0700
+Subject: [PATCH] mm: khugepaged: skip huge page collapse for special files
 
-Currently collapse_file does not explicitly check PG_writeback, instead,
-page_has_private and try_to_release_page are used to filter writeback
-pages.  This does not work for xfs with blocksize equal to or larger
-than pagesize, because in such case xfs has no page->private.
+The read-only THP for filesystems will collapse THP for files opened
+readonly and mapped with VM_EXEC.  The intended usecase is to avoid TLB
+misses for large text segments.  But it doesn't restrict the file types
+so a THP could be collapsed for a non-regular file, for example, block
+device, if it is opened readonly and mapped with EXEC permission.  This
+may cause bugs, like [1] and [2].
 
-This makes collapse_file bail out early for writeback page.  Otherwise,
-xfs end_page_writeback will panic as follows.
+This is definitely not the intended usecase, so just collapse THP for
+regular files in order to close the attack surface.
 
-  page:fffffe00201bcc80 refcount:0 mapcount:0 mapping:ffff0003f88c86a8 index:0x0 pfn:0x84ef32
-  aops:xfs_address_space_operations [xfs] ino:30000b7 dentry name:"libtest.so"
-  flags: 0x57fffe0000008027(locked|referenced|uptodate|active|writeback)
-  raw: 57fffe0000008027 ffff80001b48bc28 ffff80001b48bc28 ffff0003f88c86a8
-  raw: 0000000000000000 0000000000000000 00000000ffffffff ffff0000c3e9a000
-  page dumped because: VM_BUG_ON_PAGE(((unsigned int) page_ref_count(page) + 127u <= 127u))
-  page->mem_cgroup:ffff0000c3e9a000
-  ------------[ cut here ]------------
-  kernel BUG at include/linux/mm.h:1212!
-  Internal error: Oops - BUG: 0 [#1] SMP
-  Modules linked in:
-  BUG: Bad page state in process khugepaged  pfn:84ef32
-   xfs(E)
-  page:fffffe00201bcc80 refcount:0 mapcount:0 mapping:0 index:0x0 pfn:0x84ef32
-   libcrc32c(E) rfkill(E) aes_ce_blk(E) crypto_simd(E) ...
-  CPU: 25 PID: 0 Comm: swapper/25 Kdump: loaded Tainted: ...
-  pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-  Call trace:
-    end_page_writeback+0x1c0/0x214
-    iomap_finish_page_writeback+0x13c/0x204
-    iomap_finish_ioend+0xe8/0x19c
-    iomap_writepage_end_bio+0x38/0x50
-    bio_endio+0x168/0x1ec
-    blk_update_request+0x278/0x3f0
-    blk_mq_end_request+0x34/0x15c
-    virtblk_request_done+0x38/0x74 [virtio_blk]
-    blk_done_softirq+0xc4/0x110
-    __do_softirq+0x128/0x38c
-    __irq_exit_rcu+0x118/0x150
-    irq_exit+0x1c/0x30
-    __handle_domain_irq+0x8c/0xf0
-    gic_handle_irq+0x84/0x108
-    el1_irq+0xcc/0x180
-    arch_cpu_idle+0x18/0x40
-    default_idle_call+0x4c/0x1a0
-    cpuidle_idle_call+0x168/0x1e0
-    do_idle+0xb4/0x104
-    cpu_startup_entry+0x30/0x9c
-    secondary_start_kernel+0x104/0x180
-  Code: d4210000 b0006161 910c8021 94013f4d (d4210000)
-  ---[ end trace 4a88c6a074082f8c ]---
-  Kernel panic - not syncing: Oops - BUG: Fatal exception in interrupt
+[shy828301@gmail.com: fix vm_file check [3]]
 
-Link: https://lkml.kernel.org/r/20211022023052.33114-1-rongwei.wang@linux.alibaba.com
+Link: https://lore.kernel.org/lkml/CACkBjsYwLYLRmX8GpsDpMthagWOjWWrNxqY6ZLNQVr6yx+f5vA@mail.gmail.com/ [1]
+Link: https://lore.kernel.org/linux-mm/000000000000c6a82505ce284e4c@google.com/ [2]
+Link: https://lkml.kernel.org/r/CAHbLzkqTW9U3VvTu1Ki5v_cLRC9gHW+znBukg_ycergE0JWj-A@mail.gmail.com [3]
+Link: https://lkml.kernel.org/r/20211027195221.3825-1-shy828301@gmail.com
 Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
-Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
-Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
-Suggested-by: Yang Shi <shy828301@gmail.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Song Liu <song@kernel.org>
-Cc: William Kucharski <william.kucharski@oracle.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Reported-by: syzbot+aae069be1de40fb11825@syzkaller.appspotmail.com
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Andrea Righi <andrea.righi@canonical.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
 diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 045cc579f724..48de4e1b0783 100644
+index 48de4e1b0783..8a8b3aa92937 100644
 --- a/mm/khugepaged.c
 +++ b/mm/khugepaged.c
-@@ -1763,6 +1763,10 @@ static void collapse_file(struct mm_struct *mm,
- 				filemap_flush(mapping);
- 				result = SCAN_FAIL;
- 				goto xa_unlocked;
-+			} else if (PageWriteback(page)) {
-+				xas_unlock_irq(&xas);
-+				result = SCAN_FAIL;
-+				goto xa_unlocked;
- 			} else if (trylock_page(page)) {
- 				get_page(page);
- 				xas_unlock_irq(&xas);
-@@ -1798,7 +1802,8 @@ static void collapse_file(struct mm_struct *mm,
- 			goto out_unlock;
- 		}
+@@ -445,22 +445,25 @@ static bool hugepage_vma_check(struct vm_area_struct *vma,
+ 	if (!transhuge_vma_enabled(vma, vm_flags))
+ 		return false;
  
--		if (!is_shmem && PageDirty(page)) {
-+		if (!is_shmem && (PageDirty(page) ||
-+				  PageWriteback(page))) {
- 			/*
- 			 * khugepaged only works on read-only fd, so this
- 			 * page is dirty because it hasn't been flushed
++	if (vma->vm_file && !IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) -
++				vma->vm_pgoff, HPAGE_PMD_NR))
++		return false;
++
+ 	/* Enabled via shmem mount options or sysfs settings. */
+-	if (shmem_file(vma->vm_file) && shmem_huge_enabled(vma)) {
+-		return IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) - vma->vm_pgoff,
+-				HPAGE_PMD_NR);
+-	}
++	if (shmem_file(vma->vm_file))
++		return shmem_huge_enabled(vma);
+ 
+ 	/* THP settings require madvise. */
+ 	if (!(vm_flags & VM_HUGEPAGE) && !khugepaged_always())
+ 		return false;
+ 
+-	/* Read-only file mappings need to be aligned for THP to work. */
++	/* Only regular file is valid */
+ 	if (IS_ENABLED(CONFIG_READ_ONLY_THP_FOR_FS) && vma->vm_file &&
+-	    !inode_is_open_for_write(vma->vm_file->f_inode) &&
+ 	    (vm_flags & VM_EXEC)) {
+-		return IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) - vma->vm_pgoff,
+-				HPAGE_PMD_NR);
++		struct inode *inode = vma->vm_file->f_inode;
++
++		return !inode_is_open_for_write(inode) &&
++			S_ISREG(inode->i_mode);
+ 	}
+ 
+ 	if (!vma->anon_vma || vma->vm_ops)
 
