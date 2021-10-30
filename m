@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78DD04408E0
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:02:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D3A74408E2
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:02:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229987AbhJ3NEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:04:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43470 "EHLO mail.kernel.org"
+        id S229640AbhJ3NEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:04:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229640AbhJ3NEk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:04:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7089060F93;
-        Sat, 30 Oct 2021 13:02:10 +0000 (UTC)
+        id S230063AbhJ3NEv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:04:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12C3B60E9C;
+        Sat, 30 Oct 2021 13:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635598930;
-        bh=v++Fn/kEd0hU8UKUC6U3hXNtqXyikXXLE9YjenBCC4E=;
+        s=korg; t=1635598941;
+        bh=uAlmbFili4KlqqC9Yu8sSWsNN8D0OfulTGbrm0f4bks=;
         h=Subject:To:Cc:From:Date:From;
-        b=sK4rLlaP1ZrWX6i4Nzf3sJbZyVntKHWgLOEZ6pSvH/q/VcyhSJ67UjEPjkfCOYzTR
-         9JpV3WKdB8Ow1aYYR26DML0+YLKr7Z9ln9KqB7t/4jKpfEezFrwdex4mOq1IxolSjS
-         gQDKF7wbYH9yW/CNIy4g63Vft8Hkaoo81vW6f2zE=
-Subject: FAILED: patch "[PATCH] cfg80211: correct bridge/4addr mode check" failed to apply to 5.4-stable tree
+        b=iI20fvWUZ9idLXWAm+FOj8gQ/59yRrPxzkUDP2X3Z8kvxPT3dq75++gHFnnb62w5O
+         ANckJ1NayNMyGNDBIr0sItnY0VMm+YgASNdcRsJ5a739AikI3xa6fwTEAf6d5sCMtO
+         Ju2LUzjJf2lhMkB2Qp0t4IHlW2dL9v/fHPB/V0pI=
+Subject: FAILED: patch "[PATCH] cfg80211: correct bridge/4addr mode check" failed to apply to 4.19-stable tree
 To:     janusz.dziedzic@gmail.com, johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 15:02:08 +0200
-Message-ID: <163559892821331@kroah.com>
+Date:   Sat, 30 Oct 2021 15:02:09 +0200
+Message-ID: <163559892921382@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
