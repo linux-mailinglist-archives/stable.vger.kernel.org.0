@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CD11440900
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83CD54408FF
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:10:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229640AbhJ3NNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:13:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45452 "EHLO mail.kernel.org"
+        id S230063AbhJ3NNW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:13:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230082AbhJ3NNY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:13:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D7E661040;
-        Sat, 30 Oct 2021 13:10:54 +0000 (UTC)
+        id S229640AbhJ3NNW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:13:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4A5F60FD9;
+        Sat, 30 Oct 2021 13:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635599454;
-        bh=xetjLb4TID6OyakVZQQPQerqD/el6sLWfN+2M5JALgw=;
+        s=korg; t=1635599452;
+        bh=AoEuf2INbZh+Z8+4qy1Lg5t9TduekcAAXP4NP4uBDI0=;
         h=Subject:To:Cc:From:Date:From;
-        b=aAChECeCa86xKyBS7aLup5UnbEOJB9syIITQg3CnKbDO+v+eB4mZpPb96r+wLQlFg
-         ObU/aIBNmldKegTuvjOFg11qOVxrkj5d94BdAvA/7uHDT4G/z3MNahTmwa1//VXsbE
-         czz2mAqiBU+OgN7TYyvdjxw4CzTnbMHJ6l4RInkQ=
-Subject: FAILED: patch "[PATCH] phy: phy_ethtool_ksettings_set: Move after phy_start_aneg" failed to apply to 5.4-stable tree
+        b=jdaYd3tzPXO30JhDve6vDxXe9yUQmpSH8r07i6O9Zw0SOWbFpRJzdtG6k9C/iB/Qf
+         Sq6CytOglFQZBB9jEl1t2paYlzAxWPQKTm4qx7qnZ/zOqHZeUk8r+pHe2w3Z/OnHui
+         gg5d1qBJjqrAiOVY3obY87gOGreVcatmN45mBa5A=
+Subject: FAILED: patch "[PATCH] phy: phy_ethtool_ksettings_set: Move after phy_start_aneg" failed to apply to 4.19-stable tree
 To:     andrew@lunn.ch, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 30 Oct 2021 15:10:42 +0200
-Message-ID: <1635599442189211@kroah.com>
+Message-ID: <163559944239173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
