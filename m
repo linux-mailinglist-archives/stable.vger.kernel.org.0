@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACCA2440902
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:11:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FB4B440903
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:11:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230080AbhJ3NNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:13:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45542 "EHLO mail.kernel.org"
+        id S230005AbhJ3NNt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:13:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230005AbhJ3NNk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:13:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 692FA60E9C;
-        Sat, 30 Oct 2021 13:11:10 +0000 (UTC)
+        id S230089AbhJ3NNt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:13:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C558D60E9C;
+        Sat, 30 Oct 2021 13:11:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635599470;
-        bh=5rHL63jDMnCE+mJEmVcr/67HdHK+PwBmbbRDzFQkqxY=;
+        s=korg; t=1635599479;
+        bh=SzRPf2CbYN5zwhvN3XJ2KzYylg+/PIysGx//xn8Fgg4=;
         h=Subject:To:Cc:From:Date:From;
-        b=Jdoyb8sITGeyKuUXeloduXI6xOa8SvKO91aY34OXNNkY20cxXhy1OGq2RXhnWaMwI
-         Eun8Frc/60usUdFrq7layzqJz0GEHyKGuuT3LZ0zfVlQ0O37WfLSOH9ssAQzGjq5S9
-         C99FIje+lR+LiUnxBrWayrIE1Nm3d9bQGFJoCMhk=
-Subject: FAILED: patch "[PATCH] phy: phy_start_aneg: Add an unlocked version" failed to apply to 4.9-stable tree
+        b=lqtLxZCDfDTM7zG3UxohGHvvjjlLw5hyod3johAaQ43Zp7rXUScNokT92v3Q/GyFs
+         0nqmRTKawpdsQF1Um1H0hccbzKi5dfhsR+VFNtqLogqiXXRh2jARjtJBHYs53KTM8G
+         xsDiu7kU6DVFqU1lQL5A8MWk3n5GrxmomZpJMEQ8=
+Subject: FAILED: patch "[PATCH] phy: phy_start_aneg: Add an unlocked version" failed to apply to 4.19-stable tree
 To:     andrew@lunn.ch, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 15:11:08 +0200
-Message-ID: <163559946821734@kroah.com>
+Date:   Sat, 30 Oct 2021 15:11:09 +0200
+Message-ID: <163559946919460@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
