@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33A414408E8
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:03:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D714B4408ED
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:05:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230178AbhJ3NFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:05:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43784 "EHLO mail.kernel.org"
+        id S230005AbhJ3NIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:08:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230004AbhJ3NFs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:05:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E9A560E9C;
-        Sat, 30 Oct 2021 13:03:18 +0000 (UTC)
+        id S229758AbhJ3NIF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:08:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 205386101E;
+        Sat, 30 Oct 2021 13:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635598998;
-        bh=B+i3TX94fvS0lqsBW7k+NYCLfgTNYU92R+OO9KvGMBQ=;
+        s=korg; t=1635599135;
+        bh=H2IQJ+eZhUBNkwS+mYg/Mgal9Hv1npdFQdqP/VWSsUc=;
         h=Subject:To:Cc:From:Date:From;
-        b=ovy7QHkwygWwnXyrh5YTOpM4airuMFBqAqbaVggvo2A7mx3wCphjJEiVFq5puG5KS
-         5BFs+ZbVMFCCAgOS1I7/0gEEjG5Zw+GEfH5LT1YQoCj8UO/YxxnIY2UXeW/CFV2dch
-         duEN6EleCsaJkQ1vcwyhEIH2ZXtPWbzsophtnf+4=
-Subject: FAILED: patch "[PATCH] RDMA/sa_query: Use strscpy_pad instead of memcpy to copy a" failed to apply to 4.4-stable tree
-To:     markzhang@nvidia.com, jgg@nvidia.com, leonro@nvidia.com,
-        mbloch@nvidia.com
+        b=be8V/54pEP5x9fnDD0jZRfql7VFsEx3YTae5I3ivztd9syorKRwY5bHA17BPypxSk
+         r+2p/HH/3zD9sIXwLHFzUXJH4JQZdPwJ3tSrT4RbBEOB/BFZLGf3naB+e0dIULDqCg
+         99NsHrbMr32WY4VhTduvnDLJm3PDCAOUeURcRUCs=
+Subject: FAILED: patch "[PATCH] mlxsw: pci: Recycle received packet upon allocation failure" failed to apply to 5.4-stable tree
+To:     idosch@nvidia.com, kuba@kernel.org, petrm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 15:03:11 +0200
-Message-ID: <163559899125138@kroah.com>
+Date:   Sat, 30 Oct 2021 15:05:33 +0200
+Message-ID: <163559913311143@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,83 +45,132 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 64733956ebba7cc629856f4a6ee35a52bc9c023f Mon Sep 17 00:00:00 2001
-From: Mark Zhang <markzhang@nvidia.com>
-Date: Sun, 24 Oct 2021 09:08:20 +0300
-Subject: [PATCH] RDMA/sa_query: Use strscpy_pad instead of memcpy to copy a
- string
+From 759635760a804b0d8ad0cc677b650f1544cae22f Mon Sep 17 00:00:00 2001
+From: Ido Schimmel <idosch@nvidia.com>
+Date: Sun, 24 Oct 2021 09:40:14 +0300
+Subject: [PATCH] mlxsw: pci: Recycle received packet upon allocation failure
 
-When copying the device name, the length of the data memcpy copied exceeds
-the length of the source buffer, which cause the KASAN issue below.  Use
-strscpy_pad() instead.
+When the driver fails to allocate a new Rx buffer, it passes an empty Rx
+descriptor (contains zero address and size) to the device and marks it
+as invalid by setting the skb pointer in the descriptor's metadata to
+NULL.
 
- BUG: KASAN: slab-out-of-bounds in ib_nl_set_path_rec_attrs+0x136/0x320 [ib_core]
- Read of size 64 at addr ffff88811a10f5e0 by task rping/140263
- CPU: 3 PID: 140263 Comm: rping Not tainted 5.15.0-rc1+ #1
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+After processing enough Rx descriptors, the driver will try to process
+the invalid descriptor, but will return immediately seeing that the skb
+pointer is NULL. Since the driver no longer passes new Rx descriptors to
+the device, the Rx queue will eventually become full and the device will
+start to drop packets.
+
+Fix this by recycling the received packet if allocation of the new
+packet failed. This means that allocation is no longer performed at the
+end of the Rx routine, but at the start, before tearing down the DMA
+mapping of the received packet.
+
+Remove the comment about the descriptor being zeroed as it is no longer
+correct. This is OK because we either use the descriptor as-is (when
+recycling) or overwrite its address and size fields with that of the
+newly allocated Rx buffer.
+
+The issue was discovered when a process ("perf") consumed too much
+memory and put the system under memory pressure. It can be reproduced by
+injecting slab allocation failures [1]. After the fix, the Rx queue no
+longer comes to a halt.
+
+[1]
+ # echo 10 > /sys/kernel/debug/failslab/times
+ # echo 1000 > /sys/kernel/debug/failslab/interval
+ # echo 100 > /sys/kernel/debug/failslab/probability
+
+ FAULT_INJECTION: forcing a failure.
+ name failslab, interval 1000, probability 100, space 0, times 8
+ [...]
  Call Trace:
-  dump_stack_lvl+0x57/0x7d
-  print_address_description.constprop.0+0x1d/0xa0
-  kasan_report+0xcb/0x110
-  kasan_check_range+0x13d/0x180
-  memcpy+0x20/0x60
-  ib_nl_set_path_rec_attrs+0x136/0x320 [ib_core]
-  ib_nl_make_request+0x1c6/0x380 [ib_core]
-  send_mad+0x20a/0x220 [ib_core]
-  ib_sa_path_rec_get+0x3e3/0x800 [ib_core]
-  cma_query_ib_route+0x29b/0x390 [rdma_cm]
-  rdma_resolve_route+0x308/0x3e0 [rdma_cm]
-  ucma_resolve_route+0xe1/0x150 [rdma_ucm]
-  ucma_write+0x17b/0x1f0 [rdma_ucm]
-  vfs_write+0x142/0x4d0
-  ksys_write+0x133/0x160
-  do_syscall_64+0x43/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f26499aa90f
- Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 29 fd ff ff 48 8b 54 24 18 48 8b 74 24 10 41 89 c0 8b 7c 24 08 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 31 44 89 c7 48 89 44 24 08 e8 5c fd ff ff 48
- RSP: 002b:00007f26495f2dc0 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
- RAX: ffffffffffffffda RBX: 00000000000007d0 RCX: 00007f26499aa90f
- RDX: 0000000000000010 RSI: 00007f26495f2e00 RDI: 0000000000000003
- RBP: 00005632a8315440 R08: 0000000000000000 R09: 0000000000000001
- R10: 0000000000000000 R11: 0000000000000293 R12: 00007f26495f2e00
- R13: 00005632a83154e0 R14: 00005632a8315440 R15: 00005632a830a810
+  <IRQ>
+  dump_stack_lvl+0x34/0x44
+  should_fail.cold+0x32/0x37
+  should_failslab+0x5/0x10
+  kmem_cache_alloc_node+0x23/0x190
+  __alloc_skb+0x1f9/0x280
+  __netdev_alloc_skb+0x3a/0x150
+  mlxsw_pci_rdq_skb_alloc+0x24/0x90
+  mlxsw_pci_cq_tasklet+0x3dc/0x1200
+  tasklet_action_common.constprop.0+0x9f/0x100
+  __do_softirq+0xb5/0x252
+  irq_exit_rcu+0x7a/0xa0
+  common_interrupt+0x83/0xa0
+  </IRQ>
+  asm_common_interrupt+0x1e/0x40
+ RIP: 0010:cpuidle_enter_state+0xc8/0x340
+ [...]
+ mlxsw_spectrum2 0000:06:00.0: Failed to alloc skb for RDQ
 
- Allocated by task 131419:
-  kasan_save_stack+0x1b/0x40
-  __kasan_kmalloc+0x7c/0x90
-  proc_self_get_link+0x8b/0x100
-  pick_link+0x4f1/0x5c0
-  step_into+0x2eb/0x3d0
-  walk_component+0xc8/0x2c0
-  link_path_walk+0x3b8/0x580
-  path_openat+0x101/0x230
-  do_filp_open+0x12e/0x240
-  do_sys_openat2+0x115/0x280
-  __x64_sys_openat+0xce/0x140
-  do_syscall_64+0x43/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+Fixes: eda6500a987a ("mlxsw: Add PCI bus implementation")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Link: https://lore.kernel.org/r/20211024064014.1060919-1-idosch@idosch.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-Fixes: 2ca546b92a02 ("IB/sa: Route SA pathrecord query through netlink")
-Link: https://lore.kernel.org/r/72ede0f6dab61f7f23df9ac7a70666e07ef314b0.1635055496.git.leonro@nvidia.com
-Signed-off-by: Mark Zhang <markzhang@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-
-diff --git a/drivers/infiniband/core/sa_query.c b/drivers/infiniband/core/sa_query.c
-index a20b8108e160..c00f8e28aab7 100644
---- a/drivers/infiniband/core/sa_query.c
-+++ b/drivers/infiniband/core/sa_query.c
-@@ -706,8 +706,9 @@ static void ib_nl_set_path_rec_attrs(struct sk_buff *skb,
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/pci.c b/drivers/net/ethernet/mellanox/mlxsw/pci.c
+index 13b0259f7ea6..fcace73eae40 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/pci.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/pci.c
+@@ -353,13 +353,10 @@ static int mlxsw_pci_rdq_skb_alloc(struct mlxsw_pci *mlxsw_pci,
+ 	struct sk_buff *skb;
+ 	int err;
  
- 	/* Construct the family header first */
- 	header = skb_put(skb, NLMSG_ALIGN(sizeof(*header)));
--	memcpy(header->device_name, dev_name(&query->port->agent->device->dev),
--	       LS_DEVICE_NAME_MAX);
-+	strscpy_pad(header->device_name,
-+		    dev_name(&query->port->agent->device->dev),
-+		    LS_DEVICE_NAME_MAX);
- 	header->port_num = query->port->port_num;
+-	elem_info->u.rdq.skb = NULL;
+ 	skb = netdev_alloc_skb_ip_align(NULL, buf_len);
+ 	if (!skb)
+ 		return -ENOMEM;
  
- 	if ((comp_mask & IB_SA_PATH_REC_REVERSIBLE) &&
+-	/* Assume that wqe was previously zeroed. */
+-
+ 	err = mlxsw_pci_wqe_frag_map(mlxsw_pci, wqe, 0, skb->data,
+ 				     buf_len, DMA_FROM_DEVICE);
+ 	if (err)
+@@ -597,21 +594,26 @@ static void mlxsw_pci_cqe_rdq_handle(struct mlxsw_pci *mlxsw_pci,
+ 	struct pci_dev *pdev = mlxsw_pci->pdev;
+ 	struct mlxsw_pci_queue_elem_info *elem_info;
+ 	struct mlxsw_rx_info rx_info = {};
+-	char *wqe;
++	char wqe[MLXSW_PCI_WQE_SIZE];
+ 	struct sk_buff *skb;
+ 	u16 byte_count;
+ 	int err;
+ 
+ 	elem_info = mlxsw_pci_queue_elem_info_consumer_get(q);
+-	skb = elem_info->u.sdq.skb;
+-	if (!skb)
+-		return;
+-	wqe = elem_info->elem;
+-	mlxsw_pci_wqe_frag_unmap(mlxsw_pci, wqe, 0, DMA_FROM_DEVICE);
++	skb = elem_info->u.rdq.skb;
++	memcpy(wqe, elem_info->elem, MLXSW_PCI_WQE_SIZE);
+ 
+ 	if (q->consumer_counter++ != consumer_counter_limit)
+ 		dev_dbg_ratelimited(&pdev->dev, "Consumer counter does not match limit in RDQ\n");
+ 
++	err = mlxsw_pci_rdq_skb_alloc(mlxsw_pci, elem_info);
++	if (err) {
++		dev_err_ratelimited(&pdev->dev, "Failed to alloc skb for RDQ\n");
++		goto out;
++	}
++
++	mlxsw_pci_wqe_frag_unmap(mlxsw_pci, wqe, 0, DMA_FROM_DEVICE);
++
+ 	if (mlxsw_pci_cqe_lag_get(cqe_v, cqe)) {
+ 		rx_info.is_lag = true;
+ 		rx_info.u.lag_id = mlxsw_pci_cqe_lag_id_get(cqe_v, cqe);
+@@ -647,10 +649,7 @@ static void mlxsw_pci_cqe_rdq_handle(struct mlxsw_pci *mlxsw_pci,
+ 	skb_put(skb, byte_count);
+ 	mlxsw_core_skb_receive(mlxsw_pci->core, skb, &rx_info);
+ 
+-	memset(wqe, 0, q->elem_size);
+-	err = mlxsw_pci_rdq_skb_alloc(mlxsw_pci, elem_info);
+-	if (err)
+-		dev_dbg_ratelimited(&pdev->dev, "Failed to alloc skb for RDQ\n");
++out:
+ 	/* Everything is set up, ring doorbell to pass elem to HW */
+ 	q->producer_counter++;
+ 	mlxsw_pci_queue_doorbell_producer_ring(mlxsw_pci, q);
 
