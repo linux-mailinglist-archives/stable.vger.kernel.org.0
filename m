@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E52A5440907
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:12:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48839440908
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:12:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230153AbhJ3NPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45864 "EHLO mail.kernel.org"
+        id S231582AbhJ3NPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229987AbhJ3NPB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:15:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F327560E8F;
-        Sat, 30 Oct 2021 13:12:30 +0000 (UTC)
+        id S229987AbhJ3NPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:15:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12E9160F93;
+        Sat, 30 Oct 2021 13:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635599551;
-        bh=gVCFJ1jTjBcPfRbgD7FfcL1xe6P9Y2+z7P7CsSx+61A=;
+        s=korg; t=1635599555;
+        bh=WqrxtNvE4+x0QFWUwJvBbw2ORjuI09BFn3sZLr4zhbQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=HCAHYttO9SXCqKSLM7SY2WmQv/wK8whR3QvyL3SmYijwbV/8K0FP7OnFunDL6LM9n
-         6a0qweFsLBrDgmevI9lZGX3/hWUXsfBp/7GC+NChFcZe9ZkNEHypMpzCN4E/73z4eX
-         001Isf20NzqQ3Mu2WnNtWF9pDCe34fmKUggLRBII=
-Subject: FAILED: patch "[PATCH] phy: phy_ethtool_ksettings_set: Lock the PHY while changing" failed to apply to 4.9-stable tree
+        b=2muusAB3E5ReYp8kLWMe5ZGquMCMuAK5j7BzRoQG0slBkYHFpvHnZEirNUCxyqmau
+         D10MQy3ANIQSOV1vSnVaq8Yuwt4L1WNqQtALhHreNSbElbpzEGneSPU1xYjOl1MoCg
+         gieZEzKZyIh027tPNyhcEoCBj4202dZEESpzkd7U=
+Subject: FAILED: patch "[PATCH] phy: phy_ethtool_ksettings_set: Lock the PHY while changing" failed to apply to 4.14-stable tree
 To:     andrew@lunn.ch, Walter.Stoll@duagon.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 15:12:29 +0200
-Message-ID: <1635599549215148@kroah.com>
+Date:   Sat, 30 Oct 2021 15:12:31 +0200
+Message-ID: <1635599551132138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
