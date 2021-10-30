@@ -2,99 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A01DE44081D
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 11:02:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E42EE4408B5
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 14:25:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231685AbhJ3JEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 05:04:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51586 "EHLO mail.kernel.org"
+        id S231843AbhJ3M2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 08:28:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230427AbhJ3JEh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 05:04:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A43760F9B;
-        Sat, 30 Oct 2021 09:02:07 +0000 (UTC)
+        id S230320AbhJ3M2Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 08:28:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5259860F92;
+        Sat, 30 Oct 2021 12:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635584527;
-        bh=rtP+DqWYSwfw3HrEKCUdLuJmPLZYAjEHGyUpfhUNbRw=;
-        h=Subject:To:From:Date:From;
-        b=NIKspvAYv6aI4T4JNt86T6wKYRxS1QAJzO/ECMiJFsRx5XBUVvg3CcjHPjYfxnQ+E
-         Pcyj+fXgyK+9G6lPa/Cu0twtsc/lXBpmyBMEIH/lSjR4vZi/X5r03wpm+aSRgRezXD
-         cPy86Rtrs4KA9jn/br5r34nfEyf0hfsZMOFSYsGg=
-Subject: patch "usb: gadget: Mark USB_FSL_QE broken on 64-bit" added to usb-testing
-To:     geert@linux-m68k.org, gregkh@linuxfoundation.org,
-        leoyang.li@nxp.com, stable@vger.kernel.org
+        s=korg; t=1635596746;
+        bh=2X+J7HiNWoHp9WuS18PCnXHuwi2jVwZnK51h5UKQHnc=;
+        h=Subject:To:Cc:From:Date:From;
+        b=XyBOZubhKMir++vu7+3UsTAq0reDpJqTednerJ1Ge9brn6bFY5pZv0W8BbFcDiFXr
+         qKS1inSa9fjp/xLPz9qcYPW0Nbirlm3CaDR1yl6/+StXFcs4h41oVv3DIpDwEEkkxn
+         kmsp17S2viReWi6/caEQF0xs56f6qQY9IgGHQ0pI=
+Subject: FAILED: patch "[PATCH] mm: filemap: check if THP has hwpoisoned subpage for PMD page" failed to apply to 5.4-stable tree
+To:     shy828301@gmail.com, akpm@linux-foundation.org, hughd@google.com,
+        kirill.shutemov@linux.intel.com, naoya.horiguchi@nec.com,
+        osalvador@suse.de, peterx@redhat.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, willy@infradead.org
+Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 11:02:05 +0200
-Message-ID: <163558452584200@kroah.com>
+Date:   Sat, 30 Oct 2021 14:25:44 +0200
+Message-ID: <163559674418492@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-    usb: gadget: Mark USB_FSL_QE broken on 64-bit
+thanks,
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
+greg k-h
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+------------------ original commit in Linus's tree ------------------
 
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
+From eac96c3efdb593df1a57bb5b95dbe037bfa9a522 Mon Sep 17 00:00:00 2001
+From: Yang Shi <shy828301@gmail.com>
+Date: Thu, 28 Oct 2021 14:36:11 -0700
+Subject: [PATCH] mm: filemap: check if THP has hwpoisoned subpage for PMD page
+ fault
 
-If you have any questions about this process, please let me know.
+When handling shmem page fault the THP with corrupted subpage could be
+PMD mapped if certain conditions are satisfied.  But kernel is supposed
+to send SIGBUS when trying to map hwpoisoned page.
 
+There are two paths which may do PMD map: fault around and regular
+fault.
 
-From a0548b26901f082684ad1fb3ba397d2de3a1406a Mon Sep 17 00:00:00 2001
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 27 Oct 2021 10:08:49 +0200
-Subject: usb: gadget: Mark USB_FSL_QE broken on 64-bit
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Before commit f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault()
+codepaths") the thing was even worse in fault around path.  The THP
+could be PMD mapped as long as the VMA fits regardless what subpage is
+accessed and corrupted.  After this commit as long as head page is not
+corrupted the THP could be PMD mapped.
 
-On 64-bit:
+In the regular fault path the THP could be PMD mapped as long as the
+corrupted page is not accessed and the VMA fits.
 
-    drivers/usb/gadget/udc/fsl_qe_udc.c: In function ‘qe_ep0_rx’:
-    drivers/usb/gadget/udc/fsl_qe_udc.c:842:13: error: cast from pointer to integer of different size [-Werror=pointer-to-int-cast]
-      842 |     vaddr = (u32)phys_to_virt(in_be32(&bd->buf));
-	  |             ^
-    In file included from drivers/usb/gadget/udc/fsl_qe_udc.c:41:
-    drivers/usb/gadget/udc/fsl_qe_udc.c:843:28: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
-      843 |     frame_set_data(pframe, (u8 *)vaddr);
-	  |                            ^
+This loophole could be fixed by iterating every subpage to check if any
+of them is hwpoisoned or not, but it is somewhat costly in page fault
+path.
 
-The driver assumes physical and virtual addresses are 32-bit, hence it
-cannot work on 64-bit platforms.
+So introduce a new page flag called HasHWPoisoned on the first tail
+page.  It indicates the THP has hwpoisoned subpage(s).  It is set if any
+subpage of THP is found hwpoisoned by memory failure and after the
+refcount is bumped successfully, then cleared when the THP is freed or
+split.
 
-Acked-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20211027080849.3276289-1-geert@linux-m68k.org
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/gadget/udc/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+The soft offline path doesn't need this since soft offline handler just
+marks a subpage hwpoisoned when the subpage is migrated successfully.
+But shmem THP didn't get split then migrated at all.
 
-diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
-index 8c614bb86c66..69394dc1cdfb 100644
---- a/drivers/usb/gadget/udc/Kconfig
-+++ b/drivers/usb/gadget/udc/Kconfig
-@@ -330,6 +330,7 @@ config USB_AMD5536UDC
- config USB_FSL_QE
- 	tristate "Freescale QE/CPM USB Device Controller"
- 	depends on FSL_SOC && (QUICC_ENGINE || CPM)
-+	depends on !64BIT || BROKEN
- 	help
- 	   Some of Freescale PowerPC processors have a Full Speed
- 	   QE/CPM2 USB controller, which support device mode with 4
--- 
-2.33.1
+Link: https://lkml.kernel.org/r/20211020210755.23964-3-shy828301@gmail.com
+Fixes: 800d8c63b2e9 ("shmem: add huge pages support")
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Suggested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
+diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+index a558d67ee86f..fbfd3fad48f2 100644
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -171,6 +171,15 @@ enum pageflags {
+ 	/* Compound pages. Stored in first tail page's flags */
+ 	PG_double_map = PG_workingset,
+ 
++#ifdef CONFIG_MEMORY_FAILURE
++	/*
++	 * Compound pages. Stored in first tail page's flags.
++	 * Indicates that at least one subpage is hwpoisoned in the
++	 * THP.
++	 */
++	PG_has_hwpoisoned = PG_mappedtodisk,
++#endif
++
+ 	/* non-lru isolated movable page */
+ 	PG_isolated = PG_reclaim,
+ 
+@@ -668,6 +677,20 @@ PAGEFLAG_FALSE(DoubleMap)
+ 	TESTSCFLAG_FALSE(DoubleMap)
+ #endif
+ 
++#if defined(CONFIG_MEMORY_FAILURE) && defined(CONFIG_TRANSPARENT_HUGEPAGE)
++/*
++ * PageHasHWPoisoned indicates that at least one subpage is hwpoisoned in the
++ * compound page.
++ *
++ * This flag is set by hwpoison handler.  Cleared by THP split or free page.
++ */
++PAGEFLAG(HasHWPoisoned, has_hwpoisoned, PF_SECOND)
++	TESTSCFLAG(HasHWPoisoned, has_hwpoisoned, PF_SECOND)
++#else
++PAGEFLAG_FALSE(HasHWPoisoned)
++	TESTSCFLAG_FALSE(HasHWPoisoned)
++#endif
++
+ /*
+  * Check if a page is currently marked HWPoisoned. Note that this check is
+  * best effort only and inherently racy: there is no way to synchronize with
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 92192cb086c7..c5142d237e48 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2426,6 +2426,8 @@ static void __split_huge_page(struct page *page, struct list_head *list,
+ 	/* lock lru list/PageCompound, ref frozen by page_ref_freeze */
+ 	lruvec = lock_page_lruvec(head);
+ 
++	ClearPageHasHWPoisoned(head);
++
+ 	for (i = nr - 1; i >= 1; i--) {
+ 		__split_huge_page_tail(head, i, lruvec, list);
+ 		/* Some pages can be beyond EOF: drop them from page cache */
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 73f68699e7ab..bdbbb32211a5 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1694,6 +1694,20 @@ int memory_failure(unsigned long pfn, int flags)
+ 	}
+ 
+ 	if (PageTransHuge(hpage)) {
++		/*
++		 * The flag must be set after the refcount is bumped
++		 * otherwise it may race with THP split.
++		 * And the flag can't be set in get_hwpoison_page() since
++		 * it is called by soft offline too and it is just called
++		 * for !MF_COUNT_INCREASE.  So here seems to be the best
++		 * place.
++		 *
++		 * Don't need care about the above error handling paths for
++		 * get_hwpoison_page() since they handle either free page
++		 * or unhandlable page.  The refcount is bumped iff the
++		 * page is a valid handlable page.
++		 */
++		SetPageHasHWPoisoned(hpage);
+ 		if (try_to_split_thp_page(p, "Memory Failure") < 0) {
+ 			action_result(pfn, MF_MSG_UNSPLIT_THP, MF_IGNORED);
+ 			res = -EBUSY;
+diff --git a/mm/memory.c b/mm/memory.c
+index adf9b9ef8277..c52be6d6b605 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3906,6 +3906,15 @@ vm_fault_t do_set_pmd(struct vm_fault *vmf, struct page *page)
+ 	if (compound_order(page) != HPAGE_PMD_ORDER)
+ 		return ret;
+ 
++	/*
++	 * Just backoff if any subpage of a THP is corrupted otherwise
++	 * the corrupted page may mapped by PMD silently to escape the
++	 * check.  This kind of THP just can be PTE mapped.  Access to
++	 * the corrupted subpage should trigger SIGBUS as expected.
++	 */
++	if (unlikely(PageHasHWPoisoned(page)))
++		return ret;
++
+ 	/*
+ 	 * Archs like ppc64 need additional space to store information
+ 	 * related to pte entry. Use the preallocated table for that.
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 3ec39552d00f..23d3339ac4e8 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1312,8 +1312,10 @@ static __always_inline bool free_pages_prepare(struct page *page,
+ 
+ 		VM_BUG_ON_PAGE(compound && compound_order(page) != order, page);
+ 
+-		if (compound)
++		if (compound) {
+ 			ClearPageDoubleMap(page);
++			ClearPageHasHWPoisoned(page);
++		}
+ 		for (i = 1; i < (1 << order); i++) {
+ 			if (compound)
+ 				bad += free_tail_pages_check(page, page + i);
 
