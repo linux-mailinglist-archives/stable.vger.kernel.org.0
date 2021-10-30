@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94BD744080C
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 10:50:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A01DE44081D
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 11:02:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231754AbhJ3Iwg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 04:52:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50044 "EHLO mail.kernel.org"
+        id S231685AbhJ3JEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 05:04:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229633AbhJ3Iwe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 04:52:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C0BC61038;
-        Sat, 30 Oct 2021 08:50:04 +0000 (UTC)
+        id S230427AbhJ3JEh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 05:04:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A43760F9B;
+        Sat, 30 Oct 2021 09:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635583804;
-        bh=RdRKk3aBmvlOEMzgrZhesPjHnjfB9Vq9Be3+TOACVfA=;
+        s=korg; t=1635584527;
+        bh=rtP+DqWYSwfw3HrEKCUdLuJmPLZYAjEHGyUpfhUNbRw=;
         h=Subject:To:From:Date:From;
-        b=eK9VmbALF5SpQWxrqk0bNg03Hg/Ws0TmOM9ZvHaYfN8bonmr7RNKzhW8pesm3QXzu
-         9uOD090qeS5Ir8K3QZEc0USkXKmTRX2Ezp+ON8sHSKlSH+45LAr56MrgvbAWqQdCFj
-         2+psUYVxYJzqXXHG82RzxnMyAor8m9Qfv6fT0bJQ=
-Subject: patch "coresight: trbe: Defer the probe on offline CPUs" added to char-misc-testing
-To:     suzuki.poulose@arm.com, anshuman.khandual@arm.com,
-        branislav.rankov@arm.com, leo.yan@linaro.org,
-        mathieu.poirier@linaro.org, mike.leach@linaro.org,
-        stable@vger.kernel.org
+        b=NIKspvAYv6aI4T4JNt86T6wKYRxS1QAJzO/ECMiJFsRx5XBUVvg3CcjHPjYfxnQ+E
+         Pcyj+fXgyK+9G6lPa/Cu0twtsc/lXBpmyBMEIH/lSjR4vZi/X5r03wpm+aSRgRezXD
+         cPy86Rtrs4KA9jn/br5r34nfEyf0hfsZMOFSYsGg=
+Subject: patch "usb: gadget: Mark USB_FSL_QE broken on 64-bit" added to usb-testing
+To:     geert@linux-m68k.org, gregkh@linuxfoundation.org,
+        leoyang.li@nxp.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 10:49:16 +0200
-Message-ID: <1635583756147229@kroah.com>
+Date:   Sat, 30 Oct 2021 11:02:05 +0200
+Message-ID: <163558452584200@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -38,124 +36,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    coresight: trbe: Defer the probe on offline CPUs
+    usb: gadget: Mark USB_FSL_QE broken on 64-bit
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will be merged to the char-misc-next branch sometime soon,
+The patch will be merged to the usb-next branch sometime soon,
 after it passes testing, and the merge window is open.
 
 If you have any questions about this process, please let me know.
 
 
-From a08025b3fe56185290a1ea476581f03ca733f967 Mon Sep 17 00:00:00 2001
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
-Date: Thu, 14 Oct 2021 15:22:38 +0100
-Subject: coresight: trbe: Defer the probe on offline CPUs
+From a0548b26901f082684ad1fb3ba397d2de3a1406a Mon Sep 17 00:00:00 2001
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 27 Oct 2021 10:08:49 +0200
+Subject: usb: gadget: Mark USB_FSL_QE broken on 64-bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-If a CPU is offline during the driver init, we could end up causing
-a kernel crash trying to register the coresight device for the TRBE
-instance. The trbe_cpudata for the TRBE instance is initialized only
-when it is probed. Otherwise, we could end up dereferencing a NULL
-cpudata->drvdata.
+On 64-bit:
 
-e.g:
+    drivers/usb/gadget/udc/fsl_qe_udc.c: In function ‘qe_ep0_rx’:
+    drivers/usb/gadget/udc/fsl_qe_udc.c:842:13: error: cast from pointer to integer of different size [-Werror=pointer-to-int-cast]
+      842 |     vaddr = (u32)phys_to_virt(in_be32(&bd->buf));
+	  |             ^
+    In file included from drivers/usb/gadget/udc/fsl_qe_udc.c:41:
+    drivers/usb/gadget/udc/fsl_qe_udc.c:843:28: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
+      843 |     frame_set_data(pframe, (u8 *)vaddr);
+	  |                            ^
 
-[    0.149999] coresight ete0: CPU0: ete v1.1 initialized
-[    0.149999] coresight-etm4x ete_1: ETM arch init failed
-[    0.149999] coresight-etm4x: probe of ete_1 failed with error -22
-[    0.150085] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000050
-[    0.150085] Mem abort info:
-[    0.150085]   ESR = 0x96000005
-[    0.150085]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    0.150085]   SET = 0, FnV = 0
-[    0.150085]   EA = 0, S1PTW = 0
-[    0.150085] Data abort info:
-[    0.150085]   ISV = 0, ISS = 0x00000005
-[    0.150085]   CM = 0, WnR = 0
-[    0.150085] [0000000000000050] user address but active_mm is swapper
-[    0.150085] Internal error: Oops: 96000005 [#1] PREEMPT SMP
-[    0.150085] Modules linked in:
-[    0.150085] Hardware name: FVP Base RevC (DT)
-[    0.150085] pstate: 00800009 (nzcv daif -PAN +UAO -TCO BTYPE=--)
-[    0.150155] pc : arm_trbe_register_coresight_cpu+0x74/0x144
-[    0.150155] lr : arm_trbe_register_coresight_cpu+0x48/0x144
-  ...
+The driver assumes physical and virtual addresses are 32-bit, hence it
+cannot work on 64-bit platforms.
 
-[    0.150237] Call trace:
-[    0.150237]  arm_trbe_register_coresight_cpu+0x74/0x144
-[    0.150237]  arm_trbe_device_probe+0x1c0/0x2d8
-[    0.150259]  platform_drv_probe+0x94/0xbc
-[    0.150259]  really_probe+0x1bc/0x4a8
-[    0.150266]  driver_probe_device+0x7c/0xb8
-[    0.150266]  device_driver_attach+0x6c/0xac
-[    0.150266]  __driver_attach+0xc4/0x148
-[    0.150266]  bus_for_each_dev+0x7c/0xc8
-[    0.150266]  driver_attach+0x24/0x30
-[    0.150266]  bus_add_driver+0x100/0x1e0
-[    0.150266]  driver_register+0x78/0x110
-[    0.150266]  __platform_driver_register+0x44/0x50
-[    0.150266]  arm_trbe_init+0x28/0x84
-[    0.150266]  do_one_initcall+0x94/0x2bc
-[    0.150266]  do_initcall_level+0xa4/0x158
-[    0.150266]  do_initcalls+0x54/0x94
-[    0.150319]  do_basic_setup+0x24/0x30
-[    0.150319]  kernel_init_freeable+0xe8/0x14c
-[    0.150319]  kernel_init+0x14/0x18c
-[    0.150319]  ret_from_fork+0x10/0x30
-[    0.150319] Code: f94012c8 b0004ce2 9134a442 52819801 (f9402917)
-[    0.150319] ---[ end trace d23e0cfe5098535e ]---
-[    0.150346] Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
-
-Fix this by skipping the step, if we are unable to probe the CPU.
-
-Fixes: 3fbf7f011f24 ("coresight: sink: Add TRBE driver")
-Reported-by: Bransilav Rankov <branislav.rankov@arm.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Leo Yan <leo.yan@linaro.org>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20211027080849.3276289-1-geert@linux-m68k.org
 Cc: stable <stable@vger.kernel.org>
-Tested-by: Branislav Rankov <branislav.rankov@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Link: https://lore.kernel.org/r/20211014142238.2221248-1-suzuki.poulose@arm.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-trbe.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwtracing/coresight/coresight-trbe.c b/drivers/hwtracing/coresight/coresight-trbe.c
-index 2825ccb0cf39..5d77baba8b0f 100644
---- a/drivers/hwtracing/coresight/coresight-trbe.c
-+++ b/drivers/hwtracing/coresight/coresight-trbe.c
-@@ -893,6 +893,10 @@ static void arm_trbe_register_coresight_cpu(struct trbe_drvdata *drvdata, int cp
- 	if (WARN_ON(trbe_csdev))
- 		return;
- 
-+	/* If the TRBE was not probed on the CPU, we shouldn't be here */
-+	if (WARN_ON(!cpudata->drvdata))
-+		return;
-+
- 	dev = &cpudata->drvdata->pdev->dev;
- 	desc.name = devm_kasprintf(dev, GFP_KERNEL, "trbe%d", cpu);
- 	if (!desc.name)
-@@ -974,7 +978,9 @@ static int arm_trbe_probe_coresight(struct trbe_drvdata *drvdata)
- 		return -ENOMEM;
- 
- 	for_each_cpu(cpu, &drvdata->supported_cpus) {
--		smp_call_function_single(cpu, arm_trbe_probe_cpu, drvdata, 1);
-+		/* If we fail to probe the CPU, let us defer it to hotplug callbacks */
-+		if (smp_call_function_single(cpu, arm_trbe_probe_cpu, drvdata, 1))
-+			continue;
- 		if (cpumask_test_cpu(cpu, &drvdata->supported_cpus))
- 			arm_trbe_register_coresight_cpu(drvdata, cpu);
- 		if (cpumask_test_cpu(cpu, &drvdata->supported_cpus))
+diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
+index 8c614bb86c66..69394dc1cdfb 100644
+--- a/drivers/usb/gadget/udc/Kconfig
++++ b/drivers/usb/gadget/udc/Kconfig
+@@ -330,6 +330,7 @@ config USB_AMD5536UDC
+ config USB_FSL_QE
+ 	tristate "Freescale QE/CPM USB Device Controller"
+ 	depends on FSL_SOC && (QUICC_ENGINE || CPM)
++	depends on !64BIT || BROKEN
+ 	help
+ 	   Some of Freescale PowerPC processors have a Full Speed
+ 	   QE/CPM2 USB controller, which support device mode with 4
 -- 
 2.33.1
 
