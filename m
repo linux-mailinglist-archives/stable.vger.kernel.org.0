@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C72364408DF
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78DD04408E0
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229758AbhJ3ND5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:03:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43300 "EHLO mail.kernel.org"
+        id S229987AbhJ3NEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:04:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229640AbhJ3ND5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:03:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98E44604DA;
-        Sat, 30 Oct 2021 13:01:26 +0000 (UTC)
+        id S229640AbhJ3NEk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:04:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7089060F93;
+        Sat, 30 Oct 2021 13:02:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635598887;
-        bh=hNcenQTxQqBkYZwbLAqAIHQ2+fUEfPrAyd0elrpBMNA=;
+        s=korg; t=1635598930;
+        bh=v++Fn/kEd0hU8UKUC6U3hXNtqXyikXXLE9YjenBCC4E=;
         h=Subject:To:Cc:From:Date:From;
-        b=AG7RVnNjZL1UpLMakirDzRtBK2HH5DF0lnVG+KkNfgRm+eyQDE+oBVHUHCTCRpiyQ
-         NfdJTTbxsffA/1v3587MNaysQcyndMQUQtpCGrItU5o+bqSixKIltb8lkvz8Mfc9NT
-         w6ovuagQhqQyJ2UVhDc7id/3Lv/gjFj5ZCdrbTW0=
-Subject: FAILED: patch "[PATCH] net: batman-adv: fix error handling" failed to apply to 4.4-stable tree
-To:     paskripkin@gmail.com, davem@davemloft.net, sven@narfation.org
+        b=sK4rLlaP1ZrWX6i4Nzf3sJbZyVntKHWgLOEZ6pSvH/q/VcyhSJ67UjEPjkfCOYzTR
+         9JpV3WKdB8Ow1aYYR26DML0+YLKr7Z9ln9KqB7t/4jKpfEezFrwdex4mOq1IxolSjS
+         gQDKF7wbYH9yW/CNIy4g63Vft8Hkaoo81vW6f2zE=
+Subject: FAILED: patch "[PATCH] cfg80211: correct bridge/4addr mode check" failed to apply to 5.4-stable tree
+To:     janusz.dziedzic@gmail.com, johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 15:01:24 +0200
-Message-ID: <163559888490194@kroah.com>
+Date:   Sat, 30 Oct 2021 15:02:08 +0200
+Message-ID: <163559892821331@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,174 +45,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6f68cd634856f8ca93bafd623ba5357e0f648c68 Mon Sep 17 00:00:00 2001
-From: Pavel Skripkin <paskripkin@gmail.com>
-Date: Sun, 24 Oct 2021 16:13:56 +0300
-Subject: [PATCH] net: batman-adv: fix error handling
+From 689a0a9f505f7bffdefe6f17fddb41c8ab6344f6 Mon Sep 17 00:00:00 2001
+From: Janusz Dziedzic <janusz.dziedzic@gmail.com>
+Date: Sun, 24 Oct 2021 22:15:46 +0200
+Subject: [PATCH] cfg80211: correct bridge/4addr mode check
 
-Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
-in wrong error handling in batadv_mesh_init().
+Without the patch we fail:
 
-Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
-of any batadv_*_init() calls failure. This approach may work well, when
-there is some kind of indicator, which can tell which parts of batadv are
-initialized; but there isn't any.
+$ sudo brctl addbr br0
+$ sudo brctl addif br0 wlp1s0
+$ sudo iw wlp1s0 set 4addr on
+command failed: Device or resource busy (-16)
 
-All written above lead to cleaning up uninitialized fields. Even if we hide
-ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
-GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
+Last command failed but iface was already in 4addr mode.
 
-To fix these bugs we can unwind batadv_*_init() calls one by one.
-It is good approach for 2 reasons: 1) It fixes bugs on error handling
-path 2) It improves the performance, since we won't call unneeded
-batadv_*_free() functions.
+Fixes: ad4bb6f8883a ("cfg80211: disallow bridging managed/adhoc interfaces")
+Signed-off-by: Janusz Dziedzic <janusz.dziedzic@gmail.com>
+Link: https://lore.kernel.org/r/20211024201546.614379-1-janusz.dziedzic@gmail.com
+[add fixes tag, fix indentation, edit commit log]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
-So, this patch makes all batadv_*_init() clean up all allocated memory
-before returning with an error to no call correspoing batadv_*_free()
-and open-codes batadv_mesh_free() with proper order to avoid touching
-uninitialized fields.
-
-Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
-Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
-index 1669744304c5..17687848daec 100644
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -1560,10 +1560,14 @@ int batadv_bla_init(struct batadv_priv *bat_priv)
- 		return 0;
+diff --git a/net/wireless/util.c b/net/wireless/util.c
+index 18dba3d7c638..a1a99a574984 100644
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -1028,14 +1028,14 @@ int cfg80211_change_iface(struct cfg80211_registered_device *rdev,
+ 	    !(rdev->wiphy.interface_modes & (1 << ntype)))
+ 		return -EOPNOTSUPP;
  
- 	bat_priv->bla.claim_hash = batadv_hash_new(128);
--	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.claim_hash)
-+		return -ENOMEM;
- 
--	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
-+	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.backbone_hash) {
-+		batadv_hash_destroy(bat_priv->bla.claim_hash);
- 		return -ENOMEM;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
- 				   &batadv_claim_hash_lock_class_key);
-diff --git a/net/batman-adv/main.c b/net/batman-adv/main.c
-index 3ddd66e4c29e..5207cd8d6ad8 100644
---- a/net/batman-adv/main.c
-+++ b/net/batman-adv/main.c
-@@ -190,29 +190,41 @@ int batadv_mesh_init(struct net_device *soft_iface)
- 
- 	bat_priv->gw.generation = 0;
- 
--	ret = batadv_v_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
+-	/* if it's part of a bridge, reject changing type to station/ibss */
+-	if (netif_is_bridge_port(dev) &&
+-	    (ntype == NL80211_IFTYPE_ADHOC ||
+-	     ntype == NL80211_IFTYPE_STATION ||
+-	     ntype == NL80211_IFTYPE_P2P_CLIENT))
+-		return -EBUSY;
 -
- 	ret = batadv_originator_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_orig;
-+	}
- 
- 	ret = batadv_tt_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_tt;
-+	}
+ 	if (ntype != otype) {
++		/* if it's part of a bridge, reject changing type to station/ibss */
++		if (netif_is_bridge_port(dev) &&
++		    (ntype == NL80211_IFTYPE_ADHOC ||
++		     ntype == NL80211_IFTYPE_STATION ||
++		     ntype == NL80211_IFTYPE_P2P_CLIENT))
++			return -EBUSY;
 +
-+	ret = batadv_v_mesh_init(bat_priv);
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_v;
-+	}
- 
- 	ret = batadv_bla_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_bla;
-+	}
- 
- 	ret = batadv_dat_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_dat;
-+	}
- 
- 	ret = batadv_nc_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_nc;
-+	}
- 
- 	batadv_gw_init(bat_priv);
- 	batadv_mcast_init(bat_priv);
-@@ -222,8 +234,20 @@ int batadv_mesh_init(struct net_device *soft_iface)
- 
- 	return 0;
- 
--err:
--	batadv_mesh_free(soft_iface);
-+err_nc:
-+	batadv_dat_free(bat_priv);
-+err_dat:
-+	batadv_bla_free(bat_priv);
-+err_bla:
-+	batadv_v_mesh_free(bat_priv);
-+err_v:
-+	batadv_tt_free(bat_priv);
-+err_tt:
-+	batadv_originator_free(bat_priv);
-+err_orig:
-+	batadv_purge_outstanding_packets(bat_priv, NULL);
-+	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
-+
- 	return ret;
- }
- 
-diff --git a/net/batman-adv/network-coding.c b/net/batman-adv/network-coding.c
-index 9f06132e007d..0a7f1d36a6a8 100644
---- a/net/batman-adv/network-coding.c
-+++ b/net/batman-adv/network-coding.c
-@@ -152,8 +152,10 @@ int batadv_nc_mesh_init(struct batadv_priv *bat_priv)
- 				   &batadv_nc_coding_hash_lock_class_key);
- 
- 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
--	if (!bat_priv->nc.decoding_hash)
-+	if (!bat_priv->nc.decoding_hash) {
-+		batadv_hash_destroy(bat_priv->nc.coding_hash);
- 		goto err;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
- 				   &batadv_nc_decoding_hash_lock_class_key);
-diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
-index e0b3dace2020..4b7ad6684bc4 100644
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -4162,8 +4162,10 @@ int batadv_tt_init(struct batadv_priv *bat_priv)
- 		return ret;
- 
- 	ret = batadv_tt_global_init(bat_priv);
--	if (ret < 0)
-+	if (ret < 0) {
-+		batadv_tt_local_table_free(bat_priv);
- 		return ret;
-+	}
- 
- 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
- 				     batadv_tt_tvlv_unicast_handler_v1,
+ 		dev->ieee80211_ptr->use_4addr = false;
+ 		dev->ieee80211_ptr->mesh_id_up_len = 0;
+ 		wdev_lock(dev->ieee80211_ptr);
 
