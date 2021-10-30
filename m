@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 085E14408F1
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:05:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 316214408F2
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:05:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230153AbhJ3NIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:08:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44246 "EHLO mail.kernel.org"
+        id S230082AbhJ3NIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:08:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229758AbhJ3NIR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:08:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0A5261040;
-        Sat, 30 Oct 2021 13:05:46 +0000 (UTC)
+        id S229758AbhJ3NIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:08:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BAAD60E9C;
+        Sat, 30 Oct 2021 13:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635599147;
-        bh=RsN0oqVsUzId45JoxXuvw4MFNRiMpebKLElZSgagohg=;
+        s=korg; t=1635599152;
+        bh=nOmI5EvUyWuVKye+1z2XWGw91BgPMxLd43WpqQ39p90=;
         h=Subject:To:Cc:From:Date:From;
-        b=KoNijdZ8fAqsFbkMZSkhHDNQnXyigjm+Pbl18diJcSNnv1TOvtVn0wGMIHpgxtFAb
-         QVjKo+B9O50DYw5/yVBoxmq5o4RmXUGH2m6Izwc/xozOOwPB/+BrtFPlHt0bPBl8Gt
-         OxIW2/5NDarvFWWU0NVf3vAXEcuSoeZGTF4pUDcA=
-Subject: FAILED: patch "[PATCH] mlxsw: pci: Recycle received packet upon allocation failure" failed to apply to 4.4-stable tree
-To:     idosch@nvidia.com, kuba@kernel.org, petrm@nvidia.com
+        b=fp/VtbB5rHl5VMEmW0efSbahwBhuAFK5xWwkAXcGzPSe3ydpS2ipHpHTUaH/YG0+J
+         pkspdwRHq79OcEChnye5e2aG1sY399+Y0KG0KjBdtbF21Hz2b18d9kieJS7vHmdKLG
+         /BoOavOuBF5v6A9lb+wj13sDQl9GH6qGBUxGMdkE=
+Subject: FAILED: patch "[PATCH] drm/i915: Remove memory frequency calculation" failed to apply to 5.14-stable tree
+To:     jose.souza@intel.com, jani.nikula@intel.com,
+        matthew.d.roper@intel.com, yakui.zhao@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 15:05:38 +0200
-Message-ID: <16355991385193@kroah.com>
+Date:   Sat, 30 Oct 2021 15:05:50 +0200
+Message-ID: <1635599150237240@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,132 +46,117 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 759635760a804b0d8ad0cc677b650f1544cae22f Mon Sep 17 00:00:00 2001
-From: Ido Schimmel <idosch@nvidia.com>
-Date: Sun, 24 Oct 2021 09:40:14 +0300
-Subject: [PATCH] mlxsw: pci: Recycle received packet upon allocation failure
+From 59be177a909ac320e5f4b2a461ac09e20f35b2d8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>
+Date: Tue, 12 Oct 2021 18:00:46 -0700
+Subject: [PATCH] drm/i915: Remove memory frequency calculation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-When the driver fails to allocate a new Rx buffer, it passes an empty Rx
-descriptor (contains zero address and size) to the device and marks it
-as invalid by setting the skb pointer in the descriptor's metadata to
-NULL.
+This memory frequency calculated is only used to check if it is zero,
+what is not useful as it will never actually be zero.
 
-After processing enough Rx descriptors, the driver will try to process
-the invalid descriptor, but will return immediately seeing that the skb
-pointer is NULL. Since the driver no longer passes new Rx descriptors to
-the device, the Rx queue will eventually become full and the device will
-start to drop packets.
+Also the calculation is wrong, we should be checking other bit to
+select the appropriate frequency multiplier while this code is stuck
+with a fixed multiplier.
 
-Fix this by recycling the received packet if allocation of the new
-packet failed. This means that allocation is no longer performed at the
-end of the Rx routine, but at the start, before tearing down the DMA
-mapping of the received packet.
+So here dropping it as whole.
 
-Remove the comment about the descriptor being zeroed as it is no longer
-correct. This is OK because we either use the descriptor as-is (when
-recycling) or overwrite its address and size fields with that of the
-newly allocated Rx buffer.
+v2:
+- Also remove memory frequency calculation for gen9 LP platforms
 
-The issue was discovered when a process ("perf") consumed too much
-memory and put the system under memory pressure. It can be reproduced by
-injecting slab allocation failures [1]. After the fix, the Rx queue no
-longer comes to a halt.
+Cc: Yakui Zhao <yakui.zhao@intel.com>
+Cc: Matt Roper <matthew.d.roper@intel.com>
+Fixes: 5d0c938ec9cc ("drm/i915/gen11+: Only load DRAM information from pcode")
+Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
+Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211013010046.91858-1-jose.souza@intel.com
+(cherry picked from commit 83f52364b15265aec47d07e02b0fbf4093ab8554)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-[1]
- # echo 10 > /sys/kernel/debug/failslab/times
- # echo 1000 > /sys/kernel/debug/failslab/interval
- # echo 100 > /sys/kernel/debug/failslab/probability
-
- FAULT_INJECTION: forcing a failure.
- name failslab, interval 1000, probability 100, space 0, times 8
- [...]
- Call Trace:
-  <IRQ>
-  dump_stack_lvl+0x34/0x44
-  should_fail.cold+0x32/0x37
-  should_failslab+0x5/0x10
-  kmem_cache_alloc_node+0x23/0x190
-  __alloc_skb+0x1f9/0x280
-  __netdev_alloc_skb+0x3a/0x150
-  mlxsw_pci_rdq_skb_alloc+0x24/0x90
-  mlxsw_pci_cq_tasklet+0x3dc/0x1200
-  tasklet_action_common.constprop.0+0x9f/0x100
-  __do_softirq+0xb5/0x252
-  irq_exit_rcu+0x7a/0xa0
-  common_interrupt+0x83/0xa0
-  </IRQ>
-  asm_common_interrupt+0x1e/0x40
- RIP: 0010:cpuidle_enter_state+0xc8/0x340
- [...]
- mlxsw_spectrum2 0000:06:00.0: Failed to alloc skb for RDQ
-
-Fixes: eda6500a987a ("mlxsw: Add PCI bus implementation")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Link: https://lore.kernel.org/r/20211024064014.1060919-1-idosch@idosch.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/pci.c b/drivers/net/ethernet/mellanox/mlxsw/pci.c
-index 13b0259f7ea6..fcace73eae40 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/pci.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/pci.c
-@@ -353,13 +353,10 @@ static int mlxsw_pci_rdq_skb_alloc(struct mlxsw_pci *mlxsw_pci,
- 	struct sk_buff *skb;
- 	int err;
+diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
+index 4037030f0984..9023d4ecf3b3 100644
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -11048,12 +11048,6 @@ enum skl_power_gate {
+ #define  DC_STATE_DEBUG_MASK_CORES	(1 << 0)
+ #define  DC_STATE_DEBUG_MASK_MEMORY_UP	(1 << 1)
  
--	elem_info->u.rdq.skb = NULL;
- 	skb = netdev_alloc_skb_ip_align(NULL, buf_len);
- 	if (!skb)
- 		return -ENOMEM;
- 
--	/* Assume that wqe was previously zeroed. */
+-#define BXT_P_CR_MC_BIOS_REQ_0_0_0	_MMIO(MCHBAR_MIRROR_BASE_SNB + 0x7114)
+-#define  BXT_REQ_DATA_MASK			0x3F
+-#define  BXT_DRAM_CHANNEL_ACTIVE_SHIFT		12
+-#define  BXT_DRAM_CHANNEL_ACTIVE_MASK		(0xF << 12)
+-#define  BXT_MEMORY_FREQ_MULTIPLIER_HZ		133333333
 -
- 	err = mlxsw_pci_wqe_frag_map(mlxsw_pci, wqe, 0, skb->data,
- 				     buf_len, DMA_FROM_DEVICE);
- 	if (err)
-@@ -597,21 +594,26 @@ static void mlxsw_pci_cqe_rdq_handle(struct mlxsw_pci *mlxsw_pci,
- 	struct pci_dev *pdev = mlxsw_pci->pdev;
- 	struct mlxsw_pci_queue_elem_info *elem_info;
- 	struct mlxsw_rx_info rx_info = {};
--	char *wqe;
-+	char wqe[MLXSW_PCI_WQE_SIZE];
- 	struct sk_buff *skb;
- 	u16 byte_count;
- 	int err;
+ #define BXT_D_CR_DRP0_DUNIT8			0x1000
+ #define BXT_D_CR_DRP0_DUNIT9			0x1200
+ #define  BXT_D_CR_DRP0_DUNIT_START		8
+@@ -11084,9 +11078,7 @@ enum skl_power_gate {
+ #define  BXT_DRAM_TYPE_LPDDR4			(0x2 << 22)
+ #define  BXT_DRAM_TYPE_DDR4			(0x4 << 22)
  
- 	elem_info = mlxsw_pci_queue_elem_info_consumer_get(q);
--	skb = elem_info->u.sdq.skb;
--	if (!skb)
--		return;
--	wqe = elem_info->elem;
--	mlxsw_pci_wqe_frag_unmap(mlxsw_pci, wqe, 0, DMA_FROM_DEVICE);
-+	skb = elem_info->u.rdq.skb;
-+	memcpy(wqe, elem_info->elem, MLXSW_PCI_WQE_SIZE);
+-#define SKL_MEMORY_FREQ_MULTIPLIER_HZ		266666666
+ #define SKL_MC_BIOS_DATA_0_0_0_MCHBAR_PCU	_MMIO(MCHBAR_MIRROR_BASE_SNB + 0x5E04)
+-#define  SKL_REQ_DATA_MASK			(0xF << 0)
+ #define  DG1_GEAR_TYPE				REG_BIT(16)
  
- 	if (q->consumer_counter++ != consumer_counter_limit)
- 		dev_dbg_ratelimited(&pdev->dev, "Consumer counter does not match limit in RDQ\n");
+ #define SKL_MAD_INTER_CHANNEL_0_0_0_MCHBAR_MCMAIN _MMIO(MCHBAR_MIRROR_BASE_SNB + 0x5000)
+diff --git a/drivers/gpu/drm/i915/intel_dram.c b/drivers/gpu/drm/i915/intel_dram.c
+index 91866520c173..7acce64b0941 100644
+--- a/drivers/gpu/drm/i915/intel_dram.c
++++ b/drivers/gpu/drm/i915/intel_dram.c
+@@ -244,7 +244,6 @@ static int
+ skl_get_dram_info(struct drm_i915_private *i915)
+ {
+ 	struct dram_info *dram_info = &i915->dram_info;
+-	u32 mem_freq_khz, val;
+ 	int ret;
  
-+	err = mlxsw_pci_rdq_skb_alloc(mlxsw_pci, elem_info);
-+	if (err) {
-+		dev_err_ratelimited(&pdev->dev, "Failed to alloc skb for RDQ\n");
-+		goto out;
-+	}
-+
-+	mlxsw_pci_wqe_frag_unmap(mlxsw_pci, wqe, 0, DMA_FROM_DEVICE);
-+
- 	if (mlxsw_pci_cqe_lag_get(cqe_v, cqe)) {
- 		rx_info.is_lag = true;
- 		rx_info.u.lag_id = mlxsw_pci_cqe_lag_id_get(cqe_v, cqe);
-@@ -647,10 +649,7 @@ static void mlxsw_pci_cqe_rdq_handle(struct mlxsw_pci *mlxsw_pci,
- 	skb_put(skb, byte_count);
- 	mlxsw_core_skb_receive(mlxsw_pci->core, skb, &rx_info);
+ 	dram_info->type = skl_get_dram_type(i915);
+@@ -255,17 +254,6 @@ skl_get_dram_info(struct drm_i915_private *i915)
+ 	if (ret)
+ 		return ret;
  
--	memset(wqe, 0, q->elem_size);
--	err = mlxsw_pci_rdq_skb_alloc(mlxsw_pci, elem_info);
--	if (err)
--		dev_dbg_ratelimited(&pdev->dev, "Failed to alloc skb for RDQ\n");
-+out:
- 	/* Everything is set up, ring doorbell to pass elem to HW */
- 	q->producer_counter++;
- 	mlxsw_pci_queue_doorbell_producer_ring(mlxsw_pci, q);
+-	val = intel_uncore_read(&i915->uncore,
+-				SKL_MC_BIOS_DATA_0_0_0_MCHBAR_PCU);
+-	mem_freq_khz = DIV_ROUND_UP((val & SKL_REQ_DATA_MASK) *
+-				    SKL_MEMORY_FREQ_MULTIPLIER_HZ, 1000);
+-
+-	if (dram_info->num_channels * mem_freq_khz == 0) {
+-		drm_info(&i915->drm,
+-			 "Couldn't get system memory bandwidth\n");
+-		return -EINVAL;
+-	}
+-
+ 	return 0;
+ }
+ 
+@@ -350,24 +338,10 @@ static void bxt_get_dimm_info(struct dram_dimm_info *dimm, u32 val)
+ static int bxt_get_dram_info(struct drm_i915_private *i915)
+ {
+ 	struct dram_info *dram_info = &i915->dram_info;
+-	u32 dram_channels;
+-	u32 mem_freq_khz, val;
+-	u8 num_active_channels, valid_ranks = 0;
++	u32 val;
++	u8 valid_ranks = 0;
+ 	int i;
+ 
+-	val = intel_uncore_read(&i915->uncore, BXT_P_CR_MC_BIOS_REQ_0_0_0);
+-	mem_freq_khz = DIV_ROUND_UP((val & BXT_REQ_DATA_MASK) *
+-				    BXT_MEMORY_FREQ_MULTIPLIER_HZ, 1000);
+-
+-	dram_channels = val & BXT_DRAM_CHANNEL_ACTIVE_MASK;
+-	num_active_channels = hweight32(dram_channels);
+-
+-	if (mem_freq_khz * num_active_channels == 0) {
+-		drm_info(&i915->drm,
+-			 "Couldn't get system memory bandwidth\n");
+-		return -EINVAL;
+-	}
+-
+ 	/*
+ 	 * Now read each DUNIT8/9/10/11 to check the rank of each dimms.
+ 	 */
 
