@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D714B4408ED
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F6E34408EE
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230005AbhJ3NIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:08:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44104 "EHLO mail.kernel.org"
+        id S230063AbhJ3NIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:08:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229758AbhJ3NIF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:08:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 205386101E;
-        Sat, 30 Oct 2021 13:05:34 +0000 (UTC)
+        id S230043AbhJ3NII (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:08:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8E586101E;
+        Sat, 30 Oct 2021 13:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635599135;
-        bh=H2IQJ+eZhUBNkwS+mYg/Mgal9Hv1npdFQdqP/VWSsUc=;
+        s=korg; t=1635599138;
+        bh=EUCBzNtJl75GBS6bimx6dSZ7LdrUnKNr4SDl0CkB4gY=;
         h=Subject:To:Cc:From:Date:From;
-        b=be8V/54pEP5x9fnDD0jZRfql7VFsEx3YTae5I3ivztd9syorKRwY5bHA17BPypxSk
-         r+2p/HH/3zD9sIXwLHFzUXJH4JQZdPwJ3tSrT4RbBEOB/BFZLGf3naB+e0dIULDqCg
-         99NsHrbMr32WY4VhTduvnDLJm3PDCAOUeURcRUCs=
-Subject: FAILED: patch "[PATCH] mlxsw: pci: Recycle received packet upon allocation failure" failed to apply to 5.4-stable tree
+        b=POc22oiAKlH9uQeyCSs/yTQrd+BNKmXyi4Ovke2tEe5iI20DM/DTx34FFfKmR7QyJ
+         GWkLDzuf8atKRzSwU5YCJpmfeidy++OY+XmlqxOOTRV9roHtL7J4COBzrmvGelxUJl
+         EPK1ouwh65HiFWvxrxvCCKMId5T6eV6zTUUxdF9M=
+Subject: FAILED: patch "[PATCH] mlxsw: pci: Recycle received packet upon allocation failure" failed to apply to 4.19-stable tree
 To:     idosch@nvidia.com, kuba@kernel.org, petrm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 15:05:33 +0200
-Message-ID: <163559913311143@kroah.com>
+Date:   Sat, 30 Oct 2021 15:05:34 +0200
+Message-ID: <1635599134155130@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
