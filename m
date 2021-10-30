@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 892FB4408D1
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 14:56:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40DDB4408D2
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 14:56:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230004AbhJ3M6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 08:58:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42208 "EHLO mail.kernel.org"
+        id S230005AbhJ3M6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 08:58:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229640AbhJ3M6f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 08:58:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA22261075;
-        Sat, 30 Oct 2021 12:56:04 +0000 (UTC)
+        id S229640AbhJ3M6h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 08:58:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 478BE610A0;
+        Sat, 30 Oct 2021 12:56:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635598565;
-        bh=8vq16iGZ2aZZrHTf4ahmwJBgi0iAJ/bUXv1AVoBXqDQ=;
+        s=korg; t=1635598567;
+        bh=rRVRXrYsQJ1dTmJxkjS8F2vrZLPoeGTegJT9lu9kZgQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=Vi54NlgS3lhseWFsMAeIDtmjkxx7kvl9P6/DhS/l/WWCNLzLNxCNKny+rkr0gLB+f
-         WkD4jeNNZJX3+sgxQzU6ShrITj7qsOvxKPBuxjYlQ15aBNRPCfFPnVYnWdRTgP0nOJ
-         SuMsTuUqEzOLcEvDheK6BAhjIBit6EwqCoTEUc2Q=
-Subject: FAILED: patch "[PATCH] bpf: Fix potential race in tail call compatibility check" failed to apply to 4.14-stable tree
+        b=Dq7UB7x5/CCdnyvd1IPYGp7ppmdkW/qHRRSxfrtKpwzepLJfpOxjqGHJr17Z5ZLcC
+         D8IdZDtJcEGPkwB56plWWKsFc8y8TWFJt3FlpOrNzVA1wHleDJ2rnmfZW2LiTkmrPI
+         AB5sZ44NXyq2S309wNS6Qg/SJVfuagjX/64WIVq4=
+Subject: FAILED: patch "[PATCH] bpf: Fix potential race in tail call compatibility check" failed to apply to 4.9-stable tree
 To:     toke@redhat.com, ast@kernel.org, lorenzo.bianconi@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 14:55:59 +0200
-Message-ID: <163559855913255@kroah.com>
+Date:   Sat, 30 Oct 2021 14:56:01 +0200
+Message-ID: <163559856111866@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
