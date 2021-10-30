@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B799F4408D8
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 14:57:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF07E4408DA
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 14:57:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230080AbhJ3NA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:00:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42624 "EHLO mail.kernel.org"
+        id S230153AbhJ3NA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:00:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229640AbhJ3NA0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:00:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D131D604DA;
-        Sat, 30 Oct 2021 12:57:55 +0000 (UTC)
+        id S230082AbhJ3NA2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:00:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2971860EB4;
+        Sat, 30 Oct 2021 12:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635598676;
-        bh=Xtzd1frmp+Apd3tFcqTvBb9Lm1UAifW/oHu8tjTJeVA=;
+        s=korg; t=1635598678;
+        bh=ky04Zk3rY6o0/Lys5MN/BO/lS0CBI/TXN1lwFVEUbEE=;
         h=Subject:To:Cc:From:Date:From;
-        b=WzKLzL9Pe0XlPPoqEoAWvoPdeSp8AA3M7m2tCD/Jqz36og4jwp+2KLYPLxUFbPn88
-         gSMd3lN5uPb0eBuLRSrdjdMP2oDwkKYrJ6mfQsgzRVdzs8dKrI25AeKq8zkAqw6hMR
-         tBMYNtQtGa1naXtKSZDqzLTgJCWXBADGV1Tzn04g=
-Subject: FAILED: patch "[PATCH] IB/qib: Protect from buffer overflow in struct" failed to apply to 4.19-stable tree
+        b=MUf3jDMu9l9llATa9snHJXp/8i/WfjsueHQn8ZaNYK/lXjCjXtJ/NhbrlVHGV1UyU
+         ZF96eJ7sIDviwlxWrEpkg5STFfWkSvut5+qaA9E/6FCqXUiIxSl9zMyBEJnp+cLjeN
+         uxh/1H78Pts9twy76P6iAa7hR9DMgoN1BObtn+YY=
+Subject: FAILED: patch "[PATCH] IB/qib: Protect from buffer overflow in struct" failed to apply to 4.14-stable tree
 To:     mike.marciniszyn@cornelisnetworks.com,
         dennis.dalessandro@cornelisnetworks.com, ivansprundel@ioactive.com,
         jgg@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 30 Oct 2021 14:57:44 +0200
-Message-ID: <163559866411243@kroah.com>
+Message-ID: <163559866445226@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
