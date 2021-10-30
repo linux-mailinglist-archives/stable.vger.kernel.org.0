@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71E384408F4
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:08:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D7E94408F5
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:08:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230004AbhJ3NKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:10:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
+        id S230043AbhJ3NKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:10:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229758AbhJ3NKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:10:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6362860E9C;
-        Sat, 30 Oct 2021 13:08:00 +0000 (UTC)
+        id S229758AbhJ3NKj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:10:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 386C561040;
+        Sat, 30 Oct 2021 13:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635599280;
-        bh=qjx7PXb5tDYmDH2pGbC1OCEqZ1sRGVY+rJqSPoXxcf0=;
+        s=korg; t=1635599289;
+        bh=iot9tPwF38uR/Pxx7e85KLm3tJODBlIflkRTdEtuiL0=;
         h=Subject:To:Cc:From:Date:From;
-        b=lvNgwTmG+H+srxcKvjlu/YrBiBjk+KNFFMlN94aSP9IOdFoU4ZKsiAFc0K0txtfQS
-         pselqjVPP8vkGfXXVYa2W/Rdur/irkm0A34lGdRQ5iee0Z6AD7LSQUP1me+LkenuCS
-         TGNnC3CzsBT9qirC5g3pSoYHr2lh4dK6LWkjCImM=
-Subject: FAILED: patch "[PATCH] net: hns3: fix pause config problem after autoneg disabled" failed to apply to 5.10-stable tree
+        b=TJfLDgs4f9rj8ik0K1QP4Nwz0rMo6FzgJWmBC5PgL5dg/bRc/T1TbnEyonKbm1uuW
+         0WbR0YhpL756W2XYMImO6IjgH90vkzTKdzvIfUXsWFbTJOKFOeFMx562SIM++SrIws
+         chY5LICdc+zHWtpK++R8DVQtU5b8swKYq96BwU2s=
+Subject: FAILED: patch "[PATCH] net: hns3: fix pause config problem after autoneg disabled" failed to apply to 5.4-stable tree
 To:     huangguangbin2@huawei.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 15:07:58 +0200
-Message-ID: <1635599278253134@kroah.com>
+Date:   Sat, 30 Oct 2021 15:07:59 +0200
+Message-ID: <1635599279188200@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
