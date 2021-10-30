@@ -2,64 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07E9D440A92
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 19:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AE3F440A32
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 18:29:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229788AbhJ3R0c convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 30 Oct 2021 13:26:32 -0400
-Received: from mx2.hcg.gr ([84.205.254.49]:49652 "EHLO mx2.hcg.gr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229694AbhJ3R0c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 13:26:32 -0400
-X-AuditID: ac138d0e-8cad570000000931-7c-617d7fafebd6
-Received: from newmail.hcg.gr (Unknown_Domain [172.18.2.10])
-        (using TLS with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by mx2.hcg.gr (Symantec Messaging Gateway) with SMTP id 07.C9.02353.FAF7D716; Sat, 30 Oct 2021 20:23:59 +0300 (EEST)
-Received: from localhost (localhost [127.0.0.1])
-        by newmail.hcg.gr (Postfix) with ESMTP id C84E13802EE3FF;
-        Fri, 29 Oct 2021 13:58:04 +0300 (EEST)
-Received: from newmail.hcg.gr ([127.0.0.1])
-        by localhost (newmail.hcg.gr [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id 8LMDn3axNMaL; Fri, 29 Oct 2021 13:58:04 +0300 (EEST)
-Received: from localhost (localhost [127.0.0.1])
-        by newmail.hcg.gr (Postfix) with ESMTP id 13BCF3805FB4F5;
-        Fri, 29 Oct 2021 13:58:03 +0300 (EEST)
-X-Virus-Scanned: amavisd-new at newmail.hcg.gr
-Received: from newmail.hcg.gr ([127.0.0.1])
-        by localhost (newmail.hcg.gr [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id Si2yqjgfU_Ci; Fri, 29 Oct 2021 13:58:03 +0300 (EEST)
-Received: from [192.168.43.217] (unknown [197.211.61.16])
-        by newmail.hcg.gr (Postfix) with ESMTPSA id DCB0B3805FC1FC;
-        Fri, 29 Oct 2021 13:57:58 +0300 (EEST)
-Content-Type: text/plain; charset="utf-8"
+        id S229788AbhJ3Qb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 12:31:59 -0400
+Received: from asav21.altibox.net ([109.247.116.8]:48518 "EHLO
+        asav21.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229578AbhJ3Qb7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Oct 2021 12:31:59 -0400
+Received: from localhost.localdomain (211.81-166-168.customer.lyse.net [81.166.168.211])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: noralf.tronnes@ebnett.no)
+        by asav21.altibox.net (Postfix) with ESMTPSA id 3C0E08009D;
+        Sat, 30 Oct 2021 18:29:26 +0200 (CEST)
+From:   =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+To:     gregkh@linuxfoundation.org
+Cc:     linux-staging@lists.linux.dev, dri-devel@lists.freedesktop.org,
+        linux-fbdev@vger.kernel.org,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] staging/fbtft: Fix backlight
+Date:   Sat, 30 Oct 2021 18:29:01 +0200
+Message-Id: <20211030162901.17918-1-noralf@tronnes.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Illuminati-Beamter
-To:     Recipients <Illuminati@newmail.hcg.gr>
-From:   Illuminati@newmail.hcg.gr
-Date:   Fri, 29 Oct 2021 18:57:53 +0800
-Reply-To: illuminatiofficial466@gmail.com
-Message-Id: <20211029105758.DCB0B3805FC1FC@newmail.hcg.gr>
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrFIsWRmVeSWpSXmKPExsWyRoiJS3d9fW2iwecVOhYHLt5nstj1bgaz
-        xd6Tx9gt9ra3M1n8+fCc2eL92/8sFvPeLWG2WDvPz+LehoeMFtt+8lksbT/DZrHwZyujRe+V
-        ZiaL2R3P2S0WbHzEaHGvZxarxafHl9gslp/+z2axbcobZouGjwtZHEQ8Jj/ZyOQxd04/k8eb
-        yXeZPfat2cPm8e7dQjaPReePsnh8Ob6X3eNUxy5Wj1mnLjF6rP+/mNXj/K+HTB6fN8l5TLjx
-        mDGAN4rLJiU1J7MstUjfLoErY8uUfSwFZ1kqbt1Ta2B8w9zFyMkhIWAisXv1TEYQW0hgIZPE
-        jbuKEPZURokLR5W6GLmA7G2MEgsvnGaFcIAS2283Q3XrSew+NJcZrurcl22MEM4CRokr7VtZ
-        uhg5OJgFNCXW79IHaeAVEJQ4OfMJC4jNLKAtsWzha2aIEjWJr10lIGFhAWmJVdemM4KERQS0
-        JJo6K0DCbALyEt0/ZoEdyiKgKnHrZCcrSIkQ0PBje5whhltJzPjynXECo9AshLWzkKydhWTt
-        LIS1CxhZVjFy5VYY6WUkp+ulF21iBEW3cC/fDsanb77qHWJk4mA8xCjBwawkwhtxoSZRiDcl
-        sbIqtSg/vqg0J7X4EKM0B4uSOO8CrYoEIYH0xJLU7NTUgtQimCwTB6dUA1Mme4Jym7nImik8
-        rkzX/7Dtl9vzpqCxS+iaFr+8vfxjqT3hUSlv7Ffs0o/3k1xnWGLSdaXmwRrZ9euab5Znb6ye
-        eOH9L/Fi8+/fUm5Ocyy+fmlH2IaM0ktK925/U7j/afm8FV1Mf6xWJRVraFVN26kgKZnLKp3t
-        cGNu9f3OtqSgPdKPtdP2hLK2uCfu/3x41jb9ELGHDwMflvg76CYuipu25ZXYA8H5qpNnvJ/F
-        v6tkzUm7RT/XJ6TqngtXenn3X5/87ZjpLhWNDqwf1jYD/WG470jF+4QIvmO7T1lf2iDVHu6c
-        PLPpcQ7L//CjxmzW4un3g99LN7VyCAeIe6y/b37vX7bT5OlGYjwX9jD7KLEUZyQaajEXFScC
-        AFTbMPBdAwAA
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-CMAE-Score: 0
+X-CMAE-Analysis: v=2.3 cv=Dq54Bl3+ c=1 sm=1 tr=0
+        a=OYZzhG0JTxDrWp/F2OJbnw==:117 a=OYZzhG0JTxDrWp/F2OJbnw==:17
+        a=IkcTkHD0fZMA:10 a=M51BFTxLslgA:10 a=VwQbUJbxAAAA:8 a=SJz97ENfAAAA:8
+        a=p9cCCTTYX0JvZlB5OkkA:9 a=QEXdDO2ut3YA:10 a=AjGcO6oz07-iQ99wixmX:22
+        a=vFet0B0WnEQeilDPIY6i:22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo!!! Willst du ein Mitglied der großen Illuminaten sein und anfangen, monatlich 50.000.000 € zu erhalten und unter anderen beliebt zu sein und Reichtümer und Ruhm zu haben, ist dies die einzige Chance, zu den Illuminaten zu gehören 52 Mitglieder in die Illuminati zu bringen, ich habe 32 bekommen, also suchen wir 20, also versuche, unter den zwanzig Leuten zu sein, die reich und berühmt sind, WhatsApp Via; +4917629575254, oder Email Via: illuminatiofficial466@gmail.com  , damit wir mit dem Beitrittsprozess beginnen können!!!
+Commit b4a1ed0cd18b ("fbdev: make FB_BACKLIGHT a tristate") forgot to
+update fbtft breaking its backlight support when FB_BACKLIGHT is a module.
+
+Fix this by using IS_ENABLED().
+
+Fixes: b4a1ed0cd18b ("fbdev: make FB_BACKLIGHT a tristate")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+---
+ drivers/staging/fbtft/fbtft-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/fbtft/fbtft-core.c b/drivers/staging/fbtft/fbtft-core.c
+index ed992ca605eb..ff979f1eeee8 100644
+--- a/drivers/staging/fbtft/fbtft-core.c
++++ b/drivers/staging/fbtft/fbtft-core.c
+@@ -128,7 +128,7 @@ static int fbtft_request_gpios(struct fbtft_par *par)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_FB_BACKLIGHT
++#if IS_ENABLED(CONFIG_FB_BACKLIGHT)
+ static int fbtft_backlight_update_status(struct backlight_device *bd)
+ {
+ 	struct fbtft_par *par = bl_get_data(bd);
+@@ -853,7 +853,7 @@ int fbtft_register_framebuffer(struct fb_info *fb_info)
+ 		 fb_info->fix.smem_len >> 10, text1,
+ 		 HZ / fb_info->fbdefio->delay, text2);
+ 
+-#ifdef CONFIG_FB_BACKLIGHT
++#if IS_ENABLED(CONFIG_FB_BACKLIGHT)
+ 	/* Turn on backlight if available */
+ 	if (fb_info->bl_dev) {
+ 		fb_info->bl_dev->props.power = FB_BLANK_UNBLANK;
+-- 
+2.33.0
+
