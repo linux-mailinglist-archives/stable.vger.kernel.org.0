@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A91624408F9
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C59F4408FA
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:08:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230005AbhJ3NLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:11:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44888 "EHLO mail.kernel.org"
+        id S230089AbhJ3NL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:11:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229640AbhJ3NLZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:11:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC86560EFF;
-        Sat, 30 Oct 2021 13:08:54 +0000 (UTC)
+        id S230082AbhJ3NL1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:11:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5281D60E9C;
+        Sat, 30 Oct 2021 13:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635599335;
-        bh=2airxLHqQ4qiHf0XybpwhDFiN+9btabvf4pf2bk2Dh8=;
+        s=korg; t=1635599337;
+        bh=+UolVYm4KgMsfYjulAZpdsrW+KUO57hbGqtBwVYEXVE=;
         h=Subject:To:Cc:From:Date:From;
-        b=Jfr/T7DjBG8okULikTpbHh4Bq1L3ra8rM6VOpNwukiB85Ki7RSCDs01TI7YLTbgeF
-         qCUmlvAnnjsJIIAzljX1Us7/i9T3VDA/dAFXqrF4k5KjAOoPkRwsB6Ur1I3gcSLhub
-         02NnKpRJ37PNxaT/WwlSySlGYlPW82CKdYIfM/TM=
-Subject: FAILED: patch "[PATCH] net: ethernet: microchip: lan743x: Fix skb allocation failure" failed to apply to 5.10-stable tree
+        b=MTdXaR4rXBUTfLp0JEprwNQ56HdTaaZzeuR9xi71JZYYrkYRWVcCceGHaWGHFgrMr
+         qLjeZ3Zg6FgvDCdynMN1AyVDcW/QmHHaIB4K9zPvXuAdfoyLbTefPDxQCLXgIBT6gq
+         0J7XlT4YQ5uqVudMEcEvULC83nwl0fEZpETdk+h0=
+Subject: FAILED: patch "[PATCH] net: ethernet: microchip: lan743x: Fix skb allocation failure" failed to apply to 5.4-stable tree
 To:     yuiko.oshino@microchip.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 30 Oct 2021 15:08:45 +0200
-Message-ID: <16355993252198@kroah.com>
+Message-ID: <1635599325121126@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
