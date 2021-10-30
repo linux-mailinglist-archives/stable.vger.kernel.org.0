@@ -2,30 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC5ED44080B
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 10:49:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94BD744080C
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 10:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231759AbhJ3Iw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 04:52:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49984 "EHLO mail.kernel.org"
+        id S231754AbhJ3Iwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 04:52:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231754AbhJ3Iw1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 04:52:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 933A960FF2;
-        Sat, 30 Oct 2021 08:49:57 +0000 (UTC)
+        id S229633AbhJ3Iwe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 04:52:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C0BC61038;
+        Sat, 30 Oct 2021 08:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635583798;
-        bh=eQPnOunLDB7Guqa43Q7H5SYevdh5gmNlhu0mxnIQuAI=;
+        s=korg; t=1635583804;
+        bh=RdRKk3aBmvlOEMzgrZhesPjHnjfB9Vq9Be3+TOACVfA=;
         h=Subject:To:From:Date:From;
-        b=Ze6XS/2Df0/hOpBDu9V1Yn5GuwjlxEHc1rkNnk0/Qf5uy6ICAuIMnzCqlajX0yFva
-         yHB0MAYYpeM6ZFUzmZgD5l6KDR/tDPGLefsIQ+kcb0tnLZLV6Ot8MT3QobjYuATGXq
-         x8tD3mDOlW1V3fyqWWIzgK9rMaIZeWXwdx1jjdaE=
-Subject: patch "coresight: trbe: Fix incorrect access of the sink specific data" added to char-misc-testing
+        b=eK9VmbALF5SpQWxrqk0bNg03Hg/Ws0TmOM9ZvHaYfN8bonmr7RNKzhW8pesm3QXzu
+         9uOD090qeS5Ir8K3QZEc0USkXKmTRX2Ezp+ON8sHSKlSH+45LAr56MrgvbAWqQdCFj
+         2+psUYVxYJzqXXHG82RzxnMyAor8m9Qfv6fT0bJQ=
+Subject: patch "coresight: trbe: Defer the probe on offline CPUs" added to char-misc-testing
 To:     suzuki.poulose@arm.com, anshuman.khandual@arm.com,
-        mathieu.poirier@linaro.org, stable@vger.kernel.org
+        branislav.rankov@arm.com, leo.yan@linaro.org,
+        mathieu.poirier@linaro.org, mike.leach@linaro.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 10:49:14 +0200
-Message-ID: <1635583754120112@kroah.com>
+Date:   Sat, 30 Oct 2021 10:49:16 +0200
+Message-ID: <1635583756147229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +38,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    coresight: trbe: Fix incorrect access of the sink specific data
+    coresight: trbe: Defer the probe on offline CPUs
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -51,40 +53,109 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From bb5293e334af51b19b62d8bef1852ea13e935e9b Mon Sep 17 00:00:00 2001
+From a08025b3fe56185290a1ea476581f03ca733f967 Mon Sep 17 00:00:00 2001
 From: Suzuki K Poulose <suzuki.poulose@arm.com>
-Date: Tue, 21 Sep 2021 14:41:05 +0100
-Subject: coresight: trbe: Fix incorrect access of the sink specific data
+Date: Thu, 14 Oct 2021 15:22:38 +0100
+Subject: coresight: trbe: Defer the probe on offline CPUs
 
-The TRBE driver wrongly treats the aux private data as the TRBE driver
-specific buffer for a given perf handle, while it is the ETM PMU's
-event specific data. Fix this by correcting the instance to use
-appropriate helper.
+If a CPU is offline during the driver init, we could end up causing
+a kernel crash trying to register the coresight device for the TRBE
+instance. The trbe_cpudata for the TRBE instance is initialized only
+when it is probed. Otherwise, we could end up dereferencing a NULL
+cpudata->drvdata.
 
-Cc: stable <stable@vger.kernel.org>
+e.g:
+
+[    0.149999] coresight ete0: CPU0: ete v1.1 initialized
+[    0.149999] coresight-etm4x ete_1: ETM arch init failed
+[    0.149999] coresight-etm4x: probe of ete_1 failed with error -22
+[    0.150085] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000050
+[    0.150085] Mem abort info:
+[    0.150085]   ESR = 0x96000005
+[    0.150085]   EC = 0x25: DABT (current EL), IL = 32 bits
+[    0.150085]   SET = 0, FnV = 0
+[    0.150085]   EA = 0, S1PTW = 0
+[    0.150085] Data abort info:
+[    0.150085]   ISV = 0, ISS = 0x00000005
+[    0.150085]   CM = 0, WnR = 0
+[    0.150085] [0000000000000050] user address but active_mm is swapper
+[    0.150085] Internal error: Oops: 96000005 [#1] PREEMPT SMP
+[    0.150085] Modules linked in:
+[    0.150085] Hardware name: FVP Base RevC (DT)
+[    0.150085] pstate: 00800009 (nzcv daif -PAN +UAO -TCO BTYPE=--)
+[    0.150155] pc : arm_trbe_register_coresight_cpu+0x74/0x144
+[    0.150155] lr : arm_trbe_register_coresight_cpu+0x48/0x144
+  ...
+
+[    0.150237] Call trace:
+[    0.150237]  arm_trbe_register_coresight_cpu+0x74/0x144
+[    0.150237]  arm_trbe_device_probe+0x1c0/0x2d8
+[    0.150259]  platform_drv_probe+0x94/0xbc
+[    0.150259]  really_probe+0x1bc/0x4a8
+[    0.150266]  driver_probe_device+0x7c/0xb8
+[    0.150266]  device_driver_attach+0x6c/0xac
+[    0.150266]  __driver_attach+0xc4/0x148
+[    0.150266]  bus_for_each_dev+0x7c/0xc8
+[    0.150266]  driver_attach+0x24/0x30
+[    0.150266]  bus_add_driver+0x100/0x1e0
+[    0.150266]  driver_register+0x78/0x110
+[    0.150266]  __platform_driver_register+0x44/0x50
+[    0.150266]  arm_trbe_init+0x28/0x84
+[    0.150266]  do_one_initcall+0x94/0x2bc
+[    0.150266]  do_initcall_level+0xa4/0x158
+[    0.150266]  do_initcalls+0x54/0x94
+[    0.150319]  do_basic_setup+0x24/0x30
+[    0.150319]  kernel_init_freeable+0xe8/0x14c
+[    0.150319]  kernel_init+0x14/0x18c
+[    0.150319]  ret_from_fork+0x10/0x30
+[    0.150319] Code: f94012c8 b0004ce2 9134a442 52819801 (f9402917)
+[    0.150319] ---[ end trace d23e0cfe5098535e ]---
+[    0.150346] Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+
+Fix this by skipping the step, if we are unable to probe the CPU.
+
 Fixes: 3fbf7f011f24 ("coresight: sink: Add TRBE driver")
+Reported-by: Bransilav Rankov <branislav.rankov@arm.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Mike Leach <mike.leach@linaro.org>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: stable <stable@vger.kernel.org>
+Tested-by: Branislav Rankov <branislav.rankov@arm.com>
 Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Link: https://lore.kernel.org/r/20210921134121.2423546-2-suzuki.poulose@arm.com
-[Fixed 13 character SHA down to 12]
+Link: https://lore.kernel.org/r/20211014142238.2221248-1-suzuki.poulose@arm.com
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- drivers/hwtracing/coresight/coresight-trbe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwtracing/coresight/coresight-trbe.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hwtracing/coresight/coresight-trbe.c b/drivers/hwtracing/coresight/coresight-trbe.c
-index a53ee98f312f..2825ccb0cf39 100644
+index 2825ccb0cf39..5d77baba8b0f 100644
 --- a/drivers/hwtracing/coresight/coresight-trbe.c
 +++ b/drivers/hwtracing/coresight/coresight-trbe.c
-@@ -382,7 +382,7 @@ static unsigned long __trbe_normal_offset(struct perf_output_handle *handle)
+@@ -893,6 +893,10 @@ static void arm_trbe_register_coresight_cpu(struct trbe_drvdata *drvdata, int cp
+ 	if (WARN_ON(trbe_csdev))
+ 		return;
  
- static unsigned long trbe_normal_offset(struct perf_output_handle *handle)
- {
--	struct trbe_buf *buf = perf_get_aux(handle);
-+	struct trbe_buf *buf = etm_perf_sink_config(handle);
- 	u64 limit = __trbe_normal_offset(handle);
- 	u64 head = PERF_IDX2OFF(handle->head, buf);
++	/* If the TRBE was not probed on the CPU, we shouldn't be here */
++	if (WARN_ON(!cpudata->drvdata))
++		return;
++
+ 	dev = &cpudata->drvdata->pdev->dev;
+ 	desc.name = devm_kasprintf(dev, GFP_KERNEL, "trbe%d", cpu);
+ 	if (!desc.name)
+@@ -974,7 +978,9 @@ static int arm_trbe_probe_coresight(struct trbe_drvdata *drvdata)
+ 		return -ENOMEM;
  
+ 	for_each_cpu(cpu, &drvdata->supported_cpus) {
+-		smp_call_function_single(cpu, arm_trbe_probe_cpu, drvdata, 1);
++		/* If we fail to probe the CPU, let us defer it to hotplug callbacks */
++		if (smp_call_function_single(cpu, arm_trbe_probe_cpu, drvdata, 1))
++			continue;
+ 		if (cpumask_test_cpu(cpu, &drvdata->supported_cpus))
+ 			arm_trbe_register_coresight_cpu(drvdata, cpu);
+ 		if (cpumask_test_cpu(cpu, &drvdata->supported_cpus))
 -- 
 2.33.1
 
