@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD254408E6
-	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E72694408E7
+	for <lists+stable@lfdr.de>; Sat, 30 Oct 2021 15:03:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230082AbhJ3NFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 09:05:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43730 "EHLO mail.kernel.org"
+        id S230153AbhJ3NFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Oct 2021 09:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230004AbhJ3NFl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Oct 2021 09:05:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BB6F61040;
-        Sat, 30 Oct 2021 13:03:11 +0000 (UTC)
+        id S230004AbhJ3NFo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Oct 2021 09:05:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5F6860E9C;
+        Sat, 30 Oct 2021 13:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635598991;
-        bh=pZ38XdACE3bZ8BARIpmKYQ6lg42fTZX3xEqFb0v7l6c=;
+        s=korg; t=1635598994;
+        bh=t4mP5WGzFSWK9Nx+aqd/vUlSMjwZ5TGqSdcpcObXyuI=;
         h=Subject:To:Cc:From:Date:From;
-        b=WmEnwI6puJhGKWc9HUMG3br69j77b5jtXmmTxc9VrFIdzhedBd8scRU1YfgSvpHHw
-         Ngo4KkXWtiBMzL1JItjqMlutRFWDDV5w0uAcz2KHMQX5uQxcgTAxm5jvQJFSqOWXvQ
-         UJoNZ7jY0EjcQ8kT+/zqdWR2KiX75b3EcoNwiLdA=
-Subject: FAILED: patch "[PATCH] RDMA/sa_query: Use strscpy_pad instead of memcpy to copy a" failed to apply to 4.14-stable tree
+        b=gDjcaaLh80jzuKN+FBykhwAqXjuGAibhNTX00vHioFO/61pxNwkSac29bx+vfkL/Q
+         G9h3kUgO6EWw3A4QsiBIMfy28zM0Cj3RKR1rcZJ1RghkAwXvQ76ZTqEhRfpO66Shu+
+         VvdNpEwg6U8ftvcd1MuacjmfjZZ4UsPaa8PMLSjY=
+Subject: FAILED: patch "[PATCH] RDMA/sa_query: Use strscpy_pad instead of memcpy to copy a" failed to apply to 4.9-stable tree
 To:     markzhang@nvidia.com, jgg@nvidia.com, leonro@nvidia.com,
         mbloch@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 30 Oct 2021 15:03:08 +0200
-Message-ID: <1635598988222107@kroah.com>
+Date:   Sat, 30 Oct 2021 15:03:09 +0200
+Message-ID: <1635598989220130@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
