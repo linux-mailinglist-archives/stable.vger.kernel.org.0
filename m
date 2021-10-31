@@ -2,139 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25F64440C95
-	for <lists+stable@lfdr.de>; Sun, 31 Oct 2021 04:15:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 070B9440D5F
+	for <lists+stable@lfdr.de>; Sun, 31 Oct 2021 07:40:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231766AbhJaDS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Oct 2021 23:18:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46734 "EHLO
+        id S229664AbhJaGnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 31 Oct 2021 02:43:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229887AbhJaDS0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Oct 2021 23:18:26 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E540FC061570
-        for <stable@vger.kernel.org>; Sat, 30 Oct 2021 20:15:55 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id y14-20020a17090a2b4e00b001a5824f4918so6832394pjc.4
-        for <stable@vger.kernel.org>; Sat, 30 Oct 2021 20:15:55 -0700 (PDT)
+        with ESMTP id S229638AbhJaGnV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 31 Oct 2021 02:43:21 -0400
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93ACBC061570;
+        Sat, 30 Oct 2021 23:40:50 -0700 (PDT)
+Received: by mail-wr1-x435.google.com with SMTP id b12so18869155wrh.4;
+        Sat, 30 Oct 2021 23:40:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ksnuVM4eQbmCJciud3cnqbPZQyjMDgfYj9H0IiVugN8=;
-        b=ONQdzyFjrxgSToR7Jzoi7BMacH9ZbVpW/Og2rfBpZ99g5RR7aoQ1LbyexrL1NevhwK
-         ny92Wx5Q/DmggEvZkFNwZ9gC7SZmF+bht4mQXY1CTeZgehy4Ko4G4GJqq5ujROGa2MGq
-         vpizv+oo8XgEyb9E0SY/XRSpB2hIXaMPaVEphu9RjWmBmFPo43hm/w9RlMoVnfJIzXc9
-         U08yE4sEmjpnzQ2rHDqVcd2BDaA+VmavV/7dSKmnQkSaZuHe0xUp/dJcyI5S7+blezib
-         PW9PZNZiUQeEMaR2+SQH6cbnvrbS+hvJMP7A79MGEOTwunlFuXWzG+aX87zItD/xZ7Hj
-         GWbg==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=pmUXDi6WpQyaunmNh7NYUa9oCQq6gI2y8tK1XhMCEPA=;
+        b=mygmfVOahWIv8UB+3pY9fZ6UNROyDETnlfRo41EhKDsRMz8D6tmPkoHutj+EVya2F2
+         ZOKIsuHE4yjNcqPWIzDRqfVTDu3z8KaZkPPZZ/BNivViNqU7ToeVYDFajrVUgWSxb05H
+         TnDAP8Eg4qMTyzP4erQ953AhVcQMvfY/Jdkf3Ub2huUyWJOl1WmOorJIjtl9e4ligp4x
+         JFD96j1v7mcf0e3NIh97Vhfr67GZbDP+WIu2J5qvLqGV1jjFpgOS7vvOTpfBKcie6zz4
+         oI983ms48y+GpCrawM26D7TVxTOQE76YSm/UdrGYZb74qz78Bj6Mj9JZ9WUR0Ks+PHs3
+         +t1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ksnuVM4eQbmCJciud3cnqbPZQyjMDgfYj9H0IiVugN8=;
-        b=g4meimCUBE5vbe6eeCEUWGWQ5zSmrAdvRjsXueitHSEV58kRAcZroja4CKPgOER83B
-         ukxU0FI93f3Vtt2XMD2/NgVbsCJLodIfHtAJ77vhDMYnSpfkowUUz+/O5aeLSVZpTmoo
-         fC7k/ArMzPAvoOvhBsvIrgdaBEcpzSlvH9SoatsALiKuuteojEWq/dUa/NRYwOWksqUb
-         D5qc7vHrMM6Nd9FA89byPsmXpSQOc2/+41wZyL7GP6qqGQG6vdk/yjMhVOlIkkCU6xGh
-         Y6PbqeaRxFip2R/S1HlOj+NJSit8oc4ouiYiNunhL9xz1vxxA9wirUn3jPR7YRWXETAa
-         71mQ==
-X-Gm-Message-State: AOAM530IZf5f/C4iX6amDytJqClmYKcEHIOJEOLs4uZq/NyTirjUiZ4s
-        yrC21XxavHBdbvhG+eIvr3oDqhg/U8oagMQ8
-X-Google-Smtp-Source: ABdhPJyAxSxyULjKEQho6iHdcMmD5bJufc2R3jDIbJYjKeTyCZa7tnqpCylFty9oktmzYyRhIA533w==
-X-Received: by 2002:a17:90b:4f90:: with SMTP id qe16mr21869380pjb.137.1635650155254;
-        Sat, 30 Oct 2021 20:15:55 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a19sm9134427pgh.24.2021.10.30.20.15.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 30 Oct 2021 20:15:54 -0700 (PDT)
-Message-ID: <617e0a6a.1c69fb81.8aefd.a596@mx.google.com>
-Date:   Sat, 30 Oct 2021 20:15:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=pmUXDi6WpQyaunmNh7NYUa9oCQq6gI2y8tK1XhMCEPA=;
+        b=Q7QnD1Gv8nMPS27aVK89hqXvMPuD51Qp3hgyj6qwjfcDijXWTDtzQQDeGBLAv5R0p2
+         rZLCTHbgCZCfscfDeYUIwDHZg3l1lfjmJfoxMFZ2z0uhow60LT85zbGp2ApfAzte9mtx
+         sudAI3YudOJbZiB43qpd/LJ2FLPy6XdZEmL8xG27ceOzJblD+xUdV+mudNwYOkSWOjnl
+         PdyxE3BA/RDwkfRFJI9lJf9JCKP3zi1j219wqPsRdmGk0xPfTrzplCo5P26uzQmREHQ0
+         iNQ8FZL2rbXwJiDQUfgqpNZxFDTHZfOaq3mXDjXKexIu6twNynHL81+VUI7vN/bA+aPj
+         ZhMA==
+X-Gm-Message-State: AOAM531C12O09K16DxVIwRJWxpN4nvnHKNOtoSGtjWAEbiBU5i0d1pQ8
+        Db0STDhSQ8k/c7FcFt7e5MY3O84IZdVD4A==
+X-Google-Smtp-Source: ABdhPJzqqHce4o0GFf3OewTJFvjnjxuMVieBNGCVBFj4ZNRUScPYN1R5L/si7JzfkX5EjH2qXLfBLA==
+X-Received: by 2002:a5d:6c61:: with SMTP id r1mr28937167wrz.54.1635662448709;
+        Sat, 30 Oct 2021 23:40:48 -0700 (PDT)
+Received: from localhost.localdomain (252.red-83-54-181.dynamicip.rima-tde.net. [83.54.181.252])
+        by smtp.gmail.com with ESMTPSA id q26sm7855071wrc.39.2021.10.30.23.40.47
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 30 Oct 2021 23:40:48 -0700 (PDT)
+From:   Sergio Paracuellos <sergio.paracuellos@gmail.com>
+To:     linux-gpio@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        linus.walleij@linaro.org,
+        Luiz Angelo Daros de Luca <luizluca@gmail.com>
+Subject: [PATCH v2] pinctrl: ralink: include 'ralink_regs.h' in 'pinctrl-mt7620.c'
+Date:   Sun, 31 Oct 2021 07:40:46 +0100
+Message-Id: <20211031064046.13533-1-sergio.paracuellos@gmail.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.253-25-g5a6b2eea5567
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.14 baseline: 89 runs,
- 1 regressions (v4.14.253-25-g5a6b2eea5567)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 89 runs, 1 regressions (v4.14.253-25-g5a6b2e=
-ea5567)
+mt7620.h, included by pinctrl-mt7620.c, mentions MT762X_SOC_MT7628AN
+declared in ralink_regs.h.
 
-Regressions Summary
--------------------
+Fixes: 745ec436de72 ("pinctrl: ralink: move MT7620 SoC pinmux config into a new 'pinctrl-mt7620.c' file")
+Cc: stable@vger.kernel.org
+Cc: linus.walleij@linaro.org
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+Signed-off-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Changes in v2:
+ - Original patch from Luiz.
+ - I have added Fixes tag and CC Linus Walleij and stable and sent v2.
 
+ drivers/pinctrl/ralink/pinctrl-mt7620.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.253-25-g5a6b2eea5567/plan/baseline/
+diff --git a/drivers/pinctrl/ralink/pinctrl-mt7620.c b/drivers/pinctrl/ralink/pinctrl-mt7620.c
+index 425d55a2ee19..6853b5b8b0fe 100644
+--- a/drivers/pinctrl/ralink/pinctrl-mt7620.c
++++ b/drivers/pinctrl/ralink/pinctrl-mt7620.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ 
++#include <asm/mach-ralink/ralink_regs.h>
+ #include <asm/mach-ralink/mt7620.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+-- 
+2.33.0
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.253-25-g5a6b2eea5567
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5a6b2eea55674b21663941897dc119a43c00af72 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/617dd0a45bc1377eaa335902
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.253=
--25-g5a6b2eea5567/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.253=
--25-g5a6b2eea5567/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/617dd0a45bc1377=
-eaa335905
-        failing since 0 day (last pass: v4.14.253-10-g2d214026445d, first f=
-ail: v4.14.253-20-g8332949c1b31)
-        2 lines
-
-    2021-10-30T23:09:05.760346  [   20.202056] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-10-30T23:09:05.802460  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/102
-    2021-10-30T23:09:05.811838  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-10-30T23:09:05.827104  [   20.271728] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
