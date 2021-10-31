@@ -2,94 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 070B9440D5F
-	for <lists+stable@lfdr.de>; Sun, 31 Oct 2021 07:40:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB6A0440D6A
+	for <lists+stable@lfdr.de>; Sun, 31 Oct 2021 08:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229664AbhJaGnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 31 Oct 2021 02:43:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34214 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229638AbhJaGnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 31 Oct 2021 02:43:21 -0400
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93ACBC061570;
-        Sat, 30 Oct 2021 23:40:50 -0700 (PDT)
-Received: by mail-wr1-x435.google.com with SMTP id b12so18869155wrh.4;
-        Sat, 30 Oct 2021 23:40:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=pmUXDi6WpQyaunmNh7NYUa9oCQq6gI2y8tK1XhMCEPA=;
-        b=mygmfVOahWIv8UB+3pY9fZ6UNROyDETnlfRo41EhKDsRMz8D6tmPkoHutj+EVya2F2
-         ZOKIsuHE4yjNcqPWIzDRqfVTDu3z8KaZkPPZZ/BNivViNqU7ToeVYDFajrVUgWSxb05H
-         TnDAP8Eg4qMTyzP4erQ953AhVcQMvfY/Jdkf3Ub2huUyWJOl1WmOorJIjtl9e4ligp4x
-         JFD96j1v7mcf0e3NIh97Vhfr67GZbDP+WIu2J5qvLqGV1jjFpgOS7vvOTpfBKcie6zz4
-         oI983ms48y+GpCrawM26D7TVxTOQE76YSm/UdrGYZb74qz78Bj6Mj9JZ9WUR0Ks+PHs3
-         +t1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=pmUXDi6WpQyaunmNh7NYUa9oCQq6gI2y8tK1XhMCEPA=;
-        b=Q7QnD1Gv8nMPS27aVK89hqXvMPuD51Qp3hgyj6qwjfcDijXWTDtzQQDeGBLAv5R0p2
-         rZLCTHbgCZCfscfDeYUIwDHZg3l1lfjmJfoxMFZ2z0uhow60LT85zbGp2ApfAzte9mtx
-         sudAI3YudOJbZiB43qpd/LJ2FLPy6XdZEmL8xG27ceOzJblD+xUdV+mudNwYOkSWOjnl
-         PdyxE3BA/RDwkfRFJI9lJf9JCKP3zi1j219wqPsRdmGk0xPfTrzplCo5P26uzQmREHQ0
-         iNQ8FZL2rbXwJiDQUfgqpNZxFDTHZfOaq3mXDjXKexIu6twNynHL81+VUI7vN/bA+aPj
-         ZhMA==
-X-Gm-Message-State: AOAM531C12O09K16DxVIwRJWxpN4nvnHKNOtoSGtjWAEbiBU5i0d1pQ8
-        Db0STDhSQ8k/c7FcFt7e5MY3O84IZdVD4A==
-X-Google-Smtp-Source: ABdhPJzqqHce4o0GFf3OewTJFvjnjxuMVieBNGCVBFj4ZNRUScPYN1R5L/si7JzfkX5EjH2qXLfBLA==
-X-Received: by 2002:a5d:6c61:: with SMTP id r1mr28937167wrz.54.1635662448709;
-        Sat, 30 Oct 2021 23:40:48 -0700 (PDT)
-Received: from localhost.localdomain (252.red-83-54-181.dynamicip.rima-tde.net. [83.54.181.252])
-        by smtp.gmail.com with ESMTPSA id q26sm7855071wrc.39.2021.10.30.23.40.47
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 30 Oct 2021 23:40:48 -0700 (PDT)
-From:   Sergio Paracuellos <sergio.paracuellos@gmail.com>
-To:     linux-gpio@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        linus.walleij@linaro.org,
-        Luiz Angelo Daros de Luca <luizluca@gmail.com>
-Subject: [PATCH v2] pinctrl: ralink: include 'ralink_regs.h' in 'pinctrl-mt7620.c'
-Date:   Sun, 31 Oct 2021 07:40:46 +0100
-Message-Id: <20211031064046.13533-1-sergio.paracuellos@gmail.com>
-X-Mailer: git-send-email 2.33.0
+        id S230121AbhJaHPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 31 Oct 2021 03:15:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43346 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229697AbhJaHPx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 31 Oct 2021 03:15:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6B3B60E9B;
+        Sun, 31 Oct 2021 07:13:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1635664402;
+        bh=3TPOMb/o+yLnu3VQ2t/0HJ81RT/NYZ48e2KTPlkYd6k=;
+        h=Subject:To:From:Date:From;
+        b=O9gtu0anWVbusehgMdSU02B06Qd+zsHKdXWwcRKpvtaE5zUBiPc0WbvMsghm+lHDV
+         PMD6BZLvL0pOVtrFJblr/Awx/qjmqnPMa3hG2AGVExhl3J+qQl7tU4cWbogNUweFmI
+         +7JUbc2kN/UyPgceFsaIjgIb+Lju57WBVkWWA+eY=
+Subject: patch "usb: gadget: Mark USB_FSL_QE broken on 64-bit" added to usb-next
+To:     geert@linux-m68k.org, gregkh@linuxfoundation.org,
+        leoyang.li@nxp.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 31 Oct 2021 08:12:59 +0100
+Message-ID: <1635664379230219@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-mt7620.h, included by pinctrl-mt7620.c, mentions MT762X_SOC_MT7628AN
-declared in ralink_regs.h.
 
-Fixes: 745ec436de72 ("pinctrl: ralink: move MT7620 SoC pinmux config into a new 'pinctrl-mt7620.c' file")
-Cc: stable@vger.kernel.org
-Cc: linus.walleij@linaro.org
+This is a note to let you know that I've just added the patch titled
 
-Signed-off-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
-Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+    usb: gadget: Mark USB_FSL_QE broken on 64-bit
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From a0548b26901f082684ad1fb3ba397d2de3a1406a Mon Sep 17 00:00:00 2001
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 27 Oct 2021 10:08:49 +0200
+Subject: usb: gadget: Mark USB_FSL_QE broken on 64-bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+On 64-bit:
+
+    drivers/usb/gadget/udc/fsl_qe_udc.c: In function ‘qe_ep0_rx’:
+    drivers/usb/gadget/udc/fsl_qe_udc.c:842:13: error: cast from pointer to integer of different size [-Werror=pointer-to-int-cast]
+      842 |     vaddr = (u32)phys_to_virt(in_be32(&bd->buf));
+	  |             ^
+    In file included from drivers/usb/gadget/udc/fsl_qe_udc.c:41:
+    drivers/usb/gadget/udc/fsl_qe_udc.c:843:28: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
+      843 |     frame_set_data(pframe, (u8 *)vaddr);
+	  |                            ^
+
+The driver assumes physical and virtual addresses are 32-bit, hence it
+cannot work on 64-bit platforms.
+
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20211027080849.3276289-1-geert@linux-m68k.org
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-Changes in v2:
- - Original patch from Luiz.
- - I have added Fixes tag and CC Linus Walleij and stable and sent v2.
-
- drivers/pinctrl/ralink/pinctrl-mt7620.c | 1 +
+ drivers/usb/gadget/udc/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pinctrl/ralink/pinctrl-mt7620.c b/drivers/pinctrl/ralink/pinctrl-mt7620.c
-index 425d55a2ee19..6853b5b8b0fe 100644
---- a/drivers/pinctrl/ralink/pinctrl-mt7620.c
-+++ b/drivers/pinctrl/ralink/pinctrl-mt7620.c
-@@ -1,5 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- 
-+#include <asm/mach-ralink/ralink_regs.h>
- #include <asm/mach-ralink/mt7620.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
+diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
+index 8c614bb86c66..69394dc1cdfb 100644
+--- a/drivers/usb/gadget/udc/Kconfig
++++ b/drivers/usb/gadget/udc/Kconfig
+@@ -330,6 +330,7 @@ config USB_AMD5536UDC
+ config USB_FSL_QE
+ 	tristate "Freescale QE/CPM USB Device Controller"
+ 	depends on FSL_SOC && (QUICC_ENGINE || CPM)
++	depends on !64BIT || BROKEN
+ 	help
+ 	   Some of Freescale PowerPC processors have a Full Speed
+ 	   QE/CPM2 USB controller, which support device mode with 4
 -- 
-2.33.0
+2.33.1
+
 
