@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB6A0440D6A
-	for <lists+stable@lfdr.de>; Sun, 31 Oct 2021 08:13:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20AD0440D6E
+	for <lists+stable@lfdr.de>; Sun, 31 Oct 2021 08:24:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230121AbhJaHPx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 31 Oct 2021 03:15:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43346 "EHLO mail.kernel.org"
+        id S230209AbhJaH0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 31 Oct 2021 03:26:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229697AbhJaHPx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 31 Oct 2021 03:15:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6B3B60E9B;
-        Sun, 31 Oct 2021 07:13:20 +0000 (UTC)
+        id S229697AbhJaH0t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 31 Oct 2021 03:26:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF06C60E9C;
+        Sun, 31 Oct 2021 07:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635664402;
-        bh=3TPOMb/o+yLnu3VQ2t/0HJ81RT/NYZ48e2KTPlkYd6k=;
+        s=korg; t=1635665058;
+        bh=xw1/N/mxaxWwcK0FpxALPPA8nKlsfh/cUNukKUK0Z8A=;
         h=Subject:To:From:Date:From;
-        b=O9gtu0anWVbusehgMdSU02B06Qd+zsHKdXWwcRKpvtaE5zUBiPc0WbvMsghm+lHDV
-         PMD6BZLvL0pOVtrFJblr/Awx/qjmqnPMa3hG2AGVExhl3J+qQl7tU4cWbogNUweFmI
-         +7JUbc2kN/UyPgceFsaIjgIb+Lju57WBVkWWA+eY=
-Subject: patch "usb: gadget: Mark USB_FSL_QE broken on 64-bit" added to usb-next
-To:     geert@linux-m68k.org, gregkh@linuxfoundation.org,
-        leoyang.li@nxp.com, stable@vger.kernel.org
+        b=qhCsb4uuHJCCjisXpsu5OEtzFmoqx4SVqp0UratZz7qQkM7Wk4wc58OMpIM1MkIo8
+         h8SD8JgHbhk967etTW9R4IhrpIPy442xPsbG2p/6oxiVgGsWzfer99ffJ+tuBT8FV7
+         KxTCyswVF82vwat+bPzQQf5HOyh/qg0KZXaJOoSo=
+Subject: patch "coresight: cti: Correct the parameter for pm_runtime_put" added to char-misc-next
+To:     quic_taozha@quicinc.com, leo.yan@linaro.org,
+        mathieu.poirier@linaro.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 31 Oct 2021 08:12:59 +0100
-Message-ID: <1635664379230219@kroah.com>
+Date:   Sun, 31 Oct 2021 08:24:04 +0100
+Message-ID: <1635665044222251@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -36,11 +36,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: gadget: Mark USB_FSL_QE broken on 64-bit
+    coresight: cti: Correct the parameter for pm_runtime_put
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -51,49 +51,38 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From a0548b26901f082684ad1fb3ba397d2de3a1406a Mon Sep 17 00:00:00 2001
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 27 Oct 2021 10:08:49 +0200
-Subject: usb: gadget: Mark USB_FSL_QE broken on 64-bit
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 692c9a499b286ea478f41b23a91fe3873b9e1326 Mon Sep 17 00:00:00 2001
+From: Tao Zhang <quic_taozha@quicinc.com>
+Date: Thu, 19 Aug 2021 17:29:37 +0800
+Subject: coresight: cti: Correct the parameter for pm_runtime_put
 
-On 64-bit:
+The input parameter of the function pm_runtime_put should be the
+same in the function cti_enable_hw and cti_disable_hw. The correct
+parameter to use here should be dev->parent.
 
-    drivers/usb/gadget/udc/fsl_qe_udc.c: In function ‘qe_ep0_rx’:
-    drivers/usb/gadget/udc/fsl_qe_udc.c:842:13: error: cast from pointer to integer of different size [-Werror=pointer-to-int-cast]
-      842 |     vaddr = (u32)phys_to_virt(in_be32(&bd->buf));
-	  |             ^
-    In file included from drivers/usb/gadget/udc/fsl_qe_udc.c:41:
-    drivers/usb/gadget/udc/fsl_qe_udc.c:843:28: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
-      843 |     frame_set_data(pframe, (u8 *)vaddr);
-	  |                            ^
-
-The driver assumes physical and virtual addresses are 32-bit, hence it
-cannot work on 64-bit platforms.
-
-Acked-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20211027080849.3276289-1-geert@linux-m68k.org
+Signed-off-by: Tao Zhang <quic_taozha@quicinc.com>
+Reviewed-by: Leo Yan <leo.yan@linaro.org>
+Fixes: 835d722ba10a ("coresight: cti: Initial CoreSight CTI Driver")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/1629365377-5937-1-git-send-email-quic_taozha@quicinc.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- drivers/usb/gadget/udc/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwtracing/coresight/coresight-cti-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
-index 8c614bb86c66..69394dc1cdfb 100644
---- a/drivers/usb/gadget/udc/Kconfig
-+++ b/drivers/usb/gadget/udc/Kconfig
-@@ -330,6 +330,7 @@ config USB_AMD5536UDC
- config USB_FSL_QE
- 	tristate "Freescale QE/CPM USB Device Controller"
- 	depends on FSL_SOC && (QUICC_ENGINE || CPM)
-+	depends on !64BIT || BROKEN
- 	help
- 	   Some of Freescale PowerPC processors have a Full Speed
- 	   QE/CPM2 USB controller, which support device mode with 4
+diff --git a/drivers/hwtracing/coresight/coresight-cti-core.c b/drivers/hwtracing/coresight/coresight-cti-core.c
+index e2a3620cbf48..8988b2ed2ea6 100644
+--- a/drivers/hwtracing/coresight/coresight-cti-core.c
++++ b/drivers/hwtracing/coresight/coresight-cti-core.c
+@@ -175,7 +175,7 @@ static int cti_disable_hw(struct cti_drvdata *drvdata)
+ 	coresight_disclaim_device_unlocked(csdev);
+ 	CS_LOCK(drvdata->base);
+ 	spin_unlock(&drvdata->spinlock);
+-	pm_runtime_put(dev);
++	pm_runtime_put(dev->parent);
+ 	return 0;
+ 
+ 	/* not disabled this call */
 -- 
 2.33.1
 
