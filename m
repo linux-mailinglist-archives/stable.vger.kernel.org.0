@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C1EF441846
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:43:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B98904416DB
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233721AbhKAJp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:45:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48030 "EHLO mail.kernel.org"
+        id S232100AbhKAJaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:30:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234074AbhKAJoD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:44:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8043613A0;
-        Mon,  1 Nov 2021 09:29:18 +0000 (UTC)
+        id S232918AbhKAJ2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:28:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8FD4611EE;
+        Mon,  1 Nov 2021 09:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758959;
-        bh=OHa/Enrm9r8tXMOOH05HAbdva9L3ZCVR0alYtEzSPcA=;
+        s=korg; t=1635758569;
+        bh=DBXK1lyNkVJA3ueLlEz5rxuF6jGB8hchI4d7Kvn7UAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A2JhK22BuAGLTvz5GyDJEHtTezITbrfXgbRSXrzyyIpsLyUWuI16jT/sZSz4ryJ4A
-         ZEUk6Aif7Q7/xgw2Csa1Ilxnz/FjiplqdhWCjH5reHV15KTGD5desMPQIOdRhaZmVq
-         AEGyibvHo9x+VLbp6nCEP7HMuZX9vaSnlkWlt8x8=
+        b=F9ZJJxpQS3NZvC3wbV6/Z6vNPzXpF74n2jY9uEhGMLuuXblYR4mfyWqC4Yotyvzcn
+         4Y3b6GYk1u5OW24DDKsjIH1Qy5eRLEni9rEe6DcXjnJn/Qzppkou0HI7TiUIZ0DFG9
+         y5rLCOveJkl0QjWtd2egvVLyci+MYxL5pSFFz1cY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aric Cyr <Aric.Cyr@amd.com>,
-        Eric Yang <eric.yang2@amd.com>,
-        Agustin Gutierrez Sanchez <agustin.gutierrez@amd.com>,
-        Jake Wang <haonan.wang2@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.14 054/125] drm/amd/display: Moved dccg init to after bios golden init
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.4 03/51] ARM: 9139/1: kprobes: fix arch_init_kprobes() prototype
 Date:   Mon,  1 Nov 2021 10:17:07 +0100
-Message-Id: <20211101082543.430391486@linuxfoundation.org>
+Message-Id: <20211101082500.943697408@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jake Wang <haonan.wang2@amd.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 2ef8ea23942f4c2569930c34e7689a0cb1b232cc upstream.
+commit 1f323127cab086e4fd618981b1e5edc396eaf0f4 upstream.
 
-[Why]
-bios_golden_init will override dccg_init during init_hw.
+With extra warnings enabled, gcc complains about this function
+definition:
 
-[How]
-Move dccg_init to after bios_golden_init.
+arch/arm/probes/kprobes/core.c: In function 'arch_init_kprobes':
+arch/arm/probes/kprobes/core.c:465:12: warning: old-style function definition [-Wold-style-definition]
+  465 | int __init arch_init_kprobes()
 
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Reviewed-by: Eric Yang <eric.yang2@amd.com>
-Acked-by: Agustin Gutierrez Sanchez <agustin.gutierrez@amd.com>
-Signed-off-by: Jake Wang <haonan.wang2@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/20201027093057.c685a14b386acacb3c449e3d@kernel.org/
+
+Fixes: 24ba613c9d6c ("ARM kprobes: core code")
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/arm/probes/kprobes/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c
-@@ -76,10 +76,6 @@ void dcn31_init_hw(struct dc *dc)
- 	if (dc->clk_mgr && dc->clk_mgr->funcs->init_clocks)
- 		dc->clk_mgr->funcs->init_clocks(dc->clk_mgr);
+--- a/arch/arm/probes/kprobes/core.c
++++ b/arch/arm/probes/kprobes/core.c
+@@ -534,7 +534,7 @@ static struct undef_hook kprobes_arm_bre
  
--	// Initialize the dccg
--	if (res_pool->dccg->funcs->dccg_init)
--		res_pool->dccg->funcs->dccg_init(res_pool->dccg);
--
- 	if (IS_FPGA_MAXIMUS_DC(dc->ctx->dce_environment)) {
+ #endif /* !CONFIG_THUMB2_KERNEL */
  
- 		REG_WRITE(REFCLK_CNTL, 0);
-@@ -106,6 +102,9 @@ void dcn31_init_hw(struct dc *dc)
- 		hws->funcs.bios_golden_init(dc);
- 		hws->funcs.disable_vga(dc->hwseq);
- 	}
-+	// Initialize the dccg
-+	if (res_pool->dccg->funcs->dccg_init)
-+		res_pool->dccg->funcs->dccg_init(res_pool->dccg);
- 
- 	if (dc->debug.enable_mem_low_power.bits.dmcu) {
- 		// Force ERAM to shutdown if DMCU is not enabled
+-int __init arch_init_kprobes()
++int __init arch_init_kprobes(void)
+ {
+ 	arm_probes_decode_init();
+ #ifdef CONFIG_THUMB2_KERNEL
 
 
