@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7905441863
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C5894416C4
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233997AbhKAJrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:47:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47850 "EHLO mail.kernel.org"
+        id S232241AbhKAJ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:28:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59239 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234425AbhKAJon (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:44:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE16761166;
-        Mon,  1 Nov 2021 09:29:41 +0000 (UTC)
+        id S231979AbhKAJ1N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:27:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6D0061101;
+        Mon,  1 Nov 2021 09:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758982;
-        bh=se536qyWgd+Saudg8JzNo5S9uEwyH7QnCMCSpXHPrBI=;
+        s=korg; t=1635758555;
+        bh=TrunEkdmAKOzzNzNkO/1rXEfuJn2an1GuGMg5jY4mek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rM04TCzoku04fhO5DfFKf2Dt37BNPgkbWYgy9ucu4RSefpFqHkMaW4TDIANoL6u32
-         x4t0aVE5yzYc+UrieTImlkKTYetYBT/As7TqNFzX28vEDIh0567DtSF+ShN/w05TWQ
-         IUNAohn6Nv01jKfcG0naXYeKlgmn+6y5mbkJrmsk=
+        b=WmazCPAQqOj38TUL48MSr3b7rsbwor/62yekEDJtGM4ZMBFLl4ZWjNzrUvOKGP+f7
+         lvgNC2B1MGVc/f5ABKw7Le6t5a9yNubLng6nDWQbYknf6k5W0OpRBXTi+i0Px70ESr
+         ipwEq2/eHyHOCno1U0aT4p9fJPWh8N55LC7bv+/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.14 063/125] IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 12/51] nfc: port100: fix using -ERRNO as command type mask
 Date:   Mon,  1 Nov 2021 10:17:16 +0100
-Message-Id: <20211101082545.097211749@linuxfoundation.org>
+Message-Id: <20211101082503.473282718@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,115 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit d39bf40e55e666b5905fdbd46a0dced030ce87be upstream.
+commit 2195f2062e4cc93870da8e71c318ef98a1c51cef upstream.
 
-Overflowing either addrlimit or bytes_togo can allow userspace to trigger
-a buffer overflow of kernel memory. Check for overflows in all the places
-doing math on user controlled buffers.
+During probing, the driver tries to get a list (mask) of supported
+command types in port100_get_command_type_mask() function.  The value
+is u64 and 0 is treated as invalid mask (no commands supported).  The
+function however returns also -ERRNO as u64 which will be interpret as
+valid command mask.
 
-Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
-Link: https://lore.kernel.org/r/20211012175519.7298.77738.stgit@awfm-01.cornelisnetworks.com
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Return 0 on every error case of port100_get_command_type_mask(), so the
+probing will stop.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/qib/qib_user_sdma.c |   33 ++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+ drivers/nfc/port100.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/qib/qib_user_sdma.c
-+++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
-@@ -602,7 +602,7 @@ done:
- /*
-  * How many pages in this iovec element?
-  */
--static int qib_user_sdma_num_pages(const struct iovec *iov)
-+static size_t qib_user_sdma_num_pages(const struct iovec *iov)
- {
- 	const unsigned long addr  = (unsigned long) iov->iov_base;
- 	const unsigned long  len  = iov->iov_len;
-@@ -658,7 +658,7 @@ static void qib_user_sdma_free_pkt_frag(
- static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
- 				   struct qib_user_sdma_queue *pq,
- 				   struct qib_user_sdma_pkt *pkt,
--				   unsigned long addr, int tlen, int npages)
-+				   unsigned long addr, int tlen, size_t npages)
- {
- 	struct page *pages[8];
- 	int i, j;
-@@ -722,7 +722,7 @@ static int qib_user_sdma_pin_pkt(const s
- 	unsigned long idx;
+--- a/drivers/nfc/port100.c
++++ b/drivers/nfc/port100.c
+@@ -1003,11 +1003,11 @@ static u64 port100_get_command_type_mask
  
- 	for (idx = 0; idx < niov; idx++) {
--		const int npages = qib_user_sdma_num_pages(iov + idx);
-+		const size_t npages = qib_user_sdma_num_pages(iov + idx);
- 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
+ 	skb = port100_alloc_skb(dev, 0);
+ 	if (!skb)
+-		return -ENOMEM;
++		return 0;
  
- 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
-@@ -824,8 +824,8 @@ static int qib_user_sdma_queue_pkts(cons
- 		unsigned pktnw;
- 		unsigned pktnwc;
- 		int nfrags = 0;
--		int npages = 0;
--		int bytes_togo = 0;
-+		size_t npages = 0;
-+		size_t bytes_togo = 0;
- 		int tiddma = 0;
- 		int cfur;
+ 	resp = port100_send_cmd_sync(dev, PORT100_CMD_GET_COMMAND_TYPE, skb);
+ 	if (IS_ERR(resp))
+-		return PTR_ERR(resp);
++		return 0;
  
-@@ -885,7 +885,11 @@ static int qib_user_sdma_queue_pkts(cons
- 
- 			npages += qib_user_sdma_num_pages(&iov[idx]);
- 
--			bytes_togo += slen;
-+			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
-+			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
- 			pktnwc += slen >> 2;
- 			idx++;
- 			nfrags++;
-@@ -904,8 +908,7 @@ static int qib_user_sdma_queue_pkts(cons
- 		}
- 
- 		if (frag_size) {
--			int tidsmsize, n;
--			size_t pktsize;
-+			size_t tidsmsize, n, pktsize, sz, addrlimit;
- 
- 			n = npages*((2*PAGE_SIZE/frag_size)+1);
- 			pktsize = struct_size(pkt, addr, n);
-@@ -923,14 +926,24 @@ static int qib_user_sdma_queue_pkts(cons
- 			else
- 				tidsmsize = 0;
- 
--			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
-+			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt = kmalloc(sz, GFP_KERNEL);
- 			if (!pkt) {
- 				ret = -ENOMEM;
- 				goto free_pbc;
- 			}
- 			pkt->largepkt = 1;
- 			pkt->frag_size = frag_size;
--			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
-+			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
-+					       &addrlimit) ||
-+			    addrlimit > type_max(typeof(pkt->addrlimit))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt->addrlimit = addrlimit;
- 
- 			if (tiddma) {
- 				char *tidsm = (char *)pkt + pktsize;
+ 	if (resp->len < 8)
+ 		mask = 0;
 
 
