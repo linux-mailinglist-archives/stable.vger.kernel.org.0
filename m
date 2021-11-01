@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF6A4441669
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3E66441868
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:45:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232782AbhKAJY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:24:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59154 "EHLO mail.kernel.org"
+        id S233498AbhKAJr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:47:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231901AbhKAJXk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:23:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6C0661101;
-        Mon,  1 Nov 2021 09:20:54 +0000 (UTC)
+        id S232577AbhKAJpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:45:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9307D61154;
+        Mon,  1 Nov 2021 09:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758455;
-        bh=j16t0ctCD5BX5QKAYLGDPEG43aYiyhjPdluF9usODhM=;
+        s=korg; t=1635759008;
+        bh=v+JftlXlzjsdUAl7jbM03q0NkeUtxo5f+dk7tZumRxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jG+0ZJyYDZ/DJ9PRZZJZk48ynZwytTnLvfhdBgQNSLQH75Cp6Tn0gUVUlLe9MF+OO
-         7DBXc7tIRWm3xn55YDXfrA1BRcu51pP1O9Tq3BpxAZrwasCT0TEcxH193SDF662bjd
-         5FK7Xofc8XE4ovBFoA0Bt+UEnvTSW9G+q7QU+JTo=
+        b=cag3cK/e0rHE/UzbAYpJIAvE9tUJIY7WPQDTEjxgTobxeZumbA6vHyqqr6cgLfMHa
+         6q2uUF/5kRT20Dxq0jaS3cNs3Dt1paRvQyZS2i7xHe1mCs8M2PHNzdJstqgo1OXh8H
+         DR1ZFg/rlTyMA0knEoBwKLxD4kQU/gXiGyCW4CLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Rakesh Babu <rsaladi2@marvell.com>,
+        Nithin Dabilpuram <ndabilpuram@marvell.com>,
+        Sunil Kovvuri Goutham <Sunil.Goutham@cavium.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 09/25] nfc: port100: fix using -ERRNO as command type mask
+Subject: [PATCH 5.14 068/125] octeontx2-af: Display all enabled PF VF rsrc_alloc entries.
 Date:   Mon,  1 Nov 2021 10:17:21 +0100
-Message-Id: <20211101082449.226807061@linuxfoundation.org>
+Message-Id: <20211101082546.025043256@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082447.070493993@linuxfoundation.org>
-References: <20211101082447.070493993@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,233 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Rakesh Babu <rsaladi2@marvell.com>
 
-commit 2195f2062e4cc93870da8e71c318ef98a1c51cef upstream.
+commit e77bcdd1f639809950c45234b08647ac6d3ffe7b upstream.
 
-During probing, the driver tries to get a list (mask) of supported
-command types in port100_get_command_type_mask() function.  The value
-is u64 and 0 is treated as invalid mask (no commands supported).  The
-function however returns also -ERRNO as u64 which will be interpret as
-valid command mask.
+Currently, we are using a fixed buffer size of length 2048 to display
+rsrc_alloc output. As a result a maximum of 2048 characters of
+rsrc_alloc output is displayed, which may lead sometimes to display only
+partial output. This patch fixes this dependency on max limit of buffer
+size and displays all PF VF entries.
 
-Return 0 on every error case of port100_get_command_type_mask(), so the
-probing will stop.
+Each column of the debugfs entry "rsrc_alloc" uses a fixed width of 12
+characters to print the list of LFs of each block for a PF/VF. If the
+length of list of LFs of a block exceeds this fixed width then the list
+gets truncated and displays only a part of the list. This patch fixes
+this by using the maximum possible length of list of LFs among all
+blocks of all PFs and VFs entries as the width size.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Fixes: f7884097141b ("octeontx2-af: Formatting debugfs entry rsrc_alloc.")
+Fixes: 23205e6d06d4 ("octeontx2-af: Dump current resource provisioning status")
+Signed-off-by: Rakesh Babu <rsaladi2@marvell.com>
+Signed-off-by: Nithin Dabilpuram <ndabilpuram@marvell.com>
+Signed-off-by: Sunil Kovvuri Goutham <Sunil.Goutham@cavium.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/port100.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c |  138 ++++++++++++----
+ 1 file changed, 106 insertions(+), 32 deletions(-)
 
---- a/drivers/nfc/port100.c
-+++ b/drivers/nfc/port100.c
-@@ -1012,11 +1012,11 @@ static u64 port100_get_command_type_mask
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+@@ -229,18 +229,85 @@ static const struct file_operations rvu_
  
- 	skb = port100_alloc_skb(dev, 0);
- 	if (!skb)
--		return -ENOMEM;
-+		return 0;
+ static void print_nix_qsize(struct seq_file *filp, struct rvu_pfvf *pfvf);
  
- 	resp = port100_send_cmd_sync(dev, PORT100_CMD_GET_COMMAND_TYPE, skb);
- 	if (IS_ERR(resp))
--		return PTR_ERR(resp);
-+		return 0;
++static void get_lf_str_list(struct rvu_block block, int pcifunc,
++			    char *lfs)
++{
++	int lf = 0, seq = 0, len = 0, prev_lf = block.lf.max;
++
++	for_each_set_bit(lf, block.lf.bmap, block.lf.max) {
++		if (lf >= block.lf.max)
++			break;
++
++		if (block.fn_map[lf] != pcifunc)
++			continue;
++
++		if (lf == prev_lf + 1) {
++			prev_lf = lf;
++			seq = 1;
++			continue;
++		}
++
++		if (seq)
++			len += sprintf(lfs + len, "-%d,%d", prev_lf, lf);
++		else
++			len += (len ? sprintf(lfs + len, ",%d", lf) :
++				      sprintf(lfs + len, "%d", lf));
++
++		prev_lf = lf;
++		seq = 0;
++	}
++
++	if (seq)
++		len += sprintf(lfs + len, "-%d", prev_lf);
++
++	lfs[len] = '\0';
++}
++
++static int get_max_column_width(struct rvu *rvu)
++{
++	int index, pf, vf, lf_str_size = 12, buf_size = 256;
++	struct rvu_block block;
++	u16 pcifunc;
++	char *buf;
++
++	buf = kzalloc(buf_size, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	for (pf = 0; pf < rvu->hw->total_pfs; pf++) {
++		for (vf = 0; vf <= rvu->hw->total_vfs; vf++) {
++			pcifunc = pf << 10 | vf;
++			if (!pcifunc)
++				continue;
++
++			for (index = 0; index < BLK_COUNT; index++) {
++				block = rvu->hw->block[index];
++				if (!strlen(block.name))
++					continue;
++
++				get_lf_str_list(block, pcifunc, buf);
++				if (lf_str_size <= strlen(buf))
++					lf_str_size = strlen(buf) + 1;
++			}
++		}
++	}
++
++	kfree(buf);
++	return lf_str_size;
++}
++
+ /* Dumps current provisioning status of all RVU block LFs */
+ static ssize_t rvu_dbg_rsrc_attach_status(struct file *filp,
+ 					  char __user *buffer,
+ 					  size_t count, loff_t *ppos)
+ {
+-	int index, off = 0, flag = 0, go_back = 0, len = 0;
++	int index, off = 0, flag = 0, len = 0, i = 0;
+ 	struct rvu *rvu = filp->private_data;
+-	int lf, pf, vf, pcifunc;
++	int bytes_not_copied = 0;
+ 	struct rvu_block block;
+-	int bytes_not_copied;
+-	int lf_str_size = 12;
++	int pf, vf, pcifunc;
+ 	int buf_size = 2048;
++	int lf_str_size;
+ 	char *lfs;
+ 	char *buf;
  
- 	if (resp->len < 8)
- 		mask = 0;
+@@ -252,6 +319,9 @@ static ssize_t rvu_dbg_rsrc_attach_statu
+ 	if (!buf)
+ 		return -ENOSPC;
+ 
++	/* Get the maximum width of a column */
++	lf_str_size = get_max_column_width(rvu);
++
+ 	lfs = kzalloc(lf_str_size, GFP_KERNEL);
+ 	if (!lfs) {
+ 		kfree(buf);
+@@ -265,65 +335,69 @@ static ssize_t rvu_dbg_rsrc_attach_statu
+ 					 "%-*s", lf_str_size,
+ 					 rvu->hw->block[index].name);
+ 		}
++
+ 	off += scnprintf(&buf[off], buf_size - 1 - off, "\n");
++	bytes_not_copied = copy_to_user(buffer + (i * off), buf, off);
++	if (bytes_not_copied)
++		goto out;
++
++	i++;
++	*ppos += off;
+ 	for (pf = 0; pf < rvu->hw->total_pfs; pf++) {
+ 		for (vf = 0; vf <= rvu->hw->total_vfs; vf++) {
++			off = 0;
++			flag = 0;
+ 			pcifunc = pf << 10 | vf;
+ 			if (!pcifunc)
+ 				continue;
+ 
+ 			if (vf) {
+ 				sprintf(lfs, "PF%d:VF%d", pf, vf - 1);
+-				go_back = scnprintf(&buf[off],
+-						    buf_size - 1 - off,
+-						    "%-*s", lf_str_size, lfs);
++				off = scnprintf(&buf[off],
++						buf_size - 1 - off,
++						"%-*s", lf_str_size, lfs);
+ 			} else {
+ 				sprintf(lfs, "PF%d", pf);
+-				go_back = scnprintf(&buf[off],
+-						    buf_size - 1 - off,
+-						    "%-*s", lf_str_size, lfs);
++				off = scnprintf(&buf[off],
++						buf_size - 1 - off,
++						"%-*s", lf_str_size, lfs);
+ 			}
+ 
+-			off += go_back;
+-			for (index = 0; index < BLKTYPE_MAX; index++) {
++			for (index = 0; index < BLK_COUNT; index++) {
+ 				block = rvu->hw->block[index];
+ 				if (!strlen(block.name))
+ 					continue;
+ 				len = 0;
+ 				lfs[len] = '\0';
+-				for (lf = 0; lf < block.lf.max; lf++) {
+-					if (block.fn_map[lf] != pcifunc)
+-						continue;
++				get_lf_str_list(block, pcifunc, lfs);
++				if (strlen(lfs))
+ 					flag = 1;
+-					len += sprintf(&lfs[len], "%d,", lf);
+-				}
+ 
+-				if (flag)
+-					len--;
+-				lfs[len] = '\0';
+ 				off += scnprintf(&buf[off], buf_size - 1 - off,
+ 						 "%-*s", lf_str_size, lfs);
+-				if (!strlen(lfs))
+-					go_back += lf_str_size;
+ 			}
+-			if (!flag)
+-				off -= go_back;
+-			else
+-				flag = 0;
+-			off--;
+-			off +=	scnprintf(&buf[off], buf_size - 1 - off, "\n");
++			if (flag) {
++				off +=	scnprintf(&buf[off],
++						  buf_size - 1 - off, "\n");
++				bytes_not_copied = copy_to_user(buffer +
++								(i * off),
++								buf, off);
++				if (bytes_not_copied)
++					goto out;
++
++				i++;
++				*ppos += off;
++			}
+ 		}
+ 	}
+ 
+-	bytes_not_copied = copy_to_user(buffer, buf, off);
++out:
+ 	kfree(lfs);
+ 	kfree(buf);
+-
+ 	if (bytes_not_copied)
+ 		return -EFAULT;
+ 
+-	*ppos = off;
+-	return off;
++	return *ppos;
+ }
+ 
+ RVU_DEBUG_FOPS(rsrc_status, rsrc_attach_status, NULL);
 
 
