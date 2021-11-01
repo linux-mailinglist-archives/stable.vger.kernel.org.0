@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBDC744160F
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:20:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57EB24416DD
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232046AbhKAJV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:21:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57724 "EHLO mail.kernel.org"
+        id S232779AbhKAJaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:30:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231979AbhKAJVd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:21:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F655610CA;
-        Mon,  1 Nov 2021 09:19:00 +0000 (UTC)
+        id S232919AbhKAJ2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:28:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 366BB611CB;
+        Mon,  1 Nov 2021 09:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758341;
-        bh=5+O5luxEq+ZJHTsBpfKr8ocub3IP1PsSW3FLEVO+9B8=;
+        s=korg; t=1635758571;
+        bh=zdBuURVdpClY2zOf1V3ISGT9oJpWkK6D3/VRTN2Peok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdF7OKrgBPsxrxmCP265eeCsT1eyQFNLn/c4EzV69vDJ0zIjmzAYIIESCz0/Qk6Io
-         cErkpg8cHfkNf2aChbGkYduGvvgnFi0OiYh6m/59JfvknwRNkhM8GQczl0VejPsExg
-         v1ZLdFi2tvJbEivMKbzKpisKmFWrsAW3lBUex3ZY=
+        b=Bamt6GgN7uaklg0l71vWA3mPAizZNLRKM7bQOJxIVXGJDbYkIn74gYwy/tWl8dxq+
+         75YhXQ+kPhQl2+okAMLadH84Td/FYVSFy6my0gcWxyAdK6vs1PnTXnVQqXR9qLoTF2
+         Np8J2y3P5sk7UVoY7MGDticdU27oFEEfUbwlGsEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 05/17] usbnet: sanity check for maxpacket
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.4 04/51] ARM: 9141/1: only warn about XIP address when not compile testing
 Date:   Mon,  1 Nov 2021 10:17:08 +0100
-Message-Id: <20211101082441.850736567@linuxfoundation.org>
+Message-Id: <20211101082501.177386258@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
-References: <20211101082440.664392327@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 397430b50a363d8b7bdda00522123f82df6adc5e upstream.
+commit 48ccc8edf5b90622cdc4f8878e0042ab5883e2ca upstream.
 
-maxpacket of 0 makes no sense and oopses as we need to divide
-by it. Give up.
+In randconfig builds, we sometimes come across this warning:
 
-V2: fixed typo in log and stylistic issues
+arm-linux-gnueabi-ld: XIP start address may cause MPU programming issues
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211021122944.21816-1-oneukum@suse.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+While this is helpful for actual systems to figure out why it
+fails, the warning does not provide any benefit for build testing,
+so guard it in a check for CONFIG_COMPILE_TEST, which is usually
+set on randconfig builds.
+
+Fixes: 216218308cfb ("ARM: 8713/1: NOMMU: Support MPU in XIP configuration")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/usbnet.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/kernel/vmlinux-xip.lds.S |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -1730,6 +1730,10 @@ usbnet_probe (struct usb_interface *udev
- 	if (!dev->rx_urb_size)
- 		dev->rx_urb_size = dev->hard_mtu;
- 	dev->maxpacket = usb_maxpacket (dev->udev, dev->out, 1);
-+	if (dev->maxpacket == 0) {
-+		/* that is a broken device */
-+		goto out4;
-+	}
+--- a/arch/arm/kernel/vmlinux-xip.lds.S
++++ b/arch/arm/kernel/vmlinux-xip.lds.S
+@@ -180,7 +180,7 @@ ASSERT(__hyp_idmap_text_end - (__hyp_idm
+ ASSERT((_end - __bss_start) >= 12288, ".bss too small for CONFIG_XIP_DEFLATED_DATA")
+ #endif
  
- 	/* let userspace know we have a random address */
- 	if (ether_addr_equal(net->dev_addr, node_id))
+-#ifdef CONFIG_ARM_MPU
++#if defined(CONFIG_ARM_MPU) && !defined(CONFIG_COMPILE_TEST)
+ /*
+  * Due to PMSAv7 restriction on base address and size we have to
+  * enforce minimal alignment restrictions. It was seen that weaker
 
 
