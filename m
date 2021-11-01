@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81E8744169F
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15E8844189A
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232253AbhKAJ1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:27:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59152 "EHLO mail.kernel.org"
+        id S233621AbhKAJth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:49:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232492AbhKAJY4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:24:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 691B3610E8;
-        Mon,  1 Nov 2021 09:21:36 +0000 (UTC)
+        id S234055AbhKAJqb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:46:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4072613D2;
+        Mon,  1 Nov 2021 09:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758496;
-        bh=EyVhYykjNsNJaeHThoyuDdJZpI/45o5n5Mwbt2kBEr4=;
+        s=korg; t=1635759024;
+        bh=cGCxs+1Ry/Qu7CSd/SGrQrCzbmL0By5mcfTNjiE5zdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WVbXZxVOZJZ+/muDMPADLnGmRhxk3JXjj78+ugby9luMtRIV0COIqZflW+aRKGPAz
-         +BKSHiDUyl0o3RdhvFBgoC0EtlBItQ/ic6o1bi935G8B8tsD/HJ+JueBb5QkyTo7Zj
-         ExSP5GEkqHQwQ2q8HR0slFpLCcgCXSPlQbd53eZY=
+        b=iz2h0n9maXan7x2lDrJs1zFgMTdzo9YP/wrx/MP8rQWIeTzooID1Hnrv+3jR8A724
+         A3+Jr5r67A4rQFbSNb0UHm2/w9Dx75ACOaoYwJKrn1w/yrBBMB+nGjA/OrzHQBETuE
+         J7lPte8kSQAppX8sRHRjHBnPM8EzM6bXICvy+rms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Cl=C3=A9ment=20B=C5=93sch?= <u@pkh.me>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>, Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 4.19 23/35] arm64: dts: allwinner: h5: NanoPI Neo 2: Fix ethernet node
-Date:   Mon,  1 Nov 2021 10:17:35 +0100
-Message-Id: <20211101082457.023981695@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 5.14 083/125] nios2: Make NIOS2_DTB_SOURCE_BOOL depend on !COMPILE_TEST
+Date:   Mon,  1 Nov 2021 10:17:36 +0100
+Message-Id: <20211101082548.970470215@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
-References: <20211101082451.430720900@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clément Bœsch <u@pkh.me>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 0764e365dacd0b8f75c1736f9236be280649bd18 upstream.
+commit 4a089e95b4d6bb625044d47aed0c442a8f7bd093 upstream.
 
-RX and TX delay are provided by ethernet PHY. Reflect that in ethernet
-node.
+nios2:allmodconfig builds fail with
 
-Fixes: 44a94c7ef989 ("arm64: dts: allwinner: H5: Restore EMAC changes")
-Signed-off-by: Clément Bœsch <u@pkh.me>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20210905002027.171984-1-u@pkh.me
+make[1]: *** No rule to make target 'arch/nios2/boot/dts/""',
+	needed by 'arch/nios2/boot/dts/built-in.a'.  Stop.
+make: [Makefile:1868: arch/nios2/boot/dts] Error 2 (ignored)
+
+This is seen with compile tests since those enable NIOS2_DTB_SOURCE_BOOL,
+which in turn enables NIOS2_DTB_SOURCE. This causes the build error
+because the default value for NIOS2_DTB_SOURCE is an empty string.
+Disable NIOS2_DTB_SOURCE_BOOL for compile tests to avoid the error.
+
+Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-h5-nanopi-neo2.dts |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/nios2/platform/Kconfig.platform |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/boot/dts/allwinner/sun50i-h5-nanopi-neo2.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h5-nanopi-neo2.dts
-@@ -114,7 +114,7 @@
- 	pinctrl-0 = <&emac_rgmii_pins>;
- 	phy-supply = <&reg_gmac_3v3>;
- 	phy-handle = <&ext_rgmii_phy>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	status = "okay";
- };
+--- a/arch/nios2/platform/Kconfig.platform
++++ b/arch/nios2/platform/Kconfig.platform
+@@ -37,6 +37,7 @@ config NIOS2_DTB_PHYS_ADDR
  
+ config NIOS2_DTB_SOURCE_BOOL
+ 	bool "Compile and link device tree into kernel image"
++	depends on !COMPILE_TEST
+ 	help
+ 	  This allows you to specify a dts (device tree source) file
+ 	  which will be compiled and linked into the kernel image.
 
 
