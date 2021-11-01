@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A42C44164E
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:21:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F44D44164C
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:21:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232020AbhKAJYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232122AbhKAJYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 1 Nov 2021 05:24:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58982 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232236AbhKAJXO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232230AbhKAJXO (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Nov 2021 05:23:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66E5C610CA;
-        Mon,  1 Nov 2021 09:20:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8277610E8;
+        Mon,  1 Nov 2021 09:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758417;
-        bh=poHWi9MlbVmSmN9cI2HHqFeK+sJpC4qM/p8itdGfWws=;
+        s=korg; t=1635758420;
+        bh=OWoe9ut4MvezTUhqlVNY5lcC0+n5MbCV6mfVfXZwDn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eE1JkJKpxDL8nqUhHThQdSD5l/+IyaOnzznuX7m44fyGET0g/SETqXunpWohAuWJT
-         ivgGkUI486rNppnTm60qMM1WI4Pd91Wxv3xeTqCLx/7G+6rFlA+555qg7e1bvC5xs3
-         vfFbvbIuo6f2A5o1QbIyN/uJY/jMxKs5w7JhqMlo=
+        b=jbHrU7fAwCv4G6UlUyoVJ6hOulaoXSowVkrjONU5DRsLl5mYUyMZIKhAL5oYal++b
+         /A5hxLroNR1TSC4gAI3yv3VHyujt1XF3wyQ2KMGFQ1vuLiKzxuQNtxN77SQzV3tRTL
+         3wsSxmR3sGbtDlwfCOOkR79mGrow6fiFKjIyjZjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 15/25] mmc: sdhci-esdhc-imx: clear the buffer_read_ready to reset standard tuning circuit
-Date:   Mon,  1 Nov 2021 10:17:27 +0100
-Message-Id: <20211101082450.660660674@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Woojung.Huh@microchip.com" <Woojung.Huh@microchip.com>,
+        Johan Hovold <johan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 16/25] net: lan78xx: fix division by zero in send path
+Date:   Mon,  1 Nov 2021 10:17:28 +0100
+Message-Id: <20211101082450.882639596@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082447.070493993@linuxfoundation.org>
 References: <20211101082447.070493993@linuxfoundation.org>
@@ -40,68 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 9af372dc70e9fdcbb70939dac75365e7b88580b4 upstream.
+commit db6c3c064f5d55fa9969f33eafca3cdbefbb3541 upstream.
 
-To reset standard tuning circuit completely, after clear ESDHC_MIX_CTRL_EXE_TUNE,
-also need to clear bit buffer_read_ready, this operation will finally clear the
-USDHC IP internal logic flag execute_tuning_with_clr_buf, make sure the following
-normal data transfer will not be impacted by standard tuning logic used before.
+Add the missing endpoint max-packet sanity check to probe() to avoid
+division by zero in lan78xx_tx_bh() in case a malicious device has
+broken descriptors (or when doing descriptor fuzz testing).
 
-Find this issue when do quick SD card insert/remove stress test. During standard
-tuning prodedure, if remove SD card, USDHC standard tuning logic can't clear the
-internal flag execute_tuning_with_clr_buf. Next time when insert SD card, all
-data related commands can't get any data related interrupts, include data transfer
-complete interrupt, data timeout interrupt, data CRC interrupt, data end bit interrupt.
-Always trigger software timeout issue. Even reset the USDHC through bits in register
-SYS_CTRL (0x2C, bit28 reset tuning, bit26 reset data, bit 25 reset command, bit 24
-reset all) can't recover this. From the user's point of view, USDHC stuck, SD can't
-be recognized any more.
+Note that USB core will reject URBs submitted for endpoints with zero
+wMaxPacketSize but that drivers doing packet-size calculations still
+need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
+endpoint descriptors with maxpacket=0")).
 
-Fixes: d9370424c948 ("mmc: sdhci-esdhc-imx: reset tuning circuit when power on mmc card")
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1634263236-6111-1-git-send-email-haibo.chen@nxp.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
+Cc: stable@vger.kernel.org      # 4.3
+Cc: Woojung.Huh@microchip.com <Woojung.Huh@microchip.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/net/usb/lan78xx.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -927,6 +927,7 @@ static void esdhc_reset_tuning(struct sd
- 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
- 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
- 	u32 ctrl;
-+	int ret;
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -3615,6 +3615,12 @@ static int lan78xx_probe(struct usb_inte
  
- 	/* Reset the tuning circuit */
- 	if (esdhc_is_usdhc(imx_data)) {
-@@ -939,7 +940,22 @@ static void esdhc_reset_tuning(struct sd
- 		} else if (imx_data->socdata->flags & ESDHC_FLAG_STD_TUNING) {
- 			ctrl = readl(host->ioaddr + SDHCI_AUTO_CMD_STATUS);
- 			ctrl &= ~ESDHC_MIX_CTRL_SMPCLK_SEL;
-+			ctrl &= ~ESDHC_MIX_CTRL_EXE_TUNE;
- 			writel(ctrl, host->ioaddr + SDHCI_AUTO_CMD_STATUS);
-+			/* Make sure ESDHC_MIX_CTRL_EXE_TUNE cleared */
-+			ret = readl_poll_timeout(host->ioaddr + SDHCI_AUTO_CMD_STATUS,
-+				ctrl, !(ctrl & ESDHC_MIX_CTRL_EXE_TUNE), 1, 50);
-+			if (ret == -ETIMEDOUT)
-+				dev_warn(mmc_dev(host->mmc),
-+				 "Warning! clear execute tuning bit failed\n");
-+			/*
-+			 * SDHCI_INT_DATA_AVAIL is W1C bit, set this bit will clear the
-+			 * usdhc IP internal logic flag execute_tuning_with_clr_buf, which
-+			 * will finally make sure the normal data transfer logic correct.
-+			 */
-+			ctrl = readl(host->ioaddr + SDHCI_INT_STATUS);
-+			ctrl |= SDHCI_INT_DATA_AVAIL;
-+			writel(ctrl, host->ioaddr + SDHCI_INT_STATUS);
- 		}
- 	}
- }
+ 	dev->maxpacket = usb_maxpacket(dev->udev, dev->pipe_out, 1);
+ 
++	/* Reject broken descriptors. */
++	if (dev->maxpacket == 0) {
++		ret = -ENODEV;
++		goto out4;
++	}
++
+ 	/* driver requires remote-wakeup capability during autosuspend. */
+ 	intf->needs_remote_wakeup = 1;
+ 
 
 
