@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E65D444176F
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:34:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEEB044174D
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:33:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232395AbhKAJgS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:36:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43822 "EHLO mail.kernel.org"
+        id S233081AbhKAJfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:35:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233752AbhKAJeM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:34:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65295610FC;
-        Mon,  1 Nov 2021 09:25:39 +0000 (UTC)
+        id S232693AbhKAJcQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:32:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1BD4610E8;
+        Mon,  1 Nov 2021 09:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758739;
-        bh=qsz/k60FUzE87zRkbyNGVt88R4f8mye/n3bPift+Ulk=;
+        s=korg; t=1635758672;
+        bh=nUkxP9PjnMQ51Mt88YruVMXVJUtGq3QtWY+WgKFYxTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=atfWUCiwk0KBqMnEz++B3F4Un9na70hhQoqs9DwH6Dhry8eu/4GdlDQXCkQV5CH5x
-         GXrXNPvR289Z/aQH/1y1zQwrXBOgyxxCAeqikCH+iS0Gkw+tSIUVuQRJPvqFUqsljR
-         XSfQOSN/rIEYK7Ua0la3p09rbocoo7cv2G8aoaBE=
+        b=iLSELxIrSEs7jeOdUQ8KtaO6Df09xSarXPJXQ633HAgAuh4T3gzDE3+jmyeZjjBgC
+         OGa7iwO8L+AJN6zQwEESctsdyK9hvpxZiBDNZyAnsd0FXXrTMmGIPKcyVP5sFAN0J2
+         SUDWS/w0F+pq7ShFlz2YX96gJsbFDbx4bAm+K8KA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Huang <chenhuang5@huawei.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.10 09/77] arm64: Avoid premature usercopy failure
-Date:   Mon,  1 Nov 2021 10:16:57 +0100
-Message-Id: <20211101082513.930721560@linuxfoundation.org>
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>,
+        Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: [PATCH 5.10 10/77] ext4: fix possible UAF when remounting r/o a mmp-protected file system
+Date:   Mon,  1 Nov 2021 10:16:58 +0100
+Message-Id: <20211101082514.121077773@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
 References: <20211101082511.254155853@linuxfoundation.org>
@@ -42,200 +40,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 295cf156231ca3f9e3a66bde7fab5e09c41835e0 upstream.
+commit 61bb4a1c417e5b95d9edb4f887f131de32e419cb upstream.
 
-Al reminds us that the usercopy API must only return complete failure
-if absolutely nothing could be copied. Currently, if userspace does
-something silly like giving us an unaligned pointer to Device memory,
-or a size which overruns MTE tag bounds, we may fail to honour that
-requirement when faulting on a multi-byte access even though a smaller
-access could have succeeded.
+After commit 618f003199c6 ("ext4: fix memory leak in
+ext4_fill_super"), after the file system is remounted read-only, there
+is a race where the kmmpd thread can exit, causing sbi->s_mmp_tsk to
+point at freed memory, which the call to ext4_stop_mmpd() can trip
+over.
 
-Add a mitigation to the fixup routines to fall back to a single-byte
-copy if we faulted on a larger access before anything has been written
-to the destination, to guarantee making *some* forward progress. We
-needn't be too concerned about the overall performance since this should
-only occur when callers are doing something a bit dodgy in the first
-place. Particularly broken userspace might still be able to trick
-generic_perform_write() into an infinite loop by targeting write() at
-an mmap() of some read-only device register where the fault-in load
-succeeds but any store synchronously aborts such that copy_to_user() is
-genuinely unable to make progress, but, well, don't do that...
+Fix this by only allowing kmmpd() to exit when it is stopped via
+ext4_stop_mmpd().
 
-CC: stable@vger.kernel.org
-Reported-by: Chen Huang <chenhuang5@huawei.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/dc03d5c675731a1f24a62417dba5429ad744234e.1626098433.git.robin.murphy@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Chen Huang <chenhuang5@huawei.com>
+Link: https://lore.kernel.org/r/20210707002433.3719773-1-tytso@mit.edu
+Reported-by: Ye Bin <yebin10@huawei.com>
+Bug-Report-Link: <20210629143603.2166962-1-yebin10@huawei.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/lib/copy_from_user.S |   13 ++++++++++---
- arch/arm64/lib/copy_in_user.S   |   21 ++++++++++++++-------
- arch/arm64/lib/copy_to_user.S   |   14 +++++++++++---
- 3 files changed, 35 insertions(+), 13 deletions(-)
+ fs/ext4/mmp.c   |   31 +++++++++++++++----------------
+ fs/ext4/super.c |    6 +++++-
+ 2 files changed, 20 insertions(+), 17 deletions(-)
 
---- a/arch/arm64/lib/copy_from_user.S
-+++ b/arch/arm64/lib/copy_from_user.S
-@@ -29,7 +29,7 @@
- 	.endm
+--- a/fs/ext4/mmp.c
++++ b/fs/ext4/mmp.c
+@@ -156,7 +156,12 @@ static int kmmpd(void *data)
+ 	memcpy(mmp->mmp_nodename, init_utsname()->nodename,
+ 	       sizeof(mmp->mmp_nodename));
  
- 	.macro ldrh1 reg, ptr, val
--	uao_user_alternative 9998f, ldrh, ldtrh, \reg, \ptr, \val
-+	uao_user_alternative 9997f, ldrh, ldtrh, \reg, \ptr, \val
- 	.endm
+-	while (!kthread_should_stop()) {
++	while (!kthread_should_stop() && !sb_rdonly(sb)) {
++		if (!ext4_has_feature_mmp(sb)) {
++			ext4_warning(sb, "kmmpd being stopped since MMP feature"
++				     " has been disabled.");
++			goto wait_to_exit;
++		}
+ 		if (++seq > EXT4_MMP_SEQ_MAX)
+ 			seq = 1;
  
- 	.macro strh1 reg, ptr, val
-@@ -37,7 +37,7 @@
- 	.endm
+@@ -177,16 +182,6 @@ static int kmmpd(void *data)
+ 			failed_writes++;
+ 		}
  
- 	.macro ldr1 reg, ptr, val
--	uao_user_alternative 9998f, ldr, ldtr, \reg, \ptr, \val
-+	uao_user_alternative 9997f, ldr, ldtr, \reg, \ptr, \val
- 	.endm
- 
- 	.macro str1 reg, ptr, val
-@@ -45,7 +45,7 @@
- 	.endm
- 
- 	.macro ldp1 reg1, reg2, ptr, val
--	uao_ldp 9998f, \reg1, \reg2, \ptr, \val
-+	uao_ldp 9997f, \reg1, \reg2, \ptr, \val
- 	.endm
- 
- 	.macro stp1 reg1, reg2, ptr, val
-@@ -53,8 +53,10 @@
- 	.endm
- 
- end	.req	x5
-+srcin	.req	x15
- SYM_FUNC_START(__arch_copy_from_user)
- 	add	end, x0, x2
-+	mov	srcin, x1
- #include "copy_template.S"
- 	mov	x0, #0				// Nothing to copy
- 	ret
-@@ -63,6 +65,11 @@ EXPORT_SYMBOL(__arch_copy_from_user)
- 
- 	.section .fixup,"ax"
- 	.align	2
-+9997:	cmp	dst, dstin
-+	b.ne	9998f
-+	// Before being absolutely sure we couldn't copy anything, try harder
-+USER(9998f, ldtrb tmp1w, [srcin])
-+	strb	tmp1w, [dst], #1
- 9998:	sub	x0, end, dst			// bytes not copied
- 	ret
- 	.previous
---- a/arch/arm64/lib/copy_in_user.S
-+++ b/arch/arm64/lib/copy_in_user.S
-@@ -30,33 +30,34 @@
- 	.endm
- 
- 	.macro ldrh1 reg, ptr, val
--	uao_user_alternative 9998f, ldrh, ldtrh, \reg, \ptr, \val
-+	uao_user_alternative 9997f, ldrh, ldtrh, \reg, \ptr, \val
- 	.endm
- 
- 	.macro strh1 reg, ptr, val
--	uao_user_alternative 9998f, strh, sttrh, \reg, \ptr, \val
-+	uao_user_alternative 9997f, strh, sttrh, \reg, \ptr, \val
- 	.endm
- 
- 	.macro ldr1 reg, ptr, val
--	uao_user_alternative 9998f, ldr, ldtr, \reg, \ptr, \val
-+	uao_user_alternative 9997f, ldr, ldtr, \reg, \ptr, \val
- 	.endm
- 
- 	.macro str1 reg, ptr, val
--	uao_user_alternative 9998f, str, sttr, \reg, \ptr, \val
-+	uao_user_alternative 9997f, str, sttr, \reg, \ptr, \val
- 	.endm
- 
- 	.macro ldp1 reg1, reg2, ptr, val
--	uao_ldp 9998f, \reg1, \reg2, \ptr, \val
-+	uao_ldp 9997f, \reg1, \reg2, \ptr, \val
- 	.endm
- 
- 	.macro stp1 reg1, reg2, ptr, val
--	uao_stp 9998f, \reg1, \reg2, \ptr, \val
-+	uao_stp 9997f, \reg1, \reg2, \ptr, \val
- 	.endm
- 
- end	.req	x5
+-		if (!(le32_to_cpu(es->s_feature_incompat) &
+-		    EXT4_FEATURE_INCOMPAT_MMP)) {
+-			ext4_warning(sb, "kmmpd being stopped since MMP feature"
+-				     " has been disabled.");
+-			goto exit_thread;
+-		}
 -
-+srcin	.req	x15
- SYM_FUNC_START(__arch_copy_in_user)
- 	add	end, x0, x2
-+	mov	srcin, x1
- #include "copy_template.S"
- 	mov	x0, #0
- 	ret
-@@ -65,6 +66,12 @@ EXPORT_SYMBOL(__arch_copy_in_user)
+-		if (sb_rdonly(sb))
+-			break;
+-
+ 		diff = jiffies - last_update_time;
+ 		if (diff < mmp_update_interval * HZ)
+ 			schedule_timeout_interruptible(mmp_update_interval *
+@@ -207,7 +202,7 @@ static int kmmpd(void *data)
+ 				ext4_error_err(sb, -retval,
+ 					       "error reading MMP data: %d",
+ 					       retval);
+-				goto exit_thread;
++				goto wait_to_exit;
+ 			}
  
- 	.section .fixup,"ax"
- 	.align	2
-+9997:	cmp	dst, dstin
-+	b.ne	9998f
-+	// Before being absolutely sure we couldn't copy anything, try harder
-+USER(9998f, ldtrb tmp1w, [srcin])
-+USER(9998f, sttrb tmp1w, [dst])
-+	add	dst, dst, #1
- 9998:	sub	x0, end, dst			// bytes not copied
- 	ret
- 	.previous
---- a/arch/arm64/lib/copy_to_user.S
-+++ b/arch/arm64/lib/copy_to_user.S
-@@ -32,7 +32,7 @@
- 	.endm
+ 			mmp_check = (struct mmp_struct *)(bh_check->b_data);
+@@ -221,7 +216,7 @@ static int kmmpd(void *data)
+ 				ext4_error_err(sb, EBUSY, "abort");
+ 				put_bh(bh_check);
+ 				retval = -EBUSY;
+-				goto exit_thread;
++				goto wait_to_exit;
+ 			}
+ 			put_bh(bh_check);
+ 		}
+@@ -244,7 +239,13 @@ static int kmmpd(void *data)
  
- 	.macro strh1 reg, ptr, val
--	uao_user_alternative 9998f, strh, sttrh, \reg, \ptr, \val
-+	uao_user_alternative 9997f, strh, sttrh, \reg, \ptr, \val
- 	.endm
+ 	retval = write_mmp_block(sb, bh);
  
- 	.macro ldr1 reg, ptr, val
-@@ -40,7 +40,7 @@
- 	.endm
+-exit_thread:
++wait_to_exit:
++	while (!kthread_should_stop()) {
++		set_current_state(TASK_INTERRUPTIBLE);
++		if (!kthread_should_stop())
++			schedule();
++	}
++	set_current_state(TASK_RUNNING);
+ 	return retval;
+ }
  
- 	.macro str1 reg, ptr, val
--	uao_user_alternative 9998f, str, sttr, \reg, \ptr, \val
-+	uao_user_alternative 9997f, str, sttr, \reg, \ptr, \val
- 	.endm
+@@ -391,5 +392,3 @@ failed:
+ 	brelse(bh);
+ 	return 1;
+ }
+-
+-
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5932,7 +5932,6 @@ static int ext4_remount(struct super_blo
+ 				 */
+ 				ext4_mark_recovery_complete(sb, es);
+ 			}
+-			ext4_stop_mmpd(sbi);
+ 		} else {
+ 			/* Make sure we can mount this feature set readwrite */
+ 			if (ext4_has_feature_readonly(sb) ||
+@@ -6046,6 +6045,9 @@ static int ext4_remount(struct super_blo
+ 	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->s_system_blks)
+ 		ext4_release_system_zone(sb);
  
- 	.macro ldp1 reg1, reg2, ptr, val
-@@ -48,12 +48,14 @@
- 	.endm
- 
- 	.macro stp1 reg1, reg2, ptr, val
--	uao_stp 9998f, \reg1, \reg2, \ptr, \val
-+	uao_stp 9997f, \reg1, \reg2, \ptr, \val
- 	.endm
- 
- end	.req	x5
-+srcin	.req	x15
- SYM_FUNC_START(__arch_copy_to_user)
- 	add	end, x0, x2
-+	mov	srcin, x1
- #include "copy_template.S"
- 	mov	x0, #0
- 	ret
-@@ -62,6 +64,12 @@ EXPORT_SYMBOL(__arch_copy_to_user)
- 
- 	.section .fixup,"ax"
- 	.align	2
-+9997:	cmp	dst, dstin
-+	b.ne	9998f
-+	// Before being absolutely sure we couldn't copy anything, try harder
-+	ldrb	tmp1w, [srcin]
-+USER(9998f, sttrb tmp1w, [dst])
-+	add	dst, dst, #1
- 9998:	sub	x0, end, dst			// bytes not copied
- 	ret
- 	.previous
++	if (!ext4_has_feature_mmp(sb) || sb_rdonly(sb))
++		ext4_stop_mmpd(sbi);
++
+ 	/*
+ 	 * Some options can be enabled by ext4 and/or by VFS mount flag
+ 	 * either way we need to make sure it matches in both *flags and
+@@ -6078,6 +6080,8 @@ restore_opts:
+ 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
+ 		kfree(to_free[i]);
+ #endif
++	if (!ext4_has_feature_mmp(sb) || sb_rdonly(sb))
++		ext4_stop_mmpd(sbi);
+ 	kfree(orig_data);
+ 	return err;
+ }
 
 
