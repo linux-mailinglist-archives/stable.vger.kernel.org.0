@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53DD8441636
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:21:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75A81441860
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:44:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231822AbhKAJXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:23:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58250 "EHLO mail.kernel.org"
+        id S233686AbhKAJqf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:46:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232279AbhKAJWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:22:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1FDE6115B;
-        Mon,  1 Nov 2021 09:19:49 +0000 (UTC)
+        id S234414AbhKAJom (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:44:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72B9F613B5;
+        Mon,  1 Nov 2021 09:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758390;
-        bh=lJYl+eTyR5zz+jjSLkRUcNts9COzZsNo24UiIkyRcgk=;
+        s=korg; t=1635758979;
+        bh=agtaoqWLsHM3xqWPLgQ/Ek0GDJt1yWaYGKvZFLRRQXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UN5V02eP9MqguYPXp/nuap6gbZ7VsXSebI/tr7IXjKZGvypLYwLmLIOP7WzNrvqyX
-         lFpT4VTrFG/Y54i+t1yy3Aq4VfovWvLLFHUibvY51Dqx2UQ+mRY2vWsYV/O5G/eaaN
-         1s1FvWRDMydPbsbeOBAL++xlRv3IyWcaUT1RdYwM=
+        b=0/GjwWTVPAYhA34mrMXxUy3bBBxqXXoAru+/2G0xwKebINkGpLcPa2mdPeozS+Sdl
+         8gYe9Tc9rw4W5SX/vOagUwVhUNrpK5zUAPxtCcCtYb1gX0ucE/mvjfFsyS2KYVO9Vq
+         /3M2wafYP9xAJ7FwZaUpsvVJb2Hp/JoyUKgUw8yM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Nicolas Pitre <nico@linaro.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Stefan Agner <stefan@agner.ch>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.9 05/20] ARM: 8819/1: Remove -p from LDFLAGS
-Date:   Mon,  1 Nov 2021 10:17:14 +0100
-Message-Id: <20211101082445.393989253@linuxfoundation.org>
+        stable@vger.kernel.org, Xu Kuohai <xukuohai@huawei.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.14 062/125] bpf: Fix error usage of map_fd and fdget() in generic_map_update_batch()
+Date:   Mon,  1 Nov 2021 10:17:15 +0100
+Message-Id: <20211101082544.930255516@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
-References: <20211101082444.133899096@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Xu Kuohai <xukuohai@huawei.com>
 
-commit 091bb549f7722723b284f63ac665e2aedcf9dec9 upstream.
+commit fda7a38714f40b635f5502ec4855602c6b33dad2 upstream.
 
-This option is not supported by lld:
+1. The ufd in generic_map_update_batch() should be read from batch.map_fd;
+2. A call to fdget() should be followed by a symmetric call to fdput().
 
-    ld.lld: error: unknown argument: -p
-
-This has been a no-op in binutils since 2004 (see commit dea514f51da1 in
-that tree). Given that the lowest officially supported of binutils for
-the kernel is 2.20, which was released in 2009, nobody needs this flag
-around so just remove it. Commit 1a381d4a0a9a ("arm64: remove no-op -p
-linker flag") did the same for arm64.
-
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Acked-by: Nicolas Pitre <nico@linaro.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Stefan Agner <stefan@agner.ch>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: aa2e93b8e58e ("bpf: Add generic support for update and delete batch ops")
+Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20211019032934.1210517-1-xukuohai@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/Makefile                 |    2 +-
- arch/arm/boot/bootp/Makefile      |    2 +-
- arch/arm/boot/compressed/Makefile |    2 --
- 3 files changed, 2 insertions(+), 4 deletions(-)
+ kernel/bpf/syscall.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -13,7 +13,7 @@
- # Ensure linker flags are correct
- LDFLAGS		:=
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -1333,12 +1333,11 @@ int generic_map_update_batch(struct bpf_
+ 	void __user *values = u64_to_user_ptr(attr->batch.values);
+ 	void __user *keys = u64_to_user_ptr(attr->batch.keys);
+ 	u32 value_size, cp, max_count;
+-	int ufd = attr->map_fd;
++	int ufd = attr->batch.map_fd;
+ 	void *key, *value;
+ 	struct fd f;
+ 	int err = 0;
  
--LDFLAGS_vmlinux	:=-p --no-undefined -X --pic-veneer
-+LDFLAGS_vmlinux	:= --no-undefined -X --pic-veneer
- ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
- LDFLAGS_vmlinux	+= --be8
- LDFLAGS_MODULE	+= --be8
---- a/arch/arm/boot/bootp/Makefile
-+++ b/arch/arm/boot/bootp/Makefile
-@@ -7,7 +7,7 @@
+-	f = fdget(ufd);
+ 	if (attr->batch.elem_flags & ~BPF_F_LOCK)
+ 		return -EINVAL;
  
- GCOV_PROFILE	:= n
+@@ -1363,6 +1362,7 @@ int generic_map_update_batch(struct bpf_
+ 		return -ENOMEM;
+ 	}
  
--LDFLAGS_bootp	:=-p --no-undefined -X \
-+LDFLAGS_bootp	:= --no-undefined -X \
- 		 --defsym initrd_phys=$(INITRD_PHYS) \
- 		 --defsym params_phys=$(PARAMS_PHYS) -T
- AFLAGS_initrd.o :=-DINITRD=\"$(INITRD)\"
---- a/arch/arm/boot/compressed/Makefile
-+++ b/arch/arm/boot/compressed/Makefile
-@@ -128,8 +128,6 @@ endif
- ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
- LDFLAGS_vmlinux += --be8
- endif
--# ?
--LDFLAGS_vmlinux += -p
- # Report unresolved symbol references
- LDFLAGS_vmlinux += --no-undefined
- # Delete all temporary local symbols
++	f = fdget(ufd); /* bpf_map_do_batch() guarantees ufd is valid */
+ 	for (cp = 0; cp < max_count; cp++) {
+ 		err = -EFAULT;
+ 		if (copy_from_user(key, keys + cp * map->key_size,
+@@ -1382,6 +1382,7 @@ int generic_map_update_batch(struct bpf_
+ 
+ 	kfree(value);
+ 	kfree(key);
++	fdput(f);
+ 	return err;
+ }
+ 
 
 
