@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A4874416D8
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD1E44161C
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:20:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232721AbhKAJaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:30:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
+        id S232029AbhKAJWj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:22:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233019AbhKAJ2O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:28:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D5CA3611F2;
-        Mon,  1 Nov 2021 09:22:55 +0000 (UTC)
+        id S232035AbhKAJV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:21:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBC4F610E8;
+        Mon,  1 Nov 2021 09:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758576;
-        bh=yVyQhzYKaiw4bVwlgwIVx3LDIl3y+ilO8kY4Qds4HYI=;
+        s=korg; t=1635758355;
+        bh=5XiN2nZUVEbEsI42V1nlcIHrJlVFBIwN1m9rVIWYrec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZBqfCTXK7Hx612fwDFwcusa4SDx51tEJnH9pp+nYLWQh3RBThdtqcvzS/rBvCd8o
-         bHtsaAYQld10O67V92Od9Ux3jboLlvt+gTyRAyqCn/yr8/Wo77Gz3n7LbxIxD/m/+5
-         IHk7VJcO6eCi9C9+kwbUL0mnvIpUxjyqGL6SqN/w=
+        b=mfRtNPKGtH7o0i+kdUKMd4gFqbtODoA24Kon5sWV4n11/U0Ivethn9YRxAxcowSfc
+         yA5kucJ3WVQhiIb3cIgIGkv5dZ/cA/BOsTdC9ng4CGQ9IL0dXcrJyrA/fKN8H0xmHX
+         SxCzd4QLcZmHJd/GmS8on4s5gO60Tiap9W/Lbp+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Dumazet <edumazet@google.com>, Keyu Man <kman001@ucr.edu>,
-        Wei Wang <weiwan@google.com>, Martin KaFai Lau <kafai@fb.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 06/51] ipv6: use siphash in rt6_exception_hash()
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Richard Henderson <richard.henderson@linaro.org>
+Subject: [PATCH 4.9 01/20] ARM: 9133/1: mm: proc-macros: ensure *_tlb_fns are 4B aligned
 Date:   Mon,  1 Nov 2021 10:17:10 +0100
-Message-Id: <20211101082501.593744517@linuxfoundation.org>
+Message-Id: <20211101082444.447485230@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
+References: <20211101082444.133899096@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,72 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 4785305c05b25a242e5314cc821f54ade4c18810 upstream.
+commit e6a0c958bdf9b2e1b57501fc9433a461f0a6aadd upstream.
 
-A group of security researchers brought to our attention
-the weakness of hash function used in rt6_exception_hash()
+A kernel built with CONFIG_THUMB2_KERNEL=y and using clang as the
+assembler could generate non-naturally-aligned v7wbi_tlb_fns which
+results in a boot failure. The original commit adding the macro missed
+the .align directive on this data.
 
-Lets use siphash instead of Jenkins Hash, to considerably
-reduce security risks.
+Link: https://github.com/ClangBuiltLinux/linux/issues/1447
+Link: https://lore.kernel.org/all/0699da7b-354f-aecc-a62f-e25693209af4@linaro.org/
+Debugged-by: Ard Biesheuvel <ardb@kernel.org>
+Debugged-by: Nathan Chancellor <nathan@kernel.org>
+Debugged-by: Richard Henderson <richard.henderson@linaro.org>
 
-Following patch deals with IPv4.
-
-Fixes: 35732d01fe31 ("ipv6: introduce a hash table to store dst cache")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Keyu Man <kman001@ucr.edu>
-Cc: Wei Wang <weiwan@google.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Wei Wang <weiwan@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[OP: adjusted context for 5.4 stable]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Fixes: 66a625a88174 ("ARM: mm: proc-macros: Add generic proc/cache/tlb struct definition macros")
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/route.c |   20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ arch/arm/mm/proc-macros.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -41,6 +41,7 @@
- #include <linux/nsproxy.h>
- #include <linux/slab.h>
- #include <linux/jhash.h>
-+#include <linux/siphash.h>
- #include <net/net_namespace.h>
- #include <net/snmp.h>
- #include <net/ipv6.h>
-@@ -1502,17 +1503,24 @@ static void rt6_exception_remove_oldest(
- static u32 rt6_exception_hash(const struct in6_addr *dst,
- 			      const struct in6_addr *src)
- {
--	static u32 seed __read_mostly;
--	u32 val;
-+	static siphash_key_t rt6_exception_key __read_mostly;
-+	struct {
-+		struct in6_addr dst;
-+		struct in6_addr src;
-+	} __aligned(SIPHASH_ALIGNMENT) combined = {
-+		.dst = *dst,
-+	};
-+	u64 val;
+--- a/arch/arm/mm/proc-macros.S
++++ b/arch/arm/mm/proc-macros.S
+@@ -343,6 +343,7 @@ ENTRY(\name\()_cache_fns)
  
--	net_get_random_once(&seed, sizeof(seed));
--	val = jhash(dst, sizeof(*dst), seed);
-+	net_get_random_once(&rt6_exception_key, sizeof(rt6_exception_key));
- 
- #ifdef CONFIG_IPV6_SUBTREES
- 	if (src)
--		val = jhash(src, sizeof(*src), val);
-+		combined.src = *src;
- #endif
--	return hash_32(val, FIB6_EXCEPTION_BUCKET_SIZE_SHIFT);
-+	val = siphash(&combined, sizeof(combined), &rt6_exception_key);
-+
-+	return hash_64(val, FIB6_EXCEPTION_BUCKET_SIZE_SHIFT);
- }
- 
- /* Helper function to find the cached rt in the hash table
+ .macro define_tlb_functions name:req, flags_up:req, flags_smp
+ 	.type	\name\()_tlb_fns, #object
++	.align 2
+ ENTRY(\name\()_tlb_fns)
+ 	.long	\name\()_flush_user_tlb_range
+ 	.long	\name\()_flush_kern_tlb_range
 
 
