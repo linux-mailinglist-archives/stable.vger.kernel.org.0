@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B024417CF
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DFED4418E1
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:51:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232299AbhKAJkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:40:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43822 "EHLO mail.kernel.org"
+        id S234750AbhKAJwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:52:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233348AbhKAJiK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:38:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FC2E61105;
-        Mon,  1 Nov 2021 09:27:12 +0000 (UTC)
+        id S234427AbhKAJut (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:50:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 241DA61051;
+        Mon,  1 Nov 2021 09:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758833;
-        bh=EpP5/6vELP/3BSrpr7NTblmBStj2LabWqn4CBuIWCZ8=;
+        s=korg; t=1635759129;
+        bh=AHOhMrl6UucbvEgAhr926CsU4dpASyMQh7skXV0Ck3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b0G5HI8G5Rr/7xnVaDWBGvroG/m6S4ypFHyFX3vCp6/9/9bdIYiRD490ry0xDMaVA
-         a1xEvLHAFzUiejDP2YcKpO9muEIfCV+zHFU9rGCipBOgxfCVMRV7czpNzJSogAN3nU
-         qwSOKl4ItykiQ48RFNJkYUQQhHOppRHQKgV2k04M=
+        b=DL/SD8VIVv7kfyjHc0pIRUtr8CJUfAqP0Q27bq0dqCnYxf2IfkT9uZQvlpcJkP9/g
+         V88LK67QS5T79WYZ+wgV21SPEld1MFGLCIpEi2eB/AC9kS1RxuOSAfX/uAfya+3cJE
+         Ocr2LSIMo7uwcY5omUh87+lcrVGmVTGe6XOG1tU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Stanislav Fomichev <sdf@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 70/77] sctp: add vtag check in sctp_sf_ootb
-Date:   Mon,  1 Nov 2021 10:17:58 +0100
-Message-Id: <20211101082526.215677294@linuxfoundation.org>
+Subject: [PATCH 5.14 106/125] bpf: Use kvmalloc for map values in syscall
+Date:   Mon,  1 Nov 2021 10:17:59 +0100
+Message-Id: <20211101082553.197734079@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +41,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit 9d02831e517aa36ee6bdb453a0eb47bd49923fe3 ]
+[ Upstream commit f0dce1d9b7c81fc3dc9d0cc0bc7ef9b3eae22584 ]
 
-sctp_sf_ootb() is called when processing DATA chunk in closed state,
-and many other places are also using it.
+Use kvmalloc/kvfree for temporary value when manipulating a map via
+syscall. kmalloc might not be sufficient for percpu maps where the value
+is big (and further multiplied by hundreds of CPUs).
 
-The vtag in the chunk's sctphdr should be verified, otherwise, as
-later in chunk length check, it may send abort with the existent
-asoc's vtag, which can be exploited by one to cook a malicious
-chunk to terminate a SCTP asoc.
+Can be reproduced with netcnt test on qemu with "-smp 255".
 
-When fails to verify the vtag from the chunk, this patch sets asoc
-to NULL, so that the abort will be made with the vtag from the
-received chunk later.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20210818235216.1159202-1-sdf@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_statefuns.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/bpf/syscall.c | 28 +++++++++++-----------------
+ 1 file changed, 11 insertions(+), 17 deletions(-)
 
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 82a76fda226b..096e6be1d8fc 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -3568,6 +3568,9 @@ enum sctp_disposition sctp_sf_ootb(struct net *net,
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index d245061ba318..92ed4b2984b8 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -1066,7 +1066,7 @@ static int map_lookup_elem(union bpf_attr *attr)
+ 	value_size = bpf_map_value_size(map);
  
- 	SCTP_INC_STATS(net, SCTP_MIB_OUTOFBLUES);
+ 	err = -ENOMEM;
+-	value = kmalloc(value_size, GFP_USER | __GFP_NOWARN);
++	value = kvmalloc(value_size, GFP_USER | __GFP_NOWARN);
+ 	if (!value)
+ 		goto free_key;
  
-+	if (asoc && !sctp_vtag_verify(chunk, asoc))
-+		asoc = NULL;
-+
- 	ch = (struct sctp_chunkhdr *)chunk->chunk_hdr;
- 	do {
- 		/* Report violation if the chunk is less then minimal */
+@@ -1081,7 +1081,7 @@ static int map_lookup_elem(union bpf_attr *attr)
+ 	err = 0;
+ 
+ free_value:
+-	kfree(value);
++	kvfree(value);
+ free_key:
+ 	kfree(key);
+ err_put:
+@@ -1127,16 +1127,10 @@ static int map_update_elem(union bpf_attr *attr, bpfptr_t uattr)
+ 		goto err_put;
+ 	}
+ 
+-	if (map->map_type == BPF_MAP_TYPE_PERCPU_HASH ||
+-	    map->map_type == BPF_MAP_TYPE_LRU_PERCPU_HASH ||
+-	    map->map_type == BPF_MAP_TYPE_PERCPU_ARRAY ||
+-	    map->map_type == BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE)
+-		value_size = round_up(map->value_size, 8) * num_possible_cpus();
+-	else
+-		value_size = map->value_size;
++	value_size = bpf_map_value_size(map);
+ 
+ 	err = -ENOMEM;
+-	value = kmalloc(value_size, GFP_USER | __GFP_NOWARN);
++	value = kvmalloc(value_size, GFP_USER | __GFP_NOWARN);
+ 	if (!value)
+ 		goto free_key;
+ 
+@@ -1147,7 +1141,7 @@ static int map_update_elem(union bpf_attr *attr, bpfptr_t uattr)
+ 	err = bpf_map_update_value(map, f, key, value, attr->flags);
+ 
+ free_value:
+-	kfree(value);
++	kvfree(value);
+ free_key:
+ 	kfree(key);
+ err_put:
+@@ -1356,7 +1350,7 @@ int generic_map_update_batch(struct bpf_map *map,
+ 	if (!key)
+ 		return -ENOMEM;
+ 
+-	value = kmalloc(value_size, GFP_USER | __GFP_NOWARN);
++	value = kvmalloc(value_size, GFP_USER | __GFP_NOWARN);
+ 	if (!value) {
+ 		kfree(key);
+ 		return -ENOMEM;
+@@ -1380,7 +1374,7 @@ int generic_map_update_batch(struct bpf_map *map,
+ 	if (copy_to_user(&uattr->batch.count, &cp, sizeof(cp)))
+ 		err = -EFAULT;
+ 
+-	kfree(value);
++	kvfree(value);
+ 	kfree(key);
+ 	fdput(f);
+ 	return err;
+@@ -1420,7 +1414,7 @@ int generic_map_lookup_batch(struct bpf_map *map,
+ 	if (!buf_prevkey)
+ 		return -ENOMEM;
+ 
+-	buf = kmalloc(map->key_size + value_size, GFP_USER | __GFP_NOWARN);
++	buf = kvmalloc(map->key_size + value_size, GFP_USER | __GFP_NOWARN);
+ 	if (!buf) {
+ 		kfree(buf_prevkey);
+ 		return -ENOMEM;
+@@ -1483,7 +1477,7 @@ int generic_map_lookup_batch(struct bpf_map *map,
+ 
+ free_buf:
+ 	kfree(buf_prevkey);
+-	kfree(buf);
++	kvfree(buf);
+ 	return err;
+ }
+ 
+@@ -1538,7 +1532,7 @@ static int map_lookup_and_delete_elem(union bpf_attr *attr)
+ 	value_size = bpf_map_value_size(map);
+ 
+ 	err = -ENOMEM;
+-	value = kmalloc(value_size, GFP_USER | __GFP_NOWARN);
++	value = kvmalloc(value_size, GFP_USER | __GFP_NOWARN);
+ 	if (!value)
+ 		goto free_key;
+ 
+@@ -1570,7 +1564,7 @@ static int map_lookup_and_delete_elem(union bpf_attr *attr)
+ 	err = 0;
+ 
+ free_value:
+-	kfree(value);
++	kvfree(value);
+ free_key:
+ 	kfree(key);
+ err_put:
 -- 
 2.33.0
 
