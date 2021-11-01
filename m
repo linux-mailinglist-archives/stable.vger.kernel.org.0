@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D414441747
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:33:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 713EC4417D2
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232251AbhKAJfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:35:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37006 "EHLO mail.kernel.org"
+        id S233689AbhKAJkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:40:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232593AbhKAJcM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:32:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F0C861246;
-        Mon,  1 Nov 2021 09:24:20 +0000 (UTC)
+        id S233250AbhKAJh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:37:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF9846135E;
+        Mon,  1 Nov 2021 09:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758660;
-        bh=se536qyWgd+Saudg8JzNo5S9uEwyH7QnCMCSpXHPrBI=;
+        s=korg; t=1635758819;
+        bh=YQrqZ+hp/Vwdu7IJKKeZURnxa8c0+4XmeibeupmRxcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYAmRi5eX0lgsBDhGwJj+Sa2KZzWx4nNfDPACaoBZMfg1ojgaHSQ4hr8kw9f98VX0
-         vc8rm7PT1dLw+rQhVfjvL4Kws59aqX76SLk2sxyZpdkjHJvlw5GKNVIDPZoHKXZmHz
-         dvq4QZxvsE0Aei1IkSQ28YI8gkfLntdhxsLuvb5c=
+        b=lv1k9GkjttkjFHz/xKOSqdMxsC69SbxfdOUELKMGm6jzjJORLGaTApGcu4bp9nMHM
+         ETZp/aqTyO1vbCEhfSOhMj5f00sUC7pqouHQLolydnIX6rJpV7Ir5GqOawMyINM6kS
+         typwpANR2RTttsVyWxKjdWxzjz17YnuKTNXrOxIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
         Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        TOTE Robot <oslab@tsinghua.edu.cn>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
         Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.4 24/51] IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
+Subject: [PATCH 5.10 40/77] IB/hfi1: Fix abba locking issue with sc_disable()
 Date:   Mon,  1 Nov 2021 10:17:28 +0100
-Message-Id: <20211101082506.113656197@linuxfoundation.org>
+Message-Id: <20211101082520.314026290@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,113 +44,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-commit d39bf40e55e666b5905fdbd46a0dced030ce87be upstream.
+commit 13bac861952a78664907a0f927d3e874e9a59034 upstream.
 
-Overflowing either addrlimit or bytes_togo can allow userspace to trigger
-a buffer overflow of kernel memory. Check for overflows in all the places
-doing math on user controlled buffers.
+sc_disable() after having disabled the send context wakes up any waiters
+by calling hfi1_qp_wakeup() while holding the waitlock for the sc.
 
-Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
-Link: https://lore.kernel.org/r/20211012175519.7298.77738.stgit@awfm-01.cornelisnetworks.com
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+This is contrary to the model for all other calls to hfi1_qp_wakeup()
+where the waitlock is dropped and a local is used to drive calls to
+hfi1_qp_wakeup().
+
+Fix by moving the sc->piowait into a local list and driving the wakeup
+calls from the list.
+
+Fixes: 099a884ba4c0 ("IB/hfi1: Handle wakeup of orphaned QPs for pio")
+Link: https://lore.kernel.org/r/20211013141852.128104.2682.stgit@awfm-01.cornelisnetworks.com
 Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
 Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/qib/qib_user_sdma.c |   33 ++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+ drivers/infiniband/hw/hfi1/pio.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/hw/qib/qib_user_sdma.c
-+++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
-@@ -602,7 +602,7 @@ done:
- /*
-  * How many pages in this iovec element?
-  */
--static int qib_user_sdma_num_pages(const struct iovec *iov)
-+static size_t qib_user_sdma_num_pages(const struct iovec *iov)
+--- a/drivers/infiniband/hw/hfi1/pio.c
++++ b/drivers/infiniband/hw/hfi1/pio.c
+@@ -920,6 +920,7 @@ void sc_disable(struct send_context *sc)
  {
- 	const unsigned long addr  = (unsigned long) iov->iov_base;
- 	const unsigned long  len  = iov->iov_len;
-@@ -658,7 +658,7 @@ static void qib_user_sdma_free_pkt_frag(
- static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
- 				   struct qib_user_sdma_queue *pq,
- 				   struct qib_user_sdma_pkt *pkt,
--				   unsigned long addr, int tlen, int npages)
-+				   unsigned long addr, int tlen, size_t npages)
- {
- 	struct page *pages[8];
- 	int i, j;
-@@ -722,7 +722,7 @@ static int qib_user_sdma_pin_pkt(const s
- 	unsigned long idx;
+ 	u64 reg;
+ 	struct pio_buf *pbuf;
++	LIST_HEAD(wake_list);
  
- 	for (idx = 0; idx < niov; idx++) {
--		const int npages = qib_user_sdma_num_pages(iov + idx);
-+		const size_t npages = qib_user_sdma_num_pages(iov + idx);
- 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
+ 	if (!sc)
+ 		return;
+@@ -954,19 +955,21 @@ void sc_disable(struct send_context *sc)
+ 	spin_unlock(&sc->release_lock);
  
- 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
-@@ -824,8 +824,8 @@ static int qib_user_sdma_queue_pkts(cons
- 		unsigned pktnw;
- 		unsigned pktnwc;
- 		int nfrags = 0;
--		int npages = 0;
--		int bytes_togo = 0;
-+		size_t npages = 0;
-+		size_t bytes_togo = 0;
- 		int tiddma = 0;
- 		int cfur;
+ 	write_seqlock(&sc->waitlock);
+-	while (!list_empty(&sc->piowait)) {
++	if (!list_empty(&sc->piowait))
++		list_move(&sc->piowait, &wake_list);
++	write_sequnlock(&sc->waitlock);
++	while (!list_empty(&wake_list)) {
+ 		struct iowait *wait;
+ 		struct rvt_qp *qp;
+ 		struct hfi1_qp_priv *priv;
  
-@@ -885,7 +885,11 @@ static int qib_user_sdma_queue_pkts(cons
+-		wait = list_first_entry(&sc->piowait, struct iowait, list);
++		wait = list_first_entry(&wake_list, struct iowait, list);
+ 		qp = iowait_to_qp(wait);
+ 		priv = qp->priv;
+ 		list_del_init(&priv->s_iowait.list);
+ 		priv->s_iowait.lock = NULL;
+ 		hfi1_qp_wakeup(qp, RVT_S_WAIT_PIO | HFI1_S_WAIT_PIO_DRAIN);
+ 	}
+-	write_sequnlock(&sc->waitlock);
  
- 			npages += qib_user_sdma_num_pages(&iov[idx]);
- 
--			bytes_togo += slen;
-+			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
-+			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
- 			pktnwc += slen >> 2;
- 			idx++;
- 			nfrags++;
-@@ -904,8 +908,7 @@ static int qib_user_sdma_queue_pkts(cons
- 		}
- 
- 		if (frag_size) {
--			int tidsmsize, n;
--			size_t pktsize;
-+			size_t tidsmsize, n, pktsize, sz, addrlimit;
- 
- 			n = npages*((2*PAGE_SIZE/frag_size)+1);
- 			pktsize = struct_size(pkt, addr, n);
-@@ -923,14 +926,24 @@ static int qib_user_sdma_queue_pkts(cons
- 			else
- 				tidsmsize = 0;
- 
--			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
-+			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt = kmalloc(sz, GFP_KERNEL);
- 			if (!pkt) {
- 				ret = -ENOMEM;
- 				goto free_pbc;
- 			}
- 			pkt->largepkt = 1;
- 			pkt->frag_size = frag_size;
--			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
-+			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
-+					       &addrlimit) ||
-+			    addrlimit > type_max(typeof(pkt->addrlimit))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt->addrlimit = addrlimit;
- 
- 			if (tiddma) {
- 				char *tidsm = (char *)pkt + pktsize;
+ 	spin_unlock_irq(&sc->alloc_lock);
+ }
 
 
