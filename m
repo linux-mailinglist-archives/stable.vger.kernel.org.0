@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F9144188E
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 925F44417BE
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233168AbhKAJtV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:49:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51446 "EHLO mail.kernel.org"
+        id S233459AbhKAJjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:39:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234134AbhKAJrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:47:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CC1A61409;
-        Mon,  1 Nov 2021 09:30:58 +0000 (UTC)
+        id S233634AbhKAJhp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:37:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45591611C4;
+        Mon,  1 Nov 2021 09:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759059;
-        bh=mUMnDLT1havrmlYLy9rDK1MLXhWgSSzQ35hNqEv4XxU=;
+        s=korg; t=1635758795;
+        bh=js6PGcD2sqCtv9u3aattD7TJxF1BWSw49LaHNk+d62c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kayOL2Db/RJ9tD/9E4CWhbLmpa/DrYA2qAeIxCfHPgaT/ZaxioS55snG20Z9QtEWb
-         /Y3im6b2NKE/BCkh+lMr2M31QXQEjRtMSjV1Gajd0/Tqieq//UYUSGUjeQ8mq82JcS
-         +DIpFg5Ee+s4zrnH2MTZwrzLPKABXk5PFdHLAAG0=
+        b=MhYwkqmlmPlo4UQynzvegDr2sK9zMh2PBFHJOFy3H3kg3cfE/K4gmj6XYChZKo5S2
+         WvSSQBshTVM+QZY6O/R1yi/pXpIxnD6uM+cXjlQZpBlrZBHd4+cPpmwPibyva1XT2W
+         g9G7mBHwv/ulcrVHMixlvwKW4NK/3Pa/MpqxN2vE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Ertman <david.m.ertman@intel.com>,
-        Tony Brelinski <tony.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.14 070/125] ice: Respond to a NETDEV_UNREGISTER event for LAG
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 35/77] riscv, bpf: Fix potential NULL dereference
 Date:   Mon,  1 Nov 2021 10:17:23 +0100
-Message-Id: <20211101082546.454283355@linuxfoundation.org>
+Message-Id: <20211101082519.237065874@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Ertman <david.m.ertman@intel.com>
+From: Björn Töpel <bjorn@kernel.org>
 
-commit 6a8b357278f5f8b9817147277ab8f12879dce8a8 upstream.
+commit 27de809a3d83a6199664479ebb19712533d6fd9b upstream.
 
-When the PF is a member of a link aggregate, and the driver
-is removed, the process will hang unless we respond to the
-NETDEV_UNREGISTER event that is sent to the event_handler
-for LAG.
+The bpf_jit_binary_free() function requires a non-NULL argument. When
+the RISC-V BPF JIT fails to converge in NR_JIT_ITERATIONS steps,
+jit_data->header will be NULL, which triggers a NULL
+dereference. Avoid this by checking the argument, prior calling the
+function.
 
-Add a case statement for the ice_lag_event_handler to unlink
-the PF from the link aggregate.
-
-Also remove code that was incorrectly applying a dev_hold to
-peer_netdevs that were associated with the ice driver.
-
-Fixes: df006dd4b1dc ("ice: Add initial support framework for LAG")
-Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: ca6cb5447cec ("riscv, bpf: Factor common RISC-V JIT code")
+Signed-off-by: Björn Töpel <bjorn@kernel.org>
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/r/20211028125115.514587-1-bjorn@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_lag.c |   18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+ arch/riscv/net/bpf_jit_core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_lag.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lag.c
-@@ -100,9 +100,9 @@ static void ice_display_lag_info(struct
-  */
- static void ice_lag_info_event(struct ice_lag *lag, void *ptr)
- {
--	struct net_device *event_netdev, *netdev_tmp;
- 	struct netdev_notifier_bonding_info *info;
- 	struct netdev_bonding_info *bonding_info;
-+	struct net_device *event_netdev;
- 	const char *lag_netdev_name;
+--- a/arch/riscv/net/bpf_jit_core.c
++++ b/arch/riscv/net/bpf_jit_core.c
+@@ -125,7 +125,8 @@ struct bpf_prog *bpf_int_jit_compile(str
  
- 	event_netdev = netdev_notifier_info_to_dev(ptr);
-@@ -123,19 +123,6 @@ static void ice_lag_info_event(struct ic
- 		goto lag_out;
- 	}
- 
--	rcu_read_lock();
--	for_each_netdev_in_bond_rcu(lag->upper_netdev, netdev_tmp) {
--		if (!netif_is_ice(netdev_tmp))
--			continue;
--
--		if (netdev_tmp && netdev_tmp != lag->netdev &&
--		    lag->peer_netdev != netdev_tmp) {
--			dev_hold(netdev_tmp);
--			lag->peer_netdev = netdev_tmp;
--		}
--	}
--	rcu_read_unlock();
--
- 	if (bonding_info->slave.state)
- 		ice_lag_set_backup(lag);
- 	else
-@@ -319,6 +306,9 @@ ice_lag_event_handler(struct notifier_bl
- 	case NETDEV_BONDING_INFO:
- 		ice_lag_info_event(lag, ptr);
- 		break;
-+	case NETDEV_UNREGISTER:
-+		ice_lag_unlink(lag, ptr);
-+		break;
- 	default:
- 		break;
+ 	if (i == NR_JIT_ITERATIONS) {
+ 		pr_err("bpf-jit: image did not converge in <%d passes!\n", i);
+-		bpf_jit_binary_free(jit_data->header);
++		if (jit_data->header)
++			bpf_jit_binary_free(jit_data->header);
+ 		prog = orig_prog;
+ 		goto out_offset;
  	}
 
 
