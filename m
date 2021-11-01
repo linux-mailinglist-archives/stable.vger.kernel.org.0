@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59AD6441760
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 880D9441631
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:21:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233288AbhKAJgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:36:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43568 "EHLO mail.kernel.org"
+        id S229933AbhKAJXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:23:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233599AbhKAJdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:33:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B19361264;
-        Mon,  1 Nov 2021 09:25:09 +0000 (UTC)
+        id S232024AbhKAJWi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:22:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7518261154;
+        Mon,  1 Nov 2021 09:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758709;
-        bh=agL3lLPFruZumBuXzUMVnJ3pEnwr/9zrL7wKXeA7QZ4=;
+        s=korg; t=1635758387;
+        bh=ZBXdjgbuxxhQ2y/2usIrvWYhAoIhT9+fazOOChFGWL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yqHfXcd3wsJbOirCmt2/BLkTVWoV0eeqr+DY1cl/j5QftuvZmV8ZAJ67pvMAzyCXn
-         uNfSS549zD8JF/WQ/nFoPq3Ct6m0oxfVYXdk+zOayj99d95/MxcnWXbl6fg7O1UVGP
-         NNmWaN/UyuRp28uOm/vqjdatoAF303X+G7kFfArM=
+        b=Hc27AUUqXYGw/+kiKYS3QMvzzEqeVOdL6ruSpUAuqYxiTDZVjOur4UCOZnA2QubIc
+         JOzPOLot+Qz0CaXDHXm+NW1ey0u8sod0FeigSjSx3Hu4k54aPT2SdSXeyky58Vs46W
+         kQHjHIybCjlNIy2pHlwNS9xo4arO2cBXD7bMVBzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 25/77] mmc: sdhci-esdhc-imx: clear the buffer_read_ready to reset standard tuning circuit
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Song Liu <songliubraving@fb.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 4.9 04/20] powerpc/bpf: Fix BPF_MOD when imm == 1
 Date:   Mon,  1 Nov 2021 10:17:13 +0100
-Message-Id: <20211101082517.227114846@linuxfoundation.org>
+Message-Id: <20211101082445.140331093@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
+References: <20211101082444.133899096@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit 9af372dc70e9fdcbb70939dac75365e7b88580b4 upstream.
+commit 8bbc9d822421d9ac8ff9ed26a3713c9afc69d6c8 upstream.
 
-To reset standard tuning circuit completely, after clear ESDHC_MIX_CTRL_EXE_TUNE,
-also need to clear bit buffer_read_ready, this operation will finally clear the
-USDHC IP internal logic flag execute_tuning_with_clr_buf, make sure the following
-normal data transfer will not be impacted by standard tuning logic used before.
+Only ignore the operation if dividing by 1.
 
-Find this issue when do quick SD card insert/remove stress test. During standard
-tuning prodedure, if remove SD card, USDHC standard tuning logic can't clear the
-internal flag execute_tuning_with_clr_buf. Next time when insert SD card, all
-data related commands can't get any data related interrupts, include data transfer
-complete interrupt, data timeout interrupt, data CRC interrupt, data end bit interrupt.
-Always trigger software timeout issue. Even reset the USDHC through bits in register
-SYS_CTRL (0x2C, bit28 reset tuning, bit26 reset data, bit 25 reset command, bit 24
-reset all) can't recover this. From the user's point of view, USDHC stuck, SD can't
-be recognized any more.
-
-Fixes: d9370424c948 ("mmc: sdhci-esdhc-imx: reset tuning circuit when power on mmc card")
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1634263236-6111-1-git-send-email-haibo.chen@nxp.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Tested-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Acked-by: Song Liu <songliubraving@fb.com>
+Acked-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/c674ca18c3046885602caebb326213731c675d06.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
+[cascardo: use PPC_LI instead of EMIT(PPC_RAW_LI)]
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ arch/powerpc/net/bpf_jit_comp64.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1157,6 +1157,7 @@ static void esdhc_reset_tuning(struct sd
- 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
- 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
- 	u32 ctrl;
-+	int ret;
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -430,8 +430,14 @@ static int bpf_jit_build_body(struct bpf
+ 		case BPF_ALU64 | BPF_DIV | BPF_K: /* dst /= imm */
+ 			if (imm == 0)
+ 				return -EINVAL;
+-			else if (imm == 1)
+-				goto bpf_alu32_trunc;
++			if (imm == 1) {
++				if (BPF_OP(code) == BPF_DIV) {
++					goto bpf_alu32_trunc;
++				} else {
++					PPC_LI(dst_reg, 0);
++					break;
++				}
++			}
  
- 	/* Reset the tuning circuit */
- 	if (esdhc_is_usdhc(imx_data)) {
-@@ -1169,7 +1170,22 @@ static void esdhc_reset_tuning(struct sd
- 		} else if (imx_data->socdata->flags & ESDHC_FLAG_STD_TUNING) {
- 			ctrl = readl(host->ioaddr + SDHCI_AUTO_CMD_STATUS);
- 			ctrl &= ~ESDHC_MIX_CTRL_SMPCLK_SEL;
-+			ctrl &= ~ESDHC_MIX_CTRL_EXE_TUNE;
- 			writel(ctrl, host->ioaddr + SDHCI_AUTO_CMD_STATUS);
-+			/* Make sure ESDHC_MIX_CTRL_EXE_TUNE cleared */
-+			ret = readl_poll_timeout(host->ioaddr + SDHCI_AUTO_CMD_STATUS,
-+				ctrl, !(ctrl & ESDHC_MIX_CTRL_EXE_TUNE), 1, 50);
-+			if (ret == -ETIMEDOUT)
-+				dev_warn(mmc_dev(host->mmc),
-+				 "Warning! clear execute tuning bit failed\n");
-+			/*
-+			 * SDHCI_INT_DATA_AVAIL is W1C bit, set this bit will clear the
-+			 * usdhc IP internal logic flag execute_tuning_with_clr_buf, which
-+			 * will finally make sure the normal data transfer logic correct.
-+			 */
-+			ctrl = readl(host->ioaddr + SDHCI_INT_STATUS);
-+			ctrl |= SDHCI_INT_DATA_AVAIL;
-+			writel(ctrl, host->ioaddr + SDHCI_INT_STATUS);
- 		}
- 	}
- }
+ 			PPC_LI32(b2p[TMP_REG_1], imm);
+ 			switch (BPF_CLASS(code)) {
 
 
