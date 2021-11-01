@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B22244184E
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:43:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD7F441757
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:33:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234497AbhKAJpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:45:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48168 "EHLO mail.kernel.org"
+        id S233122AbhKAJfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:35:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234116AbhKAJoL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:44:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EBA8613A8;
-        Mon,  1 Nov 2021 09:29:30 +0000 (UTC)
+        id S233595AbhKAJdo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:33:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0653061267;
+        Mon,  1 Nov 2021 09:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758970;
-        bh=js6PGcD2sqCtv9u3aattD7TJxF1BWSw49LaHNk+d62c=;
+        s=korg; t=1635758707;
+        bh=py8xuWTKYMvk3k+vkx7b+oP82axoW7pps6jUOz/ZEnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=de1mmMqqohQadGug1GlMQTxHnAaCRyqn3BKTfEO/BeV7tUEUjQkpje0rqmGqF3i3r
-         DCT9oEA6wrA2AkP6aEXja79gqlsL0FKHe1V+dNtvrPO/mswBgDfEKnQxCQhCyqHAZt
-         PHMud1Hs1ky96QB5Romsa6sr74msvdHTwbjYUjFo=
+        b=obLItYTICSATE5danr1oUYzoAFK8YGVzf05NMOJ4s81tLM9fm3Ysh1IN1tIOhuV/d
+         DYZmN/+mTTkdNyHpiENgGAGHyF1gd9NpKdDnM3gcYaMgN8wMoC/CIem9uD418laC+W
+         tU+NjibUIPN9Pa4bWoL9U0XawZFptpmkcHQSINNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 059/125] riscv, bpf: Fix potential NULL dereference
+        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 24/77] mmc: sdhci: Map more voltage level to SDHCI_POWER_330
 Date:   Mon,  1 Nov 2021 10:17:12 +0100
-Message-Id: <20211101082544.363747884@linuxfoundation.org>
+Message-Id: <20211101082517.007174832@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn@kernel.org>
+From: Shawn Guo <shawn.guo@linaro.org>
 
-commit 27de809a3d83a6199664479ebb19712533d6fd9b upstream.
+commit 4217d07b9fb328751f877d3bd9550122014860a2 upstream.
 
-The bpf_jit_binary_free() function requires a non-NULL argument. When
-the RISC-V BPF JIT fails to converge in NR_JIT_ITERATIONS steps,
-jit_data->header will be NULL, which triggers a NULL
-dereference. Avoid this by checking the argument, prior calling the
-function.
+On Thundercomm TurboX CM2290, the eMMC OCR reports vdd = 23 (3.5 ~ 3.6 V),
+which is being treated as an invalid value by sdhci_set_power_noreg().
+And thus eMMC is totally broken on the platform.
 
-Fixes: ca6cb5447cec ("riscv, bpf: Factor common RISC-V JIT code")
-Signed-off-by: Björn Töpel <bjorn@kernel.org>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/r/20211028125115.514587-1-bjorn@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[    1.436599] ------------[ cut here ]------------
+[    1.436606] mmc0: Invalid vdd 0x17
+[    1.436640] WARNING: CPU: 2 PID: 69 at drivers/mmc/host/sdhci.c:2048 sdhci_set_power_noreg+0x168/0x2b4
+[    1.436655] Modules linked in:
+[    1.436662] CPU: 2 PID: 69 Comm: kworker/u8:1 Tainted: G        W         5.15.0-rc1+ #137
+[    1.436669] Hardware name: Thundercomm TurboX CM2290 (DT)
+[    1.436674] Workqueue: events_unbound async_run_entry_fn
+[    1.436685] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    1.436692] pc : sdhci_set_power_noreg+0x168/0x2b4
+[    1.436698] lr : sdhci_set_power_noreg+0x168/0x2b4
+[    1.436703] sp : ffff800010803a60
+[    1.436705] x29: ffff800010803a60 x28: ffff6a9102465f00 x27: ffff6a9101720a70
+[    1.436715] x26: ffff6a91014de1c0 x25: ffff6a91014de010 x24: ffff6a91016af280
+[    1.436724] x23: ffffaf7b1b276640 x22: 0000000000000000 x21: ffff6a9101720000
+[    1.436733] x20: ffff6a9101720370 x19: ffff6a9101720580 x18: 0000000000000020
+[    1.436743] x17: 0000000000000000 x16: 0000000000000004 x15: ffffffffffffffff
+[    1.436751] x14: 0000000000000000 x13: 00000000fffffffd x12: ffffaf7b1b84b0bc
+[    1.436760] x11: ffffaf7b1b720d10 x10: 000000000000000a x9 : ffff800010803a60
+[    1.436769] x8 : 000000000000000a x7 : 000000000000000f x6 : 00000000fffff159
+[    1.436778] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 00000000ffffffff
+[    1.436787] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff6a9101718d80
+[    1.436797] Call trace:
+[    1.436800]  sdhci_set_power_noreg+0x168/0x2b4
+[    1.436805]  sdhci_set_ios+0xa0/0x7fc
+[    1.436811]  mmc_power_up.part.0+0xc4/0x164
+[    1.436818]  mmc_start_host+0xa0/0xb0
+[    1.436824]  mmc_add_host+0x60/0x90
+[    1.436830]  __sdhci_add_host+0x174/0x330
+[    1.436836]  sdhci_msm_probe+0x7c0/0x920
+[    1.436842]  platform_probe+0x68/0xe0
+[    1.436850]  really_probe.part.0+0x9c/0x31c
+[    1.436857]  __driver_probe_device+0x98/0x144
+[    1.436863]  driver_probe_device+0xc8/0x15c
+[    1.436869]  __device_attach_driver+0xb4/0x120
+[    1.436875]  bus_for_each_drv+0x78/0xd0
+[    1.436881]  __device_attach_async_helper+0xac/0xd0
+[    1.436888]  async_run_entry_fn+0x34/0x110
+[    1.436895]  process_one_work+0x1d0/0x354
+[    1.436903]  worker_thread+0x13c/0x470
+[    1.436910]  kthread+0x150/0x160
+[    1.436915]  ret_from_fork+0x10/0x20
+[    1.436923] ---[ end trace fcfac44cb045c3a8 ]---
+
+Fix the issue by mapping MMC_VDD_35_36 (and MMC_VDD_34_35) to
+SDHCI_POWER_330 as well.
+
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211004024935.15326-1-shawn.guo@linaro.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/net/bpf_jit_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/riscv/net/bpf_jit_core.c
-+++ b/arch/riscv/net/bpf_jit_core.c
-@@ -125,7 +125,8 @@ struct bpf_prog *bpf_int_jit_compile(str
- 
- 	if (i == NR_JIT_ITERATIONS) {
- 		pr_err("bpf-jit: image did not converge in <%d passes!\n", i);
--		bpf_jit_binary_free(jit_data->header);
-+		if (jit_data->header)
-+			bpf_jit_binary_free(jit_data->header);
- 		prog = orig_prog;
- 		goto out_offset;
- 	}
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -2043,6 +2043,12 @@ void sdhci_set_power_noreg(struct sdhci_
+ 			break;
+ 		case MMC_VDD_32_33:
+ 		case MMC_VDD_33_34:
++		/*
++		 * 3.4 ~ 3.6V are valid only for those platforms where it's
++		 * known that the voltage range is supported by hardware.
++		 */
++		case MMC_VDD_34_35:
++		case MMC_VDD_35_36:
+ 			pwr = SDHCI_POWER_330;
+ 			break;
+ 		default:
 
 
