@@ -2,33 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F94D441839
+	by mail.lfdr.de (Postfix) with ESMTP id EE2B744183A
 	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:42:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233373AbhKAJpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:45:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47854 "EHLO mail.kernel.org"
+        id S233659AbhKAJpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:45:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233007AbhKAJlt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232682AbhKAJlt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Nov 2021 05:41:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6F1B61211;
-        Mon,  1 Nov 2021 09:28:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 154D061378;
+        Mon,  1 Nov 2021 09:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758896;
-        bh=pHgIXB1POtNikYwjv7gLC5ojflo5367A1qs0gXt4GsY=;
+        s=korg; t=1635758898;
+        bh=J/h0LxKY1yQH+pyzD7ICnpz3StfVqR+HLLpc4504Vvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bE8P0XKklqIgq/w+6f1wbcS64y/i/Q/e5odjtkSFv9xr4xi3eQdhPXYUyV7rUiQcc
-         Jq75JPanKcB5NMEzq26A7c2/bJBYj/U/BTyI5UKqZMQIOBR1HMOEFtEBK/U+rzGJxf
-         KWZ9SCBd5amXV63QVaCBQ0vQ3RiuyykZ9K8KRpzQ=
+        b=hMhTquQbca/WImKtG2OoiKv1wP4EefBPthDzS/QxSOYwmCHTJqAn48alJoHk5rhgN
+         eWcsfmd0QDY7LtXyth1DDNW8RI7S9IMLC+yWlPNnFb5KKA+4tlgEgrwGD1PsPjMrO+
+         RZ8Fwg+N+Uq8+KYlpPvBmXicq2n96HYi1hJTWRdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.14 027/125] nvme-tcp: fix H2CData PDU send accounting (again)
-Date:   Mon,  1 Nov 2021 10:16:40 +0100
-Message-Id: <20211101082538.550696287@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.14 028/125] ftrace/nds32: Update the proto for ftrace_trace_function to match ftrace_stub
+Date:   Mon,  1 Nov 2021 10:16:41 +0100
+Message-Id: <20211101082538.718189671@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -40,58 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 25e1f67eda4a19c91dc05c84d6d413c53efb447b upstream.
+commit 4e84dc47bb48accbbeeba4e6bb3f31aa7895323c upstream.
 
-We should not access request members after the last send, even to
-determine if indeed it was the last data payload send. The reason is
-that a completion could have arrived and trigger a new execution of the
-request which overridden these members. This was fixed by commit
-825619b09ad3 ("nvme-tcp: fix possible use-after-completion").
+The ftrace callback prototype was changed to pass a special ftrace_regs
+instead of pt_regs as the last parameter, but the static ftrace for nds32
+missed updating ftrace_trace_function and this caused a warning when
+compared to ftrace_stub:
 
-Commit e371af033c56 broke that assumption again to address cases where
-multiple r2t pdus are sent per request. To fix it, we need to record the
-request data_sent and data_len and after the payload network send we
-reference these counters to determine weather we should advance the
-request iterator.
+../arch/nds32/kernel/ftrace.c: In function '_mcount':
+../arch/nds32/kernel/ftrace.c:24:35: error: comparison of distinct pointer types lacks a cast [-Werror]
+   24 |         if (ftrace_trace_function != ftrace_stub)
+      |                                   ^~
 
-Fixes: e371af033c56 ("nvme-tcp: fix incorrect h2cdata pdu offset accounting")
-Reported-by: Keith Busch <kbusch@kernel.org>
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/all/20211027055554.19372-1-rdunlap@infradead.org/
+Link: https://lkml.kernel.org/r/20211027125101.33449969@gandalf.local.home
+
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Nick Hu <nickhu@andestech.com>
+Cc: Greentime Hu <green.hu@gmail.com>
+Cc: Vincent Chen <deanbo422@gmail.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Fixes: d19ad0775dcd6 ("ftrace: Have the callbacks receive a struct ftrace_regs instead of pt_regs")
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/tcp.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/nds32/kernel/ftrace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -913,12 +913,14 @@ static void nvme_tcp_fail_request(struct
- static int nvme_tcp_try_send_data(struct nvme_tcp_request *req)
- {
- 	struct nvme_tcp_queue *queue = req->queue;
-+	int req_data_len = req->data_len;
+--- a/arch/nds32/kernel/ftrace.c
++++ b/arch/nds32/kernel/ftrace.c
+@@ -6,7 +6,7 @@
  
- 	while (true) {
- 		struct page *page = nvme_tcp_req_cur_page(req);
- 		size_t offset = nvme_tcp_req_cur_offset(req);
- 		size_t len = nvme_tcp_req_cur_length(req);
- 		bool last = nvme_tcp_pdu_last_send(req, len);
-+		int req_data_sent = req->data_sent;
- 		int ret, flags = MSG_DONTWAIT;
+ #ifndef CONFIG_DYNAMIC_FTRACE
+ extern void (*ftrace_trace_function)(unsigned long, unsigned long,
+-				     struct ftrace_ops*, struct pt_regs*);
++				     struct ftrace_ops*, struct ftrace_regs*);
+ extern void ftrace_graph_caller(void);
  
- 		if (last && !queue->data_digest && !nvme_tcp_queue_more(queue))
-@@ -945,7 +947,7 @@ static int nvme_tcp_try_send_data(struct
- 		 * in the request where we don't want to modify it as we may
- 		 * compete with the RX path completing the request.
- 		 */
--		if (req->data_sent + ret < req->data_len)
-+		if (req_data_sent + ret < req_data_len)
- 			nvme_tcp_advance_req(req, ret);
- 
- 		/* fully successful last send in current PDU */
+ noinline void __naked ftrace_stub(unsigned long ip, unsigned long parent_ip,
 
 
