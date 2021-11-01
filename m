@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CBC7441707
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:30:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 826CE44179A
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232575AbhKAJcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:32:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37004 "EHLO mail.kernel.org"
+        id S233732AbhKAJh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:37:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232573AbhKAJaL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:30:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACB2761220;
-        Mon,  1 Nov 2021 09:23:28 +0000 (UTC)
+        id S233245AbhKAJfx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:35:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 536B961101;
+        Mon,  1 Nov 2021 09:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758609;
-        bh=co5XU0tEn72Qt5XfOc+ZIE3lJi3Ee7ou3FMfIWm5/fw=;
+        s=korg; t=1635758767;
+        bh=iLqvUfGOzcTvBkKwoy4yHgnn1Qocynembbf3asBRqT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nyQCaz509Y4poxOL9lMOZvMGY+n6RvEbE8vBKzdiMIaixlBkFXtFMs8H9aiI9Hxyy
-         GGk4/Y1waS6/E396N/oLJeZEBTRt/g96dVeYeX77/5Xafxag2oDrz+V6yeVcbA4rMM
-         XB49LIY3r3VDwcW1HM4iIJMXE7k2ddSuGTpkJ3io=
+        b=t9QwSQJbMcsjQP4jDxCbyTYR3W+9Khzz17CymLgj80eYtYXzVy3Uu6xyN0aXlMqpd
+         mfEm8wCfRv+O3fP0vl10EWwRaTFfTxTrHQf40846p0lA/30dOAWZb0lKAm9jT4hTGN
+         rMkff8WMH/G1Utyn9WRo1tabvO49yOseRHsF2PI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuiko Oshino <yuiko.oshino@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 35/51] net: ethernet: microchip: lan743x: Fix driver crash when lan743x_pm_resume fails
+        stable@vger.kernel.org,
+        Janusz Dziedzic <janusz.dziedzic@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 51/77] cfg80211: correct bridge/4addr mode check
 Date:   Mon,  1 Nov 2021 10:17:39 +0100
-Message-Id: <20211101082508.968526343@linuxfoundation.org>
+Message-Id: <20211101082522.465847188@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,30 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuiko Oshino <yuiko.oshino@microchip.com>
+From: Janusz Dziedzic <janusz.dziedzic@gmail.com>
 
-commit d6423d2ec39cce2bfca418c81ef51792891576bc upstream.
+commit 689a0a9f505f7bffdefe6f17fddb41c8ab6344f6 upstream.
 
-The driver needs to clean up and return when the initialization fails on resume.
+Without the patch we fail:
 
-Fixes: 23f0703c125b ("lan743x: Add main source files for new lan743x driver")
-Signed-off-by: Yuiko Oshino <yuiko.oshino@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+$ sudo brctl addbr br0
+$ sudo brctl addif br0 wlp1s0
+$ sudo iw wlp1s0 set 4addr on
+command failed: Device or resource busy (-16)
+
+Last command failed but iface was already in 4addr mode.
+
+Fixes: ad4bb6f8883a ("cfg80211: disallow bridging managed/adhoc interfaces")
+Signed-off-by: Janusz Dziedzic <janusz.dziedzic@gmail.com>
+Link: https://lore.kernel.org/r/20211024201546.614379-1-janusz.dziedzic@gmail.com
+[add fixes tag, fix indentation, edit commit log]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/microchip/lan743x_main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/wireless/util.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/microchip/lan743x_main.c
-+++ b/drivers/net/ethernet/microchip/lan743x_main.c
-@@ -3001,6 +3001,8 @@ static int lan743x_pm_resume(struct devi
- 	if (ret) {
- 		netif_err(adapter, probe, adapter->netdev,
- 			  "lan743x_hardware_init returned %d\n", ret);
-+		lan743x_pci_cleanup(adapter);
-+		return ret;
- 	}
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -1028,14 +1028,14 @@ int cfg80211_change_iface(struct cfg8021
+ 	    !(rdev->wiphy.interface_modes & (1 << ntype)))
+ 		return -EOPNOTSUPP;
  
- 	/* open netdev when netdev is at running state while resume.
+-	/* if it's part of a bridge, reject changing type to station/ibss */
+-	if (netif_is_bridge_port(dev) &&
+-	    (ntype == NL80211_IFTYPE_ADHOC ||
+-	     ntype == NL80211_IFTYPE_STATION ||
+-	     ntype == NL80211_IFTYPE_P2P_CLIENT))
+-		return -EBUSY;
+-
+ 	if (ntype != otype) {
++		/* if it's part of a bridge, reject changing type to station/ibss */
++		if (netif_is_bridge_port(dev) &&
++		    (ntype == NL80211_IFTYPE_ADHOC ||
++		     ntype == NL80211_IFTYPE_STATION ||
++		     ntype == NL80211_IFTYPE_P2P_CLIENT))
++			return -EBUSY;
++
+ 		dev->ieee80211_ptr->use_4addr = false;
+ 		dev->ieee80211_ptr->mesh_id_up_len = 0;
+ 		wdev_lock(dev->ieee80211_ptr);
 
 
