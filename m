@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B18C34417F3
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9A8A4418FB
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:51:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233092AbhKAJlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:41:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47854 "EHLO mail.kernel.org"
+        id S232168AbhKAJx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:53:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233455AbhKAJjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:39:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A577C61360;
-        Mon,  1 Nov 2021 09:27:26 +0000 (UTC)
+        id S234551AbhKAJvD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:51:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0FE561501;
+        Mon,  1 Nov 2021 09:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758847;
-        bh=IWRUI0SyL1hEyhmCpWwl37mSrbmg1wKo4wvR1IQOjsI=;
+        s=korg; t=1635759141;
+        bh=icZ0b2iOUfqXOkpvhBXHCTfRJ50BkHSnH2yFBHjf5bE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0VPPXl6Tk7i2/3iu3qNhB4jZHEPZ34BtgpWu5HDkarlSDHiqnP3NWD84I1rlPL8yp
-         1pzOiuQnE4RLmaO5EtwNGIt+6iNcJnkt1gopKMb6zjXvnjcda2vYYXuVq27C474udW
-         5G80sH4xIvN+VInxUDmfGvJQhTDlm16GSxfuXKoA=
+        b=B41N5RglyZKtcMMuWNxQJWJ07lEgls4Z4twi2YNlzwdRxOc2Nq6H2rf+d1W2l7C8v
+         DEAb/bcl527fqXOcP9AdKhG27t5b9MDK8M9fQUi3lGNhlFWxbzV4+PseRgB8KzugI3
+         cGCi86MGbtvqo8Hp6NqLelSvSborXCNkc18+u43E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Alexandre Ghiti <alexandre.ghiti@canonical.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>
-Subject: [PATCH 5.10 76/77] riscv: Fix asan-stack clang build
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 111/125] virtio-ring: fix DMA metadata flags
 Date:   Mon,  1 Nov 2021 10:18:04 +0100
-Message-Id: <20211101082527.351745789@linuxfoundation.org>
+Message-Id: <20211101082554.107171753@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alexandre.ghiti@canonical.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-commit 54c5639d8f507ebefa814f574cb6f763033a72a5 upstream.
+[ Upstream commit 890d33561337ffeba0d8ba42517e71288cfee2b6 ]
 
-Nathan reported that because KASAN_SHADOW_OFFSET was not defined in
-Kconfig, it prevents asan-stack from getting disabled with clang even
-when CONFIG_KASAN_STACK is disabled: fix this by defining the
-corresponding config.
+The flags are currently overwritten, leading to the wrong direction
+being passed to the DMA unmap functions.
 
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
-Fixes: 8ad8b72721d0 ("riscv: Add KASAN support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 72b5e8958738aaa4 ("virtio-ring: store DMA metadata in desc_extra for split virtqueue")
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Link: https://lore.kernel.org/r/20211026133100.17541-1-vincent.whitchurch@axis.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Kconfig             |    6 ++++++
- arch/riscv/include/asm/kasan.h |    3 +--
- arch/riscv/mm/kasan_init.c     |    3 +++
- 3 files changed, 10 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio_ring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -138,6 +138,12 @@ config PAGE_OFFSET
- 	default 0xffffffff80000000 if 64BIT && MAXPHYSMEM_2GB
- 	default 0xffffffe000000000 if 64BIT && MAXPHYSMEM_128GB
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index dd95dfd85e98..3035bb6f5458 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -576,7 +576,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 	/* Last one doesn't continue. */
+ 	desc[prev].flags &= cpu_to_virtio16(_vq->vdev, ~VRING_DESC_F_NEXT);
+ 	if (!indirect && vq->use_dma_api)
+-		vq->split.desc_extra[prev & (vq->split.vring.num - 1)].flags =
++		vq->split.desc_extra[prev & (vq->split.vring.num - 1)].flags &=
+ 			~VRING_DESC_F_NEXT;
  
-+config KASAN_SHADOW_OFFSET
-+	hex
-+	depends on KASAN_GENERIC
-+	default 0xdfffffc800000000 if 64BIT
-+	default 0xffffffff if 32BIT
-+
- config ARCH_FLATMEM_ENABLE
- 	def_bool y
- 
---- a/arch/riscv/include/asm/kasan.h
-+++ b/arch/riscv/include/asm/kasan.h
-@@ -14,8 +14,7 @@
- #define KASAN_SHADOW_START	KERN_VIRT_START /* 2^64 - 2^38 */
- #define KASAN_SHADOW_END	(KASAN_SHADOW_START + KASAN_SHADOW_SIZE)
- 
--#define KASAN_SHADOW_OFFSET	(KASAN_SHADOW_END - (1ULL << \
--					(64 - KASAN_SHADOW_SCALE_SHIFT)))
-+#define KASAN_SHADOW_OFFSET	_AC(CONFIG_KASAN_SHADOW_OFFSET, UL)
- 
- void kasan_init(void);
- asmlinkage void kasan_early_init(void);
---- a/arch/riscv/mm/kasan_init.c
-+++ b/arch/riscv/mm/kasan_init.c
-@@ -16,6 +16,9 @@ asmlinkage void __init kasan_early_init(
- 	uintptr_t i;
- 	pgd_t *pgd = early_pg_dir + pgd_index(KASAN_SHADOW_START);
- 
-+	BUILD_BUG_ON(KASAN_SHADOW_OFFSET !=
-+		KASAN_SHADOW_END - (1UL << (64 - KASAN_SHADOW_SCALE_SHIFT)));
-+
- 	for (i = 0; i < PTRS_PER_PTE; ++i)
- 		set_pte(kasan_early_shadow_pte + i,
- 			mk_pte(virt_to_page(kasan_early_shadow_page),
+ 	if (indirect) {
+-- 
+2.33.0
+
 
 
