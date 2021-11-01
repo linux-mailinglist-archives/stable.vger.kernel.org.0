@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CCE54416C7
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5D684417DB
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232740AbhKAJ3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:29:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59012 "EHLO mail.kernel.org"
+        id S233719AbhKAJkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:40:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232656AbhKAJ0a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:26:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72AA861177;
-        Mon,  1 Nov 2021 09:22:11 +0000 (UTC)
+        id S233055AbhKAJht (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:37:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1F6E61356;
+        Mon,  1 Nov 2021 09:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758531;
-        bh=mXvQlSloKrpdhCt5IpZXTJFqKh65jakgVrGXt/ZgwW8=;
+        s=korg; t=1635758812;
+        bh=Gh/8BVu33pNE4rI2kcpJL+qQl5bR/JeuGu+ygPgdVUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SP2nxm37+S3Q4Tk80yJ7N9XqwPCGrqpQtxMahFtaCE+LOAhGYlcBEtNhaIfdLpWcc
-         7N4m2mxg3OODSDMj64UUd7g1G9lrdhKhP1isVfcLP2LxSerDnTx2yP+ET+hCHivy3X
-         Fb2l/2dXzjp+l7rIJZm/y4Nt3rAzcB9VsrtKfcB8=
+        b=eqp0Qi0aRNHM1oK4wRsx1WU92zoOXdIQB6R/vTdKA53Dn9kmfiRDML78A6jgS9K/u
+         QgnRQdMdRU+ITwYPIkDAZlWim2cIv3NDDLcRHjH2RKb/HmwY24+EKBv9CZ5Q9B/Pnt
+         y5lr4bpMeh8q4N8TfFGLSCjAkGroW1BLUSAX8Ke4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Dumazet <edumazet@google.com>, Keyu Man <kman001@ucr.edu>,
-        Willy Tarreau <w@1wt.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 13/35] ipv4: use siphash instead of Jenkins in fnhe_hashfun()
+        stable@vger.kernel.org,
+        Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.10 37/77] bpf: Fix potential race in tail call compatibility check
 Date:   Mon,  1 Nov 2021 10:17:25 +0100
-Message-Id: <20211101082454.680783711@linuxfoundation.org>
+Message-Id: <20211101082519.633404679@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
-References: <20211101082451.430720900@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +41,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-commit 6457378fe796815c973f631a1904e147d6ee33b1 upstream.
+commit 54713c85f536048e685258f880bf298a74c3620d upstream.
 
-A group of security researchers brought to our attention
-the weakness of hash function used in fnhe_hashfun().
+Lorenzo noticed that the code testing for program type compatibility of
+tail call maps is potentially racy in that two threads could encounter a
+map with an unset type simultaneously and both return true even though they
+are inserting incompatible programs.
 
-Lets use siphash instead of Jenkins Hash, to considerably
-reduce security risks.
+The race window is quite small, but artificially enlarging it by adding a
+usleep_range() inside the check in bpf_prog_array_compatible() makes it
+trivial to trigger from userspace with a program that does, essentially:
 
-Also remove the inline keyword, this really is distracting.
+        map_fd = bpf_create_map(BPF_MAP_TYPE_PROG_ARRAY, 4, 4, 2, 0);
+        pid = fork();
+        if (pid) {
+                key = 0;
+                value = xdp_fd;
+        } else {
+                key = 1;
+                value = tc_fd;
+        }
+        err = bpf_map_update_elem(map_fd, &key, &value, 0);
 
-Fixes: d546c621542d ("ipv4: harden fnhe_hashfun()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Keyu Man <kman001@ucr.edu>
-Cc: Willy Tarreau <w@1wt.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[OP: adjusted context for 4.19 stable]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+While the race window is small, it has potentially serious ramifications in
+that triggering it would allow a BPF program to tail call to a program of a
+different type. So let's get rid of it by protecting the update with a
+spinlock. The commit in the Fixes tag is the last commit that touches the
+code in question.
+
+v2:
+- Use a spinlock instead of an atomic variable and cmpxchg() (Alexei)
+v3:
+- Put lock and the members it protects into an embedded 'owner' struct (Daniel)
+
+Fixes: 3324b584b6f6 ("ebpf: misc core cleanup")
+Reported-by: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20211026110019.363464-1-toke@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/route.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ include/linux/bpf.h   |    7 +++++--
+ kernel/bpf/arraymap.c |    1 +
+ kernel/bpf/core.c     |   20 +++++++++++++-------
+ kernel/bpf/syscall.c  |    6 ++++--
+ 4 files changed, 23 insertions(+), 11 deletions(-)
 
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -625,14 +625,14 @@ static void fnhe_remove_oldest(struct fn
- 	kfree_rcu(oldest, rcu);
- }
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -862,8 +862,11 @@ struct bpf_array_aux {
+ 	 * stored in the map to make sure that all callers and callees have
+ 	 * the same prog type and JITed flag.
+ 	 */
+-	enum bpf_prog_type type;
+-	bool jited;
++	struct {
++		spinlock_t lock;
++		enum bpf_prog_type type;
++		bool jited;
++	} owner;
+ 	/* Programs with direct jumps into programs part of this array. */
+ 	struct list_head poke_progs;
+ 	struct bpf_map *map;
+--- a/kernel/bpf/arraymap.c
++++ b/kernel/bpf/arraymap.c
+@@ -1025,6 +1025,7 @@ static struct bpf_map *prog_array_map_al
+ 	INIT_WORK(&aux->work, prog_array_map_clear_deferred);
+ 	INIT_LIST_HEAD(&aux->poke_progs);
+ 	mutex_init(&aux->poke_mutex);
++	spin_lock_init(&aux->owner.lock);
  
--static inline u32 fnhe_hashfun(__be32 daddr)
-+static u32 fnhe_hashfun(__be32 daddr)
+ 	map = array_map_alloc(attr);
+ 	if (IS_ERR(map)) {
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -1775,20 +1775,26 @@ static unsigned int __bpf_prog_ret0_warn
+ bool bpf_prog_array_compatible(struct bpf_array *array,
+ 			       const struct bpf_prog *fp)
  {
--	static u32 fnhe_hashrnd __read_mostly;
--	u32 hval;
-+	static siphash_key_t fnhe_hash_key __read_mostly;
-+	u64 hval;
++	bool ret;
++
+ 	if (fp->kprobe_override)
+ 		return false;
  
--	net_get_random_once(&fnhe_hashrnd, sizeof(fnhe_hashrnd));
--	hval = jhash_1word((__force u32) daddr, fnhe_hashrnd);
--	return hash_32(hval, FNHE_HASH_SHIFT);
-+	net_get_random_once(&fnhe_hash_key, sizeof(fnhe_hash_key));
-+	hval = siphash_1u32((__force u32)daddr, &fnhe_hash_key);
-+	return hash_64(hval, FNHE_HASH_SHIFT);
+-	if (!array->aux->type) {
++	spin_lock(&array->aux->owner.lock);
++
++	if (!array->aux->owner.type) {
+ 		/* There's no owner yet where we could check for
+ 		 * compatibility.
+ 		 */
+-		array->aux->type  = fp->type;
+-		array->aux->jited = fp->jited;
+-		return true;
++		array->aux->owner.type  = fp->type;
++		array->aux->owner.jited = fp->jited;
++		ret = true;
++	} else {
++		ret = array->aux->owner.type  == fp->type &&
++		      array->aux->owner.jited == fp->jited;
+ 	}
+-
+-	return array->aux->type  == fp->type &&
+-	       array->aux->jited == fp->jited;
++	spin_unlock(&array->aux->owner.lock);
++	return ret;
  }
  
- static void fill_route_from_fnhe(struct rtable *rt, struct fib_nh_exception *fnhe)
+ static int bpf_check_tail_call(const struct bpf_prog *fp)
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -535,8 +535,10 @@ static void bpf_map_show_fdinfo(struct s
+ 
+ 	if (map->map_type == BPF_MAP_TYPE_PROG_ARRAY) {
+ 		array = container_of(map, struct bpf_array, map);
+-		type  = array->aux->type;
+-		jited = array->aux->jited;
++		spin_lock(&array->aux->owner.lock);
++		type  = array->aux->owner.type;
++		jited = array->aux->owner.jited;
++		spin_unlock(&array->aux->owner.lock);
+ 	}
+ 
+ 	seq_printf(m,
 
 
