@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 729584416D5
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F6D244173B
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:32:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232635AbhKAJaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:30:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37006 "EHLO mail.kernel.org"
+        id S232768AbhKAJe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:34:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232917AbhKAJ2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:28:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EFF1611CE;
-        Mon,  1 Nov 2021 09:22:46 +0000 (UTC)
+        id S233306AbhKAJc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:32:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3CF661250;
+        Mon,  1 Nov 2021 09:24:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758567;
-        bh=D2Kw8ZeBUWKw65O4pZ6IHRH80AuFRjqf5gcq3B7UpGA=;
+        s=korg; t=1635758693;
+        bh=wfjS+jLbdVLuoI0eex6VRYBpKo1PnXEvuMfnY+ULJqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AAHgn+s8LoUa9ZIQqj3eB6P30PdWC/By90mvocypxKH8l0aBn0m/52Jnfvyr9dqOh
-         p+AcCa+Qi1pRHo3PfRR0XTW1FjQRh91eDCNDDb3IGrX2VP84inT4WndC5oG3vr5N/8
-         jZ9+wmQKmQrSyg+t+meTCnFCx3gSc652mB4opkOk=
+        b=m5G+rNVPS8pxhIych6pfIGOq+hdyiwCjDPvjT5MlydjXSzDR//f5uszj/s1iXnbYU
+         m+zfiWdPs0GmuMEDzwipnrjA9mFybDl37PCpZ53QIvLDXNFJKql8dvjly7EtxQfdyH
+         EiT0oL2Iu8cIdacx23UTd5ZBW4YzenZco3VlX5gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.4 02/51] ARM: 9134/1: remove duplicate memcpy() definition
-Date:   Mon,  1 Nov 2021 10:17:06 +0100
-Message-Id: <20211101082500.750642247@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 19/77] net/tls: Fix flipped sign in tls_err_abort() calls
+Date:   Mon,  1 Nov 2021 10:17:07 +0100
+Message-Id: <20211101082515.920356490@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +41,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-commit eaf6cc7165c9c5aa3c2f9faa03a98598123d0afb upstream.
+commit da353fac65fede6b8b4cfe207f0d9408e3121105 upstream.
 
-Both the decompressor code and the kasan logic try to override
-the memcpy() and memmove()  definitions, which leading to a clash
-in a KASAN-enabled kernel with XZ decompression:
+sk->sk_err appears to expect a positive value, a convention that ktls
+doesn't always follow and that leads to memory corruption in other code.
+For instance,
 
-arch/arm/boot/compressed/decompress.c:50:9: error: 'memmove' macro redefined [-Werror,-Wmacro-redefined]
- #define memmove memmove
-        ^
-arch/arm/include/asm/string.h:59:9: note: previous definition is here
- #define memmove(dst, src, len) __memmove(dst, src, len)
-        ^
-arch/arm/boot/compressed/decompress.c:51:9: error: 'memcpy' macro redefined [-Werror,-Wmacro-redefined]
- #define memcpy memcpy
-        ^
-arch/arm/include/asm/string.h:58:9: note: previous definition is here
- #define memcpy(dst, src, len) __memcpy(dst, src, len)
-        ^
+    [kworker]
+    tls_encrypt_done(..., err=<negative error from crypto request>)
+      tls_err_abort(.., err)
+        sk->sk_err = err;
 
-Here we want the set of functions from the decompressor, so undefine
-the other macros before the override.
+    [task]
+    splice_from_pipe_feed
+      ...
+        tls_sw_do_sendpage
+          if (sk->sk_err) {
+            ret = -sk->sk_err;  // ret is positive
 
-Link: https://lore.kernel.org/linux-arm-kernel/CACRpkdZYJogU_SN3H9oeVq=zJkRgRT1gDz3xp59gdqWXxw-B=w@mail.gmail.com/
-Link: https://lore.kernel.org/lkml/202105091112.F5rmd4By-lkp@intel.com/
+    splice_from_pipe_feed (continued)
+      ret = actor(...)  // ret is still positive and interpreted as bytes
+                        // written, resulting in underflow of buf->len and
+                        // sd->len, leading to huge buf->offset and bogus
+                        // addresses computed in later calls to actor()
 
-Fixes: d6d51a96c7d6 ("ARM: 9014/2: Replace string mem* functions for KASan")
-Fixes: a7f464f3db93 ("ARM: 7001/2: Wire up support for the XZ decompressor")
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fix all tls_err_abort() callers to pass a negative error code
+consistently and centralize the error-prone sign flip there, throwing in
+a warning to catch future misuse and uninlining the function so it
+really does only warn once.
+
+Cc: stable@vger.kernel.org
+Fixes: c46234ebb4d1e ("tls: RX path for ktls")
+Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/compressed/decompress.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/net/tls.h |    9 ++-------
+ net/tls/tls_sw.c  |   17 +++++++++++++----
+ 2 files changed, 15 insertions(+), 11 deletions(-)
 
---- a/arch/arm/boot/compressed/decompress.c
-+++ b/arch/arm/boot/compressed/decompress.c
-@@ -47,7 +47,10 @@ extern char * strchrnul(const char *, in
- #endif
+--- a/include/net/tls.h
++++ b/include/net/tls.h
+@@ -359,6 +359,7 @@ int tls_sk_query(struct sock *sk, int op
+ 		int __user *optlen);
+ int tls_sk_attach(struct sock *sk, int optname, char __user *optval,
+ 		  unsigned int optlen);
++void tls_err_abort(struct sock *sk, int err);
  
- #ifdef CONFIG_KERNEL_XZ
-+/* Prevent KASAN override of string helpers in decompressor */
-+#undef memmove
- #define memmove memmove
-+#undef memcpy
- #define memcpy memcpy
- #include "../../../../lib/decompress_unxz.c"
+ int tls_set_sw_offload(struct sock *sk, struct tls_context *ctx, int tx);
+ void tls_sw_strparser_arm(struct sock *sk, struct tls_context *ctx);
+@@ -467,12 +468,6 @@ static inline bool tls_is_sk_tx_device_o
  #endif
+ }
+ 
+-static inline void tls_err_abort(struct sock *sk, int err)
+-{
+-	sk->sk_err = err;
+-	sk->sk_error_report(sk);
+-}
+-
+ static inline bool tls_bigint_increment(unsigned char *seq, int len)
+ {
+ 	int i;
+@@ -513,7 +508,7 @@ static inline void tls_advance_record_sn
+ 					 struct cipher_context *ctx)
+ {
+ 	if (tls_bigint_increment(ctx->rec_seq, prot->rec_seq_size))
+-		tls_err_abort(sk, EBADMSG);
++		tls_err_abort(sk, -EBADMSG);
+ 
+ 	if (prot->version != TLS_1_3_VERSION)
+ 		tls_bigint_increment(ctx->iv + TLS_CIPHER_AES_GCM_128_SALT_SIZE,
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -35,6 +35,7 @@
+  * SOFTWARE.
+  */
+ 
++#include <linux/bug.h>
+ #include <linux/sched/signal.h>
+ #include <linux/module.h>
+ #include <linux/splice.h>
+@@ -43,6 +44,14 @@
+ #include <net/strparser.h>
+ #include <net/tls.h>
+ 
++noinline void tls_err_abort(struct sock *sk, int err)
++{
++	WARN_ON_ONCE(err >= 0);
++	/* sk->sk_err should contain a positive error code. */
++	sk->sk_err = -err;
++	sk->sk_error_report(sk);
++}
++
+ static int __skb_nsg(struct sk_buff *skb, int offset, int len,
+                      unsigned int recursion_level)
+ {
+@@ -419,7 +428,7 @@ int tls_tx_records(struct sock *sk, int
+ 
+ tx_err:
+ 	if (rc < 0 && rc != -EAGAIN)
+-		tls_err_abort(sk, EBADMSG);
++		tls_err_abort(sk, -EBADMSG);
+ 
+ 	return rc;
+ }
+@@ -764,7 +773,7 @@ static int tls_push_record(struct sock *
+ 			       msg_pl->sg.size + prot->tail_size, i);
+ 	if (rc < 0) {
+ 		if (rc != -EINPROGRESS) {
+-			tls_err_abort(sk, EBADMSG);
++			tls_err_abort(sk, -EBADMSG);
+ 			if (split) {
+ 				tls_ctx->pending_open_record_frags = true;
+ 				tls_merge_open_record(sk, rec, tmp, orig_end);
+@@ -1828,7 +1837,7 @@ int tls_sw_recvmsg(struct sock *sk,
+ 		err = decrypt_skb_update(sk, skb, &msg->msg_iter,
+ 					 &chunk, &zc, async_capable);
+ 		if (err < 0 && err != -EINPROGRESS) {
+-			tls_err_abort(sk, EBADMSG);
++			tls_err_abort(sk, -EBADMSG);
+ 			goto recv_end;
+ 		}
+ 
+@@ -2008,7 +2017,7 @@ ssize_t tls_sw_splice_read(struct socket
+ 		}
+ 
+ 		if (err < 0) {
+-			tls_err_abort(sk, EBADMSG);
++			tls_err_abort(sk, -EBADMSG);
+ 			goto splice_read_end;
+ 		}
+ 		ctx->decrypted = 1;
 
 
