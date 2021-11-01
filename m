@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 991FB441600
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:18:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A900D441602
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:18:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231886AbhKAJVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:21:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57304 "EHLO mail.kernel.org"
+        id S231866AbhKAJVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:21:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231882AbhKAJVP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:21:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E22C5610A8;
-        Mon,  1 Nov 2021 09:18:41 +0000 (UTC)
+        id S231805AbhKAJVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:21:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4297D60C41;
+        Mon,  1 Nov 2021 09:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758322;
-        bh=51ta6WGyBpUJSQvS01ISrVRQRPfj46ODhDABFHt73Hw=;
+        s=korg; t=1635758324;
+        bh=TcWYGCOlpki0C81uZqZVH0QLWUlmqDkCh/gp6pjsezQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zpt0/YoiRnmprrJixMCIbo/MwltwP5Ku393pmiwFzoIR0uW3eqhrpkt+EnAm1UFqP
-         TNUbkdNzSxZDPA9nt2T8udJQVpX3e/guL7hjWSlePw7tOLjXVeLU3/HUe4+hiIcSXC
-         /Bdyvm28qfkyO8/SGpWXoRR82hN2a8Him8Oi0qk4=
+        b=qdcvDu0wvDNlR8KGucCHGoIhP5kKRNIJZIkqGqulHvhM4Wm0NVc1/sO7I4RAbpixT
+         2Jg8YjjXSuwZPOrlI9G4VU0c3nznS8eSe6yUxeX0xzKhq137ouPRcwgpnbuuZHr4ZD
+         5KgxxMkDTr0ysnr0oDDZasShlc9/NgvCRmVcOHt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Woojung.Huh@microchip.com" <Woojung.Huh@microchip.com>,
-        Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 13/17] net: lan78xx: fix division by zero in send path
-Date:   Mon,  1 Nov 2021 10:17:16 +0100
-Message-Id: <20211101082443.660446060@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.4 14/17] regmap: Fix possible double-free in regcache_rbtree_exit()
+Date:   Mon,  1 Nov 2021 10:17:17 +0100
+Message-Id: <20211101082443.894653384@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
 References: <20211101082440.664392327@linuxfoundation.org>
@@ -41,43 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit db6c3c064f5d55fa9969f33eafca3cdbefbb3541 upstream.
+commit 55e6d8037805b3400096d621091dfbf713f97e83 upstream.
 
-Add the missing endpoint max-packet sanity check to probe() to avoid
-division by zero in lan78xx_tx_bh() in case a malicious device has
-broken descriptors (or when doing descriptor fuzz testing).
+In regcache_rbtree_insert_to_block(), when 'present' realloc failed,
+the 'blk' which is supposed to assign to 'rbnode->block' will be freed,
+so 'rbnode->block' points a freed memory, in the error handling path of
+regcache_rbtree_init(), 'rbnode->block' will be freed again in
+regcache_rbtree_exit(), KASAN will report double-free as follows:
 
-Note that USB core will reject URBs submitted for endpoints with zero
-wMaxPacketSize but that drivers doing packet-size calculations still
-need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
-endpoint descriptors with maxpacket=0")).
+BUG: KASAN: double-free or invalid-free in kfree+0xce/0x390
+Call Trace:
+ slab_free_freelist_hook+0x10d/0x240
+ kfree+0xce/0x390
+ regcache_rbtree_exit+0x15d/0x1a0
+ regcache_rbtree_init+0x224/0x2c0
+ regcache_init+0x88d/0x1310
+ __regmap_init+0x3151/0x4a80
+ __devm_regmap_init+0x7d/0x100
+ madera_spi_probe+0x10f/0x333 [madera_spi]
+ spi_probe+0x183/0x210
+ really_probe+0x285/0xc30
 
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Cc: stable@vger.kernel.org      # 4.3
-Cc: Woojung.Huh@microchip.com <Woojung.Huh@microchip.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+To fix this, moving up the assignment of rbnode->block to immediately after
+the reallocation has succeeded so that the data structure stays valid even
+if the second reallocation fails.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 3f4ff561bc88b ("regmap: rbtree: Make cache_present bitmap per node")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20211012023735.1632786-1-yangyingliang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/lan78xx.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/base/regmap/regcache-rbtree.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -2956,6 +2956,12 @@ static int lan78xx_probe(struct usb_inte
+--- a/drivers/base/regmap/regcache-rbtree.c
++++ b/drivers/base/regmap/regcache-rbtree.c
+@@ -296,14 +296,14 @@ static int regcache_rbtree_insert_to_blo
+ 	if (!blk)
+ 		return -ENOMEM;
  
- 	dev->maxpacket = usb_maxpacket(dev->udev, dev->pipe_out, 1);
- 
-+	/* Reject broken descriptors. */
-+	if (dev->maxpacket == 0) {
-+		ret = -ENODEV;
-+		goto out3;
-+	}
++	rbnode->block = blk;
 +
- 	/* driver requires remote-wakeup capability during autosuspend. */
- 	intf->needs_remote_wakeup = 1;
+ 	if (BITS_TO_LONGS(blklen) > BITS_TO_LONGS(rbnode->blklen)) {
+ 		present = krealloc(rbnode->cache_present,
+ 				   BITS_TO_LONGS(blklen) * sizeof(*present),
+ 				   GFP_KERNEL);
+-		if (!present) {
+-			kfree(blk);
++		if (!present)
+ 			return -ENOMEM;
+-		}
  
+ 		memset(present + BITS_TO_LONGS(rbnode->blklen), 0,
+ 		       (BITS_TO_LONGS(blklen) - BITS_TO_LONGS(rbnode->blklen))
+@@ -320,7 +320,6 @@ static int regcache_rbtree_insert_to_blo
+ 	}
+ 
+ 	/* update the rbnode block, its size and the base register */
+-	rbnode->block = blk;
+ 	rbnode->blklen = blklen;
+ 	rbnode->base_reg = base_reg;
+ 	rbnode->cache_present = present;
 
 
