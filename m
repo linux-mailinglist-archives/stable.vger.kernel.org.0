@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A77DC441644
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:21:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90B364418B7
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:49:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231695AbhKAJXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59164 "EHLO mail.kernel.org"
+        id S234437AbhKAJut (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:50:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232066AbhKAJWq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:22:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD9EB60C41;
-        Mon,  1 Nov 2021 09:20:12 +0000 (UTC)
+        id S234732AbhKAJss (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:48:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79840610E8;
+        Mon,  1 Nov 2021 09:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758413;
-        bh=eTttDPU3QAIHrfFayy3O9yhBcrnQhW7UU72YwFIX50c=;
+        s=korg; t=1635759075;
+        bh=BrOIcfZkfakfLm2U32HmhYXzwiyAaowKAZcqcGPr2uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUcs1rWWp0lJXaWGzZbBET1vf6/S8SbLJVvZOU3JDXeVXGmfJh0Z20PNhpdw641oo
-         +5Ic+opNK4JIaItI0SNM6dlIAkOqSHTEjTix/EqGy6/RF3xFTk63Ox8bclA+3210HO
-         S2/rIJaR0JDmpsxM1wTYwC4KTtoLB800p51Ec1h0=
+        b=KgawaKnxC74rlfwCDkK0tsbk+oqDOhSFLZuLwClXTU4IwmFUHd6q9LHltA2n4aO0V
+         0+pM02L32NFS98t5EQz6qeOXQgrT0WGmShylZoz5wdLMND6+9qpLrjQEom/78BFOP7
+         xCdbqKU5PCAuiyvATXUk/ykNldlMSLiToZPMXWfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaehoon Chung <jh80.chung@samsung.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 13/25] mmc: dw_mmc: exynos: fix the finding clock sample value
+        stable@vger.kernel.org, Yongxin Liu <yongxin.liu@windriver.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Gurucharan G <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.14 072/125] ice: check whether PTP is initialized in ice_ptp_release()
 Date:   Mon,  1 Nov 2021 10:17:25 +0100
-Message-Id: <20211101082450.160260227@linuxfoundation.org>
+Message-Id: <20211101082546.836982281@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082447.070493993@linuxfoundation.org>
-References: <20211101082447.070493993@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaehoon Chung <jh80.chung@samsung.com>
+From: Yongxin Liu <yongxin.liu@windriver.com>
 
-commit 697542bceae51f7620af333b065dd09d213629fb upstream.
+commit fd1b5beb177a8372cea2a0d014835491e4886f77 upstream.
 
-Even though there are candiates value if can't find best value, it's
-returned -EIO. It's not proper behavior.
-If there is not best value, use a first candiate value to work eMMC.
+PTP is currently only supported on E810 devices, it is checked
+in ice_ptp_init(). However, there is no check in ice_ptp_release().
+For other E800 series devices, ice_ptp_release() will be wrongly executed.
 
-Signed-off-by: Jaehoon Chung <jh80.chung@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Christian Hewitt <christianshewitt@gmail.com>
-Cc: stable@vger.kernel.org
-Fixes: c537a1c5ff63 ("mmc: dw_mmc: exynos: add variable delay tuning sequence")
-Link: https://lore.kernel.org/r/20211022082106.1557-1-jh80.chung@samsung.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fix the following calltrace.
+
+  INFO: trying to register non-static key.
+  The code is fine but needs lockdep annotation, or maybe
+  you didn't initialize this object before use?
+  turning off the locking correctness validator.
+  Workqueue: ice ice_service_task [ice]
+  Call Trace:
+   dump_stack_lvl+0x5b/0x82
+   dump_stack+0x10/0x12
+   register_lock_class+0x495/0x4a0
+   ? find_held_lock+0x3c/0xb0
+   __lock_acquire+0x71/0x1830
+   lock_acquire+0x1e6/0x330
+   ? ice_ptp_release+0x3c/0x1e0 [ice]
+   ? _raw_spin_lock+0x19/0x70
+   ? ice_ptp_release+0x3c/0x1e0 [ice]
+   _raw_spin_lock+0x38/0x70
+   ? ice_ptp_release+0x3c/0x1e0 [ice]
+   ice_ptp_release+0x3c/0x1e0 [ice]
+   ice_prepare_for_reset+0xcb/0xe0 [ice]
+   ice_do_reset+0x38/0x110 [ice]
+   ice_service_task+0x138/0xf10 [ice]
+   ? __this_cpu_preempt_check+0x13/0x20
+   process_one_work+0x26a/0x650
+   worker_thread+0x3f/0x3b0
+   ? __kthread_parkme+0x51/0xb0
+   ? process_one_work+0x650/0x650
+   kthread+0x161/0x190
+   ? set_kthread_struct+0x40/0x40
+   ret_from_fork+0x1f/0x30
+
+Fixes: 4dd0d5c33c3e ("ice: add lock around Tx timestamp tracker flush")
+Signed-off-by: Yongxin Liu <yongxin.liu@windriver.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/dw_mmc-exynos.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_ptp.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/mmc/host/dw_mmc-exynos.c
-+++ b/drivers/mmc/host/dw_mmc-exynos.c
-@@ -437,6 +437,18 @@ static s8 dw_mci_exynos_get_best_clksmpl
- 		}
- 	}
+--- a/drivers/net/ethernet/intel/ice/ice_ptp.c
++++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
+@@ -1582,6 +1582,9 @@ err_kworker:
+  */
+ void ice_ptp_release(struct ice_pf *pf)
+ {
++	if (!test_bit(ICE_FLAG_PTP, pf->flags))
++		return;
++
+ 	/* Disable timestamping for both Tx and Rx */
+ 	ice_ptp_cfg_timestamp(pf, false);
  
-+	/*
-+	 * If there is no cadiates value, then it needs to return -EIO.
-+	 * If there are candiates values and don't find bset clk sample value,
-+	 * then use a first candiates clock sample value.
-+	 */
-+	for (i = 0; i < iter; i++) {
-+		__c = ror8(candiates, i);
-+		if ((__c & 0x1) == 0x1) {
-+			loc = i;
-+			goto out;
-+		}
-+	}
- out:
- 	return loc;
- }
-@@ -467,6 +479,8 @@ static int dw_mci_exynos_execute_tuning(
- 		priv->tuned_sample = found;
- 	} else {
- 		ret = -EIO;
-+		dev_warn(&mmc->class_dev,
-+			"There is no candiates value about clksmpl!\n");
- 	}
- 
- 	return ret;
 
 
