@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A200D441795
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B0A944166D
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233683AbhKAJhw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:37:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43604 "EHLO mail.kernel.org"
+        id S232333AbhKAJY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:24:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232031AbhKAJfs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:35:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B32AC61359;
-        Mon,  1 Nov 2021 09:26:02 +0000 (UTC)
+        id S232517AbhKAJXl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:23:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E23C6112D;
+        Mon,  1 Nov 2021 09:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758763;
-        bh=Uws+q5ofjW2c1ycVXZLSNqJ2tMDAMEdFcdbOvzDuDmw=;
+        s=korg; t=1635758459;
+        bh=2FyAA1emBPFsWZyv0yG1zZ5cu6TdM9tdSoyBIptZams=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFKjotomuJZVpScw922oH2aXd6PuO4RQeML9QjLYT9plwvR0QUGUjwr+WbmhtQmPD
-         WjQc2FIL6ySTFHQWxXL+iF51hD6EYprQYn0oXdgRtegjBKqueWiPXsMeRqCOf2Ic1t
-         e1YigB+LgotqCbICnb/NeUtSAtvUirCc9gYNaZTw=
+        b=isqY/c/3y3YrEsaHNVuSVf+7nNne+PSMgzwbElTr7BvQfyyirTSKbMWB/XXovCYz/
+         GYHdmw16bDVkvIoEwMDWejUs0FpDSh0O0JffqY9RIpYUvIbUDrpDigOTW3gOgeP93R
+         D8uYqTFDm0av++B8nuIr1CqQ0MMlQzGq96nAXzY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 49/77] net: batman-adv: fix error handling
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 25/25] sctp: add vtag check in sctp_sf_ootb
 Date:   Mon,  1 Nov 2021 10:17:37 +0100
-Message-Id: <20211101082522.088764191@linuxfoundation.org>
+Message-Id: <20211101082452.984281181@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082447.070493993@linuxfoundation.org>
+References: <20211101082447.070493993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,173 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 6f68cd634856f8ca93bafd623ba5357e0f648c68 upstream.
+[ Upstream commit 9d02831e517aa36ee6bdb453a0eb47bd49923fe3 ]
 
-Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
-in wrong error handling in batadv_mesh_init().
+sctp_sf_ootb() is called when processing DATA chunk in closed state,
+and many other places are also using it.
 
-Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
-of any batadv_*_init() calls failure. This approach may work well, when
-there is some kind of indicator, which can tell which parts of batadv are
-initialized; but there isn't any.
+The vtag in the chunk's sctphdr should be verified, otherwise, as
+later in chunk length check, it may send abort with the existent
+asoc's vtag, which can be exploited by one to cook a malicious
+chunk to terminate a SCTP asoc.
 
-All written above lead to cleaning up uninitialized fields. Even if we hide
-ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
-GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
+When fails to verify the vtag from the chunk, this patch sets asoc
+to NULL, so that the abort will be made with the vtag from the
+received chunk later.
 
-To fix these bugs we can unwind batadv_*_init() calls one by one.
-It is good approach for 2 reasons: 1) It fixes bugs on error handling
-path 2) It improves the performance, since we won't call unneeded
-batadv_*_free() functions.
-
-So, this patch makes all batadv_*_init() clean up all allocated memory
-before returning with an error to no call correspoing batadv_*_free()
-and open-codes batadv_mesh_free() with proper order to avoid touching
-uninitialized fields.
-
-Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
-Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bridge_loop_avoidance.c |    8 +++-
- net/batman-adv/main.c                  |   56 +++++++++++++++++++++++----------
- net/batman-adv/network-coding.c        |    4 +-
- net/batman-adv/translation-table.c     |    4 +-
- 4 files changed, 52 insertions(+), 20 deletions(-)
+ net/sctp/sm_statefuns.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -1561,10 +1561,14 @@ int batadv_bla_init(struct batadv_priv *
- 		return 0;
+diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
+index c3cb0ae7df2b..b26067798dbf 100644
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -3498,6 +3498,9 @@ enum sctp_disposition sctp_sf_ootb(struct net *net,
  
- 	bat_priv->bla.claim_hash = batadv_hash_new(128);
--	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.claim_hash)
-+		return -ENOMEM;
+ 	SCTP_INC_STATS(net, SCTP_MIB_OUTOFBLUES);
  
--	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
-+	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.backbone_hash) {
-+		batadv_hash_destroy(bat_priv->bla.claim_hash);
- 		return -ENOMEM;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
- 				   &batadv_claim_hash_lock_class_key);
---- a/net/batman-adv/main.c
-+++ b/net/batman-adv/main.c
-@@ -196,29 +196,41 @@ int batadv_mesh_init(struct net_device *
- 
- 	bat_priv->gw.generation = 0;
- 
--	ret = batadv_v_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
--
- 	ret = batadv_originator_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_orig;
-+	}
- 
- 	ret = batadv_tt_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_tt;
-+	}
++	if (asoc && !sctp_vtag_verify(chunk, asoc))
++		asoc = NULL;
 +
-+	ret = batadv_v_mesh_init(bat_priv);
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_v;
-+	}
- 
- 	ret = batadv_bla_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_bla;
-+	}
- 
- 	ret = batadv_dat_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_dat;
-+	}
- 
- 	ret = batadv_nc_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_nc;
-+	}
- 
- 	batadv_gw_init(bat_priv);
- 	batadv_mcast_init(bat_priv);
-@@ -228,8 +240,20 @@ int batadv_mesh_init(struct net_device *
- 
- 	return 0;
- 
--err:
--	batadv_mesh_free(soft_iface);
-+err_nc:
-+	batadv_dat_free(bat_priv);
-+err_dat:
-+	batadv_bla_free(bat_priv);
-+err_bla:
-+	batadv_v_mesh_free(bat_priv);
-+err_v:
-+	batadv_tt_free(bat_priv);
-+err_tt:
-+	batadv_originator_free(bat_priv);
-+err_orig:
-+	batadv_purge_outstanding_packets(bat_priv, NULL);
-+	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
-+
- 	return ret;
- }
- 
---- a/net/batman-adv/network-coding.c
-+++ b/net/batman-adv/network-coding.c
-@@ -155,8 +155,10 @@ int batadv_nc_mesh_init(struct batadv_pr
- 				   &batadv_nc_coding_hash_lock_class_key);
- 
- 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
--	if (!bat_priv->nc.decoding_hash)
-+	if (!bat_priv->nc.decoding_hash) {
-+		batadv_hash_destroy(bat_priv->nc.coding_hash);
- 		goto err;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
- 				   &batadv_nc_decoding_hash_lock_class_key);
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -4405,8 +4405,10 @@ int batadv_tt_init(struct batadv_priv *b
- 		return ret;
- 
- 	ret = batadv_tt_global_init(bat_priv);
--	if (ret < 0)
-+	if (ret < 0) {
-+		batadv_tt_local_table_free(bat_priv);
- 		return ret;
-+	}
- 
- 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
- 				     batadv_tt_tvlv_unicast_handler_v1,
+ 	ch = (struct sctp_chunkhdr *)chunk->chunk_hdr;
+ 	do {
+ 		/* Report violation if the chunk is less then minimal */
+-- 
+2.33.0
+
 
 
