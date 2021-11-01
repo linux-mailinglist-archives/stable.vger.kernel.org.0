@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44ADE441714
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:30:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2065D44188B
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232880AbhKAJc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:32:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37278 "EHLO mail.kernel.org"
+        id S233194AbhKAJtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:49:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232927AbhKAJa0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:30:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D23FE60C41;
-        Mon,  1 Nov 2021 09:23:56 +0000 (UTC)
+        id S234131AbhKAJrW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:47:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C2646141B;
+        Mon,  1 Nov 2021 09:31:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758637;
-        bh=LK6mRyKBKRLg7955qJTFbgduwjPT32d9UvAbFbuSBts=;
+        s=korg; t=1635759061;
+        bh=X9al5Ox2tYwRmBoKuwReQVJhWQJeMQKbHbPC+NjVTpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sis0NMHx7JQO6E5OLxr/yVA6hKBiT83ZC7P/mLTmYHtU5GSbK7P/u6+AgQZdEAT8z
-         KOAc7S5M3lQIENiFYuFJmIB6eud7cBQGXVgwehHU2i1jUa0GyeZjTOIajYiRUg/jxj
-         NnviJd9ktVUcz5bM7andqxdHFPpFgjbwQ+3wGahI=
+        b=vEQU8H60WRRzOxxA3GpxxhcvYxP4k3DegK3sAOsZW+VqE/s4RukjOBrjSgFnWM2r4
+         JeW39zZCU5IKBnF3Mv32Ybf4SXfKau6G+B3IzKafsC074ms2RrNKa9rHFMiIIhgo3f
+         bhV3HD5EOn3QuVtlxmpPghR7tDyyMpGbyGGd4uVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Mustafa Ismail <mustafa.ismail@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 46/51] sctp: add vtag check in sctp_sf_ootb
+Subject: [PATCH 5.14 097/125] RDMA/irdma: Set VLAN in UD work completion correctly
 Date:   Mon,  1 Nov 2021 10:17:50 +0100
-Message-Id: <20211101082511.330475646@linuxfoundation.org>
+Message-Id: <20211101082551.528725591@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Mustafa Ismail <mustafa.ismail@intel.com>
 
-[ Upstream commit 9d02831e517aa36ee6bdb453a0eb47bd49923fe3 ]
+[ Upstream commit cc07b73ef11d11d4359fb104d0199b22451dd3d8 ]
 
-sctp_sf_ootb() is called when processing DATA chunk in closed state,
-and many other places are also using it.
+Currently VLAN is reported in UD work completion when VLAN id is zero,
+i.e. no VLAN case.
 
-The vtag in the chunk's sctphdr should be verified, otherwise, as
-later in chunk length check, it may send abort with the existent
-asoc's vtag, which can be exploited by one to cook a malicious
-chunk to terminate a SCTP asoc.
+Report VLAN in UD work completion only when VLAN id is non-zero.
 
-When fails to verify the vtag from the chunk, this patch sets asoc
-to NULL, so that the abort will be made with the vtag from the
-received chunk later.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
+Link: https://lore.kernel.org/r/20211019151654.1943-1-shiraz.saleem@intel.com
+Signed-off-by: Mustafa Ismail <mustafa.ismail@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_statefuns.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/hw/irdma/verbs.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 877420868a42..7c6dcbc8e98b 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -3568,6 +3568,9 @@ enum sctp_disposition sctp_sf_ootb(struct net *net,
+diff --git a/drivers/infiniband/hw/irdma/verbs.c b/drivers/infiniband/hw/irdma/verbs.c
+index fa393c5ea397..4261705fa19d 100644
+--- a/drivers/infiniband/hw/irdma/verbs.c
++++ b/drivers/infiniband/hw/irdma/verbs.c
+@@ -3405,9 +3405,13 @@ static void irdma_process_cqe(struct ib_wc *entry,
+ 		}
  
- 	SCTP_INC_STATS(net, SCTP_MIB_OUTOFBLUES);
- 
-+	if (asoc && !sctp_vtag_verify(chunk, asoc))
-+		asoc = NULL;
+ 		if (cq_poll_info->ud_vlan_valid) {
+-			entry->vlan_id = cq_poll_info->ud_vlan & VLAN_VID_MASK;
+-			entry->wc_flags |= IB_WC_WITH_VLAN;
++			u16 vlan = cq_poll_info->ud_vlan & VLAN_VID_MASK;
 +
- 	ch = (struct sctp_chunkhdr *)chunk->chunk_hdr;
- 	do {
- 		/* Report violation if the chunk is less then minimal */
+ 			entry->sl = cq_poll_info->ud_vlan >> VLAN_PRIO_SHIFT;
++			if (vlan) {
++				entry->vlan_id = vlan;
++				entry->wc_flags |= IB_WC_WITH_VLAN;
++			}
+ 		} else {
+ 			entry->sl = 0;
+ 		}
 -- 
 2.33.0
 
