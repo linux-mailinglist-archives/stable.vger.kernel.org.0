@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 826CE44179A
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89DA544179C
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233732AbhKAJh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:37:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43646 "EHLO mail.kernel.org"
+        id S233240AbhKAJh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:37:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233245AbhKAJfx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:35:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 536B961101;
-        Mon,  1 Nov 2021 09:26:07 +0000 (UTC)
+        id S233277AbhKAJf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:35:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0391D6115B;
+        Mon,  1 Nov 2021 09:26:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758767;
-        bh=iLqvUfGOzcTvBkKwoy4yHgnn1Qocynembbf3asBRqT4=;
+        s=korg; t=1635758772;
+        bh=I+p1RbHMY/qMyBbrckyFHTOaJRnNI+atK/hm/ghOfA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t9QwSQJbMcsjQP4jDxCbyTYR3W+9Khzz17CymLgj80eYtYXzVy3Uu6xyN0aXlMqpd
-         mfEm8wCfRv+O3fP0vl10EWwRaTFfTxTrHQf40846p0lA/30dOAWZb0lKAm9jT4hTGN
-         rMkff8WMH/G1Utyn9WRo1tabvO49yOseRHsF2PI4=
+        b=aZRf6z6dWIIuL1Wg92L/7rPoeQdZ8MQHjoSwrRNF2jPezc1gw4Y6nf+lF77RBugDm
+         BBTh2OepByKyS+cjWXU5hPGBFSekTPMXP6jcEcMOp8/XqInuGIm0/c6ZNT9Xye4XU3
+         2iucKa6rmRODVqcItYlsy0uoiBowI9IPY19zIyUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Janusz Dziedzic <janusz.dziedzic@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 51/77] cfg80211: correct bridge/4addr mode check
-Date:   Mon,  1 Nov 2021 10:17:39 +0100
-Message-Id: <20211101082522.465847188@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Gospodarek <gospo@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 52/77] net: Prevent infinite while loop in skb_tx_hash()
+Date:   Mon,  1 Nov 2021 10:17:40 +0100
+Message-Id: <20211101082522.634266313@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
 References: <20211101082511.254155853@linuxfoundation.org>
@@ -40,52 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Dziedzic <janusz.dziedzic@gmail.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-commit 689a0a9f505f7bffdefe6f17fddb41c8ab6344f6 upstream.
+commit 0c57eeecc559ca6bc18b8c4e2808bc78dbe769b0 upstream.
 
-Without the patch we fail:
+Drivers call netdev_set_num_tc() and then netdev_set_tc_queue()
+to set the queue count and offset for each TC.  So the queue count
+and offset for the TCs may be zero for a short period after dev->num_tc
+has been set.  If a TX packet is being transmitted at this time in the
+code path netdev_pick_tx() -> skb_tx_hash(), skb_tx_hash() may see
+nonzero dev->num_tc but zero qcount for the TC.  The while loop that
+keeps looping while hash >= qcount will not end.
 
-$ sudo brctl addbr br0
-$ sudo brctl addif br0 wlp1s0
-$ sudo iw wlp1s0 set 4addr on
-command failed: Device or resource busy (-16)
+Fix it by checking the TC's qcount to be nonzero before using it.
 
-Last command failed but iface was already in 4addr mode.
-
-Fixes: ad4bb6f8883a ("cfg80211: disallow bridging managed/adhoc interfaces")
-Signed-off-by: Janusz Dziedzic <janusz.dziedzic@gmail.com>
-Link: https://lore.kernel.org/r/20211024201546.614379-1-janusz.dziedzic@gmail.com
-[add fixes tag, fix indentation, edit commit log]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: eadec877ce9c ("net: Add support for subordinate traffic classes to netdev_pick_tx")
+Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/util.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ net/core/dev.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -1028,14 +1028,14 @@ int cfg80211_change_iface(struct cfg8021
- 	    !(rdev->wiphy.interface_modes & (1 << ntype)))
- 		return -EOPNOTSUPP;
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3171,6 +3171,12 @@ static u16 skb_tx_hash(const struct net_
  
--	/* if it's part of a bridge, reject changing type to station/ibss */
--	if (netif_is_bridge_port(dev) &&
--	    (ntype == NL80211_IFTYPE_ADHOC ||
--	     ntype == NL80211_IFTYPE_STATION ||
--	     ntype == NL80211_IFTYPE_P2P_CLIENT))
--		return -EBUSY;
--
- 	if (ntype != otype) {
-+		/* if it's part of a bridge, reject changing type to station/ibss */
-+		if (netif_is_bridge_port(dev) &&
-+		    (ntype == NL80211_IFTYPE_ADHOC ||
-+		     ntype == NL80211_IFTYPE_STATION ||
-+		     ntype == NL80211_IFTYPE_P2P_CLIENT))
-+			return -EBUSY;
-+
- 		dev->ieee80211_ptr->use_4addr = false;
- 		dev->ieee80211_ptr->mesh_id_up_len = 0;
- 		wdev_lock(dev->ieee80211_ptr);
+ 		qoffset = sb_dev->tc_to_txq[tc].offset;
+ 		qcount = sb_dev->tc_to_txq[tc].count;
++		if (unlikely(!qcount)) {
++			net_warn_ratelimited("%s: invalid qcount, qoffset %u for tc %u\n",
++					     sb_dev->name, qoffset, tc);
++			qoffset = 0;
++			qcount = dev->real_num_tx_queues;
++		}
+ 	}
+ 
+ 	if (skb_rx_queue_recorded(skb)) {
 
 
