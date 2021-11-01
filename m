@@ -2,180 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B385C44166E
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B22244184E
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:43:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232529AbhKAJZA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:25:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58578 "EHLO mail.kernel.org"
+        id S234497AbhKAJpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:45:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232031AbhKAJXk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:23:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE6506115B;
-        Mon,  1 Nov 2021 09:20:56 +0000 (UTC)
+        id S234116AbhKAJoL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:44:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EBA8613A8;
+        Mon,  1 Nov 2021 09:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758457;
-        bh=4qnLSr+fHEHfRXVNlNUN8XLmBWOZbRY5q/dtd5gQbXI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=jl9OmQLqCuYNXAaS5BNThAwRQdN8KYyNV2fKx4E8tBqVQ3p0BsRJRcLjIWRIX9j9C
-         2kt3tBOf+7taPkrRMEoPFR6E0RiId44v1QwedGCifrmC1mlyf+JQQwG6FEpROILaO7
-         AOh2vUDcf3eN6uno3PjVuvsil8qCWaOv/STO69K8=
+        s=korg; t=1635758970;
+        bh=js6PGcD2sqCtv9u3aattD7TJxF1BWSw49LaHNk+d62c=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=de1mmMqqohQadGug1GlMQTxHnAaCRyqn3BKTfEO/BeV7tUEUjQkpje0rqmGqF3i3r
+         DCT9oEA6wrA2AkP6aEXja79gqlsL0FKHe1V+dNtvrPO/mswBgDfEKnQxCQhCyqHAZt
+         PHMud1Hs1ky96QB5Romsa6sr74msvdHTwbjYUjFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.14 00/25] 4.14.254-rc1 review
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.14 059/125] riscv, bpf: Fix potential NULL dereference
 Date:   Mon,  1 Nov 2021 10:17:12 +0100
-Message-Id: <20211101082447.070493993@linuxfoundation.org>
+Message-Id: <20211101082544.363747884@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-MIME-Version: 1.0
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.254-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.254-rc1
-X-KernelTest-Deadline: 2021-11-03T08:24+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.254 release.
-There are 25 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Björn Töpel <bjorn@kernel.org>
 
-Responses should be made by Wed, 03 Nov 2021 08:24:20 +0000.
-Anything received after that time might be too late.
+commit 27de809a3d83a6199664479ebb19712533d6fd9b upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.254-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+The bpf_jit_binary_free() function requires a non-NULL argument. When
+the RISC-V BPF JIT fails to converge in NR_JIT_ITERATIONS steps,
+jit_data->header will be NULL, which triggers a NULL
+dereference. Avoid this by checking the argument, prior calling the
+function.
 
-thanks,
+Fixes: ca6cb5447cec ("riscv, bpf: Factor common RISC-V JIT code")
+Signed-off-by: Björn Töpel <bjorn@kernel.org>
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/r/20211028125115.514587-1-bjorn@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/riscv/net/bpf_jit_core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.254-rc1
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: add vtag check in sctp_sf_ootb
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: add vtag check in sctp_sf_do_8_5_1_E_sa
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: add vtag check in sctp_sf_violation
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: fix the processing for COOKIE_ECHO chunk
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: use init_tag from inithdr for ABORT chunk
-
-Trevor Woerner <twoerner@gmail.com>
-    net: nxp: lpc_eth.c: avoid hang when bringing interface down
-
-Guenter Roeck <linux@roeck-us.net>
-    nios2: Make NIOS2_DTB_SOURCE_BOOL depend on !COMPILE_TEST
-
-Pavel Skripkin <paskripkin@gmail.com>
-    net: batman-adv: fix error handling
-
-Yang Yingliang <yangyingliang@huawei.com>
-    regmap: Fix possible double-free in regcache_rbtree_exit()
-
-Johan Hovold <johan@kernel.org>
-    net: lan78xx: fix division by zero in send path
-
-Haibo Chen <haibo.chen@nxp.com>
-    mmc: sdhci-esdhc-imx: clear the buffer_read_ready to reset standard tuning circuit
-
-Shawn Guo <shawn.guo@linaro.org>
-    mmc: sdhci: Map more voltage level to SDHCI_POWER_330
-
-Jaehoon Chung <jh80.chung@samsung.com>
-    mmc: dw_mmc: exynos: fix the finding clock sample value
-
-Johan Hovold <johan@kernel.org>
-    mmc: vub300: fix control-message timeouts
-
-Eric Dumazet <edumazet@google.com>
-    ipv4: use siphash instead of Jenkins in fnhe_hashfun()
-
-Pavel Skripkin <paskripkin@gmail.com>
-    Revert "net: mdiobus: Fix memory leak in __mdiobus_register"
-
-Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-    nfc: port100: fix using -ERRNO as command type mask
-
-Zheyu Ma <zheyuma97@gmail.com>
-    ata: sata_mv: Fix the error handling of mv_chip_id()
-
-Wang Hai <wanghai38@huawei.com>
-    usbnet: fix error return code in usbnet_probe()
-
-Oliver Neukum <oneukum@suse.com>
-    usbnet: sanity check for maxpacket
-
-Nathan Chancellor <natechancellor@gmail.com>
-    ARM: 8819/1: Remove '-p' from LDFLAGS
-
-Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-    powerpc/bpf: Fix BPF_MOD when imm == 1
-
-Arnd Bergmann <arnd@arndb.de>
-    ARM: 9139/1: kprobes: fix arch_init_kprobes() prototype
-
-Arnd Bergmann <arnd@arndb.de>
-    ARM: 9134/1: remove duplicate memcpy() definition
-
-Nick Desaulniers <ndesaulniers@google.com>
-    ARM: 9133/1: mm: proc-macros: ensure *_tlb_fns are 4B aligned
-
-
--------------
-
-Diffstat:
-
- Makefile                               |  4 +--
- arch/arm/Makefile                      |  2 +-
- arch/arm/boot/bootp/Makefile           |  2 +-
- arch/arm/boot/compressed/Makefile      |  2 --
- arch/arm/boot/compressed/decompress.c  |  3 ++
- arch/arm/mm/proc-macros.S              |  1 +
- arch/arm/probes/kprobes/core.c         |  2 +-
- arch/nios2/platform/Kconfig.platform   |  1 +
- arch/powerpc/net/bpf_jit_comp64.c      | 10 ++++--
- drivers/ata/sata_mv.c                  |  4 +--
- drivers/base/regmap/regcache-rbtree.c  |  7 ++---
- drivers/mmc/host/dw_mmc-exynos.c       | 14 +++++++++
- drivers/mmc/host/sdhci-esdhc-imx.c     | 16 ++++++++++
- drivers/mmc/host/sdhci.c               |  6 ++++
- drivers/mmc/host/vub300.c              | 18 +++++------
- drivers/net/ethernet/nxp/lpc_eth.c     |  5 ++-
- drivers/net/phy/mdio_bus.c             |  1 -
- drivers/net/usb/lan78xx.c              |  6 ++++
- drivers/net/usb/usbnet.c               |  5 +++
- drivers/nfc/port100.c                  |  4 +--
- net/batman-adv/bridge_loop_avoidance.c |  8 +++--
- net/batman-adv/main.c                  | 56 ++++++++++++++++++++++++----------
- net/batman-adv/network-coding.c        |  4 ++-
- net/batman-adv/translation-table.c     |  4 ++-
- net/ipv4/route.c                       | 12 ++++----
- net/sctp/sm_statefuns.c                | 30 ++++++++++++------
- 26 files changed, 161 insertions(+), 66 deletions(-)
+--- a/arch/riscv/net/bpf_jit_core.c
++++ b/arch/riscv/net/bpf_jit_core.c
+@@ -125,7 +125,8 @@ struct bpf_prog *bpf_int_jit_compile(str
+ 
+ 	if (i == NR_JIT_ITERATIONS) {
+ 		pr_err("bpf-jit: image did not converge in <%d passes!\n", i);
+-		bpf_jit_binary_free(jit_data->header);
++		if (jit_data->header)
++			bpf_jit_binary_free(jit_data->header);
+ 		prog = orig_prog;
+ 		goto out_offset;
+ 	}
 
 
