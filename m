@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EF994417EF
+	by mail.lfdr.de (Postfix) with ESMTP id B81A84417F0
 	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233053AbhKAJlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233075AbhKAJlu (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 1 Nov 2021 05:41:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47878 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233478AbhKAJjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231925AbhKAJjt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Nov 2021 05:39:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE06A61354;
-        Mon,  1 Nov 2021 09:27:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1816961374;
+        Mon,  1 Nov 2021 09:27:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758854;
-        bh=3Wz2oQ5ODzrXuaXYIO4ceHW9s5XR2RXg5ILDM9NdOuU=;
+        s=korg; t=1635758856;
+        bh=pu4MhGtx1nrsoSCEqdzI6ySOBeTARR6xIr4jYu7COCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Li+gNBS/NihCzUj1s1wRLqypG3LLYDs3JfPZf0x0A77r4B+a8Iqk36OB8HbQ/K6ig
-         UUrYtVgDY1Y96q/mmZ/cSlPipJgu02Gck7S1ykQPVnDeVNbNhE2M+JZu5iJy7Z8374
-         KJglAl/bzN1qpFKxgekW78uUWfD0eUa9aap3KiJ8=
+        b=nYGM49UgsDjofvEMLcIfSNNi0OU2hO1AExEGB1sFUmeTqAfbUmAJoyJHIiOJV21B7
+         e4hpFoBXzXGiH2PhjD84HEiONeNHEf6Xks0Xsk0CHp82qIrr8LEKYeW4xaaMDltR+x
+         SsVVI8hQs2/c19xTJ421RYA62WR2u+lIK3KDQmVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        stable@vger.kernel.org, Sachi King <nakato@nakato.io>,
         Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.14 010/125] Revert "pinctrl: bcm: ns: support updated DT binding as syscon subnode"
-Date:   Mon,  1 Nov 2021 10:16:23 +0100
-Message-Id: <20211101082535.390534349@linuxfoundation.org>
+Subject: [PATCH 5.14 011/125] pinctrl: amd: disable and mask interrupts on probe
+Date:   Mon,  1 Nov 2021 10:16:24 +0100
+Message-Id: <20211101082535.600569357@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -40,107 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Sachi King <nakato@nakato.io>
 
-commit 6dba4bdfd7a30e77b848a45404b224588bf989e5 upstream.
+commit 4e5a04be88fe335ad5331f4f8c17f4ebd357e065 upstream.
 
-This reverts commit a49d784d5a8272d0f63c448fe8dc69e589db006e.
+Some systems such as the Microsoft Surface Laptop 4 leave interrupts
+enabled and configured for use in sleep states on boot, which cause
+unexpected behaviour such as spurious wakes and failed resumes in
+s2idle states.
 
-The updated binding was wrong / invalid and has been reverted. There
-isn't any upstream kernel DTS using it and Broadcom isn't known to use
-it neither. There is close to zero chance this will cause regression for
-anyone.
+As interrupts should not be enabled until they are claimed and
+explicitly enabled, disabling any interrupts mistakenly left enabled by
+firmware should be safe.
 
-Actually in-kernel bcm5301x.dtsi still uses the old good binding and so
-it's broken since the driver update. This revert fixes it.
-
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Link: https://lore.kernel.org/r/20211008205938.29925-3-zajec5@gmail.com
+Signed-off-by: Sachi King <nakato@nakato.io>
+Link: https://lore.kernel.org/r/20211009033240.21543-1-nakato@nakato.io
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/bcm/pinctrl-ns.c |   29 ++++++++++-------------------
- 1 file changed, 10 insertions(+), 19 deletions(-)
+ drivers/pinctrl/pinctrl-amd.c |   31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
---- a/drivers/pinctrl/bcm/pinctrl-ns.c
-+++ b/drivers/pinctrl/bcm/pinctrl-ns.c
-@@ -5,7 +5,6 @@
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -832,6 +832,34 @@ static const struct pinconf_ops amd_pinc
+ 	.pin_config_group_set = amd_pinconf_group_set,
+ };
  
- #include <linux/err.h>
- #include <linux/io.h>
--#include <linux/mfd/syscon.h>
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-@@ -13,7 +12,6 @@
- #include <linux/pinctrl/pinctrl.h>
- #include <linux/pinctrl/pinmux.h>
- #include <linux/platform_device.h>
--#include <linux/regmap.h>
- #include <linux/slab.h>
- 
- #define FLAG_BCM4708		BIT(1)
-@@ -24,8 +22,7 @@ struct ns_pinctrl {
- 	struct device *dev;
- 	unsigned int chipset_flag;
- 	struct pinctrl_dev *pctldev;
--	struct regmap *regmap;
--	u32 offset;
-+	void __iomem *base;
- 
- 	struct pinctrl_desc pctldesc;
- 	struct ns_pinctrl_group *groups;
-@@ -232,9 +229,9 @@ static int ns_pinctrl_set_mux(struct pin
- 		unset |= BIT(pin_number);
- 	}
- 
--	regmap_read(ns_pinctrl->regmap, ns_pinctrl->offset, &tmp);
-+	tmp = readl(ns_pinctrl->base);
- 	tmp &= ~unset;
--	regmap_write(ns_pinctrl->regmap, ns_pinctrl->offset, tmp);
-+	writel(tmp, ns_pinctrl->base);
- 
- 	return 0;
- }
-@@ -266,13 +263,13 @@ static const struct of_device_id ns_pinc
- static int ns_pinctrl_probe(struct platform_device *pdev)
++static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
++{
++	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
++	unsigned long flags;
++	u32 pin_reg, mask;
++	int i;
++
++	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
++		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
++		BIT(WAKE_CNTRL_OFF_S4);
++
++	for (i = 0; i < desc->npins; i++) {
++		int pin = desc->pins[i].number;
++		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
++
++		if (!pd)
++			continue;
++
++		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
++
++		pin_reg = readl(gpio_dev->base + i * 4);
++		pin_reg &= ~mask;
++		writel(pin_reg, gpio_dev->base + i * 4);
++
++		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
++	}
++}
++
+ #ifdef CONFIG_PM_SLEEP
+ static bool amd_gpio_should_save(struct amd_gpio *gpio_dev, unsigned int pin)
  {
- 	struct device *dev = &pdev->dev;
--	struct device_node *np = dev->of_node;
- 	const struct of_device_id *of_id;
- 	struct ns_pinctrl *ns_pinctrl;
- 	struct pinctrl_desc *pctldesc;
- 	struct pinctrl_pin_desc *pin;
- 	struct ns_pinctrl_group *group;
- 	struct ns_pinctrl_function *function;
-+	struct resource *res;
- 	int i;
- 
- 	ns_pinctrl = devm_kzalloc(dev, sizeof(*ns_pinctrl), GFP_KERNEL);
-@@ -290,18 +287,12 @@ static int ns_pinctrl_probe(struct platf
- 		return -EINVAL;
- 	ns_pinctrl->chipset_flag = (uintptr_t)of_id->data;
- 
--	ns_pinctrl->regmap = syscon_node_to_regmap(of_get_parent(np));
--	if (IS_ERR(ns_pinctrl->regmap)) {
--		int err = PTR_ERR(ns_pinctrl->regmap);
--
--		dev_err(dev, "Failed to map pinctrl regs: %d\n", err);
--
--		return err;
--	}
--
--	if (of_property_read_u32(np, "offset", &ns_pinctrl->offset)) {
--		dev_err(dev, "Failed to get register offset\n");
--		return -ENOENT;
-+	res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
-+					   "cru_gpio_control");
-+	ns_pinctrl->base = devm_ioremap_resource(dev, res);
-+	if (IS_ERR(ns_pinctrl->base)) {
-+		dev_err(dev, "Failed to map pinctrl regs\n");
-+		return PTR_ERR(ns_pinctrl->base);
+@@ -969,6 +997,9 @@ static int amd_gpio_probe(struct platfor
+ 		return PTR_ERR(gpio_dev->pctrl);
  	}
  
- 	memcpy(pctldesc, &ns_pinctrl_desc, sizeof(*pctldesc));
++	/* Disable and mask interrupts */
++	amd_gpio_irq_init(gpio_dev);
++
+ 	girq = &gpio_dev->gc.irq;
+ 	girq->chip = &amd_gpio_irqchip;
+ 	/* This will let us handle the parent IRQ in the driver */
 
 
