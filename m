@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A124417A5
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12E34441888
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233284AbhKAJiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:38:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43768 "EHLO mail.kernel.org"
+        id S233158AbhKAJtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:49:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233303AbhKAJgC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:36:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA0B261288;
-        Mon,  1 Nov 2021 09:26:23 +0000 (UTC)
+        id S232973AbhKAJrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:47:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A59A6140B;
+        Mon,  1 Nov 2021 09:30:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758784;
-        bh=Wd1TMrG9bhlBcjNM+Eh5nn4puss28CY/8bKP/IUPYmU=;
+        s=korg; t=1635759047;
+        bh=+JJ9wVFLK5840JrXkDQw3BjX3pYgseMCN+iUTlG9m9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L5rhSziS/q5hWo2umYJ2ljjzDib9IX3EXSFvvPuQTX+FvbMtewG+jJ8T7KiIEsFs6
-         TIsrjaw9EQfaLZuk7Ce+3wz33MXG3ryPeg5SqDV+T3thMKGUh/AVi0D1dlrO6ZEK23
-         OmHTBHgiFOIs/uqH1Ogw5cCTP9xx+TovyOCzdgNw=
+        b=KBUzaLBoBTuUvYy8j4mPktaoe7qvK95zSMZZTIBvmohU62Rzo6Nkz49rAqEhNRbh8
+         EVfiwn5+0evRSQtZRKsnFBhn4eR603a51JagKwcaUbVRouFqv2pYMlps2L8cykZLMQ
+         iAO0TgHCfYGlQwU8HUasMwsh2J+1ZpDFs6YQeR6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuiko Oshino <yuiko.oshino@microchip.com>,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 57/77] net: ethernet: microchip: lan743x: Fix driver crash when lan743x_pm_resume fails
+Subject: [PATCH 5.14 092/125] phy: phy_ethtool_ksettings_get: Lock the phy for consistency
 Date:   Mon,  1 Nov 2021 10:17:45 +0100
-Message-Id: <20211101082523.679279513@linuxfoundation.org>
+Message-Id: <20211101082550.550021013@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,30 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuiko Oshino <yuiko.oshino@microchip.com>
+From: Andrew Lunn <andrew@lunn.ch>
 
-commit d6423d2ec39cce2bfca418c81ef51792891576bc upstream.
+commit c10a485c3de5ccbf1fff65a382cebcb2730c6b06 upstream.
 
-The driver needs to clean up and return when the initialization fails on resume.
+The PHY structure should be locked while copying information out if
+it, otherwise there is no guarantee of self consistency. Without the
+lock the PHY state machine could be updating the structure.
 
-Fixes: 23f0703c125b ("lan743x: Add main source files for new lan743x driver")
-Signed-off-by: Yuiko Oshino <yuiko.oshino@microchip.com>
+Fixes: 2d55173e71b0 ("phy: add generic function to support ksetting support")
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/microchip/lan743x_main.c |    2 ++
+ drivers/net/phy/phy.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/microchip/lan743x_main.c
-+++ b/drivers/net/ethernet/microchip/lan743x_main.c
-@@ -3066,6 +3066,8 @@ static int lan743x_pm_resume(struct devi
- 	if (ret) {
- 		netif_err(adapter, probe, adapter->netdev,
- 			  "lan743x_hardware_init returned %d\n", ret);
-+		lan743x_pci_cleanup(adapter);
-+		return ret;
- 	}
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -299,6 +299,7 @@ EXPORT_SYMBOL(phy_ethtool_ksettings_set)
+ void phy_ethtool_ksettings_get(struct phy_device *phydev,
+ 			       struct ethtool_link_ksettings *cmd)
+ {
++	mutex_lock(&phydev->lock);
+ 	linkmode_copy(cmd->link_modes.supported, phydev->supported);
+ 	linkmode_copy(cmd->link_modes.advertising, phydev->advertising);
+ 	linkmode_copy(cmd->link_modes.lp_advertising, phydev->lp_advertising);
+@@ -317,6 +318,7 @@ void phy_ethtool_ksettings_get(struct ph
+ 	cmd->base.autoneg = phydev->autoneg;
+ 	cmd->base.eth_tp_mdix_ctrl = phydev->mdix_ctrl;
+ 	cmd->base.eth_tp_mdix = phydev->mdix;
++	mutex_unlock(&phydev->lock);
+ }
+ EXPORT_SYMBOL(phy_ethtool_ksettings_get);
  
- 	/* open netdev when netdev is at running state while resume.
 
 
