@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7606E441898
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE364416E5
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:28:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233366AbhKAJtg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:49:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52156 "EHLO mail.kernel.org"
+        id S232979AbhKAJaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:30:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234054AbhKAJqb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:46:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82FC8613CF;
-        Mon,  1 Nov 2021 09:30:21 +0000 (UTC)
+        id S233151AbhKAJ2a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:28:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EB8761215;
+        Mon,  1 Nov 2021 09:23:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759022;
-        bh=JA/Hy1hpfPf7wnT5E4+pX4LGsaySt6Qf6WS3/GHh638=;
+        s=korg; t=1635758599;
+        bh=BacsWErgDYx8xnKi5nzlEcmAHMidRNn86XMtDw4+/t4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAJeUxp7sQzaWjq4UQ6e09SQH5WWz4lHQ0QMR3BSYJHTKAFviYaX5rwgHn11VUaTO
-         VRFB7x8LUyao7RVchQA9gR4N95nHJoHyaRU1CDJdO20TOCXy79KGJv9R5vig/MPb5W
-         Y4JSSgeLgKtnItYvzN/iqXM1lFgyWs5tnI1dvtSI=
+        b=TO7pjFHtDrxL4iiEDIk/RsfDf6Kr/NQWan8HmUB/Iv2q+iNay/BnNt2cY4lx92zdJ
+         HQk4ewKPBY4WpJQB4tFNRwXXa78+eJascBgmMCMKpqcZSvyjiyutWtZGhdjEHAEAF5
+         iJC3fLdo2Es5URfoKbjCyIDnOFwTnv/TESUH0cF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonas Gorski <jonas.gorski@gmail.com>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 5.14 082/125] gpio: xgs-iproc: fix parsing of ngpios property
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 31/51] net: batman-adv: fix error handling
 Date:   Mon,  1 Nov 2021 10:17:35 +0100
-Message-Id: <20211101082548.797499643@linuxfoundation.org>
+Message-Id: <20211101082507.903947032@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +41,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Gorski <jonas.gorski@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 85fe6415c146d5d42ce300c12f1ecf4d4af47d40 upstream.
+commit 6f68cd634856f8ca93bafd623ba5357e0f648c68 upstream.
 
-of_property_read_u32 returns 0 on success, not true, so we need to
-invert the check to actually take over the provided ngpio value.
+Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
+in wrong error handling in batadv_mesh_init().
 
-Fixes: 6a41b6c5fc20 ("gpio: Add xgs-iproc driver")
-Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
-Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
+of any batadv_*_init() calls failure. This approach may work well, when
+there is some kind of indicator, which can tell which parts of batadv are
+initialized; but there isn't any.
+
+All written above lead to cleaning up uninitialized fields. Even if we hide
+ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
+GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
+
+To fix these bugs we can unwind batadv_*_init() calls one by one.
+It is good approach for 2 reasons: 1) It fixes bugs on error handling
+path 2) It improves the performance, since we won't call unneeded
+batadv_*_free() functions.
+
+So, this patch makes all batadv_*_init() clean up all allocated memory
+before returning with an error to no call correspoing batadv_*_free()
+and open-codes batadv_mesh_free() with proper order to avoid touching
+uninitialized fields.
+
+Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
+Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-xgs-iproc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/batman-adv/bridge_loop_avoidance.c |    8 +++-
+ net/batman-adv/main.c                  |   56 +++++++++++++++++++++++----------
+ net/batman-adv/network-coding.c        |    4 +-
+ net/batman-adv/translation-table.c     |    4 +-
+ 4 files changed, 52 insertions(+), 20 deletions(-)
 
---- a/drivers/gpio/gpio-xgs-iproc.c
-+++ b/drivers/gpio/gpio-xgs-iproc.c
-@@ -224,7 +224,7 @@ static int iproc_gpio_probe(struct platf
- 	}
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -1561,10 +1561,14 @@ int batadv_bla_init(struct batadv_priv *
+ 		return 0;
  
- 	chip->gc.label = dev_name(dev);
--	if (of_property_read_u32(dn, "ngpios", &num_gpios))
-+	if (!of_property_read_u32(dn, "ngpios", &num_gpios))
- 		chip->gc.ngpio = num_gpios;
+ 	bat_priv->bla.claim_hash = batadv_hash_new(128);
+-	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.claim_hash)
++		return -ENOMEM;
  
- 	irq = platform_get_irq(pdev, 0);
+-	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
++	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.backbone_hash) {
++		batadv_hash_destroy(bat_priv->bla.claim_hash);
+ 		return -ENOMEM;
++	}
+ 
+ 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
+ 				   &batadv_claim_hash_lock_class_key);
+--- a/net/batman-adv/main.c
++++ b/net/batman-adv/main.c
+@@ -197,29 +197,41 @@ int batadv_mesh_init(struct net_device *
+ 
+ 	bat_priv->gw.generation = 0;
+ 
+-	ret = batadv_v_mesh_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
+-
+ 	ret = batadv_originator_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_orig;
++	}
+ 
+ 	ret = batadv_tt_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_tt;
++	}
++
++	ret = batadv_v_mesh_init(bat_priv);
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_v;
++	}
+ 
+ 	ret = batadv_bla_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_bla;
++	}
+ 
+ 	ret = batadv_dat_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_dat;
++	}
+ 
+ 	ret = batadv_nc_mesh_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_nc;
++	}
+ 
+ 	batadv_gw_init(bat_priv);
+ 	batadv_mcast_init(bat_priv);
+@@ -229,8 +241,20 @@ int batadv_mesh_init(struct net_device *
+ 
+ 	return 0;
+ 
+-err:
+-	batadv_mesh_free(soft_iface);
++err_nc:
++	batadv_dat_free(bat_priv);
++err_dat:
++	batadv_bla_free(bat_priv);
++err_bla:
++	batadv_v_mesh_free(bat_priv);
++err_v:
++	batadv_tt_free(bat_priv);
++err_tt:
++	batadv_originator_free(bat_priv);
++err_orig:
++	batadv_purge_outstanding_packets(bat_priv, NULL);
++	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
++
+ 	return ret;
+ }
+ 
+--- a/net/batman-adv/network-coding.c
++++ b/net/batman-adv/network-coding.c
+@@ -155,8 +155,10 @@ int batadv_nc_mesh_init(struct batadv_pr
+ 				   &batadv_nc_coding_hash_lock_class_key);
+ 
+ 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
+-	if (!bat_priv->nc.decoding_hash)
++	if (!bat_priv->nc.decoding_hash) {
++		batadv_hash_destroy(bat_priv->nc.coding_hash);
+ 		goto err;
++	}
+ 
+ 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
+ 				   &batadv_nc_decoding_hash_lock_class_key);
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -4405,8 +4405,10 @@ int batadv_tt_init(struct batadv_priv *b
+ 		return ret;
+ 
+ 	ret = batadv_tt_global_init(bat_priv);
+-	if (ret < 0)
++	if (ret < 0) {
++		batadv_tt_local_table_free(bat_priv);
+ 		return ret;
++	}
+ 
+ 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
+ 				     batadv_tt_tvlv_unicast_handler_v1,
 
 
