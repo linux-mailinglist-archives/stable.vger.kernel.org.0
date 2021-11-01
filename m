@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1419E441875
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:45:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A66A8441654
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234220AbhKAJrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:47:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51434 "EHLO mail.kernel.org"
+        id S232216AbhKAJYW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:24:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232488AbhKAJpV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:45:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9BCD61220;
-        Mon,  1 Nov 2021 09:30:09 +0000 (UTC)
+        id S232244AbhKAJXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:23:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D95861165;
+        Mon,  1 Nov 2021 09:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759010;
-        bh=EJeA18QhPeJb4Gw47p0XCcIvBZ1ofkDlpGZQZV00N/Y=;
+        s=korg; t=1635758424;
+        bh=HB1HV8LnnfKZdYnPXZzgnEfLRC4Rau5d3HYpaLnKniY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PvvSJbWYxWRZ+kaovWNzMi7PZhbTslqrf5MeqW32PIK0vR/Mi73PjAXuzIHUx/FiY
-         1EAy1ZjLFhIIEbEZHZv1/B/K9SgrXpi3MCCydbOLdvyh5zB9KKiTroAIugCF7eujX3
-         Hml7r5NA8+fIrehjVSiIF7V6ufbFREJGli/j0W1k=
+        b=fMCO405Bj/TXfb+T0LK2/Qo2W2Bc6Qquzm8sKjoaV7FailF4/8C9UxmDo+nG3i/CZ
+         WWGYFPhcJIefw4jTfeLhoxFZ6uPJDRWeOBJ9Neul/r4ihKkqvvFruvmbQ/+sRgq8iH
+         V4VEJmknn4hhH9Ryeg3Y/sp2jDD5fruQxQVG5X28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 077/125] net-sysfs: initialize uid and gid before calling net_ns_get_ownership
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 18/25] net: batman-adv: fix error handling
 Date:   Mon,  1 Nov 2021 10:17:30 +0100
-Message-Id: <20211101082547.817430627@linuxfoundation.org>
+Message-Id: <20211101082451.344281187@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082447.070493993@linuxfoundation.org>
+References: <20211101082447.070493993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit f7a1e76d0f608961cc2fc681f867a834f2746bce upstream.
+commit 6f68cd634856f8ca93bafd623ba5357e0f648c68 upstream.
 
-Currently in net_ns_get_ownership() it may not be able to set uid or gid
-if make_kuid or make_kgid returns an invalid value, and an uninit-value
-issue can be triggered by this.
+Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
+in wrong error handling in batadv_mesh_init().
 
-This patch is to fix it by initializing the uid and gid before calling
-net_ns_get_ownership(), as it does in kobject_get_ownership()
+Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
+of any batadv_*_init() calls failure. This approach may work well, when
+there is some kind of indicator, which can tell which parts of batadv are
+initialized; but there isn't any.
 
-Fixes: e6dee9f3893c ("net-sysfs: add netdev_change_owner()")
-Reported-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+All written above lead to cleaning up uninitialized fields. Even if we hide
+ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
+GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
+
+To fix these bugs we can unwind batadv_*_init() calls one by one.
+It is good approach for 2 reasons: 1) It fixes bugs on error handling
+path 2) It improves the performance, since we won't call unneeded
+batadv_*_free() functions.
+
+So, this patch makes all batadv_*_init() clean up all allocated memory
+before returning with an error to no call correspoing batadv_*_free()
+and open-codes batadv_mesh_free() with proper order to avoid touching
+uninitialized fields.
+
+Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
+Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/net-sysfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/batman-adv/bridge_loop_avoidance.c |    8 +++-
+ net/batman-adv/main.c                  |   56 +++++++++++++++++++++++----------
+ net/batman-adv/network-coding.c        |    4 +-
+ net/batman-adv/translation-table.c     |    4 +-
+ 4 files changed, 52 insertions(+), 20 deletions(-)
 
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -1973,9 +1973,9 @@ int netdev_register_kobject(struct net_d
- int netdev_change_owner(struct net_device *ndev, const struct net *net_old,
- 			const struct net *net_new)
- {
-+	kuid_t old_uid = GLOBAL_ROOT_UID, new_uid = GLOBAL_ROOT_UID;
-+	kgid_t old_gid = GLOBAL_ROOT_GID, new_gid = GLOBAL_ROOT_GID;
- 	struct device *dev = &ndev->dev;
--	kuid_t old_uid, new_uid;
--	kgid_t old_gid, new_gid;
- 	int error;
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -1574,10 +1574,14 @@ int batadv_bla_init(struct batadv_priv *
+ 		return 0;
  
- 	net_ns_get_ownership(net_old, &old_uid, &old_gid);
+ 	bat_priv->bla.claim_hash = batadv_hash_new(128);
+-	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.claim_hash)
++		return -ENOMEM;
+ 
+-	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
++	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.backbone_hash) {
++		batadv_hash_destroy(bat_priv->bla.claim_hash);
+ 		return -ENOMEM;
++	}
+ 
+ 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
+ 				   &batadv_claim_hash_lock_class_key);
+--- a/net/batman-adv/main.c
++++ b/net/batman-adv/main.c
+@@ -180,29 +180,41 @@ int batadv_mesh_init(struct net_device *
+ 	INIT_HLIST_HEAD(&bat_priv->softif_vlan_list);
+ 	INIT_HLIST_HEAD(&bat_priv->tp_list);
+ 
+-	ret = batadv_v_mesh_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
+-
+ 	ret = batadv_originator_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_orig;
++	}
+ 
+ 	ret = batadv_tt_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_tt;
++	}
++
++	ret = batadv_v_mesh_init(bat_priv);
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_v;
++	}
+ 
+ 	ret = batadv_bla_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_bla;
++	}
+ 
+ 	ret = batadv_dat_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_dat;
++	}
+ 
+ 	ret = batadv_nc_mesh_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_nc;
++	}
+ 
+ 	batadv_gw_init(bat_priv);
+ 	batadv_mcast_init(bat_priv);
+@@ -212,8 +224,20 @@ int batadv_mesh_init(struct net_device *
+ 
+ 	return 0;
+ 
+-err:
+-	batadv_mesh_free(soft_iface);
++err_nc:
++	batadv_dat_free(bat_priv);
++err_dat:
++	batadv_bla_free(bat_priv);
++err_bla:
++	batadv_v_mesh_free(bat_priv);
++err_v:
++	batadv_tt_free(bat_priv);
++err_tt:
++	batadv_originator_free(bat_priv);
++err_orig:
++	batadv_purge_outstanding_packets(bat_priv, NULL);
++	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
++
+ 	return ret;
+ }
+ 
+--- a/net/batman-adv/network-coding.c
++++ b/net/batman-adv/network-coding.c
+@@ -165,8 +165,10 @@ int batadv_nc_mesh_init(struct batadv_pr
+ 				   &batadv_nc_coding_hash_lock_class_key);
+ 
+ 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
+-	if (!bat_priv->nc.decoding_hash)
++	if (!bat_priv->nc.decoding_hash) {
++		batadv_hash_destroy(bat_priv->nc.coding_hash);
+ 		goto err;
++	}
+ 
+ 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
+ 				   &batadv_nc_decoding_hash_lock_class_key);
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -4373,8 +4373,10 @@ int batadv_tt_init(struct batadv_priv *b
+ 		return ret;
+ 
+ 	ret = batadv_tt_global_init(bat_priv);
+-	if (ret < 0)
++	if (ret < 0) {
++		batadv_tt_local_table_free(bat_priv);
+ 		return ret;
++	}
+ 
+ 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
+ 				     batadv_tt_tvlv_unicast_handler_v1,
 
 
