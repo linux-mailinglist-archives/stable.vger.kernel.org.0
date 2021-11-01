@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B0A944166D
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 113C0441701
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:30:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232333AbhKAJY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:24:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59164 "EHLO mail.kernel.org"
+        id S233254AbhKAJcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:32:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232517AbhKAJXl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:23:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E23C6112D;
-        Mon,  1 Nov 2021 09:20:59 +0000 (UTC)
+        id S232233AbhKAJaE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:30:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07A4F61213;
+        Mon,  1 Nov 2021 09:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758459;
-        bh=2FyAA1emBPFsWZyv0yG1zZ5cu6TdM9tdSoyBIptZams=;
+        s=korg; t=1635758604;
+        bh=+gNXVsX/M598wnh5q65Qgkc5hLjGX5+sZacANQINnBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=isqY/c/3y3YrEsaHNVuSVf+7nNne+PSMgzwbElTr7BvQfyyirTSKbMWB/XXovCYz/
-         GYHdmw16bDVkvIoEwMDWejUs0FpDSh0O0JffqY9RIpYUvIbUDrpDigOTW3gOgeP93R
-         D8uYqTFDm0av++B8nuIr1CqQ0MMlQzGq96nAXzY0=
+        b=i30zbin7uUk0dJ8OWi+Lg1r727cPnOsaj64isDMgFwBP1rr3dnU2kF544zvU4gSdz
+         IzDSOamGd4fUFRNqb77BmZtWrRL0jbetIbCwNYV6VcZ1HW3X1Sq7U/blv/2gn6PoJT
+         XnmfUZz2ywaIIPTdXbkDidvZ24pqReKZ8chnPeY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 25/25] sctp: add vtag check in sctp_sf_ootb
+        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
+        Mark Bloch <mbloch@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.4 33/51] RDMA/sa_query: Use strscpy_pad instead of memcpy to copy a string
 Date:   Mon,  1 Nov 2021 10:17:37 +0100
-Message-Id: <20211101082452.984281181@linuxfoundation.org>
+Message-Id: <20211101082508.403919573@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082447.070493993@linuxfoundation.org>
-References: <20211101082447.070493993@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Mark Zhang <markzhang@nvidia.com>
 
-[ Upstream commit 9d02831e517aa36ee6bdb453a0eb47bd49923fe3 ]
+commit 64733956ebba7cc629856f4a6ee35a52bc9c023f upstream.
 
-sctp_sf_ootb() is called when processing DATA chunk in closed state,
-and many other places are also using it.
+When copying the device name, the length of the data memcpy copied exceeds
+the length of the source buffer, which cause the KASAN issue below.  Use
+strscpy_pad() instead.
 
-The vtag in the chunk's sctphdr should be verified, otherwise, as
-later in chunk length check, it may send abort with the existent
-asoc's vtag, which can be exploited by one to cook a malicious
-chunk to terminate a SCTP asoc.
+ BUG: KASAN: slab-out-of-bounds in ib_nl_set_path_rec_attrs+0x136/0x320 [ib_core]
+ Read of size 64 at addr ffff88811a10f5e0 by task rping/140263
+ CPU: 3 PID: 140263 Comm: rping Not tainted 5.15.0-rc1+ #1
+ Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+ Call Trace:
+  dump_stack_lvl+0x57/0x7d
+  print_address_description.constprop.0+0x1d/0xa0
+  kasan_report+0xcb/0x110
+  kasan_check_range+0x13d/0x180
+  memcpy+0x20/0x60
+  ib_nl_set_path_rec_attrs+0x136/0x320 [ib_core]
+  ib_nl_make_request+0x1c6/0x380 [ib_core]
+  send_mad+0x20a/0x220 [ib_core]
+  ib_sa_path_rec_get+0x3e3/0x800 [ib_core]
+  cma_query_ib_route+0x29b/0x390 [rdma_cm]
+  rdma_resolve_route+0x308/0x3e0 [rdma_cm]
+  ucma_resolve_route+0xe1/0x150 [rdma_ucm]
+  ucma_write+0x17b/0x1f0 [rdma_ucm]
+  vfs_write+0x142/0x4d0
+  ksys_write+0x133/0x160
+  do_syscall_64+0x43/0x90
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f26499aa90f
+ Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 29 fd ff ff 48 8b 54 24 18 48 8b 74 24 10 41 89 c0 8b 7c 24 08 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 31 44 89 c7 48 89 44 24 08 e8 5c fd ff ff 48
+ RSP: 002b:00007f26495f2dc0 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
+ RAX: ffffffffffffffda RBX: 00000000000007d0 RCX: 00007f26499aa90f
+ RDX: 0000000000000010 RSI: 00007f26495f2e00 RDI: 0000000000000003
+ RBP: 00005632a8315440 R08: 0000000000000000 R09: 0000000000000001
+ R10: 0000000000000000 R11: 0000000000000293 R12: 00007f26495f2e00
+ R13: 00005632a83154e0 R14: 00005632a8315440 R15: 00005632a830a810
 
-When fails to verify the vtag from the chunk, this patch sets asoc
-to NULL, so that the abort will be made with the vtag from the
-received chunk later.
+ Allocated by task 131419:
+  kasan_save_stack+0x1b/0x40
+  __kasan_kmalloc+0x7c/0x90
+  proc_self_get_link+0x8b/0x100
+  pick_link+0x4f1/0x5c0
+  step_into+0x2eb/0x3d0
+  walk_component+0xc8/0x2c0
+  link_path_walk+0x3b8/0x580
+  path_openat+0x101/0x230
+  do_filp_open+0x12e/0x240
+  do_sys_openat2+0x115/0x280
+  __x64_sys_openat+0xce/0x140
+  do_syscall_64+0x43/0x90
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2ca546b92a02 ("IB/sa: Route SA pathrecord query through netlink")
+Link: https://lore.kernel.org/r/72ede0f6dab61f7f23df9ac7a70666e07ef314b0.1635055496.git.leonro@nvidia.com
+Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/sm_statefuns.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/core/sa_query.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index c3cb0ae7df2b..b26067798dbf 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -3498,6 +3498,9 @@ enum sctp_disposition sctp_sf_ootb(struct net *net,
+--- a/drivers/infiniband/core/sa_query.c
++++ b/drivers/infiniband/core/sa_query.c
+@@ -760,8 +760,9 @@ static void ib_nl_set_path_rec_attrs(str
  
- 	SCTP_INC_STATS(net, SCTP_MIB_OUTOFBLUES);
+ 	/* Construct the family header first */
+ 	header = skb_put(skb, NLMSG_ALIGN(sizeof(*header)));
+-	memcpy(header->device_name, dev_name(&query->port->agent->device->dev),
+-	       LS_DEVICE_NAME_MAX);
++	strscpy_pad(header->device_name,
++		    dev_name(&query->port->agent->device->dev),
++		    LS_DEVICE_NAME_MAX);
+ 	header->port_num = query->port->port_num;
  
-+	if (asoc && !sctp_vtag_verify(chunk, asoc))
-+		asoc = NULL;
-+
- 	ch = (struct sctp_chunkhdr *)chunk->chunk_hdr;
- 	do {
- 		/* Report violation if the chunk is less then minimal */
--- 
-2.33.0
-
+ 	if ((comp_mask & IB_SA_PATH_REC_REVERSIBLE) &&
 
 
