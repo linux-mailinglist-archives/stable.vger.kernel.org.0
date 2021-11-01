@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF1144172D
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:32:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBF244417F6
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232389AbhKAJeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:34:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36832 "EHLO mail.kernel.org"
+        id S233115AbhKAJlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233252AbhKAJcE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:32:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D063C61181;
-        Mon,  1 Nov 2021 09:24:10 +0000 (UTC)
+        id S233461AbhKAJjr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:39:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A7F66136A;
+        Mon,  1 Nov 2021 09:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758651;
-        bh=bTEJGZmvxKRfATw5kBkG2TDX9WVKyWGSyLMElRUiCus=;
+        s=korg; t=1635758849;
+        bh=z4AJk44OSZUO1j94BmUKDQATtrKwZA7TFPAG2yfyQ9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vLfw+eNnagoow4l+1Tz9SXzLKb0qR75Vwk54aWAbbtMnuADo8xlFGlfJThttt9h13
-         MI1e7JQxl9PDvwgY+9kBSUZD1l2Wvc3gCo2ecl87AVKhDDILUUPv9lHKWbMqjz0SbS
-         2oPw7w4JGw4kdkxrqcBP9asPAuesNWViO50mFnSo=
+        b=L8e2zykIujKksfxyahn4geTmskC8D1OMwvImsxNIQyo1Tt/MgN3eL546BCu0aJcWZ
+         3H+DzY/VeYIBGVE1jwB+BE0AhwidP7ZdafWPHSEMPdEsV3QAEAZnmGvfMbYDqMAhR8
+         TTMYpCQk35hSVkvS87NxJjyfM1rJC3qaHmgAj9dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
-        Peter Zijlstra <peterz@infradead.org>, kernel-team@fb.com,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 51/51] perf script: Check session->header.env.arch before using it
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 67/77] sctp: fix the processing for COOKIE_ECHO chunk
 Date:   Mon,  1 Nov 2021 10:17:55 +0100
-Message-Id: <20211101082512.400591717@linuxfoundation.org>
+Message-Id: <20211101082525.642290500@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 29c77550eef31b0d72a45b49eeab03b8963264e8 upstream.
+[ Upstream commit a64b341b8695e1c744dd972b39868371b4f68f83 ]
 
-When perf.data is not written cleanly, we would like to process existing
-data as much as possible (please see f_header.data.size == 0 condition
-in perf_session__read_header). However, perf.data with partial data may
-crash perf. Specifically, we see crash in 'perf script' for NULL
-session->header.env.arch.
+1. In closed state: in sctp_sf_do_5_1D_ce():
 
-Fix this by checking session->header.env.arch before using it to determine
-native_arch. Also split the if condition so it is easier to read.
+  When asoc is NULL, making packet for abort will use chunk's vtag
+  in sctp_ootb_pkt_new(). But when asoc exists, vtag from the chunk
+  should be verified before using peer.i.init_tag to make packet
+  for abort in sctp_ootb_pkt_new(), and just discard it if vtag is
+  not correct.
 
-Committer notes:
+2. In the other states: in sctp_sf_do_5_2_4_dupcook():
 
-If it is a pipe, we already assume is a native arch, so no need to check
-session->header.env.arch.
+  asoc always exists, but duplicate cookie_echo's vtag will be
+  handled by sctp_tietags_compare() and then take actions, so before
+  that we only verify the vtag for the abort sent for invalid chunk
+  length.
 
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: kernel-team@fb.com
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20211004053238.514936-1-songliubraving@fb.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-script.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ net/sctp/sm_statefuns.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/tools/perf/builtin-script.c
-+++ b/tools/perf/builtin-script.c
-@@ -3779,11 +3779,15 @@ int cmd_script(int argc, const char **ar
- 		goto out_delete;
+diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
+index 5063f9884367..0cfbf6046bf8 100644
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -697,6 +697,9 @@ enum sctp_disposition sctp_sf_do_5_1D_ce(struct net *net,
+ 	struct sock *sk;
+ 	int error = 0;
  
- 	uname(&uts);
--	if (data.is_pipe ||  /* assume pipe_mode indicates native_arch */
--	    !strcmp(uts.machine, session->header.env.arch) ||
--	    (!strcmp(uts.machine, "x86_64") &&
--	     !strcmp(session->header.env.arch, "i386")))
-+	if (data.is_pipe) { /* Assume pipe_mode indicates native_arch */
- 		native_arch = true;
-+	} else if (session->header.env.arch) {
-+		if (!strcmp(uts.machine, session->header.env.arch))
-+			native_arch = true;
-+		else if (!strcmp(uts.machine, "x86_64") &&
-+			 !strcmp(session->header.env.arch, "i386"))
-+			native_arch = true;
++	if (asoc && !sctp_vtag_verify(chunk, asoc))
++		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
++
+ 	/* If the packet is an OOTB packet which is temporarily on the
+ 	 * control endpoint, respond with an ABORT.
+ 	 */
+@@ -711,7 +714,8 @@ enum sctp_disposition sctp_sf_do_5_1D_ce(struct net *net,
+ 	 * in sctp_unpack_cookie().
+ 	 */
+ 	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_chunkhdr)))
+-		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
++		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
++						  commands);
+ 
+ 	/* If the endpoint is not listening or if the number of associations
+ 	 * on the TCP-style socket exceed the max backlog, respond with an
+@@ -2141,9 +2145,11 @@ enum sctp_disposition sctp_sf_do_5_2_4_dupcook(
+ 	 * enough for the chunk header.  Cookie length verification is
+ 	 * done later.
+ 	 */
+-	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_chunkhdr)))
+-		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
+-						  commands);
++	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_chunkhdr))) {
++		if (!sctp_vtag_verify(chunk, asoc))
++			asoc = NULL;
++		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg, commands);
 +	}
  
- 	script.session = session;
- 	script__setup_sample_type(&script);
+ 	/* "Decode" the chunk.  We have no optional parameters so we
+ 	 * are in good shape.
+-- 
+2.33.0
+
 
 
