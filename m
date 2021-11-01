@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F6D244173B
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:32:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C1EF441846
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:43:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232768AbhKAJe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:34:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
+        id S233721AbhKAJp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:45:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233306AbhKAJc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:32:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3CF661250;
-        Mon,  1 Nov 2021 09:24:52 +0000 (UTC)
+        id S234074AbhKAJoD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:44:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8043613A0;
+        Mon,  1 Nov 2021 09:29:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758693;
-        bh=wfjS+jLbdVLuoI0eex6VRYBpKo1PnXEvuMfnY+ULJqI=;
+        s=korg; t=1635758959;
+        bh=OHa/Enrm9r8tXMOOH05HAbdva9L3ZCVR0alYtEzSPcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m5G+rNVPS8pxhIych6pfIGOq+hdyiwCjDPvjT5MlydjXSzDR//f5uszj/s1iXnbYU
-         m+zfiWdPs0GmuMEDzwipnrjA9mFybDl37PCpZ53QIvLDXNFJKql8dvjly7EtxQfdyH
-         EiT0oL2Iu8cIdacx23UTd5ZBW4YzenZco3VlX5gs=
+        b=A2JhK22BuAGLTvz5GyDJEHtTezITbrfXgbRSXrzyyIpsLyUWuI16jT/sZSz4ryJ4A
+         ZEUk6Aif7Q7/xgw2Csa1Ilxnz/FjiplqdhWCjH5reHV15KTGD5desMPQIOdRhaZmVq
+         AEGyibvHo9x+VLbp6nCEP7HMuZX9vaSnlkWlt8x8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 19/77] net/tls: Fix flipped sign in tls_err_abort() calls
+        stable@vger.kernel.org, Aric Cyr <Aric.Cyr@amd.com>,
+        Eric Yang <eric.yang2@amd.com>,
+        Agustin Gutierrez Sanchez <agustin.gutierrez@amd.com>,
+        Jake Wang <haonan.wang2@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.14 054/125] drm/amd/display: Moved dccg init to after bios golden init
 Date:   Mon,  1 Nov 2021 10:17:07 +0100
-Message-Id: <20211101082515.920356490@linuxfoundation.org>
+Message-Id: <20211101082543.430391486@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,140 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Jake Wang <haonan.wang2@amd.com>
 
-commit da353fac65fede6b8b4cfe207f0d9408e3121105 upstream.
+commit 2ef8ea23942f4c2569930c34e7689a0cb1b232cc upstream.
 
-sk->sk_err appears to expect a positive value, a convention that ktls
-doesn't always follow and that leads to memory corruption in other code.
-For instance,
+[Why]
+bios_golden_init will override dccg_init during init_hw.
 
-    [kworker]
-    tls_encrypt_done(..., err=<negative error from crypto request>)
-      tls_err_abort(.., err)
-        sk->sk_err = err;
+[How]
+Move dccg_init to after bios_golden_init.
 
-    [task]
-    splice_from_pipe_feed
-      ...
-        tls_sw_do_sendpage
-          if (sk->sk_err) {
-            ret = -sk->sk_err;  // ret is positive
-
-    splice_from_pipe_feed (continued)
-      ret = actor(...)  // ret is still positive and interpreted as bytes
-                        // written, resulting in underflow of buf->len and
-                        // sd->len, leading to huge buf->offset and bogus
-                        // addresses computed in later calls to actor()
-
-Fix all tls_err_abort() callers to pass a negative error code
-consistently and centralize the error-prone sign flip there, throwing in
-a warning to catch future misuse and uninlining the function so it
-really does only warn once.
-
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Reviewed-by: Eric Yang <eric.yang2@amd.com>
+Acked-by: Agustin Gutierrez Sanchez <agustin.gutierrez@amd.com>
+Signed-off-by: Jake Wang <haonan.wang2@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Fixes: c46234ebb4d1e ("tls: RX path for ktls")
-Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tls.h |    9 ++-------
- net/tls/tls_sw.c  |   17 +++++++++++++----
- 2 files changed, 15 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -359,6 +359,7 @@ int tls_sk_query(struct sock *sk, int op
- 		int __user *optlen);
- int tls_sk_attach(struct sock *sk, int optname, char __user *optval,
- 		  unsigned int optlen);
-+void tls_err_abort(struct sock *sk, int err);
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c
+@@ -76,10 +76,6 @@ void dcn31_init_hw(struct dc *dc)
+ 	if (dc->clk_mgr && dc->clk_mgr->funcs->init_clocks)
+ 		dc->clk_mgr->funcs->init_clocks(dc->clk_mgr);
  
- int tls_set_sw_offload(struct sock *sk, struct tls_context *ctx, int tx);
- void tls_sw_strparser_arm(struct sock *sk, struct tls_context *ctx);
-@@ -467,12 +468,6 @@ static inline bool tls_is_sk_tx_device_o
- #endif
- }
- 
--static inline void tls_err_abort(struct sock *sk, int err)
--{
--	sk->sk_err = err;
--	sk->sk_error_report(sk);
--}
+-	// Initialize the dccg
+-	if (res_pool->dccg->funcs->dccg_init)
+-		res_pool->dccg->funcs->dccg_init(res_pool->dccg);
 -
- static inline bool tls_bigint_increment(unsigned char *seq, int len)
- {
- 	int i;
-@@ -513,7 +508,7 @@ static inline void tls_advance_record_sn
- 					 struct cipher_context *ctx)
- {
- 	if (tls_bigint_increment(ctx->rec_seq, prot->rec_seq_size))
--		tls_err_abort(sk, EBADMSG);
-+		tls_err_abort(sk, -EBADMSG);
+ 	if (IS_FPGA_MAXIMUS_DC(dc->ctx->dce_environment)) {
  
- 	if (prot->version != TLS_1_3_VERSION)
- 		tls_bigint_increment(ctx->iv + TLS_CIPHER_AES_GCM_128_SALT_SIZE,
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -35,6 +35,7 @@
-  * SOFTWARE.
-  */
+ 		REG_WRITE(REFCLK_CNTL, 0);
+@@ -106,6 +102,9 @@ void dcn31_init_hw(struct dc *dc)
+ 		hws->funcs.bios_golden_init(dc);
+ 		hws->funcs.disable_vga(dc->hwseq);
+ 	}
++	// Initialize the dccg
++	if (res_pool->dccg->funcs->dccg_init)
++		res_pool->dccg->funcs->dccg_init(res_pool->dccg);
  
-+#include <linux/bug.h>
- #include <linux/sched/signal.h>
- #include <linux/module.h>
- #include <linux/splice.h>
-@@ -43,6 +44,14 @@
- #include <net/strparser.h>
- #include <net/tls.h>
- 
-+noinline void tls_err_abort(struct sock *sk, int err)
-+{
-+	WARN_ON_ONCE(err >= 0);
-+	/* sk->sk_err should contain a positive error code. */
-+	sk->sk_err = -err;
-+	sk->sk_error_report(sk);
-+}
-+
- static int __skb_nsg(struct sk_buff *skb, int offset, int len,
-                      unsigned int recursion_level)
- {
-@@ -419,7 +428,7 @@ int tls_tx_records(struct sock *sk, int
- 
- tx_err:
- 	if (rc < 0 && rc != -EAGAIN)
--		tls_err_abort(sk, EBADMSG);
-+		tls_err_abort(sk, -EBADMSG);
- 
- 	return rc;
- }
-@@ -764,7 +773,7 @@ static int tls_push_record(struct sock *
- 			       msg_pl->sg.size + prot->tail_size, i);
- 	if (rc < 0) {
- 		if (rc != -EINPROGRESS) {
--			tls_err_abort(sk, EBADMSG);
-+			tls_err_abort(sk, -EBADMSG);
- 			if (split) {
- 				tls_ctx->pending_open_record_frags = true;
- 				tls_merge_open_record(sk, rec, tmp, orig_end);
-@@ -1828,7 +1837,7 @@ int tls_sw_recvmsg(struct sock *sk,
- 		err = decrypt_skb_update(sk, skb, &msg->msg_iter,
- 					 &chunk, &zc, async_capable);
- 		if (err < 0 && err != -EINPROGRESS) {
--			tls_err_abort(sk, EBADMSG);
-+			tls_err_abort(sk, -EBADMSG);
- 			goto recv_end;
- 		}
- 
-@@ -2008,7 +2017,7 @@ ssize_t tls_sw_splice_read(struct socket
- 		}
- 
- 		if (err < 0) {
--			tls_err_abort(sk, EBADMSG);
-+			tls_err_abort(sk, -EBADMSG);
- 			goto splice_read_end;
- 		}
- 		ctx->decrypted = 1;
+ 	if (dc->debug.enable_mem_low_power.bits.dmcu) {
+ 		// Force ERAM to shutdown if DMCU is not enabled
 
 
