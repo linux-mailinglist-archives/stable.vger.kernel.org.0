@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E92D344183F
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:42:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99C29441874
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:45:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234456AbhKAJpX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:45:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47952 "EHLO mail.kernel.org"
+        id S234215AbhKAJru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:47:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233374AbhKAJmC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:42:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FC946137B;
-        Mon,  1 Nov 2021 09:28:27 +0000 (UTC)
+        id S232077AbhKAJpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:45:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4243A611C3;
+        Mon,  1 Nov 2021 09:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758907;
-        bh=wW80/Vpcnnf0eLBAveSmU1CMQyhH/7YD4/mSGJTtDGA=;
+        s=korg; t=1635759005;
+        bh=kx8NzaheoLqcK/H0E/xap/2zfJs2fmHAzd15T2mc0uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mX4jBnqYwWUA4cdbAfpqAXUiz94yESVPIMABhCwyYEsJMNo0URKbKC3Qs7/u1LTB5
-         C1l+P9n5Aj/im5AAeRPRwNUEQPTvIuWn7rspy8s3TiYIJcBYkGSvktN7GXK+zCeRzP
-         sM2LhAtEiT2zf8JLP9ZXwnboqVjso/c777sgY6Ts=
+        b=j3Fo6lvlKZKRqR5BIVMe1WD9+O/wndlepy9aOvT36R3/8v2HqIhernhZ6p1VRpR1/
+         oP6iB9O+61QQIp0upOLbFbvYv52Ehdza7BqGjUn17wAOXfStXe4Nmm2Snm4TJDXBj2
+         QwnQ2LIFAKkiYX7ab33UATYHCvuM+ZwKULmKHR+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Woojung.Huh@microchip.com" <Woojung.Huh@microchip.com>,
-        Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 031/125] net: lan78xx: fix division by zero in send path
-Date:   Mon,  1 Nov 2021 10:16:44 +0100
-Message-Id: <20211101082539.163816193@linuxfoundation.org>
+        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Agustin Gutierrez Sanchez <agustin.gutierrez@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.14 032/125] drm/amd/display: Require immediate flip support for DCN3.1 planes
+Date:   Mon,  1 Nov 2021 10:16:45 +0100
+Message-Id: <20211101082539.320907363@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -41,43 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-commit db6c3c064f5d55fa9969f33eafca3cdbefbb3541 upstream.
+commit 672437486ee9da3ed0e774937e6d0dd570921b39 upstream.
 
-Add the missing endpoint max-packet sanity check to probe() to avoid
-division by zero in lan78xx_tx_bh() in case a malicious device has
-broken descriptors (or when doing descriptor fuzz testing).
+[Why]
+Immediate flip can be enabled dynamically and has higher BW requirements
+when validating which voltage mode to use.
 
-Note that USB core will reject URBs submitted for endpoints with zero
-wMaxPacketSize but that drivers doing packet-size calculations still
-need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
-endpoint descriptors with maxpacket=0")).
+If we validate when it's not set then potentially DCFCLK will be too low
+and we will underflow.
 
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Cc: stable@vger.kernel.org      # 4.3
-Cc: Woojung.Huh@microchip.com <Woojung.Huh@microchip.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[How]
+DM always requires support so always require it as part of DML input
+parameters.
+
+This can't be enabled unconditionally on older ASIC because it blocks
+some expected modes so only target DCN3.1 for now.
+
+Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Acked-by: Agustin Gutierrez Sanchez <agustin.gutierrez@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/lan78xx.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -3734,6 +3734,12 @@ static int lan78xx_probe(struct usb_inte
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
+@@ -1591,6 +1591,13 @@ static int dcn31_populate_dml_pipes_from
+ 		pipe = &res_ctx->pipe_ctx[i];
+ 		timing = &pipe->stream->timing;
  
- 	dev->maxpacket = usb_maxpacket(dev->udev, dev->pipe_out, 1);
- 
-+	/* Reject broken descriptors. */
-+	if (dev->maxpacket == 0) {
-+		ret = -ENODEV;
-+		goto out4;
-+	}
++		/*
++		 * Immediate flip can be set dynamically after enabling the plane.
++		 * We need to require support for immediate flip or underflow can be
++		 * intermittently experienced depending on peak b/w requirements.
++		 */
++		pipes[pipe_cnt].pipe.src.immediate_flip = true;
 +
- 	/* driver requires remote-wakeup capability during autosuspend. */
- 	intf->needs_remote_wakeup = 1;
- 
+ 		pipes[pipe_cnt].pipe.src.unbounded_req_mode = false;
+ 		pipes[pipe_cnt].pipe.src.gpuvm = true;
+ 		pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_luma = 0;
 
 
