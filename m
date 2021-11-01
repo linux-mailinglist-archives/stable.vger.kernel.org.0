@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B713C44186A
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:45:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D56B44168F
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:24:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233669AbhKAJra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:47:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51446 "EHLO mail.kernel.org"
+        id S232514AbhKAJ0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:26:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233361AbhKAJpW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:45:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 945FF61245;
-        Mon,  1 Nov 2021 09:30:14 +0000 (UTC)
+        id S232752AbhKAJYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:24:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5957261154;
+        Mon,  1 Nov 2021 09:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759015;
-        bh=H1Q+Mto469tI1JfCZfuNRc2lo8Cufo1dE2p6fPJNXao=;
+        s=korg; t=1635758489;
+        bh=WMv329dLJ1ZlxO+LN/bFjEC92A9Aqdkc0L0fRQbiXM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0huupRXu9znsF5mefqbT1F4G+weGcfnIyvVVMz13E4dEl4EdpgZzM+9Ff3Ll6nVTw
-         XN2AuYzBRhvb28343V3+DI8Ao/jdQaN5RUPCm3LjmAcfkTEE0GpNBYsXVVjSbUkHLt
-         6eRobysvY7FiRRVhTaoKPtGhf4y51Dl78Yn9v3IE=
+        b=AKuAFWxvL/5LKVuVArkCrc80LCX8LA/6jhgKJuu+wbVu3Wr2IyuseJU5iYfGW1Luh
+         uyhF+Aj8e5RTUhH0ywoiHy01gUnefrH7AXkTK9YnuejtNCZqEr3eRwFvXFeFFZ0ogJ
+         DFbAQ+F69Lj87sl7C0hgjl0g/pZPKgYk0wGtBWDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Gospodarek <gospo@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 079/125] net: Prevent infinite while loop in skb_tx_hash()
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 20/35] mmc: sdhci-esdhc-imx: clear the buffer_read_ready to reset standard tuning circuit
 Date:   Mon,  1 Nov 2021 10:17:32 +0100
-Message-Id: <20211101082548.180723456@linuxfoundation.org>
+Message-Id: <20211101082456.370421249@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
+References: <20211101082451.430720900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-commit 0c57eeecc559ca6bc18b8c4e2808bc78dbe769b0 upstream.
+commit 9af372dc70e9fdcbb70939dac75365e7b88580b4 upstream.
 
-Drivers call netdev_set_num_tc() and then netdev_set_tc_queue()
-to set the queue count and offset for each TC.  So the queue count
-and offset for the TCs may be zero for a short period after dev->num_tc
-has been set.  If a TX packet is being transmitted at this time in the
-code path netdev_pick_tx() -> skb_tx_hash(), skb_tx_hash() may see
-nonzero dev->num_tc but zero qcount for the TC.  The while loop that
-keeps looping while hash >= qcount will not end.
+To reset standard tuning circuit completely, after clear ESDHC_MIX_CTRL_EXE_TUNE,
+also need to clear bit buffer_read_ready, this operation will finally clear the
+USDHC IP internal logic flag execute_tuning_with_clr_buf, make sure the following
+normal data transfer will not be impacted by standard tuning logic used before.
 
-Fix it by checking the TC's qcount to be nonzero before using it.
+Find this issue when do quick SD card insert/remove stress test. During standard
+tuning prodedure, if remove SD card, USDHC standard tuning logic can't clear the
+internal flag execute_tuning_with_clr_buf. Next time when insert SD card, all
+data related commands can't get any data related interrupts, include data transfer
+complete interrupt, data timeout interrupt, data CRC interrupt, data end bit interrupt.
+Always trigger software timeout issue. Even reset the USDHC through bits in register
+SYS_CTRL (0x2C, bit28 reset tuning, bit26 reset data, bit 25 reset command, bit 24
+reset all) can't recover this. From the user's point of view, USDHC stuck, SD can't
+be recognized any more.
 
-Fixes: eadec877ce9c ("net: Add support for subordinate traffic classes to netdev_pick_tx")
-Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d9370424c948 ("mmc: sdhci-esdhc-imx: reset tuning circuit when power on mmc card")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1634263236-6111-1-git-send-email-haibo.chen@nxp.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/mmc/host/sdhci-esdhc-imx.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -3246,6 +3246,12 @@ static u16 skb_tx_hash(const struct net_
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -947,6 +947,7 @@ static void esdhc_reset_tuning(struct sd
+ 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+ 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
+ 	u32 ctrl;
++	int ret;
  
- 		qoffset = sb_dev->tc_to_txq[tc].offset;
- 		qcount = sb_dev->tc_to_txq[tc].count;
-+		if (unlikely(!qcount)) {
-+			net_warn_ratelimited("%s: invalid qcount, qoffset %u for tc %u\n",
-+					     sb_dev->name, qoffset, tc);
-+			qoffset = 0;
-+			qcount = dev->real_num_tx_queues;
-+		}
+ 	/* Reset the tuning circuit */
+ 	if (esdhc_is_usdhc(imx_data)) {
+@@ -959,7 +960,22 @@ static void esdhc_reset_tuning(struct sd
+ 		} else if (imx_data->socdata->flags & ESDHC_FLAG_STD_TUNING) {
+ 			ctrl = readl(host->ioaddr + SDHCI_AUTO_CMD_STATUS);
+ 			ctrl &= ~ESDHC_MIX_CTRL_SMPCLK_SEL;
++			ctrl &= ~ESDHC_MIX_CTRL_EXE_TUNE;
+ 			writel(ctrl, host->ioaddr + SDHCI_AUTO_CMD_STATUS);
++			/* Make sure ESDHC_MIX_CTRL_EXE_TUNE cleared */
++			ret = readl_poll_timeout(host->ioaddr + SDHCI_AUTO_CMD_STATUS,
++				ctrl, !(ctrl & ESDHC_MIX_CTRL_EXE_TUNE), 1, 50);
++			if (ret == -ETIMEDOUT)
++				dev_warn(mmc_dev(host->mmc),
++				 "Warning! clear execute tuning bit failed\n");
++			/*
++			 * SDHCI_INT_DATA_AVAIL is W1C bit, set this bit will clear the
++			 * usdhc IP internal logic flag execute_tuning_with_clr_buf, which
++			 * will finally make sure the normal data transfer logic correct.
++			 */
++			ctrl = readl(host->ioaddr + SDHCI_INT_STATUS);
++			ctrl |= SDHCI_INT_DATA_AVAIL;
++			writel(ctrl, host->ioaddr + SDHCI_INT_STATUS);
+ 		}
  	}
- 
- 	if (skb_rx_queue_recorded(skb)) {
+ }
 
 
