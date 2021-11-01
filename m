@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4244E4416C9
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B249441737
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:32:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232888AbhKAJ3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:29:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59152 "EHLO mail.kernel.org"
+        id S232707AbhKAJeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:34:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232269AbhKAJ05 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:26:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D68E4610CC;
-        Mon,  1 Nov 2021 09:22:27 +0000 (UTC)
+        id S232195AbhKAJc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:32:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94DD16124B;
+        Mon,  1 Nov 2021 09:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758548;
-        bh=Zu5p4uxDIl5m/X9HW0eQ9FLRaaTlxFkMRAKD9IvQLKw=;
+        s=korg; t=1635758691;
+        bh=ZltUTM7NNq6M5cerwRUanpI8RSxC6Lz/KQEmzs7pizc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqAHIvEuIJzL4qcVuu9md7obwFrk8lWF7D60SniZ28IrTPN4zsItW+TntkWa4rmYx
-         4Y4hD/t8Hk/w0QgBBcsUzlEDZ9bkmVMQnCMyNW6DyFziWKJvzupN1gq7gqm58Tsp89
-         AeGed5BleM4BtzFH6sOzomYWuKXARqETG7GnRsM0=
+        b=ZPBQGdypjmumT4TqsDPID/9yWZZVDAvYf/4xmaS2jJQYuMjzNf3RTvkFwFjfDZCYh
+         KEguwL8woUsb+JXWd3Rkvm5N6+6dRlcUpi1vqmtoazllPQK6JRxmQm0Ry7rES5cyNJ
+         rtzbrOSNdVj8bhuYA99UhgHxCMwgwBeIhIxJ9KE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Richard Henderson <richard.henderson@linaro.org>
-Subject: [PATCH 5.4 01/51] ARM: 9133/1: mm: proc-macros: ensure *_tlb_fns are 4B aligned
-Date:   Mon,  1 Nov 2021 10:17:05 +0100
-Message-Id: <20211101082500.557292681@linuxfoundation.org>
+        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@windriver.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 18/77] Revert "net: mdiobus: Fix memory leak in __mdiobus_register"
+Date:   Mon,  1 Nov 2021 10:17:06 +0100
+Message-Id: <20211101082515.694596487@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,41 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit e6a0c958bdf9b2e1b57501fc9433a461f0a6aadd upstream.
+commit 10eff1f5788b6ffac212c254e2f3666219576889 upstream.
 
-A kernel built with CONFIG_THUMB2_KERNEL=y and using clang as the
-assembler could generate non-naturally-aligned v7wbi_tlb_fns which
-results in a boot failure. The original commit adding the macro missed
-the .align directive on this data.
+This reverts commit ab609f25d19858513919369ff3d9a63c02cd9e2e.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1447
-Link: https://lore.kernel.org/all/0699da7b-354f-aecc-a62f-e25693209af4@linaro.org/
-Debugged-by: Ard Biesheuvel <ardb@kernel.org>
-Debugged-by: Nathan Chancellor <nathan@kernel.org>
-Debugged-by: Richard Henderson <richard.henderson@linaro.org>
+This patch is correct in the sense that we _should_ call device_put() in
+case of device_register() failure, but the problem in this code is more
+vast.
 
-Fixes: 66a625a88174 ("ARM: mm: proc-macros: Add generic proc/cache/tlb struct definition macros")
-Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+We need to set bus->state to UNMDIOBUS_REGISTERED before calling
+device_register() to correctly release the device in mdiobus_free().
+This patch prevents us from doing it, since in case of device_register()
+failure put_device() will be called 2 times and it will cause UAF or
+something else.
+
+Also, Reported-by: tag in revered commit was wrong, since syzbot
+reported different leak in same function.
+
+Link: https://lore.kernel.org/netdev/20210928092657.GI2048@kadam/
+Acked-by: Yanfei Xu <yanfei.xu@windriver.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/f12fb1faa4eccf0f355788225335eb4309ff2599.1633024062.git.paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/proc-macros.S |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/mdio_bus.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/arm/mm/proc-macros.S
-+++ b/arch/arm/mm/proc-macros.S
-@@ -342,6 +342,7 @@ ENTRY(\name\()_cache_fns)
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -544,7 +544,6 @@ int __mdiobus_register(struct mii_bus *b
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
+-		put_device(&bus->dev);
+ 		return -EINVAL;
+ 	}
  
- .macro define_tlb_functions name:req, flags_up:req, flags_smp
- 	.type	\name\()_tlb_fns, #object
-+	.align 2
- ENTRY(\name\()_tlb_fns)
- 	.long	\name\()_flush_user_tlb_range
- 	.long	\name\()_flush_kern_tlb_range
 
 
