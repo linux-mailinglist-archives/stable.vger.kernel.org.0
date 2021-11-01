@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 673D4441705
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:30:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 083274416AC
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232489AbhKAJcM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:32:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37002 "EHLO mail.kernel.org"
+        id S232631AbhKAJ2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:28:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232576AbhKAJaM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:30:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A65F61241;
-        Mon,  1 Nov 2021 09:23:30 +0000 (UTC)
+        id S232592AbhKAJ0J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:26:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA666610A2;
+        Mon,  1 Nov 2021 09:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758611;
-        bh=rtBb16qTJiv5gNdsYKgMkRKXzDKne/y0Mqu9GsrGfG4=;
+        s=korg; t=1635758513;
+        bh=LRqtuinLVB5HxppHt0sZ9/88DgCxETnT5p4/lOoGQAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OrCN6Bw2oe19woXwlBOj6wx84rnx5xOUYx6j+iGlTMKBt/7iDeWif0VFZQoDh/dNc
-         OKo8i2Xx44kccU/iyrLfs+tC6V01aXPl1x+9wOblD1lQrobVUceNLbAEfgzKX7PJFh
-         1PqeEjoDELwNZkC3N2aU7R0yu5xMqglDclSMJ494=
+        b=2rO83s80mGGd+cyPwjms3nBFjSSrr2cIwU9kLdWRs2fByoK8wUJkQswl8BtRExQQx
+         RfXJWPZP/E9fB8QkkrOuMi9UswOpSqekIhyKJGeVEu3/sedo8qNCeRg9mtipD+mDe6
+         rOzdnXPLNC/SCF5aiBZJkSYibDvBfWEpCx+Wep1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Yuiko Oshino <yuiko.oshino@microchip.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 36/51] net: ethernet: microchip: lan743x: Fix dma allocation failure by using dma_set_mask_and_coherent
-Date:   Mon,  1 Nov 2021 10:17:40 +0100
-Message-Id: <20211101082509.186716549@linuxfoundation.org>
+Subject: [PATCH 4.19 29/35] net: ethernet: microchip: lan743x: Fix dma allocation failure by using dma_set_mask_and_coherent
+Date:   Mon,  1 Nov 2021 10:17:41 +0100
+Message-Id: <20211101082458.523777398@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
+References: <20211101082451.430720900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,7 +58,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/microchip/lan743x_main.c
 +++ b/drivers/net/ethernet/microchip/lan743x_main.c
-@@ -1706,6 +1706,16 @@ static int lan743x_tx_ring_init(struct l
+@@ -1710,6 +1710,16 @@ static int lan743x_tx_ring_init(struct l
  		ret = -EINVAL;
  		goto cleanup;
  	}
@@ -75,7 +75,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	ring_allocation_size = ALIGN(tx->ring_size *
  				     sizeof(struct lan743x_tx_descriptor),
  				     PAGE_SIZE);
-@@ -2256,6 +2266,16 @@ static int lan743x_rx_ring_init(struct l
+@@ -2258,6 +2268,16 @@ static int lan743x_rx_ring_init(struct l
  		ret = -EINVAL;
  		goto cleanup;
  	}
