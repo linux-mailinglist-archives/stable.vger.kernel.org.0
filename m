@@ -2,157 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75169441FFE
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 19:24:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB679441FFF
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 19:24:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231916AbhKAS0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 14:26:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45288 "EHLO mail.kernel.org"
+        id S231980AbhKAS0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 14:26:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231367AbhKAS0o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 14:26:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9436D60F58;
-        Mon,  1 Nov 2021 18:24:10 +0000 (UTC)
+        id S231931AbhKAS0w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 14:26:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2FDE61053;
+        Mon,  1 Nov 2021 18:24:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1635791050;
-        bh=qR/Ck49/aCmeA6D7o94dLU8x2pRRJnB+lCO1ql3TgwU=;
+        s=korg; t=1635791059;
+        bh=pgOM6ip9i+1BDc7txOQUfkl/U30tN3lpbxIYdy0PU2Q=;
         h=Date:From:To:Subject:From;
-        b=kazZfk1+zfVzuyq3QpLX1OivGNbMyWbW5hU3zzZPMLk9APbsg2xR2SiCStn7YR/0R
-         WgWdXh3nu4lv7xiPqw4M1FWYn/r3as447Kn4TCzsjuq0RNsuoI8bWc5o4HzNVTsUwE
-         VSuHv0wfY8YYEqw30O+E1TC1dvDsIbdKAtbtatHA=
-Date:   Mon, 01 Nov 2021 11:24:10 -0700
+        b=q2IxLjDkRYb7ITZFneKBArWo/k8c3YBFCZm29DxXROR7M0P4ZlwtjaihvBoOdp5JX
+         Iss0xKsVzJjUevuf33U/n2YdfkVDYs2loDwJjoeZ2/QXrlPe6q2bcZWJWeUXzNF+jR
+         QgtxOqy9RLGpNg0q+P05H2E1hikgSrUct+phbS4w=
+Date:   Mon, 01 Nov 2021 11:24:18 -0700
 From:   akpm@linux-foundation.org
-To:     gautham.ananthakrishna@oracle.com, gechangwei@live.cn,
-        ghe@suse.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
-        junxiao.bi@oracle.com, mark@fasheh.com, mm-commits@vger.kernel.org,
-        piaojun@huawei.com, rajesh.sivaramasubramaniom@oracle.com,
-        stable@vger.kernel.org
+To:     hughd@google.com, kirill.shutemov@linux.intel.com,
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        rongwei.wang@linux.alibaba.com, shy828301@gmail.com,
+        song@kernel.org, stable@vger.kernel.org,
+        william.kucharski@oracle.com, willy@infradead.org,
+        xuyu@linux.alibaba.com
 Subject:  [merged]
- =?US-ASCII?Q?ocfs2-race-between-searching-chunks-and-release-journal?=
- =?US-ASCII?Q?=5Fhead-from-buffer=5Fhead.patch?= removed from -mm tree
-Message-ID: <20211101182410.C9pqilDNk%akpm@linux-foundation.org>
+ mm-thp-bail-out-early-in-collapse_file-for-writeback-page.patch removed
+ from -mm tree
+Message-ID: <20211101182418.pODetXxAv%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: ocfs2: fix race between searching chunks and release journal_head from buffer_head
+     Subject: mm, thp: bail out early in collapse_file for writeback page
 has been removed from the -mm tree.  Its filename was
-     ocfs2-race-between-searching-chunks-and-release-journal_head-from-buffer_head.patch
+     mm-thp-bail-out-early-in-collapse_file-for-writeback-page.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>
-Subject: ocfs2: fix race between searching chunks and release journal_head from buffer_head
+From: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+Subject: mm, thp: bail out early in collapse_file for writeback page
 
-Encountered a race between ocfs2_test_bg_bit_allocatable() and
-jbd2_journal_put_journal_head() resulting in the below vmcore.
+Currently collapse_file does not explicitly check PG_writeback, instead,
+page_has_private and try_to_release_page are used to filter writeback
+pages.  This does not work for xfs with blocksize equal to or larger than
+pagesize, because in such case xfs has no page->private.
 
-PID: 106879  TASK: ffff880244ba9c00  CPU: 2   COMMAND: "loop3"
- 0 [ffff8802435ff1c0] panic at ffffffff816ed175
- 1 [ffff8802435ff240] oops_end at ffffffff8101a7c9
- 2 [ffff8802435ff270] no_context at ffffffff8106eccf
- 3 [ffff8802435ff2e0] __bad_area_nosemaphore at ffffffff8106ef9d
- 4 [ffff8802435ff330] bad_area_nosemaphore at ffffffff8106f143
- 5 [ffff8802435ff340] __do_page_fault at ffffffff8106f80b
- 6 [ffff8802435ff3a0] do_page_fault at ffffffff8106fc2f
- 7 [ffff8802435ff3e0] page_fault at ffffffff816fd667
-    [exception RIP: ocfs2_block_group_find_clear_bits+316]
-    RIP: ffffffffc11ef6fc  RSP: ffff8802435ff498  RFLAGS: 00010206
-    RAX: 0000000000003918  RBX: 0000000000000001  RCX: 0000000000000018
-    RDX: 0000000000003918  RSI: 0000000000000000  RDI: ffff880060194040
-    RBP: ffff8802435ff4f8   R8: ffffffffff000000   R9: ffffffffffffffff
-    R10: ffff8802435ff730  R11: ffff8802a94e5800  R12: 0000000000000007
-    R13: 0000000000007e00  R14: 0000000000003918  R15: ffff88017c973a28
-    ORIG_RAX: ffffffffffffffff  CS: e030  SS: e02b
- 8 [ffff8802435ff490] ocfs2_block_group_find_clear_bits at ffffffffc11ef680 [ocfs2]
- 9 [ffff8802435ff500] ocfs2_cluster_group_search at ffffffffc11ef916 [ocfs2]
-10 [ffff8802435ff580] ocfs2_search_chain at ffffffffc11f0fb6 [ocfs2]
-11 [ffff8802435ff660] ocfs2_claim_suballoc_bits at ffffffffc11f1b1b [ocfs2]
-12 [ffff8802435ff6f0] __ocfs2_claim_clusters at ffffffffc11f32cb [ocfs2]
-13 [ffff8802435ff770] ocfs2_claim_clusters at ffffffffc11f5caf [ocfs2]
-14 [ffff8802435ff780] ocfs2_local_alloc_slide_window at ffffffffc11cc0db [ocfs2]
-15 [ffff8802435ff820] ocfs2_reserve_local_alloc_bits at ffffffffc11ce53f [ocfs2]
-16 [ffff8802435ff890] ocfs2_reserve_clusters_with_limit at ffffffffc11f59b5 [ocfs2]
-17 [ffff8802435ff8e0] ocfs2_reserve_clusters at ffffffffc11f5c88 [ocfs2]
-18 [ffff8802435ff8f0] ocfs2_lock_refcount_allocators at ffffffffc11dc169 [ocfs2]
-19 [ffff8802435ff960] ocfs2_make_clusters_writable at ffffffffc11e4274 [ocfs2]
-20 [ffff8802435ffa50] ocfs2_replace_cow at ffffffffc11e4df1 [ocfs2]
-21 [ffff8802435ffac0] ocfs2_refcount_cow at ffffffffc11e54b1 [ocfs2]
-22 [ffff8802435ffb80] ocfs2_file_write_iter at ffffffffc11bf8f4 [ocfs2]
-23 [ffff8802435ffcd0] lo_rw_aio at ffffffff814a1b5d
-24 [ffff8802435ffd80] loop_queue_work at ffffffff814a2802
-25 [ffff8802435ffe60] kthread_worker_fn at ffffffff810a80d2
-26 [ffff8802435ffec0] kthread at ffffffff810a7afb
-27 [ffff8802435fff50] ret_from_fork at ffffffff816f7da1
+This makes collapse_file bail out early for writeback page.  Otherwise,
+xfs end_page_writeback will panic as follows.
 
-When ocfs2_test_bg_bit_allocatable() called bh2jh(bg_bh), the
-bg_bh->b_private NULL as jbd2_journal_put_journal_head() raced and
-released the jounal head from the buffer head.  Needed to take bit lock
-for the bit 'BH_JournalHead' to fix this race.
+page:fffffe00201bcc80 refcount:0 mapcount:0 mapping:ffff0003f88c86a8 index:0x0 pfn:0x84ef32
+aops:xfs_address_space_operations [xfs] ino:30000b7 dentry name:"libtest.so"
+flags: 0x57fffe0000008027(locked|referenced|uptodate|active|writeback)
+raw: 57fffe0000008027 ffff80001b48bc28 ffff80001b48bc28 ffff0003f88c86a8
+raw: 0000000000000000 0000000000000000 00000000ffffffff ffff0000c3e9a000
+page dumped because: VM_BUG_ON_PAGE(((unsigned int) page_ref_count(page) + 127u <= 127u))
+page->mem_cgroup:ffff0000c3e9a000
+------------[ cut here ]------------
+kernel BUG at include/linux/mm.h:1212!
+Internal error: Oops - BUG: 0 [#1] SMP
+Modules linked in:
+BUG: Bad page state in process khugepaged  pfn:84ef32
+ xfs(E)
+page:fffffe00201bcc80 refcount:0 mapcount:0 mapping:0 index:0x0 pfn:0x84ef32
+ libcrc32c(E) rfkill(E) aes_ce_blk(E) crypto_simd(E) ...
+CPU: 25 PID: 0 Comm: swapper/25 Kdump: loaded Tainted: ...
+pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+pc : end_page_writeback+0x1c0/0x214
+lr : end_page_writeback+0x1c0/0x214
+sp : ffff800011ce3cc0
+x29: ffff800011ce3cc0 x28: 0000000000000000
+x27: ffff000c04608040 x26: 0000000000000000
+x25: ffff000c04608040 x24: 0000000000001000
+x23: ffff0003f88c8530 x22: 0000000000001000
+x21: ffff0003f88c8530 x20: 0000000000000000
+x19: fffffe00201bcc80 x18: 0000000000000030
+x17: 0000000000000000 x16: 0000000000000000
+x15: ffff000c018f9760 x14: ffffffffffffffff
+x13: ffff8000119d72b0 x12: ffff8000119d6ee3
+x11: ffff8000117b69b8 x10: 00000000ffff8000
+x9 : ffff800010617534 x8 : 0000000000000000
+x7 : ffff8000114f69b8 x6 : 000000000000000f
+x5 : 0000000000000000 x4 : 0000000000000000
+x3 : 0000000000000400 x2 : 0000000000000000
+x1 : 0000000000000000 x0 : 0000000000000000
+Call trace:
+ end_page_writeback+0x1c0/0x214
+ iomap_finish_page_writeback+0x13c/0x204
+ iomap_finish_ioend+0xe8/0x19c
+ iomap_writepage_end_bio+0x38/0x50
+ bio_endio+0x168/0x1ec
+ blk_update_request+0x278/0x3f0
+ blk_mq_end_request+0x34/0x15c
+ virtblk_request_done+0x38/0x74 [virtio_blk]
+ blk_done_softirq+0xc4/0x110
+ __do_softirq+0x128/0x38c
+ __irq_exit_rcu+0x118/0x150
+ irq_exit+0x1c/0x30
+ __handle_domain_irq+0x8c/0xf0
+ gic_handle_irq+0x84/0x108
+ el1_irq+0xcc/0x180
+ arch_cpu_idle+0x18/0x40
+ default_idle_call+0x4c/0x1a0
+ cpuidle_idle_call+0x168/0x1e0
+ do_idle+0xb4/0x104
+ cpu_startup_entry+0x30/0x9c
+ secondary_start_kernel+0x104/0x180
+Code: d4210000 b0006161 910c8021 94013f4d (d4210000)
+---[ end trace 4a88c6a074082f8c ]---
+Kernel panic - not syncing: Oops - BUG: Fatal exception in interrupt
 
-Link: https://lkml.kernel.org/r/1634820718-6043-1-git-send-email-gautham.ananthakrishna@oracle.com
-Signed-off-by: Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: <rajesh.sivaramasubramaniom@oracle.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+Link: https://lkml.kernel.org/r/20211022023052.33114-1-rongwei.wang@linux.alibaba.com
+Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
+Signed-off-by: Rongwei Wang <rongwei.wang@linux.alibaba.com>
+Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
+Suggested-by: Yang Shi <shy828301@gmail.com>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Song Liu <song@kernel.org>
+Cc: William Kucharski <william.kucharski@oracle.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/ocfs2/suballoc.c |   22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ mm/khugepaged.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/fs/ocfs2/suballoc.c~ocfs2-race-between-searching-chunks-and-release-journal_head-from-buffer_head
-+++ a/fs/ocfs2/suballoc.c
-@@ -1251,7 +1251,7 @@ static int ocfs2_test_bg_bit_allocatable
- {
- 	struct ocfs2_group_desc *bg = (struct ocfs2_group_desc *) bg_bh->b_data;
- 	struct journal_head *jh;
--	int ret;
-+	int ret = 1;
+--- a/mm/khugepaged.c~mm-thp-bail-out-early-in-collapse_file-for-writeback-page
++++ a/mm/khugepaged.c
+@@ -1763,6 +1763,10 @@ static void collapse_file(struct mm_stru
+ 				filemap_flush(mapping);
+ 				result = SCAN_FAIL;
+ 				goto xa_unlocked;
++			} else if (PageWriteback(page)) {
++				xas_unlock_irq(&xas);
++				result = SCAN_FAIL;
++				goto xa_unlocked;
+ 			} else if (trylock_page(page)) {
+ 				get_page(page);
+ 				xas_unlock_irq(&xas);
+@@ -1798,7 +1802,8 @@ static void collapse_file(struct mm_stru
+ 			goto out_unlock;
+ 		}
  
- 	if (ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap))
- 		return 0;
-@@ -1259,14 +1259,18 @@ static int ocfs2_test_bg_bit_allocatable
- 	if (!buffer_jbd(bg_bh))
- 		return 1;
- 
--	jh = bh2jh(bg_bh);
--	spin_lock(&jh->b_state_lock);
--	bg = (struct ocfs2_group_desc *) jh->b_committed_data;
--	if (bg)
--		ret = !ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap);
--	else
--		ret = 1;
--	spin_unlock(&jh->b_state_lock);
-+	jbd_lock_bh_journal_head(bg_bh);
-+	if (buffer_jbd(bg_bh)) {
-+		jh = bh2jh(bg_bh);
-+		spin_lock(&jh->b_state_lock);
-+		bg = (struct ocfs2_group_desc *) jh->b_committed_data;
-+		if (bg)
-+			ret = !ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap);
-+		else
-+			ret = 1;
-+		spin_unlock(&jh->b_state_lock);
-+	}
-+	jbd_unlock_bh_journal_head(bg_bh);
- 
- 	return ret;
- }
+-		if (!is_shmem && PageDirty(page)) {
++		if (!is_shmem && (PageDirty(page) ||
++				  PageWriteback(page))) {
+ 			/*
+ 			 * khugepaged only works on read-only fd, so this
+ 			 * page is dirty because it hasn't been flushed
 _
 
-Patches currently in -mm which might be from gautham.ananthakrishna@oracle.com are
+Patches currently in -mm which might be from rongwei.wang@linux.alibaba.com are
 
+mm-thp-lock-filemap-when-truncating-page-cache.patch
+mm-thp-fix-incorrect-unmap-behavior-for-private-pages.patch
+mm-damon-dbgfs-remove-unnecessary-variables.patch
 
