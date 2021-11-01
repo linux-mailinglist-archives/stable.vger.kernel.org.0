@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D64CB4417D9
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E430D44172E
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:32:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233805AbhKAJkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:40:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43648 "EHLO mail.kernel.org"
+        id S232445AbhKAJeV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:34:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233708AbhKAJhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:37:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5ED0061357;
-        Mon,  1 Nov 2021 09:26:56 +0000 (UTC)
+        id S232503AbhKAJcM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:32:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE603611C6;
+        Mon,  1 Nov 2021 09:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758816;
-        bh=se536qyWgd+Saudg8JzNo5S9uEwyH7QnCMCSpXHPrBI=;
+        s=korg; t=1635758658;
+        bh=RfOAoIZHXPDWdVQfY1GGeh1/fhH4XB/qu00zO9Txl/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nYP4gxmM6ef4wA5V8po0UEo265Hw4dQ7grLECdA8nhU0EAXO4n1O103t9YR1siq8u
-         XhGGiJOWfjZtOraoJIwmxl30I+b6zno1S9GnWFx9Mz0xjnG/e5LLh4UQ6ygtDiCvDW
-         JMqALk0tgULaRmTElTj2APpI7xx8ZhqMJxl/qKwA=
+        b=h8W+eV2PEfh9Zm1GHLh8DgEPUHFpU+jEMY88e+E/HuqB46xKZtQFiET3TVCxwspdW
+         i0LJLq7cy2Itvtr5jC33Jvl2S5czdCV1DNUNgmhkAjf9F5BdF44noEmtXa+g6m55gc
+         JBh5/fyWJYt7ltqQAykDQBs6ZJVs05ky4xApvapg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.10 39/77] IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>
+Subject: [PATCH 5.4 23/51] tcp_bpf: Fix one concurrency problem in the tcp_bpf_send_verdict function
 Date:   Mon,  1 Nov 2021 10:17:27 +0100
-Message-Id: <20211101082520.103837486@linuxfoundation.org>
+Message-Id: <20211101082505.874854191@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,115 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Liu Jian <liujian56@huawei.com>
 
-commit d39bf40e55e666b5905fdbd46a0dced030ce87be upstream.
+commit cd9733f5d75c94a32544d6ce5be47e14194cf137 upstream.
 
-Overflowing either addrlimit or bytes_togo can allow userspace to trigger
-a buffer overflow of kernel memory. Check for overflows in all the places
-doing math on user controlled buffers.
+With two Msgs, msgA and msgB and a user doing nonblocking sendmsg calls (or
+multiple cores) on a single socket 'sk' we could get the following flow.
 
-Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
-Link: https://lore.kernel.org/r/20211012175519.7298.77738.stgit@awfm-01.cornelisnetworks.com
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+ msgA, sk                               msgB, sk
+ -----------                            ---------------
+ tcp_bpf_sendmsg()
+ lock(sk)
+ psock = sk->psock
+                                        tcp_bpf_sendmsg()
+                                        lock(sk) ... blocking
+tcp_bpf_send_verdict
+if (psock->eval == NONE)
+   psock->eval = sk_psock_msg_verdict
+ ..
+ < handle SK_REDIRECT case >
+   release_sock(sk)                     < lock dropped so grab here >
+   ret = tcp_bpf_sendmsg_redir
+                                        psock = sk->psock
+                                        tcp_bpf_send_verdict
+ lock_sock(sk) ... blocking on B
+                                        if (psock->eval == NONE) <- boom.
+                                         psock->eval will have msgA state
+
+The problem here is we dropped the lock on msgA and grabbed it with msgB.
+Now we have old state in psock and importantly psock->eval has not been
+cleared. So msgB will run whatever action was done on A and the verdict
+program may never see it.
+
+Fixes: 604326b41a6fb ("bpf, sockmap: convert to generic sk_msg interface")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20211012052019.184398-1-liujian56@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/qib/qib_user_sdma.c |   33 ++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+ net/ipv4/tcp_bpf.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/infiniband/hw/qib/qib_user_sdma.c
-+++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
-@@ -602,7 +602,7 @@ done:
- /*
-  * How many pages in this iovec element?
-  */
--static int qib_user_sdma_num_pages(const struct iovec *iov)
-+static size_t qib_user_sdma_num_pages(const struct iovec *iov)
- {
- 	const unsigned long addr  = (unsigned long) iov->iov_base;
- 	const unsigned long  len  = iov->iov_len;
-@@ -658,7 +658,7 @@ static void qib_user_sdma_free_pkt_frag(
- static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
- 				   struct qib_user_sdma_queue *pq,
- 				   struct qib_user_sdma_pkt *pkt,
--				   unsigned long addr, int tlen, int npages)
-+				   unsigned long addr, int tlen, size_t npages)
- {
- 	struct page *pages[8];
- 	int i, j;
-@@ -722,7 +722,7 @@ static int qib_user_sdma_pin_pkt(const s
- 	unsigned long idx;
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -313,6 +313,7 @@ static int tcp_bpf_send_verdict(struct s
+ 	bool cork = false, enospc = sk_msg_full(msg);
+ 	struct sock *sk_redir;
+ 	u32 tosend, delta = 0;
++	u32 eval = __SK_NONE;
+ 	int ret;
  
- 	for (idx = 0; idx < niov; idx++) {
--		const int npages = qib_user_sdma_num_pages(iov + idx);
-+		const size_t npages = qib_user_sdma_num_pages(iov + idx);
- 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
- 
- 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
-@@ -824,8 +824,8 @@ static int qib_user_sdma_queue_pkts(cons
- 		unsigned pktnw;
- 		unsigned pktnwc;
- 		int nfrags = 0;
--		int npages = 0;
--		int bytes_togo = 0;
-+		size_t npages = 0;
-+		size_t bytes_togo = 0;
- 		int tiddma = 0;
- 		int cfur;
- 
-@@ -885,7 +885,11 @@ static int qib_user_sdma_queue_pkts(cons
- 
- 			npages += qib_user_sdma_num_pages(&iov[idx]);
- 
--			bytes_togo += slen;
-+			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
-+			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
- 			pktnwc += slen >> 2;
- 			idx++;
- 			nfrags++;
-@@ -904,8 +908,7 @@ static int qib_user_sdma_queue_pkts(cons
+ more_data:
+@@ -356,13 +357,24 @@ more_data:
+ 	case __SK_REDIRECT:
+ 		sk_redir = psock->sk_redir;
+ 		sk_msg_apply_bytes(psock, tosend);
++		if (!psock->apply_bytes) {
++			/* Clean up before releasing the sock lock. */
++			eval = psock->eval;
++			psock->eval = __SK_NONE;
++			psock->sk_redir = NULL;
++		}
+ 		if (psock->cork) {
+ 			cork = true;
+ 			psock->cork = NULL;
  		}
- 
- 		if (frag_size) {
--			int tidsmsize, n;
--			size_t pktsize;
-+			size_t tidsmsize, n, pktsize, sz, addrlimit;
- 
- 			n = npages*((2*PAGE_SIZE/frag_size)+1);
- 			pktsize = struct_size(pkt, addr, n);
-@@ -923,14 +926,24 @@ static int qib_user_sdma_queue_pkts(cons
- 			else
- 				tidsmsize = 0;
- 
--			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
-+			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt = kmalloc(sz, GFP_KERNEL);
- 			if (!pkt) {
- 				ret = -ENOMEM;
- 				goto free_pbc;
- 			}
- 			pkt->largepkt = 1;
- 			pkt->frag_size = frag_size;
--			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
-+			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
-+					       &addrlimit) ||
-+			    addrlimit > type_max(typeof(pkt->addrlimit))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt->addrlimit = addrlimit;
- 
- 			if (tiddma) {
- 				char *tidsm = (char *)pkt + pktsize;
+ 		sk_msg_return(sk, msg, tosend);
+ 		release_sock(sk);
++
+ 		ret = tcp_bpf_sendmsg_redir(sk_redir, msg, tosend, flags);
++
++		if (eval == __SK_REDIRECT)
++			sock_put(sk_redir);
++
+ 		lock_sock(sk);
+ 		if (unlikely(ret < 0)) {
+ 			int free = sk_msg_free_nocharge(sk, msg);
 
 
