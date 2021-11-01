@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15E8844189A
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B796E44169D
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233621AbhKAJth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:49:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52160 "EHLO mail.kernel.org"
+        id S232405AbhKAJ1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:27:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234055AbhKAJqb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:46:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4072613D2;
-        Mon,  1 Nov 2021 09:30:23 +0000 (UTC)
+        id S232494AbhKAJY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:24:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8ED3611AD;
+        Mon,  1 Nov 2021 09:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759024;
-        bh=cGCxs+1Ry/Qu7CSd/SGrQrCzbmL0By5mcfTNjiE5zdY=;
+        s=korg; t=1635758499;
+        bh=fn9RVgz7n/ysygwQNjBLNXU8CmZZ8RIfTmVJcrElIEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iz2h0n9maXan7x2lDrJs1zFgMTdzo9YP/wrx/MP8rQWIeTzooID1Hnrv+3jR8A724
-         A3+Jr5r67A4rQFbSNb0UHm2/w9Dx75ACOaoYwJKrn1w/yrBBMB+nGjA/OrzHQBETuE
-         J7lPte8kSQAppX8sRHRjHBnPM8EzM6bXICvy+rms=
+        b=MNBm0JHtpYcf5OFAFvYTPJhiiNW4HlEkPeF+w4GMz3YedPoF2oD/apDvLVGsR5bdX
+         +yTuJDrSJx7RrXDH5FVqX7V24KqmANGcRL1tCpA0WNfzHOfkGo2zF9raoyf46hymnu
+         jRkm0sFnG8qhFPnoJxYqV116j4JpPc/2sGL1I2QY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 5.14 083/125] nios2: Make NIOS2_DTB_SOURCE_BOOL depend on !COMPILE_TEST
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 24/35] regmap: Fix possible double-free in regcache_rbtree_exit()
 Date:   Mon,  1 Nov 2021 10:17:36 +0100
-Message-Id: <20211101082548.970470215@linuxfoundation.org>
+Message-Id: <20211101082457.219487580@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
+References: <20211101082451.430720900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 4a089e95b4d6bb625044d47aed0c442a8f7bd093 upstream.
+commit 55e6d8037805b3400096d621091dfbf713f97e83 upstream.
 
-nios2:allmodconfig builds fail with
+In regcache_rbtree_insert_to_block(), when 'present' realloc failed,
+the 'blk' which is supposed to assign to 'rbnode->block' will be freed,
+so 'rbnode->block' points a freed memory, in the error handling path of
+regcache_rbtree_init(), 'rbnode->block' will be freed again in
+regcache_rbtree_exit(), KASAN will report double-free as follows:
 
-make[1]: *** No rule to make target 'arch/nios2/boot/dts/""',
-	needed by 'arch/nios2/boot/dts/built-in.a'.  Stop.
-make: [Makefile:1868: arch/nios2/boot/dts] Error 2 (ignored)
+BUG: KASAN: double-free or invalid-free in kfree+0xce/0x390
+Call Trace:
+ slab_free_freelist_hook+0x10d/0x240
+ kfree+0xce/0x390
+ regcache_rbtree_exit+0x15d/0x1a0
+ regcache_rbtree_init+0x224/0x2c0
+ regcache_init+0x88d/0x1310
+ __regmap_init+0x3151/0x4a80
+ __devm_regmap_init+0x7d/0x100
+ madera_spi_probe+0x10f/0x333 [madera_spi]
+ spi_probe+0x183/0x210
+ really_probe+0x285/0xc30
 
-This is seen with compile tests since those enable NIOS2_DTB_SOURCE_BOOL,
-which in turn enables NIOS2_DTB_SOURCE. This causes the build error
-because the default value for NIOS2_DTB_SOURCE is an empty string.
-Disable NIOS2_DTB_SOURCE_BOOL for compile tests to avoid the error.
+To fix this, moving up the assignment of rbnode->block to immediately after
+the reallocation has succeeded so that the data structure stays valid even
+if the second reallocation fails.
 
-Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 3f4ff561bc88b ("regmap: rbtree: Make cache_present bitmap per node")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20211012023735.1632786-1-yangyingliang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nios2/platform/Kconfig.platform |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/base/regmap/regcache-rbtree.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/arch/nios2/platform/Kconfig.platform
-+++ b/arch/nios2/platform/Kconfig.platform
-@@ -37,6 +37,7 @@ config NIOS2_DTB_PHYS_ADDR
+--- a/drivers/base/regmap/regcache-rbtree.c
++++ b/drivers/base/regmap/regcache-rbtree.c
+@@ -295,14 +295,14 @@ static int regcache_rbtree_insert_to_blo
+ 	if (!blk)
+ 		return -ENOMEM;
  
- config NIOS2_DTB_SOURCE_BOOL
- 	bool "Compile and link device tree into kernel image"
-+	depends on !COMPILE_TEST
- 	help
- 	  This allows you to specify a dts (device tree source) file
- 	  which will be compiled and linked into the kernel image.
++	rbnode->block = blk;
++
+ 	if (BITS_TO_LONGS(blklen) > BITS_TO_LONGS(rbnode->blklen)) {
+ 		present = krealloc(rbnode->cache_present,
+ 				   BITS_TO_LONGS(blklen) * sizeof(*present),
+ 				   GFP_KERNEL);
+-		if (!present) {
+-			kfree(blk);
++		if (!present)
+ 			return -ENOMEM;
+-		}
+ 
+ 		memset(present + BITS_TO_LONGS(rbnode->blklen), 0,
+ 		       (BITS_TO_LONGS(blklen) - BITS_TO_LONGS(rbnode->blklen))
+@@ -319,7 +319,6 @@ static int regcache_rbtree_insert_to_blo
+ 	}
+ 
+ 	/* update the rbnode block, its size and the base register */
+-	rbnode->block = blk;
+ 	rbnode->blklen = blklen;
+ 	rbnode->base_reg = base_reg;
+ 	rbnode->cache_present = present;
 
 
