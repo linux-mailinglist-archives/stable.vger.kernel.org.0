@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6877144183B
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:42:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58FF9441823
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:42:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233661AbhKAJpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:45:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47890 "EHLO mail.kernel.org"
+        id S232587AbhKAJoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:44:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233043AbhKAJlu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:41:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEF476137C;
-        Mon,  1 Nov 2021 09:28:22 +0000 (UTC)
+        id S233357AbhKAJmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:42:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB73D6137E;
+        Mon,  1 Nov 2021 09:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758903;
-        bh=D2Kw8ZeBUWKw65O4pZ6IHRH80AuFRjqf5gcq3B7UpGA=;
+        s=korg; t=1635758910;
+        bh=46AeDbiSnYHpXNQLpRT8vroGbCZSfrLoI5tbgsyJM4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w47aLRbIlERlSgetJ8pZ7thjFJa8p9BqqP73Dbb2CN3JaRzxsNcimlqTHOWO1Y2v1
-         2AMwRhZK+iNaR9kwTcIbRH3fFpZDS55A9luwLSfV+VsdxpgFLb8dP5BvFU8QwntGrj
-         sDre28Sl7CQ7WvFGQC8e239f7ImzPa0F/dqqJb6A=
+        b=tYq60iQ2xyI16tpl/HZwjgCL3xxs/ViJP4tr2iGdhW/yquQgSDlTHFpRSXN0/Nmcn
+         G7KKAsYDMeNS51Lif4/x3CAfA7eN7MTVGuiKJiDkQQBNXYFhJ/O1SmCdKRiGw/k6Ai
+         u3Pt4bEFrdr3jIbVn5be1x/h1Vr7yTuMEF/96YpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
         Arnd Bergmann <arnd@arndb.de>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.14 003/125] ARM: 9134/1: remove duplicate memcpy() definition
-Date:   Mon,  1 Nov 2021 10:16:16 +0100
-Message-Id: <20211101082534.140745488@linuxfoundation.org>
+Subject: [PATCH 5.14 004/125] ARM: 9138/1: fix link warning with XIP + frame-pointer
+Date:   Mon,  1 Nov 2021 10:16:17 +0100
+Message-Id: <20211101082534.307499698@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -43,54 +42,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-commit eaf6cc7165c9c5aa3c2f9faa03a98598123d0afb upstream.
+commit 44cc6412e66b2b84544eaf2e14cf1764301e2a80 upstream.
 
-Both the decompressor code and the kasan logic try to override
-the memcpy() and memmove()  definitions, which leading to a clash
-in a KASAN-enabled kernel with XZ decompression:
+When frame pointers are used instead of the ARM unwinder,
+and the kernel is built using clang with an external assembler
+and CONFIG_XIP_KERNEL, every file produces two warnings
+like:
 
-arch/arm/boot/compressed/decompress.c:50:9: error: 'memmove' macro redefined [-Werror,-Wmacro-redefined]
- #define memmove memmove
-        ^
-arch/arm/include/asm/string.h:59:9: note: previous definition is here
- #define memmove(dst, src, len) __memmove(dst, src, len)
-        ^
-arch/arm/boot/compressed/decompress.c:51:9: error: 'memcpy' macro redefined [-Werror,-Wmacro-redefined]
- #define memcpy memcpy
-        ^
-arch/arm/include/asm/string.h:58:9: note: previous definition is here
- #define memcpy(dst, src, len) __memcpy(dst, src, len)
-        ^
+arm-linux-gnueabi-ld: warning: orphan section `.ARM.extab' from `net/mac802154/util.o' being placed in section `.ARM.extab'
+arm-linux-gnueabi-ld: warning: orphan section `.ARM.exidx' from `net/mac802154/util.o' being placed in section `.ARM.exidx'
 
-Here we want the set of functions from the decompressor, so undefine
-the other macros before the override.
+The same fix was already merged for the normal (non-XIP)
 
-Link: https://lore.kernel.org/linux-arm-kernel/CACRpkdZYJogU_SN3H9oeVq=zJkRgRT1gDz3xp59gdqWXxw-B=w@mail.gmail.com/
-Link: https://lore.kernel.org/lkml/202105091112.F5rmd4By-lkp@intel.com/
+linker script, with a longer description.
 
-Fixes: d6d51a96c7d6 ("ARM: 9014/2: Replace string mem* functions for KASan")
-Fixes: a7f464f3db93 ("ARM: 7001/2: Wire up support for the XZ decompressor")
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: c39866f268f8 ("arm/build: Always handle .ARM.exidx and .ARM.extab sections")
+Reviewed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/compressed/decompress.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/kernel/vmlinux-xip.lds.S |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm/boot/compressed/decompress.c
-+++ b/arch/arm/boot/compressed/decompress.c
-@@ -47,7 +47,10 @@ extern char * strchrnul(const char *, in
- #endif
+--- a/arch/arm/kernel/vmlinux-xip.lds.S
++++ b/arch/arm/kernel/vmlinux-xip.lds.S
+@@ -40,6 +40,10 @@ SECTIONS
+ 		ARM_DISCARD
+ 		*(.alt.smp.init)
+ 		*(.pv_table)
++#ifndef CONFIG_ARM_UNWIND
++		*(.ARM.exidx) *(.ARM.exidx.*)
++		*(.ARM.extab) *(.ARM.extab.*)
++#endif
+ 	}
  
- #ifdef CONFIG_KERNEL_XZ
-+/* Prevent KASAN override of string helpers in decompressor */
-+#undef memmove
- #define memmove memmove
-+#undef memcpy
- #define memcpy memcpy
- #include "../../../../lib/decompress_unxz.c"
- #endif
+ 	. = XIP_VIRT_ADDR(CONFIG_XIP_PHYS_ADDR);
 
 
