@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84E1F4417E0
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13889441891
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233907AbhKAJkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:40:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43532 "EHLO mail.kernel.org"
+        id S233423AbhKAJtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:49:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233630AbhKAJho (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:37:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AD7961350;
-        Mon,  1 Nov 2021 09:26:30 +0000 (UTC)
+        id S234132AbhKAJrW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:47:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2CDB61414;
+        Mon,  1 Nov 2021 09:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758791;
-        bh=iSymP04eayXhdaeGBYoXyAWFkq35uLJ1B/yaG+QOIgE=;
+        s=korg; t=1635759057;
+        bh=MMTpxLRdQDPhQaudS+jBgkPVpIkj+q8EDE6cq3+zlzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHtgPPp9ayEdVUc0WfnMDGHg/MW4pYPZC0vZHeqD84iCiL0XZ2RxZYQFZlx7NRu6a
-         PO9bGK5/XKEKe3CngCF6qZgHFUMoSz4uZM9tCHbUICv54rV+ilKsRkgYC2xoDx+kpQ
-         nd7sODQui2QFV3Qn/fneqtgmCkFUANYec8bTDM3M=
+        b=IEqsE8510oA8U7VOH55wO+w6aOe+5QQL+shMv3Tg6ZFpw+cpPaJFcy+/04B+GRzVL
+         1Qe4dfL7lxzKy5PaXg4f2AN7Nn1PWVsENs2gOb29GTojIhtCHQ2hJNf2QP6fHdgUz+
+         QbD1INryLpsdxZ1zMVT4qonuX/UWqwWbiZsZkfBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 60/77] net/tls: Fix flipped sign in async_wait.err assignment
-Date:   Mon,  1 Nov 2021 10:17:48 +0100
-Message-Id: <20211101082524.264945476@linuxfoundation.org>
+        stable@vger.kernel.org, Shiraz Saleem <shiraz.saleem@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 096/125] RDMA/irdma: Process extended CQ entries correctly
+Date:   Mon,  1 Nov 2021 10:17:49 +0100
+Message-Id: <20211101082551.350731476@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Shiraz Saleem <shiraz.saleem@intel.com>
 
-commit 1d9d6fd21ad4a28b16ed9ee5432ae738b9dc58aa upstream.
+[ Upstream commit e93c7d8e8c4cf80c6afe56e71c83c1cd31b4fce1 ]
 
-sk->sk_err contains a positive number, yet async_wait.err wants the
-opposite.  Fix the missed sign flip, which Jakub caught by inspection.
+The valid bit for extended CQE's written by HW is retrieved from the
+incorrect quad-word. This leads to missed completions for any UD traffic
+particularly after a wrap-around.
 
-Fixes: a42055e8d2c3 ("net/tls: Add support for async encryption of records for performance")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Get the valid bit for extended CQE's from the correct quad-word in the
+descriptor.
+
+Fixes: 551c46edc769 ("RDMA/irdma: Add user/kernel shared libraries")
+Link: https://lore.kernel.org/r/20211005182302.374-1-shiraz.saleem@intel.com
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_sw.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/irdma/uk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -459,7 +459,7 @@ static void tls_encrypt_done(struct cryp
- 
- 		/* If err is already set on socket, return the same code */
- 		if (sk->sk_err) {
--			ctx->async_wait.err = sk->sk_err;
-+			ctx->async_wait.err = -sk->sk_err;
+diff --git a/drivers/infiniband/hw/irdma/uk.c b/drivers/infiniband/hw/irdma/uk.c
+index 5fb92de1f015..9b544a3b1288 100644
+--- a/drivers/infiniband/hw/irdma/uk.c
++++ b/drivers/infiniband/hw/irdma/uk.c
+@@ -1092,12 +1092,12 @@ irdma_uk_cq_poll_cmpl(struct irdma_cq_uk *cq, struct irdma_cq_poll_info *info)
+ 		if (cq->avoid_mem_cflct) {
+ 			ext_cqe = (__le64 *)((u8 *)cqe + 32);
+ 			get_64bit_val(ext_cqe, 24, &qword7);
+-			polarity = (u8)FIELD_GET(IRDMA_CQ_VALID, qword3);
++			polarity = (u8)FIELD_GET(IRDMA_CQ_VALID, qword7);
  		} else {
- 			ctx->async_wait.err = err;
- 			tls_err_abort(sk, err);
+ 			peek_head = (cq->cq_ring.head + 1) % cq->cq_ring.size;
+ 			ext_cqe = cq->cq_base[peek_head].buf;
+ 			get_64bit_val(ext_cqe, 24, &qword7);
+-			polarity = (u8)FIELD_GET(IRDMA_CQ_VALID, qword3);
++			polarity = (u8)FIELD_GET(IRDMA_CQ_VALID, qword7);
+ 			if (!peek_head)
+ 				polarity ^= 1;
+ 		}
+-- 
+2.33.0
+
 
 
