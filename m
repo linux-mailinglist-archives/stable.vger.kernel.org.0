@@ -2,159 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A7F441407
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 08:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A28C7441419
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 08:21:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230096AbhKAHSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 03:18:03 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:40726 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229938AbhKAHR7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Nov 2021 03:17:59 -0400
+        id S230316AbhKAHXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 03:23:46 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:33318 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229882AbhKAHXp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Nov 2021 03:23:45 -0400
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 7425F21940;
-        Mon,  1 Nov 2021 07:15:25 +0000 (UTC)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id CC9F21FD4D;
+        Mon,  1 Nov 2021 07:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1635750925; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1635751271; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=r6FGKgT06Ld/vcSRgRVis8UQzYQ5TV5B4bgVQp9hpX8=;
-        b=qhGGp3wPZn7+Ep+ilDMdn45whwHVpqWRmFJW2ovNCQvapfF6BAI1P9d+ZzVCCmAElQNm/u
-        h+z6UwrFIg2E5KOrgStgwet2+YPo2FB6W/bCLRtMnnOLYJIYnUgeLwgALE2dEtOyMN5Ueu
-        /6JBp/1oZ4k32RLNNU2KxzeTRsriFVA=
+        bh=OiJvobuX3n+EKs/NhnXLnNLW7NKcWLIH/WcTQdqCZ8o=;
+        b=I5K8caJmT6AxGK8R6Q6oIaoOxGSg79sI95p5WiZq1tU2uqNyf5stcBECg/L7SsHJ6NHsQD
+        5WuNlPNJjZlUUjzPH0I/uVhA3gyvqVYsqnGiO6nFhKBNyuCACNQrCLbm137wpuSZKvTo18
+        FVZZN/evzGDicGtdhvHqxbe9+vBGzgI=
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 43F7513A6F;
-        Mon,  1 Nov 2021 07:15:25 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9853513A6F;
+        Mon,  1 Nov 2021 07:21:11 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id bHgqDw2Uf2EUDwAAMHmgww
-        (envelope-from <jgross@suse.com>); Mon, 01 Nov 2021 07:15:25 +0000
-To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
-Cc:     Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
-        <marmarek@invisiblethingslab.com>
-References: <20211029142049.25198-1-jgross@suse.com>
- <11956c14-f1f7-70f0-40a6-aad31a264af6@oracle.com>
-From:   Juergen Gross <jgross@suse.com>
+        id akM/I2eVf2F/EAAAMHmgww
+        (envelope-from <jgross@suse.com>); Mon, 01 Nov 2021 07:21:11 +0000
 Subject: Re: [PATCH v3] xen/balloon: add late_initcall_sync() for initial
  ballooning done
-Message-ID: <c5da2698-b160-c09e-3182-49b398238a3c@suse.com>
-Date:   Mon, 1 Nov 2021 08:15:24 +0100
+To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
+        <marmarek@invisiblethingslab.com>
+Cc:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org
+References: <20211029142049.25198-1-jgross@suse.com>
+ <11956c14-f1f7-70f0-40a6-aad31a264af6@oracle.com> <YXxzQhPvgAOkhGg/@mail-itl>
+ <2365e65f-7431-4bf5-4ced-5e146776b9ac@oracle.com>
+From:   Juergen Gross <jgross@suse.com>
+Message-ID: <0e32534b-c50f-d6ea-2927-dc763939dbcb@suse.com>
+Date:   Mon, 1 Nov 2021 08:21:10 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <11956c14-f1f7-70f0-40a6-aad31a264af6@oracle.com>
+In-Reply-To: <2365e65f-7431-4bf5-4ced-5e146776b9ac@oracle.com>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="COJXQdpbX4z5ODWfgEmsawsBVBn3I5KzV"
+ boundary="SatvGOBbXAB4GMvHz0933pF793czZeWDD"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---COJXQdpbX4z5ODWfgEmsawsBVBn3I5KzV
-Content-Type: multipart/mixed; boundary="KQiaAYVjRBpi8WygPvJf23tYGusrBX0kf";
+--SatvGOBbXAB4GMvHz0933pF793czZeWDD
+Content-Type: multipart/mixed; boundary="XMt9OejtjTyGiADg3Sqcf50uQJdI9RM6R";
  protected-headers="v1"
 From: Juergen Gross <jgross@suse.com>
 To: Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
-Cc: Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org,
  =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= <marmarek@invisiblethingslab.com>
-Message-ID: <c5da2698-b160-c09e-3182-49b398238a3c@suse.com>
+Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+ Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org
+Message-ID: <0e32534b-c50f-d6ea-2927-dc763939dbcb@suse.com>
 Subject: Re: [PATCH v3] xen/balloon: add late_initcall_sync() for initial
  ballooning done
 References: <20211029142049.25198-1-jgross@suse.com>
- <11956c14-f1f7-70f0-40a6-aad31a264af6@oracle.com>
-In-Reply-To: <11956c14-f1f7-70f0-40a6-aad31a264af6@oracle.com>
+ <11956c14-f1f7-70f0-40a6-aad31a264af6@oracle.com> <YXxzQhPvgAOkhGg/@mail-itl>
+ <2365e65f-7431-4bf5-4ced-5e146776b9ac@oracle.com>
+In-Reply-To: <2365e65f-7431-4bf5-4ced-5e146776b9ac@oracle.com>
 
---KQiaAYVjRBpi8WygPvJf23tYGusrBX0kf
+--XMt9OejtjTyGiADg3Sqcf50uQJdI9RM6R
 Content-Type: multipart/mixed;
- boundary="------------1500FB9D13DDB86F0132D497"
+ boundary="------------C2DAF238F4CCA8207EC03136"
 Content-Language: en-US
 
 This is a multi-part message in MIME format.
---------------1500FB9D13DDB86F0132D497
+--------------C2DAF238F4CCA8207EC03136
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
 
-On 29.10.21 23:46, Boris Ostrovsky wrote:
+On 30.10.21 01:44, Boris Ostrovsky wrote:
 >=20
-> On 10/29/21 10:20 AM, Juergen Gross wrote:
->> --- a/Documentation/ABI/stable/sysfs-devices-system-xen_memory
->> +++ b/Documentation/ABI/stable/sysfs-devices-system-xen_memory
->> @@ -84,3 +84,13 @@ Description:
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 Control scrubbi=
-ng pages before returning them to Xen for=20
->> others domains
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 use. Can be set=
- with xen_scrub_pages cmdline
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 parameter. Defa=
-ult value controlled with=20
->> CONFIG_XEN_SCRUB_PAGES_DEFAULT.
->> +
->> +What:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /sys/devices/system/x=
-en_memory/xen_memory0/boot_timeout
->> +Date:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 November 2021
->> +KernelVersion:=C2=A0=C2=A0=C2=A0 5.16
->> +Contact:=C2=A0=C2=A0=C2=A0 xen-devel@lists.xenproject.org
->> +Description:
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 The time (in seconds) to w=
-ait before giving up to boot in case
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 initial ballooning fails t=
-o free enough memory. Applies only
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 when running as HVM or PVH=
- guest and started with less memory
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 configured than allowed at=
- max.
+> On 10/29/21 6:18 PM, Marek Marczykowski-G=C3=B3recki wrote:
+>> On Fri, Oct 29, 2021 at 05:46:18PM -0400, Boris Ostrovsky wrote:
+>>> On 10/29/21 10:20 AM, Juergen Gross wrote:
+>>>> --- a/Documentation/ABI/stable/sysfs-devices-system-xen_memory
+>>>> +++ b/Documentation/ABI/stable/sysfs-devices-system-xen_memory
+>>>> @@ -84,3 +84,13 @@ Description:
+>>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 Control=
+ scrubbing pages before returning them to Xen for=20
+>>>> others domains
+>>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 use. Ca=
+n be set with xen_scrub_pages cmdline
+>>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 paramet=
+er. Default value controlled with=20
+>>>> CONFIG_XEN_SCRUB_PAGES_DEFAULT.
+>>>> +
+>>>> +What:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /sys/devices/system=
+/xen_memory/xen_memory0/boot_timeout
+>>>> +Date:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 November 2021
+>>>> +KernelVersion:=C2=A0=C2=A0=C2=A0 5.16
+>>>> +Contact:=C2=A0=C2=A0=C2=A0 xen-devel@lists.xenproject.org
+>>>> +Description:
+>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 The time (in seconds) to=
+ wait before giving up to boot in case
+>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 initial ballooning fails=
+ to free enough memory. Applies only
+>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 when running as HVM or P=
+VH guest and started with less memory
+>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 configured than allowed =
+at max.
+>>>
+>>> How is this going to be used? We only need this during boot.
+>>>
+>>>
+>>>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 state =3D update_schedul=
+e(state);
+>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 balloon_state =3D update=
+_schedule(balloon_state);
+>>>
+>>> Now that balloon_state has whole file scope it can probably be=20
+>>> updated inside update_schedule().
+>>>
+>>>
+>>>> +=C2=A0=C2=A0=C2=A0 while ((credit =3D current_credit()) < 0) {
+>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (credit !=3D last_cre=
+dit) {
+>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =
+last_changed =3D jiffies;
+>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =
+last_credit =3D credit;
+>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
+>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (balloon_state =3D=3D=
+ BP_ECANCELED) {
+>>>
+>>> What about other states? We are really waiting for BP_DONE, aren't we=
+?
+>> BP_DONE is set also as an intermediate step:
+>>
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 balloo=
+n_state =3D decrease_reservation(n_pages,
+>>                                                             =20
+>> GFP_BALLOON);
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (ba=
+lloon_state =3D=3D BP_DONE && n_pages !=3D=20
+>> -credit &&
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 n_pages < totalreserve_pages)
+>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 balloon_state =3D BP_EAGAIN;
+>>
+>> It would be bad to finish waiting in this case.
 >=20
 >=20
-> How is this going to be used? We only need this during boot.
-
-Of course. Will switch to module_param().
-
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 state =3D update_schedule(=
-state);
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 balloon_state =3D update_s=
-chedule(balloon_state);
+> RIght, but if we were to say 'if (balloon_state !=3D BP_DONE)' the wors=
+t=20
+> that can happen is that we will continue on to the next iteration=20
+> without warning and/or panicing. Of course, there is a chance thaton th=
+e=20
+> next iteration the same thing will happen but I think chances of hittin=
+g=20
+> this race every time are infinitely low. We can also check for=20
+> current_credit() again.
 >=20
 >=20
-> Now that balloon_state has whole file scope it can probably be updated =
+> The question is whether we do want to continue waiting if we are in=20
+> BP_AGAIN. I don't think BP_WAIT is possible in this case although this =
 
-> inside update_schedule().
+> may change in the future and we will forget to update this code.
 
-I can do that.
-
->> +=C2=A0=C2=A0=C2=A0 while ((credit =3D current_credit()) < 0) {
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (credit !=3D last_credi=
-t) {
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 la=
-st_changed =3D jiffies;
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 la=
-st_credit =3D credit;
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (balloon_state =3D=3D B=
-P_ECANCELED) {
->=20
->=20
-> What about other states? We are really waiting for BP_DONE, aren't we?
-
-Nearly. We are waiting for credit not being negative.
-
-And in case of cancelled we know this won't happen without Xen admin
-intervention.
+BP_EAGAIN should not stop waiting, as it might be intermediate in case
+some caches or buffers are freed.
 
 
 Juergen
 
---------------1500FB9D13DDB86F0132D497
+--------------C2DAF238F4CCA8207EC03136
 Content-Type: application/pgp-keys;
  name="OpenPGP_0xB0DE9DD628BF132F.asc"
 Content-Transfer-Encoding: quoted-printable
@@ -246,24 +279,24 @@ ZDn8R38=3D
 =3D2wuH
 -----END PGP PUBLIC KEY BLOCK-----
 
---------------1500FB9D13DDB86F0132D497--
+--------------C2DAF238F4CCA8207EC03136--
 
---KQiaAYVjRBpi8WygPvJf23tYGusrBX0kf--
+--XMt9OejtjTyGiADg3Sqcf50uQJdI9RM6R--
 
---COJXQdpbX4z5ODWfgEmsawsBVBn3I5KzV
+--SatvGOBbXAB4GMvHz0933pF793czZeWDD
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmF/lAwFAwAAAAAACgkQsN6d1ii/Ey9Y
-rwgAhVz+7UM3tuK3hUqp0dk1hAujtJ87PkZXQ9MFYWV5KiQfcu/v3cCMKzp+rIBPWST97fLwEcQ1
-F7NcSrp2X6YNPSXIosf7qKphRqzMWWPdzxG7Y0hwqZfd9B/ZAoWwCUpmMsT/+kDddiQek9Z6KBKR
-F5VRIzhCA8NpOFXCQwwmfjsJzNDh5uuhXzmSNG2rVPjohRR/swQdeDJ3tLhyQnil5SN15izOHOrI
-vaku6BtUSTYTfk7n3KIFkvn5wfwKWvGX0Cwto0X1iacmmTx+N+fd6ELx4vMKedqnS2rwry94PbfZ
-0Oiw2bRnmgLaobqXoGymS1wYydL17pMXLhqjs+WqLw==
-=2nKM
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmF/lWYFAwAAAAAACgkQsN6d1ii/Ey80
+KAf/Qqdw1mA/ijbb+odtKZ9Vua+VXes2bJWyzjxtQ/zKSRUvqcJ7qttbzmLt2A6ar2pscUiUGG5H
+CVFIfzxKE3qXV7IlkEtyQ7bRFpL0Y7YjH5HnhM4mr6bttQZX6qwQDvGuNwLwkTP6bD4TVmN/wNoD
+U1sjdad8E2Ay8a7+rbuVdii7lJ5RgrzXBnKVJDqqztYiWh/WgjC0r2kiCP46ZqVtimwzr6T7cB+5
+f/OxmURztozz9NrXxmM7ST2XvAi4CBerYJAtr+KQvJg+3BD24MLRLg2JHX8ZIVrt2U7vjlKH1CAW
+2c2ZsVpDv5xTgO4Y9SjpUqBsXz+x+K8GHgnadzjSfg==
+=8Vp5
 -----END PGP SIGNATURE-----
 
---COJXQdpbX4z5ODWfgEmsawsBVBn3I5KzV--
+--SatvGOBbXAB4GMvHz0933pF793czZeWDD--
