@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F89D4416D7
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B027B441619
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:20:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232758AbhKAJaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:30:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37074 "EHLO mail.kernel.org"
+        id S232263AbhKAJWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:22:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233029AbhKAJ2Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:28:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98B2B61207;
-        Mon,  1 Nov 2021 09:23:00 +0000 (UTC)
+        id S232136AbhKAJV4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:21:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A044610D2;
+        Mon,  1 Nov 2021 09:19:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758581;
-        bh=DPZRoibiMdTyqf3nZR0mvk1QD6AlHTeK37w5mGaUqZA=;
+        s=korg; t=1635758350;
+        bh=0CmTjJxR13ZvrJ+IvrfdOXjISYTycTnh7MP30n7QvrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wnXyjh5lKVtk7H1LmVRzECPlmUFCplCYW56nZ2MOvrRnubmxalBHpaMh0fxVw6d/F
-         AuotavHPeE5qg1BxaGbkp/UFpGyZ1kbRQql1laHIkZUx1MefK+ni9NPgoYeEt/PC8c
-         2ureejf7ygMRzFKgSqjMSg8J6ZjHsNgbRBHzwF2E=
+        b=dv6/a8wuejsSH1BUl3kHCWrCU7WPQ4U9f9nS/32nDGM5OYsW3IUJ85SS03AoXRn59
+         1VqY6rhXMYLSl5HyOiCL29DU0/wymi6QIvhJQVhmNtPw/GtxGOld6GBWARtAR4Luwd
+         Oq2BwHAl28Eo0YGW0g8B5bs4W/1Kf/EhKZOwOMjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@windriver.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 08/51] usbnet: sanity check for maxpacket
+Subject: [PATCH 4.4 09/17] Revert "net: mdiobus: Fix memory leak in __mdiobus_register"
 Date:   Mon,  1 Nov 2021 10:17:12 +0100
-Message-Id: <20211101082501.951024169@linuxfoundation.org>
+Message-Id: <20211101082442.644515254@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
+References: <20211101082440.664392327@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 397430b50a363d8b7bdda00522123f82df6adc5e upstream.
+commit 10eff1f5788b6ffac212c254e2f3666219576889 upstream.
 
-maxpacket of 0 makes no sense and oopses as we need to divide
-by it. Give up.
+This reverts commit ab609f25d19858513919369ff3d9a63c02cd9e2e.
 
-V2: fixed typo in log and stylistic issues
+This patch is correct in the sense that we _should_ call device_put() in
+case of device_register() failure, but the problem in this code is more
+vast.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211021122944.21816-1-oneukum@suse.com
+We need to set bus->state to UNMDIOBUS_REGISTERED before calling
+device_register() to correctly release the device in mdiobus_free().
+This patch prevents us from doing it, since in case of device_register()
+failure put_device() will be called 2 times and it will cause UAF or
+something else.
+
+Also, Reported-by: tag in revered commit was wrong, since syzbot
+reported different leak in same function.
+
+Link: https://lore.kernel.org/netdev/20210928092657.GI2048@kadam/
+Acked-by: Yanfei Xu <yanfei.xu@windriver.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/f12fb1faa4eccf0f355788225335eb4309ff2599.1633024062.git.paskripkin@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/usbnet.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/phy/mdio_bus.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -1773,6 +1773,10 @@ usbnet_probe (struct usb_interface *udev
- 	if (!dev->rx_urb_size)
- 		dev->rx_urb_size = dev->hard_mtu;
- 	dev->maxpacket = usb_maxpacket (dev->udev, dev->out, 1);
-+	if (dev->maxpacket == 0) {
-+		/* that is a broken device */
-+		goto out4;
-+	}
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -274,7 +274,6 @@ int __mdiobus_register(struct mii_bus *b
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
+-		put_device(&bus->dev);
+ 		return -EINVAL;
+ 	}
  
- 	/* let userspace know we have a random address */
- 	if (ether_addr_equal(net->dev_addr, node_id))
 
 
