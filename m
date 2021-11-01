@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB9E4416B7
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2020F441894
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232360AbhKAJ2l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:28:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58242 "EHLO mail.kernel.org"
+        id S232682AbhKAJtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:49:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232964AbhKAJ0Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:26:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04E92611C0;
-        Mon,  1 Nov 2021 09:22:01 +0000 (UTC)
+        id S234128AbhKAJrW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:47:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B1F1613E6;
+        Mon,  1 Nov 2021 09:30:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758522;
-        bh=8xJqKxR7TEN43XFzNb4ZBfajGrYUGm8h0qxZ7OWWUS8=;
+        s=korg; t=1635759050;
+        bh=2ub8OP6ReUw3GKY9IzLc+oL2jYfmj4evCS4wQKgUFA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eaugLrL1L+xp5wjwvCdybU3YGUyOHu8sIqkv7RTbmOWCzyvui+RLLI4xS4WYaOF3y
-         HNq/Y9tmIJtZZVs4wJHDQo7qUtbN9XtqUaKJT+sH1jKZKmUSKYIZliNSh8lMUsDtFj
-         9HJ4VrXRM3x7F8zsvz2OynrfbXEguUhLHXzC77OA=
+        b=ybnVpPQmlE9khQdCxeqGg/NLEqQ1UNDYi4La81fIE/kzsl8IdxzMCtYLMsIJ8uztd
+         7tExKmWIJuUar3tOMlUTuVAa1/W5cpyircenJod8SzMj3Dks/su3FvOLESFHhLY+mh
+         odtwY7ocA0itRg3f7SN5E/1xLe3daL7oCPKBOmMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 33/35] sctp: add vtag check in sctp_sf_violation
-Date:   Mon,  1 Nov 2021 10:17:45 +0100
-Message-Id: <20211101082459.487169805@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 093/125] phy: phy_ethtool_ksettings_set: Move after phy_start_aneg
+Date:   Mon,  1 Nov 2021 10:17:46 +0100
+Message-Id: <20211101082550.753547234@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
-References: <20211101082451.430720900@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +39,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Andrew Lunn <andrew@lunn.ch>
 
-[ Upstream commit aa0f697e45286a6b5f0ceca9418acf54b9099d99 ]
+commit 64cd92d5e8180c2ded3fdea76862de6f596ae2c9 upstream.
 
-sctp_sf_violation() is called when processing HEARTBEAT_ACK chunk
-in cookie_wait state, and some other places are also using it.
+This allows it to make use of a helper which assume the PHY is already
+locked.
 
-The vtag in the chunk's sctphdr should be verified, otherwise, as
-later in chunk length check, it may send abort with the existent
-asoc's vtag, which can be exploited by one to cook a malicious
-chunk to terminate a SCTP asoc.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2d55173e71b0 ("phy: add generic function to support ksetting support")
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/sm_statefuns.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/phy/phy.c |  106 +++++++++++++++++++++++++-------------------------
+ 1 file changed, 53 insertions(+), 53 deletions(-)
 
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index e93aa08d2a78..a4874b55faab 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -4561,6 +4561,9 @@ enum sctp_disposition sctp_sf_violation(struct net *net,
- {
- 	struct sctp_chunk *chunk = arg;
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -243,59 +243,6 @@ static void phy_sanitize_settings(struct
+ 	}
+ }
  
-+	if (!sctp_vtag_verify(chunk, asoc))
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+-int phy_ethtool_ksettings_set(struct phy_device *phydev,
+-			      const struct ethtool_link_ksettings *cmd)
+-{
+-	__ETHTOOL_DECLARE_LINK_MODE_MASK(advertising);
+-	u8 autoneg = cmd->base.autoneg;
+-	u8 duplex = cmd->base.duplex;
+-	u32 speed = cmd->base.speed;
+-
+-	if (cmd->base.phy_address != phydev->mdio.addr)
+-		return -EINVAL;
+-
+-	linkmode_copy(advertising, cmd->link_modes.advertising);
+-
+-	/* We make sure that we don't pass unsupported values in to the PHY */
+-	linkmode_and(advertising, advertising, phydev->supported);
+-
+-	/* Verify the settings we care about. */
+-	if (autoneg != AUTONEG_ENABLE && autoneg != AUTONEG_DISABLE)
+-		return -EINVAL;
+-
+-	if (autoneg == AUTONEG_ENABLE && linkmode_empty(advertising))
+-		return -EINVAL;
+-
+-	if (autoneg == AUTONEG_DISABLE &&
+-	    ((speed != SPEED_1000 &&
+-	      speed != SPEED_100 &&
+-	      speed != SPEED_10) ||
+-	     (duplex != DUPLEX_HALF &&
+-	      duplex != DUPLEX_FULL)))
+-		return -EINVAL;
+-
+-	phydev->autoneg = autoneg;
+-
+-	if (autoneg == AUTONEG_DISABLE) {
+-		phydev->speed = speed;
+-		phydev->duplex = duplex;
+-	}
+-
+-	linkmode_copy(phydev->advertising, advertising);
+-
+-	linkmode_mod_bit(ETHTOOL_LINK_MODE_Autoneg_BIT,
+-			 phydev->advertising, autoneg == AUTONEG_ENABLE);
+-
+-	phydev->master_slave_set = cmd->base.master_slave_cfg;
+-	phydev->mdix_ctrl = cmd->base.eth_tp_mdix_ctrl;
+-
+-	/* Restart the PHY */
+-	phy_start_aneg(phydev);
+-
+-	return 0;
+-}
+-EXPORT_SYMBOL(phy_ethtool_ksettings_set);
+-
+ void phy_ethtool_ksettings_get(struct phy_device *phydev,
+ 			       struct ethtool_link_ksettings *cmd)
+ {
+@@ -802,6 +749,59 @@ static int phy_poll_aneg_done(struct phy
+ 	return ret < 0 ? ret : 0;
+ }
+ 
++int phy_ethtool_ksettings_set(struct phy_device *phydev,
++			      const struct ethtool_link_ksettings *cmd)
++{
++	__ETHTOOL_DECLARE_LINK_MODE_MASK(advertising);
++	u8 autoneg = cmd->base.autoneg;
++	u8 duplex = cmd->base.duplex;
++	u32 speed = cmd->base.speed;
 +
- 	/* Make sure that the chunk has a valid length. */
- 	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_chunkhdr)))
- 		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
--- 
-2.33.0
-
++	if (cmd->base.phy_address != phydev->mdio.addr)
++		return -EINVAL;
++
++	linkmode_copy(advertising, cmd->link_modes.advertising);
++
++	/* We make sure that we don't pass unsupported values in to the PHY */
++	linkmode_and(advertising, advertising, phydev->supported);
++
++	/* Verify the settings we care about. */
++	if (autoneg != AUTONEG_ENABLE && autoneg != AUTONEG_DISABLE)
++		return -EINVAL;
++
++	if (autoneg == AUTONEG_ENABLE && linkmode_empty(advertising))
++		return -EINVAL;
++
++	if (autoneg == AUTONEG_DISABLE &&
++	    ((speed != SPEED_1000 &&
++	      speed != SPEED_100 &&
++	      speed != SPEED_10) ||
++	     (duplex != DUPLEX_HALF &&
++	      duplex != DUPLEX_FULL)))
++		return -EINVAL;
++
++	phydev->autoneg = autoneg;
++
++	if (autoneg == AUTONEG_DISABLE) {
++		phydev->speed = speed;
++		phydev->duplex = duplex;
++	}
++
++	linkmode_copy(phydev->advertising, advertising);
++
++	linkmode_mod_bit(ETHTOOL_LINK_MODE_Autoneg_BIT,
++			 phydev->advertising, autoneg == AUTONEG_ENABLE);
++
++	phydev->master_slave_set = cmd->base.master_slave_cfg;
++	phydev->mdix_ctrl = cmd->base.eth_tp_mdix_ctrl;
++
++	/* Restart the PHY */
++	phy_start_aneg(phydev);
++
++	return 0;
++}
++EXPORT_SYMBOL(phy_ethtool_ksettings_set);
++
+ /**
+  * phy_speed_down - set speed to lowest speed supported by both link partners
+  * @phydev: the phy_device struct
 
 
