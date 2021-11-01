@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6CC441797
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5040A441886
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233220AbhKAJhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:37:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43606 "EHLO mail.kernel.org"
+        id S232236AbhKAJtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:49:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232274AbhKAJfs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:35:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 096A2610F7;
-        Mon,  1 Nov 2021 09:26:04 +0000 (UTC)
+        id S234129AbhKAJrK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:47:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 737DA61179;
+        Mon,  1 Nov 2021 09:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758765;
-        bh=kCanV9jbpB0i0XOkDrbxtLn7ngkluchTu+lemPaNNBU=;
+        s=korg; t=1635759028;
+        bh=kJHSbuRnKGTdUeKX8rgZGjmFOi20ftVkzzoANQZCGRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2vwyGk+Lmh9vZ6PT/4JCwvgJQWElqu4q7BkMm/4ZhWEKCU8bvlXEZXNwE8viMFHFw
-         2xknDdlOvqyg9DmObBCG5zTEld4AIx9ZCED/6VGo/UY2n6t+xHc0siOMvKOPQF1E91
-         Fpq6nnofVWSIXTuwv6eP4AXH8HRPBSBkeyvqUIvM=
+        b=gCCqkfezIpUyDwNZaskRsqW2FUCbgPsF8buCJs9neL3l5yNbHnfJ2uyG3weHTVHlz
+         3dH7fnTLSGMvDMevbu4aPeEcsYGQghZJBXruZVi0fY1yCJaohJ49xs5hIO+bKls/Pv
+         Gj/O8RVLatssONDQvpeO4HgFze5WuHME2TJLuOUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
+        stable@vger.kernel.org, Yuiko Oshino <yuiko.oshino@microchip.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 50/77] net-sysfs: initialize uid and gid before calling net_ns_get_ownership
+Subject: [PATCH 5.14 085/125] net: ethernet: microchip: lan743x: Fix driver crash when lan743x_pm_resume fails
 Date:   Mon,  1 Nov 2021 10:17:38 +0100
-Message-Id: <20211101082522.257342068@linuxfoundation.org>
+Message-Id: <20211101082549.328144936@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +39,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Yuiko Oshino <yuiko.oshino@microchip.com>
 
-commit f7a1e76d0f608961cc2fc681f867a834f2746bce upstream.
+commit d6423d2ec39cce2bfca418c81ef51792891576bc upstream.
 
-Currently in net_ns_get_ownership() it may not be able to set uid or gid
-if make_kuid or make_kgid returns an invalid value, and an uninit-value
-issue can be triggered by this.
+The driver needs to clean up and return when the initialization fails on resume.
 
-This patch is to fix it by initializing the uid and gid before calling
-net_ns_get_ownership(), as it does in kobject_get_ownership()
-
-Fixes: e6dee9f3893c ("net-sysfs: add netdev_change_owner()")
-Reported-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Fixes: 23f0703c125b ("lan743x: Add main source files for new lan743x driver")
+Signed-off-by: Yuiko Oshino <yuiko.oshino@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/net-sysfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/microchip/lan743x_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -1957,9 +1957,9 @@ int netdev_register_kobject(struct net_d
- int netdev_change_owner(struct net_device *ndev, const struct net *net_old,
- 			const struct net *net_new)
- {
-+	kuid_t old_uid = GLOBAL_ROOT_UID, new_uid = GLOBAL_ROOT_UID;
-+	kgid_t old_gid = GLOBAL_ROOT_GID, new_gid = GLOBAL_ROOT_GID;
- 	struct device *dev = &ndev->dev;
--	kuid_t old_uid, new_uid;
--	kgid_t old_gid, new_gid;
- 	int error;
+--- a/drivers/net/ethernet/microchip/lan743x_main.c
++++ b/drivers/net/ethernet/microchip/lan743x_main.c
+@@ -3019,6 +3019,8 @@ static int lan743x_pm_resume(struct devi
+ 	if (ret) {
+ 		netif_err(adapter, probe, adapter->netdev,
+ 			  "lan743x_hardware_init returned %d\n", ret);
++		lan743x_pci_cleanup(adapter);
++		return ret;
+ 	}
  
- 	net_ns_get_ownership(net_old, &old_uid, &old_gid);
+ 	/* open netdev when netdev is at running state while resume.
 
 
