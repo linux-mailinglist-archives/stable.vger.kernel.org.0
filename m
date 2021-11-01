@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF244417F6
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D6E4418EE
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:51:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233115AbhKAJlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:41:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47858 "EHLO mail.kernel.org"
+        id S234046AbhKAJxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:53:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233461AbhKAJjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:39:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A7F66136A;
-        Mon,  1 Nov 2021 09:27:28 +0000 (UTC)
+        id S234570AbhKAJvG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:51:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E70A61462;
+        Mon,  1 Nov 2021 09:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758849;
-        bh=z4AJk44OSZUO1j94BmUKDQATtrKwZA7TFPAG2yfyQ9Q=;
+        s=korg; t=1635759143;
+        bh=rIBHxET7ZY6wtCLKoVMoBk6Y23exH1kOr7o0fCO+smw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L8e2zykIujKksfxyahn4geTmskC8D1OMwvImsxNIQyo1Tt/MgN3eL546BCu0aJcWZ
-         3H+DzY/VeYIBGVE1jwB+BE0AhwidP7ZdafWPHSEMPdEsV3QAEAZnmGvfMbYDqMAhR8
-         TTMYpCQk35hSVkvS87NxJjyfM1rJC3qaHmgAj9dc=
+        b=VSnm+YjcDgZvXECyZTknYilFKFJCHwHjJ+qcFyVmgv08TQ8xdAKGEF8R5ny4JkdWR
+         XAp0n9sfz1NOsP4mpBQPBeFjICxXEUSjxnvNaBHUuGcPb5KGSYbnxzUTW5hgaQKR7s
+         8mhq635Ent83zAsLtTSq9BOVRG7YQSDXOV6MYrmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 67/77] sctp: fix the processing for COOKIE_ECHO chunk
+Subject: [PATCH 5.14 102/125] sctp: fix the processing for COOKIE_ECHO chunk
 Date:   Mon,  1 Nov 2021 10:17:55 +0100
-Message-Id: <20211101082525.642290500@linuxfoundation.org>
+Message-Id: <20211101082552.440766758@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,10 +70,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 10 insertions(+), 4 deletions(-)
 
 diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 5063f9884367..0cfbf6046bf8 100644
+index 672e5308839b..96a069d725e9 100644
 --- a/net/sctp/sm_statefuns.c
 +++ b/net/sctp/sm_statefuns.c
-@@ -697,6 +697,9 @@ enum sctp_disposition sctp_sf_do_5_1D_ce(struct net *net,
+@@ -710,6 +710,9 @@ enum sctp_disposition sctp_sf_do_5_1D_ce(struct net *net,
  	struct sock *sk;
  	int error = 0;
  
@@ -83,7 +83,7 @@ index 5063f9884367..0cfbf6046bf8 100644
  	/* If the packet is an OOTB packet which is temporarily on the
  	 * control endpoint, respond with an ABORT.
  	 */
-@@ -711,7 +714,8 @@ enum sctp_disposition sctp_sf_do_5_1D_ce(struct net *net,
+@@ -724,7 +727,8 @@ enum sctp_disposition sctp_sf_do_5_1D_ce(struct net *net,
  	 * in sctp_unpack_cookie().
  	 */
  	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_chunkhdr)))
@@ -93,7 +93,7 @@ index 5063f9884367..0cfbf6046bf8 100644
  
  	/* If the endpoint is not listening or if the number of associations
  	 * on the TCP-style socket exceed the max backlog, respond with an
-@@ -2141,9 +2145,11 @@ enum sctp_disposition sctp_sf_do_5_2_4_dupcook(
+@@ -2204,9 +2208,11 @@ enum sctp_disposition sctp_sf_do_5_2_4_dupcook(
  	 * enough for the chunk header.  Cookie length verification is
  	 * done later.
  	 */
