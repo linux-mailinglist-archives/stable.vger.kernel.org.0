@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 698EB441895
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6373744175D
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:33:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233033AbhKAJt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:49:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51108 "EHLO mail.kernel.org"
+        id S233241AbhKAJfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:35:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233144AbhKAJpA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:45:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C267760C41;
-        Mon,  1 Nov 2021 09:29:55 +0000 (UTC)
+        id S233635AbhKAJds (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:33:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8B3A61279;
+        Mon,  1 Nov 2021 09:25:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758996;
-        bh=s/GCZQS4eKhH9G78N4AHMdG9j9LpI4/y02eoL8pkNBE=;
+        s=korg; t=1635758721;
+        bh=D2Kw8ZeBUWKw65O4pZ6IHRH80AuFRjqf5gcq3B7UpGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pIuhWbbycc/D0zNjqQhmnJ2xdrx2TSVe+NI6ctwynR1nRXUpVGnxhP/QFg+pg1UHY
-         8GMco8X4ieB6X/TxRUK9tsB3ppYFMcP62MlKGtXcBUnHOjTGjnVCAtrh4QhU1mX2u+
-         FisD3SSOwqWifVlVh09lk+WdQJ53d2fHYP3pyQg4=
+        b=aoQWw4OB3p9AIqYSMQRp0aaDyDxNFW+CzrOU3yt7aVlA1F07ap2+k77phtlL/r+DK
+         YcAkxH8AwRYwdC7zD2ub5JXIzEiO9fnKVY+b+5ycoqbmF/HIpYj8igXWE2ADyN7qBj
+         sjRH5ZfBx/7z89oLZ0auYY5a883jdZpuo4t00JLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.14 038/125] arm64: dts: imx8mm-kontron: Fix CAN SPI clock frequency
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.10 03/77] ARM: 9134/1: remove duplicate memcpy() definition
 Date:   Mon,  1 Nov 2021 10:16:51 +0100
-Message-Id: <20211101082540.377488703@linuxfoundation.org>
+Message-Id: <20211101082511.897153779@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit ca6f9d85d5944046a241b325700c1ca395651c28 upstream.
+commit eaf6cc7165c9c5aa3c2f9faa03a98598123d0afb upstream.
 
-The MCP2515 can be used with an SPI clock of up to 10 MHz. Set the
-limit accordingly to prevent any performance issues caused by the
-really low clock speed of 100 kHz.
+Both the decompressor code and the kasan logic try to override
+the memcpy() and memmove()  definitions, which leading to a clash
+in a KASAN-enabled kernel with XZ decompression:
 
-This removes the arbitrarily low limit on the SPI frequency, that was
-caused by a typo in the original dts.
+arch/arm/boot/compressed/decompress.c:50:9: error: 'memmove' macro redefined [-Werror,-Wmacro-redefined]
+ #define memmove memmove
+        ^
+arch/arm/include/asm/string.h:59:9: note: previous definition is here
+ #define memmove(dst, src, len) __memmove(dst, src, len)
+        ^
+arch/arm/boot/compressed/decompress.c:51:9: error: 'memcpy' macro redefined [-Werror,-Wmacro-redefined]
+ #define memcpy memcpy
+        ^
+arch/arm/include/asm/string.h:58:9: note: previous definition is here
+ #define memcpy(dst, src, len) __memcpy(dst, src, len)
+        ^
 
-Without this change, receiving CAN messages on the board beyond a
-certain bitrate will cause overrun errors (see 'ip -det -stat link show
-can0').
+Here we want the set of functions from the decompressor, so undefine
+the other macros before the override.
 
-With this fix, receiving messages on the bus works without any overrun
-errors for bitrates up to 1 MBit.
+Link: https://lore.kernel.org/linux-arm-kernel/CACRpkdZYJogU_SN3H9oeVq=zJkRgRT1gDz3xp59gdqWXxw-B=w@mail.gmail.com/
+Link: https://lore.kernel.org/lkml/202105091112.F5rmd4By-lkp@intel.com/
 
-Fixes: 8668d8b2e67f ("arm64: dts: Add the Kontron i.MX8M Mini SoMs and baseboards")
-Cc: stable@vger.kernel.org
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: d6d51a96c7d6 ("ARM: 9014/2: Replace string mem* functions for KASan")
+Fixes: a7f464f3db93 ("ARM: 7001/2: Wire up support for the XZ decompressor")
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/compressed/decompress.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
-@@ -97,7 +97,7 @@
- 		clocks = <&osc_can>;
- 		interrupt-parent = <&gpio4>;
- 		interrupts = <28 IRQ_TYPE_EDGE_FALLING>;
--		spi-max-frequency = <100000>;
-+		spi-max-frequency = <10000000>;
- 		vdd-supply = <&reg_vdd_3v3>;
- 		xceiver-supply = <&reg_vdd_5v>;
- 	};
+--- a/arch/arm/boot/compressed/decompress.c
++++ b/arch/arm/boot/compressed/decompress.c
+@@ -47,7 +47,10 @@ extern char * strchrnul(const char *, in
+ #endif
+ 
+ #ifdef CONFIG_KERNEL_XZ
++/* Prevent KASAN override of string helpers in decompressor */
++#undef memmove
+ #define memmove memmove
++#undef memcpy
+ #define memcpy memcpy
+ #include "../../../../lib/decompress_unxz.c"
+ #endif
 
 
