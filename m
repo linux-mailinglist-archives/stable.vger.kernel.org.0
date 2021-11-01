@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C0E74418AE
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:49:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 165BE4417C2
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232576AbhKAJua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:50:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52160 "EHLO mail.kernel.org"
+        id S233484AbhKAJjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:39:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234596AbhKAJs3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:48:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBB8A61181;
-        Mon,  1 Nov 2021 09:31:10 +0000 (UTC)
+        id S232556AbhKAJhs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:37:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE038611CA;
+        Mon,  1 Nov 2021 09:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759071;
-        bh=NwaoFFW1qKWbOff8d7pXDM3FlzWxG6X5vfiCSPIqg6c=;
+        s=korg; t=1635758807;
+        bh=uSR3PZPp5qtAhh3J7+ecbG6Ur4HJljEGrS071nObm7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X3z3W25lbvvcP9GhjQUH8yf0D2a3ELjDPQN8HdNOx9Xy7Fh4uJv9Mql/PrH//RJg4
-         TsulFtohOCZ4VE3HZ5nFD34phgzws/XJPMVjAOBNrkV8rl8Ll5ShEV0YjQvlgICEYv
-         dpz2cAcYmLEhHcRlUNImFe/FJ0cY3CWZ7pwnHgAI=
+        b=HbZJ72VeeEq7fqdjHp4ZSvTzhhhywlpAUPj6GhSZUg64CM6xbyvs06OLtfPwpAI4t
+         uQFSMS9RIe5JvOaI75C0siIXUPNIhlVJFXxVve8lbgnck/DjkDNcRCAhWVaI/NpkDa
+         odj3hakIt0mS9a8yQb6vvjOLF4f1E2NBHsyxx+bI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 101/125] sctp: fix the processing for INIT_ACK chunk
+Subject: [PATCH 5.10 66/77] sctp: fix the processing for INIT_ACK chunk
 Date:   Mon,  1 Nov 2021 10:17:54 +0100
-Message-Id: <20211101082552.233806200@linuxfoundation.org>
+Message-Id: <20211101082525.458195463@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,10 +72,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 19 insertions(+), 18 deletions(-)
 
 diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 9bfa8cca9974..672e5308839b 100644
+index 89a86728184d..5063f9884367 100644
 --- a/net/sctp/sm_statefuns.c
 +++ b/net/sctp/sm_statefuns.c
-@@ -2343,7 +2343,7 @@ enum sctp_disposition sctp_sf_shutdown_pending_abort(
+@@ -2280,7 +2280,7 @@ enum sctp_disposition sctp_sf_shutdown_pending_abort(
  	 */
  	if (SCTP_ADDR_DEL ==
  		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
@@ -84,7 +84,7 @@ index 9bfa8cca9974..672e5308839b 100644
  
  	if (!sctp_err_chunk_valid(chunk))
  		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-@@ -2389,7 +2389,7 @@ enum sctp_disposition sctp_sf_shutdown_sent_abort(
+@@ -2326,7 +2326,7 @@ enum sctp_disposition sctp_sf_shutdown_sent_abort(
  	 */
  	if (SCTP_ADDR_DEL ==
  		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
@@ -93,7 +93,7 @@ index 9bfa8cca9974..672e5308839b 100644
  
  	if (!sctp_err_chunk_valid(chunk))
  		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-@@ -2659,7 +2659,7 @@ enum sctp_disposition sctp_sf_do_9_1_abort(
+@@ -2596,7 +2596,7 @@ enum sctp_disposition sctp_sf_do_9_1_abort(
  	 */
  	if (SCTP_ADDR_DEL ==
  		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
@@ -102,7 +102,7 @@ index 9bfa8cca9974..672e5308839b 100644
  
  	if (!sctp_err_chunk_valid(chunk))
  		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-@@ -3865,6 +3865,11 @@ enum sctp_disposition sctp_sf_do_asconf(struct net *net,
+@@ -3745,6 +3745,11 @@ enum sctp_disposition sctp_sf_do_asconf(struct net *net,
  		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
  	}
  
@@ -114,7 +114,7 @@ index 9bfa8cca9974..672e5308839b 100644
  	/* ADD-IP: Section 4.1.1
  	 * This chunk MUST be sent in an authenticated way by using
  	 * the mechanism defined in [I-D.ietf-tsvwg-sctp-auth]. If this chunk
-@@ -3873,13 +3878,7 @@ enum sctp_disposition sctp_sf_do_asconf(struct net *net,
+@@ -3753,13 +3758,7 @@ enum sctp_disposition sctp_sf_do_asconf(struct net *net,
  	 */
  	if (!asoc->peer.asconf_capable ||
  	    (!net->sctp.addip_noauth && !chunk->auth))
@@ -129,7 +129,7 @@ index 9bfa8cca9974..672e5308839b 100644
  
  	hdr = (struct sctp_addiphdr *)chunk->skb->data;
  	serial = ntohl(hdr->serial);
-@@ -4008,6 +4007,12 @@ enum sctp_disposition sctp_sf_do_asconf_ack(struct net *net,
+@@ -3888,6 +3887,12 @@ enum sctp_disposition sctp_sf_do_asconf_ack(struct net *net,
  		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
  	}
  
@@ -142,7 +142,7 @@ index 9bfa8cca9974..672e5308839b 100644
  	/* ADD-IP, Section 4.1.2:
  	 * This chunk MUST be sent in an authenticated way by using
  	 * the mechanism defined in [I-D.ietf-tsvwg-sctp-auth]. If this chunk
-@@ -4016,14 +4021,7 @@ enum sctp_disposition sctp_sf_do_asconf_ack(struct net *net,
+@@ -3896,14 +3901,7 @@ enum sctp_disposition sctp_sf_do_asconf_ack(struct net *net,
  	 */
  	if (!asoc->peer.asconf_capable ||
  	    (!net->sctp.addip_noauth && !asconf_ack->auth))
@@ -158,7 +158,7 @@ index 9bfa8cca9974..672e5308839b 100644
  
  	addip_hdr = (struct sctp_addiphdr *)asconf_ack->skb->data;
  	rcvd_serial = ntohl(addip_hdr->serial);
-@@ -4595,6 +4593,9 @@ enum sctp_disposition sctp_sf_discard_chunk(struct net *net,
+@@ -4475,6 +4473,9 @@ enum sctp_disposition sctp_sf_discard_chunk(struct net *net,
  {
  	struct sctp_chunk *chunk = arg;
  
