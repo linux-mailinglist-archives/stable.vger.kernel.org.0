@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A41E74416B6
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D036C4417BC
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232057AbhKAJ2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:28:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58250 "EHLO mail.kernel.org"
+        id S232348AbhKAJjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:39:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232969AbhKAJ0Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:26:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACA8B60F70;
-        Mon,  1 Nov 2021 09:22:06 +0000 (UTC)
+        id S233629AbhKAJho (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:37:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5218461352;
+        Mon,  1 Nov 2021 09:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758527;
-        bh=gDkV0NOe9BGXhmQRGO1YukRLP6lPYzaaA1KpmtPouW4=;
+        s=korg; t=1635758788;
+        bh=NWtY/yBNxkcnnGKSfGyzyg6bWegWiIGZz37uhmBi0/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l55nRnTgTZEEAfVO8sddJazhfDd9z9ZnsUJD7wZkQ8LCuPn/3nlmr2ZmIIoUm0fAq
-         cDbR4EnkTgBRtyj4drcAxfX6nrYUEkPF2/o3VnGhZRuIfVGM3ebyLM2ImBSVON9Z1c
-         6PpitpPuFtSYbyFZ7wVKllr0bwWee8OIHFWOb79s=
+        b=S4yyVAfK6qGGWexuRjf7jtOQUe2Mxq4Q2Rkhts1bs99cVlNSHETTN53TPl87QB7Gs
+         BdrMJvx4igyLWwRNU3ranuYFMDeNNCBxIeIxZnHQmBEOx5G9TlSaMwGMpQs6i4AG8M
+         zz9jI4TByH3t5THqAMYG8mDttQUarFrsbl1eoSvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/35] sctp: add vtag check in sctp_sf_ootb
+        stable@vger.kernel.org, Trevor Woerner <twoerner@gmail.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 59/77] net: nxp: lpc_eth.c: avoid hang when bringing interface down
 Date:   Mon,  1 Nov 2021 10:17:47 +0100
-Message-Id: <20211101082459.925983111@linuxfoundation.org>
+Message-Id: <20211101082524.058311014@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
-References: <20211101082451.430720900@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Trevor Woerner <twoerner@gmail.com>
 
-[ Upstream commit 9d02831e517aa36ee6bdb453a0eb47bd49923fe3 ]
+commit ace19b992436a257d9a793672e57abc28fe83e2e upstream.
 
-sctp_sf_ootb() is called when processing DATA chunk in closed state,
-and many other places are also using it.
-
-The vtag in the chunk's sctphdr should be verified, otherwise, as
-later in chunk length check, it may send abort with the existent
-asoc's vtag, which can be exploited by one to cook a malicious
-chunk to terminate a SCTP asoc.
-
-When fails to verify the vtag from the chunk, this patch sets asoc
-to NULL, so that the abort will be made with the vtag from the
-received chunk later.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+A hard hang is observed whenever the ethernet interface is brought
+down. If the PHY is stopped before the LPC core block is reset,
+the SoC will hang. Comparing lpc_eth_close() and lpc_eth_open() I
+re-arranged the ordering of the functions calls in lpc_eth_close() to
+reset the hardware before stopping the PHY.
+Fixes: b7370112f519 ("lpc32xx: Added ethernet driver")
+Signed-off-by: Trevor Woerner <twoerner@gmail.com>
+Acked-by: Vladimir Zapolskiy <vz@mleia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/sm_statefuns.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/nxp/lpc_eth.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 2995d00bd5d0..ebca069064df 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -3583,6 +3583,9 @@ enum sctp_disposition sctp_sf_ootb(struct net *net,
+--- a/drivers/net/ethernet/nxp/lpc_eth.c
++++ b/drivers/net/ethernet/nxp/lpc_eth.c
+@@ -1015,9 +1015,6 @@ static int lpc_eth_close(struct net_devi
+ 	napi_disable(&pldat->napi);
+ 	netif_stop_queue(ndev);
  
- 	SCTP_INC_STATS(net, SCTP_MIB_OUTOFBLUES);
+-	if (ndev->phydev)
+-		phy_stop(ndev->phydev);
+-
+ 	spin_lock_irqsave(&pldat->lock, flags);
+ 	__lpc_eth_reset(pldat);
+ 	netif_carrier_off(ndev);
+@@ -1025,6 +1022,8 @@ static int lpc_eth_close(struct net_devi
+ 	writel(0, LPC_ENET_MAC2(pldat->net_base));
+ 	spin_unlock_irqrestore(&pldat->lock, flags);
  
-+	if (asoc && !sctp_vtag_verify(chunk, asoc))
-+		asoc = NULL;
-+
- 	ch = (struct sctp_chunkhdr *)chunk->chunk_hdr;
- 	do {
- 		/* Report violation if the chunk is less then minimal */
--- 
-2.33.0
-
++	if (ndev->phydev)
++		phy_stop(ndev->phydev);
+ 	clk_disable_unprepare(pldat->clk);
+ 
+ 	return 0;
 
 
