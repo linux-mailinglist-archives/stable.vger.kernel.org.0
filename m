@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5D684417DB
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C82A14416C8
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233719AbhKAJkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:40:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43606 "EHLO mail.kernel.org"
+        id S232316AbhKAJ3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:29:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233055AbhKAJht (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:37:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1F6E61356;
-        Mon,  1 Nov 2021 09:26:51 +0000 (UTC)
+        id S232655AbhKAJ0a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:26:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6643610CB;
+        Mon,  1 Nov 2021 09:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758812;
-        bh=Gh/8BVu33pNE4rI2kcpJL+qQl5bR/JeuGu+ygPgdVUA=;
+        s=korg; t=1635758534;
+        bh=XP6xqaCKaVSIlA0u5zfaKe8UB3AZGYZFVkc+IJ3zeA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eqp0Qi0aRNHM1oK4wRsx1WU92zoOXdIQB6R/vTdKA53Dn9kmfiRDML78A6jgS9K/u
-         QgnRQdMdRU+ITwYPIkDAZlWim2cIv3NDDLcRHjH2RKb/HmwY24+EKBv9CZ5Q9B/Pnt
-         y5lr4bpMeh8q4N8TfFGLSCjAkGroW1BLUSAX8Ke4=
+        b=rSpR2lppFNNNnJozPGVC3Z0JRyfgfjAE7PPtqz1XzKzUNnSqV9oDCCIYaSBEp1M8k
+         UxG7HEsrQm0v0TVDDGla/ocBS8B+fFAyzKdF2Ec0lBbCC1mX0XZDd0RE13thv+97i7
+         9BRhzS0qNf90wR+MGHq3WO43vFTmbDCpVnmMO4jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.10 37/77] bpf: Fix potential race in tail call compatibility check
-Date:   Mon,  1 Nov 2021 10:17:25 +0100
-Message-Id: <20211101082519.633404679@linuxfoundation.org>
+        Eric Dumazet <edumazet@google.com>, Keyu Man <kman001@ucr.edu>,
+        Wei Wang <weiwan@google.com>, Martin KaFai Lau <kafai@fb.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 14/35] ipv6: use siphash in rt6_exception_hash()
+Date:   Mon,  1 Nov 2021 10:17:26 +0100
+Message-Id: <20211101082454.927128089@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
+References: <20211101082451.430720900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,130 +41,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 54713c85f536048e685258f880bf298a74c3620d upstream.
+commit 4785305c05b25a242e5314cc821f54ade4c18810 upstream.
 
-Lorenzo noticed that the code testing for program type compatibility of
-tail call maps is potentially racy in that two threads could encounter a
-map with an unset type simultaneously and both return true even though they
-are inserting incompatible programs.
+A group of security researchers brought to our attention
+the weakness of hash function used in rt6_exception_hash()
 
-The race window is quite small, but artificially enlarging it by adding a
-usleep_range() inside the check in bpf_prog_array_compatible() makes it
-trivial to trigger from userspace with a program that does, essentially:
+Lets use siphash instead of Jenkins Hash, to considerably
+reduce security risks.
 
-        map_fd = bpf_create_map(BPF_MAP_TYPE_PROG_ARRAY, 4, 4, 2, 0);
-        pid = fork();
-        if (pid) {
-                key = 0;
-                value = xdp_fd;
-        } else {
-                key = 1;
-                value = tc_fd;
-        }
-        err = bpf_map_update_elem(map_fd, &key, &value, 0);
+Following patch deals with IPv4.
 
-While the race window is small, it has potentially serious ramifications in
-that triggering it would allow a BPF program to tail call to a program of a
-different type. So let's get rid of it by protecting the update with a
-spinlock. The commit in the Fixes tag is the last commit that touches the
-code in question.
-
-v2:
-- Use a spinlock instead of an atomic variable and cmpxchg() (Alexei)
-v3:
-- Put lock and the members it protects into an embedded 'owner' struct (Daniel)
-
-Fixes: 3324b584b6f6 ("ebpf: misc core cleanup")
-Reported-by: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20211026110019.363464-1-toke@redhat.com
+Fixes: 35732d01fe31 ("ipv6: introduce a hash table to store dst cache")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Keyu Man <kman001@ucr.edu>
+Cc: Wei Wang <weiwan@google.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Acked-by: Wei Wang <weiwan@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[OP: adjusted context for 4.19 stable]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bpf.h   |    7 +++++--
- kernel/bpf/arraymap.c |    1 +
- kernel/bpf/core.c     |   20 +++++++++++++-------
- kernel/bpf/syscall.c  |    6 ++++--
- 4 files changed, 23 insertions(+), 11 deletions(-)
+ net/ipv6/route.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -862,8 +862,11 @@ struct bpf_array_aux {
- 	 * stored in the map to make sure that all callers and callees have
- 	 * the same prog type and JITed flag.
- 	 */
--	enum bpf_prog_type type;
--	bool jited;
-+	struct {
-+		spinlock_t lock;
-+		enum bpf_prog_type type;
-+		bool jited;
-+	} owner;
- 	/* Programs with direct jumps into programs part of this array. */
- 	struct list_head poke_progs;
- 	struct bpf_map *map;
---- a/kernel/bpf/arraymap.c
-+++ b/kernel/bpf/arraymap.c
-@@ -1025,6 +1025,7 @@ static struct bpf_map *prog_array_map_al
- 	INIT_WORK(&aux->work, prog_array_map_clear_deferred);
- 	INIT_LIST_HEAD(&aux->poke_progs);
- 	mutex_init(&aux->poke_mutex);
-+	spin_lock_init(&aux->owner.lock);
- 
- 	map = array_map_alloc(attr);
- 	if (IS_ERR(map)) {
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -1775,20 +1775,26 @@ static unsigned int __bpf_prog_ret0_warn
- bool bpf_prog_array_compatible(struct bpf_array *array,
- 			       const struct bpf_prog *fp)
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -45,6 +45,7 @@
+ #include <linux/nsproxy.h>
+ #include <linux/slab.h>
+ #include <linux/jhash.h>
++#include <linux/siphash.h>
+ #include <net/net_namespace.h>
+ #include <net/snmp.h>
+ #include <net/ipv6.h>
+@@ -1337,17 +1338,24 @@ static void rt6_exception_remove_oldest(
+ static u32 rt6_exception_hash(const struct in6_addr *dst,
+ 			      const struct in6_addr *src)
  {
-+	bool ret;
-+
- 	if (fp->kprobe_override)
- 		return false;
+-	static u32 seed __read_mostly;
+-	u32 val;
++	static siphash_key_t rt6_exception_key __read_mostly;
++	struct {
++		struct in6_addr dst;
++		struct in6_addr src;
++	} __aligned(SIPHASH_ALIGNMENT) combined = {
++		.dst = *dst,
++	};
++	u64 val;
  
--	if (!array->aux->type) {
-+	spin_lock(&array->aux->owner.lock);
+-	net_get_random_once(&seed, sizeof(seed));
+-	val = jhash(dst, sizeof(*dst), seed);
++	net_get_random_once(&rt6_exception_key, sizeof(rt6_exception_key));
+ 
+ #ifdef CONFIG_IPV6_SUBTREES
+ 	if (src)
+-		val = jhash(src, sizeof(*src), val);
++		combined.src = *src;
+ #endif
+-	return hash_32(val, FIB6_EXCEPTION_BUCKET_SIZE_SHIFT);
++	val = siphash(&combined, sizeof(combined), &rt6_exception_key);
 +
-+	if (!array->aux->owner.type) {
- 		/* There's no owner yet where we could check for
- 		 * compatibility.
- 		 */
--		array->aux->type  = fp->type;
--		array->aux->jited = fp->jited;
--		return true;
-+		array->aux->owner.type  = fp->type;
-+		array->aux->owner.jited = fp->jited;
-+		ret = true;
-+	} else {
-+		ret = array->aux->owner.type  == fp->type &&
-+		      array->aux->owner.jited == fp->jited;
- 	}
--
--	return array->aux->type  == fp->type &&
--	       array->aux->jited == fp->jited;
-+	spin_unlock(&array->aux->owner.lock);
-+	return ret;
++	return hash_64(val, FIB6_EXCEPTION_BUCKET_SIZE_SHIFT);
  }
  
- static int bpf_check_tail_call(const struct bpf_prog *fp)
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -535,8 +535,10 @@ static void bpf_map_show_fdinfo(struct s
- 
- 	if (map->map_type == BPF_MAP_TYPE_PROG_ARRAY) {
- 		array = container_of(map, struct bpf_array, map);
--		type  = array->aux->type;
--		jited = array->aux->jited;
-+		spin_lock(&array->aux->owner.lock);
-+		type  = array->aux->owner.type;
-+		jited = array->aux->owner.jited;
-+		spin_unlock(&array->aux->owner.lock);
- 	}
- 
- 	seq_printf(m,
+ /* Helper function to find the cached rt in the hash table
 
 
