@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59EA1441702
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:30:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F01144169C
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232174AbhKAJcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:32:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36830 "EHLO mail.kernel.org"
+        id S232299AbhKAJ1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:27:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232229AbhKAJaE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:30:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5922C61208;
-        Mon,  1 Nov 2021 09:23:26 +0000 (UTC)
+        id S232502AbhKAJY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:24:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DBBE611C7;
+        Mon,  1 Nov 2021 09:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758606;
-        bh=cGCxs+1Ry/Qu7CSd/SGrQrCzbmL0By5mcfTNjiE5zdY=;
+        s=korg; t=1635758503;
+        bh=ZK86WI+eOdidgSAEYew7NOQz3EXb8KIE1nGckZK2JQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fiaBap415bqB+C8kD5Ba863huJ3zlUlZ3sZ6/J857h5eJHWHP2Jhqsf6pUum5CMQa
-         WC+jB5MmJ34CZ10iqKqB1fFjOzfaN3p0IyVA4cWliMHX5y3zDllz559XrAqUS2GRBQ
-         aKB5yQg2TVjf45r9iYnyLziKDZ/LeygC4DhTJMUQ=
+        b=otQ9HwUfElgN3eizoTGrpyq3L/2NM6JSKFz15aLUqzImFXChjGFmbSx6vYyH3BRrq
+         4XjqFFgcvEee4XowewtnGRqiBj1PawES8bp7njsJkEgqh3kV0jp8e7ZwMp8FyOi3nb
+         nN+IX1AtQVjTQ/ek3EQiC7KUEULYNqqGkYPHr52Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 5.4 34/51] nios2: Make NIOS2_DTB_SOURCE_BOOL depend on !COMPILE_TEST
+        stable@vger.kernel.org, Andy Gospodarek <gospo@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 26/35] net: Prevent infinite while loop in skb_tx_hash()
 Date:   Mon,  1 Nov 2021 10:17:38 +0100
-Message-Id: <20211101082508.765125670@linuxfoundation.org>
+Message-Id: <20211101082457.871170890@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
+References: <20211101082451.430720900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Michael Chan <michael.chan@broadcom.com>
 
-commit 4a089e95b4d6bb625044d47aed0c442a8f7bd093 upstream.
+commit 0c57eeecc559ca6bc18b8c4e2808bc78dbe769b0 upstream.
 
-nios2:allmodconfig builds fail with
+Drivers call netdev_set_num_tc() and then netdev_set_tc_queue()
+to set the queue count and offset for each TC.  So the queue count
+and offset for the TCs may be zero for a short period after dev->num_tc
+has been set.  If a TX packet is being transmitted at this time in the
+code path netdev_pick_tx() -> skb_tx_hash(), skb_tx_hash() may see
+nonzero dev->num_tc but zero qcount for the TC.  The while loop that
+keeps looping while hash >= qcount will not end.
 
-make[1]: *** No rule to make target 'arch/nios2/boot/dts/""',
-	needed by 'arch/nios2/boot/dts/built-in.a'.  Stop.
-make: [Makefile:1868: arch/nios2/boot/dts] Error 2 (ignored)
+Fix it by checking the TC's qcount to be nonzero before using it.
 
-This is seen with compile tests since those enable NIOS2_DTB_SOURCE_BOOL,
-which in turn enables NIOS2_DTB_SOURCE. This causes the build error
-because the default value for NIOS2_DTB_SOURCE is an empty string.
-Disable NIOS2_DTB_SOURCE_BOOL for compile tests to avoid the error.
-
-Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Fixes: eadec877ce9c ("net: Add support for subordinate traffic classes to netdev_pick_tx")
+Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/nios2/platform/Kconfig.platform |    1 +
- 1 file changed, 1 insertion(+)
+ net/core/dev.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/nios2/platform/Kconfig.platform
-+++ b/arch/nios2/platform/Kconfig.platform
-@@ -37,6 +37,7 @@ config NIOS2_DTB_PHYS_ADDR
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -2846,6 +2846,12 @@ static u16 skb_tx_hash(const struct net_
  
- config NIOS2_DTB_SOURCE_BOOL
- 	bool "Compile and link device tree into kernel image"
-+	depends on !COMPILE_TEST
- 	help
- 	  This allows you to specify a dts (device tree source) file
- 	  which will be compiled and linked into the kernel image.
+ 		qoffset = sb_dev->tc_to_txq[tc].offset;
+ 		qcount = sb_dev->tc_to_txq[tc].count;
++		if (unlikely(!qcount)) {
++			net_warn_ratelimited("%s: invalid qcount, qoffset %u for tc %u\n",
++					     sb_dev->name, qoffset, tc);
++			qoffset = 0;
++			qcount = dev->real_num_tx_queues;
++		}
+ 	}
+ 
+ 	if (skb_rx_queue_recorded(skb)) {
 
 
