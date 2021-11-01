@@ -2,95 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51B80442295
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 22:23:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0E434422A5
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 22:28:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231817AbhKAVZu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 17:25:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37610 "EHLO
+        id S229918AbhKAVbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 17:31:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231640AbhKAVZs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Nov 2021 17:25:48 -0400
-Received: from mail-io1-xd2b.google.com (mail-io1-xd2b.google.com [IPv6:2607:f8b0:4864:20::d2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87537C061764
-        for <stable@vger.kernel.org>; Mon,  1 Nov 2021 14:23:14 -0700 (PDT)
-Received: by mail-io1-xd2b.google.com with SMTP id v65so23215531ioe.5
-        for <stable@vger.kernel.org>; Mon, 01 Nov 2021 14:23:14 -0700 (PDT)
+        with ESMTP id S230246AbhKAVbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Nov 2021 17:31:20 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C657C061714
+        for <stable@vger.kernel.org>; Mon,  1 Nov 2021 14:28:47 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id v20so12720385plo.7
+        for <stable@vger.kernel.org>; Mon, 01 Nov 2021 14:28:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=/BbHXqtUJCnWAjRMtLjqWV0YsGsxdNBKiDO46eZaQqw=;
-        b=FzPmXwWN8NBPi4jm60O03gwGY22OOwCB2z5DqQQ3Tnl+sEx9Zqxi0hmN8MOZYOCW9S
-         sB2yFtcOfj/5yJVPLRlWj+aygXrYjXa2OiVRFO2d7bcDLXWnWfd20yZDCZDePU3f//WO
-         u2s0naMaNvZsZpUlZc9D/P1iHLhkUlwFCkSbo=
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=IRywxEElE/Qjyde4tvqAn7DxpOt3HBzVgUKQZGZc6Mc=;
+        b=hfFCpEDwdi4pxOUEuwykQpdwZ50oCuZlqY3bN3sLHrYW2zBmgmJTTPpymHhbVnx5hG
+         J8JjcktVnA07dBtBUoU0XlMT3Q1iGz9FHMTupcQ2132xy3P8U2aj66rXue+G71UgvVK4
+         LRg/dJKpdiiZTwvQmfVmCIfCr1rpWU9nET8LO01AAAamgstULldvPgttBEat7SyIuHML
+         Tit8umhe6qEltLWglaQR8S+Lcld+pJqfD3W8+I7a9tYLsJXDIUIRgSp8/Lffxsmb9h4i
+         D0DXNv9AOIJsdC4LIELTbFMw6SU2pIclrgHZT3U9sp4K+lYgj7WD1A+te/FYcl7MjusH
+         SLbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=/BbHXqtUJCnWAjRMtLjqWV0YsGsxdNBKiDO46eZaQqw=;
-        b=cKaUtftfw25/JrXKi1bgRfpsrl5Byw+WCMJlEvZRy9dZcXk1XRWRXlW9qEUWngu+do
-         uW1AdzH5CK7l44bXJnOvCvhMgXLeFyLk3+mascv10E+jsD0qGJ/T8H4Wfi8kfHDhlyfB
-         Joaq1ACYVaF+wdHTISmzQY7QlUEKeE8e5Av3Uo9766nlldiNhN65+DpfH6V/n85OWH3l
-         6qkzzG7TOvCy+7Ph/akKpMKWA4GtpWZ1rko+FPNGCdXecjrCuUYXM7Fu9RGMVotJb2WB
-         ehrGJdgfrNUNU7AfMLIsLavlzAXEUxRUfZSC2SbUjCvYD/CsCFx0TRy42ewuVmwLbz2e
-         62Cw==
-X-Gm-Message-State: AOAM530tDhkJtJtn9BYDRue/6w7BVj1PV6ax0Rq3mq8hTUsdMckN+Pfd
-        k1iGv/SlMYvMYl8aOs/JJ4I7lw==
-X-Google-Smtp-Source: ABdhPJy+goiktXO5TgxDyxGhVR3+holoWDAF0p7zE91CpWsf5UybL8A+LkOE4H2DjDIKOVJ10ATnqg==
-X-Received: by 2002:a5d:8884:: with SMTP id d4mr22821814ioo.137.1635801794010;
-        Mon, 01 Nov 2021 14:23:14 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id v12sm1101240ilu.14.2021.11.01.14.23.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 01 Nov 2021 14:23:13 -0700 (PDT)
-Subject: Re: [PATCH 4.4 00/17] 4.4.291-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20211101082440.664392327@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <342fed49-6232-b66f-4be6-d26ceb0eaf60@linuxfoundation.org>
-Date:   Mon, 1 Nov 2021 15:23:12 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=IRywxEElE/Qjyde4tvqAn7DxpOt3HBzVgUKQZGZc6Mc=;
+        b=Y0iJEDg+MdSjFrVlbyH9CuaUG4OHMwkhAQ6yJyaRJ3PrYKwK7Cwh3i7OgGPtrCF2ye
+         +N20QjBVGeUgyQ3QuSpjT/7HmaSHDlU0YCBVXi+vfRNlmpbphlHpZJXb3OjfgyxLI8w9
+         nvydROu1mG4AnJmLFIsa9UrLId1Y2+rjasSJUk8DhAEQqJYZgcX4oCXLZWeW3PAyaf7b
+         7JA0BhHCbLGXqU3dusY59Udl5dBe7WRnkMQUH8Fx+4iZ06+KLS7Dq389emHCFGnxICsN
+         qLGiGF0BYzAyZVwiF43usMct9GatOjER9MyosVn16ocn2kXNgOos9swiuMUkl1C7NBic
+         Mmdg==
+X-Gm-Message-State: AOAM533RRlrC8WD5Al7kzFHx83dL3UrStsOKfu6iDA2FUiJ6oASW7gr9
+        ElP+4GRMjvkyDgCVaq/CtSHFqgEAdkNHap1J
+X-Google-Smtp-Source: ABdhPJzNGWVxhk2bSAzO9oQtktTpzT1/gsIx/dZNve7VNlso7670Bl58tO1tQgNBXQ1ipLAEXjaCxw==
+X-Received: by 2002:a17:90a:c85:: with SMTP id v5mr1675357pja.47.1635802126523;
+        Mon, 01 Nov 2021 14:28:46 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j5sm356834pjs.2.2021.11.01.14.28.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Nov 2021 14:28:46 -0700 (PDT)
+Message-ID: <61805c0e.1c69fb81.fc040.1d64@mx.google.com>
+Date:   Mon, 01 Nov 2021 14:28:46 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.214-36-ga75679fb6ddb
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.19.y baseline: 127 runs,
+ 2 regressions (v4.19.214-36-ga75679fb6ddb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/1/21 3:17 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.291 release.
-> There are 17 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 03 Nov 2021 08:24:20 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.291-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+stable-rc/linux-4.19.y baseline: 127 runs, 2 regressions (v4.19.214-36-ga75=
+679fb6ddb)
 
-Compiled and booted on my test system. No dmesg regressions.
+Regressions Summary
+-------------------
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+platform   | arch | lab          | compiler | defconfig             | regre=
+ssions
+-----------+------+--------------+----------+-----------------------+------=
+------
+da850-lcdk | arm  | lab-baylibre | gcc-10   | davinci_all_defconfig | 2    =
+      =
 
-thanks,
--- Shuah
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.214-36-ga75679fb6ddb/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.214-36-ga75679fb6ddb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a75679fb6ddbcf7814a3f96f09dcf0d89b430956 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch | lab          | compiler | defconfig             | regre=
+ssions
+-----------+------+--------------+----------+-----------------------+------=
+------
+da850-lcdk | arm  | lab-baylibre | gcc-10   | davinci_all_defconfig | 2    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/61802747509a32e50e33590d
+
+  Results:     4 PASS, 2 FAIL, 0 SKIP
+  Full config: davinci_all_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+14-36-ga75679fb6ddb/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline-=
+da850-lcdk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+14-36-ga75679fb6ddb/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline-=
+da850-lcdk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/61802747509a32e=
+50e335911
+        new failure (last pass: v4.19.214)
+        3 lines
+
+    2021-11-01T17:43:24.498348  kern  :alert : BUG: Bad page state in proce=
+ss swapper  pfn:c3400
+    2021-11-01T17:43:24.498618  kern  :alert : raw: 00000000 00000100 00000=
+200 00000000 00000004 0000000a ffffff7f 00000000
+    2021-11-01T17:43:24.498952  kern  :alert : page dumped because: nonzero=
+ mapcount
+    2021-11-01T17:43:24.556081  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dale=
+rt RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D3>   =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61802747509a32e=
+50e335912
+        new failure (last pass: v4.19.214)
+        2 lines
+
+    2021-11-01T17:43:24.693017  kern  :emerg : page:c6f51000 count:0 mapcou=
+nt:-128 mapping:00000000 index:0x4
+    2021-11-01T17:43:24.693305  kern  :emerg : flags: 0x0()
+    2021-11-01T17:43:24.775502  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Deme=
+rg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>
+    2021-11-01T17:43:24.775750  + set +x
+    2021-11-01T17:43:24.775890  <8><LAVA_SIGNAL_ENDRUN 0_dmesg 1010593_1.5.=
+2.4.1>   =
+
+ =20
