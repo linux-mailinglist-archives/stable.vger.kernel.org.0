@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C5894416C4
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96063441664
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232241AbhKAJ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:28:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59239 "EHLO mail.kernel.org"
+        id S232323AbhKAJYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:24:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231979AbhKAJ1N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:27:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6D0061101;
-        Mon,  1 Nov 2021 09:22:34 +0000 (UTC)
+        id S232075AbhKAJX0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:23:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12834610EA;
+        Mon,  1 Nov 2021 09:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758555;
-        bh=TrunEkdmAKOzzNzNkO/1rXEfuJn2an1GuGMg5jY4mek=;
+        s=korg; t=1635758443;
+        bh=Hd29uUIdD4UJUhWfzEmkEa3ciDeI5+MBQPtX0pNDv68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmazCPAQqOj38TUL48MSr3b7rsbwor/62yekEDJtGM4ZMBFLl4ZWjNzrUvOKGP+f7
-         lvgNC2B1MGVc/f5ABKw7Le6t5a9yNubLng6nDWQbYknf6k5W0OpRBXTi+i0Px70ESr
-         ipwEq2/eHyHOCno1U0aT4p9fJPWh8N55LC7bv+/Y=
+        b=b+f6bN89yKZ8oWUFYaeFdCgVoMWqnNeZS5NxcMAHfIgiWUYoljo5yEIHPeMdmia/B
+         +GE//70NZoyS7ehv2xGGhlH+EWFEcLPaUR+JkbcHlkmP55cRWS9dieFM7redrSvvoK
+         gX08Xsuy3zkBERRl8KyV+fleGQoD3fF/2gqrOhJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 12/51] nfc: port100: fix using -ERRNO as command type mask
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Song Liu <songliubraving@fb.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 4.14 04/25] powerpc/bpf: Fix BPF_MOD when imm == 1
 Date:   Mon,  1 Nov 2021 10:17:16 +0100
-Message-Id: <20211101082503.473282718@linuxfoundation.org>
+Message-Id: <20211101082448.033647002@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082447.070493993@linuxfoundation.org>
+References: <20211101082447.070493993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit 2195f2062e4cc93870da8e71c318ef98a1c51cef upstream.
+commit 8bbc9d822421d9ac8ff9ed26a3713c9afc69d6c8 upstream.
 
-During probing, the driver tries to get a list (mask) of supported
-command types in port100_get_command_type_mask() function.  The value
-is u64 and 0 is treated as invalid mask (no commands supported).  The
-function however returns also -ERRNO as u64 which will be interpret as
-valid command mask.
+Only ignore the operation if dividing by 1.
 
-Return 0 on every error case of port100_get_command_type_mask(), so the
-probing will stop.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Tested-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Acked-by: Song Liu <songliubraving@fb.com>
+Acked-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/c674ca18c3046885602caebb326213731c675d06.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
+[cascardo: use PPC_LI instead of EMIT(PPC_RAW_LI)]
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/port100.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/net/bpf_jit_comp64.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/nfc/port100.c
-+++ b/drivers/nfc/port100.c
-@@ -1003,11 +1003,11 @@ static u64 port100_get_command_type_mask
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -426,8 +426,14 @@ static int bpf_jit_build_body(struct bpf
+ 		case BPF_ALU64 | BPF_DIV | BPF_K: /* dst /= imm */
+ 			if (imm == 0)
+ 				return -EINVAL;
+-			else if (imm == 1)
+-				goto bpf_alu32_trunc;
++			if (imm == 1) {
++				if (BPF_OP(code) == BPF_DIV) {
++					goto bpf_alu32_trunc;
++				} else {
++					PPC_LI(dst_reg, 0);
++					break;
++				}
++			}
  
- 	skb = port100_alloc_skb(dev, 0);
- 	if (!skb)
--		return -ENOMEM;
-+		return 0;
- 
- 	resp = port100_send_cmd_sync(dev, PORT100_CMD_GET_COMMAND_TYPE, skb);
- 	if (IS_ERR(resp))
--		return PTR_ERR(resp);
-+		return 0;
- 
- 	if (resp->len < 8)
- 		mask = 0;
+ 			PPC_LI32(b2p[TMP_REG_1], imm);
+ 			switch (BPF_CLASS(code)) {
 
 
