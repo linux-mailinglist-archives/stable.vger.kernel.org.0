@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC7024416BE
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D690D441637
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:21:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231975AbhKAJ2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:28:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58554 "EHLO mail.kernel.org"
+        id S232445AbhKAJXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232725AbhKAJ0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:26:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC1BD611CA;
-        Mon,  1 Nov 2021 09:22:20 +0000 (UTC)
+        id S232276AbhKAJWi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:22:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6B0160FC4;
+        Mon,  1 Nov 2021 09:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758541;
-        bh=LxuDnZWWd9yFH57MZQERFgqINAjQbKtNKlVc26UJMnM=;
+        s=korg; t=1635758383;
+        bh=ocp48DkTY7kLC6jIyi1Tr/DeEqvaghmAsPPVA29C9fI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7acz3qiNX+vUrv3Wz8DPdEa+LWKOCcawSkO0O4oHVQ2xNK83uOx04raY77ih+HW4
-         rjA/1Ml6Ghbvc8tvtC5V0qDbE3djqzYClStx0Q8HZdzT05VTVLUPv+7H+Iiarwvgq0
-         ZLJrtlNMHcqIMt0D9i6Wjll5bt4rGBo4LXShenOA=
+        b=V35EqT9fGRY5AjBBHK7Cpbu1EYTAo7fKo0f6fsAOlMgkXGSiOC6CrR7a8kqBqVMto
+         +cm+Ms92JOCxRAnfCnc/Qc5ivFUvCBEYAaZyACmwp+QAPPI61GWMhdHa1DuSGRMlav
+         XlQq1LTr/PiyY+Rs4ObojA8EkCQ8wJFi13PMA6NA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenbin Mei <wenbin.mei@mediatek.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 17/35] mmc: cqhci: clear HALT state after CQE enable
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 20/20] sctp: add vtag check in sctp_sf_violation
 Date:   Mon,  1 Nov 2021 10:17:29 +0100
-Message-Id: <20211101082455.604266121@linuxfoundation.org>
+Message-Id: <20211101082448.446922290@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
-References: <20211101082451.430720900@linuxfoundation.org>
+In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
+References: <20211101082444.133899096@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenbin Mei <wenbin.mei@mediatek.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 92b18252b91de567cd875f2e84722b10ab34ee28 upstream.
+[ Upstream commit aa0f697e45286a6b5f0ceca9418acf54b9099d99 ]
 
-While mmc0 enter suspend state, we need halt CQE to send legacy cmd(flush
-cache) and disable cqe, for resume back, we enable CQE and not clear HALT
-state.
-In this case MediaTek mmc host controller will keep the value for HALT
-state after CQE disable/enable flow, so the next CQE transfer after resume
-will be timeout due to CQE is in HALT state, the log as below:
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: timeout for tag 2
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: ============ CQHCI REGISTER DUMP ===========
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Caps:      0x100020b6 | Version:  0x00000510
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Config:    0x00001103 | Control:  0x00000001
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Int stat:  0x00000000 | Int enab: 0x00000006
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Int sig:   0x00000006 | Int Coal: 0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: TDL base:  0xfd05f000 | TDL up32: 0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Doorbell:  0x8000203c | TCN:      0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Dev queue: 0x00000000 | Dev Pend: 0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Task clr:  0x00000000 | SSC1:     0x00001000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: SSC2:      0x00000001 | DCMD rsp: 0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: RED mask:  0xfdf9a080 | TERRI:    0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Resp idx:  0x00000000 | Resp arg: 0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: CRNQP:     0x00000000 | CRNQDUN:  0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: CRNQIS:    0x00000000 | CRNQIE:   0x00000000
+sctp_sf_violation() is called when processing HEARTBEAT_ACK chunk
+in cookie_wait state, and some other places are also using it.
 
-This change check HALT state after CQE enable, if CQE is in HALT state, we
-will clear it.
+The vtag in the chunk's sctphdr should be verified, otherwise, as
+later in chunk length check, it may send abort with the existent
+asoc's vtag, which can be exploited by one to cook a malicious
+chunk to terminate a SCTP asoc.
 
-Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
-Cc: stable@vger.kernel.org
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: a4080225f51d ("mmc: cqhci: support for command queue enabled host")
-Link: https://lore.kernel.org/r/20211026070812.9359-1-wenbin.mei@mediatek.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/cqhci.c |    3 +++
+ net/sctp/sm_statefuns.c | 3 +++
  1 file changed, 3 insertions(+)
 
---- a/drivers/mmc/host/cqhci.c
-+++ b/drivers/mmc/host/cqhci.c
-@@ -281,6 +281,9 @@ static void __cqhci_enable(struct cqhci_
+diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
+index c3d293dc8281..f71991520ad6 100644
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -4333,6 +4333,9 @@ sctp_disposition_t sctp_sf_violation(struct net *net,
+ {
+ 	struct sctp_chunk *chunk = arg;
  
- 	cqhci_writel(cq_host, cqcfg, CQHCI_CFG);
- 
-+	if (cqhci_readl(cq_host, CQHCI_CTL) & CQHCI_HALT)
-+		cqhci_writel(cq_host, 0, CQHCI_CTL);
++	if (!sctp_vtag_verify(chunk, asoc))
++		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
 +
- 	mmc->cqe_on = true;
- 
- 	if (cq_host->ops->enable)
+ 	/* Make sure that the chunk has a valid length. */
+ 	if (!sctp_chunk_length_valid(chunk, sizeof(sctp_chunkhdr_t)))
+ 		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
+-- 
+2.33.0
+
 
 
