@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 312924418C7
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:49:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 712724418CA
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:49:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233743AbhKAJvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51446 "EHLO mail.kernel.org"
+        id S232070AbhKAJvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:51:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234787AbhKAJtD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234786AbhKAJtD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Nov 2021 05:49:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D75961248;
-        Mon,  1 Nov 2021 09:31:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B27C6124B;
+        Mon,  1 Nov 2021 09:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759101;
-        bh=NAYc6uc1l/6P8riSp+J18HJLVF2AIA/qvqHP6MRkaZA=;
+        s=korg; t=1635759103;
+        bh=Ofna1o3ie+n21vpiTSA3lx93tCycHR9DlDgQsRn5+OU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zgGjhtOJRBV/QLGk2LRCEEzO5srNBtRiV6GoUmQyOK1lahxaR0Dhbio9Xo4CTd051
-         7Oycg/QkSwykFKGTGZgyTRuq3ZCn5pX5plovewbLua+zhiQ6nseTyFGFmVXjAHBMhy
-         +cirsxiQvCGY6FGUikhx+CENhvMbzB8oEa2Lg758=
+        b=K2TS+Fg1oNHWAcx+IPvdJ7E3WlcKwEFBEZdp1e3Xzn8qj6jtkCTFtQ8vKu5EY9mXK
+         2J5oTeyMQOJBy4zyV3NTDl5XU4kVwfyOqm+FKIXlqWoRGX9YbyAXTyRYxeMA4Nqpph
+         uzNs6GbT1TMC8UlF3UheX4eyfSiXMT8skTfVaUS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Mario <jmario@redhat.com>,
-        Kajol Jain <kjain@linux.ibm.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 116/125] perf script: Fix PERF_SAMPLE_WEIGHT_STRUCT support
-Date:   Mon,  1 Nov 2021 10:18:09 +0100
-Message-Id: <20211101082555.017159732@linuxfoundation.org>
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Brian King <brking@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.14 117/125] scsi: ibmvfc: Fix up duplicate response detection
+Date:   Mon,  1 Nov 2021 10:18:10 +0100
+Message-Id: <20211101082555.193904371@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -43,64 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Brian King <brking@linux.vnet.ibm.com>
 
-[ Upstream commit 27730c8cd60d1574d8337276e7a9d7d2ca92e0d1 ]
+commit e20f80b9b163dc402dca115eed0affba6df5ebb5 upstream.
 
--F weight in perf script is broken.
+Commit a264cf5e81c7 ("scsi: ibmvfc: Fix command state accounting and stale
+response detection") introduced a regression in detecting duplicate
+responses. This was observed in test where a command was sent to the VIOS
+and completed before ibmvfc_send_event() set the active flag to 1, which
+resulted in the atomic_dec_if_positive() call in ibmvfc_handle_crq()
+thinking this was a duplicate response, which resulted in scsi_done() not
+getting called, so we then hit a SCSI command timeout for this command once
+the timeout expires.  This simply ensures the active flag gets set prior to
+making the hcall to send the command to the VIOS, in order to close this
+window.
 
-  # ./perf mem record
-  # ./perf script -F weight
-  Samples for 'dummy:HG' event do not have WEIGHT attribute set. Cannot
-print 'weight' field.
-
-The sample type, PERF_SAMPLE_WEIGHT_STRUCT, is an alternative of the
-PERF_SAMPLE_WEIGHT sample type. They share the same space, weight. The
-lower 32 bits are exactly the same for both sample type. The higher 32
-bits may be different for different architecture. For a new kernel on
-x86, the PERF_SAMPLE_WEIGHT_STRUCT is used. For an old kernel or other
-ARCHs, the PERF_SAMPLE_WEIGHT is used.
-
-With -F weight, current perf script will only check the input string
-"weight" with the PERF_SAMPLE_WEIGHT sample type. Because the commit
-ea8d0ed6eae3 ("perf tools: Support PERF_SAMPLE_WEIGHT_STRUCT") didn't
-update the PERF_SAMPLE_WEIGHT_STRUCT sample type for perf script. For a
-new kernel on x86, the check fails.
-
-Use PERF_SAMPLE_WEIGHT_TYPE, which supports both sample types, to
-replace PERF_SAMPLE_WEIGHT
-
-Fixes: ea8d0ed6eae37b01 ("perf tools: Support PERF_SAMPLE_WEIGHT_STRUCT")
-Reported-by: Joe Mario <jmario@redhat.com>
-Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Tested-by: Jiri Olsa <jolsa@redhat.com>
-Tested-by: Joe Mario <jmario@redhat.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Acked-by: Joe Mario <jmario@redhat.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Link: https://lore.kernel.org/r/1632929894-102778-1-git-send-email-kan.liang@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211019152129.16558-1-brking@linux.vnet.ibm.com
+Fixes: a264cf5e81c7 ("scsi: ibmvfc: Fix command state accounting and stale response detection")
+Cc: stable@vger.kernel.org
+Acked-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/builtin-script.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ibmvscsi/ibmvfc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-script.c b/tools/perf/builtin-script.c
-index 064da7f3618d..52ff827ca799 100644
---- a/tools/perf/builtin-script.c
-+++ b/tools/perf/builtin-script.c
-@@ -469,7 +469,7 @@ static int evsel__check_attr(struct evsel *evsel, struct perf_session *session)
- 		return -EINVAL;
+--- a/drivers/scsi/ibmvscsi/ibmvfc.c
++++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+@@ -1696,6 +1696,7 @@ static int ibmvfc_send_event(struct ibmv
  
- 	if (PRINT_FIELD(WEIGHT) &&
--	    evsel__check_stype(evsel, PERF_SAMPLE_WEIGHT, "WEIGHT", PERF_OUTPUT_WEIGHT))
-+	    evsel__check_stype(evsel, PERF_SAMPLE_WEIGHT_TYPE, "WEIGHT", PERF_OUTPUT_WEIGHT))
- 		return -EINVAL;
+ 	spin_lock_irqsave(&evt->queue->l_lock, flags);
+ 	list_add_tail(&evt->queue_list, &evt->queue->sent);
++	atomic_set(&evt->active, 1);
  
- 	if (PRINT_FIELD(SYM) &&
--- 
-2.33.0
-
+ 	mb();
+ 
+@@ -1710,6 +1711,7 @@ static int ibmvfc_send_event(struct ibmv
+ 				     be64_to_cpu(crq_as_u64[1]));
+ 
+ 	if (rc) {
++		atomic_set(&evt->active, 0);
+ 		list_del(&evt->queue_list);
+ 		spin_unlock_irqrestore(&evt->queue->l_lock, flags);
+ 		del_timer(&evt->timer);
+@@ -1737,7 +1739,6 @@ static int ibmvfc_send_event(struct ibmv
+ 
+ 		evt->done(evt);
+ 	} else {
+-		atomic_set(&evt->active, 1);
+ 		spin_unlock_irqrestore(&evt->queue->l_lock, flags);
+ 		ibmvfc_trc_start(evt);
+ 	}
 
 
