@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10A424416BF
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2BCC441634
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:21:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231952AbhKAJ2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:28:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59164 "EHLO mail.kernel.org"
+        id S231994AbhKAJXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:23:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232454AbhKAJ06 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:26:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88BB5611BF;
-        Mon,  1 Nov 2021 09:22:32 +0000 (UTC)
+        id S232285AbhKAJWi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:22:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 174286117A;
+        Mon,  1 Nov 2021 09:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758553;
-        bh=YjSIW8xYew536ToGDQ3XeXEtgw9a/xeQzl1KwDE6mE4=;
+        s=korg; t=1635758392;
+        bh=RsDMZW4n7+Z30k1OBfySXl2xmRMbFiWRHcUn4mW6JWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ge4szWAbsZ7Y/kWXu1KOBGybicdG4/HefhrBv4lkwPQ/QUgayNJHiQCMWXfSM7uPR
-         DKrnlt70PD7MPkkv4UIFLY7uMQfxeu0uocg/BX++RXhD6ymYpa8VGiIeXFrxMeOeCB
-         yQ8Y3PpFjjaPWJ9xnJM2mNFaw0nEOwlnBMZm9MXw=
+        b=gMOAlrtU283U/DN7H64Hr0hIh4zqv0+w9qNNq+h+n5CYAsRWKKQ3G+etjUlCgODpv
+         Fo/TE35tT91yZzpuTfNZPq4PFjVgXwctBPmfuv4uqClW12SSS/J2Z3qKmbos+Yr/au
+         PbBMo6btAtpsbwCCVbCg5Tm1CTt+FCGIo2P+PUjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.4 11/51] ata: sata_mv: Fix the error handling of mv_chip_id()
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 06/20] usbnet: sanity check for maxpacket
 Date:   Mon,  1 Nov 2021 10:17:15 +0100
-Message-Id: <20211101082503.231402527@linuxfoundation.org>
+Message-Id: <20211101082445.557168731@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
+References: <20211101082444.133899096@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit a0023bb9dd9bc439d44604eeec62426a990054cd upstream.
+commit 397430b50a363d8b7bdda00522123f82df6adc5e upstream.
 
-mv_init_host() propagates the value returned by mv_chip_id() which in turn
-gets propagated by mv_pci_init_one() and hits local_pci_probe().
+maxpacket of 0 makes no sense and oopses as we need to divide
+by it. Give up.
 
-During the process of driver probing, the probe function should return < 0
-for failure, otherwise, the kernel will treat value > 0 as success.
+V2: fixed typo in log and stylistic issues
 
-Since this is a bug rather than a recoverable runtime error we should
-use dev_alert() instead of dev_err().
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211021122944.21816-1-oneukum@suse.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/sata_mv.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/usbnet.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/ata/sata_mv.c
-+++ b/drivers/ata/sata_mv.c
-@@ -3892,8 +3892,8 @@ static int mv_chip_id(struct ata_host *h
- 		break;
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -1740,6 +1740,10 @@ usbnet_probe (struct usb_interface *udev
+ 	if (!dev->rx_urb_size)
+ 		dev->rx_urb_size = dev->hard_mtu;
+ 	dev->maxpacket = usb_maxpacket (dev->udev, dev->out, 1);
++	if (dev->maxpacket == 0) {
++		/* that is a broken device */
++		goto out4;
++	}
  
- 	default:
--		dev_err(host->dev, "BUG: invalid board index %u\n", board_idx);
--		return 1;
-+		dev_alert(host->dev, "BUG: invalid board index %u\n", board_idx);
-+		return -EINVAL;
- 	}
- 
- 	hpriv->hp_flags = hp_flags;
+ 	/* let userspace know we have a random address */
+ 	if (ether_addr_equal(net->dev_addr, node_id))
 
 
