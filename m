@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A8A4418FB
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:51:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DF7F4417C7
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:38:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232168AbhKAJx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:53:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54488 "EHLO mail.kernel.org"
+        id S233572AbhKAJkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:40:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234551AbhKAJvD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:51:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0FE561501;
-        Mon,  1 Nov 2021 09:32:20 +0000 (UTC)
+        id S232033AbhKAJiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:38:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF43260F4F;
+        Mon,  1 Nov 2021 09:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759141;
-        bh=icZ0b2iOUfqXOkpvhBXHCTfRJ50BkHSnH2yFBHjf5bE=;
+        s=korg; t=1635758828;
+        bh=CDMlvG5duSBUuvRV8fQFE52vESjelhXLk01PF/XH+Hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B41N5RglyZKtcMMuWNxQJWJ07lEgls4Z4twi2YNlzwdRxOc2Nq6H2rf+d1W2l7C8v
-         DEAb/bcl527fqXOcP9AdKhG27t5b9MDK8M9fQUi3lGNhlFWxbzV4+PseRgB8KzugI3
-         cGCi86MGbtvqo8Hp6NqLelSvSborXCNkc18+u43E=
+        b=YPu5L9M4i1CyS8BZB4/cD35z0sUOrQ85hr0lpwj98wQRQBx+zXjiJlh7VXxUgRIhc
+         KmVMPYJYcgdzL9CF0REHU9jsv1dAulgHWh+EMMhGXJumPFnd93M7ugVh2Li4mV97UQ
+         WvCBLVKdOdqCCzacUiTTxyqPIp5PZ0ArfuhWgfVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 111/125] virtio-ring: fix DMA metadata flags
-Date:   Mon,  1 Nov 2021 10:18:04 +0100
-Message-Id: <20211101082554.107171753@linuxfoundation.org>
+        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
+        Peter Zijlstra <peterz@infradead.org>, kernel-team@fb.com,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 77/77] perf script: Check session->header.env.arch before using it
+Date:   Mon,  1 Nov 2021 10:18:05 +0100
+Message-Id: <20211101082527.560848483@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Song Liu <songliubraving@fb.com>
 
-[ Upstream commit 890d33561337ffeba0d8ba42517e71288cfee2b6 ]
+commit 29c77550eef31b0d72a45b49eeab03b8963264e8 upstream.
 
-The flags are currently overwritten, leading to the wrong direction
-being passed to the DMA unmap functions.
+When perf.data is not written cleanly, we would like to process existing
+data as much as possible (please see f_header.data.size == 0 condition
+in perf_session__read_header). However, perf.data with partial data may
+crash perf. Specifically, we see crash in 'perf script' for NULL
+session->header.env.arch.
 
-Fixes: 72b5e8958738aaa4 ("virtio-ring: store DMA metadata in desc_extra for split virtqueue")
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/20211026133100.17541-1-vincent.whitchurch@axis.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by checking session->header.env.arch before using it to determine
+native_arch. Also split the if condition so it is easier to read.
+
+Committer notes:
+
+If it is a pipe, we already assume is a native arch, so no need to check
+session->header.env.arch.
+
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: kernel-team@fb.com
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20211004053238.514936-1-songliubraving@fb.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virtio/virtio_ring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/builtin-script.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index dd95dfd85e98..3035bb6f5458 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -576,7 +576,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
- 	/* Last one doesn't continue. */
- 	desc[prev].flags &= cpu_to_virtio16(_vq->vdev, ~VRING_DESC_F_NEXT);
- 	if (!indirect && vq->use_dma_api)
--		vq->split.desc_extra[prev & (vq->split.vring.num - 1)].flags =
-+		vq->split.desc_extra[prev & (vq->split.vring.num - 1)].flags &=
- 			~VRING_DESC_F_NEXT;
+--- a/tools/perf/builtin-script.c
++++ b/tools/perf/builtin-script.c
+@@ -3820,11 +3820,15 @@ int cmd_script(int argc, const char **ar
+ 		goto out_delete;
  
- 	if (indirect) {
--- 
-2.33.0
-
+ 	uname(&uts);
+-	if (data.is_pipe ||  /* assume pipe_mode indicates native_arch */
+-	    !strcmp(uts.machine, session->header.env.arch) ||
+-	    (!strcmp(uts.machine, "x86_64") &&
+-	     !strcmp(session->header.env.arch, "i386")))
++	if (data.is_pipe) { /* Assume pipe_mode indicates native_arch */
+ 		native_arch = true;
++	} else if (session->header.env.arch) {
++		if (!strcmp(uts.machine, session->header.env.arch))
++			native_arch = true;
++		else if (!strcmp(uts.machine, "x86_64") &&
++			 !strcmp(session->header.env.arch, "i386"))
++			native_arch = true;
++	}
+ 
+ 	script.session = session;
+ 	script__setup_sample_type(&script);
 
 
