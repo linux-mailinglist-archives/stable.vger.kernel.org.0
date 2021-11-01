@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 263A644169B
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3768441881
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232034AbhKAJ1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:27:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58580 "EHLO mail.kernel.org"
+        id S232161AbhKAJtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:49:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232495AbhKAJY5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:24:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E27D610CA;
-        Mon,  1 Nov 2021 09:21:40 +0000 (UTC)
+        id S234057AbhKAJqc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:46:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28FCF613DA;
+        Mon,  1 Nov 2021 09:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758501;
-        bh=SP74w0ryfqBcEO9itRXp1UqYs3RvzlLqsKqZAgOoe1s=;
+        s=korg; t=1635759026;
+        bh=VLomoyISlxt7mbL5s4Mq6Ws5nrMJYxSc9uy2OC+2vnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqf4om66XeteNiowGGgD1nW8Q5liP6q/Sc5epqiBNDSlL4DzaUwwzJhx0SmqRIguJ
-         Tv0yXbeiiRs44Ud8dIa2Jq55ZgMq/BQtPpbrpbxI7jSfyG3yohPJXZupOP6egLxFVP
-         BhQbXDeKHXps9TmkejmBTmGBInfM8i5C8wQz89us=
+        b=SeyPjWm09bHI0wULFKiL0qqrgfLB+nPtWUbVKOjM0isy3I9Pm+OEhFlDV9HvMUhKx
+         msSyHkExpQ2Zn4BIqWPhWIojxfCckzJ7U7zIdWoAdlgmeBj8kwZsXFGyAuz1BkYdD9
+         X/G3XODn4jci1ePkGR4mVB4Mkp1lEcEP3FIcniK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 25/35] net: batman-adv: fix error handling
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.14 084/125] mlxsw: pci: Recycle received packet upon allocation failure
 Date:   Mon,  1 Nov 2021 10:17:37 +0100
-Message-Id: <20211101082457.480477773@linuxfoundation.org>
+Message-Id: <20211101082549.167684794@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
-References: <20211101082451.430720900@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,173 +40,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit 6f68cd634856f8ca93bafd623ba5357e0f648c68 upstream.
+commit 759635760a804b0d8ad0cc677b650f1544cae22f upstream.
 
-Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
-in wrong error handling in batadv_mesh_init().
+When the driver fails to allocate a new Rx buffer, it passes an empty Rx
+descriptor (contains zero address and size) to the device and marks it
+as invalid by setting the skb pointer in the descriptor's metadata to
+NULL.
 
-Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
-of any batadv_*_init() calls failure. This approach may work well, when
-there is some kind of indicator, which can tell which parts of batadv are
-initialized; but there isn't any.
+After processing enough Rx descriptors, the driver will try to process
+the invalid descriptor, but will return immediately seeing that the skb
+pointer is NULL. Since the driver no longer passes new Rx descriptors to
+the device, the Rx queue will eventually become full and the device will
+start to drop packets.
 
-All written above lead to cleaning up uninitialized fields. Even if we hide
-ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
-GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
+Fix this by recycling the received packet if allocation of the new
+packet failed. This means that allocation is no longer performed at the
+end of the Rx routine, but at the start, before tearing down the DMA
+mapping of the received packet.
 
-To fix these bugs we can unwind batadv_*_init() calls one by one.
-It is good approach for 2 reasons: 1) It fixes bugs on error handling
-path 2) It improves the performance, since we won't call unneeded
-batadv_*_free() functions.
+Remove the comment about the descriptor being zeroed as it is no longer
+correct. This is OK because we either use the descriptor as-is (when
+recycling) or overwrite its address and size fields with that of the
+newly allocated Rx buffer.
 
-So, this patch makes all batadv_*_init() clean up all allocated memory
-before returning with an error to no call correspoing batadv_*_free()
-and open-codes batadv_mesh_free() with proper order to avoid touching
-uninitialized fields.
+The issue was discovered when a process ("perf") consumed too much
+memory and put the system under memory pressure. It can be reproduced by
+injecting slab allocation failures [1]. After the fix, the Rx queue no
+longer comes to a halt.
 
-Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
-Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[1]
+ # echo 10 > /sys/kernel/debug/failslab/times
+ # echo 1000 > /sys/kernel/debug/failslab/interval
+ # echo 100 > /sys/kernel/debug/failslab/probability
+
+ FAULT_INJECTION: forcing a failure.
+ name failslab, interval 1000, probability 100, space 0, times 8
+ [...]
+ Call Trace:
+  <IRQ>
+  dump_stack_lvl+0x34/0x44
+  should_fail.cold+0x32/0x37
+  should_failslab+0x5/0x10
+  kmem_cache_alloc_node+0x23/0x190
+  __alloc_skb+0x1f9/0x280
+  __netdev_alloc_skb+0x3a/0x150
+  mlxsw_pci_rdq_skb_alloc+0x24/0x90
+  mlxsw_pci_cq_tasklet+0x3dc/0x1200
+  tasklet_action_common.constprop.0+0x9f/0x100
+  __do_softirq+0xb5/0x252
+  irq_exit_rcu+0x7a/0xa0
+  common_interrupt+0x83/0xa0
+  </IRQ>
+  asm_common_interrupt+0x1e/0x40
+ RIP: 0010:cpuidle_enter_state+0xc8/0x340
+ [...]
+ mlxsw_spectrum2 0000:06:00.0: Failed to alloc skb for RDQ
+
+Fixes: eda6500a987a ("mlxsw: Add PCI bus implementation")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Link: https://lore.kernel.org/r/20211024064014.1060919-1-idosch@idosch.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/bridge_loop_avoidance.c |    8 +++-
- net/batman-adv/main.c                  |   56 +++++++++++++++++++++++----------
- net/batman-adv/network-coding.c        |    4 +-
- net/batman-adv/translation-table.c     |    4 +-
- 4 files changed, 52 insertions(+), 20 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/pci.c |   25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -1574,10 +1574,14 @@ int batadv_bla_init(struct batadv_priv *
- 		return 0;
+--- a/drivers/net/ethernet/mellanox/mlxsw/pci.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/pci.c
+@@ -353,13 +353,10 @@ static int mlxsw_pci_rdq_skb_alloc(struc
+ 	struct sk_buff *skb;
+ 	int err;
  
- 	bat_priv->bla.claim_hash = batadv_hash_new(128);
--	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.claim_hash)
-+		return -ENOMEM;
- 
--	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
-+	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.backbone_hash) {
-+		batadv_hash_destroy(bat_priv->bla.claim_hash);
+-	elem_info->u.rdq.skb = NULL;
+ 	skb = netdev_alloc_skb_ip_align(NULL, buf_len);
+ 	if (!skb)
  		return -ENOMEM;
-+	}
  
- 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
- 				   &batadv_claim_hash_lock_class_key);
---- a/net/batman-adv/main.c
-+++ b/net/batman-adv/main.c
-@@ -187,29 +187,41 @@ int batadv_mesh_init(struct net_device *
- 	INIT_HLIST_HEAD(&bat_priv->softif_vlan_list);
- 	INIT_HLIST_HEAD(&bat_priv->tp_list);
- 
--	ret = batadv_v_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
+-	/* Assume that wqe was previously zeroed. */
 -
- 	ret = batadv_originator_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_orig;
-+	}
+ 	err = mlxsw_pci_wqe_frag_map(mlxsw_pci, wqe, 0, skb->data,
+ 				     buf_len, DMA_FROM_DEVICE);
+ 	if (err)
+@@ -597,21 +594,26 @@ static void mlxsw_pci_cqe_rdq_handle(str
+ 	struct pci_dev *pdev = mlxsw_pci->pdev;
+ 	struct mlxsw_pci_queue_elem_info *elem_info;
+ 	struct mlxsw_rx_info rx_info = {};
+-	char *wqe;
++	char wqe[MLXSW_PCI_WQE_SIZE];
+ 	struct sk_buff *skb;
+ 	u16 byte_count;
+ 	int err;
  
- 	ret = batadv_tt_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_tt;
+ 	elem_info = mlxsw_pci_queue_elem_info_consumer_get(q);
+-	skb = elem_info->u.sdq.skb;
+-	if (!skb)
+-		return;
+-	wqe = elem_info->elem;
+-	mlxsw_pci_wqe_frag_unmap(mlxsw_pci, wqe, 0, DMA_FROM_DEVICE);
++	skb = elem_info->u.rdq.skb;
++	memcpy(wqe, elem_info->elem, MLXSW_PCI_WQE_SIZE);
+ 
+ 	if (q->consumer_counter++ != consumer_counter_limit)
+ 		dev_dbg_ratelimited(&pdev->dev, "Consumer counter does not match limit in RDQ\n");
+ 
++	err = mlxsw_pci_rdq_skb_alloc(mlxsw_pci, elem_info);
++	if (err) {
++		dev_err_ratelimited(&pdev->dev, "Failed to alloc skb for RDQ\n");
++		goto out;
 +	}
 +
-+	ret = batadv_v_mesh_init(bat_priv);
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_v;
-+	}
- 
- 	ret = batadv_bla_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_bla;
-+	}
- 
- 	ret = batadv_dat_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_dat;
-+	}
- 
- 	ret = batadv_nc_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_nc;
-+	}
- 
- 	batadv_gw_init(bat_priv);
- 	batadv_mcast_init(bat_priv);
-@@ -219,8 +231,20 @@ int batadv_mesh_init(struct net_device *
- 
- 	return 0;
- 
--err:
--	batadv_mesh_free(soft_iface);
-+err_nc:
-+	batadv_dat_free(bat_priv);
-+err_dat:
-+	batadv_bla_free(bat_priv);
-+err_bla:
-+	batadv_v_mesh_free(bat_priv);
-+err_v:
-+	batadv_tt_free(bat_priv);
-+err_tt:
-+	batadv_originator_free(bat_priv);
-+err_orig:
-+	batadv_purge_outstanding_packets(bat_priv, NULL);
-+	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
++	mlxsw_pci_wqe_frag_unmap(mlxsw_pci, wqe, 0, DMA_FROM_DEVICE);
 +
- 	return ret;
- }
+ 	if (mlxsw_pci_cqe_lag_get(cqe_v, cqe)) {
+ 		rx_info.is_lag = true;
+ 		rx_info.u.lag_id = mlxsw_pci_cqe_lag_id_get(cqe_v, cqe);
+@@ -647,10 +649,7 @@ static void mlxsw_pci_cqe_rdq_handle(str
+ 	skb_put(skb, byte_count);
+ 	mlxsw_core_skb_receive(mlxsw_pci->core, skb, &rx_info);
  
---- a/net/batman-adv/network-coding.c
-+++ b/net/batman-adv/network-coding.c
-@@ -167,8 +167,10 @@ int batadv_nc_mesh_init(struct batadv_pr
- 				   &batadv_nc_coding_hash_lock_class_key);
- 
- 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
--	if (!bat_priv->nc.decoding_hash)
-+	if (!bat_priv->nc.decoding_hash) {
-+		batadv_hash_destroy(bat_priv->nc.coding_hash);
- 		goto err;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
- 				   &batadv_nc_decoding_hash_lock_class_key);
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -4413,8 +4413,10 @@ int batadv_tt_init(struct batadv_priv *b
- 		return ret;
- 
- 	ret = batadv_tt_global_init(bat_priv);
--	if (ret < 0)
-+	if (ret < 0) {
-+		batadv_tt_local_table_free(bat_priv);
- 		return ret;
-+	}
- 
- 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
- 				     batadv_tt_tvlv_unicast_handler_v1,
+-	memset(wqe, 0, q->elem_size);
+-	err = mlxsw_pci_rdq_skb_alloc(mlxsw_pci, elem_info);
+-	if (err)
+-		dev_dbg_ratelimited(&pdev->dev, "Failed to alloc skb for RDQ\n");
++out:
+ 	/* Everything is set up, ring doorbell to pass elem to HW */
+ 	q->producer_counter++;
+ 	mlxsw_pci_queue_doorbell_producer_ring(mlxsw_pci, q);
 
 
