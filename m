@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 492E94418D6
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:51:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B1714417C6
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:38:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234528AbhKAJwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:52:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52158 "EHLO mail.kernel.org"
+        id S232428AbhKAJkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:40:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233408AbhKAJu3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:50:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B91B61439;
-        Mon,  1 Nov 2021 09:31:55 +0000 (UTC)
+        id S233269AbhKAJiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:38:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5195460C40;
+        Mon,  1 Nov 2021 09:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759115;
-        bh=efPM579YBLHKAAj/br+sc6qYylEhtLHcHwhrAYG7VTU=;
+        s=korg; t=1635758830;
+        bh=Jvpik9FvINvRHA6J9D7wbfFQIuxv3Q3TRsZeMkd0GXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W306T/Ew2ZBfUOKtcjWVDH0kNjYfzsu1FllZBkn+OvnRLIQGgl2RmlGsmyukx8O+g
-         6GYUdGBshg1zuegzvU51AjQxBXXXzlYaFGAU6Ayhv1Av8hV19BGZwvDprU2NMlM1Qi
-         div+oeA5ORD2LKbdIkcYoUf+U2pl1bBQgIhWjo20=
+        b=L9LvMGVn1qBeO+lqbrSHKubix/FO4cZ4BO/fr3yUJ2JGvoYn/1HMxuZ8iFL9D4Wi8
+         0sJY1xxT8NiRdk/1d7rOaLMUcqHj2Y+GuD7ff1b4I/eq2M2jPz180MtPygUVyyKpMh
+         38zbJAj13GUP87UDHi4TvhYREZv0cXxo+Vj2IWZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 104/125] sctp: add vtag check in sctp_sf_do_8_5_1_E_sa
+Subject: [PATCH 5.10 69/77] sctp: add vtag check in sctp_sf_do_8_5_1_E_sa
 Date:   Mon,  1 Nov 2021 10:17:57 +0100
-Message-Id: <20211101082552.790765313@linuxfoundation.org>
+Message-Id: <20211101082526.027989800@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,10 +72,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 6 deletions(-)
 
 diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 36328ab88bdd..a3545498a038 100644
+index 324c0222d9e6..82a76fda226b 100644
 --- a/net/sctp/sm_statefuns.c
 +++ b/net/sctp/sm_statefuns.c
-@@ -3803,12 +3803,6 @@ static enum sctp_disposition sctp_sf_shut_8_4_5(
+@@ -3683,12 +3683,6 @@ static enum sctp_disposition sctp_sf_shut_8_4_5(
  
  	SCTP_INC_STATS(net, SCTP_MIB_OUTCTRLCHUNKS);
  
@@ -86,9 +86,9 @@ index 36328ab88bdd..a3545498a038 100644
 -		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
 -
  	/* We need to discard the rest of the packet to prevent
- 	 * potential boomming attacks from additional bundled chunks.
+ 	 * potential bomming attacks from additional bundled chunks.
  	 * This is documented in SCTP Threats ID.
-@@ -3836,6 +3830,9 @@ enum sctp_disposition sctp_sf_do_8_5_1_E_sa(struct net *net,
+@@ -3716,6 +3710,9 @@ enum sctp_disposition sctp_sf_do_8_5_1_E_sa(struct net *net,
  {
  	struct sctp_chunk *chunk = arg;
  
