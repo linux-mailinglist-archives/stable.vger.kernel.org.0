@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B796E44169D
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9BE441673
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232405AbhKAJ1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:27:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59154 "EHLO mail.kernel.org"
+        id S232536AbhKAJZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:25:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59239 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232494AbhKAJY5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:24:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8ED3611AD;
-        Mon,  1 Nov 2021 09:21:38 +0000 (UTC)
+        id S232540AbhKAJXn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:23:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80B6161167;
+        Mon,  1 Nov 2021 09:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758499;
-        bh=fn9RVgz7n/ysygwQNjBLNXU8CmZZ8RIfTmVJcrElIEA=;
+        s=korg; t=1635758462;
+        bh=08W/I7l8cfPYuaLmXeJX9hxRo/5kGORstL0bzuPrZPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNBm0JHtpYcf5OFAFvYTPJhiiNW4HlEkPeF+w4GMz3YedPoF2oD/apDvLVGsR5bdX
-         +yTuJDrSJx7RrXDH5FVqX7V24KqmANGcRL1tCpA0WNfzHOfkGo2zF9raoyf46hymnu
-         jRkm0sFnG8qhFPnoJxYqV116j4JpPc/2sGL1I2QY=
+        b=b/oGRj5riGRXDVvrNJxDatRNKrRfU4ARRVuN33vU9PWtGuyvOTnJsN1PJngEzG9oT
+         tnZvOjwwVO1xehv2H5fGGX/b6d9Wf476WsE+AAiMBFKs5jFCTF5xNzmdrMY4dpGbx3
+         ahLzdeRqkX67h7x6z+UszRRxsRx/k14mjGk6uZFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 24/35] regmap: Fix possible double-free in regcache_rbtree_exit()
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 24/25] sctp: add vtag check in sctp_sf_do_8_5_1_E_sa
 Date:   Mon,  1 Nov 2021 10:17:36 +0100
-Message-Id: <20211101082457.219487580@linuxfoundation.org>
+Message-Id: <20211101082452.757400870@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
-References: <20211101082451.430720900@linuxfoundation.org>
+In-Reply-To: <20211101082447.070493993@linuxfoundation.org>
+References: <20211101082447.070493993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 55e6d8037805b3400096d621091dfbf713f97e83 upstream.
+[ Upstream commit ef16b1734f0a176277b7bb9c71a6d977a6ef3998 ]
 
-In regcache_rbtree_insert_to_block(), when 'present' realloc failed,
-the 'blk' which is supposed to assign to 'rbnode->block' will be freed,
-so 'rbnode->block' points a freed memory, in the error handling path of
-regcache_rbtree_init(), 'rbnode->block' will be freed again in
-regcache_rbtree_exit(), KASAN will report double-free as follows:
+sctp_sf_do_8_5_1_E_sa() is called when processing SHUTDOWN_ACK chunk
+in cookie_wait and cookie_echoed state.
 
-BUG: KASAN: double-free or invalid-free in kfree+0xce/0x390
-Call Trace:
- slab_free_freelist_hook+0x10d/0x240
- kfree+0xce/0x390
- regcache_rbtree_exit+0x15d/0x1a0
- regcache_rbtree_init+0x224/0x2c0
- regcache_init+0x88d/0x1310
- __regmap_init+0x3151/0x4a80
- __devm_regmap_init+0x7d/0x100
- madera_spi_probe+0x10f/0x333 [madera_spi]
- spi_probe+0x183/0x210
- really_probe+0x285/0xc30
+The vtag in the chunk's sctphdr should be verified, otherwise, as
+later in chunk length check, it may send abort with the existent
+asoc's vtag, which can be exploited by one to cook a malicious
+chunk to terminate a SCTP asoc.
 
-To fix this, moving up the assignment of rbnode->block to immediately after
-the reallocation has succeeded so that the data structure stays valid even
-if the second reallocation fails.
+Note that when fails to verify the vtag from SHUTDOWN-ACK chunk,
+SHUTDOWN COMPLETE message will still be sent back to peer, but
+with the vtag from SHUTDOWN-ACK chunk, as said in 5) of
+rfc4960#section-8.4.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 3f4ff561bc88b ("regmap: rbtree: Make cache_present bitmap per node")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211012023735.1632786-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While at it, also remove the unnecessary chunk length check from
+sctp_sf_shut_8_4_5(), as it's already done in both places where
+it calls sctp_sf_shut_8_4_5().
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/regcache-rbtree.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ net/sctp/sm_statefuns.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/base/regmap/regcache-rbtree.c
-+++ b/drivers/base/regmap/regcache-rbtree.c
-@@ -295,14 +295,14 @@ static int regcache_rbtree_insert_to_blo
- 	if (!blk)
- 		return -ENOMEM;
+diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
+index e6260946eafe..c3cb0ae7df2b 100644
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -3613,12 +3613,6 @@ static enum sctp_disposition sctp_sf_shut_8_4_5(
  
-+	rbnode->block = blk;
+ 	SCTP_INC_STATS(net, SCTP_MIB_OUTCTRLCHUNKS);
+ 
+-	/* If the chunk length is invalid, we don't want to process
+-	 * the reset of the packet.
+-	 */
+-	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_chunkhdr)))
+-		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+-
+ 	/* We need to discard the rest of the packet to prevent
+ 	 * potential bomming attacks from additional bundled chunks.
+ 	 * This is documented in SCTP Threats ID.
+@@ -3646,6 +3640,9 @@ enum sctp_disposition sctp_sf_do_8_5_1_E_sa(struct net *net,
+ {
+ 	struct sctp_chunk *chunk = arg;
+ 
++	if (!sctp_vtag_verify(chunk, asoc))
++		asoc = NULL;
 +
- 	if (BITS_TO_LONGS(blklen) > BITS_TO_LONGS(rbnode->blklen)) {
- 		present = krealloc(rbnode->cache_present,
- 				   BITS_TO_LONGS(blklen) * sizeof(*present),
- 				   GFP_KERNEL);
--		if (!present) {
--			kfree(blk);
-+		if (!present)
- 			return -ENOMEM;
--		}
- 
- 		memset(present + BITS_TO_LONGS(rbnode->blklen), 0,
- 		       (BITS_TO_LONGS(blklen) - BITS_TO_LONGS(rbnode->blklen))
-@@ -319,7 +319,6 @@ static int regcache_rbtree_insert_to_blo
- 	}
- 
- 	/* update the rbnode block, its size and the base register */
--	rbnode->block = blk;
- 	rbnode->blklen = blklen;
- 	rbnode->base_reg = base_reg;
- 	rbnode->cache_present = present;
+ 	/* Make sure that the SHUTDOWN_ACK chunk has a valid length. */
+ 	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_chunkhdr)))
+ 		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
+-- 
+2.33.0
+
 
 
