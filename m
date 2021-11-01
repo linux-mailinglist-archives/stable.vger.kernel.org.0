@@ -2,107 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D48D944171F
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 938ED441A06
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 11:37:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231868AbhKAJcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:32:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44316 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232997AbhKAJac (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Nov 2021 05:30:32 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0689DC0432E9
-        for <stable@vger.kernel.org>; Mon,  1 Nov 2021 02:21:22 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id m14so15771688pfc.9
-        for <stable@vger.kernel.org>; Mon, 01 Nov 2021 02:21:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=ad1GoWfa8TA9AvVhZ5DiPXIhRf57ja962l5kZMhfDJk=;
-        b=n8tpWSo6YEmCXl6lQvx6jFqKQRLaP2pQag7e4VpuSojpQwnkTjOtRaK7pg0OP5SRDs
-         IgShXDVI72PNI6KloikMZplvGvmEujlCswPV/QMbmEbLKbq0/4XKjjAm8M0q1wAZgyyC
-         G4nB4K3P49FL6c46Z4kUq56XODu79iLxuNUqizcRsRxiER9oTSeSjDJjDtaD+cgAGqSt
-         AAiFYylj4+BKshHjEa6so/f7iVH3O4YN6/c2GzY6WBlMbY9BFCI20+wXUhMixt9j0x64
-         yMnHpkpB7kX8nbNeSwnSbym5tLYMAiFi1lxP8ia6qjtiFksgN9UMp4fv5pS9860t1/8D
-         Ak/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=ad1GoWfa8TA9AvVhZ5DiPXIhRf57ja962l5kZMhfDJk=;
-        b=GydVrSROcLPw3Jr8Aql30oZfkeJYoYmrG52odpj+o+i1xfMgVlo2T7wA2G42RvB0iV
-         Q4ylxuawuwoIXNkXGKscnOe5FblWt3k448ialP9yqrd6srW7+9FMHJv2Crl8q+WhzC0k
-         JCsdyQ7KnIqRDeF/Gek4wlTnj6v8QmhQfrLG9+dk4SYX+MjCDC2r9pjpDqZ4F1hcNqPi
-         KC72x31eNE4ptlpNYXkJUY4luBzZse+qVYEPoHsszPjwqu3+Wpl7V1w4YtaMMj4DMRBU
-         cr37gFGEhSspv6s9w3MLMTuj0VXPvAoIyb60xDsOa6/n2POyG31vztg44C1GtdtpPFRL
-         rPGw==
-X-Gm-Message-State: AOAM531kJFbvbvw7DTtkuuROdu2jDaetYKUcjh4PwZnYO35RpQnRF0QA
-        CTcWrXxw1QCwDMi7nv9pt9Dy93J5HESbDDrl7+o=
-X-Google-Smtp-Source: ABdhPJw1Wzv45BenHOi74M1dzxsqTcEs3h5zNSQCfRlM2qjkYlBUC3yYRwogfHeK3cK31hi7tIR2tIPcyB22PibKry4=
-X-Received: by 2002:a63:874a:: with SMTP id i71mr7274199pge.81.1635758481364;
- Mon, 01 Nov 2021 02:21:21 -0700 (PDT)
+        id S231358AbhKAKkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 06:40:11 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:45762 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232161AbhKAKkK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Nov 2021 06:40:10 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id B2DE71C0B76; Mon,  1 Nov 2021 11:37:36 +0100 (CET)
+Date:   Mon, 1 Nov 2021 11:37:32 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/35] 4.19.215-rc1 review
+Message-ID: <20211101103732.GA24359@duo.ucw.cz>
+References: <20211101082451.430720900@linuxfoundation.org>
 MIME-Version: 1.0
-Received: by 2002:a17:90b:164f:0:0:0:0 with HTTP; Mon, 1 Nov 2021 02:21:20
- -0700 (PDT)
-Reply-To: mohammadahmed7760@gmail.com
-From:   Mohammad Ahmed <marryh2016@gmail.com>
-Date:   Mon, 1 Nov 2021 02:21:20 -0700
-Message-ID: <CAKtYdpxprH6moX=8XFWXDJn272tdwWBcKRaOg2mwZzGdUyRiiQ@mail.gmail.com>
-Subject: I NEED YOUR URGENT ASSISTANCE FROM MR.MOHAMMAD AHMED / CAN I TRUST YOU
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+Content-Disposition: inline
+In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My Dear friend.
 
-With all due respect, I know this message will come to you as a
-surprise, My name is Mr. Mohammad Ahmed a banker working with Bank of
-Africa Du Burkina Faso West Africa, i need your urgent assistance to
-transfer an abandoned Sum of 13.5 Millions USD into your account.
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I am contacting you independently of my investigation in my bank and
-no one is informed of this communication. I need your urgent
-assistance to transfer the sum of $13.5Million Dollars to Your private
-account; The Fund in question belongs to one of our late foreign
-customer who died a long time ago with his family together with his
-supposed NEXT OF KIN since the year 2005 in the plane crash.
+Hi!
 
-The Fund has been here in our Bank coffers lying dormant for years now
-without anybody coming to claim the fund as the late deceased family
-relation for none of his family relation is a wear of the fund in our
-bank.
+> This is the start of the stable review cycle for the 4.19.215 release.
+> There are 35 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-I want you to come and stand as the late deceased Next of Kin and
-business partner to claim his balance with our bank no matter the
-country you came from bank will release and transfer the fund into
-your account and be rest assured to have my support during the claim
-for I am the late deceased account manager before he met his sudden
-death in the plane crash with his family on their way traveling for
-Summer Holidays.
+I'm getting some failures on 4.19.215-rc1, and at least this one is real:
 
-I am contacting you to come and claim the fund through my support
-because the bank laws here does not allow any inheritance fund to stay
-more than 16years in the bank coffers without claiming by the
-concerned family for the money will be recalled to the bank Treasury
-account as unclaimed funds.
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/jobs/173461=
+4739
 
-I am ready to share with you 50% for you and 50% for me and by
-indicating your interest and capability to execute the project with me
-after reading message; I will send you more details on how the fund
-will be officially transfer in your account for the transaction will
-be execute in your favor without any problem for the only thing i want
-from you is to be honest with me during the transaction official
-process.
+  CC      drivers/mtd/nand/raw/nand_samsung.o
+3313drivers/mmc/host/sdhci-esdhc-imx.c: In function 'esdhc_reset_tuning':
+3314drivers/mmc/host/sdhci-esdhc-imx.c:966:10: error: implicit declaration =
+of function 'readl_poll_timeout'; did you mean 'key_set_timeout'? [-Werror=
+=3Dimplicit-function-declaration]
+3315    ret =3D readl_poll_timeout(host->ioaddr + SDHCI_AUTO_CMD_STATUS,
+3316          ^~~~~~~~~~~~~~~~~~
+3317          key_set_timeout
+3318  AR      drivers/pci/controller/dwc/built-in.a
 
-I will be waiting for your urgent response to enable me feed you with
-more details for us to proceed ahead.
+Best regards,
+							Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-Thanks.
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Best Regards,
+-----BEGIN PGP SIGNATURE-----
 
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYX/DbAAKCRAw5/Bqldv6
+8jUCAJ9Ovld54o3fxbvqQycsgR6J3FcH+wCfYJqdEQUqYXmrBD01Est7sa1Q41Q=
+=WL7X
+-----END PGP SIGNATURE-----
 
-Mr. Mohammad Ahmed
+--ew6BAiZeqk4r7MaW--
