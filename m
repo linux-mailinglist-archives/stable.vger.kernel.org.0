@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99B3044175B
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:33:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7905441863
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:45:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232209AbhKAJfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43594 "EHLO mail.kernel.org"
+        id S233997AbhKAJrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:47:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233622AbhKAJdr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:33:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F24061265;
-        Mon,  1 Nov 2021 09:25:16 +0000 (UTC)
+        id S234425AbhKAJon (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:44:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE16761166;
+        Mon,  1 Nov 2021 09:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758716;
-        bh=pvJr1WrYLJxcxoBfz2R65K5Wa7sWMt1a0oeZCQbtU80=;
+        s=korg; t=1635758982;
+        bh=se536qyWgd+Saudg8JzNo5S9uEwyH7QnCMCSpXHPrBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPOviT/1E+P4LJkdDP5Jh3mxHURZxWMQ+VEVRgP/nMgyJ4Ysl3y1NoUg0t8H5TfMy
-         CmyTtSRHX1k9cqjMHM8Xy4R8oHTKKKfRgA2/Q/LmvEsosgclRfZsFVkY4Tskq1J8QM
-         gR7KsLP7/bVHpvvpZun3/9USE5nmyXERKN7Ewrtk=
+        b=rM04TCzoku04fhO5DfFKf2Dt37BNPgkbWYgy9ucu4RSefpFqHkMaW4TDIANoL6u32
+         x4t0aVE5yzYc+UrieTImlkKTYetYBT/As7TqNFzX28vEDIh0567DtSF+ShN/w05TWQ
+         IUNAohn6Nv01jKfcG0naXYeKlgmn+6y5mbkJrmsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 28/77] cfg80211: scan: fix RCU in cfg80211_add_nontrans_list()
+        stable@vger.kernel.org,
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.14 063/125] IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
 Date:   Mon,  1 Nov 2021 10:17:16 +0100
-Message-Id: <20211101082517.840847610@linuxfoundation.org>
+Message-Id: <20211101082545.097211749@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,44 +42,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-commit a2083eeb119fb9307258baea9b7c243ca9a2e0b6 upstream.
+commit d39bf40e55e666b5905fdbd46a0dced030ce87be upstream.
 
-The SSID pointer is pointing to RCU protected data, so we
-need to have it under rcu_read_lock() for the entire use.
-Fix this.
+Overflowing either addrlimit or bytes_togo can allow userspace to trigger
+a buffer overflow of kernel memory. Check for overflows in all the places
+doing math on user controlled buffers.
 
-Cc: stable@vger.kernel.org
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Link: https://lore.kernel.org/r/20210930131120.6ddfc603aa1d.I2137344c4e2426525b1a8e4ce5fca82f8ecbfe7e@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
+Link: https://lore.kernel.org/r/20211012175519.7298.77738.stgit@awfm-01.cornelisnetworks.com
+Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/scan.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/qib/qib_user_sdma.c |   33 ++++++++++++++++++++----------
+ 1 file changed, 23 insertions(+), 10 deletions(-)
 
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -418,14 +418,17 @@ cfg80211_add_nontrans_list(struct cfg802
- 	}
- 	ssid_len = ssid[1];
- 	ssid = ssid + 2;
--	rcu_read_unlock();
+--- a/drivers/infiniband/hw/qib/qib_user_sdma.c
++++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
+@@ -602,7 +602,7 @@ done:
+ /*
+  * How many pages in this iovec element?
+  */
+-static int qib_user_sdma_num_pages(const struct iovec *iov)
++static size_t qib_user_sdma_num_pages(const struct iovec *iov)
+ {
+ 	const unsigned long addr  = (unsigned long) iov->iov_base;
+ 	const unsigned long  len  = iov->iov_len;
+@@ -658,7 +658,7 @@ static void qib_user_sdma_free_pkt_frag(
+ static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
+ 				   struct qib_user_sdma_queue *pq,
+ 				   struct qib_user_sdma_pkt *pkt,
+-				   unsigned long addr, int tlen, int npages)
++				   unsigned long addr, int tlen, size_t npages)
+ {
+ 	struct page *pages[8];
+ 	int i, j;
+@@ -722,7 +722,7 @@ static int qib_user_sdma_pin_pkt(const s
+ 	unsigned long idx;
  
- 	/* check if nontrans_bss is in the list */
- 	list_for_each_entry(bss, &trans_bss->nontrans_list, nontrans_list) {
--		if (is_bss(bss, nontrans_bss->bssid, ssid, ssid_len))
-+		if (is_bss(bss, nontrans_bss->bssid, ssid, ssid_len)) {
-+			rcu_read_unlock();
- 			return 0;
-+		}
- 	}
+ 	for (idx = 0; idx < niov; idx++) {
+-		const int npages = qib_user_sdma_num_pages(iov + idx);
++		const size_t npages = qib_user_sdma_num_pages(iov + idx);
+ 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
  
-+	rcu_read_unlock();
-+
- 	/* add to the list */
- 	list_add_tail(&nontrans_bss->nontrans_list, &trans_bss->nontrans_list);
- 	return 0;
+ 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
+@@ -824,8 +824,8 @@ static int qib_user_sdma_queue_pkts(cons
+ 		unsigned pktnw;
+ 		unsigned pktnwc;
+ 		int nfrags = 0;
+-		int npages = 0;
+-		int bytes_togo = 0;
++		size_t npages = 0;
++		size_t bytes_togo = 0;
+ 		int tiddma = 0;
+ 		int cfur;
+ 
+@@ -885,7 +885,11 @@ static int qib_user_sdma_queue_pkts(cons
+ 
+ 			npages += qib_user_sdma_num_pages(&iov[idx]);
+ 
+-			bytes_togo += slen;
++			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
++			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
++				ret = -EINVAL;
++				goto free_pbc;
++			}
+ 			pktnwc += slen >> 2;
+ 			idx++;
+ 			nfrags++;
+@@ -904,8 +908,7 @@ static int qib_user_sdma_queue_pkts(cons
+ 		}
+ 
+ 		if (frag_size) {
+-			int tidsmsize, n;
+-			size_t pktsize;
++			size_t tidsmsize, n, pktsize, sz, addrlimit;
+ 
+ 			n = npages*((2*PAGE_SIZE/frag_size)+1);
+ 			pktsize = struct_size(pkt, addr, n);
+@@ -923,14 +926,24 @@ static int qib_user_sdma_queue_pkts(cons
+ 			else
+ 				tidsmsize = 0;
+ 
+-			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
++			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
++				ret = -EINVAL;
++				goto free_pbc;
++			}
++			pkt = kmalloc(sz, GFP_KERNEL);
+ 			if (!pkt) {
+ 				ret = -ENOMEM;
+ 				goto free_pbc;
+ 			}
+ 			pkt->largepkt = 1;
+ 			pkt->frag_size = frag_size;
+-			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
++			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
++					       &addrlimit) ||
++			    addrlimit > type_max(typeof(pkt->addrlimit))) {
++				ret = -EINVAL;
++				goto free_pbc;
++			}
++			pkt->addrlimit = addrlimit;
+ 
+ 			if (tiddma) {
+ 				char *tidsm = (char *)pkt + pktsize;
 
 
