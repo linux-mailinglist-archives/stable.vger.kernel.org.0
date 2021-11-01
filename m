@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A67C7441893
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A41E74416B6
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233528AbhKAJtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:49:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51432 "EHLO mail.kernel.org"
+        id S232057AbhKAJ2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:28:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234127AbhKAJrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:47:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D741261406;
-        Mon,  1 Nov 2021 09:30:51 +0000 (UTC)
+        id S232969AbhKAJ0Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:26:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACA8B60F70;
+        Mon,  1 Nov 2021 09:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759052;
-        bh=ATBsLN0XtI/+FNx8UYR94fhcNhcWjLUiML3YLjYCQoI=;
+        s=korg; t=1635758527;
+        bh=gDkV0NOe9BGXhmQRGO1YukRLP6lPYzaaA1KpmtPouW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M3vkENhtiYDKCM8PDTHeVmym0OBljnmfXzXYCLUp7vyKhsxabJ01NOYDMxtz/qVJn
-         YC4qV+fmJepvZMHA7O9EclbxZN7HgwJD2Z0i98MDoqD0uZH+yykLh3KpD98KlaYEZd
-         FzmSyrLGYFOzRd0AgDvg1s51oowzYvQeoNX5cvkI=
+        b=l55nRnTgTZEEAfVO8sddJazhfDd9z9ZnsUJD7wZkQ8LCuPn/3nlmr2ZmIIoUm0fAq
+         cDbR4EnkTgBRtyj4drcAxfX6nrYUEkPF2/o3VnGhZRuIfVGM3ebyLM2ImBSVON9Z1c
+         6PpitpPuFtSYbyFZ7wVKllr0bwWee8OIHFWOb79s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 094/125] phy: phy_start_aneg: Add an unlocked version
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 35/35] sctp: add vtag check in sctp_sf_ootb
 Date:   Mon,  1 Nov 2021 10:17:47 +0100
-Message-Id: <20211101082550.941197352@linuxfoundation.org>
+Message-Id: <20211101082459.925983111@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
+References: <20211101082451.430720900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,81 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 707293a56f95f8e7e0cfae008010c7933fb68973 upstream.
+[ Upstream commit 9d02831e517aa36ee6bdb453a0eb47bd49923fe3 ]
 
-Split phy_start_aneg into a wrapper which takes the PHY lock, and a
-helper doing the real work. This will be needed when
-phy_ethtook_ksettings_set takes the lock.
+sctp_sf_ootb() is called when processing DATA chunk in closed state,
+and many other places are also using it.
 
-Fixes: 2d55173e71b0 ("phy: add generic function to support ksetting support")
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The vtag in the chunk's sctphdr should be verified, otherwise, as
+later in chunk length check, it may send abort with the existent
+asoc's vtag, which can be exploited by one to cook a malicious
+chunk to terminate a SCTP asoc.
+
+When fails to verify the vtag from the chunk, this patch sets asoc
+to NULL, so that the abort will be made with the vtag from the
+received chunk later.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy.c |   30 ++++++++++++++++++++++++------
- 1 file changed, 24 insertions(+), 6 deletions(-)
+ net/sctp/sm_statefuns.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -700,7 +700,7 @@ static int phy_check_link_status(struct
- }
+diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
+index 2995d00bd5d0..ebca069064df 100644
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -3583,6 +3583,9 @@ enum sctp_disposition sctp_sf_ootb(struct net *net,
  
- /**
-- * phy_start_aneg - start auto-negotiation for this PHY device
-+ * _phy_start_aneg - start auto-negotiation for this PHY device
-  * @phydev: the phy_device struct
-  *
-  * Description: Sanitizes the settings (if we're not autonegotiating
-@@ -708,25 +708,43 @@ static int phy_check_link_status(struct
-  *   If the PHYCONTROL Layer is operating, we change the state to
-  *   reflect the beginning of Auto-negotiation or forcing.
-  */
--int phy_start_aneg(struct phy_device *phydev)
-+static int _phy_start_aneg(struct phy_device *phydev)
- {
- 	int err;
+ 	SCTP_INC_STATS(net, SCTP_MIB_OUTOFBLUES);
  
-+	lockdep_assert_held(&phydev->lock);
++	if (asoc && !sctp_vtag_verify(chunk, asoc))
++		asoc = NULL;
 +
- 	if (!phydev->drv)
- 		return -EIO;
- 
--	mutex_lock(&phydev->lock);
--
- 	if (AUTONEG_DISABLE == phydev->autoneg)
- 		phy_sanitize_settings(phydev);
- 
- 	err = phy_config_aneg(phydev);
- 	if (err < 0)
--		goto out_unlock;
-+		return err;
- 
- 	if (phy_is_started(phydev))
- 		err = phy_check_link_status(phydev);
--out_unlock:
-+
-+	return err;
-+}
-+
-+/**
-+ * phy_start_aneg - start auto-negotiation for this PHY device
-+ * @phydev: the phy_device struct
-+ *
-+ * Description: Sanitizes the settings (if we're not autonegotiating
-+ *   them), and then calls the driver's config_aneg function.
-+ *   If the PHYCONTROL Layer is operating, we change the state to
-+ *   reflect the beginning of Auto-negotiation or forcing.
-+ */
-+int phy_start_aneg(struct phy_device *phydev)
-+{
-+	int err;
-+
-+	mutex_lock(&phydev->lock);
-+	err = _phy_start_aneg(phydev);
- 	mutex_unlock(&phydev->lock);
- 
- 	return err;
+ 	ch = (struct sctp_chunkhdr *)chunk->chunk_hdr;
+ 	do {
+ 		/* Report violation if the chunk is less then minimal */
+-- 
+2.33.0
+
 
 
