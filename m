@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4434E44178B
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43EB9441749
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:33:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232179AbhKAJhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:37:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43560 "EHLO mail.kernel.org"
+        id S232505AbhKAJfI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:35:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232888AbhKAJfo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:35:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B035610CB;
-        Mon,  1 Nov 2021 09:25:46 +0000 (UTC)
+        id S232591AbhKAJcN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:32:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDC7C610CA;
+        Mon,  1 Nov 2021 09:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758746;
-        bh=mihaGiEok+Hj226MMQ1qfWL5u3i23tWW2o5SAc+iwIU=;
+        s=korg; t=1635758665;
+        bh=dsaKun6tFX0na/bmmAKdGf5z0k6FM6O1hCw9ug0G3B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lOijC0fDOchyyN6OFPLp5TfNBoKIErXZxrLko1ZlzrMDu5OVqsCEhVPF8jmRO8iy5
-         MPtBOIF+MQtFg1dbTcfmsxY3syDsGM6qNW/u8PwmXEsujXNMxFAiYUgJ8LFUC5wT04
-         bJoCB9R0bs+9QnYpS+KhVQsMtjH9UU8F07ZDruN0=
+        b=N4QlxQrv7TXQfbwXkpGufkfzDXbSmeRY92gttip2liyPOqSPYaYfEgYt92i+STMgp
+         c4CgLEUp9jBsVl07VmubZMntJDzxU7By36p/AGcWTbANwDlGA3cgtH58b/YCjDusBq
+         c+Y1O47JWqN0z1v/2zrWg2K09JdNi9szrqsD938I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
         Sagi Grimberg <sagi@grimberg.me>,
         Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.10 42/77] nvme-tcp: fix data digest pointer calculation
+Subject: [PATCH 5.4 26/51] nvmet-tcp: fix data digest pointer calculation
 Date:   Mon,  1 Nov 2021 10:17:30 +0100
-Message-Id: <20211101082520.717607422@linuxfoundation.org>
+Message-Id: <20211101082506.533867159@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,31 +42,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Varun Prakash <varun@chelsio.com>
 
-commit d89b9f3bbb58e9e378881209756b0723694f22ff upstream.
+commit e790de54e94a7a15fb725b34724d41d41cbaa60c upstream.
 
-ddgst is of type __le32, &req->ddgst + req->offset
-increases &req->ddgst by 4 * req->offset, fix this by
-type casting &req->ddgst to u8 *.
+exp_ddgst is of type __le32, &cmd->exp_ddgst + cmd->offset increases
+&cmd->exp_ddgst by 4 * cmd->offset, fix this by type casting
+&cmd->exp_ddgst to u8 *.
 
-Fixes: 3f2304f8c6d6 ("nvme-tcp: add NVMe over TCP host driver")
+Fixes: 872d26a391da ("nvmet-tcp: add NVMe over TCP target driver")
 Signed-off-by: Varun Prakash <varun@chelsio.com>
 Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/tcp.c |    2 +-
+ drivers/nvme/target/tcp.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1040,7 +1040,7 @@ static int nvme_tcp_try_send_ddgst(struc
- 	int ret;
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -633,7 +633,7 @@ static int nvmet_try_send_ddgst(struct n
+ 	struct nvmet_tcp_queue *queue = cmd->queue;
  	struct msghdr msg = { .msg_flags = MSG_DONTWAIT };
  	struct kvec iov = {
--		.iov_base = &req->ddgst + req->offset,
-+		.iov_base = (u8 *)&req->ddgst + req->offset,
- 		.iov_len = NVME_TCP_DIGEST_LENGTH - req->offset
+-		.iov_base = &cmd->exp_ddgst + cmd->offset,
++		.iov_base = (u8 *)&cmd->exp_ddgst + cmd->offset,
+ 		.iov_len = NVME_TCP_DIGEST_LENGTH - cmd->offset
  	};
- 
+ 	int ret;
 
 
