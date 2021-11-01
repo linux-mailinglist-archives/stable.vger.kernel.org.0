@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1318F441765
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:33:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25CF9441842
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:43:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233327AbhKAJgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:36:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43770 "EHLO mail.kernel.org"
+        id S233787AbhKAJpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:45:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233707AbhKAJeH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:34:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1431261269;
-        Mon,  1 Nov 2021 09:25:36 +0000 (UTC)
+        id S233968AbhKAJnn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:43:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F8586138D;
+        Mon,  1 Nov 2021 09:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758737;
-        bh=HEhCckemgL6r8ORYDCVr3rNyp9cwRKNuMZjMTGkDFnI=;
+        s=korg; t=1635758933;
+        bh=/KhkdsKapMmW8vh6cfwiHUoygNWE67nyOgLDEfq/r3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nepgmj+DoW9yF6DxBg+XIGlusNyhnnThpVlsbWKt1VBDOBX4e/ADGnKyLw6YAeV8N
-         O9hRcN97DMqKlG//RmZ98E0ZfcFNeEHYhGhk8jsctrGtbP8EGXTnF8T/etbWpYKQdP
-         vBN8594KAZjvzPqWmtyM4PNNxPjwNFZlqAbjT10w=
+        b=OptbuL/3DrMk2UHAgULt11N8wfeFkJry6LMO1mtUS3wkh+u6VdcJklqGUwbeUP2he
+         viljZ5tVEAwsn56aNuZNhhwI6YRvlLAKUahiz8fwGlFh8Scwct+EjNfkESM8+2DmYN
+         T2z1GNsNGFq2fKiHAS/UAByVhQEhosnsEqPae4LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Song Liu <songliubraving@fb.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 5.10 08/77] powerpc/bpf: Fix BPF_MOD when imm == 1
-Date:   Mon,  1 Nov 2021 10:16:56 +0100
-Message-Id: <20211101082513.724025579@linuxfoundation.org>
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Dave Airlie <airlied@redhat.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@intel.com>
+Subject: [PATCH 5.14 044/125] drm/i915: Convert unconditional clflush to drm_clflush_virt_range()
+Date:   Mon,  1 Nov 2021 10:16:57 +0100
+Message-Id: <20211101082541.517053190@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 8bbc9d822421d9ac8ff9ed26a3713c9afc69d6c8 upstream.
+commit fcf918ffd3b35e288097036c04af7446b2c6f2f1 upstream.
 
-Only ignore the operation if dividing by 1.
+This one is apparently a "clflush for good measure", so bit more
+justification (if you can call it that) than some of the others.
+Convert to drm_clflush_virt_range() again so that machines without
+clflush will survive the ordeal.
 
-Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Tested-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Song Liu <songliubraving@fb.com>
-Acked-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c674ca18c3046885602caebb326213731c675d06.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Cc: stable@vger.kernel.org
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@intel.com> #v1
+Fixes: 12ca695d2c1e ("drm/i915: Do not share hwsp across contexts any more, v8.")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211014090941.12159-3-ville.syrjala@linux.intel.com
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+(cherry picked from commit af7b6d234eefa30c461cc16912bafb32b9e6141c)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/net/bpf_jit_comp64.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_timeline.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -415,8 +415,14 @@ static int bpf_jit_build_body(struct bpf
- 		case BPF_ALU64 | BPF_DIV | BPF_K: /* dst /= imm */
- 			if (imm == 0)
- 				return -EINVAL;
--			else if (imm == 1)
--				goto bpf_alu32_trunc;
-+			if (imm == 1) {
-+				if (BPF_OP(code) == BPF_DIV) {
-+					goto bpf_alu32_trunc;
-+				} else {
-+					EMIT(PPC_RAW_LI(dst_reg, 0));
-+					break;
-+				}
-+			}
+--- a/drivers/gpu/drm/i915/gt/intel_timeline.c
++++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
+@@ -225,7 +225,7 @@ void intel_timeline_reset_seqno(const st
  
- 			PPC_LI32(b2p[TMP_REG_1], imm);
- 			switch (BPF_CLASS(code)) {
+ 	memset(hwsp_seqno + 1, 0, TIMELINE_SEQNO_BYTES - sizeof(*hwsp_seqno));
+ 	WRITE_ONCE(*hwsp_seqno, tl->seqno);
+-	clflush(hwsp_seqno);
++	drm_clflush_virt_range(hwsp_seqno, TIMELINE_SEQNO_BYTES);
+ }
+ 
+ void intel_timeline_enter(struct intel_timeline *tl)
 
 
