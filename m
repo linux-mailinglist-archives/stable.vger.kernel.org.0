@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A66A8441654
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4434E44178B
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232216AbhKAJYW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:24:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58984 "EHLO mail.kernel.org"
+        id S232179AbhKAJhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:37:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232244AbhKAJXP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:23:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D95861165;
-        Mon,  1 Nov 2021 09:20:24 +0000 (UTC)
+        id S232888AbhKAJfo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:35:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B035610CB;
+        Mon,  1 Nov 2021 09:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758424;
-        bh=HB1HV8LnnfKZdYnPXZzgnEfLRC4Rau5d3HYpaLnKniY=;
+        s=korg; t=1635758746;
+        bh=mihaGiEok+Hj226MMQ1qfWL5u3i23tWW2o5SAc+iwIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMCO405Bj/TXfb+T0LK2/Qo2W2Bc6Qquzm8sKjoaV7FailF4/8C9UxmDo+nG3i/CZ
-         WWGYFPhcJIefw4jTfeLhoxFZ6uPJDRWeOBJ9Neul/r4ihKkqvvFruvmbQ/+sRgq8iH
-         V4VEJmknn4hhH9Ryeg3Y/sp2jDD5fruQxQVG5X28=
+        b=lOijC0fDOchyyN6OFPLp5TfNBoKIErXZxrLko1ZlzrMDu5OVqsCEhVPF8jmRO8iy5
+         MPtBOIF+MQtFg1dbTcfmsxY3syDsGM6qNW/u8PwmXEsujXNMxFAiYUgJ8LFUC5wT04
+         bJoCB9R0bs+9QnYpS+KhVQsMtjH9UU8F07ZDruN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 18/25] net: batman-adv: fix error handling
+        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.10 42/77] nvme-tcp: fix data digest pointer calculation
 Date:   Mon,  1 Nov 2021 10:17:30 +0100
-Message-Id: <20211101082451.344281187@linuxfoundation.org>
+Message-Id: <20211101082520.717607422@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082447.070493993@linuxfoundation.org>
-References: <20211101082447.070493993@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,173 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Varun Prakash <varun@chelsio.com>
 
-commit 6f68cd634856f8ca93bafd623ba5357e0f648c68 upstream.
+commit d89b9f3bbb58e9e378881209756b0723694f22ff upstream.
 
-Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
-in wrong error handling in batadv_mesh_init().
+ddgst is of type __le32, &req->ddgst + req->offset
+increases &req->ddgst by 4 * req->offset, fix this by
+type casting &req->ddgst to u8 *.
 
-Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
-of any batadv_*_init() calls failure. This approach may work well, when
-there is some kind of indicator, which can tell which parts of batadv are
-initialized; but there isn't any.
-
-All written above lead to cleaning up uninitialized fields. Even if we hide
-ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
-GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
-
-To fix these bugs we can unwind batadv_*_init() calls one by one.
-It is good approach for 2 reasons: 1) It fixes bugs on error handling
-path 2) It improves the performance, since we won't call unneeded
-batadv_*_free() functions.
-
-So, this patch makes all batadv_*_init() clean up all allocated memory
-before returning with an error to no call correspoing batadv_*_free()
-and open-codes batadv_mesh_free() with proper order to avoid touching
-uninitialized fields.
-
-Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
-Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3f2304f8c6d6 ("nvme-tcp: add NVMe over TCP host driver")
+Signed-off-by: Varun Prakash <varun@chelsio.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/bridge_loop_avoidance.c |    8 +++-
- net/batman-adv/main.c                  |   56 +++++++++++++++++++++++----------
- net/batman-adv/network-coding.c        |    4 +-
- net/batman-adv/translation-table.c     |    4 +-
- 4 files changed, 52 insertions(+), 20 deletions(-)
+ drivers/nvme/host/tcp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -1574,10 +1574,14 @@ int batadv_bla_init(struct batadv_priv *
- 		return 0;
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1040,7 +1040,7 @@ static int nvme_tcp_try_send_ddgst(struc
+ 	int ret;
+ 	struct msghdr msg = { .msg_flags = MSG_DONTWAIT };
+ 	struct kvec iov = {
+-		.iov_base = &req->ddgst + req->offset,
++		.iov_base = (u8 *)&req->ddgst + req->offset,
+ 		.iov_len = NVME_TCP_DIGEST_LENGTH - req->offset
+ 	};
  
- 	bat_priv->bla.claim_hash = batadv_hash_new(128);
--	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.claim_hash)
-+		return -ENOMEM;
- 
--	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
-+	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.backbone_hash) {
-+		batadv_hash_destroy(bat_priv->bla.claim_hash);
- 		return -ENOMEM;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
- 				   &batadv_claim_hash_lock_class_key);
---- a/net/batman-adv/main.c
-+++ b/net/batman-adv/main.c
-@@ -180,29 +180,41 @@ int batadv_mesh_init(struct net_device *
- 	INIT_HLIST_HEAD(&bat_priv->softif_vlan_list);
- 	INIT_HLIST_HEAD(&bat_priv->tp_list);
- 
--	ret = batadv_v_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
--
- 	ret = batadv_originator_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_orig;
-+	}
- 
- 	ret = batadv_tt_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_tt;
-+	}
-+
-+	ret = batadv_v_mesh_init(bat_priv);
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_v;
-+	}
- 
- 	ret = batadv_bla_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_bla;
-+	}
- 
- 	ret = batadv_dat_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_dat;
-+	}
- 
- 	ret = batadv_nc_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_nc;
-+	}
- 
- 	batadv_gw_init(bat_priv);
- 	batadv_mcast_init(bat_priv);
-@@ -212,8 +224,20 @@ int batadv_mesh_init(struct net_device *
- 
- 	return 0;
- 
--err:
--	batadv_mesh_free(soft_iface);
-+err_nc:
-+	batadv_dat_free(bat_priv);
-+err_dat:
-+	batadv_bla_free(bat_priv);
-+err_bla:
-+	batadv_v_mesh_free(bat_priv);
-+err_v:
-+	batadv_tt_free(bat_priv);
-+err_tt:
-+	batadv_originator_free(bat_priv);
-+err_orig:
-+	batadv_purge_outstanding_packets(bat_priv, NULL);
-+	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
-+
- 	return ret;
- }
- 
---- a/net/batman-adv/network-coding.c
-+++ b/net/batman-adv/network-coding.c
-@@ -165,8 +165,10 @@ int batadv_nc_mesh_init(struct batadv_pr
- 				   &batadv_nc_coding_hash_lock_class_key);
- 
- 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
--	if (!bat_priv->nc.decoding_hash)
-+	if (!bat_priv->nc.decoding_hash) {
-+		batadv_hash_destroy(bat_priv->nc.coding_hash);
- 		goto err;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
- 				   &batadv_nc_decoding_hash_lock_class_key);
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -4373,8 +4373,10 @@ int batadv_tt_init(struct batadv_priv *b
- 		return ret;
- 
- 	ret = batadv_tt_global_init(bat_priv);
--	if (ret < 0)
-+	if (ret < 0) {
-+		batadv_tt_local_table_free(bat_priv);
- 		return ret;
-+	}
- 
- 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
- 				     batadv_tt_tvlv_unicast_handler_v1,
 
 
