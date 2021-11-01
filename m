@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA59F441818
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:42:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E2E144181E
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:42:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231980AbhKAJoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:44:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47844 "EHLO mail.kernel.org"
+        id S232050AbhKAJos (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:44:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232489AbhKAJln (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232892AbhKAJln (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Nov 2021 05:41:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C2F46120D;
-        Mon,  1 Nov 2021 09:28:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A24B6120E;
+        Mon,  1 Nov 2021 09:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758884;
-        bh=z1KBEcYUCwwd6EU+N3/WxtQxzV2GTemqrk9nnqzAsd8=;
+        s=korg; t=1635758886;
+        bh=wKfcRtTmHWG5jIR9h9tYeyIZJyugVY2tS0GmrlpS9Zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzuApj+rk098uYyHEGTLASQDenke8f3Pbty1xkt/YgHUzzrwe0LQdtgC/XoMKo2DE
-         bSHguN7H97M1RdYPWU+zILuI0IO4Tdlx25GKogRoyR11k6eqs3lvSM1ZtCCz3npDkh
-         6IJkSjlcbQXYGME1JhGnkNMgfTSg26IpEAOdl4S4=
+        b=wmsTyhIWJRoVHlejolTFuCyn4Vzu94KDLetL7+dczh+ccp9FxK4Guc4v+4h/NFYwZ
+         Wg98ouHfnu2MmEG2qlxVGw4LOzISllFLYq6RT6Y9+1fxVM3Do5FFVPZl2dY3kgqeOH
+         mnyQE9sJifSICr98m3Wrw5IRRwYCUUXok3uUYCis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.14 022/125] mmc: sdhci: Map more voltage level to SDHCI_POWER_330
-Date:   Mon,  1 Nov 2021 10:16:35 +0100
-Message-Id: <20211101082537.678044262@linuxfoundation.org>
+Subject: [PATCH 5.14 023/125] mmc: sdhci-pci: Read card detect from ACPI for Intel Merrifield
+Date:   Mon,  1 Nov 2021 10:16:36 +0100
+Message-Id: <20211101082537.831773918@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -40,84 +41,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Guo <shawn.guo@linaro.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 4217d07b9fb328751f877d3bd9550122014860a2 upstream.
+commit 6ab4e2eb5e956a61e4d53cea3ab8c866ba79a830 upstream.
 
-On Thundercomm TurboX CM2290, the eMMC OCR reports vdd = 23 (3.5 ~ 3.6 V),
-which is being treated as an invalid value by sdhci_set_power_noreg().
-And thus eMMC is totally broken on the platform.
+Intel Merrifield platform had been converted to use ACPI enumeration.
+However, the driver missed an update to retrieve card detect GPIO.
+Fix it here.
 
-[    1.436599] ------------[ cut here ]------------
-[    1.436606] mmc0: Invalid vdd 0x17
-[    1.436640] WARNING: CPU: 2 PID: 69 at drivers/mmc/host/sdhci.c:2048 sdhci_set_power_noreg+0x168/0x2b4
-[    1.436655] Modules linked in:
-[    1.436662] CPU: 2 PID: 69 Comm: kworker/u8:1 Tainted: G        W         5.15.0-rc1+ #137
-[    1.436669] Hardware name: Thundercomm TurboX CM2290 (DT)
-[    1.436674] Workqueue: events_unbound async_run_entry_fn
-[    1.436685] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    1.436692] pc : sdhci_set_power_noreg+0x168/0x2b4
-[    1.436698] lr : sdhci_set_power_noreg+0x168/0x2b4
-[    1.436703] sp : ffff800010803a60
-[    1.436705] x29: ffff800010803a60 x28: ffff6a9102465f00 x27: ffff6a9101720a70
-[    1.436715] x26: ffff6a91014de1c0 x25: ffff6a91014de010 x24: ffff6a91016af280
-[    1.436724] x23: ffffaf7b1b276640 x22: 0000000000000000 x21: ffff6a9101720000
-[    1.436733] x20: ffff6a9101720370 x19: ffff6a9101720580 x18: 0000000000000020
-[    1.436743] x17: 0000000000000000 x16: 0000000000000004 x15: ffffffffffffffff
-[    1.436751] x14: 0000000000000000 x13: 00000000fffffffd x12: ffffaf7b1b84b0bc
-[    1.436760] x11: ffffaf7b1b720d10 x10: 000000000000000a x9 : ffff800010803a60
-[    1.436769] x8 : 000000000000000a x7 : 000000000000000f x6 : 00000000fffff159
-[    1.436778] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 00000000ffffffff
-[    1.436787] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff6a9101718d80
-[    1.436797] Call trace:
-[    1.436800]  sdhci_set_power_noreg+0x168/0x2b4
-[    1.436805]  sdhci_set_ios+0xa0/0x7fc
-[    1.436811]  mmc_power_up.part.0+0xc4/0x164
-[    1.436818]  mmc_start_host+0xa0/0xb0
-[    1.436824]  mmc_add_host+0x60/0x90
-[    1.436830]  __sdhci_add_host+0x174/0x330
-[    1.436836]  sdhci_msm_probe+0x7c0/0x920
-[    1.436842]  platform_probe+0x68/0xe0
-[    1.436850]  really_probe.part.0+0x9c/0x31c
-[    1.436857]  __driver_probe_device+0x98/0x144
-[    1.436863]  driver_probe_device+0xc8/0x15c
-[    1.436869]  __device_attach_driver+0xb4/0x120
-[    1.436875]  bus_for_each_drv+0x78/0xd0
-[    1.436881]  __device_attach_async_helper+0xac/0xd0
-[    1.436888]  async_run_entry_fn+0x34/0x110
-[    1.436895]  process_one_work+0x1d0/0x354
-[    1.436903]  worker_thread+0x13c/0x470
-[    1.436910]  kthread+0x150/0x160
-[    1.436915]  ret_from_fork+0x10/0x20
-[    1.436923] ---[ end trace fcfac44cb045c3a8 ]---
+Unfortunately we can't rely on CD GPIO state because there are two
+different PCB designs in the wild that are using the opposite card
+detection sense and there is no way to distinguish those platforms,
+that's why ignore CD GPIO completely and use it only as an event.
 
-Fix the issue by mapping MMC_VDD_35_36 (and MMC_VDD_34_35) to
-SDHCI_POWER_330 as well.
-
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Fixes: 4590d98f5a4f ("sfi: Remove framework for deprecated firmware")
+BugLink: https://github.com/edison-fw/meta-intel-edison/issues/135
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Acked-by: Adrian Hunter <adrian.hunter@intel.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211004024935.15326-1-shawn.guo@linaro.org
+Link: https://lore.kernel.org/r/20211013201723.52212-2-andriy.shevchenko@linux.intel.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/mmc/host/sdhci-pci-core.c |   29 ++++++++++++++++++++++++-----
+ 1 file changed, 24 insertions(+), 5 deletions(-)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -2042,6 +2042,12 @@ void sdhci_set_power_noreg(struct sdhci_
- 			break;
- 		case MMC_VDD_32_33:
- 		case MMC_VDD_33_34:
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -616,16 +616,12 @@ static int intel_select_drive_strength(s
+ 	return intel_host->drv_strength;
+ }
+ 
+-static int bxt_get_cd(struct mmc_host *mmc)
++static int sdhci_get_cd_nogpio(struct mmc_host *mmc)
+ {
+-	int gpio_cd = mmc_gpio_get_cd(mmc);
+ 	struct sdhci_host *host = mmc_priv(mmc);
+ 	unsigned long flags;
+ 	int ret = 0;
+ 
+-	if (!gpio_cd)
+-		return 0;
+-
+ 	spin_lock_irqsave(&host->lock, flags);
+ 
+ 	if (host->flags & SDHCI_DEVICE_DEAD)
+@@ -638,6 +634,21 @@ out:
+ 	return ret;
+ }
+ 
++static int bxt_get_cd(struct mmc_host *mmc)
++{
++	int gpio_cd = mmc_gpio_get_cd(mmc);
++
++	if (!gpio_cd)
++		return 0;
++
++	return sdhci_get_cd_nogpio(mmc);
++}
++
++static int mrfld_get_cd(struct mmc_host *mmc)
++{
++	return sdhci_get_cd_nogpio(mmc);
++}
++
+ #define SDHCI_INTEL_PWR_TIMEOUT_CNT	20
+ #define SDHCI_INTEL_PWR_TIMEOUT_UDELAY	100
+ 
+@@ -1341,6 +1352,14 @@ static int intel_mrfld_mmc_probe_slot(st
+ 					 MMC_CAP_1_8V_DDR;
+ 		break;
+ 	case INTEL_MRFLD_SD:
++		slot->cd_idx = 0;
++		slot->cd_override_level = true;
 +		/*
-+		 * 3.4 ~ 3.6V are valid only for those platforms where it's
-+		 * known that the voltage range is supported by hardware.
++		 * There are two PCB designs of SD card slot with the opposite
++		 * card detection sense. Quirk this out by ignoring GPIO state
++		 * completely in the custom ->get_cd() callback.
 +		 */
-+		case MMC_VDD_34_35:
-+		case MMC_VDD_35_36:
- 			pwr = SDHCI_POWER_330;
- 			break;
- 		default:
++		slot->host->mmc_host_ops.get_cd = mrfld_get_cd;
+ 		slot->host->quirks2 |= SDHCI_QUIRK2_NO_1_8_V;
+ 		break;
+ 	case INTEL_MRFLD_SDIO:
 
 
