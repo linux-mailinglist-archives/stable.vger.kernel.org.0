@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C179441671
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 036514416D9
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232822AbhKAJZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:25:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58246 "EHLO mail.kernel.org"
+        id S232761AbhKAJaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:30:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232274AbhKAJWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:22:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 885D661101;
-        Mon,  1 Nov 2021 09:19:40 +0000 (UTC)
+        id S233030AbhKAJ2Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:28:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 472CC6120A;
+        Mon,  1 Nov 2021 09:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758381;
-        bh=M4PgJ8Bfn8C+fG6wR8p9pIDnyvVddvMRdsypmjOq1+E=;
+        s=korg; t=1635758578;
+        bh=Wb/JvmoAGG8E9nxzREEhiKjrhZUdNGhZfOZmFE5VbPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XIDcxpLbo3VPzSWbvFbRO554w3VuRv3ZGNhcICVXatxRiqjR4WETsiSq5BnyO7W2w
-         ektVmbyj1Vt+f2ID1BRM8M+8OewbwSMeRrG+hckIjCsTZWbESp4RfHQI+1tmp/u9f3
-         4G+0SiDIxpy7zyRAryXBcPK+XhGK2ECrd66NhwrU=
+        b=uHWvTI+AoTvJheijbMWxWG4CvSKiBeJgYbcYp/xtI1azIL/6z7ebDQ1DbIeVASwDn
+         mdbzOZx+ZTVGD3PB59QLRiNiyDjvn2GqUP+oY2HgkSEvokyJwYKG/yMtqyaQpxpzyn
+         lTBhJy5eIcsVbtl7ggW9BXift8DKnBL37c5D+4HE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.9 02/20] ARM: 9134/1: remove duplicate memcpy() definition
+        Eric Dumazet <edumazet@google.com>, Keyu Man <kman001@ucr.edu>,
+        Willy Tarreau <w@1wt.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 07/51] ipv4: use siphash instead of Jenkins in fnhe_hashfun()
 Date:   Mon,  1 Nov 2021 10:17:11 +0100
-Message-Id: <20211101082444.650245644@linuxfoundation.org>
+Message-Id: <20211101082501.770829189@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
-References: <20211101082444.133899096@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit eaf6cc7165c9c5aa3c2f9faa03a98598123d0afb upstream.
+commit 6457378fe796815c973f631a1904e147d6ee33b1 upstream.
 
-Both the decompressor code and the kasan logic try to override
-the memcpy() and memmove()  definitions, which leading to a clash
-in a KASAN-enabled kernel with XZ decompression:
+A group of security researchers brought to our attention
+the weakness of hash function used in fnhe_hashfun().
 
-arch/arm/boot/compressed/decompress.c:50:9: error: 'memmove' macro redefined [-Werror,-Wmacro-redefined]
- #define memmove memmove
-        ^
-arch/arm/include/asm/string.h:59:9: note: previous definition is here
- #define memmove(dst, src, len) __memmove(dst, src, len)
-        ^
-arch/arm/boot/compressed/decompress.c:51:9: error: 'memcpy' macro redefined [-Werror,-Wmacro-redefined]
- #define memcpy memcpy
-        ^
-arch/arm/include/asm/string.h:58:9: note: previous definition is here
- #define memcpy(dst, src, len) __memcpy(dst, src, len)
-        ^
+Lets use siphash instead of Jenkins Hash, to considerably
+reduce security risks.
 
-Here we want the set of functions from the decompressor, so undefine
-the other macros before the override.
+Also remove the inline keyword, this really is distracting.
 
-Link: https://lore.kernel.org/linux-arm-kernel/CACRpkdZYJogU_SN3H9oeVq=zJkRgRT1gDz3xp59gdqWXxw-B=w@mail.gmail.com/
-Link: https://lore.kernel.org/lkml/202105091112.F5rmd4By-lkp@intel.com/
-
-Fixes: d6d51a96c7d6 ("ARM: 9014/2: Replace string mem* functions for KASan")
-Fixes: a7f464f3db93 ("ARM: 7001/2: Wire up support for the XZ decompressor")
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: d546c621542d ("ipv4: harden fnhe_hashfun()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Keyu Man <kman001@ucr.edu>
+Cc: Willy Tarreau <w@1wt.eu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[OP: adjusted context for 5.4 stable]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/compressed/decompress.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv4/route.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/arch/arm/boot/compressed/decompress.c
-+++ b/arch/arm/boot/compressed/decompress.c
-@@ -46,7 +46,10 @@ extern char * strstr(const char * s1, co
- #endif
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -631,14 +631,14 @@ static void fnhe_remove_oldest(struct fn
+ 	kfree_rcu(oldest, rcu);
+ }
  
- #ifdef CONFIG_KERNEL_XZ
-+/* Prevent KASAN override of string helpers in decompressor */
-+#undef memmove
- #define memmove memmove
-+#undef memcpy
- #define memcpy memcpy
- #include "../../../../lib/decompress_unxz.c"
- #endif
+-static inline u32 fnhe_hashfun(__be32 daddr)
++static u32 fnhe_hashfun(__be32 daddr)
+ {
+-	static u32 fnhe_hashrnd __read_mostly;
+-	u32 hval;
++	static siphash_key_t fnhe_hash_key __read_mostly;
++	u64 hval;
+ 
+-	net_get_random_once(&fnhe_hashrnd, sizeof(fnhe_hashrnd));
+-	hval = jhash_1word((__force u32) daddr, fnhe_hashrnd);
+-	return hash_32(hval, FNHE_HASH_SHIFT);
++	net_get_random_once(&fnhe_hash_key, sizeof(fnhe_hash_key));
++	hval = siphash_1u32((__force u32)daddr, &fnhe_hash_key);
++	return hash_64(hval, FNHE_HASH_SHIFT);
+ }
+ 
+ static void fill_route_from_fnhe(struct rtable *rt, struct fib_nh_exception *fnhe)
 
 
