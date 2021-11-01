@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 780004418B9
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:49:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3899244172F
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:32:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234121AbhKAJuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:50:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52284 "EHLO mail.kernel.org"
+        id S231673AbhKAJeW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:34:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234730AbhKAJss (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:48:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4B7E61183;
-        Mon,  1 Nov 2021 09:31:17 +0000 (UTC)
+        id S232484AbhKAJcM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:32:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8696C6117A;
+        Mon,  1 Nov 2021 09:24:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759078;
-        bh=iYzB8uoi1sGWZCZS/I4pYim9/2xbkFY0MsMsRt2QZkY=;
+        s=korg; t=1635758656;
+        bh=lcL9YykhwXtIsauYrMsyAo6kj0FnmWrgRJn4Pn/ASck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQlc5+szz1T0+7u0XCJLefRZ/eYy357gL4diksRKqrNaaWkY3PNoP3LGnrklAH4uA
-         TuFBfVTpcP3o+TzwcpxOIaTs7tWi9X96J7t2hV0d2lEr5RtHiWUIlOvUgtbt0iR6Gh
-         4SFB7FIzG5Sq7hpfrXCpXJPS+slIJgzGEHUKxhaE=
+        b=CzfyAZ+VYpLQDe6U0E4kKkmYsoluc8GkdCtA4takG8EyEHTspne1p84u0ACQ+rNlb
+         Jqs1nywaqITlbaK+J6ccy2kfO9RtZzm7OSSPfw/Ec/jpEbCTaewFuZ68cA2QOoQ0z4
+         tzMZBoGU37bWHfoSWJRpGnEcTg29DBTKwp0CYPBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Cl=C3=A9ment=20B=C5=93sch?= <u@pkh.me>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>, Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 5.14 073/125] arm64: dts: allwinner: h5: NanoPI Neo 2: Fix ethernet node
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        "Erhard F." <erhard_f@mailbox.org>, Huang Rui <ray.huang@amd.com>
+Subject: [PATCH 5.4 22/51] drm/ttm: fix memleak in ttm_transfered_destroy
 Date:   Mon,  1 Nov 2021 10:17:26 +0100
-Message-Id: <20211101082547.017632283@linuxfoundation.org>
+Message-Id: <20211101082505.681517249@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clément Bœsch <u@pkh.me>
+From: Christian König <christian.koenig@amd.com>
 
-commit 0764e365dacd0b8f75c1736f9236be280649bd18 upstream.
+commit 0db55f9a1bafbe3dac750ea669de9134922389b5 upstream.
 
-RX and TX delay are provided by ethernet PHY. Reflect that in ethernet
-node.
+We need to cleanup the fences for ghost objects as well.
 
-Fixes: 44a94c7ef989 ("arm64: dts: allwinner: H5: Restore EMAC changes")
-Signed-off-by: Clément Bœsch <u@pkh.me>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20210905002027.171984-1-u@pkh.me
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reported-by: Erhard F. <erhard_f@mailbox.org>
+Tested-by: Erhard F. <erhard_f@mailbox.org>
+Reviewed-by: Huang Rui <ray.huang@amd.com>
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=214029
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=214447
+CC: <stable@vger.kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211020173211.2247-1-christian.koenig@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-h5-nanopi-neo2.dts |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/ttm/ttm_bo_util.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/boot/dts/allwinner/sun50i-h5-nanopi-neo2.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h5-nanopi-neo2.dts
-@@ -75,7 +75,7 @@
- 	pinctrl-0 = <&emac_rgmii_pins>;
- 	phy-supply = <&reg_gmac_3v3>;
- 	phy-handle = <&ext_rgmii_phy>;
--	phy-mode = "rgmii";
-+	phy-mode = "rgmii-id";
- 	status = "okay";
- };
+--- a/drivers/gpu/drm/ttm/ttm_bo_util.c
++++ b/drivers/gpu/drm/ttm/ttm_bo_util.c
+@@ -463,6 +463,7 @@ static void ttm_transfered_destroy(struc
+ 	struct ttm_transfer_obj *fbo;
  
+ 	fbo = container_of(bo, struct ttm_transfer_obj, base);
++	dma_resv_fini(&fbo->base.base._resv);
+ 	ttm_bo_put(fbo->bo);
+ 	kfree(fbo);
+ }
 
 
