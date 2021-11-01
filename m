@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F6D844189B
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13CF7441604
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:19:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233454AbhKAJth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:49:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50956 "EHLO mail.kernel.org"
+        id S231932AbhKAJVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:21:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232346AbhKAJoy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:44:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B2D361407;
-        Mon,  1 Nov 2021 09:29:46 +0000 (UTC)
+        id S231857AbhKAJVU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:21:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F241610E5;
+        Mon,  1 Nov 2021 09:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758986;
-        bh=Z/cUCPXMS5z1azsoc/8KO/HVpK3NL+kZ3c427D6Fh2k=;
+        s=korg; t=1635758327;
+        bh=maQ4MxNKY5L3TnTiUTYt57su3TfHoFW3ctaqN1+9/BA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2du3pCrtVIJTsqV4O5OMP8E3w0eAncjqZnELrzi43Dfgj651GmOypWY8feqcxOqb
-         aXrrcqXl97CrW31Qn+hHGPC2UnlgfH3TTLNNnojkXHWXohMa53xyHi6f617/TlpIQY
-         hg11ZbVMnKy4R5P0xx32Vv/RmoUiiS6uO7ryW720=
+        b=oEsx29iJPOa9gdbJczPZ+C7ftP3zJxxleAlsn8iQPiu5SYFXM9YkI3smllFSD3APw
+         jxm8gf/L0jjQZugwj/vF21HESCIyUhSgThfK5iqkGGi3M7w4KAH10RLVRVjahyQGE0
+         65S4mP7pi1MqXedr2VHlHcRWnwMW8oE2/l7JH+d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.14 065/125] nvmet-tcp: fix data digest pointer calculation
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 4.4 15/17] nios2: Make NIOS2_DTB_SOURCE_BOOL depend on !COMPILE_TEST
 Date:   Mon,  1 Nov 2021 10:17:18 +0100
-Message-Id: <20211101082545.463654423@linuxfoundation.org>
+Message-Id: <20211101082444.100202471@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
+References: <20211101082440.664392327@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varun Prakash <varun@chelsio.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit e790de54e94a7a15fb725b34724d41d41cbaa60c upstream.
+commit 4a089e95b4d6bb625044d47aed0c442a8f7bd093 upstream.
 
-exp_ddgst is of type __le32, &cmd->exp_ddgst + cmd->offset increases
-&cmd->exp_ddgst by 4 * cmd->offset, fix this by type casting
-&cmd->exp_ddgst to u8 *.
+nios2:allmodconfig builds fail with
 
-Fixes: 872d26a391da ("nvmet-tcp: add NVMe over TCP target driver")
-Signed-off-by: Varun Prakash <varun@chelsio.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+make[1]: *** No rule to make target 'arch/nios2/boot/dts/""',
+	needed by 'arch/nios2/boot/dts/built-in.a'.  Stop.
+make: [Makefile:1868: arch/nios2/boot/dts] Error 2 (ignored)
+
+This is seen with compile tests since those enable NIOS2_DTB_SOURCE_BOOL,
+which in turn enables NIOS2_DTB_SOURCE. This causes the build error
+because the default value for NIOS2_DTB_SOURCE is an empty string.
+Disable NIOS2_DTB_SOURCE_BOOL for compile tests to avoid the error.
+
+Fixes: 2fc8483fdcde ("nios2: Build infrastructure")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/target/tcp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/nios2/platform/Kconfig.platform |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -702,7 +702,7 @@ static int nvmet_try_send_ddgst(struct n
- 	struct nvmet_tcp_queue *queue = cmd->queue;
- 	struct msghdr msg = { .msg_flags = MSG_DONTWAIT };
- 	struct kvec iov = {
--		.iov_base = &cmd->exp_ddgst + cmd->offset,
-+		.iov_base = (u8 *)&cmd->exp_ddgst + cmd->offset,
- 		.iov_len = NVME_TCP_DIGEST_LENGTH - cmd->offset
- 	};
- 	int ret;
+--- a/arch/nios2/platform/Kconfig.platform
++++ b/arch/nios2/platform/Kconfig.platform
+@@ -37,6 +37,7 @@ config NIOS2_DTB_PHYS_ADDR
+ 
+ config NIOS2_DTB_SOURCE_BOOL
+ 	bool "Compile and link device tree into kernel image"
++	depends on !COMPILE_TEST
+ 	default n
+ 	help
+ 	  This allows you to specify a dts (device tree source) file
 
 
