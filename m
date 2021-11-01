@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 165BE4417C2
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBC8844171D
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:30:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233484AbhKAJjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:39:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43594 "EHLO mail.kernel.org"
+        id S232981AbhKAJcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:32:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232556AbhKAJhs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:37:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE038611CA;
-        Mon,  1 Nov 2021 09:26:46 +0000 (UTC)
+        id S233023AbhKAJad (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:30:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8200161154;
+        Mon,  1 Nov 2021 09:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758807;
-        bh=uSR3PZPp5qtAhh3J7+ecbG6Ur4HJljEGrS071nObm7E=;
+        s=korg; t=1635758649;
+        bh=dxk7TbGopJyzyNO3eRiRqncp7nU/TcTaKlKJOAs5gZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HbZJ72VeeEq7fqdjHp4ZSvTzhhhywlpAUPj6GhSZUg64CM6xbyvs06OLtfPwpAI4t
-         uQFSMS9RIe5JvOaI75C0siIXUPNIhlVJFXxVve8lbgnck/DjkDNcRCAhWVaI/NpkDa
-         odj3hakIt0mS9a8yQb6vvjOLF4f1E2NBHsyxx+bI=
+        b=C6CHNAQqqHrmYwtbKTnEzWidgDBMQtiyJ+Ghv/bsse7M9leb5RoJvKtTgyQEP/kPW
+         WLsipTcqFoMPTU3+i7M+UVOgpfAaDbusOECec6AjhHfG8sp2KjbOnpRnqXp5ndAI1G
+         dqsA/pW0BqFKhNIjcCIplCJjGz1/nOktpk0WXW50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 66/77] sctp: fix the processing for INIT_ACK chunk
+Subject: [PATCH 5.4 50/51] KVM: s390: preserve deliverable_mask in __airqs_kick_single_vcpu
 Date:   Mon,  1 Nov 2021 10:17:54 +0100
-Message-Id: <20211101082525.458195463@linuxfoundation.org>
+Message-Id: <20211101082512.103567222@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,133 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit 438b95a7c98f77d51cbf4db021f41b602d750a3f ]
+[ Upstream commit 0e9ff65f455dfd0a8aea5e7843678ab6fe097e21 ]
 
-Currently INIT_ACK chunk in non-cookie_echoed state is processed in
-sctp_sf_discard_chunk() to send an abort with the existent asoc's
-vtag if the chunk length is not valid. But the vtag in the chunk's
-sctphdr is not verified, which may be exploited by one to cook a
-malicious chunk to terminal a SCTP asoc.
+Changing the deliverable mask in __airqs_kick_single_vcpu() is a bug. If
+one idle vcpu can't take the interrupts we want to deliver, we should
+look for another vcpu that can, instead of saying that we don't want
+to deliver these interrupts by clearing the bits from the
+deliverable_mask.
 
-sctp_sf_discard_chunk() also is called in many other places to send
-an abort, and most of those have this problem. This patch is to fix
-it by sending abort with the existent asoc's vtag only if the vtag
-from the chunk's sctphdr is verified in sctp_sf_discard_chunk().
-
-Note on sctp_sf_do_9_1_abort() and sctp_sf_shutdown_pending_abort(),
-the chunk length has been verified before sctp_sf_discard_chunk(),
-so replace it with sctp_sf_discard(). On sctp_sf_do_asconf_ack() and
-sctp_sf_do_asconf(), move the sctp_chunk_length_valid check ahead of
-sctp_sf_discard_chunk(), then replace it with sctp_sf_discard().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20211019175401.3757927-3-pasic@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_statefuns.c | 37 +++++++++++++++++++------------------
- 1 file changed, 19 insertions(+), 18 deletions(-)
+ arch/s390/kvm/interrupt.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 89a86728184d..5063f9884367 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -2280,7 +2280,7 @@ enum sctp_disposition sctp_sf_shutdown_pending_abort(
- 	 */
- 	if (SCTP_ADDR_DEL ==
- 		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
--		return sctp_sf_discard_chunk(net, ep, asoc, type, arg, commands);
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index fa9483aa4f57..fd73a8aa89d2 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2987,13 +2987,14 @@ static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
+ 	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
+ 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+ 	struct kvm_vcpu *vcpu;
++	u8 vcpu_isc_mask;
  
- 	if (!sctp_err_chunk_valid(chunk))
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-@@ -2326,7 +2326,7 @@ enum sctp_disposition sctp_sf_shutdown_sent_abort(
- 	 */
- 	if (SCTP_ADDR_DEL ==
- 		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
--		return sctp_sf_discard_chunk(net, ep, asoc, type, arg, commands);
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 
- 	if (!sctp_err_chunk_valid(chunk))
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-@@ -2596,7 +2596,7 @@ enum sctp_disposition sctp_sf_do_9_1_abort(
- 	 */
- 	if (SCTP_ADDR_DEL ==
- 		    sctp_bind_addr_state(&asoc->base.bind_addr, &chunk->dest))
--		return sctp_sf_discard_chunk(net, ep, asoc, type, arg, commands);
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 
- 	if (!sctp_err_chunk_valid(chunk))
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-@@ -3745,6 +3745,11 @@ enum sctp_disposition sctp_sf_do_asconf(struct net *net,
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 	}
- 
-+	/* Make sure that the ASCONF ADDIP chunk has a valid length.  */
-+	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_addip_chunk)))
-+		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
-+						  commands);
-+
- 	/* ADD-IP: Section 4.1.1
- 	 * This chunk MUST be sent in an authenticated way by using
- 	 * the mechanism defined in [I-D.ietf-tsvwg-sctp-auth]. If this chunk
-@@ -3753,13 +3758,7 @@ enum sctp_disposition sctp_sf_do_asconf(struct net *net,
- 	 */
- 	if (!asoc->peer.asconf_capable ||
- 	    (!net->sctp.addip_noauth && !chunk->auth))
--		return sctp_sf_discard_chunk(net, ep, asoc, type, arg,
--					     commands);
--
--	/* Make sure that the ASCONF ADDIP chunk has a valid length.  */
--	if (!sctp_chunk_length_valid(chunk, sizeof(struct sctp_addip_chunk)))
--		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
--						  commands);
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 
- 	hdr = (struct sctp_addiphdr *)chunk->skb->data;
- 	serial = ntohl(hdr->serial);
-@@ -3888,6 +3887,12 @@ enum sctp_disposition sctp_sf_do_asconf_ack(struct net *net,
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 	}
- 
-+	/* Make sure that the ADDIP chunk has a valid length.  */
-+	if (!sctp_chunk_length_valid(asconf_ack,
-+				     sizeof(struct sctp_addip_chunk)))
-+		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
-+						  commands);
-+
- 	/* ADD-IP, Section 4.1.2:
- 	 * This chunk MUST be sent in an authenticated way by using
- 	 * the mechanism defined in [I-D.ietf-tsvwg-sctp-auth]. If this chunk
-@@ -3896,14 +3901,7 @@ enum sctp_disposition sctp_sf_do_asconf_ack(struct net *net,
- 	 */
- 	if (!asoc->peer.asconf_capable ||
- 	    (!net->sctp.addip_noauth && !asconf_ack->auth))
--		return sctp_sf_discard_chunk(net, ep, asoc, type, arg,
--					     commands);
--
--	/* Make sure that the ADDIP chunk has a valid length.  */
--	if (!sctp_chunk_length_valid(asconf_ack,
--				     sizeof(struct sctp_addip_chunk)))
--		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
--						  commands);
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
- 
- 	addip_hdr = (struct sctp_addiphdr *)asconf_ack->skb->data;
- 	rcvd_serial = ntohl(addip_hdr->serial);
-@@ -4475,6 +4473,9 @@ enum sctp_disposition sctp_sf_discard_chunk(struct net *net,
- {
- 	struct sctp_chunk *chunk = arg;
- 
-+	if (asoc && !sctp_vtag_verify(chunk, asoc))
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-+
- 	/* Make sure that the chunk has a valid length.
- 	 * Since we don't know the chunk type, we use a general
- 	 * chunkhdr structure to make a comparison.
+ 	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
+ 		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
+ 		if (psw_ioint_disabled(vcpu))
+ 			continue;
+-		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
+-		if (deliverable_mask) {
++		vcpu_isc_mask = (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
++		if (deliverable_mask & vcpu_isc_mask) {
+ 			/* lately kicked but not yet running */
+ 			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
+ 				return;
 -- 
 2.33.0
 
