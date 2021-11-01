@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96672441798
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74CDB4416E4
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:28:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233242AbhKAJh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:37:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43648 "EHLO mail.kernel.org"
+        id S232959AbhKAJa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:30:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233247AbhKAJfx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:35:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3592611C1;
-        Mon,  1 Nov 2021 09:26:09 +0000 (UTC)
+        id S233142AbhKAJ23 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:28:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2F09611F0;
+        Mon,  1 Nov 2021 09:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758770;
-        bh=Wgx6c5gxkazsw3Ke5GOdyoRZli/JiREwlHKRxCfRe94=;
+        s=korg; t=1635758588;
+        bh=nswQzVavTuJUzQPQVTZ8x1hYD8MuNiaMPeOoyW8Aq1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wFccwaTOoIMo44FcWkJDsc0jMF8u21BrG+b2O5Ch8tEC2fUfEtTWiDqaw0D604GLl
-         dJKpaKnNOhhn6CyyKro/CAuKXG5XJMnTIwqY1+CgEkWecZBumZGGqZz3Xrhcthpz2W
-         QHN2XOgSFCumUa5CHirhkOwX6gNiaT1TrWM0c44k=
+        b=iOZHS4ODUkW/bNdWXUCezZmSTto1w2Dnu5Y11jFd4nGxeFwTO/qKwzazXtAq/4ESi
+         Lv0lUDA7SHyhCKZ8AvUodV8GKa+GLE1/jWGRvGfrzGGZA/HEnhVuKYdDIhYFozWV3/
+         tUZ7GICEofsdgn6H2nMXCuyCoSD/Zl3a5SSXeWaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Quanyang Wang <quanyang.wang@windriver.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Roman Gushchin <guro@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.10 34/77] cgroup: Fix memory leak caused by missing cgroup_bpf_offline
+        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 18/51] mmc: sdhci: Map more voltage level to SDHCI_POWER_330
 Date:   Mon,  1 Nov 2021 10:17:22 +0100
-Message-Id: <20211101082519.077356429@linuxfoundation.org>
+Message-Id: <20211101082504.770455390@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,75 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quanyang Wang <quanyang.wang@windriver.com>
+From: Shawn Guo <shawn.guo@linaro.org>
 
-commit 04f8ef5643bcd8bcde25dfdebef998aea480b2ba upstream.
+commit 4217d07b9fb328751f877d3bd9550122014860a2 upstream.
 
-When enabling CONFIG_CGROUP_BPF, kmemleak can be observed by running
-the command as below:
+On Thundercomm TurboX CM2290, the eMMC OCR reports vdd = 23 (3.5 ~ 3.6 V),
+which is being treated as an invalid value by sdhci_set_power_noreg().
+And thus eMMC is totally broken on the platform.
 
-    $mount -t cgroup -o none,name=foo cgroup cgroup/
-    $umount cgroup/
+[    1.436599] ------------[ cut here ]------------
+[    1.436606] mmc0: Invalid vdd 0x17
+[    1.436640] WARNING: CPU: 2 PID: 69 at drivers/mmc/host/sdhci.c:2048 sdhci_set_power_noreg+0x168/0x2b4
+[    1.436655] Modules linked in:
+[    1.436662] CPU: 2 PID: 69 Comm: kworker/u8:1 Tainted: G        W         5.15.0-rc1+ #137
+[    1.436669] Hardware name: Thundercomm TurboX CM2290 (DT)
+[    1.436674] Workqueue: events_unbound async_run_entry_fn
+[    1.436685] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    1.436692] pc : sdhci_set_power_noreg+0x168/0x2b4
+[    1.436698] lr : sdhci_set_power_noreg+0x168/0x2b4
+[    1.436703] sp : ffff800010803a60
+[    1.436705] x29: ffff800010803a60 x28: ffff6a9102465f00 x27: ffff6a9101720a70
+[    1.436715] x26: ffff6a91014de1c0 x25: ffff6a91014de010 x24: ffff6a91016af280
+[    1.436724] x23: ffffaf7b1b276640 x22: 0000000000000000 x21: ffff6a9101720000
+[    1.436733] x20: ffff6a9101720370 x19: ffff6a9101720580 x18: 0000000000000020
+[    1.436743] x17: 0000000000000000 x16: 0000000000000004 x15: ffffffffffffffff
+[    1.436751] x14: 0000000000000000 x13: 00000000fffffffd x12: ffffaf7b1b84b0bc
+[    1.436760] x11: ffffaf7b1b720d10 x10: 000000000000000a x9 : ffff800010803a60
+[    1.436769] x8 : 000000000000000a x7 : 000000000000000f x6 : 00000000fffff159
+[    1.436778] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 00000000ffffffff
+[    1.436787] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff6a9101718d80
+[    1.436797] Call trace:
+[    1.436800]  sdhci_set_power_noreg+0x168/0x2b4
+[    1.436805]  sdhci_set_ios+0xa0/0x7fc
+[    1.436811]  mmc_power_up.part.0+0xc4/0x164
+[    1.436818]  mmc_start_host+0xa0/0xb0
+[    1.436824]  mmc_add_host+0x60/0x90
+[    1.436830]  __sdhci_add_host+0x174/0x330
+[    1.436836]  sdhci_msm_probe+0x7c0/0x920
+[    1.436842]  platform_probe+0x68/0xe0
+[    1.436850]  really_probe.part.0+0x9c/0x31c
+[    1.436857]  __driver_probe_device+0x98/0x144
+[    1.436863]  driver_probe_device+0xc8/0x15c
+[    1.436869]  __device_attach_driver+0xb4/0x120
+[    1.436875]  bus_for_each_drv+0x78/0xd0
+[    1.436881]  __device_attach_async_helper+0xac/0xd0
+[    1.436888]  async_run_entry_fn+0x34/0x110
+[    1.436895]  process_one_work+0x1d0/0x354
+[    1.436903]  worker_thread+0x13c/0x470
+[    1.436910]  kthread+0x150/0x160
+[    1.436915]  ret_from_fork+0x10/0x20
+[    1.436923] ---[ end trace fcfac44cb045c3a8 ]---
 
-unreferenced object 0xc3585c40 (size 64):
-  comm "mount", pid 425, jiffies 4294959825 (age 31.990s)
-  hex dump (first 32 bytes):
-    01 00 00 80 84 8c 28 c0 00 00 00 00 00 00 00 00  ......(.........
-    00 00 00 00 00 00 00 00 6c 43 a0 c3 00 00 00 00  ........lC......
-  backtrace:
-    [<e95a2f9e>] cgroup_bpf_inherit+0x44/0x24c
-    [<1f03679c>] cgroup_setup_root+0x174/0x37c
-    [<ed4b0ac5>] cgroup1_get_tree+0x2c0/0x4a0
-    [<f85b12fd>] vfs_get_tree+0x24/0x108
-    [<f55aec5c>] path_mount+0x384/0x988
-    [<e2d5e9cd>] do_mount+0x64/0x9c
-    [<208c9cfe>] sys_mount+0xfc/0x1f4
-    [<06dd06e0>] ret_fast_syscall+0x0/0x48
-    [<a8308cb3>] 0xbeb4daa8
+Fix the issue by mapping MMC_VDD_35_36 (and MMC_VDD_34_35) to
+SDHCI_POWER_330 as well.
 
-This is because that since the commit 2b0d3d3e4fcf ("percpu_ref: reduce
-memory footprint of percpu_ref in fast path") root_cgrp->bpf.refcnt.data
-is allocated by the function percpu_ref_init in cgroup_bpf_inherit which
-is called by cgroup_setup_root when mounting, but not freed along with
-root_cgrp when umounting. Adding cgroup_bpf_offline which calls
-percpu_ref_kill to cgroup_kill_sb can free root_cgrp->bpf.refcnt.data in
-umount path.
-
-This patch also fixes the commit 4bfc0bb2c60e ("bpf: decouple the lifetime
-of cgroup_bpf from cgroup itself"). A cgroup_bpf_offline is needed to do a
-cleanup that frees the resources which are allocated by cgroup_bpf_inherit
-in cgroup_setup_root.
-
-And inside cgroup_bpf_offline, cgroup_get() is at the beginning and
-cgroup_put is at the end of cgroup_bpf_release which is called by
-cgroup_bpf_offline. So cgroup_bpf_offline can keep the balance of
-cgroup's refcount.
-
-Fixes: 2b0d3d3e4fcf ("percpu_ref: reduce memory footprint of percpu_ref in fast path")
-Fixes: 4bfc0bb2c60e ("bpf: decouple the lifetime of cgroup_bpf from cgroup itself")
-Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Roman Gushchin <guro@fb.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20211018075623.26884-1-quanyang.wang@windriver.com
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211004024935.15326-1-shawn.guo@linaro.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -2147,8 +2147,10 @@ static void cgroup_kill_sb(struct super_
- 	 * And don't kill the default root.
- 	 */
- 	if (list_empty(&root->cgrp.self.children) && root != &cgrp_dfl_root &&
--	    !percpu_ref_is_dying(&root->cgrp.self.refcnt))
-+	    !percpu_ref_is_dying(&root->cgrp.self.refcnt)) {
-+		cgroup_bpf_offline(&root->cgrp);
- 		percpu_ref_kill(&root->cgrp.self.refcnt);
-+	}
- 	cgroup_put(&root->cgrp);
- 	kernfs_kill_sb(sb);
- }
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -1741,6 +1741,12 @@ void sdhci_set_power_noreg(struct sdhci_
+ 			break;
+ 		case MMC_VDD_32_33:
+ 		case MMC_VDD_33_34:
++		/*
++		 * 3.4 ~ 3.6V are valid only for those platforms where it's
++		 * known that the voltage range is supported by hardware.
++		 */
++		case MMC_VDD_34_35:
++		case MMC_VDD_35_36:
+ 			pwr = SDHCI_POWER_330;
+ 			break;
+ 		default:
 
 
