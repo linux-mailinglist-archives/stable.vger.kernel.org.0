@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1CEC44186D
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:45:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 624A3441766
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:33:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbhKAJrb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:47:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51420 "EHLO mail.kernel.org"
+        id S233329AbhKAJgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:36:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233981AbhKAJpV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:45:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD037610E5;
-        Mon,  1 Nov 2021 09:30:02 +0000 (UTC)
+        id S233706AbhKAJeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:34:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B75426128B;
+        Mon,  1 Nov 2021 09:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759003;
-        bh=16yzyGvnnqZ6gTct0rBZr0kOGbzeZz/KOZr72UBuYeM=;
+        s=korg; t=1635758735;
+        bh=72CK97Xrjel599Lx2KS4P54xwnzuxi5evua6EzzzAvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UaMoyEtAZ1PQHzExzg8wX87nnMsj0ma62wA+3W5vpekmrM5Wzii8aK5G6SHtU4Zr4
-         ZAm6Y3B6ZEwl0O0D2n12SizQ61xrDfahiqARGeVBVs+6gJ8UkXvGNrDy2SCeqBvUdF
-         /qzD4SgHItcaEaR6R66HRSF365pGVmp7s4GPuqlw=
+        b=UmB/z2FEXIbJ/cc4O4Eq9mKcySBlTZCbKnICAk+yStPsFttdKCjkz61e0CXmFln/2
+         qdL4ohZLW4rlF6A0OMlcfMcWxmNCn+MxNLIteX2LYiZtUtQYtMgKFj+1tRDZ2oHrV1
+         kmCL4LHVYNihl1L2GVrWOk/1U3JzX+bdbcZbUNBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.14 041/125] arm64: dts: imx8mm-kontron: Make sure SOC and DRAM supply voltages are correct
-Date:   Mon,  1 Nov 2021 10:16:54 +0100
-Message-Id: <20211101082540.998172876@linuxfoundation.org>
+        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
+        Hao Xu <haoxu@linux.alibaba.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        syzbot+59d8a1f4e60c20c066cf@syzkaller.appspotmail.com,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.10 07/77] io_uring: dont take uring_lock during iowq cancel
+Date:   Mon,  1 Nov 2021 10:16:55 +0100
+Message-Id: <20211101082513.463556151@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 82a4f329b133ad0de66bee12c0be5c67bb8aa188 upstream.
+commit 792bb6eb862333658bf1bd2260133f0507e2da8d upstream.
 
-It looks like the voltages for the SOC and DRAM supply weren't properly
-validated before. The datasheet and uboot-imx code tells us that VDD_SOC
-should be 800 mV in suspend and 850 mV in run mode. VDD_DRAM should be
-950 mV for DDR clock frequencies of up to 1.5 GHz.
+[   97.866748] a.out/2890 is trying to acquire lock:
+[   97.867829] ffff8881046763e8 (&ctx->uring_lock){+.+.}-{3:3}, at:
+io_wq_submit_work+0x155/0x240
+[   97.869735]
+[   97.869735] but task is already holding lock:
+[   97.871033] ffff88810dfe0be8 (&ctx->uring_lock){+.+.}-{3:3}, at:
+__x64_sys_io_uring_enter+0x3f0/0x5b0
+[   97.873074]
+[   97.873074] other info that might help us debug this:
+[   97.874520]  Possible unsafe locking scenario:
+[   97.874520]
+[   97.875845]        CPU0
+[   97.876440]        ----
+[   97.877048]   lock(&ctx->uring_lock);
+[   97.877961]   lock(&ctx->uring_lock);
+[   97.878881]
+[   97.878881]  *** DEADLOCK ***
+[   97.878881]
+[   97.880341]  May be due to missing lock nesting notation
+[   97.880341]
+[   97.881952] 1 lock held by a.out/2890:
+[   97.882873]  #0: ffff88810dfe0be8 (&ctx->uring_lock){+.+.}-{3:3}, at:
+__x64_sys_io_uring_enter+0x3f0/0x5b0
+[   97.885108]
+[   97.885108] stack backtrace:
+[   97.890457] Call Trace:
+[   97.891121]  dump_stack+0xac/0xe3
+[   97.891972]  __lock_acquire+0xab6/0x13a0
+[   97.892940]  lock_acquire+0x2c3/0x390
+[   97.894894]  __mutex_lock+0xae/0x9f0
+[   97.901101]  io_wq_submit_work+0x155/0x240
+[   97.902112]  io_wq_cancel_cb+0x162/0x490
+[   97.904126]  io_async_find_and_cancel+0x3b/0x140
+[   97.905247]  io_issue_sqe+0x86d/0x13e0
+[   97.909122]  __io_queue_sqe+0x10b/0x550
+[   97.913971]  io_queue_sqe+0x235/0x470
+[   97.914894]  io_submit_sqes+0xcce/0xf10
+[   97.917872]  __x64_sys_io_uring_enter+0x3fb/0x5b0
+[   97.921424]  do_syscall_64+0x2d/0x40
+[   97.922329]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Let's fix these values to make sure the voltages are within the required
-range.
+While holding uring_lock, e.g. from inline execution, async cancel
+request may attempt cancellations through io_wq_submit_work, which may
+try to grab a lock. Delay it to task_work, so we do it from a clean
+context and don't have to worry about locking.
 
-Fixes: 8668d8b2e67f ("arm64: dts: Add the Kontron i.MX8M Mini SoMs and baseboards")
-Cc: stable@vger.kernel.org
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Cc: <stable@vger.kernel.org> # 5.5+
+Fixes: c07e6719511e ("io_uring: hold uring_lock while completing failed polled io in io_wq_submit_work()")
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Reported-by: Hao Xu <haoxu@linux.alibaba.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[Lee: The first hunk solves a different (double free) issue in v5.10.
+      Only the first hunk of the original patch is relevant to v5.10 AND
+      the first hunk of the original patch is only relevant to v5.10]
+Reported-by: syzbot+59d8a1f4e60c20c066cf@syzkaller.appspotmail.com
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/io_uring.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-som.dtsi
-@@ -91,10 +91,12 @@
- 			reg_vdd_soc: BUCK1 {
- 				regulator-name = "buck1";
- 				regulator-min-microvolt = <800000>;
--				regulator-max-microvolt = <900000>;
-+				regulator-max-microvolt = <850000>;
- 				regulator-boot-on;
- 				regulator-always-on;
- 				regulator-ramp-delay = <3125>;
-+				nxp,dvs-run-voltage = <850000>;
-+				nxp,dvs-standby-voltage = <800000>;
- 			};
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2075,7 +2075,9 @@ static void io_req_task_cancel(struct ca
+ 	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
+ 	struct io_ring_ctx *ctx = req->ctx;
  
- 			reg_vdd_arm: BUCK2 {
-@@ -111,7 +113,7 @@
- 			reg_vdd_dram: BUCK3 {
- 				regulator-name = "buck3";
- 				regulator-min-microvolt = <850000>;
--				regulator-max-microvolt = <900000>;
-+				regulator-max-microvolt = <950000>;
- 				regulator-boot-on;
- 				regulator-always-on;
- 			};
++	mutex_lock(&ctx->uring_lock);
+ 	__io_req_task_cancel(req, -ECANCELED);
++	mutex_unlock(&ctx->uring_lock);
+ 	percpu_ref_put(&ctx->refs);
+ }
+ 
 
 
