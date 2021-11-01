@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B98904416DB
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22E4944160D
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:20:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232100AbhKAJaT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:30:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37008 "EHLO mail.kernel.org"
+        id S232041AbhKAJV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:21:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232918AbhKAJ2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:28:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8FD4611EE;
-        Mon,  1 Nov 2021 09:22:48 +0000 (UTC)
+        id S231959AbhKAJVb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:21:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42C3860C41;
+        Mon,  1 Nov 2021 09:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758569;
-        bh=DBXK1lyNkVJA3ueLlEz5rxuF6jGB8hchI4d7Kvn7UAA=;
+        s=korg; t=1635758338;
+        bh=izvXmXoEKU2Ew469aiBmu5ji0RERSZN9FmvK2nOeMuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F9ZJJxpQS3NZvC3wbV6/Z6vNPzXpF74n2jY9uEhGMLuuXblYR4mfyWqC4Yotyvzcn
-         4Y3b6GYk1u5OW24DDKsjIH1Qy5eRLEni9rEe6DcXjnJn/Qzppkou0HI7TiUIZ0DFG9
-         y5rLCOveJkl0QjWtd2egvVLyci+MYxL5pSFFz1cY=
+        b=NFGMd+RYnMutSH31/Xp5khHZJ/F1Uv+XuyB/UEBhFGOrc0HwS8gUh19o/wgEObCT7
+         e7ikfILpN3InYE62aGvbqhzWDjxWXpJp94rZu7rRsMd1iTgy1ChvhBGZOBeQBp3Zsj
+         4sA2VxxigXvfTkcX6pbWK1ZIOOm1J5u69y7TG2pQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.4 03/51] ARM: 9139/1: kprobes: fix arch_init_kprobes() prototype
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Nicolas Pitre <nico@linaro.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Stefan Agner <stefan@agner.ch>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.4 04/17] ARM: 8819/1: Remove -p from LDFLAGS
 Date:   Mon,  1 Nov 2021 10:17:07 +0100
-Message-Id: <20211101082500.943697408@linuxfoundation.org>
+Message-Id: <20211101082441.640298837@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
+References: <20211101082440.664392327@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 1f323127cab086e4fd618981b1e5edc396eaf0f4 upstream.
+commit 091bb549f7722723b284f63ac665e2aedcf9dec9 upstream.
 
-With extra warnings enabled, gcc complains about this function
-definition:
+This option is not supported by lld:
 
-arch/arm/probes/kprobes/core.c: In function 'arch_init_kprobes':
-arch/arm/probes/kprobes/core.c:465:12: warning: old-style function definition [-Wold-style-definition]
-  465 | int __init arch_init_kprobes()
+    ld.lld: error: unknown argument: -p
 
-Link: https://lore.kernel.org/all/20201027093057.c685a14b386acacb3c449e3d@kernel.org/
+This has been a no-op in binutils since 2004 (see commit dea514f51da1 in
+that tree). Given that the lowest officially supported of binutils for
+the kernel is 2.20, which was released in 2009, nobody needs this flag
+around so just remove it. Commit 1a381d4a0a9a ("arm64: remove no-op -p
+linker flag") did the same for arm64.
 
-Fixes: 24ba613c9d6c ("ARM kprobes: core code")
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Acked-by: Nicolas Pitre <nico@linaro.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/probes/kprobes/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/Makefile                 |    2 +-
+ arch/arm/boot/bootp/Makefile      |    2 +-
+ arch/arm/boot/compressed/Makefile |    2 --
+ 3 files changed, 2 insertions(+), 4 deletions(-)
 
---- a/arch/arm/probes/kprobes/core.c
-+++ b/arch/arm/probes/kprobes/core.c
-@@ -534,7 +534,7 @@ static struct undef_hook kprobes_arm_bre
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -13,7 +13,7 @@
+ # Ensure linker flags are correct
+ LDFLAGS		:=
  
- #endif /* !CONFIG_THUMB2_KERNEL */
+-LDFLAGS_vmlinux	:=-p --no-undefined -X --pic-veneer
++LDFLAGS_vmlinux	:= --no-undefined -X --pic-veneer
+ ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
+ LDFLAGS_vmlinux	+= --be8
+ LDFLAGS_MODULE	+= --be8
+--- a/arch/arm/boot/bootp/Makefile
++++ b/arch/arm/boot/bootp/Makefile
+@@ -7,7 +7,7 @@
  
--int __init arch_init_kprobes()
-+int __init arch_init_kprobes(void)
- {
- 	arm_probes_decode_init();
- #ifdef CONFIG_THUMB2_KERNEL
+ GCOV_PROFILE	:= n
+ 
+-LDFLAGS_bootp	:=-p --no-undefined -X \
++LDFLAGS_bootp	:= --no-undefined -X \
+ 		 --defsym initrd_phys=$(INITRD_PHYS) \
+ 		 --defsym params_phys=$(PARAMS_PHYS) -T
+ AFLAGS_initrd.o :=-DINITRD=\"$(INITRD)\"
+--- a/arch/arm/boot/compressed/Makefile
++++ b/arch/arm/boot/compressed/Makefile
+@@ -122,8 +122,6 @@ endif
+ ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
+ LDFLAGS_vmlinux += --be8
+ endif
+-# ?
+-LDFLAGS_vmlinux += -p
+ # Report unresolved symbol references
+ LDFLAGS_vmlinux += --no-undefined
+ # Delete all temporary local symbols
 
 
