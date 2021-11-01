@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 970064416C5
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A42C44164E
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:21:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232516AbhKAJ3i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:29:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58556 "EHLO mail.kernel.org"
+        id S232020AbhKAJYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:24:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232996AbhKAJ0h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:26:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 266D3611C1;
-        Mon,  1 Nov 2021 09:22:16 +0000 (UTC)
+        id S232236AbhKAJXO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:23:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66E5C610CA;
+        Mon,  1 Nov 2021 09:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758536;
-        bh=ykljXRY80sLg1sF+0dIm8Lcob+czv2Dt683jmkUv/J8=;
+        s=korg; t=1635758417;
+        bh=poHWi9MlbVmSmN9cI2HHqFeK+sJpC4qM/p8itdGfWws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=At4hjNpGejwBiLqAokhmWiYCjLojecvUJNw8YydznyvKtz5MxLIuswzlWZGy7OcIo
-         FQ0bp6YkuZbG3xdWGz3lZ1Y7N9UZioOhgOnqgn6iWPSDBn6ussmIRnkL4T0o2JNaRU
-         ouhD9nP5PzNTbm86ixz0bGYBu5c1QBNmf3duoRaQ=
+        b=eE1JkJKpxDL8nqUhHThQdSD5l/+IyaOnzznuX7m44fyGET0g/SETqXunpWohAuWJT
+         ivgGkUI486rNppnTm60qMM1WI4Pd91Wxv3xeTqCLx/7G+6rFlA+555qg7e1bvC5xs3
+         vfFbvbIuo6f2A5o1QbIyN/uJY/jMxKs5w7JhqMlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Keyu Man <kman001@ucr.edu>, Wei Wang <weiwan@google.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 15/35] ipv6: make exception cache less predictible
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.14 15/25] mmc: sdhci-esdhc-imx: clear the buffer_read_ready to reset standard tuning circuit
 Date:   Mon,  1 Nov 2021 10:17:27 +0100
-Message-Id: <20211101082455.124162667@linuxfoundation.org>
+Message-Id: <20211101082450.660660674@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
-References: <20211101082451.430720900@linuxfoundation.org>
+In-Reply-To: <20211101082447.070493993@linuxfoundation.org>
+References: <20211101082447.070493993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-commit a00df2caffed3883c341d5685f830434312e4a43 upstream.
+commit 9af372dc70e9fdcbb70939dac75365e7b88580b4 upstream.
 
-Even after commit 4785305c05b2 ("ipv6: use siphash in rt6_exception_hash()"),
-an attacker can still use brute force to learn some secrets from a victim
-linux host.
+To reset standard tuning circuit completely, after clear ESDHC_MIX_CTRL_EXE_TUNE,
+also need to clear bit buffer_read_ready, this operation will finally clear the
+USDHC IP internal logic flag execute_tuning_with_clr_buf, make sure the following
+normal data transfer will not be impacted by standard tuning logic used before.
 
-One way to defeat these attacks is to make the max depth of the hash
-table bucket a random value.
+Find this issue when do quick SD card insert/remove stress test. During standard
+tuning prodedure, if remove SD card, USDHC standard tuning logic can't clear the
+internal flag execute_tuning_with_clr_buf. Next time when insert SD card, all
+data related commands can't get any data related interrupts, include data transfer
+complete interrupt, data timeout interrupt, data CRC interrupt, data end bit interrupt.
+Always trigger software timeout issue. Even reset the USDHC through bits in register
+SYS_CTRL (0x2C, bit28 reset tuning, bit26 reset data, bit 25 reset command, bit 24
+reset all) can't recover this. From the user's point of view, USDHC stuck, SD can't
+be recognized any more.
 
-Before this patch, each bucket of the hash table used to store exceptions
-could contain 6 items under attack.
-
-After the patch, each bucket would contains a random number of items,
-between 6 and 10. The attacker can no longer infer secrets.
-
-This is slightly increasing memory size used by the hash table,
-we do not expect this to be a problem.
-
-Following patch is dealing with the same issue in IPv4.
-
-Fixes: 35732d01fe31 ("ipv6: introduce a hash table to store dst cache")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Keyu Man <kman001@ucr.edu>
-Cc: Wei Wang <weiwan@google.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[OP: adjusted context for 4.19 stable]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Fixes: d9370424c948 ("mmc: sdhci-esdhc-imx: reset tuning circuit when power on mmc card")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1634263236-6111-1-git-send-email-haibo.chen@nxp.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/route.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-esdhc-imx.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -1454,6 +1454,7 @@ static int rt6_insert_exception(struct r
- 	struct rt6_exception_bucket *bucket;
- 	struct in6_addr *src_key = NULL;
- 	struct rt6_exception *rt6_ex;
-+	int max_depth;
- 	int err = 0;
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -927,6 +927,7 @@ static void esdhc_reset_tuning(struct sd
+ 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+ 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
+ 	u32 ctrl;
++	int ret;
  
- 	spin_lock_bh(&rt6_exception_lock);
-@@ -1515,7 +1516,9 @@ static int rt6_insert_exception(struct r
- 	bucket->depth++;
- 	net->ipv6.rt6_stats->fib_rt_cache++;
- 
--	if (bucket->depth > FIB6_MAX_DEPTH)
-+	/* Randomize max depth to avoid some side channels attacks. */
-+	max_depth = FIB6_MAX_DEPTH + prandom_u32_max(FIB6_MAX_DEPTH);
-+	while (bucket->depth > max_depth)
- 		rt6_exception_remove_oldest(bucket);
- 
- out:
+ 	/* Reset the tuning circuit */
+ 	if (esdhc_is_usdhc(imx_data)) {
+@@ -939,7 +940,22 @@ static void esdhc_reset_tuning(struct sd
+ 		} else if (imx_data->socdata->flags & ESDHC_FLAG_STD_TUNING) {
+ 			ctrl = readl(host->ioaddr + SDHCI_AUTO_CMD_STATUS);
+ 			ctrl &= ~ESDHC_MIX_CTRL_SMPCLK_SEL;
++			ctrl &= ~ESDHC_MIX_CTRL_EXE_TUNE;
+ 			writel(ctrl, host->ioaddr + SDHCI_AUTO_CMD_STATUS);
++			/* Make sure ESDHC_MIX_CTRL_EXE_TUNE cleared */
++			ret = readl_poll_timeout(host->ioaddr + SDHCI_AUTO_CMD_STATUS,
++				ctrl, !(ctrl & ESDHC_MIX_CTRL_EXE_TUNE), 1, 50);
++			if (ret == -ETIMEDOUT)
++				dev_warn(mmc_dev(host->mmc),
++				 "Warning! clear execute tuning bit failed\n");
++			/*
++			 * SDHCI_INT_DATA_AVAIL is W1C bit, set this bit will clear the
++			 * usdhc IP internal logic flag execute_tuning_with_clr_buf, which
++			 * will finally make sure the normal data transfer logic correct.
++			 */
++			ctrl = readl(host->ioaddr + SDHCI_INT_STATUS);
++			ctrl |= SDHCI_INT_DATA_AVAIL;
++			writel(ctrl, host->ioaddr + SDHCI_INT_STATUS);
+ 		}
+ 	}
+ }
 
 
