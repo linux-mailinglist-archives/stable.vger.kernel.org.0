@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01FA3441667
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0ACF44187F
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232498AbhKAJY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:24:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59152 "EHLO mail.kernel.org"
+        id S232179AbhKAJtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:49:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231807AbhKAJXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:23:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 070CB610CC;
-        Mon,  1 Nov 2021 09:20:49 +0000 (UTC)
+        id S232929AbhKAJo6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:44:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8E876121E;
+        Mon,  1 Nov 2021 09:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758450;
-        bh=GjIwVZag5F/dvHbY7hvrx/LnENV5CA3TVlawfz7+//A=;
+        s=korg; t=1635758989;
+        bh=mihaGiEok+Hj226MMQ1qfWL5u3i23tWW2o5SAc+iwIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LYvVPAp3ZBw8lVfepoNLnoAxlFgu1dY7QLq+cg8hSAAb7JeV70dAA+LKUyep6z2/G
-         W/U64xgQ3D2JPgtSpeWwGEu16Lkct5K7VSqNfdw/C01PeWlsyqzXQBgr7Y9h+6o3yU
-         8WKN6G28BPYOCUOCtL5n0H1EZcfi3fx4bJYschDM=
+        b=iUwy2Ws7yjewCs6+bQH1aRlddEyXRShX0A93XG99/zE8/qlizLamt6IcIiVmA6O2m
+         x7kuZsH2vMvvkvheDiLXu5Rfx6gJ6MhQW8rnENqy+4t3m4OMtFiB8q8b3zEaiSRYfQ
+         mnVDBvfGz9gdBunCm2JZ4ITadvn8kihaqZSAphkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Johan Hovold <johan@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 07/25] usbnet: fix error return code in usbnet_probe()
+        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.14 066/125] nvme-tcp: fix data digest pointer calculation
 Date:   Mon,  1 Nov 2021 10:17:19 +0100
-Message-Id: <20211101082448.700597935@linuxfoundation.org>
+Message-Id: <20211101082545.650531163@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082447.070493993@linuxfoundation.org>
-References: <20211101082447.070493993@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,32 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Varun Prakash <varun@chelsio.com>
 
-commit 6f7c88691191e6c52ef2543d6f1da8d360b27a24 upstream.
+commit d89b9f3bbb58e9e378881209756b0723694f22ff upstream.
 
-Return error code if usb_maxpacket() returns 0 in usbnet_probe()
+ddgst is of type __le32, &req->ddgst + req->offset
+increases &req->ddgst by 4 * req->offset, fix this by
+type casting &req->ddgst to u8 *.
 
-Fixes: 397430b50a36 ("usbnet: sanity check for maxpacket")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211026124015.3025136-1-wanghai38@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 3f2304f8c6d6 ("nvme-tcp: add NVMe over TCP host driver")
+Signed-off-by: Varun Prakash <varun@chelsio.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/usbnet.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvme/host/tcp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -1790,6 +1790,7 @@ usbnet_probe (struct usb_interface *udev
- 	dev->maxpacket = usb_maxpacket (dev->udev, dev->out, 1);
- 	if (dev->maxpacket == 0) {
- 		/* that is a broken device */
-+		status = -ENODEV;
- 		goto out4;
- 	}
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1040,7 +1040,7 @@ static int nvme_tcp_try_send_ddgst(struc
+ 	int ret;
+ 	struct msghdr msg = { .msg_flags = MSG_DONTWAIT };
+ 	struct kvec iov = {
+-		.iov_base = &req->ddgst + req->offset,
++		.iov_base = (u8 *)&req->ddgst + req->offset,
+ 		.iov_len = NVME_TCP_DIGEST_LENGTH - req->offset
+ 	};
  
 
 
