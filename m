@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 544D1441803
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:40:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6877144183B
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:42:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231975AbhKAJmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48168 "EHLO mail.kernel.org"
+        id S233661AbhKAJpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:45:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233605AbhKAJkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:40:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 224A56112D;
-        Mon,  1 Nov 2021 09:27:56 +0000 (UTC)
+        id S233043AbhKAJlu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:41:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BEF476137C;
+        Mon,  1 Nov 2021 09:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758877;
-        bh=cnhBnhKfSSN1LMscALYG7vXRtiolW1UdG+mv+SpXGsM=;
+        s=korg; t=1635758903;
+        bh=D2Kw8ZeBUWKw65O4pZ6IHRH80AuFRjqf5gcq3B7UpGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGtNCkUCUMypMH9C1c3wbOoRqEjDzD3uZUidnKS1qGunIWgi6iTJiG83hKLxKVV6Y
-         JZjAiS54TM+rJ0AaqLnkmrcMx2415hdO4nkeKNOuIJh1lBwFXp1t3n96qdIjsF989j
-         NefrNv0Ktprg6OYm4P0RxlvRrDgeWdJkeaLpDZI4=
+        b=w47aLRbIlERlSgetJ8pZ7thjFJa8p9BqqP73Dbb2CN3JaRzxsNcimlqTHOWO1Y2v1
+         2AMwRhZK+iNaR9kwTcIbRH3fFpZDS55A9luwLSfV+VsdxpgFLb8dP5BvFU8QwntGrj
+         sDre28Sl7CQ7WvFGQC8e239f7ImzPa0F/dqqJb6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Richard Henderson <richard.henderson@linaro.org>
-Subject: [PATCH 5.14 002/125] ARM: 9133/1: mm: proc-macros: ensure *_tlb_fns are 4B aligned
-Date:   Mon,  1 Nov 2021 10:16:15 +0100
-Message-Id: <20211101082533.971755183@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.14 003/125] ARM: 9134/1: remove duplicate memcpy() definition
+Date:   Mon,  1 Nov 2021 10:16:16 +0100
+Message-Id: <20211101082534.140745488@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -42,41 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit e6a0c958bdf9b2e1b57501fc9433a461f0a6aadd upstream.
+commit eaf6cc7165c9c5aa3c2f9faa03a98598123d0afb upstream.
 
-A kernel built with CONFIG_THUMB2_KERNEL=y and using clang as the
-assembler could generate non-naturally-aligned v7wbi_tlb_fns which
-results in a boot failure. The original commit adding the macro missed
-the .align directive on this data.
+Both the decompressor code and the kasan logic try to override
+the memcpy() and memmove()  definitions, which leading to a clash
+in a KASAN-enabled kernel with XZ decompression:
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1447
-Link: https://lore.kernel.org/all/0699da7b-354f-aecc-a62f-e25693209af4@linaro.org/
-Debugged-by: Ard Biesheuvel <ardb@kernel.org>
-Debugged-by: Nathan Chancellor <nathan@kernel.org>
-Debugged-by: Richard Henderson <richard.henderson@linaro.org>
+arch/arm/boot/compressed/decompress.c:50:9: error: 'memmove' macro redefined [-Werror,-Wmacro-redefined]
+ #define memmove memmove
+        ^
+arch/arm/include/asm/string.h:59:9: note: previous definition is here
+ #define memmove(dst, src, len) __memmove(dst, src, len)
+        ^
+arch/arm/boot/compressed/decompress.c:51:9: error: 'memcpy' macro redefined [-Werror,-Wmacro-redefined]
+ #define memcpy memcpy
+        ^
+arch/arm/include/asm/string.h:58:9: note: previous definition is here
+ #define memcpy(dst, src, len) __memcpy(dst, src, len)
+        ^
 
-Fixes: 66a625a88174 ("ARM: mm: proc-macros: Add generic proc/cache/tlb struct definition macros")
-Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
+Here we want the set of functions from the decompressor, so undefine
+the other macros before the override.
+
+Link: https://lore.kernel.org/linux-arm-kernel/CACRpkdZYJogU_SN3H9oeVq=zJkRgRT1gDz3xp59gdqWXxw-B=w@mail.gmail.com/
+Link: https://lore.kernel.org/lkml/202105091112.F5rmd4By-lkp@intel.com/
+
+Fixes: d6d51a96c7d6 ("ARM: 9014/2: Replace string mem* functions for KASan")
+Fixes: a7f464f3db93 ("ARM: 7001/2: Wire up support for the XZ decompressor")
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/proc-macros.S |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/compressed/decompress.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm/mm/proc-macros.S
-+++ b/arch/arm/mm/proc-macros.S
-@@ -340,6 +340,7 @@ ENTRY(\name\()_cache_fns)
+--- a/arch/arm/boot/compressed/decompress.c
++++ b/arch/arm/boot/compressed/decompress.c
+@@ -47,7 +47,10 @@ extern char * strchrnul(const char *, in
+ #endif
  
- .macro define_tlb_functions name:req, flags_up:req, flags_smp
- 	.type	\name\()_tlb_fns, #object
-+	.align 2
- ENTRY(\name\()_tlb_fns)
- 	.long	\name\()_flush_user_tlb_range
- 	.long	\name\()_flush_kern_tlb_range
+ #ifdef CONFIG_KERNEL_XZ
++/* Prevent KASAN override of string helpers in decompressor */
++#undef memmove
+ #define memmove memmove
++#undef memcpy
+ #define memcpy memcpy
+ #include "../../../../lib/decompress_unxz.c"
+ #endif
 
 
