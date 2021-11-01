@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F0E744183E
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:42:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7082441827
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:42:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234447AbhKAJpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:45:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47954 "EHLO mail.kernel.org"
+        id S232783AbhKAJo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:44:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233378AbhKAJmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233389AbhKAJmC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Nov 2021 05:42:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 208296120A;
-        Mon,  1 Nov 2021 09:28:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F94A61390;
+        Mon,  1 Nov 2021 09:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758919;
-        bh=m4vu12vnujXJGiY9YknzWfRdnNvdxK4B2TtJrvSzznY=;
+        s=korg; t=1635758921;
+        bh=GjIwVZag5F/dvHbY7hvrx/LnENV5CA3TVlawfz7+//A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XbSR1ng3dj5DblevfX3oxj9at1Kz7Quxhoze970NexW7vEpAVhCIfi9MEqMBqiZgS
-         nEO4m2MHfodcLpyYu6vVdincvVSfg3WeQWg+h+Mk/mx79Q/KZuP4L55hjyN2dp4pBD
-         s+ZMQHbEXaNRDvuqAVNjORUWpBwGOP09GeWTbMmw=
+        b=AmpqKrGucWfnZT5ZZQPKXcyr6CekmJhvMQWzPjlmWOfatKcUPQkgIM7VO1Eno266v
+         dFgoEicqjeUVwbN14k+mGq5yuzpWAjMuo7VJUrD2dyWrKWZ+WWGgdxh8VVB2IreGQr
+         xOvMGKHsooxzN/uEqIYyi6xTasIvlXFZbVoe5Xb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
         Johan Hovold <johan@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 008/125] usbnet: sanity check for maxpacket
-Date:   Mon,  1 Nov 2021 10:16:21 +0100
-Message-Id: <20211101082535.007667353@linuxfoundation.org>
+Subject: [PATCH 5.14 009/125] usbnet: fix error return code in usbnet_probe()
+Date:   Mon,  1 Nov 2021 10:16:22 +0100
+Message-Id: <20211101082535.194088686@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -41,37 +41,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit 397430b50a363d8b7bdda00522123f82df6adc5e upstream.
+commit 6f7c88691191e6c52ef2543d6f1da8d360b27a24 upstream.
 
-maxpacket of 0 makes no sense and oopses as we need to divide
-by it. Give up.
+Return error code if usb_maxpacket() returns 0 in usbnet_probe()
 
-V2: fixed typo in log and stylistic issues
-
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: syzbot+76bb1d34ffa0adc03baa@syzkaller.appspotmail.com
+Fixes: 397430b50a36 ("usbnet: sanity check for maxpacket")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
 Reviewed-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211021122944.21816-1-oneukum@suse.com
+Link: https://lore.kernel.org/r/20211026124015.3025136-1-wanghai38@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/usbnet.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/usb/usbnet.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/drivers/net/usb/usbnet.c
 +++ b/drivers/net/usb/usbnet.c
-@@ -1788,6 +1788,10 @@ usbnet_probe (struct usb_interface *udev
- 	if (!dev->rx_urb_size)
- 		dev->rx_urb_size = dev->hard_mtu;
+@@ -1790,6 +1790,7 @@ usbnet_probe (struct usb_interface *udev
  	dev->maxpacket = usb_maxpacket (dev->udev, dev->out, 1);
-+	if (dev->maxpacket == 0) {
-+		/* that is a broken device */
-+		goto out4;
-+	}
+ 	if (dev->maxpacket == 0) {
+ 		/* that is a broken device */
++		status = -ENODEV;
+ 		goto out4;
+ 	}
  
- 	/* let userspace know we have a random address */
- 	if (ether_addr_equal(net->dev_addr, node_id))
 
 
