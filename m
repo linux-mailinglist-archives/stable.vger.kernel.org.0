@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A84F4417F4
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 544D1441803
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:40:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233100AbhKAJlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:41:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47856 "EHLO mail.kernel.org"
+        id S231975AbhKAJmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:42:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233460AbhKAJjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:39:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EDB361167;
-        Mon,  1 Nov 2021 09:27:31 +0000 (UTC)
+        id S233605AbhKAJkK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:40:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 224A56112D;
+        Mon,  1 Nov 2021 09:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758851;
-        bh=fPPyFN4wlEqeVkHFMiXw4QGG3iEQcdsgYbJ3w6dkcsY=;
+        s=korg; t=1635758877;
+        bh=cnhBnhKfSSN1LMscALYG7vXRtiolW1UdG+mv+SpXGsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gKQhKOdHYt6DFpOlaaJrObTXDJfvsN/mDeQGy0W9kRiSGSOqmps/DYVO1OZgTmnCA
-         nvqo3rxQ/JeSI9kLBeNg13JQmnn4JTf0foxbk7qd4yrTdutsCkZu/9YxVCBYOVunHq
-         egN0nN57isbefA3FyWe9xYBuwbXXgshK5c5VWkmo=
+        b=ZGtNCkUCUMypMH9C1c3wbOoRqEjDzD3uZUidnKS1qGunIWgi6iTJiG83hKLxKVV6Y
+         JZjAiS54TM+rJ0AaqLnkmrcMx2415hdO4nkeKNOuIJh1lBwFXp1t3n96qdIjsF989j
+         NefrNv0Ktprg6OYm4P0RxlvRrDgeWdJkeaLpDZI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lexi Shao <shaolexi@huawei.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.14 001/125] ARM: 9132/1: Fix __get_user_check failure with ARM KASAN images
-Date:   Mon,  1 Nov 2021 10:16:14 +0100
-Message-Id: <20211101082533.791282876@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Richard Henderson <richard.henderson@linaro.org>
+Subject: [PATCH 5.14 002/125] ARM: 9133/1: mm: proc-macros: ensure *_tlb_fns are 4B aligned
+Date:   Mon,  1 Nov 2021 10:16:15 +0100
+Message-Id: <20211101082533.971755183@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,96 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lexi Shao <shaolexi@huawei.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit df909df0770779f1a5560c2bb641a2809655ef28 upstream.
+commit e6a0c958bdf9b2e1b57501fc9433a461f0a6aadd upstream.
 
-ARM: kasan: Fix __get_user_check failure with kasan
+A kernel built with CONFIG_THUMB2_KERNEL=y and using clang as the
+assembler could generate non-naturally-aligned v7wbi_tlb_fns which
+results in a boot failure. The original commit adding the macro missed
+the .align directive on this data.
 
-In macro __get_user_check defined in arch/arm/include/asm/uaccess.h,
-error code is store in register int __e(r0). When kasan is
-enabled, assigning value to kernel address might trigger kasan check,
-which unexpectedly overwrites r0 and causes undefined behavior on arm
-kasan images.
+Link: https://github.com/ClangBuiltLinux/linux/issues/1447
+Link: https://lore.kernel.org/all/0699da7b-354f-aecc-a62f-e25693209af4@linaro.org/
+Debugged-by: Ard Biesheuvel <ardb@kernel.org>
+Debugged-by: Nathan Chancellor <nathan@kernel.org>
+Debugged-by: Richard Henderson <richard.henderson@linaro.org>
 
-One example is failure in do_futex and results in process soft lockup.
-Log:
-watchdog: BUG: soft lockup - CPU#0 stuck for 62946ms! [rs:main
-Q:Reg:1151]
-...
-(__asan_store4) from (futex_wait_setup+0xf8/0x2b4)
-(futex_wait_setup) from (futex_wait+0x138/0x394)
-(futex_wait) from (do_futex+0x164/0xe40)
-(do_futex) from (sys_futex_time32+0x178/0x230)
-(sys_futex_time32) from (ret_fast_syscall+0x0/0x50)
-
-The soft lockup happens in function futex_wait_setup. The reason is
-function get_futex_value_locked always return EINVAL, thus pc jump
-back to retry label and causes looping.
-
-This line in function get_futex_value_locked
-	ret = __get_user(*dest, from);
-is expanded to
-	*dest = (typeof(*(p))) __r2; ,
-in macro __get_user_check. Writing to pointer dest triggers kasan check
-and overwrites the return value of __get_user_x function.
-The assembly code of get_futex_value_locked in kernel/futex.c:
-...
-c01f6dc8:       eb0b020e        bl      c04b7608 <__get_user_4>
-// "x = (typeof(*(p))) __r2;" triggers kasan check and r0 is overwritten
-c01f6dCc:       e1a00007        mov     r0, r7
-c01f6dd0:       e1a05002        mov     r5, r2
-c01f6dd4:       eb04f1e6        bl      c0333574 <__asan_store4>
-c01f6dd8:       e5875000        str     r5, [r7]
-// save ret value of __get_user(*dest, from), which is dest address now
-c01f6ddc:       e1a05000        mov     r5, r0
-...
-// checking return value of __get_user failed
-c01f6e00:       e3550000        cmp     r5, #0
-...
-c01f6e0c:       01a00005        moveq   r0, r5
-// assign return value to EINVAL
-c01f6e10:       13e0000d        mvnne   r0, #13
-
-Return value is the destination address of get_user thus certainly
-non-zero, so get_futex_value_locked always return EINVAL.
-
-Fix it by using a tmp vairable to store the error code before the
-assignment. This fix has no effects to non-kasan images thanks to compiler
-optimization. It only affects cases that overwrite r0 due to kasan check.
-
-This should fix bug discussed in Link:
-[1] https://lore.kernel.org/linux-arm-kernel/0ef7c2a5-5d8b-c5e0-63fa-31693fd4495c@gmail.com/
-
-Fixes: 421015713b30 ("ARM: 9017/2: Enable KASan for ARM")
-Signed-off-by: Lexi Shao <shaolexi@huawei.com>
+Fixes: 66a625a88174 ("ARM: mm: proc-macros: Add generic proc/cache/tlb struct definition macros")
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/uaccess.h |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/mm/proc-macros.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm/include/asm/uaccess.h
-+++ b/arch/arm/include/asm/uaccess.h
-@@ -200,6 +200,7 @@ extern int __get_user_64t_4(void *);
- 		register unsigned long __l asm("r1") = __limit;		\
- 		register int __e asm("r0");				\
- 		unsigned int __ua_flags = uaccess_save_and_enable();	\
-+		int __tmp_e;						\
- 		switch (sizeof(*(__p))) {				\
- 		case 1:							\
- 			if (sizeof((x)) >= 8)				\
-@@ -227,9 +228,10 @@ extern int __get_user_64t_4(void *);
- 			break;						\
- 		default: __e = __get_user_bad(); break;			\
- 		}							\
-+		__tmp_e = __e;						\
- 		uaccess_restore(__ua_flags);				\
- 		x = (typeof(*(p))) __r2;				\
--		__e;							\
-+		__tmp_e;						\
- 	})
+--- a/arch/arm/mm/proc-macros.S
++++ b/arch/arm/mm/proc-macros.S
+@@ -340,6 +340,7 @@ ENTRY(\name\()_cache_fns)
  
- #define get_user(x, p)							\
+ .macro define_tlb_functions name:req, flags_up:req, flags_smp
+ 	.type	\name\()_tlb_fns, #object
++	.align 2
+ ENTRY(\name\()_tlb_fns)
+ 	.long	\name\()_flush_user_tlb_range
+ 	.long	\name\()_flush_kern_tlb_range
 
 
