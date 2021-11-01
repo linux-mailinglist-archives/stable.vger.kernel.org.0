@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C80104418E5
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:51:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 187C14417E9
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234746AbhKAJwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:52:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54302 "EHLO mail.kernel.org"
+        id S232881AbhKAJln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:41:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234436AbhKAJut (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:50:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C734060F58;
-        Mon,  1 Nov 2021 09:32:13 +0000 (UTC)
+        id S233416AbhKAJjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:39:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 967E9610FD;
+        Mon,  1 Nov 2021 09:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635759134;
-        bh=0+ocs282GQVwxKxy0MEmmcQiQYYxeOd2a0AHQoqPTkI=;
+        s=korg; t=1635758840;
+        bh=WkUFtUsxhV7nYYV2Mgej/hXZziSAYyjnb5QunoCk30U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=txuMTgLMlTI4HFx22ufcukuHN9tHB8aO+Gu+mL6NF8PYEwBokvcZRSfKLhk6s57De
-         QrxCAl/aVnt31u3ckBlMtKibSXolSNsf3XG4R6T2VDMNT/w6HVrjBrdUCUyFnD7G/m
-         R0z37QR/aXoX09xtQk/fJtqttrFa15SyNdL3hQ7w=
+        b=Wj/ndx6H8R++J8jttPKQuYfpOehpSpN4ddUMmosptDPotxGPYjiWSSc33U/IpV50i
+         nrka0y7blMfWgCkyBezzwL8jnp9Q7JmkqY4bfx78ZgooICqpd7rei439ll1vhry0O0
+         OtQtSOkUrJHM6Im6zc65B5fmsKDMVyIEpiHFneW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Tejun Heo <tj@kernel.org>, Alexei Starovoitov <ast@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 108/125] bpf: Move BPF_MAP_TYPE for INODE_STORAGE and TASK_STORAGE outside of CONFIG_NET
+Subject: [PATCH 5.10 73/77] KVM: s390: preserve deliverable_mask in __airqs_kick_single_vcpu
 Date:   Mon,  1 Nov 2021 10:18:01 +0100
-Message-Id: <20211101082553.560890936@linuxfoundation.org>
+Message-Id: <20211101082526.770300153@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit 99d0a3831e3500d945162cdb2310e3a5fce90b60 ]
+[ Upstream commit 0e9ff65f455dfd0a8aea5e7843678ab6fe097e21 ]
 
-bpf_types.h has BPF_MAP_TYPE_INODE_STORAGE and BPF_MAP_TYPE_TASK_STORAGE
-declared inside #ifdef CONFIG_NET although they are built regardless of
-CONFIG_NET. So, when CONFIG_BPF_SYSCALL && !CONFIG_NET, they are built
-without the declarations leading to spurious build failures and not
-registered to bpf_map_types making them unavailable.
+Changing the deliverable mask in __airqs_kick_single_vcpu() is a bug. If
+one idle vcpu can't take the interrupts we want to deliver, we should
+look for another vcpu that can, instead of saying that we don't want
+to deliver these interrupts by clearing the bits from the
+deliverable_mask.
 
-Fix it by moving the BPF_MAP_TYPE for the two map types outside of
-CONFIG_NET.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: a10787e6d58c ("bpf: Enable task local storage for tracing programs")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/YXG1cuuSJDqHQfRY@slm.duckdns.org
+Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20211019175401.3757927-3-pasic@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bpf_types.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/s390/kvm/interrupt.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/bpf_types.h b/include/linux/bpf_types.h
-index ae3ac3a2018c..2eb9c53468e7 100644
---- a/include/linux/bpf_types.h
-+++ b/include/linux/bpf_types.h
-@@ -101,14 +101,14 @@ BPF_MAP_TYPE(BPF_MAP_TYPE_STACK_TRACE, stack_trace_map_ops)
- #endif
- BPF_MAP_TYPE(BPF_MAP_TYPE_ARRAY_OF_MAPS, array_of_maps_map_ops)
- BPF_MAP_TYPE(BPF_MAP_TYPE_HASH_OF_MAPS, htab_of_maps_map_ops)
--#ifdef CONFIG_NET
--BPF_MAP_TYPE(BPF_MAP_TYPE_DEVMAP, dev_map_ops)
--BPF_MAP_TYPE(BPF_MAP_TYPE_DEVMAP_HASH, dev_map_hash_ops)
--BPF_MAP_TYPE(BPF_MAP_TYPE_SK_STORAGE, sk_storage_map_ops)
- #ifdef CONFIG_BPF_LSM
- BPF_MAP_TYPE(BPF_MAP_TYPE_INODE_STORAGE, inode_storage_map_ops)
- #endif
- BPF_MAP_TYPE(BPF_MAP_TYPE_TASK_STORAGE, task_storage_map_ops)
-+#ifdef CONFIG_NET
-+BPF_MAP_TYPE(BPF_MAP_TYPE_DEVMAP, dev_map_ops)
-+BPF_MAP_TYPE(BPF_MAP_TYPE_DEVMAP_HASH, dev_map_hash_ops)
-+BPF_MAP_TYPE(BPF_MAP_TYPE_SK_STORAGE, sk_storage_map_ops)
- BPF_MAP_TYPE(BPF_MAP_TYPE_CPUMAP, cpu_map_ops)
- #if defined(CONFIG_XDP_SOCKETS)
- BPF_MAP_TYPE(BPF_MAP_TYPE_XSKMAP, xsk_map_ops)
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 2bb9996ff09b..e6c4f29fc695 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -3053,13 +3053,14 @@ static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
+ 	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
+ 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+ 	struct kvm_vcpu *vcpu;
++	u8 vcpu_isc_mask;
+ 
+ 	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
+ 		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
+ 		if (psw_ioint_disabled(vcpu))
+ 			continue;
+-		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
+-		if (deliverable_mask) {
++		vcpu_isc_mask = (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
++		if (deliverable_mask & vcpu_isc_mask) {
+ 			/* lately kicked but not yet running */
+ 			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
+ 				return;
 -- 
 2.33.0
 
