@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62F9C44161E
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:20:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBBE144160A
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:19:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232051AbhKAJWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:22:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58248 "EHLO mail.kernel.org"
+        id S231928AbhKAJVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:21:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231952AbhKAJV6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:21:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B9F5610FC;
-        Mon,  1 Nov 2021 09:19:16 +0000 (UTC)
+        id S231977AbhKAJVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:21:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0396B610A8;
+        Mon,  1 Nov 2021 09:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758357;
-        bh=ZNFkz6wlXDvv3muh5y/a0EkREZ+oC5QVHJtttlV78E0=;
+        s=korg; t=1635758329;
+        bh=NEeR/4H6phk62Byll9jW7Rk8yfiqZg1vR0vlIyVky4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cQ51uACEusDYWsKKLofMzaNU/HnbCMoAJIBd3jI1N6zc2CDjPxNiNvDXsqp8M9hF0
-         TKCPqynYoKRVt7OCaSOn9/I2zxq7kEhlHCpHHE5iKYsDKl9dbfJyQhAdp+fi/V+q/S
-         xTfDpU1Rsizb5Q8Nd6MTQLF9tFYx8A6DSs68+YFw=
+        b=ceV4agGIGUvYtVYWe8fRQEypKnJL1E1nD8eivgQlWbJNFMqxOl6StVxyVIIoR940g
+         3vdgdNZ9Mw5q+jk1HNyHz+dU/Bjo2Kkb7jSD/3j7sN02FovKX48yhVrnrXQPyWJg0/
+         92XjdGqeabgoKOlX9GzS7m8bKSyOK6VRe69zBAC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@windriver.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 10/20] Revert "net: mdiobus: Fix memory leak in __mdiobus_register"
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 16/17] sctp: use init_tag from inithdr for ABORT chunk
 Date:   Mon,  1 Nov 2021 10:17:19 +0100
-Message-Id: <20211101082446.373614199@linuxfoundation.org>
+Message-Id: <20211101082444.340670234@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
-References: <20211101082444.133899096@linuxfoundation.org>
+In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
+References: <20211101082440.664392327@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 10eff1f5788b6ffac212c254e2f3666219576889 upstream.
+[ Upstream commit 4f7019c7eb33967eb87766e0e4602b5576873680 ]
 
-This reverts commit ab609f25d19858513919369ff3d9a63c02cd9e2e.
+Currently Linux SCTP uses the verification tag of the existing SCTP
+asoc when failing to process and sending the packet with the ABORT
+chunk. This will result in the peer accepting the ABORT chunk and
+removing the SCTP asoc. One could exploit this to terminate a SCTP
+asoc.
 
-This patch is correct in the sense that we _should_ call device_put() in
-case of device_register() failure, but the problem in this code is more
-vast.
+This patch is to fix it by always using the initiate tag of the
+received INIT chunk for the ABORT chunk to be sent.
 
-We need to set bus->state to UNMDIOBUS_REGISTERED before calling
-device_register() to correctly release the device in mdiobus_free().
-This patch prevents us from doing it, since in case of device_register()
-failure put_device() will be called 2 times and it will cause UAF or
-something else.
-
-Also, Reported-by: tag in revered commit was wrong, since syzbot
-reported different leak in same function.
-
-Link: https://lore.kernel.org/netdev/20210928092657.GI2048@kadam/
-Acked-by: Yanfei Xu <yanfei.xu@windriver.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/f12fb1faa4eccf0f355788225335eb4309ff2599.1633024062.git.paskripkin@gmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c |    1 -
- 1 file changed, 1 deletion(-)
+ net/sctp/sm_statefuns.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -326,7 +326,6 @@ int __mdiobus_register(struct mii_bus *b
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
--		put_device(&bus->dev);
- 		return -EINVAL;
- 	}
- 
+diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
+index a9ba6f2bb8c8..b83f90bb1a6e 100644
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -6027,6 +6027,7 @@ static struct sctp_packet *sctp_ootb_pkt_new(struct net *net,
+ 		 * yet.
+ 		 */
+ 		switch (chunk->chunk_hdr->type) {
++		case SCTP_CID_INIT:
+ 		case SCTP_CID_INIT_ACK:
+ 		{
+ 			sctp_initack_chunk_t *initack;
+-- 
+2.33.0
+
 
 
