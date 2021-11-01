@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6373744175D
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:33:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AC9A441867
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:45:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233241AbhKAJfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:35:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43606 "EHLO mail.kernel.org"
+        id S232960AbhKAJr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:47:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233635AbhKAJds (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:33:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8B3A61279;
-        Mon,  1 Nov 2021 09:25:20 +0000 (UTC)
+        id S233957AbhKAJpU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:45:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F60C61100;
+        Mon,  1 Nov 2021 09:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758721;
-        bh=D2Kw8ZeBUWKw65O4pZ6IHRH80AuFRjqf5gcq3B7UpGA=;
+        s=korg; t=1635758998;
+        bh=TyqDyT68/IFEjqBVz9kGc6sjcogYGLHexDIL88CdGcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aoQWw4OB3p9AIqYSMQRp0aaDyDxNFW+CzrOU3yt7aVlA1F07ap2+k77phtlL/r+DK
-         YcAkxH8AwRYwdC7zD2ub5JXIzEiO9fnKVY+b+5ycoqbmF/HIpYj8igXWE2ADyN7qBj
-         sjRH5ZfBx/7z89oLZ0auYY5a883jdZpuo4t00JLI=
+        b=oyHcdstVMiQuVK7m8Bu5+OI96F1qSYCq/3AiwMemAsTpztpNOGnohYcLFVcQp79ZK
+         RY+fBLCFPX+XxTJxIoyLlIbCdPXsyTP6oHT+Df+gLyYOf99ONdqzHQtESUF2SbIoRM
+         +nrHg+ILVnbi+0GN5xS2gEMDuzSX8HneLYiAl620=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.10 03/77] ARM: 9134/1: remove duplicate memcpy() definition
-Date:   Mon,  1 Nov 2021 10:16:51 +0100
-Message-Id: <20211101082511.897153779@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.14 039/125] arm64: dts: imx8mm-kontron: Fix connection type for VSC8531 RGMII PHY
+Date:   Mon,  1 Nov 2021 10:16:52 +0100
+Message-Id: <20211101082540.572376676@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-commit eaf6cc7165c9c5aa3c2f9faa03a98598123d0afb upstream.
+commit 0b28c41e3c951ea3d4f012cfa9da5ebd6512cf6e upstream.
 
-Both the decompressor code and the kasan logic try to override
-the memcpy() and memmove()  definitions, which leading to a clash
-in a KASAN-enabled kernel with XZ decompression:
+Previously we falsely relied on the PHY driver to unconditionally
+enable the internal RX delay. Since the following fix for the PHY
+driver this is not the case anymore:
 
-arch/arm/boot/compressed/decompress.c:50:9: error: 'memmove' macro redefined [-Werror,-Wmacro-redefined]
- #define memmove memmove
-        ^
-arch/arm/include/asm/string.h:59:9: note: previous definition is here
- #define memmove(dst, src, len) __memmove(dst, src, len)
-        ^
-arch/arm/boot/compressed/decompress.c:51:9: error: 'memcpy' macro redefined [-Werror,-Wmacro-redefined]
- #define memcpy memcpy
-        ^
-arch/arm/include/asm/string.h:58:9: note: previous definition is here
- #define memcpy(dst, src, len) __memcpy(dst, src, len)
-        ^
+commit 7b005a1742be ("net: phy: mscc: configure both RX and TX internal
+delays for RGMII")
 
-Here we want the set of functions from the decompressor, so undefine
-the other macros before the override.
+In order to enable the delay we need to set the connection type to
+"rgmii-rxid". Without the RX delay the ethernet is not functional at
+all.
 
-Link: https://lore.kernel.org/linux-arm-kernel/CACRpkdZYJogU_SN3H9oeVq=zJkRgRT1gDz3xp59gdqWXxw-B=w@mail.gmail.com/
-Link: https://lore.kernel.org/lkml/202105091112.F5rmd4By-lkp@intel.com/
-
-Fixes: d6d51a96c7d6 ("ARM: 9014/2: Replace string mem* functions for KASan")
-Fixes: a7f464f3db93 ("ARM: 7001/2: Wire up support for the XZ decompressor")
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: 8668d8b2e67f ("arm64: dts: Add the Kontron i.MX8M Mini SoMs and baseboards")
+Cc: stable@vger.kernel.org
+Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/compressed/decompress.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/boot/compressed/decompress.c
-+++ b/arch/arm/boot/compressed/decompress.c
-@@ -47,7 +47,10 @@ extern char * strchrnul(const char *, in
- #endif
+--- a/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mm-kontron-n801x-s.dts
+@@ -113,7 +113,7 @@
+ &fec1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_enet>;
+-	phy-connection-type = "rgmii";
++	phy-connection-type = "rgmii-rxid";
+ 	phy-handle = <&ethphy>;
+ 	status = "okay";
  
- #ifdef CONFIG_KERNEL_XZ
-+/* Prevent KASAN override of string helpers in decompressor */
-+#undef memmove
- #define memmove memmove
-+#undef memcpy
- #define memcpy memcpy
- #include "../../../../lib/decompress_unxz.c"
- #endif
 
 
