@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D67A4441716
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:30:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3652944171A
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:30:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232906AbhKAJc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:32:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37296 "EHLO mail.kernel.org"
+        id S233321AbhKAJca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:32:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232952AbhKAJa2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232957AbhKAJa2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Nov 2021 05:30:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3EFD61179;
-        Mon,  1 Nov 2021 09:24:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30EE2610E5;
+        Mon,  1 Nov 2021 09:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758644;
-        bh=J6Ul1GG2oFWylQa5cKyso2gWWBiwTYvIvAB8/b66bRE=;
+        s=korg; t=1635758646;
+        bh=KukCVh30aY1wieDZcMRPz5ZH2KjilbetPUXsSfiLFNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uUxU9dyF2KblsiPJAZiB828SWKamlfQUv9/53kqHs3w6z9ZeCYkAtsLrB8lQqub3V
-         zKXvf9xjNyRTjskhS3o61FHQ8xPdR7+qyDPufbjgADBku4x2JiFbEu1wyrVdVe0L1K
-         pBTYqkKcgoYRZ8SGpSB7JVG5TYy0p5CJSbv7ovu0=
+        b=Fp4cmh6sXlR/UtBcH//8T3U00lpFudmQQ/OTAVr/iyoa7ntCoU6j5PwvhC38CyaM5
+         7Kee0WM1L9JHHzQkpEGrkExM9psI+OYeMgd9Hn5RWLih7XwOKbZhoPzT9wrrdKPwe9
+         0GvbGMO0WwbpvsxXU50vLAWWZlvvY+A1qB7Qjkm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Janusz Dziedzic <janusz.dziedzic@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 48/51] cfg80211: correct bridge/4addr mode check
-Date:   Mon,  1 Nov 2021 10:17:52 +0100
-Message-Id: <20211101082511.714058673@linuxfoundation.org>
+Subject: [PATCH 5.4 49/51] KVM: s390: clear kicked_mask before sleeping again
+Date:   Mon,  1 Nov 2021 10:17:53 +0100
+Message-Id: <20211101082511.910355787@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
 References: <20211101082500.203657870@linuxfoundation.org>
@@ -41,55 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Dziedzic <janusz.dziedzic@gmail.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit 689a0a9f505f7bffdefe6f17fddb41c8ab6344f6 ]
+[ Upstream commit 9b57e9d5010bbed7c0d9d445085840f7025e6f9a ]
 
-Without the patch we fail:
+The idea behind kicked mask is that we should not re-kick a vcpu that
+is already in the "kick" process, i.e. that was kicked and is
+is about to be dispatched if certain conditions are met.
 
-$ sudo brctl addbr br0
-$ sudo brctl addif br0 wlp1s0
-$ sudo iw wlp1s0 set 4addr on
-command failed: Device or resource busy (-16)
+The problem with the current implementation is, that it assumes the
+kicked vcpu is going to enter SIE shortly. But under certain
+circumstances, the vcpu we just kicked will be deemed non-runnable and
+will remain in wait state. This can happen, if the interrupt(s) this
+vcpu got kicked to deal with got already cleared (because the interrupts
+got delivered to another vcpu). In this case kvm_arch_vcpu_runnable()
+would return false, and the vcpu would remain in kvm_vcpu_block(),
+but this time with its kicked_mask bit set. So next time around we
+wouldn't kick the vcpu form __airqs_kick_single_vcpu(), but would assume
+that we just kicked it.
 
-Last command failed but iface was already in 4addr mode.
+Let us make sure the kicked_mask is cleared before we give up on
+re-dispatching the vcpu.
 
-Fixes: ad4bb6f8883a ("cfg80211: disallow bridging managed/adhoc interfaces")
-Signed-off-by: Janusz Dziedzic <janusz.dziedzic@gmail.com>
-Link: https://lore.kernel.org/r/20211024201546.614379-1-janusz.dziedzic@gmail.com
-[add fixes tag, fix indentation, edit commit log]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
+Reported-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20211019175401.3757927-2-pasic@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/util.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/wireless/util.c b/net/wireless/util.c
-index 82b3baed2c7d..aaefaf3422a1 100644
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -975,14 +975,14 @@ int cfg80211_change_iface(struct cfg80211_registered_device *rdev,
- 	    !(rdev->wiphy.interface_modes & (1 << ntype)))
- 		return -EOPNOTSUPP;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 9ed2fee61229..b286818d8d54 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3092,6 +3092,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
  
--	/* if it's part of a bridge, reject changing type to station/ibss */
--	if (netif_is_bridge_port(dev) &&
--	    (ntype == NL80211_IFTYPE_ADHOC ||
--	     ntype == NL80211_IFTYPE_STATION ||
--	     ntype == NL80211_IFTYPE_P2P_CLIENT))
--		return -EBUSY;
--
- 	if (ntype != otype) {
-+		/* if it's part of a bridge, reject changing type to station/ibss */
-+		if (netif_is_bridge_port(dev) &&
-+		    (ntype == NL80211_IFTYPE_ADHOC ||
-+		     ntype == NL80211_IFTYPE_STATION ||
-+		     ntype == NL80211_IFTYPE_P2P_CLIENT))
-+			return -EBUSY;
-+
- 		dev->ieee80211_ptr->use_4addr = false;
- 		dev->ieee80211_ptr->mesh_id_up_len = 0;
- 		wdev_lock(dev->ieee80211_ptr);
+ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
+ {
++	clear_bit(vcpu->vcpu_idx, vcpu->kvm->arch.gisa_int.kicked_mask);
+ 	return kvm_s390_vcpu_has_irq(vcpu, 0);
+ }
+ 
 -- 
 2.33.0
 
