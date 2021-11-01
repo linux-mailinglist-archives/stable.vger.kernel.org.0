@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E31D4416D2
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F9C44161E
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:20:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231925AbhKAJaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:30:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37002 "EHLO mail.kernel.org"
+        id S232051AbhKAJWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:22:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232911AbhKAJ2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:28:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E153B611AE;
-        Mon,  1 Nov 2021 09:22:41 +0000 (UTC)
+        id S231952AbhKAJV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:21:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B9F5610FC;
+        Mon,  1 Nov 2021 09:19:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758562;
-        bh=KtWzIRMtZtvC393ZxMkTcOWaLaMjr4bEJWeeF7+y1lU=;
+        s=korg; t=1635758357;
+        bh=ZNFkz6wlXDvv3muh5y/a0EkREZ+oC5QVHJtttlV78E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eDQBc4lKyF5z77w5d6RVNXo6MiyuAo80QBhNWIwMtwv+gupBWpnOcSguAn8NcYzCw
-         BFmmIqFNjidcYmhbt4E+t2JDDO5PUnyiwAwLE42iTmlvlz2xC7EK66hV2eYzsg6oGq
-         k6Pq3g5ttNLSvNvvnwdVP2OU+movJLs33LRO4FvE=
+        b=cQ51uACEusDYWsKKLofMzaNU/HnbCMoAJIBd3jI1N6zc2CDjPxNiNvDXsqp8M9hF0
+         TKCPqynYoKRVt7OCaSOn9/I2zxq7kEhlHCpHHE5iKYsDKl9dbfJyQhAdp+fi/V+q/S
+         xTfDpU1Rsizb5Q8Nd6MTQLF9tFYx8A6DSs68+YFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 15/51] mmc: vub300: fix control-message timeouts
+        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@windriver.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 10/20] Revert "net: mdiobus: Fix memory leak in __mdiobus_register"
 Date:   Mon,  1 Nov 2021 10:17:19 +0100
-Message-Id: <20211101082504.173074927@linuxfoundation.org>
+Message-Id: <20211101082446.373614199@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
+References: <20211101082444.133899096@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,103 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 8c8171929116cc23f74743d99251eedadf62341a upstream.
+commit 10eff1f5788b6ffac212c254e2f3666219576889 upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+This reverts commit ab609f25d19858513919369ff3d9a63c02cd9e2e.
 
-Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
-Cc: stable@vger.kernel.org      # 3.0
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211025115608.5287-1-johan@kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+This patch is correct in the sense that we _should_ call device_put() in
+case of device_register() failure, but the problem in this code is more
+vast.
+
+We need to set bus->state to UNMDIOBUS_REGISTERED before calling
+device_register() to correctly release the device in mdiobus_free().
+This patch prevents us from doing it, since in case of device_register()
+failure put_device() will be called 2 times and it will cause UAF or
+something else.
+
+Also, Reported-by: tag in revered commit was wrong, since syzbot
+reported different leak in same function.
+
+Link: https://lore.kernel.org/netdev/20210928092657.GI2048@kadam/
+Acked-by: Yanfei Xu <yanfei.xu@windriver.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/f12fb1faa4eccf0f355788225335eb4309ff2599.1633024062.git.paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/vub300.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/net/phy/mdio_bus.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/mmc/host/vub300.c
-+++ b/drivers/mmc/host/vub300.c
-@@ -576,7 +576,7 @@ static void check_vub300_port_status(str
- 				GET_SYSTEM_PORT_STATUS,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->system_port_status,
--				sizeof(vub300->system_port_status), HZ);
-+				sizeof(vub300->system_port_status), 1000);
- 	if (sizeof(vub300->system_port_status) == retval)
- 		new_system_port_status(vub300);
- }
-@@ -1241,7 +1241,7 @@ static void __download_offload_pseudocod
- 						SET_INTERRUPT_PSEUDOCODE,
- 						USB_DIR_OUT | USB_TYPE_VENDOR |
- 						USB_RECIP_DEVICE, 0x0000, 0x0000,
--						xfer_buffer, xfer_length, HZ);
-+						xfer_buffer, xfer_length, 1000);
- 			kfree(xfer_buffer);
- 			if (retval < 0)
- 				goto copy_error_message;
-@@ -1284,7 +1284,7 @@ static void __download_offload_pseudocod
- 						SET_TRANSFER_PSEUDOCODE,
- 						USB_DIR_OUT | USB_TYPE_VENDOR |
- 						USB_RECIP_DEVICE, 0x0000, 0x0000,
--						xfer_buffer, xfer_length, HZ);
-+						xfer_buffer, xfer_length, 1000);
- 			kfree(xfer_buffer);
- 			if (retval < 0)
- 				goto copy_error_message;
-@@ -1991,7 +1991,7 @@ static void __set_clock_speed(struct vub
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_CLOCK_SPEED,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x00, 0x00, buf, buf_array_size, HZ);
-+				0x00, 0x00, buf, buf_array_size, 1000);
- 	if (retval != 8) {
- 		dev_err(&vub300->udev->dev, "SET_CLOCK_SPEED"
- 			" %dkHz failed with retval=%d\n", kHzClock, retval);
-@@ -2013,14 +2013,14 @@ static void vub300_mmc_set_ios(struct mm
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_SD_POWER,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x0000, 0x0000, NULL, 0, HZ);
-+				0x0000, 0x0000, NULL, 0, 1000);
- 		/* must wait for the VUB300 u-proc to boot up */
- 		msleep(600);
- 	} else if ((ios->power_mode == MMC_POWER_UP) && !vub300->card_powered) {
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_SD_POWER,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x0001, 0x0000, NULL, 0, HZ);
-+				0x0001, 0x0000, NULL, 0, 1000);
- 		msleep(600);
- 		vub300->card_powered = 1;
- 	} else if (ios->power_mode == MMC_POWER_ON) {
-@@ -2282,14 +2282,14 @@ static int vub300_probe(struct usb_inter
- 				GET_HC_INF0,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->hc_info,
--				sizeof(vub300->hc_info), HZ);
-+				sizeof(vub300->hc_info), 1000);
- 	if (retval < 0)
- 		goto error5;
- 	retval =
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_ROM_WAIT_STATES,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				firmware_rom_wait_states, 0x0000, NULL, 0, HZ);
-+				firmware_rom_wait_states, 0x0000, NULL, 0, 1000);
- 	if (retval < 0)
- 		goto error5;
- 	dev_info(&vub300->udev->dev,
-@@ -2304,7 +2304,7 @@ static int vub300_probe(struct usb_inter
- 				GET_SYSTEM_PORT_STATUS,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->system_port_status,
--				sizeof(vub300->system_port_status), HZ);
-+				sizeof(vub300->system_port_status), 1000);
- 	if (retval < 0) {
- 		goto error4;
- 	} else if (sizeof(vub300->system_port_status) == retval) {
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -326,7 +326,6 @@ int __mdiobus_register(struct mii_bus *b
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
+-		put_device(&bus->dev);
+ 		return -EINVAL;
+ 	}
+ 
 
 
