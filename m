@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70CBD441800
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FF324417F9
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233429AbhKAJmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:42:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
+        id S233397AbhKAJmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:42:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232779AbhKAJkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232725AbhKAJkB (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Nov 2021 05:40:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A7CF611ED;
-        Mon,  1 Nov 2021 09:27:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C003F611EE;
+        Mon,  1 Nov 2021 09:27:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758865;
-        bh=pJwoazBRxcQ8JO5dTcWkRF5rdlVPgeypRLQqLd7f7Qk=;
+        s=korg; t=1635758868;
+        bh=qfbx9NKwt0JLc3rXbBiP4zicYxhnC04RiJwHKsiVZ6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CCX1ciaQrF2SMmAtwUpKcXKnZBGMyRlE9AWJhEoB+ODZhOVTJgtBxouDIseA1xn36
-         74p0svyGnvuQP3vLI5HP4vvGd6ljqdbCDit76+l81Js7+qwQVscFDO/ybVaF5bVyNa
-         fsgFCn6mAbGhNgP/uJrsE1U7ssQ8LTB09T6q6pJs=
+        b=BL9j2cVEkQ/lPxhUEs4yqzrTS+qPVs2e07evek3VpF21t6WHHNDpBm6v9z79b11fV
+         Kul2EQqz3HK/yReNe1apvXLRQ1RCZduIbDLuwKK31bMtyQLCXEB2O/p3CK49uEl8Uu
+         uaF1rZlkkZbn9fh3vv4oSJp67CYz++APloZd9Vbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@windriver.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.14 015/125] Revert "net: mdiobus: Fix memory leak in __mdiobus_register"
-Date:   Mon,  1 Nov 2021 10:16:28 +0100
-Message-Id: <20211101082536.400501204@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 016/125] net/tls: Fix flipped sign in tls_err_abort() calls
+Date:   Mon,  1 Nov 2021 10:16:29 +0100
+Message-Id: <20211101082536.597041920@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -40,44 +41,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-commit 10eff1f5788b6ffac212c254e2f3666219576889 upstream.
+commit da353fac65fede6b8b4cfe207f0d9408e3121105 upstream.
 
-This reverts commit ab609f25d19858513919369ff3d9a63c02cd9e2e.
+sk->sk_err appears to expect a positive value, a convention that ktls
+doesn't always follow and that leads to memory corruption in other code.
+For instance,
 
-This patch is correct in the sense that we _should_ call device_put() in
-case of device_register() failure, but the problem in this code is more
-vast.
+    [kworker]
+    tls_encrypt_done(..., err=<negative error from crypto request>)
+      tls_err_abort(.., err)
+        sk->sk_err = err;
 
-We need to set bus->state to UNMDIOBUS_REGISTERED before calling
-device_register() to correctly release the device in mdiobus_free().
-This patch prevents us from doing it, since in case of device_register()
-failure put_device() will be called 2 times and it will cause UAF or
-something else.
+    [task]
+    splice_from_pipe_feed
+      ...
+        tls_sw_do_sendpage
+          if (sk->sk_err) {
+            ret = -sk->sk_err;  // ret is positive
 
-Also, Reported-by: tag in revered commit was wrong, since syzbot
-reported different leak in same function.
+    splice_from_pipe_feed (continued)
+      ret = actor(...)  // ret is still positive and interpreted as bytes
+                        // written, resulting in underflow of buf->len and
+                        // sd->len, leading to huge buf->offset and bogus
+                        // addresses computed in later calls to actor()
 
-Link: https://lore.kernel.org/netdev/20210928092657.GI2048@kadam/
-Acked-by: Yanfei Xu <yanfei.xu@windriver.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/f12fb1faa4eccf0f355788225335eb4309ff2599.1633024062.git.paskripkin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix all tls_err_abort() callers to pass a negative error code
+consistently and centralize the error-prone sign flip there, throwing in
+a warning to catch future misuse and uninlining the function so it
+really does only warn once.
+
+Cc: stable@vger.kernel.org
+Fixes: c46234ebb4d1e ("tls: RX path for ktls")
+Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/mdio_bus.c |    1 -
- 1 file changed, 1 deletion(-)
+ include/net/tls.h |    9 ++-------
+ net/tls/tls_sw.c  |   17 +++++++++++++----
+ 2 files changed, 15 insertions(+), 11 deletions(-)
 
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -548,7 +548,6 @@ int __mdiobus_register(struct mii_bus *b
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
--		put_device(&bus->dev);
- 		return -EINVAL;
- 	}
+--- a/include/net/tls.h
++++ b/include/net/tls.h
+@@ -358,6 +358,7 @@ int tls_sk_query(struct sock *sk, int op
+ 		int __user *optlen);
+ int tls_sk_attach(struct sock *sk, int optname, char __user *optval,
+ 		  unsigned int optlen);
++void tls_err_abort(struct sock *sk, int err);
  
+ int tls_set_sw_offload(struct sock *sk, struct tls_context *ctx, int tx);
+ void tls_sw_strparser_arm(struct sock *sk, struct tls_context *ctx);
+@@ -466,12 +467,6 @@ static inline bool tls_is_sk_tx_device_o
+ #endif
+ }
+ 
+-static inline void tls_err_abort(struct sock *sk, int err)
+-{
+-	sk->sk_err = err;
+-	sk_error_report(sk);
+-}
+-
+ static inline bool tls_bigint_increment(unsigned char *seq, int len)
+ {
+ 	int i;
+@@ -512,7 +507,7 @@ static inline void tls_advance_record_sn
+ 					 struct cipher_context *ctx)
+ {
+ 	if (tls_bigint_increment(ctx->rec_seq, prot->rec_seq_size))
+-		tls_err_abort(sk, EBADMSG);
++		tls_err_abort(sk, -EBADMSG);
+ 
+ 	if (prot->version != TLS_1_3_VERSION &&
+ 	    prot->cipher_type != TLS_CIPHER_CHACHA20_POLY1305)
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -35,6 +35,7 @@
+  * SOFTWARE.
+  */
+ 
++#include <linux/bug.h>
+ #include <linux/sched/signal.h>
+ #include <linux/module.h>
+ #include <linux/splice.h>
+@@ -43,6 +44,14 @@
+ #include <net/strparser.h>
+ #include <net/tls.h>
+ 
++noinline void tls_err_abort(struct sock *sk, int err)
++{
++	WARN_ON_ONCE(err >= 0);
++	/* sk->sk_err should contain a positive error code. */
++	sk->sk_err = -err;
++	sk_error_report(sk);
++}
++
+ static int __skb_nsg(struct sk_buff *skb, int offset, int len,
+                      unsigned int recursion_level)
+ {
+@@ -419,7 +428,7 @@ int tls_tx_records(struct sock *sk, int
+ 
+ tx_err:
+ 	if (rc < 0 && rc != -EAGAIN)
+-		tls_err_abort(sk, EBADMSG);
++		tls_err_abort(sk, -EBADMSG);
+ 
+ 	return rc;
+ }
+@@ -763,7 +772,7 @@ static int tls_push_record(struct sock *
+ 			       msg_pl->sg.size + prot->tail_size, i);
+ 	if (rc < 0) {
+ 		if (rc != -EINPROGRESS) {
+-			tls_err_abort(sk, EBADMSG);
++			tls_err_abort(sk, -EBADMSG);
+ 			if (split) {
+ 				tls_ctx->pending_open_record_frags = true;
+ 				tls_merge_open_record(sk, rec, tmp, orig_end);
+@@ -1827,7 +1836,7 @@ int tls_sw_recvmsg(struct sock *sk,
+ 		err = decrypt_skb_update(sk, skb, &msg->msg_iter,
+ 					 &chunk, &zc, async_capable);
+ 		if (err < 0 && err != -EINPROGRESS) {
+-			tls_err_abort(sk, EBADMSG);
++			tls_err_abort(sk, -EBADMSG);
+ 			goto recv_end;
+ 		}
+ 
+@@ -2007,7 +2016,7 @@ ssize_t tls_sw_splice_read(struct socket
+ 		}
+ 
+ 		if (err < 0) {
+-			tls_err_abort(sk, EBADMSG);
++			tls_err_abort(sk, -EBADMSG);
+ 			goto splice_read_end;
+ 		}
+ 		ctx->decrypted = 1;
 
 
