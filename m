@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DB7B4417FB
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40CC84417FE
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233406AbhKAJmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:42:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47952 "EHLO mail.kernel.org"
+        id S232540AbhKAJmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:42:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233510AbhKAJkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233522AbhKAJkB (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Nov 2021 05:40:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE44D611AE;
-        Mon,  1 Nov 2021 09:27:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B34A611CE;
+        Mon,  1 Nov 2021 09:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758861;
-        bh=9y8q2OdqzwgLm2LSZqpo+PEyFuKNps3kvxfVZc2fV10=;
+        s=korg; t=1635758863;
+        bh=TrunEkdmAKOzzNzNkO/1rXEfuJn2an1GuGMg5jY4mek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KBgTQb0KWYJdKtLOqMJLsohLtSbYNkEh0HI329Oz+XPCCM7rtnsCPgZUkzWvNy74O
-         uGWy2CFFZYzsitX1UIHbu33fHjdTdeQXxyPluSPmZ7F9w257xLrJodPt9hgv9mTOoH
-         Z1vf3KwnfOVYV18/X6aeH9CeiRwl2vwx6WuUSDoM=
+        b=Yu12zd5ge4ho4wwd06eK063U4RJdTssEhORAHJfgSS/Gz6aRj+0URsCTqBaJ71edT
+         fnHjITYoVD4oM5xZXoiMw1/E/BLc2By4ze3nvsXLbtyQvGzgttGfonRrgn4p/mTXbX
+         CLOYZIcw/fLHRX4fFTxGxg2VqnGIUY0HskWC0ZFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max VA <maxv@sentinelone.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Jon Maloy <jmaloy@redhat.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 013/125] tipc: fix size validations for the MSG_CRYPTO type
-Date:   Mon,  1 Nov 2021 10:16:26 +0100
-Message-Id: <20211101082536.040392329@linuxfoundation.org>
+Subject: [PATCH 5.14 014/125] nfc: port100: fix using -ERRNO as command type mask
+Date:   Mon,  1 Nov 2021 10:16:27 +0100
+Message-Id: <20211101082536.203849368@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -41,93 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max VA <maxv@sentinelone.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit fa40d9734a57bcbfa79a280189799f76c88f7bb0 upstream.
+commit 2195f2062e4cc93870da8e71c318ef98a1c51cef upstream.
 
-The function tipc_crypto_key_rcv is used to parse MSG_CRYPTO messages
-to receive keys from other nodes in the cluster in order to decrypt any
-further messages from them.
-This patch verifies that any supplied sizes in the message body are
-valid for the received message.
+During probing, the driver tries to get a list (mask) of supported
+command types in port100_get_command_type_mask() function.  The value
+is u64 and 0 is treated as invalid mask (no commands supported).  The
+function however returns also -ERRNO as u64 which will be interpret as
+valid command mask.
 
-Fixes: 1ef6f7c9390f ("tipc: add automatic session key exchange")
-Signed-off-by: Max VA <maxv@sentinelone.com>
-Acked-by: Ying Xue <ying.xue@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
+Return 0 on every error case of port100_get_command_type_mask(), so the
+probing will stop.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/crypto.c |   32 +++++++++++++++++++++-----------
- 1 file changed, 21 insertions(+), 11 deletions(-)
+ drivers/nfc/port100.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/tipc/crypto.c
-+++ b/net/tipc/crypto.c
-@@ -2285,43 +2285,53 @@ static bool tipc_crypto_key_rcv(struct t
- 	u16 key_gen = msg_key_gen(hdr);
- 	u16 size = msg_data_sz(hdr);
- 	u8 *data = msg_data(hdr);
-+	unsigned int keylen;
-+
-+	/* Verify whether the size can exist in the packet */
-+	if (unlikely(size < sizeof(struct tipc_aead_key) + TIPC_AEAD_KEYLEN_MIN)) {
-+		pr_debug("%s: message data size is too small\n", rx->name);
-+		goto exit;
-+	}
-+
-+	keylen = ntohl(*((__be32 *)(data + TIPC_AEAD_ALG_NAME)));
-+
-+	/* Verify the supplied size values */
-+	if (unlikely(size != keylen + sizeof(struct tipc_aead_key) ||
-+		     keylen > TIPC_AEAD_KEY_SIZE_MAX)) {
-+		pr_debug("%s: invalid MSG_CRYPTO key size\n", rx->name);
-+		goto exit;
-+	}
+--- a/drivers/nfc/port100.c
++++ b/drivers/nfc/port100.c
+@@ -1003,11 +1003,11 @@ static u64 port100_get_command_type_mask
  
- 	spin_lock(&rx->lock);
- 	if (unlikely(rx->skey || (key_gen == rx->key_gen && rx->key.keys))) {
- 		pr_err("%s: key existed <%p>, gen %d vs %d\n", rx->name,
- 		       rx->skey, key_gen, rx->key_gen);
--		goto exit;
-+		goto exit_unlock;
- 	}
+ 	skb = port100_alloc_skb(dev, 0);
+ 	if (!skb)
+-		return -ENOMEM;
++		return 0;
  
- 	/* Allocate memory for the key */
- 	skey = kmalloc(size, GFP_ATOMIC);
- 	if (unlikely(!skey)) {
- 		pr_err("%s: unable to allocate memory for skey\n", rx->name);
--		goto exit;
-+		goto exit_unlock;
- 	}
+ 	resp = port100_send_cmd_sync(dev, PORT100_CMD_GET_COMMAND_TYPE, skb);
+ 	if (IS_ERR(resp))
+-		return PTR_ERR(resp);
++		return 0;
  
- 	/* Copy key from msg data */
--	skey->keylen = ntohl(*((__be32 *)(data + TIPC_AEAD_ALG_NAME)));
-+	skey->keylen = keylen;
- 	memcpy(skey->alg_name, data, TIPC_AEAD_ALG_NAME);
- 	memcpy(skey->key, data + TIPC_AEAD_ALG_NAME + sizeof(__be32),
- 	       skey->keylen);
- 
--	/* Sanity check */
--	if (unlikely(size != tipc_aead_key_size(skey))) {
--		kfree(skey);
--		skey = NULL;
--		goto exit;
--	}
--
- 	rx->key_gen = key_gen;
- 	rx->skey_mode = msg_key_mode(hdr);
- 	rx->skey = skey;
- 	rx->nokey = 0;
- 	mb(); /* for nokey flag */
- 
--exit:
-+exit_unlock:
- 	spin_unlock(&rx->lock);
- 
-+exit:
- 	/* Schedule the key attaching on this crypto */
- 	if (likely(skey && queue_delayed_work(tx->wq, &rx->work, 0)))
- 		return true;
+ 	if (resp->len < 8)
+ 		mask = 0;
 
 
