@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3FB54417FF
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56DA24417FC
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232959AbhKAJmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:42:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48030 "EHLO mail.kernel.org"
+        id S233412AbhKAJmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:42:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233553AbhKAJkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232979AbhKAJkB (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Nov 2021 05:40:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FB2C6113D;
-        Mon,  1 Nov 2021 09:27:49 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77DB1611EF;
+        Mon,  1 Nov 2021 09:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758870;
-        bh=uW2ikQZZ73LWKOLheC8qD8eADTA8itKW9FqmnTgLSC0=;
+        s=korg; t=1635758872;
+        bh=4rpNaL1OEjAInDC9ZCq/Hw4Wzh9hVD24aAAIQTwdrEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tPISkyr0RWr2sKOzFVLsFjHfA86IUtkMCdTSbwZtuLLpZviXLWLJQtQar6lh2Z+q5
-         MZFLdca1c1kLQrC3C7LU+YmpN7xnQ7yJxg5xOdBkP+wI5kCztovQ7ezXJF3vJBFwRX
-         6zMKEVBKVc+QjTwfRpqAoj99QqK7cSn0leaMRRqQ=
+        b=bVbT0rQMHwtAJIPnkWuEoxGxh0LEB2HBil8ZPU9WhBB8bRY1lk6rOCj7M3QEb3zd5
+         P2iKz0cyupCDQoU9iaU0kpHJjx9cDMo0cwXPhKIIiaRY74iT9+SuLGVZM71a9+ZFqC
+         qXQ1TxdEs0SvSqiGddRV7pN0mnwBs9U8YoP1PjK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Wenbin Mei <wenbin.mei@mediatek.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.14 017/125] mmc: vub300: fix control-message timeouts
-Date:   Mon,  1 Nov 2021 10:16:30 +0100
-Message-Id: <20211101082536.777341667@linuxfoundation.org>
+Subject: [PATCH 5.14 018/125] mmc: cqhci: clear HALT state after CQE enable
+Date:   Mon,  1 Nov 2021 10:16:31 +0100
+Message-Id: <20211101082536.977582401@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -39,103 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Wenbin Mei <wenbin.mei@mediatek.com>
 
-commit 8c8171929116cc23f74743d99251eedadf62341a upstream.
+commit 92b18252b91de567cd875f2e84722b10ab34ee28 upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+While mmc0 enter suspend state, we need halt CQE to send legacy cmd(flush
+cache) and disable cqe, for resume back, we enable CQE and not clear HALT
+state.
+In this case MediaTek mmc host controller will keep the value for HALT
+state after CQE disable/enable flow, so the next CQE transfer after resume
+will be timeout due to CQE is in HALT state, the log as below:
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: timeout for tag 2
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: ============ CQHCI REGISTER DUMP ===========
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Caps:      0x100020b6 | Version:  0x00000510
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Config:    0x00001103 | Control:  0x00000001
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Int stat:  0x00000000 | Int enab: 0x00000006
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Int sig:   0x00000006 | Int Coal: 0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: TDL base:  0xfd05f000 | TDL up32: 0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Doorbell:  0x8000203c | TCN:      0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Dev queue: 0x00000000 | Dev Pend: 0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Task clr:  0x00000000 | SSC1:     0x00001000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: SSC2:      0x00000001 | DCMD rsp: 0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: RED mask:  0xfdf9a080 | TERRI:    0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Resp idx:  0x00000000 | Resp arg: 0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: CRNQP:     0x00000000 | CRNQDUN:  0x00000000
+<4>.(4)[318:kworker/4:1H]mmc0: cqhci: CRNQIS:    0x00000000 | CRNQIE:   0x00000000
 
-Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
-Cc: stable@vger.kernel.org      # 3.0
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211025115608.5287-1-johan@kernel.org
+This change check HALT state after CQE enable, if CQE is in HALT state, we
+will clear it.
+
+Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
+Cc: stable@vger.kernel.org
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: a4080225f51d ("mmc: cqhci: support for command queue enabled host")
+Link: https://lore.kernel.org/r/20211026070812.9359-1-wenbin.mei@mediatek.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/vub300.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/mmc/host/cqhci-core.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/mmc/host/vub300.c
-+++ b/drivers/mmc/host/vub300.c
-@@ -576,7 +576,7 @@ static void check_vub300_port_status(str
- 				GET_SYSTEM_PORT_STATUS,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->system_port_status,
--				sizeof(vub300->system_port_status), HZ);
-+				sizeof(vub300->system_port_status), 1000);
- 	if (sizeof(vub300->system_port_status) == retval)
- 		new_system_port_status(vub300);
- }
-@@ -1241,7 +1241,7 @@ static void __download_offload_pseudocod
- 						SET_INTERRUPT_PSEUDOCODE,
- 						USB_DIR_OUT | USB_TYPE_VENDOR |
- 						USB_RECIP_DEVICE, 0x0000, 0x0000,
--						xfer_buffer, xfer_length, HZ);
-+						xfer_buffer, xfer_length, 1000);
- 			kfree(xfer_buffer);
- 			if (retval < 0)
- 				goto copy_error_message;
-@@ -1284,7 +1284,7 @@ static void __download_offload_pseudocod
- 						SET_TRANSFER_PSEUDOCODE,
- 						USB_DIR_OUT | USB_TYPE_VENDOR |
- 						USB_RECIP_DEVICE, 0x0000, 0x0000,
--						xfer_buffer, xfer_length, HZ);
-+						xfer_buffer, xfer_length, 1000);
- 			kfree(xfer_buffer);
- 			if (retval < 0)
- 				goto copy_error_message;
-@@ -1991,7 +1991,7 @@ static void __set_clock_speed(struct vub
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_CLOCK_SPEED,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x00, 0x00, buf, buf_array_size, HZ);
-+				0x00, 0x00, buf, buf_array_size, 1000);
- 	if (retval != 8) {
- 		dev_err(&vub300->udev->dev, "SET_CLOCK_SPEED"
- 			" %dkHz failed with retval=%d\n", kHzClock, retval);
-@@ -2013,14 +2013,14 @@ static void vub300_mmc_set_ios(struct mm
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_SD_POWER,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x0000, 0x0000, NULL, 0, HZ);
-+				0x0000, 0x0000, NULL, 0, 1000);
- 		/* must wait for the VUB300 u-proc to boot up */
- 		msleep(600);
- 	} else if ((ios->power_mode == MMC_POWER_UP) && !vub300->card_powered) {
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_SD_POWER,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x0001, 0x0000, NULL, 0, HZ);
-+				0x0001, 0x0000, NULL, 0, 1000);
- 		msleep(600);
- 		vub300->card_powered = 1;
- 	} else if (ios->power_mode == MMC_POWER_ON) {
-@@ -2275,14 +2275,14 @@ static int vub300_probe(struct usb_inter
- 				GET_HC_INF0,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->hc_info,
--				sizeof(vub300->hc_info), HZ);
-+				sizeof(vub300->hc_info), 1000);
- 	if (retval < 0)
- 		goto error5;
- 	retval =
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_ROM_WAIT_STATES,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				firmware_rom_wait_states, 0x0000, NULL, 0, HZ);
-+				firmware_rom_wait_states, 0x0000, NULL, 0, 1000);
- 	if (retval < 0)
- 		goto error5;
- 	dev_info(&vub300->udev->dev,
-@@ -2297,7 +2297,7 @@ static int vub300_probe(struct usb_inter
- 				GET_SYSTEM_PORT_STATUS,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->system_port_status,
--				sizeof(vub300->system_port_status), HZ);
-+				sizeof(vub300->system_port_status), 1000);
- 	if (retval < 0) {
- 		goto error4;
- 	} else if (sizeof(vub300->system_port_status) == retval) {
+--- a/drivers/mmc/host/cqhci-core.c
++++ b/drivers/mmc/host/cqhci-core.c
+@@ -282,6 +282,9 @@ static void __cqhci_enable(struct cqhci_
+ 
+ 	cqhci_writel(cq_host, cqcfg, CQHCI_CFG);
+ 
++	if (cqhci_readl(cq_host, CQHCI_CTL) & CQHCI_HALT)
++		cqhci_writel(cq_host, 0, CQHCI_CTL);
++
+ 	mmc->cqe_on = true;
+ 
+ 	if (cq_host->ops->enable)
 
 
