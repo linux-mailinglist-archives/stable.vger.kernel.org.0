@@ -2,60 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E0B6441D6D
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 16:29:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF715441DBD
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 17:10:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231362AbhKAPbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 11:31:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50442 "EHLO mail.kernel.org"
+        id S232473AbhKAQNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 12:13:07 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:37270 "EHLO mail.skyhub.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230517AbhKAPbm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 11:31:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E2B760EFF;
-        Mon,  1 Nov 2021 15:29:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635780548;
-        bh=83oGevo08WlvBDtpmn0Igb5tu3l7SnucC2UDRKqaqik=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mKLfp1lW7PjC9mnrkI5hNW4su1iMYbNliMPNeQg83pdQENe5Tcc70R3wF09t+6ru9
-         2yTm0kYtYefhQ+zmmlASUqqLII9YBedsXHhXTy2SQc4YLzza6GfeNSJSwSai5lMrJe
-         kopSesX06JKcT5qxR2swrcbeenh/XFcwXaeRKkAs=
-Date:   Mon, 1 Nov 2021 16:29:04 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     mike chant <mikechant@gmail.com>
-Cc:     Konstantin Ryabitsev <konstantin@linuxfoundation.org>,
-        webmaster@kernel.org, stable@vger.kernel.org
-Subject: Re: https://www.kernel.org/category/releases.html possible
- significant typo?
-Message-ID: <YYAHwHFaSqiJtP0l@kroah.com>
-References: <CALNuP9Eo7nVW2vTm1pWNVQemyxn9GF6TNFgAVPxgXXb_vo5vtA@mail.gmail.com>
- <20211101152013.bbs3siqa5aezy247@meerkat.local>
+        id S230517AbhKAQNG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 12:13:06 -0400
+Received: from zn.tnic (p200300ec2f0cfa005d2c15110524cf3f.dip0.t-ipconnect.de [IPv6:2003:ec:2f0c:fa00:5d2c:1511:524:cf3f])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id E3EEA1EC0399;
+        Mon,  1 Nov 2021 17:10:31 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1635783032;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=cNsdwN4kKqk3161ajpvhRVfJcWO0W7ga/sbEAeYvU0A=;
+        b=gM5qhsjPBTvrmKdXG/5HtueWzax3vGYxTRXR2FVKwwYSC4zZS6r3n2C2iGcZoX8XODyiPL
+        UDWJGYDmI+8ncxmpPCjc9XdxdOETd6fEDqfkkkm/7QTOA5nK6A0sOPB0QozLxu0T4iS7VJ
+        XR0HA2rgVU8uUt/+0SAC+yykmI6XvT8=
+Date:   Mon, 1 Nov 2021 17:10:25 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Eric Biederman <ebiederm@xmission.com>
+Cc:     Joerg Roedel <joro@8bytes.org>, x86@kernel.org,
+        kexec@lists.infradead.org, Joerg Roedel <jroedel@suse.de>,
+        stable@vger.kernel.org, hpa@zytor.com,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Slaby <jslaby@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        David Rientjes <rientjes@google.com>,
+        Cfir Cohen <cfir@google.com>,
+        Erdem Aktas <erdemaktas@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mike Stunes <mstunes@vmware.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Martin Radev <martin.b.radev@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        linux-coco@lists.linux.dev, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v2 01/12] kexec: Allow architecture code to opt-out at
+ runtime
+Message-ID: <YYARccITlowHABg1@zn.tnic>
+References: <20210913155603.28383-1-joro@8bytes.org>
+ <20210913155603.28383-2-joro@8bytes.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20211101152013.bbs3siqa5aezy247@meerkat.local>
+In-Reply-To: <20210913155603.28383-2-joro@8bytes.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 01, 2021 at 11:20:13AM -0400, Konstantin Ryabitsev wrote:
-> On Mon, Nov 01, 2021 at 02:43:31PM +0000, mike chant wrote:
-> > Hi,
-> > The table of LTS releases on this page shows an EOL date of October 2023
-> > for 5.15. Judging by the other EOL dates, shouldn't this be 2027?
+On Mon, Sep 13, 2021 at 05:55:52PM +0200, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
 > 
-> LTS releases are generally supported for 2 years UNLESS someone steps up and
-> offers to help support it for longer.
+> Allow a runtime opt-out of kexec support for architecture code in case
+> the kernel is running in an environment where kexec is not properly
+> supported yet.
 > 
-> With further questions, please email stable@vger.kernel.org.
+> This will be used on x86 when the kernel is running as an SEV-ES
+> guest. SEV-ES guests need special handling for kexec to hand over all
+> CPUs to the new kernel. This requires special hypervisor support and
+> handling code in the guest which is not yet implemented.
+> 
+> Cc: stable@vger.kernel.org # v5.10+
+> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> ---
+>  include/linux/kexec.h |  1 +
+>  kernel/kexec.c        | 14 ++++++++++++++
+>  kernel/kexec_file.c   |  9 +++++++++
+>  3 files changed, 24 insertions(+)
 
-And to further expand on this, please see this post from last year when
-this came up last time:
-	http://kroah.com/log/blog/2021/02/03/helping-out-with-lts-kernel-releases/
+I guess I can take this through the tip tree along with the next one.
 
-I'll work on adding some of the wording from there to the kernel.org
-releases page later this week, as this comes up every year...
+Eric?
 
-thanks,
+-- 
+Regards/Gruss,
+    Boris.
 
-greg k-h
+https://people.kernel.org/tglx/notes-about-netiquette
