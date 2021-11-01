@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40CC84417FE
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70CBD441800
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232540AbhKAJmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:42:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47992 "EHLO mail.kernel.org"
+        id S233429AbhKAJmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:42:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233522AbhKAJkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232779AbhKAJkB (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Nov 2021 05:40:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B34A611CE;
-        Mon,  1 Nov 2021 09:27:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A7CF611ED;
+        Mon,  1 Nov 2021 09:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758863;
-        bh=TrunEkdmAKOzzNzNkO/1rXEfuJn2an1GuGMg5jY4mek=;
+        s=korg; t=1635758865;
+        bh=pJwoazBRxcQ8JO5dTcWkRF5rdlVPgeypRLQqLd7f7Qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yu12zd5ge4ho4wwd06eK063U4RJdTssEhORAHJfgSS/Gz6aRj+0URsCTqBaJ71edT
-         fnHjITYoVD4oM5xZXoiMw1/E/BLc2By4ze3nvsXLbtyQvGzgttGfonRrgn4p/mTXbX
-         CLOYZIcw/fLHRX4fFTxGxg2VqnGIUY0HskWC0ZFc=
+        b=CCX1ciaQrF2SMmAtwUpKcXKnZBGMyRlE9AWJhEoB+ODZhOVTJgtBxouDIseA1xn36
+         74p0svyGnvuQP3vLI5HP4vvGd6ljqdbCDit76+l81Js7+qwQVscFDO/ybVaF5bVyNa
+         fsgFCn6mAbGhNgP/uJrsE1U7ssQ8LTB09T6q6pJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 014/125] nfc: port100: fix using -ERRNO as command type mask
-Date:   Mon,  1 Nov 2021 10:16:27 +0100
-Message-Id: <20211101082536.203849368@linuxfoundation.org>
+        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@windriver.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.14 015/125] Revert "net: mdiobus: Fix memory leak in __mdiobus_register"
+Date:   Mon,  1 Nov 2021 10:16:28 +0100
+Message-Id: <20211101082536.400501204@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -40,43 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 2195f2062e4cc93870da8e71c318ef98a1c51cef upstream.
+commit 10eff1f5788b6ffac212c254e2f3666219576889 upstream.
 
-During probing, the driver tries to get a list (mask) of supported
-command types in port100_get_command_type_mask() function.  The value
-is u64 and 0 is treated as invalid mask (no commands supported).  The
-function however returns also -ERRNO as u64 which will be interpret as
-valid command mask.
+This reverts commit ab609f25d19858513919369ff3d9a63c02cd9e2e.
 
-Return 0 on every error case of port100_get_command_type_mask(), so the
-probing will stop.
+This patch is correct in the sense that we _should_ call device_put() in
+case of device_register() failure, but the problem in this code is more
+vast.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+We need to set bus->state to UNMDIOBUS_REGISTERED before calling
+device_register() to correctly release the device in mdiobus_free().
+This patch prevents us from doing it, since in case of device_register()
+failure put_device() will be called 2 times and it will cause UAF or
+something else.
+
+Also, Reported-by: tag in revered commit was wrong, since syzbot
+reported different leak in same function.
+
+Link: https://lore.kernel.org/netdev/20210928092657.GI2048@kadam/
+Acked-by: Yanfei Xu <yanfei.xu@windriver.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/f12fb1faa4eccf0f355788225335eb4309ff2599.1633024062.git.paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/port100.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/phy/mdio_bus.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/nfc/port100.c
-+++ b/drivers/nfc/port100.c
-@@ -1003,11 +1003,11 @@ static u64 port100_get_command_type_mask
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -548,7 +548,6 @@ int __mdiobus_register(struct mii_bus *b
+ 	err = device_register(&bus->dev);
+ 	if (err) {
+ 		pr_err("mii_bus %s failed to register\n", bus->id);
+-		put_device(&bus->dev);
+ 		return -EINVAL;
+ 	}
  
- 	skb = port100_alloc_skb(dev, 0);
- 	if (!skb)
--		return -ENOMEM;
-+		return 0;
- 
- 	resp = port100_send_cmd_sync(dev, PORT100_CMD_GET_COMMAND_TYPE, skb);
- 	if (IS_ERR(resp))
--		return PTR_ERR(resp);
-+		return 0;
- 
- 	if (resp->len < 8)
- 		mask = 0;
 
 
