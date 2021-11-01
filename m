@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11492441830
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:42:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F052441736
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:32:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233413AbhKAJpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:45:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47878 "EHLO mail.kernel.org"
+        id S232697AbhKAJeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:34:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234016AbhKAJnw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:43:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD5CF613AD;
-        Mon,  1 Nov 2021 09:29:04 +0000 (UTC)
+        id S232804AbhKAJc0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:32:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BF8B61205;
+        Mon,  1 Nov 2021 09:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758945;
-        bh=0Jb+ZtKc3oPBJP7+yme89ilX2XntbeaN0ojNW0zHWUQ=;
+        s=korg; t=1635758681;
+        bh=lvNhA7an8fKjojN5MWGLRF8aDdtVCV5Em07sbHUVItg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K7jQALJpS1VvropSBoIWGilkKVEqPXL3mxkp8xxFevIkIuTF09WT3U7tTQiNSHevi
-         ddS5+4QXuaR4Yi4waIjyB9LkVIkBLWqJh28xNIv+0eRBKFB5KoPJKSQ9GwGC3rWymg
-         c0R6tFwvD7eIg+t2X/bk0MB1eh4UyPYyGfj3Z0p8=
+        b=dDMKLQUiYIMUdiSCcsp24o1i0FCs5AvHjJrLm1ComTtjm+0FPLgMFzxnloVI5b7ex
+         77B/gaSNceVZN1IHm+YgHZQkIcRmxsW24mBHTfjznb8KlbUU41G9e76NQIrg0nNKYk
+         eE488RlK4n6KMKLqVW2f3EsHG/myZEuRz9FmCrZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Liu <aaron.liu@amd.com>,
-        Huang Rui <ray.huang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.14 049/125] drm/amdgpu: support B0&B1 external revision id for yellow carp
+        stable@vger.kernel.org, Sachi King <nakato@nakato.io>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.10 14/77] pinctrl: amd: disable and mask interrupts on probe
 Date:   Mon,  1 Nov 2021 10:17:02 +0100
-Message-Id: <20211101082542.523771288@linuxfoundation.org>
+Message-Id: <20211101082514.877396588@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Liu <aaron.liu@amd.com>
+From: Sachi King <nakato@nakato.io>
 
-commit 53c2ff8bcb06acd07e24a62e7f5a0247bd7c6f67 upstream.
+commit 4e5a04be88fe335ad5331f4f8c17f4ebd357e065 upstream.
 
-B0 internal rev_id is 0x01, B1 internal rev_id is 0x02.
-The external rev_id for B0 and B1 is 0x20.
-The original expression is not suitable for B1.
+Some systems such as the Microsoft Surface Laptop 4 leave interrupts
+enabled and configured for use in sleep states on boot, which cause
+unexpected behaviour such as spurious wakes and failed resumes in
+s2idle states.
 
-v2: squash in fix for display code (Alex)
+As interrupts should not be enabled until they are claimed and
+explicitly enabled, disabling any interrupts mistakenly left enabled by
+firmware should be safe.
 
-Signed-off-by: Aaron Liu <aaron.liu@amd.com>
-Reviewed-by: Huang Rui <ray.huang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Sachi King <nakato@nakato.io>
+Link: https://lore.kernel.org/r/20211009033240.21543-1-nakato@nakato.io
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/nv.c                   |    2 +-
- drivers/gpu/drm/amd/display/include/dal_asic_id.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/pinctrl/pinctrl-amd.c |   31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/nv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/nv.c
-@@ -1237,7 +1237,7 @@ static int nv_common_early_init(void *ha
- 			AMD_PG_SUPPORT_VCN_DPG |
- 			AMD_PG_SUPPORT_JPEG;
- 		if (adev->pdev->device == 0x1681)
--			adev->external_rev_id = adev->rev_id + 0x19;
-+			adev->external_rev_id = 0x20;
- 		else
- 			adev->external_rev_id = adev->rev_id + 0x01;
- 		break;
---- a/drivers/gpu/drm/amd/display/include/dal_asic_id.h
-+++ b/drivers/gpu/drm/amd/display/include/dal_asic_id.h
-@@ -227,7 +227,7 @@ enum {
- #define FAMILY_YELLOW_CARP                     146
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -764,6 +764,34 @@ static const struct pinconf_ops amd_pinc
+ 	.pin_config_group_set = amd_pinconf_group_set,
+ };
  
- #define YELLOW_CARP_A0 0x01
--#define YELLOW_CARP_B0 0x1A
-+#define YELLOW_CARP_B0 0x20
- #define YELLOW_CARP_UNKNOWN 0xFF
++static void amd_gpio_irq_init(struct amd_gpio *gpio_dev)
++{
++	struct pinctrl_desc *desc = gpio_dev->pctrl->desc;
++	unsigned long flags;
++	u32 pin_reg, mask;
++	int i;
++
++	mask = BIT(WAKE_CNTRL_OFF_S0I3) | BIT(WAKE_CNTRL_OFF_S3) |
++		BIT(INTERRUPT_MASK_OFF) | BIT(INTERRUPT_ENABLE_OFF) |
++		BIT(WAKE_CNTRL_OFF_S4);
++
++	for (i = 0; i < desc->npins; i++) {
++		int pin = desc->pins[i].number;
++		const struct pin_desc *pd = pin_desc_get(gpio_dev->pctrl, pin);
++
++		if (!pd)
++			continue;
++
++		raw_spin_lock_irqsave(&gpio_dev->lock, flags);
++
++		pin_reg = readl(gpio_dev->base + i * 4);
++		pin_reg &= ~mask;
++		writel(pin_reg, gpio_dev->base + i * 4);
++
++		raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
++	}
++}
++
+ #ifdef CONFIG_PM_SLEEP
+ static bool amd_gpio_should_save(struct amd_gpio *gpio_dev, unsigned int pin)
+ {
+@@ -901,6 +929,9 @@ static int amd_gpio_probe(struct platfor
+ 		return PTR_ERR(gpio_dev->pctrl);
+ 	}
  
- #ifndef ASICREV_IS_YELLOW_CARP
++	/* Disable and mask interrupts */
++	amd_gpio_irq_init(gpio_dev);
++
+ 	girq = &gpio_dev->gc.irq;
+ 	girq->chip = &amd_gpio_irqchip;
+ 	/* This will let us handle the parent IRQ in the driver */
 
 
