@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22E4944160D
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:20:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1941B441848
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:43:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232041AbhKAJV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:21:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57684 "EHLO mail.kernel.org"
+        id S234460AbhKAJpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:45:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231959AbhKAJVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:21:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42C3860C41;
-        Mon,  1 Nov 2021 09:18:58 +0000 (UTC)
+        id S234075AbhKAJoD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:44:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05E92613D3;
+        Mon,  1 Nov 2021 09:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758338;
-        bh=izvXmXoEKU2Ew469aiBmu5ji0RERSZN9FmvK2nOeMuE=;
+        s=korg; t=1635758961;
+        bh=CWa7deH9BWuqDSoHTGAD3ALYtOrYo89AJzHorCfCwYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NFGMd+RYnMutSH31/Xp5khHZJ/F1Uv+XuyB/UEBhFGOrc0HwS8gUh19o/wgEObCT7
-         e7ikfILpN3InYE62aGvbqhzWDjxWXpJp94rZu7rRsMd1iTgy1ChvhBGZOBeQBp3Zsj
-         4sA2VxxigXvfTkcX6pbWK1ZIOOm1J5u69y7TG2pQ=
+        b=LHAVHivmpA3yboDW7kycfmHSVlij3xUKy5jTSYv7Ti/yGp1AH3dCaVldT9a3ScHP8
+         jLBk/uI6pslEN++RTLaowcdPxY2HW7MpB9kVTg7xxPUIABqTUzm2g57GeV01X04S82
+         AlYa5qz60BXdNluyR42/fv/TmONQgI4q0KfEs1pY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Nicolas Pitre <nico@linaro.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Stefan Agner <stefan@agner.ch>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.4 04/17] ARM: 8819/1: Remove -p from LDFLAGS
-Date:   Mon,  1 Nov 2021 10:17:07 +0100
-Message-Id: <20211101082441.640298837@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Strauss <michael.strauss@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.14 055/125] drm/amd/display: Fallback to clocks which meet requested voltage on DCN31
+Date:   Mon,  1 Nov 2021 10:17:08 +0100
+Message-Id: <20211101082543.594171666@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
-References: <20211101082440.664392327@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Michael Strauss <michael.strauss@amd.com>
 
-commit 091bb549f7722723b284f63ac665e2aedcf9dec9 upstream.
+commit 54149d13f369e1ab02f36b91feee02069184c1d8 upstream.
 
-This option is not supported by lld:
+[WHY]
+On certain configs, SMU clock table voltages don't match which cause parser
+to behave incorrectly by leaving dcfclk and socclk table entries unpopulated.
 
-    ld.lld: error: unknown argument: -p
+[HOW]
+Currently the function that finds the corresponding clock for a given voltage
+only checks for exact voltage level matches. In the case that no match gets
+found, parser now falls back to searching for the max clock which meets the
+requested voltage (i.e. its corresponding voltage is below requested).
 
-This has been a no-op in binutils since 2004 (see commit dea514f51da1 in
-that tree). Given that the lowest officially supported of binutils for
-the kernel is 2.20, which was released in 2009, nobody needs this flag
-around so just remove it. Commit 1a381d4a0a9a ("arm64: remove no-op -p
-linker flag") did the same for arm64.
-
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Acked-by: Nicolas Pitre <nico@linaro.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Stefan Agner <stefan@agner.ch>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Michael Strauss <michael.strauss@amd.com>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/Makefile                 |    2 +-
- arch/arm/boot/bootp/Makefile      |    2 +-
- arch/arm/boot/compressed/Makefile |    2 --
- 3 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_clk_mgr.c |   13 ++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -13,7 +13,7 @@
- # Ensure linker flags are correct
- LDFLAGS		:=
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_clk_mgr.c
+@@ -518,14 +518,21 @@ static unsigned int find_clk_for_voltage
+ 		unsigned int voltage)
+ {
+ 	int i;
++	int max_voltage = 0;
++	int clock = 0;
  
--LDFLAGS_vmlinux	:=-p --no-undefined -X --pic-veneer
-+LDFLAGS_vmlinux	:= --no-undefined -X --pic-veneer
- ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
- LDFLAGS_vmlinux	+= --be8
- LDFLAGS_MODULE	+= --be8
---- a/arch/arm/boot/bootp/Makefile
-+++ b/arch/arm/boot/bootp/Makefile
-@@ -7,7 +7,7 @@
+ 	for (i = 0; i < NUM_SOC_VOLTAGE_LEVELS; i++) {
+-		if (clock_table->SocVoltage[i] == voltage)
++		if (clock_table->SocVoltage[i] == voltage) {
+ 			return clocks[i];
++		} else if (clock_table->SocVoltage[i] >= max_voltage &&
++				clock_table->SocVoltage[i] < voltage) {
++			max_voltage = clock_table->SocVoltage[i];
++			clock = clocks[i];
++		}
+ 	}
  
- GCOV_PROFILE	:= n
+-	ASSERT(0);
+-	return 0;
++	ASSERT(clock);
++	return clock;
+ }
  
--LDFLAGS_bootp	:=-p --no-undefined -X \
-+LDFLAGS_bootp	:= --no-undefined -X \
- 		 --defsym initrd_phys=$(INITRD_PHYS) \
- 		 --defsym params_phys=$(PARAMS_PHYS) -T
- AFLAGS_initrd.o :=-DINITRD=\"$(INITRD)\"
---- a/arch/arm/boot/compressed/Makefile
-+++ b/arch/arm/boot/compressed/Makefile
-@@ -122,8 +122,6 @@ endif
- ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
- LDFLAGS_vmlinux += --be8
- endif
--# ?
--LDFLAGS_vmlinux += -p
- # Report unresolved symbol references
- LDFLAGS_vmlinux += --no-undefined
- # Delete all temporary local symbols
+ void dcn31_clk_mgr_helper_populate_bw_params(
 
 
