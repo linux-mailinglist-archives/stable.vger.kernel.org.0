@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B3D8441618
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:20:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C179441671
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232255AbhKAJWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:22:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58176 "EHLO mail.kernel.org"
+        id S232822AbhKAJZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:25:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232135AbhKAJV4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:21:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A31E6610CF;
-        Mon,  1 Nov 2021 09:19:07 +0000 (UTC)
+        id S232274AbhKAJWi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:22:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 885D661101;
+        Mon,  1 Nov 2021 09:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758348;
-        bh=kQ+g+E9ha/slScbCvfTcXZrjOno1XVYeLbLhzj9P0I0=;
+        s=korg; t=1635758381;
+        bh=M4PgJ8Bfn8C+fG6wR8p9pIDnyvVddvMRdsypmjOq1+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ewCjJ1DCKz6H/4FMkm9O5EkIlsmHj1bMgY+hY/aUIUMZwndkCDvb7ub4qprWN8NVc
-         nEWzT4nlugDqxHACGOpCq/lZd6ZhkO8Mxa53cmLItLnlfZjvyJSUxkbivq3GSZATMl
-         2+lAzhCs3ZaAmuCFKs2EdTe2/GwwYQ42n7+E1MOs=
+        b=XIDcxpLbo3VPzSWbvFbRO554w3VuRv3ZGNhcICVXatxRiqjR4WETsiSq5BnyO7W2w
+         ektVmbyj1Vt+f2ID1BRM8M+8OewbwSMeRrG+hckIjCsTZWbESp4RfHQI+1tmp/u9f3
+         4G+0SiDIxpy7zyRAryXBcPK+XhGK2ECrd66NhwrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 08/17] nfc: port100: fix using -ERRNO as command type mask
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.9 02/20] ARM: 9134/1: remove duplicate memcpy() definition
 Date:   Mon,  1 Nov 2021 10:17:11 +0100
-Message-Id: <20211101082442.420478521@linuxfoundation.org>
+Message-Id: <20211101082444.650245644@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
-References: <20211101082440.664392327@linuxfoundation.org>
+In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
+References: <20211101082444.133899096@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 2195f2062e4cc93870da8e71c318ef98a1c51cef upstream.
+commit eaf6cc7165c9c5aa3c2f9faa03a98598123d0afb upstream.
 
-During probing, the driver tries to get a list (mask) of supported
-command types in port100_get_command_type_mask() function.  The value
-is u64 and 0 is treated as invalid mask (no commands supported).  The
-function however returns also -ERRNO as u64 which will be interpret as
-valid command mask.
+Both the decompressor code and the kasan logic try to override
+the memcpy() and memmove()  definitions, which leading to a clash
+in a KASAN-enabled kernel with XZ decompression:
 
-Return 0 on every error case of port100_get_command_type_mask(), so the
-probing will stop.
+arch/arm/boot/compressed/decompress.c:50:9: error: 'memmove' macro redefined [-Werror,-Wmacro-redefined]
+ #define memmove memmove
+        ^
+arch/arm/include/asm/string.h:59:9: note: previous definition is here
+ #define memmove(dst, src, len) __memmove(dst, src, len)
+        ^
+arch/arm/boot/compressed/decompress.c:51:9: error: 'memcpy' macro redefined [-Werror,-Wmacro-redefined]
+ #define memcpy memcpy
+        ^
+arch/arm/include/asm/string.h:58:9: note: previous definition is here
+ #define memcpy(dst, src, len) __memcpy(dst, src, len)
+        ^
 
-Cc: <stable@vger.kernel.org>
-Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Here we want the set of functions from the decompressor, so undefine
+the other macros before the override.
+
+Link: https://lore.kernel.org/linux-arm-kernel/CACRpkdZYJogU_SN3H9oeVq=zJkRgRT1gDz3xp59gdqWXxw-B=w@mail.gmail.com/
+Link: https://lore.kernel.org/lkml/202105091112.F5rmd4By-lkp@intel.com/
+
+Fixes: d6d51a96c7d6 ("ARM: 9014/2: Replace string mem* functions for KASan")
+Fixes: a7f464f3db93 ("ARM: 7001/2: Wire up support for the XZ decompressor")
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/port100.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/compressed/decompress.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/nfc/port100.c
-+++ b/drivers/nfc/port100.c
-@@ -936,11 +936,11 @@ static u64 port100_get_command_type_mask
+--- a/arch/arm/boot/compressed/decompress.c
++++ b/arch/arm/boot/compressed/decompress.c
+@@ -46,7 +46,10 @@ extern char * strstr(const char * s1, co
+ #endif
  
- 	skb = port100_alloc_skb(dev, 0);
- 	if (!skb)
--		return -ENOMEM;
-+		return 0;
- 
- 	resp = port100_send_cmd_sync(dev, PORT100_CMD_GET_COMMAND_TYPE, skb);
- 	if (IS_ERR(resp))
--		return PTR_ERR(resp);
-+		return 0;
- 
- 	if (resp->len < 8)
- 		mask = 0;
+ #ifdef CONFIG_KERNEL_XZ
++/* Prevent KASAN override of string helpers in decompressor */
++#undef memmove
+ #define memmove memmove
++#undef memcpy
+ #define memcpy memcpy
+ #include "../../../../lib/decompress_unxz.c"
+ #endif
 
 
