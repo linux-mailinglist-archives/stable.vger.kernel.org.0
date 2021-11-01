@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56DA24417FC
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26A9A4417F8
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233412AbhKAJmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:42:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48034 "EHLO mail.kernel.org"
+        id S232761AbhKAJmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:42:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232979AbhKAJkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:40:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77DB1611EF;
-        Mon,  1 Nov 2021 09:27:52 +0000 (UTC)
+        id S233235AbhKAJkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:40:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7138611C8;
+        Mon,  1 Nov 2021 09:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758872;
-        bh=4rpNaL1OEjAInDC9ZCq/Hw4Wzh9hVD24aAAIQTwdrEk=;
+        s=korg; t=1635758875;
+        bh=v5ccx/NTYTFNlKIxq0UdxG/p5PLdWqmciCTrouIy5Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bVbT0rQMHwtAJIPnkWuEoxGxh0LEB2HBil8ZPU9WhBB8bRY1lk6rOCj7M3QEb3zd5
-         P2iKz0cyupCDQoU9iaU0kpHJjx9cDMo0cwXPhKIIiaRY74iT9+SuLGVZM71a9+ZFqC
-         qXQ1TxdEs0SvSqiGddRV7pN0mnwBs9U8YoP1PjK0=
+        b=dab+gbLsT+jjnRsuZu17o2s1gFqlUY6QLaOOneET3jufD0aTHqUwS7s1lAz34Af50
+         gAJfK2t+DjZ1fvmRg5GFqeiEXwSyn8Md8lyJoedu2/9sm4QOMlX82YXorq1FUazpmb
+         bhkZYw1V2/GYQnCz+waYyVsS7RAVgkpi2sp7Jz/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Wenbin Mei <wenbin.mei@mediatek.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
+        Chaotian Jing <chaotian.jing@mediatek.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.14 018/125] mmc: cqhci: clear HALT state after CQE enable
-Date:   Mon,  1 Nov 2021 10:16:31 +0100
-Message-Id: <20211101082536.977582401@linuxfoundation.org>
+Subject: [PATCH 5.14 019/125] mmc: mediatek: Move cqhci init behind ungate clock
+Date:   Mon,  1 Nov 2021 10:16:32 +0100
+Message-Id: <20211101082537.133882287@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -42,55 +42,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wenbin Mei <wenbin.mei@mediatek.com>
 
-commit 92b18252b91de567cd875f2e84722b10ab34ee28 upstream.
+commit e8a1ff65927080278e6826f797b7c197fb2611a6 upstream.
 
-While mmc0 enter suspend state, we need halt CQE to send legacy cmd(flush
-cache) and disable cqe, for resume back, we enable CQE and not clear HALT
-state.
-In this case MediaTek mmc host controller will keep the value for HALT
-state after CQE disable/enable flow, so the next CQE transfer after resume
-will be timeout due to CQE is in HALT state, the log as below:
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: timeout for tag 2
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: ============ CQHCI REGISTER DUMP ===========
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Caps:      0x100020b6 | Version:  0x00000510
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Config:    0x00001103 | Control:  0x00000001
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Int stat:  0x00000000 | Int enab: 0x00000006
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Int sig:   0x00000006 | Int Coal: 0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: TDL base:  0xfd05f000 | TDL up32: 0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Doorbell:  0x8000203c | TCN:      0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Dev queue: 0x00000000 | Dev Pend: 0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Task clr:  0x00000000 | SSC1:     0x00001000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: SSC2:      0x00000001 | DCMD rsp: 0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: RED mask:  0xfdf9a080 | TERRI:    0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: Resp idx:  0x00000000 | Resp arg: 0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: CRNQP:     0x00000000 | CRNQDUN:  0x00000000
-<4>.(4)[318:kworker/4:1H]mmc0: cqhci: CRNQIS:    0x00000000 | CRNQIE:   0x00000000
-
-This change check HALT state after CQE enable, if CQE is in HALT state, we
-will clear it.
+We must enable clock before cqhci init, because crypto needs read
+information from CQHCI registers, otherwise, it will hang in MediaTek mmc
+host controller.
 
 Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
+Fixes: 88bd652b3c74 ("mmc: mediatek: command queue support")
 Cc: stable@vger.kernel.org
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: a4080225f51d ("mmc: cqhci: support for command queue enabled host")
-Link: https://lore.kernel.org/r/20211026070812.9359-1-wenbin.mei@mediatek.com
+Acked-by: Chaotian Jing <chaotian.jing@mediatek.com>
+Link: https://lore.kernel.org/r/20211028022049.22129-1-wenbin.mei@mediatek.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/cqhci-core.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mmc/host/mtk-sd.c |   38 +++++++++++++++++++-------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
 
---- a/drivers/mmc/host/cqhci-core.c
-+++ b/drivers/mmc/host/cqhci-core.c
-@@ -282,6 +282,9 @@ static void __cqhci_enable(struct cqhci_
+--- a/drivers/mmc/host/mtk-sd.c
++++ b/drivers/mmc/host/mtk-sd.c
+@@ -2577,6 +2577,25 @@ static int msdc_drv_probe(struct platfor
+ 		host->dma_mask = DMA_BIT_MASK(32);
+ 	mmc_dev(mmc)->dma_mask = &host->dma_mask;
  
- 	cqhci_writel(cq_host, cqcfg, CQHCI_CFG);
- 
-+	if (cqhci_readl(cq_host, CQHCI_CTL) & CQHCI_HALT)
-+		cqhci_writel(cq_host, 0, CQHCI_CTL);
++	host->timeout_clks = 3 * 1048576;
++	host->dma.gpd = dma_alloc_coherent(&pdev->dev,
++				2 * sizeof(struct mt_gpdma_desc),
++				&host->dma.gpd_addr, GFP_KERNEL);
++	host->dma.bd = dma_alloc_coherent(&pdev->dev,
++				MAX_BD_NUM * sizeof(struct mt_bdma_desc),
++				&host->dma.bd_addr, GFP_KERNEL);
++	if (!host->dma.gpd || !host->dma.bd) {
++		ret = -ENOMEM;
++		goto release_mem;
++	}
++	msdc_init_gpd_bd(host, &host->dma);
++	INIT_DELAYED_WORK(&host->req_timeout, msdc_request_timeout);
++	spin_lock_init(&host->lock);
 +
- 	mmc->cqe_on = true;
++	platform_set_drvdata(pdev, mmc);
++	msdc_ungate_clock(host);
++	msdc_init_hw(host);
++
+ 	if (mmc->caps2 & MMC_CAP2_CQE) {
+ 		host->cq_host = devm_kzalloc(mmc->parent,
+ 					     sizeof(*host->cq_host),
+@@ -2597,25 +2616,6 @@ static int msdc_drv_probe(struct platfor
+ 		mmc->max_seg_size = 64 * 1024;
+ 	}
  
- 	if (cq_host->ops->enable)
+-	host->timeout_clks = 3 * 1048576;
+-	host->dma.gpd = dma_alloc_coherent(&pdev->dev,
+-				2 * sizeof(struct mt_gpdma_desc),
+-				&host->dma.gpd_addr, GFP_KERNEL);
+-	host->dma.bd = dma_alloc_coherent(&pdev->dev,
+-				MAX_BD_NUM * sizeof(struct mt_bdma_desc),
+-				&host->dma.bd_addr, GFP_KERNEL);
+-	if (!host->dma.gpd || !host->dma.bd) {
+-		ret = -ENOMEM;
+-		goto release_mem;
+-	}
+-	msdc_init_gpd_bd(host, &host->dma);
+-	INIT_DELAYED_WORK(&host->req_timeout, msdc_request_timeout);
+-	spin_lock_init(&host->lock);
+-
+-	platform_set_drvdata(pdev, mmc);
+-	msdc_ungate_clock(host);
+-	msdc_init_hw(host);
+-
+ 	ret = devm_request_irq(&pdev->dev, host->irq, msdc_irq,
+ 			       IRQF_TRIGGER_NONE, pdev->name, host);
+ 	if (ret)
 
 
