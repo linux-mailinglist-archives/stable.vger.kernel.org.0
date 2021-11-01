@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A3544172C
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:32:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FC7244162D
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:21:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232324AbhKAJeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:34:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36830 "EHLO mail.kernel.org"
+        id S232394AbhKAJXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:23:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233253AbhKAJcE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:32:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2999661242;
-        Mon,  1 Nov 2021 09:24:13 +0000 (UTC)
+        id S232130AbhKAJWg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:22:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35156610A8;
+        Mon,  1 Nov 2021 09:19:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758653;
-        bh=LHb5xpwpJeeeSy7fFPuxXsbbECtM6BBP1HcvCfBRMSE=;
+        s=korg; t=1635758371;
+        bh=erEI6Q1Vmm1KelPyT4naJfSubPojHIGmCJXmlpPr/uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDjE0yZtfK6/pO2dts11frj86xpXsTr4U1gYilvRTX6B6FQNC2ldIR5OUmYFCrekY
-         i7os2FyZDhDdWpXET5Zimblby0OQbExaCSCMaVHdJ6qROYMTZrCBxqTY9cWJqFCiyR
-         OnCJV9udELOimjbMvkvNyIzc2ROhl/DNaiWGzqvM=
+        b=2qOwYXu1p0rRx7rMbrC59CHchsOVp9KV4CO506hOZNVekXYMcMyKl9kVJ+FRhb0X4
+         f6ZsU93tWV1rdbRliCQWBvN7qx0I9MnCup+3qDXWmK+VuWHt/+qZLTjAl8WfmeTzLk
+         fb4MXLgXKSUHAA9foI6NCw9TSUZgpSBKiKTaZCIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Woojung.Huh@microchip.com" <Woojung.Huh@microchip.com>,
-        Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 21/51] net: lan78xx: fix division by zero in send path
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 16/20] net: batman-adv: fix error handling
 Date:   Mon,  1 Nov 2021 10:17:25 +0100
-Message-Id: <20211101082505.440385987@linuxfoundation.org>
+Message-Id: <20211101082447.557715215@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
+References: <20211101082444.133899096@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +41,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit db6c3c064f5d55fa9969f33eafca3cdbefbb3541 upstream.
+commit 6f68cd634856f8ca93bafd623ba5357e0f648c68 upstream.
 
-Add the missing endpoint max-packet sanity check to probe() to avoid
-division by zero in lan78xx_tx_bh() in case a malicious device has
-broken descriptors (or when doing descriptor fuzz testing).
+Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
+in wrong error handling in batadv_mesh_init().
 
-Note that USB core will reject URBs submitted for endpoints with zero
-wMaxPacketSize but that drivers doing packet-size calculations still
-need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
-endpoint descriptors with maxpacket=0")).
+Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
+of any batadv_*_init() calls failure. This approach may work well, when
+there is some kind of indicator, which can tell which parts of batadv are
+initialized; but there isn't any.
 
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet device driver")
-Cc: stable@vger.kernel.org      # 4.3
-Cc: Woojung.Huh@microchip.com <Woojung.Huh@microchip.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+All written above lead to cleaning up uninitialized fields. Even if we hide
+ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
+GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
+
+To fix these bugs we can unwind batadv_*_init() calls one by one.
+It is good approach for 2 reasons: 1) It fixes bugs on error handling
+path 2) It improves the performance, since we won't call unneeded
+batadv_*_free() functions.
+
+So, this patch makes all batadv_*_init() clean up all allocated memory
+before returning with an error to no call correspoing batadv_*_free()
+and open-codes batadv_mesh_free() with proper order to avoid touching
+uninitialized fields.
+
+Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
+Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/lan78xx.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/batman-adv/bridge_loop_avoidance.c |    8 +++-
+ net/batman-adv/main.c                  |   56 +++++++++++++++++++++++----------
+ net/batman-adv/network-coding.c        |    4 +-
+ net/batman-adv/translation-table.c     |    4 +-
+ 4 files changed, 52 insertions(+), 20 deletions(-)
 
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -3753,6 +3753,12 @@ static int lan78xx_probe(struct usb_inte
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -1569,10 +1569,14 @@ int batadv_bla_init(struct batadv_priv *
+ 		return 0;
  
- 	dev->maxpacket = usb_maxpacket(dev->udev, dev->pipe_out, 1);
+ 	bat_priv->bla.claim_hash = batadv_hash_new(128);
+-	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.claim_hash)
++		return -ENOMEM;
  
-+	/* Reject broken descriptors. */
-+	if (dev->maxpacket == 0) {
-+		ret = -ENODEV;
-+		goto out4;
+-	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
++	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.backbone_hash) {
++		batadv_hash_destroy(bat_priv->bla.claim_hash);
+ 		return -ENOMEM;
++	}
+ 
+ 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
+ 				   &batadv_claim_hash_lock_class_key);
+--- a/net/batman-adv/main.c
++++ b/net/batman-adv/main.c
+@@ -177,29 +177,41 @@ int batadv_mesh_init(struct net_device *
+ 	INIT_HLIST_HEAD(&bat_priv->softif_vlan_list);
+ 	INIT_HLIST_HEAD(&bat_priv->tp_list);
+ 
+-	ret = batadv_v_mesh_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
+-
+ 	ret = batadv_originator_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_orig;
++	}
+ 
+ 	ret = batadv_tt_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_tt;
 +	}
 +
- 	/* driver requires remote-wakeup capability during autosuspend. */
- 	intf->needs_remote_wakeup = 1;
++	ret = batadv_v_mesh_init(bat_priv);
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_v;
++	}
  
+ 	ret = batadv_bla_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_bla;
++	}
+ 
+ 	ret = batadv_dat_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_dat;
++	}
+ 
+ 	ret = batadv_nc_mesh_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_nc;
++	}
+ 
+ 	batadv_gw_init(bat_priv);
+ 	batadv_mcast_init(bat_priv);
+@@ -209,8 +221,20 @@ int batadv_mesh_init(struct net_device *
+ 
+ 	return 0;
+ 
+-err:
+-	batadv_mesh_free(soft_iface);
++err_nc:
++	batadv_dat_free(bat_priv);
++err_dat:
++	batadv_bla_free(bat_priv);
++err_bla:
++	batadv_v_mesh_free(bat_priv);
++err_v:
++	batadv_tt_free(bat_priv);
++err_tt:
++	batadv_originator_free(bat_priv);
++err_orig:
++	batadv_purge_outstanding_packets(bat_priv, NULL);
++	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
++
+ 	return ret;
+ }
+ 
+--- a/net/batman-adv/network-coding.c
++++ b/net/batman-adv/network-coding.c
+@@ -166,8 +166,10 @@ int batadv_nc_mesh_init(struct batadv_pr
+ 				   &batadv_nc_coding_hash_lock_class_key);
+ 
+ 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
+-	if (!bat_priv->nc.decoding_hash)
++	if (!bat_priv->nc.decoding_hash) {
++		batadv_hash_destroy(bat_priv->nc.coding_hash);
+ 		goto err;
++	}
+ 
+ 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
+ 				   &batadv_nc_decoding_hash_lock_class_key);
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -4373,8 +4373,10 @@ int batadv_tt_init(struct batadv_priv *b
+ 		return ret;
+ 
+ 	ret = batadv_tt_global_init(bat_priv);
+-	if (ret < 0)
++	if (ret < 0) {
++		batadv_tt_local_table_free(bat_priv);
+ 		return ret;
++	}
+ 
+ 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
+ 				     batadv_tt_tvlv_unicast_handler_v1,
 
 
