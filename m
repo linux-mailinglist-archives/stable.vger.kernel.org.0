@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AC3E44184C
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:43:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EABB14416D6
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:27:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233831AbhKAJpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:45:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47952 "EHLO mail.kernel.org"
+        id S232683AbhKAJaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:30:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234072AbhKAJoD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:44:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 519DC613A7;
-        Mon,  1 Nov 2021 09:29:23 +0000 (UTC)
+        id S232930AbhKAJ2N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:28:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8398C611EF;
+        Mon,  1 Nov 2021 09:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758963;
-        bh=xVN+tuD72jEaxUbrrSNkVumd7VGK1bDnzJPn6ufC6Ng=;
+        s=korg; t=1635758574;
+        bh=4yqB9YHR8bnPz0C8RDlW61FFOby+kLLkAAa+KLEcMLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=at7aOPxtj90FCH6v3XlgfucvaIzYjg11A8P3c3SwFqJb+odmTyInQoscjqKF1L+JX
-         5Ym4HOV0NBywcJvxBc0eQz2la/wclN5e+2c3MpizHBf+/ktnIbBx0nMBueaezMadOJ
-         0jNsvq2bH7+xfDuolJi92i6Yrys7+IVzMmJ6Ia48=
+        b=FnwVGj6EYAARN4qX/KX4gTob8JTth6/L76iSOQ8yXXVZ2hxPs4DykG5wUwI2QWTTn
+         xXFhk4TmMvw9qLja2LA1Og5qVsGxCavCyk7G+ucmPqAgCS4lH0HIwX16qtFYKSyjIu
+         rfwYcEy/tBMZGDaxhfl2yzJTF8cyJw3UXKSN5JOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Aric Cyr <aric.cyr@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.14 056/125] drm/amd/display: Fix deadlock when falling back to v2 from v3
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Song Liu <songliubraving@fb.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 5.4 05/51] powerpc/bpf: Fix BPF_MOD when imm == 1
 Date:   Mon,  1 Nov 2021 10:17:09 +0100
-Message-Id: <20211101082543.773829070@linuxfoundation.org>
+Message-Id: <20211101082501.377411610@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
-References: <20211101082533.618411490@linuxfoundation.org>
+In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
+References: <20211101082500.203657870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit ad76744b041d8c87ef1c9adbb04fb7eaa20a179e upstream.
+commit 8bbc9d822421d9ac8ff9ed26a3713c9afc69d6c8 upstream.
 
-[Why]
-A deadlock in the kernel occurs when we fallback from the V3 to V2
-add_topology_to_display or remove_topology_to_display because they
-both try to acquire the dtm_mutex but recursive locking isn't
-supported on mutex_lock().
+Only ignore the operation if dividing by 1.
 
-[How]
-Make the mutex_lock/unlock more fine grained and move them up such that
-they're only required for the psp invocation itself.
-
-Fixes: bf62221e9d0e ("drm/amd/display: Add DCN3.1 HDCP support")
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Aric Cyr <aric.cyr@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Tested-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Acked-by: Song Liu <songliubraving@fb.com>
+Acked-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/c674ca18c3046885602caebb326213731c675d06.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
+[cascardo: use PPC_LI instead of EMIT(PPC_RAW_LI)]
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/modules/hdcp/hdcp_psp.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/powerpc/net/bpf_jit_comp64.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/modules/hdcp/hdcp_psp.c
-+++ b/drivers/gpu/drm/amd/display/modules/hdcp/hdcp_psp.c
-@@ -105,6 +105,7 @@ static enum mod_hdcp_status mod_hdcp_rem
- 	dtm_cmd->dtm_status = TA_DTM_STATUS__GENERIC_FAILURE;
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -408,8 +408,14 @@ static int bpf_jit_build_body(struct bpf
+ 		case BPF_ALU64 | BPF_DIV | BPF_K: /* dst /= imm */
+ 			if (imm == 0)
+ 				return -EINVAL;
+-			else if (imm == 1)
+-				goto bpf_alu32_trunc;
++			if (imm == 1) {
++				if (BPF_OP(code) == BPF_DIV) {
++					goto bpf_alu32_trunc;
++				} else {
++					PPC_LI(dst_reg, 0);
++					break;
++				}
++			}
  
- 	psp_dtm_invoke(psp, dtm_cmd->cmd_id);
-+	mutex_unlock(&psp->dtm_context.mutex);
- 
- 	if (dtm_cmd->dtm_status != TA_DTM_STATUS__SUCCESS) {
- 		status = mod_hdcp_remove_display_from_topology_v2(hdcp, index);
-@@ -115,8 +116,6 @@ static enum mod_hdcp_status mod_hdcp_rem
- 		HDCP_TOP_REMOVE_DISPLAY_TRACE(hdcp, display->index);
- 	}
- 
--	mutex_unlock(&psp->dtm_context.mutex);
--
- 	return status;
- }
- 
-@@ -218,6 +217,7 @@ static enum mod_hdcp_status mod_hdcp_add
- 	dtm_cmd->dtm_in_message.topology_update_v3.link_hdcp_cap = link->hdcp_supported_informational;
- 
- 	psp_dtm_invoke(psp, dtm_cmd->cmd_id);
-+	mutex_unlock(&psp->dtm_context.mutex);
- 
- 	if (dtm_cmd->dtm_status != TA_DTM_STATUS__SUCCESS) {
- 		status = mod_hdcp_add_display_to_topology_v2(hdcp, display);
-@@ -227,8 +227,6 @@ static enum mod_hdcp_status mod_hdcp_add
- 		HDCP_TOP_ADD_DISPLAY_TRACE(hdcp, display->index);
- 	}
- 
--	mutex_unlock(&psp->dtm_context.mutex);
--
- 	return status;
- }
- 
+ 			PPC_LI32(b2p[TMP_REG_1], imm);
+ 			switch (BPF_CLASS(code)) {
 
 
