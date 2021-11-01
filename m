@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9716441697
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED09B441882
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232403AbhKAJ1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:27:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59239 "EHLO mail.kernel.org"
+        id S232438AbhKAJtP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:49:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232233AbhKAJZM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:25:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07EBC611CC;
-        Mon,  1 Nov 2021 09:21:47 +0000 (UTC)
+        id S234562AbhKAJrK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:47:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75E3D613E8;
+        Mon,  1 Nov 2021 09:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758508;
-        bh=5TlQ6vGlCib0RwDkFOOqWBnf2JRpB/cz1ydcz49TyKc=;
+        s=korg; t=1635759035;
+        bh=NWtY/yBNxkcnnGKSfGyzyg6bWegWiIGZz37uhmBi0/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EuKcypyZz91947aSlSBKg2RHPJ9tPHoMGVTU0xrgtUi/BAP2vamXTX3ECYYgER88y
-         bjlDHtN4bqpyffEWvt+ue5+w/IJPnsPzzbQNLJlC0qo2dXp1P+Y8fVQZbPCppTvBfb
-         YSgZ3glBggvh+m3vUW86oDK4d7zEhZgeWlzFlano=
+        b=xdBF89mC24CtwD7hCW865/DEjMsJZfAkl++wDUI0O+67+H7dmpA7wImosi+P8XCP6
+         3uhhxL9l0xG2hKNdv75af22UhFdb94vdK9X372Xeg8VY9Rrc1kc6qhfJtJLU+gmp5I
+         qONg+aCF1KjniI+FS+8FrZccOeIF79jLoSAeKh2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuiko Oshino <yuiko.oshino@microchip.com>,
+        stable@vger.kernel.org, Trevor Woerner <twoerner@gmail.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 28/35] net: ethernet: microchip: lan743x: Fix driver crash when lan743x_pm_resume fails
+Subject: [PATCH 5.14 087/125] net: nxp: lpc_eth.c: avoid hang when bringing interface down
 Date:   Mon,  1 Nov 2021 10:17:40 +0100
-Message-Id: <20211101082458.305646755@linuxfoundation.org>
+Message-Id: <20211101082549.663553273@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
-References: <20211101082451.430720900@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,30 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuiko Oshino <yuiko.oshino@microchip.com>
+From: Trevor Woerner <twoerner@gmail.com>
 
-commit d6423d2ec39cce2bfca418c81ef51792891576bc upstream.
+commit ace19b992436a257d9a793672e57abc28fe83e2e upstream.
 
-The driver needs to clean up and return when the initialization fails on resume.
-
-Fixes: 23f0703c125b ("lan743x: Add main source files for new lan743x driver")
-Signed-off-by: Yuiko Oshino <yuiko.oshino@microchip.com>
+A hard hang is observed whenever the ethernet interface is brought
+down. If the PHY is stopped before the LPC core block is reset,
+the SoC will hang. Comparing lpc_eth_close() and lpc_eth_open() I
+re-arranged the ordering of the functions calls in lpc_eth_close() to
+reset the hardware before stopping the PHY.
+Fixes: b7370112f519 ("lpc32xx: Added ethernet driver")
+Signed-off-by: Trevor Woerner <twoerner@gmail.com>
+Acked-by: Vladimir Zapolskiy <vz@mleia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/microchip/lan743x_main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/nxp/lpc_eth.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/microchip/lan743x_main.c
-+++ b/drivers/net/ethernet/microchip/lan743x_main.c
-@@ -3003,6 +3003,8 @@ static int lan743x_pm_resume(struct devi
- 	if (ret) {
- 		netif_err(adapter, probe, adapter->netdev,
- 			  "lan743x_hardware_init returned %d\n", ret);
-+		lan743x_pci_cleanup(adapter);
-+		return ret;
- 	}
+--- a/drivers/net/ethernet/nxp/lpc_eth.c
++++ b/drivers/net/ethernet/nxp/lpc_eth.c
+@@ -1015,9 +1015,6 @@ static int lpc_eth_close(struct net_devi
+ 	napi_disable(&pldat->napi);
+ 	netif_stop_queue(ndev);
  
- 	/* open netdev when netdev is at running state while resume.
+-	if (ndev->phydev)
+-		phy_stop(ndev->phydev);
+-
+ 	spin_lock_irqsave(&pldat->lock, flags);
+ 	__lpc_eth_reset(pldat);
+ 	netif_carrier_off(ndev);
+@@ -1025,6 +1022,8 @@ static int lpc_eth_close(struct net_devi
+ 	writel(0, LPC_ENET_MAC2(pldat->net_base));
+ 	spin_unlock_irqrestore(&pldat->lock, flags);
+ 
++	if (ndev->phydev)
++		phy_stop(ndev->phydev);
+ 	clk_disable_unprepare(pldat->clk);
+ 
+ 	return 0;
 
 
