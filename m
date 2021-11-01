@@ -2,76 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC591441635
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:21:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B385C44166E
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:22:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232439AbhKAJXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:23:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59000 "EHLO mail.kernel.org"
+        id S232529AbhKAJZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:25:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232280AbhKAJWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:22:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A65C610CC;
-        Mon,  1 Nov 2021 09:19:45 +0000 (UTC)
+        id S232031AbhKAJXk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:23:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE6506115B;
+        Mon,  1 Nov 2021 09:20:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758385;
-        bh=RMhknKR+MnZX1z2g3wT+ecbzpg5j0QCQpcLX/edj4ZM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/O/+VPOTo5klUJLZrfRmldgbu1aU5gAtvEP4zyZxJ+g5xWT/pkzHi6qJj0sKtdc6
-         P8s2MmT58YMFcIo2djXVHfiRWymHuLiY9Vs5HxOKyaYuYTCKwJoDeomw988iaxfxdP
-         J4+y2Pqh52HS5yEXbOoGtFIqcIbAUAcYHK93DGEE=
+        s=korg; t=1635758457;
+        bh=4qnLSr+fHEHfRXVNlNUN8XLmBWOZbRY5q/dtd5gQbXI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jl9OmQLqCuYNXAaS5BNThAwRQdN8KYyNV2fKx4E8tBqVQ3p0BsRJRcLjIWRIX9j9C
+         2kt3tBOf+7taPkrRMEoPFR6E0RiId44v1QwedGCifrmC1mlyf+JQQwG6FEpROILaO7
+         AOh2vUDcf3eN6uno3PjVuvsil8qCWaOv/STO69K8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.9 03/20] ARM: 9139/1: kprobes: fix arch_init_kprobes() prototype
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.14 00/25] 4.14.254-rc1 review
 Date:   Mon,  1 Nov 2021 10:17:12 +0100
-Message-Id: <20211101082444.874277091@linuxfoundation.org>
+Message-Id: <20211101082447.070493993@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
-References: <20211101082444.133899096@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.254-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.254-rc1
+X-KernelTest-Deadline: 2021-11-03T08:24+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+This is the start of the stable review cycle for the 4.14.254 release.
+There are 25 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 1f323127cab086e4fd618981b1e5edc396eaf0f4 upstream.
+Responses should be made by Wed, 03 Nov 2021 08:24:20 +0000.
+Anything received after that time might be too late.
 
-With extra warnings enabled, gcc complains about this function
-definition:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.254-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-arch/arm/probes/kprobes/core.c: In function 'arch_init_kprobes':
-arch/arm/probes/kprobes/core.c:465:12: warning: old-style function definition [-Wold-style-definition]
-  465 | int __init arch_init_kprobes()
+thanks,
 
-Link: https://lore.kernel.org/all/20201027093057.c685a14b386acacb3c449e3d@kernel.org/
+greg k-h
 
-Fixes: 24ba613c9d6c ("ARM kprobes: core code")
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm/probes/kprobes/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/arch/arm/probes/kprobes/core.c
-+++ b/arch/arm/probes/kprobes/core.c
-@@ -666,7 +666,7 @@ static struct undef_hook kprobes_arm_bre
- 
- #endif /* !CONFIG_THUMB2_KERNEL */
- 
--int __init arch_init_kprobes()
-+int __init arch_init_kprobes(void)
- {
- 	arm_probes_decode_init();
- #ifdef CONFIG_THUMB2_KERNEL
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.254-rc1
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: add vtag check in sctp_sf_ootb
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: add vtag check in sctp_sf_do_8_5_1_E_sa
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: add vtag check in sctp_sf_violation
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: fix the processing for COOKIE_ECHO chunk
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: use init_tag from inithdr for ABORT chunk
+
+Trevor Woerner <twoerner@gmail.com>
+    net: nxp: lpc_eth.c: avoid hang when bringing interface down
+
+Guenter Roeck <linux@roeck-us.net>
+    nios2: Make NIOS2_DTB_SOURCE_BOOL depend on !COMPILE_TEST
+
+Pavel Skripkin <paskripkin@gmail.com>
+    net: batman-adv: fix error handling
+
+Yang Yingliang <yangyingliang@huawei.com>
+    regmap: Fix possible double-free in regcache_rbtree_exit()
+
+Johan Hovold <johan@kernel.org>
+    net: lan78xx: fix division by zero in send path
+
+Haibo Chen <haibo.chen@nxp.com>
+    mmc: sdhci-esdhc-imx: clear the buffer_read_ready to reset standard tuning circuit
+
+Shawn Guo <shawn.guo@linaro.org>
+    mmc: sdhci: Map more voltage level to SDHCI_POWER_330
+
+Jaehoon Chung <jh80.chung@samsung.com>
+    mmc: dw_mmc: exynos: fix the finding clock sample value
+
+Johan Hovold <johan@kernel.org>
+    mmc: vub300: fix control-message timeouts
+
+Eric Dumazet <edumazet@google.com>
+    ipv4: use siphash instead of Jenkins in fnhe_hashfun()
+
+Pavel Skripkin <paskripkin@gmail.com>
+    Revert "net: mdiobus: Fix memory leak in __mdiobus_register"
+
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+    nfc: port100: fix using -ERRNO as command type mask
+
+Zheyu Ma <zheyuma97@gmail.com>
+    ata: sata_mv: Fix the error handling of mv_chip_id()
+
+Wang Hai <wanghai38@huawei.com>
+    usbnet: fix error return code in usbnet_probe()
+
+Oliver Neukum <oneukum@suse.com>
+    usbnet: sanity check for maxpacket
+
+Nathan Chancellor <natechancellor@gmail.com>
+    ARM: 8819/1: Remove '-p' from LDFLAGS
+
+Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+    powerpc/bpf: Fix BPF_MOD when imm == 1
+
+Arnd Bergmann <arnd@arndb.de>
+    ARM: 9139/1: kprobes: fix arch_init_kprobes() prototype
+
+Arnd Bergmann <arnd@arndb.de>
+    ARM: 9134/1: remove duplicate memcpy() definition
+
+Nick Desaulniers <ndesaulniers@google.com>
+    ARM: 9133/1: mm: proc-macros: ensure *_tlb_fns are 4B aligned
+
+
+-------------
+
+Diffstat:
+
+ Makefile                               |  4 +--
+ arch/arm/Makefile                      |  2 +-
+ arch/arm/boot/bootp/Makefile           |  2 +-
+ arch/arm/boot/compressed/Makefile      |  2 --
+ arch/arm/boot/compressed/decompress.c  |  3 ++
+ arch/arm/mm/proc-macros.S              |  1 +
+ arch/arm/probes/kprobes/core.c         |  2 +-
+ arch/nios2/platform/Kconfig.platform   |  1 +
+ arch/powerpc/net/bpf_jit_comp64.c      | 10 ++++--
+ drivers/ata/sata_mv.c                  |  4 +--
+ drivers/base/regmap/regcache-rbtree.c  |  7 ++---
+ drivers/mmc/host/dw_mmc-exynos.c       | 14 +++++++++
+ drivers/mmc/host/sdhci-esdhc-imx.c     | 16 ++++++++++
+ drivers/mmc/host/sdhci.c               |  6 ++++
+ drivers/mmc/host/vub300.c              | 18 +++++------
+ drivers/net/ethernet/nxp/lpc_eth.c     |  5 ++-
+ drivers/net/phy/mdio_bus.c             |  1 -
+ drivers/net/usb/lan78xx.c              |  6 ++++
+ drivers/net/usb/usbnet.c               |  5 +++
+ drivers/nfc/port100.c                  |  4 +--
+ net/batman-adv/bridge_loop_avoidance.c |  8 +++--
+ net/batman-adv/main.c                  | 56 ++++++++++++++++++++++++----------
+ net/batman-adv/network-coding.c        |  4 ++-
+ net/batman-adv/translation-table.c     |  4 ++-
+ net/ipv4/route.c                       | 12 ++++----
+ net/sctp/sm_statefuns.c                | 30 ++++++++++++------
+ 26 files changed, 161 insertions(+), 66 deletions(-)
 
 
