@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A8EE441613
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:20:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91DE544175F
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:33:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231828AbhKAJWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:22:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57774 "EHLO mail.kernel.org"
+        id S233283AbhKAJf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:35:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232081AbhKAJVi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:21:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40D00610CC;
-        Mon,  1 Nov 2021 09:19:05 +0000 (UTC)
+        id S233593AbhKAJdo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:33:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DB106126A;
+        Mon,  1 Nov 2021 09:25:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758345;
-        bh=ccnp0XXyf7JXJVUDyRRaIeILwCsJ3mWTBRfHgMVjTqA=;
+        s=korg; t=1635758705;
+        bh=1L6HOAZc3NguJR8Z1xZ9cpvltmPs7kriAtdzSkzbNdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qUNQmRNVNEzgRydJMTaDwv3/KbAXMaSA3PkHgXS1oKXMkLCEJdDmokaUBcv4e16dh
-         N9Gt7JjgJrRlphTO3rT2GZChy39k4epoMh0scocsPQadGXdgxx2TPoejCafu4lpmkA
-         TeBWlZ0RZH0ZRcWUaKVx6m1tB9ielibLu6QGstec=
+        b=a3x39UYkuWdYRI0yygXKFu9x4cwtgc17CiFzNDKmmZGCz/hbaMOsfVcHrqEsnffvg
+         dekrhwndt3+6GQtrd4KexS4lFCZXNfYa+G4k93c2lqQUoWyYMRBgiqPWsb9ghq9Bf1
+         YdGV1Iefrv7UqQn4k0PeD5Jtt9PH4HQ9KsqRqJ6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 4.4 07/17] ata: sata_mv: Fix the error handling of mv_chip_id()
-Date:   Mon,  1 Nov 2021 10:17:10 +0100
-Message-Id: <20211101082442.205418886@linuxfoundation.org>
+        stable@vger.kernel.org, Jaehoon Chung <jh80.chung@samsung.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 23/77] mmc: dw_mmc: exynos: fix the finding clock sample value
+Date:   Mon,  1 Nov 2021 10:17:11 +0100
+Message-Id: <20211101082516.790385948@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
-References: <20211101082440.664392327@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Jaehoon Chung <jh80.chung@samsung.com>
 
-commit a0023bb9dd9bc439d44604eeec62426a990054cd upstream.
+commit 697542bceae51f7620af333b065dd09d213629fb upstream.
 
-mv_init_host() propagates the value returned by mv_chip_id() which in turn
-gets propagated by mv_pci_init_one() and hits local_pci_probe().
+Even though there are candiates value if can't find best value, it's
+returned -EIO. It's not proper behavior.
+If there is not best value, use a first candiate value to work eMMC.
 
-During the process of driver probing, the probe function should return < 0
-for failure, otherwise, the kernel will treat value > 0 as success.
-
-Since this is a bug rather than a recoverable runtime error we should
-use dev_alert() instead of dev_err().
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Jaehoon Chung <jh80.chung@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Christian Hewitt <christianshewitt@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: c537a1c5ff63 ("mmc: dw_mmc: exynos: add variable delay tuning sequence")
+Link: https://lore.kernel.org/r/20211022082106.1557-1-jh80.chung@samsung.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/sata_mv.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/host/dw_mmc-exynos.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/ata/sata_mv.c
-+++ b/drivers/ata/sata_mv.c
-@@ -3909,8 +3909,8 @@ static int mv_chip_id(struct ata_host *h
- 		break;
- 
- 	default:
--		dev_err(host->dev, "BUG: invalid board index %u\n", board_idx);
--		return 1;
-+		dev_alert(host->dev, "BUG: invalid board index %u\n", board_idx);
-+		return -EINVAL;
+--- a/drivers/mmc/host/dw_mmc-exynos.c
++++ b/drivers/mmc/host/dw_mmc-exynos.c
+@@ -464,6 +464,18 @@ static s8 dw_mci_exynos_get_best_clksmpl
+ 		}
  	}
  
- 	hpriv->hp_flags = hp_flags;
++	/*
++	 * If there is no cadiates value, then it needs to return -EIO.
++	 * If there are candiates values and don't find bset clk sample value,
++	 * then use a first candiates clock sample value.
++	 */
++	for (i = 0; i < iter; i++) {
++		__c = ror8(candiates, i);
++		if ((__c & 0x1) == 0x1) {
++			loc = i;
++			goto out;
++		}
++	}
+ out:
+ 	return loc;
+ }
+@@ -494,6 +506,8 @@ static int dw_mci_exynos_execute_tuning(
+ 		priv->tuned_sample = found;
+ 	} else {
+ 		ret = -EIO;
++		dev_warn(&mmc->class_dev,
++			"There is no candiates value about clksmpl!\n");
+ 	}
+ 
+ 	return ret;
 
 
