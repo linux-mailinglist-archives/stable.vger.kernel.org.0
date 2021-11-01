@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 187C14417E9
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:39:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F7CF4418E8
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:51:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232881AbhKAJln (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:41:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47846 "EHLO mail.kernel.org"
+        id S232898AbhKAJww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:52:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233416AbhKAJjp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:39:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 967E9610FD;
-        Mon,  1 Nov 2021 09:27:19 +0000 (UTC)
+        id S232628AbhKAJut (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:50:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25D1361250;
+        Mon,  1 Nov 2021 09:32:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758840;
-        bh=WkUFtUsxhV7nYYV2Mgej/hXZziSAYyjnb5QunoCk30U=;
+        s=korg; t=1635759136;
+        bh=S8Zl3YGuya6BPwQcEh8yn7Kgqhm1xbSXvm1AfuYOwZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wj/ndx6H8R++J8jttPKQuYfpOehpSpN4ddUMmosptDPotxGPYjiWSSc33U/IpV50i
-         nrka0y7blMfWgCkyBezzwL8jnp9Q7JmkqY4bfx78ZgooICqpd7rei439ll1vhry0O0
-         OtQtSOkUrJHM6Im6zc65B5fmsKDMVyIEpiHFneW4=
+        b=M5qMtY7E5li+Es7U6hm+cQTuJstj41zX/iAAhYycTBTsL9qTQTASFThA57IpPFXq+
+         9jvh8yinqYKRHfVhC6FQ6XpjXBZwd3SKAPxOO+7mMnu+t7A0bz6HMixDqdOSYhL/+9
+         snR5L1wHj3ciRwN/EbmG8XtFYvNOCdxicQ0//sNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        stable@vger.kernel.org, Jie Wang <wangjie125@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 73/77] KVM: s390: preserve deliverable_mask in __airqs_kick_single_vcpu
-Date:   Mon,  1 Nov 2021 10:18:01 +0100
-Message-Id: <20211101082526.770300153@linuxfoundation.org>
+Subject: [PATCH 5.14 109/125] net: hns3: add more string spaces for dumping packets number of queue info in debugfs
+Date:   Mon,  1 Nov 2021 10:18:02 +0100
+Message-Id: <20211101082553.738114391@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
+References: <20211101082533.618411490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Jie Wang <wangjie125@huawei.com>
 
-[ Upstream commit 0e9ff65f455dfd0a8aea5e7843678ab6fe097e21 ]
+[ Upstream commit 6754614a787cbcbf87bae8a75619c24a33ea6791 ]
 
-Changing the deliverable mask in __airqs_kick_single_vcpu() is a bug. If
-one idle vcpu can't take the interrupts we want to deliver, we should
-look for another vcpu that can, instead of saying that we don't want
-to deliver these interrupts by clearing the bits from the
-deliverable_mask.
+As the width of packets number registers is 32 bits, they needs at most
+10 characters for decimal data printing, but now the string spaces is not
+enough, so this patch fixes it.
 
-Fixes: 9f30f6216378 ("KVM: s390: add gib_alert_irq_handler()")
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20211019175401.3757927-3-pasic@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: e44c495d95e ("net: hns3: refactor queue info of debugfs")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/interrupt.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 2bb9996ff09b..e6c4f29fc695 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -3053,13 +3053,14 @@ static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
- 	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
- 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
- 	struct kvm_vcpu *vcpu;
-+	u8 vcpu_isc_mask;
- 
- 	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
- 		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
- 		if (psw_ioint_disabled(vcpu))
- 			continue;
--		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
--		if (deliverable_mask) {
-+		vcpu_isc_mask = (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
-+		if (deliverable_mask & vcpu_isc_mask) {
- 			/* lately kicked but not yet running */
- 			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
- 				return;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+index 80461ab0ce9e..ce2fc283fe5c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
+@@ -463,7 +463,7 @@ static const struct hns3_dbg_item rx_queue_info_items[] = {
+ 	{ "TAIL", 2 },
+ 	{ "HEAD", 2 },
+ 	{ "FBDNUM", 2 },
+-	{ "PKTNUM", 2 },
++	{ "PKTNUM", 5 },
+ 	{ "COPYBREAK", 2 },
+ 	{ "RING_EN", 2 },
+ 	{ "RX_RING_EN", 2 },
+@@ -566,7 +566,7 @@ static const struct hns3_dbg_item tx_queue_info_items[] = {
+ 	{ "HEAD", 2 },
+ 	{ "FBDNUM", 2 },
+ 	{ "OFFSET", 2 },
+-	{ "PKTNUM", 2 },
++	{ "PKTNUM", 5 },
+ 	{ "RING_EN", 2 },
+ 	{ "TX_RING_EN", 2 },
+ 	{ "BASE_ADDR", 10 },
 -- 
 2.33.0
 
