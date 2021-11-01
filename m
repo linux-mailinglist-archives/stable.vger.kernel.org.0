@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B3A44189D
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F6D844189B
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:48:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232640AbhKAJti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:49:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47856 "EHLO mail.kernel.org"
+        id S233454AbhKAJth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:49:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234429AbhKAJoo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:44:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 207C061175;
-        Mon,  1 Nov 2021 09:29:43 +0000 (UTC)
+        id S232346AbhKAJoy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:44:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B2D361407;
+        Mon,  1 Nov 2021 09:29:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758984;
-        bh=YQrqZ+hp/Vwdu7IJKKeZURnxa8c0+4XmeibeupmRxcM=;
+        s=korg; t=1635758986;
+        bh=Z/cUCPXMS5z1azsoc/8KO/HVpK3NL+kZ3c427D6Fh2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kgb+C1Z4il2jBLzzTe5k8cXqfut/J/hp+7lr4X1QSAIKTmbhp+XME3SVcrnFKhNCB
-         uX50xY/Kz1mfbKS4UF3V4P/MxybXsnkPr49uTfZK8IZT4Q9QfOJ5d1F8TXBZrsBKx/
-         A2+4E50PflfP7R4IQvUaJ9Ws5Cgn/heU+zz+gIBI=
+        b=V2du3pCrtVIJTsqV4O5OMP8E3w0eAncjqZnELrzi43Dfgj651GmOypWY8feqcxOqb
+         aXrrcqXl97CrW31Qn+hHGPC2UnlgfH3TTLNNnojkXHWXohMa53xyHi6f617/TlpIQY
+         hg11ZbVMnKy4R5P0xx32Vv/RmoUiiS6uO7ryW720=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        TOTE Robot <oslab@tsinghua.edu.cn>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.14 064/125] IB/hfi1: Fix abba locking issue with sc_disable()
-Date:   Mon,  1 Nov 2021 10:17:17 +0100
-Message-Id: <20211101082545.267569216@linuxfoundation.org>
+        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.14 065/125] nvmet-tcp: fix data digest pointer calculation
+Date:   Mon,  1 Nov 2021 10:17:18 +0100
+Message-Id: <20211101082545.463654423@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211101082533.618411490@linuxfoundation.org>
 References: <20211101082533.618411490@linuxfoundation.org>
@@ -42,65 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Varun Prakash <varun@chelsio.com>
 
-commit 13bac861952a78664907a0f927d3e874e9a59034 upstream.
+commit e790de54e94a7a15fb725b34724d41d41cbaa60c upstream.
 
-sc_disable() after having disabled the send context wakes up any waiters
-by calling hfi1_qp_wakeup() while holding the waitlock for the sc.
+exp_ddgst is of type __le32, &cmd->exp_ddgst + cmd->offset increases
+&cmd->exp_ddgst by 4 * cmd->offset, fix this by type casting
+&cmd->exp_ddgst to u8 *.
 
-This is contrary to the model for all other calls to hfi1_qp_wakeup()
-where the waitlock is dropped and a local is used to drive calls to
-hfi1_qp_wakeup().
-
-Fix by moving the sc->piowait into a local list and driving the wakeup
-calls from the list.
-
-Fixes: 099a884ba4c0 ("IB/hfi1: Handle wakeup of orphaned QPs for pio")
-Link: https://lore.kernel.org/r/20211013141852.128104.2682.stgit@awfm-01.cornelisnetworks.com
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 872d26a391da ("nvmet-tcp: add NVMe over TCP target driver")
+Signed-off-by: Varun Prakash <varun@chelsio.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hfi1/pio.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/nvme/target/tcp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/hfi1/pio.c
-+++ b/drivers/infiniband/hw/hfi1/pio.c
-@@ -920,6 +920,7 @@ void sc_disable(struct send_context *sc)
- {
- 	u64 reg;
- 	struct pio_buf *pbuf;
-+	LIST_HEAD(wake_list);
- 
- 	if (!sc)
- 		return;
-@@ -954,19 +955,21 @@ void sc_disable(struct send_context *sc)
- 	spin_unlock(&sc->release_lock);
- 
- 	write_seqlock(&sc->waitlock);
--	while (!list_empty(&sc->piowait)) {
-+	if (!list_empty(&sc->piowait))
-+		list_move(&sc->piowait, &wake_list);
-+	write_sequnlock(&sc->waitlock);
-+	while (!list_empty(&wake_list)) {
- 		struct iowait *wait;
- 		struct rvt_qp *qp;
- 		struct hfi1_qp_priv *priv;
- 
--		wait = list_first_entry(&sc->piowait, struct iowait, list);
-+		wait = list_first_entry(&wake_list, struct iowait, list);
- 		qp = iowait_to_qp(wait);
- 		priv = qp->priv;
- 		list_del_init(&priv->s_iowait.list);
- 		priv->s_iowait.lock = NULL;
- 		hfi1_qp_wakeup(qp, RVT_S_WAIT_PIO | HFI1_S_WAIT_PIO_DRAIN);
- 	}
--	write_sequnlock(&sc->waitlock);
- 
- 	spin_unlock_irq(&sc->alloc_lock);
- }
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -702,7 +702,7 @@ static int nvmet_try_send_ddgst(struct n
+ 	struct nvmet_tcp_queue *queue = cmd->queue;
+ 	struct msghdr msg = { .msg_flags = MSG_DONTWAIT };
+ 	struct kvec iov = {
+-		.iov_base = &cmd->exp_ddgst + cmd->offset,
++		.iov_base = (u8 *)&cmd->exp_ddgst + cmd->offset,
+ 		.iov_len = NVME_TCP_DIGEST_LENGTH - cmd->offset
+ 	};
+ 	int ret;
 
 
