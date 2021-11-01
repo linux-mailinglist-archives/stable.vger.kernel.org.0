@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A68404415FA
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:18:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAA1944167F
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:24:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231830AbhKAJVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57106 "EHLO mail.kernel.org"
+        id S232096AbhKAJ0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:26:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231807AbhKAJVI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:21:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8C3F60C41;
-        Mon,  1 Nov 2021 09:18:34 +0000 (UTC)
+        id S231942AbhKAJYI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:24:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFBDE61166;
+        Mon,  1 Nov 2021 09:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758315;
-        bh=t998ZgURWWB26rZpyDLsEYfUYeXzqz3plOTptWRs7rE=;
+        s=korg; t=1635758464;
+        bh=Zu5p4uxDIl5m/X9HW0eQ9FLRaaTlxFkMRAKD9IvQLKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPjK4L2/0ZAF2Zh+4xQROBfSStzwmG+A2vqVl9i6r3BfwMapv3OjFsW2ejtFGhJoH
-         r1WeypulzX8QYe3p8u92ztJx+BncUUK+zmpUleS7PMDaRBuqJiPQU6h3x6kFuaJfne
-         G4n2NA309LoQBc47R8aP7RAu4J2DlOTlQRlvQoLA=
+        b=gIOQbj7QhIq4Po2htFH/OZEQBXULIBzSH2yzg1tZ9XZH+9T6ExBDEgPaK5alRCBxA
+         P9CCck2m8psssySIq/PwySNHTs7cxxWTAQl+xYskpF8jCqGVyFe0qrfvwOEg5KUDp6
+         6zdqpxiEh7Su5rrJq39J7QptG3kLL/7nVfxkHOWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.4 10/17] mmc: vub300: fix control-message timeouts
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Richard Henderson <richard.henderson@linaro.org>
+Subject: [PATCH 4.19 01/35] ARM: 9133/1: mm: proc-macros: ensure *_tlb_fns are 4B aligned
 Date:   Mon,  1 Nov 2021 10:17:13 +0100
-Message-Id: <20211101082442.930489004@linuxfoundation.org>
+Message-Id: <20211101082451.831165264@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
-References: <20211101082440.664392327@linuxfoundation.org>
+In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
+References: <20211101082451.430720900@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,103 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 8c8171929116cc23f74743d99251eedadf62341a upstream.
+commit e6a0c958bdf9b2e1b57501fc9433a461f0a6aadd upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+A kernel built with CONFIG_THUMB2_KERNEL=y and using clang as the
+assembler could generate non-naturally-aligned v7wbi_tlb_fns which
+results in a boot failure. The original commit adding the macro missed
+the .align directive on this data.
 
-Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
-Cc: stable@vger.kernel.org      # 3.0
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211025115608.5287-1-johan@kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1447
+Link: https://lore.kernel.org/all/0699da7b-354f-aecc-a62f-e25693209af4@linaro.org/
+Debugged-by: Ard Biesheuvel <ardb@kernel.org>
+Debugged-by: Nathan Chancellor <nathan@kernel.org>
+Debugged-by: Richard Henderson <richard.henderson@linaro.org>
+
+Fixes: 66a625a88174 ("ARM: mm: proc-macros: Add generic proc/cache/tlb struct definition macros")
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/vub300.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/arm/mm/proc-macros.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mmc/host/vub300.c
-+++ b/drivers/mmc/host/vub300.c
-@@ -579,7 +579,7 @@ static void check_vub300_port_status(str
- 				GET_SYSTEM_PORT_STATUS,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->system_port_status,
--				sizeof(vub300->system_port_status), HZ);
-+				sizeof(vub300->system_port_status), 1000);
- 	if (sizeof(vub300->system_port_status) == retval)
- 		new_system_port_status(vub300);
- }
-@@ -1245,7 +1245,7 @@ static void __download_offload_pseudocod
- 						SET_INTERRUPT_PSEUDOCODE,
- 						USB_DIR_OUT | USB_TYPE_VENDOR |
- 						USB_RECIP_DEVICE, 0x0000, 0x0000,
--						xfer_buffer, xfer_length, HZ);
-+						xfer_buffer, xfer_length, 1000);
- 			kfree(xfer_buffer);
- 			if (retval < 0) {
- 				strncpy(vub300->vub_name,
-@@ -1292,7 +1292,7 @@ static void __download_offload_pseudocod
- 						SET_TRANSFER_PSEUDOCODE,
- 						USB_DIR_OUT | USB_TYPE_VENDOR |
- 						USB_RECIP_DEVICE, 0x0000, 0x0000,
--						xfer_buffer, xfer_length, HZ);
-+						xfer_buffer, xfer_length, 1000);
- 			kfree(xfer_buffer);
- 			if (retval < 0) {
- 				strncpy(vub300->vub_name,
-@@ -1998,7 +1998,7 @@ static void __set_clock_speed(struct vub
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_CLOCK_SPEED,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x00, 0x00, buf, buf_array_size, HZ);
-+				0x00, 0x00, buf, buf_array_size, 1000);
- 	if (retval != 8) {
- 		dev_err(&vub300->udev->dev, "SET_CLOCK_SPEED"
- 			" %dkHz failed with retval=%d\n", kHzClock, retval);
-@@ -2020,14 +2020,14 @@ static void vub300_mmc_set_ios(struct mm
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_SD_POWER,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x0000, 0x0000, NULL, 0, HZ);
-+				0x0000, 0x0000, NULL, 0, 1000);
- 		/* must wait for the VUB300 u-proc to boot up */
- 		msleep(600);
- 	} else if ((ios->power_mode == MMC_POWER_UP) && !vub300->card_powered) {
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_SD_POWER,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x0001, 0x0000, NULL, 0, HZ);
-+				0x0001, 0x0000, NULL, 0, 1000);
- 		msleep(600);
- 		vub300->card_powered = 1;
- 	} else if (ios->power_mode == MMC_POWER_ON) {
-@@ -2290,14 +2290,14 @@ static int vub300_probe(struct usb_inter
- 				GET_HC_INF0,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->hc_info,
--				sizeof(vub300->hc_info), HZ);
-+				sizeof(vub300->hc_info), 1000);
- 	if (retval < 0)
- 		goto error5;
- 	retval =
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_ROM_WAIT_STATES,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				firmware_rom_wait_states, 0x0000, NULL, 0, HZ);
-+				firmware_rom_wait_states, 0x0000, NULL, 0, 1000);
- 	if (retval < 0)
- 		goto error5;
- 	dev_info(&vub300->udev->dev,
-@@ -2312,7 +2312,7 @@ static int vub300_probe(struct usb_inter
- 				GET_SYSTEM_PORT_STATUS,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->system_port_status,
--				sizeof(vub300->system_port_status), HZ);
-+				sizeof(vub300->system_port_status), 1000);
- 	if (retval < 0) {
- 		goto error4;
- 	} else if (sizeof(vub300->system_port_status) == retval) {
+--- a/arch/arm/mm/proc-macros.S
++++ b/arch/arm/mm/proc-macros.S
+@@ -342,6 +342,7 @@ ENTRY(\name\()_cache_fns)
+ 
+ .macro define_tlb_functions name:req, flags_up:req, flags_smp
+ 	.type	\name\()_tlb_fns, #object
++	.align 2
+ ENTRY(\name\()_tlb_fns)
+ 	.long	\name\()_flush_user_tlb_range
+ 	.long	\name\()_flush_kern_tlb_range
 
 
