@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC4F441630
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:21:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 909244416BB
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232428AbhKAJXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:23:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58984 "EHLO mail.kernel.org"
+        id S231223AbhKAJ2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:28:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232259AbhKAJWh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:22:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 364C461100;
-        Mon,  1 Nov 2021 09:19:38 +0000 (UTC)
+        id S232997AbhKAJ0h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:26:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D3B4611C4;
+        Mon,  1 Nov 2021 09:22:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758378;
-        bh=CUuidrJzzK99RFNt+LiN1DKHXmqe82HmmL1atc91zyM=;
+        s=korg; t=1635758538;
+        bh=aZGxSXhAaZDXFut7d375vpKiwQa6gnx6WfiPWrV/wJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovzxobKs5YFqpPTCtQkFvOyJxLeG3wrcf0Z4A/Y06dJETBKgOZFhtdouBQo+I5uQ9
-         2f5BzTDD7ezuDt2yOC27LtBdyUxot3G/ajK50gVUMEA46Q0r8JyTTNfZ7ws8hEIIZd
-         4zyeper2F4T0/PxB4I7qcSP/9/FfE0g2WdtPhb7M=
+        b=ZFNVee1y4LA8EXjnW+Amqkf2RSAG1ewMMPKS5HOQIU/Vm8EZCBjmZ3rINOxI0OWfL
+         dbQzwY7yi1/36kS97bpI5QX7CwTINMrukoYMfLLw9YtvAAjLhe9TaDJaK4vgnyRkK1
+         iEeHT0nYnbohrp25ySO8kLxLHlhCzD5buRnvlCmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 19/20] sctp: use init_tag from inithdr for ABORT chunk
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 16/35] mmc: vub300: fix control-message timeouts
 Date:   Mon,  1 Nov 2021 10:17:28 +0100
-Message-Id: <20211101082448.197311389@linuxfoundation.org>
+Message-Id: <20211101082455.352338483@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082444.133899096@linuxfoundation.org>
-References: <20211101082444.133899096@linuxfoundation.org>
+In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
+References: <20211101082451.430720900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +39,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 4f7019c7eb33967eb87766e0e4602b5576873680 ]
+commit 8c8171929116cc23f74743d99251eedadf62341a upstream.
 
-Currently Linux SCTP uses the verification tag of the existing SCTP
-asoc when failing to process and sending the packet with the ABORT
-chunk. This will result in the peer accepting the ABORT chunk and
-removing the SCTP asoc. One could exploit this to terminate a SCTP
-asoc.
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-This patch is to fix it by always using the initiate tag of the
-received INIT chunk for the ABORT chunk to be sent.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
+Cc: stable@vger.kernel.org      # 3.0
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211025115608.5287-1-johan@kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/sm_statefuns.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/vub300.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 9045f6bcb34c..c3d293dc8281 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -6018,6 +6018,7 @@ static struct sctp_packet *sctp_ootb_pkt_new(struct net *net,
- 		 * yet.
- 		 */
- 		switch (chunk->chunk_hdr->type) {
-+		case SCTP_CID_INIT:
- 		case SCTP_CID_INIT_ACK:
- 		{
- 			sctp_initack_chunk_t *initack;
--- 
-2.33.0
-
+--- a/drivers/mmc/host/vub300.c
++++ b/drivers/mmc/host/vub300.c
+@@ -579,7 +579,7 @@ static void check_vub300_port_status(str
+ 				GET_SYSTEM_PORT_STATUS,
+ 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 				0x0000, 0x0000, &vub300->system_port_status,
+-				sizeof(vub300->system_port_status), HZ);
++				sizeof(vub300->system_port_status), 1000);
+ 	if (sizeof(vub300->system_port_status) == retval)
+ 		new_system_port_status(vub300);
+ }
+@@ -1244,7 +1244,7 @@ static void __download_offload_pseudocod
+ 						SET_INTERRUPT_PSEUDOCODE,
+ 						USB_DIR_OUT | USB_TYPE_VENDOR |
+ 						USB_RECIP_DEVICE, 0x0000, 0x0000,
+-						xfer_buffer, xfer_length, HZ);
++						xfer_buffer, xfer_length, 1000);
+ 			kfree(xfer_buffer);
+ 			if (retval < 0)
+ 				goto copy_error_message;
+@@ -1287,7 +1287,7 @@ static void __download_offload_pseudocod
+ 						SET_TRANSFER_PSEUDOCODE,
+ 						USB_DIR_OUT | USB_TYPE_VENDOR |
+ 						USB_RECIP_DEVICE, 0x0000, 0x0000,
+-						xfer_buffer, xfer_length, HZ);
++						xfer_buffer, xfer_length, 1000);
+ 			kfree(xfer_buffer);
+ 			if (retval < 0)
+ 				goto copy_error_message;
+@@ -1994,7 +1994,7 @@ static void __set_clock_speed(struct vub
+ 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
+ 				SET_CLOCK_SPEED,
+ 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-				0x00, 0x00, buf, buf_array_size, HZ);
++				0x00, 0x00, buf, buf_array_size, 1000);
+ 	if (retval != 8) {
+ 		dev_err(&vub300->udev->dev, "SET_CLOCK_SPEED"
+ 			" %dkHz failed with retval=%d\n", kHzClock, retval);
+@@ -2016,14 +2016,14 @@ static void vub300_mmc_set_ios(struct mm
+ 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
+ 				SET_SD_POWER,
+ 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-				0x0000, 0x0000, NULL, 0, HZ);
++				0x0000, 0x0000, NULL, 0, 1000);
+ 		/* must wait for the VUB300 u-proc to boot up */
+ 		msleep(600);
+ 	} else if ((ios->power_mode == MMC_POWER_UP) && !vub300->card_powered) {
+ 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
+ 				SET_SD_POWER,
+ 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-				0x0001, 0x0000, NULL, 0, HZ);
++				0x0001, 0x0000, NULL, 0, 1000);
+ 		msleep(600);
+ 		vub300->card_powered = 1;
+ 	} else if (ios->power_mode == MMC_POWER_ON) {
+@@ -2285,14 +2285,14 @@ static int vub300_probe(struct usb_inter
+ 				GET_HC_INF0,
+ 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 				0x0000, 0x0000, &vub300->hc_info,
+-				sizeof(vub300->hc_info), HZ);
++				sizeof(vub300->hc_info), 1000);
+ 	if (retval < 0)
+ 		goto error5;
+ 	retval =
+ 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
+ 				SET_ROM_WAIT_STATES,
+ 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-				firmware_rom_wait_states, 0x0000, NULL, 0, HZ);
++				firmware_rom_wait_states, 0x0000, NULL, 0, 1000);
+ 	if (retval < 0)
+ 		goto error5;
+ 	dev_info(&vub300->udev->dev,
+@@ -2307,7 +2307,7 @@ static int vub300_probe(struct usb_inter
+ 				GET_SYSTEM_PORT_STATUS,
+ 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 				0x0000, 0x0000, &vub300->system_port_status,
+-				sizeof(vub300->system_port_status), HZ);
++				sizeof(vub300->system_port_status), 1000);
+ 	if (retval < 0) {
+ 		goto error4;
+ 	} else if (sizeof(vub300->system_port_status) == retval) {
 
 
