@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B2C441706
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:30:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4EEE4417C3
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:38:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232531AbhKAJcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:32:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37006 "EHLO mail.kernel.org"
+        id S232611AbhKAJju (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:39:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232583AbhKAJaM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:30:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D3F961214;
-        Mon,  1 Nov 2021 09:23:33 +0000 (UTC)
+        id S232620AbhKAJhs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:37:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F5D96128A;
+        Mon,  1 Nov 2021 09:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758613;
-        bh=eCQRd3ZL0WHiRsKpA6Ixl+nEBE0TOxsOBsLvd7cc/Fo=;
+        s=korg; t=1635758809;
+        bh=RRqlQEZ47fdGBwq+opIEfcwMmp66tYLJ3Yj1NnoxAe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AojKr87mMsrdnWCb+9qAtbTOURHEuXhjSZzNaGYQiLOzMtLpXvpTkFtnnJaV260+H
-         l1GTGheZwOiGZWDXzfBEZyUp928o27CdQyUyCuQrEqFtCY2jBQ94F+NiYZHL3DjMt2
-         onjt8WwGNeSUWmwYYWMfk1esWE7Jl593HQ6kgIOE=
+        b=IAzUG9fxCZOGpW12Nqoetg2tJ69Uk/0GIgtGtu3DkQH+uWgO5UtuYoPFTCsX05P1G
+         PggK9cMp0VUcAgcyX7v5rZvej26qyJ8c9+dRY1RMwoYsQW0uVzY5xDZHkxNrPDVbro
+         rUKBH+i7v9faAOh8/83UST0FfjdM1LIYZ6aHB3SQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 19/51] mmc: sdhci-esdhc-imx: clear the buffer_read_ready to reset standard tuning circuit
-Date:   Mon,  1 Nov 2021 10:17:23 +0100
-Message-Id: <20211101082504.980349230@linuxfoundation.org>
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>
+Subject: [PATCH 5.10 36/77] tcp_bpf: Fix one concurrency problem in the tcp_bpf_send_verdict function
+Date:   Mon,  1 Nov 2021 10:17:24 +0100
+Message-Id: <20211101082519.419310564@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082500.203657870@linuxfoundation.org>
-References: <20211101082500.203657870@linuxfoundation.org>
+In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
+References: <20211101082511.254155853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Liu Jian <liujian56@huawei.com>
 
-commit 9af372dc70e9fdcbb70939dac75365e7b88580b4 upstream.
+commit cd9733f5d75c94a32544d6ce5be47e14194cf137 upstream.
 
-To reset standard tuning circuit completely, after clear ESDHC_MIX_CTRL_EXE_TUNE,
-also need to clear bit buffer_read_ready, this operation will finally clear the
-USDHC IP internal logic flag execute_tuning_with_clr_buf, make sure the following
-normal data transfer will not be impacted by standard tuning logic used before.
+With two Msgs, msgA and msgB and a user doing nonblocking sendmsg calls (or
+multiple cores) on a single socket 'sk' we could get the following flow.
 
-Find this issue when do quick SD card insert/remove stress test. During standard
-tuning prodedure, if remove SD card, USDHC standard tuning logic can't clear the
-internal flag execute_tuning_with_clr_buf. Next time when insert SD card, all
-data related commands can't get any data related interrupts, include data transfer
-complete interrupt, data timeout interrupt, data CRC interrupt, data end bit interrupt.
-Always trigger software timeout issue. Even reset the USDHC through bits in register
-SYS_CTRL (0x2C, bit28 reset tuning, bit26 reset data, bit 25 reset command, bit 24
-reset all) can't recover this. From the user's point of view, USDHC stuck, SD can't
-be recognized any more.
+ msgA, sk                               msgB, sk
+ -----------                            ---------------
+ tcp_bpf_sendmsg()
+ lock(sk)
+ psock = sk->psock
+                                        tcp_bpf_sendmsg()
+                                        lock(sk) ... blocking
+tcp_bpf_send_verdict
+if (psock->eval == NONE)
+   psock->eval = sk_psock_msg_verdict
+ ..
+ < handle SK_REDIRECT case >
+   release_sock(sk)                     < lock dropped so grab here >
+   ret = tcp_bpf_sendmsg_redir
+                                        psock = sk->psock
+                                        tcp_bpf_send_verdict
+ lock_sock(sk) ... blocking on B
+                                        if (psock->eval == NONE) <- boom.
+                                         psock->eval will have msgA state
 
-Fixes: d9370424c948 ("mmc: sdhci-esdhc-imx: reset tuning circuit when power on mmc card")
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1634263236-6111-1-git-send-email-haibo.chen@nxp.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+The problem here is we dropped the lock on msgA and grabbed it with msgB.
+Now we have old state in psock and importantly psock->eval has not been
+cleared. So msgB will run whatever action was done on A and the verdict
+program may never see it.
+
+Fixes: 604326b41a6fb ("bpf, sockmap: convert to generic sk_msg interface")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20211012052019.184398-1-liujian56@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ net/ipv4/tcp_bpf.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1022,6 +1022,7 @@ static void esdhc_reset_tuning(struct sd
- 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
- 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
- 	u32 ctrl;
-+	int ret;
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -317,6 +317,7 @@ static int tcp_bpf_send_verdict(struct s
+ 	bool cork = false, enospc = sk_msg_full(msg);
+ 	struct sock *sk_redir;
+ 	u32 tosend, delta = 0;
++	u32 eval = __SK_NONE;
+ 	int ret;
  
- 	/* Reset the tuning circuit */
- 	if (esdhc_is_usdhc(imx_data)) {
-@@ -1034,7 +1035,22 @@ static void esdhc_reset_tuning(struct sd
- 		} else if (imx_data->socdata->flags & ESDHC_FLAG_STD_TUNING) {
- 			ctrl = readl(host->ioaddr + SDHCI_AUTO_CMD_STATUS);
- 			ctrl &= ~ESDHC_MIX_CTRL_SMPCLK_SEL;
-+			ctrl &= ~ESDHC_MIX_CTRL_EXE_TUNE;
- 			writel(ctrl, host->ioaddr + SDHCI_AUTO_CMD_STATUS);
-+			/* Make sure ESDHC_MIX_CTRL_EXE_TUNE cleared */
-+			ret = readl_poll_timeout(host->ioaddr + SDHCI_AUTO_CMD_STATUS,
-+				ctrl, !(ctrl & ESDHC_MIX_CTRL_EXE_TUNE), 1, 50);
-+			if (ret == -ETIMEDOUT)
-+				dev_warn(mmc_dev(host->mmc),
-+				 "Warning! clear execute tuning bit failed\n");
-+			/*
-+			 * SDHCI_INT_DATA_AVAIL is W1C bit, set this bit will clear the
-+			 * usdhc IP internal logic flag execute_tuning_with_clr_buf, which
-+			 * will finally make sure the normal data transfer logic correct.
-+			 */
-+			ctrl = readl(host->ioaddr + SDHCI_INT_STATUS);
-+			ctrl |= SDHCI_INT_DATA_AVAIL;
-+			writel(ctrl, host->ioaddr + SDHCI_INT_STATUS);
+ more_data:
+@@ -360,13 +361,24 @@ more_data:
+ 	case __SK_REDIRECT:
+ 		sk_redir = psock->sk_redir;
+ 		sk_msg_apply_bytes(psock, tosend);
++		if (!psock->apply_bytes) {
++			/* Clean up before releasing the sock lock. */
++			eval = psock->eval;
++			psock->eval = __SK_NONE;
++			psock->sk_redir = NULL;
++		}
+ 		if (psock->cork) {
+ 			cork = true;
+ 			psock->cork = NULL;
  		}
- 	}
- }
+ 		sk_msg_return(sk, msg, tosend);
+ 		release_sock(sk);
++
+ 		ret = tcp_bpf_sendmsg_redir(sk_redir, msg, tosend, flags);
++
++		if (eval == __SK_REDIRECT)
++			sock_put(sk_redir);
++
+ 		lock_sock(sk);
+ 		if (unlikely(ret < 0)) {
+ 			int free = sk_msg_free_nocharge(sk, msg);
 
 
