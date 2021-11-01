@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925F44417BE
-	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:37:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 900B54416AB
+	for <lists+stable@lfdr.de>; Mon,  1 Nov 2021 10:26:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233459AbhKAJjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Nov 2021 05:39:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43566 "EHLO mail.kernel.org"
+        id S232185AbhKAJ2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Nov 2021 05:28:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233634AbhKAJhp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Nov 2021 05:37:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45591611C4;
-        Mon,  1 Nov 2021 09:26:35 +0000 (UTC)
+        id S232587AbhKAJ0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Nov 2021 05:26:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 581BF61165;
+        Mon,  1 Nov 2021 09:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635758795;
-        bh=js6PGcD2sqCtv9u3aattD7TJxF1BWSw49LaHNk+d62c=;
+        s=korg; t=1635758510;
+        bh=j16t0ctCD5BX5QKAYLGDPEG43aYiyhjPdluF9usODhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MhYwkqmlmPlo4UQynzvegDr2sK9zMh2PBFHJOFy3H3kg3cfE/K4gmj6XYChZKo5S2
-         WvSSQBshTVM+QZY6O/R1yi/pXpIxnD6uM+cXjlQZpBlrZBHd4+cPpmwPibyva1XT2W
-         g9G7mBHwv/ulcrVHMixlvwKW4NK/3Pa/MpqxN2vE=
+        b=EWfA0MMPP5h/ryRk8w0FXxzIH3k1m3ro+0Bi/Da8CaPDxhVGPlqZyCtSeQpNbGTay
+         QrKpYWh8yr/kMisBcFIM2YPGRUJqWFVljmN8h9ZL3AN1jRgZk6ioiD4jJv8DG5niy3
+         G1C28wG1F0R/kdR6Qt+JNCCMqZ/cElxRiBqskWkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 35/77] riscv, bpf: Fix potential NULL dereference
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 11/35] nfc: port100: fix using -ERRNO as command type mask
 Date:   Mon,  1 Nov 2021 10:17:23 +0100
-Message-Id: <20211101082519.237065874@linuxfoundation.org>
+Message-Id: <20211101082454.236937648@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211101082511.254155853@linuxfoundation.org>
-References: <20211101082511.254155853@linuxfoundation.org>
+In-Reply-To: <20211101082451.430720900@linuxfoundation.org>
+References: <20211101082451.430720900@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn@kernel.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit 27de809a3d83a6199664479ebb19712533d6fd9b upstream.
+commit 2195f2062e4cc93870da8e71c318ef98a1c51cef upstream.
 
-The bpf_jit_binary_free() function requires a non-NULL argument. When
-the RISC-V BPF JIT fails to converge in NR_JIT_ITERATIONS steps,
-jit_data->header will be NULL, which triggers a NULL
-dereference. Avoid this by checking the argument, prior calling the
-function.
+During probing, the driver tries to get a list (mask) of supported
+command types in port100_get_command_type_mask() function.  The value
+is u64 and 0 is treated as invalid mask (no commands supported).  The
+function however returns also -ERRNO as u64 which will be interpret as
+valid command mask.
 
-Fixes: ca6cb5447cec ("riscv, bpf: Factor common RISC-V JIT code")
-Signed-off-by: Björn Töpel <bjorn@kernel.org>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/r/20211028125115.514587-1-bjorn@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Return 0 on every error case of port100_get_command_type_mask(), so the
+probing will stop.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 0347a6ab300a ("NFC: port100: Commands mechanism implementation")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/net/bpf_jit_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nfc/port100.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/riscv/net/bpf_jit_core.c
-+++ b/arch/riscv/net/bpf_jit_core.c
-@@ -125,7 +125,8 @@ struct bpf_prog *bpf_int_jit_compile(str
+--- a/drivers/nfc/port100.c
++++ b/drivers/nfc/port100.c
+@@ -1012,11 +1012,11 @@ static u64 port100_get_command_type_mask
  
- 	if (i == NR_JIT_ITERATIONS) {
- 		pr_err("bpf-jit: image did not converge in <%d passes!\n", i);
--		bpf_jit_binary_free(jit_data->header);
-+		if (jit_data->header)
-+			bpf_jit_binary_free(jit_data->header);
- 		prog = orig_prog;
- 		goto out_offset;
- 	}
+ 	skb = port100_alloc_skb(dev, 0);
+ 	if (!skb)
+-		return -ENOMEM;
++		return 0;
+ 
+ 	resp = port100_send_cmd_sync(dev, PORT100_CMD_GET_COMMAND_TYPE, skb);
+ 	if (IS_ERR(resp))
+-		return PTR_ERR(resp);
++		return 0;
+ 
+ 	if (resp->len < 8)
+ 		mask = 0;
 
 
