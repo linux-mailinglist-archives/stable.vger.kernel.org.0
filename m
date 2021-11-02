@@ -2,252 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA94144285F
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 08:28:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 968224428CD
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 08:47:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229849AbhKBHbU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 03:31:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58818 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229577AbhKBHbT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 03:31:19 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52EB1C061764
-        for <stable@vger.kernel.org>; Tue,  2 Nov 2021 00:28:45 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id f8so51036914edy.4
-        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 00:28:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=cxWHL2V8mPHZBwLVhPzyF2zYMkIP2xx0HETqHhyGJcg=;
-        b=iey7kGkTQNS4cdfGrLnzmco9FYAcaG3/Lt4lTcV/ulyAh1Z2y0joLzbSJBglwa7aGO
-         D2vriEeB4RfYHANCz0k/6kcwYLK3oGMkfaJGVi3BJWuhlV+xsFP5zKjJ5mI+NCj4/X3n
-         bw1cl3F1ERhfsW66v3xYOv2DJbSWjoFNA3KxdbMnR/JiIJPl/5VoHBsKQem4D4zXawdc
-         rlHqCE+mcldGqDj29EDDjRRXwIJZbSsV/I5rhvCSlcXuY0+aFZnXQlGttPNYGoXYYVFP
-         XrZ2yGpg8LBv/4zoUV0hkjqQtxYcfNBV8bgfVjht6YrcnJqGi764/yvKNuVnlGzxWXCl
-         s/Hw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=cxWHL2V8mPHZBwLVhPzyF2zYMkIP2xx0HETqHhyGJcg=;
-        b=ZLsjCe0dfTiXxXEhDLFkEUVJKq7cJ9tyiovlkXHnqEphxWkaHAU6FkBOS8Tracrenw
-         VgkLXMpZPUzHQv6g9c84Pf4wHGrD8+v9vxY3ZaQ0M1IgkMg+tRViyUFbOKo3yPSo+9xS
-         HB1uCOniZCsg++Z2OvTwDSQKi+u5iRN580W4pkXTS5rzNo8U0JLWJNdi3hs87QGTC7UF
-         +rra79mOy1ivJtdjwg3YzED5JYHHsWb6LndMrk7MsTJi43UEALylsPiMblHDCB2Hodvd
-         flvbe7lZSwZcMAVAKUqLEOSCObq4nuUxqnqDt5EPOYcJ5Qd5QY7r5HqzDlKgPFRKXSb/
-         sibQ==
-X-Gm-Message-State: AOAM531XaoeHfLWZ1zbbuwdJctNUWVbI2kXdM9EG6e+UCsmvlcZy4vzs
-        bErwau2hDJvcVhM7929c0i5jqQwyMft0PTwfA7oWjQ==
-X-Google-Smtp-Source: ABdhPJzBUn1XxjtNqfsSYCgfNEkUxIwv7rDpDKzciCK8euvDYZt3owKWYY3HP8+mzViVfwrZ9eI1dDMMBnbYpy0Ba9M=
-X-Received: by 2002:a17:907:7fa7:: with SMTP id qk39mr43447345ejc.384.1635838123761;
- Tue, 02 Nov 2021 00:28:43 -0700 (PDT)
+        id S229526AbhKBHuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 03:50:03 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:52730 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229505AbhKBHuC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 03:50:02 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 0830621956;
+        Tue,  2 Nov 2021 07:47:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1635839247; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=vf5M1Mpg3PLYYCAoR7F2Jy+Y+jIdkLco+jWhQ+1V2wk=;
+        b=Xs8UvH0vLV/fN1vfUmhPvUQ9clgv+HgeQ8jrPHHf0UhIGTRji1qaNbROwkvkD3nTkBPY5t
+        ikmCOFbLZ8Q8JzTCC9GfNcvze1bZLWl8CejAou/8A41oDtA1bxx7gVOh9wsmnTIyyB+YVD
+        2o+yZz+Bbiz2nYOB1nE9K26YA9PGnc8=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id CF618A3B87;
+        Tue,  2 Nov 2021 07:47:26 +0000 (UTC)
+Date:   Tue, 2 Nov 2021 08:47:26 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Alexey Makhalov <amakhalov@vmware.com>
+Cc:     linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Oscar Salvador <OSalvador@suse.com>,
+        David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH] mm: fix panic in __alloc_pages
+Message-ID: <YYDtDkGNylpAgPIS@dhcp22.suse.cz>
+References: <20211101201312.11589-1-amakhalov@vmware.com>
 MIME-Version: 1.0
-References: <20211101114235.515637019@linuxfoundation.org>
-In-Reply-To: <20211101114235.515637019@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 2 Nov 2021 12:58:32 +0530
-Message-ID: <CA+G9fYu9-sr7u9Lqf364pg07Zk-a3OBiBHPE2RTJPnYPxdZs+g@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/51] 5.4.157-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211101201312.11589-1-amakhalov@vmware.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 1 Nov 2021 at 17:14, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.157 release.
-> There are 51 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 03 Nov 2021 11:42:01 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.157-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+[CC Oscar and David]
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+On Mon 01-11-21 13:13:12, Alexey Makhalov wrote:
+> There is a kernel panic caused by __alloc_pages() accessing
+> uninitialized NODE_DATA(nid). Uninitialized node data exists
+> during the time when CPU with memoryless node was added but
+> not onlined yet. Panic can be easy reproduced by disabling
+> udev rule for automatic onlining hot added CPU followed by
+> CPU with memoryless node hot add.
+> 
+> This is a panic caused by percpu code doing allocations for
+> all possible CPUs and hitting this issue:
+> 
+>  CPU2 has been hot-added
+>  BUG: unable to handle page fault for address: 0000000000001608
+>  #PF: supervisor read access in kernel mode
+>  #PF: error_code(0x0000) - not-present page
+>  PGD 0 P4D 0
+>  Oops: 0000 [#1] SMP PTI
+>  CPU: 0 PID: 1 Comm: systemd Tainted: G            E     5.15.0-rc7+ #11
+>  Hardware name: VMware, Inc. VMware7,1/440BX Desktop Reference Platform, BIOS VMW
+> 
+>  RIP: 0010:__alloc_pages+0x127/0x290
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Could you resolve this into a specific line of the source code please?
 
-NOTE:
-With new gcc-11 toolchain arm builds failed.
-The fix patch is under review [1].
-Due to this reason not considering it as a kernel regression.
-* arm, build
-    - gcc-11-defconfig FAILED
+>  Code: 4c 89 f0 5b 41 5c 41 5d 41 5e 41 5f 5d c3 44 89 e0 48 8b 55 b8 c1 e8 0c 83 e0 01 88 45 d0 4c 89 c8 48 85 d2 0f 85 1a 01 00 00 <45> 3b 41 08 0f 82 10 01 00 00 48 89 45 c0 48 8b 00 44 89 e2 81 e2
+>  RSP: 0018:ffffc900006f3bc8 EFLAGS: 00010246
+>  RAX: 0000000000001600 RBX: 0000000000000000 RCX: 0000000000000000
+>  RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000cc2
+>  RBP: ffffc900006f3c18 R08: 0000000000000001 R09: 0000000000001600
+>  R10: ffffc900006f3a40 R11: ffff88813c9fffe8 R12: 0000000000000cc2
+>  R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000cc2
+>  FS:  00007f27ead70500(0000) GS:ffff88807ce00000(0000) knlGS:0000000000000000
+>  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>  CR2: 0000000000001608 CR3: 000000000582c003 CR4: 00000000001706b0
+>  Call Trace:
+>   pcpu_alloc_pages.constprop.0+0xe4/0x1c0
+>   pcpu_populate_chunk+0x33/0xb0
+>   pcpu_alloc+0x4d3/0x6f0
+>   __alloc_percpu_gfp+0xd/0x10
+>   alloc_mem_cgroup_per_node_info+0x54/0xb0
+>   mem_cgroup_alloc+0xed/0x2f0
+>   mem_cgroup_css_alloc+0x33/0x2f0
+>   css_create+0x3a/0x1f0
+>   cgroup_apply_control_enable+0x12b/0x150
+>   cgroup_mkdir+0xdd/0x110
+>   kernfs_iop_mkdir+0x4f/0x80
+>   vfs_mkdir+0x178/0x230
+>   do_mkdirat+0xfd/0x120
+>   __x64_sys_mkdir+0x47/0x70
+>   ? syscall_exit_to_user_mode+0x21/0x50
+>   do_syscall_64+0x43/0x90
+>   entry_SYSCALL_64_after_hwframe+0x44/0xae
+> 
+> Node can be in one of the following states:
+> 1. not present (nid == NUMA_NO_NODE)
+> 2. present, but offline (nid > NUMA_NO_NODE, node_online(nid) == 0,
+> 				NODE_DATA(nid) == NULL)
+> 3. present and online (nid > NUMA_NO_NODE, node_online(nid) > 0,
+> 				NODE_DATA(nid) != NULL)
+> 
+> alloc_page_{bulk_array}node() functions verify for nid validity only
+> and do not check if nid is online. Enhanced verification check allows
+> to handle page allocation when node is in 2nd state.
 
-[1]
-ARM: drop cc-option fallbacks for architecture selection
-https://lore.kernel.org/linux-arm-kernel/20211018140735.3714254-1-arnd@kern=
-el.org/
+I do not think this is a correct approach. We should make sure that the
+proper fallback node is used instead. This means that the zone list is
+initialized properly. IIRC this has been a problem in the past and it
+has been fixed. The initialization code is quite subtle though so it is
+possible that this got broken again.
 
-## Build
-* kernel: 5.4.157-rc2
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.4.y
-* git commit: 48b0aec9543c78e79579e887ded0a2d96126081f
-* git describe: v5.4.156-52-g48b0aec9543c
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-56-52-g48b0aec9543c
+> Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: linux-mm@kvack.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> ---
+>  include/linux/gfp.h | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/gfp.h b/include/linux/gfp.h
+> index 55b2ec1f9..34a5a7def 100644
+> --- a/include/linux/gfp.h
+> +++ b/include/linux/gfp.h
+> @@ -551,7 +551,8 @@ alloc_pages_bulk_array(gfp_t gfp, unsigned long nr_pages, struct page **page_arr
+>  static inline unsigned long
+>  alloc_pages_bulk_array_node(gfp_t gfp, int nid, unsigned long nr_pages, struct page **page_array)
+>  {
+> -	if (nid == NUMA_NO_NODE)
+> +	if (nid == NUMA_NO_NODE || (!node_online(nid) &&
+> +					!(gfp & __GFP_THISNODE)))
+>  		nid = numa_mem_id();
+>  
+>  	return __alloc_pages_bulk(gfp, nid, NULL, nr_pages, NULL, page_array);
+> @@ -578,7 +579,8 @@ __alloc_pages_node(int nid, gfp_t gfp_mask, unsigned int order)
+>  static inline struct page *alloc_pages_node(int nid, gfp_t gfp_mask,
+>  						unsigned int order)
+>  {
+> -	if (nid == NUMA_NO_NODE)
+> +	if (nid == NUMA_NO_NODE || (!node_online(nid) &&
+> +					!(gfp_mask & __GFP_THISNODE)))
+>  		nid = numa_mem_id();
+>  
+>  	return __alloc_pages_node(nid, gfp_mask, order);
+> -- 
+> 2.30.0
 
-## No regressions (compared to v5.4.156)
-
-## No fixes (compared to v5.4.156)
-
-## Test result summary
-total: 82388, pass: 67744, fail: 799, skip: 12415, xfail: 1430
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 420 total, 369 passed, 51 failed
-* arm64: 39 total, 39 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 20 total, 20 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 37 total, 37 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 36 total, 36 passed, 0 failed
-* riscv: 24 total, 24 passed, 0 failed
-* s390: 12 total, 12 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 39 total, 39 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+-- 
+Michal Hocko
+SUSE Labs
