@@ -2,213 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21A9C4429E7
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 09:53:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89A4B442A13
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 10:04:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229778AbhKBI4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 04:56:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50240 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229505AbhKBI4V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 04:56:21 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0AC4C061764
-        for <stable@vger.kernel.org>; Tue,  2 Nov 2021 01:53:46 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id w1so19417133edd.10
-        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 01:53:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=ZYpbgwwXidzFx0y6l+ahI48wcTllx690dVnhP3hPQCY=;
-        b=N1InVPcy/osORKJc6HUfNsI0hxFMHR9zvERLiMyzxeAyR4jes4RW/QckqJUPASH4Ub
-         ggHMahNzJ8HZsiQhQr+NaoRnnTAPKJ9Q+EaLExrbXXs2z6lxpXE2Wt9gaGsax8iwPvT1
-         VUBzWA9pE6KHUQgbo1YxDP1ltxsul8umP6Bvq9v1P+hvqNRNSrs47zOtYvyLkitanV3O
-         4CvC7k5tWxCvCXPwxz3i04RohYrZ77TdPVCv503X4ZVS2jKim1kv0Sn2gplGvfuekmpe
-         +hVScM9AAKNIMjjFs0t5B42flnN6tv7jkiKi1iSJz/cIqVAY11Gr3AKl9QPvvy3zLBWu
-         9OZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ZYpbgwwXidzFx0y6l+ahI48wcTllx690dVnhP3hPQCY=;
-        b=0jXqtxc5sgbCvqI0CZ13qpwS4Yc/tA7xVBHMQbTS8wfTMkfZT5uphpMiqmUGUaz886
-         mbauYR3j9aicvyvAnwVCQ9dAZPRbdAunyC6lgBGsu+4TwLaxFxhq0+bcOOx/+iCZSasz
-         oTpCNQLG9Rl/qTbbm2e7/4+/4z+CbwLGSzsrEgGsVvQhlbYYe7TH7i0p0x9uqQqCq+R7
-         Z3+OQ7vXm0QU75H7+PAAjo38yRWVb5MhZhHS8UKxqq4Kys+TSZKlI//MeZl44hesFKsO
-         ORUUi5/6ZqOXLFuPbduedtkX2BQjM1gfbi8cgC9s7B+9QebXUDAp5H15Ej30IKyfLymn
-         D/QA==
-X-Gm-Message-State: AOAM532tkR8pTSt0D7nKmIzx6u+scK5xnry4bOlDlcGvSAct6QGONare
-        rJfYZfXoSmPNp3sF+OYcd2aF1c89oga+hkIjkhS2EA==
-X-Google-Smtp-Source: ABdhPJy5bxDfJQ3NlKIxYEVBptUMzEqfXhfHlyF1Ft+a1bSlRfde4E6waZWprBFd/eFOAaxghiseDcpHQrUzKz67Hlc=
-X-Received: by 2002:a50:e184:: with SMTP id k4mr49192077edl.217.1635843225229;
- Tue, 02 Nov 2021 01:53:45 -0700 (PDT)
+        id S229720AbhKBJHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 05:07:00 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:58468 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229612AbhKBJG6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 05:06:58 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 58FE92190B;
+        Tue,  2 Nov 2021 09:04:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1635843863; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=FQEk7euf1G3s43BnBfla4wo2KxK/XLAKoQBCeTgbFlg=;
+        b=gwqfHlozMmRuDrNEqUdlPz/QNOyKLaEHUOPCTD/fwVhFXUbh95iEqVl1jM6gHypg8HqxA0
+        WcYpkHBTHRNlmo9prJIrq672nWBeFKVmSyLyT5NOJPo4LH8mMuEwoIm8KaFBJXupjkebRG
+        gth4aIr8JV0/YYHlfbvSFfluFwCcmcE=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 26AD0A3B83;
+        Tue,  2 Nov 2021 09:04:23 +0000 (UTC)
+Date:   Tue, 2 Nov 2021 10:04:22 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Alexey Makhalov <amakhalov@vmware.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Oscar Salvador <OSalvador@suse.com>
+Subject: Re: [PATCH] mm: fix panic in __alloc_pages
+Message-ID: <YYD/FkpAk5IvmOux@dhcp22.suse.cz>
+References: <20211101201312.11589-1-amakhalov@vmware.com>
+ <YYDtDkGNylpAgPIS@dhcp22.suse.cz>
+ <7136c959-63ff-b866-b8e4-f311e0454492@redhat.com>
+ <C69EF2FE-DFF6-492E-AD40-97A53739C3EC@vmware.com>
 MIME-Version: 1.0
-References: <20211101082440.664392327@linuxfoundation.org>
-In-Reply-To: <20211101082440.664392327@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 2 Nov 2021 14:23:33 +0530
-Message-ID: <CA+G9fYt3vv5wP4-oEUZ=rdnR2ROfthYa635UE1V_HB=akX5ACQ@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/17] 4.4.291-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <C69EF2FE-DFF6-492E-AD40-97A53739C3EC@vmware.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 1 Nov 2021 at 14:49, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+It is hard to follow your reply as your email client is not quoting
+properly. Let me try to reconstruct
+
+On Tue 02-11-21 08:48:27, Alexey Makhalov wrote:
+> On 02.11.21 08:47, Michal Hocko wrote:
+[...]
+>>>>  CPU2 has been hot-added
+>>>>  BUG: unable to handle page fault for address: 0000000000001608
+>>>>  #PF: supervisor read access in kernel mode
+>>>>  #PF: error_code(0x0000) - not-present page
+>>>>  PGD 0 P4D 0
+>>>>  Oops: 0000 [#1] SMP PTI
+>>>>  CPU: 0 PID: 1 Comm: systemd Tainted: G            E     5.15.0-rc7+ #11
+>>>>  Hardware name: VMware, Inc. VMware7,1/440BX Desktop Reference Platform, BIOS VMW
+>>>>
+>>>>  RIP: 0010:__alloc_pages+0x127/0x290
+>>> 
+>>> Could you resolve this into a specific line of the source code please?
+
+This got probably unnoticed. I would be really curious whether this is
+a broken zonelist or something else.
+ 
+>>>> Node can be in one of the following states:
+>>>> 1. not present (nid == NUMA_NO_NODE)
+>>>> 2. present, but offline (nid > NUMA_NO_NODE, node_online(nid) == 0,
+>>>> 				NODE_DATA(nid) == NULL)
+>>>> 3. present and online (nid > NUMA_NO_NODE, node_online(nid) > 0,
+>>>> 				NODE_DATA(nid) != NULL)
+>>>>
+>>>> alloc_page_{bulk_array}node() functions verify for nid validity only
+>>>> and do not check if nid is online. Enhanced verification check allows
+>>>> to handle page allocation when node is in 2nd state.
+>>> 
+>>> I do not think this is a correct approach. We should make sure that the
+>>> proper fallback node is used instead. This means that the zone list is
+>>> initialized properly. IIRC this has been a problem in the past and it
+>>> has been fixed. The initialization code is quite subtle though so it is
+>>> possible that this got broken again.
+
+> This approach behaves in the same way as CPU was not yet added. (state #1).
+> So, we can think of state #2 as state #1 when CPU is not present.
+
+>> I'm a little confused:
+>> 
+>> In add_memory_resource() we hotplug the new node if required and set it
+>> online. Memory might get onlined later, via online_pages().
 >
-> This is the start of the stable review cycle for the 4.4.291 release.
-> There are 17 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 03 Nov 2021 08:24:20 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.291-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> You are correct. In case of memory hot add, it is true. But in case of adding
+> CPU with memoryless node, try_node_online() will be called only during CPU
+> onlining, see cpu_up().
+> 
+> Is there any reason why try_online_node() resides in cpu_up() and not in add_cpu()?
+> I think it would be correct to online node during the CPU hot add to align with
+> memory hot add.
 
+I am not familiar with cpu hotplug, but this doesn't seem to be anything
+new so how come this became problem only now?
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+>> So after add_memory_resource()->__try_online_node() succeeded, we have
+>> an online pgdat -- essentially 3.
+>> 
+> This patch detects if we're past 3. but says that it reproduced by
+> disabling *memory* onlining.
+> This is the hot adding of both new CPU and new _memoryless_ node (with CPU only)
+> And onlining CPU makes its node online. Disabling CPU onlining puts new node
+> into state #2, which leads to repro.    
+> 
+>> Before we online memory for a hotplugged node, all zones are !populated.
+>> So once we online memory for a !populated zone in online_pages(), we
+>> trigger setup_zone_pageset().
+>> 
+>> 
+>> The confusing part is that this patch checks for 3. but says it can be
+>> reproduced by not onlining *memory*. There seems to be something missing.
+> 
+> Do we maybe need a proper populated_zone() check before accessing zone data?
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-NOTE:
-With new gcc-11 toolchain arm builds failed.
-The fix patch is under review [1].
-Due to this reason not considering it as a kernel regression.
-* arm, build
-    - gcc-11-defconfig FAILED
-
-[1]
-ARM: drop cc-option fallbacks for architecture selection
-https://lore.kernel.org/linux-arm-kernel/20211018140735.3714254-1-arnd@kern=
-el.org/
-
-## Build
-* kernel: 4.4.291-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.4.y
-* git commit: d0c0f8a764f8c71b396535e71f1d3bd792f4b34d
-* git describe: v4.4.290-18-gd0c0f8a764f8
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.y/build/v4.4.2=
-90-18-gd0c0f8a764f8
-
-## No regressions (compared to v4.4.290)
-
-## No fixes (compared to v4.4.290)
-
-## Test result summary
-total: 45115, pass: 36135, fail: 217, skip: 7755, xfail: 1008
-
-## Build Summary
-* arm: 258 total, 207 passed, 51 failed
-* arm64: 34 total, 34 passed, 0 failed
-* i386: 18 total, 18 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 22 total, 22 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 18 total, 18 passed, 0 failed
-
-## Test suites summary
-* fwts
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+No, we need them initialize properly.
+-- 
+Michal Hocko
+SUSE Labs
