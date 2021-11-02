@@ -2,583 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56FDC443617
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 19:53:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D57A0443618
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 19:53:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230344AbhKBS4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 14:56:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44116 "EHLO mail.kernel.org"
+        id S230326AbhKBS4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 14:56:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230364AbhKBS4F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Nov 2021 14:56:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 850316008E;
-        Tue,  2 Nov 2021 18:53:29 +0000 (UTC)
+        id S230361AbhKBS4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Nov 2021 14:56:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E41E86103C;
+        Tue,  2 Nov 2021 18:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635879210;
-        bh=LhPr1t9n+JufOfDaiVljlHrlBE5FLA0eCZP9hsFx6GI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FPhBtLQ7N+Fuv7pzZ3Cr0mZGVWtAdTkEi+XBDZcroTABgVwxPONCYgAZ48dZEb6/C
-         QFOqsTtNfsrIyWNZ4EOaQXj0RbjJhsHEAd2jzpuUQiJqfqlW35vElWRFu7qGdNm90D
-         S7565elAugE1TAoYwwPGIE4J3YwpZ0TqGWqz81R0=
+        s=korg; t=1635879212;
+        bh=vcL2vpW46bRODTuPxSTpSMYI2lvp7lrYjOZJ2yN7b0U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=bEWAyCGl/KrzWbv/gnEkNj+YiFHBJ7vnKNOdP4vo53ol8zPR91QQMbgBxm5UH8ERg
+         rOIccZCija+b4oxETeK4AmKWmQ1CTKMjbyz+tt8n/Hb+qo9xl31Ej5wFnY2Oi+Gwpe
+         OAJBJfy2tlzTfIz3q1zxRVXJNl7ZXVyMJWoQcmQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.9.289
-Date:   Tue,  2 Nov 2021 19:53:21 +0100
-Message-Id: <1635879201241125@kroah.com>
+Subject: Linux 4.14.254
+Date:   Tue,  2 Nov 2021 19:53:26 +0100
+Message-Id: <1635879207100132@kroah.com>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <1635879201112202@kroah.com>
-References: <1635879201112202@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 49568e384a92..76e6507e4145 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 9
--SUBLEVEL = 288
-+SUBLEVEL = 289
- EXTRAVERSION =
- NAME = Roaring Lionus
- 
-diff --git a/arch/arm/Makefile b/arch/arm/Makefile
-index 975b110e7d87..d9a2fcd33bc6 100644
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -13,7 +13,7 @@
- # Ensure linker flags are correct
- LDFLAGS		:=
- 
--LDFLAGS_vmlinux	:=-p --no-undefined -X --pic-veneer
-+LDFLAGS_vmlinux	:= --no-undefined -X --pic-veneer
- ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
- LDFLAGS_vmlinux	+= --be8
- LDFLAGS_MODULE	+= --be8
-diff --git a/arch/arm/boot/bootp/Makefile b/arch/arm/boot/bootp/Makefile
-index 5e4acd253b30..8d1e31b4ba94 100644
---- a/arch/arm/boot/bootp/Makefile
-+++ b/arch/arm/boot/bootp/Makefile
-@@ -7,7 +7,7 @@
- 
- GCOV_PROFILE	:= n
- 
--LDFLAGS_bootp	:=-p --no-undefined -X \
-+LDFLAGS_bootp	:= --no-undefined -X \
- 		 --defsym initrd_phys=$(INITRD_PHYS) \
- 		 --defsym params_phys=$(PARAMS_PHYS) -T
- AFLAGS_initrd.o :=-DINITRD=\"$(INITRD)\"
-diff --git a/arch/arm/boot/compressed/Makefile b/arch/arm/boot/compressed/Makefile
-index 2f3ba4d9683c..561dbc0ee2ba 100644
---- a/arch/arm/boot/compressed/Makefile
-+++ b/arch/arm/boot/compressed/Makefile
-@@ -128,8 +128,6 @@ endif
- ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
- LDFLAGS_vmlinux += --be8
- endif
--# ?
--LDFLAGS_vmlinux += -p
- # Report unresolved symbol references
- LDFLAGS_vmlinux += --no-undefined
- # Delete all temporary local symbols
-diff --git a/arch/arm/boot/compressed/decompress.c b/arch/arm/boot/compressed/decompress.c
-index a0765e7ed6c7..b0255cbf3b76 100644
---- a/arch/arm/boot/compressed/decompress.c
-+++ b/arch/arm/boot/compressed/decompress.c
-@@ -46,7 +46,10 @@ extern char * strstr(const char * s1, const char *s2);
- #endif
- 
- #ifdef CONFIG_KERNEL_XZ
-+/* Prevent KASAN override of string helpers in decompressor */
-+#undef memmove
- #define memmove memmove
-+#undef memcpy
- #define memcpy memcpy
- #include "../../../../lib/decompress_unxz.c"
- #endif
-diff --git a/arch/arm/mm/proc-macros.S b/arch/arm/mm/proc-macros.S
-index 796e8f675a93..422162f1b980 100644
---- a/arch/arm/mm/proc-macros.S
-+++ b/arch/arm/mm/proc-macros.S
-@@ -343,6 +343,7 @@ ENTRY(\name\()_cache_fns)
- 
- .macro define_tlb_functions name:req, flags_up:req, flags_smp
- 	.type	\name\()_tlb_fns, #object
-+	.align 2
- ENTRY(\name\()_tlb_fns)
- 	.long	\name\()_flush_user_tlb_range
- 	.long	\name\()_flush_kern_tlb_range
-diff --git a/arch/arm/probes/kprobes/core.c b/arch/arm/probes/kprobes/core.c
-index c3362ddd6c4c..bc7a5dbaf423 100644
---- a/arch/arm/probes/kprobes/core.c
-+++ b/arch/arm/probes/kprobes/core.c
-@@ -666,7 +666,7 @@ static struct undef_hook kprobes_arm_break_hook = {
- 
- #endif /* !CONFIG_THUMB2_KERNEL */
- 
--int __init arch_init_kprobes()
-+int __init arch_init_kprobes(void)
- {
- 	arm_probes_decode_init();
- #ifdef CONFIG_THUMB2_KERNEL
-diff --git a/arch/nios2/platform/Kconfig.platform b/arch/nios2/platform/Kconfig.platform
-index d3e5df9fb36b..78ffc0bf4ebe 100644
---- a/arch/nios2/platform/Kconfig.platform
-+++ b/arch/nios2/platform/Kconfig.platform
-@@ -37,6 +37,7 @@ config NIOS2_DTB_PHYS_ADDR
- 
- config NIOS2_DTB_SOURCE_BOOL
- 	bool "Compile and link device tree into kernel image"
-+	depends on !COMPILE_TEST
- 	default n
- 	help
- 	  This allows you to specify a dts (device tree source) file
-diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
-index 888ee95340da..e08e55cd98e6 100644
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -430,8 +430,14 @@ static int bpf_jit_build_body(struct bpf_prog *fp, u32 *image,
- 		case BPF_ALU64 | BPF_DIV | BPF_K: /* dst /= imm */
- 			if (imm == 0)
- 				return -EINVAL;
--			else if (imm == 1)
--				goto bpf_alu32_trunc;
-+			if (imm == 1) {
-+				if (BPF_OP(code) == BPF_DIV) {
-+					goto bpf_alu32_trunc;
-+				} else {
-+					PPC_LI(dst_reg, 0);
-+					break;
-+				}
-+			}
- 
- 			PPC_LI32(b2p[TMP_REG_1], imm);
- 			switch (BPF_CLASS(code)) {
-diff --git a/drivers/ata/sata_mv.c b/drivers/ata/sata_mv.c
-index ded3a66049d2..6007ebb80f88 100644
---- a/drivers/ata/sata_mv.c
-+++ b/drivers/ata/sata_mv.c
-@@ -3907,8 +3907,8 @@ static int mv_chip_id(struct ata_host *host, unsigned int board_idx)
- 		break;
- 
- 	default:
--		dev_err(host->dev, "BUG: invalid board index %u\n", board_idx);
--		return 1;
-+		dev_alert(host->dev, "BUG: invalid board index %u\n", board_idx);
-+		return -EINVAL;
- 	}
- 
- 	hpriv->hp_flags = hp_flags;
-diff --git a/drivers/base/regmap/regcache-rbtree.c b/drivers/base/regmap/regcache-rbtree.c
-index b11af3f2c1db..c0fdbb392758 100644
---- a/drivers/base/regmap/regcache-rbtree.c
-+++ b/drivers/base/regmap/regcache-rbtree.c
-@@ -296,14 +296,14 @@ static int regcache_rbtree_insert_to_block(struct regmap *map,
- 	if (!blk)
- 		return -ENOMEM;
- 
-+	rbnode->block = blk;
-+
- 	if (BITS_TO_LONGS(blklen) > BITS_TO_LONGS(rbnode->blklen)) {
- 		present = krealloc(rbnode->cache_present,
- 				   BITS_TO_LONGS(blklen) * sizeof(*present),
- 				   GFP_KERNEL);
--		if (!present) {
--			kfree(blk);
-+		if (!present)
- 			return -ENOMEM;
--		}
- 
- 		memset(present + BITS_TO_LONGS(rbnode->blklen), 0,
- 		       (BITS_TO_LONGS(blklen) - BITS_TO_LONGS(rbnode->blklen))
-@@ -320,7 +320,6 @@ static int regcache_rbtree_insert_to_block(struct regmap *map,
- 	}
- 
- 	/* update the rbnode block, its size and the base register */
--	rbnode->block = blk;
- 	rbnode->blklen = blklen;
- 	rbnode->base_reg = base_reg;
- 	rbnode->cache_present = present;
-diff --git a/drivers/mmc/host/dw_mmc-exynos.c b/drivers/mmc/host/dw_mmc-exynos.c
-index 7ab3d749b5ae..48aed0dc84a5 100644
---- a/drivers/mmc/host/dw_mmc-exynos.c
-+++ b/drivers/mmc/host/dw_mmc-exynos.c
-@@ -440,6 +440,18 @@ static s8 dw_mci_exynos_get_best_clksmpl(u8 candiates)
- 		}
- 	}
- 
-+	/*
-+	 * If there is no cadiates value, then it needs to return -EIO.
-+	 * If there are candiates values and don't find bset clk sample value,
-+	 * then use a first candiates clock sample value.
-+	 */
-+	for (i = 0; i < iter; i++) {
-+		__c = ror8(candiates, i);
-+		if ((__c & 0x1) == 0x1) {
-+			loc = i;
-+			goto out;
-+		}
-+	}
- out:
- 	return loc;
- }
-@@ -470,6 +482,8 @@ static int dw_mci_exynos_execute_tuning(struct dw_mci_slot *slot, u32 opcode)
- 		priv->tuned_sample = found;
- 	} else {
- 		ret = -EIO;
-+		dev_warn(&mmc->class_dev,
-+			"There is no candiates value about clksmpl!\n");
- 	}
- 
- 	return ret;
-diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
-index 0325083b1049..560b2996911a 100644
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -1421,6 +1421,12 @@ void sdhci_set_power_noreg(struct sdhci_host *host, unsigned char mode,
- 			break;
- 		case MMC_VDD_32_33:
- 		case MMC_VDD_33_34:
-+		/*
-+		 * 3.4 ~ 3.6V are valid only for those platforms where it's
-+		 * known that the voltage range is supported by hardware.
-+		 */
-+		case MMC_VDD_34_35:
-+		case MMC_VDD_35_36:
- 			pwr = SDHCI_POWER_330;
- 			break;
- 		default:
-diff --git a/drivers/mmc/host/vub300.c b/drivers/mmc/host/vub300.c
-index a3e4288e5391..875e438ab973 100644
---- a/drivers/mmc/host/vub300.c
-+++ b/drivers/mmc/host/vub300.c
-@@ -579,7 +579,7 @@ static void check_vub300_port_status(struct vub300_mmc_host *vub300)
- 				GET_SYSTEM_PORT_STATUS,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->system_port_status,
--				sizeof(vub300->system_port_status), HZ);
-+				sizeof(vub300->system_port_status), 1000);
- 	if (sizeof(vub300->system_port_status) == retval)
- 		new_system_port_status(vub300);
- }
-@@ -1245,7 +1245,7 @@ static void __download_offload_pseudocode(struct vub300_mmc_host *vub300,
- 						SET_INTERRUPT_PSEUDOCODE,
- 						USB_DIR_OUT | USB_TYPE_VENDOR |
- 						USB_RECIP_DEVICE, 0x0000, 0x0000,
--						xfer_buffer, xfer_length, HZ);
-+						xfer_buffer, xfer_length, 1000);
- 			kfree(xfer_buffer);
- 			if (retval < 0) {
- 				strncpy(vub300->vub_name,
-@@ -1292,7 +1292,7 @@ static void __download_offload_pseudocode(struct vub300_mmc_host *vub300,
- 						SET_TRANSFER_PSEUDOCODE,
- 						USB_DIR_OUT | USB_TYPE_VENDOR |
- 						USB_RECIP_DEVICE, 0x0000, 0x0000,
--						xfer_buffer, xfer_length, HZ);
-+						xfer_buffer, xfer_length, 1000);
- 			kfree(xfer_buffer);
- 			if (retval < 0) {
- 				strncpy(vub300->vub_name,
-@@ -1998,7 +1998,7 @@ static void __set_clock_speed(struct vub300_mmc_host *vub300, u8 buf[8],
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_CLOCK_SPEED,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x00, 0x00, buf, buf_array_size, HZ);
-+				0x00, 0x00, buf, buf_array_size, 1000);
- 	if (retval != 8) {
- 		dev_err(&vub300->udev->dev, "SET_CLOCK_SPEED"
- 			" %dkHz failed with retval=%d\n", kHzClock, retval);
-@@ -2020,14 +2020,14 @@ static void vub300_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_SD_POWER,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x0000, 0x0000, NULL, 0, HZ);
-+				0x0000, 0x0000, NULL, 0, 1000);
- 		/* must wait for the VUB300 u-proc to boot up */
- 		msleep(600);
- 	} else if ((ios->power_mode == MMC_POWER_UP) && !vub300->card_powered) {
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_SD_POWER,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				0x0001, 0x0000, NULL, 0, HZ);
-+				0x0001, 0x0000, NULL, 0, 1000);
- 		msleep(600);
- 		vub300->card_powered = 1;
- 	} else if (ios->power_mode == MMC_POWER_ON) {
-@@ -2288,14 +2288,14 @@ static int vub300_probe(struct usb_interface *interface,
- 				GET_HC_INF0,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->hc_info,
--				sizeof(vub300->hc_info), HZ);
-+				sizeof(vub300->hc_info), 1000);
- 	if (retval < 0)
- 		goto error5;
- 	retval =
- 		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_ROM_WAIT_STATES,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				firmware_rom_wait_states, 0x0000, NULL, 0, HZ);
-+				firmware_rom_wait_states, 0x0000, NULL, 0, 1000);
- 	if (retval < 0)
- 		goto error5;
- 	dev_info(&vub300->udev->dev,
-@@ -2310,7 +2310,7 @@ static int vub300_probe(struct usb_interface *interface,
- 				GET_SYSTEM_PORT_STATUS,
- 				USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				0x0000, 0x0000, &vub300->system_port_status,
--				sizeof(vub300->system_port_status), HZ);
-+				sizeof(vub300->system_port_status), 1000);
- 	if (retval < 0) {
- 		goto error4;
- 	} else if (sizeof(vub300->system_port_status) == retval) {
-diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
-index 9b98ec3dcb82..ad7b9772a4b2 100644
---- a/drivers/net/ethernet/nxp/lpc_eth.c
-+++ b/drivers/net/ethernet/nxp/lpc_eth.c
-@@ -1039,9 +1039,6 @@ static int lpc_eth_close(struct net_device *ndev)
- 	napi_disable(&pldat->napi);
- 	netif_stop_queue(ndev);
- 
--	if (ndev->phydev)
--		phy_stop(ndev->phydev);
--
- 	spin_lock_irqsave(&pldat->lock, flags);
- 	__lpc_eth_reset(pldat);
- 	netif_carrier_off(ndev);
-@@ -1049,6 +1046,8 @@ static int lpc_eth_close(struct net_device *ndev)
- 	writel(0, LPC_ENET_MAC2(pldat->net_base));
- 	spin_unlock_irqrestore(&pldat->lock, flags);
- 
-+	if (ndev->phydev)
-+		phy_stop(ndev->phydev);
- 	clk_disable_unprepare(pldat->clk);
- 
- 	return 0;
-diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index 73f97d00ede7..92fb664b56fb 100644
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -326,7 +326,6 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
- 	err = device_register(&bus->dev);
- 	if (err) {
- 		pr_err("mii_bus %s failed to register\n", bus->id);
--		put_device(&bus->dev);
- 		return -EINVAL;
- 	}
- 
-diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
-index bca623759723..bce898ad6e96 100644
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -3370,6 +3370,12 @@ static int lan78xx_probe(struct usb_interface *intf,
- 
- 	dev->maxpacket = usb_maxpacket(dev->udev, dev->pipe_out, 1);
- 
-+	/* Reject broken descriptors. */
-+	if (dev->maxpacket == 0) {
-+		ret = -ENODEV;
-+		goto out3;
-+	}
-+
- 	/* driver requires remote-wakeup capability during autosuspend. */
- 	intf->needs_remote_wakeup = 1;
- 
-diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
-index 0b5fd1499ac0..6a004742ec71 100644
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -1740,6 +1740,11 @@ usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
- 	if (!dev->rx_urb_size)
- 		dev->rx_urb_size = dev->hard_mtu;
- 	dev->maxpacket = usb_maxpacket (dev->udev, dev->out, 1);
-+	if (dev->maxpacket == 0) {
-+		/* that is a broken device */
-+		status = -ENODEV;
-+		goto out4;
-+	}
- 
- 	/* let userspace know we have a random address */
- 	if (ether_addr_equal(net->dev_addr, node_id))
-diff --git a/drivers/nfc/port100.c b/drivers/nfc/port100.c
-index 151b220381f9..ed65993aae96 100644
---- a/drivers/nfc/port100.c
-+++ b/drivers/nfc/port100.c
-@@ -1011,11 +1011,11 @@ static u64 port100_get_command_type_mask(struct port100 *dev)
- 
- 	skb = port100_alloc_skb(dev, 0);
- 	if (!skb)
--		return -ENOMEM;
-+		return 0;
- 
- 	resp = port100_send_cmd_sync(dev, PORT100_CMD_GET_COMMAND_TYPE, skb);
- 	if (IS_ERR(resp))
--		return PTR_ERR(resp);
-+		return 0;
- 
- 	if (resp->len < 8)
- 		mask = 0;
-diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
-index 516c45771d59..dc635bd93584 100644
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -1569,10 +1569,14 @@ int batadv_bla_init(struct batadv_priv *bat_priv)
- 		return 0;
- 
- 	bat_priv->bla.claim_hash = batadv_hash_new(128);
--	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.claim_hash)
-+		return -ENOMEM;
- 
--	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
-+	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.backbone_hash) {
-+		batadv_hash_destroy(bat_priv->bla.claim_hash);
- 		return -ENOMEM;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
- 				   &batadv_claim_hash_lock_class_key);
-diff --git a/net/batman-adv/main.c b/net/batman-adv/main.c
-index 2c017ab47557..96b6ab9681cd 100644
---- a/net/batman-adv/main.c
-+++ b/net/batman-adv/main.c
-@@ -177,29 +177,41 @@ int batadv_mesh_init(struct net_device *soft_iface)
- 	INIT_HLIST_HEAD(&bat_priv->softif_vlan_list);
- 	INIT_HLIST_HEAD(&bat_priv->tp_list);
- 
--	ret = batadv_v_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
--
- 	ret = batadv_originator_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_orig;
-+	}
- 
- 	ret = batadv_tt_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_tt;
-+	}
-+
-+	ret = batadv_v_mesh_init(bat_priv);
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_v;
-+	}
- 
- 	ret = batadv_bla_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_bla;
-+	}
- 
- 	ret = batadv_dat_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_dat;
-+	}
- 
- 	ret = batadv_nc_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_nc;
-+	}
- 
- 	batadv_gw_init(bat_priv);
- 	batadv_mcast_init(bat_priv);
-@@ -209,8 +221,20 @@ int batadv_mesh_init(struct net_device *soft_iface)
- 
- 	return 0;
- 
--err:
--	batadv_mesh_free(soft_iface);
-+err_nc:
-+	batadv_dat_free(bat_priv);
-+err_dat:
-+	batadv_bla_free(bat_priv);
-+err_bla:
-+	batadv_v_mesh_free(bat_priv);
-+err_v:
-+	batadv_tt_free(bat_priv);
-+err_tt:
-+	batadv_originator_free(bat_priv);
-+err_orig:
-+	batadv_purge_outstanding_packets(bat_priv, NULL);
-+	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
-+
- 	return ret;
- }
- 
-diff --git a/net/batman-adv/network-coding.c b/net/batman-adv/network-coding.c
-index 09549885cd14..b0a85bd72afc 100644
---- a/net/batman-adv/network-coding.c
-+++ b/net/batman-adv/network-coding.c
-@@ -166,8 +166,10 @@ int batadv_nc_mesh_init(struct batadv_priv *bat_priv)
- 				   &batadv_nc_coding_hash_lock_class_key);
- 
- 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
--	if (!bat_priv->nc.decoding_hash)
-+	if (!bat_priv->nc.decoding_hash) {
-+		batadv_hash_destroy(bat_priv->nc.coding_hash);
- 		goto err;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
- 				   &batadv_nc_decoding_hash_lock_class_key);
-diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
-index 607d8bac8376..6e9844e73bac 100644
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -4373,8 +4373,10 @@ int batadv_tt_init(struct batadv_priv *bat_priv)
- 		return ret;
- 
- 	ret = batadv_tt_global_init(bat_priv);
--	if (ret < 0)
-+	if (ret < 0) {
-+		batadv_tt_local_table_free(bat_priv);
- 		return ret;
-+	}
- 
- 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
- 				     batadv_tt_tvlv_unicast_handler_v1,
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 9045f6bcb34c..f71991520ad6 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -4333,6 +4333,9 @@ sctp_disposition_t sctp_sf_violation(struct net *net,
- {
- 	struct sctp_chunk *chunk = arg;
- 
-+	if (!sctp_vtag_verify(chunk, asoc))
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-+
- 	/* Make sure that the chunk has a valid length. */
- 	if (!sctp_chunk_length_valid(chunk, sizeof(sctp_chunkhdr_t)))
- 		return sctp_sf_violation_chunklen(net, ep, asoc, type, arg,
-@@ -6018,6 +6021,7 @@ static struct sctp_packet *sctp_ootb_pkt_new(struct net *net,
- 		 * yet.
- 		 */
- 		switch (chunk->chunk_hdr->type) {
-+		case SCTP_CID_INIT:
- 		case SCTP_CID_INIT_ACK:
- 		{
- 			sctp_initack_chunk_t *initack;
+I'm announcing the release of the 4.14.254 kernel.
+
+All users of the 4.14 kernel series must upgrade.
+
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                               |    2 -
+ arch/arm/Makefile                      |    2 -
+ arch/arm/boot/bootp/Makefile           |    2 -
+ arch/arm/boot/compressed/Makefile      |    2 -
+ arch/arm/boot/compressed/decompress.c  |    3 +
+ arch/arm/mm/proc-macros.S              |    1 
+ arch/arm/probes/kprobes/core.c         |    2 -
+ arch/nios2/platform/Kconfig.platform   |    1 
+ arch/powerpc/net/bpf_jit_comp64.c      |   10 ++++-
+ drivers/ata/sata_mv.c                  |    4 +-
+ drivers/base/regmap/regcache-rbtree.c  |    7 +---
+ drivers/mmc/host/dw_mmc-exynos.c       |   14 ++++++++
+ drivers/mmc/host/sdhci-esdhc-imx.c     |   17 ++++++++++
+ drivers/mmc/host/sdhci.c               |    6 +++
+ drivers/mmc/host/vub300.c              |   18 +++++-----
+ drivers/net/ethernet/nxp/lpc_eth.c     |    5 +-
+ drivers/net/phy/mdio_bus.c             |    1 
+ drivers/net/usb/lan78xx.c              |    6 +++
+ drivers/net/usb/usbnet.c               |    5 ++
+ drivers/nfc/port100.c                  |    4 +-
+ net/batman-adv/bridge_loop_avoidance.c |    8 +++-
+ net/batman-adv/main.c                  |   56 +++++++++++++++++++++++----------
+ net/batman-adv/network-coding.c        |    4 +-
+ net/batman-adv/translation-table.c     |    4 +-
+ net/ipv4/route.c                       |   12 +++----
+ net/sctp/sm_statefuns.c                |   30 +++++++++++------
+ 26 files changed, 161 insertions(+), 65 deletions(-)
+
+Arnd Bergmann (2):
+      ARM: 9134/1: remove duplicate memcpy() definition
+      ARM: 9139/1: kprobes: fix arch_init_kprobes() prototype
+
+Eric Dumazet (1):
+      ipv4: use siphash instead of Jenkins in fnhe_hashfun()
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.254
+
+Guenter Roeck (1):
+      nios2: Make NIOS2_DTB_SOURCE_BOOL depend on !COMPILE_TEST
+
+Haibo Chen (1):
+      mmc: sdhci-esdhc-imx: clear the buffer_read_ready to reset standard tuning circuit
+
+Jaehoon Chung (1):
+      mmc: dw_mmc: exynos: fix the finding clock sample value
+
+Johan Hovold (2):
+      mmc: vub300: fix control-message timeouts
+      net: lan78xx: fix division by zero in send path
+
+Krzysztof Kozlowski (1):
+      nfc: port100: fix using -ERRNO as command type mask
+
+Nathan Chancellor (1):
+      ARM: 8819/1: Remove '-p' from LDFLAGS
+
+Naveen N. Rao (1):
+      powerpc/bpf: Fix BPF_MOD when imm == 1
+
+Nick Desaulniers (1):
+      ARM: 9133/1: mm: proc-macros: ensure *_tlb_fns are 4B aligned
+
+Oliver Neukum (1):
+      usbnet: sanity check for maxpacket
+
+Pavel Skripkin (2):
+      Revert "net: mdiobus: Fix memory leak in __mdiobus_register"
+      net: batman-adv: fix error handling
+
+Shawn Guo (1):
+      mmc: sdhci: Map more voltage level to SDHCI_POWER_330
+
+Trevor Woerner (1):
+      net: nxp: lpc_eth.c: avoid hang when bringing interface down
+
+Wang Hai (1):
+      usbnet: fix error return code in usbnet_probe()
+
+Xin Long (5):
+      sctp: use init_tag from inithdr for ABORT chunk
+      sctp: fix the processing for COOKIE_ECHO chunk
+      sctp: add vtag check in sctp_sf_violation
+      sctp: add vtag check in sctp_sf_do_8_5_1_E_sa
+      sctp: add vtag check in sctp_sf_ootb
+
+Yang Yingliang (1):
+      regmap: Fix possible double-free in regcache_rbtree_exit()
+
+Zheyu Ma (1):
+      ata: sata_mv: Fix the error handling of mv_chip_id()
+
