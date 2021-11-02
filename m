@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83EEB443487
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 18:26:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E565C44348B
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 18:27:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232003AbhKBR2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 13:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54386 "EHLO
+        id S229689AbhKBR3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 13:29:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229684AbhKBR2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 13:28:45 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E94FC061714;
-        Tue,  2 Nov 2021 10:26:09 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id j21so107405edt.11;
-        Tue, 02 Nov 2021 10:26:09 -0700 (PDT)
+        with ESMTP id S230214AbhKBR3v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 13:29:51 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E483C061714;
+        Tue,  2 Nov 2021 10:27:16 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id w1so134259edd.10;
+        Tue, 02 Nov 2021 10:27:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
         bh=1OdaxtB4LssE4g+n1VNEzexPIrO9OAMoPZzNOdCXvKY=;
-        b=D1hjG4k2rBHwrOqHw0wA0eXdXQDI2BQN6griH4YjxUHpAPZa4lOBz1Z8h8MV6iAF91
-         QIt0/fjNJVY4YJs/xgIzw9Ra/yCn9aB9fkEaDmTeR73Xs7YGi7v5KF0veLVLoIva203S
-         EYxZ+/yQXnrko3WCHSbQodZaLqvn4DibqUvrBrydUQYvOIWXz1SZEvtUBu9tFOauIRsr
-         0IeOe43PsOOz7F8z65/f+nsvqYDx8T5BZ4a9SQGlFvmpjxbElqC+QVVCh0y2SoEMmY/H
-         vOpLLVrqnQdodcC/nmDCMluDiLBqrvtOwPqdlyjs+ciQjTtXiGL1lx5SChibTEp1hzq/
-         V1ZQ==
+        b=mdU0U8go0ySDUlWCxLU1AzstBNRGwhKDX900iZOIN6UnsNA0AA/oAbCX71K7X0NfuM
+         oPPhYZwjM+8WzEqudWqL6w/uibOHtKJKzGOdod/KLm6/RajNfrxw+arQVDguduOGFIHH
+         kxYLILQOrQcCimkzUiBUlv7pYINRGLtyc4vzp+rHohqW0R6styn1Mr3uTfQjRYX1TeH7
+         XgTi5fKJCjxHhETF4DF09C8CeW3GEGaRNmF2j6LxPHr44ioS7C9STeDPKJcmvNRBsp5o
+         NbUHHTU6hxAxJqk4DC7Vkxg/JcUxxHEurtWThcNXd2J1PQvo+GzkjtteiYqZsB9NW/mc
+         xXHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
         bh=1OdaxtB4LssE4g+n1VNEzexPIrO9OAMoPZzNOdCXvKY=;
-        b=riRcU+lmji59DzJe9BxrlUxfoHE42QPsXEdE5UJf1NY+mB14wSknpUfmdfqUwQ8ZCT
-         PJUwoYjwwet+sy8Pf7cqOVfzBRfoTHNw0pyNer6qTCdSfh0PFqBRjMYAOVDsrpHVOZfE
-         3y+2AXXwke/5H2dTWBYKw8eaxSkobyjJJCZDNGjtMD0CQyIYGd7W690IKGwb9EirhdRP
-         OZEDseHqvdUIDssxfyIKLbyiMu2m3ZuBl4hPtdiRCfFlE6LfU8qjRmy2e7lDobYT6lQj
-         XRRxrliulGzJVeBdKvQibZacrXM1aDaerH5CwO3Iag2smPlfWzSUdo/LCRWOQtXoh1U+
-         ye3A==
-X-Gm-Message-State: AOAM5314S4P1wR3DPCnArMCZ/HllBgjud1yjqPelFFww8VvjgtsNXxg0
-        sTYYrwISTemgQSMm5MmV3UsQkjDpxTw=
-X-Google-Smtp-Source: ABdhPJxBNZe6+SXory3SW2EaJ0Q55CqSM6F40MCnVFQf5Lm6LwbjSvgWVKf8lR5vxNCMHV6MjEMaJA==
-X-Received: by 2002:aa7:cc96:: with SMTP id p22mr52797018edt.91.1635873967737;
-        Tue, 02 Nov 2021 10:26:07 -0700 (PDT)
+        b=FxzzwmrQ7XV4Yl7QL+8Cp5Mqi0r2BVDBtjXVR5Ey656R4Yu+uY4YZxxHZ6nNwnd+rM
+         hFrO9RewazEjJA+CJtgTYNoBuxeFQzccFBwTnB3SUcDoTyxEi5izkZok4uCpyeTbAMdZ
+         ZPFi3V7EKB0N/NreVDvgmsyvvrRHYfjARD4oy316dkk8U74WbafZ6hXQ41x6i6QcwPSt
+         V9bVmTeYatSk2wGqk2tIfsJnSmYHDWwpqhz2gSdGkaw4nY+KABJL5eCY+7k5eQp9nvhc
+         a0Es0vEFa+Db4sopQgKLrf4HmbBw3eQ0erL6kb5OS++dPNlzfgXtwpVnmKjJf9dRsPhG
+         WgKg==
+X-Gm-Message-State: AOAM532a6Bl5y5Eq9Q5JZCW7NcpJ71X9WSm70pQ3e/WWhjdjE9D6Cxwf
+        rz26n1zuQeEWasmvpOGASk2+1a4reCo=
+X-Google-Smtp-Source: ABdhPJwAVmlP9bDQGX4Sjh/CtxgelisUtOodlrNzHt6mtFxJZuuUYoIBjfqq982xFydqLrvjAXTAYA==
+X-Received: by 2002:a50:cbc2:: with SMTP id l2mr24754089edi.89.1635874034854;
+        Tue, 02 Nov 2021 10:27:14 -0700 (PDT)
 Received: from md2k7s8c.fritz.box ([2a02:810d:9040:4c1f:e0b6:d0e7:64d2:f3a0])
-        by smtp.gmail.com with ESMTPSA id ho17sm2954008ejc.111.2021.11.02.10.26.06
+        by smtp.gmail.com with ESMTPSA id nd36sm8580753ejc.17.2021.11.02.10.27.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Nov 2021 10:26:07 -0700 (PDT)
+        Tue, 02 Nov 2021 10:27:14 -0700 (PDT)
 From:   Andreas Oetken <ennoerlangen@gmail.com>
 X-Google-Original-From: Andreas Oetken <andreas.oetken@siemens-energy.com>
 To:     Miquel Raynal <miquel.raynal@bootlin.com>,
@@ -56,9 +56,9 @@ Cc:     Andreas Oetken <ennoerlangen@gmail.com>,
         linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
         Andreas Oetken <andreas.oetken@siemens-energy.com>,
         stable@vger.kernel.org
-Subject: [PATCH v3] drivers: mtd: Fixed breaking list in __mtd_del_partition.
-Date:   Tue,  2 Nov 2021 18:26:04 +0100
-Message-Id: <20211102172604.2921065-1-andreas.oetken@siemens-energy.com>
+Subject: [PATCH v2] drivers: mtd: Fixed breaking list in __mtd_del_partition.
+Date:   Tue,  2 Nov 2021 18:27:10 +0100
+Message-Id: <20211102172710.2933885-1-andreas.oetken@siemens-energy.com>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
