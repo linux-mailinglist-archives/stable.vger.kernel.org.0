@@ -2,43 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFB1E443088
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 15:35:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78F3F4430B5
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 15:44:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231348AbhKBOiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 10:38:09 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:47262 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229530AbhKBOiI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 10:38:08 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 01AD41FD4E;
-        Tue,  2 Nov 2021 14:35:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1635863733; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+        id S230370AbhKBOrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 10:47:33 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:53104 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230175AbhKBOrc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 10:47:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635864296;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=PZOYwTcs/uRKNYMtgWTyKzvzPAmp2lHm06+rRoOs/v4=;
-        b=vQq48Hi9tmkUX4nm9Wzk1Fq+ApGIlZIIZmmiD9SmLhgmExEVMaSiVApTakHz0HYqIqdy44
-        Ot3l2rxUuQ7ce7mmLPELGfrb1s4WWwDEC6Qn5wpi/v7GoGi94FHMUVj3KQTFdyyJYzllRl
-        zjCzO1aYk947DkoYQKmzAyuTUh3hwbM=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id B4221A3B87;
-        Tue,  2 Nov 2021 14:35:32 +0000 (UTC)
-Date:   Tue, 2 Nov 2021 15:35:32 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Oscar Salvador <osalvador@suse.de>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Alexey Makhalov <amakhalov@vmware.com>,
+        bh=jic1F9UNvooEC2d+xw/+5aCM+bj4ORtETpFt0PPjtmo=;
+        b=L4xhvObeDbLRlLIATzHYUkyX6GEygyPJcfSyL7+nlciRgPPhc3hjgWD5eVfk8SlQgNXWyZ
+        3GRNWIsjHVcTTS37bNQOKn4mxn9QOw7lQK61gIsTu3UknzzNlJii3FLyni4NjxXyXODcLS
+        pS01OHn60p0JfAYArF40hYPV6cLgySg=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-342-eZsEbZfiPc-_fR5kBl-dsQ-1; Tue, 02 Nov 2021 10:44:55 -0400
+X-MC-Unique: eZsEbZfiPc-_fR5kBl-dsQ-1
+Received: by mail-wr1-f69.google.com with SMTP id f1-20020a5d64c1000000b001611832aefeso7524847wri.17
+        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 07:44:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=jic1F9UNvooEC2d+xw/+5aCM+bj4ORtETpFt0PPjtmo=;
+        b=7cb9mtjkk7VtWy2vgRxyGeI4qAqQuPGRQl8GU3HIw1qzi594fP8v4GzDqFqGC2bGzS
+         nxaX0ts6+r9QEGPPUUl0aNY8KZLJBPtHqEpFipy6ukRvZ350r0G0eFJjGTSAIWNILN/Y
+         KtqowwATt1NiIj8Dki8PYdjSFjtl8ulaqK6EW1RwnTW7zvXwBqmuvHDx46I39iAiWR6H
+         kSzpsNutQJKIRxUhkV0f2VvHnIR5BTDNOLeVJzHy8pycyv+kSerfHU18vWU3m1BepArJ
+         nAHRjoY6Q+90QT4+EbmKcJ7RostGWi3erN/WswU3Q0eWsr4TfOnRqUcBJObc/rzftLg9
+         9tlA==
+X-Gm-Message-State: AOAM531HDWWZ4m/1+jl3KdcMqOs1JJs/kvOUx0/Icsl4SgZhk408J/an
+        WnrAelJCpulJ6XsHMu/i6pdy82vfssTmZ+I6q5neOr33GDdKKYwxxbm+YLUzohrXY6lI4kjvc08
+        dt3TChztjUSnlIhHD
+X-Received: by 2002:a05:600c:221a:: with SMTP id z26mr7823253wml.20.1635864294656;
+        Tue, 02 Nov 2021 07:44:54 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwBBOUAAgvnqsjRVZ4bzRv1lCqYgkkyX3fHbS5Y5cY5MU4aoQfmzPcf1WlQqb1AxIh7YDXh9w==
+X-Received: by 2002:a05:600c:221a:: with SMTP id z26mr7823225wml.20.1635864294488;
+        Tue, 02 Nov 2021 07:44:54 -0700 (PDT)
+Received: from [192.168.3.132] (p5b0c6810.dip0.t-ipconnect.de. [91.12.104.16])
+        by smtp.gmail.com with ESMTPSA id c11sm3176123wmq.27.2021.11.02.07.44.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 02 Nov 2021 07:44:53 -0700 (PDT)
+Message-ID: <c927ef49-ae10-ba1b-bc34-0c44bba2e864@redhat.com>
+Date:   Tue, 2 Nov 2021 15:44:52 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [PATCH] mm: fix panic in __alloc_pages
+Content-Language: en-US
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     Alexey Makhalov <amakhalov@vmware.com>,
         "linux-mm@kvack.org" <linux-mm@kvack.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
         Oscar Salvador <OSalvador@suse.com>
-Subject: Re: [PATCH] mm: fix panic in __alloc_pages
-Message-ID: <YYFMtFwkKLUXaG/W@dhcp22.suse.cz>
 References: <YYD/FkpAk5IvmOux@dhcp22.suse.cz>
  <b2e4a611-45a6-732a-a6d3-6042afd2af6e@redhat.com>
  <E34422F0-A44A-48FD-AE3B-816744359169@vmware.com>
@@ -48,87 +74,45 @@ References: <YYD/FkpAk5IvmOux@dhcp22.suse.cz>
  <YYEun6s/mF9bE+rQ@dhcp22.suse.cz>
  <e7aed7c0-b7b1-4a94-f323-0bcde2f879d2@redhat.com>
  <YYE8L4gs8/+HH6bf@dhcp22.suse.cz>
- <20211102135201.GA4348@linux>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211102135201.GA4348@linux>
+ <ccf05348-e1b6-58a7-2626-701e60b662e6@redhat.com>
+ <YYFHPGq/E9F11F7o@dhcp22.suse.cz>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <YYFHPGq/E9F11F7o@dhcp22.suse.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 02-11-21 14:52:01, Oscar Salvador wrote:
-> On Tue, Nov 02, 2021 at 02:25:03PM +0100, Michal Hocko wrote:
-> > I think we want to learn how exactly Alexey brought that cpu up. Because
-> > his initial thought on add_cpu resp cpu_up doesn't seem to be correct.
-> > Or I am just not following the code properly. Once we know all those
-> > details we can get in touch with cpu hotplug maintainers and see what
-> > can we do.
+On 02.11.21 15:12, Michal Hocko wrote:
+> On Tue 02-11-21 14:41:25, David Hildenbrand wrote:
+>> On 02.11.21 14:25, Michal Hocko wrote:
+> [...]
+>>> Btw. do you plan to send a patch for pcp allocator to use cpu_to_mem?
+>>
+>> You mean s/cpu_to_node/cpu_to_mem/ or also handling offline nids?
 > 
-> I am not really familiar with CPU hot-onlining, but I have been taking a look.
-> As with memory, there are two different stages, hot-adding and onlining (and the
-> counterparts).
+> just cpu_to_mem
 > 
-> Part of the hot-adding being:
+>> cpu_to_mem() corresponds to cpu_to_node() unless on ia64+ppc IIUC, so it
+>> won't help for this very report.
 > 
-> acpi_processor_get_info
->  acpi_processor_hotadd_init
->   arch_register_cpu
->    register_cpu
+> Weird, x86 allows memory less nodes as well. But you are right
+> there is nothing selecting HAVE_MEMORYLESS_NODES neither do I see any
+> arch specific implementation. I have to say that I have forgot all those
+> nasty details... Sigh
 > 
-> One of the things that register_cpu() does is to set cpu->dev.bus pointing to
-> &cpu_subsys, which is:
-> 
-> struct bus_type cpu_subsys = {
-> 	.name = "cpu",
-> 	.dev_name = "cpu",
-> 	.match = cpu_subsys_match,
-> #ifdef CONFIG_HOTPLUG_CPU
-> 	.online = cpu_subsys_online,
-> 	.offline = cpu_subsys_offline,
-> #endif
-> };
-> 
-> Then, the onlining part (in case of a udev rule or someone onlining the device)
-> would be:
-> 
-> online_store
->  device_online
->   cpu_subsys_online
->    cpu_device_up
->     cpu_up
->      ...
->      online node
-> 
-> Since Alexey disabled the udev rule and no one onlined the CPU, online_store()->
-> device_online() wasn't really called.
-> 
-> The following only applies to x86_64:
-> I think we got confused because cpu_device_up() is also called from add_cpu(),
-> but that is an exported function and x86 does not call add_cpu() unless for
-> debugging purposes (check kernel/torture.c and arch/x86/kernel/topology.c).
-> It does the onlining through online_store()...
-> So we can take add_cpu() off the equation here.
 
-Yes, so the real problem is (thanks for pointing me to the acpi code).
-The cpu->node association is done in acpi_map_cpu2node and I suspect
-this expects that the node is already present as it gets the information
-from SRAT/PXM tables which are parsed during boot. But I might be just
-confused or maybe just VMware inject new entries here somehow.
+I assume HAVE_MEMORYLESS_NODES is just an optimization to set a
+preferred memory node for memoryless nodes. It doesn't imply that we
+cannot have memoryless nodes otherwise.
 
-Another interesting thing is that acpi_map_cpu2node skips over
-association if there is no node found in SRAT but that should only mean
-it would use the default initialization which should be hopefuly 0.
-
-Anyway, I have found in my notes
-https://www.spinics.net/lists/kernel/msg3010886.html which is a slightly
-different problem but it has some notes about how the initialization
-mess works (that one was boot time though and hotplug might be different
-actually).
-
-I have ran out of time for this today so hopefully somebody can re-learn
-that from there...
+I suspect just as so often, the config option name doesn't express what
+it really does.
 
 -- 
-Michal Hocko
-SUSE Labs
+Thanks,
+
+David / dhildenb
+
