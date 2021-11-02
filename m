@@ -2,95 +2,247 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66BD54428E4
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 08:53:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E43ED442904
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 08:58:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231133AbhKBH4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 03:56:02 -0400
-Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:41594
-        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229966AbhKBH4B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 03:56:01 -0400
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com [209.85.167.69])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 02C293F1AC
-        for <stable@vger.kernel.org>; Tue,  2 Nov 2021 07:53:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1635839606;
-        bh=4VeAqz3jSwIuxpiAMz+s1A17LIRDINxx7QefFsdrbvc=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=dXLOIFMaXAXbTMRtdnrvPvHTBhT5jwubiU3Ji7+s7klvWbEsE1AlHCtdw8lbTTQpV
-         CNbcrJ4ttJLlH0KmyGy7seQEBx/qQANlwbaazb9Vfp+zitt7kNEuEqHnMgOFY6D9S9
-         Qs4nUdz+WpP8bJdpfZ1k13MtYHCyvJ5GB9hZGZ9uFigNc5BGzCXhr/agM40GxtniEr
-         UhECjT0k4H4BCKaGUIklxvYD5ZpBDQWSjT4tGi3gsrIla72HusJdiQ/CN2dsFOHdTf
-         QzxO927IZ/3RfyBxFLugzxieiNGJQUSVoTFTHxjr/XHfVXU7A62FO/wPFAq2YtJTyg
-         VRKMyyYdsSnLg==
-Received: by mail-lf1-f69.google.com with SMTP id r15-20020a19c10f000000b004000b509a53so2160609lff.7
-        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 00:53:25 -0700 (PDT)
+        id S229577AbhKBIBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 04:01:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37638 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230411AbhKBIBO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 04:01:14 -0400
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EE2EC061764
+        for <stable@vger.kernel.org>; Tue,  2 Nov 2021 00:58:38 -0700 (PDT)
+Received: by mail-ed1-x533.google.com with SMTP id r4so72209560edi.5
+        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 00:58:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=DE6vv6137Wma3IBrqsj7AHboxsRjxAALHxrkgjeJlPs=;
+        b=uM50o2FnOXduHUZUcFmJmXV7S476NPG5U1TbfnzlScr1+6zMy5SoTvgxQjkla2oLOx
+         HqfbDtwSWx/rE9z22MKBQ18PAff3IF/5OjtZtruOoXVLo0AFAxIdZklV2VxVaXTg6IC5
+         JibsUXvhtzFUAB0zDpEaJltIhxBXZVgb6nRVqyPcBRGklDpFbF9xi8oQYou0yA2lFpHh
+         HPbNRBuAMpuhc+2PidsVy1LyYGv5nn5kZ86sXJngn3PmIc6DCLjtgc+XJ3qb8goWUuuY
+         HzKeexzmfU34Atom2LnEXPxrwZEtbqow/rf0CtnMrgg3DPxSlxMOFjhoYvKL3Mbe1RjX
+         WdhA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=4VeAqz3jSwIuxpiAMz+s1A17LIRDINxx7QefFsdrbvc=;
-        b=2QGkIKh4XM7Ajor2uzZAyldt9u+EIqrNhooQFeGv2SJHvuYkCOJ9+TeFcG9O73Fxai
-         Mw3qsuQtpIKfTn71B8nsry6cfxYDWAJClqC493U8rzjJCRx66FEhZvL4FSczroBHmzGb
-         Tu558cceyOwwrxNxc+tfjY3T5OEdZuRdgWzRiMM5Fm/NFNP6U5IHUaFDETbaVFD/2YhT
-         xgCDzb7nm85re6pdN6uyJhe6fb7q8s6T1Vrn5XiWr5LgNheNqMXnQbqqhDRNIFkJNtGA
-         +SroqRDdjLsxNwFC1ENNhiSlOoMS/cy1S2DV/TtdhKJKEyiBVGkztnuJs7BkFbAsXMA6
-         bZBQ==
-X-Gm-Message-State: AOAM530wrl2BaNj9eFNjNUbp6zhvzBWqXSYXzt156lTQcw+34a8agpDC
-        XMDC7UvS6WXf2axSAi7Wg0X9c3Z42Wq5/wbTtP/bkRZ2R03SNu8NlEPqKvKoFxbtmtUmtpDZ4ye
-        1pPNHu7d5SbpWYXnY6uSLJIgA+DpX/y/6aw==
-X-Received: by 2002:a2e:391b:: with SMTP id g27mr37424589lja.126.1635839605405;
-        Tue, 02 Nov 2021 00:53:25 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJywtLecTXbvt/DmqUThsqiYEapd5wq5piKqf14nTC+WAQVrWN89kNfMyfjFoZlxRCLA8cq3fg==
-X-Received: by 2002:a2e:391b:: with SMTP id g27mr37424575lja.126.1635839605264;
-        Tue, 02 Nov 2021 00:53:25 -0700 (PDT)
-Received: from [192.168.3.67] (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
-        by smtp.gmail.com with ESMTPSA id z17sm687463ljk.97.2021.11.02.00.53.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Nov 2021 00:53:24 -0700 (PDT)
-Message-ID: <59b76525-079d-f672-5355-20d92ecd4d98@canonical.com>
-Date:   Tue, 2 Nov 2021 08:53:24 +0100
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=DE6vv6137Wma3IBrqsj7AHboxsRjxAALHxrkgjeJlPs=;
+        b=UUlqe7ThjLFQMM7qqQII4IGBNC9CFDbVJc8r0dRDrfpROdskYYIiYnEzPSvnVo1bUI
+         uSgU7YSEJ4PUK/twnmbDDxWLAjEX8c/p6esFuQJYhC6dRgFryJnKNafq9brsJoUIDI3p
+         3DOvrFT6vcbK54d85B9uiOc0OtFOf3YJJrT4dHfdlQ7MbRPKwYVZ4L4Da4ZgjCmtZIUu
+         6/xC4QPm1ImpFFqvYi3UpLum8RwTDYpj63bW2cfAHpdKcyxfvU1sxIckyUjtpadDHCj2
+         XRRtrBZIj9z2v0whrk3Hshfj2wdQwvvBuh4Y2Vfu2Tya2At48kO/z1QtyrG9H2bGZXak
+         n63Q==
+X-Gm-Message-State: AOAM530Q8QKNeA4bjj8C6/zB+jG0h/4+1hPmU4J6Ih9eW+GxJZfHc58D
+        4tYOUlUaT/JEB/UZnmkEOmiP4uFnl247gfAysAMrgw==
+X-Google-Smtp-Source: ABdhPJyz3fTD+3tcx51chhWmDHyxkKtgsvWvEJdCs2Dos5bUsI8B3I0ybz7ZUldakgWbUSqIwowtIch/EmwvU3aEboc=
+X-Received: by 2002:a17:906:c7c1:: with SMTP id dc1mr44311153ejb.6.1635839917048;
+ Tue, 02 Nov 2021 00:58:37 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.2
-Subject: Re: [PATCH v2 1/2] ARM: dts: exynos/i9100: Fix BCM4330 Bluetooth
- reset polarity
-Content-Language: en-US
-To:     Paul Cercueil <paul@crapouillou.net>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20211031234137.87070-1-paul@crapouillou.net>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-In-Reply-To: <20211031234137.87070-1-paul@crapouillou.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20211101114224.924071362@linuxfoundation.org>
+In-Reply-To: <20211101114224.924071362@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 2 Nov 2021 13:28:25 +0530
+Message-ID: <CA+G9fYtmu4qTACYr3n_mzTcAMr65znbx81yXQpfPNKFP7z5ixw@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/35] 4.19.215-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 01/11/2021 00:41, Paul Cercueil wrote:
-> The reset GPIO was marked active-high, which is against what's specified
-> in the documentation. Mark the reset GPIO as active-low. With this
-> change, Bluetooth can now be used on the i9100.
-> 
-> Fixes: 8620cc2f99b7 ("ARM: dts: exynos: Add devicetree file for the Galaxy S2")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> ---
->  arch/arm/boot/dts/exynos4210-i9100.dts | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
+On Mon, 1 Nov 2021 at 17:13, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.215 release.
+> There are 35 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 03 Nov 2021 11:41:55 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.215-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Looks good, thanks. I'll take it after the merge window.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Best regards,
-Krzysztof
+NOTE:
+With new gcc-11 toolchain arm builds failed.
+The fix patch is under review [1].
+Due to this reason not considering it as a kernel regression.
+* arm, build
+    - gcc-11-defconfig FAILED
+
+[1]
+ARM: drop cc-option fallbacks for architecture selection
+https://lore.kernel.org/linux-arm-kernel/20211018140735.3714254-1-arnd@kern=
+el.org/
+
+## Build
+* kernel: 4.19.215-rc2
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.19.y
+* git commit: a75679fb6ddbcf7814a3f96f09dcf0d89b430956
+* git describe: v4.19.214-36-ga75679fb6ddb
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.214-36-ga75679fb6ddb
+
+## No regressions (compared to v4.19.214)
+
+## No fixes (compared to v4.19.214)
+
+## Test result summary
+total: 74931, pass: 60213, fail: 776, skip: 12291, xfail: 1651
+
+## Build Summary
+* arm: 260 total, 210 passed, 50 failed
+* arm64: 38 total, 38 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 27 total, 27 passed, 0 failed
+* s390: 12 total, 12 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 22 total, 22 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* prep-tmp-disk
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
