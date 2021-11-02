@@ -2,151 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 647BD442E54
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 13:39:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D58CD442E6E
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 13:48:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231286AbhKBMlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 08:41:46 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:40970 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229924AbhKBMlo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 08:41:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1635856750;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=jIkHBillbCKCZYFZuYQdXQ8luVuR63mT21wNxhTkVuM=;
-        b=CKI7pBVvy5Sve/5KVNjxxyCyyxB0tToL1SIWoJqR5kS91C5Tn+NTOUIJo5FOuIW/YjpAit
-        f8rru3R1ZiPt3nM0UVB0fIrOA828O7SUrnn+6USXktsWlArFNnZs+2/C5LuLNZrhcQq9i5
-        fj+mmbah4FJBvG4EYKSNb2/5KSwwqhE=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-102-dIw4f4VaMDuNnzVYkwM3vg-1; Tue, 02 Nov 2021 08:39:09 -0400
-X-MC-Unique: dIw4f4VaMDuNnzVYkwM3vg-1
-Received: by mail-wm1-f72.google.com with SMTP id o22-20020a1c7516000000b0030d6f9c7f5fso6904793wmc.1
-        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 05:39:08 -0700 (PDT)
+        id S230109AbhKBMu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 08:50:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46876 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229850AbhKBMu6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 08:50:58 -0400
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE288C061714;
+        Tue,  2 Nov 2021 05:48:23 -0700 (PDT)
+Received: by mail-wm1-x32e.google.com with SMTP id b184-20020a1c1bc1000000b0033140bf8dd5so1984183wmb.5;
+        Tue, 02 Nov 2021 05:48:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=26Js0QFCpt18S+Iid6q78U6UMbGWv/LS7cftt7dxdZQ=;
+        b=nVVDC7ILCCDd3jwTEMji8Doj5wRg1+Xk9o4tJ7iCGOtJPmUGfLb2AVmqyol144UXQg
+         dB4crI47+d+6qkGOa8LhRw11u7Zx//gl54y2Zu3n0W3AODbxG67XVFYqqtC1/ycPmIkg
+         sZ9QDebzHzL5Dc10ioj2yBvd/zr/hFjgLU1K1wfmnpi3toeR+eLAXD+cQ1XHvIS/+Pkk
+         4gKnVwzqsDH7p8wjR8r5NUPJaA19WkbDLJ2r93tVB8zFb5gCdQzrksdM4H5h2Q9rCBs9
+         OKToIEbryOapGl92iknxIBQWXb+imx2jtPXnFQz9U+rkyKaUB4WnXWVN/ZKgqILycYZG
+         GS6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=jIkHBillbCKCZYFZuYQdXQ8luVuR63mT21wNxhTkVuM=;
-        b=3iNXAQ6jHoLJ2XzodLix8TsFRYvKJf+Qqj9j0NuQvgtl1cPTTZ8bjPeXKV/FYvrP7z
-         x+mUNw/1ICp67xBFnGP6TSBMayvmY9vVMdqrLVRQecEYN6nMucIqx0fb+hB2eAveuHhp
-         m6/xNTwIdaXKmI/dfIiX0Z2bDGJKEfWQFrm9WeFzMtxpk2QsUDzbLuk28KUz8Cl5ZEyf
-         /ml7rNALa4vwS4VI29KnwUj3GDmqrEGNUF8YVS6ckzgpjIeovdAtwwcTwOEAzT55ciXh
-         Z81YIzUUxdSLd9UkTZmRtxHxkPVAjx1hrKjCfMAQ3mWfLBZhbrqF8L8rT8F3ZecRgVCp
-         B48g==
-X-Gm-Message-State: AOAM531du7Z4Mc9rgsi8nlhXPUwqPQAMTRa/VI61NAHueX8jUMOZScbg
-        8kOi+qSWA/CqGt9XhIdgpGDhig1Aa9FiGKggWApF4rG1rL2dzCu9ZDfmIXnBUQWMdV6lNLLg7a7
-        necyMEL3bf7m3eGGw
-X-Received: by 2002:a5d:648b:: with SMTP id o11mr47850884wri.56.1635856747723;
-        Tue, 02 Nov 2021 05:39:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyPAtManKqas0sqXcvZrMMHN6XCbXPcL93RLbXpskjnJsSOhAZs99TXw5dZs5B4HcxSez/rGg==
-X-Received: by 2002:a5d:648b:: with SMTP id o11mr47850848wri.56.1635856747513;
-        Tue, 02 Nov 2021 05:39:07 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c6810.dip0.t-ipconnect.de. [91.12.104.16])
-        by smtp.gmail.com with ESMTPSA id h14sm2656442wmq.34.2021.11.02.05.39.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Nov 2021 05:39:07 -0700 (PDT)
-Message-ID: <e7aed7c0-b7b1-4a94-f323-0bcde2f879d2@redhat.com>
-Date:   Tue, 2 Nov 2021 13:39:06 +0100
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=26Js0QFCpt18S+Iid6q78U6UMbGWv/LS7cftt7dxdZQ=;
+        b=q8KUwFus5yNHHOBBEQJbvRJ4Bpq1UkaXr/pveqx+hCCy/RXPTUEycTmdI7NDWQjakW
+         3JPOC1/e0FNBBtna9gH0+yFq16djsRYooXdV0ulyhYjDLS3QqvHhBzBHPsrVFQTGwamu
+         wXjPkLZrzpIiufq7EIGcq8/iRP1+iF2snip7TmQ8/iYzu7mmyayXuiRwczLV00Ll/ZfL
+         FGN73/bZUWCgr44kZFpIGJQtxLj2ZHlGUmi0wIxDoL51svBPyM+sVG6DhhzSbBh7FID2
+         HuAIN0UsQYQJyJhu9vQoHbbwJkWxdEwDAqCIuJbgPzlyJy9ALwgXD4+daUqw6YCt0qrn
+         XzhQ==
+X-Gm-Message-State: AOAM532B5eQb1CdGVSAWFZDxiAZeL5JBtwXv8GAT7NE4bH+8p7+H4Q8c
+        bwMU2NUIdR9c+wiEl2LWeyM=
+X-Google-Smtp-Source: ABdhPJzQ8N+l7k1zGFOJLkN9PMDmaMzmmOeWRCxCW6fhVTh4wtt8xJ2K4LSXlJ+KTbasaYC8TL7OfQ==
+X-Received: by 2002:a1c:3504:: with SMTP id c4mr6728703wma.160.1635857302257;
+        Tue, 02 Nov 2021 05:48:22 -0700 (PDT)
+Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
+        by smtp.gmail.com with ESMTPSA id n15sm2596551wmq.38.2021.11.02.05.48.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Nov 2021 05:48:21 -0700 (PDT)
+Date:   Tue, 2 Nov 2021 12:48:20 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/51] 5.4.157-rc2 review
+Message-ID: <YYEzlI3V/+BoODRr@debian>
+References: <20211101114235.515637019@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH] mm: fix panic in __alloc_pages
-Content-Language: en-US
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     Alexey Makhalov <amakhalov@vmware.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Oscar Salvador <OSalvador@suse.com>
-References: <20211101201312.11589-1-amakhalov@vmware.com>
- <YYDtDkGNylpAgPIS@dhcp22.suse.cz>
- <7136c959-63ff-b866-b8e4-f311e0454492@redhat.com>
- <C69EF2FE-DFF6-492E-AD40-97A53739C3EC@vmware.com>
- <YYD/FkpAk5IvmOux@dhcp22.suse.cz>
- <b2e4a611-45a6-732a-a6d3-6042afd2af6e@redhat.com>
- <E34422F0-A44A-48FD-AE3B-816744359169@vmware.com>
- <b3908fce-6b07-8390-b691-56dd2f85c05f@redhat.com>
- <YYEkqH8l0ASWv/JT@dhcp22.suse.cz>
- <42abfba6-b27e-ca8b-8cdf-883a9398b506@redhat.com>
- <YYEun6s/mF9bE+rQ@dhcp22.suse.cz>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <YYEun6s/mF9bE+rQ@dhcp22.suse.cz>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211101114235.515637019@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
->> Yes, but a zonelist cannot be correct for an offline node, where we might
->> not even have an allocated pgdat yet. No pgdat, no zonelist. So as soon as
->> we allocate the pgdat and set the node online (->hotadd_new_pgdat()), the zone lists have to be correct. And I can spot an build_all_zonelists() in hotadd_new_pgdat().
+Hi Greg,
+
+On Mon, Nov 01, 2021 at 12:43:54PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.157 release.
+> There are 51 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Yes, that is what I had in mind. We are talking about two things here.
-> Memoryless nodes and offline nodes. The later sounds like a bug to me.
+> Responses should be made by Wed, 03 Nov 2021 11:42:01 +0000.
+> Anything received after that time might be too late.
 
-Agreed. memoryless nodes should just have proper zonelists -- which
-seems to be the case.
+Build test:
+mips (gcc version 11.2.1 20211012): 65 configs -> no new failure
+arm (gcc version 11.2.1 20211012): 107 configs -> no new failure
+arm64 (gcc version 11.2.1 20211012): 2 configs -> no failure
+x86_64 (gcc version 10.2.1 20210110): 4 configs -> no failure
 
->> Maybe __alloc_pages_bulk() and alloc_pages_node() should bail out directly
->> (VM_BUG()) in case we're providing an offline node with eventually no/stale pgdat as
->> preferred nid.
-> 
-> Historically, those allocation interfaces were not trying to be robust
-> against wrong inputs because that adds cpu cycles for everybody for
-> "what if buggy" code. This has worked (surprisingly) well. Memory less
-> nodes have brought in some confusion but this is still something that we
-> can address on a higher level. Nobody give arbitrary nodes as an input.
-> cpu_to_node might be tricky because it can point to a memory less node
-> which along with __GFP_THISNODE is very likely not something anybody
-> wants. Hence cpu_to_mem should be used for allocations. I hate we have
-> two very similar APIs...
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
 
-To be precise, I'm wondering if we should do:
+[1]. https://openqa.qa.codethink.co.uk/tests/328
 
-diff --git a/include/linux/gfp.h b/include/linux/gfp.h
-index 55b2ec1f965a..8c49b88336ee 100644
---- a/include/linux/gfp.h
-+++ b/include/linux/gfp.h
-@@ -565,7 +565,7 @@ static inline struct page *
- __alloc_pages_node(int nid, gfp_t gfp_mask, unsigned int order)
- {
-        VM_BUG_ON(nid < 0 || nid >= MAX_NUMNODES);
--       VM_WARN_ON((gfp_mask & __GFP_THISNODE) && !node_online(nid));
-+       VM_WARN_ON(!node_online(nid));
 
-        return __alloc_pages(gfp_mask, order, nid, NULL);
- }
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-(Or maybe VM_BUG_ON)
-
-Because it cannot possibly work and we'll dereference NULL later.
-
-> 
-> But something seems wrong in this case. cpu_to_node shouldn't return
-> offline nodes. That is just a land mine. It is not clear to me how the
-> cpu has been brought up so that the numa node allocation was left
-> behind. As pointed in other email add_cpu resp. cpu_up is not it.
-> Is it possible that the cpu bring up was only half way?
-
-I tried to follow the code (what sets a CPU present, what sets a CPU
-online, when do we update cpu_to_node() mapping) and IMHO it's all a big
-mess. Maybe it's clearer to people familiar with that code, but CPU
-hotplug in general seems to be a confusing piece of (arch-specific) code.
-
-Also, I have no clue if cpu_to_node() mapping will get invalidated after
-unplugging that CPU, or if the mapping will simply stay around for all
-eternity ...
-
--- 
-Thanks,
-
-David / dhildenb
+--
+Regards
+Sudip
 
