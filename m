@@ -2,76 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 212044432EB
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 17:36:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1549244331E
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 17:38:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235084AbhKBQjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 12:39:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41648 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235108AbhKBQir (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 12:38:47 -0400
-Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [IPv6:2a0a:51c0:0:12e:520::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 729C8C079780;
-        Tue,  2 Nov 2021 09:24:09 -0700 (PDT)
-Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
-        (envelope-from <fw@strlen.de>)
-        id 1mhwZu-0002xs-Mh; Tue, 02 Nov 2021 17:24:02 +0100
-Date:   Tue, 2 Nov 2021 17:24:02 +0100
-From:   Florian Westphal <fw@strlen.de>
-To:     Arturo Borrero Gonzalez <arturo@netfilter.org>
-Cc:     "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>,
-        Florian Westphal <fw@strlen.de>,
-        Lahav Schlesinger <lschlesinger@drivenets.com>,
-        David Ahern <dsahern@kernel.org>, stable@vger.kernel.org
-Subject: Re: Potential problem with VRF+conntrack after kernel upgrade
-Message-ID: <20211102162402.GB19266@breakpoint.cc>
-References: <1a816689-3960-eb6b-2256-9478265d2d8e@netfilter.org>
+        id S234803AbhKBQko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 12:40:44 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:32892 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235079AbhKBQjz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 12:39:55 -0400
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 9297A212C8;
+        Tue,  2 Nov 2021 16:37:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1635871036; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=7nyVmI1mw9hsrpGGFASoS9zmXwbZwXMt3G3NBwpCKoI=;
+        b=oxpUqcVUqOdx58uNgbc5N6ILlWgD3iJ5JPVwc2mdzgH+1mj50dvEB5b+/uhhjl1TRp4gBu
+        LqFrZ2K4t2GlUf0LdITJXWcCqKYJmqnEd8YJ6PgxhFZwI0AAMs5q04OFKDqkXCyB+mTm9w
+        KVRl2sit9AWi35m02eH2qPy1jDHOqoQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1635871036;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=7nyVmI1mw9hsrpGGFASoS9zmXwbZwXMt3G3NBwpCKoI=;
+        b=ap4V+wyZXiSnHi24Hqmm/NJJvV092FZptqOKrb38V8qzI3Vs9bcV3t1Y6DRPVnoyqcb2wL
+        AceBPKZEc9ueKnCQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 949F313BB8;
+        Tue,  2 Nov 2021 16:37:15 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id i3BsIjtpgWGhcQAAMHmgww
+        (envelope-from <jroedel@suse.de>); Tue, 02 Nov 2021 16:37:15 +0000
+Date:   Tue, 2 Nov 2021 17:37:13 +0100
+From:   Joerg Roedel <jroedel@suse.de>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Borislav Petkov <bp@alien8.de>, Joerg Roedel <joro@8bytes.org>,
+        x86@kernel.org, kexec@lists.infradead.org, stable@vger.kernel.org,
+        hpa@zytor.com, Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Slaby <jslaby@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        David Rientjes <rientjes@google.com>,
+        Cfir Cohen <cfir@google.com>,
+        Erdem Aktas <erdemaktas@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mike Stunes <mstunes@vmware.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Martin Radev <martin.b.radev@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        linux-coco@lists.linux.dev, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v2 01/12] kexec: Allow architecture code to opt-out at
+ runtime
+Message-ID: <YYFpOfovSN2Af+ux@suse.de>
+References: <20210913155603.28383-1-joro@8bytes.org>
+ <20210913155603.28383-2-joro@8bytes.org>
+ <YYARccITlowHABg1@zn.tnic>
+ <87pmrjbmy9.fsf@disp2133>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1a816689-3960-eb6b-2256-9478265d2d8e@netfilter.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <87pmrjbmy9.fsf@disp2133>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Arturo Borrero Gonzalez <arturo@netfilter.org> wrote:
+On Mon, Nov 01, 2021 at 04:11:42PM -0500, Eric W. Biederman wrote:
+> I seem to remember the consensus when this was reviewed that it was
+> unnecessary and there is already support for doing something like
+> this at a more fine grained level so we don't need a new kexec hook.
 
-[ cc stable@ ]
+It was a discussion, no consenus :)
 
-> We experienced a major network outage today when upgrading kernels.
-> 
-> The affected servers run the VRF+conntrack+nftables combo. They are edge
-> firewalls/NAT boxes, meaning most interesting traffic is not locally
-> generated, but forwarded.
-> 
-> What we experienced is NATed traffic in the reply direction never being
-> forwarded back to the original client.
-> 
-> Good kernel: 5.10.40 (debian 5.10.0-0.bpo.7-amd64)
-> Bad kernel: 5.10.70 (debian 5.10.0-0.bpo.9-amd64)
-> 
-> I suspect the problem may be related to this patch:
-> https://x-lore.kernel.org/stable/20210824165908.709932-58-sashal@kernel.org/
+I still think it is better to solve this in generic code for everybody
+to re-use than with an hack in the architecture hooks.
 
-This commit has been reverted upstream:
+More and more platforms which enable confidential computing features
+may need this hook in the future.
 
-55161e67d44fdd23900be166a81e996abd6e3be9
-("vrf: Revert "Reset skb conntrack connection...").
+Regards,
 
-Sasha, Greg, it would be good if you could apply this revert to all
-stable trees that have a backport of
-09e856d54bda5f288ef8437a90ab2b9b3eab83d1
-("vrf: Reset skb conntrack connection on VRF rcv").
+-- 
+Jörg Rödel
+jroedel@suse.de
 
-Arturo, it would be good if you could check current linux.git or
-net.git -- those contain the revert + an alternate approach to address
-the problem that 09e856d54bda5f288ef8437a90ab2b9b3eab83d1 tried to fix.
-
-If net.git is still broken for your use case it would be great if you
-could extend this test script:
-
-https://patchwork.ozlabs.org/project/netfilter-devel/patch/20211018123813.17248-1-fw@strlen.de/
-
-this would help to figure out what the issue is.
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5
+90409 Nürnberg
+Germany
+ 
+(HRB 36809, AG Nürnberg)
+Geschäftsführer: Ivo Totev
