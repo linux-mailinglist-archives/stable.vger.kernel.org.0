@@ -2,132 +2,300 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89A4B442A13
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 10:04:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41203442A42
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 10:20:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229720AbhKBJHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 05:07:00 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:58468 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229612AbhKBJG6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 05:06:58 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 58FE92190B;
-        Tue,  2 Nov 2021 09:04:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1635843863; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=FQEk7euf1G3s43BnBfla4wo2KxK/XLAKoQBCeTgbFlg=;
-        b=gwqfHlozMmRuDrNEqUdlPz/QNOyKLaEHUOPCTD/fwVhFXUbh95iEqVl1jM6gHypg8HqxA0
-        WcYpkHBTHRNlmo9prJIrq672nWBeFKVmSyLyT5NOJPo4LH8mMuEwoIm8KaFBJXupjkebRG
-        gth4aIr8JV0/YYHlfbvSFfluFwCcmcE=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S230281AbhKBJWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 05:22:34 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:52702 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229505AbhKBJWe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 05:22:34 -0400
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 26AD0A3B83;
-        Tue,  2 Nov 2021 09:04:23 +0000 (UTC)
-Date:   Tue, 2 Nov 2021 10:04:22 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Alexey Makhalov <amakhalov@vmware.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Oscar Salvador <OSalvador@suse.com>
-Subject: Re: [PATCH] mm: fix panic in __alloc_pages
-Message-ID: <YYD/FkpAk5IvmOux@dhcp22.suse.cz>
-References: <20211101201312.11589-1-amakhalov@vmware.com>
- <YYDtDkGNylpAgPIS@dhcp22.suse.cz>
- <7136c959-63ff-b866-b8e4-f311e0454492@redhat.com>
- <C69EF2FE-DFF6-492E-AD40-97A53739C3EC@vmware.com>
+        by smtp-out2.suse.de (Postfix) with ESMTPS id F41AD1FD75;
+        Tue,  2 Nov 2021 09:19:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1635844799; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=6Lc7Goygk5VwSWDn5qxlt2rJEPVKdXkQNXP9nghaPrU=;
+        b=btySieH8OaU+6gORF4X44B5hnvB+XnszYnE8YsP3dCXgxJTajhML2MeWp3Kfg3CRs1iedR
+        jKsl9tN0xl1e6UGW81USzJlUmElu99Ddsw4ZuOq0dV8oUwTOPdHGmRQ3B4Eg7225I9BbJQ
+        iUum4rbjB/BlTmt/T9kCRwMjKiiKJTM=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B316213BAA;
+        Tue,  2 Nov 2021 09:19:58 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id IihJKr4CgWG2fgAAMHmgww
+        (envelope-from <jgross@suse.com>); Tue, 02 Nov 2021 09:19:58 +0000
+From:   Juergen Gross <jgross@suse.com>
+To:     xen-devel@lists.xenproject.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Juergen Gross <jgross@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>
+Subject: [PATCH v4] xen/balloon: add late_initcall_sync() for initial ballooning done
+Date:   Tue,  2 Nov 2021 10:19:44 +0100
+Message-Id: <20211102091944.17487-1-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <C69EF2FE-DFF6-492E-AD40-97A53739C3EC@vmware.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It is hard to follow your reply as your email client is not quoting
-properly. Let me try to reconstruct
+When running as PVH or HVM guest with actual memory < max memory the
+hypervisor is using "populate on demand" in order to allow the guest
+to balloon down from its maximum memory size. For this to work
+correctly the guest must not touch more memory pages than its target
+memory size as otherwise the PoD cache will be exhausted and the guest
+is crashed as a result of that.
 
-On Tue 02-11-21 08:48:27, Alexey Makhalov wrote:
-> On 02.11.21 08:47, Michal Hocko wrote:
-[...]
->>>>  CPU2 has been hot-added
->>>>  BUG: unable to handle page fault for address: 0000000000001608
->>>>  #PF: supervisor read access in kernel mode
->>>>  #PF: error_code(0x0000) - not-present page
->>>>  PGD 0 P4D 0
->>>>  Oops: 0000 [#1] SMP PTI
->>>>  CPU: 0 PID: 1 Comm: systemd Tainted: G            E     5.15.0-rc7+ #11
->>>>  Hardware name: VMware, Inc. VMware7,1/440BX Desktop Reference Platform, BIOS VMW
->>>>
->>>>  RIP: 0010:__alloc_pages+0x127/0x290
->>> 
->>> Could you resolve this into a specific line of the source code please?
+In extreme cases ballooning down might not be finished today before
+the init process is started, which can consume lots of memory.
 
-This got probably unnoticed. I would be really curious whether this is
-a broken zonelist or something else.
+In order to avoid random boot crashes in such cases, add a late init
+call to wait for ballooning down having finished for PVH/HVM guests.
+
+Warn on console if initial ballooning fails, panic() after stalling
+for more than 3 minutes per default. Add a module parameter for
+changing this timeout.
+
+Cc: <stable@vger.kernel.org>
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+V2:
+- add warning and panic() when stalling (Marek Marczykowski-Górecki)
+- don't wait if credit > 0
+V3:
+- issue warning only after ballooning failed (Marek Marczykowski-Górecki)
+- make panic() timeout configurable via parameter
+V4:
+- fix boot parameter (Boris Ostrovsky)
+- set new state directly in update_schedule() (Boris Ostrovsky)
+---
+ .../admin-guide/kernel-parameters.txt         |  7 ++
+ drivers/xen/balloon.c                         | 86 ++++++++++++++-----
+ 2 files changed, 70 insertions(+), 23 deletions(-)
+
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 43dc35fe5bc0..1396fd2d9031 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -6349,6 +6349,13 @@
+ 			improve timer resolution at the expense of processing
+ 			more timer interrupts.
  
->>>> Node can be in one of the following states:
->>>> 1. not present (nid == NUMA_NO_NODE)
->>>> 2. present, but offline (nid > NUMA_NO_NODE, node_online(nid) == 0,
->>>> 				NODE_DATA(nid) == NULL)
->>>> 3. present and online (nid > NUMA_NO_NODE, node_online(nid) > 0,
->>>> 				NODE_DATA(nid) != NULL)
->>>>
->>>> alloc_page_{bulk_array}node() functions verify for nid validity only
->>>> and do not check if nid is online. Enhanced verification check allows
->>>> to handle page allocation when node is in 2nd state.
->>> 
->>> I do not think this is a correct approach. We should make sure that the
->>> proper fallback node is used instead. This means that the zone list is
->>> initialized properly. IIRC this has been a problem in the past and it
->>> has been fixed. The initialization code is quite subtle though so it is
->>> possible that this got broken again.
-
-> This approach behaves in the same way as CPU was not yet added. (state #1).
-> So, we can think of state #2 as state #1 when CPU is not present.
-
->> I'm a little confused:
->> 
->> In add_memory_resource() we hotplug the new node if required and set it
->> online. Memory might get onlined later, via online_pages().
->
-> You are correct. In case of memory hot add, it is true. But in case of adding
-> CPU with memoryless node, try_node_online() will be called only during CPU
-> onlining, see cpu_up().
-> 
-> Is there any reason why try_online_node() resides in cpu_up() and not in add_cpu()?
-> I think it would be correct to online node during the CPU hot add to align with
-> memory hot add.
-
-I am not familiar with cpu hotplug, but this doesn't seem to be anything
-new so how come this became problem only now?
-
->> So after add_memory_resource()->__try_online_node() succeeded, we have
->> an online pgdat -- essentially 3.
->> 
-> This patch detects if we're past 3. but says that it reproduced by
-> disabling *memory* onlining.
-> This is the hot adding of both new CPU and new _memoryless_ node (with CPU only)
-> And onlining CPU makes its node online. Disabling CPU onlining puts new node
-> into state #2, which leads to repro.    
-> 
->> Before we online memory for a hotplugged node, all zones are !populated.
->> So once we online memory for a !populated zone in online_pages(), we
->> trigger setup_zone_pageset().
->> 
->> 
->> The confusing part is that this patch checks for 3. but says it can be
->> reproduced by not onlining *memory*. There seems to be something missing.
-> 
-> Do we maybe need a proper populated_zone() check before accessing zone data?
-
-No, we need them initialize properly.
++	xen.balloon_boot_timeout= [XEN]
++			The time (in seconds) to wait before giving up to boot
++			in case initial ballooning fails to free enough memory.
++			Applies only when running as HVM or PVH guest and
++			started with less memory configured than allowed at
++			max. Default is 180.
++
+ 	xen.event_eoi_delay=	[XEN]
+ 			How long to delay EOI handling in case of event
+ 			storms (jiffies). Default is 10.
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index 3a50f097ed3e..3a661b7697d4 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -58,6 +58,7 @@
+ #include <linux/percpu-defs.h>
+ #include <linux/slab.h>
+ #include <linux/sysctl.h>
++#include <linux/moduleparam.h>
+ 
+ #include <asm/page.h>
+ #include <asm/tlb.h>
+@@ -73,6 +74,12 @@
+ #include <xen/page.h>
+ #include <xen/mem-reservation.h>
+ 
++#undef MODULE_PARAM_PREFIX
++#define MODULE_PARAM_PREFIX "xen."
++
++static uint __read_mostly balloon_boot_timeout = 180;
++module_param(balloon_boot_timeout, uint, 0444);
++
+ static int xen_hotplug_unpopulated;
+ 
+ #ifdef CONFIG_XEN_BALLOON_MEMORY_HOTPLUG
+@@ -125,12 +132,12 @@ static struct ctl_table xen_root[] = {
+  * BP_ECANCELED: error, balloon operation canceled.
+  */
+ 
+-enum bp_state {
++static enum bp_state {
+ 	BP_DONE,
+ 	BP_WAIT,
+ 	BP_EAGAIN,
+ 	BP_ECANCELED
+-};
++} balloon_state = BP_DONE;
+ 
+ /* Main waiting point for xen-balloon thread. */
+ static DECLARE_WAIT_QUEUE_HEAD(balloon_thread_wq);
+@@ -199,18 +206,15 @@ static struct page *balloon_next_page(struct page *page)
+ 	return list_entry(next, struct page, lru);
+ }
+ 
+-static enum bp_state update_schedule(enum bp_state state)
++static void update_schedule(void)
+ {
+-	if (state == BP_WAIT)
+-		return BP_WAIT;
+-
+-	if (state == BP_ECANCELED)
+-		return BP_ECANCELED;
++	if (balloon_state == BP_WAIT || balloon_state == BP_ECANCELED)
++		return;
+ 
+-	if (state == BP_DONE) {
++	if (balloon_state == BP_DONE) {
+ 		balloon_stats.schedule_delay = 1;
+ 		balloon_stats.retry_count = 1;
+-		return BP_DONE;
++		return;
+ 	}
+ 
+ 	++balloon_stats.retry_count;
+@@ -219,7 +223,8 @@ static enum bp_state update_schedule(enum bp_state state)
+ 			balloon_stats.retry_count > balloon_stats.max_retry_count) {
+ 		balloon_stats.schedule_delay = 1;
+ 		balloon_stats.retry_count = 1;
+-		return BP_ECANCELED;
++		balloon_state = BP_ECANCELED;
++		return;
+ 	}
+ 
+ 	balloon_stats.schedule_delay <<= 1;
+@@ -227,7 +232,7 @@ static enum bp_state update_schedule(enum bp_state state)
+ 	if (balloon_stats.schedule_delay > balloon_stats.max_schedule_delay)
+ 		balloon_stats.schedule_delay = balloon_stats.max_schedule_delay;
+ 
+-	return BP_EAGAIN;
++	balloon_state = BP_EAGAIN;
+ }
+ 
+ #ifdef CONFIG_XEN_BALLOON_MEMORY_HOTPLUG
+@@ -494,9 +499,9 @@ static enum bp_state decrease_reservation(unsigned long nr_pages, gfp_t gfp)
+  * Stop waiting if either state is BP_DONE and ballooning action is
+  * needed, or if the credit has changed while state is not BP_DONE.
+  */
+-static bool balloon_thread_cond(enum bp_state state, long credit)
++static bool balloon_thread_cond(long credit)
+ {
+-	if (state == BP_DONE)
++	if (balloon_state == BP_DONE)
+ 		credit = 0;
+ 
+ 	return current_credit() != credit || kthread_should_stop();
+@@ -510,13 +515,12 @@ static bool balloon_thread_cond(enum bp_state state, long credit)
+  */
+ static int balloon_thread(void *unused)
+ {
+-	enum bp_state state = BP_DONE;
+ 	long credit;
+ 	unsigned long timeout;
+ 
+ 	set_freezable();
+ 	for (;;) {
+-		switch (state) {
++		switch (balloon_state) {
+ 		case BP_DONE:
+ 		case BP_ECANCELED:
+ 			timeout = 3600 * HZ;
+@@ -532,7 +536,7 @@ static int balloon_thread(void *unused)
+ 		credit = current_credit();
+ 
+ 		wait_event_freezable_timeout(balloon_thread_wq,
+-			balloon_thread_cond(state, credit), timeout);
++			balloon_thread_cond(credit), timeout);
+ 
+ 		if (kthread_should_stop())
+ 			return 0;
+@@ -543,22 +547,23 @@ static int balloon_thread(void *unused)
+ 
+ 		if (credit > 0) {
+ 			if (balloon_is_inflated())
+-				state = increase_reservation(credit);
++				balloon_state = increase_reservation(credit);
+ 			else
+-				state = reserve_additional_memory();
++				balloon_state = reserve_additional_memory();
+ 		}
+ 
+ 		if (credit < 0) {
+ 			long n_pages;
+ 
+ 			n_pages = min(-credit, si_mem_available());
+-			state = decrease_reservation(n_pages, GFP_BALLOON);
+-			if (state == BP_DONE && n_pages != -credit &&
++			balloon_state = decrease_reservation(n_pages,
++							     GFP_BALLOON);
++			if (balloon_state == BP_DONE && n_pages != -credit &&
+ 			    n_pages < totalreserve_pages)
+-				state = BP_EAGAIN;
++				balloon_state = BP_EAGAIN;
+ 		}
+ 
+-		state = update_schedule(state);
++		update_schedule();
+ 
+ 		mutex_unlock(&balloon_mutex);
+ 
+@@ -765,3 +770,38 @@ static int __init balloon_init(void)
+ 	return 0;
+ }
+ subsys_initcall(balloon_init);
++
++static int __init balloon_wait_finish(void)
++{
++	long credit, last_credit = 0;
++	unsigned long last_changed = 0;
++
++	if (!xen_domain())
++		return -ENODEV;
++
++	/* PV guests don't need to wait. */
++	if (xen_pv_domain() || !current_credit())
++		return 0;
++
++	pr_info("Waiting for initial ballooning down having finished.\n");
++
++	while ((credit = current_credit()) < 0) {
++		if (credit != last_credit) {
++			last_changed = jiffies;
++			last_credit = credit;
++		}
++		if (balloon_state == BP_ECANCELED) {
++			pr_warn_once("Initial ballooning failed, %ld pages need to be freed.\n",
++				     -credit);
++			if (jiffies - last_changed >= HZ * balloon_boot_timeout)
++				panic("Initial ballooning failed!\n");
++		}
++
++		schedule_timeout_interruptible(HZ / 10);
++	}
++
++	pr_info("Initial ballooning down finished.\n");
++
++	return 0;
++}
++late_initcall_sync(balloon_wait_finish);
 -- 
-Michal Hocko
-SUSE Labs
+2.26.2
+
