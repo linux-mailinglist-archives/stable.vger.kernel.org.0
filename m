@@ -2,140 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 623AC442F4E
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 14:48:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0F58442F74
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 14:52:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229924AbhKBNuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 09:50:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60414 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229530AbhKBNun (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 09:50:43 -0400
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [IPv6:2404:9400:2:0:216:3eff:fee2:21ea])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE26C061714;
-        Tue,  2 Nov 2021 06:48:08 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        id S231326AbhKBNyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 09:54:40 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:43750 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229530AbhKBNyj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 09:54:39 -0400
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4HkB796FKqz4xbd;
-        Wed,  3 Nov 2021 00:48:05 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1635860886;
-        bh=BXsWrBorknGmHfDZYTQq6a8lqYf7TkEi2iiyehPn3Q4=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=LY2Qlq49JuSlQEWtKEO0vu6ZSVqEzq2uEGfLAJfHz94UdsNi5LaKp1eXCtoQ8p51Z
-         8CyEccP/WN2VLSRPzFYzfqdw+YEsW4zPPKbIpXN1JpBNREdwoqdYDhDVbgtXSiAcCE
-         1o6qP3TuH5bR4AzwJCPjAnKqT/tTcg8EMJLW8GV7wy3pdJhDeENInI8nS4K08Y+3Yu
-         l1yZBjRtup3I9D/TIimuMz+fWP8UaMptjzPaiT4mV+ZuKlbChiIcQv5sO/1AqVVWxS
-         scxhuLolZpHNsYFN0etrP/QORG0pFm4znGV5JvnwtFSMXnzz78eUJXkHj/P4T7URHG
-         PVnmDdxc2HxUw==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, ast@kernel.org,
-        christophe.leroy@csgroup.eu,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Hari Bathini <hbathini@linux.ibm.com>, jniethe5@gmail.com
-Cc:     andrii@kernel.org, bpf@vger.kernel.org, john.fastabend@gmail.com,
-        kafai@fb.com, kpsingh@kernel.org, linuxppc-dev@lists.ozlabs.org,
-        netdev@vger.kernel.org, paulus@samba.org, songliubraving@fb.com,
-        stable@vger.kernel.org, yhs@fb.com
-Subject: Re: [PATCH] powerpc/bpf: fix write protecting JIT code
-In-Reply-To: <1635854227.x13v13l6az.naveen@linux.ibm.com>
-References: <20211025055649.114728-1-hbathini@linux.ibm.com>
- <1635142354.46h6w5c2rx.naveen@linux.ibm.com>
- <c8d7390b-c07c-75cd-e9e9-4b8f0b786cc6@iogearbox.net>
- <87zgqs8upq.fsf@mpe.ellerman.id.au>
- <1635854227.x13v13l6az.naveen@linux.ibm.com>
-Date:   Wed, 03 Nov 2021 00:48:03 +1100
-Message-ID: <87h7cu8y98.fsf@mpe.ellerman.id.au>
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 1DC641FD3D;
+        Tue,  2 Nov 2021 13:52:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1635861124; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=QuhDls7hbN4UKLnf4cjWDbk3jK59u3TGKj6IxVYK1C0=;
+        b=Mz70zonVUxIqoOeRaeX5b5iUesoDtqU//LQYeHkDgXEKjZQk4BPwUh8Q16H3FfqeqNwUqG
+        Px3SmOC855+OXTRcIH6tJp7WxKC2sHqjGKVlqQLMhnQXvfVydyFhK0UDRonvKC1dYzjzep
+        Z1Ha7d1cNAV4S2M5nLHI/2S9uU+il6o=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1635861124;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=QuhDls7hbN4UKLnf4cjWDbk3jK59u3TGKj6IxVYK1C0=;
+        b=DF7kJtMQlHoUDmQXqJHlVbSNLh6MVgIoT2I1y+rquXauor8l5KxpS/H5gNXP7KX88yHphb
+        N9rPZG2TjYJCrEAg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 7E41613D66;
+        Tue,  2 Nov 2021 13:52:03 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id uxBiG4NCgWHKGAAAMHmgww
+        (envelope-from <osalvador@suse.de>); Tue, 02 Nov 2021 13:52:03 +0000
+Date:   Tue, 2 Nov 2021 14:52:01 +0100
+From:   Oscar Salvador <osalvador@suse.de>
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Oscar Salvador <OSalvador@suse.com>
+Subject: Re: [PATCH] mm: fix panic in __alloc_pages
+Message-ID: <20211102135201.GA4348@linux>
+References: <C69EF2FE-DFF6-492E-AD40-97A53739C3EC@vmware.com>
+ <YYD/FkpAk5IvmOux@dhcp22.suse.cz>
+ <b2e4a611-45a6-732a-a6d3-6042afd2af6e@redhat.com>
+ <E34422F0-A44A-48FD-AE3B-816744359169@vmware.com>
+ <b3908fce-6b07-8390-b691-56dd2f85c05f@redhat.com>
+ <YYEkqH8l0ASWv/JT@dhcp22.suse.cz>
+ <42abfba6-b27e-ca8b-8cdf-883a9398b506@redhat.com>
+ <YYEun6s/mF9bE+rQ@dhcp22.suse.cz>
+ <e7aed7c0-b7b1-4a94-f323-0bcde2f879d2@redhat.com>
+ <YYE8L4gs8/+HH6bf@dhcp22.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YYE8L4gs8/+HH6bf@dhcp22.suse.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-"Naveen N. Rao" <naveen.n.rao@linux.ibm.com> writes:
-> Michael Ellerman wrote:
->> Daniel Borkmann <daniel@iogearbox.net> writes:
->>> On 10/25/21 8:15 AM, Naveen N. Rao wrote:
->>>> Hari Bathini wrote:
->>>>> Running program with bpf-to-bpf function calls results in data access
->>>>> exception (0x300) with the below call trace:
->>>>>
->>>>> =C2=A0=C2=A0=C2=A0 [c000000000113f28] bpf_int_jit_compile+0x238/0x750=
- (unreliable)
->>>>> =C2=A0=C2=A0=C2=A0 [c00000000037d2f8] bpf_check+0x2008/0x2710
->>>>> =C2=A0=C2=A0=C2=A0 [c000000000360050] bpf_prog_load+0xb00/0x13a0
->>>>> =C2=A0=C2=A0=C2=A0 [c000000000361d94] __sys_bpf+0x6f4/0x27c0
->>>>> =C2=A0=C2=A0=C2=A0 [c000000000363f0c] sys_bpf+0x2c/0x40
->>>>> =C2=A0=C2=A0=C2=A0 [c000000000032434] system_call_exception+0x164/0x3=
-30
->>>>> =C2=A0=C2=A0=C2=A0 [c00000000000c1e8] system_call_vectored_common+0xe=
-8/0x278
->>>>>
->>>>> as bpf_int_jit_compile() tries writing to write protected JIT code
->>>>> location during the extra pass.
->>>>>
->>>>> Fix it by holding off write protection of JIT code until the extra
->>>>> pass, where branch target addresses fixup happens.
->>>>>
->>>>> Cc: stable@vger.kernel.org
->>>>> Fixes: 62e3d4210ac9 ("powerpc/bpf: Write protect JIT code")
->>>>> Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
->>>>> ---
->>>>> =C2=A0arch/powerpc/net/bpf_jit_comp.c | 2 +-
->>>>> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
->>>>=20
->>>> Thanks for the fix!
->>>>=20
->>>> Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
->>>
->>> LGTM, I presume this fix will be routed via Michael.
->>=20
->> Thanks for reviewing, I've picked it up.
->>=20
->>> BPF selftests have plenty of BPF-to-BPF calls in there, too bad this was
->>> caught so late. :/
->>=20
->> Yeah :/
->>=20
->> STRICT_KERNEL_RWX is not on by default in all our defconfigs, so that's
->> probably why no one caught it.
->
-> Yeah, sorry - we should have caught this sooner.
->
->>=20
->> I used to run the BPF selftests but they stopped building for me a while
->> back, I'll see if I can get them going again.
->
-> Ravi had started looking into getting the selftests working well before=20
-> he left. I will take a look at this.
+On Tue, Nov 02, 2021 at 02:25:03PM +0100, Michal Hocko wrote:
+> I think we want to learn how exactly Alexey brought that cpu up. Because
+> his initial thought on add_cpu resp cpu_up doesn't seem to be correct.
+> Or I am just not following the code properly. Once we know all those
+> details we can get in touch with cpu hotplug maintainers and see what
+> can we do.
 
-Thanks.
+I am not really familiar with CPU hot-onlining, but I have been taking a look.
+As with memory, there are two different stages, hot-adding and onlining (and the
+counterparts).
 
-I got them building with something like:
+Part of the hot-adding being:
 
- - turning on DEBUG_INFO and DEBUG_INFO_BTF and rebuilding vmlinux
- - grabbing clang 13 from:=20
-   https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/cl=
-ang+llvm-13.0.0-powerpc64le-linux-ubuntu-18.04.tar.xz
- - PATH=3D$HOME/clang+llvm-13.0.0-powerpc64le-linux-ubuntu-18.04/bin/:$PATH
- - apt install:
-   - libelf-dev
-   - dwarves
-   - python-docutils
-   - libcap-dev
+acpi_processor_get_info
+ acpi_processor_hotadd_init
+  arch_register_cpu
+   register_cpu
+
+One of the things that register_cpu() does is to set cpu->dev.bus pointing to
+&cpu_subsys, which is:
+
+struct bus_type cpu_subsys = {
+	.name = "cpu",
+	.dev_name = "cpu",
+	.match = cpu_subsys_match,
+#ifdef CONFIG_HOTPLUG_CPU
+	.online = cpu_subsys_online,
+	.offline = cpu_subsys_offline,
+#endif
+};
+
+Then, the onlining part (in case of a udev rule or someone onlining the device)
+would be:
+
+online_store
+ device_online
+  cpu_subsys_online
+   cpu_device_up
+    cpu_up
+     ...
+     online node
+
+Since Alexey disabled the udev rule and no one onlined the CPU, online_store()->
+device_online() wasn't really called.
+
+The following only applies to x86_64:
+I think we got confused because cpu_device_up() is also called from add_cpu(),
+but that is an exported function and x86 does not call add_cpu() unless for
+debugging purposes (check kernel/torture.c and arch/x86/kernel/topology.c).
+It does the onlining through online_store()...
+So we can take add_cpu() off the equation here.
 
 
-The DEBUG_INFO requirement is a bit of a pain for me. I generally don't
-build with that enabled, because the resulting kernels are stupidly
-large. I'm not sure if that's a hard requirement, or if the vmlinux has
-to match the running kernel exactly?
-
-There is logic in tools/testing/bpf/Makefile to use VMLINUX_H instead of
-extracting the BTF from the vmlinux (line 247), but AFAICS that's
-unreachable since 1a3449c19407 ("selftests/bpf: Clarify build error if
-no vmlinux"), which makes it a hard error to not have a VMLINUX_BTF.
-
-cheers
+-- 
+Oscar Salvador
+SUSE Labs
