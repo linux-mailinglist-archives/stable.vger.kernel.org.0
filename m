@@ -2,115 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DF0B442EC0
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 14:04:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F204442F14
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 14:25:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230518AbhKBNGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 09:06:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:21426 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229924AbhKBNGg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 09:06:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1635858241;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        id S229924AbhKBN1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 09:27:40 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:41762 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230170AbhKBN1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 09:27:39 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id E13231FD4B;
+        Tue,  2 Nov 2021 13:25:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1635859503; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=F5yWkmOg5/0evPimUvtS3b9rTndZ2SZlpCnwbNELc7c=;
-        b=PMSbfmEWo7tP53+HkkNAuX2kzBCQLd/667tNRIE/HL+q+fVQFXb2X4BTy2sn7F514JJpxR
-        4Ws0cPJelUd5VNuEYJdTB9Ma9zT+msZDxJz/qtxlIw/oy9K3bG0i8jky/EvnpvD6g5A7RY
-        dIurL4+UDJdhQXe+Qkf//U8AC5A+EuA=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-3-wCLeod3NPSW8e7fk6m004Q-1; Tue, 02 Nov 2021 09:04:00 -0400
-X-MC-Unique: wCLeod3NPSW8e7fk6m004Q-1
-Received: by mail-wm1-f72.google.com with SMTP id g11-20020a1c200b000000b003320d092d08so3912927wmg.9
-        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 06:03:59 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
-         :message-id:mime-version;
-        bh=F5yWkmOg5/0evPimUvtS3b9rTndZ2SZlpCnwbNELc7c=;
-        b=U+T0EaszggbDdVN8XjK1UFQmt/c206SFOXW2e74DJsxip//4HR0RMfCXT75RSCYvlH
-         TAntnLKVCXJ3UBWQN0YLi+YeNM0x5qmMQtRKqwiucPhA2cLsYfzV8XQ12DRhre7F+NSc
-         5RNQgHzV4JtAjYCoTcIVgLk6Bv2dwShPfH1K9oO79wfuPSRVBr7n4IWJVuVUKViX+DMU
-         Lc9C/EVyoYvaaWatE2R1frk0LmvjlNw4d7rB88Nouye2yIVbwClGsd2fAkeysd9A2qa2
-         ipLhLaK8wm124uhIL2J3+EDbexC2jJpSdQn1vsqCL3bK3VPabljDHXUSNa8G40QQy1c9
-         wtxg==
-X-Gm-Message-State: AOAM531sI6rrqlNjTHihpysotDGkNHhhH1SBygB6BzYmObrUj9eEfvVq
-        KEBuzerPXbOsYG1HMSVQUIl7Cgeu2IncEnH6Fhi4vY50Aj7hj+fizwrRFUCjpXi1LVUUtMqANs3
-        yVJ2kk6RbxDDWdMP9
-X-Received: by 2002:adf:d1e3:: with SMTP id g3mr46970711wrd.63.1635858238934;
-        Tue, 02 Nov 2021 06:03:58 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzuDILBX8p9T4euEWEY2xWP7A4Nb7oizJIhNiY6eGE/hNzVLg2a0xhHfdf5bmVh6MTgKK0GBQ==
-X-Received: by 2002:adf:d1e3:: with SMTP id g3mr46970686wrd.63.1635858238747;
-        Tue, 02 Nov 2021 06:03:58 -0700 (PDT)
-Received: from vitty.brq.redhat.com (g-server-2.ign.cz. [91.219.240.2])
-        by smtp.gmail.com with ESMTPSA id k37sm2389496wms.21.2021.11.02.06.03.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Nov 2021 06:03:58 -0700 (PDT)
-From:   Vitaly Kuznetsov <vkuznets@redhat.com>
-To:     Boqun Feng <boqun.feng@gmail.com>, linux-hyperv@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Boqun Feng <boqun.feng@gmail.com>, stable@vger.kernel.org,
-        Baihua Lu <baihua.lu@microsoft.com>
-Subject: Re: [PATCH] Drivers: hv: balloon: Use VMBUS_RING_SIZE() wrapper for
- dm_ring_size
-In-Reply-To: <20211101150026.736124-1-boqun.feng@gmail.com>
-References: <20211101150026.736124-1-boqun.feng@gmail.com>
-Date:   Tue, 02 Nov 2021 14:03:57 +0100
-Message-ID: <87h7cuk8ua.fsf@vitty.brq.redhat.com>
+        bh=LwDs2sHGHE3IzcldDT02gDKZstNcYwZdum+ziVK7+28=;
+        b=FuXMBCMQdkMztrh1yd9gDX8FqCeehgRs+YFAUW/vBKrnbmAUQvOWg69oqyNNuxjCMFwr1n
+        y54GAMDAwZ0SS8n/kphoILa7wXVfJCsE82id5g/IE+snN8eyO7LhnGzC7I5rYa8ntrPBB+
+        YX1jZW7iOdh6w5/fboXWxplxK6rx+CA=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 9FDBBA3B8E;
+        Tue,  2 Nov 2021 13:25:03 +0000 (UTC)
+Date:   Tue, 2 Nov 2021 14:25:03 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Alexey Makhalov <amakhalov@vmware.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Oscar Salvador <OSalvador@suse.com>
+Subject: Re: [PATCH] mm: fix panic in __alloc_pages
+Message-ID: <YYE8L4gs8/+HH6bf@dhcp22.suse.cz>
+References: <7136c959-63ff-b866-b8e4-f311e0454492@redhat.com>
+ <C69EF2FE-DFF6-492E-AD40-97A53739C3EC@vmware.com>
+ <YYD/FkpAk5IvmOux@dhcp22.suse.cz>
+ <b2e4a611-45a6-732a-a6d3-6042afd2af6e@redhat.com>
+ <E34422F0-A44A-48FD-AE3B-816744359169@vmware.com>
+ <b3908fce-6b07-8390-b691-56dd2f85c05f@redhat.com>
+ <YYEkqH8l0ASWv/JT@dhcp22.suse.cz>
+ <42abfba6-b27e-ca8b-8cdf-883a9398b506@redhat.com>
+ <YYEun6s/mF9bE+rQ@dhcp22.suse.cz>
+ <e7aed7c0-b7b1-4a94-f323-0bcde2f879d2@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e7aed7c0-b7b1-4a94-f323-0bcde2f879d2@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Boqun Feng <boqun.feng@gmail.com> writes:
+On Tue 02-11-21 13:39:06, David Hildenbrand wrote:
+> >> Yes, but a zonelist cannot be correct for an offline node, where we might
+> >> not even have an allocated pgdat yet. No pgdat, no zonelist. So as soon as
+> >> we allocate the pgdat and set the node online (->hotadd_new_pgdat()), the zone lists have to be correct. And I can spot an build_all_zonelists() in hotadd_new_pgdat().
+> > 
+> > Yes, that is what I had in mind. We are talking about two things here.
+> > Memoryless nodes and offline nodes. The later sounds like a bug to me.
+> 
+> Agreed. memoryless nodes should just have proper zonelists -- which
+> seems to be the case.
+> 
+> >> Maybe __alloc_pages_bulk() and alloc_pages_node() should bail out directly
+> >> (VM_BUG()) in case we're providing an offline node with eventually no/stale pgdat as
+> >> preferred nid.
+> > 
+> > Historically, those allocation interfaces were not trying to be robust
+> > against wrong inputs because that adds cpu cycles for everybody for
+> > "what if buggy" code. This has worked (surprisingly) well. Memory less
+> > nodes have brought in some confusion but this is still something that we
+> > can address on a higher level. Nobody give arbitrary nodes as an input.
+> > cpu_to_node might be tricky because it can point to a memory less node
+> > which along with __GFP_THISNODE is very likely not something anybody
+> > wants. Hence cpu_to_mem should be used for allocations. I hate we have
+> > two very similar APIs...
+> 
+> To be precise, I'm wondering if we should do:
+> 
+> diff --git a/include/linux/gfp.h b/include/linux/gfp.h
+> index 55b2ec1f965a..8c49b88336ee 100644
+> --- a/include/linux/gfp.h
+> +++ b/include/linux/gfp.h
+> @@ -565,7 +565,7 @@ static inline struct page *
+>  __alloc_pages_node(int nid, gfp_t gfp_mask, unsigned int order)
+>  {
+>         VM_BUG_ON(nid < 0 || nid >= MAX_NUMNODES);
+> -       VM_WARN_ON((gfp_mask & __GFP_THISNODE) && !node_online(nid));
+> +       VM_WARN_ON(!node_online(nid));
+> 
+>         return __alloc_pages(gfp_mask, order, nid, NULL);
+>  }
+> 
+> (Or maybe VM_BUG_ON)
+> 
+> Because it cannot possibly work and we'll dereference NULL later.
 
-> Baihua reported an error when boot an ARM64 guest with PAGE_SIZE=64k and
-> BALLOON is enabled:
->
-> 	hv_vmbus: registering driver hv_balloon
-> 	hv_vmbus: probe failed for device 1eccfd72-4b41-45ef-b73a-4a6e44c12924 (-22)
->
-> The cause of this is that the ringbuffer size for hv_balloon is not
-> adjusted with VMBUS_RING_SIZE(), which makes the size not large enough
-> for ringbuffers on guest with PAGE_SIZE=64k. Therefore use
-> VMBUS_RING_SIZE() to calculate the ringbuffer size. Note that the old
-> size (20 * 1024) counts a 4k header in the total size, while
-> VMBUS_RING_SIZE() expects the parameter as the payload size, so use
-> 16 * 1024.
->
-> Cc: <stable@vger.kernel.org> # 5.15.x
-> Reported-by: Baihua Lu <baihua.lu@microsoft.com>
-> Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-> ---
->  drivers/hv/hv_balloon.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
-> index 7f11ea07d698..ca873a3b98db 100644
-> --- a/drivers/hv/hv_balloon.c
-> +++ b/drivers/hv/hv_balloon.c
-> @@ -480,7 +480,7 @@ module_param(pressure_report_delay, uint, (S_IRUGO | S_IWUSR));
->  MODULE_PARM_DESC(pressure_report_delay, "Delay in secs in reporting pressure");
->  static atomic_t trans_id = ATOMIC_INIT(0);
->  
-> -static int dm_ring_size = 20 * 1024;
-> +static int dm_ring_size = VMBUS_RING_SIZE(16 * 1024);
->  
->  /*
->   * Driver specific state.
+VM_BUG_ON would be silent for most configurations and crash would happen
+even without it so I am not sure about the additional value. VM_WARN_ON
+doesn't really add much on top - except it would crash in some
+configurations. If we really care to catch this case then we would have
+to do a reasonable fallback with a printk note and a dumps stack.
+Something like
+	if (unlikely(!node_online(nid))) {
+		pr_err("%d is an offline numa node and using it is a bug in a caller. Please report...\n");
+		dump_stack();
+		nid = numa_mem_id();
+	}
 
-Tested-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+But again this is adding quite some cycles to a hotpath of the page
+allocator. Is this worth it?
 
-Thanks!
+> > But something seems wrong in this case. cpu_to_node shouldn't return
+> > offline nodes. That is just a land mine. It is not clear to me how the
+> > cpu has been brought up so that the numa node allocation was left
+> > behind. As pointed in other email add_cpu resp. cpu_up is not it.
+> > Is it possible that the cpu bring up was only half way?
+> 
+> I tried to follow the code (what sets a CPU present, what sets a CPU
+> online, when do we update cpu_to_node() mapping) and IMHO it's all a big
+> mess. Maybe it's clearer to people familiar with that code, but CPU
+> hotplug in general seems to be a confusing piece of (arch-specific) code.
 
+Yes there are different arch specific parts that make this quite hard to
+follow.
+
+I think we want to learn how exactly Alexey brought that cpu up. Because
+his initial thought on add_cpu resp cpu_up doesn't seem to be correct.
+Or I am just not following the code properly. Once we know all those
+details we can get in touch with cpu hotplug maintainers and see what
+can we do.
+
+Btw. do you plan to send a patch for pcp allocator to use cpu_to_mem?
+One last thing, there were some mentions of __GFP_THISNODE but I fail to
+see connection with the pcp allocator...
 -- 
-Vitaly
-
+Michal Hocko
+SUSE Labs
