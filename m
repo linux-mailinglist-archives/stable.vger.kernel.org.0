@@ -2,244 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3317442912
-	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 09:05:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB415442923
+	for <lists+stable@lfdr.de>; Tue,  2 Nov 2021 09:12:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229823AbhKBII3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 04:08:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39236 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229497AbhKBII2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 04:08:28 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A35A9C061714
-        for <stable@vger.kernel.org>; Tue,  2 Nov 2021 01:05:53 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id r4so72278620edi.5
-        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 01:05:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=BpUXHehpO0L4RH7cQq/HeK6Cl2xp1SAYTz/IbfVB1Fk=;
-        b=sVhhf4hLr1hHL0FAWE/2GzyF7iHYiiI5a57k0YqAmDolqT+LeRDJV4pnjkrq+nI612
-         LtYkk36qFXfJ5omIsnQfpER6PdVacQjfhWUkANedhj9wmJqwgTmYWospdXmU/UDpwkED
-         dsIqyvf6pJ3CpHOw5cYwQXeV2iWaAxjoc8/+10EC5YTOie5f1OlXTzxX1nShY3u0ZLn1
-         w0DCSLZoq9ROh1qtIsw23RDby3lWuhmM5Gpr4Et3drgO/3K1SyOFendMm1FxcsbzKaVr
-         aXvNpnjZeB4rgEkGNzDC5iz1olLNMXS/UI0QerlDC8UmcJPBrFRba5XIu3qg3rOrNGn0
-         b8ew==
+        id S231135AbhKBIOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 04:14:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:44811 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231126AbhKBIOm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 04:14:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635840727;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=np1qThQAeJX33GQTcesiUPc23jDJuGnAxWws7e0zgcE=;
+        b=afGLKxDVNTG60LowLeggZzqZ3MHvCTLIt9YmaFwCrMGs0DBBrWYv3zD8WOzUFsTwD5FGVy
+        KYqgWvzTdmzH6eUbPhFttRSF7P1OifWnhxKJNLwiikNvTKF2u0tJF2Oxqy/DsJa0R1k8kv
+        ibpLPW0OvfaiiIAUCvHONZl0neT4rqo=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-153-dGE5nuNlN_SD_l2qFWsTDA-1; Tue, 02 Nov 2021 04:12:05 -0400
+X-MC-Unique: dGE5nuNlN_SD_l2qFWsTDA-1
+Received: by mail-wr1-f71.google.com with SMTP id a2-20020a5d4d42000000b0017b3bcf41b9so4486408wru.23
+        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 01:12:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=BpUXHehpO0L4RH7cQq/HeK6Cl2xp1SAYTz/IbfVB1Fk=;
-        b=Iawz7HL7Vqq9rLtBUjOMS13uQu32MlkG7Ga29RYC2FxHUBOYXei/2bPHsbHZyrJpSL
-         5CHzg0HGCGG9dsgS8WDTci8XkxW5BO/qCSvvw5zG8QufJvMnwhLnoHa0qcYY6WoHb2m+
-         XEF4F9rARMpQOwgnfbxurFSTADuFe7Nk+SiACCkauZtIHDdfze1zYwuhMXGwfFPgnII/
-         7OOUGiJAMSgpDcFUth+xYsR1iqgKzv+rMRQ1vcRVULcHg2rvCk16Cr6tmmXTpwVmHTio
-         y5VQ3hQbm+Cwq8wK8R9Otx14nWVMo2Lweb+h7gBQg0vWY79Uxa4R9nMQqwdkmx3ngtZV
-         BJ7w==
-X-Gm-Message-State: AOAM531dH0norFgfTYpDjXoIoPa1DRahj3C35AOC/kXQ3J5rvm5mb5jt
-        aHpcUpo3IyhUtEF3oVp9ncWjk+vkUOLjR0YL6aresQ==
-X-Google-Smtp-Source: ABdhPJy6oeKtwjzN3+JAeygl+bciukufcgFxfnRBe8VWVO8u4C77zVI5TTDK44YkbRh1L60+3uyAVOS7ZVGkzeahrp8=
-X-Received: by 2002:a17:906:4bcf:: with SMTP id x15mr19367236ejv.493.1635840351988;
- Tue, 02 Nov 2021 01:05:51 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:organization:subject
+         :in-reply-to:content-transfer-encoding;
+        bh=np1qThQAeJX33GQTcesiUPc23jDJuGnAxWws7e0zgcE=;
+        b=zqd8cvm+30M8W1eRYHc2mknjXw0BQ/6uFAxfUKlkMXi8rB/QXVfhBJKTxlKwLPLcCG
+         6vrvEY0cFMtyzOekgFY2vCl3CMpUmUXTnaBYIsL/iP39kAuNdOpwVA6/nQ6Lngaah3Pp
+         oDyuzHuJuHM6dIIr2la3F4jk/TXoaPm9Zwyo3dUIa/q+mV1e31pHXJIVfsJaRBPXPGRq
+         yzQ3PRDGeJGXy1wM8ZaPVXenxiZAU4/E4KSddME5+Cdzb9jcqfCG5WTBx3nLsJccu4ms
+         3ogRtgYHjyE4oBG/iJTb96w8aGUBxrAcpCpksPy85pBW+/8L4M8Dp4mshQNSiLWg8Vte
+         Oa8w==
+X-Gm-Message-State: AOAM530Eoqjbx+CxkrAyN20AiuetqogyxLoirleYYEJhFhhJLknz3a2t
+        XjXUNpf/K6B/MmQYhryf22Km1bfmq0BouY3vsH5xkzIVz7pvBLntc41sdZW2/NoJCEL1feOf2z6
+        xUr7V8Cn23wwTp8tB
+X-Received: by 2002:a05:600c:202:: with SMTP id 2mr4991431wmi.167.1635840724637;
+        Tue, 02 Nov 2021 01:12:04 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzVsG7mgH2x69dUZcIdMg+BCcAEU4bmITDKbMyxAlIVSIddBG70EtJqHxXUxhsMataQ3vdK9A==
+X-Received: by 2002:a05:600c:202:: with SMTP id 2mr4991403wmi.167.1635840724380;
+        Tue, 02 Nov 2021 01:12:04 -0700 (PDT)
+Received: from [192.168.3.132] (p5b0c6810.dip0.t-ipconnect.de. [91.12.104.16])
+        by smtp.gmail.com with ESMTPSA id f6sm1663245wmj.40.2021.11.02.01.12.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 02 Nov 2021 01:12:03 -0700 (PDT)
+Message-ID: <7136c959-63ff-b866-b8e4-f311e0454492@redhat.com>
+Date:   Tue, 2 Nov 2021 09:12:03 +0100
 MIME-Version: 1.0
-References: <20211101114159.506284752@linuxfoundation.org>
-In-Reply-To: <20211101114159.506284752@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 2 Nov 2021 13:35:40 +0530
-Message-ID: <CA+G9fYvjAXxuVj3ZT1W0DbOgA2PNs03NFHqV0TGc+G4CSdWZaw@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/25] 4.14.254-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Content-Language: en-US
+To:     Michal Hocko <mhocko@suse.com>,
+        Alexey Makhalov <amakhalov@vmware.com>
+Cc:     linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Oscar Salvador <OSalvador@suse.com>
+References: <20211101201312.11589-1-amakhalov@vmware.com>
+ <YYDtDkGNylpAgPIS@dhcp22.suse.cz>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH] mm: fix panic in __alloc_pages
+In-Reply-To: <YYDtDkGNylpAgPIS@dhcp22.suse.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 1 Nov 2021 at 17:13, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.254 release.
-> There are 25 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 03 Nov 2021 11:41:39 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.254-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On 02.11.21 08:47, Michal Hocko wrote:
+> [CC Oscar and David]
+> 
+> On Mon 01-11-21 13:13:12, Alexey Makhalov wrote:
+>> There is a kernel panic caused by __alloc_pages() accessing
+>> uninitialized NODE_DATA(nid). Uninitialized node data exists
+>> during the time when CPU with memoryless node was added but
+>> not onlined yet. Panic can be easy reproduced by disabling
+>> udev rule for automatic onlining hot added CPU followed by
+>> CPU with memoryless node hot add.
+>>
+>> This is a panic caused by percpu code doing allocations for
+>> all possible CPUs and hitting this issue:
+>>
+>>  CPU2 has been hot-added
+>>  BUG: unable to handle page fault for address: 0000000000001608
+>>  #PF: supervisor read access in kernel mode
+>>  #PF: error_code(0x0000) - not-present page
+>>  PGD 0 P4D 0
+>>  Oops: 0000 [#1] SMP PTI
+>>  CPU: 0 PID: 1 Comm: systemd Tainted: G            E     5.15.0-rc7+ #11
+>>  Hardware name: VMware, Inc. VMware7,1/440BX Desktop Reference Platform, BIOS VMW
+>>
+>>  RIP: 0010:__alloc_pages+0x127/0x290
+> 
+> Could you resolve this into a specific line of the source code please?
+> 
+>>  Code: 4c 89 f0 5b 41 5c 41 5d 41 5e 41 5f 5d c3 44 89 e0 48 8b 55 b8 c1 e8 0c 83 e0 01 88 45 d0 4c 89 c8 48 85 d2 0f 85 1a 01 00 00 <45> 3b 41 08 0f 82 10 01 00 00 48 89 45 c0 48 8b 00 44 89 e2 81 e2
+>>  RSP: 0018:ffffc900006f3bc8 EFLAGS: 00010246
+>>  RAX: 0000000000001600 RBX: 0000000000000000 RCX: 0000000000000000
+>>  RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000cc2
+>>  RBP: ffffc900006f3c18 R08: 0000000000000001 R09: 0000000000001600
+>>  R10: ffffc900006f3a40 R11: ffff88813c9fffe8 R12: 0000000000000cc2
+>>  R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000cc2
+>>  FS:  00007f27ead70500(0000) GS:ffff88807ce00000(0000) knlGS:0000000000000000
+>>  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>  CR2: 0000000000001608 CR3: 000000000582c003 CR4: 00000000001706b0
+>>  Call Trace:
+>>   pcpu_alloc_pages.constprop.0+0xe4/0x1c0
+>>   pcpu_populate_chunk+0x33/0xb0
+>>   pcpu_alloc+0x4d3/0x6f0
+>>   __alloc_percpu_gfp+0xd/0x10
+>>   alloc_mem_cgroup_per_node_info+0x54/0xb0
+>>   mem_cgroup_alloc+0xed/0x2f0
+>>   mem_cgroup_css_alloc+0x33/0x2f0
+>>   css_create+0x3a/0x1f0
+>>   cgroup_apply_control_enable+0x12b/0x150
+>>   cgroup_mkdir+0xdd/0x110
+>>   kernfs_iop_mkdir+0x4f/0x80
+>>   vfs_mkdir+0x178/0x230
+>>   do_mkdirat+0xfd/0x120
+>>   __x64_sys_mkdir+0x47/0x70
+>>   ? syscall_exit_to_user_mode+0x21/0x50
+>>   do_syscall_64+0x43/0x90
+>>   entry_SYSCALL_64_after_hwframe+0x44/0xae
+>>
+>> Node can be in one of the following states:
+>> 1. not present (nid == NUMA_NO_NODE)
+>> 2. present, but offline (nid > NUMA_NO_NODE, node_online(nid) == 0,
+>> 				NODE_DATA(nid) == NULL)
+>> 3. present and online (nid > NUMA_NO_NODE, node_online(nid) > 0,
+>> 				NODE_DATA(nid) != NULL)
+>>
+>> alloc_page_{bulk_array}node() functions verify for nid validity only
+>> and do not check if nid is online. Enhanced verification check allows
+>> to handle page allocation when node is in 2nd state.
+> 
+> I do not think this is a correct approach. We should make sure that the
+> proper fallback node is used instead. This means that the zone list is
+> initialized properly. IIRC this has been a problem in the past and it
+> has been fixed. The initialization code is quite subtle though so it is
+> possible that this got broken again.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I'm a little confused:
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+In add_memory_resource() we hotplug the new node if required and set it
+online. Memory might get onlined later, via online_pages().
 
-NOTE:
-With new gcc-11 toolchain arm builds failed.
-The fix patch is under review [1].
-Due to this reason not considering it as a kernel regression.
-* arm, build
-    - gcc-11-defconfig FAILED
+So after add_memory_resource()->__try_online_node() succeeded, we have
+an online pgdat -- essentially 3.
 
-[1]
-ARM: drop cc-option fallbacks for architecture selection
-https://lore.kernel.org/linux-arm-kernel/20211018140735.3714254-1-arnd@kern=
-el.org/
+This patch detects if we're past 3. but says that it reproduced by
+disabling *memory* onlining.
 
-## Build
-* kernel: 4.14.254-rc2
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.14.y
-* git commit: 64fad352ab39db2d688622d38f866978ba7a7ded
-* git describe: v4.14.253-26-g64fad352ab39
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
-.253-26-g64fad352ab39
+Before we online memory for a hotplugged node, all zones are !populated.
+So once we online memory for a !populated zone in online_pages(), we
+trigger setup_zone_pageset().
 
-## No regressions (compared to v4.14.253)
 
-## No fixes (compared to v4.14.253)
+The confusing part is that this patch checks for 3. but says it can be
+reproduced by not onlining *memory*. There seems to be something missing.
 
-## Test result summary
-total: 76449, pass: 61036, fail: 681, skip: 12640, xfail: 2092
+Do we maybe need a proper populated_zone() check before accessing zone data?
 
-## Build Summary
-* arm: 260 total, 210 passed, 50 failed
-* arm64: 35 total, 35 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 19 total, 19 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 22 total, 22 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 19 total, 19 passed, 0 failed
+-- 
+Thanks,
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
+David / dhildenb
 
---
-Linaro LKFT
-https://lkft.linaro.org
