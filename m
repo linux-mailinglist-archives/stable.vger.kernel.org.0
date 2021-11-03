@@ -2,88 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F2F4443BE
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 15:40:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC99E4443CC
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 15:44:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230282AbhKCOna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 10:43:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60954 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231572AbhKCOn3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 10:43:29 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C80AC061714
-        for <stable@vger.kernel.org>; Wed,  3 Nov 2021 07:40:53 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id m14so2535966pfc.9
-        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 07:40:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=WXn/tck9I3dCSb6Sqxnz0FpL7sizj58Bae5H10F9O20=;
-        b=WLcw+BX4CEBEwC5oxT61xEeODA46ZoNoaQq1Ki9IqYn8A4R8KLEqtrJAJagmlgla6Z
-         O/rgOjq7fN87R5PedHVVHg8v0C8WP4EowdL2E780f6Aehp4LIvDHPgISJ3wE1omL5wfV
-         5BVQ1PsWng8p5jSUQ3aa8zfQrfLORGL9w0tf5/cKSLjjIADE4az1jumM/HH4AjTR+ea/
-         FPjbOers02FJtnn7jvz258mBdkVkZesCLAIyZuX47PJNTS80bb5PiJAtQHu7EXHak6ys
-         hIh2LXUz3rveShzyCec0gYruXieX3mGz3bUKsAn4v8EyyYR/qFzYewRZ20Yjf+ziyzpN
-         J7iA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=WXn/tck9I3dCSb6Sqxnz0FpL7sizj58Bae5H10F9O20=;
-        b=tXzUAxap3po6WY0ef+1zj+IjYmRKW8ZPXZWM5qS4kjJ9cFpexnH8H1EnMFme9bYcVl
-         JwacAZHF1fTwaMAnwSmu0oVnov5uwlfYqk1EoajSVuqK+Mb3goA3qq760jwMxgNgjn7q
-         InYu6m67RheUdZkfmp/p3DibO6nc2R+sHixuvR3wXsbfmdoX0XabdRkjNm6LKgKsfQiT
-         jh83eEXuZpOkhHfuNq7wuEvXADyNj/hOJE4F9bzN+VDpjtf4giV1MSJ0rWKSpWVZTLcz
-         qPmq/zb5kuAehgCtCqGIp4jzbzLtFnpxmpP/jE/x5LoHZ6OTnolwaZonrLk+O/QuKIt5
-         lSIw==
-X-Gm-Message-State: AOAM530i+J4T9b1e67wBBbEU3LFoYU99jQDh2mkn5m2PCOuWZR7GSofx
-        DKlcGxoxr/bf0ylNniYOgjVvcg==
-X-Google-Smtp-Source: ABdhPJxb1BGI7wiwVazryNyanP5gFZuzdtXbmEhWke+a/LIlM0549Gnd85lr7EzfpFeKlxD+/SIneQ==
-X-Received: by 2002:a63:d00c:: with SMTP id z12mr32568626pgf.334.1635950451526;
-        Wed, 03 Nov 2021 07:40:51 -0700 (PDT)
-Received: from [192.168.254.36] ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id g22sm292376pfj.82.2021.11.03.07.40.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 03 Nov 2021 07:40:51 -0700 (PDT)
-Message-ID: <9e820a6e-a42e-1098-4044-5b6786ad7b2e@linaro.org>
-Date:   Wed, 3 Nov 2021 07:40:50 -0700
+        id S230282AbhKCOrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 10:47:23 -0400
+Received: from lelv0142.ext.ti.com ([198.47.23.249]:40352 "EHLO
+        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230252AbhKCOrW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 10:47:22 -0400
+Received: from lelv0265.itg.ti.com ([10.180.67.224])
+        by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id 1A3EieVX008169;
+        Wed, 3 Nov 2021 09:44:40 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1635950680;
+        bh=3VlKYAYGeekLvefX8uPnEKHFYx4A386Rsik+RAkABuA=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=oQf4J0mILH6oxE2oIoGQ8nJtaRHDEtBWkDefuQIQBOwgakutwDtpvwIJSeNCLrbqw
+         BlxQ/iaLQoUoZmf01y4al8hNjUgf4/IjTZLlW0MreEPG6qpGmc3lBsSDWjK8c8WpRr
+         1f+VOzi8IgYQWK5B4dEol5S53VOW6S+phw+QM1bg=
+Received: from DLEE111.ent.ti.com (dlee111.ent.ti.com [157.170.170.22])
+        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 1A3EieF7129195
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 3 Nov 2021 09:44:40 -0500
+Received: from DLEE108.ent.ti.com (157.170.170.38) by DLEE111.ent.ti.com
+ (157.170.170.22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14; Wed, 3
+ Nov 2021 09:44:39 -0500
+Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE108.ent.ti.com
+ (157.170.170.38) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14 via
+ Frontend Transport; Wed, 3 Nov 2021 09:44:39 -0500
+Received: from [10.250.233.204] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 1A3EiaoU077528;
+        Wed, 3 Nov 2021 09:44:37 -0500
+Subject: Re: 5.14.14+ USB regression caused by "usb: core: hcd: Add support
+ for deferring roothub registration" series
+To:     Hans de Goede <hdegoede@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+CC:     <stable@vger.kernel.org>, <linux-usb@vger.kernel.org>,
+        <chris.chiu@canonical.com>, Mathias Nyman <mathias.nyman@intel.com>
+References: <42bcbea6-5eb8-16c7-336a-2cb72e71bc36@redhat.com>
+ <YYJRRg8QDBfy2PP7@kroah.com>
+ <9e1abe71-d903-f227-38ae-a854ab9e5baf@redhat.com>
+From:   Kishon Vijay Abraham I <kishon@ti.com>
+Message-ID: <5c95597b-289b-ea1c-4770-8be9e8511ae0@ti.com>
+Date:   Wed, 3 Nov 2021 20:14:35 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH 1/2] scsi: scsi_ioctl: Validate command size
+In-Reply-To: <9e1abe71-d903-f227-38ae-a854ab9e5baf@redhat.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-To:     Bart Van Assche <bvanassche@acm.org>, linux-scsi@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20211103003719.1041490-1-tadeusz.struk@linaro.org>
- <d1259a80-ac2f-a164-685a-4d1763653021@acm.org>
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-In-Reply-To: <d1259a80-ac2f-a164-685a-4d1763653021@acm.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/2/21 20:32, Bart Van Assche wrote:
->> +    if (hdr->cmd_len < 6 || hdr->cmd_len > sizeof(req->__cmd))
->> +        return -EMSGSIZE;
-> 
-> That doesn't look right to me since sg_io() allocates req->cmd if necessary:
-> 
->      if (hdr->cmd_len > BLK_MAX_CDB) {
->          req->cmd = kzalloc(hdr->cmd_len, GFP_KERNEL);
->          if (!req->cmd)
->              goto out_put_request;
->      }
++ Alan, Chris, Mathias, linux-usb
 
-I missed that. I will send a v2 soon.
+Hi Hans,
 
--- 
+On 03/11/21 6:18 pm, Hans de Goede wrote:
+> Hi,
+> 
+> On 11/3/21 10:07, Greg Kroah-Hartman wrote:
+>> On Wed, Nov 03, 2021 at 10:02:52AM +0100, Hans de Goede wrote:
+>>> Hi Greg,
+>>>
+>>> We (Fedora) have been receiving multiple reports about USB devices stopping
+>>> working starting with 5.14.14 .
+>>>
+>>> An Arch Linux user has found that reverting the first 2 patches from this series:
+>>> https://lore.kernel.org/all/20210909064200.16216-1-kishon@ti.com/
+>>>
+>>> Fixes things (the 3th patch is just some mostly unrelated refactoring/cleanup).
+>>>
+>>> See here for the Arch-linux discussion surrounding this:
+>>> https://bbs.archlinux.org/viewtopic.php?pid=2000956#p2000956
+>>>
+>>> And here are 2 Fedora bug reports of Fedora users being unable to use their
+>>> machines due their mouse + kbd not working:
+>>>
+>>> https://bugzilla.redhat.com/show_bug.cgi?id=2019542
+>>> https://bugzilla.redhat.com/show_bug.cgi?id=2019576
+>>>
+>>> Can we get this patch-series reverted from the 5.14.y releases please ?
+>>
+>> Sure,
+> 
+> Thanks.
+> 
+>> but can you also submit patches to get into 5.15.y and 5.16-rc1
+>> that revert these changes as they should still be an issue there, right?
+> 
+> Yes I assume this is still an issue there too, but I was hoping that
+> Kishon can take a look and maybe actually fix things, since just
+> reverting presumably regresses whatever these patches were addressing.
+> 
+> We've aprox 1-3 weeks before distros like Arch and Linux will switch
+> to 5.15.y kernels.  So we have some time to come up with a fix
+> there, where as for 5.14.y this is hitting users now.
+
+Is the issue with PCIe USB devices or platform USB device? Is it specific to
+super speed devices or high speed device?
+
 Thanks,
-Tadeusz
+Kishon
