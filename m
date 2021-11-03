@@ -2,118 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C99D544465A
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 17:54:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C4984446A0
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 18:07:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233008AbhKCQ5E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 12:57:04 -0400
-Received: from finn.gateworks.com ([108.161.129.64]:59556 "EHLO
-        finn.localdomain" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S232960AbhKCQ5E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 12:57:04 -0400
-Received: from 068-189-091-139.biz.spectrum.com ([68.189.91.139] helo=tharvey.pdc.gateworks.com)
-        by finn.localdomain with esmtp (Exim 4.93)
-        (envelope-from <tharvey@gateworks.com>)
-        id 1miJWj-007u4e-Tl; Wed, 03 Nov 2021 16:54:18 +0000
-From:   Tim Harvey <tharvey@gateworks.com>
-To:     Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        BOUGH CHEN <haibo.chen@nxp.com>, linux-mmc@vger.kernel.org,
-        Marcel Ziswiler <marcel@ziswiler.com>,
-        Schrempf Frieder <frieder.schrempf@kontron.de>,
-        Adam Ford <aford173@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Peng Fan <peng.fan@nxp.com>
-Cc:     Tim Harvey <tharvey@gateworks.com>, stable@vger.kernel.org
-Subject: [PATCH] mmc: sdhci-esdhc-imx: disable CMDQ support
-Date:   Wed,  3 Nov 2021 09:54:15 -0700
-Message-Id: <20211103165415.2016-1-tharvey@gateworks.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <CAJ+vNU3zKEVz=fHu2hLmEpsQKzinUFW-28Lm=2wSEghjMvQtmw@mail.gmail.com>
-References: <CAJ+vNU3zKEVz=fHu2hLmEpsQKzinUFW-28Lm=2wSEghjMvQtmw@mail.gmail.com>
+        id S233028AbhKCRKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 13:10:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38676 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232985AbhKCRKF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 13:10:05 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956C4C061203
+        for <stable@vger.kernel.org>; Wed,  3 Nov 2021 10:07:28 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id r28so2954224pga.0
+        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 10:07:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=mnf5X/iTgBRFMMZkRgyzc0OpnzavKwGRo8XYeAaztzo=;
+        b=F0ekRK3HoxvdErW+5fKZ6AZS1b99D2x2oYZNVXwHCbjzMYD2YGfPn2h+icOXWeRAs6
+         QqabmdvtHlOyw3RF1RDr1FKdUl2mi9z9VJCE833ubY5AkijeiB39tr6AFPfG1K7yTI0A
+         ZR7y5fmFtyM4Wg6mwdb2zNW6i5txQYhUdcmOlqwjUbj6SD+NgXQQ8BijaUC/dSg1TqXa
+         AYaZK+sMb5VkZWIJqbqf4iKDdnH/j1nFGrTb7PfOuoaZNF9n4j2Fc8c2NbRBQvs3EV0d
+         7qb7prde9wqykNUPAAbHIqvcM9rcgThDTTyV5qwIaevIX/utioCXQ+pDplqOmtos0Ci+
+         DiHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=mnf5X/iTgBRFMMZkRgyzc0OpnzavKwGRo8XYeAaztzo=;
+        b=X4baGQu9SQuVre5ecrdPpG1MW/nU5BdcbN2xjlTPrJRVHBkw1tRnObKWNuTCy+ntwq
+         iDfWuCq90E7rG6OqlVMziNWuLHBFsqC7L4wZBeGhW+nFmu9usBPFOYLn1+94v4HWKPuN
+         byE7rkIeyVFaY+vo81o16FLHCUM/agMC2uKUKAeHb9TaWKLqrIH7tRqGEU3kbshrSN0C
+         xvs8htDuya7CjjHxaeAYtCzD57zeEBbAuLnBwt2TCSCFeNKK3pq4XFpq/P7wtGIpYVIC
+         Gf7yjD6ic62LhjoIGr1Irmttr7m5q4vxnjiV8/C+DaCaSYbZXklNJ7uZDwNXfVePiJjS
+         eZ8w==
+X-Gm-Message-State: AOAM53310Mnm3eKwUXEdKY7Locwxsa289YnHuMRpbxNF8I0OnwDrUN0g
+        sKdRSdBpgMMWnXlrwgbpCAOlDg==
+X-Google-Smtp-Source: ABdhPJxSteJafoUWZ7oIH9dsvQq45m1SnOzEvy2k21xAG29248x5Dmvmt6v/lRSa7YGxCHe/Zu1fcA==
+X-Received: by 2002:a63:af09:: with SMTP id w9mr33816541pge.323.1635959248142;
+        Wed, 03 Nov 2021 10:07:28 -0700 (PDT)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id k14sm3110810pff.64.2021.11.03.10.07.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Nov 2021 10:07:27 -0700 (PDT)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     Bart Van Assche <bvanassche@acm.org>, linux-scsi@vger.kernel.org
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Christoph Hellwig <hch@lst.de>,
+        "James E . J . Bottomley" <jejb@linux.ibm.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH v2 1/2] scsi: scsi_ioctl: Validate command size
+Date:   Wed,  3 Nov 2021 10:06:58 -0700
+Message-Id: <20211103170659.22151-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.33.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On IMX SoC's which support CMDQ the following can occur during high a
-high cpu load:
+Need to make sure the command size is valid before copying
+the command from user.
 
-mmc2: cqhci: ============ CQHCI REGISTER DUMP ===========
-mmc2: cqhci: Caps:      0x0000310a | Version:  0x00000510
-mmc2: cqhci: Config:    0x00001001 | Control:  0x00000000
-mmc2: cqhci: Int stat:  0x00000000 | Int enab: 0x00000006
-mmc2: cqhci: Int sig:   0x00000006 | Int Coal: 0x00000000
-mmc2: cqhci: TDL base:  0x8003f000 | TDL up32: 0x00000000
-mmc2: cqhci: Doorbell:  0xbf01dfff | TCN:      0x00000000
-mmc2: cqhci: Dev queue: 0x00000000 | Dev Pend: 0x08000000
-mmc2: cqhci: Task clr:  0x00000000 | SSC1:     0x00011000
-mmc2: cqhci: SSC2:      0x00000001 | DCMD rsp: 0x00000800
-mmc2: cqhci: RED mask:  0xfdf9a080 | TERRI:    0x00000000
-mmc2: cqhci: Resp idx:  0x0000000d | Resp arg: 0x00000000
-mmc2: sdhci: ============ SDHCI REGISTER DUMP ===========
-mmc2: sdhci: Sys addr:  0x7c722000 | Version:  0x00000002
-mmc2: sdhci: Blk size:  0x00000200 | Blk cnt:  0x00000020
-mmc2: sdhci: Argument:  0x00018000 | Trn mode: 0x00000023
-mmc2: sdhci: Present:   0x01f88008 | Host ctl: 0x00000030
-mmc2: sdhci: Power:     0x00000002 | Blk gap:  0x00000080
-mmc2: sdhci: Wake-up:   0x00000008 | Clock:    0x0000000f
-mmc2: sdhci: Timeout:   0x0000008f | Int stat: 0x00000000
-mmc2: sdhci: Int enab:  0x107f4000 | Sig enab: 0x107f4000
-mmc2: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000502
-mmc2: sdhci: Caps:      0x07eb0000 | Caps_1:   0x8000b407
-mmc2: sdhci: Cmd:       0x00000d1a | Max curr: 0x00ffffff
-mmc2: sdhci: Resp[0]:   0x00000000 | Resp[1]:  0xffc003ff
-mmc2: sdhci: Resp[2]:   0x328f5903 | Resp[3]:  0x00d07f01
-mmc2: sdhci: Host ctl2: 0x00000088
-mmc2: sdhci: ADMA Err:  0x00000000 | ADMA Ptr: 0xfe179020
-mmc2: sdhci-esdhc-imx: ========= ESDHC IMX DEBUG STATUS DUMP ====
-mmc2: sdhci-esdhc-imx: cmd debug status:  0x2120
-mmc2: sdhci-esdhc-imx: data debug status:  0x2200
-mmc2: sdhci-esdhc-imx: trans debug status:  0x2300
-mmc2: sdhci-esdhc-imx: dma debug status:  0x2400
-mmc2: sdhci-esdhc-imx: adma debug status:  0x2510
-mmc2: sdhci-esdhc-imx: fifo debug status:  0x2680
-mmc2: sdhci-esdhc-imx: async fifo debug status:  0x2750
-mmc2: sdhci: ============================================
-
-For now, disable CMDQ support on the imx8qm/imx8qxp/imx8mm until the
-issue is found and resolved.
-
-Fixes: bb6e358169bf6 ("mmc: sdhci-esdhc-imx: add CMDQ support")
-Fixes: cde5e8e9ff146 ("mmc: sdhci-esdhc-imx: Add an new esdhc_soc_data
-for i.MX8MM")
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: James E.J. Bottomley <jejb@linux.ibm.com>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: <linux-scsi@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+Cc: <stable@vger.kernel.org> # 5.15, 5.14, 5.10
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c | 2 --
- 1 file changed, 2 deletions(-)
+Changes in v2:
+- removed check for upper len limit as it is handled in sg_io()
+---
+ drivers/scsi/scsi_ioctl.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
-index e658f0174242..60f19369de84 100644
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -300,7 +300,6 @@ static struct esdhc_soc_data usdhc_imx8qxp_data = {
- 	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
- 			| ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200
- 			| ESDHC_FLAG_HS400 | ESDHC_FLAG_HS400_ES
--			| ESDHC_FLAG_CQHCI
- 			| ESDHC_FLAG_STATE_LOST_IN_LPMODE
- 			| ESDHC_FLAG_CLK_RATE_LOST_IN_PM_RUNTIME,
- };
-@@ -309,7 +308,6 @@ static struct esdhc_soc_data usdhc_imx8mm_data = {
- 	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
- 			| ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200
- 			| ESDHC_FLAG_HS400 | ESDHC_FLAG_HS400_ES
--			| ESDHC_FLAG_CQHCI
- 			| ESDHC_FLAG_STATE_LOST_IN_LPMODE,
- };
+diff --git a/drivers/scsi/scsi_ioctl.c b/drivers/scsi/scsi_ioctl.c
+index 6ff2207bd45a..a06c61f22742 100644
+--- a/drivers/scsi/scsi_ioctl.c
++++ b/drivers/scsi/scsi_ioctl.c
+@@ -347,6 +347,8 @@ static int scsi_fill_sghdr_rq(struct scsi_device *sdev, struct request *rq,
+ {
+ 	struct scsi_request *req = scsi_req(rq);
  
++	if (hdr->cmd_len < 6)
++		return -EMSGSIZE;
+ 	if (copy_from_user(req->cmd, hdr->cmdp, hdr->cmd_len))
+ 		return -EFAULT;
+ 	if (!scsi_cmd_allowed(req->cmd, mode))
 -- 
-2.17.1
+2.33.1
 
