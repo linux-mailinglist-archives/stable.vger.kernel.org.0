@@ -2,73 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDBD3443F7F
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 10:42:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30490443F89
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 10:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231557AbhKCJop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 05:44:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58872 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231278AbhKCJop (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Nov 2021 05:44:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F2946023E;
-        Wed,  3 Nov 2021 09:42:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635932529;
-        bh=1h2VN8LrKMjwSkdkZ0SH9Vpr4P3HWT71CwT/3GqYsqQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=k8AapTAja/J+tv7rG/kDJkitc7tyibOCGzCf6ACWzKd/NRYZS6BMz/koclSp3zTYG
-         FDLOBsiWM7DrOJ0tbRkME1Ay/wDAqXhUtX9zdlWjCKNyZS7t9z9kbIK5Gw2PVYmeyc
-         SS/8xdTe4bQusboFXyoUCzSeZJHPOHl3qeZJ3bZg=
-Date:   Wed, 3 Nov 2021 10:42:04 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Florian Westphal <fw@strlen.de>
-Cc:     Arturo Borrero Gonzalez <arturo@netfilter.org>,
-        "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>,
-        Lahav Schlesinger <lschlesinger@drivenets.com>,
-        David Ahern <dsahern@kernel.org>, stable@vger.kernel.org
-Subject: Re: Potential problem with VRF+conntrack after kernel upgrade
-Message-ID: <YYJZbE/8HRje+0eT@kroah.com>
-References: <1a816689-3960-eb6b-2256-9478265d2d8e@netfilter.org>
- <20211102162402.GB19266@breakpoint.cc>
+        id S231757AbhKCJqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 05:46:21 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:34505 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231721AbhKCJqU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 05:46:20 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 20C695C0170;
+        Wed,  3 Nov 2021 05:43:44 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 03 Nov 2021 05:43:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=RTOprw3GeZ4NMj3CxN8o2LL8oqf
+        Lb+L63aR1q1TEjoY=; b=kNH4AZhu/+4NXmIAE8aybGaQhPkYcFCrZ1TPsxw02BI
+        V9jG52F0LYm4UsSrUenHdEcXpqOEnLvCr/7HPydiyMsP73ZoKGn70v1Jfaeyud0b
+        pdJHPaLgOxKemvUuGQmGDLyvvnrp/JJkKPNhTB/pmaxdEHAiBcA2K5menClZvjEJ
+        PAYXBoDBo/QjLwQJ8eAmH3kgUWo1H3cWmUBJ5+8u/30uzrXKi4l17bx3iECu23OW
+        C4DhGy3YiO2Y/ARHuZCHwoTAhjFi0IUuJskBotNF4cU7AbDHbg3lox79zGKfw/cm
+        KMzZOGEXUX1lLaJR4hcMbFtMtcuhw9upL19WL/x4tDg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=RTOprw
+        3GeZ4NMj3CxN8o2LL8oqfLb+L63aR1q1TEjoY=; b=RS5gC27zmfD3YGWfNEoqMT
+        nIkocWP6k7vteGEZ0iSC1KV9sYwfAD9T38g3X1XahGXVk6koiKD1A1/s00/d/MaX
+        dyFvE3c9N3LwrnyCM7IvpmaaZczaLVZLEY9J1YNuBLYT16kzTYQLhtpgUziF90kO
+        M1GLdmybSAnFtpJ053kKUtoffMERNTs+i16K4mUqthW8G0H4buStQe/Bi2jKzydQ
+        aGNhyxfEqVWcvTbNa48uapZvhLvB7IrG8Qhje+3tbuOVu7s5cSUsR4UJBzlbNFUu
+        ACAAJtECa6gvpfSLxEygDWJb1tjtTa2aKThtwn4FHluREhs2LL7/YtbR6tK0fakg
+        ==
+X-ME-Sender: <xms:z1mCYcvxPcVuQ1SRbPsXUF75griIyYaWhyF7SAtUTO_WcNSL-0KBag>
+    <xme:z1mCYZdxttvoceW77W57wu6op6zO5pqYcizXJoAAsghn0Mo4uyl-rSAVrmfmIQwxT
+    8bfqfu1feEvVQ>
+X-ME-Received: <xmr:z1mCYXxfUBcvN-KjOAwZdorUe9n7tkuLFX_TH0z5N5_jDosIGhbwp7hhpjbM2cocM0Qk4FEVKJ53UxDzBeinnRAfxwx9YEKl>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrtddvgddtjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:z1mCYfN7Nfb2V1AjyMy-vTTNfYm2X6mZt7rUDb9MqX95ekn68iVPGA>
+    <xmx:z1mCYc_caRyL9Ctn1exHrerLGvV5EoSrxAo42DKKktZ2pTBgJn9z7A>
+    <xmx:z1mCYXWaL8dZJxYq2za8o4LTf20sgOuYaX_N5y0IlkENUxbkmEkiDA>
+    <xmx:0FmCYeIUgKFiZMOqiq-YIYUKanphI9z2pgoUmAV6gVQmt1Qwj9oh2A>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 3 Nov 2021 05:43:43 -0400 (EDT)
+Date:   Wed, 3 Nov 2021 10:43:39 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Yuiko Oshino <yuiko.oshino@microchip.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH net] net: ethernet: microchip: lan743x: Fix skb
+ allocation failure
+Message-ID: <YYJZy7wo0f1ePNSp@kroah.com>
+References: <20211102141427.11272-1-yuiko.oshino@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211102162402.GB19266@breakpoint.cc>
+In-Reply-To: <20211102141427.11272-1-yuiko.oshino@microchip.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 02, 2021 at 05:24:02PM +0100, Florian Westphal wrote:
-> Arturo Borrero Gonzalez <arturo@netfilter.org> wrote:
+On Tue, Nov 02, 2021 at 10:14:27AM -0400, Yuiko Oshino wrote:
+> commit e8684db191e4164f3f5f3ad7dec04a6734c25f1c upstream.
 > 
-> [ cc stable@ ]
+> The driver allocates skb during ndo_open with GFP_ATOMIC which has high chance of failure when there are multiple instances.
+> GFP_KERNEL is enough while open and use GFP_ATOMIC only from interrupt context.
 > 
-> > We experienced a major network outage today when upgrading kernels.
-> > 
-> > The affected servers run the VRF+conntrack+nftables combo. They are edge
-> > firewalls/NAT boxes, meaning most interesting traffic is not locally
-> > generated, but forwarded.
-> > 
-> > What we experienced is NATed traffic in the reply direction never being
-> > forwarded back to the original client.
-> > 
-> > Good kernel: 5.10.40 (debian 5.10.0-0.bpo.7-amd64)
-> > Bad kernel: 5.10.70 (debian 5.10.0-0.bpo.9-amd64)
-> > 
-> > I suspect the problem may be related to this patch:
-> > https://x-lore.kernel.org/stable/20210824165908.709932-58-sashal@kernel.org/
-> 
-> This commit has been reverted upstream:
-> 
-> 55161e67d44fdd23900be166a81e996abd6e3be9
-> ("vrf: Revert "Reset skb conntrack connection...").
-> 
-> Sasha, Greg, it would be good if you could apply this revert to all
-> stable trees that have a backport of
-> 09e856d54bda5f288ef8437a90ab2b9b3eab83d1
-> ("vrf: Reset skb conntrack connection on VRF rcv").
+> Fixes: 23f0703c125b ("lan743x: Add main source files for new lan743x driver")
+> Signed-off-by: Yuiko Oshino <yuiko.oshino@microchip.com>
+> cc: <stable@vger.kernel.org> # 5.4.x
 
-Now reverted, thanks.
+Now queued up, thanks.
 
 greg k-h
