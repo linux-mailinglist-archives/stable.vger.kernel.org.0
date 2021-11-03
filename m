@@ -2,116 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7586443ABB
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 02:11:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ECC3443AF9
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 02:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231709AbhKCBN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 21:13:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48302 "EHLO
+        id S229844AbhKCB0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 21:26:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230295AbhKCBN6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 21:13:58 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 882C9C061714
-        for <stable@vger.kernel.org>; Tue,  2 Nov 2021 18:11:23 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id n23so891716pgh.8
-        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 18:11:23 -0700 (PDT)
+        with ESMTP id S233346AbhKCB0D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 21:26:03 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB098C061714
+        for <stable@vger.kernel.org>; Tue,  2 Nov 2021 18:23:26 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id t21so1397960plr.6
+        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 18:23:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=dNH8eciGojVjY46fZCeKUIUNeaCP1ehIOQAcJy8VsG8=;
-        b=hJbAgQ31UAE0p2/35E6pxu8qXHCQ5zMQXec/7du2V5Mb3OsWsIg6Lt0rCUjlxOU58t
-         8o7UTdVZPfhdOU4OPWr/ehvpa0CijXGSsr3m2tSrdWy9jI0tXjOmUZbFtPwCSfqfJK52
-         Gsj1DTodrc2IsJkxOr6whdQXmMSDj470DUbEa9C2xVTWoFNHNW2DEAI+IlFLuGA8uw0t
-         Wms/qyfiADIncyhALK/ztjzPG7hqcexTGbN2M3k9DnCTWXjP51ZhlpK6J9Io9tfpTGuf
-         Mn0iAyUj3/GlHTyRl8nwiCJcQ1GtXx3fJTlmf+QZOvqNOTdV1MvW0eE35/8jqThGIfyB
-         6Wmw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=i+q5esv10YFUwZF21D0gYbEOZDg5YWwDOLxVB8FdMuM=;
+        b=KnImQ3aSohY2/TOyjX0nqwwmBjNbGBUqDOGnVUhcXTwhRuJUUyAFdgY+90TVuPIE2I
+         ap4sovvhlVIl+9Wic17IvXsCBqZ38SHb06zBZTgXHNuSFDEAUObiWohsRbS+t1R23+jG
+         mqQbznFZDtHK9N8mnBVggdcK/KVyB8uiQTEMO1uoKYk86fSN/xrtgDya0HLTx6M7zNaU
+         fv03pz/VzhaIgZkPK+OTU/8ghNe9u6APE0Gr8rARUB0OLpD0Ee+yVc8mtdMVMOhVND/i
+         awEYgvelVroNdd0uHSI+YLne0MnB7HF4W9zyNZbWqUhgBY00d6fHMCjMRsxlr7/sDb0U
+         O32g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=dNH8eciGojVjY46fZCeKUIUNeaCP1ehIOQAcJy8VsG8=;
-        b=el20OciZEQLP+y05OefdHrR5Ik0vzxRqQV+yvBM3eAeEFn4L5Sgt3OwkfE9BP+Z3tp
-         qb+a8hjYqdQfG6DtI8Tk4OgSZm3TTfZzNZNWaZmBWou+VhqRGU/hFoQyDvoKpt4GN7Jn
-         aW3IbsmaAF3xdILaSc3haTS1pqyJXbcUOMyE3dn1B2/3lSS+o2ea4F1aZVpUrnLLFcA2
-         v2C8w5dkAEvG/viEFu6Ur68LVbHD0MHSOU/R4+CSP26N5PThvadfPAcAHOt3bflx0XDv
-         PGpSIYPa50RhKbNJXr9Bmia/B8X1Q80RConOUpmbGTl3dZ1LORfxsViZgivartJclaVG
-         FqQg==
-X-Gm-Message-State: AOAM530ER8JZeLWYIS/mZrDvhdcztkHMRuVArmD3X/Vr/zd93cjVi9zF
-        w7XBgSVe1zOi7G2Mb4mtjKA=
-X-Google-Smtp-Source: ABdhPJzOip5xZ5w1wdTzyZzhBuEkUqkmW+pVe0ZIcV6zYZHrDSp+CyGFmtK0D4m9S5aCkwDwwDf4Ug==
-X-Received: by 2002:a05:6a00:2492:b0:48c:3150:1117 with SMTP id c18-20020a056a00249200b0048c31501117mr2689988pfv.55.1635901882968;
-        Tue, 02 Nov 2021 18:11:22 -0700 (PDT)
-Received: from localhost.localdomain (52.55.96.58.static.exetel.com.au. [58.96.55.52])
-        by smtp.gmail.com with ESMTPSA id w12sm3782564pjq.2.2021.11.02.18.11.20
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=i+q5esv10YFUwZF21D0gYbEOZDg5YWwDOLxVB8FdMuM=;
+        b=Rve3ttTpNYfAgeYqWBRYN5cKR3OExblo4iJ9VmgwY/8uXAwW+krfkm70VjOdspuOla
+         KYPzdEN2c8/8PAjupG/PDMmN7Q1TRCJC7qVYSTu6HO2+HccZIi3LEsLbcNibVyvbNhVH
+         S1DGp9T2s4zY/o2JfvYWi4qeCzT/Z0d5n6ctWZ2fUxWS60DJPVrjuzRuiZtNsvfSOqco
+         AnpsH0g4ddu+D/geT9bkOjwHoTLcgcpHKuBaqAvskeRl0SbM236y4juH/3TvzPNMom6o
+         hi5OX7tg7cDY5MvojDgQ9tiRBlG/6WUT/vlkrXvu/z/9UGgdid3sfGtZe5FCRdkEw+qc
+         oqLw==
+X-Gm-Message-State: AOAM530oxVRFUGUDFaOb2txPXNaGgA5SjIUBRRFErvsBwJpEmvpKWPyD
+        IADKA+v7v1XTUJxXoxE9jYHEdwgI1WoXna0o
+X-Google-Smtp-Source: ABdhPJzFtYedriuvSjNQL45KM5ryBqvnpMQ6XP9V+EEFNmhZjja0w+RnO6eZuxHA9OZVOM0BiknV3g==
+X-Received: by 2002:a17:90a:bd0f:: with SMTP id y15mr11106501pjr.186.1635902606259;
+        Tue, 02 Nov 2021 18:23:26 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ng5sm254864pjb.51.2021.11.02.18.23.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Nov 2021 18:11:22 -0700 (PDT)
-From:   Ben Skeggs <skeggsb@gmail.com>
-To:     nouveau@lists.freedesktop.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH] ce/gf100: fix incorrect CE0 address calculation on some GPUs
-Date:   Wed,  3 Nov 2021 11:10:57 +1000
-Message-Id: <20211103011057.15344-1-skeggsb@gmail.com>
-X-Mailer: git-send-email 2.31.1
+        Tue, 02 Nov 2021 18:23:25 -0700 (PDT)
+Message-ID: <6181e48d.1c69fb81.f65ab.17d2@mx.google.com>
+Date:   Tue, 02 Nov 2021 18:23:25 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.14.16
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.14.y baseline: 159 runs, 1 regressions (v5.14.16)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+stable-rc/linux-5.14.y baseline: 159 runs, 1 regressions (v5.14.16)
 
-The code which constructs the modules for each engine present on the GPU
-passes -1 for 'instance' on non-instanced engines, which affects how the
-name for a sub-device is generated.  This is then stored as 'instance 0'
-in nvkm_subdev.inst, so code can potentially be shared with earlier GPUs
-that only had a single instance of an engine.
+Regressions Summary
+-------------------
 
-However, GF100's CE constructor uses this value to calculate the address
-of its falcon before it's translated, resulting in CE0 getting the wrong
-address.
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
 
-This slightly modifies the approach, always passing a valid instance for
-engines that *can* have multiple copies, and having the code for earlier
-GPUs explicitly ask for non-instanced name generation.
 
-Bug: https://gitlab.freedesktop.org/drm/nouveau/-/issues/91
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.14.y/ker=
+nel/v5.14.16/plan/baseline/
 
-Fixes: 50551b15c760 ("drm/nouveau/ce: switch to instanced constructor")
-Cc: <stable@vger.kernel.org> # v5.12+
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
----
- drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c    | 2 +-
- drivers/gpu/drm/nouveau/nvkm/engine/device/base.c | 3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.14.y
+  Describe: v5.14.16
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f63179c1e68ce99d511b683ad05d3829d0e4d9e9 =
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c b/drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c
-index 704df0f2d1f1..09a112af2f89 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c
-@@ -78,6 +78,6 @@ int
- gt215_ce_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
- 	     struct nvkm_engine **pengine)
- {
--	return nvkm_falcon_new_(&gt215_ce, device, type, inst,
-+	return nvkm_falcon_new_(&gt215_ce, device, type, -1,
- 				(device->chipset != 0xaf), 0x104000, pengine);
- }
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-index ca75c5f6ecaf..b51d690f375f 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-@@ -3147,8 +3147,7 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
- 	WARN_ON(device->chip->ptr.inst & ~((1 << ARRAY_SIZE(device->ptr)) - 1));             \
- 	for (j = 0; device->chip->ptr.inst && j < ARRAY_SIZE(device->ptr); j++) {            \
- 		if ((device->chip->ptr.inst & BIT(j)) && (subdev_mask & BIT_ULL(type))) {    \
--			int inst = (device->chip->ptr.inst == 1) ? -1 : (j);                 \
--			ret = device->chip->ptr.ctor(device, (type), inst, &device->ptr[j]); \
-+			ret = device->chip->ptr.ctor(device, (type), (j), &device->ptr[j]);  \
- 			subdev = nvkm_device_subdev(device, (type), (j));                    \
- 			if (ret) {                                                           \
- 				nvkm_subdev_del(&subdev);                                    \
--- 
-2.31.1
 
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/6181b4ae06a78efbc133591f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
+6/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.1=
+6/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6181b4ae06a78efbc1335=
+920
+        new failure (last pass: v5.14.15-126-gc99063ce032c) =
+
+ =20
