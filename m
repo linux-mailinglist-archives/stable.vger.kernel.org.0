@@ -2,129 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F6514446F8
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 18:21:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39992444767
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 18:45:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231551AbhKCRX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 13:23:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41922 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231489AbhKCRXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 13:23:53 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA2DC06120F
-        for <stable@vger.kernel.org>; Wed,  3 Nov 2021 10:21:15 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id e65so2961165pgc.5
-        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 10:21:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=DTRGMiNHKYebZWCWx62D8CEQ427I5y7QtDJufVzLmnc=;
-        b=J5llLhLNkdZAMCgq28t0N25Wqgyq0OUzEtsIt4H9vUq00yoSBWOx/zIgv7OfxEfxMk
-         xNlcCpUEA3pOIQYODkQPr4Gf/jIqe9+vltiH+Xu3oDvTWI0xi8v2+wMqQegCsADEr38v
-         03qitUFQpa7RfYuRNpSUCHO8jFtSVawc3N3vYGu16oOu5oTXKMFdZcku2CdbRY6s+DAN
-         kk/DHauzzl1wg9kckEPVohfF9c4hGCUb3cTQpdZBbMp3+LEpb5hPIQo5Y+cjU/UsNd33
-         Lvb1oVxGYtycof41eSIt/Xk6JJnZ+G5NyNKfVneC8+v2gejQLlK0442Tp4Rgl6DzqevD
-         CPAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=DTRGMiNHKYebZWCWx62D8CEQ427I5y7QtDJufVzLmnc=;
-        b=1YCg/kgYtRKZDve1VlDcTVIkz2rmdEs/3EQavofTG2c+rak9vKyMba5aVA82vPQugH
-         7skfwDrqs7dve8LrdekrmPwwugypZ8I09YUYar4bRb4fIbaixmJvAwB7EfzG7cYzCFiv
-         vMzsJj01KxZQ71W1dRkp8qDXqNq+YL2+oiEUzCmPxzUtfHHxoVI65iaY0LIYpyYHN/5g
-         XbfJgIO88ux1bgurJqn3KhABvRAK4NhLzMkkyS9/bYY9T8SG9kXF4bog9atXgMkqc4B7
-         B+rYrLnMUEa255ZaO5CWe9+AppQw/FOg26VDE3D5s45f4icoPZCCQ8rdizC13W4pN3Ts
-         ZBXw==
-X-Gm-Message-State: AOAM531gw+zS0az3R5cWi3neqiY91EsTJI4QJBcwykz9Y2Kzslj5Q92j
-        FOjgknsqj5bXEPppI5slloS+yZydd9mibIQm
-X-Google-Smtp-Source: ABdhPJybaEBqjCDz5br2zxXMVXKY2XLsBIRWD9e9OszLg8tjiXfXm+pQHDo8DgTpdz/kwjbz9zPBgg==
-X-Received: by 2002:a05:6a00:15d3:b0:47c:1c91:93d with SMTP id o19-20020a056a0015d300b0047c1c91093dmr46053490pfu.80.1635960074718;
-        Wed, 03 Nov 2021 10:21:14 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h11sm3325580pfc.131.2021.11.03.10.21.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Nov 2021 10:21:14 -0700 (PDT)
-Message-ID: <6182c50a.1c69fb81.467e7.9aa7@mx.google.com>
-Date:   Wed, 03 Nov 2021 10:21:14 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229621AbhKCRrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 13:47:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55372 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229541AbhKCRrl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Nov 2021 13:47:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D73160F58;
+        Wed,  3 Nov 2021 17:45:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1635961504;
+        bh=PUS8nqosCs6ac/036S10fd9qEnRt0zfLj7ps/bMIqfE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gkfyO+o+2meqGby2ZYSIJr5u0rBUMmm6yFjWCFI2ecnIo1/57uA2zkaWvk8kDpc/u
+         i/2bMmVLGC+3PKKBka2XMvPoB0Cwoh39AD/fNr7hHzktHZX8HqG7ZoTHutnoWf059w
+         0lV4/UUvgIn7Rt7E5BIRNsMsvAAdbr6oq7+DJsKc=
+Date:   Wed, 3 Nov 2021 18:45:02 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>
+Subject: Re: 5.14.14+ USB regression caused by "usb: core: hcd: Add support
+ for deferring roothub registration" series
+Message-ID: <YYLKngiZxyqARmvL@kroah.com>
+References: <42bcbea6-5eb8-16c7-336a-2cb72e71bc36@redhat.com>
+ <YYJRRg8QDBfy2PP7@kroah.com>
+ <9e1abe71-d903-f227-38ae-a854ab9e5baf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.14.16-4-gde92c86f0526
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.14 baseline: 149 runs,
- 1 regressions (v5.14.16-4-gde92c86f0526)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e1abe71-d903-f227-38ae-a854ab9e5baf@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 149 runs, 1 regressions (v5.14.16-4-gde92c86=
-f0526)
+On Wed, Nov 03, 2021 at 01:48:11PM +0100, Hans de Goede wrote:
+> Hi,
+> 
+> On 11/3/21 10:07, Greg Kroah-Hartman wrote:
+> > On Wed, Nov 03, 2021 at 10:02:52AM +0100, Hans de Goede wrote:
+> >> Hi Greg,
+> >>
+> >> We (Fedora) have been receiving multiple reports about USB devices stopping
+> >> working starting with 5.14.14 .
+> >>
+> >> An Arch Linux user has found that reverting the first 2 patches from this series:
+> >> https://lore.kernel.org/all/20210909064200.16216-1-kishon@ti.com/
+> >>
+> >> Fixes things (the 3th patch is just some mostly unrelated refactoring/cleanup).
+> >>
+> >> See here for the Arch-linux discussion surrounding this:
+> >> https://bbs.archlinux.org/viewtopic.php?pid=2000956#p2000956
+> >>
+> >> And here are 2 Fedora bug reports of Fedora users being unable to use their
+> >> machines due their mouse + kbd not working:
+> >>
+> >> https://bugzilla.redhat.com/show_bug.cgi?id=2019542
+> >> https://bugzilla.redhat.com/show_bug.cgi?id=2019576
+> >>
+> >> Can we get this patch-series reverted from the 5.14.y releases please ?
+> > 
+> > Sure,
+> 
+> Thanks.
+> 
+> > but can you also submit patches to get into 5.15.y and 5.16-rc1
+> > that revert these changes as they should still be an issue there, right?
+> 
+> Yes I assume this is still an issue there too, but I was hoping that
+> Kishon can take a look and maybe actually fix things, since just
+> reverting presumably regresses whatever these patches were addressing.
+> 
+> We've aprox 1-3 weeks before distros like Arch and Linux will switch
+> to 5.15.y kernels.  So we have some time to come up with a fix
+> there, where as for 5.14.y this is hitting users now.
 
-Regressions Summary
--------------------
+I've reverted them from all stable kernels for now.  Unless this gets
+figured out by 5.16-rc1, I will revert it from there then as well.
 
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
-      =
+thanks,
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.16-4-gde92c86f0526/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.16-4-gde92c86f0526
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      de92c86f05266dbb413a317102a6c1b5de0853e8 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
-      =
-
-
-  Details:     https://kernelci.org/test/plan/id/61828d7c895c5bb2d433590a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.16-=
-4-gde92c86f0526/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-banan=
-api-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.16-=
-4-gde92c86f0526/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-banan=
-api-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61828d7c895c5bb2d4335=
-90b
-        failing since 0 day (last pass: v5.14.15-125-ge59bfc32a9f1, first f=
-ail: v5.14.16-1-ga1fb46604823) =
-
- =20
+greg k-h
