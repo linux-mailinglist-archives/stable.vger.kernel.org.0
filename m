@@ -2,172 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7341044451E
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 17:00:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D7E2444595
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 17:12:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231599AbhKCQDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 12:03:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51058 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231787AbhKCQDa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 12:03:30 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4446C061714
-        for <stable@vger.kernel.org>; Wed,  3 Nov 2021 09:00:53 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id y1so2743804plk.10
-        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 09:00:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=X5VkFzybBoM8Sq+fbnRgrqFsgr2iEb4k6ITpeGLJ7+s=;
-        b=tNIiU1Aat2+4wQD6Xd1m1Ik7+q6uHT2Lquz1kxFNOaT35AhOelzdXIeQlRyvThjsNX
-         2jUx1y5bCxBTvBLoUDJNRP9tVauRT7OnvbyKDIjjqa2g9idoJyMdjut7KCgsEtnzoHQS
-         wk49ZtUk8pAJbgTJMRirY17Nrquxo2JZSQIjEy+IKLHngh9+SUoBuV0Ube+DVgzUxLBc
-         Wde79X3YwU517CtKmCpDieVhzVVTi37igYVluk4+m2wJk09UEcggcAv7SW0JOZNaij4C
-         w2I72wdHXjmftxRqunyq+k7F1IOjpBhrIvVad0ug2Wf715TyTqni3+8N3HPVEKk4GqMx
-         zH4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=X5VkFzybBoM8Sq+fbnRgrqFsgr2iEb4k6ITpeGLJ7+s=;
-        b=c5W/lH3vqGOxPDzpd77m3YUeR5Rc/SJPARfb9hh8KeCK74xWQjn5iml4ZmYaWfd7Nw
-         4ZnGv+/JbsLHSQa+aX9bmAHrvueBirc2ZW/TaR4ZlwCtN9RaqdklPfrZqksErll7GUL+
-         tLvXwfXa5Pnk8YNelL3F+JzEcUW+a8F1jac5o/rxFQpzZj9k7OO/Y/gx3j57UBHMQi95
-         /YKY1Lhnr8YdR3PuUAgPcKvZuxtQ51o3maHJgt3a7pwK6pndt+yuBIaxap7c9ooCT0VY
-         ODs9OxYsrJkaQrp39fh2xfAoZYVD3jY23xRCQsvmTeptuEF0LTzIIg94mQzaVgq61RDC
-         yQvw==
-X-Gm-Message-State: AOAM533qSWryqAwqk+2EYVixQoHAM+cCeucf68oUTZsrKXD1B4EEJXB3
-        APHpo2gveMooAH8XX6eMP2lbYEuE96P7kiFJ
-X-Google-Smtp-Source: ABdhPJxVR2bV6j7x8A5R64X5IEZ6CeXPq0UStF+7BcAQQUBp25QKFUK2ONH0C64/OiyWWYJ7dHZ+Ng==
-X-Received: by 2002:a17:90a:6b0d:: with SMTP id v13mr15538229pjj.138.1635955252791;
-        Wed, 03 Nov 2021 09:00:52 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g16sm3048010pfj.5.2021.11.03.09.00.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Nov 2021 09:00:52 -0700 (PDT)
-Message-ID: <6182b234.1c69fb81.1423b.8f0b@mx.google.com>
-Date:   Wed, 03 Nov 2021 09:00:52 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S232842AbhKCQO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 12:14:27 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:60216 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232835AbhKCQO1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 12:14:27 -0400
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 7D5921FC9E;
+        Wed,  3 Nov 2021 16:11:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1635955909; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=B/5aL2kwhmUQQo9sqoIsf812z+KBd1siwpzACpEXlmU=;
+        b=lR2Wbq59KuHBplxEIc8Zh0LYjBdH543DEoSnXVNMzHfEdlBVQ/CLG3P0eAMLkpQiKX8nst
+        1i+QrjIWicqI1fqw4MTV9Sxu4TCzfqoWvc5+kq5E2jza2VCX71ir3X0gfK0G3AwDe2NqvC
+        /08xmox+2J2IgW1nWz8vODHQ54Tvq7g=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1635955909;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=B/5aL2kwhmUQQo9sqoIsf812z+KBd1siwpzACpEXlmU=;
+        b=61fihADloQ3juKYwpgNW/L+RXojXUTaTd0OMed1k/yxylZbsQ+k/eErJ6wAJMuKrJRqfYs
+        HrXiOfAtrEhAIbBw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0841413C91;
+        Wed,  3 Nov 2021 16:11:47 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id BtsSL8O0gmHPTwAAMHmgww
+        (envelope-from <colyli@suse.de>); Wed, 03 Nov 2021 16:11:47 +0000
+Message-ID: <1d1180e0-32bc-e571-3252-ce496508d2b5@suse.de>
+Date:   Thu, 4 Nov 2021 00:11:45 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.291-1-gca04241b8259
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.4 baseline: 102 runs,
- 2 regressions (v4.4.291-1-gca04241b8259)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.2.1
+Subject: Re: [PATCH] bcache: Revert "bcache: use bvec_virt"
+Content-Language: en-US
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     axboe@kernel.dk, linux-bcache@vger.kernel.org,
+        linux-block@vger.kernel.org, stable@vger.kernel.org
+References: <20211103151041.70516-1-colyli@suse.de>
+ <20211103154644.GA30686@lst.de>
+From:   Coly Li <colyli@suse.de>
+In-Reply-To: <20211103154644.GA30686@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 102 runs, 2 regressions (v4.4.291-1-gca04241b=
-8259)
+On 11/3/21 11:46 PM, Christoph Hellwig wrote:
+> On Wed, Nov 03, 2021 at 11:10:41PM +0800, Coly Li wrote:
+>> diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
+>> index 93b67b8d31c3..88c573eeb598 100644
+>> --- a/drivers/md/bcache/btree.c
+>> +++ b/drivers/md/bcache/btree.c
+>> @@ -378,7 +378,7 @@ static void do_btree_node_write(struct btree *b)
+>>   		struct bvec_iter_all iter_all;
+>>   
+>>   		bio_for_each_segment_all(bv, b->bio, iter_all) {
+>> -			memcpy(bvec_virt(bv), addr, PAGE_SIZE);
+>> +			memcpy(page_address(bv->bv_page), addr, PAGE_SIZE);
+> How could there be an offset?  bch_bio_alloc_pages allocates a
+> fresh page for each vec, and bio_for_each_segment_all iterates page
+> by page.  IFF there is an offset there is proble in the surrounding
+> code as bch_bio_alloc_pages assumes that it is called on a freshly
+> allocate and initialized bio.
 
-Regressions Summary
--------------------
+Yes, the offset is modified in bch_bio_alloc_pages(). Normally the 
+bcache defined block size is 4KB so the issue was not triggered 
+frequently. I found it during testing my nvdimm enabling code for 
+bcache, where I happen to make the bcache defined block size to non-4KB. 
+The offset is from the previous written bkey set, which the minimized 
+unit size is 1 bcache-defined-block-size.
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 2       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.291-1-gca04241b8259/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.291-1-gca04241b8259
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ca04241b82597a209e08914cb6a15d5258e950c0 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 2       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/618280cd2024ea83303358dc
-
-  Results:     3 PASS, 2 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-1=
--gca04241b8259/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-=
-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-1=
--gca04241b8259/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-=
-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/618280ce2024ea83=
-303358df
-        new failure (last pass: v4.4.291-1-ge3e451067931)
-        1 lines
-
-    2021-11-03T12:29:48.088459  =
-
-    2021-11-03T12:29:48.192430  / # #
-    2021-11-03T12:29:48.193060  =
-
-    2021-11-03T12:29:48.294413  / # #export SHELL=3D/bin/sh
-    2021-11-03T12:29:48.294960  =
-
-    2021-11-03T12:29:48.396184  / # export SHELL=3D/bin/sh. /lava-1020162/e=
-nvironment
-    2021-11-03T12:29:48.396621  =
-
-    2021-11-03T12:29:48.497841  / # . /lava-1020162/environment/lava-102016=
-2/bin/lava-test-runner /lava-1020162/0
-    2021-11-03T12:29:48.499024  =
-
-    2021-11-03T12:29:48.499900  / # /lava-1020162/bin/lava-test-runner /lav=
-a-1020162/0 =
-
-    ... (8 line(s) more)  =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/618280ce2024ea8=
-3303358e1
-        new failure (last pass: v4.4.291-1-ge3e451067931)
-        29 lines
-
-    2021-11-03T12:29:48.863580  [   49.235046] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-03T12:29:48.929553  kern  :emerg : Internal error: Oops - BUG: =
-0 [#1] SMP ARM
-    2021-11-03T12:29:48.935278  kern  :emerg : Process udevd (pid: 109, sta=
-ck limit =3D 0xcb954218)
-    2021-11-03T12:29:48.939716  kern  :emerg : Stack: (0xcb955cf8 to 0xcb95=
-6000)
-    2021-11-03T12:29:48.948214  kern  :emerg : 5ce0:                       =
-                                bf02bdc4 60000013
-    2021-11-03T12:29:48.956131  kern  :emerg : 5d00: bf02bdc8 c06a3554 0000=
-0001 00000000 bf010250 00000002 60000093 00000002
-    2021-11-03T12:29:48.968137  kern  :emerg : 5d20: ce343000 c06a52[   49.=
-336364] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dli=
-nes MEASUREMENT=3D29>   =
-
- =20
+Coly Li
