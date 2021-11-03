@@ -2,106 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90428443DC0
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 08:38:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA67B443DD4
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 08:51:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232033AbhKCHku (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 03:40:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48674 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231994AbhKCHkt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 03:40:49 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2BBEC061714
-        for <stable@vger.kernel.org>; Wed,  3 Nov 2021 00:38:13 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id y84-20020a1c7d57000000b00330cb84834fso3838901wmc.2
-        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 00:38:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=66uu6pMFwaoqtLUfKJfHxB8EI3iZ+Lon+COm99nenUY=;
-        b=HqJqilX/JQilM9KQgkgb6Bnwml/foCLiItRrTReaWcfjqBrlTDnshb6i6dlzTYL7lh
-         /t+dJVYNUu9ncUNo0g36PLv/a8EpQUBuaDSBLBBe8n7YrnE1r3icMXcHHXQFF+9M/0Nh
-         dtnOxBbsePavMlxkkRHudD4ouuPvLohjQvchhR0JV/fshrhsAB+I9TofAJdPuZhJZxLp
-         SJYzg895+76IsWC18Plfk2hqqk+RJ9iymFf7dS7JWxkG60vva4hKrM2UjZ20YlYfGt5o
-         KPFIYHIS+A1TpZXcuMRbBkPgYwz+J2n2gQjXileDnlwRKH6HB3BYAeuH+fnFAdHDKy3S
-         nQlA==
+        id S230256AbhKCHyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 03:54:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60771 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229504AbhKCHyM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 03:54:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635925896;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=irWXlZxDylOk4IvQ4TmBV6Sa70wcpbNEWa+s/Ek+9WE=;
+        b=LCiNi+8Saa+8/zHAJ3OorfyDsDzEjyDJmb0h2wKY2bVXk2pIb/wgVKJMUlpqinwdRDlEqL
+        QyFS9Vh1f4+SXHfe3+8/HjXTV0Xl8iuQiIV3IFHgTNSmU8Kr69UaA8j/Ws7INUqBNwhRiv
+        Y8kX7fD3xydpoQ/Ltpk35R7BFjCf5Wk=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-349-RIv99TpOOuawCM2cy661-w-1; Wed, 03 Nov 2021 03:51:35 -0400
+X-MC-Unique: RIv99TpOOuawCM2cy661-w-1
+Received: by mail-wm1-f72.google.com with SMTP id c1-20020a05600c0ac100b00322fcaa2bc7so710674wmr.4
+        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 00:51:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=66uu6pMFwaoqtLUfKJfHxB8EI3iZ+Lon+COm99nenUY=;
-        b=WBgYmYzFCSOdRODJ4GMDqlCv1jAib/8hALqf8aI09omLk2ETyxjJJCtHudQO09sm5u
-         tgHsLNPeJCIcwew60HVN3hODY0ZCfNxctOHL/0UOw/LDA0eje3K37XGN+/2Ya6zRD01U
-         qaiu5c6Yx5p47IiylQ9aSupFDdOpWUDWtgdICsC5NwX+qRRyQhS68ZNUEi/K1peAp+VS
-         OoFnfTLxABHEVbss/yABAb7snLfkWUeN+VHf2f/3cx0SwX/iEqExKtVIs5MlmzHw/sqF
-         zlyKu0l7K0ryryk8PVZoru/QUwiamMdEIA/C+eCtVa729kXZnccDTs3ea3tcVlZijw86
-         FNOA==
-X-Gm-Message-State: AOAM532NKiDq1j9Eq1pSYkO1SphwtZynReSlp/HRUjGBOensmk8SDE8C
-        eE2H04DflsrA2MW2RKSjdQ0buo/rFzIzCQ==
-X-Google-Smtp-Source: ABdhPJwpt5FRcgqWxnYtyGA/+iVpKBGh0lFBovYyOVnD0FcaaHzWWVyRsxSvVsU9OVYbHtuLoIFQaw==
-X-Received: by 2002:a1c:a711:: with SMTP id q17mr13231252wme.158.1635925092007;
-        Wed, 03 Nov 2021 00:38:12 -0700 (PDT)
-Received: from google.com ([95.148.6.174])
-        by smtp.gmail.com with ESMTPSA id l4sm1126960wrv.94.2021.11.03.00.38.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Nov 2021 00:38:11 -0700 (PDT)
-Date:   Wed, 3 Nov 2021 07:38:10 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, asml.silence@gmail.com, axboe@kernel.dk,
-        linux-kernel@vger.kernel.org,
-        syzbot+b0003676644cf0d6acc4@syzkaller.appspotmail.com
-Subject: Re: [PATCH v5.10.y 1/1] Revert "io_uring: reinforce cancel on flush
- during exit"
-Message-ID: <YYI8YjbE5xTSLLn4@google.com>
-References: <20211102154930.2282421-1-lee.jones@linaro.org>
- <YYFfIk2CQaFI0Zdg@kroah.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=irWXlZxDylOk4IvQ4TmBV6Sa70wcpbNEWa+s/Ek+9WE=;
+        b=U4JHpxcIAE1JtObuUbkgyP+Q3o6IEIY5wS/KreSY22b2Dlv1+aqtZAL0TmGIqh27X3
+         WUd1A4wjnThJm/E02De2JtHBzrydt8t2c7uyyY52d1GjjKMgwD3SJDFF3LHMIeXN/Lpj
+         SY2XvE8lj5snKNMVeIfZSUjfHwmFCJ+yMTPN382wL+TK9NQY5APgspK/5/hpYKXNLb73
+         /zWPZUSkdvVsdqNvB3RsH+v12yF51ORu1sTqFKlikCOJWX1wSW4GdNgZXzPvGz2r9oQE
+         Nuo3zkMBn9zzMn2nLXXkdCORx/C/nbxavoWMRHOnSIiDmghr5KAeLZox8qKQllvQkZvX
+         /sKg==
+X-Gm-Message-State: AOAM531/1wsjVKtRJ/ZLgV/LbXhnE2OuiAKYllfm3G4l/PYsYZzJak3g
+        cWO/CZhJ+hQT+57L4b9uDurLAWu0DiHl6xXPMZGR8J8nw2d3CXIMDbtdyVqtqtq5H11fo8WkDpi
+        Pj4jSXwfLsNQ8QymNoTWc+C0+cUszQed2
+X-Received: by 2002:a05:6000:144c:: with SMTP id v12mr53633349wrx.142.1635925894215;
+        Wed, 03 Nov 2021 00:51:34 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzxUsEwlf2IYsDc3CXkiOwdsadyc5FEF0ZwMlAnAzju5XqXgEiKwXC/8wyvlIvOkO8Ya2PuD+3uWdV96nEjcBE=
+X-Received: by 2002:a05:6000:144c:: with SMTP id v12mr53633334wrx.142.1635925894058;
+ Wed, 03 Nov 2021 00:51:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YYFfIk2CQaFI0Zdg@kroah.com>
+References: <20211103011057.15344-1-skeggsb@gmail.com>
+In-Reply-To: <20211103011057.15344-1-skeggsb@gmail.com>
+From:   Karol Herbst <kherbst@redhat.com>
+Date:   Wed, 3 Nov 2021 08:51:23 +0100
+Message-ID: <CACO55tvy5atSW9SJw1E_wmfgn1cZpDiZ2T7VuS35UGXRVdpEaw@mail.gmail.com>
+Subject: Re: [Nouveau] [PATCH] ce/gf100: fix incorrect CE0 address calculation
+ on some GPUs
+To:     Ben Skeggs <skeggsb@gmail.com>
+Cc:     nouveau <nouveau@lists.freedesktop.org>,
+        Ben Skeggs <bskeggs@redhat.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 02 Nov 2021, Greg KH wrote:
+On Wed, Nov 3, 2021 at 2:11 AM Ben Skeggs <skeggsb@gmail.com> wrote:
+>
+> From: Ben Skeggs <bskeggs@redhat.com>
+>
+> The code which constructs the modules for each engine present on the GPU
+> passes -1 for 'instance' on non-instanced engines, which affects how the
+> name for a sub-device is generated.  This is then stored as 'instance 0'
+> in nvkm_subdev.inst, so code can potentially be shared with earlier GPUs
+> that only had a single instance of an engine.
+>
+> However, GF100's CE constructor uses this value to calculate the address
+> of its falcon before it's translated, resulting in CE0 getting the wrong
+> address.
+>
+> This slightly modifies the approach, always passing a valid instance for
+> engines that *can* have multiple copies, and having the code for earlier
+> GPUs explicitly ask for non-instanced name generation.
+>
+> Bug: https://gitlab.freedesktop.org/drm/nouveau/-/issues/91
+>
+> Fixes: 50551b15c760 ("drm/nouveau/ce: switch to instanced constructor")
+> Cc: <stable@vger.kernel.org> # v5.12+
+> Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+> ---
+>  drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c    | 2 +-
+>  drivers/gpu/drm/nouveau/nvkm/engine/device/base.c | 3 +--
+>  2 files changed, 2 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c b/drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c
+> index 704df0f2d1f1..09a112af2f89 100644
+> --- a/drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c
+> +++ b/drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c
+> @@ -78,6 +78,6 @@ int
+>  gt215_ce_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+>              struct nvkm_engine **pengine)
+>  {
+> -       return nvkm_falcon_new_(&gt215_ce, device, type, inst,
+> +       return nvkm_falcon_new_(&gt215_ce, device, type, -1,
+>                                 (device->chipset != 0xaf), 0x104000, pengine);
+>  }
+> diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
+> index ca75c5f6ecaf..b51d690f375f 100644
+> --- a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
+> +++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
+> @@ -3147,8 +3147,7 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
+>         WARN_ON(device->chip->ptr.inst & ~((1 << ARRAY_SIZE(device->ptr)) - 1));             \
+>         for (j = 0; device->chip->ptr.inst && j < ARRAY_SIZE(device->ptr); j++) {            \
+>                 if ((device->chip->ptr.inst & BIT(j)) && (subdev_mask & BIT_ULL(type))) {    \
+> -                       int inst = (device->chip->ptr.inst == 1) ? -1 : (j);                 \
+> -                       ret = device->chip->ptr.ctor(device, (type), inst, &device->ptr[j]); \
+> +                       ret = device->chip->ptr.ctor(device, (type), (j), &device->ptr[j]);  \
+>                         subdev = nvkm_device_subdev(device, (type), (j));                    \
+>                         if (ret) {                                                           \
+>                                 nvkm_subdev_del(&subdev);                                    \
+> --
+> 2.31.1
+>
 
-> On Tue, Nov 02, 2021 at 03:49:30PM +0000, Lee Jones wrote:
-> > This reverts commit 88dbd085a51ec78c83dde79ad63bca8aa4272a9d.
-> > 
-> > Causes the following Syzkaller reported issue:
-> > 
-> > LINK: https://syzkaller.appspot.com/bug?extid=b0003676644cf0d6acc4
-> 
-> "Link:"?
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
 
-Sure.
-
-> > Reported-by: syzbot+b0003676644cf0d6acc4@syzkaller.appspotmail.com
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> 
-> Why does the patch here cause this error?  Is it due to the backport
-> being different than what went into Linus's tree, or something else?
-
-The patch is the same.
-
-I need to do some more testing, but I assume it *was* also broken in
-Mainline until the whole section was rewritten.  Unfortunately, the
-patch which does that does not apply to v5.10.y.  Again, I can look
-into this, but I'm not quite sure how far the rabbit hole goes.
-
-> The original commit did fix a real issue, what should we do now to
-> resolve that issue in 5.10.y instead?
-
-Ideally I'd like the original author and/or the domain experts to have
-a look and chime in here.
-
--- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
