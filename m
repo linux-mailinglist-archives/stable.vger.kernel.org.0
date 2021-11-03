@@ -2,77 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFA1E4445CB
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 17:19:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C99D544465A
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 17:54:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232821AbhKCQWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 12:22:35 -0400
-Received: from verein.lst.de ([213.95.11.211]:60202 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232644AbhKCQWe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Nov 2021 12:22:34 -0400
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id 22EE868AA6; Wed,  3 Nov 2021 17:19:56 +0100 (CET)
-Date:   Wed, 3 Nov 2021 17:19:55 +0100
-From:   Christoph Hellwig <hch@lst.de>
-To:     Coly Li <colyli@suse.de>
-Cc:     Christoph Hellwig <hch@lst.de>, axboe@kernel.dk,
-        linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] bcache: Revert "bcache: use bvec_virt"
-Message-ID: <20211103161955.GA394@lst.de>
-References: <20211103151041.70516-1-colyli@suse.de> <20211103154644.GA30686@lst.de> <1d1180e0-32bc-e571-3252-ce496508d2b5@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1d1180e0-32bc-e571-3252-ce496508d2b5@suse.de>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+        id S233008AbhKCQ5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 12:57:04 -0400
+Received: from finn.gateworks.com ([108.161.129.64]:59556 "EHLO
+        finn.localdomain" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S232960AbhKCQ5E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 12:57:04 -0400
+Received: from 068-189-091-139.biz.spectrum.com ([68.189.91.139] helo=tharvey.pdc.gateworks.com)
+        by finn.localdomain with esmtp (Exim 4.93)
+        (envelope-from <tharvey@gateworks.com>)
+        id 1miJWj-007u4e-Tl; Wed, 03 Nov 2021 16:54:18 +0000
+From:   Tim Harvey <tharvey@gateworks.com>
+To:     Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        BOUGH CHEN <haibo.chen@nxp.com>, linux-mmc@vger.kernel.org,
+        Marcel Ziswiler <marcel@ziswiler.com>,
+        Schrempf Frieder <frieder.schrempf@kontron.de>,
+        Adam Ford <aford173@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Peng Fan <peng.fan@nxp.com>
+Cc:     Tim Harvey <tharvey@gateworks.com>, stable@vger.kernel.org
+Subject: [PATCH] mmc: sdhci-esdhc-imx: disable CMDQ support
+Date:   Wed,  3 Nov 2021 09:54:15 -0700
+Message-Id: <20211103165415.2016-1-tharvey@gateworks.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <CAJ+vNU3zKEVz=fHu2hLmEpsQKzinUFW-28Lm=2wSEghjMvQtmw@mail.gmail.com>
+References: <CAJ+vNU3zKEVz=fHu2hLmEpsQKzinUFW-28Lm=2wSEghjMvQtmw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 04, 2021 at 12:11:45AM +0800, Coly Li wrote:
->> fresh page for each vec, and bio_for_each_segment_all iterates page
->> by page.  IFF there is an offset there is proble in the surrounding
->> code as bch_bio_alloc_pages assumes that it is called on a freshly
->> allocate and initialized bio.
->
-> Yes, the offset is modified in bch_bio_alloc_pages().
+On IMX SoC's which support CMDQ the following can occur during high a
+high cpu load:
 
-Where?   In my upstream copy of bch_bio_alloc_pages there is no bv_offset
-manipulation, and I could not see how such a manipulation would make
-sense.
+mmc2: cqhci: ============ CQHCI REGISTER DUMP ===========
+mmc2: cqhci: Caps:      0x0000310a | Version:  0x00000510
+mmc2: cqhci: Config:    0x00001001 | Control:  0x00000000
+mmc2: cqhci: Int stat:  0x00000000 | Int enab: 0x00000006
+mmc2: cqhci: Int sig:   0x00000006 | Int Coal: 0x00000000
+mmc2: cqhci: TDL base:  0x8003f000 | TDL up32: 0x00000000
+mmc2: cqhci: Doorbell:  0xbf01dfff | TCN:      0x00000000
+mmc2: cqhci: Dev queue: 0x00000000 | Dev Pend: 0x08000000
+mmc2: cqhci: Task clr:  0x00000000 | SSC1:     0x00011000
+mmc2: cqhci: SSC2:      0x00000001 | DCMD rsp: 0x00000800
+mmc2: cqhci: RED mask:  0xfdf9a080 | TERRI:    0x00000000
+mmc2: cqhci: Resp idx:  0x0000000d | Resp arg: 0x00000000
+mmc2: sdhci: ============ SDHCI REGISTER DUMP ===========
+mmc2: sdhci: Sys addr:  0x7c722000 | Version:  0x00000002
+mmc2: sdhci: Blk size:  0x00000200 | Blk cnt:  0x00000020
+mmc2: sdhci: Argument:  0x00018000 | Trn mode: 0x00000023
+mmc2: sdhci: Present:   0x01f88008 | Host ctl: 0x00000030
+mmc2: sdhci: Power:     0x00000002 | Blk gap:  0x00000080
+mmc2: sdhci: Wake-up:   0x00000008 | Clock:    0x0000000f
+mmc2: sdhci: Timeout:   0x0000008f | Int stat: 0x00000000
+mmc2: sdhci: Int enab:  0x107f4000 | Sig enab: 0x107f4000
+mmc2: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000502
+mmc2: sdhci: Caps:      0x07eb0000 | Caps_1:   0x8000b407
+mmc2: sdhci: Cmd:       0x00000d1a | Max curr: 0x00ffffff
+mmc2: sdhci: Resp[0]:   0x00000000 | Resp[1]:  0xffc003ff
+mmc2: sdhci: Resp[2]:   0x328f5903 | Resp[3]:  0x00d07f01
+mmc2: sdhci: Host ctl2: 0x00000088
+mmc2: sdhci: ADMA Err:  0x00000000 | ADMA Ptr: 0xfe179020
+mmc2: sdhci-esdhc-imx: ========= ESDHC IMX DEBUG STATUS DUMP ====
+mmc2: sdhci-esdhc-imx: cmd debug status:  0x2120
+mmc2: sdhci-esdhc-imx: data debug status:  0x2200
+mmc2: sdhci-esdhc-imx: trans debug status:  0x2300
+mmc2: sdhci-esdhc-imx: dma debug status:  0x2400
+mmc2: sdhci-esdhc-imx: adma debug status:  0x2510
+mmc2: sdhci-esdhc-imx: fifo debug status:  0x2680
+mmc2: sdhci-esdhc-imx: async fifo debug status:  0x2750
+mmc2: sdhci: ============================================
 
-> Normally the bcache 
-> defined block size is 4KB so the issue was not triggered frequently. I 
-> found it during testing my nvdimm enabling code for bcache, where I happen 
-> to make the bcache defined block size to non-4KB. The offset is from the 
-> previous written bkey set, which the minimized unit size is 1 
-> bcache-defined-block-size.
+For now, disable CMDQ support on the imx8qm/imx8qxp/imx8mm until the
+issue is found and resolved.
 
-So you have some out of tree changes here?  Copying a PAGE_SIZE into
-a 'segment' bvec just does not make any sense if there is an offset,
-as segments are defined as bvecs that do not span page boundaries.
+Fixes: bb6e358169bf6 ("mmc: sdhci-esdhc-imx: add CMDQ support")
+Fixes: cde5e8e9ff146 ("mmc: sdhci-esdhc-imx: Add an new esdhc_soc_data
+for i.MX8MM")
 
-I suspect the best thing to do in do_btree_node_write would be something
-like the patch below instead of poking into the internals here, but I'd
-also really like to understand the root cause as it does point to a bug
-somewhere else.
+Cc: stable@vger.kernel.org
+Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+---
+ drivers/mmc/host/sdhci-esdhc-imx.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-
-diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
-index 93b67b8d31c3d..f69914848f32f 100644
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -378,8 +378,8 @@ static void do_btree_node_write(struct btree *b)
- 		struct bvec_iter_all iter_all;
+diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
+index e658f0174242..60f19369de84 100644
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -300,7 +300,6 @@ static struct esdhc_soc_data usdhc_imx8qxp_data = {
+ 	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
+ 			| ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200
+ 			| ESDHC_FLAG_HS400 | ESDHC_FLAG_HS400_ES
+-			| ESDHC_FLAG_CQHCI
+ 			| ESDHC_FLAG_STATE_LOST_IN_LPMODE
+ 			| ESDHC_FLAG_CLK_RATE_LOST_IN_PM_RUNTIME,
+ };
+@@ -309,7 +308,6 @@ static struct esdhc_soc_data usdhc_imx8mm_data = {
+ 	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
+ 			| ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200
+ 			| ESDHC_FLAG_HS400 | ESDHC_FLAG_HS400_ES
+-			| ESDHC_FLAG_CQHCI
+ 			| ESDHC_FLAG_STATE_LOST_IN_LPMODE,
+ };
  
- 		bio_for_each_segment_all(bv, b->bio, iter_all) {
--			memcpy(bvec_virt(bv), addr, PAGE_SIZE);
--			addr += PAGE_SIZE;
-+			memcpy_to_bvec(bvec_virt(bv), addr);
-+			addr += bv->bv_len;
- 		}
- 
- 		bch_submit_bbio(b->bio, b->c, &k.key, 0);
+-- 
+2.17.1
 
