@@ -2,80 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73BCC4447B7
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 18:49:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3360A4447BD
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 18:50:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230011AbhKCRwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 13:52:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57162 "EHLO mail.kernel.org"
+        id S231265AbhKCRx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 13:53:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229888AbhKCRwE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Nov 2021 13:52:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 913FC608FB;
-        Wed,  3 Nov 2021 17:49:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635961768;
-        bh=r3E/ue33S593YT2EzfrJ0Ey+T6bI2zK6NIeYCIVG23g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xUbGhtMCad86BzhAjLyQfSco/K1i7FZpDNq+ncDbOjOw3u/5u7IqR5dcC2yaybqU3
-         8C/hKr6qzBEGwj708lFTSURuYoo2ah/BfaZVCxPknwW8A4I7bd4EPa9duoNOxhGRUQ
-         9Z7n10EWskKmOd5FH/m0O64qsPSQ/LWA4NafB4ZY=
-Date:   Wed, 3 Nov 2021 18:49:25 +0100
-From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To:     "Marciniszyn, Mike" <mike.marciniszyn@cornelisnetworks.com>
-Cc:     "Dalessandro, Dennis" <dennis.dalessandro@cornelisnetworks.com>,
-        "ivansprundel@ioactive.com" <ivansprundel@ioactive.com>,
-        "jgg@nvidia.com" <jgg@nvidia.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] IB/qib: Protect from buffer overflow in
- struct" failed to apply to 4.19-stable tree
-Message-ID: <YYLLpajhUvBKFCAb@kroah.com>
-References: <163559866411243@kroah.com>
- <CH0PR01MB715319BCF6C1A8C0F1F631C9F28C9@CH0PR01MB7153.prod.exchangelabs.com>
+        id S231380AbhKCRwq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Nov 2021 13:52:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7E0660F90;
+        Wed,  3 Nov 2021 17:50:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1635961809;
+        bh=I7T2p9hGK8SvEPslDuk3l6+20Nz99bU1hW+iZqP6kEA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=uZfS6Ee44JNWwy6mguQFZkJqlMEFe1nwGhQ1fEm9v8k3KfWHaYgtdVrUjLFLKngWB
+         QbpMRqnXH+2u9KRHhel5HuP7mWwYmiK38h1twNOLydC1SIir/5vIoRnvt+0auATcfo
+         SClWjWe2Y/muxtGGfZnnzfLtF++3quKFltm1Ebm6m/j6MuX8y/zYie01O5GRTozJFo
+         z6VlotKr2R/Bog6uWCdocXDfMycsP9e85w5tgiY0Iw8FwdIKLNofecCKWQA7WWhDDM
+         8R0VxU9Mpq4hs01jLUwDiZHhQV6DDoNv+VnPdfWDZp4K/X24oj49Uzp6PWPofGx0xM
+         z2J4VUd24LQBg==
+From:   Gao Xiang <xiang@kernel.org>
+To:     linux-erofs@lists.ozlabs.org, Chao Yu <chao@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>, Gao Xiang <xiang@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] erofs: fix unsafe pagevec reuse of hooked pclusters
+Date:   Thu,  4 Nov 2021 01:49:53 +0800
+Message-Id: <20211103174953.3209-1-xiang@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CH0PR01MB715319BCF6C1A8C0F1F631C9F28C9@CH0PR01MB7153.prod.exchangelabs.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 03, 2021 at 03:15:59PM +0000, Marciniszyn, Mike wrote:
-> > From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>
-> > Sent: Saturday, October 30, 2021 8:58 AM
-> > To: Marciniszyn, Mike <mike.marciniszyn@cornelisnetworks.com>;
-> > Dalessandro, Dennis <dennis.dalessandro@cornelisnetworks.com>;
-> > ivansprundel@ioactive.com; jgg@nvidia.com
-> > Cc: stable@vger.kernel.org
-> > Subject: FAILED: patch "[PATCH] IB/qib: Protect from buffer overflow in
-> > struct" failed to apply to 4.19-stable tree
-> > 
-> > 
-> > The patch below does not apply to the 4.19-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm tree,
-> > then please email the backport, including the original git commit id to
-> > <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> Greg,
-> 
-> The only thing required for 4.19 for this patch is that:
-> 
-> 829ca44ecf60 ("IB/qib: Use struct_size() helper")
-> 
-> Is there first as a prereq.
-> 
-> How do you want to see that in the signature block meta language?
+There are pclusters in runtime marked with Z_EROFS_PCLUSTER_TAIL
+before actual I/O submission. Thus, the submission chain can be
+extended if the following pcluster chain hook such tail pcluster.
 
-The documentation in:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-describes how to do this properly.
+As the related comment mentioned, if some page is made of a hooked
+pcluster and another followed pcluster, it can be reused for
+in-place I/O (since I/O should be submitted anyway):
+ _______________________________________________________________
+|  tail (partial) page |          head (partial) page           |
+|_____PRIMARY_HOOKED___|____________PRIMARY_FOLLOWED____________|
 
-I've queued both of these up now for 4.19.y.
+However, it's by no means safe to reuse as pagevec since if such
+PRIMARY_HOOKED pclusters finally move into bypass chain without I/O
+submission. It's somewhat hard to reproduce with LZ4 and I just
+found it by ro_fsstress a LZMA image for long time.
 
-thanks,
+I'm going to clean up related code together with multi-page folio
+adaption in the next few months. Let's address it directly for
+easier backporting for now.
 
-greg k-h
+Call trace for reference:
+  z_erofs_decompress_pcluster+0x10a/0x8a0 [erofs]
+  z_erofs_decompress_queue.isra.36+0x3c/0x60 [erofs]
+  z_erofs_runqueue+0x5f3/0x840 [erofs]
+  z_erofs_readahead+0x1e8/0x320 [erofs]
+  read_pages+0x91/0x270
+  page_cache_ra_unbounded+0x18b/0x240
+  filemap_get_pages+0x10a/0x5f0
+  filemap_read+0xa9/0x330
+  new_sync_read+0x11b/0x1a0
+  vfs_read+0xf1/0x190
+
+Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+Cc: <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Gao Xiang <xiang@kernel.org>
+---
+ fs/erofs/zdata.c | 13 +++++++------
+ fs/erofs/zpvec.h | 13 ++++++++++---
+ 2 files changed, 17 insertions(+), 9 deletions(-)
+
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 11c7a1aaebad..eb51df4a9f77 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -373,8 +373,8 @@ static bool z_erofs_try_inplace_io(struct z_erofs_collector *clt,
+ 
+ /* callers must be with collection lock held */
+ static int z_erofs_attach_page(struct z_erofs_collector *clt,
+-			       struct page *page,
+-			       enum z_erofs_page_type type)
++			       struct page *page, enum z_erofs_page_type type,
++			       bool pvec_safereuse)
+ {
+ 	int ret;
+ 
+@@ -384,9 +384,9 @@ static int z_erofs_attach_page(struct z_erofs_collector *clt,
+ 	    z_erofs_try_inplace_io(clt, page))
+ 		return 0;
+ 
+-	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type);
++	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type,
++				      pvec_safereuse);
+ 	clt->cl->vcnt += (unsigned int)ret;
+-
+ 	return ret ? 0 : -EAGAIN;
+ }
+ 
+@@ -729,7 +729,8 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
+ 		tight &= (clt->mode >= COLLECT_PRIMARY_FOLLOWED);
+ 
+ retry:
+-	err = z_erofs_attach_page(clt, page, page_type);
++	err = z_erofs_attach_page(clt, page, page_type,
++				  clt->mode >= COLLECT_PRIMARY_FOLLOWED);
+ 	/* should allocate an additional short-lived page for pagevec */
+ 	if (err == -EAGAIN) {
+ 		struct page *const newpage =
+@@ -737,7 +738,7 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
+ 
+ 		set_page_private(newpage, Z_EROFS_SHORTLIVED_PAGE);
+ 		err = z_erofs_attach_page(clt, newpage,
+-					  Z_EROFS_PAGE_TYPE_EXCLUSIVE);
++					  Z_EROFS_PAGE_TYPE_EXCLUSIVE, true);
+ 		if (!err)
+ 			goto retry;
+ 	}
+diff --git a/fs/erofs/zpvec.h b/fs/erofs/zpvec.h
+index dfd7fe0503bb..b05464f4a808 100644
+--- a/fs/erofs/zpvec.h
++++ b/fs/erofs/zpvec.h
+@@ -106,11 +106,18 @@ static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
+ 
+ static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
+ 					   struct page *page,
+-					   enum z_erofs_page_type type)
++					   enum z_erofs_page_type type,
++					   bool pvec_safereuse)
+ {
+-	if (!ctor->next && type)
+-		if (ctor->index + 1 == ctor->nr)
++	if (!ctor->next) {
++		/* some pages cannot be reused as pvec safely without I/O */
++		if (type == Z_EROFS_PAGE_TYPE_EXCLUSIVE && !pvec_safereuse)
++			type = Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED;
++
++		if (type != Z_EROFS_PAGE_TYPE_EXCLUSIVE &&
++		    ctor->index + 1 == ctor->nr)
+ 			return false;
++	}
+ 
+ 	if (ctor->index >= ctor->nr)
+ 		z_erofs_pagevec_ctor_pagedown(ctor, false);
+-- 
+2.20.1
+
