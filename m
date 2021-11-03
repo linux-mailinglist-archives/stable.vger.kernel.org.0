@@ -2,72 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 345B8443F7E
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 10:41:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDBD3443F7F
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 10:42:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231721AbhKCJns (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 05:43:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58802 "EHLO mail.kernel.org"
+        id S231557AbhKCJop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 05:44:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231435AbhKCJnr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Nov 2021 05:43:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AE566112D;
-        Wed,  3 Nov 2021 09:41:10 +0000 (UTC)
+        id S231278AbhKCJop (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Nov 2021 05:44:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F2946023E;
+        Wed,  3 Nov 2021 09:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635932471;
-        bh=jsOp6rDI9MoyiJ5Jf7bv2gmmxms+OBGzwYiDIAkfDss=;
+        s=korg; t=1635932529;
+        bh=1h2VN8LrKMjwSkdkZ0SH9Vpr4P3HWT71CwT/3GqYsqQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=h4HtUz3/wrEc5oBB2oqSorivRnl5E7X3kugAN4lif7kQclhwN16GJo2c9QFlpzf2+
-         FGx5iv18Qzl9mbYI4/w05OyJdbBTrGYFt9WFZw8AfSejphvl7LZ/Z2luP1BV72I0/G
-         LcwhQ8t30wg0X9HudPaPywIrmpvprB4bZvt+12+M=
-Date:   Wed, 3 Nov 2021 10:41:06 +0100
+        b=k8AapTAja/J+tv7rG/kDJkitc7tyibOCGzCf6ACWzKd/NRYZS6BMz/koclSp3zTYG
+         FDLOBsiWM7DrOJ0tbRkME1Ay/wDAqXhUtX9zdlWjCKNyZS7t9z9kbIK5Gw2PVYmeyc
+         SS/8xdTe4bQusboFXyoUCzSeZJHPOHl3qeZJ3bZg=
+Date:   Wed, 3 Nov 2021 10:42:04 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Erik Ekman <erik@kryo.se>
-Cc:     stable@vger.kernel.org
-Subject: Re: sfc: Fix reading non-legacy supported link modes
-Message-ID: <YYJZMuOFNQiJ3rGC@kroah.com>
-References: <CAGgu=sBsiSVgr=uR95ZXFTtziLUO_LS4CW+6n2p2iBWxf2aq6A@mail.gmail.com>
+To:     Florian Westphal <fw@strlen.de>
+Cc:     Arturo Borrero Gonzalez <arturo@netfilter.org>,
+        "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>,
+        Lahav Schlesinger <lschlesinger@drivenets.com>,
+        David Ahern <dsahern@kernel.org>, stable@vger.kernel.org
+Subject: Re: Potential problem with VRF+conntrack after kernel upgrade
+Message-ID: <YYJZbE/8HRje+0eT@kroah.com>
+References: <1a816689-3960-eb6b-2256-9478265d2d8e@netfilter.org>
+ <20211102162402.GB19266@breakpoint.cc>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAGgu=sBsiSVgr=uR95ZXFTtziLUO_LS4CW+6n2p2iBWxf2aq6A@mail.gmail.com>
+In-Reply-To: <20211102162402.GB19266@breakpoint.cc>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 02, 2021 at 09:58:22PM +0100, Erik Ekman wrote:
-> Upstream commit 041c61488236a5a84789083e3d9f0a51139b6edf
+On Tue, Nov 02, 2021 at 05:24:02PM +0100, Florian Westphal wrote:
+> Arturo Borrero Gonzalez <arturo@netfilter.org> wrote:
 > 
-> Initially this just fixed 50G and 100G modes which felt rare enough to
-> not apply this to stable (also it got merged before I really had
-> thought about it).
+> [ cc stable@ ]
 > 
-> The testing mentioned in the change was actually from my development
-> of c62041c5ba ("sfc: Export fibre-specific supported link modes"). I
-> failed to mention the link between the two changes however and this
-> commit ended up in net-next (just merged) while the second ended up in
-> 5.15 via the net branch. The result is that for 5.15 even 10G cards
-> only show 1G as supported:
+> > We experienced a major network outage today when upgrading kernels.
+> > 
+> > The affected servers run the VRF+conntrack+nftables combo. They are edge
+> > firewalls/NAT boxes, meaning most interesting traffic is not locally
+> > generated, but forwarded.
+> > 
+> > What we experienced is NATed traffic in the reply direction never being
+> > forwarded back to the original client.
+> > 
+> > Good kernel: 5.10.40 (debian 5.10.0-0.bpo.7-amd64)
+> > Bad kernel: 5.10.70 (debian 5.10.0-0.bpo.9-amd64)
+> > 
+> > I suspect the problem may be related to this patch:
+> > https://x-lore.kernel.org/stable/20210824165908.709932-58-sashal@kernel.org/
 > 
-> $ ethtool ext
->     Settings for ext:
->     Supported ports: [ FIBRE ]
->     Supported link modes:   1000baseT/Full
->     Supported pause frame use: Symmetric Receive-only
-> [..]
+> This commit has been reverted upstream:
 > 
-> So this commit is needed at least for 5.15 to fix that.
+> 55161e67d44fdd23900be166a81e996abd6e3be9
+> ("vrf: Revert "Reset skb conntrack connection...").
 > 
-> Fixes:  c62041c5ba ("sfc: Export fibre-specific supported link modes")
-> 
-> It can also be applied further back if we want to fix the 50/100G
-> modes (from v4.16 I believe):
-> 
-> Fixes: 5abb5e7f916 ("sfc: add bits for 25/50/100G supported/advertised speeds")
+> Sasha, Greg, it would be good if you could apply this revert to all
+> stable trees that have a backport of
+> 09e856d54bda5f288ef8437a90ab2b9b3eab83d1
+> ("vrf: Reset skb conntrack connection on VRF rcv").
 
-I have queued this up for 5.10.y, 5.14.y, and 5.15.y now, but I need a
-backported version for 5.4.y and 4.19.y please.
-
-thanks,
+Now reverted, thanks.
 
 greg k-h
