@@ -2,146 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AB6C4449B3
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 21:47:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D8844449CA
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 21:52:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230343AbhKCUtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 16:49:49 -0400
-Received: from mout.gmx.net ([212.227.17.21]:58661 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229893AbhKCUts (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Nov 2021 16:49:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1635972423;
-        bh=WOBdEGwwrN4GRQ7dSuVQwrPjh3u25/zRfRLX3CIFDPo=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:References:Date:In-Reply-To;
-        b=NG/+fnPP0wRfudjUHCOeACDLcQW2bMxCcNXrU71bkK5NLQBWDxo61NihvgU+HYpEa
-         ktxLYU191TXk4p5bAxqYGbgy04te7E/H6UtgNYNmP2VCBhcg6bQByNfZ7VptLfzLk2
-         GQZZXY2bRiBWhSdMyx4zK6o2H+yt5RvC0X71L6do=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from localhost.localdomain ([79.223.42.226]) by mail.gmx.net
- (mrgmx105 [212.227.17.168]) with ESMTPSA (Nemesis) id
- 1M72oB-1mpmkj3pQV-008cbU; Wed, 03 Nov 2021 21:47:02 +0100
-Received: by localhost.localdomain (Postfix, from userid 1000)
-        id EE8DA8009A; Wed,  3 Nov 2021 21:47:01 +0100 (CET)
-From:   Sven Joachim <svenjoac@gmx.de>
-To:     Karol Herbst <kherbst@redhat.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Erhard F." <erhard_f@mailbox.org>,
-        nouveau <nouveau@lists.freedesktop.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Huang Rui <ray.huang@amd.com>,
-        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Subject: Re: [Nouveau] [PATCH 5.10 32/77] drm/ttm: fix memleak in
- ttm_transfered_destroy
-References: <20211101082511.254155853@linuxfoundation.org>
-        <20211101082518.624936309@linuxfoundation.org>
-        <871r3x2f0y.fsf@turtle.gmx.de>
-        <CACO55tsq6DOZnyCZrg+N3m_hseJfN_6+YhjDyxVBAGq9PFJmGA@mail.gmail.com>
-        <CACO55tsQVcUHNWAkWcbJ8i-S5pgKhrin-Nb3JYswcBPDd3Wj4w@mail.gmail.com>
-Date:   Wed, 03 Nov 2021 21:47:01 +0100
-In-Reply-To: <CACO55tsQVcUHNWAkWcbJ8i-S5pgKhrin-Nb3JYswcBPDd3Wj4w@mail.gmail.com>
-        (Karol Herbst's message of "Wed, 3 Nov 2021 21:32:43 +0100")
-Message-ID: <87tugt0xx6.fsf@turtle.gmx.de>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.60 (gnu/linux)
+        id S230313AbhKCUyt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 16:54:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33164 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229698AbhKCUys (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 16:54:48 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4A4AC061714
+        for <stable@vger.kernel.org>; Wed,  3 Nov 2021 13:52:11 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id t21so3587968plr.6
+        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 13:52:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=yqAQai0AVtWoyKf+XOKjzNiTg8raLXgXEunM3lTJxUk=;
+        b=U/kJOM2CP4eT2Oubzvy2haWJkQ0vdvYS46QTEv5zRGXrYepI/mZAtVxkqg7Iily9DJ
+         yagFW1lzXxduJErfpPbiZ4K7NTFtR04zBbQWb+isi1JdaZqf/Il9fjEeeU9GNBAe5qro
+         QcuKa6J8Ex2UZrb4YsP7s10g3ut6Sd/ACaFAw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=yqAQai0AVtWoyKf+XOKjzNiTg8raLXgXEunM3lTJxUk=;
+        b=njXpOytE6Arqf/Dm2WjX0I4vDvlKEEPKd+1mk95WKjj99OQLWbe1ElzTychwHWDbw8
+         Fl9y+ycClBpuPkJbdYUTkn2y2Lxqzqd6wxQmDqmp3+ueRcJBlETJtiavEnfR/hOwWNe1
+         pwOmjn/YYfmegtoAhPuaQQrKOJrCkg4HBoYCSyNsudhjBrb7okldH91WH/1PPZrcgvR5
+         oazBThIJL/tgaXfsr214JHGEIJdeSdyYAmyVxhesBK5EddwkxEP+4G6aUPnhG694/dXD
+         MXoobxdPm+v/yqjqOzq9JRzpQ9T4dZsb+AagF4OXy/trKuY9TQplZD1ifnSbsHvpDbjU
+         zdsg==
+X-Gm-Message-State: AOAM533cG7pDS2egjF3j7gLpRtIVJT5mkWlWJz5lz8OcIaCn29ilw2RZ
+        JxXuI5PbWZVLCJJRUFTHWo38cg==
+X-Google-Smtp-Source: ABdhPJxdt5m7HOjsZyqgaU14acNru/rI3Appso2MBN3PM/6nyfFVhgSaBY1PZ7XjJl0RbDFc7/NRjw==
+X-Received: by 2002:a17:902:b7cb:b0:141:b33a:9589 with SMTP id v11-20020a170902b7cb00b00141b33a9589mr33428633plz.9.1635972731305;
+        Wed, 03 Nov 2021 13:52:11 -0700 (PDT)
+Received: from localhost ([2620:15c:202:201:c80d:e9d8:d115:daf])
+        by smtp.gmail.com with UTF8SMTPSA id h11sm3595674pfc.131.2021.11.03.13.52.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 03 Nov 2021 13:52:10 -0700 (PDT)
+From:   Brian Norris <briannorris@chromium.org>
+To:     Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Robert Foss <robert.foss@linaro.org>
+Cc:     Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Sean Paul <sean@poorly.run>, Jonas Karlman <jonas@kwiboo.se>,
+        dri-devel@lists.freedesktop.org,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Brian Norris <briannorris@chromium.org>,
+        stable@vger.kernel.org, Zain Wang <wzz@rock-chips.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sean Paul <seanpaul@chromium.org>
+Subject: [PATCH v3] drm/bridge: analogix_dp: Make PSR-exit block less
+Date:   Wed,  3 Nov 2021 13:52:00 -0700
+Message-Id: <20211103135112.v3.1.I67612ea073c3306c71b46a87be894f79707082df@changeid>
+X-Mailer: git-send-email 2.34.0.rc0.344.g81b53c2807-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:XAluwjzMfZfmdXvp4wQQxSAIvachPCef1CQ8R4ACrlRujjgA2qT
- 5El/VRyr75du07dX/FgDPXWz6QG/tJZScgi20ZPTkZv9G0FISRCOZUEf2lc3Su2yrtG+0g9
- DNrX61TUB89XkPtV1t1coc1p9dxzRK44w06p4u7o+Rrt5PULPZRKHViXVAIdiuo7sii8l3B
- MRUjOXi5kADf1kvwtHSLg==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:aFNoQfnGbkQ=:0jTkXTi4D06SqxY9Ax5SH/
- 4C/f6XjDs/XYvIPq7ACtHsM5H/S531O8h3vNYSmlpB/rrArow1xzVQNmN0sK8bFSr61rr3IPk
- 0OPLCTjGoDLYpGaD33p2jDsXMC7mPJWU3TsLyYBoZCzccnabVrq/8/ISHTm2IL1a23y2Dyknt
- +9w22KrvIuFapBMau+mIWOCD0mMjc2xRsackE/Uz7UPxDTHFM/AKvNmc8jnGDAb2DDHf+bjYV
- mScNObGQodesYWeIHvTxxRjWgLWaYqpp7r0NrdJgjmrVId93vA9UT+g0iJwm7J4AoiifIV56D
- 0valvNVu7oroOBxuP8pf5sp5kpC/wSxZN3ZoU1j04jSeeLVqX0ouD6gb50DmFmBYlRDa2DTSj
- NqOr8WHauKwPBfmqhrWG8prQoRhMhZFRkiGIhqUlEB/FKa2hCh6AsXxin2okQNVLUHt3OTjQw
- Kki827ufHI2wYAareYwDzBnY+LtLaCU65PUmyIguXTAR6QyQ+0RVRHZu140Xb/vv1NYmBO0DO
- boOLtJPRk2+l4bKMTap0LgFy0HreUxwMemvE7eypHjtw5ntfyWLj5HT9C7sYkmC6OdOou7NU5
- 4xr6TQZYo79QZrruq3uBc/yBYW5dX6xjKC0wHv+V3OpLdALKwrnNxPnMbbPJDasSrnlrn6x11
- QBXPUQbc8uOJnRloAuciqoTrhzqJUSYn7vuur5ymYmt2+RjP7MHns3q3TBCmM36WkeLmdaZFr
- PCayAzBlMhcoQxVbTJ/VS8AZ/BOacLGD02veBCa6x3+mCbo58NRAD522u2R0tDlhvRQL6duNS
- 8T4Qg9zPNGKCNlr3HVli17z1YY7tAzXCPk0F9Iwxv2iE0mwZSK0VICpMf+FtL5NSOsJVOmT3j
- qqKf7Vu5SG67kDcUZFVGDbsCkmewxWomxMS6K7FdTdvE5OCTeadHCbeg2+V+HVHxAvOmDEDiE
- BInb1yuyvRjyqaEyinkmcSd1nTvQ8K8NnmuiyTHf9L+5HCWTyQdf/pqztmuZzOYbXfYNo9hje
- tpvNclqn5ZYfMmCXt8dfMrXtBff0SUipyHmyI+oLEUnMJ6vgOw7xnijiZ/4mt+v3v38pvWc5r
- C08IC8LKL9Wdl8aKwxvgpK9czMO0edk2Z2r4PDpvTu0uE6hKT74JxUIoriHbCQDKevN7Mhn1I
- advggC6wI4Iu2fKEGbPcuy5Hbz+vXxKrNXSVLPGhwDUgjc5UaSjRoqP/wUcj0Kjw5miEE659j
- tw4HoQ/PNrREAXFIkHJzi0gxr51VUFO88SYLKrQ==
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-11-03 21:32 +0100, Karol Herbst wrote:
+Prior to commit 6c836d965bad ("drm/rockchip: Use the helpers for PSR"),
+"PSR exit" used non-blocking analogix_dp_send_psr_spd(). The refactor
+started using the blocking variant, for a variety of reasons -- quoting
+Sean Paul's potentially-faulty memory:
 
-> On Wed, Nov 3, 2021 at 9:29 PM Karol Herbst <kherbst@redhat.com> wrote:
->>
->> On Wed, Nov 3, 2021 at 8:52 PM Sven Joachim <svenjoac@gmx.de> wrote:
->> >
->> > On 2021-11-01 10:17 +0100, Greg Kroah-Hartman wrote:
->> >
->> > > From: Christian K=F6nig <christian.koenig@amd.com>
->> > >
->> > > commit 0db55f9a1bafbe3dac750ea669de9134922389b5 upstream.
->> > >
->> > > We need to cleanup the fences for ghost objects as well.
->> > >
->> > > Signed-off-by: Christian K=F6nig <christian.koenig@amd.com>
->> > > Reported-by: Erhard F. <erhard_f@mailbox.org>
->> > > Tested-by: Erhard F. <erhard_f@mailbox.org>
->> > > Reviewed-by: Huang Rui <ray.huang@amd.com>
->> > > Bug: https://bugzilla.kernel.org/show_bug.cgi?id=3D214029
->> > > Bug: https://bugzilla.kernel.org/show_bug.cgi?id=3D214447
->> > > CC: <stable@vger.kernel.org>
->> > > Link: https://patchwork.freedesktop.org/patch/msgid/20211020173211.2=
-247-1-christian.koenig@amd.com
->> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> > > ---
->> > >  drivers/gpu/drm/ttm/ttm_bo_util.c |    1 +
->> > >  1 file changed, 1 insertion(+)
->> > >
->> > > --- a/drivers/gpu/drm/ttm/ttm_bo_util.c
->> > > +++ b/drivers/gpu/drm/ttm/ttm_bo_util.c
->> > > @@ -322,6 +322,7 @@ static void ttm_transfered_destroy(struc
->> > >       struct ttm_transfer_obj *fbo;
->> > >
->> > >       fbo =3D container_of(bo, struct ttm_transfer_obj, base);
->> > > +     dma_resv_fini(&fbo->base.base._resv);
->> > >       ttm_bo_put(fbo->bo);
->> > >       kfree(fbo);
->> > >  }
->> >
->> > Alas, this innocuous looking commit causes one of my systems to lock up
->> > as soon as run startx.  This happens with the nouveau driver, two other
->> > systems with radeon and intel graphics are not affected.  Also I only
->> > noticed it in 5.10.77.  Kernels 5.15 and 5.14.16 are not affected, and=
- I
->> > do not use 5.4 anymore.
->> >
->> > I am not familiar with nouveau's ttm management and what has changed
->> > there between 5.10 and 5.14, but maybe one of their developers can shed
->> > a light on this.
->> >
->> > Cheers,
->> >        Sven
->> >
->>
->> could be related to 265ec0dd1a0d18f4114f62c0d4a794bb4e729bc1
->
-> maybe not.. but I did remember there being a few tmm related patches
-> which only hurt nouveau :/  I guess one could do a git bisect to
-> figure out what change "fixes" it.
+"""
+ - To avoid racing a subsequent PSR entry (if exit takes a long time)
+ - To avoid racing disable/modeset
+ - We're not displaying new content while exiting PSR anyways, so there
+   is minimal utility in allowing frames to be submitted
+ - We're lying to userspace telling them frames are on the screen when
+   we're just dropping them on the floor
+"""
 
-Maybe, but since the memory leaks reported by Erhard only started to
-show up in 5.14 (if I read the bugzilla reports correctly), perhaps the
-patch should simply be reverted on earlier kernels?
+However, I'm finding that this blocking transition is causing upwards of
+60+ ms of unneeded latency on PSR-exit, to the point that initial cursor
+movements when leaving PSR are unbearably jumpy.
 
-> On which GPU do you see this problem?
+It turns out that we need to meet in the middle somewhere: Sean is right
+that we were "lying to userspace" with a non-blocking PSR-exit, but the
+new blocking behavior is also waiting too long:
 
-On an old GeForce 8500 GT, the whole PC is rather ancient.
+According to the eDP specification, the sink device must support PSR
+entry transitions from both state 4 (ACTIVE_RESYNC) and state 0
+(INACTIVE). It also states that in ACTIVE_RESYNC, "the Sink device must
+display the incoming active frames from the Source device with no
+visible glitches and/or artifacts."
 
-Cheers,
-       Sven
+Thus, for our purposes, we only need to wait for ACTIVE_RESYNC before
+moving on; we are ready to display video, and subsequent PSR-entry is
+safe.
+
+Tested on a Samsung Chromebook Plus (i.e., Rockchip RK3399 Gru Kevin),
+where this saves about 60ms of latency, for PSR-exit that used to
+take about 80ms.
+
+Fixes: 6c836d965bad ("drm/rockchip: Use the helpers for PSR")
+Cc: <stable@vger.kernel.org>
+Cc: Zain Wang <wzz@rock-chips.com>
+Cc: Tomasz Figa <tfiga@chromium.org>
+Cc: Heiko Stuebner <heiko@sntech.de>
+Cc: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+---
+CC list is partially constructed from the commit message of the Fixed
+commit
+
+Changes in v3:
+ - Fix the exiting/entering comment (a reviewer noticed off-mailing-list
+   that I got it backwards)
+ - Add Reviewed-by
+
+Changes in v2:
+ - retitled subject (previous: "drm/bridge: analogix_dp: Make
+   PSR-disable non-blocking")
+ - instead of completely non-blocking, make this "less"-blocking
+ - more background (thanks Sean!)
+ - more specification details
+
+ drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+index cab6c8b92efd..6a4f20fccf84 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+@@ -998,11 +998,21 @@ int analogix_dp_send_psr_spd(struct analogix_dp_device *dp,
+ 	if (!blocking)
+ 		return 0;
+ 
++	/*
++	 * db[1]!=0: entering PSR, wait for fully active remote frame buffer.
++	 * db[1]==0: exiting PSR, wait for either
++	 *  (a) ACTIVE_RESYNC - the sink "must display the
++	 *      incoming active frames from the Source device with no visible
++	 *      glitches and/or artifacts", even though timings may still be
++	 *      re-synchronizing; or
++	 *  (b) INACTIVE - the transition is fully complete.
++	 */
+ 	ret = readx_poll_timeout(analogix_dp_get_psr_status, dp, psr_status,
+ 		psr_status >= 0 &&
+ 		((vsc->db[1] && psr_status == DP_PSR_SINK_ACTIVE_RFB) ||
+-		(!vsc->db[1] && psr_status == DP_PSR_SINK_INACTIVE)), 1500,
+-		DP_TIMEOUT_PSR_LOOP_MS * 1000);
++		(!vsc->db[1] && (psr_status == DP_PSR_SINK_ACTIVE_RESYNC ||
++				 psr_status == DP_PSR_SINK_INACTIVE))),
++		1500, DP_TIMEOUT_PSR_LOOP_MS * 1000);
+ 	if (ret) {
+ 		dev_warn(dp->dev, "Failed to apply PSR %d\n", ret);
+ 		return ret;
+-- 
+2.34.0.rc0.344.g81b53c2807-goog
+
