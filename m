@@ -2,64 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E9BC443EF8
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 10:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 345B8443F7E
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 10:41:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231338AbhKCJKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 05:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50762 "EHLO mail.kernel.org"
+        id S231721AbhKCJns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 05:43:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231240AbhKCJKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Nov 2021 05:10:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E6DB60EBB;
-        Wed,  3 Nov 2021 09:07:23 +0000 (UTC)
+        id S231435AbhKCJnr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Nov 2021 05:43:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AE566112D;
+        Wed,  3 Nov 2021 09:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1635930444;
-        bh=RIwGZmipAcmfUIAN1EBW1+WWYfyunzGfXvMmpdV75vM=;
+        s=korg; t=1635932471;
+        bh=jsOp6rDI9MoyiJ5Jf7bv2gmmxms+OBGzwYiDIAkfDss=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uADdczvp83NJrJb1kNwzl0rzh5sNNGLFtvmXnEq3iz/BMEejms/dd+29v8q8goMjs
-         WuKYzKRM3c6wcTovyOmvMfA3xdyF5lH351taNPN541bMpGF3BEc2+ACJGwvbg6o4F7
-         57EbylEXE8usT0NAKDy7i6TWQtf4uN1C1EdGT1Mc=
-Date:   Wed, 3 Nov 2021 10:07:18 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>
-Subject: Re: 5.14.14+ USB regression caused by "usb: core: hcd: Add support
- for deferring roothub registration" series
-Message-ID: <YYJRRg8QDBfy2PP7@kroah.com>
-References: <42bcbea6-5eb8-16c7-336a-2cb72e71bc36@redhat.com>
+        b=h4HtUz3/wrEc5oBB2oqSorivRnl5E7X3kugAN4lif7kQclhwN16GJo2c9QFlpzf2+
+         FGx5iv18Qzl9mbYI4/w05OyJdbBTrGYFt9WFZw8AfSejphvl7LZ/Z2luP1BV72I0/G
+         LcwhQ8t30wg0X9HudPaPywIrmpvprB4bZvt+12+M=
+Date:   Wed, 3 Nov 2021 10:41:06 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Erik Ekman <erik@kryo.se>
+Cc:     stable@vger.kernel.org
+Subject: Re: sfc: Fix reading non-legacy supported link modes
+Message-ID: <YYJZMuOFNQiJ3rGC@kroah.com>
+References: <CAGgu=sBsiSVgr=uR95ZXFTtziLUO_LS4CW+6n2p2iBWxf2aq6A@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42bcbea6-5eb8-16c7-336a-2cb72e71bc36@redhat.com>
+In-Reply-To: <CAGgu=sBsiSVgr=uR95ZXFTtziLUO_LS4CW+6n2p2iBWxf2aq6A@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 03, 2021 at 10:02:52AM +0100, Hans de Goede wrote:
-> Hi Greg,
+On Tue, Nov 02, 2021 at 09:58:22PM +0100, Erik Ekman wrote:
+> Upstream commit 041c61488236a5a84789083e3d9f0a51139b6edf
 > 
-> We (Fedora) have been receiving multiple reports about USB devices stopping
-> working starting with 5.14.14 .
+> Initially this just fixed 50G and 100G modes which felt rare enough to
+> not apply this to stable (also it got merged before I really had
+> thought about it).
 > 
-> An Arch Linux user has found that reverting the first 2 patches from this series:
-> https://lore.kernel.org/all/20210909064200.16216-1-kishon@ti.com/
+> The testing mentioned in the change was actually from my development
+> of c62041c5ba ("sfc: Export fibre-specific supported link modes"). I
+> failed to mention the link between the two changes however and this
+> commit ended up in net-next (just merged) while the second ended up in
+> 5.15 via the net branch. The result is that for 5.15 even 10G cards
+> only show 1G as supported:
 > 
-> Fixes things (the 3th patch is just some mostly unrelated refactoring/cleanup).
+> $ ethtool ext
+>     Settings for ext:
+>     Supported ports: [ FIBRE ]
+>     Supported link modes:   1000baseT/Full
+>     Supported pause frame use: Symmetric Receive-only
+> [..]
 > 
-> See here for the Arch-linux discussion surrounding this:
-> https://bbs.archlinux.org/viewtopic.php?pid=2000956#p2000956
+> So this commit is needed at least for 5.15 to fix that.
 > 
-> And here are 2 Fedora bug reports of Fedora users being unable to use their
-> machines due their mouse + kbd not working:
+> Fixes:  c62041c5ba ("sfc: Export fibre-specific supported link modes")
 > 
-> https://bugzilla.redhat.com/show_bug.cgi?id=2019542
-> https://bugzilla.redhat.com/show_bug.cgi?id=2019576
+> It can also be applied further back if we want to fix the 50/100G
+> modes (from v4.16 I believe):
 > 
-> Can we get this patch-series reverted from the 5.14.y releases please ?
+> Fixes: 5abb5e7f916 ("sfc: add bits for 25/50/100G supported/advertised speeds")
 
-Sure, but can you also submit patches to get into 5.15.y and 5.16-rc1
-that revert these changes as they should still be an issue there, right?
+I have queued this up for 5.10.y, 5.14.y, and 5.15.y now, but I need a
+backported version for 5.4.y and 4.19.y please.
 
 thanks,
 
