@@ -2,138 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 269E8443BE1
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 04:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B061A443C06
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 04:51:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230291AbhKCDg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Nov 2021 23:36:58 -0400
-Received: from mail-pf1-f178.google.com ([209.85.210.178]:39748 "EHLO
-        mail-pf1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230106AbhKCDg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 23:36:56 -0400
-Received: by mail-pf1-f178.google.com with SMTP id x64so981838pfd.6;
-        Tue, 02 Nov 2021 20:34:20 -0700 (PDT)
+        id S230076AbhKCDyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Nov 2021 23:54:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:51392 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229899AbhKCDyc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Nov 2021 23:54:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635911516;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=9QWANi9CtsBU0ts64Isi2oqUSFA5iQ/85LShCMFNM78=;
+        b=IK9KAOUHE1QpmPku0EO1kih4BK8gjWb3V4E4IxnpCb9LZB6sOPrPrP5MAsoN08FIZFe8jp
+        QgaNFThMngtmfxMgCOEhVNcBVdpMltT/uC4NRAMC0yBw+ff3+x52ajiKZpklmz/WbRZ9vJ
+        ufOzGA8pfoVWROu8H5Ntruu+kqHufuE=
+Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
+ [209.85.219.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-501-4uksuTO1PyyA48F782cWbw-1; Tue, 02 Nov 2021 23:51:54 -0400
+X-MC-Unique: 4uksuTO1PyyA48F782cWbw-1
+Received: by mail-yb1-f199.google.com with SMTP id d9-20020a251d09000000b005c208092922so2248248ybd.20
+        for <stable@vger.kernel.org>; Tue, 02 Nov 2021 20:51:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=ZbGWXGGPaE+MkbRuqBpdFuAMQBkQChExRWu2Gblej3U=;
-        b=E/Y/6hB1wKOhHb792EHVvJkunfSzeJ6awI9WkWR7Cw7F6IplaOOYW1AH5bY03kT4yT
-         wn9Pz2W1lVbVH7FZ7s39C3m00tq9uzcYZcI1kaT8JvxYjAG4d1aZQ8LsZMJ8pPy28vV+
-         XPNPhGz31yS4V+ue1ABDT/Rgg4y3b8BBe47EyQzO6ynpOhwt9LY8FRVFRKK/xHoShDXj
-         0tLp+1COQwrPLB4ekiC397rkjDH2Sycd0emb3rrXYxT8BOAye0XjNULPew8N73aPbpzh
-         NRgaUFip2a5ON5syYRi73YrDzz7PAfq+sLMy9ylOhIz4QLyKqh95VOvKPywntGuJ6QeQ
-         DpWQ==
-X-Gm-Message-State: AOAM532OCM0eRgtxUnSfD0R1G2CdIb5M/HPmu8sKsNTXhs/s3QhsxpLf
-        vTiH997mh5rOdoGAX5CofKw=
-X-Google-Smtp-Source: ABdhPJyBHsTNY+azOFquH1stpGLn1grWwy9pWoAJld++XQGC14AGY1OpFtwklJZzL55HzCMTeH9CdA==
-X-Received: by 2002:a05:6a00:22c2:b0:481:1f34:d8eb with SMTP id f2-20020a056a0022c200b004811f34d8ebmr12212874pfj.38.1635910460006;
-        Tue, 02 Nov 2021 20:34:20 -0700 (PDT)
-Received: from ?IPV6:2601:647:4000:d7:28c6:b7fe:a27f:fce6? ([2601:647:4000:d7:28c6:b7fe:a27f:fce6])
-        by smtp.gmail.com with ESMTPSA id p14sm247501pjl.32.2021.11.02.20.34.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Nov 2021 20:34:19 -0700 (PDT)
-Message-ID: <dafce913-35dc-ea07-8d91-c1e7b9f234bc@acm.org>
-Date:   Tue, 2 Nov 2021 20:34:18 -0700
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=9QWANi9CtsBU0ts64Isi2oqUSFA5iQ/85LShCMFNM78=;
+        b=XrWvxLVgmmAwX8CmoqPNKspH2KN7h2Y7qDnvnhK0BidtzGKCRgpacxNn2CD0wkk52t
+         y4TnSEcWNTlC0f7+bjbQCCIBrMPNERGuOGb8YC7hDQWP+br/s6erzjJopkRQgR1Kc/Ff
+         TetAE3+p2k3Y79FngZZZR5EIO3LNTtwfVBVID7Qqt0qBzTgVtiulDUGAC9l1SrJupiHL
+         z363ySsp2vzMjKaJWfR+tkDxML5fcV5jX+NNovzIvnTTbtfyN13krxRM+mgOOTTMts3k
+         5Sa+CFrzouylguEY8sYTcoZUz1oGbK7fzjj04IVX/k54KBd7PQeMPB/qJWe9xFzPbDMt
+         YbsQ==
+X-Gm-Message-State: AOAM531d8eHgukG3Dq6ZnG6oGswfWVDFplxxKISlZBTAKKbuw5sTwxu2
+        OTvNZZ6zXza4+hAUnrVPzcNE653x+ML+Ga9K1Q4jItzgIv7uiWegnk5ByThULeCYjk6pqP6t93D
+        /7TZskjQcPO5qCl/AFZscVwLXfkDmypE0
+X-Received: by 2002:a25:f50b:: with SMTP id a11mr40259610ybe.241.1635911513239;
+        Tue, 02 Nov 2021 20:51:53 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwxLPvNwGXXzKgW1mBQRWPcQ7t3SHq6PeQG5sv2RYrpQ/gyArmurbZwuinDXG6wK2Vnie/vgwmyigDXQmgnc4s=
+X-Received: by 2002:a25:f50b:: with SMTP id a11mr40259582ybe.241.1635911512935;
+ Tue, 02 Nov 2021 20:51:52 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.1
-Subject: Re: [PATCH 2/2] scsi: core: remove command size deduction from
- scsi_setup_scsi_cmnd
-Content-Language: en-US
-To:     Tadeusz Struk <tadeusz.struk@linaro.org>,
-        linux-scsi@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+5516b30f5401d4dcbcae@syzkaller.appspotmail.com
-References: <20211103003719.1041490-1-tadeusz.struk@linaro.org>
- <20211103003719.1041490-2-tadeusz.struk@linaro.org>
-From:   Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20211103003719.1041490-2-tadeusz.struk@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <CAHj4cs-QxAmz=pM=cd1UJEg+HRUH_yMf5jDnBbirgW1oq1CaKw@mail.gmail.com>
+ <YYH80vbE8DnCG94r@T590>
+In-Reply-To: <YYH80vbE8DnCG94r@T590>
+From:   Yi Zhang <yi.zhang@redhat.com>
+Date:   Wed, 3 Nov 2021 11:51:41 +0800
+Message-ID: <CAHj4cs-dNf+T3hU8-JbwVML50idQ8ymMfvzFDOYM9-P+dZoONw@mail.gmail.com>
+Subject: Re: [bug report] kernel null pointer observed with blktests srp/006
+ on 5.14.15
+To:     Ming Lei <ming.lei@redhat.com>
+Cc:     linux-block <linux-block@vger.kernel.org>,
+        linux-scsi <linux-scsi@vger.kernel.org>, stable@vger.kernel.org,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Bruno Goncalves <bgoncalv@redhat.com>,
+        skt-results-master@redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/2/21 17:37, Tadeusz Struk wrote:
-> [   21.105583][ T1822] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-> [   21.106749][ T1822] CPU: 0 PID: 1822 Comm: repro Not tainted 5.15.0 #1
-> [   21.107678][ T1822] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
-> [   21.109004][ T1822] RIP: 0010:scsi_queue_rq+0xf09/0x2180
-> [   21.112499][ T1822] RSP: 0018:ffffc90000d0f098 EFLAGS: 00010246
-> [   21.113347][ T1822] RAX: dffffc0000000000 RBX: ffff888107b0d408 RCX: 0000000000000000
-> [   21.114448][ T1822] RDX: ffff888107168000 RSI: 0000000000000000 RDI: 0000000000000000
-> [   21.115553][ T1822] RBP: ffffc90000d0f150 R08: ffffffff82a96d37 R09: ffff888107b0d410
-> [   21.116683][ T1822] R10: ffffed1020f61a85 R11: 0000000000000000 R12: 1ffff11020f61a7f
-> [   21.117793][ T1822] R13: 0000000000000000 R14: 0000000000000000 R15: ffff888107b0d3fc
-> [   21.118894][ T1822] FS:  00007f5bfac9f640(0000) GS:ffff88811b200000(0000) knlGS:0000000000000000
-> [   21.120132][ T1822] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [   21.121050][ T1822] CR2: 0000000020001000 CR3: 0000000109acb000 CR4: 0000000000150eb0
-> [   21.123125][ T1822] Call Trace:
-> [   21.124020][ T1822]  blk_mq_dispatch_rq_list+0x7c7/0x12d0
-> [   21.125486][ T1822]  ? __kasan_check_write+0x14/0x20
-> [   21.126794][ T1822]  ? do_raw_spin_lock+0x9a/0x230
-> [   21.128023][ T1822]  ? blk_mq_get_driver_tag+0x920/0x920
-> [   21.129345][ T1822]  __blk_mq_sched_dispatch_requests+0x244/0x380
-> [   21.130826][ T1822]  ? blk_mq_sched_dispatch_requests+0x160/0x160
-> [   21.132241][ T1822]  ? _find_next_bit+0x1ec/0x210
-> [   21.133376][ T1822]  blk_mq_sched_dispatch_requests+0xf0/0x160
-> [   21.134724][ T1822]  __blk_mq_run_hw_queue+0xe8/0x160
-> [   21.135878][ T1822]  ? __list_splice+0x100/0x100
-> [   21.136902][ T1822]  __blk_mq_delay_run_hw_queue+0x252/0x5d0
-> [   21.138115][ T1822]  blk_mq_run_hw_queue+0x1dd/0x3b0
-> [   21.139184][ T1822]  ? blk_mq_dispatch_rq_list+0x12d0/0x12d0
-> [   21.140322][ T1822]  ? _raw_spin_unlock+0x13/0x30
-> [   21.141273][ T1822]  ? blk_mq_request_bypass_insert+0xcf/0xe0
-> [   21.142414][ T1822]  blk_mq_sched_insert_request+0x1ff/0x3e0
-> [   21.143531][ T1822]  ? timekeeping_get_ns+0xb1/0xc0
-> [   21.144462][ T1822]  ? blk_mq_sched_try_insert_merge+0x240/0x240
-> [   21.145592][ T1822]  ? update_io_ticks+0x17c/0x190
-> [   21.146472][ T1822]  ? blk_account_io_start+0x21c/0x260
-> [   21.147421][ T1822]  blk_execute_rq_nowait+0x173/0x1e0
-> [   21.148356][ T1822]  ? blk_execute_rq+0x540/0x540
-> [   21.149247][ T1822]  ? asan.module_ctor+0x10/0x10
-> [   21.150066][ T1822]  blk_execute_rq+0x15c/0x540
-> [   21.150869][ T1822]  ? cap_capable+0x2ca/0x330
-> [   21.151653][ T1822]  ? blk_execute_rq_nowait+0x1e0/0x1e0
-> [   21.152539][ T1822]  ? ns_capable_common+0x8f/0xf0
-> [   21.153348][ T1822]  ? capable+0x1c/0x20
-> [   21.153984][ T1822]  sg_io+0x97c/0x1370
-> [   21.154614][ T1822]  ? scsi_ioctl_block_when_processing_errors+0x1e0/0x1e0
-> [   21.155712][ T1822]  ? in_compat_syscall+0xd0/0xd0
-> [   21.156488][ T1822]  ? futex_wait+0x4fb/0x640
-> [   21.157175][ T1822]  scsi_ioctl+0xe16/0x28e0
-> [   21.157836][ T1822]  ? __kasan_check_read+0x11/0x20
-> [   21.158596][ T1822]  ? get_sg_io_hdr+0x10a0/0x10a0
-> [   21.159347][ T1822]  ? __fsnotify_parent+0x4ee/0x710
-> [   21.160111][ T1822]  ? do_futex+0x3f2/0x1030
-> [   21.160764][ T1822]  ? futex_exit_release+0x70/0x70
-> [   21.161494][ T1822]  ? do_vfs_ioctl+0xafa/0x1af0
-> [   21.162168][ T1822]  ? scsi_host_in_recovery+0xb9/0x160
-> [   21.162921][ T1822]  ? vfs_write+0x397/0x580
-> [   21.163547][ T1822]  ? scsi_ioctl_block_when_processing_errors+0xae/0x1e0
-> [   21.164521][ T1822]  sd_ioctl+0x134/0x170
-> [   21.165087][ T1822]  blkdev_ioctl+0x362/0x6e0
-> [   21.165724][ T1822]  ? blkdev_compat_ptr_ioctl+0xf0/0xf0
-> [   21.166470][ T1822]  ? fput_many+0x5e/0x1d0
-> [   21.167059][ T1822]  ? __restore_fpregs_from_fpstate+0xb5/0x160
-> [   21.167873][ T1822]  block_ioctl+0xb0/0xf0
-> [   21.168437][ T1822]  vfs_ioctl+0xa7/0xf0
-> [   21.168970][ T1822]  __x64_sys_ioctl+0x10d/0x150
-> [   21.169602][ T1822]  do_syscall_64+0x3d/0xb0
-> [   21.170176][ T1822]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-> [   21.180158][ T1822] ---[ end trace 8b086e334adef6d2 ]---
-> [   21.191043][ T1822] Kernel panic - not syncing: Fatal exception
-> [   21.191728][ T1822] Kernel Offset: disabled
+Yeah, you are right, just found I already received the below mail for
+the port, will retest it after it merged, thanks for the reminder.
 
-Please clean the above call stack up by removing all unnecessary 
-information (timestamps, "[ T1822]", function names with "? " in front 
-and register values).
+[PATCH AUTOSEL 5.14 04/18] scsi: core: Put LLD module refcnt after
+SCSI device is released
 
-Thanks,
 
-Bart.
+On Wed, Nov 3, 2021 at 11:07 AM Ming Lei <ming.lei@redhat.com> wrote:
+>
+> On Tue, Nov 02, 2021 at 03:31:43PM +0800, Yi Zhang wrote:
+> > Hello
+> >
+> > Below null pointer was triggered with blktests srp/006 on aarch64, pls
+> > help check it, thanks.
+>
+> ...
+>
+> > [  491.786766] Unable to handle kernel paging request at virtual
+> > address ffff8000096f9438
+> > [  491.794676] Mem abort info:
+> > [  491.797480]   ESR = 0x96000007
+> > [  491.800527]   EC = 0x25: DABT (current EL), IL = 32 bits
+> > [  491.805833]   SET = 0, FnV = 0
+> > [  491.808896]   EA = 0, S1PTW = 0
+> > [  491.812028]   FSC = 0x07: level 3 translation fault
+> > [  491.816901] Data abort info:
+> > [  491.819769]   ISV = 0, ISS = 0x00000007
+> > [  491.823593]   CM = 0, WnR = 0
+> > [  491.826553] swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000f82320000
+> > [  491.833243] [ffff8000096f9438] pgd=1000000fff0ff003,
+> > p4d=1000000fff0ff003, pud=1000000fff0fe003, pmd=100000010c48a003,
+> > pte=0000000000000000
+> > [  491.845768] Internal error: Oops: 96000007 [#1] SMP
+> > [  491.850636] Modules linked in: target_core_user uio
+> > target_core_pscsi target_core_file ib_srpt target_core_iblock
+> > target_core_mod rdma_cm iw_cm ib_cm scsi_debug rdma_rxe ib_uverbs
+> > ip6_udp_tunnel udp_tunnel null_blk dm_service_time ib_umad
+> > crc32_generic scsi_dh_rdac scsi_dh_emc scsi_dh_alua dm_multipath
+> > ib_core rfkill sunrpc vfat fat joydev be2net nicvf cavium_ptp
+> > mdio_thunder cavium_rng_vf nicpf thunderx_edac mdio_cavium thunder_bgx
+> > thunder_xcv cavium_rng ipmi_ssif ipmi_devintf ipmi_msghandler fuse
+> > zram ip_tables xfs ast i2c_algo_bit drm_vram_helper drm_kms_helper
+> > syscopyarea sysfillrect sysimgblt fb_sys_fops crct10dif_ce cec
+> > ghash_ce drm_ttm_helper ttm drm i2c_thunderx thunderx_mmc aes_neon_bs
+> > [last unloaded: scsi_transport_srp]
+> > [  491.915381] CPU: 6 PID: 11622 Comm: multipathd Not tainted 5.14.15 #1
+> > [  491.921812] Hardware name: GIGABYTE R120-T34-00/MT30-GS2-00, BIOS
+> > F02 08/06/2019
+> > [  491.929196] pstate: 20400005 (nzCv daif +PAN -UAO -TCO BTYPE=--)
+> > [  491.935192] pc : scsi_mq_exit_request+0x28/0x60
+> > [  491.939721] lr : blk_mq_free_rqs+0x7c/0x1ec
+> > [  491.943897] sp : ffff800016a536c0
+> > [  491.947200] x29: ffff800016a536c0 x28: ffff0001375b8000 x27: 0000000000000131
+> > [  491.954330] x26: ffff000102bb5c28 x25: ffff0001333d1000 x24: ffff0001333d1200
+> > [  491.961460] x23: 0000000000000000 x22: ffff0001386870a8 x21: 0000000000000000
+> > [  491.968589] x20: 0000000000000001 x19: ffff00010d878128 x18: ffffffffffffffff
+> > [  491.975719] x17: 5342555300355f66 x16: 6d745f697363732f x15: 0000000000000000
+> > [  491.982848] x14: 0000000000000000 x13: 0000000000000030 x12: 0101010101010101
+> > [  491.989977] x11: ffff8000114a1298 x10: 0000000000001c90 x9 : ffff800010764030
+> > [  491.997109] x8 : ffff0001375b9cf0 x7 : 0000000000000004 x6 : 00000002a7f08498
+> > [  492.004242] x5 : 0000000000000001 x4 : ffff000130092128 x3 : ffff800010b1e7e0
+> > [  492.011371] x2 : 0000000000000000 x1 : ffff8000096f93f0 x0 : ffff000138687000
+> > [  492.018501] Call trace:
+> > [  492.020937]  scsi_mq_exit_request+0x28/0x60
+> > [  492.025112]  blk_mq_free_rqs+0x7c/0x1ec
+> > [  492.028939]  blk_mq_free_tag_set+0x58/0x100
+> > [  492.033113]  scsi_mq_destroy_tags+0x20/0x30
+> > [  492.037286]  scsi_host_dev_release+0x9c/0x100
+> > [  492.041633]  device_release+0x40/0xa0
+> > [  492.045286]  kobject_cleanup+0x4c/0x180
+> > [  492.049115]  kobject_put+0x50/0xd0
+> > [  492.052510]  put_device+0x20/0x30
+> > [  492.055819]  scsi_target_dev_release+0x34/0x44
+> > [  492.060253]  device_release+0x40/0xa0
+> > [  492.063905]  kobject_cleanup+0x4c/0x180
+> > [  492.067732]  kobject_put+0x50/0xd0
+> > [  492.071124]  put_device+0x20/0x30
+> > [  492.074428]  scsi_device_dev_release_usercontext+0x228/0x244
+> > [  492.080079]  execute_in_process_context+0x50/0xa0
+> > [  492.084775]  scsi_device_dev_release+0x28/0x3c
+> > [  492.089208]  device_release+0x40/0xa0
+> > [  492.092860]  kobject_cleanup+0x4c/0x180
+> > [  492.096686]  kobject_put+0x50/0xd0
+> > [  492.100081]  put_device+0x20/0x30
+> > [  492.103396]  scsi_device_put+0x38/0x50
+> > [  492.107140]  sd_release151]  free_multipath+0x80/0xc0 [dm_multipath]
+> > [  492.132109]  multipath_dtr+0x38/0x50 [dm_multipath]
+> > [  492.136980]  dm_table_destroy+0x68/0x150
+> > [  492.140892]  __dm_destroy+0x138/0x204
+> > [  492.144548]  dm_destroy+0x20/0x30
+> > [  492.147859]  dev_remove+0x144/0x1e0
+> > [  492.151339]  ctl_ioctl+0x278/0x4d0
+> > [  492.154731]  dm_ctl_ioctl+0x1c/0x30
+> > [  492.158210]  __arm64_sys_ioctl+0xb4/0x100
+> > [  492.162212]  invoke_syscall+0x50/0x120
+> > [  492.165955]  el0_svc_common+0x48/0x100
+> > [  492.169694]  do_el0_svc+0x34/0xa0
+> > [  492.173000]  el0_svc+0x2c/0x54
+> > [  492.176048]  el0t_64_sync_handler+0xa4/0x130
+> > [  492.180307]  el0t_64_sync+0x19c/0x1a0
+> > [  492.183962] Code: f9000bf3 9104a033 f9403000 f9404c01 (f9402422)
+> > [  492.190068] ---[ end trace dbfeac019a702ce7 ]---
+> > [  492.194678] Kernel panic - not syncing: Oops: Fatal exception
+> > [  492.200431] SMP: stopping secondary CPUs
+> > [  492.204354] Kernel Offset: 0x80000 from 0xffff800010000000
+> > [  492.209828] PHYS_OFFSET: 0x0
+> > [  492.212697] CPU features: 0x00180051,20800a40
+> > [  492.217043] Memory Limit: none
+> > [  492.220102] ---[ end Kernel panic - not syncing: Oops: Fatal exception ]---
+>
+> Hi Yi,
+>
+> It was fixed by f2b85040acec ("scsi: core: Put LLD module refcnt after SCSI device
+> is released"), look not ported to 5.14.y yet.
+>
+>
+> Thanks,
+> Ming
+>
+
+
+--
+Best Regards,
+  Yi Zhang
+
