@@ -2,116 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06F824441DD
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 13:48:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1774B44423E
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 14:18:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231405AbhKCMuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 08:50:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:44163 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231178AbhKCMuw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 08:50:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1635943695;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=23WhxMz3+48FzFHwlxmPj02acSTgkQZrkSiKgIIumjM=;
-        b=WU2OnckOiJBSuncflqNgXGOYQP4nJyytDmldCvuQb0NBV3dYWSIO9RcPXXHQEYeY6y3qT/
-        fZZO+k3/niPq1/dy3TjPF8e3ud+qW+kea6Deapv8jdHdz0sX5psVe0rM9kehpVddLpOT7/
-        MCFrFJ3yaNhxakMD2qB/V/S6QftcnyE=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-35-ZzPKlO7QNNWih8KExIsE8A-1; Wed, 03 Nov 2021 08:48:14 -0400
-X-MC-Unique: ZzPKlO7QNNWih8KExIsE8A-1
-Received: by mail-ed1-f71.google.com with SMTP id t18-20020a056402021200b003db9e6b0e57so2354846edv.10
-        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 05:48:14 -0700 (PDT)
+        id S230299AbhKCNUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 09:20:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41866 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230152AbhKCNUv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 09:20:51 -0400
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92D0AC061714
+        for <stable@vger.kernel.org>; Wed,  3 Nov 2021 06:18:15 -0700 (PDT)
+Received: by mail-yb1-xb2d.google.com with SMTP id 131so6275028ybc.7
+        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 06:18:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=awpKo8L+nxUIqCg/3JupttdTSlr0ulSWYIuJ2azUD/o=;
+        b=bX1IzDPZSeLkEwQkh3U6emT2wRH7fmpAQyaN8dDNSc6/VJcw+wMfZfTzrOkGivXRpK
+         Wn32Aow3nkLhNdyzoZmQSsMtCrRAbmt05DfoF8DjU7M6K++J83fJw1LjVfkZgrqaEsha
+         Y42+NMShWmKysltVEKxIFuB/SoFTpCbgS8sn6Wkh2fPpzMBFC9ADaJJQhr5rCtrUdUX1
+         H27qfZ2x9AdJuuKh0vIwDZ1u8X3sWALc55SIPW+Bvh5/cg0HskTVy1AoozCYxSm6zhSL
+         j9aAULNZf8kbAWJcl8f24z6AFboNAj/tU/+46f57iDZbof4fRIyNLLDIIdBaXYKblngg
+         FIdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
          :content-transfer-encoding;
-        bh=23WhxMz3+48FzFHwlxmPj02acSTgkQZrkSiKgIIumjM=;
-        b=OPyRn4ZiG9/Zc/HRoFjeZuBSoDpe+ZulSVTlWltX1bfGvf0FZAmMuigDL2wpERNtJM
-         iGTP5Cn76lSYtE6+QzDNVXXqWvA0t8nA4KrVHlaTCiWRsy4kLF8VCwsO0m6KTCyLrvlm
-         3smHcMkjtiA89Phj6lgh9A9qeU66keWn1snDx4QGRzlKr2g4CdyhV7SRdI+R48vANuve
-         ue97As9m5V6sgcF+9W0EMaFRk1jrspve3yciaSRVJgUaoLLGD76yfeJUbojjby5Iboe8
-         t6aJU4si/Wy8FNzEBjBT5WtVnViZu8fOs6Nj8iyNg4BvxhD2A7grnYdNx21kEtGT46yH
-         YfMg==
-X-Gm-Message-State: AOAM530xMvhUt6lF9rCQ16x0ist1AsKGCd72E2jvR6GZE2RWnFCA+zXM
-        XKJSdykF4A2amwwNXOla4oBBR28U56pzREYRlku9a6TMcLbCj6Grp55yDtzMznmDN1gcEy+BVj1
-        093Vk8a6ySpP5kvIz
-X-Received: by 2002:a17:906:478e:: with SMTP id cw14mr37767169ejc.46.1635943692930;
-        Wed, 03 Nov 2021 05:48:12 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw6OIsK0AvTXY0lZzL+PtKLE6c1q8xQqII05vHVzhVv1JrISlGeLAHulWml5Q39YjAPf7bZMQ==
-X-Received: by 2002:a17:906:478e:: with SMTP id cw14mr37767139ejc.46.1635943692731;
-        Wed, 03 Nov 2021 05:48:12 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:c1e:bf00:1054:9d19:e0f0:8214? (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id oz13sm1132942ejc.65.2021.11.03.05.48.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 03 Nov 2021 05:48:12 -0700 (PDT)
-Message-ID: <9e1abe71-d903-f227-38ae-a854ab9e5baf@redhat.com>
-Date:   Wed, 3 Nov 2021 13:48:11 +0100
+        bh=awpKo8L+nxUIqCg/3JupttdTSlr0ulSWYIuJ2azUD/o=;
+        b=vvWFOvBREk+85mMsOOrO7eyx2Y4dYg3R5vq0Wdf659daU1dxvp9e1Fghhnv4WARpI1
+         ge0iKcbzasO0K+QuCnqBJYTZ+u70gixBKgKnaT53cZhV+hi5wtoZiYyww/5juupCqqIk
+         nTxSqRQKbh408gvb6HCQn6oAClAWAb4F+SzgzrFm7WaJx5HolEsyGQnfXEBSCnOagrvk
+         6nBsoS3ma5acM60sMQSyCILFVB6kzCnOboUG758t2ptg9mqMlyrCAlTtoqFwvGhbsb7Q
+         2+FRfjENk/zFfu7MRiAI6Y5bUKlRd4iUv9JX3bcp2U0QUYlEbFo3KUM6mwDOxj490X9w
+         8ZPw==
+X-Gm-Message-State: AOAM530gbSmg72B9wR+W6EChheOnOQTIe0oCv3aJ5uTyrVHsG92BmNfo
+        dFDSM5NcSJOY+16jskcV+CKNjm+XrCdBP8YHVqw=
+X-Google-Smtp-Source: ABdhPJzGb9wPfoPfaozJr/wrf6CrBaJQ17XIex+1BKi+VDAPBDTPBk1bJ9+sTavjrxJYbte2isX4VqvzZGaS5QwQeDs=
+X-Received: by 2002:a25:5f4c:: with SMTP id h12mr32139979ybm.169.1635945494795;
+ Wed, 03 Nov 2021 06:18:14 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: 5.14.14+ USB regression caused by "usb: core: hcd: Add support
- for deferring roothub registration" series
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>
-References: <42bcbea6-5eb8-16c7-336a-2cb72e71bc36@redhat.com>
- <YYJRRg8QDBfy2PP7@kroah.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <YYJRRg8QDBfy2PP7@kroah.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a05:7010:3312:b0:1de:e843:6717 with HTTP; Wed, 3 Nov 2021
+ 06:18:14 -0700 (PDT)
+From:   "2% DARLEHENANGEBOT Von: NT " <surestrte@gmail.com>
+Date:   Wed, 3 Nov 2021 06:18:14 -0700
+Message-ID: <CAM8S4UDJ=cgswM8rEJvqcCu8sCtWtMPBruc-WZ85tbUunJz7YA@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+--=20
+Aufmerksamkeit bitte,
 
-On 11/3/21 10:07, Greg Kroah-Hartman wrote:
-> On Wed, Nov 03, 2021 at 10:02:52AM +0100, Hans de Goede wrote:
->> Hi Greg,
->>
->> We (Fedora) have been receiving multiple reports about USB devices stopping
->> working starting with 5.14.14 .
->>
->> An Arch Linux user has found that reverting the first 2 patches from this series:
->> https://lore.kernel.org/all/20210909064200.16216-1-kishon@ti.com/
->>
->> Fixes things (the 3th patch is just some mostly unrelated refactoring/cleanup).
->>
->> See here for the Arch-linux discussion surrounding this:
->> https://bbs.archlinux.org/viewtopic.php?pid=2000956#p2000956
->>
->> And here are 2 Fedora bug reports of Fedora users being unable to use their
->> machines due their mouse + kbd not working:
->>
->> https://bugzilla.redhat.com/show_bug.cgi?id=2019542
->> https://bugzilla.redhat.com/show_bug.cgi?id=2019576
->>
->> Can we get this patch-series reverted from the 5.14.y releases please ?
-> 
-> Sure,
+  Ich bin Herr Martin M=C3=BCller, ein privater Geldverleiher, der Kredite
+mit einer Kapitalbasis zwischen mindestens 1.000,00 und maximal
+120.000.000,00 und 5.000,00 =C2=A3 bis 120.000.000,00 =C2=A3 an Privatperso=
+nen,
+Unternehmen und kooperierende Institutionen anbietet. F=C3=BCllen Sie die
+untenstehenden Details aus und senden Sie sie bei Interesse zur=C3=BCck.
 
-Thanks.
+Vollst=C3=A4ndiger Name: ........
+Land /
+Bundesland: .......
+Die Anschrift: ......
+Familienstand:.........
+Alter: ........... ....
+Telefonnummer / Handynummer: ........
+Monatliches Einkommen abz=C3=BCglich Steuern: ........
+Kreditsumme .........
+Kreditlaufzeit:........
+Passfotokopie...........
 
-> but can you also submit patches to get into 5.15.y and 5.16-rc1
-> that revert these changes as they should still be an issue there, right?
-
-Yes I assume this is still an issue there too, but I was hoping that
-Kishon can take a look and maybe actually fix things, since just
-reverting presumably regresses whatever these patches were addressing.
-
-We've aprox 1-3 weeks before distros like Arch and Linux will switch
-to 5.15.y kernels.  So we have some time to come up with a fix
-there, where as for 5.14.y this is hitting users now.
-
-Regards,
-
-Hans
-
+  Herzliche Gr=C3=BC=C3=9Fe.
