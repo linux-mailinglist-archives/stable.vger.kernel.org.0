@@ -2,109 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F577444058
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 12:05:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 842E044405E
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 12:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230062AbhKCLI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 07:08:27 -0400
-Received: from foss.arm.com ([217.140.110.172]:56562 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229506AbhKCLI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Nov 2021 07:08:27 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E56B5D6E;
-        Wed,  3 Nov 2021 04:05:50 -0700 (PDT)
-Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id AE9FA3F7B4;
-        Wed,  3 Nov 2021 04:05:49 -0700 (PDT)
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     linux-arm-kernel@lists.infradead.org
-Cc:     alexandru.elisei@arm.com, catalin.marinas@arm.com,
-        james.morse@arm.com, mark.rutland@arm.com, maz@kernel.org,
-        stable@vger.kernel.org, suzuki.poulose@arm.com, will@kernel.org
-Subject: [PATCH] arm64/kvm: extract ESR_ELx.EC only
-Date:   Wed,  3 Nov 2021 11:05:45 +0000
-Message-Id: <20211103110545.4613-1-mark.rutland@arm.com>
-X-Mailer: git-send-email 2.11.0
+        id S230112AbhKCLPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 07:15:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41304 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230062AbhKCLPe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 07:15:34 -0400
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C304C061714
+        for <stable@vger.kernel.org>; Wed,  3 Nov 2021 04:12:58 -0700 (PDT)
+Received: by mail-wr1-x435.google.com with SMTP id b12so2992489wrh.4
+        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 04:12:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kryo-se.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=z2dl6DaYE9CraVHFrENxxk3AEPQOSjcvm8GNCeHtckE=;
+        b=CDHDfhUGbB+TEch6QVVKEwXfmsa1t3SIVoP4pS1lLQmo8hTdovZ0rduVBdkMGbfyu4
+         tCxNSUvSfd5MMLhjHdLRosuUDmcxDFWsEOKA381Refttz+NKIPM1VYQfpinYiN0OMYZl
+         260zpJkG1PBKgPQuMCJ4vB4I41jn3bMR18qKyi0SzVIQvLWKQ/s1j7LBt53QvkT3ti9a
+         FUPX8BHZLo5GJhKVFFYoNfLe3Ny0aRxmqPmrqx7Y2csN7DFclk9V08hdoBEEzdnyvPzK
+         eF1oy+13/aoXJGWuT4esT1ffsn9ixaIH8cd08pm9JWJtwQw5wsCltCemhu6PknkLPiNP
+         L7jw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=z2dl6DaYE9CraVHFrENxxk3AEPQOSjcvm8GNCeHtckE=;
+        b=jk4vSkiiAjBq35a9FLDcb463voTZTAON/s7K6Zr2c16bFT7krpCg+AKXR9mIWbi8jh
+         /aiI36Z6dnSSqnqIVBgASbJTthfhy0cz+R+AiwJEL04V3TVRoXK0PfVbyjM7FlHunSaC
+         bGHjtCZeQ7gqIYm//d5cVJwqrPH3L7xYg9qSnRcHXw3Hka3IE0DVQ3YiEwBIYg0+n1E/
+         sTS2hIs5/tSCZs1a817gSh3HG7J3lOlWD+lQbolHGt/MWcwaD7ujO0OeUNt0CVoxYKVk
+         v9qmBRi5gobQlJycKODQ/E3d5D8q+Ex6RFZlDHcQKCKVD6bAs6puITPXd2RD8GizZB28
+         Pf+A==
+X-Gm-Message-State: AOAM532prccFyWqvkHy5Xg2eO+nvqid+C1jg/qCvlbWjOfR09y9Ua+Iw
+        opOv51k0Z8T8piLEn0u7Ataa5bS+S6jIAQ==
+X-Google-Smtp-Source: ABdhPJzj5KR0pFdAmS9m5/JVJtkthbQwTryzJNO9+7XZnK7jOQxH7NjaATgB+QXzkP6xp5fPKGdpxQ==
+X-Received: by 2002:a5d:58f9:: with SMTP id f25mr49475350wrd.206.1635937976805;
+        Wed, 03 Nov 2021 04:12:56 -0700 (PDT)
+Received: from kerfuffle.. ([2a02:168:9619:0:e47f:e8d:2259:ad13])
+        by smtp.gmail.com with ESMTPSA id t127sm5489960wma.9.2021.11.03.04.12.55
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Nov 2021 04:12:56 -0700 (PDT)
+From:   Erik Ekman <erik@kryo.se>
+To:     stable@vger.kernel.org
+Subject: [PATCH] sfc: Fix reading non-legacy supported link modes
+Date:   Wed,  3 Nov 2021 12:12:39 +0100
+Message-Id: <20211103111239.110941-1-erik@kryo.se>
+X-Mailer: git-send-email 2.33.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since ARMv8.0 the upper 32 bits of ESR_ELx have been RES0, and recently
-some of the upper bits gained a meaning and can be non-zero. For
-example, when FEAT_LS64 is implemented, ESR_ELx[36:32] contain ISS2,
-which for an ST64BV or ST64BV0 can be non-zero. This can be seen in ARM
-DDI 0487G.b, page D13-3145, section D13.2.37.
-
-Generally, we must not rely on RES0 bit remaining zero in future, and
-when extracting ESR_ELx.EC we must mask out all other bits.
-
-All C code uses the ESR_ELx_EC() macro, which masks out the irrelevant
-bits, and therefore no alterations are required to C code to avoid
-consuming irrelevant bits.
-
-In a couple of places the KVM assembly extracts ESR_ELx.EC using LSR on
-an X register, and so could in theory consume previously RES0 bits. In
-both cases this is for comparison with EC values ESR_ELx_EC_HVC32 and
-ESR_ELx_EC_HVC64, for which the upper bits of ESR_ELx must currently be
-zero, but this could change in future.
-
-This patch adjusts the KVM vectors to use UBFX rather than LSR to
-extract ESR_ELx.EC, ensuring these are robust to future additions to
-ESR_ELx.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexandru Elisei <alexandru.elisei@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: Will Deacon <will@kernel.org>
----
- arch/arm64/include/asm/esr.h   | 1 +
- arch/arm64/kvm/hyp/hyp-entry.S | 2 +-
- arch/arm64/kvm/hyp/nvhe/host.S | 2 +-
- 3 files changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/arch/arm64/include/asm/esr.h b/arch/arm64/include/asm/esr.h
-index a305ce256090..d52a0b269ee8 100644
---- a/arch/arm64/include/asm/esr.h
-+++ b/arch/arm64/include/asm/esr.h
-@@ -68,6 +68,7 @@
- #define ESR_ELx_EC_MAX		(0x3F)
- 
- #define ESR_ELx_EC_SHIFT	(26)
-+#define ESR_ELx_EC_WIDTH	(6)
- #define ESR_ELx_EC_MASK		(UL(0x3F) << ESR_ELx_EC_SHIFT)
- #define ESR_ELx_EC(esr)		(((esr) & ESR_ELx_EC_MASK) >> ESR_ELx_EC_SHIFT)
- 
-diff --git a/arch/arm64/kvm/hyp/hyp-entry.S b/arch/arm64/kvm/hyp/hyp-entry.S
-index 9aa9b73475c9..b6b6801d96d5 100644
---- a/arch/arm64/kvm/hyp/hyp-entry.S
-+++ b/arch/arm64/kvm/hyp/hyp-entry.S
-@@ -44,7 +44,7 @@
- el1_sync:				// Guest trapped into EL2
- 
- 	mrs	x0, esr_el2
--	lsr	x0, x0, #ESR_ELx_EC_SHIFT
-+	ubfx	x0, x0, #ESR_ELx_EC_SHIFT, #ESR_ELx_EC_WIDTH
- 	cmp	x0, #ESR_ELx_EC_HVC64
- 	ccmp	x0, #ESR_ELx_EC_HVC32, #4, ne
- 	b.ne	el1_trap
-diff --git a/arch/arm64/kvm/hyp/nvhe/host.S b/arch/arm64/kvm/hyp/nvhe/host.S
-index 4b652ffb591d..d310d2b2c8b4 100644
---- a/arch/arm64/kvm/hyp/nvhe/host.S
-+++ b/arch/arm64/kvm/hyp/nvhe/host.S
-@@ -115,7 +115,7 @@ SYM_FUNC_END(__hyp_do_panic)
- .L__vect_start\@:
- 	stp	x0, x1, [sp, #-16]!
- 	mrs	x0, esr_el2
--	lsr	x0, x0, #ESR_ELx_EC_SHIFT
-+	ubfx	x0, x0, #ESR_ELx_EC_SHIFT, #ESR_ELx_EC_WIDTH
- 	cmp	x0, #ESR_ELx_EC_HVC64
- 	b.ne	__host_exit
- 
--- 
-2.11.0
+Here is the backported version for v5.4 and v4.19.
 
