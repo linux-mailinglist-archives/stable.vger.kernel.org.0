@@ -2,94 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CADE144441C
-	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 15:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE82644445B
+	for <lists+stable@lfdr.de>; Wed,  3 Nov 2021 16:10:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231365AbhKCPB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 11:01:58 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:38621 "HELO
-        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S231359AbhKCPB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Nov 2021 11:01:57 -0400
-Received: (qmail 1524263 invoked by uid 1000); 3 Nov 2021 10:59:19 -0400
-Date:   Wed, 3 Nov 2021 10:59:19 -0400
-From:   Alan Stern <stern@rowland.harvard.edu>
-To:     Kishon Vijay Abraham I <kishon@ti.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-usb@vger.kernel.org,
-        chris.chiu@canonical.com, Mathias Nyman <mathias.nyman@intel.com>
-Subject: Re: 5.14.14+ USB regression caused by "usb: core: hcd: Add support
- for deferring roothub registration" series
-Message-ID: <20211103145919.GC1521906@rowland.harvard.edu>
-References: <42bcbea6-5eb8-16c7-336a-2cb72e71bc36@redhat.com>
- <YYJRRg8QDBfy2PP7@kroah.com>
- <9e1abe71-d903-f227-38ae-a854ab9e5baf@redhat.com>
- <5c95597b-289b-ea1c-4770-8be9e8511ae0@ti.com>
+        id S231211AbhKCPN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 11:13:29 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:59982 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230384AbhKCPN2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 11:13:28 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 2DB30218B5;
+        Wed,  3 Nov 2021 15:10:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1635952251; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=anInB2kVb3pWABaNPOlE0t9drSa/Hjd5y9yI61NRDHg=;
+        b=U0wCX09T/e755MapbZn75yJ6l7kYBrQDLjaa5xaI3RoaYONd0LV4vJFYq6aUEFVxrd9NmC
+        /K51ABO+BJudGSTGZmqc8mMWzl15jvCNvfpTEeqgU/z2+4blK1BhZi9BmwL8sP8IbesIFu
+        ILsYxcTznDvfbyC1+jpVML3uB1Pbn8o=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1635952251;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=anInB2kVb3pWABaNPOlE0t9drSa/Hjd5y9yI61NRDHg=;
+        b=5cQzlc5AscGS6LyS/auxpWSIDeftE0c8fhmmICagESsbmi2zLuzKp4feKYdQ74UZZFAwQr
+        nXGvPRDXIsKKuTAQ==
+Received: from suse.localdomain (unknown [10.163.16.22])
+        by relay2.suse.de (Postfix) with ESMTP id 6ECA42C168;
+        Wed,  3 Nov 2021 15:10:48 +0000 (UTC)
+From:   Coly Li <colyli@suse.de>
+To:     axboe@kernel.dk
+Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
+        Coly Li <colyli@suse.de>, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org
+Subject: [PATCH] bcache: Revert "bcache: use bvec_virt"
+Date:   Wed,  3 Nov 2021 23:10:41 +0800
+Message-Id: <20211103151041.70516-1-colyli@suse.de>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5c95597b-289b-ea1c-4770-8be9e8511ae0@ti.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 03, 2021 at 08:14:35PM +0530, Kishon Vijay Abraham I wrote:
-> + Alan, Chris, Mathias, linux-usb
-> 
-> Hi Hans,
-> 
-> On 03/11/21 6:18 pm, Hans de Goede wrote:
-> > Hi,
-> > 
-> > On 11/3/21 10:07, Greg Kroah-Hartman wrote:
-> >> On Wed, Nov 03, 2021 at 10:02:52AM +0100, Hans de Goede wrote:
-> >>> Hi Greg,
-> >>>
-> >>> We (Fedora) have been receiving multiple reports about USB devices stopping
-> >>> working starting with 5.14.14 .
-> >>>
-> >>> An Arch Linux user has found that reverting the first 2 patches from this series:
-> >>> https://lore.kernel.org/all/20210909064200.16216-1-kishon@ti.com/
-> >>>
-> >>> Fixes things (the 3th patch is just some mostly unrelated refactoring/cleanup).
-> >>>
-> >>> See here for the Arch-linux discussion surrounding this:
-> >>> https://bbs.archlinux.org/viewtopic.php?pid=2000956#p2000956
-> >>>
-> >>> And here are 2 Fedora bug reports of Fedora users being unable to use their
-> >>> machines due their mouse + kbd not working:
-> >>>
-> >>> https://bugzilla.redhat.com/show_bug.cgi?id=2019542
-> >>> https://bugzilla.redhat.com/show_bug.cgi?id=2019576
-> >>>
-> >>> Can we get this patch-series reverted from the 5.14.y releases please ?
-> >>
-> >> Sure,
-> > 
-> > Thanks.
-> > 
-> >> but can you also submit patches to get into 5.15.y and 5.16-rc1
-> >> that revert these changes as they should still be an issue there, right?
-> > 
-> > Yes I assume this is still an issue there too, but I was hoping that
-> > Kishon can take a look and maybe actually fix things, since just
-> > reverting presumably regresses whatever these patches were addressing.
-> > 
-> > We've aprox 1-3 weeks before distros like Arch and Linux will switch
-> > to 5.15.y kernels.  So we have some time to come up with a fix
-> > there, where as for 5.14.y this is hitting users now.
-> 
-> Is the issue with PCIe USB devices or platform USB device? Is it specific to
-> super speed devices or high speed device?
+This reverts commit 2fd3e5efe791946be0957c8e1eed9560b541fe46.
 
-Look at the bug reports.  They are on standard PCs (so PCIe controllers) 
-and some of them involve full speed (mouse and keyboard) devices.  
-Although it looks like the problem has little to do with the device and 
-a lot to do with the controller.
+The above commit replaces page_address(bv->bv_page) by bvec_virt(bv) to
+avoid directly access to bv->bv_page, but in situation bv->bv_offset is
+not zero and page_address(bv->bv_page) is not equal to bvec_virt(bv). In
+such case a memory corruption may happen because memory in next page is
+tainted by following line in do_btree_node_write(),
+	memcpy(bvec_virt(bv), addr, PAGE_SIZE);
 
-Is there a good way to get more information about what is going wrong?  
-For example, by enabling tracepoints in the xhci-hcd driver?
+This patch reverts the mentioned commit to avoid the memory corruption.
 
-Alan Stern
+Fixes: 2fd3e5efe791 ("bcache: use bvec_virt")
+Signed-off-by: Coly Li <colyli@suse.de>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: stable@vger.kernel.org # 5.15
+---
+ drivers/md/bcache/btree.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
+index 93b67b8d31c3..88c573eeb598 100644
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -378,7 +378,7 @@ static void do_btree_node_write(struct btree *b)
+ 		struct bvec_iter_all iter_all;
+ 
+ 		bio_for_each_segment_all(bv, b->bio, iter_all) {
+-			memcpy(bvec_virt(bv), addr, PAGE_SIZE);
++			memcpy(page_address(bv->bv_page), addr, PAGE_SIZE);
+ 			addr += PAGE_SIZE;
+ 		}
+ 
+-- 
+2.31.1
+
