@@ -2,122 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D6A1444BCD
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 00:53:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26873444C95
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 01:33:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229652AbhKCX4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 19:56:07 -0400
-Received: from mga04.intel.com ([192.55.52.120]:57966 "EHLO mga04.intel.com"
+        id S233116AbhKDAfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 20:35:45 -0400
+Received: from mga05.intel.com ([192.55.52.43]:65415 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229541AbhKCX4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Nov 2021 19:56:07 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10157"; a="230342467"
+        id S231230AbhKDAf1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Nov 2021 20:35:27 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10157"; a="317830396"
 X-IronPort-AV: E=Sophos;i="5.87,207,1631602800"; 
-   d="scan'208";a="230342467"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2021 16:53:30 -0700
+   d="scan'208";a="317830396"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2021 17:30:19 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.87,207,1631602800"; 
-   d="scan'208";a="639100544"
-Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.199]) ([10.237.72.199])
-  by fmsmga001.fm.intel.com with ESMTP; 03 Nov 2021 16:53:28 -0700
-To:     Alan Stern <stern@rowland.harvard.edu>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-usb@vger.kernel.org,
-        chris.chiu@canonical.com, Mathias Nyman <mathias.nyman@intel.com>
-References: <42bcbea6-5eb8-16c7-336a-2cb72e71bc36@redhat.com>
- <YYJRRg8QDBfy2PP7@kroah.com>
- <9e1abe71-d903-f227-38ae-a854ab9e5baf@redhat.com>
- <5c95597b-289b-ea1c-4770-8be9e8511ae0@ti.com>
- <20211103145919.GC1521906@rowland.harvard.edu>
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: Re: 5.14.14+ USB regression caused by "usb: core: hcd: Add support
- for deferring roothub registration" series
-Message-ID: <3cfc755c-7559-306c-bec4-ae87052fc7c0@linux.intel.com>
-Date:   Thu, 4 Nov 2021 01:54:53 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.8.1
-MIME-Version: 1.0
-In-Reply-To: <20211103145919.GC1521906@rowland.harvard.edu>
-Content-Type: text/plain; charset=utf-8
+   d="scan'208";a="600097810"
+Received: from orsmsx606.amr.corp.intel.com ([10.22.229.19])
+  by orsmga004.jf.intel.com with ESMTP; 03 Nov 2021 17:30:19 -0700
+Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
+ ORSMSX606.amr.corp.intel.com (10.22.229.19) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2242.12; Wed, 3 Nov 2021 17:30:18 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2242.12; Wed, 3 Nov 2021 17:30:18 -0700
+Received: from orsmsx610.amr.corp.intel.com ([10.22.229.23]) by
+ ORSMSX610.amr.corp.intel.com ([10.22.229.23]) with mapi id 15.01.2242.012;
+ Wed, 3 Nov 2021 17:30:18 -0700
+From:   "Souza, Jose" <jose.souza@intel.com>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+CC:     "Zhao, Yakui" <yakui.zhao@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Nikula, Jani" <jani.nikula@intel.com>,
+        "Roper, Matthew D" <matthew.d.roper@intel.com>
+Subject: Re: [PATCH] drm/i915: Remove memory frequency calculation
+Thread-Topic: [PATCH] drm/i915: Remove memory frequency calculation
+Thread-Index: AQHXz032Lz1jntkprUGxox/18SQDWqvyBjkAgAD4ngA=
+Date:   Thu, 4 Nov 2021 00:30:18 +0000
+Message-ID: <fb21fbc6b8b03ffa3df2f629112132664cccda4c.camel@intel.com>
+References: <1635599150237240@kroah.com>
+         <20211101183230.89060-1-jose.souza@intel.com> <YYJaklqD9XAj16Lw@kroah.com>
+In-Reply-To: <YYJaklqD9XAj16Lw@kroah.com>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.22.254.132]
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <FEFC8E587DD68349BEEB79BED4917908@intel.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3.11.2021 16.59, Alan Stern wrote:
-> On Wed, Nov 03, 2021 at 08:14:35PM +0530, Kishon Vijay Abraham I wrote:
->> + Alan, Chris, Mathias, linux-usb
->>
->> Hi Hans,
->>
->> On 03/11/21 6:18 pm, Hans de Goede wrote:
->>> Hi,
->>>
->>> On 11/3/21 10:07, Greg Kroah-Hartman wrote:
->>>> On Wed, Nov 03, 2021 at 10:02:52AM +0100, Hans de Goede wrote:
->>>>> Hi Greg,
->>>>>
->>>>> We (Fedora) have been receiving multiple reports about USB devices stopping
->>>>> working starting with 5.14.14 .
->>>>>
->>>>> An Arch Linux user has found that reverting the first 2 patches from this series:
->>>>> https://lore.kernel.org/all/20210909064200.16216-1-kishon@ti.com/
->>>>>
->>>>> Fixes things (the 3th patch is just some mostly unrelated refactoring/cleanup).
->>>>>
->>>>> See here for the Arch-linux discussion surrounding this:
->>>>> https://bbs.archlinux.org/viewtopic.php?pid=2000956#p2000956
->>>>>
->>>>> And here are 2 Fedora bug reports of Fedora users being unable to use their
->>>>> machines due their mouse + kbd not working:
->>>>>
->>>>> https://bugzilla.redhat.com/show_bug.cgi?id=2019542
->>>>> https://bugzilla.redhat.com/show_bug.cgi?id=2019576
->>>>>
->>>>> Can we get this patch-series reverted from the 5.14.y releases please ?
->>>>
->>>> Sure,
->>>
->>> Thanks.
->>>
->>>> but can you also submit patches to get into 5.15.y and 5.16-rc1
->>>> that revert these changes as they should still be an issue there, right?
->>>
->>> Yes I assume this is still an issue there too, but I was hoping that
->>> Kishon can take a look and maybe actually fix things, since just
->>> reverting presumably regresses whatever these patches were addressing.
->>>
->>> We've aprox 1-3 weeks before distros like Arch and Linux will switch
->>> to 5.15.y kernels.  So we have some time to come up with a fix
->>> there, where as for 5.14.y this is hitting users now.
->>
->> Is the issue with PCIe USB devices or platform USB device? Is it specific to
->> super speed devices or high speed device?
-> 
-> Look at the bug reports.  They are on standard PCs (so PCIe controllers) 
-> and some of them involve full speed (mouse and keyboard) devices.  
-> Although it looks like the problem has little to do with the device and 
-> a lot to do with the controller.
-> 
-> Is there a good way to get more information about what is going wrong?  
-> For example, by enabling tracepoints in the xhci-hcd driver?
-> 
-> Alan Stern
-> 
-
-To enable xhci traces and dynamic debug at boot please add:
-"usbcore.dyndbg=+p xhci_hcd.dyndbg=+p trace_event=xhci-hcd trace_buf_size=80M"
-to the kernel cmdline before booting.
-(info added to https://bugzilla.redhat.com/show_bug.cgi?id=2019788 as well)
-
-Symptoms look similar to an old race issue where two usb devices were reset at the same time.
-xHC HW can't handle this, and to prevent it the hcd->address0_mutex was added.
-
-for details see: 
-https://lkml.org/lkml/2016/2/8/312
-
--Mathias
+T24gV2VkLCAyMDIxLTExLTAzIGF0IDEwOjQ2ICswMTAwLCBHcmVnIEtIIHdyb3RlOg0KPiBPbiBN
+b24sIE5vdiAwMSwgMjAyMSBhdCAxMTozMjozMEFNIC0wNzAwLCBKb3PDqSBSb2JlcnRvIGRlIFNv
+dXphIHdyb3RlOg0KPiA+IFRoaXMgbWVtb3J5IGZyZXF1ZW5jeSBjYWxjdWxhdGVkIGlzIG9ubHkg
+dXNlZCB0byBjaGVjayBpZiBpdCBpcyB6ZXJvLA0KPiA+IHdoYXQgaXMgbm90IHVzZWZ1bCBhcyBp
+dCB3aWxsIG5ldmVyIGFjdHVhbGx5IGJlIHplcm8uDQo+ID4gDQo+ID4gQWxzbyB0aGUgY2FsY3Vs
+YXRpb24gaXMgd3JvbmcsIHdlIHNob3VsZCBiZSBjaGVja2luZyBvdGhlciBiaXQgdG8NCj4gPiBz
+ZWxlY3QgdGhlIGFwcHJvcHJpYXRlIGZyZXF1ZW5jeSBtdWx0aXBsaWVyIHdoaWxlIHRoaXMgY29k
+ZSBpcyBzdHVjaw0KPiA+IHdpdGggYSBmaXhlZCBtdWx0aXBsaWVyLg0KPiA+IA0KPiA+IFNvIGhl
+cmUgZHJvcHBpbmcgaXQgYXMgd2hvbGUuDQo+ID4gDQo+ID4gdjI6DQo+ID4gLSBBbHNvIHJlbW92
+ZSBtZW1vcnkgZnJlcXVlbmN5IGNhbGN1bGF0aW9uIGZvciBnZW45IExQIHBsYXRmb3Jtcw0KPiA+
+IA0KPiA+IENjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4gIyA1LjE0LXN0YWJsZQ0KPiA+IENj
+OiBZYWt1aSBaaGFvIDx5YWt1aS56aGFvQGludGVsLmNvbT4NCj4gPiBDYzogTWF0dCBSb3BlciA8
+bWF0dGhldy5kLnJvcGVyQGludGVsLmNvbT4NCj4gPiBGaXhlczogNWQwYzkzOGVjOWNjICgiZHJt
+L2k5MTUvZ2VuMTErOiBPbmx5IGxvYWQgRFJBTSBpbmZvcm1hdGlvbiBmcm9tIHBjb2RlIikNCj4g
+PiBTaWduZWQtb2ZmLWJ5OiBKb3PDqSBSb2JlcnRvIGRlIFNvdXphIDxqb3NlLnNvdXphQGludGVs
+LmNvbT4NCj4gPiBSZXZpZXdlZC1ieTogTWF0dCBSb3BlciA8bWF0dGhldy5kLnJvcGVyQGludGVs
+LmNvbT4NCj4gPiBMaW5rOiBodHRwczovL3BhdGNod29yay5mcmVlZGVza3RvcC5vcmcvcGF0Y2gv
+bXNnaWQvMjAyMTEwMTMwMTAwNDYuOTE4NTgtMS1qb3NlLnNvdXphQGludGVsLmNvbQ0KPiA+IChj
+aGVycnkgcGlja2VkIGZyb20gY29tbWl0IDgzZjUyMzY0YjE1MjY1YWVjNDdkMDdlMDJiMGZiZjQw
+OTNhYjg1NTQpDQo+IA0KPiBUaGVyZSBpcyBubyBzdWNoIGNvbW1pdCBpbiBMaW51cydzIHRyZWUu
+DQo+IA0KPiBXaGF0IGNvbW1pdCBpcyB0aGlzIHRoYXQgaXMgYmVpbmcgYmFja3BvcnRlZD8NCg0K
+SXQgaXMgb24gTGludXMncyB0cmVlOg0KDQpodHRwczovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20v
+bGludXgva2VybmVsL2dpdC90b3J2YWxkcy9saW51eC5naXQvY29tbWl0Lz9pZD04M2Y1MjM2NGIx
+NTI2NWFlYzQ3ZDA3ZTAyYjBmYmY0MDkzYWI4NTU0DQoNCj4gDQo+IGNvbmZ1c2VkLA0KPiANCj4g
+Z3JlZyBrLWgNCg0K
