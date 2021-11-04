@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA7F14454D8
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:15:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDD8644549D
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:13:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232201AbhKDOSM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:18:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46260 "EHLO mail.kernel.org"
+        id S231267AbhKDOQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:16:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231572AbhKDORg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:17:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7F946121E;
-        Thu,  4 Nov 2021 14:14:57 +0000 (UTC)
+        id S231311AbhKDOQZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:16:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C737C60F39;
+        Thu,  4 Nov 2021 14:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035298;
-        bh=k3LejNrS40KNrO/lwGEVSp462nUNP3JfI6ABG9VkVmA=;
+        s=korg; t=1636035227;
+        bh=d9W2bJ8u9CmBWoEr8NEtdlUSedLn2VTb0hCSP8C870E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eBe4/Phgm9GHkOMUm39+0szlLtScIVXpO15QD+YfHnVZiK8fL5HH/QgVVv6tv6yeX
-         qI9kBymmMim9dCm13IjnViJ1AVfXhZDi0JSRJFsatGTnI7fehgyRIHmqNY8+KAKN15
-         bzzYm5Imd0eYj3Y0kO9OsK3sj0eWHA8xbXMZtM7I=
+        b=aqvpomHjnQ1fU22nBP2upMMGE9b7pKIiPQTxgIVcB8ceabVjoz9FjMe7rGLR2JIfA
+         2ry2pKBjXhqhY0GGqau9VPQr7hlEkJLYYTxNEQSn8NAawlg6Uwopp7jJLncHLZB3Uf
+         QW0IKR7ig0cySiRPA7n302s0gvgtNHc3kd0JM7vQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Chris Chiu <chris.chiu@canonical.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 5.14 06/16] Revert "usb: core: hcd: Add support for deferring roothub registration"
+        stable@vger.kernel.org, Matthew Brost <matthew.brost@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        John Harrison <John.C.Harrison@Intel.com>
+Subject: [PATCH 5.15 11/12] Revert "drm/i915/gt: Propagate change in error status to children on unhold"
 Date:   Thu,  4 Nov 2021 15:12:37 +0100
-Message-Id: <20211104141200.061711696@linuxfoundation.org>
+Message-Id: <20211104141159.923851880@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211104141159.863820939@linuxfoundation.org>
-References: <20211104141159.863820939@linuxfoundation.org>
+In-Reply-To: <20211104141159.551636584@linuxfoundation.org>
+References: <20211104141159.551636584@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,114 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Matthew Brost <matthew.brost@intel.com>
 
-This reverts commit e9ce1992a33861b61e9617f578c1f27174bd285f which is
-commit 58877b0824da15698bd85a0a9dbfa8c354e6ecb7 upstream.
+commit ac653dd7996edf1770959e11a078312928bd7315 upstream.
 
-It has been reported to be causing problems in Arch and Fedora bug
-reports.
+Propagating errors to dependent fences is broken and can lead to errors
+from one client ending up in another. In commit 3761baae908a ("Revert
+"drm/i915: Propagate errors on awaiting already signaled fences""), we
+attempted to get rid of fence error propagation but missed the case
+added in commit 8e9f84cf5cac ("drm/i915/gt: Propagate change in error
+status to children on unhold"). Revert that one too. This error was
+found by an up-and-coming selftest which triggers a reset during
+request cancellation and verifies that subsequent requests complete
+successfully.
 
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://bbs.archlinux.org/viewtopic.php?pid=2000956#p2000956
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2019542
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2019576
-Link: https://lore.kernel.org/r/42bcbea6-5eb8-16c7-336a-2cb72e71bc36@redhat.com
-Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc: Chris Chiu <chris.chiu@canonical.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Kishon Vijay Abraham I <kishon@ti.com>
+v2:
+ (Daniel Vetter)
+  - Use revert
+v3:
+ (Jason)
+  - Update commit message
+
+v4 (Daniele):
+ - fix checkpatch error in commit message.
+
+Signed-off-by: Matthew Brost <matthew.brost@intel.com>
+Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210909164744.31249-8-matthew.brost@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hcd.c  |   29 ++++++-----------------------
- include/linux/usb/hcd.h |    2 --
- 2 files changed, 6 insertions(+), 25 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_execlists_submission.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -2775,7 +2775,6 @@ int usb_add_hcd(struct usb_hcd *hcd,
- {
- 	int retval;
- 	struct usb_device *rhdev;
--	struct usb_hcd *shared_hcd;
+--- a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
++++ b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
+@@ -2140,10 +2140,6 @@ static void __execlists_unhold(struct i9
+ 			if (p->flags & I915_DEPENDENCY_WEAK)
+ 				continue;
  
- 	if (!hcd->skip_phy_initialization && usb_hcd_is_primary_hcd(hcd)) {
- 		hcd->phy_roothub = usb_phy_roothub_alloc(hcd->self.sysdev);
-@@ -2936,26 +2935,13 @@ int usb_add_hcd(struct usb_hcd *hcd,
- 		goto err_hcd_driver_start;
- 	}
- 
--	/* starting here, usbcore will pay attention to the shared HCD roothub */
--	shared_hcd = hcd->shared_hcd;
--	if (!usb_hcd_is_primary_hcd(hcd) && shared_hcd && HCD_DEFER_RH_REGISTER(shared_hcd)) {
--		retval = register_root_hub(shared_hcd);
--		if (retval != 0)
--			goto err_register_root_hub;
+-			/* Propagate any change in error status */
+-			if (rq->fence.error)
+-				i915_request_set_error_once(w, rq->fence.error);
 -
--		if (shared_hcd->uses_new_polling && HCD_POLL_RH(shared_hcd))
--			usb_hcd_poll_rh_status(shared_hcd);
--	}
--
- 	/* starting here, usbcore will pay attention to this root hub */
--	if (!HCD_DEFER_RH_REGISTER(hcd)) {
--		retval = register_root_hub(hcd);
--		if (retval != 0)
--			goto err_register_root_hub;
-+	retval = register_root_hub(hcd);
-+	if (retval != 0)
-+		goto err_register_root_hub;
+ 			if (w->engine != rq->engine)
+ 				continue;
  
--		if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
--			usb_hcd_poll_rh_status(hcd);
--	}
-+	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
-+		usb_hcd_poll_rh_status(hcd);
- 
- 	return retval;
- 
-@@ -2999,7 +2985,6 @@ EXPORT_SYMBOL_GPL(usb_add_hcd);
- void usb_remove_hcd(struct usb_hcd *hcd)
- {
- 	struct usb_device *rhdev = hcd->self.root_hub;
--	bool rh_registered;
- 
- 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
- 
-@@ -3010,7 +2995,6 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 
- 	dev_dbg(hcd->self.controller, "roothub graceful disconnect\n");
- 	spin_lock_irq (&hcd_root_hub_lock);
--	rh_registered = hcd->rh_registered;
- 	hcd->rh_registered = 0;
- 	spin_unlock_irq (&hcd_root_hub_lock);
- 
-@@ -3020,8 +3004,7 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 	cancel_work_sync(&hcd->died_work);
- 
- 	mutex_lock(&usb_bus_idr_lock);
--	if (rh_registered)
--		usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
-+	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
- 	mutex_unlock(&usb_bus_idr_lock);
- 
- 	/*
---- a/include/linux/usb/hcd.h
-+++ b/include/linux/usb/hcd.h
-@@ -124,7 +124,6 @@ struct usb_hcd {
- #define HCD_FLAG_RH_RUNNING		5	/* root hub is running? */
- #define HCD_FLAG_DEAD			6	/* controller has died? */
- #define HCD_FLAG_INTF_AUTHORIZED	7	/* authorize interfaces? */
--#define HCD_FLAG_DEFER_RH_REGISTER	8	/* Defer roothub registration */
- 
- 	/* The flags can be tested using these macros; they are likely to
- 	 * be slightly faster than test_bit().
-@@ -135,7 +134,6 @@ struct usb_hcd {
- #define HCD_WAKEUP_PENDING(hcd)	((hcd)->flags & (1U << HCD_FLAG_WAKEUP_PENDING))
- #define HCD_RH_RUNNING(hcd)	((hcd)->flags & (1U << HCD_FLAG_RH_RUNNING))
- #define HCD_DEAD(hcd)		((hcd)->flags & (1U << HCD_FLAG_DEAD))
--#define HCD_DEFER_RH_REGISTER(hcd) ((hcd)->flags & (1U << HCD_FLAG_DEFER_RH_REGISTER))
- 
- 	/*
- 	 * Specifies if interfaces are authorized by default
 
 
