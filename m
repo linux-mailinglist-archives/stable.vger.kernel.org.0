@@ -2,138 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85291445B7B
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 22:05:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA6FA445B7E
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 22:07:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231849AbhKDVHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 17:07:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49262 "EHLO
+        id S231561AbhKDVKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 17:10:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231573AbhKDVHr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 17:07:47 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB4ADC061714
-        for <stable@vger.kernel.org>; Thu,  4 Nov 2021 14:05:08 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id k4so9348003plx.8
-        for <stable@vger.kernel.org>; Thu, 04 Nov 2021 14:05:08 -0700 (PDT)
+        with ESMTP id S230162AbhKDVKe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 17:10:34 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F37C061714;
+        Thu,  4 Nov 2021 14:07:55 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id l3so5077852pfu.13;
+        Thu, 04 Nov 2021 14:07:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=2jah4c3wrDRrwqxndGMWx7G+x9W23hyWc6vU1UnDJzI=;
-        b=7v0EsaPL3VvzzCMLkZYUxII/hHaZn+zUgYn0Xa3ouSqdUbRzWzknY1+Iiv6hodLd8A
-         1LG9LgeA0ZVucD7bPIBY1cwsH+F/U2DavwuG7zYfbJWQkJ1j61yvRZpqhWzm/tu1a/oM
-         0OrRrKehVNi8ngYH5gR+bZzM6NCEeJJopxA+5abx24I/mGY6pN6tBimF39qJ7+b7pWHd
-         Qz8Waskc1BLlt1e74TfA8AHtu5CJqOysZc0JFcMFoxq5U/6z0Rzjz5ekAerSEoswpmOZ
-         gnQD7Qj8RBXcRgYnuKYqPYwq2CJhjg7iLG8l1Dmoq48wesslSGt6YOfvw3rQskXYiTs9
-         2Usw==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9BiJt54qFZ/VuFOPoUw2HvY4OErYWaH/g0QELRHYaEM=;
+        b=JR2B77A7w9AxNwZiwRneH3U+LDgO7FF6to59gQG7raqqjhoqQaITMu1qzPmDRxdQ1e
+         HkM5PZsZZjGaSa5A4x03k5PzwVqNfTluN5kCPt/LHWA/+bnTDiLKzoutgfmfRiOO7OBi
+         3779F30Gzg9jNMvKNqo7IDTzrryKU/Wb4nxdSMkuW7Ga2wQAAMxb5mrowJtGyuEtiXqs
+         32kh0w+PYo/X9QHiehvQ5HNlxhCZWNo3HJntQsU+49r7PWh4LRpPFlMCKEsyR5cz4/v8
+         aLX5xkCun5dKl184rAsaLUawLTit6+7yG8rhTwRn26uqCAKeFkyMaPKad7jMSi4ntbw9
+         Ulng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=2jah4c3wrDRrwqxndGMWx7G+x9W23hyWc6vU1UnDJzI=;
-        b=KGxlzB0Ji0kpXEDNqla9JyjDBXQARhEQcQnywnJ8wUjfCgHFckMVawuSqeH+e8jy4U
-         p9TtTyHo4P8CKzrki2ryItnEGoaPVjdZYAHGd08plwx/v+6iNOMhzE2RTvNpZ1mqnfYm
-         Lgvg7aL3QB4HtKWqwyc5tPTA7Jw9C5uDj5tyfIcORZ1LUk9bznP8pYDEsysDP6bSfPCJ
-         +Mk1bkcRv/Jpc4FFG4L2d5JLLRygS44ycQoP2/9CE//6r1UwH5EdBs1xgMwaZ9KPO4HP
-         Ugv5qZpxUWBVdwnkKtBKt7day0tgBC7BxD2X7CZKj8G0m7rm6mwKyEZRgSwiavhlb9aS
-         yt3w==
-X-Gm-Message-State: AOAM531mmtIM2TF4GjUnriC6J4rQmTAsdoIzLAUSOFHudGeN72evtydU
-        x42x7qMZWHhxClOp5zy/vnwLwzXvMkmc+u7H
-X-Google-Smtp-Source: ABdhPJxRyzKmatzVUM7TXB87MdJS0qn5RJC06tma5whahiahZk2P6BJRCLjfOqL5BVjeFX2xWlmQ3g==
-X-Received: by 2002:a17:902:6bc8:b0:13f:8a54:1188 with SMTP id m8-20020a1709026bc800b0013f8a541188mr46296997plt.49.1636059908385;
-        Thu, 04 Nov 2021 14:05:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b18sm4785674pjo.31.2021.11.04.14.05.07
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9BiJt54qFZ/VuFOPoUw2HvY4OErYWaH/g0QELRHYaEM=;
+        b=bvRZAzV2a8Ikz9NzMc689wFTBBulfMxQ8hoeMh+kPfPc4K+e7z3y91x4vW8haZmTnK
+         Wyd/R6uHHl8/qGHnAI8SSpyCfgjsViA4WHuam28LZ/CATqtYf1mliXkEZlhgU1+sfNKt
+         Hoqhdlj4NcF2EtvZ8MEXeLqF6z2gakQTNc8ghj9QYZdOm3dc/JnoMyH3poRaBfTo8Gse
+         7H5jvigjoH7sx1giHM6pN/o2aWvXLqRCgkDnX6JP09Y79uRIK50WW5VUO2jWZyneeQ9V
+         NyFSCRpYR+SAE0MUt0W2jvVog+3c9POgGHvCbUcM6fdcjmBuErAi5EFqu9imR0afjDwL
+         0WnQ==
+X-Gm-Message-State: AOAM533IQMbj5gNzHGXx4+7fwy+oyju5/FTs8ScY9aclLjFvrL+O9X6M
+        kW8Pl3n02K/ZOR56rJ1MPPQ=
+X-Google-Smtp-Source: ABdhPJzL5YjCBbrnkOB2UCcpqKtJy28zI2Io3AbzarVO6TBw75pVAsBTv/HqC8QT0vlEL6Drk+j7sw==
+X-Received: by 2002:a65:4bca:: with SMTP id p10mr26097982pgr.391.1636060075178;
+        Thu, 04 Nov 2021 14:07:55 -0700 (PDT)
+Received: from localhost.localdomain (c-73-93-239-127.hsd1.ca.comcast.net. [73.93.239.127])
+        by smtp.gmail.com with ESMTPSA id s69sm4523688pgc.43.2021.11.04.14.07.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Nov 2021 14:05:08 -0700 (PDT)
-Message-ID: <61844b04.1c69fb81.82a6.01c0@mx.google.com>
-Date:   Thu, 04 Nov 2021 14:05:08 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 04 Nov 2021 14:07:54 -0700 (PDT)
+From:   Yang Shi <shy828301@gmail.com>
+To:     gregkh@linuxfoundation.org, naoya.horiguchi@nec.com,
+        hughd@google.com, kirill.shutemov@linux.intel.com,
+        willy@infradead.org, osalvador@suse.de, peterx@redhat.com,
+        akpm@linux-foundation.org
+Cc:     shy828301@gmail.com, stable@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: [stable 5.10 v2 PATCH 1/2] mm: hwpoison: remove the unnecessary THP check
+Date:   Thu,  4 Nov 2021 14:07:51 -0700
+Message-Id: <20211104210752.390351-1-shy828301@gmail.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.291-3-g59c6c12a4647
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.4.y baseline: 94 runs,
- 1 regressions (v4.4.291-3-g59c6c12a4647)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y baseline: 94 runs, 1 regressions (v4.4.291-3-g59c6c12=
-a4647)
+commit c7cb42e94473aafe553c0f2a3d8ca904599399ed upstream.
 
-Regressions Summary
--------------------
+When handling THP hwpoison checked if the THP is in allocation or free
+stage since hwpoison may mistreat it as hugetlb page.  After commit
+415c64c1453a ("mm/memory-failure: split thp earlier in memory error
+handling") the problem has been fixed, so this check is no longer
+needed.  Remove it.  The side effect of the removal is hwpoison may
+report unsplit THP instead of unknown error for shmem THP.  It seems not
+like a big deal.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+The following patch "mm: filemap: check if THP has hwpoisoned subpage
+for PMD page fault" depends on this, which fixes shmem THP with
+hwpoisoned subpage(s) are mapped PMD wrongly.  So this patch needs to be
+backported to -stable as well.
+
+Link: https://lkml.kernel.org/r/20211020210755.23964-2-shy828301@gmail.com
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ mm/memory-failure.c | 14 --------------
+ 1 file changed, 14 deletions(-)
 
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 01445ddff58d..bd2cd4dd59b6 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -956,20 +956,6 @@ static int get_hwpoison_page(struct page *page)
+ {
+ 	struct page *head = compound_head(page);
+ 
+-	if (!PageHuge(head) && PageTransHuge(head)) {
+-		/*
+-		 * Non anonymous thp exists only in allocation/free time. We
+-		 * can't handle such a case correctly, so let's give it up.
+-		 * This should be better than triggering BUG_ON when kernel
+-		 * tries to touch the "partially handled" page.
+-		 */
+-		if (!PageAnon(head)) {
+-			pr_err("Memory failure: %#lx: non anonymous thp\n",
+-				page_to_pfn(page));
+-			return 0;
+-		}
+-	}
+-
+ 	if (get_page_unless_zero(head)) {
+ 		if (head == compound_head(page))
+ 			return 1;
+-- 
+2.26.2
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
-el/v4.4.291-3-g59c6c12a4647/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.4.y
-  Describe: v4.4.291-3-g59c6c12a4647
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      59c6c12a4647e7980459a27a6a232485cbe10189 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61841179bde58a1f2c3358dd
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.291=
--3-g59c6c12a4647/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.291=
--3-g59c6c12a4647/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61841179bde58a1=
-f2c3358e0
-        new failure (last pass: v4.4.291)
-        2 lines
-
-    2021-11-04T16:59:17.276753  [   18.899932] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-04T16:59:17.326637  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/110
-    2021-11-04T16:59:17.335492  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-11-04T16:59:17.354842  [   18.980773] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
