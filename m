@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FE534454FD
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F454454FF
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232248AbhKDOTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:19:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47258 "EHLO mail.kernel.org"
+        id S231441AbhKDOTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:19:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232265AbhKDOSX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6A4561244;
-        Thu,  4 Nov 2021 14:15:44 +0000 (UTC)
+        id S232273AbhKDOS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A63D6125F;
+        Thu,  4 Nov 2021 14:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035345;
-        bh=dCt/v9KhBK7diItIio296/T00c9URqlC+1F/Cbqh1C4=;
+        s=korg; t=1636035348;
+        bh=N0y4rS1DDgqbbp5+Z0uwF3gYozQthM2oj4WDws68m5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qi5m1DSAnLY3D0TYY18VPc7DtIKB1JD3rAOu5VBEfCjE0AHhrgbbt9jC9WXDVbN5u
-         mvxFjbpwejBBJ0ceazLy7o/rLiXsgX5ROP+lTS5WIsG9BdoIqtOlE25xRpHT2BjJOV
-         5B7j7JzJluqSDbzppy7DJhBSc2jJqgN0rXZC0ePE=
+        b=bbRs+mpDs7g4RdGlLckuwK+IB5cdeshfziHiPhDgqfUEP4+Vl4rVThlIZk5J9Ir7V
+         VG1QsYjHDC12HRKrcLOzKsVvuLAkkMOmJxW4fTacEM03NgAe/QujHDmaLFgW56dBui
+         Fx3MwuB/6aouikvtrRwwkqXtWWl666mfutLqPqvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changhui Zhong <czhong@redhat.com>,
-        Yi Zhang <yi.zhang@redhat.com>, Ming Lei <ming.lei@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 1/9] scsi: core: Put LLD module refcnt after SCSI device is released
-Date:   Thu,  4 Nov 2021 15:12:54 +0100
-Message-Id: <20211104141158.434717408@linuxfoundation.org>
+        stable@vger.kernel.org, Eugene Crosser <crosser@average.org>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Florian Westphal <fw@strlen.de>
+Subject: [PATCH 5.4 2/9] vrf: Revert "Reset skb conntrack connection..."
+Date:   Thu,  4 Nov 2021 15:12:55 +0100
+Message-Id: <20211104141158.465457859@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211104141158.384397574@linuxfoundation.org>
 References: <20211104141158.384397574@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,79 +41,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Eugene Crosser <crosser@average.org>
 
-commit f2b85040acec9a928b4eb1b57a989324e8e38d3f upstream.
+commit 55161e67d44fdd23900be166a81e996abd6e3be9 upstream.
 
-SCSI host release is triggered when SCSI device is freed. We have to make
-sure that the low-level device driver module won't be unloaded before SCSI
-host instance is released because shost->hostt is required in the release
-handler.
+This reverts commit 09e856d54bda5f288ef8437a90ab2b9b3eab83d1.
 
-Make sure to put LLD module refcnt after SCSI device is released.
+When an interface is enslaved in a VRF, prerouting conntrack hook is
+called twice: once in the context of the original input interface, and
+once in the context of the VRF interface. If no special precausions are
+taken, this leads to creation of two conntrack entries instead of one,
+and breaks SNAT.
 
-Fixes a kernel panic of 'BUG: unable to handle page fault for address'
-reported by Changhui and Yi.
+Commit above was intended to avoid creation of extra conntrack entries
+when input interface is enslaved in a VRF. It did so by resetting
+conntrack related data associated with the skb when it enters VRF context.
 
-Link: https://lore.kernel.org/r/20211008050118.1440686-1-ming.lei@redhat.com
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reported-by: Changhui Zhong <czhong@redhat.com>
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Tested-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+However it breaks netfilter operation. Imagine a use case when conntrack
+zone must be assigned based on the original input interface, rather than
+VRF interface (that would make original interfaces indistinguishable). One
+could create netfilter rules similar to these:
+
+        chain rawprerouting {
+                type filter hook prerouting priority raw;
+                iif realiface1 ct zone set 1 return
+                iif realiface2 ct zone set 2 return
+        }
+
+This works before the mentioned commit, but not after: zone assignment
+is "forgotten", and any subsequent NAT or filtering that is dependent
+on the conntrack zone does not work.
+
+Here is a reproducer script that demonstrates the difference in behaviour.
+
+==========
+#!/bin/sh
+
+# This script demonstrates unexpected change of nftables behaviour
+# caused by commit 09e856d54bda5f28 ""vrf: Reset skb conntrack
+# connection on VRF rcv"
+# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=09e856d54bda5f288ef8437a90ab2b9b3eab83d1
+#
+# Before the commit, it was possible to assign conntrack zone to a
+# packet (or mark it for `notracking`) in the prerouting chanin, raw
+# priority, based on the `iif` (interface from which the packet
+# arrived).
+# After the change, # if the interface is enslaved in a VRF, such
+# assignment is lost. Instead, assignment based on the `iif` matching
+# the VRF master interface is honored. Thus it is impossible to
+# distinguish packets based on the original interface.
+#
+# This script demonstrates this change of behaviour: conntrack zone 1
+# or 2 is assigned depending on the match with the original interface
+# or the vrf master interface. It can be observed that conntrack entry
+# appears in different zone in the kernel versions before and after
+# the commit.
+
+IPIN=172.30.30.1
+IPOUT=172.30.30.2
+PFXL=30
+
+ip li sh vein >/dev/null 2>&1 && ip li del vein
+ip li sh tvrf >/dev/null 2>&1 && ip li del tvrf
+nft list table testct >/dev/null 2>&1 && nft delete table testct
+
+ip li add vein type veth peer veout
+ip li add tvrf type vrf table 9876
+ip li set veout master tvrf
+ip li set vein up
+ip li set veout up
+ip li set tvrf up
+/sbin/sysctl -w net.ipv4.conf.veout.accept_local=1
+/sbin/sysctl -w net.ipv4.conf.veout.rp_filter=0
+ip addr add $IPIN/$PFXL dev vein
+ip addr add $IPOUT/$PFXL dev veout
+
+nft -f - <<__END__
+table testct {
+	chain rawpre {
+		type filter hook prerouting priority raw;
+		iif { veout, tvrf } meta nftrace set 1
+		iif veout ct zone set 1 return
+		iif tvrf ct zone set 2 return
+		notrack
+	}
+	chain rawout {
+		type filter hook output priority raw;
+		notrack
+	}
+}
+__END__
+
+uname -rv
+conntrack -F
+ping -W 1 -c 1 -I vein $IPOUT
+conntrack -L
+
+Signed-off-by: Eugene Crosser <crosser@average.org>
+Acked-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Florian Westphal <fw@strlen.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi.c       |    4 +++-
- drivers/scsi/scsi_sysfs.c |    9 +++++++++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/vrf.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/scsi/scsi.c
-+++ b/drivers/scsi/scsi.c
-@@ -555,8 +555,10 @@ EXPORT_SYMBOL(scsi_device_get);
-  */
- void scsi_device_put(struct scsi_device *sdev)
- {
--	module_put(sdev->host->hostt->module);
-+	struct module *mod = sdev->host->hostt->module;
-+
- 	put_device(&sdev->sdev_gendev);
-+	module_put(mod);
- }
- EXPORT_SYMBOL(scsi_device_put);
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -1036,8 +1036,6 @@ static struct sk_buff *vrf_ip6_rcv(struc
+ 	bool need_strict = rt6_need_strict(&ipv6_hdr(skb)->daddr);
+ 	bool is_ndisc = ipv6_ndisc_frame(skb);
  
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -438,9 +438,12 @@ static void scsi_device_dev_release_user
- 	struct list_head *this, *tmp;
- 	struct scsi_vpd *vpd_pg80 = NULL, *vpd_pg83 = NULL;
- 	unsigned long flags;
-+	struct module *mod;
+-	nf_reset_ct(skb);
+-
+ 	/* loopback, multicast & non-ND link-local traffic; do not push through
+ 	 * packet taps again. Reset pkt_type for upper layers to process skb.
+ 	 * For strict packets with a source LLA, determine the dst using the
+@@ -1094,8 +1092,6 @@ static struct sk_buff *vrf_ip_rcv(struct
+ 	skb->skb_iif = vrf_dev->ifindex;
+ 	IPCB(skb)->flags |= IPSKB_L3SLAVE;
  
- 	sdev = container_of(work, struct scsi_device, ew.work);
+-	nf_reset_ct(skb);
+-
+ 	if (ipv4_is_multicast(ip_hdr(skb)->daddr))
+ 		goto out;
  
-+	mod = sdev->host->hostt->module;
-+
- 	scsi_dh_release_device(sdev);
- 
- 	parent = sdev->sdev_gendev.parent;
-@@ -481,11 +484,17 @@ static void scsi_device_dev_release_user
- 
- 	if (parent)
- 		put_device(parent);
-+	module_put(mod);
- }
- 
- static void scsi_device_dev_release(struct device *dev)
- {
- 	struct scsi_device *sdp = to_scsi_device(dev);
-+
-+	/* Set module pointer as NULL in case of module unloading */
-+	if (!try_module_get(sdp->host->hostt->module))
-+		sdp->host->hostt->module = NULL;
-+
- 	execute_in_process_context(scsi_device_dev_release_usercontext,
- 				   &sdp->ew);
- }
 
 
