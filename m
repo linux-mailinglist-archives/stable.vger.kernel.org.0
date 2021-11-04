@@ -2,118 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A80F445C33
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 23:39:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D307E445C91
+	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 00:09:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232339AbhKDWli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 18:41:38 -0400
-Received: from mga11.intel.com ([192.55.52.93]:15954 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229587AbhKDWli (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 18:41:38 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10158"; a="229271734"
-X-IronPort-AV: E=Sophos;i="5.87,209,1631602800"; 
-   d="scan'208";a="229271734"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2021 15:38:59 -0700
-X-IronPort-AV: E=Sophos;i="5.87,209,1631602800"; 
-   d="scan'208";a="586123902"
-Received: from unknown (HELO [10.209.25.230]) ([10.209.25.230])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2021 15:38:58 -0700
-Subject: Re: [PATCH] x86/sgx: Free backing memory after faulting the enclave
- page
-To:     Jarkko Sakkinen <jarkko@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Jethro Beekman <jethro@fortanix.com>,
-        Sean Christopherson <seanjc@google.com>
-Cc:     reinette.chatre@intel.com, tony.luck@intel.com,
-        nathaniel@profian.com, stable@vger.kernel.org,
-        Borislav Petkov <bp@suse.de>, linux-sgx@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20211103232238.110557-1-jarkko@kernel.org>
-From:   Dave Hansen <dave.hansen@intel.com>
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
- z5cecg==
-Message-ID: <7c122a82-e418-0bce-8f67-cbaa15abc9b9@intel.com>
-Date:   Thu, 4 Nov 2021 15:38:55 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S229725AbhKDXMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 19:12:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48704 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229596AbhKDXME (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 19:12:04 -0400
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786F2C061714
+        for <stable@vger.kernel.org>; Thu,  4 Nov 2021 16:09:26 -0700 (PDT)
+Received: by mail-pg1-x52d.google.com with SMTP id r28so6764744pga.0
+        for <stable@vger.kernel.org>; Thu, 04 Nov 2021 16:09:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=CFZSpyAX067SQeEpVPLo3qAKIRQSyRIJ+CKYTdRaaVE=;
+        b=y4IXhQbjl3cSkjH6/VE6LCC07CByff61n8ur9J649Wsry5kbPl5aEBhVhd6hEwJc30
+         i/twrRbgys52hu1c2ixAIUTvmK6Lf+LX030lS4J4eRLqCDWenXM/bah6lslOvLsWvfFP
+         0ntePM+KDWIT0f0vIaSwkC3q9cKz5MD+SdCHCMrDyrrDNDtWstJInqDWwbxFdXcRFLtx
+         0BeSKtUPtaLa96ifn931bkvTykLsSGUp5S3TX6jDLNWe9eAcvC2FIwoGPyuwbh63/lZc
+         YkExAw1bMIzwXH1Q9bFPQQWIGexrb/mehSjdFvAlnlFK/lWmwvLNcUBINQSaY/PPAlAH
+         irEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=CFZSpyAX067SQeEpVPLo3qAKIRQSyRIJ+CKYTdRaaVE=;
+        b=3biFS60VFPeMLntSq8RlYoQGacE5hrbUySXtvrlmO4iIepzVlryLns+x1TRP+3S/Iu
+         XA81NjXAaWiTebUhEX9UxeRFXjcodj0+1BwxQuvL3D+B82AVEIMRKcMo5ZVpFkZ03iZP
+         /6gKisng/sjfrLnmSP8bK8UcKLxrxxEccdW4tfU3Ef18Ml5Yc0fd4TkOzHuFpavCE8BT
+         xoiV8FN7kYtOc8lzHTfFncGfO0J3U2zY80M2DREE2tIFW/hvhSz4LgYKhaWRkrLj2EFq
+         GhBnPs/1pt9NhjAJl4Lbat4vkd/eNU0bTGOgnH8ECT9hHXE4yE2L0a1a6sDo+xHg8CbD
+         /50Q==
+X-Gm-Message-State: AOAM530o4vZYq3T3JJH+t56jQ0BnXbkDahRxCPX2CoFlXMDLUZ3NydJS
+        CkMaQjY0GgXiZoB6WaSjnIlrekERZt8z7500
+X-Google-Smtp-Source: ABdhPJxIV2Qtr0+CXuo/jYBMc+GwLnzCmCC9qOn9HDi0xk+bh/3AeUcWPjo+27b5zHDu2WtgrWwwlg==
+X-Received: by 2002:a63:d644:: with SMTP id d4mr29961910pgj.360.1636067365549;
+        Thu, 04 Nov 2021 16:09:25 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i11sm4741037pgp.18.2021.11.04.16.09.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Nov 2021 16:09:25 -0700 (PDT)
+Message-ID: <61846825.1c69fb81.7e5ed.05ed@mx.google.com>
+Date:   Thu, 04 Nov 2021 16:09:25 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20211103232238.110557-1-jarkko@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.254-7-g54e49ba3a341
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 115 runs,
+ 1 regressions (v4.14.254-7-g54e49ba3a341)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/3/21 4:22 PM, Jarkko Sakkinen wrote:
-> --- a/arch/x86/kernel/cpu/sgx/encl.c
-> +++ b/arch/x86/kernel/cpu/sgx/encl.c
-> @@ -22,6 +22,7 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
->  {
->  	unsigned long va_offset = encl_page->desc & SGX_ENCL_PAGE_VA_OFFSET_MASK;
->  	struct sgx_encl *encl = encl_page->encl;
-> +	struct inode *inode = file_inode(encl->backing);
->  	struct sgx_pageinfo pginfo;
->  	struct sgx_backing b;
->  	pgoff_t page_index;
-> @@ -60,6 +61,9 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
->  
->  	sgx_encl_put_backing(&b, false);
->  
-> +	/* Free the backing memory. */
-> +	shmem_truncate_range(inode, PFN_PHYS(page_index), PFN_PHYS(page_index) + PAGE_SIZE - 1);
-> +
->  	return ret;
->  }
+stable-rc/queue/4.14 baseline: 115 runs, 1 regressions (v4.14.254-7-g54e49b=
+a3a341)
 
-This also misses tearing down the backing storage if it is in place at
-sgx_encl_release().
+Regressions Summary
+-------------------
 
-Does a entry->epc_page==NULL page in there guarantee that it has backing
-storage?
+platform    | arch   | lab         | compiler | defconfig                  =
+  | regressions
+------------+--------+-------------+----------+----------------------------=
+--+------------
+qemu_x86_64 | x86_64 | lab-broonie | gcc-10   | x86_64_defcon...6-chromeboo=
+k | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.254-7-g54e49ba3a341/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.254-7-g54e49ba3a341
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      54e49ba3a341b44ca9d2e54710b10d2230450965 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform    | arch   | lab         | compiler | defconfig                  =
+  | regressions
+------------+--------+-------------+----------+----------------------------=
+--+------------
+qemu_x86_64 | x86_64 | lab-broonie | gcc-10   | x86_64_defcon...6-chromeboo=
+k | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/618436911cea064f5d3358f3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
+-7-g54e49ba3a341/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
+-7-g54e49ba3a341/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/618436911cea064f5d335=
+8f4
+        new failure (last pass: v4.14.254-5-gc9b4934a4d6a) =
+
+ =20
