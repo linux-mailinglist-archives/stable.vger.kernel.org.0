@@ -2,119 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AAAD445512
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:17:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 237334454F6
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232324AbhKDOTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:19:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47790 "EHLO mail.kernel.org"
+        id S231927AbhKDOTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:19:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232320AbhKDOSr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 106B361216;
-        Thu,  4 Nov 2021 14:16:09 +0000 (UTC)
+        id S231929AbhKDOSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77F57610FD;
+        Thu,  4 Nov 2021 14:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035369;
-        bh=u0dY0y0KngJsPcSS97DW1dlBjwMhJX75AIQfGiMtwcQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=CybF34tTtwjgES/T0cqy/p6B7kzMyUqMQsQ0fjG8VOtYsVZ2MtTpR8nEZV7UVxfxr
-         9SOFpF07ZEV8D9tKlk2Z6AQTY6d0R4+J8bFUpsdGedQ0zfjz82yJZFl+qfE1n0jpAk
-         5LpI1y4ajyR7fZsag8O/OO2lDMVhieDQxUNUkWxM=
+        s=korg; t=1636035337;
+        bh=w/K6LTDPvitp77ZJOGzCUIMPaqqj3t9T6pvmK1zUl8c=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=1Av9S0mXIwLZBNA5GLDiWV7V6AQacfuwMTeCPRCS4g7cGF+P2ZziOhBP+u/dfys+z
+         LWH9XfCDd+KFlTVj3bYMcRIMJRKrK7zdCIwkSbO7snsPhLi4di/mlX56LXomeJ815f
+         er+qCf7C3XvJL7NP+LW9/swo5dAwHH2gOjQbufxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.4 0/9] 5.4.158-rc1 review
-Date:   Thu,  4 Nov 2021 15:12:53 +0100
-Message-Id: <20211104141158.384397574@linuxfoundation.org>
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 15/16] ALSA: usb-audio: Add Schiit Hel device to mixer map quirk table
+Date:   Thu,  4 Nov 2021 15:12:54 +0100
+Message-Id: <20211104141200.091300223@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-MIME-Version: 1.0
+In-Reply-To: <20211104141159.561284732@linuxfoundation.org>
+References: <20211104141159.561284732@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.158-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.158-rc1
-X-KernelTest-Deadline: 2021-11-06T14:11+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.158 release.
-There are 9 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Takashi Iwai <tiwai@suse.de>
 
-Responses should be made by Sat, 06 Nov 2021 14:11:51 +0000.
-Anything received after that time might be too late.
+commit 22390ce786c59328ccd13c329959dee1e8757487 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.158-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+This is a fix equivalent with the upstream commit 22390ce786c5 ("ALSA:
+usb-audio: add Schiit Hel device to quirk table"), adapted to the
+earlier kernels up to 5.14.y.  It adds the quirk entry with the old
+ignore_ctl_error flag to the usbmix_ctl_maps, instead.
 
-thanks,
+The original patch description says:
+    The Shciit Hel device responds to the ctl message for the mic capture
+    switch with a timeout of -EPIPE:
 
-greg k-h
+            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
+            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
+            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
+            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
 
--------------
-Pseudo-Shortlog of commits:
+    This seems safe to ignore as the device works properly with the control
+    message quirk, so add it to the quirk table so all is good.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.158-rc1
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ sound/usb/mixer_maps.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-Wang Kefeng <wangkefeng.wang@huawei.com>
-    ARM: 9120/1: Revert "amba: make use of -1 IRQs warn"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "drm/ttm: fix memleak in ttm_transfered_destroy"
-
-Erik Ekman <erik@kryo.se>
-    sfc: Fix reading non-legacy supported link modes
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "usb: core: hcd: Add support for deferring roothub registration"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "xhci: Set HCD flag to defer primary roothub registration"
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    media: firewire: firedtv-avc: fix a buffer overflow in avc_ca_pmt()
-
-Yuiko Oshino <yuiko.oshino@microchip.com>
-    net: ethernet: microchip: lan743x: Fix skb allocation failure
-
-Eugene Crosser <crosser@average.org>
-    vrf: Revert "Reset skb conntrack connection..."
-
-Ming Lei <ming.lei@redhat.com>
-    scsi: core: Put LLD module refcnt after SCSI device is released
-
-
--------------
-
-Diffstat:
-
- Makefile                                      |  4 ++--
- drivers/amba/bus.c                            |  3 ---
- drivers/gpu/drm/ttm/ttm_bo_util.c             |  1 -
- drivers/media/firewire/firedtv-avc.c          | 14 ++++++++++---
- drivers/media/firewire/firedtv-ci.c           |  2 ++
- drivers/net/ethernet/microchip/lan743x_main.c | 10 +++++----
- drivers/net/ethernet/sfc/ethtool.c            | 10 ++-------
- drivers/net/vrf.c                             |  4 ----
- drivers/scsi/scsi.c                           |  4 +++-
- drivers/scsi/scsi_sysfs.c                     |  9 +++++++++
- drivers/usb/core/hcd.c                        | 29 ++++++---------------------
- drivers/usb/host/xhci.c                       |  1 -
- include/linux/usb/hcd.h                       |  2 --
- 13 files changed, 41 insertions(+), 52 deletions(-)
+--- a/sound/usb/mixer_maps.c
++++ b/sound/usb/mixer_maps.c
+@@ -539,6 +539,10 @@ static const struct usbmix_ctl_map usbmi
+ 		.map = scms_usb3318_map,
+ 	},
+ 	{
++		.id = USB_ID(0x30be, 0x0101), /*  Schiit Hel */
++		.ignore_ctl_error = 1,
++	},
++	{
+ 		/* Bose Companion 5 */
+ 		.id = USB_ID(0x05a7, 0x1020),
+ 		.map = bose_companion5_map,
 
 
