@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EEED4454A7
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 376D74454B7
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231243AbhKDOQn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:16:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45132 "EHLO mail.kernel.org"
+        id S231660AbhKDORP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:17:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231458AbhKDOQj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:16:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78522611C1;
-        Thu,  4 Nov 2021 14:14:00 +0000 (UTC)
+        id S231566AbhKDOQy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:16:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43330611C3;
+        Thu,  4 Nov 2021 14:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035240;
-        bh=Fou5bH2CuCc3nmXvDioczqwhNzvEIvSddWsbb2g8yS8=;
+        s=korg; t=1636035256;
+        bh=FeEBblX2unliuVADB53q/LeL50mkZR/j8aPYdOJlV0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jwlxT5DsDM5CY5PaA33vlJP1TLzq2QOjNr1aitWC06RocOppLF0Y6BZ/ZLFw7njNX
-         JdyoKI9wFNfJS2jgCj2FpiiCtcTmxUlnuxZS+ZdxVYHNvN21TJeIfNy+AdqclEa4nn
-         lcbkfyTS1t3s6pyAUHPF97NjJeHmPkRbTm6FTYzk=
+        b=V6j3l4jdrkOgov3yq8WVrhyu/bNxnjplas1jhxcM6uYjhL1fEslWOcrqF4dCeeP6j
+         O8kvrTU5vnA1Yo98HLJBtmn8XGMSjuZ/jkZa4jP5fQu6N/mQ1QDsFcOsHT+2coeeix
+         GcDw0WdlO4Ps0Cfm/YlhZEiZxgkrYVV1+oeztMr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, youling <youling257@gmail.com>,
-        Yifan Zhang <yifan1.zhang@amd.com>,
-        James Zhu <James.Zhu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 05/12] drm/amdkfd: fix boot failure when iommu is disabled in Picasso.
-Date:   Thu,  4 Nov 2021 15:12:31 +0100
-Message-Id: <20211104141159.729493351@linuxfoundation.org>
+        stable@vger.kernel.org, Changhui Zhong <czhong@redhat.com>,
+        Yi Zhang <yi.zhang@redhat.com>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.14 01/16] scsi: core: Put LLD module refcnt after SCSI device is released
+Date:   Thu,  4 Nov 2021 15:12:32 +0100
+Message-Id: <20211104141159.916303449@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211104141159.551636584@linuxfoundation.org>
-References: <20211104141159.551636584@linuxfoundation.org>
+In-Reply-To: <20211104141159.863820939@linuxfoundation.org>
+References: <20211104141159.863820939@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,48 +42,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zhang <yifan1.zhang@amd.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit afd18180c07026f94a80ff024acef5f4159084a4 upstream.
+commit f2b85040acec9a928b4eb1b57a989324e8e38d3f upstream.
 
-When IOMMU disabled in sbios and kfd in iommuv2 path, iommuv2
-init will fail. But this failure should not block amdgpu driver init.
+SCSI host release is triggered when SCSI device is freed. We have to make
+sure that the low-level device driver module won't be unloaded before SCSI
+host instance is released because shost->hostt is required in the release
+handler.
 
-Reported-by: youling <youling257@gmail.com>
-Tested-by: youling <youling257@gmail.com>
-Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
-Reviewed-by: James Zhu <James.Zhu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Make sure to put LLD module refcnt after SCSI device is released.
+
+Fixes a kernel panic of 'BUG: unable to handle page fault for address'
+reported by Changhui and Yi.
+
+Link: https://lore.kernel.org/r/20211008050118.1440686-1-ming.lei@redhat.com
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Changhui Zhong <czhong@redhat.com>
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    4 ----
- drivers/gpu/drm/amd/amdkfd/kfd_device.c    |    3 +++
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/scsi/scsi.c       |    4 +++-
+ drivers/scsi/scsi_sysfs.c |    9 +++++++++
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2432,10 +2432,6 @@ static int amdgpu_device_ip_init(struct
- 	if (!adev->gmc.xgmi.pending_reset)
- 		amdgpu_amdkfd_device_init(adev);
- 
--	r = amdgpu_amdkfd_resume_iommu(adev);
--	if (r)
--		goto init_failed;
--
- 	amdgpu_fru_get_product_info(adev);
- 
- init_failed:
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-@@ -924,6 +924,9 @@ bool kgd2kfd_device_init(struct kfd_dev
- 
- 	svm_migrate_init((struct amdgpu_device *)kfd->kgd);
- 
-+	if(kgd2kfd_resume_iommu(kfd))
-+		goto device_iommu_error;
+--- a/drivers/scsi/scsi.c
++++ b/drivers/scsi/scsi.c
+@@ -553,8 +553,10 @@ EXPORT_SYMBOL(scsi_device_get);
+  */
+ void scsi_device_put(struct scsi_device *sdev)
+ {
+-	module_put(sdev->host->hostt->module);
++	struct module *mod = sdev->host->hostt->module;
 +
- 	if (kfd_resume(kfd))
- 		goto kfd_resume_error;
+ 	put_device(&sdev->sdev_gendev);
++	module_put(mod);
+ }
+ EXPORT_SYMBOL(scsi_device_put);
  
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -448,9 +448,12 @@ static void scsi_device_dev_release_user
+ 	struct scsi_vpd *vpd_pg80 = NULL, *vpd_pg83 = NULL;
+ 	struct scsi_vpd *vpd_pg0 = NULL, *vpd_pg89 = NULL;
+ 	unsigned long flags;
++	struct module *mod;
+ 
+ 	sdev = container_of(work, struct scsi_device, ew.work);
+ 
++	mod = sdev->host->hostt->module;
++
+ 	scsi_dh_release_device(sdev);
+ 
+ 	parent = sdev->sdev_gendev.parent;
+@@ -501,11 +504,17 @@ static void scsi_device_dev_release_user
+ 
+ 	if (parent)
+ 		put_device(parent);
++	module_put(mod);
+ }
+ 
+ static void scsi_device_dev_release(struct device *dev)
+ {
+ 	struct scsi_device *sdp = to_scsi_device(dev);
++
++	/* Set module pointer as NULL in case of module unloading */
++	if (!try_module_get(sdp->host->hostt->module))
++		sdp->host->hostt->module = NULL;
++
+ 	execute_in_process_context(scsi_device_dev_release_usercontext,
+ 				   &sdp->ew);
+ }
 
 
