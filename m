@@ -2,68 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1148E444FAB
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 08:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E584444FBB
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 08:36:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230229AbhKDH3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 03:29:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60656 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230119AbhKDH3Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 03:29:16 -0400
-Received: from mail-ua1-x931.google.com (mail-ua1-x931.google.com [IPv6:2607:f8b0:4864:20::931])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4CEC061714
-        for <stable@vger.kernel.org>; Thu,  4 Nov 2021 00:26:39 -0700 (PDT)
-Received: by mail-ua1-x931.google.com with SMTP id ay21so9095959uab.12
-        for <stable@vger.kernel.org>; Thu, 04 Nov 2021 00:26:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=YgcQs0RT9OtNP8jxCS5I/5Jm5GZna5wNfNffjceJ3qk=;
-        b=n4cwhP/4MeRKhU5AJBfJmqdqfganqaPiJreYSa+vquE8TgL89C+gS7aLTCXGp0knTT
-         LAZbuuU7XwHybOgU0vtkXBYlskhjDzQIIt8y7S3SmuPE8OXjov8jzlQeE5502L25zXOd
-         XV5ffVEzXhnrNqXoZNHIS3gDhtWyJ0NVWCZCNRLrA4qHUw2ygNcd3PxsXgeN1c0oye45
-         3+0i2FLYquzsam+CwakR/J0F7qpnJ8vCLTSIhanX4XSwVAIjNCEBpHmORj6NWMdQ7buY
-         KGSWGrmcuxfN5QwEfHwwewmdpqH78hHI5bark8EZeozOB6oa/55i8FRL6LQlKdvzXOAK
-         m9yg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=YgcQs0RT9OtNP8jxCS5I/5Jm5GZna5wNfNffjceJ3qk=;
-        b=g5meUchpiFYNn3Az+PwD0neO6B+wWdVS1+IZMM8PrIna7HcM6mrxNd26sAudDbHOqS
-         rkMUtmvqPghUMA9EO6DbMM8Al9OgIidPgfmzlMewFAWvDfqxP/+mk/ZRYPd8Y8h3geKF
-         O/Ym9n7i5INAgL7BmHRMh0HlB9l4r1iI4fEIbYKy3rSES2Sj8r+D6QG2+xcsoM9bGNIU
-         nE53apYsuDtWUUeoxgjLlMl9glr9wPL39vW/YVuPk9xxhARAIytwXXcrtpt1QzchyTy/
-         AR/+QbzuD7XNYRQaHmUiojeOaIiCalCqFXYXpAhNSF9GrQFh9/2wq6f8SS2fJ0OFYbxo
-         ZRgA==
-X-Gm-Message-State: AOAM531wc1ynuOtECR5MU4xCiYEYnW59xw2x6YWb1EPSTHLciVaAyPU9
-        IY4aj4iAhGTgTMgS/pCHROxVOurwy+UgvxVuIY4=
-X-Google-Smtp-Source: ABdhPJwVpuk0spjqDZ/3qAPKYJpemD0d/z8vIo6clOMtz5RM0/N9X5a0KjqHdPIAa46PPLK7LKm2Iho7sGyv7VU++7w=
-X-Received: by 2002:a05:6102:3bd1:: with SMTP id a17mr35068215vsv.21.1636010798438;
- Thu, 04 Nov 2021 00:26:38 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a9f:25e8:0:0:0:0:0 with HTTP; Thu, 4 Nov 2021 00:26:38 -0700 (PDT)
-Reply-To: infotomcrist.ca@gmail.com
-From:   Mr Tom Crist <georgeliamv1@gmail.com>
-Date:   Thu, 4 Nov 2021 00:26:38 -0700
-Message-ID: <CAAgn84-WbVOij3jo8noFpH+xPVgG3owPb6OwST5Gxs3Xk5orAw@mail.gmail.com>
-Subject: Re:
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S230301AbhKDHip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 03:38:45 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:52352 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230084AbhKDHio (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 03:38:44 -0400
+Received: from mailhost.synopsys.com (mdc-mailhost2.synopsys.com [10.225.0.210])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client CN "mailhost.synopsys.com", Issuer "SNPSica2" (verified OK))
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id BE99B4120B;
+        Thu,  4 Nov 2021 07:36:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1636011367; bh=/CA63UR5arwsAXDCVLYSttSBde59BmSIjoOTvS8/nZw=;
+        h=Date:From:Subject:To:Cc:From;
+        b=aALTCRbs5pESNUZpn+aWwkGiGPfLuq2G5sfw1qJDLFPUE+W1KMcZ9cnqMB1qbPtb2
+         rcIBHunlDd2+GQL/kNNEw2hDnYJsY4+7Rtrg03V8XUSeljfS85XQFxN5qcXetB48aR
+         jW9+smbni1kEQ9xycj95FzyrfvYS4zxJiRMwvV7YRuzEHx+kcrPxvXudrXKGHY2XNj
+         J5HYg/SN3u6SsnjP8nuZqkHimrX5t8hy3ab7mPByB9RVVctdAneqNO5HY7elXg4Qoq
+         IUMKDGbitArYmVhKXY2yyAsxkAj2IXgQKpt8N8rwAsdVJf7E+ZMjYK8LolTNew/TD8
+         p7EYoH5gDS/bQ==
+Received: from hminas-z420 (hminas-z420.internal.synopsys.com [10.116.75.77])
+        (using TLSv1 with cipher AES128-SHA (128/128 bits))
+        (Client did not present a certificate)
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id 4BF75A005D;
+        Thu,  4 Nov 2021 07:36:03 +0000 (UTC)
+Received: by hminas-z420 (sSMTP sendmail emulation); Thu, 04 Nov 2021 11:36:01 +0400
+Date:   Thu, 04 Nov 2021 11:36:01 +0400
+Message-Id: <c356baade6e9716d312d43df08d53ae557cb8037.1636011277.git.Minas.Harutyunyan@synopsys.com>
+X-SNPS-Relay: synopsys.com
+From:   Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Subject: [PATCH] usb: dwc2: gadget: Fix ISOC flow for elapsed frames
+To:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        linux-usb@vger.kernel.org
+Cc:     John Youn <John.Youn@synopsys.com>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        stable <stable@vger.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Gavote 4 800 000 EUR auk=C4=85, a=C5=A1 Amerikoje laim=C4=97jau 40 milijon=
-=C5=B3 JAV
-doleri=C5=B3 vert=C4=97s Amerikos loterij=C4=85 ir nusprend=C5=BEiau dal=C4=
-=AF jos paaukoti
-penkiems laimingiesiems ir labdaros namams savo velion=C4=97s =C5=BEmonos, =
-kuri
-mir=C4=97 nuo v=C4=97=C5=BEio, atminimui. Nor=C4=97dami gauti daugiau infor=
-macijos,
-susisiekite su manimi adresu infotomcrist.ca@gmail.com
+Added updating of request frame number for elapsed frames,
+otherwise frame number will remain as previous use of request.
+This will allow function driver to correctly track frames in
+case of Missed ISOC occurs.
+
+Added setting request actual length to 0 for elapsed frames.
+In Slave mode when pushing data to RxFIFO by dwords, request
+actual length incrementing accordingly. But before whole packet
+will be pushed into RxFIFO and send to host can occurs Missed
+ISOC and data will not send to host. So, in this case request
+actual length should be reset to 0.
+
+Fixes: 91bb163e1e4f ("usb: dwc2: gadget: Fix ISOC flow for BDMA and Slave")
+Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+---
+ drivers/usb/dwc2/gadget.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 11d85a6e0b0d..2190225bf3da 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -1198,6 +1198,8 @@ static void dwc2_hsotg_start_req(struct dwc2_hsotg *hsotg,
+ 			}
+ 			ctrl |= DXEPCTL_CNAK;
+ 		} else {
++			hs_req->req.frame_number = hs_ep->target_frame;
++			hs_req->req.actual = 0;
+ 			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, -ENODATA);
+ 			return;
+ 		}
+@@ -2857,9 +2859,12 @@ static void dwc2_gadget_handle_ep_disabled(struct dwc2_hsotg_ep *hs_ep)
+ 
+ 	do {
+ 		hs_req = get_ep_head(hs_ep);
+-		if (hs_req)
++		if (hs_req) {
++			hs_req->req.frame_number = hs_ep->target_frame;
++			hs_req->req.actual = 0;
+ 			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req,
+ 						    -ENODATA);
++		}
+ 		dwc2_gadget_incr_frame_num(hs_ep);
+ 		/* Update current frame number value. */
+ 		hsotg->frame_number = dwc2_hsotg_read_frameno(hsotg);
+@@ -2912,8 +2917,11 @@ static void dwc2_gadget_handle_out_token_ep_disabled(struct dwc2_hsotg_ep *ep)
+ 
+ 	while (dwc2_gadget_target_frame_elapsed(ep)) {
+ 		hs_req = get_ep_head(ep);
+-		if (hs_req)
++		if (hs_req) {
++			hs_req->req.frame_number = ep->target_frame;
++			hs_req->req.actual = 0;
+ 			dwc2_hsotg_complete_request(hsotg, ep, hs_req, -ENODATA);
++		}
+ 
+ 		dwc2_gadget_incr_frame_num(ep);
+ 		/* Update current frame number value. */
+@@ -3002,8 +3010,11 @@ static void dwc2_gadget_handle_nak(struct dwc2_hsotg_ep *hs_ep)
+ 
+ 	while (dwc2_gadget_target_frame_elapsed(hs_ep)) {
+ 		hs_req = get_ep_head(hs_ep);
+-		if (hs_req)
++		if (hs_req) {
++			hs_req->req.frame_number = hs_ep->target_frame;
++			hs_req->req.actual = 0;
+ 			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, -ENODATA);
++		}
+ 
+ 		dwc2_gadget_incr_frame_num(hs_ep);
+ 		/* Update current frame number value. */
+
+base-commit: c26f1c109d21f2ea874e4a85c0c76c385b8f46cb
+-- 
+2.11.0
+
