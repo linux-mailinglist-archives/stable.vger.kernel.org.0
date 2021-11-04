@@ -2,115 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F89D445523
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:17:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E36E0445513
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:17:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231664AbhKDOUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:20:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46316 "EHLO mail.kernel.org"
+        id S231248AbhKDOTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:19:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232406AbhKDOTJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:19:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7455D610FD;
-        Thu,  4 Nov 2021 14:16:30 +0000 (UTC)
+        id S232342AbhKDOSu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 091696124F;
+        Thu,  4 Nov 2021 14:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035390;
-        bh=6D9D3dRea/u/2kUOUoKrqyPXS7NBu46FITY6xPfRjVo=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Tv/ttbp0Fma0MALopdyg3SGXfUd4qTNAk6GxsrkxFHZHj8r2b4gZt75itBwAqPify
-         E7HQ3mfNfBYvYtmRwPXXbVFQZfV28j3aq++zzXr8hG2kWuWLwI9EfiNyCyCSn8otBB
-         4yU/Wep1HbzGSoD3S61p4bfjRYWI3pq8IdahTZsw=
+        s=korg; t=1636035372;
+        bh=nI7ZJxkp1RZuxIa7WVUWcbu6quPHtzRYZxALNpCjz7Q=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=GTeuuEQMhr6GC1Io07xh0uc5kLXchDYp7n4959IDqCJZvtD3xEoOGmeHH9B5MNRiS
+         IKExTYRjPYE6s8DE4Vpxr57jWfEd5/tJJfKSrsTeLNFYX6idjfHfa83PzFL1Dz1wqW
+         QBpxeaygMcaldv0P2u9470npyilADrdM84vMvw1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.19 0/7] 4.19.216-rc1 review
-Date:   Thu,  4 Nov 2021 15:13:03 +0100
-Message-Id: <20211104141158.037189396@linuxfoundation.org>
+        stable@vger.kernel.org, Changhui Zhong <czhong@redhat.com>,
+        Yi Zhang <yi.zhang@redhat.com>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 1/7] scsi: core: Put LLD module refcnt after SCSI device is released
+Date:   Thu,  4 Nov 2021 15:13:04 +0100
+Message-Id: <20211104141158.083815124@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-MIME-Version: 1.0
+In-Reply-To: <20211104141158.037189396@linuxfoundation.org>
+References: <20211104141158.037189396@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.216-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.216-rc1
-X-KernelTest-Deadline: 2021-11-06T14:11+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.216 release.
-There are 7 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Ming Lei <ming.lei@redhat.com>
 
-Responses should be made by Sat, 06 Nov 2021 14:11:51 +0000.
-Anything received after that time might be too late.
+commit f2b85040acec9a928b4eb1b57a989324e8e38d3f upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.216-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+SCSI host release is triggered when SCSI device is freed. We have to make
+sure that the low-level device driver module won't be unloaded before SCSI
+host instance is released because shost->hostt is required in the release
+handler.
 
-thanks,
+Make sure to put LLD module refcnt after SCSI device is released.
 
-greg k-h
+Fixes a kernel panic of 'BUG: unable to handle page fault for address'
+reported by Changhui and Yi.
 
--------------
-Pseudo-Shortlog of commits:
+Link: https://lore.kernel.org/r/20211008050118.1440686-1-ming.lei@redhat.com
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Changhui Zhong <czhong@redhat.com>
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/scsi/scsi.c       |    4 +++-
+ drivers/scsi/scsi_sysfs.c |    9 +++++++++
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.216-rc1
-
-Wang Kefeng <wangkefeng.wang@huawei.com>
-    ARM: 9120/1: Revert "amba: make use of -1 IRQs warn"
-
-Arnd Bergmann <arnd@arndb.de>
-    arch: pgtable: define MAX_POSSIBLE_PHYSMEM_BITS where needed
-
-Erik Ekman <erik@kryo.se>
-    sfc: Fix reading non-legacy supported link modes
-
-Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-    IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
-
-Gustavo A. R. Silva <gustavo@embeddedor.com>
-    IB/qib: Use struct_size() helper
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    media: firewire: firedtv-avc: fix a buffer overflow in avc_ca_pmt()
-
-Ming Lei <ming.lei@redhat.com>
-    scsi: core: Put LLD module refcnt after SCSI device is released
-
-
--------------
-
-Diffstat:
-
- Makefile                                  |  4 ++--
- arch/arc/include/asm/pgtable.h            |  2 ++
- arch/arm/include/asm/pgtable-2level.h     |  2 ++
- arch/arm/include/asm/pgtable-3level.h     |  2 ++
- arch/mips/include/asm/pgtable-32.h        |  3 +++
- arch/powerpc/include/asm/pte-common.h     |  2 ++
- arch/riscv/include/asm/pgtable-32.h       |  2 ++
- drivers/amba/bus.c                        |  3 ---
- drivers/infiniband/hw/qib/qib_user_sdma.c | 34 ++++++++++++++++++++++---------
- drivers/media/firewire/firedtv-avc.c      | 14 ++++++++++---
- drivers/media/firewire/firedtv-ci.c       |  2 ++
- drivers/net/ethernet/sfc/ethtool.c        | 10 ++-------
- drivers/scsi/scsi.c                       |  4 +++-
- drivers/scsi/scsi_sysfs.c                 |  9 ++++++++
- include/asm-generic/pgtable.h             | 13 ++++++++++++
- 15 files changed, 79 insertions(+), 27 deletions(-)
+--- a/drivers/scsi/scsi.c
++++ b/drivers/scsi/scsi.c
+@@ -575,8 +575,10 @@ EXPORT_SYMBOL(scsi_device_get);
+  */
+ void scsi_device_put(struct scsi_device *sdev)
+ {
+-	module_put(sdev->host->hostt->module);
++	struct module *mod = sdev->host->hostt->module;
++
+ 	put_device(&sdev->sdev_gendev);
++	module_put(mod);
+ }
+ EXPORT_SYMBOL(scsi_device_put);
+ 
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -431,9 +431,12 @@ static void scsi_device_dev_release_user
+ 	struct list_head *this, *tmp;
+ 	struct scsi_vpd *vpd_pg80 = NULL, *vpd_pg83 = NULL;
+ 	unsigned long flags;
++	struct module *mod;
+ 
+ 	sdev = container_of(work, struct scsi_device, ew.work);
+ 
++	mod = sdev->host->hostt->module;
++
+ 	scsi_dh_release_device(sdev);
+ 
+ 	parent = sdev->sdev_gendev.parent;
+@@ -474,11 +477,17 @@ static void scsi_device_dev_release_user
+ 
+ 	if (parent)
+ 		put_device(parent);
++	module_put(mod);
+ }
+ 
+ static void scsi_device_dev_release(struct device *dev)
+ {
+ 	struct scsi_device *sdp = to_scsi_device(dev);
++
++	/* Set module pointer as NULL in case of module unloading */
++	if (!try_module_get(sdp->host->hostt->module))
++		sdp->host->hostt->module = NULL;
++
+ 	execute_in_process_context(scsi_device_dev_release_usercontext,
+ 				   &sdp->ew);
+ }
 
 
