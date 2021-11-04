@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 805964454B8
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0B434454AC
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231818AbhKDORQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:17:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45472 "EHLO mail.kernel.org"
+        id S231556AbhKDOQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:16:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231584AbhKDOQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:16:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E234F61215;
-        Thu,  4 Nov 2021 14:14:18 +0000 (UTC)
+        id S231249AbhKDOQo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:16:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F66D60F39;
+        Thu,  4 Nov 2021 14:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035259;
-        bh=l7UhRaq34zKHUBGYnqwMnRAqkcflnS14kJzzZVuecjc=;
+        s=korg; t=1636035246;
+        bh=DRec8ITQqdYyrkAUhO4hzVV2OxeBXbSJNjOiaIfk5rI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQL7aD/IHawwnZknd9IBuvW1lSpNWB4BsiwHoj3sK6TySkhT87UtGnDZp0wNq6+C2
-         6EOMR+csUgGTEF1+l6tqG+y4MROgG0TEwRsaiYLKf/tuiVaeZRWCUVJeB3ccQU/SFZ
-         6JDFuIWGEhbcU5bu/clPPwmtBLFh1j/WLTUDMB+k=
+        b=a96Knokbo1PvFnuebj41il3KH9eJ2GqX9Y8qjbJHO7bsmMTSjItXoWQ8br7CMoq/1
+         nmPGW6jKy15BWqNzcLTdyRGDT3Mlc09HNIjBqUkwFATNmjozc5d/eYrKTEEnO+6n58
+         omgZ/wKtVpz/4vLBTuK9xabeKtrQ+IHsgWoMMszQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erik Ekman <erik@kryo.se>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 02/16] sfc: Fix reading non-legacy supported link modes
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.15 07/12] ARM: 9120/1: Revert "amba: make use of -1 IRQs warn"
 Date:   Thu,  4 Nov 2021 15:12:33 +0100
-Message-Id: <20211104141159.945547279@linuxfoundation.org>
+Message-Id: <20211104141159.794659578@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211104141159.863820939@linuxfoundation.org>
-References: <20211104141159.863820939@linuxfoundation.org>
+In-Reply-To: <20211104141159.551636584@linuxfoundation.org>
+References: <20211104141159.551636584@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Ekman <erik@kryo.se>
+From: Wang Kefeng <wangkefeng.wang@huawei.com>
 
-commit 041c61488236a5a84789083e3d9f0a51139b6edf upstream.
+commit eb4f756915875b0ea0757751cd29841f0504d547 upstream.
 
-Everything except the first 32 bits was lost when the pause flags were
-added. This makes the 50000baseCR2 mode flag (bit 34) not appear.
+After commit 77a7300abad7 ("of/irq: Get rid of NO_IRQ usage"),
+no irq case has been removed, irq_of_parse_and_map() will return
+0 in all cases when get error from parse and map an interrupt into
+linux virq space.
 
-I have tested this with a 10G card (SFN5122F-R7) by modifying it to
-return a non-legacy link mode (10000baseCR).
+amba_device_register() is only used on no-DT initialization, see
+  s3c64xx_pl080_init()		arch/arm/mach-s3c/pl080.c
+  ep93xx_init_devices()		arch/arm/mach-ep93xx/core.c
 
-Signed-off-by: Erik Ekman <erik@kryo.se>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+They won't set -1 to irq[0], so no need the warn.
+
+This reverts commit 2eac58d5026e4ec8b17ff8b62877fea9e1d2f1b3.
+
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sfc/ethtool_common.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ drivers/amba/bus.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/net/ethernet/sfc/ethtool_common.c
-+++ b/drivers/net/ethernet/sfc/ethtool_common.c
-@@ -563,20 +563,14 @@ int efx_ethtool_get_link_ksettings(struc
- {
- 	struct efx_nic *efx = netdev_priv(net_dev);
- 	struct efx_link_state *link_state = &efx->link_state;
--	u32 supported;
+--- a/drivers/amba/bus.c
++++ b/drivers/amba/bus.c
+@@ -377,9 +377,6 @@ static int amba_device_try_add(struct am
+ 	void __iomem *tmp;
+ 	int i, ret;
  
- 	mutex_lock(&efx->mac_lock);
- 	efx_mcdi_phy_get_link_ksettings(efx, cmd);
- 	mutex_unlock(&efx->mac_lock);
- 
- 	/* Both MACs support pause frames (bidirectional and respond-only) */
--	ethtool_convert_link_mode_to_legacy_u32(&supported,
--						cmd->link_modes.supported);
+-	WARN_ON(dev->irq[0] == (unsigned int)-1);
+-	WARN_ON(dev->irq[1] == (unsigned int)-1);
 -
--	supported |= SUPPORTED_Pause | SUPPORTED_Asym_Pause;
--
--	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.supported,
--						supported);
-+	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
-+	ethtool_link_ksettings_add_link_mode(cmd, supported, Asym_Pause);
- 
- 	if (LOOPBACK_INTERNAL(efx)) {
- 		cmd->base.speed = link_state->speed;
+ 	ret = request_resource(parent, &dev->res);
+ 	if (ret)
+ 		goto err_out;
 
 
