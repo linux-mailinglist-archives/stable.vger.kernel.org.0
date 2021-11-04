@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDACB44550A
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EA7144550F
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232057AbhKDOT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:19:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46060 "EHLO mail.kernel.org"
+        id S231450AbhKDOTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:19:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232129AbhKDOSj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04BED611C0;
-        Thu,  4 Nov 2021 14:16:00 +0000 (UTC)
+        id S231303AbhKDOSm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B406D611C3;
+        Thu,  4 Nov 2021 14:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035361;
-        bh=JUkCdvteNDOoZo6HjFkppoo3RJP3rLwj6GF5ro3qgEc=;
+        s=korg; t=1636035364;
+        bh=a1U+fdpBpOfMu76/Sz6e961i2CVYyOiIo/xb3TUYOv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ohCBzPqi4Ax+3oEKbIix3JxZ/+NU0Y2paMpxZwOpypfxk0XwdBMpxXwi6wNmtu8ND
-         6nA12Rz8TkdD3YjpaohuTwLmUpYrC3/jzXe4ZABDE8VAN35qos5tWUYJSWHqoSGZcD
-         ToY/c32w/xtTj8KYnmRMueYjjM8L8nVlf5YgGcig=
+        b=1MORnjKDix3g5eioPKlvhZrAjv9VoOqIc8T9rwkaWeJ5v9xhXjC5dwfyT0Yw4P3gC
+         3iNwlYxDDDVYFLIqBLNguuQE7WVz4Ty6GXIAaqRye7C9WpzPvAH/mXV0vuI7tJ/S6X
+         ofZOtVX2EL4Ftb70oZDepziyzKrb7kTdqwWfO294=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erik Ekman <erik@kryo.se>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 7/9] sfc: Fix reading non-legacy supported link modes
-Date:   Thu,  4 Nov 2021 15:13:00 +0100
-Message-Id: <20211104141158.628869750@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        "Erhard F." <erhard_f@mailbox.org>, Huang Rui <ray.huang@amd.com>
+Subject: [PATCH 5.4 8/9] Revert "drm/ttm: fix memleak in ttm_transfered_destroy"
+Date:   Thu,  4 Nov 2021 15:13:01 +0100
+Message-Id: <20211104141158.658350547@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211104141158.384397574@linuxfoundation.org>
 References: <20211104141158.384397574@linuxfoundation.org>
@@ -39,48 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Ekman <erik@kryo.se>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 041c61488236a5a84789083e3d9f0a51139b6edf upstream.
+This reverts commit bd99782f3ca491879e8524c89b1c0f40071903bd which is
+commit 0db55f9a1bafbe3dac750ea669de9134922389b5 upstream.
 
-Everything except the first 32 bits was lost when the pause flags were
-added. This makes the 50000baseCR2 mode flag (bit 34) not appear.
+Seems that the older kernels can not handle this fix because, to quote
+Christian:
+	The problem is this memory leak could potentially happen with
+	5.10 as wel, just much much much less likely.
 
-I have tested this with a 10G card (SFN5122F-R7) by modifying it to
-return a non-legacy link mode (10000baseCR).
+	But my guess is that 5.10 is so buggy that when the leak does
+	NOT happen we double free and obviously causing a crash.
 
-Signed-off-by: Erik Ekman <erik@kryo.se>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+So it needs to be reverted.
+
+Link: https://lore.kernel.org/r/1a1cc125-9314-f569-a6c4-40fc4509a377@amd.com
+Cc: Christian König <christian.koenig@amd.com>
+Cc: Erhard F. <erhard_f@mailbox.org>
+Cc: Erhard F. <erhard_f@mailbox.org>
+Cc: Huang Rui <ray.huang@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/sfc/ethtool.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/ttm/ttm_bo_util.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/net/ethernet/sfc/ethtool.c
-+++ b/drivers/net/ethernet/sfc/ethtool.c
-@@ -128,20 +128,14 @@ efx_ethtool_get_link_ksettings(struct ne
- {
- 	struct efx_nic *efx = netdev_priv(net_dev);
- 	struct efx_link_state *link_state = &efx->link_state;
--	u32 supported;
+--- a/drivers/gpu/drm/ttm/ttm_bo_util.c
++++ b/drivers/gpu/drm/ttm/ttm_bo_util.c
+@@ -463,7 +463,6 @@ static void ttm_transfered_destroy(struc
+ 	struct ttm_transfer_obj *fbo;
  
- 	mutex_lock(&efx->mac_lock);
- 	efx->phy_op->get_link_ksettings(efx, cmd);
- 	mutex_unlock(&efx->mac_lock);
- 
- 	/* Both MACs support pause frames (bidirectional and respond-only) */
--	ethtool_convert_link_mode_to_legacy_u32(&supported,
--						cmd->link_modes.supported);
--
--	supported |= SUPPORTED_Pause | SUPPORTED_Asym_Pause;
--
--	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.supported,
--						supported);
-+	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
-+	ethtool_link_ksettings_add_link_mode(cmd, supported, Asym_Pause);
- 
- 	if (LOOPBACK_INTERNAL(efx)) {
- 		cmd->base.speed = link_state->speed;
+ 	fbo = container_of(bo, struct ttm_transfer_obj, base);
+-	dma_resv_fini(&fbo->base.base._resv);
+ 	ttm_bo_put(fbo->bo);
+ 	kfree(fbo);
+ }
 
 
