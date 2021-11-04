@@ -2,230 +2,3065 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85F584455B2
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:50:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32FC84455D3
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:58:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231248AbhKDOwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:52:53 -0400
-Received: from mail-mw2nam12on2120.outbound.protection.outlook.com ([40.107.244.120]:26784
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229920AbhKDOww (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:52:52 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=M4gd0Pea1HZklZW4GMARmGrv3O862MIZEGOOyn9DKXfKGMKIGBnE/q5oZj/Zgq2bSA/gcPdgtFk7Lg+Ql/edPYwG84yEomXyl1pTXH5n4hQcAvWtCqjLTjHRgVemd3KIzGuJMRK59rfkFjAqPli7nIAhWXQ0IPN7MUwWEwh6+i0RS5YazTvDnp03EdqrlQ3C44Oy3qIvk6a7htZpNyEs3f6/uGicVIJutLcorTH1+45MqO7FFeGAR/w+Eo2F1lA6tr9DoMiVnmdWKgYEv4rvmJTcQPvcaw1KkQcYkwI+MtS1aPsEKM+JmC3Y86TMoS+6Jsd2N6eqt1wZYWAn/kpbFg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HRpu4CaaILQYhn6i+wiqTdkFK0+wY7VP0Tx38dsQA68=;
- b=LDTdaUN3jsahhFl7QeBN0yft/3oYCjowa8CQ1/Co0r8N5trlsybhlN10enN4yl+jA24id8d97lcs6dzHtDLJjwhciQXa41PpIAut6kJ2Qj1WolPC58sry8h4o4arQGtcZHW3qEc0uXw/BDoJYgqnfmMHhF4oK5GKSVHN1UvQXnK2+xLa6AjiZOc8MnY+tiJ2ZmBHQjXRwNO2597PDQHM4aU8p9ATzeFdA4xDT0jKFpHj4um7epkeEQm1L+bro+v179FmsDZGyucbOCkMhiUE6R6fIiamHCpNwKmn8bCDmnUAeckXjSfd1LSBmXPQcrir0AXOrD+nAr3ndO4UfMq/uw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cornelisnetworks.com; dmarc=pass action=none
- header.from=cornelisnetworks.com; dkim=pass header.d=cornelisnetworks.com;
- arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cornelisnetworks.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HRpu4CaaILQYhn6i+wiqTdkFK0+wY7VP0Tx38dsQA68=;
- b=l4oW3Xux2ewESziN5LQE+Jt2y14Nsd7JIsqxZ7a9zfZvid2gEcQN9dtK4ZZAbaWIWGXKxfjPvkMZJP4YYNB1uQ2vFbBEYMOUk+MhqH2WUuOCrDHh0gfimdm9Hg0QwXd4pX2psaU6ixTNaljh1EPNXUQ/bL6KdTbHda1V6uZnWi+HqaGUPqrImaN10nkBXhkPvJ+MO4MsStyT0wbZeUcud053uoCZRvzJLobsFooL2WXb/1uRiB2IByfB7iAouGCXALZGuawhJM8atfkuHyq7y53IIt3eWwKXlOYosYZel6armC189QqYm0fDNgDOPAG6u2Ss6n+0BhJ4B/rKwa0Kbw==
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none
- header.from=cornelisnetworks.com;
-Received: from CH0PR01MB7153.prod.exchangelabs.com (2603:10b6:610:ea::7) by
- CH0PR01MB6892.prod.exchangelabs.com (2603:10b6:610:105::21) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4669.10; Thu, 4 Nov 2021 14:50:08 +0000
-Received: from CH0PR01MB7153.prod.exchangelabs.com
- ([fe80::bdea:4e22:1b89:24e0]) by CH0PR01MB7153.prod.exchangelabs.com
- ([fe80::bdea:4e22:1b89:24e0%7]) with mapi id 15.20.4649.019; Thu, 4 Nov 2021
- 14:50:08 +0000
-From:   mike.marciniszyn@cornelisnetworks.com
-To:     stable@vger.kernel.org
-Cc:     linux-rdma@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 4.9-stable 2/2] IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
-Date:   Thu,  4 Nov 2021 10:50:01 -0400
-Message-Id: <1636037401-89082-3-git-send-email-mike.marciniszyn@cornelisnetworks.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1636037401-89082-1-git-send-email-mike.marciniszyn@cornelisnetworks.com>
-References: <1636037401-89082-1-git-send-email-mike.marciniszyn@cornelisnetworks.com>
-Content-Type: text/plain
-X-ClientProxiedBy: MN2PR10CA0007.namprd10.prod.outlook.com
- (2603:10b6:208:120::20) To CH0PR01MB7153.prod.exchangelabs.com
- (2603:10b6:610:ea::7)
+        id S231283AbhKDPAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 11:00:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50366 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230058AbhKDPAu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 11:00:50 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C9DCC061714
+        for <stable@vger.kernel.org>; Thu,  4 Nov 2021 07:58:12 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id p18so7568812plf.13
+        for <stable@vger.kernel.org>; Thu, 04 Nov 2021 07:58:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pjeLB/YAaBg9XV9d+WXD30ppMj820oHTj2A8+iGyyns=;
+        b=pqIaukw+C1MNskg4bLSzI7wNS/0dxY/9f1E72OeLVykiXZfHh+xB1LCptC/yHLmfYO
+         CChI1TGsiIvrMGbjz+9HF1ZsV5nJrWIePqoRKiMVlkAAe+3UiFC6+qQtQy2Aqm+p3JtZ
+         zMMtLJE3k96mkcZMO0k+Vyi89r8KKa414wImbTjverXOVlUDBnDaSujKOhWVCVmFgr6Y
+         Puk+xW+r9gPVeZVnz29iuSCZ773SfzEJfVHzCvIKEqOgagUBQwHp5mABdCeALhSgKmY2
+         8Xl2Ex9TLbXElPDexc0GNaj+MHNOQj9R15O/IWP/GEJPAdyJGEcnEuACRj2V+HGTZlTc
+         7FOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pjeLB/YAaBg9XV9d+WXD30ppMj820oHTj2A8+iGyyns=;
+        b=KkQWCGZ1VDQwmtmaDzcfpIL3LtvSfVO7YXsv26bU93QMyEbmoMq8v2YX4g2asUW6Qs
+         UiAN9Alnky4dxoM4xqrPAGLNEWeUG+vjEAfh+QfbeMNUfCSha0yHwb0o6eHD5+gbR60t
+         lJCpCt3559RCpQPeVynw2yrDyyQMuE7mYhl43lA82bajpQkOExIottPMYVtZMojq0crZ
+         iHUH+L3nqe7Lqmohi5AgIRNKI3wf2Py8riYhZNv/p2oLSuMc3Py7qRxn1+3/S2ci34Az
+         BftANhATQqGvZWSNkMBtrgsl0T722j3j+sYEO35ib0xPRy97J7PJal+I4O9iXqMTQ1vm
+         Oq0A==
+X-Gm-Message-State: AOAM533V/f6YtAcDBNdlJITxmyIWngndV142lGuM68ZfbuJ8xeBD11lC
+        uQVlqQf1hxvjk0Kw+1/gwP2gDYrViV4ePOWn
+X-Google-Smtp-Source: ABdhPJyZpzy1wsVo4KJITDthtzkKnOKb8SflmMaqBFL4uZwxf2aXXMS5VdyrTUVu0LHRzPrjj1FKvg==
+X-Received: by 2002:a17:90a:fe14:: with SMTP id ck20mr22766752pjb.72.1636037888759;
+        Thu, 04 Nov 2021 07:58:08 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id hg4sm7632684pjb.1.2021.11.04.07.58.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Nov 2021 07:58:08 -0700 (PDT)
+Message-ID: <6183f500.1c69fb81.4656f.8525@mx.google.com>
+Date:   Thu, 04 Nov 2021 07:58:08 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: from awfm-01.cornelisnetworks.com (208.255.156.42) by MN2PR10CA0007.namprd10.prod.outlook.com (2603:10b6:208:120::20) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4669.11 via Frontend Transport; Thu, 4 Nov 2021 14:50:07 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: c227dccc-2cca-4ac7-8f09-08d99fa26518
-X-MS-TrafficTypeDiagnostic: CH0PR01MB6892:
-X-Microsoft-Antispam-PRVS: <CH0PR01MB689206CEAEF24A094C43B647F28D9@CH0PR01MB6892.prod.exchangelabs.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:459;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 5XqWcjmr1IOLLSW5fui5mw6//ecG+mX1loCsTGeWg3m2K8hboGl1HhyJ8Nu9AtIrI6Zbgf5Nr/uW29eCFMXvIoMtBTcQ6LxzQQEhp69EyM+LaXsSoOzS7aPcJxZ4vAw1qVTcSse92NH6mnAqmxDJwk934w4hQQO69Qjetx53DnqqaSNRULgRAAYLwYaHisuyrsGGEQ8xCDiLLCKVBPJRABGzKaw+K3DFpSCNCiak3b1QzydCPkR8E/zYzMlFyibpVbntL1No/OtVJUddEXrwBBwiqTsyOIDHwjaRHgvgzsY0sxdapPGt43ZFUInzvb+XAf9OrtDxWo1NdvjvNYB7qsFud4fI8czHaLabTgs/vopQy2FIH6cvoVEcEdX5UhRz/uS35raOeutwfulr0dYfqN+u3mMwQ/EdHfMRQ74j0Wsh6pdDmvpAQ5YSL2Fkav60un5S9O4TQJMLOS/Q2QiP8E6v2wTFlKNH1/iH3jZQw5eDEkmFXhBktPxxSQnl6+9YsLwuqhDIYAkzGPVaBIH3G01Vgh0A9XtEc53IgvIxANSg3NDxKOfDzBEVyv/0O43sAQbzNQ3LJPjmdNmmQsYZObs+JZeBh836t9ruAcWcnYBKAkgwO0TqQKwgNg5kixOKpT8484pfdKiON/y0rJBCrOZhzdyW6tScBiZxqPw48QdIdHa5oCJxtU1Slok6ZDra204eiqZvYi9qZMJkene2KFzZITbxvrjmHHNen3ASVCkw5qFFjOv+/bb5YTpYOpQ8ovhsnkzApJSAB3xCTKUEbyecCI/pEjzmhFDkCxR2ZAw=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR01MB7153.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(376002)(136003)(396003)(39840400004)(366004)(5660300002)(8936002)(316002)(508600001)(38350700002)(38100700002)(7696005)(52116002)(26005)(86362001)(66946007)(2616005)(6666004)(4326008)(6916009)(956004)(83380400001)(186003)(2906002)(54906003)(966005)(6486002)(8676002)(66476007)(66556008)(36756003)(9686003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?cYF9b5Nn3Lhray+zhX/2batytDdlt/bb920/3MGEXGu8QZPdoZYgL/sUj/TR?=
- =?us-ascii?Q?J1JLjCJyvNYGnabsBvk9gO2dLaCepZW7GuQg9GCwuftGVfRBkq1JRVj6pUs7?=
- =?us-ascii?Q?56juXH1907NkX8zc0EuMANUKkXe0xpv5B5yV10oWgqZJ5T393+9VcDu+lMbN?=
- =?us-ascii?Q?ap1Wo8zxAZ3z5Sfzd53bdGk/565Hs6MgE1H2ObVeCkuWYcrbLtPvTanQewIl?=
- =?us-ascii?Q?cVT1+PGnmw0rmawpn3pv/64MrRZl8jBWL+ms+mF5eIXxZ/VaL8j7dqfd45tN?=
- =?us-ascii?Q?bK8kh4RHf0lHUZbc493EH/u2kypMtEqNYXR508ClkNKfLHZwR9oaQk9/1hgg?=
- =?us-ascii?Q?/DlqVCTe5x2EqsW8UbjTFDBCJysCTfWyd59gtoxF/WyOsVTpAoIH+gKQQKGn?=
- =?us-ascii?Q?TCWVQgTTeO81EIhfLG6oO6uX2SYzwwehC5YMRBooJ6Vly7ShQ+cU/Jqgzh2r?=
- =?us-ascii?Q?hatVQIXE2CwMSkuOXNVjnitCTEIda2zikxbEXpwzY2qjYYvmCvD34QnkN799?=
- =?us-ascii?Q?Q8YYDAwyP11iThF2Cjn4KLX0TnsvRCZq1Ntn0Os+MnXi7OL29OEBWJNyEWsP?=
- =?us-ascii?Q?ZhbMlnD+wE4ThBva38W7PBbqS1A76bo10SdmYuhjJexMtA1vYj+XwD/wW1QG?=
- =?us-ascii?Q?35kfW/ik9iOiBWmOXhqstTN+x/04qj/Fok5lvJ2BFSCZ23JGU1YMMHlancqm?=
- =?us-ascii?Q?wrljNbgDqCkDRqBiqkRkcQqlinnPlwolUXFzYoKD+L79xaukNFIA9D1kViZx?=
- =?us-ascii?Q?f+S7sFRjW7cY/L5266djO3TWEI10DUUs3kt4QtJHbTb2Im8EUHjSibA7gSQT?=
- =?us-ascii?Q?9OCZeLpJ3ey9v3bWivdsAEW9YhWD/ZRB4f6eWiRK/MPhyiRWd+spbWH5OJdA?=
- =?us-ascii?Q?YQh2O7VRZ13qWi/J1KBirl9hTS68mI11PD4tRh7hnHkLVeczqB84nnCj8kbj?=
- =?us-ascii?Q?K+uWbr9wlxCVNXrOW2hngC3c88OHIg/TU+Yn2oYrbxpTJ3vpw3QeCFAe+trg?=
- =?us-ascii?Q?Snu8CdOaT9h9lR/jMnlimqEUM3G0ZpxmgbjdU7B6HFUyGTNA63/yTYyH7GHd?=
- =?us-ascii?Q?BsRuT12JiUwW1ZwaBun8bhBxs1LWUfJPImIXbQkFomFA+GoE+OUcfSC1IR3m?=
- =?us-ascii?Q?jXjw8rNSYxWXW9LnUoQzPyEKctIWVi5CYTb1J/g9lp07cjNxoFdK2szVYP6D?=
- =?us-ascii?Q?Y3LeO97tzxqdD87zY9VDbo0Z1fUuE6RuIkMq7gB6qN/qg+VBo67jHztlZVr6?=
- =?us-ascii?Q?dugmxcgtAUZzX4HN4fPHzgWEEJA9mFoGurHb/jcO2KHy7zOL39tZtAtjtY1/?=
- =?us-ascii?Q?Fld9WFOX+yY2xZlbwYR30DoNQajVJHKNXZM9VHi6LTVNP1EWI3TR/OGbHqC6?=
- =?us-ascii?Q?dJqb2Sf/EQwO7gcFEdUMGL0iOEz7Ooq1hJW3ToJ59GdeCIPGc07bRhaUc1vV?=
- =?us-ascii?Q?MDjWala7rGqEIqVidztks+a9YnBcKXm2DbJ2zYIAxlaaFkbPkoPVXDQoa5Rd?=
- =?us-ascii?Q?a3iJwZejEZ8lQqDn1UTOb/7+eju952VgvtG1C4AtDZM2GdPf+rL4dQO1hFYI?=
- =?us-ascii?Q?C8lR00WSWb87o/R3f/vOXpPmEAh//l4gHD9iIArA2aSW5k38aafx986zbxHd?=
- =?us-ascii?Q?ogyc8JZRpPlLSEt/Yn6HruvzqOpHNxoiijPtB7pbic0ghHU/xicEwa1SdYZ5?=
- =?us-ascii?Q?KD37FNxwIyLvaCS8Kn3TPn5HAs75ll38uwI+hAA0f7qam87dDWtw5vsvDe/v?=
- =?us-ascii?Q?m/cAeO4A2A=3D=3D?=
-X-OriginatorOrg: cornelisnetworks.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c227dccc-2cca-4ac7-8f09-08d99fa26518
-X-MS-Exchange-CrossTenant-AuthSource: CH0PR01MB7153.prod.exchangelabs.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Nov 2021 14:50:08.1094
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4dbdb7da-74ee-4b45-8747-ef5ce5ebe68a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: DAe0ehU8KJiMGAvnZcXa99ApJBGpP5are33uezKSnpLjDFshwYIWZUa35FzMA8xMS86k0h0pM+hnDkebg//YsCybwHTgGalIgUiW8xP1t/L2aE44L9piTDSuge/cZ2z9
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR01MB6892
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.77-16-g6a518c7e4d18
+X-Kernelci-Report-Type: build
+Subject: stable-rc/queue/5.10 build: 197 builds: 194 failed, 3 passed,
+ 195 errors, 196 warnings (v5.10.77-16-g6a518c7e4d18)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+stable-rc/queue/5.10 build: 197 builds: 194 failed, 3 passed, 195 errors, 1=
+96 warnings (v5.10.77-16-g6a518c7e4d18)
 
-upstream commit d39bf40e55e666b5905fdbd46a0dced030ce87be.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+0/kernel/v5.10.77-16-g6a518c7e4d18/
 
-[Apply to 4.9.x]
+Tree: stable-rc
+Branch: queue/5.10
+Git Describe: v5.10.77-16-g6a518c7e4d18
+Git Commit: 6a518c7e4d1859823aabbc7768be49a536af73a5
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-Overflowing either addrlimit or bytes_togo can allow userspace to trigger
-a buffer overflow of kernel memory. Check for overflows in all the places
-doing math on user controlled buffers.
+Build Failures Detected:
 
-Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
-Link: https://lore.kernel.org/r/20211012175519.7298.77738.stgit@awfm-01.cornelisnetworks.com
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+arc:
+    allnoconfig: (gcc-10) FAIL
+    axs103_defconfig: (gcc-10) FAIL
+    axs103_smp_defconfig: (gcc-10) FAIL
+    haps_hs_defconfig: (gcc-10) FAIL
+    haps_hs_smp_defconfig: (gcc-10) FAIL
+    hsdk_defconfig: (gcc-10) FAIL
+    nsimosci_hs_defconfig: (gcc-10) FAIL
+    nsimosci_hs_smp_defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+    vdk_hs38_defconfig: (gcc-10) FAIL
+    vdk_hs38_smp_defconfig: (gcc-10) FAIL
+
+arm64:
+    allnoconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+
+arm:
+    allnoconfig: (gcc-10) FAIL
+    am200epdkit_defconfig: (gcc-10) FAIL
+    aspeed_g4_defconfig: (gcc-10) FAIL
+    aspeed_g5_defconfig: (gcc-10) FAIL
+    assabet_defconfig: (gcc-10) FAIL
+    at91_dt_defconfig: (gcc-10) FAIL
+    axm55xx_defconfig: (gcc-10) FAIL
+    badge4_defconfig: (gcc-10) FAIL
+    bcm2835_defconfig: (gcc-10) FAIL
+    cerfcube_defconfig: (gcc-10) FAIL
+    clps711x_defconfig: (gcc-10) FAIL
+    cm_x300_defconfig: (gcc-10) FAIL
+    cns3420vb_defconfig: (gcc-10) FAIL
+    colibri_pxa270_defconfig: (gcc-10) FAIL
+    colibri_pxa300_defconfig: (gcc-10) FAIL
+    collie_defconfig: (gcc-10) FAIL
+    corgi_defconfig: (gcc-10) FAIL
+    davinci_all_defconfig: (gcc-10) FAIL
+    dove_defconfig: (gcc-10) FAIL
+    ebsa110_defconfig: (gcc-10) FAIL
+    efm32_defconfig: (gcc-10) FAIL
+    ep93xx_defconfig: (gcc-10) FAIL
+    eseries_pxa_defconfig: (gcc-10) FAIL
+    exynos_defconfig: (gcc-10) FAIL
+    ezx_defconfig: (gcc-10) FAIL
+    footbridge_defconfig: (gcc-10) FAIL
+    gemini_defconfig: (gcc-10) FAIL
+    h3600_defconfig: (gcc-10) FAIL
+    h5000_defconfig: (gcc-10) FAIL
+    hackkit_defconfig: (gcc-10) FAIL
+    hisi_defconfig: (gcc-10) FAIL
+    imote2_defconfig: (gcc-10) FAIL
+    imx_v4_v5_defconfig: (gcc-10) FAIL
+    imx_v6_v7_defconfig: (gcc-10) FAIL
+    integrator_defconfig: (gcc-10) FAIL
+    iop32x_defconfig: (gcc-10) FAIL
+    ixp4xx_defconfig: (gcc-10) FAIL
+    jornada720_defconfig: (gcc-10) FAIL
+    keystone_defconfig: (gcc-10) FAIL
+    lart_defconfig: (gcc-10) FAIL
+    lpc18xx_defconfig: (gcc-10) FAIL
+    lpc32xx_defconfig: (gcc-10) FAIL
+    lpd270_defconfig: (gcc-10) FAIL
+    lubbock_defconfig: (gcc-10) FAIL
+    magician_defconfig: (gcc-10) FAIL
+    mainstone_defconfig: (gcc-10) FAIL
+    milbeaut_m10v_defconfig: (gcc-10) FAIL
+    mini2440_defconfig: (gcc-10) FAIL
+    mmp2_defconfig: (gcc-10) FAIL
+    moxart_defconfig: (gcc-10) FAIL
+    mps2_defconfig: (gcc-10) FAIL
+    multi_v4t_defconfig: (gcc-10) FAIL
+    multi_v5_defconfig: (gcc-10) FAIL
+    multi_v7_defconfig: (gcc-10) FAIL
+    mv78xx0_defconfig: (gcc-10) FAIL
+    mvebu_v5_defconfig: (gcc-10) FAIL
+    mvebu_v7_defconfig: (gcc-10) FAIL
+    mxs_defconfig: (gcc-10) FAIL
+    neponset_defconfig: (gcc-10) FAIL
+    netwinder_defconfig: (gcc-10) FAIL
+    nhk8815_defconfig: (gcc-10) FAIL
+    omap1_defconfig: (gcc-10) FAIL
+    omap2plus_defconfig: (gcc-10) FAIL
+    orion5x_defconfig: (gcc-10) FAIL
+    oxnas_v6_defconfig: (gcc-10) FAIL
+    palmz72_defconfig: (gcc-10) FAIL
+    pcm027_defconfig: (gcc-10) FAIL
+    pleb_defconfig: (gcc-10) FAIL
+    prima2_defconfig: (gcc-10) FAIL
+    pxa168_defconfig: (gcc-10) FAIL
+    pxa255-idp_defconfig: (gcc-10) FAIL
+    pxa3xx_defconfig: (gcc-10) FAIL
+    pxa910_defconfig: (gcc-10) FAIL
+    pxa_defconfig: (gcc-10) FAIL
+    qcom_defconfig: (gcc-10) FAIL
+    realview_defconfig: (gcc-10) FAIL
+    rpc_defconfig: (gcc-10) FAIL
+    s3c2410_defconfig: (gcc-10) FAIL
+    s3c6400_defconfig: (gcc-10) FAIL
+    s5pv210_defconfig: (gcc-10) FAIL
+    sama5_defconfig: (gcc-10) FAIL
+    shannon_defconfig: (gcc-10) FAIL
+    shmobile_defconfig: (gcc-10) FAIL
+    simpad_defconfig: (gcc-10) FAIL
+    socfpga_defconfig: (gcc-10) FAIL
+    spear13xx_defconfig: (gcc-10) FAIL
+    spear3xx_defconfig: (gcc-10) FAIL
+    spear6xx_defconfig: (gcc-10) FAIL
+    spitz_defconfig: (gcc-10) FAIL
+    stm32_defconfig: (gcc-10) FAIL
+    sunxi_defconfig: (gcc-10) FAIL
+    tango4_defconfig: (gcc-10) FAIL
+    tct_hammer_defconfig: (gcc-10) FAIL
+    tegra_defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+    trizeps4_defconfig: (gcc-10) FAIL
+    u300_defconfig: (gcc-10) FAIL
+    u8500_defconfig: (gcc-10) FAIL
+    versatile_defconfig: (gcc-10) FAIL
+    vexpress_defconfig: (gcc-10) FAIL
+    vf610m4_defconfig: (gcc-10) FAIL
+    viper_defconfig: (gcc-10) FAIL
+    vt8500_v6_v7_defconfig: (gcc-10) FAIL
+    xcep_defconfig: (gcc-10) FAIL
+    zeus_defconfig: (gcc-10) FAIL
+    zx_defconfig: (gcc-10) FAIL
+
+i386:
+    allnoconfig: (gcc-10) FAIL
+    i386_defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+
+mips:
+    32r2el_defconfig: (gcc-10) FAIL
+    allnoconfig: (gcc-10) FAIL
+    ar7_defconfig: (gcc-10) FAIL
+    ath25_defconfig: (gcc-10) FAIL
+    ath79_defconfig: (gcc-10) FAIL
+    bcm47xx_defconfig: (gcc-10) FAIL
+    bcm63xx_defconfig: (gcc-10) FAIL
+    bigsur_defconfig: (gcc-10) FAIL
+    bmips_be_defconfig: (gcc-10) FAIL
+    bmips_stb_defconfig: (gcc-10) FAIL
+    capcella_defconfig: (gcc-10) FAIL
+    ci20_defconfig: (gcc-10) FAIL
+    cobalt_defconfig: (gcc-10) FAIL
+    cu1000-neo_defconfig: (gcc-10) FAIL
+    cu1830-neo_defconfig: (gcc-10) FAIL
+    db1xxx_defconfig: (gcc-10) FAIL
+    decstation_defconfig: (gcc-10) FAIL
+    decstation_r4k_defconfig: (gcc-10) FAIL
+    e55_defconfig: (gcc-10) FAIL
+    fuloong2e_defconfig: (gcc-10) FAIL
+    gcw0_defconfig: (gcc-10) FAIL
+    gpr_defconfig: (gcc-10) FAIL
+    ip22_defconfig: (gcc-10) FAIL
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
+    ip32_defconfig: (gcc-10) FAIL
+    jazz_defconfig: (gcc-10) FAIL
+    jmr3927_defconfig: (gcc-10) FAIL
+    lemote2f_defconfig: (gcc-10) FAIL
+    loongson1b_defconfig: (gcc-10) FAIL
+    loongson1c_defconfig: (gcc-10) FAIL
+    loongson3_defconfig: (gcc-10) FAIL
+    malta_defconfig: (gcc-10) FAIL
+    malta_kvm_defconfig: (gcc-10) FAIL
+    malta_kvm_guest_defconfig: (gcc-10) FAIL
+    malta_qemu_32r6_defconfig: (gcc-10) FAIL
+    maltaaprp_defconfig: (gcc-10) FAIL
+    maltasmvp_defconfig: (gcc-10) FAIL
+    maltasmvp_eva_defconfig: (gcc-10) FAIL
+    maltaup_defconfig: (gcc-10) FAIL
+    maltaup_xpa_defconfig: (gcc-10) FAIL
+    mpc30x_defconfig: (gcc-10) FAIL
+    mtx1_defconfig: (gcc-10) FAIL
+    nlm_xlp_defconfig: (gcc-10) FAIL
+    nlm_xlr_defconfig: (gcc-10) FAIL
+    omega2p_defconfig: (gcc-10) FAIL
+    pic32mzda_defconfig: (gcc-10) FAIL
+    pistachio_defconfig: (gcc-10) FAIL
+    qi_lb60_defconfig: (gcc-10) FAIL
+    rb532_defconfig: (gcc-10) FAIL
+    rbtx49xx_defconfig: (gcc-10) FAIL
+    rm200_defconfig: (gcc-10) FAIL
+    rs90_defconfig: (gcc-10) FAIL
+    rt305x_defconfig: (gcc-10) FAIL
+    sb1250_swarm_defconfig: (gcc-10) FAIL
+    tb0219_defconfig: (gcc-10) FAIL
+    tb0226_defconfig: (gcc-10) FAIL
+    tb0287_defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+    vocore2_defconfig: (gcc-10) FAIL
+    workpad_defconfig: (gcc-10) FAIL
+    xway_defconfig: (gcc-10) FAIL
+
+riscv:
+    allnoconfig: (gcc-10) FAIL
+    defconfig: (gcc-10) FAIL
+    nommu_k210_defconfig: (gcc-10) FAIL
+    nommu_virt_defconfig: (gcc-10) FAIL
+    rv32_defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+
+x86_64:
+    allnoconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+    x86_64_defconfig: (gcc-10) FAIL
+    x86_64_defconfig+x86-chromebook: (gcc-10) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+    allnoconfig (gcc-10): 1 error, 1 warning
+    axs103_defconfig (gcc-10): 1 error, 1 warning
+    axs103_smp_defconfig (gcc-10): 1 error, 1 warning
+    haps_hs_defconfig (gcc-10): 1 error, 1 warning
+    haps_hs_smp_defconfig (gcc-10): 1 error, 1 warning
+    hsdk_defconfig (gcc-10): 1 error, 1 warning
+    nsimosci_hs_defconfig (gcc-10): 1 error, 1 warning
+    nsimosci_hs_smp_defconfig (gcc-10): 1 error, 1 warning
+    tinyconfig (gcc-10): 1 error, 1 warning
+    vdk_hs38_defconfig (gcc-10): 1 error, 1 warning
+    vdk_hs38_smp_defconfig (gcc-10): 1 error, 1 warning
+
+arm64:
+    allnoconfig (gcc-10): 1 error, 1 warning
+    tinyconfig (gcc-10): 1 error, 1 warning
+
+arm:
+    allnoconfig (gcc-10): 1 error, 1 warning
+    am200epdkit_defconfig (gcc-10): 1 error, 1 warning
+    aspeed_g4_defconfig (gcc-10): 1 error, 1 warning
+    aspeed_g5_defconfig (gcc-10): 1 error, 1 warning
+    assabet_defconfig (gcc-10): 1 error, 1 warning
+    at91_dt_defconfig (gcc-10): 1 error, 1 warning
+    axm55xx_defconfig (gcc-10): 1 error, 1 warning
+    badge4_defconfig (gcc-10): 1 error, 1 warning
+    bcm2835_defconfig (gcc-10): 1 error, 1 warning
+    cerfcube_defconfig (gcc-10): 1 error, 1 warning
+    clps711x_defconfig (gcc-10): 1 error, 1 warning
+    cm_x300_defconfig (gcc-10): 1 error, 1 warning
+    cns3420vb_defconfig (gcc-10): 1 error, 1 warning
+    colibri_pxa270_defconfig (gcc-10): 1 error, 1 warning
+    colibri_pxa300_defconfig (gcc-10): 1 error, 1 warning
+    collie_defconfig (gcc-10): 1 error, 1 warning
+    corgi_defconfig (gcc-10): 1 error, 1 warning
+    davinci_all_defconfig (gcc-10): 1 error, 1 warning
+    dove_defconfig (gcc-10): 1 error, 1 warning
+    ebsa110_defconfig (gcc-10): 1 error, 1 warning
+    efm32_defconfig (gcc-10): 1 error, 1 warning
+    ep93xx_defconfig (gcc-10): 1 error, 1 warning
+    eseries_pxa_defconfig (gcc-10): 1 error, 1 warning
+    exynos_defconfig (gcc-10): 1 error, 1 warning
+    ezx_defconfig (gcc-10): 1 error, 1 warning
+    footbridge_defconfig (gcc-10): 1 error, 1 warning
+    gemini_defconfig (gcc-10): 1 error, 1 warning
+    h3600_defconfig (gcc-10): 1 error, 1 warning
+    h5000_defconfig (gcc-10): 1 error, 1 warning
+    hackkit_defconfig (gcc-10): 1 error, 1 warning
+    hisi_defconfig (gcc-10): 1 error, 1 warning
+    imote2_defconfig (gcc-10): 1 error, 1 warning
+    imx_v4_v5_defconfig (gcc-10): 1 error, 1 warning
+    imx_v6_v7_defconfig (gcc-10): 1 error, 1 warning
+    integrator_defconfig (gcc-10): 1 error, 1 warning
+    iop32x_defconfig (gcc-10): 1 error, 1 warning
+    ixp4xx_defconfig (gcc-10): 1 error, 1 warning
+    jornada720_defconfig (gcc-10): 1 error, 1 warning
+    keystone_defconfig (gcc-10): 1 error, 1 warning
+    lart_defconfig (gcc-10): 1 error, 1 warning
+    lpc18xx_defconfig (gcc-10): 1 error, 1 warning
+    lpc32xx_defconfig (gcc-10): 1 error, 1 warning
+    lpd270_defconfig (gcc-10): 1 error, 1 warning
+    lubbock_defconfig (gcc-10): 1 error, 1 warning
+    magician_defconfig (gcc-10): 1 error, 1 warning
+    mainstone_defconfig (gcc-10): 1 error, 1 warning
+    milbeaut_m10v_defconfig (gcc-10): 1 error, 1 warning
+    mini2440_defconfig (gcc-10): 1 error, 1 warning
+    mmp2_defconfig (gcc-10): 1 error, 1 warning
+    moxart_defconfig (gcc-10): 1 error, 1 warning
+    mps2_defconfig (gcc-10): 1 error, 1 warning
+    multi_v4t_defconfig (gcc-10): 1 error, 1 warning
+    multi_v5_defconfig (gcc-10): 1 error, 1 warning
+    multi_v7_defconfig (gcc-10): 1 error, 1 warning
+    mv78xx0_defconfig (gcc-10): 1 error, 1 warning
+    mvebu_v5_defconfig (gcc-10): 1 error, 1 warning
+    mvebu_v7_defconfig (gcc-10): 1 error, 1 warning
+    mxs_defconfig (gcc-10): 1 error, 1 warning
+    neponset_defconfig (gcc-10): 1 error, 1 warning
+    netwinder_defconfig (gcc-10): 1 error, 1 warning
+    nhk8815_defconfig (gcc-10): 1 error, 1 warning
+    omap1_defconfig (gcc-10): 1 error, 1 warning
+    omap2plus_defconfig (gcc-10): 1 error, 1 warning
+    orion5x_defconfig (gcc-10): 1 error, 1 warning
+    oxnas_v6_defconfig (gcc-10): 1 error, 1 warning
+    palmz72_defconfig (gcc-10): 1 error, 1 warning
+    pcm027_defconfig (gcc-10): 1 error, 1 warning
+    pleb_defconfig (gcc-10): 1 error, 1 warning
+    prima2_defconfig (gcc-10): 1 error, 1 warning
+    pxa168_defconfig (gcc-10): 1 error, 1 warning
+    pxa255-idp_defconfig (gcc-10): 1 error, 1 warning
+    pxa3xx_defconfig (gcc-10): 1 error, 1 warning
+    pxa910_defconfig (gcc-10): 1 error, 1 warning
+    pxa_defconfig (gcc-10): 1 error, 1 warning
+    qcom_defconfig (gcc-10): 1 error, 1 warning
+    realview_defconfig (gcc-10): 1 error, 1 warning
+    rpc_defconfig (gcc-10): 4 errors
+    s3c2410_defconfig (gcc-10): 1 error, 1 warning
+    s3c6400_defconfig (gcc-10): 1 error, 1 warning
+    s5pv210_defconfig (gcc-10): 1 error, 1 warning
+    sama5_defconfig (gcc-10): 1 error, 1 warning
+    shannon_defconfig (gcc-10): 1 error, 1 warning
+    shmobile_defconfig (gcc-10): 1 error, 1 warning
+    simpad_defconfig (gcc-10): 1 error, 1 warning
+    socfpga_defconfig (gcc-10): 1 error, 1 warning
+    spear13xx_defconfig (gcc-10): 1 error, 1 warning
+    spear3xx_defconfig (gcc-10): 1 error, 1 warning
+    spear6xx_defconfig (gcc-10): 1 error, 1 warning
+    spitz_defconfig (gcc-10): 1 error, 1 warning
+    stm32_defconfig (gcc-10): 1 error, 1 warning
+    sunxi_defconfig (gcc-10): 1 error, 1 warning
+    tango4_defconfig (gcc-10): 1 error, 1 warning
+    tct_hammer_defconfig (gcc-10): 1 error, 1 warning
+    tegra_defconfig (gcc-10): 1 error, 1 warning
+    tinyconfig (gcc-10): 1 error, 1 warning
+    trizeps4_defconfig (gcc-10): 1 error, 1 warning
+    u300_defconfig (gcc-10): 1 error, 1 warning
+    u8500_defconfig (gcc-10): 1 error, 1 warning
+    versatile_defconfig (gcc-10): 1 error, 1 warning
+    vexpress_defconfig (gcc-10): 1 error, 1 warning
+    vf610m4_defconfig (gcc-10): 1 error, 1 warning
+    viper_defconfig (gcc-10): 1 error, 1 warning
+    vt8500_v6_v7_defconfig (gcc-10): 1 error, 1 warning
+    xcep_defconfig (gcc-10): 1 error, 1 warning
+    zeus_defconfig (gcc-10): 1 error, 1 warning
+    zx_defconfig (gcc-10): 1 error, 1 warning
+
+i386:
+    allnoconfig (gcc-10): 1 error, 1 warning
+    i386_defconfig (gcc-10): 1 error, 1 warning
+    tinyconfig (gcc-10): 1 error, 1 warning
+
+mips:
+    32r2el_defconfig (gcc-10): 1 error, 1 warning
+    allnoconfig (gcc-10): 1 error, 1 warning
+    ar7_defconfig (gcc-10): 1 error, 1 warning
+    ath25_defconfig (gcc-10): 1 error, 1 warning
+    ath79_defconfig (gcc-10): 1 error, 1 warning
+    bcm47xx_defconfig (gcc-10): 1 error, 1 warning
+    bcm63xx_defconfig (gcc-10): 1 error, 1 warning
+    bigsur_defconfig (gcc-10): 1 error, 1 warning
+    bmips_be_defconfig (gcc-10): 1 error, 1 warning
+    bmips_stb_defconfig (gcc-10): 1 error, 1 warning
+    capcella_defconfig (gcc-10): 1 error, 1 warning
+    ci20_defconfig (gcc-10): 1 error, 1 warning
+    cobalt_defconfig (gcc-10): 1 error, 1 warning
+    cu1000-neo_defconfig (gcc-10): 1 error, 1 warning
+    cu1830-neo_defconfig (gcc-10): 1 error, 1 warning
+    db1xxx_defconfig (gcc-10): 1 error, 1 warning
+    decstation_64_defconfig (gcc-10): 1 warning
+    decstation_defconfig (gcc-10): 1 error, 2 warnings
+    decstation_r4k_defconfig (gcc-10): 1 error, 2 warnings
+    e55_defconfig (gcc-10): 1 error, 1 warning
+    fuloong2e_defconfig (gcc-10): 1 error, 1 warning
+    gcw0_defconfig (gcc-10): 1 error, 1 warning
+    gpr_defconfig (gcc-10): 1 error, 1 warning
+    ip22_defconfig (gcc-10): 1 error, 1 warning
+    ip32_defconfig (gcc-10): 1 error, 1 warning
+    jazz_defconfig (gcc-10): 1 error, 1 warning
+    jmr3927_defconfig (gcc-10): 1 error, 1 warning
+    lemote2f_defconfig (gcc-10): 1 error, 1 warning
+    loongson1b_defconfig (gcc-10): 1 error, 1 warning
+    loongson1c_defconfig (gcc-10): 1 error, 1 warning
+    loongson3_defconfig (gcc-10): 1 error, 1 warning
+    malta_defconfig (gcc-10): 1 error, 1 warning
+    malta_kvm_defconfig (gcc-10): 1 error, 1 warning
+    malta_kvm_guest_defconfig (gcc-10): 1 error, 1 warning
+    malta_qemu_32r6_defconfig (gcc-10): 1 error, 1 warning
+    maltaaprp_defconfig (gcc-10): 1 error, 1 warning
+    maltasmvp_defconfig (gcc-10): 1 error, 1 warning
+    maltasmvp_eva_defconfig (gcc-10): 1 error, 1 warning
+    maltaup_defconfig (gcc-10): 1 error, 1 warning
+    maltaup_xpa_defconfig (gcc-10): 1 error, 1 warning
+    mpc30x_defconfig (gcc-10): 1 error, 1 warning
+    mtx1_defconfig (gcc-10): 1 error, 1 warning
+    nlm_xlp_defconfig (gcc-10): 1 error, 1 warning
+    nlm_xlr_defconfig (gcc-10): 1 error, 1 warning
+    omega2p_defconfig (gcc-10): 1 error, 1 warning
+    pic32mzda_defconfig (gcc-10): 1 error, 1 warning
+    pistachio_defconfig (gcc-10): 1 error, 1 warning
+    qi_lb60_defconfig (gcc-10): 1 error, 1 warning
+    rb532_defconfig (gcc-10): 1 error, 1 warning
+    rbtx49xx_defconfig (gcc-10): 1 error, 1 warning
+    rm200_defconfig (gcc-10): 1 error, 1 warning
+    rs90_defconfig (gcc-10): 1 error, 1 warning
+    rt305x_defconfig (gcc-10): 1 error, 1 warning
+    sb1250_swarm_defconfig (gcc-10): 1 error, 1 warning
+    tb0219_defconfig (gcc-10): 1 error, 1 warning
+    tb0226_defconfig (gcc-10): 1 error, 1 warning
+    tb0287_defconfig (gcc-10): 1 error, 1 warning
+    tinyconfig (gcc-10): 1 error, 1 warning
+    vocore2_defconfig (gcc-10): 1 error, 1 warning
+    workpad_defconfig (gcc-10): 1 error, 1 warning
+    xway_defconfig (gcc-10): 1 error, 1 warning
+
+riscv:
+    allnoconfig (gcc-10): 1 error, 1 warning
+    defconfig (gcc-10): 1 error, 1 warning
+    nommu_k210_defconfig (gcc-10): 1 error, 1 warning
+    nommu_virt_defconfig (gcc-10): 1 error, 1 warning
+    rv32_defconfig (gcc-10): 1 error, 3 warnings
+    tinyconfig (gcc-10): 1 error, 1 warning
+
+x86_64:
+    allnoconfig (gcc-10): 1 error, 1 warning
+    tinyconfig (gcc-10): 1 error, 1 warning
+    x86_64_defconfig (gcc-10): 1 error, 1 warning
+    x86_64_defconfig+x86-chromebook (gcc-10): 1 error, 1 warning
+
+Errors summary:
+
+    169  mm/memory.c:3929:15: error: implicit declaration of function =E2=
+=80=98PageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=
+=99? [-Werror=3Dimplicit-function-declaration]
+    11   mm/page_alloc.c:1237:4: error: implicit declaration of function =
+=E2=80=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHW=
+Poison=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+    11   mm/memory.c:3929:15: error: implicit declaration of function 'Page=
+HasHWPoisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-d=
+eclaration]
+    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+h=3D=E2=80=99
+
+Warnings summary:
+
+    191  cc1: some warnings being treated as errors
+    3    kernel/rcu/tasks.h:708:13: warning: =E2=80=98show_rcu_tasks_rude_g=
+p_kthread=E2=80=99 defined but not used [-Wunused-function]
+    1    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    1    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
+matches
+
+Errors:
+    mm/page_alloc.c:1237:4: error: implicit declaration of function =E2=80=
+=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHWPoison=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mi=
+smatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
+ismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
+ismatches
+
+Errors:
+    mm/page_alloc.c:1237:4: error: implicit declaration of function =E2=80=
+=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHWPoison=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
+matches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHW=
+Poisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-declar=
+ation]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mi=
+smatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHW=
+Poisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-declar=
+ation]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHW=
+Poisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-declar=
+ation]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, =
+0 section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, =
+0 section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
+ 0 section mismatches
+
+Warnings:
+    kernel/rcu/tasks.h:708:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 2 warnings, 0 =
+section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    kernel/rcu/tasks.h:708:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 2 warnings=
+, 0 section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+    kernel/rcu/tasks.h:708:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
+matches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/page_alloc.c:1237:4: error: implicit declaration of function =E2=80=
+=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHWPoison=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
+ismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHW=
+Poisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-declar=
+ation]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHW=
+Poisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-declar=
+ation]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHW=
+Poisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-declar=
+ation]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/page_alloc.c:1237:4: error: implicit declaration of function =E2=80=
+=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHWPoison=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning=
+, 0 section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning=
+, 0 section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, =
+0 section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 =
+section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0=
+ section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/page_alloc.c:1237:4: error: implicit declaration of function =E2=80=
+=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHWPoison=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
+ismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 =
+section mismatches
+
+Errors:
+    mm/page_alloc.c:1237:4: error: implicit declaration of function =E2=80=
+=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHWPoison=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nommu_virt_defconfig (riscv, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 =
+section mismatches
+
+Errors:
+    mm/page_alloc.c:1237:4: error: implicit declaration of function =E2=80=
+=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHWPoison=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHW=
+Poisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-declar=
+ation]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning,=
+ 0 section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHW=
+Poisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-declar=
+ation]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
+ismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-10) =E2=80=94 FAIL, 1 error, 3 warnings, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0=
+ section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/page_alloc.c:1237:4: error: implicit declaration of function =E2=80=
+=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHWPoison=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
+atches
+
+Errors:
+    mm/page_alloc.c:1237:4: error: implicit declaration of function =E2=80=
+=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHWPoison=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
+matches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mi=
+smatches
+
+Errors:
+    mm/page_alloc.c:1237:4: error: implicit declaration of function =E2=80=
+=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHWPoison=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
+ismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mi=
+smatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
+matches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
+atches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHW=
+Poisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-declar=
+ation]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHW=
+Poisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-declar=
+ation]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 =
+section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHW=
+Poisoned'; did you mean 'PageHWPoison'? [-Werror=3Dimplicit-function-declar=
+ation]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    mm/page_alloc.c:1237:4: error: implicit declaration of function =E2=80=
+=98ClearPageHasHWPoisoned=E2=80=99; did you mean =E2=80=98ClearPageHWPoison=
+=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 =
+section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 FAIL, 1 error, 1=
+ warning, 0 section mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
+mismatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mi=
+smatches
+
+Errors:
+    mm/memory.c:3929:15: error: implicit declaration of function =E2=80=98P=
+ageHasHWPoisoned=E2=80=99; did you mean =E2=80=98PageHWPoison=E2=80=99? [-W=
+error=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
 ---
- drivers/infiniband/hw/qib/qib_user_sdma.c | 33 +++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/infiniband/hw/qib/qib_user_sdma.c b/drivers/infiniband/hw/qib/qib_user_sdma.c
-index deef6ff..0dc15f9 100644
---- a/drivers/infiniband/hw/qib/qib_user_sdma.c
-+++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
-@@ -607,7 +607,7 @@ static int qib_user_sdma_coalesce(const struct qib_devdata *dd,
- /*
-  * How many pages in this iovec element?
-  */
--static int qib_user_sdma_num_pages(const struct iovec *iov)
-+static size_t qib_user_sdma_num_pages(const struct iovec *iov)
- {
- 	const unsigned long addr  = (unsigned long) iov->iov_base;
- 	const unsigned long  len  = iov->iov_len;
-@@ -663,7 +663,7 @@ static void qib_user_sdma_free_pkt_frag(struct device *dev,
- static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
- 				   struct qib_user_sdma_queue *pq,
- 				   struct qib_user_sdma_pkt *pkt,
--				   unsigned long addr, int tlen, int npages)
-+				   unsigned long addr, int tlen, size_t npages)
- {
- 	struct page *pages[8];
- 	int i, j;
-@@ -727,7 +727,7 @@ static int qib_user_sdma_pin_pkt(const struct qib_devdata *dd,
- 	unsigned long idx;
- 
- 	for (idx = 0; idx < niov; idx++) {
--		const int npages = qib_user_sdma_num_pages(iov + idx);
-+		const size_t npages = qib_user_sdma_num_pages(iov + idx);
- 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
- 
- 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
-@@ -829,8 +829,8 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
- 		unsigned pktnw;
- 		unsigned pktnwc;
- 		int nfrags = 0;
--		int npages = 0;
--		int bytes_togo = 0;
-+		size_t npages = 0;
-+		size_t bytes_togo = 0;
- 		int tiddma = 0;
- 		int cfur;
- 
-@@ -890,7 +890,11 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
- 
- 			npages += qib_user_sdma_num_pages(&iov[idx]);
- 
--			bytes_togo += slen;
-+			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
-+			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
- 			pktnwc += slen >> 2;
- 			idx++;
- 			nfrags++;
-@@ -909,8 +913,7 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
- 		}
- 
- 		if (frag_size) {
--			int tidsmsize, n;
--			size_t pktsize;
-+			size_t tidsmsize, n, pktsize, sz, addrlimit;
- 
- 			n = npages*((2*PAGE_SIZE/frag_size)+1);
- 			pktsize = struct_size(pkt, addr, n);
-@@ -928,14 +931,24 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
- 			else
- 				tidsmsize = 0;
- 
--			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
-+			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt = kmalloc(sz, GFP_KERNEL);
- 			if (!pkt) {
- 				ret = -ENOMEM;
- 				goto free_pbc;
- 			}
- 			pkt->largepkt = 1;
- 			pkt->frag_size = frag_size;
--			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
-+			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
-+					       &addrlimit) ||
-+			    addrlimit > type_max(typeof(pkt->addrlimit))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt->addrlimit = addrlimit;
- 
- 			if (tiddma) {
- 				char *tidsm = (char *)pkt + pktsize;
--- 
-1.8.3.1
-
+For more info write to <info@kernelci.org>
