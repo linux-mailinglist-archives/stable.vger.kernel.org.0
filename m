@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 205E24454BA
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEDE24454AF
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231824AbhKDORS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:17:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45532 "EHLO mail.kernel.org"
+        id S231510AbhKDOQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:16:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231624AbhKDORA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:17:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83316611C0;
-        Thu,  4 Nov 2021 14:14:21 +0000 (UTC)
+        id S231603AbhKDOQq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:16:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 171E8611C4;
+        Thu,  4 Nov 2021 14:14:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035262;
-        bh=0f6ss+5YHz232Ob5/jS2bWHHqp7Jqld4NqLf1QONCRM=;
+        s=korg; t=1636035248;
+        bh=9NQ/wQlnZGBEFQcFTSMk29QaXmqIR8ysDyYtcpB/7tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LsJK44JSfd8vJz7oU7SIAasSOcERF/r3LdCvuEjcaZwNgh41mFWu8CYxP1glcBUR1
-         mjQZ8zGgICqyFGIN5VzcEWs98vz0pphw8vXEdsKPsfBV70U7+y1hj1edu4xlZUCFP/
-         EmXYQ8IkoAN5BOJmh2mvJmA0QFDUQq2FgCN/i5Kg=
+        b=2QyAhrC6tYGd5nQjLI0aGz2HBZGI+Kr/wkgBsdZNDn+hDy38k1+j/rqfw4IpGOEdw
+         dcVhMd4RGTQpbWPSs8wGM6zc93J0wfm8nsBfkdUZ1PCgyXr8T6Og+N8S40LDhhMo6a
+         kD5RxZZjmtEVoa20oBN9fmmJnoUhRfUFwc+o4zY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugene Crosser <crosser@average.org>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Florian Westphal <fw@strlen.de>
-Subject: [PATCH 5.14 03/16] vrf: Revert "Reset skb conntrack connection..."
+        stable@vger.kernel.org,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.15 08/12] Revert "wcn36xx: Disable bmps when encryption is disabled"
 Date:   Thu,  4 Nov 2021 15:12:34 +0100
-Message-Id: <20211104141159.974014335@linuxfoundation.org>
+Message-Id: <20211104141159.824950802@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211104141159.863820939@linuxfoundation.org>
-References: <20211104141159.863820939@linuxfoundation.org>
+In-Reply-To: <20211104141159.551636584@linuxfoundation.org>
+References: <20211104141159.551636584@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,130 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Crosser <crosser@average.org>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit 55161e67d44fdd23900be166a81e996abd6e3be9 upstream.
+commit 285bb1738e196507bf985574d0bc1e9dd72d46b1 upstream.
 
-This reverts commit 09e856d54bda5f288ef8437a90ab2b9b3eab83d1.
+This reverts commit c6522a5076e1a65877c51cfee313a74ef61cabf8.
 
-When an interface is enslaved in a VRF, prerouting conntrack hook is
-called twice: once in the context of the original input interface, and
-once in the context of the VRF interface. If no special precausions are
-taken, this leads to creation of two conntrack entries instead of one,
-and breaks SNAT.
+Testing on tip-of-tree shows that this is working now. Revert this and
+re-enable BMPS for Open APs.
 
-Commit above was intended to avoid creation of extra conntrack entries
-when input interface is enslaved in a VRF. It did so by resetting
-conntrack related data associated with the skb when it enters VRF context.
-
-However it breaks netfilter operation. Imagine a use case when conntrack
-zone must be assigned based on the original input interface, rather than
-VRF interface (that would make original interfaces indistinguishable). One
-could create netfilter rules similar to these:
-
-        chain rawprerouting {
-                type filter hook prerouting priority raw;
-                iif realiface1 ct zone set 1 return
-                iif realiface2 ct zone set 2 return
-        }
-
-This works before the mentioned commit, but not after: zone assignment
-is "forgotten", and any subsequent NAT or filtering that is dependent
-on the conntrack zone does not work.
-
-Here is a reproducer script that demonstrates the difference in behaviour.
-
-==========
-#!/bin/sh
-
-# This script demonstrates unexpected change of nftables behaviour
-# caused by commit 09e856d54bda5f28 ""vrf: Reset skb conntrack
-# connection on VRF rcv"
-# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=09e856d54bda5f288ef8437a90ab2b9b3eab83d1
-#
-# Before the commit, it was possible to assign conntrack zone to a
-# packet (or mark it for `notracking`) in the prerouting chanin, raw
-# priority, based on the `iif` (interface from which the packet
-# arrived).
-# After the change, # if the interface is enslaved in a VRF, such
-# assignment is lost. Instead, assignment based on the `iif` matching
-# the VRF master interface is honored. Thus it is impossible to
-# distinguish packets based on the original interface.
-#
-# This script demonstrates this change of behaviour: conntrack zone 1
-# or 2 is assigned depending on the match with the original interface
-# or the vrf master interface. It can be observed that conntrack entry
-# appears in different zone in the kernel versions before and after
-# the commit.
-
-IPIN=172.30.30.1
-IPOUT=172.30.30.2
-PFXL=30
-
-ip li sh vein >/dev/null 2>&1 && ip li del vein
-ip li sh tvrf >/dev/null 2>&1 && ip li del tvrf
-nft list table testct >/dev/null 2>&1 && nft delete table testct
-
-ip li add vein type veth peer veout
-ip li add tvrf type vrf table 9876
-ip li set veout master tvrf
-ip li set vein up
-ip li set veout up
-ip li set tvrf up
-/sbin/sysctl -w net.ipv4.conf.veout.accept_local=1
-/sbin/sysctl -w net.ipv4.conf.veout.rp_filter=0
-ip addr add $IPIN/$PFXL dev vein
-ip addr add $IPOUT/$PFXL dev veout
-
-nft -f - <<__END__
-table testct {
-	chain rawpre {
-		type filter hook prerouting priority raw;
-		iif { veout, tvrf } meta nftrace set 1
-		iif veout ct zone set 1 return
-		iif tvrf ct zone set 2 return
-		notrack
-	}
-	chain rawout {
-		type filter hook output priority raw;
-		notrack
-	}
-}
-__END__
-
-uname -rv
-conntrack -F
-ping -W 1 -c 1 -I vein $IPOUT
-conntrack -L
-
-Signed-off-by: Eugene Crosser <crosser@average.org>
-Acked-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Florian Westphal <fw@strlen.de>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211022140447.2846248-3-bryan.odonoghue@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/vrf.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/net/wireless/ath/wcn36xx/main.c    |   10 ----------
+ drivers/net/wireless/ath/wcn36xx/pmc.c     |    5 +----
+ drivers/net/wireless/ath/wcn36xx/wcn36xx.h |    1 -
+ 3 files changed, 1 insertion(+), 15 deletions(-)
 
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -1367,8 +1367,6 @@ static struct sk_buff *vrf_ip6_rcv(struc
- 	bool need_strict = rt6_need_strict(&ipv6_hdr(skb)->daddr);
- 	bool is_ndisc = ipv6_ndisc_frame(skb);
- 
--	nf_reset_ct(skb);
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -604,15 +604,6 @@ static int wcn36xx_set_key(struct ieee80
+ 				}
+ 			}
+ 		}
+-		/* FIXME: Only enable bmps support when encryption is enabled.
+-		 * For any reasons, when connected to open/no-security BSS,
+-		 * the wcn36xx controller in bmps mode does not forward
+-		 * 'wake-up' beacons despite AP sends DTIM with station AID.
+-		 * It could be due to a firmware issue or to the way driver
+-		 * configure the station.
+-		 */
+-		if (vif->type == NL80211_IFTYPE_STATION)
+-			vif_priv->allow_bmps = true;
+ 		break;
+ 	case DISABLE_KEY:
+ 		if (!(IEEE80211_KEY_FLAG_PAIRWISE & key_conf->flags)) {
+@@ -913,7 +904,6 @@ static void wcn36xx_bss_info_changed(str
+ 				    vif->addr,
+ 				    bss_conf->aid);
+ 			vif_priv->sta_assoc = false;
+-			vif_priv->allow_bmps = false;
+ 			wcn36xx_smd_set_link_st(wcn,
+ 						bss_conf->bssid,
+ 						vif->addr,
+--- a/drivers/net/wireless/ath/wcn36xx/pmc.c
++++ b/drivers/net/wireless/ath/wcn36xx/pmc.c
+@@ -23,10 +23,7 @@ int wcn36xx_pmc_enter_bmps_state(struct
+ {
+ 	int ret = 0;
+ 	struct wcn36xx_vif *vif_priv = wcn36xx_vif_to_priv(vif);
 -
- 	/* loopback, multicast & non-ND link-local traffic; do not push through
- 	 * packet taps again. Reset pkt_type for upper layers to process skb.
- 	 * For strict packets with a source LLA, determine the dst using the
-@@ -1431,8 +1429,6 @@ static struct sk_buff *vrf_ip_rcv(struct
- 	skb->skb_iif = vrf_dev->ifindex;
- 	IPCB(skb)->flags |= IPSKB_L3SLAVE;
- 
--	nf_reset_ct(skb);
+-	if (!vif_priv->allow_bmps)
+-		return -ENOTSUPP;
 -
- 	if (ipv4_is_multicast(ip_hdr(skb)->daddr))
- 		goto out;
++	/* TODO: Make sure the TX chain clean */
+ 	ret = wcn36xx_smd_enter_bmps(wcn, vif);
+ 	if (!ret) {
+ 		wcn36xx_dbg(WCN36XX_DBG_PMC, "Entered BMPS\n");
+--- a/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
++++ b/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
+@@ -128,7 +128,6 @@ struct wcn36xx_vif {
+ 	enum wcn36xx_hal_bss_type bss_type;
  
+ 	/* Power management */
+-	bool allow_bmps;
+ 	enum wcn36xx_power_state pw_state;
+ 
+ 	u8 bss_index;
 
 
