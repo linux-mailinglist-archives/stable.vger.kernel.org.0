@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F85C445517
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:17:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A8D844551A
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:17:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232587AbhKDOTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:19:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
+        id S232161AbhKDOUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:20:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232152AbhKDOSx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB78860F39;
-        Thu,  4 Nov 2021 14:16:14 +0000 (UTC)
+        id S232159AbhKDOSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5039F61248;
+        Thu,  4 Nov 2021 14:16:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035375;
-        bh=ZtMcIPaq0ozHNqUsWMJxCNqpDXASe3FXSjLcKXjJfoU=;
+        s=korg; t=1636035377;
+        bh=CAOceHmDjFQ4rqH7fuDy64h/MqmjOcvb8w5OWtrZZTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XSIGQoS1kWmuEIsJ1mcYsG9a/7HqrdylFNV+UBLsc9CyuYYtk0YLUF1MfOyqyg+HF
-         By3bLaTEV9aVKuZTDZtegYkN/hgXMLW16+G+lJszM+3lCiZ+AR53SGe+wB2pYoHhRL
-         3x7ojIrg+hmrMVMpYBcC/8uwZZLgXjweu8cH5uuU=
+        b=lPt+oDbg5sWXnLMRXUj8F3mFpDlfAynKz3Om5UI4grlN7MF/i4BesDQdv/IHxAfe6
+         ne84VaymhD7rVPyqTwdIdg7RKSWRAJdUwssXLKkNKzSegyw33nEigQPm7ekUjkZu7p
+         jN2DTEUnQmpaR4ikaGDKHl69cVQshsIm/CooL0Yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luo Likang <luolikang@nsfocus.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 2/7] media: firewire: firedtv-avc: fix a buffer overflow in avc_ca_pmt()
-Date:   Thu,  4 Nov 2021 15:13:05 +0100
-Message-Id: <20211104141158.113097434@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Mile Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Subject: [PATCH 4.19 3/7] IB/qib: Use struct_size() helper
+Date:   Thu,  4 Nov 2021 15:13:06 +0100
+Message-Id: <20211104141158.144097533@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211104141158.037189396@linuxfoundation.org>
 References: <20211104141158.037189396@linuxfoundation.org>
@@ -41,84 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit 35d2969ea3c7d32aee78066b1f3cf61a0d935a4e upstream.
+commit 829ca44ecf60e9b6f83d0161a6ef10c1304c5060 upstream.
 
-The bounds checking in avc_ca_pmt() is not strict enough.  It should
-be checking "read_pos + 4" because it's reading 5 bytes.  If the
-"es_info_length" is non-zero then it reads a 6th byte so there needs to
-be an additional check for that.
+Make use of the struct_size() helper instead of an open-coded version
+in order to avoid any potential type mistakes, in particular in the
+context in which this code is being used.
 
-I also added checks for the "write_pos".  I don't think these are
-required because "read_pos" and "write_pos" are tied together so
-checking one ought to be enough.  But they make the code easier to
-understand for me.  The check on write_pos is:
+So, replace the following form:
 
-	if (write_pos + 4 >= sizeof(c->operand) - 4) {
+sizeof(*pkt) + sizeof(pkt->addr[0])*n
 
-The first "+ 4" is because we're writing 5 bytes and the last " - 4"
-is to leave space for the CRC.
+with:
 
-The other problem is that "length" can be invalid.  It comes from
-"data_length" in fdtv_ca_pmt().
+struct_size(pkt, addr, n)
 
-Cc: stable@vger.kernel.org
-Reported-by: Luo Likang <luolikang@nsfocus.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Also, notice that variable size is unnecessary, hence it is removed.
+
+This code was detected with the help of Coccinelle.
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Mile Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/firewire/firedtv-avc.c |   14 +++++++++++---
- drivers/media/firewire/firedtv-ci.c  |    2 ++
- 2 files changed, 13 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/qib/qib_user_sdma.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/media/firewire/firedtv-avc.c
-+++ b/drivers/media/firewire/firedtv-avc.c
-@@ -1169,7 +1169,11 @@ int avc_ca_pmt(struct firedtv *fdtv, cha
- 		read_pos += program_info_length;
- 		write_pos += program_info_length;
- 	}
--	while (read_pos < length) {
-+	while (read_pos + 4 < length) {
-+		if (write_pos + 4 >= sizeof(c->operand) - 4) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
- 		c->operand[write_pos++] = msg[read_pos++];
- 		c->operand[write_pos++] = msg[read_pos++];
- 		c->operand[write_pos++] = msg[read_pos++];
-@@ -1181,13 +1185,17 @@ int avc_ca_pmt(struct firedtv *fdtv, cha
- 		c->operand[write_pos++] = es_info_length >> 8;
- 		c->operand[write_pos++] = es_info_length & 0xff;
- 		if (es_info_length > 0) {
-+			if (read_pos >= length) {
-+				ret = -EINVAL;
-+				goto out;
-+			}
- 			pmt_cmd_id = msg[read_pos++];
- 			if (pmt_cmd_id != 1 && pmt_cmd_id != 4)
- 				dev_err(fdtv->device, "invalid pmt_cmd_id %d at stream level\n",
- 					pmt_cmd_id);
+--- a/drivers/infiniband/hw/qib/qib_user_sdma.c
++++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
+@@ -908,10 +908,11 @@ static int qib_user_sdma_queue_pkts(cons
+ 		}
  
--			if (es_info_length > sizeof(c->operand) - 4 -
--					     write_pos) {
-+			if (es_info_length > sizeof(c->operand) - 4 - write_pos ||
-+			    es_info_length > length - read_pos) {
- 				ret = -EINVAL;
- 				goto out;
- 			}
---- a/drivers/media/firewire/firedtv-ci.c
-+++ b/drivers/media/firewire/firedtv-ci.c
-@@ -138,6 +138,8 @@ static int fdtv_ca_pmt(struct firedtv *f
- 	} else {
- 		data_length = msg->msg[3];
- 	}
-+	if (data_length > sizeof(msg->msg) - data_pos)
-+		return -EINVAL;
+ 		if (frag_size) {
+-			int pktsize, tidsmsize, n;
++			int tidsmsize, n;
++			size_t pktsize;
  
- 	return avc_ca_pmt(fdtv, &msg->msg[data_pos], data_length);
- }
+ 			n = npages*((2*PAGE_SIZE/frag_size)+1);
+-			pktsize = sizeof(*pkt) + sizeof(pkt->addr[0])*n;
++			pktsize = struct_size(pkt, addr, n);
+ 
+ 			/*
+ 			 * Determine if this is tid-sdma or just sdma.
 
 
