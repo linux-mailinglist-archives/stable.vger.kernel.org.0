@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEDE24454AF
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC094454BE
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231510AbhKDOQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:16:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45312 "EHLO mail.kernel.org"
+        id S231833AbhKDORV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:17:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231603AbhKDOQq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:16:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 171E8611C4;
-        Thu,  4 Nov 2021 14:14:07 +0000 (UTC)
+        id S231683AbhKDORC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:17:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF11F60F39;
+        Thu,  4 Nov 2021 14:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035248;
-        bh=9NQ/wQlnZGBEFQcFTSMk29QaXmqIR8ysDyYtcpB/7tM=;
+        s=korg; t=1636035264;
+        bh=9eoeH7pnTJB8v1PA67KVXdtRUWEJcFxuMbcpgedG0ZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2QyAhrC6tYGd5nQjLI0aGz2HBZGI+Kr/wkgBsdZNDn+hDy38k1+j/rqfw4IpGOEdw
-         dcVhMd4RGTQpbWPSs8wGM6zc93J0wfm8nsBfkdUZ1PCgyXr8T6Og+N8S40LDhhMo6a
-         kD5RxZZjmtEVoa20oBN9fmmJnoUhRfUFwc+o4zY8=
+        b=FPharKRNUCr51sjymmwJFhGMR6SoyhZjW81dli8xODov4MGvk10sGcpQo/9Wt5hKs
+         2uKjoDpyIxrY8Tu/Jtrw0p/h7ufMaYYGt0OBNa4VX98h/HFsEbdETZECeZHAIFRu28
+         g2rMJJil+j6kmfk7ewFnEczlqJ2NGGsrbGI2mcvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.15 08/12] Revert "wcn36xx: Disable bmps when encryption is disabled"
-Date:   Thu,  4 Nov 2021 15:12:34 +0100
-Message-Id: <20211104141159.824950802@linuxfoundation.org>
+        stable@vger.kernel.org, Luo Likang <luolikang@nsfocus.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.14 04/16] media: firewire: firedtv-avc: fix a buffer overflow in avc_ca_pmt()
+Date:   Thu,  4 Nov 2021 15:12:35 +0100
+Message-Id: <20211104141200.002450710@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211104141159.551636584@linuxfoundation.org>
-References: <20211104141159.551636584@linuxfoundation.org>
+In-Reply-To: <20211104141159.863820939@linuxfoundation.org>
+References: <20211104141159.863820939@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 285bb1738e196507bf985574d0bc1e9dd72d46b1 upstream.
+commit 35d2969ea3c7d32aee78066b1f3cf61a0d935a4e upstream.
 
-This reverts commit c6522a5076e1a65877c51cfee313a74ef61cabf8.
+The bounds checking in avc_ca_pmt() is not strict enough.  It should
+be checking "read_pos + 4" because it's reading 5 bytes.  If the
+"es_info_length" is non-zero then it reads a 6th byte so there needs to
+be an additional check for that.
 
-Testing on tip-of-tree shows that this is working now. Revert this and
-re-enable BMPS for Open APs.
+I also added checks for the "write_pos".  I don't think these are
+required because "read_pos" and "write_pos" are tied together so
+checking one ought to be enough.  But they make the code easier to
+understand for me.  The check on write_pos is:
 
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211022140447.2846248-3-bryan.odonoghue@linaro.org
+	if (write_pos + 4 >= sizeof(c->operand) - 4) {
+
+The first "+ 4" is because we're writing 5 bytes and the last " - 4"
+is to leave space for the CRC.
+
+The other problem is that "length" can be invalid.  It comes from
+"data_length" in fdtv_ca_pmt().
+
+Cc: stable@vger.kernel.org
+Reported-by: Luo Likang <luolikang@nsfocus.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/wcn36xx/main.c    |   10 ----------
- drivers/net/wireless/ath/wcn36xx/pmc.c     |    5 +----
- drivers/net/wireless/ath/wcn36xx/wcn36xx.h |    1 -
- 3 files changed, 1 insertion(+), 15 deletions(-)
+ drivers/media/firewire/firedtv-avc.c |   14 +++++++++++---
+ drivers/media/firewire/firedtv-ci.c  |    2 ++
+ 2 files changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/ath/wcn36xx/main.c
-+++ b/drivers/net/wireless/ath/wcn36xx/main.c
-@@ -604,15 +604,6 @@ static int wcn36xx_set_key(struct ieee80
- 				}
+--- a/drivers/media/firewire/firedtv-avc.c
++++ b/drivers/media/firewire/firedtv-avc.c
+@@ -1165,7 +1165,11 @@ int avc_ca_pmt(struct firedtv *fdtv, cha
+ 		read_pos += program_info_length;
+ 		write_pos += program_info_length;
+ 	}
+-	while (read_pos < length) {
++	while (read_pos + 4 < length) {
++		if (write_pos + 4 >= sizeof(c->operand) - 4) {
++			ret = -EINVAL;
++			goto out;
++		}
+ 		c->operand[write_pos++] = msg[read_pos++];
+ 		c->operand[write_pos++] = msg[read_pos++];
+ 		c->operand[write_pos++] = msg[read_pos++];
+@@ -1177,13 +1181,17 @@ int avc_ca_pmt(struct firedtv *fdtv, cha
+ 		c->operand[write_pos++] = es_info_length >> 8;
+ 		c->operand[write_pos++] = es_info_length & 0xff;
+ 		if (es_info_length > 0) {
++			if (read_pos >= length) {
++				ret = -EINVAL;
++				goto out;
++			}
+ 			pmt_cmd_id = msg[read_pos++];
+ 			if (pmt_cmd_id != 1 && pmt_cmd_id != 4)
+ 				dev_err(fdtv->device, "invalid pmt_cmd_id %d at stream level\n",
+ 					pmt_cmd_id);
+ 
+-			if (es_info_length > sizeof(c->operand) - 4 -
+-					     write_pos) {
++			if (es_info_length > sizeof(c->operand) - 4 - write_pos ||
++			    es_info_length > length - read_pos) {
+ 				ret = -EINVAL;
+ 				goto out;
  			}
- 		}
--		/* FIXME: Only enable bmps support when encryption is enabled.
--		 * For any reasons, when connected to open/no-security BSS,
--		 * the wcn36xx controller in bmps mode does not forward
--		 * 'wake-up' beacons despite AP sends DTIM with station AID.
--		 * It could be due to a firmware issue or to the way driver
--		 * configure the station.
--		 */
--		if (vif->type == NL80211_IFTYPE_STATION)
--			vif_priv->allow_bmps = true;
- 		break;
- 	case DISABLE_KEY:
- 		if (!(IEEE80211_KEY_FLAG_PAIRWISE & key_conf->flags)) {
-@@ -913,7 +904,6 @@ static void wcn36xx_bss_info_changed(str
- 				    vif->addr,
- 				    bss_conf->aid);
- 			vif_priv->sta_assoc = false;
--			vif_priv->allow_bmps = false;
- 			wcn36xx_smd_set_link_st(wcn,
- 						bss_conf->bssid,
- 						vif->addr,
---- a/drivers/net/wireless/ath/wcn36xx/pmc.c
-+++ b/drivers/net/wireless/ath/wcn36xx/pmc.c
-@@ -23,10 +23,7 @@ int wcn36xx_pmc_enter_bmps_state(struct
- {
- 	int ret = 0;
- 	struct wcn36xx_vif *vif_priv = wcn36xx_vif_to_priv(vif);
--
--	if (!vif_priv->allow_bmps)
--		return -ENOTSUPP;
--
-+	/* TODO: Make sure the TX chain clean */
- 	ret = wcn36xx_smd_enter_bmps(wcn, vif);
- 	if (!ret) {
- 		wcn36xx_dbg(WCN36XX_DBG_PMC, "Entered BMPS\n");
---- a/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
-+++ b/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
-@@ -128,7 +128,6 @@ struct wcn36xx_vif {
- 	enum wcn36xx_hal_bss_type bss_type;
+--- a/drivers/media/firewire/firedtv-ci.c
++++ b/drivers/media/firewire/firedtv-ci.c
+@@ -134,6 +134,8 @@ static int fdtv_ca_pmt(struct firedtv *f
+ 	} else {
+ 		data_length = msg->msg[3];
+ 	}
++	if (data_length > sizeof(msg->msg) - data_pos)
++		return -EINVAL;
  
- 	/* Power management */
--	bool allow_bmps;
- 	enum wcn36xx_power_state pw_state;
- 
- 	u8 bss_index;
+ 	return avc_ca_pmt(fdtv, &msg->msg[data_pos], data_length);
+ }
 
 
