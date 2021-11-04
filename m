@@ -2,216 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 545994458A5
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 18:36:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A97A54458DC
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 18:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233934AbhKDRjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 13:39:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58698 "EHLO
+        id S233900AbhKDRqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 13:46:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233938AbhKDRjV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 13:39:21 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DAEAC061714
-        for <stable@vger.kernel.org>; Thu,  4 Nov 2021 10:36:43 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id u11so8438080plf.3
-        for <stable@vger.kernel.org>; Thu, 04 Nov 2021 10:36:43 -0700 (PDT)
+        with ESMTP id S232356AbhKDRqj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 13:46:39 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7071EC061205;
+        Thu,  4 Nov 2021 10:44:01 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id f8so24382313edy.4;
+        Thu, 04 Nov 2021 10:44:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20210112.gappssmtp.com; s=20210112;
+        d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=JE7BWh7EPof2q1qNnDyfyKa+RjN00TLgKWFmUR6xPto=;
-        b=s4ImMsgGQUm6mPzKM3B7NN46K9mZpThq5Ex5NXxELwvAQv//gJkb4OoJtyk5iSzmpJ
-         I3mUqa9VU+FgsWW4eNq0E4V7DBBnLF25zbym4s98B02IKYUoSPfPj1BB4YzC1qo7K7e1
-         F8jpINNbsAP8yMlNfJafwBgadBd8zcPhur4Z2vkwy2W9QNtrtM7+gkb903YGkJCxe8iN
-         6KMSxmUCQVTgc+DflfDvjhll8s9mck6+NRGbQaeVC2SOY+zcKv3+9PjY4HIgqGSGD/BX
-         lQWt6XNSDiGQnx8Jy4M+Y4En33jGcYPby6DS7HsWd/4tD4V2VUNhWEuYojKIx0iN9S+0
-         XgGg==
+        bh=SaoNZd94jArTmVGn/jRfCzD6DEp4wsUPuwPe5TNdHKA=;
+        b=Ci5zimqbv8P1cMefPHzbCNeFUUN8LJw8Y64xtBRDBYcVGncRiKkUApmWPgiZSVOwNh
+         eEcSUytkkKxJYJuWZ8JEv1/fYRI+7ml4Gd2k3Me8jItIDOCl3Jos3+LN8nDrf+rKKy0F
+         aA6Hx2u1dvMUGB3jtkwWYzKO2jndLVJXDdwEetiMZ6/qPNmV7ESiRPzNsCKLEMR2yyKB
+         55LRGk1WD9xJ9GHmTGsfS8mFy1kVbKipwOZSGQJdIa3AFrsuccTXIu+jlZ2yVJhskbM6
+         9YCQd3w88SmPEqDRkQuXlyVF2gqf+KYAYoVVNnCn7LzDc3PDv7vjxwNYmLf5ZPoB/k00
+         Mauw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=JE7BWh7EPof2q1qNnDyfyKa+RjN00TLgKWFmUR6xPto=;
-        b=P2ZoZeyah+HnjnKj6LGCAccwarjl+Mo20gRJgtBaKXJw/GvAvJc42QnhRebjpoTlAk
-         0Fnnvzonq7f3i+8PdWBvRSBdU11gbS/clEAjlX2Rd72b3xCkb4Mozagh2rVJMUBRw2Hc
-         us7qYzCJxcJUHU7yJykXWgi00mKV42QLjKDbVSEOJdEvTGXYHm+HODAtxFSbGkcYMKv5
-         vnpv+aJ7xM2yq8NEHrmgnjgqY8B6ahqoqJBjwxRCbV3M7sZzr8l+dDBdoRFxc9awUA3I
-         W3/juimZjjk5WhI03pEtKNHrWyI4/xnPu5CR2Dp7cOy5ilyvQTpFvNY2guOv9exRaE3L
-         pC/w==
-X-Gm-Message-State: AOAM532ngqtp2d/e0BX9uvgkbCs9l2klXG78VKcRVWRFaV9RmRr0o8HC
-        K6E6ZmNoksnwuJysIY87uUHM7hgUauUvrkfSKheDY4v6VQevdg==
-X-Google-Smtp-Source: ABdhPJxhy9V27nPMVN+tx+tjsLztlj8rfRnBWeo/tBj0oVDBrpNcAk5x1jeblAAtaMT+o1c3DeS+/bIsOjJYVJqUKEA=
-X-Received: by 2002:a17:902:aa84:b0:142:36cb:2a47 with SMTP id
- d4-20020a170902aa8400b0014236cb2a47mr4251518plr.89.1636047402658; Thu, 04 Nov
- 2021 10:36:42 -0700 (PDT)
+        bh=SaoNZd94jArTmVGn/jRfCzD6DEp4wsUPuwPe5TNdHKA=;
+        b=Rc7TsX7s7Jc1Gr+cIK3AROJfy8+ry7HQbRMCP29NkbZcMww1E+m6N697+ws4dirjEe
+         V5uK4pk1Kxz8PkhirUZ0dnWtIZh2QfGNwjoUEb+4qtAMSIqLMhPpwmxaA0kULSqHZHBT
+         hsG47tY10w65cccTLw9lbSYyWpyC0eYCFahCZbLGXbz7Fpopm99A4hnunLxMviQGwths
+         dfv2bmtFkSqB45GauIfyPanxxBT9t0jhvAO1bw3JjIwqEy6TZaKDyJFYk/sEuZnW6X/B
+         iGFUBoVS5M/WCEMs2jEpJonaT5t5bmDtNPaUVGr0h+bEDqcg0EKsRCHaJAz0tEFi2RsQ
+         G8aw==
+X-Gm-Message-State: AOAM533AG/uQS9IymfN1sXtnwQmfCjNkVtjm7xwu9OJ0gMd8Abt1L8fr
+        QfRULn6pHzTo4/GtL4+z51v3nOdURnmJ7F4tnJU=
+X-Google-Smtp-Source: ABdhPJxjJVjhCFczPSEV79xEXIH2iDBKSXc5wLai7n6k3tdNY0aTKGZTGE6HhigLRtDP94cd/1k3YlOAqioLJn3YXKo=
+X-Received: by 2002:a05:6402:520b:: with SMTP id s11mr28768622edd.363.1636047840071;
+ Thu, 04 Nov 2021 10:44:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210920120421.29276-1-jgross@suse.com> <163233113662.25758.10031107028271701591.tip-bot2@tip-bot2>
- <e8dd8993c38702ee6dd73b3c11f158617e665607.camel@intel.com> <YYPGsUNm0UXcYKOA@zn.tnic>
-In-Reply-To: <YYPGsUNm0UXcYKOA@zn.tnic>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Thu, 4 Nov 2021 10:36:32 -0700
-Message-ID: <CAPcyv4jG359gnhJz=RdX_cKuh8awcBCzyRCJ1uKyfKCj-nFqvg@mail.gmail.com>
-Subject: Re: [tip: x86/urgent] x86/setup: Call early_reserve_memory() earlier
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-tip-commits@vger.kernel.org" 
-        <linux-tip-commits@vger.kernel.org>,
-        "nathan@kernel.org" <nathan@kernel.org>,
-        "Gross, Jurgen" <jgross@suse.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "marmarek@invisiblethingslab.com" <marmarek@invisiblethingslab.com>,
-        "Chagam, Anjaneya" <anjaneya.chagam@intel.com>,
-        "bp@suse.de" <bp@suse.de>, "x86@kernel.org" <x86@kernel.org>,
-        Mike Rapoport <rppt@kernel.org>
+References: <20211101194856.305642-1-shy828301@gmail.com> <YYJacGTst7dceD8K@kroah.com>
+ <YYQQIu6Xi/iEEb7f@kroah.com>
+In-Reply-To: <YYQQIu6Xi/iEEb7f@kroah.com>
+From:   Yang Shi <shy828301@gmail.com>
+Date:   Thu, 4 Nov 2021 10:43:47 -0700
+Message-ID: <CAHbLzkrZKkS92St-AR-jL8HJYXKOm3EjKkbsaBY58LERh3-_qA@mail.gmail.com>
+Subject: Re: [stable 5.10 PATCH] mm: hwpoison: remove the unnecessary THP check
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     =?UTF-8?B?SE9SSUdVQ0hJIE5BT1lBKOWggOWPoyDnm7TkuZ8p?= 
+        <naoya.horiguchi@nec.com>, Hugh Dickins <hughd@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable <stable@vger.kernel.org>, Linux MM <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 4, 2021 at 4:40 AM Borislav Petkov <bp@alien8.de> wrote:
+On Thu, Nov 4, 2021 at 9:53 AM Greg KH <gregkh@linuxfoundation.org> wrote:
 >
-> + Mike.
+> On Wed, Nov 03, 2021 at 10:46:24AM +0100, Greg KH wrote:
+> > On Mon, Nov 01, 2021 at 12:48:56PM -0700, Yang Shi wrote:
+> > > commit c7cb42e94473aafe553c0f2a3d8ca904599399ed upstream.
+> > >
+> > > When handling THP hwpoison checked if the THP is in allocation or free
+> > > stage since hwpoison may mistreat it as hugetlb page.  After commit
+> > > 415c64c1453a ("mm/memory-failure: split thp earlier in memory error
+> > > handling") the problem has been fixed, so this check is no longer
+> > > needed.  Remove it.  The side effect of the removal is hwpoison may
+> > > report unsplit THP instead of unknown error for shmem THP.  It seems not
+> > > like a big deal.
+> > >
+> > > The following patch "mm: filemap: check if THP has hwpoisoned subpage
+> > > for PMD page fault" depends on this, which fixes shmem THP with
+> > > hwpoisoned subpage(s) are mapped PMD wrongly.  So this patch needs to be
+> > > backported to -stable as well.
+> > >
+> > > Link: https://lkml.kernel.org/r/20211020210755.23964-2-shy828301@gmail.com
+> > > Signed-off-by: Yang Shi <shy828301@gmail.com>
+> > > Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+> > > Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+> > > Cc: Hugh Dickins <hughd@google.com>
+> > > Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> > > Cc: Matthew Wilcox <willy@infradead.org>
+> > > Cc: Oscar Salvador <osalvador@suse.de>
+> > > Cc: Peter Xu <peterx@redhat.com>
+> > > Cc: <stable@vger.kernel.org>
+> > > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> > > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > > ---
+> > > mm-filemap-check-if-thp-has-hwpoisoned-subpage-for-pmd-page-fault.patch
+> > > depends on this one.
+> >
+> > Both now queued up, thanks.
 >
-> On Thu, Nov 04, 2021 at 05:38:54AM +0000, Williams, Dan J wrote:
-> > By inspection, this commit looks like the source of the problem because
-> > early_reserve_memory() now runs before parse_early_param().
+> This breaks the build, see:
+>         https://lore.kernel.org/r/acabc414-164b-cd65-6a1a-cf912d8621d7@roeck-us.net
 >
-> Yah, I see it too:
->
-> early_reserve_memory
-> |-> efi_memblock_x86_reserve_range
->     |-> efi_fake_memmap_early
->
-> which does
->
->         if (!efi_soft_reserve_enabled())
->                 return;
->
-> and that would have set EFI_MEM_NO_SOFT_RESERVE after having parsed
-> "nosoftreserve".
->
-> And parse_early_param() happens later.
->
-> Uuuf, that early memory reservation dance is not going to be over,
-> ever...
->
-> Well, I guess we can do something like this below. The intent being to
-> carve out the command line preparation into a separate function which
-> does the early param parsing too. So that it all goes together.
->
-> And then call that function before early_reserve_memory() so that the
-> params have been parsed by then.
->
-> Looking at the changed flow, I think we should be ok but I've said that
-> a bunch of times already regarding this memory reservation early and
-> something in our house of cards called early boot order always broke.
->
-> Damn.
+> so I'm going to drop both of these now.  Please fix this up and resend a
+> tested series.
 
-Thanks Boris!
+Thanks for catching this. It is because I accidentally left the
+PAGEFLAG_* macros into CONFIG_TRANSHUGE_PAGE section, so it is:
 
-You can add:
+#ifdef CONFIG_TRANSHUGE_PAGE
+...
+#if defined(CONFIG_MEMORY_FAILURE) && defined(CONFIG_TRANSHUGE_PAGE)
+PAGEFLAG_xxx
+#else
+PAGEFLAG_FALSE_xxx
+#endif
+...
+#endif
 
-Tested-by: Anjaneya Chagam <anjaneya.chagam@intel.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+So when THP is disabled the PAGEFLAG_FALSE_xxx macro is actually absent.
+
+The upstream has the same issue, will send a patch to fix it soon, and
+send fixes (folded the new fix in) to -stable later. Sorry for the
+inconvenience.
 
 >
-> ---
-> diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-> index 40ed44ead063..05f69e7d84dc 100644
-> --- a/arch/x86/kernel/setup.c
-> +++ b/arch/x86/kernel/setup.c
-> @@ -742,6 +742,28 @@ dump_kernel_offset(struct notifier_block *self, unsigned long v, void *p)
->         return 0;
->  }
+> thanks,
 >
-> +static char *prepare_command_line(void)
-> +{
-> +#ifdef CONFIG_CMDLINE_BOOL
-> +#ifdef CONFIG_CMDLINE_OVERRIDE
-> +       strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
-> +#else
-> +       if (builtin_cmdline[0]) {
-> +               /* append boot loader cmdline to builtin */
-> +               strlcat(builtin_cmdline, " ", COMMAND_LINE_SIZE);
-> +               strlcat(builtin_cmdline, boot_command_line, COMMAND_LINE_SIZE);
-> +               strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
-> +       }
-> +#endif
-> +#endif
-> +
-> +       strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
-> +
-> +       parse_early_param();
-> +
-> +       return command_line;
-> +}
-> +
->  /*
->   * Determine if we were loaded by an EFI loader.  If so, then we have also been
->   * passed the efi memmap, systab, etc., so we should use these data structures
-> @@ -830,6 +852,23 @@ void __init setup_arch(char **cmdline_p)
->
->         x86_init.oem.arch_setup();
->
-> +       /*
-> +        * x86_configure_nx() is called before parse_early_param() (called by
-> +        * prepare_command_line()) to detect whether hardware doesn't support
-> +        * NX (so that the early EHCI debug console setup can safely call
-> +        * set_fixmap()). It may then be called again from within noexec_setup()
-> +        * during parsing early parameters to honor the respective command line
-> +        * option.
-> +        */
-> +       x86_configure_nx();
-> +
-> +       /*
-> +        * This parses early params and it needs to run before
-> +        * early_reserve_memory() because latter relies on such settings
-> +        * supplies as early params.
-> +        */
-> +       *cmdline_p = prepare_command_line();
-> +
->         /*
->          * Do some memory reservations *before* memory is added to memblock, so
->          * memblock allocations won't overwrite it.
-> @@ -863,33 +902,6 @@ void __init setup_arch(char **cmdline_p)
->         bss_resource.start = __pa_symbol(__bss_start);
->         bss_resource.end = __pa_symbol(__bss_stop)-1;
->
-> -#ifdef CONFIG_CMDLINE_BOOL
-> -#ifdef CONFIG_CMDLINE_OVERRIDE
-> -       strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
-> -#else
-> -       if (builtin_cmdline[0]) {
-> -               /* append boot loader cmdline to builtin */
-> -               strlcat(builtin_cmdline, " ", COMMAND_LINE_SIZE);
-> -               strlcat(builtin_cmdline, boot_command_line, COMMAND_LINE_SIZE);
-> -               strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
-> -       }
-> -#endif
-> -#endif
-> -
-> -       strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
-> -       *cmdline_p = command_line;
-> -
-> -       /*
-> -        * x86_configure_nx() is called before parse_early_param() to detect
-> -        * whether hardware doesn't support NX (so that the early EHCI debug
-> -        * console setup can safely call set_fixmap()). It may then be called
-> -        * again from within noexec_setup() during parsing early parameters
-> -        * to honor the respective command line option.
-> -        */
-> -       x86_configure_nx();
-> -
-> -       parse_early_param();
-> -
->  #ifdef CONFIG_MEMORY_HOTPLUG
->         /*
->          * Memory used by the kernel cannot be hot-removed because Linux
->
->
-> --
-> Regards/Gruss,
->     Boris.
->
-> https://people.kernel.org/tglx/notes-about-netiquette
+> greg k-h
