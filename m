@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C22B44454F2
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A00CD4454F5
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231907AbhKDOS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:18:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46970 "EHLO mail.kernel.org"
+        id S232397AbhKDOTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:19:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232202AbhKDOSJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4382961220;
-        Thu,  4 Nov 2021 14:15:31 +0000 (UTC)
+        id S231925AbhKDOSM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0F2661246;
+        Thu,  4 Nov 2021 14:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035331;
-        bh=mJ9/7YtG4BejtKRy/NnaMquhBRhGkjbA5yGc7hMHUZA=;
+        s=korg; t=1636035334;
+        bh=X2bWLt1dTTjR9tLQKwYWL4PefsS6JsI45Qwpo2LIy6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Df1YMW/cayK3b7PbHtWDBH0i8UhenpRmyjinRusEuElIFm4qnyBz0pQxIfIUCFqRy
-         yf0biHuMKWd4tY5W6svHb1L/tTXVEebPmKWoCXKSh7TX13UIXAdZwLrXLL5TCiUfY/
-         SOMZQSD636OxYPYK+0G7Xv/blDqCrwDdnl9rthdk=
+        b=QpOum7neha8P+6wnDoILLZzaQpWNsvOmqFBRtrZFmRVXsqcdHx/kdg/doUDFMKQrR
+         DRcVzKfHptoPb5O19GAWFyffqdviKOJ+RGGqlNSRdnxlhM8bNV3VkkzGxZPWqQCyRI
+         tYn0sWrOPF1esME/4bkajqwXiwhR1CRj8hxuaHf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.10 13/16] ARM: 9120/1: Revert "amba: make use of -1 IRQs warn"
-Date:   Thu,  4 Nov 2021 15:12:52 +0100
-Message-Id: <20211104141200.023521604@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.10 14/16] Revert "wcn36xx: Disable bmps when encryption is disabled"
+Date:   Thu,  4 Nov 2021 15:12:53 +0100
+Message-Id: <20211104141200.061783376@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211104141159.561284732@linuxfoundation.org>
 References: <20211104141159.561284732@linuxfoundation.org>
@@ -40,42 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Kefeng <wangkefeng.wang@huawei.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit eb4f756915875b0ea0757751cd29841f0504d547 upstream.
+commit 285bb1738e196507bf985574d0bc1e9dd72d46b1 upstream.
 
-After commit 77a7300abad7 ("of/irq: Get rid of NO_IRQ usage"),
-no irq case has been removed, irq_of_parse_and_map() will return
-0 in all cases when get error from parse and map an interrupt into
-linux virq space.
+This reverts commit c6522a5076e1a65877c51cfee313a74ef61cabf8.
 
-amba_device_register() is only used on no-DT initialization, see
-  s3c64xx_pl080_init()		arch/arm/mach-s3c/pl080.c
-  ep93xx_init_devices()		arch/arm/mach-ep93xx/core.c
+Testing on tip-of-tree shows that this is working now. Revert this and
+re-enable BMPS for Open APs.
 
-They won't set -1 to irq[0], so no need the warn.
-
-This reverts commit 2eac58d5026e4ec8b17ff8b62877fea9e1d2f1b3.
-
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211022140447.2846248-3-bryan.odonoghue@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/amba/bus.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/wireless/ath/wcn36xx/main.c    |   10 ----------
+ drivers/net/wireless/ath/wcn36xx/pmc.c     |    5 +----
+ drivers/net/wireless/ath/wcn36xx/wcn36xx.h |    1 -
+ 3 files changed, 1 insertion(+), 15 deletions(-)
 
---- a/drivers/amba/bus.c
-+++ b/drivers/amba/bus.c
-@@ -375,9 +375,6 @@ static int amba_device_try_add(struct am
- 	void __iomem *tmp;
- 	int i, ret;
- 
--	WARN_ON(dev->irq[0] == (unsigned int)-1);
--	WARN_ON(dev->irq[1] == (unsigned int)-1);
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -601,15 +601,6 @@ static int wcn36xx_set_key(struct ieee80
+ 				}
+ 			}
+ 		}
+-		/* FIXME: Only enable bmps support when encryption is enabled.
+-		 * For any reasons, when connected to open/no-security BSS,
+-		 * the wcn36xx controller in bmps mode does not forward
+-		 * 'wake-up' beacons despite AP sends DTIM with station AID.
+-		 * It could be due to a firmware issue or to the way driver
+-		 * configure the station.
+-		 */
+-		if (vif->type == NL80211_IFTYPE_STATION)
+-			vif_priv->allow_bmps = true;
+ 		break;
+ 	case DISABLE_KEY:
+ 		if (!(IEEE80211_KEY_FLAG_PAIRWISE & key_conf->flags)) {
+@@ -909,7 +900,6 @@ static void wcn36xx_bss_info_changed(str
+ 				    vif->addr,
+ 				    bss_conf->aid);
+ 			vif_priv->sta_assoc = false;
+-			vif_priv->allow_bmps = false;
+ 			wcn36xx_smd_set_link_st(wcn,
+ 						bss_conf->bssid,
+ 						vif->addr,
+--- a/drivers/net/wireless/ath/wcn36xx/pmc.c
++++ b/drivers/net/wireless/ath/wcn36xx/pmc.c
+@@ -23,10 +23,7 @@ int wcn36xx_pmc_enter_bmps_state(struct
+ {
+ 	int ret = 0;
+ 	struct wcn36xx_vif *vif_priv = wcn36xx_vif_to_priv(vif);
 -
- 	ret = request_resource(parent, &dev->res);
- 	if (ret)
- 		goto err_out;
+-	if (!vif_priv->allow_bmps)
+-		return -ENOTSUPP;
+-
++	/* TODO: Make sure the TX chain clean */
+ 	ret = wcn36xx_smd_enter_bmps(wcn, vif);
+ 	if (!ret) {
+ 		wcn36xx_dbg(WCN36XX_DBG_PMC, "Entered BMPS\n");
+--- a/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
++++ b/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
+@@ -127,7 +127,6 @@ struct wcn36xx_vif {
+ 	enum wcn36xx_hal_bss_type bss_type;
+ 
+ 	/* Power management */
+-	bool allow_bmps;
+ 	enum wcn36xx_power_state pw_state;
+ 
+ 	u8 bss_index;
 
 
