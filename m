@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62B4A4454F9
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA304454ED
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231558AbhKDOTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:19:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
+        id S231408AbhKDOSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:18:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232236AbhKDOSU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BF66611F2;
-        Thu,  4 Nov 2021 14:15:42 +0000 (UTC)
+        id S232149AbhKDOSB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DCF260F39;
+        Thu,  4 Nov 2021 14:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035342;
-        bh=dP4KARcs0Bs7NKmvPnuE35GlR/rJPtlHkvr8icsWdZQ=;
+        s=korg; t=1636035323;
+        bh=blk2nUbCgAo8P4b+73weV7EU17maQxnFyJEw9XqyNXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cv/DyzaCAVmFcLJYWOET84rm7mvePVMvECuPaUOD5s+IN8JhzbTp4KzyebiGi9ubj
-         i5WZZPWZOPbNyKgZwgQO+iToCTPnFhtyl7fdx69DkrSGL3SHZFuQLVDYlQPZfv90LU
-         Ev3+ZqqFahqqmuyqwztPnQ8Jd0tm+riJuC3xtvfg=
+        b=fi6yZ0hmG7SG0UUxFMvlifFQRG3FanBcktNsY/rJNSIqjTFd/VFMPTACDD+l44EEA
+         UA3/8LroIdamXsZfy9Y/p92tiOR96wEDDI2dys81ZUkKOSnsYSbqDHTZU7opORsWVl
+         wGEKy7+EaMj3XI2uObRZOri5RxF4mjWurup3xjmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Chris Chiu <chris.chiu@canonical.com>,
         Alan Stern <stern@rowland.harvard.edu>,
         Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 5.10 09/16] Revert "xhci: Set HCD flag to defer primary roothub registration"
-Date:   Thu,  4 Nov 2021 15:12:48 +0100
-Message-Id: <20211104141159.896009810@linuxfoundation.org>
+Subject: [PATCH 5.10 10/16] Revert "usb: core: hcd: Add support for deferring roothub registration"
+Date:   Thu,  4 Nov 2021 15:12:49 +0100
+Message-Id: <20211104141159.935478224@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211104141159.561284732@linuxfoundation.org>
 References: <20211104141159.561284732@linuxfoundation.org>
@@ -44,8 +44,8 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This reverts commit 0ea9ac731a315cd10bd6d6b33817b68ca9111ecf which is
-commit b7a0a792f864583207c593b50fd1b752ed89f4c1 upstream.
+This reverts commit d58fc9e9c15825e3a8fc1ef3b52495c93c41e71c which is
+commit 58877b0824da15698bd85a0a9dbfa8c354e6ecb7 upstream.
 
 It has been reported to be causing problems in Arch and Fedora bug
 reports.
@@ -61,18 +61,95 @@ Cc: Alan Stern <stern@rowland.harvard.edu>
 Cc: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/usb/core/hcd.c  |   29 ++++++-----------------------
+ include/linux/usb/hcd.h |    2 --
+ 2 files changed, 6 insertions(+), 25 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -693,7 +693,6 @@ int xhci_run(struct usb_hcd *hcd)
- 		if (ret)
- 			xhci_free_command(xhci, command);
- 	}
--	set_bit(HCD_FLAG_DEFER_RH_REGISTER, &hcd->flags);
- 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
- 			"Finished xhci_run for USB2 roothub");
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -2640,7 +2640,6 @@ int usb_add_hcd(struct usb_hcd *hcd,
+ {
+ 	int retval;
+ 	struct usb_device *rhdev;
+-	struct usb_hcd *shared_hcd;
  
+ 	if (!hcd->skip_phy_initialization && usb_hcd_is_primary_hcd(hcd)) {
+ 		hcd->phy_roothub = usb_phy_roothub_alloc(hcd->self.sysdev);
+@@ -2797,26 +2796,13 @@ int usb_add_hcd(struct usb_hcd *hcd,
+ 		goto err_hcd_driver_start;
+ 	}
+ 
+-	/* starting here, usbcore will pay attention to the shared HCD roothub */
+-	shared_hcd = hcd->shared_hcd;
+-	if (!usb_hcd_is_primary_hcd(hcd) && shared_hcd && HCD_DEFER_RH_REGISTER(shared_hcd)) {
+-		retval = register_root_hub(shared_hcd);
+-		if (retval != 0)
+-			goto err_register_root_hub;
+-
+-		if (shared_hcd->uses_new_polling && HCD_POLL_RH(shared_hcd))
+-			usb_hcd_poll_rh_status(shared_hcd);
+-	}
+-
+ 	/* starting here, usbcore will pay attention to this root hub */
+-	if (!HCD_DEFER_RH_REGISTER(hcd)) {
+-		retval = register_root_hub(hcd);
+-		if (retval != 0)
+-			goto err_register_root_hub;
++	retval = register_root_hub(hcd);
++	if (retval != 0)
++		goto err_register_root_hub;
+ 
+-		if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
+-			usb_hcd_poll_rh_status(hcd);
+-	}
++	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
++		usb_hcd_poll_rh_status(hcd);
+ 
+ 	return retval;
+ 
+@@ -2859,7 +2845,6 @@ EXPORT_SYMBOL_GPL(usb_add_hcd);
+ void usb_remove_hcd(struct usb_hcd *hcd)
+ {
+ 	struct usb_device *rhdev = hcd->self.root_hub;
+-	bool rh_registered;
+ 
+ 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
+ 
+@@ -2870,7 +2855,6 @@ void usb_remove_hcd(struct usb_hcd *hcd)
+ 
+ 	dev_dbg(hcd->self.controller, "roothub graceful disconnect\n");
+ 	spin_lock_irq (&hcd_root_hub_lock);
+-	rh_registered = hcd->rh_registered;
+ 	hcd->rh_registered = 0;
+ 	spin_unlock_irq (&hcd_root_hub_lock);
+ 
+@@ -2880,8 +2864,7 @@ void usb_remove_hcd(struct usb_hcd *hcd)
+ 	cancel_work_sync(&hcd->died_work);
+ 
+ 	mutex_lock(&usb_bus_idr_lock);
+-	if (rh_registered)
+-		usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
++	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
+ 	mutex_unlock(&usb_bus_idr_lock);
+ 
+ 	/*
+--- a/include/linux/usb/hcd.h
++++ b/include/linux/usb/hcd.h
+@@ -124,7 +124,6 @@ struct usb_hcd {
+ #define HCD_FLAG_RH_RUNNING		5	/* root hub is running? */
+ #define HCD_FLAG_DEAD			6	/* controller has died? */
+ #define HCD_FLAG_INTF_AUTHORIZED	7	/* authorize interfaces? */
+-#define HCD_FLAG_DEFER_RH_REGISTER	8	/* Defer roothub registration */
+ 
+ 	/* The flags can be tested using these macros; they are likely to
+ 	 * be slightly faster than test_bit().
+@@ -135,7 +134,6 @@ struct usb_hcd {
+ #define HCD_WAKEUP_PENDING(hcd)	((hcd)->flags & (1U << HCD_FLAG_WAKEUP_PENDING))
+ #define HCD_RH_RUNNING(hcd)	((hcd)->flags & (1U << HCD_FLAG_RH_RUNNING))
+ #define HCD_DEAD(hcd)		((hcd)->flags & (1U << HCD_FLAG_DEAD))
+-#define HCD_DEFER_RH_REGISTER(hcd) ((hcd)->flags & (1U << HCD_FLAG_DEFER_RH_REGISTER))
+ 
+ 	/*
+ 	 * Specifies if interfaces are authorized by default
 
 
