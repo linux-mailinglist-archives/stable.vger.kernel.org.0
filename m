@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E36E0445513
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:17:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F85C445517
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231248AbhKDOTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:19:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47826 "EHLO mail.kernel.org"
+        id S232587AbhKDOTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:19:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232342AbhKDOSu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 091696124F;
-        Thu,  4 Nov 2021 14:16:11 +0000 (UTC)
+        id S232152AbhKDOSx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB78860F39;
+        Thu,  4 Nov 2021 14:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035372;
-        bh=nI7ZJxkp1RZuxIa7WVUWcbu6quPHtzRYZxALNpCjz7Q=;
+        s=korg; t=1636035375;
+        bh=ZtMcIPaq0ozHNqUsWMJxCNqpDXASe3FXSjLcKXjJfoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GTeuuEQMhr6GC1Io07xh0uc5kLXchDYp7n4959IDqCJZvtD3xEoOGmeHH9B5MNRiS
-         IKExTYRjPYE6s8DE4Vpxr57jWfEd5/tJJfKSrsTeLNFYX6idjfHfa83PzFL1Dz1wqW
-         QBpxeaygMcaldv0P2u9470npyilADrdM84vMvw1o=
+        b=XSIGQoS1kWmuEIsJ1mcYsG9a/7HqrdylFNV+UBLsc9CyuYYtk0YLUF1MfOyqyg+HF
+         By3bLaTEV9aVKuZTDZtegYkN/hgXMLW16+G+lJszM+3lCiZ+AR53SGe+wB2pYoHhRL
+         3x7ojIrg+hmrMVMpYBcC/8uwZZLgXjweu8cH5uuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changhui Zhong <czhong@redhat.com>,
-        Yi Zhang <yi.zhang@redhat.com>, Ming Lei <ming.lei@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 1/7] scsi: core: Put LLD module refcnt after SCSI device is released
-Date:   Thu,  4 Nov 2021 15:13:04 +0100
-Message-Id: <20211104141158.083815124@linuxfoundation.org>
+        stable@vger.kernel.org, Luo Likang <luolikang@nsfocus.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 2/7] media: firewire: firedtv-avc: fix a buffer overflow in avc_ca_pmt()
+Date:   Thu,  4 Nov 2021 15:13:05 +0100
+Message-Id: <20211104141158.113097434@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211104141158.037189396@linuxfoundation.org>
 References: <20211104141158.037189396@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,79 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit f2b85040acec9a928b4eb1b57a989324e8e38d3f upstream.
+commit 35d2969ea3c7d32aee78066b1f3cf61a0d935a4e upstream.
 
-SCSI host release is triggered when SCSI device is freed. We have to make
-sure that the low-level device driver module won't be unloaded before SCSI
-host instance is released because shost->hostt is required in the release
-handler.
+The bounds checking in avc_ca_pmt() is not strict enough.  It should
+be checking "read_pos + 4" because it's reading 5 bytes.  If the
+"es_info_length" is non-zero then it reads a 6th byte so there needs to
+be an additional check for that.
 
-Make sure to put LLD module refcnt after SCSI device is released.
+I also added checks for the "write_pos".  I don't think these are
+required because "read_pos" and "write_pos" are tied together so
+checking one ought to be enough.  But they make the code easier to
+understand for me.  The check on write_pos is:
 
-Fixes a kernel panic of 'BUG: unable to handle page fault for address'
-reported by Changhui and Yi.
+	if (write_pos + 4 >= sizeof(c->operand) - 4) {
 
-Link: https://lore.kernel.org/r/20211008050118.1440686-1-ming.lei@redhat.com
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reported-by: Changhui Zhong <czhong@redhat.com>
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Tested-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The first "+ 4" is because we're writing 5 bytes and the last " - 4"
+is to leave space for the CRC.
+
+The other problem is that "length" can be invalid.  It comes from
+"data_length" in fdtv_ca_pmt().
+
+Cc: stable@vger.kernel.org
+Reported-by: Luo Likang <luolikang@nsfocus.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi.c       |    4 +++-
- drivers/scsi/scsi_sysfs.c |    9 +++++++++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ drivers/media/firewire/firedtv-avc.c |   14 +++++++++++---
+ drivers/media/firewire/firedtv-ci.c  |    2 ++
+ 2 files changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/scsi.c
-+++ b/drivers/scsi/scsi.c
-@@ -575,8 +575,10 @@ EXPORT_SYMBOL(scsi_device_get);
-  */
- void scsi_device_put(struct scsi_device *sdev)
- {
--	module_put(sdev->host->hostt->module);
-+	struct module *mod = sdev->host->hostt->module;
-+
- 	put_device(&sdev->sdev_gendev);
-+	module_put(mod);
- }
- EXPORT_SYMBOL(scsi_device_put);
+--- a/drivers/media/firewire/firedtv-avc.c
++++ b/drivers/media/firewire/firedtv-avc.c
+@@ -1169,7 +1169,11 @@ int avc_ca_pmt(struct firedtv *fdtv, cha
+ 		read_pos += program_info_length;
+ 		write_pos += program_info_length;
+ 	}
+-	while (read_pos < length) {
++	while (read_pos + 4 < length) {
++		if (write_pos + 4 >= sizeof(c->operand) - 4) {
++			ret = -EINVAL;
++			goto out;
++		}
+ 		c->operand[write_pos++] = msg[read_pos++];
+ 		c->operand[write_pos++] = msg[read_pos++];
+ 		c->operand[write_pos++] = msg[read_pos++];
+@@ -1181,13 +1185,17 @@ int avc_ca_pmt(struct firedtv *fdtv, cha
+ 		c->operand[write_pos++] = es_info_length >> 8;
+ 		c->operand[write_pos++] = es_info_length & 0xff;
+ 		if (es_info_length > 0) {
++			if (read_pos >= length) {
++				ret = -EINVAL;
++				goto out;
++			}
+ 			pmt_cmd_id = msg[read_pos++];
+ 			if (pmt_cmd_id != 1 && pmt_cmd_id != 4)
+ 				dev_err(fdtv->device, "invalid pmt_cmd_id %d at stream level\n",
+ 					pmt_cmd_id);
  
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -431,9 +431,12 @@ static void scsi_device_dev_release_user
- 	struct list_head *this, *tmp;
- 	struct scsi_vpd *vpd_pg80 = NULL, *vpd_pg83 = NULL;
- 	unsigned long flags;
-+	struct module *mod;
+-			if (es_info_length > sizeof(c->operand) - 4 -
+-					     write_pos) {
++			if (es_info_length > sizeof(c->operand) - 4 - write_pos ||
++			    es_info_length > length - read_pos) {
+ 				ret = -EINVAL;
+ 				goto out;
+ 			}
+--- a/drivers/media/firewire/firedtv-ci.c
++++ b/drivers/media/firewire/firedtv-ci.c
+@@ -138,6 +138,8 @@ static int fdtv_ca_pmt(struct firedtv *f
+ 	} else {
+ 		data_length = msg->msg[3];
+ 	}
++	if (data_length > sizeof(msg->msg) - data_pos)
++		return -EINVAL;
  
- 	sdev = container_of(work, struct scsi_device, ew.work);
- 
-+	mod = sdev->host->hostt->module;
-+
- 	scsi_dh_release_device(sdev);
- 
- 	parent = sdev->sdev_gendev.parent;
-@@ -474,11 +477,17 @@ static void scsi_device_dev_release_user
- 
- 	if (parent)
- 		put_device(parent);
-+	module_put(mod);
- }
- 
- static void scsi_device_dev_release(struct device *dev)
- {
- 	struct scsi_device *sdp = to_scsi_device(dev);
-+
-+	/* Set module pointer as NULL in case of module unloading */
-+	if (!try_module_get(sdp->host->hostt->module))
-+		sdp->host->hostt->module = NULL;
-+
- 	execute_in_process_context(scsi_device_dev_release_usercontext,
- 				   &sdp->ew);
+ 	return avc_ca_pmt(fdtv, &msg->msg[data_pos], data_length);
  }
 
 
