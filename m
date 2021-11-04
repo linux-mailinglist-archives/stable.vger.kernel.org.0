@@ -2,139 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21B65444CEB
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 02:13:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42720444CF7
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 02:22:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231229AbhKDBQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 21:16:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35232 "EHLO
+        id S231504AbhKDBYr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 21:24:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231160AbhKDBQR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 21:16:17 -0400
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D49C061714
-        for <stable@vger.kernel.org>; Wed,  3 Nov 2021 18:13:40 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id v20so4515029plo.7
-        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 18:13:40 -0700 (PDT)
+        with ESMTP id S231229AbhKDBYr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 21:24:47 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BADAC061203
+        for <stable@vger.kernel.org>; Wed,  3 Nov 2021 18:22:10 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id k4so4538228plx.8
+        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 18:22:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=72fxtZ/mZ4g8cH5HVc4AdoQ2JuWZb5RzXFkT7uPrQbc=;
-        b=AKaP0ko28r5DJ6SXcU/5lM9uNW9E/jKQCuTbVs9EI6RoPHfbSE86lTO6vZMqQdgWCi
-         43zHFRWoFkaYOqWm+1GRPjoQmnlqHEoGdFx2IT1t8k5n5sQOr42FO78skwhhsRsCfS9v
-         4HMf5nyQpsFmT6gtBFj3IIOgCFV0ySI+cR4KUOnG1VALYm7PaTKQca84uRf3Ok2LqfYH
-         fu27j4DduInFmtSV8QNSzH2qRcjaLUzVjc6cyxp4bDYhEyyOJpFEcZuNbpiR5EDd0IoU
-         XdbB1l/sSzCrEe0HgznWex9wTqo91bOVD42T1TLCy7iQ8UWq7VK8T94StXt/FO/RZZI+
-         +J3Q==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=eHqAIzV719j9lAkpwSrBfwZkYLTO2TUYbW63qRGOcw8=;
+        b=JcDp7is6r26TrSdZ0q88ZPFszRzkzCKWQuNv8lvraPDM50WH6GhwKYgOTd+Poe0Ofp
+         QiM3HSyb4VpWvdmvy9DS4EXMAwF1O98JlIHepU7K6N1uvq7ZKDEVSF6UMUH7qK0weYfj
+         Zdf9LX/SDC7/oaD+O2O6l8WzEQ8kRkgvi1+ZaxeOIO9pEyhFQizHWDo2TN7bvLisVjw/
+         8zfaxAEbz8xiKC/8jf6PcRpABdpSNl1gUW3XVc1Sw/0YercramVOWNYxhSqZPBrnMzXI
+         oA+tcKwZ3CT+uz6qG4g9D8WmSpaGxCwLLwmqfcm192cSLTDtmHCI5rhoByBpWMdoFfmJ
+         +Xkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=72fxtZ/mZ4g8cH5HVc4AdoQ2JuWZb5RzXFkT7uPrQbc=;
-        b=RzIWCPQ5ZTsbHfhn1gzK50dUQpyAuFNEtMJi0Wb8fL3VY061c5ohxvBsb69GwnKniA
-         /dpaoSgFQ1l+5IGXdgUVmPPsNJISDWnQzCvb4MehNct4U/ReW19YOrRZqXswRn+HRmMj
-         naTphphMEM8iUUieBkxFgna3dBGZMtMp7Hc6/xOkHYI164FPuBhJ0fbD8nfrYg1a95RH
-         KSSGAjZ0QaXM/oErpSZ4RXnuqryFsOjRRrs7Wg4xWyIdTtIbWyvj9JhJy7llgBSSY8lZ
-         L8fiDJFi8SzCz6GTBtAVVW+oSr3Qb+E1M5Qql83uXVMH9Kc+NT4Ha6vJhK3y4bVOnEOi
-         wFTA==
-X-Gm-Message-State: AOAM532tA+V8k4A6YyT0uUOsIUgNs58YsGJs8/beSlPNOsf2if7Rtxox
-        2EaOQ81RIl2PT9FCnQ9pP24j/+18qNQgZppb
-X-Google-Smtp-Source: ABdhPJz34EPEYahGSoz7PFLTK4T/6dpMaVLGtfV76rbZaDDRhmno+FTcWaL/Yp+nMHEHHxZh4eoRqA==
-X-Received: by 2002:a17:90a:9f93:: with SMTP id o19mr18495995pjp.136.1635988419484;
-        Wed, 03 Nov 2021 18:13:39 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h13sm3780338pfc.140.2021.11.03.18.13.39
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=eHqAIzV719j9lAkpwSrBfwZkYLTO2TUYbW63qRGOcw8=;
+        b=idTQzcm5YI/tECdvk/f5aXyvlPYF6cKWVYd6+Nhj62hUtnkj5XQBwOs04JneTNySGR
+         lVPo9qGpuB23QLs2xAB6sPJZOgHdDOQ5fU9qEJvOaLQH4Q977xWNOPRDR2U0evtrHyf6
+         dm/Fiw5wLC953J1552MRM+kxskIj+Yp+lCy605NOSaXvKwKNW/z5Leg0rvbXqG6OWoif
+         jZvUd92eD6nD+3mFjcmv7EY//cYrA2E6drJ6S2XD1+zGm31yEggwTUP9d3V5qD7BNhlH
+         EHUgA9uTzGUrYU5kHnngaY/3y2Fo5Vn4r2Ti4XrFZ9x8KJBpMtsVQxfQ62Fd+Wdhe6xm
+         hMAQ==
+X-Gm-Message-State: AOAM5331nSr/7BaJFG0aypV/Nr5E5hm1hMYABTHYa/MX1XSIupWfrQxi
+        YKH0R8r/Ki2NeznTRrRtbG8Lyg==
+X-Google-Smtp-Source: ABdhPJx6xhIDWyRA1hCuL+WEEewz3TJLvBAIAp/NDnCi6Iky/USsaRIUt3iyHq1gKN1wqrr1GE5tgw==
+X-Received: by 2002:a17:90a:9501:: with SMTP id t1mr18921689pjo.134.1635988929371;
+        Wed, 03 Nov 2021 18:22:09 -0700 (PDT)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id jz24sm2663464pjb.19.2021.11.03.18.22.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Nov 2021 18:13:39 -0700 (PDT)
-Message-ID: <618333c3.1c69fb81.5a682.d3e2@mx.google.com>
-Date:   Wed, 03 Nov 2021 18:13:39 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Wed, 03 Nov 2021 18:22:08 -0700 (PDT)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+6055980d041c8ac23307@syzkaller.appspotmail.com
+Subject: [PATCH] io_uring: prevent io_put_identity() from freeing a static identity
+Date:   Wed,  3 Nov 2021 18:21:20 -0700
+Message-Id: <20211104012120.729261-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.33.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.289-1-gdcbe5fad1cc3
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 112 runs,
- 1 regressions (v4.9.289-1-gdcbe5fad1cc3)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 112 runs, 1 regressions (v4.9.289-1-gdcbe5fad=
-1cc3)
+Note: this applies to 5.10 stable only. It doesn't trigger on anything
+above 5.10 as the code there has been substantially reworked. This also
+doesn't apply to any stable kernel below 5.10 afaict.
 
-Regressions Summary
--------------------
+Syzbot found a bug: KASAN: invalid-free in io_dismantle_req
+https://syzkaller.appspot.com/bug?id=123d9a852fc88ba573ffcb2dbcf4f9576c3b0559
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+The test submits bunch of io_uring writes and exits, which then triggers
+uring_task_cancel() and io_put_identity(), which in some corner cases,
+tries to free a static identity. This causes a panic as shown in the
+trace below:
+
+ BUG: KASAN: double-free or invalid-free in kfree+0xd5/0x310
+ CPU: 0 PID: 4618 Comm: repro Not tainted 5.10.76-05281-g4944ec82ebb9-dirty #17
+ Call Trace:
+  dump_stack_lvl+0x1b2/0x21b
+  print_address_description+0x8d/0x3b0
+  kasan_report_invalid_free+0x58/0x130
+  ____kasan_slab_free+0x14b/0x170
+  __kasan_slab_free+0x11/0x20
+  slab_free_freelist_hook+0xcc/0x1a0
+  kfree+0xd5/0x310
+  io_dismantle_req+0x9b0/0xd90
+  io_do_iopoll+0x13a4/0x23e0
+  io_iopoll_try_reap_events+0x116/0x290
+  io_uring_cancel_task_requests+0x197d/0x1ee0
+  io_uring_flush+0x170/0x6d0
+  filp_close+0xb0/0x150
+  put_files_struct+0x1d4/0x350
+  exit_files+0x80/0xa0
+  do_exit+0x6d9/0x2390
+  do_group_exit+0x16a/0x2d0
+  get_signal+0x133e/0x1f80
+  arch_do_signal+0x7b/0x610
+  exit_to_user_mode_prepare+0xaa/0xe0
+  syscall_exit_to_user_mode+0x24/0x40
+  do_syscall_64+0x3d/0x70
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+ Allocated by task 4611:
+  ____kasan_kmalloc+0xcd/0x100
+  __kasan_kmalloc+0x9/0x10
+  kmem_cache_alloc_trace+0x208/0x390
+  io_uring_alloc_task_context+0x57/0x550
+  io_uring_add_task_file+0x1f7/0x290
+  io_uring_create+0x2195/0x3490
+  __x64_sys_io_uring_setup+0x1bf/0x280
+  do_syscall_64+0x31/0x70
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+ The buggy address belongs to the object at ffff88810732b500
+  which belongs to the cache kmalloc-192 of size 192
+ The buggy address is located 88 bytes inside of
+  192-byte region [ffff88810732b500, ffff88810732b5c0)
+ Kernel panic - not syncing: panic_on_warn set ...
+
+This issue bisected to this commit:
+commit 186725a80c4e ("io_uring: fix skipping disabling sqo on exec")
+
+Simple reverting the offending commit doesn't work as it hits some
+other, related issues like:
+
+/* sqo_dead check is for when this happens after cancellation */
+WARN_ON_ONCE(ctx->sqo_task == current && !ctx->sqo_dead &&
+	     !xa_load(&tctx->xa, (unsigned long)file));
+
+ ------------[ cut here ]------------
+ WARNING: CPU: 1 PID: 5622 at fs/io_uring.c:8960 io_uring_flush+0x5bc/0x6d0
+ Modules linked in:
+ CPU: 1 PID: 5622 Comm: repro Not tainted 5.10.76-05281-g4944ec82ebb9-dirty #16
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-6.fc35 04/01/2014
+ RIP: 0010:io_uring_flush+0x5bc/0x6d0
+ Call Trace:
+ filp_close+0xb0/0x150
+ put_files_struct+0x1d4/0x350
+ reset_files_struct+0x88/0xa0
+ bprm_execve+0x7f2/0x9f0
+ do_execveat_common+0x46f/0x5d0
+ __x64_sys_execve+0x92/0xb0
+ do_syscall_64+0x31/0x70
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Changing __io_uring_task_cancel() to call io_disable_sqo_submit() directly,
+as the comment suggests, only if __io_uring_files_cancel() is not executed
+seems to fix the issue.
+
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: <io-uring@vger.kernel.org>
+Cc: <linux-fsdevel@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Reported-by: syzbot+6055980d041c8ac23307@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ fs/io_uring.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 0736487165da..fcf9ffe9b209 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8882,20 +8882,18 @@ void __io_uring_task_cancel(void)
+ 	struct io_uring_task *tctx = current->io_uring;
+ 	DEFINE_WAIT(wait);
+ 	s64 inflight;
++	int canceled = 0;
+ 
+ 	/* make sure overflow events are dropped */
+ 	atomic_inc(&tctx->in_idle);
+ 
+-	/* trigger io_disable_sqo_submit() */
+-	if (tctx->sqpoll)
+-		__io_uring_files_cancel(NULL);
+-
+ 	do {
+ 		/* read completions before cancelations */
+ 		inflight = tctx_inflight(tctx);
+ 		if (!inflight)
+ 			break;
+ 		__io_uring_files_cancel(NULL);
++		canceled = 1;
+ 
+ 		prepare_to_wait(&tctx->wait, &wait, TASK_UNINTERRUPTIBLE);
+ 
+@@ -8909,6 +8907,21 @@ void __io_uring_task_cancel(void)
+ 		finish_wait(&tctx->wait, &wait);
+ 	} while (1);
+ 
++	/*
++	 * trigger io_disable_sqo_submit()
++	 * if not already done by __io_uring_files_cancel()
++	 */
++	if (tctx->sqpoll && !canceled) {
++		struct file *file;
++		unsigned long index;
++
++		xa_for_each(&tctx->xa, index, file) {
++			struct io_ring_ctx *ctx = file->private_data;
++
++			io_disable_sqo_submit(ctx);
++		}
++	}
++
+ 	atomic_dec(&tctx->in_idle);
+ 
+ 	io_uring_remove_task_files(tctx);
+-- 
+2.33.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.289-1-gdcbe5fad1cc3/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.289-1-gdcbe5fad1cc3
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      dcbe5fad1cc337ba7239e7344154ac8744888236 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61830141988bc46f1b3358e7
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.289-1=
--gdcbe5fad1cc3/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.289-1=
--gdcbe5fad1cc3/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61830141988bc46=
-f1b3358ea
-        failing since 2 days (last pass: v4.9.288-20-g1a0db32ed119, first f=
-ail: v4.9.288-20-g7720b834ad25)
-        2 lines
-
-    2021-11-03T21:37:52.169920  [   19.983032] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-03T21:37:52.212410  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/122
-    2021-11-03T21:37:52.221291  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-11-03T21:37:52.236759  [   20.051666] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
