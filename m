@@ -2,85 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26873444C95
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 01:33:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63B42444CA9
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 01:38:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233116AbhKDAfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Nov 2021 20:35:45 -0400
-Received: from mga05.intel.com ([192.55.52.43]:65415 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231230AbhKDAf1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Nov 2021 20:35:27 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10157"; a="317830396"
-X-IronPort-AV: E=Sophos;i="5.87,207,1631602800"; 
-   d="scan'208";a="317830396"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2021 17:30:19 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,207,1631602800"; 
-   d="scan'208";a="600097810"
-Received: from orsmsx606.amr.corp.intel.com ([10.22.229.19])
-  by orsmga004.jf.intel.com with ESMTP; 03 Nov 2021 17:30:19 -0700
-Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
- ORSMSX606.amr.corp.intel.com (10.22.229.19) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.12; Wed, 3 Nov 2021 17:30:18 -0700
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.12; Wed, 3 Nov 2021 17:30:18 -0700
-Received: from orsmsx610.amr.corp.intel.com ([10.22.229.23]) by
- ORSMSX610.amr.corp.intel.com ([10.22.229.23]) with mapi id 15.01.2242.012;
- Wed, 3 Nov 2021 17:30:18 -0700
-From:   "Souza, Jose" <jose.souza@intel.com>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-CC:     "Zhao, Yakui" <yakui.zhao@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Nikula, Jani" <jani.nikula@intel.com>,
-        "Roper, Matthew D" <matthew.d.roper@intel.com>
-Subject: Re: [PATCH] drm/i915: Remove memory frequency calculation
-Thread-Topic: [PATCH] drm/i915: Remove memory frequency calculation
-Thread-Index: AQHXz032Lz1jntkprUGxox/18SQDWqvyBjkAgAD4ngA=
-Date:   Thu, 4 Nov 2021 00:30:18 +0000
-Message-ID: <fb21fbc6b8b03ffa3df2f629112132664cccda4c.camel@intel.com>
-References: <1635599150237240@kroah.com>
-         <20211101183230.89060-1-jose.souza@intel.com> <YYJaklqD9XAj16Lw@kroah.com>
-In-Reply-To: <YYJaklqD9XAj16Lw@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.22.254.132]
+        id S230030AbhKDAlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Nov 2021 20:41:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55682 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231206AbhKDAlG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Nov 2021 20:41:06 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865EBC061714
+        for <stable@vger.kernel.org>; Wed,  3 Nov 2021 17:38:29 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id u33so4119675pfg.8
+        for <stable@vger.kernel.org>; Wed, 03 Nov 2021 17:38:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=lThHzLv/wG363gQi81E5zzoK+ceJOiKwmMcyQN4fDIg=;
+        b=1/fBiSGMFqEhltr3riWEksE77Y+exx0inKcFEby5Mutc4L+8MfA7QV6rjC8M6i7C6Z
+         YcYGsC6/LU/p6l01aRlesqCaS879Pj0YEmqOyXEwgPMHSP05oI+LaPc9Nz73Hgbzz7cY
+         MxTaO5exY7Aen1yUzXtoNe/Y0KmWbKIavzk+7QA0P3xF9zOnXMPo4gkfaz+P+sjmuSjT
+         vTGieKsaeQyYDj916Jp0eMPDdO5bgBBaxLCv8kgL2n8ZGZefyaeQiG8LTdE8AVrfdQUr
+         gzE3Uz27HefDkKZt2nOLgBIpxfP20xNyQD1XNNCz92/6jAl2MAJOsSNkoz7GQlq4XR5K
+         oUhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=lThHzLv/wG363gQi81E5zzoK+ceJOiKwmMcyQN4fDIg=;
+        b=d5Sqxzch1uwxgjhsOkYSoOoaK2s31mjdyFU1QTAeT3MMfhofTlEjWFaBao4QrxGKh5
+         iC5A8UyUx/t+Wk8lUskbXEvShaEEKDszHolbr9zWu0vw+7ukuWfxThkf+eE/IXkBsNT4
+         sGWjySKvH0nCo6qsw0xElLPZNPBWpM3265CspeBdmtgKTAJxIi1RWBd7l9LeP1oapd3b
+         N8QRbmdFgTK6x/+QqF63orhfXC8YRjv7VA0p7fY/lorxLaLJHU36HFJj0TVVoEriwk+7
+         ITgKLTv3J8u7YFTGPnGIJypFmR7LvpCuksnHz5KNMArpScdG8hlvDihzoSHiRHJ595QH
+         g3cw==
+X-Gm-Message-State: AOAM531jqnFLzM2uR8iq15yap++003+K+jKAMdDfBhpBM2aEy3EBNq9A
+        mppNFe4pPxdQX35iNOkD/n+2dP8mivIJIkK9
+X-Google-Smtp-Source: ABdhPJw/0jy19Gsdo7aEU2ZZUbfF2fhLGxTJaTcsMCAgrtP2nec2XzmPmHT2nYe76TOnfq1cADKxoA==
+X-Received: by 2002:a63:564e:: with SMTP id g14mr6050061pgm.366.1635986308892;
+        Wed, 03 Nov 2021 17:38:28 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m15sm2668299pjf.49.2021.11.03.17.38.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Nov 2021 17:38:28 -0700 (PDT)
+Message-ID: <61832b84.1c69fb81.7352.96ae@mx.google.com>
+Date:   Wed, 03 Nov 2021 17:38:28 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-ID: <FEFC8E587DD68349BEEB79BED4917908@intel.com>
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.14.16-7-g8beefd9827da
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.14 baseline: 158 runs,
+ 1 regressions (v5.14.16-7-g8beefd9827da)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gV2VkLCAyMDIxLTExLTAzIGF0IDEwOjQ2ICswMTAwLCBHcmVnIEtIIHdyb3RlOg0KPiBPbiBN
-b24sIE5vdiAwMSwgMjAyMSBhdCAxMTozMjozMEFNIC0wNzAwLCBKb3PDqSBSb2JlcnRvIGRlIFNv
-dXphIHdyb3RlOg0KPiA+IFRoaXMgbWVtb3J5IGZyZXF1ZW5jeSBjYWxjdWxhdGVkIGlzIG9ubHkg
-dXNlZCB0byBjaGVjayBpZiBpdCBpcyB6ZXJvLA0KPiA+IHdoYXQgaXMgbm90IHVzZWZ1bCBhcyBp
-dCB3aWxsIG5ldmVyIGFjdHVhbGx5IGJlIHplcm8uDQo+ID4gDQo+ID4gQWxzbyB0aGUgY2FsY3Vs
-YXRpb24gaXMgd3JvbmcsIHdlIHNob3VsZCBiZSBjaGVja2luZyBvdGhlciBiaXQgdG8NCj4gPiBz
-ZWxlY3QgdGhlIGFwcHJvcHJpYXRlIGZyZXF1ZW5jeSBtdWx0aXBsaWVyIHdoaWxlIHRoaXMgY29k
-ZSBpcyBzdHVjaw0KPiA+IHdpdGggYSBmaXhlZCBtdWx0aXBsaWVyLg0KPiA+IA0KPiA+IFNvIGhl
-cmUgZHJvcHBpbmcgaXQgYXMgd2hvbGUuDQo+ID4gDQo+ID4gdjI6DQo+ID4gLSBBbHNvIHJlbW92
-ZSBtZW1vcnkgZnJlcXVlbmN5IGNhbGN1bGF0aW9uIGZvciBnZW45IExQIHBsYXRmb3Jtcw0KPiA+
-IA0KPiA+IENjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4gIyA1LjE0LXN0YWJsZQ0KPiA+IENj
-OiBZYWt1aSBaaGFvIDx5YWt1aS56aGFvQGludGVsLmNvbT4NCj4gPiBDYzogTWF0dCBSb3BlciA8
-bWF0dGhldy5kLnJvcGVyQGludGVsLmNvbT4NCj4gPiBGaXhlczogNWQwYzkzOGVjOWNjICgiZHJt
-L2k5MTUvZ2VuMTErOiBPbmx5IGxvYWQgRFJBTSBpbmZvcm1hdGlvbiBmcm9tIHBjb2RlIikNCj4g
-PiBTaWduZWQtb2ZmLWJ5OiBKb3PDqSBSb2JlcnRvIGRlIFNvdXphIDxqb3NlLnNvdXphQGludGVs
-LmNvbT4NCj4gPiBSZXZpZXdlZC1ieTogTWF0dCBSb3BlciA8bWF0dGhldy5kLnJvcGVyQGludGVs
-LmNvbT4NCj4gPiBMaW5rOiBodHRwczovL3BhdGNod29yay5mcmVlZGVza3RvcC5vcmcvcGF0Y2gv
-bXNnaWQvMjAyMTEwMTMwMTAwNDYuOTE4NTgtMS1qb3NlLnNvdXphQGludGVsLmNvbQ0KPiA+IChj
-aGVycnkgcGlja2VkIGZyb20gY29tbWl0IDgzZjUyMzY0YjE1MjY1YWVjNDdkMDdlMDJiMGZiZjQw
-OTNhYjg1NTQpDQo+IA0KPiBUaGVyZSBpcyBubyBzdWNoIGNvbW1pdCBpbiBMaW51cydzIHRyZWUu
-DQo+IA0KPiBXaGF0IGNvbW1pdCBpcyB0aGlzIHRoYXQgaXMgYmVpbmcgYmFja3BvcnRlZD8NCg0K
-SXQgaXMgb24gTGludXMncyB0cmVlOg0KDQpodHRwczovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20v
-bGludXgva2VybmVsL2dpdC90b3J2YWxkcy9saW51eC5naXQvY29tbWl0Lz9pZD04M2Y1MjM2NGIx
-NTI2NWFlYzQ3ZDA3ZTAyYjBmYmY0MDkzYWI4NTU0DQoNCj4gDQo+IGNvbmZ1c2VkLA0KPiANCj4g
-Z3JlZyBrLWgNCg0K
+stable-rc/queue/5.14 baseline: 158 runs, 1 regressions (v5.14.16-7-g8beefd9=
+827da)
+
+Regressions Summary
+-------------------
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
+nel/v5.14.16-7-g8beefd9827da/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.14
+  Describe: v5.14.16-7-g8beefd9827da
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8beefd9827daa6d16e037ca1bbb31947a7d90de6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/6182f96266563d69ea3358fd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.16-=
+7-g8beefd9827da/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
+-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.16-=
+7-g8beefd9827da/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
+-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6182f96266563d69ea335=
+8fe
+        failing since 10 days (last pass: v5.14.14-64-gb66eb77f69e4, first =
+fail: v5.14.14-124-g710e5bbf51e3) =
+
+ =20
