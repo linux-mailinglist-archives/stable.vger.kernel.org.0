@@ -2,153 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6DB14454A5
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 299824454C2
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231533AbhKDOQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:16:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45100 "EHLO mail.kernel.org"
+        id S231709AbhKDOR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:17:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231487AbhKDOQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:16:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E0C2611EF;
-        Thu,  4 Nov 2021 14:13:57 +0000 (UTC)
+        id S231760AbhKDORI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:17:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 760956120E;
+        Thu,  4 Nov 2021 14:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035238;
-        bh=G3kleL1NijbnAK4oPgI+O5AkT2cjKzCBAC9RWMZA7Ro=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dYGnVuD0QXZqkQp5VtSPpbSFrNXBdi3F1kwh69yo/v0aVuvJQNsvEDxZ32KRJE6HD
-         ZUQ69zRL2k+UUVVY9VvFuFZka1Uy70rxPX5tW5sGyWzQavrgQBQF52imrdQf9yqKEI
-         VvhlaPbfUtT7MgaSMYvZRGbLXhK39pKBc0Eff/EE=
+        s=korg; t=1636035269;
+        bh=8gF1ytMAlSbNADtEh0Ln9jSLFrzuCedBjtVmYNAc3J8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=kSHk4mSdeHOHVh/j7tIIH/PLhlzuHkizeCDK0+9W9qrwo8U7tu+V9a+fhJa+ivA8H
+         lUtXgU8d2NU5qhzh2WoGOCKh9oaX03KxApIeGInqMCxh5a9BCcOXtMBhNNUWavxDCq
+         uOgMR0cbNoND9oGa8pCwMSRYnwm0/deWvvlM0nzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Chris Chiu <chris.chiu@canonical.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 5.15 04/12] Revert "usb: core: hcd: Add support for deferring roothub registration"
-Date:   Thu,  4 Nov 2021 15:12:30 +0100
-Message-Id: <20211104141159.699603634@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.14 00/16] 5.14.17-rc1 review
+Date:   Thu,  4 Nov 2021 15:12:31 +0100
+Message-Id: <20211104141159.863820939@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211104141159.551636584@linuxfoundation.org>
-References: <20211104141159.551636584@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.17-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.14.17-rc1
+X-KernelTest-Deadline: 2021-11-06T14:12+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is the start of the stable review cycle for the 5.14.17 release.
+There are 16 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-This reverts commit 58877b0824da15698bd85a0a9dbfa8c354e6ecb7.
+Responses should be made by Sat, 06 Nov 2021 14:11:51 +0000.
+Anything received after that time might be too late.
 
-It has been reported to be causing problems in Arch and Fedora bug
-reports.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.17-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
+and the diffstat can be found below.
 
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://bbs.archlinux.org/viewtopic.php?pid=2000956#p2000956
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2019542
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2019576
-Link: https://lore.kernel.org/r/42bcbea6-5eb8-16c7-336a-2cb72e71bc36@redhat.com
-Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc: Chris Chiu <chris.chiu@canonical.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/core/hcd.c  |   29 ++++++-----------------------
- include/linux/usb/hcd.h |    2 --
- 2 files changed, 6 insertions(+), 25 deletions(-)
+thanks,
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -2795,7 +2795,6 @@ int usb_add_hcd(struct usb_hcd *hcd,
- {
- 	int retval;
- 	struct usb_device *rhdev;
--	struct usb_hcd *shared_hcd;
- 
- 	if (!hcd->skip_phy_initialization && usb_hcd_is_primary_hcd(hcd)) {
- 		hcd->phy_roothub = usb_phy_roothub_alloc(hcd->self.sysdev);
-@@ -2956,26 +2955,13 @@ int usb_add_hcd(struct usb_hcd *hcd,
- 		goto err_hcd_driver_start;
- 	}
- 
--	/* starting here, usbcore will pay attention to the shared HCD roothub */
--	shared_hcd = hcd->shared_hcd;
--	if (!usb_hcd_is_primary_hcd(hcd) && shared_hcd && HCD_DEFER_RH_REGISTER(shared_hcd)) {
--		retval = register_root_hub(shared_hcd);
--		if (retval != 0)
--			goto err_register_root_hub;
--
--		if (shared_hcd->uses_new_polling && HCD_POLL_RH(shared_hcd))
--			usb_hcd_poll_rh_status(shared_hcd);
--	}
--
- 	/* starting here, usbcore will pay attention to this root hub */
--	if (!HCD_DEFER_RH_REGISTER(hcd)) {
--		retval = register_root_hub(hcd);
--		if (retval != 0)
--			goto err_register_root_hub;
-+	retval = register_root_hub(hcd);
-+	if (retval != 0)
-+		goto err_register_root_hub;
- 
--		if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
--			usb_hcd_poll_rh_status(hcd);
--	}
-+	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
-+		usb_hcd_poll_rh_status(hcd);
- 
- 	return retval;
- 
-@@ -3013,7 +2999,6 @@ EXPORT_SYMBOL_GPL(usb_add_hcd);
- void usb_remove_hcd(struct usb_hcd *hcd)
- {
- 	struct usb_device *rhdev = hcd->self.root_hub;
--	bool rh_registered;
- 
- 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
- 
-@@ -3024,7 +3009,6 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 
- 	dev_dbg(hcd->self.controller, "roothub graceful disconnect\n");
- 	spin_lock_irq (&hcd_root_hub_lock);
--	rh_registered = hcd->rh_registered;
- 	hcd->rh_registered = 0;
- 	spin_unlock_irq (&hcd_root_hub_lock);
- 
-@@ -3034,8 +3018,7 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 	cancel_work_sync(&hcd->died_work);
- 
- 	mutex_lock(&usb_bus_idr_lock);
--	if (rh_registered)
--		usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
-+	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
- 	mutex_unlock(&usb_bus_idr_lock);
- 
- 	/*
---- a/include/linux/usb/hcd.h
-+++ b/include/linux/usb/hcd.h
-@@ -124,7 +124,6 @@ struct usb_hcd {
- #define HCD_FLAG_RH_RUNNING		5	/* root hub is running? */
- #define HCD_FLAG_DEAD			6	/* controller has died? */
- #define HCD_FLAG_INTF_AUTHORIZED	7	/* authorize interfaces? */
--#define HCD_FLAG_DEFER_RH_REGISTER	8	/* Defer roothub registration */
- 
- 	/* The flags can be tested using these macros; they are likely to
- 	 * be slightly faster than test_bit().
-@@ -135,7 +134,6 @@ struct usb_hcd {
- #define HCD_WAKEUP_PENDING(hcd)	((hcd)->flags & (1U << HCD_FLAG_WAKEUP_PENDING))
- #define HCD_RH_RUNNING(hcd)	((hcd)->flags & (1U << HCD_FLAG_RH_RUNNING))
- #define HCD_DEAD(hcd)		((hcd)->flags & (1U << HCD_FLAG_DEAD))
--#define HCD_DEFER_RH_REGISTER(hcd) ((hcd)->flags & (1U << HCD_FLAG_DEFER_RH_REGISTER))
- 
- 	/*
- 	 * Specifies if interfaces are authorized by default
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.14.17-rc1
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Add Audient iD14 to mixer map quirk table
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Add Schiit Hel device to mixer map quirk table
+
+Matthew Brost <matthew.brost@intel.com>
+    Revert "drm/i915/gt: Propagate change in error status to children on unhold"
+
+Anson Jacob <Anson.Jacob@amd.com>
+    drm/amd/display: Revert "Directly retrain link from debugfs"
+
+Christian König <christian.koenig@amd.com>
+    drm/amdgpu: revert "Add autodump debugfs node for gpu reset v8"
+
+Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+    Revert "wcn36xx: Disable bmps when encryption is disabled"
+
+Wang Kefeng <wangkefeng.wang@huawei.com>
+    ARM: 9120/1: Revert "amba: make use of -1 IRQs warn"
+
+Lucas Stach <l.stach@pengutronix.de>
+    Revert "soc: imx: gpcv2: move reset assert after requesting domain power up"
+
+José Roberto de Souza <jose.souza@intel.com>
+    drm/i915: Remove memory frequency calculation
+
+Yifan Zhang <yifan1.zhang@amd.com>
+    drm/amdkfd: fix boot failure when iommu is disabled in Picasso.
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "usb: core: hcd: Add support for deferring roothub registration"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "xhci: Set HCD flag to defer primary roothub registration"
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    media: firewire: firedtv-avc: fix a buffer overflow in avc_ca_pmt()
+
+Eugene Crosser <crosser@average.org>
+    vrf: Revert "Reset skb conntrack connection..."
+
+Erik Ekman <erik@kryo.se>
+    sfc: Fix reading non-legacy supported link modes
+
+Ming Lei <ming.lei@redhat.com>
+    scsi: core: Put LLD module refcnt after SCSI device is released
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ drivers/amba/bus.c                                 |  3 -
+ drivers/gpu/drm/amd/amdgpu/amdgpu.h                |  2 -
+ drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c        | 80 ----------------------
+ drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.h        |  5 --
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c         |  8 ---
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c            |  3 +
+ .../drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c  |  3 +-
+ .../gpu/drm/i915/gt/intel_execlists_submission.c   |  4 --
+ drivers/gpu/drm/i915/i915_reg.h                    |  8 ---
+ drivers/gpu/drm/i915/intel_dram.c                  | 30 +-------
+ drivers/media/firewire/firedtv-avc.c               | 14 +++-
+ drivers/media/firewire/firedtv-ci.c                |  2 +
+ drivers/net/ethernet/sfc/ethtool_common.c          | 10 +--
+ drivers/net/vrf.c                                  |  4 --
+ drivers/net/wireless/ath/wcn36xx/main.c            | 10 ---
+ drivers/net/wireless/ath/wcn36xx/pmc.c             |  5 +-
+ drivers/net/wireless/ath/wcn36xx/wcn36xx.h         |  1 -
+ drivers/scsi/scsi.c                                |  4 +-
+ drivers/scsi/scsi_sysfs.c                          |  9 +++
+ drivers/soc/imx/gpcv2.c                            |  4 +-
+ drivers/usb/core/hcd.c                             | 29 ++------
+ drivers/usb/host/xhci.c                            |  1 -
+ include/linux/usb/hcd.h                            |  2 -
+ sound/usb/mixer_maps.c                             |  8 +++
+ 25 files changed, 53 insertions(+), 200 deletions(-)
 
 
