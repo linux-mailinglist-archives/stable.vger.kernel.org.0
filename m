@@ -2,133 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA67445067
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 09:35:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAD5D44508B
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 09:44:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230467AbhKDIhz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 04:37:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52968 "EHLO mail.kernel.org"
+        id S231137AbhKDIr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 04:47:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230410AbhKDIht (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 04:37:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5E7D611CB;
-        Thu,  4 Nov 2021 08:35:10 +0000 (UTC)
+        id S231160AbhKDIr1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 04:47:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 292056121E;
+        Thu,  4 Nov 2021 08:44:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636014911;
-        bh=+UAkRrFFch22X7642iIOQo7roal4lSmXVN1jw2B0LFA=;
+        s=korg; t=1636015489;
+        bh=kwiMbVSFUNrWxc9I+E615tdE1kmkiFiM6b1Af4OjufA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nlKmrxIcvLo9iKreFITSTsmfNMw9MhZtS/doOEhrynLCh+2S37qiw+DIAvBohsiA+
-         eWJypCbEbb1MKAJ062CqvAWWAw/SGjKjXif9Za0uKL+p+mAMraHDbqkH1tiHqTniG6
-         Tcr4xm5h6661oLizgg1SS8L7eNRaE0rEvJUwERwE=
-Date:   Thu, 4 Nov 2021 09:34:58 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Stefan Agner <stefan@agner.ch>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Palmer Dabbelt <palmer@sifive.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
-        "open list:MIPS" <linux-mips@linux-mips.org>,
-        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        "open list:RISC-V ARCHITECTURE" <linux-riscv@lists.infradead.org>,
-        "open list:GENERIC INCLUDE/ASM HEADER FILES" 
-        <linux-arch@vger.kernel.org>
-Subject: Re: [PATCH stable 4.19 1/1] arch: pgtable: define
- MAX_POSSIBLE_PHYSMEM_BITS where needed
-Message-ID: <YYObMlXLFi7pAJ83@kroah.com>
-References: <20211103205656.374678-1-f.fainelli@gmail.com>
+        b=0YPm3BSITEzrUrHl4UtOiIRtRAZ462IMRYImpfOPmPOFL0cVUoVRJfWmIemS63AxK
+         G3bwKQWOT1/UKTv4Istd3WbOGRZZ9zMpGKaqb0Hg8DG58cfsgTRi/CANIwNNXvd/0N
+         ACNYT+DMITJKiLMPkB5wtYfQZu/f78hCFhMSsxB0=
+Date:   Thu, 4 Nov 2021 09:44:47 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+Cc:     Karol Herbst <kherbst@redhat.com>, Sven Joachim <svenjoac@gmx.de>,
+        "Erhard F." <erhard_f@mailbox.org>,
+        nouveau <nouveau@lists.freedesktop.org>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Huang Rui <ray.huang@amd.com>
+Subject: Re: [Nouveau] [PATCH 5.10 32/77] drm/ttm: fix memleak in
+ ttm_transfered_destroy
+Message-ID: <YYOdfzrgpD2LST88@kroah.com>
+References: <20211101082511.254155853@linuxfoundation.org>
+ <20211101082518.624936309@linuxfoundation.org>
+ <871r3x2f0y.fsf@turtle.gmx.de>
+ <CACO55tsq6DOZnyCZrg+N3m_hseJfN_6+YhjDyxVBAGq9PFJmGA@mail.gmail.com>
+ <CACO55tsQVcUHNWAkWcbJ8i-S5pgKhrin-Nb3JYswcBPDd3Wj4w@mail.gmail.com>
+ <87tugt0xx6.fsf@turtle.gmx.de>
+ <CACO55tsNKKTW6X_+Ym0oySX-iNtikyV6rgHGu01Co7_mDWkxhg@mail.gmail.com>
+ <1a1cc125-9314-f569-a6c4-40fc4509a377@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20211103205656.374678-1-f.fainelli@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1a1cc125-9314-f569-a6c4-40fc4509a377@amd.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 03, 2021 at 01:56:56PM -0700, Florian Fainelli wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+On Thu, Nov 04, 2021 at 08:39:18AM +0100, Christian König wrote:
+> Am 03.11.21 um 22:25 schrieb Karol Herbst:
+> > On Wed, Nov 3, 2021 at 9:47 PM Sven Joachim <svenjoac@gmx.de> wrote:
+> > > On 2021-11-03 21:32 +0100, Karol Herbst wrote:
+> > > 
+> > > > On Wed, Nov 3, 2021 at 9:29 PM Karol Herbst <kherbst@redhat.com> wrote:
+> > > > > On Wed, Nov 3, 2021 at 8:52 PM Sven Joachim <svenjoac@gmx.de> wrote:
+> > > > > > On 2021-11-01 10:17 +0100, Greg Kroah-Hartman wrote:
+> > > > > > 
+> > > > > > > From: Christian König <christian.koenig@amd.com>
+> > > > > > > 
+> > > > > > > commit 0db55f9a1bafbe3dac750ea669de9134922389b5 upstream.
+> > > > > > > 
+> > > > > > > We need to cleanup the fences for ghost objects as well.
+> > > > > > > 
+> > > > > > > Signed-off-by: Christian König <christian.koenig@amd.com>
+> > > > > > > Reported-by: Erhard F. <erhard_f@mailbox.org>
+> > > > > > > Tested-by: Erhard F. <erhard_f@mailbox.org>
+> > > > > > > Reviewed-by: Huang Rui <ray.huang@amd.com>
+> > > > > > > Bug: https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fbugzilla.kernel.org%2Fshow_bug.cgi%3Fid%3D214029&amp;data=04%7C01%7Cchristian.koenig%40amd.com%7C9b70f83c53c74b35fee808d99f1091b3%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C0%7C637715715806624439%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C1000&amp;sdata=UIo0hw0OHeLlGL%2Bcj%2Fjt%2FgTwniaJoNmhgDHSFvymhCc%3D&amp;reserved=0
+> > > > > > > Bug: https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fbugzilla.kernel.org%2Fshow_bug.cgi%3Fid%3D214447&amp;data=04%7C01%7Cchristian.koenig%40amd.com%7C9b70f83c53c74b35fee808d99f1091b3%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C0%7C637715715806634433%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C1000&amp;sdata=TIAUb6AdYm2Bo0%2BvFZUFPS8yu55orjnfxMLCmUgC%2FDk%3D&amp;reserved=0
+> > > > > > > CC: <stable@vger.kernel.org>
+> > > > > > > Link: https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fpatchwork.freedesktop.org%2Fpatch%2Fmsgid%2F20211020173211.2247-1-christian.koenig%40amd.com&amp;data=04%7C01%7Cchristian.koenig%40amd.com%7C9b70f83c53c74b35fee808d99f1091b3%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C0%7C637715715806634433%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C1000&amp;sdata=c9i7AR44MVUyZuXHZkLOCBx2%2BZeetq8alGtbz0Wgqzk%3D&amp;reserved=0
+> > > > > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > > > > ---
+> > > > > > >   drivers/gpu/drm/ttm/ttm_bo_util.c |    1 +
+> > > > > > >   1 file changed, 1 insertion(+)
+> > > > > > > 
+> > > > > > > --- a/drivers/gpu/drm/ttm/ttm_bo_util.c
+> > > > > > > +++ b/drivers/gpu/drm/ttm/ttm_bo_util.c
+> > > > > > > @@ -322,6 +322,7 @@ static void ttm_transfered_destroy(struc
+> > > > > > >        struct ttm_transfer_obj *fbo;
+> > > > > > > 
+> > > > > > >        fbo = container_of(bo, struct ttm_transfer_obj, base);
+> > > > > > > +     dma_resv_fini(&fbo->base.base._resv);
+> > > > > > >        ttm_bo_put(fbo->bo);
+> > > > > > >        kfree(fbo);
+> > > > > > >   }
+> > > > > > Alas, this innocuous looking commit causes one of my systems to lock up
+> > > > > > as soon as run startx.  This happens with the nouveau driver, two other
+> > > > > > systems with radeon and intel graphics are not affected.  Also I only
+> > > > > > noticed it in 5.10.77.  Kernels 5.15 and 5.14.16 are not affected, and I
+> > > > > > do not use 5.4 anymore.
+> > > > > > 
+> > > > > > I am not familiar with nouveau's ttm management and what has changed
+> > > > > > there between 5.10 and 5.14, but maybe one of their developers can shed
+> > > > > > a light on this.
+> > > > > > 
+> > > > > > Cheers,
+> > > > > >         Sven
+> > > > > > 
+> > > > > could be related to 265ec0dd1a0d18f4114f62c0d4a794bb4e729bc1
+> > > > maybe not.. but I did remember there being a few tmm related patches
+> > > > which only hurt nouveau :/  I guess one could do a git bisect to
+> > > > figure out what change "fixes" it.
+> > > Maybe, but since the memory leaks reported by Erhard only started to
+> > > show up in 5.14 (if I read the bugzilla reports correctly), perhaps the
+> > > patch should simply be reverted on earlier kernels?
+> > > 
+> > Yeah, I think this is probably the right approach.
 > 
-> [ Upstream commit cef397038167ac15d085914493d6c86385773709 ]
+> I agree. The problem is this memory leak could potentially happen with 5.10
+> as wel, just much much much less likely.
 > 
-> Stefan Agner reported a bug when using zsram on 32-bit Arm machines
-> with RAM above the 4GB address boundary:
+> But my guess is that 5.10 is so buggy that when the leak does NOT happen we
+> double free and obviously causing a crash.
 > 
->   Unable to handle kernel NULL pointer dereference at virtual address 00000000
->   pgd = a27bd01c
->   [00000000] *pgd=236a0003, *pmd=1ffa64003
->   Internal error: Oops: 207 [#1] SMP ARM
->   Modules linked in: mdio_bcm_unimac(+) brcmfmac cfg80211 brcmutil raspberrypi_hwmon hci_uart crc32_arm_ce bcm2711_thermal phy_generic genet
->   CPU: 0 PID: 123 Comm: mkfs.ext4 Not tainted 5.9.6 #1
->   Hardware name: BCM2711
->   PC is at zs_map_object+0x94/0x338
->   LR is at zram_bvec_rw.constprop.0+0x330/0xa64
->   pc : [<c0602b38>]    lr : [<c0bda6a0>]    psr: 60000013
->   sp : e376bbe0  ip : 00000000  fp : c1e2921c
->   r10: 00000002  r9 : c1dda730  r8 : 00000000
->   r7 : e8ff7a00  r6 : 00000000  r5 : 02f9ffa0  r4 : e3710000
->   r3 : 000fdffe  r2 : c1e0ce80  r1 : ebf979a0  r0 : 00000000
->   Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
->   Control: 30c5383d  Table: 235c2a80  DAC: fffffffd
->   Process mkfs.ext4 (pid: 123, stack limit = 0x495a22e6)
->   Stack: (0xe376bbe0 to 0xe376c000)
-> 
-> As it turns out, zsram needs to know the maximum memory size, which
-> is defined in MAX_PHYSMEM_BITS when CONFIG_SPARSEMEM is set, or in
-> MAX_POSSIBLE_PHYSMEM_BITS on the x86 architecture.
-> 
-> The same problem will be hit on all 32-bit architectures that have a
-> physical address space larger than 4GB and happen to not enable sparsemem
-> and include asm/sparsemem.h from asm/pgtable.h.
-> 
-> After the initial discussion, I suggested just always defining
-> MAX_POSSIBLE_PHYSMEM_BITS whenever CONFIG_PHYS_ADDR_T_64BIT is
-> set, or provoking a build error otherwise. This addresses all
-> configurations that can currently have this runtime bug, but
-> leaves all other configurations unchanged.
-> 
-> I looked up the possible number of bits in source code and
-> datasheets, here is what I found:
-> 
->  - on ARC, CONFIG_ARC_HAS_PAE40 controls whether 32 or 40 bits are used
->  - on ARM, CONFIG_LPAE enables 40 bit addressing, without it we never
->    support more than 32 bits, even though supersections in theory allow
->    up to 40 bits as well.
->  - on MIPS, some MIPS32r1 or later chips support 36 bits, and MIPS32r5
->    XPA supports up to 60 bits in theory, but 40 bits are more than
->    anyone will ever ship
->  - On PowerPC, there are three different implementations of 36 bit
->    addressing, but 32-bit is used without CONFIG_PTE_64BIT
->  - On RISC-V, the normal page table format can support 34 bit
->    addressing. There is no highmem support on RISC-V, so anything
->    above 2GB is unused, but it might be useful to eventually support
->    CONFIG_ZRAM for high pages.
-> 
-> Fixes: 61989a80fb3a ("staging: zsmalloc: zsmalloc memory allocation library")
-> Fixes: 02390b87a945 ("mm/zsmalloc: Prepare to variable MAX_PHYSMEM_BITS")
-> Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Reviewed-by: Stefan Agner <stefan@agner.ch>
-> Tested-by: Stefan Agner <stefan@agner.ch>
-> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-> Link: https://lore.kernel.org/linux-mm/bdfa44bf1c570b05d6c70898e2bbb0acf234ecdf.1604762181.git.stefan@agner.ch/
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> [florian: patch arch/powerpc/include/asm/pte-common.h for 4.19.y]
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> So for the sake of stability please don't apply this patch to 5.10. I'm
+> going to comment on the original bug report as well.
 
-All now queued up, thanks.
+Now reverted from 5.10 and 5.4 kernels, thanks,
 
 greg k-h
