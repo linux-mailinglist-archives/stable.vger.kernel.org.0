@@ -2,126 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3FD1445A00
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 19:50:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3A2B445A0F
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 19:54:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230442AbhKDSxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 14:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42354 "EHLO mail.kernel.org"
+        id S231852AbhKDS50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 14:57:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230109AbhKDSxa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 14:53:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36E7060EBD;
-        Thu,  4 Nov 2021 18:50:51 +0000 (UTC)
+        id S231684AbhKDS5Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 14:57:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0B9A6112E;
+        Thu,  4 Nov 2021 18:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636051852;
-        bh=neeyNxkuI99HaYVUJyM0NkweIy5VQIlUtanbkesCaL8=;
+        s=korg; t=1636052086;
+        bh=vB1LbcttBwp8vLqGtNl7l8YpDqhiHiaThXlmJVbnig8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pD6sXSSIH34QdxUdpLgNTVFDwxFMNTSnvBAjo5xd9a7q29h9WuNCIRyAdFwR1Q7h2
-         Fyznb7S4RU0uDaYb/MihAGk56g+k37fxw6Adg45bdSIcpHTfdnLNl88qbPPKVDQYzD
-         DspIGM2sGXiY0SCs1V/cSPrBd4iaXRyBhPwXRerM=
-Date:   Thu, 4 Nov 2021 19:50:49 +0100
+        b=MNuEPS8z3TzgAIwvxTF8Kvx2xwDKkG2Rx55yw6OPp5dOY4Ft9DRuGxhd/jGPal/Y8
+         RFq+s62a4p5tfUQeLKD8NWVZeh4KsuBwwApzznZw6OjrhuQ5cJOLkpFCX2BChvHoeM
+         D4ioRwCnYElTLvZqGcxP0ZGoMbJRStcwzrDITieI=
+Date:   Thu, 4 Nov 2021 19:54:43 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Yang Shi <shy828301@gmail.com>
-Cc:     HORIGUCHI =?utf-8?B?TkFPWUEo5aCA5Y+jIOebtOS5nyk=?= 
-        <naoya.horiguchi@nec.com>, Hugh Dickins <hughd@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable <stable@vger.kernel.org>, Linux MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [stable 5.10 PATCH] mm: hwpoison: remove the unnecessary THP
- check
-Message-ID: <YYQriRRkWrL0efLY@kroah.com>
-References: <20211101194856.305642-1-shy828301@gmail.com>
- <YYJacGTst7dceD8K@kroah.com>
- <YYQQIu6Xi/iEEb7f@kroah.com>
- <CAHbLzkrZKkS92St-AR-jL8HJYXKOm3EjKkbsaBY58LERh3-_qA@mail.gmail.com>
- <CAHbLzkq6Egjv3=DYXVWC23EQH++an1QN=QtZmz88f1k9-NKODQ@mail.gmail.com>
+To:     Reinette Chatre <reinette.chatre@intel.com>
+Cc:     dave.hansen@linux.intel.com, jarkko@kernel.org, tglx@linutronix.de,
+        bp@alien8.de, mingo@redhat.com, linux-sgx@vger.kernel.org,
+        x86@kernel.org, seanjc@google.com, tony.luck@intel.com,
+        hpa@zytor.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/sgx: Fix free page accounting
+Message-ID: <YYQsc0kktaOdOXb0@kroah.com>
+References: <373992d869cd356ce9e9afe43ef4934b70d604fd.1636049678.git.reinette.chatre@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHbLzkq6Egjv3=DYXVWC23EQH++an1QN=QtZmz88f1k9-NKODQ@mail.gmail.com>
+In-Reply-To: <373992d869cd356ce9e9afe43ef4934b70d604fd.1636049678.git.reinette.chatre@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 04, 2021 at 11:07:05AM -0700, Yang Shi wrote:
-> On Thu, Nov 4, 2021 at 10:43 AM Yang Shi <shy828301@gmail.com> wrote:
-> >
-> > On Thu, Nov 4, 2021 at 9:53 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Wed, Nov 03, 2021 at 10:46:24AM +0100, Greg KH wrote:
-> > > > On Mon, Nov 01, 2021 at 12:48:56PM -0700, Yang Shi wrote:
-> > > > > commit c7cb42e94473aafe553c0f2a3d8ca904599399ed upstream.
-> > > > >
-> > > > > When handling THP hwpoison checked if the THP is in allocation or free
-> > > > > stage since hwpoison may mistreat it as hugetlb page.  After commit
-> > > > > 415c64c1453a ("mm/memory-failure: split thp earlier in memory error
-> > > > > handling") the problem has been fixed, so this check is no longer
-> > > > > needed.  Remove it.  The side effect of the removal is hwpoison may
-> > > > > report unsplit THP instead of unknown error for shmem THP.  It seems not
-> > > > > like a big deal.
-> > > > >
-> > > > > The following patch "mm: filemap: check if THP has hwpoisoned subpage
-> > > > > for PMD page fault" depends on this, which fixes shmem THP with
-> > > > > hwpoisoned subpage(s) are mapped PMD wrongly.  So this patch needs to be
-> > > > > backported to -stable as well.
-> > > > >
-> > > > > Link: https://lkml.kernel.org/r/20211020210755.23964-2-shy828301@gmail.com
-> > > > > Signed-off-by: Yang Shi <shy828301@gmail.com>
-> > > > > Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-> > > > > Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-> > > > > Cc: Hugh Dickins <hughd@google.com>
-> > > > > Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-> > > > > Cc: Matthew Wilcox <willy@infradead.org>
-> > > > > Cc: Oscar Salvador <osalvador@suse.de>
-> > > > > Cc: Peter Xu <peterx@redhat.com>
-> > > > > Cc: <stable@vger.kernel.org>
-> > > > > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > > > > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > > > > ---
-> > > > > mm-filemap-check-if-thp-has-hwpoisoned-subpage-for-pmd-page-fault.patch
-> > > > > depends on this one.
-> > > >
-> > > > Both now queued up, thanks.
-> > >
-> > > This breaks the build, see:
-> > >         https://lore.kernel.org/r/acabc414-164b-cd65-6a1a-cf912d8621d7@roeck-us.net
-> > >
-> > > so I'm going to drop both of these now.  Please fix this up and resend a
-> > > tested series.
-> >
-> > Thanks for catching this. It is because I accidentally left the
-> > PAGEFLAG_* macros into CONFIG_TRANSHUGE_PAGE section, so it is:
-> >
-> > #ifdef CONFIG_TRANSHUGE_PAGE
-> > ...
-> > #if defined(CONFIG_MEMORY_FAILURE) && defined(CONFIG_TRANSHUGE_PAGE)
-> > PAGEFLAG_xxx
-> > #else
-> > PAGEFLAG_FALSE_xxx
-> > #endif
-> > ...
-> > #endif
-> >
-> > So when THP is disabled the PAGEFLAG_FALSE_xxx macro is actually absent.
-> >
-> > The upstream has the same issue, will send a patch to fix it soon, and
-> > send fixes (folded the new fix in) to -stable later. Sorry for the
-> > inconvenience.
+On Thu, Nov 04, 2021 at 11:28:54AM -0700, Reinette Chatre wrote:
+> The SGX driver maintains a single global free page counter,
+> sgx_nr_free_pages, that reflects the number of free pages available
+> across all NUMA nodes. Correspondingly, a list of free pages is
+> associated with each NUMA node and sgx_nr_free_pages is updated
+> every time a page is added or removed from any of the free page
+> lists. The main usage of sgx_nr_free_pages is by the reclaimer
+> that will run when the total free pages go below a watermark to
+> ensure that there are always some free pages available to, for
+> example, support efficient page faults.
 > 
-> Further looking shows the upstream is good. I did *NOT* add the code
-> in CONFIG_TRANSHUGE_PAGE section. It seems the code section was moved
-> around when the patch was applied to 5.10.
+> With sgx_nr_free_pages accessed and modified from a few places
+> it is essential to ensure that these accesses are done safely but
+> this is not the case. sgx_nr_free_pages is sometimes accessed
+> without any protection and when it is protected it is done
+> inconsistently with any one of the spin locks associated with the
+> individual NUMA nodes.
 > 
-> Could you please fold the below patch into
-> mm-filemap-check-if-thp-has-hwpoisoned-subpage-for-pmd-page-fault.patch?
-> Or I could prepare a patch for you.
+> The consequence of sgx_nr_free_pages not being protected is that
+> its value may not accurately reflect the actual number of free
+> pages on the system, impacting the availability of free pages in
+> support of many flows. The problematic scenario is when the
+> reclaimer never runs because it believes there to be sufficient
+> free pages while any attempt to allocate a page fails because there
+> are no free pages available. The worst scenario observed was a
+> user space hang because of repeated page faults caused by
+> no free pages ever made available.
+> 
+> Change the global free page counter to an atomic type that
+> ensures simultaneous updates are done safely. While doing so, move
+> the updating of the variable outside of the spin lock critical
+> section to which it does not belong.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 901ddbb9ecf5 ("x86/sgx: Add a basic NUMA allocation scheme to sgx_alloc_epc_page()")
+> Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+> Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+> ---
+>  arch/x86/kernel/cpu/sgx/main.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
+> index 63d3de02bbcc..8558d7d5f3e7 100644
+> --- a/arch/x86/kernel/cpu/sgx/main.c
+> +++ b/arch/x86/kernel/cpu/sgx/main.c
+> @@ -28,8 +28,7 @@ static DECLARE_WAIT_QUEUE_HEAD(ksgxd_waitq);
+>  static LIST_HEAD(sgx_active_page_list);
+>  static DEFINE_SPINLOCK(sgx_reclaimer_lock);
+>  
+> -/* The free page list lock protected variables prepend the lock. */
+> -static unsigned long sgx_nr_free_pages;
+> +atomic_long_t sgx_nr_free_pages = ATOMIC_LONG_INIT(0);
+>  
+>  /* Nodes with one or more EPC sections. */
+>  static nodemask_t sgx_numa_mask;
+> @@ -403,14 +402,15 @@ static void sgx_reclaim_pages(void)
+>  
+>  		spin_lock(&node->lock);
+>  		list_add_tail(&epc_page->list, &node->free_page_list);
+> -		sgx_nr_free_pages++;
+>  		spin_unlock(&node->lock);
+> +		atomic_long_inc(&sgx_nr_free_pages);
+>  	}
+>  }
+>  
+>  static bool sgx_should_reclaim(unsigned long watermark)
+>  {
+> -	return sgx_nr_free_pages < watermark && !list_empty(&sgx_active_page_list);
+> +	return atomic_long_read(&sgx_nr_free_pages) < watermark &&
+> +	       !list_empty(&sgx_active_page_list);
 
-I need a working patch series please.
+What prevents the value from changing right after you test this?  Why is
+an atomic value somehow solving the problem?
+
+The value changes were happening safely, it was just the reading of the
+value that was not.  You have not changed the fact that the value can
+change right after reading given that there was not going to be a
+problem with reading a stale value before.
+
+In other words, what did you really fix here?  And how did you test it
+to verify it did fix things?
 
 thanks,
 
