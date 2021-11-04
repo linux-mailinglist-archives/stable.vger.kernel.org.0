@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B97B1445503
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A161445505
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231981AbhKDOTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:19:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46008 "EHLO mail.kernel.org"
+        id S232439AbhKDOTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:19:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232057AbhKDOSb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21D266124B;
-        Thu,  4 Nov 2021 14:15:52 +0000 (UTC)
+        id S231849AbhKDOSe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D163B611EF;
+        Thu,  4 Nov 2021 14:15:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035353;
-        bh=9eoeH7pnTJB8v1PA67KVXdtRUWEJcFxuMbcpgedG0ZY=;
+        s=korg; t=1636035356;
+        bh=0aPcunsYFLC5MSQqpQdD2AXO/yvO7Gx/nvo2FCCSajA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LsKbGkhLV6d9fBfGIjistFZVSndvlimREr0EKB3e1c9Yn7NEV6DuDyShmrjfEXaKy
-         /3vq+p76NVE522hG9gfn8qbLzq2+Zx0+SE1spuuLthq56b9iS6Y2CeoADkGqLyby7C
-         s2huwtsS1yeRWEKYX5XKymI7NEirmeouJQmRx/es=
+        b=LroZiKsCI91qQC/3MO3cPghExnTFUQ9/ixTw5eCmX4rkje3wCWgwDsiSxniddfoOs
+         JDbOuwokSw0mSXfmzlBgZ7erTRcu6O5vXcAYKbaPe0C5IdMu/Usm/uBVTk62YSj0Rj
+         +li8evlx0t2/xphAaQsvN9s6SGUtbxH4LCy6fOFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luo Likang <luolikang@nsfocus.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 4/9] media: firewire: firedtv-avc: fix a buffer overflow in avc_ca_pmt()
-Date:   Thu,  4 Nov 2021 15:12:57 +0100
-Message-Id: <20211104141158.527662375@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Chris Chiu <chris.chiu@canonical.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 5.4 5/9] Revert "xhci: Set HCD flag to defer primary roothub registration"
+Date:   Thu,  4 Nov 2021 15:12:58 +0100
+Message-Id: <20211104141158.561738875@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211104141158.384397574@linuxfoundation.org>
 References: <20211104141158.384397574@linuxfoundation.org>
@@ -41,84 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 35d2969ea3c7d32aee78066b1f3cf61a0d935a4e upstream.
+This reverts commit 2d7c20db7220bc8dbc560de6e58f024696c790e5 which is
+commit b7a0a792f864583207c593b50fd1b752ed89f4c1 upstream.
 
-The bounds checking in avc_ca_pmt() is not strict enough.  It should
-be checking "read_pos + 4" because it's reading 5 bytes.  If the
-"es_info_length" is non-zero then it reads a 6th byte so there needs to
-be an additional check for that.
+It has been reported to be causing problems in Arch and Fedora bug
+reports.
 
-I also added checks for the "write_pos".  I don't think these are
-required because "read_pos" and "write_pos" are tied together so
-checking one ought to be enough.  But they make the code easier to
-understand for me.  The check on write_pos is:
-
-	if (write_pos + 4 >= sizeof(c->operand) - 4) {
-
-The first "+ 4" is because we're writing 5 bytes and the last " - 4"
-is to leave space for the CRC.
-
-The other problem is that "length" can be invalid.  It comes from
-"data_length" in fdtv_ca_pmt().
-
-Cc: stable@vger.kernel.org
-Reported-by: Luo Likang <luolikang@nsfocus.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://bbs.archlinux.org/viewtopic.php?pid=2000956#p2000956
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2019542
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2019576
+Link: https://lore.kernel.org/r/42bcbea6-5eb8-16c7-336a-2cb72e71bc36@redhat.com
+Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc: Chris Chiu <chris.chiu@canonical.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/firewire/firedtv-avc.c |   14 +++++++++++---
- drivers/media/firewire/firedtv-ci.c  |    2 ++
- 2 files changed, 13 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/media/firewire/firedtv-avc.c
-+++ b/drivers/media/firewire/firedtv-avc.c
-@@ -1165,7 +1165,11 @@ int avc_ca_pmt(struct firedtv *fdtv, cha
- 		read_pos += program_info_length;
- 		write_pos += program_info_length;
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -693,7 +693,6 @@ int xhci_run(struct usb_hcd *hcd)
+ 		if (ret)
+ 			xhci_free_command(xhci, command);
  	}
--	while (read_pos < length) {
-+	while (read_pos + 4 < length) {
-+		if (write_pos + 4 >= sizeof(c->operand) - 4) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
- 		c->operand[write_pos++] = msg[read_pos++];
- 		c->operand[write_pos++] = msg[read_pos++];
- 		c->operand[write_pos++] = msg[read_pos++];
-@@ -1177,13 +1181,17 @@ int avc_ca_pmt(struct firedtv *fdtv, cha
- 		c->operand[write_pos++] = es_info_length >> 8;
- 		c->operand[write_pos++] = es_info_length & 0xff;
- 		if (es_info_length > 0) {
-+			if (read_pos >= length) {
-+				ret = -EINVAL;
-+				goto out;
-+			}
- 			pmt_cmd_id = msg[read_pos++];
- 			if (pmt_cmd_id != 1 && pmt_cmd_id != 4)
- 				dev_err(fdtv->device, "invalid pmt_cmd_id %d at stream level\n",
- 					pmt_cmd_id);
+-	set_bit(HCD_FLAG_DEFER_RH_REGISTER, &hcd->flags);
+ 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+ 			"Finished xhci_run for USB2 roothub");
  
--			if (es_info_length > sizeof(c->operand) - 4 -
--					     write_pos) {
-+			if (es_info_length > sizeof(c->operand) - 4 - write_pos ||
-+			    es_info_length > length - read_pos) {
- 				ret = -EINVAL;
- 				goto out;
- 			}
---- a/drivers/media/firewire/firedtv-ci.c
-+++ b/drivers/media/firewire/firedtv-ci.c
-@@ -134,6 +134,8 @@ static int fdtv_ca_pmt(struct firedtv *f
- 	} else {
- 		data_length = msg->msg[3];
- 	}
-+	if (data_length > sizeof(msg->msg) - data_pos)
-+		return -EINVAL;
- 
- 	return avc_ca_pmt(fdtv, &msg->msg[data_pos], data_length);
- }
 
 
