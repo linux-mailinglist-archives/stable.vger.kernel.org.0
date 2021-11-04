@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A4D04454D4
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:15:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED08F4454E3
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:15:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232148AbhKDOSB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:18:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
+        id S231862AbhKDOSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:18:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231340AbhKDORa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:17:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8291960F39;
-        Thu,  4 Nov 2021 14:14:52 +0000 (UTC)
+        id S232073AbhKDORv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:17:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D9AA6120E;
+        Thu,  4 Nov 2021 14:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035293;
-        bh=3QhjiIyMNUgU0MFVpRBEiZu9fRWapBRgsTDDiBQJMCc=;
+        s=korg; t=1636035313;
+        bh=ujny/hXFp3AvZh0QyayQ+Hh5MkuhK45jjzRAg3IQCKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CUypTPUZrIvzH5WYt1qCNJHoOyC/f58/Fxu6TDB84IitlOnOMEE6RY8Zx9JmKOGSP
-         Ja0C8zDutTGKnYobLTSHEx8GNA9hCFi4vTEAPY4TdrzTTPUAeOF1NKVwGGV/70e100
-         QfKXJLDIGCb16LY1WmiOFaBnh4fltzHQ3CccRsUo=
+        b=DOZ2nKdZSbnxjNQM4v/NBja4FZ9M2B9AZzU2AvNPLvHdeqP7KdUmVIgLzWp1Qz8CM
+         P3tyHpEUR3/K2u58O0RhRXnEbyv8QdLVDirgnBemD+1OUUJvxuOdHyGm+yYrEentQ7
+         d/dM6cyGZYLIjb0Vf4LKu7a/+h9bzXoJJciZZD4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Brost <matthew.brost@intel.com>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        John Harrison <John.C.Harrison@Intel.com>
-Subject: [PATCH 5.14 14/16] Revert "drm/i915/gt: Propagate change in error status to children on unhold"
+        stable@vger.kernel.org, Yang Shi <shy828301@gmail.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Hugh Dickins <hughd@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 06/16] mm: hwpoison: remove the unnecessary THP check
 Date:   Thu,  4 Nov 2021 15:12:45 +0100
-Message-Id: <20211104141200.337794785@linuxfoundation.org>
+Message-Id: <20211104141159.791436498@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211104141159.863820939@linuxfoundation.org>
-References: <20211104141159.863820939@linuxfoundation.org>
+In-Reply-To: <20211104141159.561284732@linuxfoundation.org>
+References: <20211104141159.561284732@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Brost <matthew.brost@intel.com>
+From: Yang Shi <shy828301@gmail.com>
 
-commit ac653dd7996edf1770959e11a078312928bd7315 upstream.
+commit c7cb42e94473aafe553c0f2a3d8ca904599399ed upstream.
 
-Propagating errors to dependent fences is broken and can lead to errors
-from one client ending up in another. In commit 3761baae908a ("Revert
-"drm/i915: Propagate errors on awaiting already signaled fences""), we
-attempted to get rid of fence error propagation but missed the case
-added in commit 8e9f84cf5cac ("drm/i915/gt: Propagate change in error
-status to children on unhold"). Revert that one too. This error was
-found by an up-and-coming selftest which triggers a reset during
-request cancellation and verifies that subsequent requests complete
-successfully.
+When handling THP hwpoison checked if the THP is in allocation or free
+stage since hwpoison may mistreat it as hugetlb page.  After commit
+415c64c1453a ("mm/memory-failure: split thp earlier in memory error
+handling") the problem has been fixed, so this check is no longer
+needed.  Remove it.  The side effect of the removal is hwpoison may
+report unsplit THP instead of unknown error for shmem THP.  It seems not
+like a big deal.
 
-v2:
- (Daniel Vetter)
-  - Use revert
-v3:
- (Jason)
-  - Update commit message
+The following patch "mm: filemap: check if THP has hwpoisoned subpage
+for PMD page fault" depends on this, which fixes shmem THP with
+hwpoisoned subpage(s) are mapped PMD wrongly.  So this patch needs to be
+backported to -stable as well.
 
-v4 (Daniele):
- - fix checkpatch error in commit message.
-
-Signed-off-by: Matthew Brost <matthew.brost@intel.com>
-Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210909164744.31249-8-matthew.brost@intel.com
+Link: https://lkml.kernel.org/r/20211020210755.23964-2-shy828301@gmail.com
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/gpu/drm/i915/gt/intel_execlists_submission.c |    4 ----
- 1 file changed, 4 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-+++ b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
-@@ -2091,10 +2091,6 @@ static void __execlists_unhold(struct i9
- 			if (p->flags & I915_DEPENDENCY_WEAK)
- 				continue;
+---
+ mm/memory-failure.c |   14 --------------
+ 1 file changed, 14 deletions(-)
+
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -956,20 +956,6 @@ static int get_hwpoison_page(struct page
+ {
+ 	struct page *head = compound_head(page);
  
--			/* Propagate any change in error status */
--			if (rq->fence.error)
--				i915_request_set_error_once(w, rq->fence.error);
+-	if (!PageHuge(head) && PageTransHuge(head)) {
+-		/*
+-		 * Non anonymous thp exists only in allocation/free time. We
+-		 * can't handle such a case correctly, so let's give it up.
+-		 * This should be better than triggering BUG_ON when kernel
+-		 * tries to touch the "partially handled" page.
+-		 */
+-		if (!PageAnon(head)) {
+-			pr_err("Memory failure: %#lx: non anonymous thp\n",
+-				page_to_pfn(page));
+-			return 0;
+-		}
+-	}
 -
- 			if (w->engine != rq->engine)
- 				continue;
- 
+ 	if (get_page_unless_zero(head)) {
+ 		if (head == compound_head(page))
+ 			return 1;
 
 
