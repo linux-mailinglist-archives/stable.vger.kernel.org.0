@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 237334454F6
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FE534454FD
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231927AbhKDOTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:19:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46316 "EHLO mail.kernel.org"
+        id S232248AbhKDOTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:19:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231929AbhKDOSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77F57610FD;
-        Thu,  4 Nov 2021 14:15:36 +0000 (UTC)
+        id S232265AbhKDOSX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6A4561244;
+        Thu,  4 Nov 2021 14:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035337;
-        bh=w/K6LTDPvitp77ZJOGzCUIMPaqqj3t9T6pvmK1zUl8c=;
+        s=korg; t=1636035345;
+        bh=dCt/v9KhBK7diItIio296/T00c9URqlC+1F/Cbqh1C4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Av9S0mXIwLZBNA5GLDiWV7V6AQacfuwMTeCPRCS4g7cGF+P2ZziOhBP+u/dfys+z
-         LWH9XfCDd+KFlTVj3bYMcRIMJRKrK7zdCIwkSbO7snsPhLi4di/mlX56LXomeJ815f
-         er+qCf7C3XvJL7NP+LW9/swo5dAwHH2gOjQbufxs=
+        b=qi5m1DSAnLY3D0TYY18VPc7DtIKB1JD3rAOu5VBEfCjE0AHhrgbbt9jC9WXDVbN5u
+         mvxFjbpwejBBJ0ceazLy7o/rLiXsgX5ROP+lTS5WIsG9BdoIqtOlE25xRpHT2BjJOV
+         5B7j7JzJluqSDbzppy7DJhBSc2jJqgN0rXZC0ePE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 15/16] ALSA: usb-audio: Add Schiit Hel device to mixer map quirk table
+        stable@vger.kernel.org, Changhui Zhong <czhong@redhat.com>,
+        Yi Zhang <yi.zhang@redhat.com>, Ming Lei <ming.lei@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 1/9] scsi: core: Put LLD module refcnt after SCSI device is released
 Date:   Thu,  4 Nov 2021 15:12:54 +0100
-Message-Id: <20211104141200.091300223@linuxfoundation.org>
+Message-Id: <20211104141158.434717408@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211104141159.561284732@linuxfoundation.org>
-References: <20211104141159.561284732@linuxfoundation.org>
+In-Reply-To: <20211104141158.384397574@linuxfoundation.org>
+References: <20211104141158.384397574@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -38,45 +42,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 22390ce786c59328ccd13c329959dee1e8757487 upstream.
+commit f2b85040acec9a928b4eb1b57a989324e8e38d3f upstream.
 
-This is a fix equivalent with the upstream commit 22390ce786c5 ("ALSA:
-usb-audio: add Schiit Hel device to quirk table"), adapted to the
-earlier kernels up to 5.14.y.  It adds the quirk entry with the old
-ignore_ctl_error flag to the usbmix_ctl_maps, instead.
+SCSI host release is triggered when SCSI device is freed. We have to make
+sure that the low-level device driver module won't be unloaded before SCSI
+host instance is released because shost->hostt is required in the release
+handler.
 
-The original patch description says:
-    The Shciit Hel device responds to the ctl message for the mic capture
-    switch with a timeout of -EPIPE:
+Make sure to put LLD module refcnt after SCSI device is released.
 
-            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
-            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
-            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
-            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
+Fixes a kernel panic of 'BUG: unable to handle page fault for address'
+reported by Changhui and Yi.
 
-    This seems safe to ignore as the device works properly with the control
-    message quirk, so add it to the quirk table so all is good.
-
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20211008050118.1440686-1-ming.lei@redhat.com
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Changhui Zhong <czhong@redhat.com>
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/mixer_maps.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/scsi.c       |    4 +++-
+ drivers/scsi/scsi_sysfs.c |    9 +++++++++
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -539,6 +539,10 @@ static const struct usbmix_ctl_map usbmi
- 		.map = scms_usb3318_map,
- 	},
- 	{
-+		.id = USB_ID(0x30be, 0x0101), /*  Schiit Hel */
-+		.ignore_ctl_error = 1,
-+	},
-+	{
- 		/* Bose Companion 5 */
- 		.id = USB_ID(0x05a7, 0x1020),
- 		.map = bose_companion5_map,
+--- a/drivers/scsi/scsi.c
++++ b/drivers/scsi/scsi.c
+@@ -555,8 +555,10 @@ EXPORT_SYMBOL(scsi_device_get);
+  */
+ void scsi_device_put(struct scsi_device *sdev)
+ {
+-	module_put(sdev->host->hostt->module);
++	struct module *mod = sdev->host->hostt->module;
++
+ 	put_device(&sdev->sdev_gendev);
++	module_put(mod);
+ }
+ EXPORT_SYMBOL(scsi_device_put);
+ 
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -438,9 +438,12 @@ static void scsi_device_dev_release_user
+ 	struct list_head *this, *tmp;
+ 	struct scsi_vpd *vpd_pg80 = NULL, *vpd_pg83 = NULL;
+ 	unsigned long flags;
++	struct module *mod;
+ 
+ 	sdev = container_of(work, struct scsi_device, ew.work);
+ 
++	mod = sdev->host->hostt->module;
++
+ 	scsi_dh_release_device(sdev);
+ 
+ 	parent = sdev->sdev_gendev.parent;
+@@ -481,11 +484,17 @@ static void scsi_device_dev_release_user
+ 
+ 	if (parent)
+ 		put_device(parent);
++	module_put(mod);
+ }
+ 
+ static void scsi_device_dev_release(struct device *dev)
+ {
+ 	struct scsi_device *sdp = to_scsi_device(dev);
++
++	/* Set module pointer as NULL in case of module unloading */
++	if (!try_module_get(sdp->host->hostt->module))
++		sdp->host->hostt->module = NULL;
++
+ 	execute_in_process_context(scsi_device_dev_release_usercontext,
+ 				   &sdp->ew);
+ }
 
 
