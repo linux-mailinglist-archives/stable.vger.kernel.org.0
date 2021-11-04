@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2820F444FF9
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 09:14:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 563B1445004
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 09:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230202AbhKDIQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 04:16:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
+        id S230084AbhKDITX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 04:19:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230084AbhKDIQu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 04:16:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC7AA6109F;
-        Thu,  4 Nov 2021 08:14:12 +0000 (UTC)
+        id S230152AbhKDITW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 04:19:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8117C6109F;
+        Thu,  4 Nov 2021 08:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636013653;
-        bh=RAQrQFrFKjCJVcdIRTRjU43Rf2D8JG9t9ZxE/zsQux8=;
+        s=korg; t=1636013805;
+        bh=semzeFo/Mmvp2p44IcuS0JK5PH5nwU5r+P335QjRX2k=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NU64RlQw8obMQwLj/d31zH11qmrQ6YwTQyjA+kLJh2Iy+A28sX/8OaKGvWRt+mPRn
-         2iWtLp+vIa7ZJbSHBPK+L53xEMVGuhW0RV3imSIqQU/uA8teVcp83LarG31ncOK7XM
-         UHaZ2oJv9Pw90HVq8a6obKfQLnwaKkAyCM7hn7tI=
-Date:   Thu, 4 Nov 2021 09:14:10 +0100
+        b=0TeqcGCoYlXUmzbBuqmyLisVKh3cSG7Nk3FItGWhmEm1E1wwFRpFYvN3MGpTrYGOm
+         F2TTzgo3zeleGuwouWFqZchmlKmRKF4qu11lKTnl7QcJMuL1G5BR10YhzxyDJ/ZV+l
+         FQDmMXLeYCTCxAKEQHIl8jysbl0YbuKZkZUfeg+A=
+Date:   Thu, 4 Nov 2021 09:16:42 +0100
 From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
 To:     "Souza, Jose" <jose.souza@intel.com>
 Cc:     "Zhao, Yakui" <yakui.zhao@intel.com>,
@@ -28,7 +28,7 @@ Cc:     "Zhao, Yakui" <yakui.zhao@intel.com>,
         "Nikula, Jani" <jani.nikula@intel.com>,
         "Roper, Matthew D" <matthew.d.roper@intel.com>
 Subject: Re: [PATCH] drm/i915: Remove memory frequency calculation
-Message-ID: <YYOWUsUO8KZJm1b0@kroah.com>
+Message-ID: <YYOW6nhzILkqAnzp@kroah.com>
 References: <1635599150237240@kroah.com>
  <20211101183230.89060-1-jose.souza@intel.com>
  <YYJaklqD9XAj16Lw@kroah.com>
@@ -74,12 +74,15 @@ On Thu, Nov 04, 2021 at 12:30:18AM +0000, Souza, Jose wrote:
 > 
 > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=83f52364b15265aec47d07e02b0fbf4093ab8554
 
-Now it is, yes, sorry.  It is not in a public release yet, which is why
-my tools didn't catch this.
+Ah, no, this is REALLY commit 59be177a909a ("drm/i915: Remove memory
+frequency calculation"), which came in 5.15.
 
-I guess you all want this in "now", so I'll go queue it up, but next
-time, please give us a hint as to what is going on...
+{sigh}
 
-thanks,
+Someday the i915 developers will fix up how they reference git sha ids
+and not do things that "look into the future" which causes so many
+confusions over the years.
+
+ugh.
 
 greg k-h
