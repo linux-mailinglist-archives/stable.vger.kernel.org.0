@@ -2,95 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33885445C19
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 23:23:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A80F445C33
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 23:39:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232227AbhKDW0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 18:26:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38470 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231643AbhKDW0S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 18:26:18 -0400
-Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E0ADC061203
-        for <stable@vger.kernel.org>; Thu,  4 Nov 2021 15:23:40 -0700 (PDT)
-Received: by mail-il1-x134.google.com with SMTP id y17so7702737ilb.9
-        for <stable@vger.kernel.org>; Thu, 04 Nov 2021 15:23:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Me1pFtgM/7yd8RWKM4siEk1oZSnMYQP2DSM8Aq0h2u4=;
-        b=cqgBty7Y+ZgFCKgq5D3x3icxLTtV1DoHFkSoDt9GwPmhs6gWC3++lmLmVWtk5oXpq6
-         ASvhmoSOAVh7ty5ttuyT6ZkQ3me0kd8vE4zE45MSF1mp9vu9T5XJCDAc7dAQxc4KHbQn
-         YKbZXLMsQ9PqYFlEEDuBlSZIaeFXwKcxxDnSY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Me1pFtgM/7yd8RWKM4siEk1oZSnMYQP2DSM8Aq0h2u4=;
-        b=x46WfeWZ04FHZLXdDPblH+VwY8A2KLqUrt4SuoevBuHlx+nEfg1bitZyWQ7G9yQopw
-         pLpuiyt0f7xtVN2rzQmVeCUR6jG9vJNN0lvncWZ3zEfomUJ/bjmtTmSEjsoIn3tQKWMt
-         zg1VbEiZgwFycksQLLg1Fjk/RE1YaJj1mIXnTGceFL9tC7y/7pVOJzKoeDIuD4Y4kJqe
-         HLck4Zto+u5TekvT+cJCLyYE0VrdLlD2RSSInqJ07143BkuAL8Ev1brTIs4Ns1ca3PKG
-         athUT5/Iwq8l60QYyiwvqT4JMVCbr1X/vL+IzWIo6fav9/+Ad4fT+lHpWtFuzeK4ySZ2
-         5x/g==
-X-Gm-Message-State: AOAM531uuRn2/U1LVf5UUUFmTj+7V2yXXiEYhSoLOqQSSBbKt26oltcr
-        iuXf4m//D1I3d7O9e03/jYtvvA==
-X-Google-Smtp-Source: ABdhPJxXTOCA0rK8z+sJjJK7cO0rdXkLThvdaHHbvVCxAparwpJcBjzDJZ1lApMny+pd2EP2OR0aNA==
-X-Received: by 2002:a92:ca49:: with SMTP id q9mr17111673ilo.49.1636064619870;
-        Thu, 04 Nov 2021 15:23:39 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id d5sm3966024iow.46.2021.11.04.15.23.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Nov 2021 15:23:39 -0700 (PDT)
-Subject: Re: [PATCH 4.19 0/7] 4.19.216-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        id S232339AbhKDWli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 18:41:38 -0400
+Received: from mga11.intel.com ([192.55.52.93]:15954 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229587AbhKDWli (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 18:41:38 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10158"; a="229271734"
+X-IronPort-AV: E=Sophos;i="5.87,209,1631602800"; 
+   d="scan'208";a="229271734"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2021 15:38:59 -0700
+X-IronPort-AV: E=Sophos;i="5.87,209,1631602800"; 
+   d="scan'208";a="586123902"
+Received: from unknown (HELO [10.209.25.230]) ([10.209.25.230])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2021 15:38:58 -0700
+Subject: Re: [PATCH] x86/sgx: Free backing memory after faulting the enclave
+ page
+To:     Jarkko Sakkinen <jarkko@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Jethro Beekman <jethro@fortanix.com>,
+        Sean Christopherson <seanjc@google.com>
+Cc:     reinette.chatre@intel.com, tony.luck@intel.com,
+        nathaniel@profian.com, stable@vger.kernel.org,
+        Borislav Petkov <bp@suse.de>, linux-sgx@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20211104141158.037189396@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <ed2dfbf1-1503-40d9-6a8c-ccb4dd7681b2@linuxfoundation.org>
-Date:   Thu, 4 Nov 2021 16:23:38 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+References: <20211103232238.110557-1-jarkko@kernel.org>
+From:   Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+ z5cecg==
+Message-ID: <7c122a82-e418-0bce-8f67-cbaa15abc9b9@intel.com>
+Date:   Thu, 4 Nov 2021 15:38:55 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20211104141158.037189396@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20211103232238.110557-1-jarkko@kernel.org>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/4/21 8:13 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.216 release.
-> There are 7 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 06 Nov 2021 14:11:51 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.216-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On 11/3/21 4:22 PM, Jarkko Sakkinen wrote:
+> --- a/arch/x86/kernel/cpu/sgx/encl.c
+> +++ b/arch/x86/kernel/cpu/sgx/encl.c
+> @@ -22,6 +22,7 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
+>  {
+>  	unsigned long va_offset = encl_page->desc & SGX_ENCL_PAGE_VA_OFFSET_MASK;
+>  	struct sgx_encl *encl = encl_page->encl;
+> +	struct inode *inode = file_inode(encl->backing);
+>  	struct sgx_pageinfo pginfo;
+>  	struct sgx_backing b;
+>  	pgoff_t page_index;
+> @@ -60,6 +61,9 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
+>  
+>  	sgx_encl_put_backing(&b, false);
+>  
+> +	/* Free the backing memory. */
+> +	shmem_truncate_range(inode, PFN_PHYS(page_index), PFN_PHYS(page_index) + PAGE_SIZE - 1);
+> +
+>  	return ret;
+>  }
 
-Compiled and booted on my test system. No dmesg regressions.
+This also misses tearing down the backing storage if it is in place at
+sgx_encl_release().
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
-
-thanks,
--- Shuah
+Does a entry->epc_page==NULL page in there guarantee that it has backing
+storage?
