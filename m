@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B434454AC
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 205E24454BA
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231556AbhKDOQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:16:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45250 "EHLO mail.kernel.org"
+        id S231824AbhKDORS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:17:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231249AbhKDOQo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:16:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F66D60F39;
-        Thu,  4 Nov 2021 14:14:05 +0000 (UTC)
+        id S231624AbhKDORA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:17:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83316611C0;
+        Thu,  4 Nov 2021 14:14:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035246;
-        bh=DRec8ITQqdYyrkAUhO4hzVV2OxeBXbSJNjOiaIfk5rI=;
+        s=korg; t=1636035262;
+        bh=0f6ss+5YHz232Ob5/jS2bWHHqp7Jqld4NqLf1QONCRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a96Knokbo1PvFnuebj41il3KH9eJ2GqX9Y8qjbJHO7bsmMTSjItXoWQ8br7CMoq/1
-         nmPGW6jKy15BWqNzcLTdyRGDT3Mlc09HNIjBqUkwFATNmjozc5d/eYrKTEEnO+6n58
-         omgZ/wKtVpz/4vLBTuK9xabeKtrQ+IHsgWoMMszQ=
+        b=LsJK44JSfd8vJz7oU7SIAasSOcERF/r3LdCvuEjcaZwNgh41mFWu8CYxP1glcBUR1
+         mjQZ8zGgICqyFGIN5VzcEWs98vz0pphw8vXEdsKPsfBV70U7+y1hj1edu4xlZUCFP/
+         EmXYQ8IkoAN5BOJmh2mvJmA0QFDUQq2FgCN/i5Kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.15 07/12] ARM: 9120/1: Revert "amba: make use of -1 IRQs warn"
-Date:   Thu,  4 Nov 2021 15:12:33 +0100
-Message-Id: <20211104141159.794659578@linuxfoundation.org>
+        stable@vger.kernel.org, Eugene Crosser <crosser@average.org>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Florian Westphal <fw@strlen.de>
+Subject: [PATCH 5.14 03/16] vrf: Revert "Reset skb conntrack connection..."
+Date:   Thu,  4 Nov 2021 15:12:34 +0100
+Message-Id: <20211104141159.974014335@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211104141159.551636584@linuxfoundation.org>
-References: <20211104141159.551636584@linuxfoundation.org>
+In-Reply-To: <20211104141159.863820939@linuxfoundation.org>
+References: <20211104141159.863820939@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +41,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Kefeng <wangkefeng.wang@huawei.com>
+From: Eugene Crosser <crosser@average.org>
 
-commit eb4f756915875b0ea0757751cd29841f0504d547 upstream.
+commit 55161e67d44fdd23900be166a81e996abd6e3be9 upstream.
 
-After commit 77a7300abad7 ("of/irq: Get rid of NO_IRQ usage"),
-no irq case has been removed, irq_of_parse_and_map() will return
-0 in all cases when get error from parse and map an interrupt into
-linux virq space.
+This reverts commit 09e856d54bda5f288ef8437a90ab2b9b3eab83d1.
 
-amba_device_register() is only used on no-DT initialization, see
-  s3c64xx_pl080_init()		arch/arm/mach-s3c/pl080.c
-  ep93xx_init_devices()		arch/arm/mach-ep93xx/core.c
+When an interface is enslaved in a VRF, prerouting conntrack hook is
+called twice: once in the context of the original input interface, and
+once in the context of the VRF interface. If no special precausions are
+taken, this leads to creation of two conntrack entries instead of one,
+and breaks SNAT.
 
-They won't set -1 to irq[0], so no need the warn.
+Commit above was intended to avoid creation of extra conntrack entries
+when input interface is enslaved in a VRF. It did so by resetting
+conntrack related data associated with the skb when it enters VRF context.
 
-This reverts commit 2eac58d5026e4ec8b17ff8b62877fea9e1d2f1b3.
+However it breaks netfilter operation. Imagine a use case when conntrack
+zone must be assigned based on the original input interface, rather than
+VRF interface (that would make original interfaces indistinguishable). One
+could create netfilter rules similar to these:
 
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+        chain rawprerouting {
+                type filter hook prerouting priority raw;
+                iif realiface1 ct zone set 1 return
+                iif realiface2 ct zone set 2 return
+        }
+
+This works before the mentioned commit, but not after: zone assignment
+is "forgotten", and any subsequent NAT or filtering that is dependent
+on the conntrack zone does not work.
+
+Here is a reproducer script that demonstrates the difference in behaviour.
+
+==========
+#!/bin/sh
+
+# This script demonstrates unexpected change of nftables behaviour
+# caused by commit 09e856d54bda5f28 ""vrf: Reset skb conntrack
+# connection on VRF rcv"
+# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=09e856d54bda5f288ef8437a90ab2b9b3eab83d1
+#
+# Before the commit, it was possible to assign conntrack zone to a
+# packet (or mark it for `notracking`) in the prerouting chanin, raw
+# priority, based on the `iif` (interface from which the packet
+# arrived).
+# After the change, # if the interface is enslaved in a VRF, such
+# assignment is lost. Instead, assignment based on the `iif` matching
+# the VRF master interface is honored. Thus it is impossible to
+# distinguish packets based on the original interface.
+#
+# This script demonstrates this change of behaviour: conntrack zone 1
+# or 2 is assigned depending on the match with the original interface
+# or the vrf master interface. It can be observed that conntrack entry
+# appears in different zone in the kernel versions before and after
+# the commit.
+
+IPIN=172.30.30.1
+IPOUT=172.30.30.2
+PFXL=30
+
+ip li sh vein >/dev/null 2>&1 && ip li del vein
+ip li sh tvrf >/dev/null 2>&1 && ip li del tvrf
+nft list table testct >/dev/null 2>&1 && nft delete table testct
+
+ip li add vein type veth peer veout
+ip li add tvrf type vrf table 9876
+ip li set veout master tvrf
+ip li set vein up
+ip li set veout up
+ip li set tvrf up
+/sbin/sysctl -w net.ipv4.conf.veout.accept_local=1
+/sbin/sysctl -w net.ipv4.conf.veout.rp_filter=0
+ip addr add $IPIN/$PFXL dev vein
+ip addr add $IPOUT/$PFXL dev veout
+
+nft -f - <<__END__
+table testct {
+	chain rawpre {
+		type filter hook prerouting priority raw;
+		iif { veout, tvrf } meta nftrace set 1
+		iif veout ct zone set 1 return
+		iif tvrf ct zone set 2 return
+		notrack
+	}
+	chain rawout {
+		type filter hook output priority raw;
+		notrack
+	}
+}
+__END__
+
+uname -rv
+conntrack -F
+ping -W 1 -c 1 -I vein $IPOUT
+conntrack -L
+
+Signed-off-by: Eugene Crosser <crosser@average.org>
+Acked-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Florian Westphal <fw@strlen.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/amba/bus.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/vrf.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/amba/bus.c
-+++ b/drivers/amba/bus.c
-@@ -377,9 +377,6 @@ static int amba_device_try_add(struct am
- 	void __iomem *tmp;
- 	int i, ret;
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -1367,8 +1367,6 @@ static struct sk_buff *vrf_ip6_rcv(struc
+ 	bool need_strict = rt6_need_strict(&ipv6_hdr(skb)->daddr);
+ 	bool is_ndisc = ipv6_ndisc_frame(skb);
  
--	WARN_ON(dev->irq[0] == (unsigned int)-1);
--	WARN_ON(dev->irq[1] == (unsigned int)-1);
+-	nf_reset_ct(skb);
 -
- 	ret = request_resource(parent, &dev->res);
- 	if (ret)
- 		goto err_out;
+ 	/* loopback, multicast & non-ND link-local traffic; do not push through
+ 	 * packet taps again. Reset pkt_type for upper layers to process skb.
+ 	 * For strict packets with a source LLA, determine the dst using the
+@@ -1431,8 +1429,6 @@ static struct sk_buff *vrf_ip_rcv(struct
+ 	skb->skb_iif = vrf_dev->ifindex;
+ 	IPCB(skb)->flags |= IPSKB_L3SLAVE;
+ 
+-	nf_reset_ct(skb);
+-
+ 	if (ipv4_is_multicast(ip_hdr(skb)->daddr))
+ 		goto out;
+ 
 
 
