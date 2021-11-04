@@ -2,42 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED08F4454E3
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:15:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63CA24454D6
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:15:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231862AbhKDOSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:18:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46590 "EHLO mail.kernel.org"
+        id S231898AbhKDOSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:18:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232073AbhKDORv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:17:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D9AA6120E;
-        Thu,  4 Nov 2021 14:15:13 +0000 (UTC)
+        id S231919AbhKDORd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:17:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06100611C1;
+        Thu,  4 Nov 2021 14:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035313;
-        bh=ujny/hXFp3AvZh0QyayQ+Hh5MkuhK45jjzRAg3IQCKY=;
+        s=korg; t=1636035295;
+        bh=w/K6LTDPvitp77ZJOGzCUIMPaqqj3t9T6pvmK1zUl8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DOZ2nKdZSbnxjNQM4v/NBja4FZ9M2B9AZzU2AvNPLvHdeqP7KdUmVIgLzWp1Qz8CM
-         P3tyHpEUR3/K2u58O0RhRXnEbyv8QdLVDirgnBemD+1OUUJvxuOdHyGm+yYrEentQ7
-         d/dM6cyGZYLIjb0Vf4LKu7a/+h9bzXoJJciZZD4A=
+        b=U5ekOSnfo7k6X5zhDzSjYPW+RqApj6lSXF2eav3BOPoIdA+4doHk+tLIhELfDaY+M
+         Nr3k1dvEpnG6yI4/DYbd+BKIQgADYxyzVeyix224US4vkR/7NqY0p2Y7xxnKK4Sdg8
+         ncyQHxA3kANK46ZlTRTVSQqsrADeddTiOKnvevA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Shi <shy828301@gmail.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Hugh Dickins <hughd@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 06/16] mm: hwpoison: remove the unnecessary THP check
-Date:   Thu,  4 Nov 2021 15:12:45 +0100
-Message-Id: <20211104141159.791436498@linuxfoundation.org>
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.14 15/16] ALSA: usb-audio: Add Schiit Hel device to mixer map quirk table
+Date:   Thu,  4 Nov 2021 15:12:46 +0100
+Message-Id: <20211104141200.375518680@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211104141159.561284732@linuxfoundation.org>
-References: <20211104141159.561284732@linuxfoundation.org>
+In-Reply-To: <20211104141159.863820939@linuxfoundation.org>
+References: <20211104141159.863820939@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,63 +38,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <shy828301@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit c7cb42e94473aafe553c0f2a3d8ca904599399ed upstream.
+commit 22390ce786c59328ccd13c329959dee1e8757487 upstream.
 
-When handling THP hwpoison checked if the THP is in allocation or free
-stage since hwpoison may mistreat it as hugetlb page.  After commit
-415c64c1453a ("mm/memory-failure: split thp earlier in memory error
-handling") the problem has been fixed, so this check is no longer
-needed.  Remove it.  The side effect of the removal is hwpoison may
-report unsplit THP instead of unknown error for shmem THP.  It seems not
-like a big deal.
+This is a fix equivalent with the upstream commit 22390ce786c5 ("ALSA:
+usb-audio: add Schiit Hel device to quirk table"), adapted to the
+earlier kernels up to 5.14.y.  It adds the quirk entry with the old
+ignore_ctl_error flag to the usbmix_ctl_maps, instead.
 
-The following patch "mm: filemap: check if THP has hwpoisoned subpage
-for PMD page fault" depends on this, which fixes shmem THP with
-hwpoisoned subpage(s) are mapped PMD wrongly.  So this patch needs to be
-backported to -stable as well.
+The original patch description says:
+    The Shciit Hel device responds to the ctl message for the mic capture
+    switch with a timeout of -EPIPE:
 
-Link: https://lkml.kernel.org/r/20211020210755.23964-2-shy828301@gmail.com
-Signed-off-by: Yang Shi <shy828301@gmail.com>
-Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
+            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
+            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
+            usb 7-2.2: cannot get ctl value: req = 0x81, wValue = 0x100, wIndex = 0x1100, type = 1
+
+    This seems safe to ignore as the device works properly with the control
+    message quirk, so add it to the quirk table so all is good.
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- mm/memory-failure.c |   14 --------------
- 1 file changed, 14 deletions(-)
+ sound/usb/mixer_maps.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -956,20 +956,6 @@ static int get_hwpoison_page(struct page
- {
- 	struct page *head = compound_head(page);
- 
--	if (!PageHuge(head) && PageTransHuge(head)) {
--		/*
--		 * Non anonymous thp exists only in allocation/free time. We
--		 * can't handle such a case correctly, so let's give it up.
--		 * This should be better than triggering BUG_ON when kernel
--		 * tries to touch the "partially handled" page.
--		 */
--		if (!PageAnon(head)) {
--			pr_err("Memory failure: %#lx: non anonymous thp\n",
--				page_to_pfn(page));
--			return 0;
--		}
--	}
--
- 	if (get_page_unless_zero(head)) {
- 		if (head == compound_head(page))
- 			return 1;
+--- a/sound/usb/mixer_maps.c
++++ b/sound/usb/mixer_maps.c
+@@ -539,6 +539,10 @@ static const struct usbmix_ctl_map usbmi
+ 		.map = scms_usb3318_map,
+ 	},
+ 	{
++		.id = USB_ID(0x30be, 0x0101), /*  Schiit Hel */
++		.ignore_ctl_error = 1,
++	},
++	{
+ 		/* Bose Companion 5 */
+ 		.id = USB_ID(0x05a7, 0x1020),
+ 		.map = bose_companion5_map,
 
 
