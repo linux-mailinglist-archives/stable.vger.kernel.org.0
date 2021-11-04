@@ -2,319 +2,701 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49D0C445772
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 17:45:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 242DD445775
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 17:45:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231684AbhKDQrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 12:47:37 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:40484 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231270AbhKDQrh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 12:47:37 -0400
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 0D969212BD;
-        Thu,  4 Nov 2021 16:44:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1636044298; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=+iHyYJVejxE3c+M9dmelJzpLB+/Wh6THMcNjAw741DM=;
-        b=ZG+o2TcgbZrkgBuC6dv9I8/AQoEDlU7rGmksNtmvXMrdavMzT9X0x/tiCrqhfE/uyD6UmT
-        Zpw1mvkaLp6SZwQ+QJqjicM7b3Ess/0cvGAmyRmlUJkHcAZPaf1eV8pJcW1zNc7z8/pz+2
-        YrrYu3b8BezNiBddbntqNlhqadObGRc=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B694913E70;
-        Thu,  4 Nov 2021 16:44:57 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id eHvVKgkOhGFeFwAAMHmgww
-        (envelope-from <jgross@suse.com>); Thu, 04 Nov 2021 16:44:57 +0000
-To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        xen-devel@lists.xenproject.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Jonathan Corbet <corbet@lwn.net>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
-        <marmarek@invisiblethingslab.com>
-References: <20211102091944.17487-1-jgross@suse.com>
- <f986a7c4-3032-fecd-2e19-4d63a2ee10c7@oracle.com>
- <f8e52acc-2566-1ed0-d2a3-21e2d468fab7@oracle.com>
- <3b1f1771-0a96-1f71-9c9d-9fb1a53a266e@suse.com>
- <18c12ead-ddf1-9231-7f3b-aafddd349dcf@oracle.com>
-From:   Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v4] xen/balloon: add late_initcall_sync() for initial
- ballooning done
-Message-ID: <2f3addff-fbe0-8ef0-6407-e879c0e9827f@suse.com>
-Date:   Thu, 4 Nov 2021 17:44:56 +0100
+        id S231751AbhKDQsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 12:48:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46580 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231670AbhKDQsG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 12:48:06 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C382BC061714
+        for <stable@vger.kernel.org>; Thu,  4 Nov 2021 09:45:27 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id g91-20020a9d12e4000000b0055ae68cfc3dso6389011otg.9
+        for <stable@vger.kernel.org>; Thu, 04 Nov 2021 09:45:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=UemmmgVz2UBV7uDF9H5IkPCiiiylmzZZHPJuR9mQc0k=;
+        b=qXoi1JaTNA44hMHdT3GPNAV9NHdQNRDfaSVj+ujNOlcVGnQ4eF8yMclBXjPleyxj3y
+         APEHznJqgqy0qxioIFGOeDdeyDClk+NWmIDpZgrYnFvQiBLKFVU0kwx8zKLbTGryf3nC
+         RnudKbcgJQy3J6W09gjy+vxT1QiDrkCH4qFkncilOo1Iz3CVa+6lgV5RTtRwSnWYS+aD
+         aEfbPimjyf/utjUDtnOsZGm7DNgoE6BqWfyvPiLNL4lLAh71gbWcgsqXc+9IIkp5HU1Q
+         9vB6C0JOZlzzeNx4kyLTtpQ1FyR7s/5dQV9nFDpgU059E1fWlylj0XGgYlYa7co/k7so
+         CT+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=UemmmgVz2UBV7uDF9H5IkPCiiiylmzZZHPJuR9mQc0k=;
+        b=5xyd3Wd4FL3QSrFnkAbrHGr27Wg97y80b6qYUV1QxrfuZh3BS0EZFYthfPTi683GHF
+         VT7UPHrs6fOsRE0wuoLncaTVPsanaf0hZEUwhTHpXEqR/DKZOa/3z9Q1X817xlPYA6SU
+         9e+ValcsuitHYsyKGrCe30Z8lgXEsRnNVY4KpI+Qdje8vP+tRpn4F/0xv4nSejD1EhpX
+         0g9lm0rXzVLkjXBjiUtEUDv0kkdNru5MM//iXMgaVPY7PryojuJvP414orTXlE85doUB
+         Yyu63Lr8uiIr7MCn6m28DYBI7mWgD/cGS+TYSHvywnMMTAFgs+wOo/zNUI6nur9yaZmP
+         Fdmw==
+X-Gm-Message-State: AOAM532jifv1eg5OEH/AZAC7UPcmOsQ9ZYrliElF3MmoMXkTclPwhUAo
+        rDMEXANNOJY91IHquX100Vt9Tw==
+X-Google-Smtp-Source: ABdhPJyYyJOqMdiaBI6kqor7dn0taVCz0l+U3J2D+a7YxYm+kbHi0/nSVtbtloQ86HLSOPdfaa/2Xg==
+X-Received: by 2002:a9d:73d4:: with SMTP id m20mr6448024otk.350.1636044326984;
+        Thu, 04 Nov 2021 09:45:26 -0700 (PDT)
+Received: from [192.168.17.16] ([189.219.75.83])
+        by smtp.gmail.com with ESMTPSA id j19sm340929oor.23.2021.11.04.09.45.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 04 Nov 2021 09:45:26 -0700 (PDT)
+Subject: Re: [PATCH 5.10 00/16] 5.10.78-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+References: <20211104141159.561284732@linuxfoundation.org>
+ <3971a9b4-ebb6-a789-2143-31cf257d0d38@linaro.org>
+ <YYQIUhHkv3kUY+UC@kroah.com>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <49f4ccf9-02db-60c1-b32a-d814a8cd73db@linaro.org>
+Date:   Thu, 4 Nov 2021 10:45:24 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <18c12ead-ddf1-9231-7f3b-aafddd349dcf@oracle.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="g757mACy6ndOeHy2l0XCaKTMldya4VhZX"
+In-Reply-To: <YYQIUhHkv3kUY+UC@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---g757mACy6ndOeHy2l0XCaKTMldya4VhZX
-Content-Type: multipart/mixed; boundary="7NqwldsUw7TpcaPNG4ex5XcZovKmVXFSQ";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Cc: Jonathan Corbet <corbet@lwn.net>,
- Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org,
- =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= <marmarek@invisiblethingslab.com>
-Message-ID: <2f3addff-fbe0-8ef0-6407-e879c0e9827f@suse.com>
-Subject: Re: [PATCH v4] xen/balloon: add late_initcall_sync() for initial
- ballooning done
-References: <20211102091944.17487-1-jgross@suse.com>
- <f986a7c4-3032-fecd-2e19-4d63a2ee10c7@oracle.com>
- <f8e52acc-2566-1ed0-d2a3-21e2d468fab7@oracle.com>
- <3b1f1771-0a96-1f71-9c9d-9fb1a53a266e@suse.com>
- <18c12ead-ddf1-9231-7f3b-aafddd349dcf@oracle.com>
-In-Reply-To: <18c12ead-ddf1-9231-7f3b-aafddd349dcf@oracle.com>
+Hello!
 
---7NqwldsUw7TpcaPNG4ex5XcZovKmVXFSQ
-Content-Type: multipart/mixed;
- boundary="------------4A2F17B6B681BBA4AE9C74EE"
-Content-Language: en-US
-
-This is a multi-part message in MIME format.
---------------4A2F17B6B681BBA4AE9C74EE
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-
-On 04.11.21 17:34, Boris Ostrovsky wrote:
->=20
-> On 11/4/21 12:21 PM, Juergen Gross wrote:
->> On 04.11.21 16:55, Boris Ostrovsky wrote:
->>>
->>> On 11/3/21 9:55 PM, Boris Ostrovsky wrote:
->>>>
->>>> On 11/2/21 5:19 AM, Juergen Gross wrote:
->>>>> When running as PVH or HVM guest with actual memory < max memory th=
-e
->>>>> hypervisor is using "populate on demand" in order to allow the gues=
-t
->>>>> to balloon down from its maximum memory size. For this to work
->>>>> correctly the guest must not touch more memory pages than its targe=
-t
->>>>> memory size as otherwise the PoD cache will be exhausted and the gu=
-est
->>>>> is crashed as a result of that.
->>>>>
->>>>> In extreme cases ballooning down might not be finished today before=
-
->>>>> the init process is started, which can consume lots of memory.
->>>>>
->>>>> In order to avoid random boot crashes in such cases, add a late ini=
-t
->>>>> call to wait for ballooning down having finished for PVH/HVM guests=
-=2E
->>>>>
->>>>> Warn on console if initial ballooning fails, panic() after stalling=
-
->>>>> for more than 3 minutes per default. Add a module parameter for
->>>>> changing this timeout.
->>>>>
->>>>> Cc: <stable@vger.kernel.org>
->>>>> Reported-by: Marek Marczykowski-G=C3=B3recki=20
->>>>> <marmarek@invisiblethingslab.com>
->>>>> Signed-off-by: Juergen Gross <jgross@suse.com>
->>>>
->>>>
->>>>
->>>> Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
->>>
->>>
->>> This appears to have noticeable effect on boot time (and boot=20
->>> experience in general).
->>>
->>>
->>> I have
->>>
->>>
->>> =C2=A0=C2=A0 memory=3D1024
->>> =C2=A0=C2=A0 maxmem=3D8192
->>>
->>>
->>> And my boot time (on an admittedly slow box) went from 33 to 45=20
->>> seconds. And boot pauses in the middle while it is waiting for=20
->>> ballooning to complete.
->>>
->>>
->>> [=C2=A0=C2=A0=C2=A0 5.062714] xen:balloon: Waiting for initial balloo=
-ning down=20
->>> having finished.
->>> [=C2=A0=C2=A0=C2=A0 5.449696] random: crng init done
->>> [=C2=A0=C2=A0 34.613050] xen:balloon: Initial ballooning down finishe=
-d.
+On 11/4/21 10:20 AM, Greg Kroah-Hartman wrote:
+> On Thu, Nov 04, 2021 at 09:53:57AM -0600, Daniel Díaz wrote:
+>> Hello!
 >>
->> This shows that before it was just by chance that the PoD cache wasn't=
-
->> exhausted.
->=20
->=20
-> True.
->=20
->=20
+>> On 11/4/21 8:12 AM, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 5.10.78 release.
+>>> There are 16 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Sat, 06 Nov 2021 14:11:51 +0000.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.78-rc1.gz
+>>> or in the git tree and branch at:
+>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
 >>
->>> So at least I think we should consider bumping log level down from in=
-fo.
+>> Regressions detected.
 >>
->> Which level would you prefer? warn?
+>> Build failures on all architectures and all toolchains (GCC 8, 9, 10, 11; Clang 10, 11, 12, 13, nightly):
+>> - arc
+>> - arm (32-bits)
+>> - arm (64-bits)
+>> - i386
+>> - mips
+>> - parisc
+>> - ppc
+>> - riscv
+>> - s390
+>> - sh
+>> - sparc
+>> - x86
 >>
->=20
-> Notice? Although that won't make much difference as WARN is the default=
-=20
-> level.
+>> Failures look like this:
+>>
+>>    In file included from /builds/linux/include/linux/kernel.h:11,
+>>                     from /builds/linux/include/linux/list.h:9,
+>>                     from /builds/linux/include/linux/smp.h:12,
+>>                     from /builds/linux/include/linux/kernel_stat.h:5,
+>>                     from /builds/linux/mm/memory.c:42:
+>>    /builds/linux/mm/memory.c: In function 'finish_fault':
+>>    /builds/linux/mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHWPoisoned'; did you mean 'PageHWPoison'? [-Werror=implicit-function-declaration]
+>>     3929 |  if (unlikely(PageHasHWPoisoned(page)))
+>>          |               ^~~~~~~~~~~~~~~~~
+>>    /builds/linux/include/linux/compiler.h:78:42: note: in definition of macro 'unlikely'
+>>       78 | # define unlikely(x) __builtin_expect(!!(x), 0)
+>>          |                                          ^
+>>    cc1: some warnings being treated as errors
+>>
+>> and this:
+>>
+>>    /builds/linux/mm/memory.c:3929:15: error: implicit declaration of function 'PageHasHWPoisoned' [-Werror,-Wimplicit-function-declaration]
+>>            if (unlikely(PageHasHWPoisoned(page)))
+>>                         ^
+>>
+>>    /builds/linux/mm/page_alloc.c:1237:4: error: implicit declaration of function 'ClearPageHasHWPoisoned' [-Werror,-Wimplicit-function-declaration]
+>>                            ClearPageHasHWPoisoned(page);
+>>                            ^
+>>    /builds/linux/mm/page_alloc.c:1237:4: note: did you mean 'ClearPageHWPoison'?
+>>
+> 
+> What configuration?  This builds for me on x86 here on allmodconfig.
 
-Right. That was my thinking.
+Our main config also works, but defconfig, allnoconfig and tinyconfig all fail. That's across all architectures.
 
-> I suppose we can't turn scrubbing off at this point?
+Here's a comprehensive list of failures:
 
-I don't think we can be sure a ballooned page wasn't in use before. And
-it could contain some data e.g. from the loaded initrd, maybe even put
-there by the boot loader. So no, I wouldn't want to do that by default.
+* arc, build
+   - gcc-8-allnoconfig
+   - gcc-8-axs103_defconfig
+   - gcc-8-defconfig
+   - gcc-8-tinyconfig
+   - gcc-8-vdk_hs38_smp_defconfig
+   - gcc-9-allnoconfig
+   - gcc-9-axs103_defconfig
+   - gcc-9-defconfig
+   - gcc-9-tinyconfig
+   - gcc-9-vdk_hs38_smp_defconfig
 
-We could add another value to the xen_scrub_pages boot parameter, like
-xen_scrub_pages=3Dnot-at-boot or some such. But this should be another
-patch. And it should be documented that initrd or kernel data might
-leak.
+* arm, build
+   - clang-10-allnoconfig
+   - clang-10-at91_dt_defconfig
+   - clang-10-axm55xx_defconfig
+   - clang-10-bcm2835_defconfig
+   - clang-10-clps711x_defconfig
+   - clang-10-davinci_all_defconfig
+   - clang-10-defconfig
+   - clang-10-exynos_defconfig
+   - clang-10-footbridge_defconfig
+   - clang-10-imx_v4_v5_defconfig
+   - clang-10-imx_v6_v7_defconfig
+   - clang-10-integrator_defconfig
+   - clang-10-ixp4xx_defconfig
+   - clang-10-keystone_defconfig
+   - clang-10-lpc32xx_defconfig
+   - clang-10-mini2440_defconfig
+   - clang-10-multi_v5_defconfig
+   - clang-10-mxs_defconfig
+   - clang-10-nhk8815_defconfig
+   - clang-10-omap1_defconfig
+   - clang-10-omap2plus_defconfig
+   - clang-10-orion5x_defconfig
+   - clang-10-pxa910_defconfig
+   - clang-10-s3c2410_defconfig
+   - clang-10-s3c6400_defconfig
+   - clang-10-s5pv210_defconfig
+   - clang-10-sama5_defconfig
+   - clang-10-shmobile_defconfig
+   - clang-10-tinyconfig
+   - clang-10-u8500_defconfig
+   - clang-10-vexpress_defconfig
+   - clang-11-allnoconfig
+   - clang-11-at91_dt_defconfig
+   - clang-11-axm55xx_defconfig
+   - clang-11-bcm2835_defconfig
+   - clang-11-clps711x_defconfig
+   - clang-11-davinci_all_defconfig
+   - clang-11-defconfig
+   - clang-11-exynos_defconfig
+   - clang-11-footbridge_defconfig
+   - clang-11-imx_v4_v5_defconfig
+   - clang-11-imx_v6_v7_defconfig
+   - clang-11-integrator_defconfig
+   - clang-11-ixp4xx_defconfig
+   - clang-11-keystone_defconfig
+   - clang-11-lpc32xx_defconfig
+   - clang-11-mini2440_defconfig
+   - clang-11-multi_v5_defconfig
+   - clang-11-mxs_defconfig
+   - clang-11-nhk8815_defconfig
+   - clang-11-omap1_defconfig
+   - clang-11-omap2plus_defconfig
+   - clang-11-orion5x_defconfig
+   - clang-11-pxa910_defconfig
+   - clang-11-s3c2410_defconfig
+   - clang-11-s3c6400_defconfig
+   - clang-11-s5pv210_defconfig
+   - clang-11-sama5_defconfig
+   - clang-11-shmobile_defconfig
+   - clang-11-tinyconfig
+   - clang-11-u8500_defconfig
+   - clang-11-vexpress_defconfig
+   - clang-12-allnoconfig
+   - clang-12-at91_dt_defconfig
+   - clang-12-axm55xx_defconfig
+   - clang-12-bcm2835_defconfig
+   - clang-12-clps711x_defconfig
+   - clang-12-davinci_all_defconfig
+   - clang-12-defconfig
+   - clang-12-defconfig-50bba0f5
+   - clang-12-exynos_defconfig
+   - clang-12-footbridge_defconfig
+   - clang-12-imx_v4_v5_defconfig
+   - clang-12-imx_v6_v7_defconfig
+   - clang-12-integrator_defconfig
+   - clang-12-ixp4xx_defconfig
+   - clang-12-keystone_defconfig
+   - clang-12-lpc32xx_defconfig
+   - clang-12-mini2440_defconfig
+   - clang-12-multi_v5_defconfig
+   - clang-12-mxs_defconfig
+   - clang-12-nhk8815_defconfig
+   - clang-12-omap1_defconfig
+   - clang-12-omap2plus_defconfig
+   - clang-12-orion5x_defconfig
+   - clang-12-pxa910_defconfig
+   - clang-12-s3c2410_defconfig
+   - clang-12-s3c6400_defconfig
+   - clang-12-s5pv210_defconfig
+   - clang-12-sama5_defconfig
+   - clang-12-shmobile_defconfig
+   - clang-12-tinyconfig
+   - clang-12-u8500_defconfig
+   - clang-12-vexpress_defconfig
+   - clang-13-allnoconfig
+   - clang-13-at91_dt_defconfig
+   - clang-13-axm55xx_defconfig
+   - clang-13-bcm2835_defconfig
+   - clang-13-clps711x_defconfig
+   - clang-13-davinci_all_defconfig
+   - clang-13-defconfig
+   - clang-13-defconfig-50bba0f5
+   - clang-13-exynos_defconfig
+   - clang-13-footbridge_defconfig
+   - clang-13-imx_v4_v5_defconfig
+   - clang-13-imx_v6_v7_defconfig
+   - clang-13-integrator_defconfig
+   - clang-13-ixp4xx_defconfig
+   - clang-13-keystone_defconfig
+   - clang-13-lpc32xx_defconfig
+   - clang-13-mini2440_defconfig
+   - clang-13-multi_v5_defconfig
+   - clang-13-mxs_defconfig
+   - clang-13-nhk8815_defconfig
+   - clang-13-omap1_defconfig
+   - clang-13-omap2plus_defconfig
+   - clang-13-orion5x_defconfig
+   - clang-13-pxa910_defconfig
+   - clang-13-s3c2410_defconfig
+   - clang-13-s3c6400_defconfig
+   - clang-13-s5pv210_defconfig
+   - clang-13-sama5_defconfig
+   - clang-13-shmobile_defconfig
+   - clang-13-tinyconfig
+   - clang-13-u8500_defconfig
+   - clang-13-vexpress_defconfig
+   - clang-nightly-allnoconfig
+   - clang-nightly-at91_dt_defconfig
+   - clang-nightly-axm55xx_defconfig
+   - clang-nightly-bcm2835_defconfig
+   - clang-nightly-clps711x_defconfig
+   - clang-nightly-davinci_all_defconfig
+   - clang-nightly-defconfig
+   - clang-nightly-defconfig-50bba0f5
+   - clang-nightly-exynos_defconfig
+   - clang-nightly-footbridge_defconfig
+   - clang-nightly-imx_v4_v5_defconfig
+   - clang-nightly-imx_v6_v7_defconfig
+   - clang-nightly-integrator_defconfig
+   - clang-nightly-ixp4xx_defconfig
+   - clang-nightly-keystone_defconfig
+   - clang-nightly-lpc32xx_defconfig
+   - clang-nightly-mini2440_defconfig
+   - clang-nightly-multi_v5_defconfig
+   - clang-nightly-mxs_defconfig
+   - clang-nightly-nhk8815_defconfig
+   - clang-nightly-omap1_defconfig
+   - clang-nightly-omap2plus_defconfig
+   - clang-nightly-orion5x_defconfig
+   - clang-nightly-pxa910_defconfig
+   - clang-nightly-s3c2410_defconfig
+   - clang-nightly-s3c6400_defconfig
+   - clang-nightly-s5pv210_defconfig
+   - clang-nightly-sama5_defconfig
+   - clang-nightly-shmobile_defconfig
+   - clang-nightly-tinyconfig
+   - clang-nightly-u8500_defconfig
+   - clang-nightly-vexpress_defconfig
+   - gcc-10-allnoconfig
+   - gcc-10-at91_dt_defconfig
+   - gcc-10-axm55xx_defconfig
+   - gcc-10-bcm2835_defconfig
+   - gcc-10-clps711x_defconfig
+   - gcc-10-davinci_all_defconfig
+   - gcc-10-defconfig
+   - gcc-10-defconfig-493f0879
+   - gcc-10-defconfig-50bba0f5
+   - gcc-10-defconfig-5a3a4204
+   - gcc-10-defconfig-6830ede0
+   - gcc-10-defconfig-883c3502
+   - gcc-10-defconfig-a05dd807
+   - gcc-10-defconfig-c58d92d2
+   - gcc-10-defconfig-ced87bbf
+   - gcc-10-exynos_defconfig
+   - gcc-10-footbridge_defconfig
+   - gcc-10-imx_v4_v5_defconfig
+   - gcc-10-imx_v6_v7_defconfig
+   - gcc-10-integrator_defconfig
+   - gcc-10-ixp4xx_defconfig
+   - gcc-10-keystone_defconfig
+   - gcc-10-lpc32xx_defconfig
+   - gcc-10-mini2440_defconfig
+   - gcc-10-multi_v5_defconfig
+   - gcc-10-mxs_defconfig
+   - gcc-10-nhk8815_defconfig
+   - gcc-10-omap1_defconfig
+   - gcc-10-omap2plus_defconfig
+   - gcc-10-orion5x_defconfig
+   - gcc-10-pxa910_defconfig
+   - gcc-10-s3c2410_defconfig
+   - gcc-10-s3c6400_defconfig
+   - gcc-10-s5pv210_defconfig
+   - gcc-10-sama5_defconfig
+   - gcc-10-shmobile_defconfig
+   - gcc-10-tinyconfig
+   - gcc-10-u8500_defconfig
+   - gcc-10-vexpress_defconfig
+   - gcc-11-allnoconfig
+   - gcc-11-at91_dt_defconfig
+   - gcc-11-axm55xx_defconfig
+   - gcc-11-bcm2835_defconfig
+   - gcc-11-clps711x_defconfig
+   - gcc-11-davinci_all_defconfig
+   - gcc-11-defconfig
+   - gcc-11-exynos_defconfig
+   - gcc-11-footbridge_defconfig
+   - gcc-11-imx_v4_v5_defconfig
+   - gcc-11-imx_v6_v7_defconfig
+   - gcc-11-integrator_defconfig
+   - gcc-11-ixp4xx_defconfig
+   - gcc-11-keystone_defconfig
+   - gcc-11-lpc32xx_defconfig
+   - gcc-11-mini2440_defconfig
+   - gcc-11-multi_v5_defconfig
+   - gcc-11-mxs_defconfig
+   - gcc-11-nhk8815_defconfig
+   - gcc-11-omap1_defconfig
+   - gcc-11-omap2plus_defconfig
+   - gcc-11-orion5x_defconfig
+   - gcc-11-pxa910_defconfig
+   - gcc-11-s3c2410_defconfig
+   - gcc-11-s3c6400_defconfig
+   - gcc-11-s5pv210_defconfig
+   - gcc-11-sama5_defconfig
+   - gcc-11-shmobile_defconfig
+   - gcc-11-tinyconfig
+   - gcc-11-u8500_defconfig
+   - gcc-11-vexpress_defconfig
+   - gcc-8-allnoconfig
+   - gcc-8-at91_dt_defconfig
+   - gcc-8-axm55xx_defconfig
+   - gcc-8-bcm2835_defconfig
+   - gcc-8-clps711x_defconfig
+   - gcc-8-davinci_all_defconfig
+   - gcc-8-defconfig
+   - gcc-8-exynos_defconfig
+   - gcc-8-footbridge_defconfig
+   - gcc-8-imx_v4_v5_defconfig
+   - gcc-8-imx_v6_v7_defconfig
+   - gcc-8-integrator_defconfig
+   - gcc-8-ixp4xx_defconfig
+   - gcc-8-keystone_defconfig
+   - gcc-8-lpc32xx_defconfig
+   - gcc-8-mini2440_defconfig
+   - gcc-8-multi_v5_defconfig
+   - gcc-8-mxs_defconfig
+   - gcc-8-nhk8815_defconfig
+   - gcc-8-omap1_defconfig
+   - gcc-8-omap2plus_defconfig
+   - gcc-8-orion5x_defconfig
+   - gcc-8-pxa910_defconfig
+   - gcc-8-s3c2410_defconfig
+   - gcc-8-s3c6400_defconfig
+   - gcc-8-s5pv210_defconfig
+   - gcc-8-sama5_defconfig
+   - gcc-8-shmobile_defconfig
+   - gcc-8-tinyconfig
+   - gcc-8-u8500_defconfig
+   - gcc-8-vexpress_defconfig
+   - gcc-9-allnoconfig
+   - gcc-9-at91_dt_defconfig
+   - gcc-9-axm55xx_defconfig
+   - gcc-9-bcm2835_defconfig
+   - gcc-9-clps711x_defconfig
+   - gcc-9-davinci_all_defconfig
+   - gcc-9-defconfig
+   - gcc-9-exynos_defconfig
+   - gcc-9-footbridge_defconfig
+   - gcc-9-imx_v4_v5_defconfig
+   - gcc-9-imx_v6_v7_defconfig
+   - gcc-9-integrator_defconfig
+   - gcc-9-ixp4xx_defconfig
+   - gcc-9-keystone_defconfig
+   - gcc-9-lpc32xx_defconfig
+   - gcc-9-mini2440_defconfig
+   - gcc-9-multi_v5_defconfig
+   - gcc-9-mxs_defconfig
+   - gcc-9-nhk8815_defconfig
+   - gcc-9-omap1_defconfig
+   - gcc-9-omap2plus_defconfig
+   - gcc-9-orion5x_defconfig
+   - gcc-9-pxa910_defconfig
+   - gcc-9-s3c2410_defconfig
+   - gcc-9-s3c6400_defconfig
+   - gcc-9-s5pv210_defconfig
+   - gcc-9-sama5_defconfig
+   - gcc-9-shmobile_defconfig
+   - gcc-9-tinyconfig
+   - gcc-9-u8500_defconfig
+   - gcc-9-vexpress_defconfig
 
->> And if so, would you mind doing this while committing (I have one day
->> off tomorrow)?
->=20
->=20
-> Yes, of course.
+* arm64, build
+   - clang-10-allnoconfig
+   - clang-10-tinyconfig
+   - clang-11-allnoconfig
+   - clang-11-tinyconfig
+   - clang-12-allnoconfig
+   - clang-12-tinyconfig
+   - clang-13-allnoconfig
+   - clang-13-tinyconfig
+   - clang-nightly-allnoconfig
+   - clang-nightly-tinyconfig
+   - gcc-10-allnoconfig
+   - gcc-10-tinyconfig
+   - gcc-11-allnoconfig
+   - gcc-11-tinyconfig
+   - gcc-8-allnoconfig
+   - gcc-8-tinyconfig
+   - gcc-9-allnoconfig
+   - gcc-9-tinyconfig
 
-Thanks.
+* i386, build
+   - clang-10-allnoconfig
+   - clang-10-defconfig
+   - clang-10-tinyconfig
+   - clang-11-allnoconfig
+   - clang-11-defconfig
+   - clang-11-tinyconfig
+   - clang-12-allnoconfig
+   - clang-12-defconfig
+   - clang-12-tinyconfig
+   - clang-13-allnoconfig
+   - clang-13-defconfig
+   - clang-13-tinyconfig
+   - clang-nightly-allnoconfig
+   - clang-nightly-defconfig
+   - clang-nightly-tinyconfig
+   - gcc-10-allnoconfig
+   - gcc-10-defconfig
+   - gcc-10-tinyconfig
+   - gcc-11-allnoconfig
+   - gcc-11-defconfig
+   - gcc-11-tinyconfig
+   - gcc-8-allnoconfig
+   - gcc-8-i386_defconfig
+   - gcc-8-tinyconfig
+   - gcc-9-allnoconfig
+   - gcc-9-i386_defconfig
+   - gcc-9-tinyconfig
 
+* mips, build
+   - clang-10-allnoconfig
+   - clang-10-defconfig
+   - clang-10-tinyconfig
+   - clang-11-allnoconfig
+   - clang-11-defconfig
+   - clang-11-tinyconfig
+   - clang-12-allnoconfig
+   - clang-12-defconfig
+   - clang-12-tinyconfig
+   - clang-13-allnoconfig
+   - clang-13-defconfig
+   - clang-13-tinyconfig
+   - clang-nightly-allnoconfig
+   - clang-nightly-defconfig
+   - clang-nightly-tinyconfig
+   - gcc-10-allnoconfig
+   - gcc-10-ar7_defconfig
+   - gcc-10-ath79_defconfig
+   - gcc-10-bcm47xx_defconfig
+   - gcc-10-bcm63xx_defconfig
+   - gcc-10-defconfig
+   - gcc-10-e55_defconfig
+   - gcc-10-malta_defconfig
+   - gcc-10-rt305x_defconfig
+   - gcc-10-tinyconfig
+   - gcc-8-allnoconfig
+   - gcc-8-ar7_defconfig
+   - gcc-8-ath79_defconfig
+   - gcc-8-bcm47xx_defconfig
+   - gcc-8-bcm63xx_defconfig
+   - gcc-8-defconfig
+   - gcc-8-e55_defconfig
+   - gcc-8-malta_defconfig
+   - gcc-8-rt305x_defconfig
+   - gcc-8-tinyconfig
 
-Juergen
+* parisc, build
+   - gcc-10-allnoconfig
+   - gcc-10-defconfig
+   - gcc-10-tinyconfig
+   - gcc-11-allnoconfig
+   - gcc-11-defconfig
+   - gcc-11-tinyconfig
+   - gcc-8-allnoconfig
+   - gcc-8-defconfig
+   - gcc-8-tinyconfig
+   - gcc-9-allnoconfig
+   - gcc-9-defconfig
+   - gcc-9-tinyconfig
 
+* powerpc, build
+   - gcc-10-allnoconfig
+   - gcc-10-cell_defconfig
+   - gcc-10-maple_defconfig
+   - gcc-10-mpc83xx_defconfig
+   - gcc-10-ppc64e_defconfig
+   - gcc-10-ppc6xx_defconfig
+   - gcc-10-tinyconfig
+   - gcc-10-tqm8xx_defconfig
+   - gcc-11-allnoconfig
+   - gcc-11-cell_defconfig
+   - gcc-11-maple_defconfig
+   - gcc-11-mpc83xx_defconfig
+   - gcc-11-ppc64e_defconfig
+   - gcc-11-ppc6xx_defconfig
+   - gcc-11-tinyconfig
+   - gcc-11-tqm8xx_defconfig
+   - gcc-8-allnoconfig
+   - gcc-8-cell_defconfig
+   - gcc-8-maple_defconfig
+   - gcc-8-mpc83xx_defconfig
+   - gcc-8-ppc64e_defconfig
+   - gcc-8-ppc6xx_defconfig
+   - gcc-8-tinyconfig
+   - gcc-8-tqm8xx_defconfig
+   - gcc-9-allnoconfig
+   - gcc-9-cell_defconfig
+   - gcc-9-maple_defconfig
+   - gcc-9-mpc83xx_defconfig
+   - gcc-9-ppc64e_defconfig
+   - gcc-9-ppc6xx_defconfig
+   - gcc-9-tinyconfig
+   - gcc-9-tqm8xx_defconfig
 
---------------4A2F17B6B681BBA4AE9C74EE
-Content-Type: application/pgp-keys;
- name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: OpenPGP public key
-Content-Disposition: attachment;
- filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+* riscv, build
+   - clang-11-allnoconfig
+   - clang-11-defconfig
+   - clang-11-tinyconfig
+   - clang-12-allnoconfig
+   - clang-12-defconfig
+   - clang-12-tinyconfig
+   - clang-13-allnoconfig
+   - clang-13-defconfig
+   - clang-13-tinyconfig
+   - clang-nightly-allnoconfig
+   - clang-nightly-defconfig
+   - clang-nightly-tinyconfig
+   - gcc-10-allnoconfig
+   - gcc-10-defconfig
+   - gcc-10-tinyconfig
+   - gcc-11-allnoconfig
+   - gcc-11-defconfig
+   - gcc-11-tinyconfig
+   - gcc-8-allnoconfig
+   - gcc-8-defconfig
+   - gcc-8-tinyconfig
+   - gcc-9-allnoconfig
+   - gcc-9-defconfig
+   - gcc-9-tinyconfig
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+* s390, build
+   - clang-13-allnoconfig
+   - clang-13-tinyconfig
+   - clang-nightly-allnoconfig
+   - clang-nightly-tinyconfig
+   - gcc-10-allnoconfig
+   - gcc-10-tinyconfig
+   - gcc-11-allnoconfig
+   - gcc-11-tinyconfig
+   - gcc-8-allnoconfig
+   - gcc-8-tinyconfig
+   - gcc-9-allnoconfig
+   - gcc-9-tinyconfig
 
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
-cWx
-w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
-f8Z
-d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
-9bf
-IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
-G7/
-377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
-3Jv
-c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
-QIe
-AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
-hpw
-dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
-MbD
-1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
-oPH
-Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
-5QL
-+qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
-2Vu
-IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
-QoL
-BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
-Wf0
-teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
-/nu
-AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
-ITT
-d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
-XBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
-80h
-SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
-AcD
-AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
-FOX
-gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
-jnD
-kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
-N51
-N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
-otu
-fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
-tqS
-EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
-hsD
-BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
-g3O
-ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
-dM7
-wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
-D+j
-LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
-V2x
-AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
-Eaw
-QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
-nHI
-s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
-wgn
-BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
-bVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
-pEd
-IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
-QAB
-wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
-Tbe
-8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
-vJz
-Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
-VGi
-wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
-svi
-uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
-zXs
-ZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+* sh, build
+   - gcc-10-allnoconfig
+   - gcc-10-defconfig
+   - gcc-10-dreamcast_defconfig
+   - gcc-10-microdev_defconfig
+   - gcc-10-shx3_defconfig
+   - gcc-10-tinyconfig
+   - gcc-11-allnoconfig
+   - gcc-11-defconfig
+   - gcc-11-dreamcast_defconfig
+   - gcc-11-microdev_defconfig
+   - gcc-11-shx3_defconfig
+   - gcc-11-tinyconfig
+   - gcc-8-allnoconfig
+   - gcc-8-defconfig
+   - gcc-8-dreamcast_defconfig
+   - gcc-8-microdev_defconfig
+   - gcc-8-shx3_defconfig
+   - gcc-8-tinyconfig
+   - gcc-9-allnoconfig
+   - gcc-9-defconfig
+   - gcc-9-dreamcast_defconfig
+   - gcc-9-microdev_defconfig
+   - gcc-9-shx3_defconfig
+   - gcc-9-tinyconfig
 
---------------4A2F17B6B681BBA4AE9C74EE--
+* sparc, build
+   - gcc-10-allnoconfig
+   - gcc-10-defconfig
+   - gcc-10-tinyconfig
+   - gcc-11-allnoconfig
+   - gcc-11-defconfig
+   - gcc-11-tinyconfig
+   - gcc-8-allnoconfig
+   - gcc-8-defconfig
+   - gcc-8-tinyconfig
+   - gcc-9-allnoconfig
+   - gcc-9-defconfig
+   - gcc-9-tinyconfig
 
---7NqwldsUw7TpcaPNG4ex5XcZovKmVXFSQ--
+* x86_64, build
+   - clang-10-allnoconfig
+   - clang-10-defconfig
+   - clang-10-tinyconfig
+   - clang-11-allnoconfig
+   - clang-11-tinyconfig
+   - clang-11-x86_64_defconfig
+   - clang-12-allnoconfig
+   - clang-12-tinyconfig
+   - clang-12-x86_64_defconfig
+   - clang-13-allnoconfig
+   - clang-13-tinyconfig
+   - clang-13-x86_64_defconfig
+   - clang-nightly-allnoconfig
+   - clang-nightly-tinyconfig
+   - clang-nightly-x86_64_defconfig
+   - gcc-10-allnoconfig
+   - gcc-10-defconfig
+   - gcc-10-tinyconfig
+   - gcc-11-allnoconfig
+   - gcc-11-defconfig
+   - gcc-11-tinyconfig
+   - gcc-8-allnoconfig
+   - gcc-8-tinyconfig
+   - gcc-8-x86_64_defconfig
+   - gcc-9-allnoconfig
+   - gcc-9-tinyconfig
+   - gcc-9-x86_64_defconfig
 
---g757mACy6ndOeHy2l0XCaKTMldya4VhZX
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+(It would have been easier to list the ones that _passed_ instead! :)
 
------BEGIN PGP SIGNATURE-----
+Greetings!
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmGEDggFAwAAAAAACgkQsN6d1ii/Ey9m
-cQf/Y8gjihmtFO7hC5ULMnfDS95jAGACBv8aeEPDpOoA4xQj/n6WO/Ecb3sHUKOTm/+rMxlTUIrz
-i/LHUEG+dp+LMFSf9E2ex/p7CodZEy3z2w14ov9KjtzRp+4qPfTSSwnjYRGhrK4pwaY2lw5G7LLD
-JLRan5rgj5HRQv3f+oh6qtoIeQPf4DmmYIOE9tQs1lPELvKJPuhybycfou1GOfhdolqVqMEmQJHm
-HtejYDi6MOjQ/rH33WPGtEF7MiUy2YxPs86Cer/nRoDc8W4gBOJsTjgM/9DHeVAi8I59pRo2yy81
-NrbDRY2uXA5m2usYdtzAWh+TXb4lcNOHsVI1I/aNUg==
-=b84U
------END PGP SIGNATURE-----
-
---g757mACy6ndOeHy2l0XCaKTMldya4VhZX--
+daniel Díaz
+daniel.diaz@linaro.org
