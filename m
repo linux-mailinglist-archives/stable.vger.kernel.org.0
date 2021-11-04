@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BA304454ED
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FB7B4454F0
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:16:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231408AbhKDOSw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:18:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
+        id S232384AbhKDOS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:18:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232149AbhKDOSB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DCF260F39;
-        Thu,  4 Nov 2021 14:15:23 +0000 (UTC)
+        id S231861AbhKDOSE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A88C611C4;
+        Thu,  4 Nov 2021 14:15:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035323;
-        bh=blk2nUbCgAo8P4b+73weV7EU17maQxnFyJEw9XqyNXM=;
+        s=korg; t=1636035326;
+        bh=0AUwTX0c9ut9gVu5Ifzq7SKErsbHbxfBsi0dAHw3od0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fi6yZ0hmG7SG0UUxFMvlifFQRG3FanBcktNsY/rJNSIqjTFd/VFMPTACDD+l44EEA
-         UA3/8LroIdamXsZfy9Y/p92tiOR96wEDDI2dys81ZUkKOSnsYSbqDHTZU7opORsWVl
-         wGEKy7+EaMj3XI2uObRZOri5RxF4mjWurup3xjmA=
+        b=cor2FBZTao98gOaE41b1DQIvIRuA6hdHyvDpYriCCE5m8s41wAS7BdZTwNULLRWA8
+         jTkhe2+5xyHlY14raiKsiZJZOBBtTOZ/gwfaoyjPur4l6I7mvFN0ZuFXa3UD1NJaN0
+         pDh46Ml4zdx8lIcvbebzpxfF3uVWnf7RRtFYif7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Chris Chiu <chris.chiu@canonical.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 5.10 10/16] Revert "usb: core: hcd: Add support for deferring roothub registration"
-Date:   Thu,  4 Nov 2021 15:12:49 +0100
-Message-Id: <20211104141159.935478224@linuxfoundation.org>
+        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        Yang Shi <shy828301@gmail.com>, Hao Sun <sunhao.th@gmail.com>,
+        syzbot+aae069be1de40fb11825@syzkaller.appspotmail.com,
+        Matthew Wilcox <willy@infradead.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Song Liu <songliubraving@fb.com>,
+        Andrea Righi <andrea.righi@canonical.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 11/16] mm: khugepaged: skip huge page collapse for special files
+Date:   Thu,  4 Nov 2021 15:12:50 +0100
+Message-Id: <20211104141159.965954087@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211104141159.561284732@linuxfoundation.org>
 References: <20211104141159.561284732@linuxfoundation.org>
@@ -42,114 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Yang Shi <shy828301@gmail.com>
 
-This reverts commit d58fc9e9c15825e3a8fc1ef3b52495c93c41e71c which is
-commit 58877b0824da15698bd85a0a9dbfa8c354e6ecb7 upstream.
+commit a4aeaa06d45e90f9b279f0b09de84bd00006e733 upstream.
 
-It has been reported to be causing problems in Arch and Fedora bug
-reports.
+The read-only THP for filesystems will collapse THP for files opened
+readonly and mapped with VM_EXEC.  The intended usecase is to avoid TLB
+misses for large text segments.  But it doesn't restrict the file types
+so a THP could be collapsed for a non-regular file, for example, block
+device, if it is opened readonly and mapped with EXEC permission.  This
+may cause bugs, like [1] and [2].
 
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://bbs.archlinux.org/viewtopic.php?pid=2000956#p2000956
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2019542
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2019576
-Link: https://lore.kernel.org/r/42bcbea6-5eb8-16c7-336a-2cb72e71bc36@redhat.com
-Cc: Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc: Chris Chiu <chris.chiu@canonical.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Kishon Vijay Abraham I <kishon@ti.com>
+This is definitely not the intended usecase, so just collapse THP for
+regular files in order to close the attack surface.
+
+[shy828301@gmail.com: fix vm_file check [3]]
+
+Link: https://lore.kernel.org/lkml/CACkBjsYwLYLRmX8GpsDpMthagWOjWWrNxqY6ZLNQVr6yx+f5vA@mail.gmail.com/ [1]
+Link: https://lore.kernel.org/linux-mm/000000000000c6a82505ce284e4c@google.com/ [2]
+Link: https://lkml.kernel.org/r/CAHbLzkqTW9U3VvTu1Ki5v_cLRC9gHW+znBukg_ycergE0JWj-A@mail.gmail.com [3]
+Link: https://lkml.kernel.org/r/20211027195221.3825-1-shy828301@gmail.com
+Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Reported-by: syzbot+aae069be1de40fb11825@syzkaller.appspotmail.com
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Andrea Righi <andrea.righi@canonical.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/core/hcd.c  |   29 ++++++-----------------------
- include/linux/usb/hcd.h |    2 --
- 2 files changed, 6 insertions(+), 25 deletions(-)
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -2640,7 +2640,6 @@ int usb_add_hcd(struct usb_hcd *hcd,
- {
- 	int retval;
- 	struct usb_device *rhdev;
--	struct usb_hcd *shared_hcd;
+---
+ mm/khugepaged.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
+
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -443,21 +443,24 @@ static bool hugepage_vma_check(struct vm
+ 	if (!transhuge_vma_enabled(vma, vm_flags))
+ 		return false;
  
- 	if (!hcd->skip_phy_initialization && usb_hcd_is_primary_hcd(hcd)) {
- 		hcd->phy_roothub = usb_phy_roothub_alloc(hcd->self.sysdev);
-@@ -2797,26 +2796,13 @@ int usb_add_hcd(struct usb_hcd *hcd,
- 		goto err_hcd_driver_start;
++	if (vma->vm_file && !IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) -
++				vma->vm_pgoff, HPAGE_PMD_NR))
++		return false;
++
+ 	/* Enabled via shmem mount options or sysfs settings. */
+-	if (shmem_file(vma->vm_file) && shmem_huge_enabled(vma)) {
+-		return IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) - vma->vm_pgoff,
+-				HPAGE_PMD_NR);
+-	}
++	if (shmem_file(vma->vm_file))
++		return shmem_huge_enabled(vma);
+ 
+ 	/* THP settings require madvise. */
+ 	if (!(vm_flags & VM_HUGEPAGE) && !khugepaged_always())
+ 		return false;
+ 
+-	/* Read-only file mappings need to be aligned for THP to work. */
++	/* Only regular file is valid */
+ 	if (IS_ENABLED(CONFIG_READ_ONLY_THP_FOR_FS) && vma->vm_file &&
+ 	    (vm_flags & VM_DENYWRITE)) {
+-		return IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) - vma->vm_pgoff,
+-				HPAGE_PMD_NR);
++		struct inode *inode = vma->vm_file->f_inode;
++
++		return S_ISREG(inode->i_mode);
  	}
  
--	/* starting here, usbcore will pay attention to the shared HCD roothub */
--	shared_hcd = hcd->shared_hcd;
--	if (!usb_hcd_is_primary_hcd(hcd) && shared_hcd && HCD_DEFER_RH_REGISTER(shared_hcd)) {
--		retval = register_root_hub(shared_hcd);
--		if (retval != 0)
--			goto err_register_root_hub;
--
--		if (shared_hcd->uses_new_polling && HCD_POLL_RH(shared_hcd))
--			usb_hcd_poll_rh_status(shared_hcd);
--	}
--
- 	/* starting here, usbcore will pay attention to this root hub */
--	if (!HCD_DEFER_RH_REGISTER(hcd)) {
--		retval = register_root_hub(hcd);
--		if (retval != 0)
--			goto err_register_root_hub;
-+	retval = register_root_hub(hcd);
-+	if (retval != 0)
-+		goto err_register_root_hub;
- 
--		if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
--			usb_hcd_poll_rh_status(hcd);
--	}
-+	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
-+		usb_hcd_poll_rh_status(hcd);
- 
- 	return retval;
- 
-@@ -2859,7 +2845,6 @@ EXPORT_SYMBOL_GPL(usb_add_hcd);
- void usb_remove_hcd(struct usb_hcd *hcd)
- {
- 	struct usb_device *rhdev = hcd->self.root_hub;
--	bool rh_registered;
- 
- 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
- 
-@@ -2870,7 +2855,6 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 
- 	dev_dbg(hcd->self.controller, "roothub graceful disconnect\n");
- 	spin_lock_irq (&hcd_root_hub_lock);
--	rh_registered = hcd->rh_registered;
- 	hcd->rh_registered = 0;
- 	spin_unlock_irq (&hcd_root_hub_lock);
- 
-@@ -2880,8 +2864,7 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 	cancel_work_sync(&hcd->died_work);
- 
- 	mutex_lock(&usb_bus_idr_lock);
--	if (rh_registered)
--		usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
-+	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
- 	mutex_unlock(&usb_bus_idr_lock);
- 
- 	/*
---- a/include/linux/usb/hcd.h
-+++ b/include/linux/usb/hcd.h
-@@ -124,7 +124,6 @@ struct usb_hcd {
- #define HCD_FLAG_RH_RUNNING		5	/* root hub is running? */
- #define HCD_FLAG_DEAD			6	/* controller has died? */
- #define HCD_FLAG_INTF_AUTHORIZED	7	/* authorize interfaces? */
--#define HCD_FLAG_DEFER_RH_REGISTER	8	/* Defer roothub registration */
- 
- 	/* The flags can be tested using these macros; they are likely to
- 	 * be slightly faster than test_bit().
-@@ -135,7 +134,6 @@ struct usb_hcd {
- #define HCD_WAKEUP_PENDING(hcd)	((hcd)->flags & (1U << HCD_FLAG_WAKEUP_PENDING))
- #define HCD_RH_RUNNING(hcd)	((hcd)->flags & (1U << HCD_FLAG_RH_RUNNING))
- #define HCD_DEAD(hcd)		((hcd)->flags & (1U << HCD_FLAG_DEAD))
--#define HCD_DEFER_RH_REGISTER(hcd) ((hcd)->flags & (1U << HCD_FLAG_DEFER_RH_REGISTER))
- 
- 	/*
- 	 * Specifies if interfaces are authorized by default
+ 	if (!vma->anon_vma || vma->vm_ops)
 
 
