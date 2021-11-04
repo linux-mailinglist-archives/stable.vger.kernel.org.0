@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF21B44549E
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:13:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D10054454C4
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:14:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231361AbhKDOQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:16:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44884 "EHLO mail.kernel.org"
+        id S231536AbhKDORa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:17:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231365AbhKDOQ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:16:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B46160F39;
-        Thu,  4 Nov 2021 14:13:49 +0000 (UTC)
+        id S231649AbhKDORK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:17:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E70D9611C1;
+        Thu,  4 Nov 2021 14:14:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035230;
-        bh=aIdRTFWPkEXAjV9AmwU5Qa4tC5Ylagy1T1VHvxzCOfM=;
+        s=korg; t=1636035272;
+        bh=1Vut+KSRZVd7H4ANtPbf0WryKhnssVblz6MEYOrsiRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2IPFQVEkRLl8qtxOVELnJXzA8cPTSyUGveFggORG3iEkfnIjyg4UlUOMmqKzJ1V3O
-         b6rcOrktOE0YRgiHCUxDZv8+gkX/FSxpp+CywzHwkaemsJ+5VCPIDxc5dEMOyvhsS+
-         eRihuHS9C/1J32X583L3xvE8QV8y7xfPKPypBPbM=
+        b=V6oggDCgwqp7iUiIIE7HYO2uBluK0upRzsAZ/n50c1sWp8XKlRA8nrLeHUD0/qhvR
+         HWgYe5L2QfF0Dxpq+2VN3P4sv1H9qkdbzA/v+EF+H7/4wA9O9IkafL8ZW5UM1Dc8g0
+         LpgdlzHQ81tAsyhkWcmfgKJaCbxmFDbX30z5Um68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 12/12] ALSA: usb-audio: Add quirk for Audient iD14
+        stable@vger.kernel.org, youling <youling257@gmail.com>,
+        Yifan Zhang <yifan1.zhang@amd.com>,
+        James Zhu <James.Zhu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.14 07/16] drm/amdkfd: fix boot failure when iommu is disabled in Picasso.
 Date:   Thu,  4 Nov 2021 15:12:38 +0100
-Message-Id: <20211104141159.954361842@linuxfoundation.org>
+Message-Id: <20211104141200.092079558@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211104141159.551636584@linuxfoundation.org>
-References: <20211104141159.551636584@linuxfoundation.org>
+In-Reply-To: <20211104141159.863820939@linuxfoundation.org>
+References: <20211104141159.863820939@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,33 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-commit df0380b9539b04c1ae8854a984098da06d5f1e67 upstream.
+commit afd18180c07026f94a80ff024acef5f4159084a4 upstream.
 
-Audient iD14 (2708:0002) may get a control message error that
-interferes the operation e.g. with alsactl.  Add the quirk to ignore
-such errors like other devices.
+When IOMMU disabled in sbios and kfd in iommuv2 path, iommuv2
+init will fail. But this failure should not block amdgpu driver init.
 
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1191247
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211102161859.19301-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: youling <youling257@gmail.com>
+Tested-by: youling <youling257@gmail.com>
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Reviewed-by: James Zhu <James.Zhu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    4 ----
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c    |    3 +++
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1887,6 +1887,8 @@ static const struct usb_audio_quirk_flag
- 		   QUIRK_FLAG_SHARE_MEDIA_DEVICE | QUIRK_FLAG_ALIGN_TRANSFER),
- 	DEVICE_FLG(0x21b4, 0x0081, /* AudioQuest DragonFly */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
-+	DEVICE_FLG(0x2708, 0x0002, /* Audient iD14 */
-+		   QUIRK_FLAG_IGNORE_CTL_ERROR),
- 	DEVICE_FLG(0x2912, 0x30c8, /* Audioengine D1 */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
- 	DEVICE_FLG(0x30be, 0x0101, /* Schiit Hel */
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2380,10 +2380,6 @@ static int amdgpu_device_ip_init(struct
+ 	if (!adev->gmc.xgmi.pending_reset)
+ 		amdgpu_amdkfd_device_init(adev);
+ 
+-	r = amdgpu_amdkfd_resume_iommu(adev);
+-	if (r)
+-		goto init_failed;
+-
+ 	amdgpu_fru_get_product_info(adev);
+ 
+ init_failed:
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -875,6 +875,9 @@ bool kgd2kfd_device_init(struct kfd_dev
+ 
+ 	svm_migrate_init((struct amdgpu_device *)kfd->kgd);
+ 
++	if(kgd2kfd_resume_iommu(kfd))
++		goto device_iommu_error;
++
+ 	if (kfd_resume(kfd))
+ 		goto kfd_resume_error;
+ 
 
 
