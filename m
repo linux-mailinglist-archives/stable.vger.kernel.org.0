@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4152444551D
+	by mail.lfdr.de (Postfix) with ESMTP id 8A90444551E
 	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:17:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231742AbhKDOUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:20:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46942 "EHLO mail.kernel.org"
+        id S232174AbhKDOUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:20:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231318AbhKDOS6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0821611C1;
-        Thu,  4 Nov 2021 14:16:19 +0000 (UTC)
+        id S231391AbhKDOTB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:19:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F95A61247;
+        Thu,  4 Nov 2021 14:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035380;
-        bh=FC+bkQyAKUIcfeD9xjDtGZhTQApDy2TUbpFkTAGTIMQ=;
+        s=korg; t=1636035383;
+        bh=CE+rnquf1kjI51pRhEmbEFU+bjxRIYaCB9yGHCFRE6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zr2aK88DrJAENkamiApB8HFm2w2/zIdZuFD5XI859vWbwhS4bMVUExcH5CnI2fIC+
-         k3lkA4nQ0Bmf4kQc2NGNpBmQifRez5vMWAnxV4Ctkf5dn36bzDrJUK/qzd5gP1yoCI
-         bRh76ZJ5dKhxrbQBRf2vqBxvybc1N6RF5N41/4ZE=
+        b=M5eEHrS7y5EhWFHzrxjwpx7qGqMVKqzeX61QmIoYRMVRgQJUMOuBcFm7wxhj2nKdh
+         Vbtr3pzsPH7Ocmjh85HgMVyu3rCdSJG4uG/lcY2R/gJ4kUGYnudCYwGngs6yZmuRAW
+         u7mdWeNvLsoYzkD5aEOBeCZiQXUsmGkykXD7NIu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 4.19 4/7] IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
-Date:   Thu,  4 Nov 2021 15:13:07 +0100
-Message-Id: <20211104141158.174223238@linuxfoundation.org>
+        stable@vger.kernel.org, Erik Ekman <erik@kryo.se>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 5/7] sfc: Fix reading non-legacy supported link modes
+Date:   Thu,  4 Nov 2021 15:13:08 +0100
+Message-Id: <20211104141158.203339269@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211104141158.037189396@linuxfoundation.org>
 References: <20211104141158.037189396@linuxfoundation.org>
@@ -42,115 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Erik Ekman <erik@kryo.se>
 
-commit d39bf40e55e666b5905fdbd46a0dced030ce87be upstream.
+commit 041c61488236a5a84789083e3d9f0a51139b6edf upstream.
 
-Overflowing either addrlimit or bytes_togo can allow userspace to trigger
-a buffer overflow of kernel memory. Check for overflows in all the places
-doing math on user controlled buffers.
+Everything except the first 32 bits was lost when the pause flags were
+added. This makes the 50000baseCR2 mode flag (bit 34) not appear.
 
-Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
-Link: https://lore.kernel.org/r/20211012175519.7298.77738.stgit@awfm-01.cornelisnetworks.com
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+I have tested this with a 10G card (SFN5122F-R7) by modifying it to
+return a non-legacy link mode (10000baseCR).
+
+Signed-off-by: Erik Ekman <erik@kryo.se>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/infiniband/hw/qib/qib_user_sdma.c |   33 ++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 10 deletions(-)
 
---- a/drivers/infiniband/hw/qib/qib_user_sdma.c
-+++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
-@@ -606,7 +606,7 @@ done:
- /*
-  * How many pages in this iovec element?
-  */
--static int qib_user_sdma_num_pages(const struct iovec *iov)
-+static size_t qib_user_sdma_num_pages(const struct iovec *iov)
+---
+ drivers/net/ethernet/sfc/ethtool.c |   10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+--- a/drivers/net/ethernet/sfc/ethtool.c
++++ b/drivers/net/ethernet/sfc/ethtool.c
+@@ -131,20 +131,14 @@ efx_ethtool_get_link_ksettings(struct ne
  {
- 	const unsigned long addr  = (unsigned long) iov->iov_base;
- 	const unsigned long  len  = iov->iov_len;
-@@ -662,7 +662,7 @@ static void qib_user_sdma_free_pkt_frag(
- static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
- 				   struct qib_user_sdma_queue *pq,
- 				   struct qib_user_sdma_pkt *pkt,
--				   unsigned long addr, int tlen, int npages)
-+				   unsigned long addr, int tlen, size_t npages)
- {
- 	struct page *pages[8];
- 	int i, j;
-@@ -726,7 +726,7 @@ static int qib_user_sdma_pin_pkt(const s
- 	unsigned long idx;
+ 	struct efx_nic *efx = netdev_priv(net_dev);
+ 	struct efx_link_state *link_state = &efx->link_state;
+-	u32 supported;
  
- 	for (idx = 0; idx < niov; idx++) {
--		const int npages = qib_user_sdma_num_pages(iov + idx);
-+		const size_t npages = qib_user_sdma_num_pages(iov + idx);
- 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
+ 	mutex_lock(&efx->mac_lock);
+ 	efx->phy_op->get_link_ksettings(efx, cmd);
+ 	mutex_unlock(&efx->mac_lock);
  
- 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
-@@ -828,8 +828,8 @@ static int qib_user_sdma_queue_pkts(cons
- 		unsigned pktnw;
- 		unsigned pktnwc;
- 		int nfrags = 0;
--		int npages = 0;
--		int bytes_togo = 0;
-+		size_t npages = 0;
-+		size_t bytes_togo = 0;
- 		int tiddma = 0;
- 		int cfur;
+ 	/* Both MACs support pause frames (bidirectional and respond-only) */
+-	ethtool_convert_link_mode_to_legacy_u32(&supported,
+-						cmd->link_modes.supported);
+-
+-	supported |= SUPPORTED_Pause | SUPPORTED_Asym_Pause;
+-
+-	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.supported,
+-						supported);
++	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
++	ethtool_link_ksettings_add_link_mode(cmd, supported, Asym_Pause);
  
-@@ -889,7 +889,11 @@ static int qib_user_sdma_queue_pkts(cons
- 
- 			npages += qib_user_sdma_num_pages(&iov[idx]);
- 
--			bytes_togo += slen;
-+			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
-+			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
- 			pktnwc += slen >> 2;
- 			idx++;
- 			nfrags++;
-@@ -908,8 +912,7 @@ static int qib_user_sdma_queue_pkts(cons
- 		}
- 
- 		if (frag_size) {
--			int tidsmsize, n;
--			size_t pktsize;
-+			size_t tidsmsize, n, pktsize, sz, addrlimit;
- 
- 			n = npages*((2*PAGE_SIZE/frag_size)+1);
- 			pktsize = struct_size(pkt, addr, n);
-@@ -927,14 +930,24 @@ static int qib_user_sdma_queue_pkts(cons
- 			else
- 				tidsmsize = 0;
- 
--			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
-+			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt = kmalloc(sz, GFP_KERNEL);
- 			if (!pkt) {
- 				ret = -ENOMEM;
- 				goto free_pbc;
- 			}
- 			pkt->largepkt = 1;
- 			pkt->frag_size = frag_size;
--			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
-+			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
-+					       &addrlimit) ||
-+			    addrlimit > type_max(typeof(pkt->addrlimit))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt->addrlimit = addrlimit;
- 
- 			if (tiddma) {
- 				char *tidsm = (char *)pkt + pktsize;
+ 	if (LOOPBACK_INTERNAL(efx)) {
+ 		cmd->base.speed = link_state->speed;
 
 
