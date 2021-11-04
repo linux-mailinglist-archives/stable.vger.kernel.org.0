@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A8D844551A
-	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:17:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4152444551D
+	for <lists+stable@lfdr.de>; Thu,  4 Nov 2021 15:17:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232161AbhKDOUA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 10:20:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47882 "EHLO mail.kernel.org"
+        id S231742AbhKDOUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 10:20:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232159AbhKDOSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Nov 2021 10:18:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5039F61248;
-        Thu,  4 Nov 2021 14:16:17 +0000 (UTC)
+        id S231318AbhKDOS6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Nov 2021 10:18:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0821611C1;
+        Thu,  4 Nov 2021 14:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636035377;
-        bh=CAOceHmDjFQ4rqH7fuDy64h/MqmjOcvb8w5OWtrZZTg=;
+        s=korg; t=1636035380;
+        bh=FC+bkQyAKUIcfeD9xjDtGZhTQApDy2TUbpFkTAGTIMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPt+oDbg5sWXnLMRXUj8F3mFpDlfAynKz3Om5UI4grlN7MF/i4BesDQdv/IHxAfe6
-         ne84VaymhD7rVPyqTwdIdg7RKSWRAJdUwssXLKkNKzSegyw33nEigQPm7ekUjkZu7p
-         jN2DTEUnQmpaR4ikaGDKHl69cVQshsIm/CooL0Yw=
+        b=Zr2aK88DrJAENkamiApB8HFm2w2/zIdZuFD5XI859vWbwhS4bMVUExcH5CnI2fIC+
+         k3lkA4nQ0Bmf4kQc2NGNpBmQifRez5vMWAnxV4Ctkf5dn36bzDrJUK/qzd5gP1yoCI
+         bRh76ZJ5dKhxrbQBRf2vqBxvybc1N6RF5N41/4ZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Mile Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Subject: [PATCH 4.19 3/7] IB/qib: Use struct_size() helper
-Date:   Thu,  4 Nov 2021 15:13:06 +0100
-Message-Id: <20211104141158.144097533@linuxfoundation.org>
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 4.19 4/7] IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
+Date:   Thu,  4 Nov 2021 15:13:07 +0100
+Message-Id: <20211104141158.174223238@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211104141158.037189396@linuxfoundation.org>
 References: <20211104141158.037189396@linuxfoundation.org>
@@ -42,50 +42,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-commit 829ca44ecf60e9b6f83d0161a6ef10c1304c5060 upstream.
+commit d39bf40e55e666b5905fdbd46a0dced030ce87be upstream.
 
-Make use of the struct_size() helper instead of an open-coded version
-in order to avoid any potential type mistakes, in particular in the
-context in which this code is being used.
+Overflowing either addrlimit or bytes_togo can allow userspace to trigger
+a buffer overflow of kernel memory. Check for overflows in all the places
+doing math on user controlled buffers.
 
-So, replace the following form:
-
-sizeof(*pkt) + sizeof(pkt->addr[0])*n
-
-with:
-
-struct_size(pkt, addr, n)
-
-Also, notice that variable size is unnecessary, hence it is removed.
-
-This code was detected with the help of Coccinelle.
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Mile Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
+Link: https://lore.kernel.org/r/20211012175519.7298.77738.stgit@awfm-01.cornelisnetworks.com
+Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/qib/qib_user_sdma.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/qib/qib_user_sdma.c |   33 ++++++++++++++++++++----------
+ 1 file changed, 23 insertions(+), 10 deletions(-)
 
 --- a/drivers/infiniband/hw/qib/qib_user_sdma.c
 +++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
-@@ -908,10 +908,11 @@ static int qib_user_sdma_queue_pkts(cons
+@@ -606,7 +606,7 @@ done:
+ /*
+  * How many pages in this iovec element?
+  */
+-static int qib_user_sdma_num_pages(const struct iovec *iov)
++static size_t qib_user_sdma_num_pages(const struct iovec *iov)
+ {
+ 	const unsigned long addr  = (unsigned long) iov->iov_base;
+ 	const unsigned long  len  = iov->iov_len;
+@@ -662,7 +662,7 @@ static void qib_user_sdma_free_pkt_frag(
+ static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
+ 				   struct qib_user_sdma_queue *pq,
+ 				   struct qib_user_sdma_pkt *pkt,
+-				   unsigned long addr, int tlen, int npages)
++				   unsigned long addr, int tlen, size_t npages)
+ {
+ 	struct page *pages[8];
+ 	int i, j;
+@@ -726,7 +726,7 @@ static int qib_user_sdma_pin_pkt(const s
+ 	unsigned long idx;
+ 
+ 	for (idx = 0; idx < niov; idx++) {
+-		const int npages = qib_user_sdma_num_pages(iov + idx);
++		const size_t npages = qib_user_sdma_num_pages(iov + idx);
+ 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
+ 
+ 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
+@@ -828,8 +828,8 @@ static int qib_user_sdma_queue_pkts(cons
+ 		unsigned pktnw;
+ 		unsigned pktnwc;
+ 		int nfrags = 0;
+-		int npages = 0;
+-		int bytes_togo = 0;
++		size_t npages = 0;
++		size_t bytes_togo = 0;
+ 		int tiddma = 0;
+ 		int cfur;
+ 
+@@ -889,7 +889,11 @@ static int qib_user_sdma_queue_pkts(cons
+ 
+ 			npages += qib_user_sdma_num_pages(&iov[idx]);
+ 
+-			bytes_togo += slen;
++			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
++			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
++				ret = -EINVAL;
++				goto free_pbc;
++			}
+ 			pktnwc += slen >> 2;
+ 			idx++;
+ 			nfrags++;
+@@ -908,8 +912,7 @@ static int qib_user_sdma_queue_pkts(cons
  		}
  
  		if (frag_size) {
--			int pktsize, tidsmsize, n;
-+			int tidsmsize, n;
-+			size_t pktsize;
+-			int tidsmsize, n;
+-			size_t pktsize;
++			size_t tidsmsize, n, pktsize, sz, addrlimit;
  
  			n = npages*((2*PAGE_SIZE/frag_size)+1);
--			pktsize = sizeof(*pkt) + sizeof(pkt->addr[0])*n;
-+			pktsize = struct_size(pkt, addr, n);
+ 			pktsize = struct_size(pkt, addr, n);
+@@ -927,14 +930,24 @@ static int qib_user_sdma_queue_pkts(cons
+ 			else
+ 				tidsmsize = 0;
  
- 			/*
- 			 * Determine if this is tid-sdma or just sdma.
+-			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
++			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
++				ret = -EINVAL;
++				goto free_pbc;
++			}
++			pkt = kmalloc(sz, GFP_KERNEL);
+ 			if (!pkt) {
+ 				ret = -ENOMEM;
+ 				goto free_pbc;
+ 			}
+ 			pkt->largepkt = 1;
+ 			pkt->frag_size = frag_size;
+-			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
++			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
++					       &addrlimit) ||
++			    addrlimit > type_max(typeof(pkt->addrlimit))) {
++				ret = -EINVAL;
++				goto free_pbc;
++			}
++			pkt->addrlimit = addrlimit;
+ 
+ 			if (tiddma) {
+ 				char *tidsm = (char *)pkt + pktsize;
 
 
