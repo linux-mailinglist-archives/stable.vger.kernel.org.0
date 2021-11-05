@@ -2,132 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE5B44618A
-	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 10:48:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B884461F4
+	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 11:08:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232715AbhKEJuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Nov 2021 05:50:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47452 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232616AbhKEJuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Nov 2021 05:50:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E7FA61053;
-        Fri,  5 Nov 2021 09:48:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636105686;
-        bh=JOH80MQM+ARdKAOqfocajIJekKiO0ckjPSkcV5eTJ6Y=;
-        h=From:To:Cc:Subject:Date:From;
-        b=bRUUYc42UheVd+lqBiGwbxGbznCjzRk26KuZ5te7exx7ygeJ5/15bNZQboLZItdnz
-         1pgj3VWS3Osq/SEVVfsEDRrB1MZLSHBpgS0DCcbwe15wFXK5u9bKKu1UT3TttfCX/d
-         AHZzMOjA4A8h2SOCXKI3CZNsPBJjW9zIH0GGCBGqVLdPXffkv96KigvFiMTlDoRZLK
-         IUviqWEUOeA6jXVMsmUWupwIGpvavc3vIUdwIIca8xBcFLNh+XHsVpa60uz37zvy0C
-         azLx7qZLBPNnOi2exrFihtm9p3Fa47clMfh07H/ZihSFo+D69ghw8NshSKX7ACLV+S
-         9xW0ysPLIdFjg==
-From:   guoren@kernel.org
-To:     guoren@kernel.org, anup@brainfault.org, atish.patra@wdc.com,
-        maz@kernel.org, tglx@linutronix.de, palmer@dabbelt.com
-Cc:     linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
-        Guo Ren <guoren@linux.alibaba.com>,
-        Vincent Pelletier <plr.vincent@gmail.com>,
-        Nikita Shubin <nikita.shubin@maquefel.me>,
-        stable@vger.kernel.org
-Subject: [PATCH V7] irqchip/sifive-plic: Fixup EOI failed when masked
-Date:   Fri,  5 Nov 2021 17:47:48 +0800
-Message-Id: <20211105094748.3894453-1-guoren@kernel.org>
-X-Mailer: git-send-email 2.25.1
+        id S233033AbhKEKK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Nov 2021 06:10:57 -0400
+Received: from mail.xenproject.org ([104.130.215.37]:56646 "EHLO
+        mail.xenproject.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233028AbhKEKK5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Nov 2021 06:10:57 -0400
+X-Greylist: delayed 1007 seconds by postgrey-1.27 at vger.kernel.org; Fri, 05 Nov 2021 06:10:57 EDT
+Received: from xenbits.xenproject.org ([104.239.192.120])
+        by mail.xenproject.org with esmtp (Exim 4.92)
+        (envelope-from <pdurrant@amazon.com>)
+        id 1mivsQ-00048a-Cu; Fri, 05 Nov 2021 09:51:14 +0000
+Received: from host86-165-42-146.range86-165.btcentralplus.com ([86.165.42.146] helo=debian.home)
+        by xenbits.xenproject.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <pdurrant@amazon.com>)
+        id 1mivsQ-00088M-4M; Fri, 05 Nov 2021 09:51:14 +0000
+From:   Paul Durrant <pdurrant@amazon.com>
+To:     kvm@vger.kernel.org
+Cc:     Sean Christopherson <seanjc@google.com>, stable@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v2 1/2] KVM: x86: Add helper to consolidate core logic of SET_CPUID{2} flows
+Date:   Fri,  5 Nov 2021 09:51:00 +0000
+Message-Id: <20211105095101.5384-2-pdurrant@amazon.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20211105095101.5384-1-pdurrant@amazon.com>
+References: <20211105095101.5384-1-pdurrant@amazon.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Sean Christopherson <seanjc@google.com>
 
-When using "devm_request_threaded_irq(,,,,IRQF_ONESHOT,,)" in the driver,
-only the first interrupt could be handled, and continue irq is blocked by
-hw. Because the riscv plic couldn't complete masked irq source which has
-been disabled in enable register. The bug was firstly reported in [1].
+Move the core logic of SET_CPUID and SET_CPUID2 to a common helper, the
+only difference between the two ioctls() is the format of the userspace
+struct.  A future fix will add yet more code to the core logic.
 
-Here is the description of Interrupt Completion in PLIC spec [2]:
+No functional change intended.
 
-The PLIC signals it has completed executing an interrupt handler by
-writing the interrupt ID it received from the claim to the claim/complete
-register. The PLIC does not check whether the completion ID is the same
-as the last claim ID for that target. If the completion ID does not match
-an interrupt source that is currently enabled for the target, the
-                         ^^ ^^^^^^^^^ ^^^^^^^
-completion is silently ignored.
-
-[1] http://lists.infradead.org/pipermail/linux-riscv/2021-July/007441.html
-[2] https://github.com/riscv/riscv-plic-spec/blob/8bc15a35d07c9edf7b5d23fec9728302595ffc4d/riscv-plic.adoc
-
-Fixes: bb0fed1c60cc ("irqchip/sifive-plic: Switch to fasteoi flow")
-Reported-by: Vincent Pelletier <plr.vincent@gmail.com>
-Tested-by: Nikita Shubin <nikita.shubin@maquefel.me>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Cc: stable@vger.kernel.org
-Cc: Anup Patel <anup@brainfault.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Atish Patra <atish.patra@wdc.com>
-Cc: Nikita Shubin <nikita.shubin@maquefel.me>
-Cc: incent Pelletier <plr.vincent@gmail.com>
-
+Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Wanpeng Li <wanpengli@tencent.com>
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Joerg Roedel <joro@8bytes.org>
 
-Changes since V7:
- - Add Fixes tag
- - Add Tested-by
- - Add Cc stable
-
-Changes since V6:
- - Propagate to plic_irq_eoi for all riscv,plic by Nikita Shubin
- - Remove thead related codes
-
-Changes since V5:
- - Move back to mask/unmask
- - Fixup the problem in eoi callback
- - Remove allwinner,sun20i-d1 IRQCHIP_DECLARE
- - Rewrite comment log
-
-Changes since V4:
- - Update comment by Anup
-
-Changes since V3:
- - Rename "c9xx" to "c900"
- - Add sifive_plic_chip and thead_plic_chip for difference
-
-Changes since V2:
- - Add a separate compatible string "thead,c9xx-plic"
- - set irq_mask/unmask of "plic_chip" to NULL and point
-   irq_enable/disable of "plic_chip" to plic_irq_mask/unmask
- - Add a detailed comment block in plic_init() about the
-   differences in Claim/Completion process of RISC-V PLIC and C9xx
-   PLIC.
+v2:
+ - New in v2
 ---
- drivers/irqchip/irq-sifive-plic.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/kvm/cpuid.c | 47 ++++++++++++++++++++++----------------------
+ 1 file changed, 24 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
-index cf74cfa82045..259065d271ef 100644
---- a/drivers/irqchip/irq-sifive-plic.c
-+++ b/drivers/irqchip/irq-sifive-plic.c
-@@ -163,7 +163,13 @@ static void plic_irq_eoi(struct irq_data *d)
- {
- 	struct plic_handler *handler = this_cpu_ptr(&plic_handlers);
- 
--	writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
-+	if (irqd_irq_masked(d)) {
-+		plic_irq_unmask(d);
-+		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
-+		plic_irq_mask(d);
-+	} else {
-+		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
-+	}
+diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+index 2d70edb0f323..41529c168e91 100644
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -239,6 +239,25 @@ u64 kvm_vcpu_reserved_gpa_bits_raw(struct kvm_vcpu *vcpu)
+ 	return rsvd_bits(cpuid_maxphyaddr(vcpu), 63);
  }
  
- static struct irq_chip plic_chip = {
++static int kvm_set_cpuid(struct kvm_vcpu *vcpu, struct kvm_cpuid_entry2 *e2,
++                        int nent)
++{
++    int r;
++
++    r = kvm_check_cpuid(e2, nent);
++    if (r)
++        return r;
++
++    kvfree(vcpu->arch.cpuid_entries);
++    vcpu->arch.cpuid_entries = e2;
++    vcpu->arch.cpuid_nent = nent;
++
++    kvm_update_cpuid_runtime(vcpu);
++    kvm_vcpu_after_set_cpuid(vcpu);
++
++    return 0;
++}
++
+ /* when an old userspace process fills a new kernel module */
+ int kvm_vcpu_ioctl_set_cpuid(struct kvm_vcpu *vcpu,
+ 			     struct kvm_cpuid *cpuid,
+@@ -275,18 +294,9 @@ int kvm_vcpu_ioctl_set_cpuid(struct kvm_vcpu *vcpu,
+ 		e2[i].padding[2] = 0;
+ 	}
+ 
+-	r = kvm_check_cpuid(e2, cpuid->nent);
+-	if (r) {
++	r = kvm_set_cpuid(vcpu, e2, cpuid->nent);
++	if (r)
+ 		kvfree(e2);
+-		goto out_free_cpuid;
+-	}
+-
+-	kvfree(vcpu->arch.cpuid_entries);
+-	vcpu->arch.cpuid_entries = e2;
+-	vcpu->arch.cpuid_nent = cpuid->nent;
+-
+-	kvm_update_cpuid_runtime(vcpu);
+-	kvm_vcpu_after_set_cpuid(vcpu);
+ 
+ out_free_cpuid:
+ 	kvfree(e);
+@@ -310,20 +320,11 @@ int kvm_vcpu_ioctl_set_cpuid2(struct kvm_vcpu *vcpu,
+ 			return PTR_ERR(e2);
+ 	}
+ 
+-	r = kvm_check_cpuid(e2, cpuid->nent);
+-	if (r) {
++	r = kvm_set_cpuid(vcpu, e2, cpuid->nent);
++	if (r)
+ 		kvfree(e2);
+-		return r;
+-	}
+ 
+-	kvfree(vcpu->arch.cpuid_entries);
+-	vcpu->arch.cpuid_entries = e2;
+-	vcpu->arch.cpuid_nent = cpuid->nent;
+-
+-	kvm_update_cpuid_runtime(vcpu);
+-	kvm_vcpu_after_set_cpuid(vcpu);
+-
+-	return 0;
++	return r;
+ }
+ 
+ int kvm_vcpu_ioctl_get_cpuid2(struct kvm_vcpu *vcpu,
 -- 
-2.25.1
+2.20.1
 
