@@ -2,143 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C31D446588
-	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 16:15:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 372EB44658B
+	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 16:15:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233464AbhKEPRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Nov 2021 11:17:48 -0400
-Received: from mail-ot1-f48.google.com ([209.85.210.48]:35713 "EHLO
-        mail-ot1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233355AbhKEPRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Nov 2021 11:17:47 -0400
-Received: by mail-ot1-f48.google.com with SMTP id p11-20020a9d4e0b000000b0055a5741bff7so13514645otf.2;
-        Fri, 05 Nov 2021 08:15:07 -0700 (PDT)
+        id S233468AbhKEPRu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Nov 2021 11:17:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37502 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233477AbhKEPRt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Nov 2021 11:17:49 -0400
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B58C061714;
+        Fri,  5 Nov 2021 08:15:09 -0700 (PDT)
+Received: by mail-oi1-x230.google.com with SMTP id q124so15031451oig.3;
+        Fri, 05 Nov 2021 08:15:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=nRhfZqrqdZWGnOBfkyLKspl1Uf94yRkMCJhYCZ5LVhA=;
+        b=hD2cRtdQ4bu+k3MRpzutZ+3nkHJk1j6LFy2Vmkk8teVwvTa+60CSoKA+roHXtZwQlT
+         3/6KKydm+cLmlHO1kcyDYG3z9AWzBs+CjR3k5zgusSYz3EOYH1/d6x+N8ZL+NEqEQfzf
+         SH8ZczwYDMyndK2Ef83BRKpFyLup5eTuoWF7zhyzx5cnktxe82Juz3XOM9VRXuxbUfAW
+         WfDHn8Tqwjy0EktXxhwfSlq4cEUkJ3a8OnBvwpzegq3+35EQHSDzmZnZuBHXotUZ43eN
+         mplpUQ29AAIwB5v9P0WK3HkAyKVyrw9zqQztnjwUDhDkQ5MomDMx5ynFrMg5e0nxWG11
+         fR0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Wq3urfHFTmgpur6CZP1GgUU206NT9HzsQZj8tzO+YYg=;
-        b=q0BtzLIJfnRUc5k/T8qpzn0bhjXZu6kJFKc7PFpyJie3be9mZb9WN4M0kOmWwfewDP
-         3MOF6pVIbcs7VYidNYAiW+W/hpnbyUZqMFp90Axugks0XtnwVOxINEDA4oihnz93hShb
-         XEusU5L2FybsFBlFRzNOS4F98cq43lq2ETV8V+uFq1pSWjecE7ee+eBZcwaF7wgyTz0W
-         6mTFNPhR6cf2kh2rlghbUdGQwQaqGLWZFEz5xR92IjSQW5O7een9FhcN0V6CKr/fDX8I
-         uWzuni7k2pgX5m2SEcUG/zX7nwASS9C0CYhVmfPCfA1s/svi0wkOJnJhQr1XvztjPYng
-         +Gaw==
-X-Gm-Message-State: AOAM531rDkEgY8rO7aLIKswHboTUPj4T9PWXfKC+aQ0ot6pVzzC/+J8j
-        JkOirXKzQkCPTykNp+eA8HR61gQ1uafc+g/2SBo=
-X-Google-Smtp-Source: ABdhPJxyc2pR9l7x3/X8gyPFkpj+2SbxSiikNlBi1FTyhgvOqSrZ1hsgGjFNRAvNyYeEfykwcD8KvlkVojdEzM3LkhY=
-X-Received: by 2002:a05:6830:3484:: with SMTP id c4mr28490596otu.254.1636125307487;
- Fri, 05 Nov 2021 08:15:07 -0700 (PDT)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=nRhfZqrqdZWGnOBfkyLKspl1Uf94yRkMCJhYCZ5LVhA=;
+        b=cxTF5eLReWD1HpyHJkFtHc/5axIjRerowlbT4U4JgNDeyxiZ4Bi34S4z3IqHNyUu0O
+         aqqV+lhKKOgFoSdT1IihXIS1k4ZhZZPglT/RZXyGnBx1nLPLnMcJQ3dJ+iKzlhjt94O7
+         jZTY3SoHxXZj38syfm5hBSJBFl6HJmxyn7GW+Z2oxSGkGBkue+5+9L3BVs8VnY5aBMtA
+         Ta+h+yh5l/V2MIwlSzuCv9Hv7v6MRVQmfmBT+bU9Pn4JmVIQE/zQUIFFyJZy9/vyOuvV
+         CZf7gs1/cSM7WOUBvaGVytZWrWllBrj5hRMhGWfWd4fp8d0hMcdG4jOGB1rfaDGSQIwF
+         TdSA==
+X-Gm-Message-State: AOAM533+rO5197/1o2ZA1Wr/By5wkLU85RRZ4cxt2YCNIKDUbrx/4YSy
+        oGlIHz2UvjAf91rB43o4AcNJFr1d5zs=
+X-Google-Smtp-Source: ABdhPJzV2xjTiJltBQqoQIawJhHFtmzbilMqrehO69REmAZJOAjHx1/qzSzbQLHL1PZyRXTCDxiJjw==
+X-Received: by 2002:aca:6c2:: with SMTP id 185mr22608711oig.31.1636125309308;
+        Fri, 05 Nov 2021 08:15:09 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id u6sm2480295ooh.15.2021.11.05.08.15.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Nov 2021 08:15:08 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Fri, 5 Nov 2021 08:15:07 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 00/14] 5.10.78-rc2 review
+Message-ID: <20211105151507.GE4027848@roeck-us.net>
+References: <20211104170112.899181800@linuxfoundation.org>
 MIME-Version: 1.0
-References: <1636070227-15909-1-git-send-email-quic_subbaram@quicinc.com>
-In-Reply-To: <1636070227-15909-1-git-send-email-quic_subbaram@quicinc.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Fri, 5 Nov 2021 16:14:56 +0100
-Message-ID: <CAJZ5v0gONybD_pVCAq6ZJTMuStXtoF064u9qPYxco4y=b-JD9A@mail.gmail.com>
-Subject: Re: [RESEND PATCH v2] thermal: Fix a NULL pointer dereference
-To:     Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc:     "Rafael J . Wysocki" <rafael@kernel.org>,
-        Amit Kucheria <amitk@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        David Collins <quic_collinsd@quicinc.com>,
-        Manaf Meethalavalappu Pallikunhi <quic_manafm@quicinc.com>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211104170112.899181800@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 5, 2021 at 12:57 AM Subbaraman Narayanamurthy
-<quic_subbaram@quicinc.com> wrote:
->
-> of_parse_thermal_zones() parses the thermal-zones node and registers a
-> thermal_zone device for each subnode. However, if a thermal zone is
-> consuming a thermal sensor and that thermal sensor device hasn't probed
-> yet, an attempt to set trip_point_*_temp for that thermal zone device
-> can cause a NULL pointer dereference. Fix it.
->
->  console:/sys/class/thermal/thermal_zone87 # echo 120000 > trip_point_0_temp
->  ...
->  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
->  ...
->  Call trace:
->   of_thermal_set_trip_temp+0x40/0xc4
->   trip_point_temp_store+0xc0/0x1dc
->   dev_attr_store+0x38/0x88
->   sysfs_kf_write+0x64/0xc0
->   kernfs_fop_write_iter+0x108/0x1d0
->   vfs_write+0x2f4/0x368
->   ksys_write+0x7c/0xec
->   __arm64_sys_write+0x20/0x30
->   el0_svc_common.llvm.7279915941325364641+0xbc/0x1bc
->   do_el0_svc+0x28/0xa0
->   el0_svc+0x14/0x24
->   el0_sync_handler+0x88/0xec
->   el0_sync+0x1c0/0x200
->
-> While at it, fix the possible NULL pointer dereference in other
-> functions as well: of_thermal_get_temp(), of_thermal_set_emul_temp(),
-> of_thermal_get_trend().
+On Thu, Nov 04, 2021 at 06:01:35PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.78 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 06 Nov 2021 17:01:02 +0000.
+> Anything received after that time might be too late.
+> 
 
-Can the subject be more specific, please?
+Build results:
+	total: 159 pass: 159 fail: 0
+Qemu test results:
+	total: 474 pass: 474 fail: 0
 
-The issue appears to be limited to the of_thermal_ family of
-functions, but the subject doesn't reflect that at all.
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-> Suggested-by: David Collins <quic_collinsd@quicinc.com>
-> Signed-off-by: Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
-
-Daniel, any concerns regarding the code changes below?
-
-> ---
->  drivers/thermal/thermal_of.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/thermal/thermal_of.c b/drivers/thermal/thermal_of.c
-> index 6379f26..9233f7e 100644
-> --- a/drivers/thermal/thermal_of.c
-> +++ b/drivers/thermal/thermal_of.c
-> @@ -89,7 +89,7 @@ static int of_thermal_get_temp(struct thermal_zone_device *tz,
->  {
->         struct __thermal_zone *data = tz->devdata;
->
-> -       if (!data->ops->get_temp)
-> +       if (!data->ops || !data->ops->get_temp)
->                 return -EINVAL;
->
->         return data->ops->get_temp(data->sensor_data, temp);
-> @@ -186,6 +186,9 @@ static int of_thermal_set_emul_temp(struct thermal_zone_device *tz,
->  {
->         struct __thermal_zone *data = tz->devdata;
->
-> +       if (!data->ops || !data->ops->set_emul_temp)
-> +               return -EINVAL;
-> +
->         return data->ops->set_emul_temp(data->sensor_data, temp);
->  }
->
-> @@ -194,7 +197,7 @@ static int of_thermal_get_trend(struct thermal_zone_device *tz, int trip,
->  {
->         struct __thermal_zone *data = tz->devdata;
->
-> -       if (!data->ops->get_trend)
-> +       if (!data->ops || !data->ops->get_trend)
->                 return -EINVAL;
->
->         return data->ops->get_trend(data->sensor_data, trip, trend);
-> @@ -301,7 +304,7 @@ static int of_thermal_set_trip_temp(struct thermal_zone_device *tz, int trip,
->         if (trip >= data->ntrips || trip < 0)
->                 return -EDOM;
->
-> -       if (data->ops->set_trip_temp) {
-> +       if (data->ops && data->ops->set_trip_temp) {
->                 int ret;
->
->                 ret = data->ops->set_trip_temp(data->sensor_data, trip, temp);
-> --
-> 2.7.4
->
+Guenter
