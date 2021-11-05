@@ -2,97 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E99A14460D4
-	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 09:44:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62CC64460DB
+	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 09:47:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232495AbhKEIra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Nov 2021 04:47:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:41598 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229473AbhKEIra (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Nov 2021 04:47:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636101890;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UEON2O/QaUYlu8aac/UW8WFRqnCIxmxxRfN8DejAkjI=;
-        b=LYtFzz0mTS89ArI93qErd0LAfpugtDBHJwg/JyzE3mw5V1yi5i/KPe2tM1DGkO72Ac2kkA
-        AwL4vu+edbZ5AWjhTumQpj7WAON7c6fHBkDQIRVuFOmgSNde2hMdmqhsH3kHUokyqC09wi
-        gfZTN0LeugbUcKmZZsLzCkg15YMvsgQ=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-444-MWmlfFNnMZa2JzDUFQxzLw-1; Fri, 05 Nov 2021 04:44:49 -0400
-X-MC-Unique: MWmlfFNnMZa2JzDUFQxzLw-1
-Received: by mail-wr1-f69.google.com with SMTP id q7-20020adff507000000b0017d160d35a8so2072648wro.4
-        for <stable@vger.kernel.org>; Fri, 05 Nov 2021 01:44:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=UEON2O/QaUYlu8aac/UW8WFRqnCIxmxxRfN8DejAkjI=;
-        b=7GODWxvhQgjkHbxWfa3BoCqy5O6q1aKB78EU90vp50JigOjvsM83ZJuK597W4Fq9vY
-         B33ClFpxjPBIEpZZjhixguSybxSegF27fdx6qptXHL6zjIwDZgsw56Ri4fEWnFviV1uJ
-         yQPMBoz5HfyMzk3Ydzs1OC8DJlqeDDERR5v7d/t1nMx+UlFdIPlSCIS4g4vEninJV8Af
-         Zd/XBieRM5Ox1DjpmFYRZ96CdBTnrmWTnYZdD4OBPmIxbnVNNT8XJrzThOtsHhR5/ITM
-         xMYtkyutmmfLkSPVDXndNZxfMZkNhOHTaOkLA5zyObmg1y6vPNDea8nkCZw3bGvLtH7B
-         KCbg==
-X-Gm-Message-State: AOAM531dWGQ7ITwnXIZT8LDVSy3r2rj6StMxbTvR6n6DnMS1x77AwUlf
-        xdOhz4xAE/A2+UIdtuVvLApAguZTSRPj6Z8LAkBtiflBJr/QELEZozIq9wHEB39goMgyCNbksuQ
-        P7DDaGM2g/Xou4Fla
-X-Received: by 2002:a5d:59ae:: with SMTP id p14mr34762547wrr.365.1636101887867;
-        Fri, 05 Nov 2021 01:44:47 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxAUuGv0L7IVSlR//LzFEV4bKp4CmVx4Lao+THFdCwRuGtlyKCM5hyR7BsjTfxDBNvA66dvwg==
-X-Received: by 2002:a5d:59ae:: with SMTP id p14mr34762522wrr.365.1636101887646;
-        Fri, 05 Nov 2021 01:44:47 -0700 (PDT)
-Received: from [192.168.43.15] (93-33-2-31.ip42.fastwebnet.it. [93.33.2.31])
-        by smtp.gmail.com with ESMTPSA id z8sm7574365wrh.54.2021.11.05.01.44.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 05 Nov 2021 01:44:47 -0700 (PDT)
-Message-ID: <c3757fc0-09fa-b0f1-7165-795e0363058d@redhat.com>
-Date:   Fri, 5 Nov 2021 09:44:05 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: Please apply 3d5e7a28b1ea2d603dea478e58e37ce75b9597ab to 5.15,
- 5.14, and 5.10
-Content-Language: en-US
-To:     Nathan Chancellor <nathan@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, llvm@lists.linux.dev,
-        Nick Desaulniers <ndesaulniers@google.com>
-References: <YYQjyo/dKfDb/no3@archlinux-ax161>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <YYQjyo/dKfDb/no3@archlinux-ax161>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        id S231634AbhKEIuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Nov 2021 04:50:15 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:47160 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232790AbhKEIuO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Nov 2021 04:50:14 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id C0B161FD43;
+        Fri,  5 Nov 2021 08:47:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1636102054; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type;
+        bh=WfjqvLJ35rAHDfeQrUYAJUUvXN9PYIVCRnmDgt0NZ1M=;
+        b=NF+H7aXyjtryw9nF5wMm4vsyL/NN7e8DZ81ISzUGVyB7HE+UO+UzNgPrT0HdpZ5u4lAC/G
+        iRNfFT5FVyyg5VQO1/EaR31IZgSOOHCyhYuQATWPlRRCT8HHyDoJv/zx7ib/oV14guJuAU
+        BuLVH3U2G5qVIbHqN2RoDBv0l/gBM3k=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1636102054;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type;
+        bh=WfjqvLJ35rAHDfeQrUYAJUUvXN9PYIVCRnmDgt0NZ1M=;
+        b=oXQ2YmcWNnDwtcMTgmfJ9JmA0DXTVEmuS9wC3wSqJf2eSxOAESzYQbZRYb7UYgrB8T0g+e
+        G+TgafOJfBzGanCA==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id AE5492C150;
+        Fri,  5 Nov 2021 08:47:34 +0000 (UTC)
+Date:   Fri, 05 Nov 2021 09:47:34 +0100
+Message-ID: <s5hfssbgfa1.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: 5.14.y-stable: Missing sound fixes from 5.15
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/4/21 19:17, Nathan Chancellor wrote:
-> Hi Greg and Sasha,
-> 
-> Please apply commit 3d5e7a28b1ea ("KVM: x86: avoid warning with
-> -Wbitwise-instead-of-logical") to 5.10, 5.14, and 5.15, where it
-> resolves a build error with tip of tree clang due to -Werror:
-> 
-> arch/x86/kvm/mmu/mmu.c:3548:15: error: use of bitwise '|' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
->                  reserved |= __is_bad_mt_xwr(rsvd_check, sptes[level - 1]) |
->                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->                                                                            ||
-> arch/x86/kvm/mmu/mmu.c:3548:15: note: cast one or both operands to int to silence this warning
-> 1 error generated.
-> 
-> It applies cleanly to 5.14 and 5.15 and I have attached a backport for
-> 5.10. I have added Paolo in case he has any objections to this.
+Hi Greg,
 
-No problem.
+could you cherry-pick the following three commits to 5.14.y tree?
+The Cc-to-stable was missing on those, although they should have been
+picked up.
 
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+cbea6e5a7772b7a5b80baa8f98fd77853487fd2a
+    ALSA: pcm: Check mmap capability of runtime dma buffer at first
+0899a7a23047f106c06888769d6cd6ff43d7395f
+    ALSA: pci: rme: Set up buffer type properly
+4d9e9153f1c64d91a125c6967bc0bfb0bb653ea0
+    ALSA: pci: cs46xx: Fix set up buffer type properly
 
-Paolo
+They are needed only for 5.14.y, not for older versions.
 
+The relevant bug report is found at:
+  https://bugzilla.kernel.org/show_bug.cgi?id=214947
+
+
+Thanks!
+
+Takashi
