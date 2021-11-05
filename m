@@ -2,208 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0B9E446956
-	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 20:55:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DFE9446968
+	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 21:06:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232537AbhKET54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Nov 2021 15:57:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44964 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231967AbhKET5z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Nov 2021 15:57:55 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0A92C061714
-        for <stable@vger.kernel.org>; Fri,  5 Nov 2021 12:55:15 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id iq11so3748076pjb.3
-        for <stable@vger.kernel.org>; Fri, 05 Nov 2021 12:55:15 -0700 (PDT)
+        id S233038AbhKEUIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Nov 2021 16:08:50 -0400
+Received: from alexa-out.qualcomm.com ([129.46.98.28]:19492 "EHLO
+        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230461AbhKEUIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Nov 2021 16:08:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Ds7HOZA1Jb7c2ev1cLavIp7EFl0Xz8l0xLNYG7IdAOI=;
-        b=OgYNC01yIW5yfN7mouCKCyQgD78xNAHGzhrAK2kId2Y4Er8tEiqBzAVs5eeXyyJXl0
-         w1P/S4zSDq1SJr0pIMYrPMXsW+Iu+XHgviVRivyYSkgvtjqwEEe/EY1WrTmveKuHH8Qk
-         VEQ3DFE4bgLUyKPqeo6y0i7VQrQKJaA19/Kbv4lFq/ZhXKoxuwVajdhxPjzWDLPEmpyj
-         RmWYbJCtYLXaWuKiHuZbgFOMihdgumzhVKwUBUeotPDBM0EkcthZJRwMRtChiqmv6/ic
-         z4ZcFLTTy4PWDxpdRA8hlZdBDJnQTP5/zn3+m+T0N5yqD6+8d5kCNF0LhA4J4xJbg/hm
-         h2cg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Ds7HOZA1Jb7c2ev1cLavIp7EFl0Xz8l0xLNYG7IdAOI=;
-        b=AoQXn3O7qEsCc+C0PvSy9jMJjeYjPE4OmIMdMKQBV2XYhciH94IrMMoS2xq+EMdWMl
-         npagbLNVLPbldVy30eOnlCQIx0c5cS8cBseeJb8t5MgGrazKuVAjW3mYEN+XFjB0awL9
-         6L0DpaAFgs4m6oWnfD0mKZgcKiu2tQcxrX2YHWwZHamLK5hWzNiMpXZy7ED3OTi+QWRN
-         ucGPlahgxso82HnTk6M1bZ9ekCB9UKeTp7CfZELxCZeaXKJBnprlF9gCbxqjuGOV11io
-         nS24ehNYrJ5KKUqa9zl/k76hBkOpHLefr4Xa1iH8izV1nMux1v60SHexAz8GfZsinCLN
-         Jqcw==
-X-Gm-Message-State: AOAM531+XPkOaZVy43wph6pxFxYw/7XtapOeCbNnSmK5qunYD6bXVaXQ
-        GrUWmtYKq/QhHMDkWlOATSLGiYmdto6PFnHd
-X-Google-Smtp-Source: ABdhPJz7ryjurZIxCi7QJ5iasiXvY+1EaOZ3tqe4M4qrjFhC4NlRrLHCOjlyI/7DoR+mMmI8XkCbTw==
-X-Received: by 2002:a17:90b:3142:: with SMTP id ip2mr27548656pjb.207.1636142115081;
-        Fri, 05 Nov 2021 12:55:15 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k14sm7042922pji.45.2021.11.05.12.55.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Nov 2021 12:55:14 -0700 (PDT)
-Message-ID: <61858c22.1c69fb81.b4a07.74a1@mx.google.com>
-Date:   Fri, 05 Nov 2021 12:55:14 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
+  t=1636142770; x=1667678770;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=4rh6XC/kTiVF2xsn37ZjBf32rxNh34P9YKlCdAoEzjc=;
+  b=aEf0SoLT4UWVgDLacOTawHqgfqr6kDwx/nLqsbWJw6e6QuSl2uGwFioP
+   Yme0eNmXYZlQXQrSdhMaATchChGqEKFM4vnxd6no0tBq05d3Bqz9mlee8
+   hv1ABeX5ljt9jBnUUaUuoncoFqugFHSD8y7z+reZO3SLkj+shL27ltuOt
+   k=;
+Received: from ironmsg08-lv.qualcomm.com ([10.47.202.152])
+  by alexa-out.qualcomm.com with ESMTP; 05 Nov 2021 13:06:09 -0700
+X-QCInternal: smtphost
+Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
+  by ironmsg08-lv.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2021 13:06:09 -0700
+Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
+ nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.922.7;
+ Fri, 5 Nov 2021 13:06:08 -0700
+Received: from [10.47.233.232] (10.49.16.6) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.922.7; Fri, 5 Nov 2021
+ 13:06:08 -0700
+Subject: Re: [RESEND PATCH v2] thermal: Fix a NULL pointer dereference
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     "Rafael J . Wysocki" <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Amit Kucheria <amitk@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        <linux-pm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        David Collins <quic_collinsd@quicinc.com>,
+        Manaf Meethalavalappu Pallikunhi <quic_manafm@quicinc.com>,
+        <stable@vger.kernel.org>
+References: <1636070227-15909-1-git-send-email-quic_subbaram@quicinc.com>
+ <YYTUMBWsqfiAYnCy@kroah.com>
+From:   Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
+Message-ID: <22447c4b-7fbe-ab19-d1c4-d7c21a562ab2@quicinc.com>
+Date:   Fri, 5 Nov 2021 13:06:07 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.254-7-gb686a40d0d7e
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.14 baseline: 160 runs,
- 3 regressions (v4.14.254-7-gb686a40d0d7e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <YYTUMBWsqfiAYnCy@kroah.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Originating-IP: [10.49.16.6]
+X-ClientProxiedBy: nalasex01c.na.qualcomm.com (10.47.97.35) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 160 runs, 3 regressions (v4.14.254-7-gb686a4=
-0d0d7e)
+On 11/4/21 11:50 PM, Greg KH wrote:
+> On Thu, Nov 04, 2021 at 04:57:07PM -0700, Subbaraman Narayanamurthy wrote:
+>> of_parse_thermal_zones() parses the thermal-zones node and registers a
+>> thermal_zone device for each subnode. However, if a thermal zone is
+>> consuming a thermal sensor and that thermal sensor device hasn't probed
+>> yet, an attempt to set trip_point_*_temp for that thermal zone device
+>> can cause a NULL pointer dereference. Fix it.
+>>
+>>  console:/sys/class/thermal/thermal_zone87 # echo 120000 > trip_point_0_temp
+>>  ...
+>>  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
+>>  ...
+>>  Call trace:
+>>   of_thermal_set_trip_temp+0x40/0xc4
+>>   trip_point_temp_store+0xc0/0x1dc
+>>   dev_attr_store+0x38/0x88
+>>   sysfs_kf_write+0x64/0xc0
+>>   kernfs_fop_write_iter+0x108/0x1d0
+>>   vfs_write+0x2f4/0x368
+>>   ksys_write+0x7c/0xec
+>>   __arm64_sys_write+0x20/0x30
+>>   el0_svc_common.llvm.7279915941325364641+0xbc/0x1bc
+>>   do_el0_svc+0x28/0xa0
+>>   el0_svc+0x14/0x24
+>>   el0_sync_handler+0x88/0xec
+>>   el0_sync+0x1c0/0x200
+>>
+>> While at it, fix the possible NULL pointer dereference in other
+>> functions as well: of_thermal_get_temp(), of_thermal_set_emul_temp(),
+>> of_thermal_get_trend().
+>>
+>> Suggested-by: David Collins <quic_collinsd@quicinc.com>
+>> Signed-off-by: Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
+>> ---
+>>  drivers/thermal/thermal_of.c | 9 ++++++---
+>>  1 file changed, 6 insertions(+), 3 deletions(-)
+>>
+> <formletter>
+>
+> This is not the correct way to submit patches for inclusion in the
+> stable kernel tree.  Please read:
+>     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> for how to do this properly.
+>
+> </formletter>
 
-Regressions Summary
--------------------
+Hi Greg,
+For this case, is it because I've missed adding "Cc:stable@vger.kernel.org" in commit text itself and cc-ed stable@vger.kernel.org directly?
 
-platform        | arch   | lab           | compiler | defconfig           |=
- regressions
-----------------+--------+---------------+----------+---------------------+=
-------------
-fsl-ls2088a-rdb | arm64  | lab-nxp       | gcc-10   | defconfig           |=
- 1          =
-
-panda           | arm    | lab-collabora | gcc-10   | omap2plus_defconfig |=
- 1          =
-
-qemu_x86_64     | x86_64 | lab-broonie   | gcc-10   | x86_64_defconfig    |=
- 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.254-7-gb686a40d0d7e/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.254-7-gb686a40d0d7e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b686a40d0d7ef6cef5b03e16eac7a224555c34f8 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch   | lab           | compiler | defconfig           |=
- regressions
-----------------+--------+---------------+----------+---------------------+=
-------------
-fsl-ls2088a-rdb | arm64  | lab-nxp       | gcc-10   | defconfig           |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61855b247d8da54e0f3358e0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--7-gb686a40d0d7e/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-ls2088a-rdb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--7-gb686a40d0d7e/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-ls2088a-rdb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61855b247d8da54e0f335=
-8e1
-        failing since 0 day (last pass: v4.14.254-5-gc9b4934a4d6a, first fa=
-il: v4.14.254-7-g54e49ba3a341) =
-
- =
-
-
-
-platform        | arch   | lab           | compiler | defconfig           |=
- regressions
-----------------+--------+---------------+----------+---------------------+=
-------------
-panda           | arm    | lab-collabora | gcc-10   | omap2plus_defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/618554c46bede25e003358ec
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--7-gb686a40d0d7e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--7-gb686a40d0d7e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/618554c46bede25=
-e003358ef
-        failing since 1 day (last pass: v4.14.254-2-g86b9ed2d25ed, first fa=
-il: v4.14.254-2-g116ed5b2592c)
-        2 lines
-
-    2021-11-05T15:58:42.470876  [   20.003051] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-05T15:58:42.512870  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/96
-    2021-11-05T15:58:42.522502  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =
-
-
-
-platform        | arch   | lab           | compiler | defconfig           |=
- regressions
-----------------+--------+---------------+----------+---------------------+=
-------------
-qemu_x86_64     | x86_64 | lab-broonie   | gcc-10   | x86_64_defconfig    |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/618554d66bede25e0033590b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--7-gb686a40d0d7e/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
-86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--7-gb686a40d0d7e/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
-86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/618554d66bede25e00335=
-90c
-        new failure (last pass: v4.14.254-7-g54e49ba3a341) =
-
- =20
+Thanks,
+Subbaraman
