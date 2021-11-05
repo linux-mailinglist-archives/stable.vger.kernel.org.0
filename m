@@ -2,137 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BC8E445CCA
-	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 00:57:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30214445CD9
+	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 01:00:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232362AbhKEAAH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 20:00:07 -0400
-Received: from alexa-out-sd-02.qualcomm.com ([199.106.114.39]:17453 "EHLO
-        alexa-out-sd-02.qualcomm.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229725AbhKEAAH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 20:00:07 -0400
+        id S232487AbhKEADP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 20:03:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59968 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232484AbhKEADO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 20:03:14 -0400
+Received: from mail-io1-xd2f.google.com (mail-io1-xd2f.google.com [IPv6:2607:f8b0:4864:20::d2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6D5C061714
+        for <stable@vger.kernel.org>; Thu,  4 Nov 2021 17:00:35 -0700 (PDT)
+Received: by mail-io1-xd2f.google.com with SMTP id f9so8785066ioo.11
+        for <stable@vger.kernel.org>; Thu, 04 Nov 2021 17:00:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1636070248; x=1667606248;
-  h=from:to:cc:subject:date:message-id:mime-version;
-  bh=w7rfv40xousbt1y5DD8foHFonHq0uWv+FhqE3aI0HR4=;
-  b=Mtb2mY51g+qRAJq652pDgHPwuPTuiCbEYYp+cvq2BfkxPRHib4c3Oprm
-   UpOr11S8tRy/QGf30hmAoiNpXCrOE1jfUJCE6+EHnOQSL3zEz4xDZYQoC
-   c2FO/9cDulM0ie7uA0n+QCuB4jiGAqNCysyEtPhgjATJAclx3fEtximz/
-   U=;
-Received: from unknown (HELO ironmsg03-sd.qualcomm.com) ([10.53.140.143])
-  by alexa-out-sd-02.qualcomm.com with ESMTP; 04 Nov 2021 16:57:28 -0700
-X-QCInternal: smtphost
-Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg03-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2021 16:57:28 -0700
-Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
- nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.922.7;
- Thu, 4 Nov 2021 16:57:28 -0700
-Received: from hu-subbaram-lv.qualcomm.com (10.49.16.6) by
- nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.922.7;
- Thu, 4 Nov 2021 16:57:27 -0700
-From:   Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
-To:     "Rafael J . Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amitk@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-CC:     <linux-pm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        David Collins <quic_collinsd@quicinc.com>,
-        Manaf Meethalavalappu Pallikunhi <quic_manafm@quicinc.com>,
-        <stable@vger.kernel.org>,
-        "Subbaraman Narayanamurthy" <quic_subbaram@quicinc.com>
-Subject: [RESEND PATCH v2] thermal: Fix a NULL pointer dereference
-Date:   Thu, 4 Nov 2021 16:57:07 -0700
-Message-ID: <1636070227-15909-1-git-send-email-quic_subbaram@quicinc.com>
-X-Mailer: git-send-email 2.7.4
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=1D5yxs0xfIhYm8/B96+PNye8oOeNX0Jp5t6vnzcyLgE=;
+        b=CVwqxTLA3nbfUKUtCv4y9LikeiI5iYtVGe8JWfYVyqwGr2eqQCYpT0cJHW06X0+Pk9
+         2e6bbJb6XIS1h2wr51KxbqTbMNhKcL/pcZ9ZQco5JLnTwzFOmtQtBfnUbydQOB0uETle
+         8g0kTLUx5hcHRzRkaTYfgYkf550SChau3ro+w=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=1D5yxs0xfIhYm8/B96+PNye8oOeNX0Jp5t6vnzcyLgE=;
+        b=fs8deeSTguWxd4SDhgwJB2B52r9Fj3A2B1wFThfzIB4VVsXowoopOkIcAZOpQoIlhX
+         oC+2s6NKXOpJEO2ovTCL6Rq+2v5rILEiB6abpEmOyp1RONMKOtGe4q1mR6+6SPgSTWZ7
+         +UMRISzd0u1iIldGvrfAhjzlAWwdGU/LkGda2VnAx/uCtycW8oV9JZEg0AijVNuhiY/j
+         LitBRWsO5oilNZKjOl2kprktZLagVfvBL7q2/QTh/lagMDRfqMYJixd1K8YXMl/oTcSn
+         lpwgyuAmjDb3MYHzyDnuiAiPXpg2gMcqOpQxY9Sr1LnymCtWWqNNqHTy0cepHOAA3wZH
+         KGtg==
+X-Gm-Message-State: AOAM53147YUZk6I+1u+q5DYpzVNZzkHzNihEiwRtaz7JCl1CSqPvAqPa
+        ADVPhCbtgirhhax8aWB5RMSg6xmr535gFw==
+X-Google-Smtp-Source: ABdhPJyZdOga1I3lbD3EU5Iof7Kix71f51gHO95Qu+5/LRvc2oi8ND0sV6Eu4WPte0hMPjfH4Y2ZSg==
+X-Received: by 2002:a05:6602:1250:: with SMTP id o16mr8881897iou.15.1636070435438;
+        Thu, 04 Nov 2021 17:00:35 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id t6sm3897731iov.39.2021.11.04.17.00.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 04 Nov 2021 17:00:34 -0700 (PDT)
+Subject: Re: [PATCH 5.10 00/14] 5.10.78-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20211104170112.899181800@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <907ada00-59f3-6276-f394-7236dc41c29f@linuxfoundation.org>
+Date:   Thu, 4 Nov 2021 18:00:34 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.49.16.6]
-X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
+In-Reply-To: <20211104170112.899181800@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-of_parse_thermal_zones() parses the thermal-zones node and registers a
-thermal_zone device for each subnode. However, if a thermal zone is
-consuming a thermal sensor and that thermal sensor device hasn't probed
-yet, an attempt to set trip_point_*_temp for that thermal zone device
-can cause a NULL pointer dereference. Fix it.
+On 11/4/21 11:01 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.78 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 06 Nov 2021 17:01:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.78-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
- console:/sys/class/thermal/thermal_zone87 # echo 120000 > trip_point_0_temp
- ...
- Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
- ...
- Call trace:
-  of_thermal_set_trip_temp+0x40/0xc4
-  trip_point_temp_store+0xc0/0x1dc
-  dev_attr_store+0x38/0x88
-  sysfs_kf_write+0x64/0xc0
-  kernfs_fop_write_iter+0x108/0x1d0
-  vfs_write+0x2f4/0x368
-  ksys_write+0x7c/0xec
-  __arm64_sys_write+0x20/0x30
-  el0_svc_common.llvm.7279915941325364641+0xbc/0x1bc
-  do_el0_svc+0x28/0xa0
-  el0_svc+0x14/0x24
-  el0_sync_handler+0x88/0xec
-  el0_sync+0x1c0/0x200
+rc2 is good.
 
-While at it, fix the possible NULL pointer dereference in other
-functions as well: of_thermal_get_temp(), of_thermal_set_emul_temp(),
-of_thermal_get_trend().
+Compiled and booted on my test system. No dmesg regressions.
 
-Suggested-by: David Collins <quic_collinsd@quicinc.com>
-Signed-off-by: Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
----
- drivers/thermal/thermal_of.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-diff --git a/drivers/thermal/thermal_of.c b/drivers/thermal/thermal_of.c
-index 6379f26..9233f7e 100644
---- a/drivers/thermal/thermal_of.c
-+++ b/drivers/thermal/thermal_of.c
-@@ -89,7 +89,7 @@ static int of_thermal_get_temp(struct thermal_zone_device *tz,
- {
- 	struct __thermal_zone *data = tz->devdata;
- 
--	if (!data->ops->get_temp)
-+	if (!data->ops || !data->ops->get_temp)
- 		return -EINVAL;
- 
- 	return data->ops->get_temp(data->sensor_data, temp);
-@@ -186,6 +186,9 @@ static int of_thermal_set_emul_temp(struct thermal_zone_device *tz,
- {
- 	struct __thermal_zone *data = tz->devdata;
- 
-+	if (!data->ops || !data->ops->set_emul_temp)
-+		return -EINVAL;
-+
- 	return data->ops->set_emul_temp(data->sensor_data, temp);
- }
- 
-@@ -194,7 +197,7 @@ static int of_thermal_get_trend(struct thermal_zone_device *tz, int trip,
- {
- 	struct __thermal_zone *data = tz->devdata;
- 
--	if (!data->ops->get_trend)
-+	if (!data->ops || !data->ops->get_trend)
- 		return -EINVAL;
- 
- 	return data->ops->get_trend(data->sensor_data, trip, trend);
-@@ -301,7 +304,7 @@ static int of_thermal_set_trip_temp(struct thermal_zone_device *tz, int trip,
- 	if (trip >= data->ntrips || trip < 0)
- 		return -EDOM;
- 
--	if (data->ops->set_trip_temp) {
-+	if (data->ops && data->ops->set_trip_temp) {
- 		int ret;
- 
- 		ret = data->ops->set_trip_temp(data->sensor_data, trip, temp);
--- 
-2.7.4
-
+thanks,
+-- Shuah
