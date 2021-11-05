@@ -2,78 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C30A0445E1B
-	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 03:53:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBD92445E75
+	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 04:10:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231575AbhKEC4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 22:56:19 -0400
-Received: from smtpq3.tb.ukmail.iss.as9143.net ([212.54.57.98]:52118 "EHLO
-        smtpq3.tb.ukmail.iss.as9143.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231510AbhKEC4S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 22:56:18 -0400
-Received: from [212.54.57.96] (helo=smtpq1.tb.ukmail.iss.as9143.net)
-        by smtpq3.tb.ukmail.iss.as9143.net with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.90_1)
-        (envelope-from <zarniwhoop@ntlworld.com>)
-        id 1mioxt-0006bs-PI
-        for stable@vger.kernel.org; Fri, 05 Nov 2021 03:28:25 +0100
-Received: from [212.54.57.110] (helo=csmtp6.tb.ukmail.iss.as9143.net)
-        by smtpq1.tb.ukmail.iss.as9143.net with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.90_1)
-        (envelope-from <zarniwhoop@ntlworld.com>)
-        id 1mioxs-00009T-9b
-        for stable@vger.kernel.org; Fri, 05 Nov 2021 03:28:24 +0100
-Received: from llamedos.mydomain ([81.97.236.130])
-        by cmsmtp with ESMTPA
-        id ioxrmTbMz24zoioxrmsZBc; Fri, 05 Nov 2021 03:28:24 +0100
-X-Originating-IP: [81.97.236.130]
-X-Authenticated-Sender: zarniwhoop@ntlworld.com
-X-Spam: 0
-X-Authority: v=2.4 cv=K8YxogaI c=1 sm=1 tr=0 ts=618496c8 cx=a_exe
- a=OGiDJHazYrvzwCbh7ZIPzQ==:117 a=OGiDJHazYrvzwCbh7ZIPzQ==:17
- a=IkcTkHD0fZMA:10 a=vIxV3rELxO4A:10 a=VwQbUJbxAAAA:8 a=NLZqzBF-AAAA:8
- a=B6Mp3mB2RnZxMwUMpXQA:9 a=QEXdDO2ut3YA:10 a=AjGcO6oz07-iQ99wixmX:22
- a=wW_WBVUImv98JQXhvVPZ:22
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ntlworld.com;
-        s=meg.feb2017; t=1636079304;
-        bh=e5328Vr1J8W38tjVI7dbOgdY/E2N0jqj3nCMfUD1LjM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=V6X/uPHgSGMR96xEure1TalixjGsv7ryJ0WX5k88wuAs2P2Dunj4BSypy5+o8JoUx
-         NuGztQ7BQde0dOXU8kHqJaUSXPxyiPex+4F9B150or9gwRsRg+0VBVlqUJzJ+XB5k9
-         7c/2gv8fkC7yRESOcu/EmEAyht68QoqP1xQjVU9le6sz5hC9C8gWipQXJS85HaPpMi
-         wCx/VUeJApm2O8iD/eoWjOAU22orPdWf7ZR6gsfSyrRg/bfcuJ2KN9jmTItCEs7cqZ
-         a4NWD2bwWyzimQAvRg9x7gtOehF6b3XKKE5HGpEQPzO6xs7TVhuWWlksz8c0X+oXWf
-         J3W64FiYwPgsw==
-Received: by llamedos.mydomain (Postfix, from userid 1000)
-        id 5E6B460C47; Fri,  5 Nov 2021 02:28:22 +0000 (GMT)
-Date:   Fri, 5 Nov 2021 02:28:22 +0000
-From:   Ken Moffat <zarniwhoop@ntlworld.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+        id S232111AbhKEDNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Nov 2021 23:13:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45444 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231689AbhKEDNM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 23:13:12 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 472D1C061714
+        for <stable@vger.kernel.org>; Thu,  4 Nov 2021 20:10:33 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id r10-20020a056830448a00b0055ac7767f5eso11176885otv.3
+        for <stable@vger.kernel.org>; Thu, 04 Nov 2021 20:10:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=so4nsX1lXJFQb35p8revitMJL/1wWrTjn3/v1Nu1RjU=;
+        b=nfMRXfFDdP10e3yMQGY+EtcnRyzXW/9SpY8/To64KOtSx0KWytmlT2donHbe6sKGfp
+         1ReGjJxSrw8bjAUYrKknHyvN+y4KkF6SRybFWMsh9xKmS1uzz7jDWW+DwZJvGpIePEEQ
+         QgDgMwo6nJm3NwpN8EZulfH5k6WS/zgWnM63ZaiM7Q8NBqLKmkqUFhnH4b1L9PlcrDR3
+         NdIWpKkpC5Nl8mLjw7sVOyfPRxp6+T6yVdBevurXyOJj4uEdZXy1mXsoTYMIjhFOCL6m
+         U2HC24P8h0doFSvIj0OA1egiRG2WMOSY9TLT7XaGkwa32Dt4fummJeHH5I68xiVr8E/g
+         LIiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=so4nsX1lXJFQb35p8revitMJL/1wWrTjn3/v1Nu1RjU=;
+        b=kcqJzn9my0A99HMe7VFrlho7861Y0shsAO1QfhAYAlsGyjSqzlxPDZnstGlDYRGfQy
+         xOVm/cvwO3B7hCItVBamN6poFEzuusMs3shBjxaNkWZxMhaB80NydGsKSaGe9ADDlAoV
+         MJGf6mZ+DVWkFqT9nY50SZn01bjjnFhYXUu2+PYO/3e9R4v22pQIm9ItS1PPjch0zRpX
+         fvaCp1S1HKMOpw30/H52bKSKXJEMULtuRKtmQ3SdVSsioL4j9yQQgE2rT2pddzqXFh+E
+         vLKj6fxINgPxZ0tNokWmvklClSs34FxCZ2CJmqExzmV42zgpopRLuDfHHay/MvF/CvgH
+         seLA==
+X-Gm-Message-State: AOAM531mjTGpHmVYxkF1qlhDlW4rq+lKbkAob7YKkQYWgXZSMVYRdiw1
+        bHZyEDhq4qgFsOGGa4IggQJMtjOaNOobVwes
+X-Google-Smtp-Source: ABdhPJzMey1z1x3XkS7OK2c5e9r3V8Lb3qenvMGUxDREC0JMxUfO3hmNhvytVtLcLBm7vVYT9QXwYg==
+X-Received: by 2002:a9d:6b84:: with SMTP id b4mr39849412otq.327.1636081832628;
+        Thu, 04 Nov 2021 20:10:32 -0700 (PDT)
+Received: from [192.168.17.16] ([189.219.75.83])
+        by smtp.gmail.com with ESMTPSA id l7sm1812145oog.22.2021.11.04.20.10.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 04 Nov 2021 20:10:32 -0700 (PDT)
 Subject: Re: [PATCH 5.14 00/16] 5.14.17-rc1 review
-Message-ID: <YYSWxsdGN8v5LHct@llamedos.localdomain>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     shuah@kernel.org, f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
 References: <20211104141159.863820939@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <66c808f7-bdeb-a509-8209-3584843dbb8a@linaro.org>
+Date:   Thu, 4 Nov 2021 21:10:29 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-Clacks-Overhead: GNU Terry Pratchett
-Content-Transfer-Encoding: 8bit
 In-Reply-To: <20211104141159.863820939@linuxfoundation.org>
-User-Agent: Mutt/2.1.3 (2021-09-10)
-X-CMAE-Envelope: MS4xfLrll7x434LESxUqenpNcv4kofqIBBvMjTCL8L9sjKdfOU+rq5g1uLGsuSJBdF0z7IbUFVdslRlQ/tiAAt9aXJI3Euwvh9wWEfSdkXoJZ9hP4p39poN+
- naCMbaftzMr3MyBr8Hmi8DtPABbeU7+mycaVEF4jzm3D9DxTD8yK+53TTg8NFsZB6NMaV5isKbXULsQRMYTqwH1yVCTM3wuWXzg1DZWDzHdhPOq/FkXNLKr4
- Q05ydqs5NOjYCgrRls1AtTh/zirGiwmI3bsuNIG8WGLrJsgtEoxPoevp8YwTpFn319kYfGL+BBpltnREkyoecVS3A5q5PGdy8hPt4NHO0I+6zyu+pyVvBEIW
- FNld3E1AE5T+Ll/4yj20ZAhVVEG7gzdh3mDg2QIYV6Hpy/6WVctBVCXiw5rvneLTd7fBJWmTSXjbmJco+Rl3K6C80Tk+xs+BVdpevIEcwoHLzqRFWhXTSPwR
- EiKTMl2NV2r6H0D2Ha2WZ/XbbnFIlpNTP7CZWTKatCwRcpOL8BREvZtw5GFc+/6F54Oj53BH6IQLbstEKY0pjRGgXzRmAsLpUibnE7gpply633KZY5lOPGPo
- V/U=
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 04, 2021 at 03:12:31PM +0100, Greg Kroah-Hartman wrote:
+Hello!
+
+On 11/4/21 8:12 AM, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 5.14.17 release.
 > There are 16 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
@@ -91,14 +90,151 @@ On Thu, Nov 04, 2021 at 03:12:31PM +0100, Greg Kroah-Hartman wrote:
 > thanks,
 > 
 > greg k-h
-> 
-Tested on my AMD Picasso, I confirm this fixes the Xorg problem in
-recent 5.14 kernels.
 
-Tested-by: Ken Moffat <zarniwhoop@ntlworld.com>
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-ĸen
+## Build
+* kernel: 5.14.17-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.14.y
+* git commit: 05ed8d6b833a25cb7b38026ed8f584dbdce21ec2
+* git describe: v5.14.16-17-g05ed8d6b833a
+* test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.14.y/build/v5.14.16-17-g05ed8d6b833a
+
+## No regressions (compared to v5.14.16)
+
+## No fixes (compared to v5.14.16)
+
+## Test result summary
+total: 95590, pass: 80826, fail: 1113, skip: 12783, xfail: 868
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 290 total, 268 passed, 22 failed
+* arm64: 40 total, 40 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 39 total, 39 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 37 total, 37 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 36 total, 36 passed, 0 failed
+* riscv: 24 total, 24 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 40 total, 40 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-
+* kselftest-android
+* kselftest-arm64
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
+
 -- 
-Vetinari smiled. "Can you keep a secret, Mister Lipwig?"
-"Oh, yes, sir. I've kept lots."
-"Capital. And the point is, so can I. You do not need to know.”
+Linaro LKFT
+https://lkft.linaro.org
