@@ -2,67 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36FB24469A4
-	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 21:27:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 659F64469C6
+	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 21:34:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233535AbhKEU3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Nov 2021 16:29:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52030 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233534AbhKEU3l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Nov 2021 16:29:41 -0400
-Received: from smtp.domeneshop.no (smtp.domeneshop.no [IPv6:2a01:5b40:0:3005::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88410C061714;
-        Fri,  5 Nov 2021 13:27:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=tronnes.org
-        ; s=ds202012; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
-        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=c7xL3ULUvDEQY8y11JsWZ8qJvPv11YqU/ku2rqgY1ww=; b=iqUPoKkx2ggx9bqJoDGzYLoSFv
-        ZTj25RKGAhdI0A7DLOIF2+4TH8ZVLKHUquDkvkhOx1W3Yg58DkzzhhNLeBFhfh4olfJMcU07scxQ6
-        Yn2h7O+JoHEuxj+QUrQHL8mmD0RuqPpwPVfCvBHQ4LuIeqV3qafidcGwiSFUH3gby+FKwZEHvCxAA
-        RcrRlxazQfnlaKoT0EULpKhBHlJCmu/MiQ84j0VB0fwk+7mH5kbL30e8B4S4ouDpkn8isCKpCh2WF
-        m5lPL0D7s3v7KJtn2XRWABiG6h92aPjFc8Zgm2PM1EuFNBAMXPoYp77quZt3jhJaGupwbz++38H5c
-        YUTNZofA==;
-Received: from 211.81-166-168.customer.lyse.net ([81.166.168.211]:51024 helo=[192.168.10.61])
-        by smtp.domeneshop.no with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <noralf@tronnes.org>)
-        id 1mj5ne-0006rL-Lg; Fri, 05 Nov 2021 21:26:58 +0100
-Subject: Re: [PATCH] staging/fbtft: Fix backlight
-To:     gregkh@linuxfoundation.org
-Cc:     linux-staging@lists.linux.dev, dri-devel@lists.freedesktop.org,
-        linux-fbdev@vger.kernel.org, stable@vger.kernel.org
-References: <20211030162901.17918-1-noralf@tronnes.org>
-From:   =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Message-ID: <9915936e-8a02-2e7a-5c47-f048c1f0319b@tronnes.org>
-Date:   Fri, 5 Nov 2021 21:26:56 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
-MIME-Version: 1.0
-In-Reply-To: <20211030162901.17918-1-noralf@tronnes.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+        id S231946AbhKEUhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Nov 2021 16:37:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60636 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231288AbhKEUhg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Nov 2021 16:37:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0121661279;
+        Fri,  5 Nov 2021 20:34:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1636144496;
+        bh=OXcNBKV2broFZ2R+f4CXMqo8D5nn4AOws8wB04GUjkE=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=aq5TiriTSiQUAQxt/aMCjx08b8hUq28tiYF/q/DYCygh9+Ca+LgEiOg3+c1v4t9CV
+         y0ROTc0GcO+qIJirHv1uhsVRREL04uN53ZEo/BRbtiRU2CMh2jxnNG8lXpmsL5+km9
+         VYwpYkaNXyMMMJJUD+5M+DPcJHrCWIcp6ipxtqTg=
+Date:   Fri, 05 Nov 2021 13:34:55 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, gechangwei@live.cn, ghe@suse.com,
+        jack@suse.cz, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        junxiao.bi@oracle.com, linux-mm@kvack.org, mark@fasheh.com,
+        mm-commits@vger.kernel.org, piaojun@huawei.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 007/262] ocfs2: fix data corruption on truncate
+Message-ID: <20211105203455.hOZux5v3f%akpm@linux-foundation.org>
+In-Reply-To: <20211105133408.cccbb98b71a77d5e8430aba1@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Jan Kara <jack@suse.cz>
+Subject: ocfs2: fix data corruption on truncate
+
+Patch series "ocfs2: Truncate data corruption fix".
+
+As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
+corruption after conversion from inline format") didn't fix all the data
+corruption issues the customer started observing after 6dbf7bb55598 ("fs:
+Don't invalidate page buffers in block_write_full_page()") This time I
+have tracked them down to two bugs in ocfs2 truncation code.
+
+One bug (truncating page cache before clearing tail cluster and setting
+i_size) could cause data corruption even before 6dbf7bb55598, but before
+that commit it needed a race with page fault, after 6dbf7bb55598 it
+started to be pretty deterministic.
+
+Another bug (zeroing pages beyond old i_size) used to be harmless
+inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598 in
+combination with the first bug it resulted in deterministic data
+corruption.
+
+Although fixing only the first problem is needed to stop data corruption,
+I've fixed both issues to make the code more robust.
 
 
-Den 30.10.2021 18.29, skrev Noralf Trønnes:
-> Commit b4a1ed0cd18b ("fbdev: make FB_BACKLIGHT a tristate") forgot to
-> update fbtft breaking its backlight support when FB_BACKLIGHT is a module.
-> 
-> Fix this by using IS_ENABLED().
-> 
-> Fixes: b4a1ed0cd18b ("fbdev: make FB_BACKLIGHT a tristate")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-> ---
+This patch (of 2):
 
-I discovered that fb_ssd1351 also has this #ifdef, so need to fix that
-as well. Will send a new version.
+ocfs2_truncate_file() did unmap invalidate page cache pages before zeroing
+partial tail cluster and setting i_size.  Thus some pages could be left
+(and likely have left if the cluster zeroing happened) in the page cache
+beyond i_size after truncate finished letting user possibly see stale data
+once the file was extended again.  Also the tail cluster zeroing was not
+guaranteed to finish before truncate finished causing possible stale data
+exposure.  The problem started to be particularly easy to hit after commit
+6dbf7bb55598 "fs: Don't invalidate page buffers in
+block_write_full_page()" stopped invalidation of pages beyond i_size from
+page writeback path.
 
-Noralf.
+Fix these problems by unmapping and invalidating pages in the page cache
+after the i_size is reduced and tail cluster is zeroed out.
+
+Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
+Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
+Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/ocfs2/file.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+--- a/fs/ocfs2/file.c~ocfs2-fix-data-corruption-on-truncate
++++ a/fs/ocfs2/file.c
+@@ -476,10 +476,11 @@ int ocfs2_truncate_file(struct inode *in
+ 	 * greater than page size, so we have to truncate them
+ 	 * anyway.
+ 	 */
+-	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
+-	truncate_inode_pages(inode->i_mapping, new_i_size);
+ 
+ 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
++		unmap_mapping_range(inode->i_mapping,
++				    new_i_size + PAGE_SIZE - 1, 0, 1);
++		truncate_inode_pages(inode->i_mapping, new_i_size);
+ 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
+ 					       i_size_read(inode), 1);
+ 		if (status)
+@@ -498,6 +499,9 @@ int ocfs2_truncate_file(struct inode *in
+ 		goto bail_unlock_sem;
+ 	}
+ 
++	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
++	truncate_inode_pages(inode->i_mapping, new_i_size);
++
+ 	status = ocfs2_commit_truncate(osb, inode, di_bh);
+ 	if (status < 0) {
+ 		mlog_errno(status);
+_
