@@ -2,85 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A7E446494
-	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 15:04:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0CF4446569
+	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 16:03:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232659AbhKEOGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Nov 2021 10:06:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49506 "EHLO
+        id S233330AbhKEPGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Nov 2021 11:06:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232418AbhKEOGp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Nov 2021 10:06:45 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4C23C061205
-        for <stable@vger.kernel.org>; Fri,  5 Nov 2021 07:04:05 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id v127so7127274wme.5
-        for <stable@vger.kernel.org>; Fri, 05 Nov 2021 07:04:05 -0700 (PDT)
+        with ESMTP id S229680AbhKEPGF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Nov 2021 11:06:05 -0400
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1586DC061714
+        for <stable@vger.kernel.org>; Fri,  5 Nov 2021 08:03:26 -0700 (PDT)
+Received: by mail-yb1-xb2e.google.com with SMTP id 131so23474393ybc.7
+        for <stable@vger.kernel.org>; Fri, 05 Nov 2021 08:03:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=eRUkcnCsnW/Jzom+fJQ9Oipyz+BV70fkQqo1JE5ywEA=;
-        b=cXPj0JABQ+GK1CEytrm6xlSeCoC9XwJ1CfhKZdPkRfSxvEUkzoM/ysmGThm3oJpvNa
-         62LQSfxa8K1+HhVHR/+SJQzyuqGD076s8Ly/moUKR7KOXxObdWlNTbrQ28F5d2ojdlVp
-         Snfv57tHUpWo67DPyEeQSIhlzfOP9hnqmKGBftgeRlGxEFRGQujqcD7vth5N3iU0jMK8
-         kXUaiMMjoK1DCTYlyiIErVW+RYqgvlYMJU5iVHbyFrjlI1mlwOoKdd0oBvovuiNzuKyK
-         zqTpjzzYCgRE2NNYEsIswXj3GyB299wu/XCmYGd4SkVnbCJzpgZravvgkKajjGof68FK
-         FH6A==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=OcVKYMqD1OAPCy0gYs4jHd1iGD2P0eAuhSWYYDqPTRU=;
+        b=L3cYgxrO72Utnh1/P3mXAEJCDpXKGFgLaGB2uxLpdzsrdHSvqUVaDHCxhktTAueR31
+         gsu4DToBurpVNqsMetFk7fGmavlJz3Z/h54vw+DMSoC738XtwyImRJpB5pjlIaUb6yxw
+         4kbwD3qfwFqnjJVYDJjZgw8dBfETKrWEESvcKNNlO8fMfXPsAC6sRUYYfh6M3vfHfAr7
+         /bQVpjOU2LhBXnbP5xtHFGD/uz3xd0gVPRZsSlWq7kM7LhCKlpsHiuHVLIUBoZxX7Z/0
+         MGSUUE/hG+6yh+FnTV9u5EDYjstHL/VJFk5CvH8C/8Dm7KKW6NNF7FodvsISuGRNeVsR
+         4tPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=eRUkcnCsnW/Jzom+fJQ9Oipyz+BV70fkQqo1JE5ywEA=;
-        b=PETqj1Tib/cydludWGcVmVYKLoXT81dS/sGvqqNI7gabFhhgnBxY152GXvW9rwsjO2
-         MsO4fZ6c+WPnxH2AN7b6MZKuSNYjVWV44Dnvk2RlXLPVM/1duqV22DESRMusGuRtTdzN
-         Vsz1lcvIV2TFVzGHpUnVWOas+BrEulZNabSymzCjNP31/VyiHV6f+eqo2K0sCEt2yhd3
-         1y0RLzcPj12ZP0hg+qjSM/llM9HPqWCNh8uVlNAiIOA7IO9f0l90kibYAkYePgTGqlS+
-         tzoI9pRMebhlynPU+gYcbAo3Nbi5CCjVUT2q77VAitOdQuJimD9yePxI3L2lzkNrcp9X
-         MUXA==
-X-Gm-Message-State: AOAM5321M++HaJ0JIvDiwTsRS9S8q5q66KwBwJKSm8g0s1IgKJbVJKOU
-        DVZN+/yJc3OCSO+Jhbudr2bwlQ==
-X-Google-Smtp-Source: ABdhPJweRjIy2I0BF+5yqtXWRpmY9TSE1UB7YhjgzcsASgtRjHCvCizFmbEh43py53M433Nyf7DHIw==
-X-Received: by 2002:a05:600c:2195:: with SMTP id e21mr31062039wme.187.1636121044500;
-        Fri, 05 Nov 2021 07:04:04 -0700 (PDT)
-Received: from [192.168.0.162] (188-141-3-169.dynamic.upc.ie. [188.141.3.169])
-        by smtp.gmail.com with ESMTPSA id c17sm8213987wmk.23.2021.11.05.07.04.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 05 Nov 2021 07:04:03 -0700 (PDT)
-Message-ID: <ff8187bb-a9ab-11a1-f658-911c1b601ce7@linaro.org>
-Date:   Fri, 5 Nov 2021 14:06:04 +0000
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=OcVKYMqD1OAPCy0gYs4jHd1iGD2P0eAuhSWYYDqPTRU=;
+        b=F7eWMQheaTuOHDAWbvasgCqjVndLfPIE+VwOfEpGOTM6yxCJjJHPgWk+tjhFGOxTrw
+         dfzHi57SQWMwNRZaM1IVTnOZNjpisBtx/byox1V8UZCc2T5yOrhFZ6I5wLdhVrPX9zx0
+         Kw2Ko4SxVkRj4AJdgmUecyY29S2BvMnmnDCo+Pyi0r0F1HHhTGUZXI1T3lBWpmCvmeks
+         KEAUcnuIRZ+mVKJOsuvroWFDNFM5Psy8eiA8aCr4mw4Toc5JxaMhL3ZMR/n3+fs1DMGd
+         dd4Au6Q+Tr/in1aKh0W0gaSNlomhFRBxgs/W4qF8zGREVyhvM2J6uaM4NGXihk5U8wNC
+         ds6A==
+X-Gm-Message-State: AOAM532qlVTwRtebsArAZP9s9FXMZ1SxC7GMmxhks4xGlp7pnCjAICQY
+        KP/3J5cLQGKXRm0XDTezhYLUHaL2S60P2lYdEUY=
+X-Google-Smtp-Source: ABdhPJyQ8ZZFSPbMcjM7cBXcpV4ALyVmOZm83Q/nGn5lPellGcbxce0xOt7zytEf5THVvG+uYMTRF0/O/+82WTPG2hI=
+X-Received: by 2002:a25:d9c9:: with SMTP id q192mr52286163ybg.470.1636124604861;
+ Fri, 05 Nov 2021 08:03:24 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.1
-Subject: Re: [PATCH 5.10 14/16] Revert "wcn36xx: Disable bmps when encryption
- is disabled"
-Content-Language: en-US
-To:     Pavel Machek <pavel@ucw.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kalle Valo <kvalo@codeaurora.org>
-References: <20211104141159.561284732@linuxfoundation.org>
- <20211104141200.061783376@linuxfoundation.org> <20211105131848.GA9566@amd>
-From:   Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-In-Reply-To: <20211105131848.GA9566@amd>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a05:7108:5153:0:0:0:0 with HTTP; Fri, 5 Nov 2021 08:03:24
+ -0700 (PDT)
+Reply-To: mrsaishag45@gmail.com
+From:   Mrs Aisha Al-Qaddafi <farahfaridaa11@gmail.com>
+Date:   Fri, 5 Nov 2021 08:03:24 -0700
+Message-ID: <CA+kR5Kf=+=Xg=+PvBmBsmJ1tmxY=DpQn4fQ+SZsb9xA_pUYVFg@mail.gmail.com>
+Subject: Dear Friend,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05/11/2021 13:18, Pavel Machek wrote:
-> This explains why revert is a good idea for mainline, but it may still
-> cause problems for 5.10. Is someone able to test it in 5.10?
-> 
-> Best regards,
-> 								Pavel
+Hi Dear Friend,
+I came across your e-mail contact prior a private search while in need
+of your assistance. I am Aisha Al-Qaddafi, the only biological
+Daughter of Former President of Libya Col. Muammar Al-Qaddafi. Am a
+single Mother and a Widow with three Children.
 
-I have to pull in a bunch of out-of-tree patches to boot on the target 
-device but..
+I have investment funds worth Twenty Seven Million Five Hundred
+Thousand United State Dollar ($27.500.000.00 ) and i need a trusted
+investment Manager/Partner because of my current refugee status,
+however, I am interested in you for investment project assistance in
+your country, may be from there, we can build business relationship in
+the nearest future.
 
-Sure, I can have a look over the weekend
+I am willing to negotiate investment/business profit sharing ratio
+with you base on the future investment earning profits.
+If you are willing to handle this project on my behalf kindly reply
+urgent to enable me provide you more information about the investment
+funds.
 
----
-bod
+Your Urgent Reply Will Be Appreciated
+Best Regards
+Mrs Aisha Al-Qaddafi
