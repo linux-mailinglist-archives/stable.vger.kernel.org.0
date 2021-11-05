@@ -2,239 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBD92445E75
-	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 04:10:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18611445F24
+	for <lists+stable@lfdr.de>; Fri,  5 Nov 2021 05:28:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232111AbhKEDNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Nov 2021 23:13:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45444 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231689AbhKEDNM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Nov 2021 23:13:12 -0400
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 472D1C061714
-        for <stable@vger.kernel.org>; Thu,  4 Nov 2021 20:10:33 -0700 (PDT)
-Received: by mail-ot1-x329.google.com with SMTP id r10-20020a056830448a00b0055ac7767f5eso11176885otv.3
-        for <stable@vger.kernel.org>; Thu, 04 Nov 2021 20:10:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=so4nsX1lXJFQb35p8revitMJL/1wWrTjn3/v1Nu1RjU=;
-        b=nfMRXfFDdP10e3yMQGY+EtcnRyzXW/9SpY8/To64KOtSx0KWytmlT2donHbe6sKGfp
-         1ReGjJxSrw8bjAUYrKknHyvN+y4KkF6SRybFWMsh9xKmS1uzz7jDWW+DwZJvGpIePEEQ
-         QgDgMwo6nJm3NwpN8EZulfH5k6WS/zgWnM63ZaiM7Q8NBqLKmkqUFhnH4b1L9PlcrDR3
-         NdIWpKkpC5Nl8mLjw7sVOyfPRxp6+T6yVdBevurXyOJj4uEdZXy1mXsoTYMIjhFOCL6m
-         U2HC24P8h0doFSvIj0OA1egiRG2WMOSY9TLT7XaGkwa32Dt4fummJeHH5I68xiVr8E/g
-         LIiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=so4nsX1lXJFQb35p8revitMJL/1wWrTjn3/v1Nu1RjU=;
-        b=kcqJzn9my0A99HMe7VFrlho7861Y0shsAO1QfhAYAlsGyjSqzlxPDZnstGlDYRGfQy
-         xOVm/cvwO3B7hCItVBamN6poFEzuusMs3shBjxaNkWZxMhaB80NydGsKSaGe9ADDlAoV
-         MJGf6mZ+DVWkFqT9nY50SZn01bjjnFhYXUu2+PYO/3e9R4v22pQIm9ItS1PPjch0zRpX
-         fvaCp1S1HKMOpw30/H52bKSKXJEMULtuRKtmQ3SdVSsioL4j9yQQgE2rT2pddzqXFh+E
-         vLKj6fxINgPxZ0tNokWmvklClSs34FxCZ2CJmqExzmV42zgpopRLuDfHHay/MvF/CvgH
-         seLA==
-X-Gm-Message-State: AOAM531mjTGpHmVYxkF1qlhDlW4rq+lKbkAob7YKkQYWgXZSMVYRdiw1
-        bHZyEDhq4qgFsOGGa4IggQJMtjOaNOobVwes
-X-Google-Smtp-Source: ABdhPJzMey1z1x3XkS7OK2c5e9r3V8Lb3qenvMGUxDREC0JMxUfO3hmNhvytVtLcLBm7vVYT9QXwYg==
-X-Received: by 2002:a9d:6b84:: with SMTP id b4mr39849412otq.327.1636081832628;
-        Thu, 04 Nov 2021 20:10:32 -0700 (PDT)
-Received: from [192.168.17.16] ([189.219.75.83])
-        by smtp.gmail.com with ESMTPSA id l7sm1812145oog.22.2021.11.04.20.10.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Nov 2021 20:10:32 -0700 (PDT)
-Subject: Re: [PATCH 5.14 00/16] 5.14.17-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     shuah@kernel.org, f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-References: <20211104141159.863820939@linuxfoundation.org>
-From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-Message-ID: <66c808f7-bdeb-a509-8209-3584843dbb8a@linaro.org>
-Date:   Thu, 4 Nov 2021 21:10:29 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S230430AbhKEEbE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Nov 2021 00:31:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36384 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230251AbhKEEbD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Nov 2021 00:31:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C083361262;
+        Fri,  5 Nov 2021 04:28:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1636086504;
+        bh=KZOiKhQ37VKIy+d/W2ttFzNr4HxULf9Bi5Iicv0PObM=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=Dl6F+N3KlqI8X9b/nUwQLhPvPIM0orpJdUwqYg/glhXi8zgw9M0xc+qkRC2e8AhbS
+         y4a4WHFfqJI0URbpxXCH6tExIOFis3Eld0O13L4X3fKW9oQ6ShdHBIHAlg9qQaEGJa
+         7btYQhkExffycgG+kg1dXTSgBJc92ydUL7Q+Sw/95TffAKFqybW/3rYcdnKIVKPdXe
+         eHSV+yPvd4m7D7o0Nn3fQLeJuzTmB4KBgzaQGN93B9YSdq47MtaNDSphim9gXDVcfA
+         tb7vPR46cB2F9/2RWAmzPV6jD4xeiHKe+yOyUE+Jdov6wCTTooDuxreWEhkAJaXi09
+         cC/4GfslMKotQ==
+Message-ID: <1dd327ac-b4c0-6c03-7250-dd8a9be44657@kernel.org>
+Date:   Fri, 5 Nov 2021 12:28:21 +0800
 MIME-Version: 1.0
-In-Reply-To: <20211104141159.863820939@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.1
+Subject: Re: [PATCH v2] erofs: fix unsafe pagevec reuse of hooked pclusters
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+To:     Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+References: <20211103174953.3209-1-xiang@kernel.org>
+ <20211103182006.4040-1-xiang@kernel.org>
+From:   Chao Yu <chao@kernel.org>
+In-Reply-To: <20211103182006.4040-1-xiang@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
-
-On 11/4/21 8:12 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.14.17 release.
-> There are 16 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 2021/11/4 2:20, Gao Xiang wrote:
+> There are pclusters in runtime marked with Z_EROFS_PCLUSTER_TAIL
+> before actual I/O submission. Thus, the decompression chain can be
+> extended if the following pcluster chain hooks such tail pcluster.
 > 
-> Responses should be made by Sat, 06 Nov 2021 14:11:51 +0000.
-> Anything received after that time might be too late.
+> As the related comment mentioned, if some page is made of a hooked
+> pcluster and another followed pcluster, it can be reused for in-place
+> I/O (since I/O should be submitted anyway):
+>   _______________________________________________________________
+> |  tail (partial) page |          head (partial) page           |
+> |_____PRIMARY_HOOKED___|____________PRIMARY_FOLLOWED____________|
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.17-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
-> and the diffstat can be found below.
+> However, it's by no means safe to reuse as pagevec since if such
+> PRIMARY_HOOKED pclusters finally move into bypass chain without I/O
+> submission. It's somewhat hard to reproduce with LZ4 and I just found
+> it (general protection fault) by ro_fsstressing a LZMA image for long
+> time.
 > 
-> thanks,
+> I'm going to actively clean up related code together with multi-page
+> folio adaption in the next few months. Let's address it directly for
+> easier backporting for now.
 > 
-> greg k-h
+> Call trace for reference:
+>    z_erofs_decompress_pcluster+0x10a/0x8a0 [erofs]
+>    z_erofs_decompress_queue.isra.36+0x3c/0x60 [erofs]
+>    z_erofs_runqueue+0x5f3/0x840 [erofs]
+>    z_erofs_readahead+0x1e8/0x320 [erofs]
+>    read_pages+0x91/0x270
+>    page_cache_ra_unbounded+0x18b/0x240
+>    filemap_get_pages+0x10a/0x5f0
+>    filemap_read+0xa9/0x330
+>    new_sync_read+0x11b/0x1a0
+>    vfs_read+0xf1/0x190
+> 
+> Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+> Cc: <stable@vger.kernel.org> # 4.19+
+> Signed-off-by: Gao Xiang <xiang@kernel.org>
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Reviewed-by: Chao Yu <chao@kernel.org>
 
-## Build
-* kernel: 5.14.17-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.14.y
-* git commit: 05ed8d6b833a25cb7b38026ed8f584dbdce21ec2
-* git describe: v5.14.16-17-g05ed8d6b833a
-* test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.14.y/build/v5.14.16-17-g05ed8d6b833a
-
-## No regressions (compared to v5.14.16)
-
-## No fixes (compared to v5.14.16)
-
-## Test result summary
-total: 95590, pass: 80826, fail: 1113, skip: 12783, xfail: 868
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 290 total, 268 passed, 22 failed
-* arm64: 40 total, 40 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 39 total, 39 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 37 total, 37 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 36 total, 36 passed, 0 failed
-* riscv: 24 total, 24 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 40 total, 40 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
-
-Greetings!
-
-Daniel Díaz
-daniel.diaz@linaro.org
-
--- 
-Linaro LKFT
-https://lkft.linaro.org
+Thanks,
