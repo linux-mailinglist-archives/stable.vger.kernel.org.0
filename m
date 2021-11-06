@@ -2,141 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8BD2446D60
-	for <lists+stable@lfdr.de>; Sat,  6 Nov 2021 11:15:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AFA6446D78
+	for <lists+stable@lfdr.de>; Sat,  6 Nov 2021 11:44:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232680AbhKFKRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Nov 2021 06:17:55 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:37374 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229645AbhKFKRy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Nov 2021 06:17:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636193712;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=4VADd4gTiJa1m6CydMS+TiNIJa+MD2CtW9ThTxidLXA=;
-        b=Lj5JkfpiusfStReSzDiYtGQda2RmMNp6vldPPSYrtrttA7VT5v86yqJy1lhbRy5ndnxdH1
-        nAyngx/MHo+cHyNdeONiY+NT9CmwRSxUWO1wM/p15wfjwoJji6BA/dQafKGyc8XzG3bnLV
-        PthTS0Bga/XVWtPpwt+oC3u8bMjJbi4=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-558-NywS31XCPUC1BzTGe4s8HA-1; Sat, 06 Nov 2021 06:15:10 -0400
-X-MC-Unique: NywS31XCPUC1BzTGe4s8HA-1
-Received: by mail-ed1-f71.google.com with SMTP id y12-20020a056402270c00b003e28de6e995so10976585edd.11
-        for <stable@vger.kernel.org>; Sat, 06 Nov 2021 03:15:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
-         :subject:to:cc:references:content-language:in-reply-to
-         :content-transfer-encoding;
-        bh=4VADd4gTiJa1m6CydMS+TiNIJa+MD2CtW9ThTxidLXA=;
-        b=MaFSKmWQUKeeUtfQfd+t+MLC4lGOGGHvhirB9ER+YrbK45F8V6EViUziWEET+9TnQe
-         9fGrXZE5+jry1fiG5Uzciy/oLUwB4aTUYSaKzccddUIcr1F7wPn/RweZwLjuMfWxSuuW
-         Rp36jarRDqvg0DlyFiw7wloCLLF+3Q4buXEkeJT3FYavNPsIawuBZc25QIkyxQtY6cZd
-         4kf4bBei0YjBGrnk2DiY4YfSg1GmOW8k9FQ1Bp1EWmjLFqI6QGYl9s+WuK7Wb5SXOiJQ
-         ot66ENibcsPJRyQsv3bSqCzfP+cSlPIbJ8aZd7JVYS2tLrEe2c1CE5GiXUr7D14CjzzX
-         uZ0A==
-X-Gm-Message-State: AOAM532JyRpVNRpMZ4BeEncKvBscsXi2PAo/PDxoM7fhGpoATXKCCyjN
-        xkNWPQw/BmNZSKIZKogTNoCW03SPT2ccFm6O449hVX5Ad1rRLI9T0yIeAHmwKMYhYlHGNTgZ01S
-        MWVv9N23YoWaZTmwl
-X-Received: by 2002:a50:9dca:: with SMTP id l10mr87188900edk.61.1636193708702;
-        Sat, 06 Nov 2021 03:15:08 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJygiuOhV0P+f5+fXP96kXpyL8GmJfV9M0FckPenKEjrqh4fkbmavNe/eCGePjStOIoqdD0D1g==
-X-Received: by 2002:a50:9dca:: with SMTP id l10mr87188862edk.61.1636193708522;
-        Sat, 06 Nov 2021 03:15:08 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:c1e:bf00:1054:9d19:e0f0:8214? (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id h10sm6079623edb.59.2021.11.06.03.15.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 06 Nov 2021 03:15:08 -0700 (PDT)
-Message-ID: <c85a917e-143d-1218-61fa-e4f4810c4950@redhat.com>
-Date:   Sat, 6 Nov 2021 11:15:07 +0100
+        id S233431AbhKFKrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Nov 2021 06:47:20 -0400
+Received: from mx0a-0064b401.pphosted.com ([205.220.166.238]:64914 "EHLO
+        mx0a-0064b401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230219AbhKFKrT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Nov 2021 06:47:19 -0400
+Received: from pps.filterd (m0250809.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 1A6AiZRp022147;
+        Sat, 6 Nov 2021 03:44:35 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
+ subject : date : message-id : content-type : mime-version; s=PPS06212021;
+ bh=FDzLOglzS/mqXmCHZRrfaQQjN+Z2GoNOo1aDtZaLflk=;
+ b=VpchAELxOpmhypyB5wx9flyOXqMwvenc/eeDyJ/b41mKsXzbrAO7ORTbXWOE2jUH/I/O
+ WsGwLN1Yuy1A+kkcPv+KMNw0QdCRWGNMp9Xbxrx77aKwklSsMMAJWJ3hmKwuhxfUlAnU
+ CdSt1l2m9utx1PQDw3G+E5cypAg3adbEYajGons3z1EY/R+5rZhYcrWpGpiIVA8xgken
+ XxaEH/6r/9jXp1rZcq3EcA53MlSkQ5WfbgvxuvDLDrmnDQNi9pKH8EU5ePXHHV/MIf/c
+ oJqsijT4S+tn9P9VPI0QGTGeDQSJH9BUpu2fljpFyc4+QBRDU6dtKRoE7IutPP6yr/mL XA== 
+Received: from nam12-dm6-obe.outbound.protection.outlook.com (mail-dm6nam12lp2176.outbound.protection.outlook.com [104.47.59.176])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3c4t31s719-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 06 Nov 2021 03:44:34 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=nb3+cRRtxjSs+SSSWaR3duAJtMXF39GMQyVmSecvWjy0heufdhepCI21Rf4zpB+/uLp1GV3wiY4YxX/t31rCxlTHiup3tudzgxSNPZLlt+T9TVzTDtsixNnHFwj5UKG3Nkxp1uGe9LL2AGUtb1oDNGlKz4ZkkoXJ15K6v7bcAOb5jjl4DnW+Frn31TwO/oB5YOoUyqQwnkKiDdhypHR62eEiBBsg3C8Am5NbGPaxW4hv3k6Jhz/eozEZD3ycHqF8OIoaKXey97+EP1qEo8dIWu7cgXAHm5M1USX0gZHH3Wz32pBx9hUKQw6foc6JmafQ1l2jLbFscmesPu7T70q4dg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=FDzLOglzS/mqXmCHZRrfaQQjN+Z2GoNOo1aDtZaLflk=;
+ b=BFyM5HC7vLCsKBo+eOBFiJ2hAUR30hg9HJu7vwu5NOpubGeEEWeok4Hcacgnywi6nxzrIIzyyCYLm11C60ey4aqfL8irOlytpTTPKDfdcoWv6K7hGz3+3pKo7/1IKGWWrG89WqCLO/mEuI3W3qjBZN9oVU3ZEoEP3L+oNb5tTSrZdOh+XZgnRQs9QgC5GSBPEfen2dGH9qv0HIthiGWmMtIxUOZdRNQhXd7056Y42ZnXGRy2/NA1+R3zqav2fQvGRspLFkByO3Omj4O0zmRG1tAG3nAivM1OTiJR5gdx+l+OhezE41i/brBMLPRTcvBikd7si4NgqlgXh0/tRyjiuw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=windriver.com; dmarc=pass action=none
+ header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none
+ header.from=windriver.com;
+Received: from PH0PR11MB5191.namprd11.prod.outlook.com (2603:10b6:510:3e::24)
+ by PH0PR11MB4950.namprd11.prod.outlook.com (2603:10b6:510:33::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4669.13; Sat, 6 Nov
+ 2021 10:44:31 +0000
+Received: from PH0PR11MB5191.namprd11.prod.outlook.com
+ ([fe80::a090:40db:80ae:f06a]) by PH0PR11MB5191.namprd11.prod.outlook.com
+ ([fe80::a090:40db:80ae:f06a%9]) with mapi id 15.20.4669.013; Sat, 6 Nov 2021
+ 10:44:31 +0000
+From:   Meng Li <Meng.Li@windriver.com>
+To:     stable@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        mcoquelin.stm32@gmail.com
+Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        meng.li@windriver.com
+Subject: [PATCH] driver: ethernet: stmmac: remove the redundant clock disable action
+Date:   Sat,  6 Nov 2021 18:44:01 +0800
+Message-Id: <20211106104401.10846-1-Meng.Li@windriver.com>
+X-Mailer: git-send-email 2.17.1
+Content-Type: text/plain
+X-ClientProxiedBy: HK2PR0401CA0007.apcprd04.prod.outlook.com
+ (2603:1096:202:2::17) To PH0PR11MB5191.namprd11.prod.outlook.com
+ (2603:10b6:510:3e::24)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-From:   Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v5 1/2] x86/PCI: Ignore E820 reservations for bridge
- windows on newer systems
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        =?UTF-8?Q?Krzysztof_Wilczy=c5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Myron Stowe <myron.stowe@redhat.com>,
-        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>, linux-acpi@vger.kernel.org,
-        linux-pci@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org,
-        =?UTF-8?Q?Benoit_Gr=c3=a9goire?= <benoitg@coeus.ca>,
-        Hui Wang <hui.wang@canonical.com>, stable@vger.kernel.org,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
-References: <20211020211455.GA2641031@bhelgaas>
-Content-Language: en-US
-In-Reply-To: <20211020211455.GA2641031@bhelgaas>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Received: from pek-mli1-d2.wrs.com (60.247.85.82) by HK2PR0401CA0007.apcprd04.prod.outlook.com (2603:1096:202:2::17) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4669.11 via Frontend Transport; Sat, 6 Nov 2021 10:44:28 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 4bb5ff10-638c-41f7-62f2-08d9a11269e9
+X-MS-TrafficTypeDiagnostic: PH0PR11MB4950:
+X-Microsoft-Antispam-PRVS: <PH0PR11MB495001FBCD3A713A7C06B8C6F18F9@PH0PR11MB4950.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:2582;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: bJ9TrNxK5oPWV+w58IyMTrcZRAQ5bqhZbkLd5p4Xk2uAa5zE7lGo8PP18bCWZV1DVc9Np29EIvS+5xHlRKIcmmqn/E1co/9epjpJrpvSPdrEZRKgB0Uls1IJeBvZch3sbIphKFJhgIMBFGJ2YNtOyfWGA09FGFdqlT06FAumnabdewHVmIulEoPh5Oypf5ixHl/j+ZRGss9yQwXy4uzvdXi1AdlHJU9nudVAOZO8IllrUsUL+GoEM+1M6trR667tyUgFz6GSiEmebaEAoKhtf1zvophuBjnlIJTl6Ps4S+CjlVmxUxx3ufCRG+GrfHTFCr5WCmpnvs48H+tdnQ4rJ1IpYg9RNJ4mHtOIQXvXyDlwVz+1CF73DAVF/BvaNN/5cQLpZDU8uooX8pNxMKFokh4QaaFv4atfj3TGO6+xBUDOH4qSMbJhb3RDi2NWUgeaM3e7nhbAncK15edpjyZc3z+PAelWStEQm3+1RJyW2pRJM9ujSd+cEIQkWJJIMBtkD57NhzgHisus5B49Ks+kiF6N9qWYYxHDGE4LRKNT9WY+hePu0/+jK9AvXlt2ouHO2lZoujWVmxKepkIKlbmmh6hUb7cxJ2/vio+SJ9mJKa5rsgFEf74dTdrJ4B4lOuUT/+c7dxr5eJHwmjnTjv5v29VDpOH4qDN/VPXVPkzRTIJDziw1/cEM0jn6HFOng0eS6ZP5ghl/jpZIgsfMkuXgiQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR11MB5191.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(6506007)(2616005)(66556008)(52116002)(2906002)(66476007)(316002)(86362001)(45080400002)(66946007)(5660300002)(83380400001)(956004)(38100700002)(38350700002)(1076003)(36756003)(6666004)(107886003)(6512007)(508600001)(186003)(8936002)(8676002)(6486002)(26005)(4326008);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?zUo5ZBMowHN4oN5kDHpS/BbPL8yx0g3A5zFIi0/vdTBCQF0f2aOnVirZQozp?=
+ =?us-ascii?Q?lVr6in3Rsv2Z96GytlpR4a8OuFSqTxtYgeGUSsJ0YkbuatFNVhS5Vhq6Oz4c?=
+ =?us-ascii?Q?vybE6Z7cj7jcpTj6iaynux7XAiwOKMYeYFbkz8m/yxA1FFKMUUCfnLC1d39Z?=
+ =?us-ascii?Q?wfoH9zL4B/9avmd/LFt1x4afGkEMuK3jfxZK2HID/jKjcSuMZNcGCurhhFWs?=
+ =?us-ascii?Q?VG6Fy+lwVhTxGMP0SZDmSTCFRKO4tKpVkaqS64zCGdAbWhq8GxGwzZWv1vRq?=
+ =?us-ascii?Q?P+8sM7JgOi3XZmNy9KjbVEl/2eOEQv5s2jvHaYuWuJGDURzvJZt+FZt5NkGh?=
+ =?us-ascii?Q?tWeTc8/NdNE9kycHz+jBSOhvL4YWozIK9+npQnDCQBcC9hgbJFLaIN/w6O1z?=
+ =?us-ascii?Q?hfX5dWd6vm15TbJO5bpOGzMqvLO+ecjXEEj0YRaMJQ6zQCXOKn2cb4H/KLeE?=
+ =?us-ascii?Q?a7oVeKaUq6OPZJdwHJW7vTn92AEKza1sKYQWRC2mU0cXzgulVC5XU9DQzylp?=
+ =?us-ascii?Q?pKHyfLcNciySQ/PgeCErriHsh5rIs4NoJvSCdu5c2oTf7aYHMC9wWvfpCRZo?=
+ =?us-ascii?Q?oZqfbg6y84ZzXpcJUwTwlD1bbDNFL9CEjvXRcaaG0UXTqVONYQBT6+2QawgP?=
+ =?us-ascii?Q?+ix4fZVDX6rH6NoaWkbDCKECOtist89JHpBTPgaJGv89AxmDIl+5PonDt/SI?=
+ =?us-ascii?Q?2JypsSRUENMX/b9WP1AkTYb7wl9mjDXQmwQTS6RiVXj8He/j3m6oqbOUOEpL?=
+ =?us-ascii?Q?YbrO+0UGN+NzSaj89AzB/m7/PObhbVFKHWD3UaAcd8RVQ1zaoszyDz5YTJ0p?=
+ =?us-ascii?Q?qHuRcjjrEVemxF8EllvxKUYRz4vc0kdKDAnOtqmpy2meC6sDnFjV300M+a+Z?=
+ =?us-ascii?Q?CIilZ8h91XslzyJInmnuAnO3spmoEpSj2AyKLGVbrvadTVpaKpdXeSJ5XmKR?=
+ =?us-ascii?Q?WKuto+kygHxW0Sf/MR5BzQUzINYxl+7QLb6OY0drgYENGLOxtebqZVVDzAr+?=
+ =?us-ascii?Q?nYumN0ByHgfhNjCvWRyh71OJN+B5GcDglyXpYgdlae+7qf4RldieZro0bJMU?=
+ =?us-ascii?Q?1rQAUbkk//gcd+VLRqa1HwxF49DU5fiwoJ6vRISuvg4GLCJ4rsP29fVRYwQk?=
+ =?us-ascii?Q?G0g6FWqGM5d6jlVzUNRuc0KZQ4oY2bjLwC5FlRMK+GaYN+QxLm6zJoiyFRSz?=
+ =?us-ascii?Q?QWXVwcgDS8+uYvV9fF9yYZxeIMV4R4wPwIbnhcDBSmwxiwA4LprCTvgCX14Y?=
+ =?us-ascii?Q?vY4oINFA49qpQvMP9n3vlrT4MfcXabqtuKeiG35VdOeo6wm/hbe1lJ0VG+hT?=
+ =?us-ascii?Q?B8GQifAGJzVnN/KnqALeqXyACBc8vCLwpE1g8afIzdAJWt/ohW339eCopbM2?=
+ =?us-ascii?Q?blNM5m4l/Rr2Xe9IcuyU2rd81u/X5cqmFawVKtJ1lHKa47tjfLzSN9vT+nKN?=
+ =?us-ascii?Q?r1/x9p9bJ1T7pY+qe8tkwYpT6kx+38PumCOF3CY1HsjMF18SXjnc6DD4aRxg?=
+ =?us-ascii?Q?cMfmvqPQL+vYq01tF0FLNRovGbkzEGbWUh3VrzElK8jTrJUZw3j1Kwi7jEId?=
+ =?us-ascii?Q?er8jFba9ZjJ7kP2qf0TaeOsfaa1vNZO7v3hDtVN4/dUKDI6MgPVYMC39wRgf?=
+ =?us-ascii?Q?sM6BDMOyWjywYna78HMKoxA=3D?=
+X-OriginatorOrg: windriver.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4bb5ff10-638c-41f7-62f2-08d9a11269e9
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR11MB5191.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Nov 2021 10:44:31.0222
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: W0RC8CgZpdTtzQmrOxoLxhBVrFuNye4AXyzneP+13xQZbAcFOm4SZF6x4EwXzuJOOEePIqwsDxWNiXWbYxgsLA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR11MB4950
+X-Proofpoint-ORIG-GUID: cWDHNPRcimXpA2jnkMpGJRlFL3xQJqr_
+X-Proofpoint-GUID: cWDHNPRcimXpA2jnkMpGJRlFL3xQJqr_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-06_02,2021-11-03_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 spamscore=0 phishscore=0 clxscore=1011 priorityscore=1501
+ lowpriorityscore=0 mlxlogscore=953 bulkscore=0 mlxscore=0 adultscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111060065
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Bjorn,
+When run below command to remove ethernet driver on
+stratix10 platform, there will be warning trace as below:
 
-On 10/20/21 23:14, Bjorn Helgaas wrote:
-> On Wed, Oct 20, 2021 at 12:23:26PM +0200, Hans de Goede wrote:
->> On 10/19/21 23:52, Bjorn Helgaas wrote:
->>> On Thu, Oct 14, 2021 at 08:39:42PM +0200, Hans de Goede wrote:
->>>> Some BIOS-es contain a bug where they add addresses which map to system
->>>> RAM in the PCI host bridge window returned by the ACPI _CRS method, see
->>>> commit 4dc2287c1805 ("x86: avoid E820 regions when allocating address
->>>> space").
->>>>
->>>> To work around this bug Linux excludes E820 reserved addresses when
->>>> allocating addresses from the PCI host bridge window since 2010.
->>>> ...
-> 
->>> I haven't seen anybody else eager to merge this, so I guess I'll stick
->>> my neck out here.
->>>
->>> I applied this to my for-linus branch for v5.15.
->>
->> Thank you, and sorry about the build-errors which the lkp
->> kernel-test-robot found.
->>
->> I've just send out a patch which fixes these build-errors
->> (verified with both .config-s from the lkp reports).
->> Feel free to squash this into the original patch (or keep
->> them separate, whatever works for you).
-> 
-> Thanks, I squashed the fix in.
-> 
-> HOWEVER, I think it would be fairly risky to push this into v5.15.
-> We would be relying on the assumption that current machines have all
-> fixed the BIOS defect that 4dc2287c1805 addressed, and we have little
-> evidence for that.
->
-> I'm not sure there's significant benefit to having this in v5.15.
-> Yes, the mainline v5.15 kernel would work on the affected machines,
-> but I suspect most people with those machines are running distro
-> kernels, not mainline kernels.
+$ cd /sys/class/net/etha01/device/driver
+$ echo ff800000.ethernet > unbind
 
-I understand that you were reluctant to add this to 5.15 so close
-near the end of the 5.15 cycle, but can we please get this into
-5.16 now ?
+WARNING: CPU: 3 PID: 386 at drivers/clk/clk.c:810 clk_core_unprepare+0x114/0x274
+Modules linked in: sch_fq_codel
+CPU: 3 PID: 386 Comm: sh Tainted: G        W         5.10.74-yocto-standard #1
+Hardware name: SoCFPGA Stratix 10 SoCDK (DT)
+pstate: 00000005 (nzcv daif -PAN -UAO -TCO BTYPE=--)
+pc : clk_core_unprepare+0x114/0x274
+lr : clk_core_unprepare+0x114/0x274
+sp : ffff800011bdbb10
+clk_core_unprepare+0x114/0x274
+ clk_unprepare+0x38/0x50
+ stmmac_remove_config_dt+0x40/0x80
+ stmmac_pltfr_remove+0x64/0x80
+ platform_drv_remove+0x38/0x60
+ ... ..
+ el0_sync_handler+0x1a4/0x1b0
+ el0_sync+0x180/0x1c0
+This issue is introduced by introducing upstream commit 8f269102baf7
+("net: stmmac: disable clocks in stmmac_remove_config_dt()")
+Because clock has been disabled in function stmmac_dvr_remove()
+It not reasonable the remove clock disable action from function
+stmmac_remove_config_dt(), because it is mainly used in probe failed,
+and other platform drivers also use this common function. So, remove
+stmmac_remove_config_dt() from stmmac_pltfr_remove(), only other
+necessary code.
 
-I know you ultimately want to see if there is a better fix,
-but this is hitting a *lot* of users right now and if we come up
-with a better fix we can always use that to replace this one
-later.
+Fixes: 1af3a8e91f1a ("net: stmmac: disable clocks in stmmac_remove_config_dt()")
+Signed-off-by: Meng Li <Meng.Li@windriver.com>
 
-So cam we please just go with this fix now, so that we can
-fix the issues a lot of users are seeing caused by the current
-*wrong* behavior of taking the e820 reservations into account ?
+---
 
-Regards,
+Some extra comments as below:
 
-Hans
+1. This patch is only for linux-stable kernel v5.10, so the fixed commit ID is the one
+   in linux-stable kernel, not the one in mainline upsteam kernel.
+
+2. I created a patch only to fix the linux-stable kernel v5.10, not submit it to upstream kernel.
+   The reason as below:
+   In fact, upstream kernel doesn't have this issue any more. Because it has a patch to improve
+   the clock management and other 4 patches to fix the 1st patch. Detial patches as below:
+   5ec55823438e("net: stmmac: add clocks management for gmac driver")
+   30f347ae7cc1("net: stmmac: fix missing unlock on error in stmmac_suspend()")
+   b3dcb3127786("net: stmmac: correct clocks enabled in stmmac_vlan_rx_kill_vid()")
+   4691ffb18ac9("net: stmmac: fix system hang if change mac address after interface ifdown")
+   ab00f3e051e8("net: stmmac: fix issue where clk is being unprepared twice")
+
+   But I think it is a little complex to backport all the 5 patches. Moreover, it may be related
+   with other patches and code context mofification.
+   Therefore, I create a simple and clear patch to only this issue on linux-stable kernel, v 5.10
+
+---
+ drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+index 53be8fc1d125..0fb702ce2408 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+@@ -706,7 +706,8 @@ int stmmac_pltfr_remove(struct platform_device *pdev)
+ 	if (plat->exit)
+ 		plat->exit(pdev, plat->bsp_priv);
+ 
+-	stmmac_remove_config_dt(pdev, plat);
++	of_node_put(plat->phy_node);
++	of_node_put(plat->mdio_node);
+ 
+ 	return ret;
+ }
+-- 
+2.17.1
 
