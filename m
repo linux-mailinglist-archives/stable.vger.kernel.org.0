@@ -2,503 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0EFD446E21
-	for <lists+stable@lfdr.de>; Sat,  6 Nov 2021 14:40:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F6EF446E24
+	for <lists+stable@lfdr.de>; Sat,  6 Nov 2021 14:40:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234300AbhKFNnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Nov 2021 09:43:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39500 "EHLO mail.kernel.org"
+        id S234347AbhKFNnS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Nov 2021 09:43:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234268AbhKFNm4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 6 Nov 2021 09:42:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87A9261356;
-        Sat,  6 Nov 2021 13:40:14 +0000 (UTC)
+        id S234356AbhKFNnH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 6 Nov 2021 09:43:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B12B761215;
+        Sat,  6 Nov 2021 13:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636206015;
-        bh=B3f+eDymazemnBWdHLML0qL0ee7VfMpK22j7zh0ILeE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCXuDu5MOojA4rrxl9YSRrRw0RxYtyD5dk0xMjxE37YL89LecVGALmIMaLSH7wJQQ
-         7ac7304BFVHPMpn48dFJYEBOev2RdlUxJPfnclrxa/bbAp1b+20l7U1GqbN58zOD4v
-         qQcpPm7jYAefuxCSV1nh8dofHq3cfohN06nhsotM=
+        s=korg; t=1636206026;
+        bh=N3oPOy4sdxI1qch2cB9tzqRE0rjSrJ0+/Va4hF6bZoE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BBjq/YrP1X1ibh9tCg660jIi8hxhpZWlbTNLxgGSQwhJjt9NUUQxmw/nr/owxytLj
+         0EE4sy1VQ9jRAmlkDfkl9u5ZsmE+0KXxfPNlpuhcOf+YCQzYHBZoPvJfvNAnu+Hnwc
+         3WHSXP8DUM8/xa5fcvStbEjHUVUwgDSna62bzcsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.10.78
-Date:   Sat,  6 Nov 2021 14:40:04 +0100
-Message-Id: <163620600316114@kroah.com>
+Subject: Linux 5.14.17
+Date:   Sat,  6 Nov 2021 14:40:11 +0100
+Message-Id: <16362060125225@kroah.com>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <163620600339221@kroah.com>
-References: <163620600339221@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index a58f49e415dc..288fb4839253 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 10
--SUBLEVEL = 77
-+SUBLEVEL = 78
- EXTRAVERSION =
- NAME = Dare mighty things
- 
-diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
-index b5f5ca4e3f34..8f4ae6e967e3 100644
---- a/drivers/amba/bus.c
-+++ b/drivers/amba/bus.c
-@@ -375,9 +375,6 @@ static int amba_device_try_add(struct amba_device *dev, struct resource *parent)
- 	void __iomem *tmp;
- 	int i, ret;
- 
--	WARN_ON(dev->irq[0] == (unsigned int)-1);
--	WARN_ON(dev->irq[1] == (unsigned int)-1);
--
- 	ret = request_resource(parent, &dev->res);
- 	if (ret)
- 		goto err_out;
-diff --git a/drivers/gpu/drm/ttm/ttm_bo_util.c b/drivers/gpu/drm/ttm/ttm_bo_util.c
-index 8fba425a7626..fb2a25f8408f 100644
---- a/drivers/gpu/drm/ttm/ttm_bo_util.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo_util.c
-@@ -322,7 +322,6 @@ static void ttm_transfered_destroy(struct ttm_buffer_object *bo)
- 	struct ttm_transfer_obj *fbo;
- 
- 	fbo = container_of(bo, struct ttm_transfer_obj, base);
--	dma_resv_fini(&fbo->base.base._resv);
- 	ttm_bo_put(fbo->bo);
- 	kfree(fbo);
- }
-diff --git a/drivers/media/firewire/firedtv-avc.c b/drivers/media/firewire/firedtv-avc.c
-index 2bf9467b917d..71991f8638e6 100644
---- a/drivers/media/firewire/firedtv-avc.c
-+++ b/drivers/media/firewire/firedtv-avc.c
-@@ -1165,7 +1165,11 @@ int avc_ca_pmt(struct firedtv *fdtv, char *msg, int length)
- 		read_pos += program_info_length;
- 		write_pos += program_info_length;
- 	}
--	while (read_pos < length) {
-+	while (read_pos + 4 < length) {
-+		if (write_pos + 4 >= sizeof(c->operand) - 4) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
- 		c->operand[write_pos++] = msg[read_pos++];
- 		c->operand[write_pos++] = msg[read_pos++];
- 		c->operand[write_pos++] = msg[read_pos++];
-@@ -1177,13 +1181,17 @@ int avc_ca_pmt(struct firedtv *fdtv, char *msg, int length)
- 		c->operand[write_pos++] = es_info_length >> 8;
- 		c->operand[write_pos++] = es_info_length & 0xff;
- 		if (es_info_length > 0) {
-+			if (read_pos >= length) {
-+				ret = -EINVAL;
-+				goto out;
-+			}
- 			pmt_cmd_id = msg[read_pos++];
- 			if (pmt_cmd_id != 1 && pmt_cmd_id != 4)
- 				dev_err(fdtv->device, "invalid pmt_cmd_id %d at stream level\n",
- 					pmt_cmd_id);
- 
--			if (es_info_length > sizeof(c->operand) - 4 -
--					     write_pos) {
-+			if (es_info_length > sizeof(c->operand) - 4 - write_pos ||
-+			    es_info_length > length - read_pos) {
- 				ret = -EINVAL;
- 				goto out;
- 			}
-diff --git a/drivers/media/firewire/firedtv-ci.c b/drivers/media/firewire/firedtv-ci.c
-index 9363d005e2b6..e0d57e09dab0 100644
---- a/drivers/media/firewire/firedtv-ci.c
-+++ b/drivers/media/firewire/firedtv-ci.c
-@@ -134,6 +134,8 @@ static int fdtv_ca_pmt(struct firedtv *fdtv, void *arg)
- 	} else {
- 		data_length = msg->msg[3];
- 	}
-+	if (data_length > sizeof(msg->msg) - data_pos)
-+		return -EINVAL;
- 
- 	return avc_ca_pmt(fdtv, &msg->msg[data_pos], data_length);
- }
-diff --git a/drivers/net/ethernet/microchip/lan743x_main.c b/drivers/net/ethernet/microchip/lan743x_main.c
-index e14dfaafe439..3eea8cf076c4 100644
---- a/drivers/net/ethernet/microchip/lan743x_main.c
-+++ b/drivers/net/ethernet/microchip/lan743x_main.c
-@@ -1963,13 +1963,13 @@ static int lan743x_rx_next_index(struct lan743x_rx *rx, int index)
- 	return ((++index) % rx->ring_size);
- }
- 
--static struct sk_buff *lan743x_rx_allocate_skb(struct lan743x_rx *rx)
-+static struct sk_buff *lan743x_rx_allocate_skb(struct lan743x_rx *rx, gfp_t gfp)
- {
- 	int length = 0;
- 
- 	length = (LAN743X_MAX_FRAME_SIZE + ETH_HLEN + 4 + RX_HEAD_PADDING);
- 	return __netdev_alloc_skb(rx->adapter->netdev,
--				  length, GFP_ATOMIC | GFP_DMA);
-+				  length, gfp);
- }
- 
- static void lan743x_rx_update_tail(struct lan743x_rx *rx, int index)
-@@ -2141,7 +2141,8 @@ static int lan743x_rx_process_packet(struct lan743x_rx *rx)
- 			struct sk_buff *new_skb = NULL;
- 			int packet_length;
- 
--			new_skb = lan743x_rx_allocate_skb(rx);
-+			new_skb = lan743x_rx_allocate_skb(rx,
-+							  GFP_ATOMIC | GFP_DMA);
- 			if (!new_skb) {
- 				/* failed to allocate next skb.
- 				 * Memory is very low.
-@@ -2377,7 +2378,8 @@ static int lan743x_rx_ring_init(struct lan743x_rx *rx)
- 
- 	rx->last_head = 0;
- 	for (index = 0; index < rx->ring_size; index++) {
--		struct sk_buff *new_skb = lan743x_rx_allocate_skb(rx);
-+		struct sk_buff *new_skb = lan743x_rx_allocate_skb(rx,
-+								   GFP_KERNEL);
- 
- 		ret = lan743x_rx_init_ring_element(rx, index, new_skb);
- 		if (ret)
-diff --git a/drivers/net/ethernet/sfc/ethtool_common.c b/drivers/net/ethernet/sfc/ethtool_common.c
-index bf1443539a1a..bd552c7dffcb 100644
---- a/drivers/net/ethernet/sfc/ethtool_common.c
-+++ b/drivers/net/ethernet/sfc/ethtool_common.c
-@@ -563,20 +563,14 @@ int efx_ethtool_get_link_ksettings(struct net_device *net_dev,
- {
- 	struct efx_nic *efx = netdev_priv(net_dev);
- 	struct efx_link_state *link_state = &efx->link_state;
--	u32 supported;
- 
- 	mutex_lock(&efx->mac_lock);
- 	efx_mcdi_phy_get_link_ksettings(efx, cmd);
- 	mutex_unlock(&efx->mac_lock);
- 
- 	/* Both MACs support pause frames (bidirectional and respond-only) */
--	ethtool_convert_link_mode_to_legacy_u32(&supported,
--						cmd->link_modes.supported);
--
--	supported |= SUPPORTED_Pause | SUPPORTED_Asym_Pause;
--
--	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.supported,
--						supported);
-+	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
-+	ethtool_link_ksettings_add_link_mode(cmd, supported, Asym_Pause);
- 
- 	if (LOOPBACK_INTERNAL(efx)) {
- 		cmd->base.speed = link_state->speed;
-diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
-index d406da82b4fb..2746f77745e4 100644
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -1313,8 +1313,6 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
- 	bool need_strict = rt6_need_strict(&ipv6_hdr(skb)->daddr);
- 	bool is_ndisc = ipv6_ndisc_frame(skb);
- 
--	nf_reset_ct(skb);
--
- 	/* loopback, multicast & non-ND link-local traffic; do not push through
- 	 * packet taps again. Reset pkt_type for upper layers to process skb.
- 	 * For strict packets with a source LLA, determine the dst using the
-@@ -1371,8 +1369,6 @@ static struct sk_buff *vrf_ip_rcv(struct net_device *vrf_dev,
- 	skb->skb_iif = vrf_dev->ifindex;
- 	IPCB(skb)->flags |= IPSKB_L3SLAVE;
- 
--	nf_reset_ct(skb);
--
- 	if (ipv4_is_multicast(ip_hdr(skb)->daddr))
- 		goto out;
- 
-diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
-index 6bed61953542..43be20baab35 100644
---- a/drivers/net/wireless/ath/wcn36xx/main.c
-+++ b/drivers/net/wireless/ath/wcn36xx/main.c
-@@ -601,15 +601,6 @@ static int wcn36xx_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
- 				}
- 			}
- 		}
--		/* FIXME: Only enable bmps support when encryption is enabled.
--		 * For any reasons, when connected to open/no-security BSS,
--		 * the wcn36xx controller in bmps mode does not forward
--		 * 'wake-up' beacons despite AP sends DTIM with station AID.
--		 * It could be due to a firmware issue or to the way driver
--		 * configure the station.
--		 */
--		if (vif->type == NL80211_IFTYPE_STATION)
--			vif_priv->allow_bmps = true;
- 		break;
- 	case DISABLE_KEY:
- 		if (!(IEEE80211_KEY_FLAG_PAIRWISE & key_conf->flags)) {
-@@ -909,7 +900,6 @@ static void wcn36xx_bss_info_changed(struct ieee80211_hw *hw,
- 				    vif->addr,
- 				    bss_conf->aid);
- 			vif_priv->sta_assoc = false;
--			vif_priv->allow_bmps = false;
- 			wcn36xx_smd_set_link_st(wcn,
- 						bss_conf->bssid,
- 						vif->addr,
-diff --git a/drivers/net/wireless/ath/wcn36xx/pmc.c b/drivers/net/wireless/ath/wcn36xx/pmc.c
-index 2d0780fefd47..2936aaf53273 100644
---- a/drivers/net/wireless/ath/wcn36xx/pmc.c
-+++ b/drivers/net/wireless/ath/wcn36xx/pmc.c
-@@ -23,10 +23,7 @@ int wcn36xx_pmc_enter_bmps_state(struct wcn36xx *wcn,
- {
- 	int ret = 0;
- 	struct wcn36xx_vif *vif_priv = wcn36xx_vif_to_priv(vif);
--
--	if (!vif_priv->allow_bmps)
--		return -ENOTSUPP;
--
-+	/* TODO: Make sure the TX chain clean */
- 	ret = wcn36xx_smd_enter_bmps(wcn, vif);
- 	if (!ret) {
- 		wcn36xx_dbg(WCN36XX_DBG_PMC, "Entered BMPS\n");
-diff --git a/drivers/net/wireless/ath/wcn36xx/wcn36xx.h b/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
-index d0fcce86903a..9b4dee2fc648 100644
---- a/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
-+++ b/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
-@@ -127,7 +127,6 @@ struct wcn36xx_vif {
- 	enum wcn36xx_hal_bss_type bss_type;
- 
- 	/* Power management */
--	bool allow_bmps;
- 	enum wcn36xx_power_state pw_state;
- 
- 	u8 bss_index;
-diff --git a/drivers/scsi/scsi.c b/drivers/scsi/scsi.c
-index 24619c3bebd5..6ad834d61d4c 100644
---- a/drivers/scsi/scsi.c
-+++ b/drivers/scsi/scsi.c
-@@ -545,8 +545,10 @@ EXPORT_SYMBOL(scsi_device_get);
-  */
- void scsi_device_put(struct scsi_device *sdev)
- {
--	module_put(sdev->host->hostt->module);
-+	struct module *mod = sdev->host->hostt->module;
-+
- 	put_device(&sdev->sdev_gendev);
-+	module_put(mod);
- }
- EXPORT_SYMBOL(scsi_device_put);
- 
-diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index 8173b67ec7b0..1378bb1a7371 100644
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -450,9 +450,12 @@ static void scsi_device_dev_release_usercontext(struct work_struct *work)
- 	struct scsi_vpd *vpd_pg80 = NULL, *vpd_pg83 = NULL;
- 	struct scsi_vpd *vpd_pg0 = NULL, *vpd_pg89 = NULL;
- 	unsigned long flags;
-+	struct module *mod;
- 
- 	sdev = container_of(work, struct scsi_device, ew.work);
- 
-+	mod = sdev->host->hostt->module;
-+
- 	scsi_dh_release_device(sdev);
- 
- 	parent = sdev->sdev_gendev.parent;
-@@ -501,11 +504,17 @@ static void scsi_device_dev_release_usercontext(struct work_struct *work)
- 
- 	if (parent)
- 		put_device(parent);
-+	module_put(mod);
- }
- 
- static void scsi_device_dev_release(struct device *dev)
- {
- 	struct scsi_device *sdp = to_scsi_device(dev);
-+
-+	/* Set module pointer as NULL in case of module unloading */
-+	if (!try_module_get(sdp->host->hostt->module))
-+		sdp->host->hostt->module = NULL;
-+
- 	execute_in_process_context(scsi_device_dev_release_usercontext,
- 				   &sdp->ew);
- }
-diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
-index 4bbf3316a9a5..99908d8d2dd3 100644
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -2640,7 +2640,6 @@ int usb_add_hcd(struct usb_hcd *hcd,
- {
- 	int retval;
- 	struct usb_device *rhdev;
--	struct usb_hcd *shared_hcd;
- 
- 	if (!hcd->skip_phy_initialization && usb_hcd_is_primary_hcd(hcd)) {
- 		hcd->phy_roothub = usb_phy_roothub_alloc(hcd->self.sysdev);
-@@ -2797,26 +2796,13 @@ int usb_add_hcd(struct usb_hcd *hcd,
- 		goto err_hcd_driver_start;
- 	}
- 
--	/* starting here, usbcore will pay attention to the shared HCD roothub */
--	shared_hcd = hcd->shared_hcd;
--	if (!usb_hcd_is_primary_hcd(hcd) && shared_hcd && HCD_DEFER_RH_REGISTER(shared_hcd)) {
--		retval = register_root_hub(shared_hcd);
--		if (retval != 0)
--			goto err_register_root_hub;
--
--		if (shared_hcd->uses_new_polling && HCD_POLL_RH(shared_hcd))
--			usb_hcd_poll_rh_status(shared_hcd);
--	}
--
- 	/* starting here, usbcore will pay attention to this root hub */
--	if (!HCD_DEFER_RH_REGISTER(hcd)) {
--		retval = register_root_hub(hcd);
--		if (retval != 0)
--			goto err_register_root_hub;
-+	retval = register_root_hub(hcd);
-+	if (retval != 0)
-+		goto err_register_root_hub;
- 
--		if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
--			usb_hcd_poll_rh_status(hcd);
--	}
-+	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
-+		usb_hcd_poll_rh_status(hcd);
- 
- 	return retval;
- 
-@@ -2859,7 +2845,6 @@ EXPORT_SYMBOL_GPL(usb_add_hcd);
- void usb_remove_hcd(struct usb_hcd *hcd)
- {
- 	struct usb_device *rhdev = hcd->self.root_hub;
--	bool rh_registered;
- 
- 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
- 
-@@ -2870,7 +2855,6 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 
- 	dev_dbg(hcd->self.controller, "roothub graceful disconnect\n");
- 	spin_lock_irq (&hcd_root_hub_lock);
--	rh_registered = hcd->rh_registered;
- 	hcd->rh_registered = 0;
- 	spin_unlock_irq (&hcd_root_hub_lock);
- 
-@@ -2880,8 +2864,7 @@ void usb_remove_hcd(struct usb_hcd *hcd)
- 	cancel_work_sync(&hcd->died_work);
- 
- 	mutex_lock(&usb_bus_idr_lock);
--	if (rh_registered)
--		usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
-+	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
- 	mutex_unlock(&usb_bus_idr_lock);
- 
- 	/*
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 0d6dc2e20f2a..bf42ba3e4415 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -693,7 +693,6 @@ int xhci_run(struct usb_hcd *hcd)
- 		if (ret)
- 			xhci_free_command(xhci, command);
- 	}
--	set_bit(HCD_FLAG_DEFER_RH_REGISTER, &hcd->flags);
- 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
- 			"Finished xhci_run for USB2 roothub");
- 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ee7ceea89934..104dff9c7131 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8759,9 +8759,10 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
- 	io_cancel_defer_files(ctx, task, files);
- 	io_cqring_overflow_flush(ctx, true, task, files);
- 
--	io_uring_cancel_files(ctx, task, files);
- 	if (!files)
- 		__io_uring_cancel_task_requests(ctx, task);
-+	else
-+		io_uring_cancel_files(ctx, task, files);
- 
- 	if ((ctx->flags & IORING_SETUP_SQPOLL) && ctx->sq_data) {
- 		atomic_dec(&task->io_uring->in_idle);
-diff --git a/include/linux/usb/hcd.h b/include/linux/usb/hcd.h
-index 9f05016d823f..3dbb42c637c1 100644
---- a/include/linux/usb/hcd.h
-+++ b/include/linux/usb/hcd.h
-@@ -124,7 +124,6 @@ struct usb_hcd {
- #define HCD_FLAG_RH_RUNNING		5	/* root hub is running? */
- #define HCD_FLAG_DEAD			6	/* controller has died? */
- #define HCD_FLAG_INTF_AUTHORIZED	7	/* authorize interfaces? */
--#define HCD_FLAG_DEFER_RH_REGISTER	8	/* Defer roothub registration */
- 
- 	/* The flags can be tested using these macros; they are likely to
- 	 * be slightly faster than test_bit().
-@@ -135,7 +134,6 @@ struct usb_hcd {
- #define HCD_WAKEUP_PENDING(hcd)	((hcd)->flags & (1U << HCD_FLAG_WAKEUP_PENDING))
- #define HCD_RH_RUNNING(hcd)	((hcd)->flags & (1U << HCD_FLAG_RH_RUNNING))
- #define HCD_DEAD(hcd)		((hcd)->flags & (1U << HCD_FLAG_DEAD))
--#define HCD_DEFER_RH_REGISTER(hcd) ((hcd)->flags & (1U << HCD_FLAG_DEFER_RH_REGISTER))
- 
- 	/*
- 	 * Specifies if interfaces are authorized by default
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index ff389d970b68..969e57dde65f 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -443,21 +443,24 @@ static bool hugepage_vma_check(struct vm_area_struct *vma,
- 	if (!transhuge_vma_enabled(vma, vm_flags))
- 		return false;
- 
-+	if (vma->vm_file && !IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) -
-+				vma->vm_pgoff, HPAGE_PMD_NR))
-+		return false;
-+
- 	/* Enabled via shmem mount options or sysfs settings. */
--	if (shmem_file(vma->vm_file) && shmem_huge_enabled(vma)) {
--		return IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) - vma->vm_pgoff,
--				HPAGE_PMD_NR);
--	}
-+	if (shmem_file(vma->vm_file))
-+		return shmem_huge_enabled(vma);
- 
- 	/* THP settings require madvise. */
- 	if (!(vm_flags & VM_HUGEPAGE) && !khugepaged_always())
- 		return false;
- 
--	/* Read-only file mappings need to be aligned for THP to work. */
-+	/* Only regular file is valid */
- 	if (IS_ENABLED(CONFIG_READ_ONLY_THP_FOR_FS) && vma->vm_file &&
- 	    (vm_flags & VM_DENYWRITE)) {
--		return IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) - vma->vm_pgoff,
--				HPAGE_PMD_NR);
-+		struct inode *inode = vma->vm_file->f_inode;
-+
-+		return S_ISREG(inode->i_mode);
- 	}
- 
- 	if (!vma->anon_vma || vma->vm_ops)
-diff --git a/sound/usb/mixer_maps.c b/sound/usb/mixer_maps.c
-index c5794e83fd80..8f6823df944f 100644
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -528,6 +528,10 @@ static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
- 		.id = USB_ID(0x2573, 0x0008),
- 		.map = maya44_map,
- 	},
-+	{
-+		.id = USB_ID(0x2708, 0x0002), /* Audient iD14 */
-+		.ignore_ctl_error = 1,
-+	},
- 	{
- 		/* KEF X300A */
- 		.id = USB_ID(0x27ac, 0x1000),
-@@ -538,6 +542,10 @@ static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
- 		.id = USB_ID(0x25c4, 0x0003),
- 		.map = scms_usb3318_map,
- 	},
-+	{
-+		.id = USB_ID(0x30be, 0x0101), /*  Schiit Hel */
-+		.ignore_ctl_error = 1,
-+	},
- 	{
- 		/* Bose Companion 5 */
- 		.id = USB_ID(0x05a7, 0x1020),
+I'm announcing the release of the 5.14.17 kernel.
+
+All users of the 5.14 kernel series must upgrade.
+
+The updated 5.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                                  |    2 
+ drivers/amba/bus.c                                        |    3 
+ drivers/gpu/drm/amd/amdgpu/amdgpu.h                       |    2 
+ drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c               |   80 --------------
+ drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.h               |    5 
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c                |    8 -
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c                   |    3 
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c |    3 
+ drivers/gpu/drm/i915/gt/intel_execlists_submission.c      |    4 
+ drivers/gpu/drm/i915/i915_reg.h                           |    8 -
+ drivers/gpu/drm/i915/intel_dram.c                         |   30 -----
+ drivers/media/firewire/firedtv-avc.c                      |   14 +-
+ drivers/media/firewire/firedtv-ci.c                       |    2 
+ drivers/net/ethernet/sfc/ethtool_common.c                 |   10 -
+ drivers/net/vrf.c                                         |    4 
+ drivers/net/wireless/ath/wcn36xx/main.c                   |   10 -
+ drivers/net/wireless/ath/wcn36xx/pmc.c                    |    5 
+ drivers/net/wireless/ath/wcn36xx/wcn36xx.h                |    1 
+ drivers/scsi/scsi.c                                       |    4 
+ drivers/scsi/scsi_sysfs.c                                 |    9 +
+ drivers/soc/imx/gpcv2.c                                   |    4 
+ drivers/usb/core/hcd.c                                    |   29 +----
+ drivers/usb/host/xhci.c                                   |    1 
+ include/linux/usb/hcd.h                                   |    2 
+ sound/usb/mixer_maps.c                                    |    8 +
+ 25 files changed, 52 insertions(+), 199 deletions(-)
+
+Anson Jacob (1):
+      drm/amd/display: Revert "Directly retrain link from debugfs"
+
+Bryan O'Donoghue (1):
+      Revert "wcn36xx: Disable bmps when encryption is disabled"
+
+Christian König (1):
+      drm/amdgpu: revert "Add autodump debugfs node for gpu reset v8"
+
+Dan Carpenter (1):
+      media: firewire: firedtv-avc: fix a buffer overflow in avc_ca_pmt()
+
+Erik Ekman (1):
+      sfc: Fix reading non-legacy supported link modes
+
+Eugene Crosser (1):
+      vrf: Revert "Reset skb conntrack connection..."
+
+Greg Kroah-Hartman (3):
+      Revert "xhci: Set HCD flag to defer primary roothub registration"
+      Revert "usb: core: hcd: Add support for deferring roothub registration"
+      Linux 5.14.17
+
+José Roberto de Souza (1):
+      drm/i915: Remove memory frequency calculation
+
+Lucas Stach (1):
+      Revert "soc: imx: gpcv2: move reset assert after requesting domain power up"
+
+Matthew Brost (1):
+      Revert "drm/i915/gt: Propagate change in error status to children on unhold"
+
+Ming Lei (1):
+      scsi: core: Put LLD module refcnt after SCSI device is released
+
+Takashi Iwai (2):
+      ALSA: usb-audio: Add Schiit Hel device to mixer map quirk table
+      ALSA: usb-audio: Add Audient iD14 to mixer map quirk table
+
+Wang Kefeng (1):
+      ARM: 9120/1: Revert "amba: make use of -1 IRQs warn"
+
+Yifan Zhang (1):
+      drm/amdkfd: fix boot failure when iommu is disabled in Picasso.
+
