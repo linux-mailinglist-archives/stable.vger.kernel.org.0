@@ -2,90 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEE06446D8C
-	for <lists+stable@lfdr.de>; Sat,  6 Nov 2021 12:08:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 920E7446DBA
+	for <lists+stable@lfdr.de>; Sat,  6 Nov 2021 12:53:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233102AbhKFLL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Nov 2021 07:11:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45714 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229500AbhKFLL2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Nov 2021 07:11:28 -0400
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBC26C061570;
-        Sat,  6 Nov 2021 04:08:46 -0700 (PDT)
-Received: by mail-lj1-x22c.google.com with SMTP id e11so160371ljo.13;
-        Sat, 06 Nov 2021 04:08:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=zMuuOZVLGa0E0UsdiohXcrvg+oupE+t+eZvcTwF9xFI=;
-        b=kWvsnE3ALeIBQ07UnrlAvwTwFHD2T357nhWqYF4zKl8NKy5dG/RO4Wgoi22lvd7HzD
-         pqhwxxrEYnt5V4JHUOMB4zncwQaoqXE2guve0RbzdhW/RwmGSWBube6TT5l5sfHQxRVd
-         egQj1BpmkPMV1X0XT7Ng8IM5tnEiheHNh2KLs3zoaeJi01uU2TTbgW3L7wdg8st1Icku
-         IojjsH1RawlOx1bDB+iewTicoPkifly2T1+LxkODWKgAWssqi2I3FFuAv/7RNhNclZFy
-         ZrJhrTr0H+sS1FXRm4PI3/lnJ2d9MBCun1xgLALjkBWz1i6ExHVPv5QXqn5WtKOSsjP5
-         yTdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=zMuuOZVLGa0E0UsdiohXcrvg+oupE+t+eZvcTwF9xFI=;
-        b=iMcEK6iVSOGqFvU6dRSuYxB79qfisASRZYqnfNWGRKp/+BockPVSIQiFKN2w/rzeIU
-         XqnBR2SsWvo7tGtZFg4uCl1VvjZOzWJaYSaODfVSt4ZIBnIChfXIxv5l8wCA0DCfG9D7
-         IyE+7WwDzE1orb5AD2rH5a8W9/IDLFRIC2n4caYYsa0I2zzgDf7bxWysGzssRd+/IH7j
-         p8BSqurzyu9PvXgD+ViO2o1J//+azKeX30NDcJrm9q0Iq+pA9SrfRQm8DO+5/BF3OI9F
-         gkV2agBrfu12Nbm/eKA5REXcq0BtrQuKgmyTo7ePg80diAwmZLhQzbt7Gyftoj0CitSb
-         fI/w==
-X-Gm-Message-State: AOAM533qPLZQxJJiCe7opo47+oZ5wxN9T+gZwVfBRdFKq5mH6mx1qQyW
-        jwuqQudX8GrYWhYPpBRt6GnPvUgIukv30DrKcuE=
-X-Google-Smtp-Source: ABdhPJx+IoVkSSXDnqzb7rfEv5dnOu0it48nzyhzGte4S+yZEymQ7eHaxCbxszEzoS0AW7wuPenbuQ==
-X-Received: by 2002:a2e:8748:: with SMTP id q8mr3579709ljj.163.1636196924954;
-        Sat, 06 Nov 2021 04:08:44 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id b17sm215875lfv.264.2021.11.06.04.08.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 06 Nov 2021 04:08:44 -0700 (PDT)
-Message-ID: <6186623c.1c69fb81.7481d.0fed@mx.google.com>
-Date:   Sat, 06 Nov 2021 04:08:44 -0700 (PDT)
-X-Google-Original-Date: Sat, 06 Nov 2021 11:08:39 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20211104170112.899181800@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 00/14] 5.10.78-rc2 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S231475AbhKFL4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Nov 2021 07:56:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37384 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229968AbhKFL4A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 6 Nov 2021 07:56:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C9186120A;
+        Sat,  6 Nov 2021 11:53:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1636199599;
+        bh=oOqfUkN+V01wkWHLOAfGGPh0bwOJZPTt6wQPkt/W0qQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fRWXE3CU7LRnQ7iMonBxh4PiDxUBRDWn/t9e3fNXbV1LN194uMsDAtS1f0k9uDJGE
+         if6c/4wy0PALr3mX5tgd/JHMSdLrjM5rt+dY7kJtuAEIbzJ2KwOyYZVfS/6ILa0Jms
+         gTmBjCpQAcimqZSwpxnkWCfQWjy4uqo/njm4PkYE=
+Date:   Sat, 6 Nov 2021 12:53:10 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Meng Li <Meng.Li@windriver.com>
+Cc:     stable@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        mcoquelin.stm32@gmail.com, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: Re: [PATCH] driver: ethernet: stmmac: remove the redundant clock
+ disable action
+Message-ID: <YYZsprWP3vO9dtZy@kroah.com>
+References: <20211106104401.10846-1-Meng.Li@windriver.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211106104401.10846-1-Meng.Li@windriver.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu,  4 Nov 2021 18:01:35 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.78 release.
-> There are 14 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Sat, Nov 06, 2021 at 06:44:01PM +0800, Meng Li wrote:
+> When run below command to remove ethernet driver on
+> stratix10 platform, there will be warning trace as below:
 > 
-> Responses should be made by Sat, 06 Nov 2021 17:01:02 +0000.
-> Anything received after that time might be too late.
+> $ cd /sys/class/net/etha01/device/driver
+> $ echo ff800000.ethernet > unbind
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.78-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> WARNING: CPU: 3 PID: 386 at drivers/clk/clk.c:810 clk_core_unprepare+0x114/0x274
+> Modules linked in: sch_fq_codel
+> CPU: 3 PID: 386 Comm: sh Tainted: G        W         5.10.74-yocto-standard #1
+> Hardware name: SoCFPGA Stratix 10 SoCDK (DT)
+> pstate: 00000005 (nzcv daif -PAN -UAO -TCO BTYPE=--)
+> pc : clk_core_unprepare+0x114/0x274
+> lr : clk_core_unprepare+0x114/0x274
+> sp : ffff800011bdbb10
+> clk_core_unprepare+0x114/0x274
+>  clk_unprepare+0x38/0x50
+>  stmmac_remove_config_dt+0x40/0x80
+>  stmmac_pltfr_remove+0x64/0x80
+>  platform_drv_remove+0x38/0x60
+>  ... ..
+>  el0_sync_handler+0x1a4/0x1b0
+>  el0_sync+0x180/0x1c0
+> This issue is introduced by introducing upstream commit 8f269102baf7
+> ("net: stmmac: disable clocks in stmmac_remove_config_dt()")
+> Because clock has been disabled in function stmmac_dvr_remove()
+> It not reasonable the remove clock disable action from function
+> stmmac_remove_config_dt(), because it is mainly used in probe failed,
+> and other platform drivers also use this common function. So, remove
+> stmmac_remove_config_dt() from stmmac_pltfr_remove(), only other
+> necessary code.
 > 
-> thanks,
+> Fixes: 1af3a8e91f1a ("net: stmmac: disable clocks in stmmac_remove_config_dt()")
+> Signed-off-by: Meng Li <Meng.Li@windriver.com>
 > 
-> greg k-h
+> ---
 > 
+> Some extra comments as below:
+> 
+> 1. This patch is only for linux-stable kernel v5.10, so the fixed commit ID is the one
+>    in linux-stable kernel, not the one in mainline upsteam kernel.
 
-5.10.78-rc2 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+Ick, why?
 
+> 2. I created a patch only to fix the linux-stable kernel v5.10, not submit it to upstream kernel.
+>    The reason as below:
+>    In fact, upstream kernel doesn't have this issue any more. Because it has a patch to improve
+>    the clock management and other 4 patches to fix the 1st patch. Detial patches as below:
+>    5ec55823438e("net: stmmac: add clocks management for gmac driver")
+>    30f347ae7cc1("net: stmmac: fix missing unlock on error in stmmac_suspend()")
+>    b3dcb3127786("net: stmmac: correct clocks enabled in stmmac_vlan_rx_kill_vid()")
+>    4691ffb18ac9("net: stmmac: fix system hang if change mac address after interface ifdown")
+>    ab00f3e051e8("net: stmmac: fix issue where clk is being unprepared twice")
+> 
+>    But I think it is a little complex to backport all the 5 patches. Moreover, it may be related
+>    with other patches and code context mofification.
+>    Therefore, I create a simple and clear patch to only this issue on linux-stable kernel, v 5.10
+
+We almost ALWAYS want the original patches instead.  When we try to do
+stable-only patches, 95% of the time it gets wrong and it makes
+backporting future fixes for the same code area impossible.
+
+So please submit the above patches as a series and I will be glad to
+consider them.
+
+thanks,
+
+greg k-h
