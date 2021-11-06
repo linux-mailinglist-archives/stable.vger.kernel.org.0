@@ -2,107 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 920E7446DBA
-	for <lists+stable@lfdr.de>; Sat,  6 Nov 2021 12:53:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB0A446DF5
+	for <lists+stable@lfdr.de>; Sat,  6 Nov 2021 13:49:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231475AbhKFL4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Nov 2021 07:56:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37384 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229968AbhKFL4A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 6 Nov 2021 07:56:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C9186120A;
-        Sat,  6 Nov 2021 11:53:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636199599;
-        bh=oOqfUkN+V01wkWHLOAfGGPh0bwOJZPTt6wQPkt/W0qQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fRWXE3CU7LRnQ7iMonBxh4PiDxUBRDWn/t9e3fNXbV1LN194uMsDAtS1f0k9uDJGE
-         if6c/4wy0PALr3mX5tgd/JHMSdLrjM5rt+dY7kJtuAEIbzJ2KwOyYZVfS/6ILa0Jms
-         gTmBjCpQAcimqZSwpxnkWCfQWjy4uqo/njm4PkYE=
-Date:   Sat, 6 Nov 2021 12:53:10 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Meng Li <Meng.Li@windriver.com>
-Cc:     stable@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        mcoquelin.stm32@gmail.com, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH] driver: ethernet: stmmac: remove the redundant clock
- disable action
-Message-ID: <YYZsprWP3vO9dtZy@kroah.com>
-References: <20211106104401.10846-1-Meng.Li@windriver.com>
+        id S232900AbhKFMwM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Nov 2021 08:52:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39358 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232307AbhKFMwM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Nov 2021 08:52:12 -0400
+X-Greylist: delayed 2235 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 06 Nov 2021 05:49:31 PDT
+Received: from hall.aurel32.net (hall.aurel32.net [IPv6:2001:bc8:30d7:100::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16DBFC061570;
+        Sat,  6 Nov 2021 05:49:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=aurel32.net
+        ; s=202004.hall; h=In-Reply-To:Content-Type:MIME-Version:References:
+        Message-ID:Subject:Cc:To:From:Date:Content-Transfer-Encoding:From:Reply-To:
+        Subject:Content-ID:Content-Description:X-Debbugs-Cc;
+        bh=V6NxyZAsmQ9Ecs/pOfHmHEdOE4Q/uPjz2C6NqFY+UYY=; b=VAc4uB9l3Z99oV+SRhcohK8WCK
+        yLU7ifHOhQVtJyqpC//LwUfa2TSPwZOnwK8ZB00QmFxeD+ZdAE98LFjWZ5iVu2BquNEM6cL7qL3iN
+        P+TduN1admJROGoTrwl9qcNe6Mx4GMxVOKruH14oK4T81bzEu1bGjibYUgDcBST4rV3/ryFb9o0iC
+        cLa2Bd9x0SK1aJoAwErz40I+JPxmzJF2Vb5YLOyR12pf3piHIbRqwA8tfv1wAAG3n840ao3li3KUT
+        iwYYPEPUVcF12WBMgn5jso9zQGlWiiGjFtleCDzWnNtzHylBadXyCas3dHPW3GRcqUIsKHSycYoH7
+        WKW3xbeA==;
+Received: from [2a01:e34:ec5d:a741:8a4c:7c4e:dc4c:1787] (helo=ohm.rr44.fr)
+        by hall.aurel32.net with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <aurelien@aurel32.net>)
+        id 1mjKY4-0006fC-7b; Sat, 06 Nov 2021 13:11:52 +0100
+Received: from aurel32 by ohm.rr44.fr with local (Exim 4.94.2)
+        (envelope-from <aurelien@aurel32.net>)
+        id 1mjKY3-005ytP-FV; Sat, 06 Nov 2021 13:11:51 +0100
+Date:   Sat, 6 Nov 2021 13:11:51 +0100
+From:   Aurelien Jarno <aurelien@aurel32.net>
+To:     guoren@kernel.org
+Cc:     anup@brainfault.org, atish.patra@wdc.com, maz@kernel.org,
+        tglx@linutronix.de, palmer@dabbelt.com,
+        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+        Guo Ren <guoren@linux.alibaba.com>,
+        Vincent Pelletier <plr.vincent@gmail.com>,
+        Nikita Shubin <nikita.shubin@maquefel.me>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH V7] irqchip/sifive-plic: Fixup EOI failed when masked
+Message-ID: <YYZxB0LN2iYhj+nz@aurel32.net>
+Mail-Followup-To: guoren@kernel.org, anup@brainfault.org,
+        atish.patra@wdc.com, maz@kernel.org, tglx@linutronix.de,
+        palmer@dabbelt.com, linux-kernel@vger.kernel.org,
+        linux-riscv@lists.infradead.org, Guo Ren <guoren@linux.alibaba.com>,
+        Vincent Pelletier <plr.vincent@gmail.com>,
+        Nikita Shubin <nikita.shubin@maquefel.me>, stable@vger.kernel.org
+References: <20211105094748.3894453-1-guoren@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211106104401.10846-1-Meng.Li@windriver.com>
+In-Reply-To: <20211105094748.3894453-1-guoren@kernel.org>
+User-Agent: Mutt/2.0.5 (2021-01-21)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 06, 2021 at 06:44:01PM +0800, Meng Li wrote:
-> When run below command to remove ethernet driver on
-> stratix10 platform, there will be warning trace as below:
+On 2021-11-05 17:47, guoren@kernel.org wrote:
+> From: Guo Ren <guoren@linux.alibaba.com>
 > 
-> $ cd /sys/class/net/etha01/device/driver
-> $ echo ff800000.ethernet > unbind
+> When using "devm_request_threaded_irq(,,,,IRQF_ONESHOT,,)" in the driver,
+> only the first interrupt could be handled, and continue irq is blocked by
+> hw. Because the riscv plic couldn't complete masked irq source which has
+> been disabled in enable register. The bug was firstly reported in [1].
 > 
-> WARNING: CPU: 3 PID: 386 at drivers/clk/clk.c:810 clk_core_unprepare+0x114/0x274
-> Modules linked in: sch_fq_codel
-> CPU: 3 PID: 386 Comm: sh Tainted: G        W         5.10.74-yocto-standard #1
-> Hardware name: SoCFPGA Stratix 10 SoCDK (DT)
-> pstate: 00000005 (nzcv daif -PAN -UAO -TCO BTYPE=--)
-> pc : clk_core_unprepare+0x114/0x274
-> lr : clk_core_unprepare+0x114/0x274
-> sp : ffff800011bdbb10
-> clk_core_unprepare+0x114/0x274
->  clk_unprepare+0x38/0x50
->  stmmac_remove_config_dt+0x40/0x80
->  stmmac_pltfr_remove+0x64/0x80
->  platform_drv_remove+0x38/0x60
->  ... ..
->  el0_sync_handler+0x1a4/0x1b0
->  el0_sync+0x180/0x1c0
-> This issue is introduced by introducing upstream commit 8f269102baf7
-> ("net: stmmac: disable clocks in stmmac_remove_config_dt()")
-> Because clock has been disabled in function stmmac_dvr_remove()
-> It not reasonable the remove clock disable action from function
-> stmmac_remove_config_dt(), because it is mainly used in probe failed,
-> and other platform drivers also use this common function. So, remove
-> stmmac_remove_config_dt() from stmmac_pltfr_remove(), only other
-> necessary code.
+> Here is the description of Interrupt Completion in PLIC spec [2]:
 > 
-> Fixes: 1af3a8e91f1a ("net: stmmac: disable clocks in stmmac_remove_config_dt()")
-> Signed-off-by: Meng Li <Meng.Li@windriver.com>
+> The PLIC signals it has completed executing an interrupt handler by
+> writing the interrupt ID it received from the claim to the claim/complete
+> register. The PLIC does not check whether the completion ID is the same
+> as the last claim ID for that target. If the completion ID does not match
+> an interrupt source that is currently enabled for the target, the
+>                          ^^ ^^^^^^^^^ ^^^^^^^
+> completion is silently ignored.
 > 
-> ---
+> [1] http://lists.infradead.org/pipermail/linux-riscv/2021-July/007441.html
+> [2] https://github.com/riscv/riscv-plic-spec/blob/8bc15a35d07c9edf7b5d23fec9728302595ffc4d/riscv-plic.adoc
 > 
-> Some extra comments as below:
-> 
-> 1. This patch is only for linux-stable kernel v5.10, so the fixed commit ID is the one
->    in linux-stable kernel, not the one in mainline upsteam kernel.
+> Fixes: bb0fed1c60cc ("irqchip/sifive-plic: Switch to fasteoi flow")
+> Reported-by: Vincent Pelletier <plr.vincent@gmail.com>
+> Tested-by: Nikita Shubin <nikita.shubin@maquefel.me>
+> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+> Cc: stable@vger.kernel.org
+> Cc: Anup Patel <anup@brainfault.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Marc Zyngier <maz@kernel.org>
+> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+> Cc: Atish Patra <atish.patra@wdc.com>
+> Cc: Nikita Shubin <nikita.shubin@maquefel.me>
+> Cc: incent Pelletier <plr.vincent@gmail.com>
 
-Ick, why?
+Thanks for this patch. From what I understand, it fixes among other
+things the possibility to read the DA9063 RTC more than once.
 
-> 2. I created a patch only to fix the linux-stable kernel v5.10, not submit it to upstream kernel.
->    The reason as below:
->    In fact, upstream kernel doesn't have this issue any more. Because it has a patch to improve
->    the clock management and other 4 patches to fix the 1st patch. Detial patches as below:
->    5ec55823438e("net: stmmac: add clocks management for gmac driver")
->    30f347ae7cc1("net: stmmac: fix missing unlock on error in stmmac_suspend()")
->    b3dcb3127786("net: stmmac: correct clocks enabled in stmmac_vlan_rx_kill_vid()")
->    4691ffb18ac9("net: stmmac: fix system hang if change mac address after interface ifdown")
->    ab00f3e051e8("net: stmmac: fix issue where clk is being unprepared twice")
-> 
->    But I think it is a little complex to backport all the 5 patches. Moreover, it may be related
->    with other patches and code context mofification.
->    Therefore, I create a simple and clear patch to only this issue on linux-stable kernel, v 5.10
+Does it means that we could now enable it in the device tree? I mean
+something like the following patch that unfortunately I can't test now:
 
-We almost ALWAYS want the original patches instead.  When we try to do
-stable-only patches, 95% of the time it gets wrong and it makes
-backporting future fixes for the same code area impossible.
+diff --git a/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
+index 2e4ea84f27e7..c357b48582f7 100644
+--- a/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
++++ b/arch/riscv/boot/dts/sifive/hifive-unmatched-a00.dts
+@@ -70,6 +70,10 @@ pmic@58 {
+ 		interrupts = <1 IRQ_TYPE_LEVEL_LOW>;
+ 		interrupt-controller;
+ 
++		onkey {
++			compatible = "dlg,da9063-onkey";
++		};
++
+ 		regulators {
+ 			vdd_bcore1: bcore1 {
+ 				regulator-min-microvolt = <900000>;
+@@ -205,6 +209,14 @@ vdd_ldo11: ldo11 {
+ 				regulator-always-on;
+ 			};
+ 		};
++
++		rtc {
++			compatible = "dlg,da9063-rtc";
++		};
++
++		wdt {
++			compatible = "dlg,da9063-watchdog";
++		};
+ 	};
+ };
 
-So please submit the above patches as a series and I will be glad to
-consider them.
-
-thanks,
-
-greg k-h
+-- 
+Aurelien Jarno                          GPG: 4096R/1DDD8C9B
+aurelien@aurel32.net                 http://www.aurel32.net
