@@ -2,73 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC1B446FFE
-	for <lists+stable@lfdr.de>; Sat,  6 Nov 2021 20:04:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 255E3447003
+	for <lists+stable@lfdr.de>; Sat,  6 Nov 2021 20:06:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231220AbhKFTHf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Nov 2021 15:07:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55226 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230234AbhKFTHe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 6 Nov 2021 15:07:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3286A61076;
-        Sat,  6 Nov 2021 19:04:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636225493;
-        bh=ZYJPSyegRon6WTuZ0TotF+GSWcBGvAP9XlxDfwuru4E=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=C/IrsbqdA6xDxOog3h27cokuwO6kGeoRIHUj+KGHja3fdu3o2J7oy0RbzVAGWYfkp
-         7lJiLsaDC62JZwkFxuQV+2SV4K+bd5oQIQ5yyc5fSJFBFR584gHwcFhoVpTwHizP2j
-         EU7g09W6E7TCR5PgT5zVXQlNEGJqmzQTcA3GXj49evPzZYMonI22iKiPNkcyj9qYvH
-         XAtUyGOsNI1mQ1zv3Kgtbr/CNVEn1USzTL2QKU9zqrYiOFMn5cWj7EZRbVYlrl6GU0
-         5Th5/8mzavHryzVG0Zs3mrb/xQ6p2XPPxdZX1RZaVol2M8bQKNfDuofv5hPKgvoFv7
-         SWnIixOYiX4Og==
-Received: by mail-wr1-f54.google.com with SMTP id d3so19156203wrh.8;
-        Sat, 06 Nov 2021 12:04:53 -0700 (PDT)
-X-Gm-Message-State: AOAM530J0kOJCVXGM9/XqAstpWRm26LDGrXFRzQHhiMO/gWA1ZfGL09p
-        0JvGe9ACiN5SrXRytvHv1RRK1O6y6zG9lpJiKj0=
-X-Google-Smtp-Source: ABdhPJw8yr5DAkeCvIDzLjJ7eNOfBXoe0A3N2p7wC4yo2LrNd0lPGHaZfmAsE+vGDfBrhcJrCVRAWHL466hHDdOF58Q=
-X-Received: by 2002:a05:6000:18c7:: with SMTP id w7mr84588115wrq.411.1636225491711;
- Sat, 06 Nov 2021 12:04:51 -0700 (PDT)
+        id S230234AbhKFTJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Nov 2021 15:09:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36814 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234897AbhKFTJY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Nov 2021 15:09:24 -0400
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 716F3C061570
+        for <stable@vger.kernel.org>; Sat,  6 Nov 2021 12:06:43 -0700 (PDT)
+Received: by mail-yb1-xb2f.google.com with SMTP id g17so7558742ybe.13
+        for <stable@vger.kernel.org>; Sat, 06 Nov 2021 12:06:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=SHNtoPpcPhQpYY6iH4jFUCAqkuoN9FpQS7C+KPMk7DY=;
+        b=WPAGU6ahYchJIT5lT7eKOY4XRGPQrHMulStiFdKortxwagpLAo64xXfTgJy+Wl2NfL
+         wZ/C8wjvbX9JANFoXgfAFc0bqLxJ3MjTEQ0tCb4x/bAbJuYyqUidppFyVTd0+6oGJs/p
+         2vVCulJE+jeN/NJgB8N/b+rxGRYgGffPXrFSYRxZ0NZv3+qRexsxyCpBtXyWyYXCLb90
+         hDjcjsF430kbvf2WHZGLUwpz3AYFUW9Z5u4rb34d4jSqZk6Q4j9+rDDgoKzx0G7nW3Ya
+         1DZx+MUxQbtvvflkDJrMPHQKLffWs/3sVkrkwA5L0UOiIV0PGw3b8peEyUuiTWeOc8z9
+         5ZDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=SHNtoPpcPhQpYY6iH4jFUCAqkuoN9FpQS7C+KPMk7DY=;
+        b=zFBoc/ecRA6xQkYDz8KW7eRhnYhknUOnymroj6BadbwTGhSPx+4yo8j8evr8fWUTdl
+         7BDn+/z2hWRT0uN9FSZZLce7G28vWrCD7oAqkP+aIFvOw84aeIoPeZzA8dPvXIrZ5hLT
+         IGmHKgQPzFwYVdJbxlyBJ53EEOa9sYYlfwKxxmATgxhVOmyTWDvaPFISSBqSI4I7ZByT
+         3cRqmOoVKj3eN6wXdq3/oNc5tuwGpv6UioX75puGlWK52V88GqrMiaDdozsy0UTvPQC4
+         R/ZUew+nkC9FokpxHwOzGdVfGrzpa5HjkPbm4OUgO/3A14VzFD+6AJZkux2SSkKFn5+B
+         5idA==
+X-Gm-Message-State: AOAM5313O03ykasv6N2Y0vEPe4UmC9VGwTWm/AceQKHxRaKSqGSDR9d/
+        8arI2IpyZRweWeFddmAQfFcTIjdNO3X3NHYj+ks=
+X-Google-Smtp-Source: ABdhPJxZhE3Ex3SOfnQ7NgNe9YAu5eSsRCyluqwqUxpnwQFjXNQLMXQTJNhOcMYBtSCcsxrHNKYrG5KvjSobXx8lPJA=
+X-Received: by 2002:a25:5d08:: with SMTP id r8mr69341670ybb.227.1636225602745;
+ Sat, 06 Nov 2021 12:06:42 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211018140735.3714254-1-arnd@kernel.org> <20211106165944.vstqt3stm2tvudjq@earth.universe>
-In-Reply-To: <20211106165944.vstqt3stm2tvudjq@earth.universe>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Sat, 6 Nov 2021 20:04:35 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a2k_PXEaJtM55D-uLALi6n-Lzsy9qeKfofhUSq3Oh1Ghw@mail.gmail.com>
-Message-ID: <CAK8P3a2k_PXEaJtM55D-uLALi6n-Lzsy9qeKfofhUSq3Oh1Ghw@mail.gmail.com>
-Subject: Re: [PATCH] ARM: drop cc-option fallbacks for architecture selection
-To:     Sebastian Reichel <sebastian.reichel@collabora.com>
-Cc:     Russell King <linux@armlinux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Antonio Terceiro <antonio.terceiro@linaro.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Sebastian Andrzej Siewior <sebastian@breakpoint.cc>,
-        Matthias Klose <doko@debian.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-To: mr.nanceterrylee2@gmail.com
+Sender: sharonmohy2@gmail.com
+Received: by 2002:a25:cf17:0:0:0:0:0 with HTTP; Sat, 6 Nov 2021 12:06:42 -0700 (PDT)
+From:   "MR.NANCE TERRY LEE" <mr.nanceterrylee12@gmail.com>
+Date:   Sat, 6 Nov 2021 12:06:42 -0700
+X-Google-Sender-Auth: GAe2c-J8_VXByO9mUqS1xGNFaVs
+Message-ID: <CAFLwRhAKh3jEGc+n+w1e4z2+w+KfzLFGOoB-78Ec7tQqJey9Uw@mail.gmail.com>
+Subject: NOTICE
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 6, 2021 at 5:59 PM Sebastian Reichel
-<sebastian.reichel@collabora.com> wrote:
->
-> Thanks, I ran into this issue after affected gcc release migrated to
-> Debian testing. The patch makes the kernel compile again:
->
-> Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
->
-> Would be great if this could become part of 5.16-rc1, which is
-> usually used as base by subsystem maintainers.
+Hello,
 
-I've added it to Russell's patch tracker now as
+I am Mr. Nance Terry Lee, the United Nations Representative Washington
+-DC - USA.
+I hereby inform you that your UN pending compensation funds the sum of
+$4.2million has been approved to be released to you through Diplomatic
+Courier Service.
 
-https://www.armlinux.org.uk/developer/patches/viewpatch.php?id=9156/1
+In the light of the above, you are advised to send your full receiving
+information as below:
 
-       Arnd
+1. Your full name......................
+2. Full receiving address..............
+3. Your mobile number..................
+4. Your country........................
+5. Nearest airport.....................
+
+Upon the receipt of the above information, I will proceed with the
+delivery process of your compensation funds to your door step through
+our special agent, if you have any questions, don't hesitate to ask
+me.
+
+Thanks.
+Dr. Nance Terry Lee.
