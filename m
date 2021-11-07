@@ -2,89 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85F6A4470CD
-	for <lists+stable@lfdr.de>; Sat,  6 Nov 2021 22:55:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 004A244712B
+	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 02:38:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234396AbhKFV5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Nov 2021 17:57:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45306 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234323AbhKFV5q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Nov 2021 17:57:46 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BE4FC061205
-        for <stable@vger.kernel.org>; Sat,  6 Nov 2021 14:55:04 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1mjTeR-0000yM-2a
-        for stable@vger.kernel.org; Sat, 06 Nov 2021 22:55:03 +0100
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id 927AA6A5FA3
-        for <stable@vger.kernel.org>; Sat,  6 Nov 2021 21:55:01 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id E177A6A5F86;
-        Sat,  6 Nov 2021 21:54:58 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 5993089c;
-        Sat, 6 Nov 2021 21:54:50 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Marc Kleine-Budde <mkl@pengutronix.de>,
-        stable@vger.kernel.org
-Subject: [PATCH net 7/8] can: mcp251xfd: mcp251xfd_irq(): add missing can_rx_offload_threaded_irq_finish() in case of bus off
-Date:   Sat,  6 Nov 2021 22:54:48 +0100
-Message-Id: <20211106215449.57946-8-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211106215449.57946-1-mkl@pengutronix.de>
-References: <20211106215449.57946-1-mkl@pengutronix.de>
+        id S229996AbhKGBlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Nov 2021 21:41:18 -0400
+Received: from p-impout009aa.msg.pkvw.co.charter.net ([47.43.26.140]:40071
+        "EHLO p-impout009.msg.pkvw.co.charter.net" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229566AbhKGBlS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Nov 2021 21:41:18 -0400
+X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Sat, 06 Nov 2021 21:41:18 EDT
+Received: from 2603-8090-2005-39b3-0000-0000-0000-1025.res6.spectrum.com.com ([24.31.246.181])
+        by cmsmtp with ESMTP
+        id jX1qm3piEE1BbjX1rmQA09; Sun, 07 Nov 2021 01:31:27 +0000
+X-Authority-Analysis: v=2.4 cv=X+2XlEfe c=1 sm=1 tr=0 ts=61872c6f
+ a=cAe/7qmlxnd6JlJqP68I9A==:117 a=cAe/7qmlxnd6JlJqP68I9A==:17 a=pGLkceISAAAA:8
+ a=VwQbUJbxAAAA:8 a=yQdBAQUQAAAA:8 a=0x8QZmvYvHxge1C1EjMA:9
+ a=AjGcO6oz07-iQ99wixmX:22 a=SzazLyfi1tnkUD6oumHU:22
+From:   Larry Finger <Larry.Finger@lwfinger.net>
+To:     gregkh@linuxfoundation.org
+Cc:     phil@philpotter.co.uk, linux-staging@lists.linux.dev,
+        linux-kernel@vger.kernel.org,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Zameer Manji <zmanji@gmail.com>,
+        Stable <stable@vger.kernel.org>
+Subject: [PATCH] staging: r8188eu: Fix breakage introduced when 5G code was removed
+Date:   Sat,  6 Nov 2021 20:31:23 -0500
+Message-Id: <20211107013123.14624-1-Larry.Finger@lwfinger.net>
+X-Mailer: git-send-email 2.33.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+X-CMAE-Envelope: MS4xfAcj5TPV50mOcoyuoqfs9znVi4v7h8Z/+IznGBCGZrTJb9YE/8fu0sDuaDtxGXhCfWs6BRwET1Je+fB/K/dr2z0CKCz1aoNC9ynjBFejO979hGAQ3lX3
+ O3ei6eAWrJhuUeRLrMVe+KY+QwDGjcHm4ejAXt5DD+qg46mRiGxwZRH5ZNL8togiIf0eFPvSljSkccqLSsOXsdtXsv4zXSsX6sCG/Ne5XxZs/sUk/ww25yb1
+ 6IYDOk7yO2KIuMQbNWwEsaYEeU4qaBYfblkfg2NM3Vik6xQv9TPcDyreZHvX11sapKE+RgMGbnzAjx+Us8gbF+NCv7xf2LFNNBQl2KTdTMKI+3tzLMZAG8sG
+ 3UG6mvlL+PJdGsxG1cHI+p27p7muq0VAx1YWGbHDcLiX87G1VPMLZPBroarZ/k+fm8W1txAfCTUCVqiGDMlRtxs7VBJ79FUtJ6rkKV3gaQGrkQpcScLfZPkV
+ r8gwV0osyCfElLu1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The function can_rx_offload_threaded_irq_finish() is needed to trigger
-the NAPI thread to deliver read CAN frames to the networking stack.
+In commit 221abd4d478a ("staging: r8188eu: Remove no more necessary definitions
+and code"), two entries were removed from RTW_ChannelPlanMap[], but not replaced
+with zeros. The position within this table is important, thus the patch broke
+systems operating in regulatory domains listed later than entry 0x13 in the table.
+Unfortunately, the FCC entry comes before that point and most testers did not see
+this problem.
 
-This patch adds the missing call to can_rx_offload_threaded_irq_finish()
-in case of a bus off, before leaving the interrupt handler to avoid
-packet starvation.
-
-Link: https://lore.kernel.org/all/20211106201526.44292-1-mkl@pengutronix.de
-Fixes: 30bfec4fec59 ("can: rx-offload: can_rx_offload_threaded_irq_finish(): add new function to be called from threaded interrupt")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Reported-and-tested-by: Zameer Manji <zmanji@gmail.com>
+Fixes: 221abd4d478a ("staging: r8188eu: Remove no more necessary definitions and code")
+Cc: Stable <stable@vger.kernel.org> # v5.5+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
 ---
- drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/staging/r8188eu/core/rtw_mlme_ext.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-index 673861ab665a..212fcd1554e4 100644
---- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-+++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-@@ -2290,8 +2290,10 @@ static irqreturn_t mcp251xfd_irq(int irq, void *dev_id)
- 			 * check will fail, too. So leave IRQ handler
- 			 * directly.
- 			 */
--			if (priv->can.state == CAN_STATE_BUS_OFF)
-+			if (priv->can.state == CAN_STATE_BUS_OFF) {
-+				can_rx_offload_threaded_irq_finish(&priv->offload);
- 				return IRQ_HANDLED;
-+			}
- 		}
- 
- 		handled = IRQ_HANDLED;
+diff --git a/drivers/staging/r8188eu/core/rtw_mlme_ext.c b/drivers/staging/r8188eu/core/rtw_mlme_ext.c
+index 55c3d4a6faeb..d3814174e08f 100644
+--- a/drivers/staging/r8188eu/core/rtw_mlme_ext.c
++++ b/drivers/staging/r8188eu/core/rtw_mlme_ext.c
+@@ -107,6 +107,7 @@ static struct rt_channel_plan_map	RTW_ChannelPlanMap[RT_CHANNEL_DOMAIN_MAX] = {
+ 	{0x01},	/* 0x10, RT_CHANNEL_DOMAIN_JAPAN */
+ 	{0x02},	/* 0x11, RT_CHANNEL_DOMAIN_FCC_NO_DFS */
+ 	{0x01},	/* 0x12, RT_CHANNEL_DOMAIN_JAPAN_NO_DFS */
++	(0x00), /* 0x13 */
+ 	{0x02},	/* 0x14, RT_CHANNEL_DOMAIN_TAIWAN_NO_DFS */
+ 	{0x00},	/* 0x15, RT_CHANNEL_DOMAIN_ETSI_NO_DFS */
+ 	{0x00},	/* 0x16, RT_CHANNEL_DOMAIN_KOREA_NO_DFS */
+@@ -118,6 +119,7 @@ static struct rt_channel_plan_map	RTW_ChannelPlanMap[RT_CHANNEL_DOMAIN_MAX] = {
+ 	{0x00},	/* 0x1C, */
+ 	{0x00},	/* 0x1D, */
+ 	{0x00},	/* 0x1E, */
++	{0x00},	/* 0x1F, */
+ 	/*  0x20 ~ 0x7F , New Define ===== */
+ 	{0x00},	/* 0x20, RT_CHANNEL_DOMAIN_WORLD_NULL */
+ 	{0x01},	/* 0x21, RT_CHANNEL_DOMAIN_ETSI1_NULL */
 -- 
-2.33.0
-
+2.33.1
 
