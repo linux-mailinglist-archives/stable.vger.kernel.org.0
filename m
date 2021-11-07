@@ -2,118 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86E4844756E
-	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 21:01:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D0F944758E
+	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 21:10:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234731AbhKGUEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Nov 2021 15:04:02 -0500
-Received: from mga04.intel.com ([192.55.52.120]:28988 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231401AbhKGUEB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 7 Nov 2021 15:04:01 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10161"; a="230844659"
-X-IronPort-AV: E=Sophos;i="5.87,217,1631602800"; 
-   d="scan'208";a="230844659"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Nov 2021 12:01:18 -0800
-X-IronPort-AV: E=Sophos;i="5.87,217,1631602800"; 
-   d="scan'208";a="451225129"
-Received: from akirasen-mobl.amr.corp.intel.com (HELO [10.209.44.100]) ([10.209.44.100])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Nov 2021 11:58:24 -0800
-Subject: Re: [PATCH] x86/sgx: Free backing memory after faulting the enclave
- page
-To:     Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Jethro Beekman <jethro@fortanix.com>,
-        Sean Christopherson <seanjc@google.com>,
-        reinette.chatre@intel.com, tony.luck@intel.com,
-        nathaniel@profian.com, stable@vger.kernel.org,
-        Borislav Petkov <bp@suse.de>, linux-sgx@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20211103232238.110557-1-jarkko@kernel.org>
- <7c122a82-e418-0bce-8f67-cbaa15abc9b9@intel.com> <YYgVsi7y4TNuSRLc@iki.fi>
- <984bc7a4-1c7a-f2c0-5885-0dc7fad3d2b6@intel.com> <YYgs94O3eiKJwKgi@iki.fi>
-From:   Dave Hansen <dave.hansen@intel.com>
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
- z5cecg==
-Message-ID: <dd7c1402-eeb9-cea5-25c6-ab19e8031991@intel.com>
-Date:   Sun, 7 Nov 2021 11:58:21 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S229627AbhKGUNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Nov 2021 15:13:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51404 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229520AbhKGUNd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Nov 2021 15:13:33 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D653C061570
+        for <stable@vger.kernel.org>; Sun,  7 Nov 2021 12:10:50 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id gn3so6627598pjb.0
+        for <stable@vger.kernel.org>; Sun, 07 Nov 2021 12:10:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Fa0CLiG57i1cY5PKbDPpAsYEvr0gWIwgp1291pGP1yA=;
+        b=rrM2nzmHAIjKf7Ih+wyC2GDjlja9He7S/J7ZtnBfHkZVmXSmagcIDZDxyZ+9qN53sV
+         19DtO3jN/7Y8tfVFDLjRzsXqpdY2d4pYN2ipcy8LXT0IEJDup5BeliYIedjZo54nKPpw
+         41ZPzaKRmokyqAlBs7wc7+xC7SSR0m3NeUTmn8f3rCS4yhmgsGcxuCKFbbQaVeY7bALz
+         vhCgTlUCK1e3+dKxGSvR5dsNoEuxmvp2oxCnJNHgeJRIUiDWnCC85hwrnBiLZf1YWWF9
+         ItgvpdU83rxQEZEO9DJv3ax3wUMK3Hy9Qqx8zCyDjpV/dEXzgPXEoIENejC3honcRqgH
+         mMDA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Fa0CLiG57i1cY5PKbDPpAsYEvr0gWIwgp1291pGP1yA=;
+        b=JGg9qNWKCxyomotY0F6nuBw3f7Q2s4LuM/rRJ9/uG3fmmKrKPbejqpceETd1+L3sc2
+         wZz0+UQ5ZFVhdNepkdGJ3ry+xbf/iXZq1t29oFw/XviCksGA2BAdreA8g1bD+6odyAZU
+         sRaLKyL0yTp+tthyhFk9ScIbDndMY9azryoIACwcZcIhfDatIsbDStoHjVLJlnMH2pbQ
+         3dYnXmmzEzM1i2M7vLgUG+w2h2PS3GyFWbhdw0PpDUDARkcMI7UkPfet12M5Q1hHwgWq
+         xxmmrd/u4quHZ893O7rYt+gQEIjvopHW+ZQH5Rfm5nFXHOpZxu8Vn2SHoh9kRRsVTazz
+         N2BQ==
+X-Gm-Message-State: AOAM532lwCCV8vcCZzJoG6V9g9bg2pUjlgh8NQ6ms01I8ufxPUq05sux
+        UVetD5MVBEWPeI9C/EfKP2aqqa6uu5d4VEpM
+X-Google-Smtp-Source: ABdhPJyyhtU+ou5pWBaBaeTIY1D7LCHioc2wWWY3cObwhZOISeW6dcJ7EgpTq2cVJ+DDImeYCAZslQ==
+X-Received: by 2002:a17:902:7c88:b0:142:5f2f:182a with SMTP id y8-20020a1709027c8800b001425f2f182amr11843179pll.72.1636315849502;
+        Sun, 07 Nov 2021 12:10:49 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n20sm10427394pgc.10.2021.11.07.12.10.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 Nov 2021 12:10:49 -0800 (PST)
+Message-ID: <618832c9.1c69fb81.8a00.09f7@mx.google.com>
+Date:   Sun, 07 Nov 2021 12:10:49 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <YYgs94O3eiKJwKgi@iki.fi>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.291-3-g649c83e80d3e
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.4 baseline: 109 runs,
+ 2 regressions (v4.4.291-3-g649c83e80d3e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/7/21 11:45 AM, Jarkko Sakkinen wrote:
-> On Sun, Nov 07, 2021 at 11:06:01AM -0800, Dave Hansen wrote:
->> That's true, the page cache should all be torn down along with the
->> fput().  *But*, it would be a very nice property if the backing storage
->> was empty by this point.  It essentially ensures that no enclave-runtime
->> cases missed truncating the backing storage away.
-> 
-> What if an enclave is released a point when all of its pages
-> are swapped out? Or even simpler case would an enclave that is
-> larger than all of EPC.
+stable-rc/queue/4.4 baseline: 109 runs, 2 regressions (v4.4.291-3-g649c83e8=
+0d3e)
 
-In this loop:
+Regressions Summary
+-------------------
 
-void sgx_encl_release(struct kref *ref)
-{
-	...
-        xa_for_each(&encl->page_array, index, entry) {
-		if (entry->epc_page == NULL)
-			// truncate backing storage
+platform    | arch | lab           | compiler | defconfig           | regre=
+ssions
+------------+------+---------------+----------+---------------------+------=
+------
+i945gsex-qs | i386 | lab-clabbe    | gcc-10   | i386_defconfig      | 1    =
+      =
 
-> What can be made sure is that for all pages, which are in EPC,
-> the backing page is truncated.
+panda       | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1    =
+      =
 
-Right, and that should be utterly trivial to do.
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.291-3-g649c83e80d3e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.291-3-g649c83e80d3e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      649c83e80d3e46c816e88e0598eafbe4472ac7bc =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform    | arch | lab           | compiler | defconfig           | regre=
+ssions
+------------+------+---------------+----------+---------------------+------=
+------
+i945gsex-qs | i386 | lab-clabbe    | gcc-10   | i386_defconfig      | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/6187f8f01e518d31b43358e2
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-3=
+-g649c83e80d3e/i386/i386_defconfig/gcc-10/lab-clabbe/baseline-i945gsex-qs.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-3=
+-g649c83e80d3e/i386/i386_defconfig/gcc-10/lab-clabbe/baseline-i945gsex-qs.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6187f8f01e518d3=
+1b43358e7
+        new failure (last pass: v4.4.291-3-g4b7696b55f5d)
+        1 lines
+
+    2021-11-07T16:03:38.489437  kern  :emerg : do_IRQ: 0.236 No irq handler=
+ for vector
+    2021-11-07T16:03:38.498469  [   11.861297] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D1>   =
+
+ =
+
+
+
+platform    | arch | lab           | compiler | defconfig           | regre=
+ssions
+------------+------+---------------+----------+---------------------+------=
+------
+panda       | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/6187f7dc5f74c271cd3358f7
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-3=
+-g649c83e80d3e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-3=
+-g649c83e80d3e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6187f7dc5f74c27=
+1cd3358fa
+        failing since 1 day (last pass: v4.4.291-3-ge1223ca4fb61, first fai=
+l: v4.4.291-3-g4b7696b55f5d)
+        2 lines
+
+    2021-11-07T15:59:04.495910  [   19.408996] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-11-07T15:59:04.546856  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/117
+    2021-11-07T15:59:04.556270  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
