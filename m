@@ -2,129 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 984934475E6
-	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 21:43:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA4F447643
+	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 23:28:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234836AbhKGUqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Nov 2021 15:46:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58594 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230071AbhKGUqb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Nov 2021 15:46:31 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0757FC061570
-        for <stable@vger.kernel.org>; Sun,  7 Nov 2021 12:43:48 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id np3so6649942pjb.4
-        for <stable@vger.kernel.org>; Sun, 07 Nov 2021 12:43:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=NkeCpq0pGsEi0d2/d36g/xDyLQEFuMjddgCGNE946rQ=;
-        b=XDpfhjLGDAxg9AZBGQU3eDvPP+bZkMgkAgo7gpeGpGl2FkQk+q05GQPD+bbRo4ujAX
-         cE+0+A5AZkpiYvphhPRaD9nep6Q4j60R5e1O/62MZuSddRJS5R0bcJJnmXCWOYoUOy9X
-         5HBuzg9aWqxJVWeR5Xhgp/jiJCUFzssP3McD7yLDCjkxVTcmU4lzqXukmD4+s4GibzKT
-         t8KkkyOm6bbDTvdpOqZKp++eAPx0D+LQpaVnyPVS/TcFogfJXp0p2zqr8Jp+AHSc5OQO
-         Ryv0ELLhryjoM4TuxEnj5/SYeDm/sR9HkwtDbvkxD9rBNkzgZXSS/RVdwCn/EzwDmOm+
-         soTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=NkeCpq0pGsEi0d2/d36g/xDyLQEFuMjddgCGNE946rQ=;
-        b=J/1rR054poJ0WSnY7gg8sf1dw/NnH01VKYRlPTns/xb4WNpYpY/6O8UdvIw+X+7o6M
-         +MbfJLIp+Mcu1YYssH/9/xNEYaJEYPU/cnyR+71hnl7af8DdUBv6LTj8IFrxsieZx5EB
-         bW69Ax2djvc7ixLWlE32yOIL7jtNn+zDTmvk0yjrs52GazXSopwXX4c4AtMY+0F09N4r
-         otW1wMtZh3OTCgtpsuOdxrjDd1rY3gFxBQRPPrjzExm5LCdkvkLjkUwgzK+rNf7e3sR3
-         EyYW89TtlKxQbDu8jOhxJJWUHiSbtKxlcf1WhvxdTo/8A/P+jk45x7XUUUvwb7BKJ0Ou
-         1kaA==
-X-Gm-Message-State: AOAM533OmJJ55L7dNrBZgHNk4aZOez1AVXzXgpfbQJmODkrSyi+k/J+O
-        5DLvqGwOnRR5gPzVaFhxV3C+CnrGO3/7YoHy
-X-Google-Smtp-Source: ABdhPJzLtHx2IN5bXDAWkZ1EAXY86KNoqMahvfoF2vhHVofs4IS1amroWAQNwWb1vXkOQza11Kizgg==
-X-Received: by 2002:a17:90b:1b0a:: with SMTP id nu10mr46257132pjb.35.1636317827479;
-        Sun, 07 Nov 2021 12:43:47 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z30sm3164282pfg.30.2021.11.07.12.43.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 07 Nov 2021 12:43:47 -0800 (PST)
-Message-ID: <61883a83.1c69fb81.c9c54.8cab@mx.google.com>
-Date:   Sun, 07 Nov 2021 12:43:47 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        id S235745AbhKGWba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Nov 2021 17:31:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39874 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235737AbhKGWba (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Nov 2021 17:31:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF92160FC1;
+        Sun,  7 Nov 2021 22:28:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1636324127;
+        bh=krHjZde3Mzk8M9q+BC9UiS9WyWY8AUbQTr3wGFrGymQ=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=W4iMrHYYg+3xIc9+m7TKvPzrmWWx7cjsn+xzFs6CHOvC1CxuDyATh0Z2PLk5Wi66N
+         Iv2trrFaBNI7gdOfGcusurNtm1enXA+eJxJEeUYjedLHlh7bI3HPirRrlRSoDTGrCJ
+         n8OUcbwjyyYy6XfVs4cEkPLLrNW9QUnshqAzBuZ3FXsk7boODjhIENXNsIclk0mjXM
+         DMgz9lTSnEERiVFep+dSb+PKLzbAjD3lFaBkbOjHNRiNG2cY4tXpEx401TXe5fJSfR
+         ZSCebsWHw0LJ3ldpXB4AED4CyOBpCPoXJpzGFi4OCYvOyzT2TJwAiMWRCvtAwxsNKT
+         ncs1R1Fq78uqQ==
+Message-ID: <186120e4754fa0b583d5f4cb31aa49ccd5795d09.camel@kernel.org>
+Subject: Re: [PATCH] x86/sgx: Free backing memory after faulting the enclave
+ page
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Dave Hansen <dave.hansen@intel.com>
+Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Jethro Beekman <jethro@fortanix.com>,
+        Sean Christopherson <seanjc@google.com>,
+        reinette.chatre@intel.com, tony.luck@intel.com,
+        nathaniel@profian.com, stable@vger.kernel.org,
+        Borislav Petkov <bp@suse.de>, linux-sgx@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Date:   Mon, 08 Nov 2021 00:28:44 +0200
+In-Reply-To: <7a5d6dab-4d06-40b3-d9c7-09c991b856cd@intel.com>
+References: <20211103232238.110557-1-jarkko@kernel.org>
+         <6831ed3c-c5b1-64f7-2ad7-f2d686224b7e@intel.com>
+         <e88d6d580354aadaa8eaa5ee6fa703f021786afb.camel@kernel.org>
+         <d2191571-30a5-c2aa-e8ed-0a380e9daeac@intel.com>
+         <55eb8f3649590289a0f2b1ebe7583b6da3ff70ee.camel@kernel.org>
+         <c6f5356b-a56a-e057-ef74-74e1169a844b@intel.com> <YYgsL7xSxnsjqIlu@iki.fi>
+         <7a5d6dab-4d06-40b3-d9c7-09c991b856cd@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.14.17-2-g2267159da2ce
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.14 baseline: 171 runs,
- 1 regressions (v5.14.17-2-g2267159da2ce)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Evolution 3.40.4-1 
+MIME-Version: 1.0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 171 runs, 1 regressions (v5.14.17-2-g2267159=
-da2ce)
+On Sun, 2021-11-07 at 11:51 -0800, Dave Hansen wrote:
+> On 11/7/21 11:42 AM, Jarkko Sakkinen wrote:
+> > > > It should be fairly effecient just to check the pages by using
+> > > > encl->page_tree.
+> > > That sounds more complicated and slower than what I suggested.=C2=A0 =
+You
+> > > could even just check the refcount on the page.=C2=A0 I _think_ page =
+cache
+> > > pages have a refcount of 2.=C2=A0 So, look for the refcount that mean=
+s "no
+> > > more PCMD in this page", and just free it if so.
+> > Umh, so... there is total 32 PCMD's per one page.
+>=20
+> When you place PCMD in a page, you do a get_page().=C2=A0 The refcount go=
+es
+> up by one.=C2=A0 So, a PCMD page with one PCMD will (I think) have a refc=
+ount
+> of 3.=C2=A0 If you totally fill it up with 31 *more* PCMD entries, it wil=
+l
+> have a refcount of 34.=C2=A0 You do *not* do a put_page() on the PCMD pag=
+e at
+> the end of the allocation phase.
+>=20
+> When the backing storage is freed, you drop the refcount.=C2=A0 So, going
+> from 32 PCMD entries to 31 entries in a page, you go from 34->33.
+>=20
+> When that refcount drops to 2, you know there is no more data in the
+> page that's useful.=C2=A0 At that point you can truncate it out of the
+> backing storage.
+>=20
+> There's no reason to scan the page, or a boatload of other metadata.
+> Just keep a refcount.=C2=A0 Just use the *existing* 'struct page' refcoun=
+t.
 
-Regressions Summary
--------------------
+Right! Thank you, I'll use this approach, and check that the refcount
+actually behaves that way you described.
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.17-2-g2267159da2ce/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.17-2-g2267159da2ce
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2267159da2ce648a6be5bd95233a6ca07143b254 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/618807895fd4e758033358de
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
-2-g2267159da2ce/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
-2-g2267159da2ce/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
--xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/618807895fd4e75803335=
-8df
-        failing since 14 days (last pass: v5.14.14-64-gb66eb77f69e4, first =
-fail: v5.14.14-124-g710e5bbf51e3) =
-
- =20
+/Jarkko
