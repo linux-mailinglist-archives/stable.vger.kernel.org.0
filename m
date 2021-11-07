@@ -2,65 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA8C94475DF
-	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 21:33:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB03B4475E2
+	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 21:34:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233268AbhKGUgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Nov 2021 15:36:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52922 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233254AbhKGUgU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 7 Nov 2021 15:36:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DE016137D;
-        Sun,  7 Nov 2021 20:33:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636317217;
-        bh=TipMEeXbLK71rqDUcKVBo/tOx+moJRr+RfW/8r72DaU=;
-        h=In-Reply-To:References:From:Date:Subject:To:Cc:From;
-        b=GRaC+dr35Xxuw3vS2yWcRXSF2SOySq3TBTibjAMxcN2YDdHMNq3GI6uiM2KiYN5tt
-         CAhvR4ltb+TOmYAQIoSD89qG6u/7BlNmibsNay8xbXD0VgtULxN4V2/SUCMe1IMxnw
-         /nR3ezMWnVjH6pU4xEmgTEgzqIiKN+WseF0HLU0zpi+ocnjxDVdpw4HLcwqhjlILHf
-         adlsORYvJRh+s3KFKzJ/UnU8y4mOBWHeSvI6tiCoVLS+xHBrhQ07ZlNWtj6AgXMYva
-         kxfY4UcWl+BKvpM7JNPfsrO7s6HxWp8A92ZRNZhjI1+ATbCFmqeQLMBQ95ZHspKfNG
-         9jAJN64kTYv5w==
-Received: by mail-ot1-f49.google.com with SMTP id v40-20020a056830092800b0055591caa9c6so22485255ott.4;
-        Sun, 07 Nov 2021 12:33:37 -0800 (PST)
-X-Gm-Message-State: AOAM532CHAtwUTVXN6n9njEPTz9m2z4DzFsBwBXjACKqANYL1FrvaMmi
-        qZ2dRykmQKZ44bua1oNsHanSvNrRkmqSwW/aUME=
-X-Google-Smtp-Source: ABdhPJwVshPPrt2lhJPMOMOUZjKHGN41W72uyeuko9xH1CyuG98J7HrQjaQ8Xvst12YH+EaVXaXnhckIpUVhavAhQMA=
-X-Received: by 2002:a9d:46a:: with SMTP id 97mr19692381otc.18.1636317216766;
- Sun, 07 Nov 2021 12:33:36 -0800 (PST)
+        id S232948AbhKGUgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Nov 2021 15:36:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56508 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231194AbhKGUgp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Nov 2021 15:36:45 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A90C061570
+        for <stable@vger.kernel.org>; Sun,  7 Nov 2021 12:34:02 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id s24so14526820plp.0
+        for <stable@vger.kernel.org>; Sun, 07 Nov 2021 12:34:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=O149Ze6pWQo078M2Z9XSNoku2MRv2m02o8GjBjs23S8=;
+        b=bQzMmUBdN0PCk2lI7JgTj6lkGRNPsFTYDMQ6WFWMIgqwwEnEo3xQKTZDvhDmr05YRG
+         fNUbEG+D1fLUZ68oPR5dtdoR2533gvjrXd6v+lXi/b0R4wFkikXoKqjB46kIk1BEuFZZ
+         SVjj+0hxkB11e94jSKmsOy5uj7mz68BPYjpDxrCT9t0sctWKVrrgCNEURcyJHeLwamY8
+         0MD+3zyV4sKS5AJ5k/uAYIk6WPuLCQz7p3uir19RgfzsIoYrggvE3WRopBllX5p8E94r
+         +E17Bc8RmgpzQOLyjwdAoaihDjWxu+OUscwZWFPyeDGYiCNVC95ADghGVC44U00OdZ+H
+         m4VA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=O149Ze6pWQo078M2Z9XSNoku2MRv2m02o8GjBjs23S8=;
+        b=LFTPRy7YbQZKxXqRxeIyhJfwXhgQmR01GjdUS9jiLskh9X7/QQHFRlSxGs3Nc66Hlf
+         EZQ1CNmyr7xr7jxRIgltznpXf4ETKojuntydIJJK+gj96tMb1jDdzMFhCGej4OE0Np4l
+         7jayGqS+PPtT2eYUxrSL2/pIKKDnNLYp69mBxIXzhHzf26GhgYPQA5JtQUKf39LcoXhg
+         LBo1WStaz4LOGMbTo+vmYnTuRtTxvGESy3FKCIYi4iB1lUbMBIT1jZv5Ez1lhIXEv4XI
+         rhKQeyLxmMoxJFCWwOZ7gTpwsIVjfd2rABTN6ed1azm3JzP9AkrDNPnLDdA8x+4r5xtV
+         Svvg==
+X-Gm-Message-State: AOAM5318ek9aT+V6kojclagUlP10Vp4BWBvKJpmg2xrn2tfpVWjbzhCK
+        9Suqe93PTsj8k/NXdPCdeTacsfwHq0DMFOGP
+X-Google-Smtp-Source: ABdhPJx3CLqfrewVf4qtZPU6Qj4Tj9MKhFhet5j4zUAMuEw241nE+RnUSKOO9smgnqTox63GWwwNHw==
+X-Received: by 2002:a17:90b:3a83:: with SMTP id om3mr27347973pjb.0.1636317241740;
+        Sun, 07 Nov 2021 12:34:01 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e15sm14387709pja.52.2021.11.07.12.34.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 Nov 2021 12:34:01 -0800 (PST)
+Message-ID: <61883839.1c69fb81.7e22d.c7fd@mx.google.com>
+Date:   Sun, 07 Nov 2021 12:34:01 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:ac9:4448:0:0:0:0:0 with HTTP; Sun, 7 Nov 2021 12:33:36 -0800 (PST)
-In-Reply-To: <17d0c2af6d0a35c2951f0ac5c7a1dfea04df410f.1636298480.git.christophe.jaillet@wanadoo.fr>
-References: <17d0c2af6d0a35c2951f0ac5c7a1dfea04df410f.1636298480.git.christophe.jaillet@wanadoo.fr>
-From:   Namjae Jeon <linkinjeon@kernel.org>
-Date:   Mon, 8 Nov 2021 05:33:36 +0900
-X-Gmail-Original-Message-ID: <CAKYAXd9zhFB0cX4DVz-ZwpBzPHq+aN_-Mi-pYeo+EGxaDYd_LA@mail.gmail.com>
-Message-ID: <CAKYAXd9zhFB0cX4DVz-ZwpBzPHq+aN_-Mi-pYeo+EGxaDYd_LA@mail.gmail.com>
-Subject: Re: [PATCH] ksmbd: Fix an error handling path in 'smb2_sess_setup()'
-To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc:     senozhatsky@chromium.org, sfrench@samba.org, hyc.lee@gmail.com,
-        mmakassikis@freebox.fr, linux-cifs@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        kernel-janitors <kernel-janitors@vger.kernel.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.289-5-g036ef9ffe416
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.9 baseline: 116 runs,
+ 1 regressions (v4.9.289-5-g036ef9ffe416)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-2021-11-08 0:22 GMT+09:00, Christophe JAILLET <christophe.jaillet@wanadoo.fr>:
-> All the error handling paths of 'smb2_sess_setup()' end to 'out_err'.
->
-> All but the new error handling path added by the commit given in the Fixes
-> tag below.
->
-> Fix this error handling path and branch to 'out_err' as well.
->
-> Fixes: 0d994cd482ee ("ksmbd: add buffer validation in session setup")
-Cc: stable@vger.kernel.org # v5.15
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+stable-rc/queue/4.9 baseline: 116 runs, 1 regressions (v4.9.289-5-g036ef9ff=
+e416)
 
-Thanks!
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.289-5-g036ef9ffe416/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.289-5-g036ef9ffe416
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      036ef9ffe4163098496fc6167aa0db3872c52941 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/6187fd04a091055eb93358dc
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.289-5=
+-g036ef9ffe416/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.289-5=
+-g036ef9ffe416/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6187fd04a091055=
+eb93358df
+        new failure (last pass: v4.9.289-5-ga04f0d029c20)
+        2 lines
+
+    2021-11-07T16:21:06.361663  [   20.425354] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-11-07T16:21:06.405033  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/123
+    2021-11-07T16:21:06.414309  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-11-07T16:21:06.430288  [   20.495605] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
