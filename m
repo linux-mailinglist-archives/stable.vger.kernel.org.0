@@ -2,30 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1390C447557
-	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 20:46:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D7D447563
+	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 20:51:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235501AbhKGTsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Nov 2021 14:48:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44094 "EHLO mail.kernel.org"
+        id S236352AbhKGTyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Nov 2021 14:54:25 -0500
+Received: from mga09.intel.com ([134.134.136.24]:38088 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230364AbhKGTsp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 7 Nov 2021 14:48:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDF5461244;
-        Sun,  7 Nov 2021 19:46:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636314362;
-        bh=p9PTXUIwv2K7l8DSFkmLc/2KXRsnKtTpnM7ftuPGdPo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KGDkyWxwS0SuPHoBQKoQnM93WMntBtAqayiHdnaQL75CU3PzJlr4wRyFsvQXq7RQw
-         s07SWk81Gvb6CgPN/ZW+uRIZ9peodNHhE6nDMor4lRNtfEbiVrsdD628yxACftcgut
-         eRxxY2+WFEiPDSJ6HTwamiw9F8Zr+Qs2HfEnPxQHG58wm0NTsmf7YwfWQm9Td+4LbY
-         HIO1c2tnsU1yebQBX61lmc4Ev0K1W7kL4TWhIaMti8G7eNuWwZitLSkeO+jjxeWVzv
-         zlEjhchdhgk2hIdmdc8zXu9QJB17m5yKOLuAd+jEZ+T4sOvvZeGRY7xy7JRSRT7mck
-         tRgON3ATRZvVQ==
-Date:   Sun, 7 Nov 2021 21:45:59 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Dave Hansen <dave.hansen@intel.com>
+        id S236350AbhKGTyY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Nov 2021 14:54:24 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10161"; a="231969404"
+X-IronPort-AV: E=Sophos;i="5.87,217,1631602800"; 
+   d="scan'208";a="231969404"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Nov 2021 11:51:40 -0800
+X-IronPort-AV: E=Sophos;i="5.87,217,1631602800"; 
+   d="scan'208";a="451221004"
+Received: from akirasen-mobl.amr.corp.intel.com (HELO [10.209.44.100]) ([10.209.44.100])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Nov 2021 11:51:39 -0800
+Subject: Re: [PATCH] x86/sgx: Free backing memory after faulting the enclave
+ page
+To:     Jarkko Sakkinen <jarkko@kernel.org>
 Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
@@ -36,74 +33,90 @@ Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
         nathaniel@profian.com, stable@vger.kernel.org,
         Borislav Petkov <bp@suse.de>, linux-sgx@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86/sgx: Free backing memory after faulting the enclave
- page
-Message-ID: <YYgs94O3eiKJwKgi@iki.fi>
 References: <20211103232238.110557-1-jarkko@kernel.org>
- <7c122a82-e418-0bce-8f67-cbaa15abc9b9@intel.com>
- <YYgVsi7y4TNuSRLc@iki.fi>
- <984bc7a4-1c7a-f2c0-5885-0dc7fad3d2b6@intel.com>
+ <6831ed3c-c5b1-64f7-2ad7-f2d686224b7e@intel.com>
+ <e88d6d580354aadaa8eaa5ee6fa703f021786afb.camel@kernel.org>
+ <d2191571-30a5-c2aa-e8ed-0a380e9daeac@intel.com>
+ <55eb8f3649590289a0f2b1ebe7583b6da3ff70ee.camel@kernel.org>
+ <c6f5356b-a56a-e057-ef74-74e1169a844b@intel.com> <YYgsL7xSxnsjqIlu@iki.fi>
+From:   Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+ z5cecg==
+Message-ID: <7a5d6dab-4d06-40b3-d9c7-09c991b856cd@intel.com>
+Date:   Sun, 7 Nov 2021 11:51:37 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <984bc7a4-1c7a-f2c0-5885-0dc7fad3d2b6@intel.com>
+In-Reply-To: <YYgsL7xSxnsjqIlu@iki.fi>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Nov 07, 2021 at 11:06:01AM -0800, Dave Hansen wrote:
-> On 11/7/21 10:06 AM, Jarkko Sakkinen wrote:
-> > On Thu, Nov 04, 2021 at 03:38:55PM -0700, Dave Hansen wrote:
-> >> On 11/3/21 4:22 PM, Jarkko Sakkinen wrote:
-> >>> --- a/arch/x86/kernel/cpu/sgx/encl.c
-> >>> +++ b/arch/x86/kernel/cpu/sgx/encl.c
-> >>> @@ -22,6 +22,7 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
-> >>>  {
-> >>>  	unsigned long va_offset = encl_page->desc & SGX_ENCL_PAGE_VA_OFFSET_MASK;
-> >>>  	struct sgx_encl *encl = encl_page->encl;
-> >>> +	struct inode *inode = file_inode(encl->backing);
-> >>>  	struct sgx_pageinfo pginfo;
-> >>>  	struct sgx_backing b;
-> >>>  	pgoff_t page_index;
-> >>> @@ -60,6 +61,9 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
-> >>>  
-> >>>  	sgx_encl_put_backing(&b, false);
-> >>>  
-> >>> +	/* Free the backing memory. */
-> >>> +	shmem_truncate_range(inode, PFN_PHYS(page_index), PFN_PHYS(page_index) + PAGE_SIZE - 1);
-> >>> +
-> >>>  	return ret;
-> >>>  }
-> >>
-> >> This also misses tearing down the backing storage if it is in place at
-> >> sgx_encl_release().
-> > 
-> > Hmm... sgx_encl_release() does fput(). Isn't that enough to tear it down,
-> > or does it require explicit truncate, i.e. something like
-> > 
-> >         shmem_truncate_range(file_inode(encl->backing), encl->base, encl->size - 1);
-> 
-> That's true, the page cache should all be torn down along with the
-> fput().  *But*, it would be a very nice property if the backing storage
-> was empty by this point.  It essentially ensures that no enclave-runtime
-> cases missed truncating the backing storage away.
+On 11/7/21 11:42 AM, Jarkko Sakkinen wrote:
+>>> It should be fairly effecient just to check the pages by using
+>>> encl->page_tree.
+>> That sounds more complicated and slower than what I suggested.  You
+>> could even just check the refcount on the page.  I _think_ page cache
+>> pages have a refcount of 2.  So, look for the refcount that means "no
+>> more PCMD in this page", and just free it if so.
+> Umh, so... there is total 32 PCMD's per one page.
 
-What if an enclave is released a point when all of its pages
-are swapped out? Or even simpler case would an enclave that is
-larger than all of EPC.
+When you place PCMD in a page, you do a get_page().  The refcount goes
+up by one.  So, a PCMD page with one PCMD will (I think) have a refcount
+of 3.  If you totally fill it up with 31 *more* PCMD entries, it will
+have a refcount of 34.  You do *not* do a put_page() on the PCMD page at
+the end of the allocation phase.
 
-What can be made sure is that for all pages, which are in EPC,
-the backing page is truncated.
+When the backing storage is freed, you drop the refcount.  So, going
+from 32 PCMD entries to 31 entries in a page, you go from 34->33.
 
-> >> Does a entry->epc_page==NULL page in there guarantee that it has backing
-> >> storage?
-> > 
-> > Yes, it is an invariant. That what I was thinking to use for PCMD: iterate
-> > 32 pages and check if they have a faulted page.
-> 
-> I think the rule should be that entry->epc_page==NULL enclave pages have
-> backing storage.  All entry->epc_page!=NULL do *not* have backing storage.
+When that refcount drops to 2, you know there is no more data in the
+page that's useful.  At that point you can truncate it out of the
+backing storage.
 
-Yes, that is the goal of this patch.
-
-/Jarkko
+There's no reason to scan the page, or a boatload of other metadata.
+Just keep a refcount.  Just use the *existing* 'struct page' refcount.
