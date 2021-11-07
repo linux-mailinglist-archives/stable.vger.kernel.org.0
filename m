@@ -2,114 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F354474B1
-	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 18:44:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 882194474DF
+	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 19:06:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236013AbhKGRqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Nov 2021 12:46:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47328 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236012AbhKGRqv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Nov 2021 12:46:51 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12915C061714
-        for <stable@vger.kernel.org>; Sun,  7 Nov 2021 09:44:09 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id u11so14320387plf.3
-        for <stable@vger.kernel.org>; Sun, 07 Nov 2021 09:44:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=philpotter-co-uk.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xjl9+CEP43AsYHfS7KL6O6N3m1KhqAGplZ+XQFg3jQo=;
-        b=YWgefyqzxxBD3rlgz3CG3XU0eq36CTeZVt//aHpCohfr2fHrU6xTlvDRaBnWh0bbPT
-         PxrI7M/8IWvYBznnoAIo8IKWUMVES0sQDjR5772kxkrTs03I+VEcttQh5UGSJKibWImf
-         /Ezx8ZN/hI72TV1W3NVEZfyc2bKX8wF1AJ8mPdtFXlgiSSzkfEdeQNjq7bQLYnTqz5km
-         wIqrKtgFVk0s5BwVw5K99KC8e0oag8BDBUfFq7n7ymT7UkPuOiD1xkfCM10F+DN4ILFY
-         pLBoVne4VcRixznWYrhdy+4zRDOTbkfVR647aWPF4dVzPIvN/cRTN2Ko/2XPNpr/i36K
-         US5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xjl9+CEP43AsYHfS7KL6O6N3m1KhqAGplZ+XQFg3jQo=;
-        b=f5MohuM4l4mJ4bO5HHZ9+fn7tvL2MYOWrpkq5uKY3gf4qhcFdqKtjd9rNKuEV4iOTl
-         KTVR6prxsaio+KoQ0reqFHwKfp2rLgWQVcehTTPncDHfT2zEGrY99dCuhAvwPaiAJ/dT
-         QJ27S8SYsCnZS40XlQbwwehDin2q0bTGxx1aIaoJmZQB8C1l3A62EqamyVF35yHEmO1m
-         2PXWFO4bjM1wVc+eyPHYjvaQsLXxP8zyLMUU59V6duOOWUurgc6XXcMHCxZ2QceBXqJz
-         BHvRKzjZnkkiabQXOfQ00L0Uf3gFRaPpuaLNZk60Mhg6rWKEBYLqiQYMvOsMIb+mp3bn
-         22NQ==
-X-Gm-Message-State: AOAM5303Hs4sR10UesOm7xKh34x/+lPm1x+l8jdCD+DC9rT/kbSVLHKR
-        nZHGWbJjHtald3MjM/IQ/yeq8C7G7TWolggd2R21Ag==
-X-Google-Smtp-Source: ABdhPJxINONf55fxJqdllPtpzr8XTcFEY4Av/x9s8kcehhAWTNeEb7kHflA42J/sEDupZtwyCOKhgDCJakICmgVRxMo=
-X-Received: by 2002:a17:902:934c:b0:13d:c685:229b with SMTP id
- g12-20020a170902934c00b0013dc685229bmr64444159plp.25.1636307048598; Sun, 07
- Nov 2021 09:44:08 -0800 (PST)
+        id S230310AbhKGSJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Nov 2021 13:09:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58260 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230234AbhKGSJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Nov 2021 13:09:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4FF461074;
+        Sun,  7 Nov 2021 18:06:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1636308405;
+        bh=aWDSKq24BEhQZHeIVmLKMzpNb1qnm7PcMMkOet0HbOs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YyoV6PFTEMjfGZnwHwoSrRHiYSp0T+aYNPNIX7ECRTHdnT3KDL6VPww9Dh3VcL22s
+         QJ2D/6jmHGkqK5pcxt3eMgqZoak3DqpXQb9BtTHik6X0WTRzC1a4feQOqynCj9E5qj
+         TKbGnOsgpDN4sVeUqqmuBUfhjZzTkB/LstTUEjsaH7SWztpqWRnUJt4gNkOybGomEu
+         yD/nzxBS9+a1S316dbdI0LfxExalcle1xBtuPC+P5Pn62y9+Wqx9QmoI9D9KUv6WsF
+         cSGJbgnfEa3uhApFubysKNXUQixdyaEZgU3b0CG3b/E2iL0ihqLMUdKJeltmicHCUC
+         QlSgcu0xbQYow==
+Date:   Sun, 7 Nov 2021 20:06:42 +0200
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Dave Hansen <dave.hansen@intel.com>
+Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Jethro Beekman <jethro@fortanix.com>,
+        Sean Christopherson <seanjc@google.com>,
+        reinette.chatre@intel.com, tony.luck@intel.com,
+        nathaniel@profian.com, stable@vger.kernel.org,
+        Borislav Petkov <bp@suse.de>, linux-sgx@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86/sgx: Free backing memory after faulting the enclave
+ page
+Message-ID: <YYgVsi7y4TNuSRLc@iki.fi>
+References: <20211103232238.110557-1-jarkko@kernel.org>
+ <7c122a82-e418-0bce-8f67-cbaa15abc9b9@intel.com>
 MIME-Version: 1.0
-References: <20211107173543.7486-1-Larry.Finger@lwfinger.net>
-In-Reply-To: <20211107173543.7486-1-Larry.Finger@lwfinger.net>
-From:   Phillip Potter <phil@philpotter.co.uk>
-Date:   Sun, 7 Nov 2021 17:43:57 +0000
-Message-ID: <CAA=Fs0mCkY4_5PJg++EWDcJaaTPjN6q3d6o2ZU_ZW4HBDPU4XA@mail.gmail.com>
-Subject: Re: [PATCH v2] staging: r8188eu: Fix breakage introduced when 5G code
- was removed
-To:     Larry Finger <Larry.Finger@lwfinger.net>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        "open list:STAGING SUBSYSTEM" <linux-staging@lists.linux.dev>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Zameer Manji <zmanji@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7c122a82-e418-0bce-8f67-cbaa15abc9b9@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 7 Nov 2021 at 17:35, Larry Finger <Larry.Finger@lwfinger.net> wrote:
->
-> In commit 221abd4d478a ("staging: r8188eu: Remove no more necessary definitions
-> and code"), two entries were removed from RTW_ChannelPlanMap[], but not replaced
-> with zeros. The position within this table is important, thus the patch broke
-> systems operating in regulatory domains osted later than entry 0x13 in the table.
-> Unfortunately, the FCC entry comes before that point and most testers did not see
-> this problem.
->
-> Reported-and-tested-by: Zameer Manji <zmanji@gmail.com>
-> Reported-by: kernel test robot <lkp@intel.com>
-> Fixes: 221abd4d478a ("staging: r8188eu: Remove no more necessary definitions and code")
-> Cc: Stable <stable@vger.kernel.org> # v5.5+
-> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-> ---
->
-> v2 - fixed use of () rsther than {} - found by kernel test robot
-> ---
->  drivers/staging/r8188eu/core/rtw_mlme_ext.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/staging/r8188eu/core/rtw_mlme_ext.c b/drivers/staging/r8188eu/core/rtw_mlme_ext.c
-> index 55c3d4a6faeb..5b60e6df5f87 100644
-> --- a/drivers/staging/r8188eu/core/rtw_mlme_ext.c
-> +++ b/drivers/staging/r8188eu/core/rtw_mlme_ext.c
-> @@ -107,6 +107,7 @@ static struct rt_channel_plan_map   RTW_ChannelPlanMap[RT_CHANNEL_DOMAIN_MAX] = {
->         {0x01}, /* 0x10, RT_CHANNEL_DOMAIN_JAPAN */
->         {0x02}, /* 0x11, RT_CHANNEL_DOMAIN_FCC_NO_DFS */
->         {0x01}, /* 0x12, RT_CHANNEL_DOMAIN_JAPAN_NO_DFS */
-> +       {0x00}, /* 0x13 */
->         {0x02}, /* 0x14, RT_CHANNEL_DOMAIN_TAIWAN_NO_DFS */
->         {0x00}, /* 0x15, RT_CHANNEL_DOMAIN_ETSI_NO_DFS */
->         {0x00}, /* 0x16, RT_CHANNEL_DOMAIN_KOREA_NO_DFS */
-> @@ -118,6 +119,7 @@ static struct rt_channel_plan_map   RTW_ChannelPlanMap[RT_CHANNEL_DOMAIN_MAX] = {
->         {0x00}, /* 0x1C, */
->         {0x00}, /* 0x1D, */
->         {0x00}, /* 0x1E, */
-> +       {0x00}, /* 0x1F, */
->         /*  0x20 ~ 0x7F , New Define ===== */
->         {0x00}, /* 0x20, RT_CHANNEL_DOMAIN_WORLD_NULL */
->         {0x01}, /* 0x21, RT_CHANNEL_DOMAIN_ETSI1_NULL */
-> --
-> 2.33.1
->
+On Thu, Nov 04, 2021 at 03:38:55PM -0700, Dave Hansen wrote:
+> On 11/3/21 4:22 PM, Jarkko Sakkinen wrote:
+> > --- a/arch/x86/kernel/cpu/sgx/encl.c
+> > +++ b/arch/x86/kernel/cpu/sgx/encl.c
+> > @@ -22,6 +22,7 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
+> >  {
+> >  	unsigned long va_offset = encl_page->desc & SGX_ENCL_PAGE_VA_OFFSET_MASK;
+> >  	struct sgx_encl *encl = encl_page->encl;
+> > +	struct inode *inode = file_inode(encl->backing);
+> >  	struct sgx_pageinfo pginfo;
+> >  	struct sgx_backing b;
+> >  	pgoff_t page_index;
+> > @@ -60,6 +61,9 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
+> >  
+> >  	sgx_encl_put_backing(&b, false);
+> >  
+> > +	/* Free the backing memory. */
+> > +	shmem_truncate_range(inode, PFN_PHYS(page_index), PFN_PHYS(page_index) + PAGE_SIZE - 1);
+> > +
+> >  	return ret;
+> >  }
+> 
+> This also misses tearing down the backing storage if it is in place at
+> sgx_encl_release().
 
-Reviewed-by: Phillip Potter <phil@philpotter.co.uk>
+Hmm... sgx_encl_release() does fput(). Isn't that enough to tear it down,
+or does it require explicit truncate, i.e. something like
 
-Regards,
-Phil
+        shmem_truncate_range(file_inode(encl->backing), encl->base, encl->size - 1);
+
+
+> Does a entry->epc_page==NULL page in there guarantee that it has backing
+> storage?
+
+Yes, it is an invariant. That what I was thinking to use for PCMD: iterate
+32 pages and check if they have a faulted page.
+
+/Jarkko
