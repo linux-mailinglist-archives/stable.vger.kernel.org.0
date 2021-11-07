@@ -2,132 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F178447339
-	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 15:13:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B771D44735D
+	for <lists+stable@lfdr.de>; Sun,  7 Nov 2021 15:49:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231851AbhKGOPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Nov 2021 09:15:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57356 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231544AbhKGOPn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Nov 2021 09:15:43 -0500
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F315C061570
-        for <stable@vger.kernel.org>; Sun,  7 Nov 2021 06:13:00 -0800 (PST)
-Received: by mail-pf1-x42b.google.com with SMTP id m14so13541452pfc.9
-        for <stable@vger.kernel.org>; Sun, 07 Nov 2021 06:13:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ej001lKp83ZmemmVoKzyVQKv+LtcpBgRRUmzjoMNK4g=;
-        b=JAM38pLNWp1KQr3P0vewkGBfkO8zK2s574T98q9oCR9K3YueOencWm3Hm7AeNG5v9h
-         2SVogA0ypYhfLnmReUAGL8mMRILl0LfMVWwsaNbyV9d0MPT98pPZ8RmcVnZ9cGn3xVJc
-         h1YWf+dcQzo0osqECjtxr0sXCY7Bxg8WVDTr/gKZ3iX+AAR2v875F28PgI3Wyj3qCwW4
-         jdFR0vInskOpM5ZEoN67O9mzCffvc/DG/2cYXbREEa4tL38xRSeaBpQiJHkUdU//3Y3U
-         Mqj8DWqi5Mg+r7xPmvkHCdcfiJPZJr8L/P1OM2jWsP/tBar3dL+n/4wiqvN1kELSo0mM
-         E1xw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ej001lKp83ZmemmVoKzyVQKv+LtcpBgRRUmzjoMNK4g=;
-        b=FQEOBWEZx77m9Ppj2LA3YUJmNPyOSUddW2Fqp/tXeew1hBDCY0/ZYEOoFuk++9kSEP
-         T+UL+0hyTB7r1FWcdCN0fWWYFrl/edI0ZpwQ+W0jIdF/Cm1h5oxwX2Le4zTd4gMmsQLQ
-         875tfPQ2psA7HzLfsdgIuWGWQhk3aIa8Vw+soIy0bd7Z5JDxoF3D5tSszEVKe67ZzvPu
-         KEjcL/Fi4pE2U0SutqGZ8DlVZFGiJ3ycSp9W+KUqt9XzG/aMWeCPkW1nO3u+CwJEzZEt
-         5i6RBVxhnx4s+6G53UOQgQ5f3gMWmjtkVsfqjpa1mQVV6ZbIj0Y5qV60lfwkqXJAAL5U
-         1C2g==
-X-Gm-Message-State: AOAM5318Kj+RNwWDhVwT7udH8+UAPkgKu1Z7FiDhW1Nq01lE7KBAMNJW
-        ynYqGaO/VIcw0v7RN1jEc40PHnHvRZ6jJIOw
-X-Google-Smtp-Source: ABdhPJyjaUfHEIjyMXu6i0lC4sXDTqG/NXjH+DVIWUaPaJYG8DTtTp4nxK0F4WcVwAwNUhyRP0liWA==
-X-Received: by 2002:a05:6a00:7d7:b0:494:729c:b58f with SMTP id n23-20020a056a0007d700b00494729cb58fmr23130799pfu.33.1636294379907;
-        Sun, 07 Nov 2021 06:12:59 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x21sm12869732pfh.169.2021.11.07.06.12.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 07 Nov 2021 06:12:59 -0800 (PST)
-Message-ID: <6187deeb.1c69fb81.66bcc.6e67@mx.google.com>
-Date:   Sun, 07 Nov 2021 06:12:59 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S235515AbhKGOwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Nov 2021 09:52:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38180 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235509AbhKGOwS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Nov 2021 09:52:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE0CD6135E;
+        Sun,  7 Nov 2021 14:49:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1636296575;
+        bh=QdPW8ZA6Ni0m2Qg2OzVwvJNJG+IRtx0xbVgs9x1AVDg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=b8kPy+VQN6+bcZlGDeHVd+CwhUNF0zCi0jmu3m4dsKoG8ezIKwANGP0r/EynpQWqG
+         SDAF79RzClEhxTI9QktYuwITKKYF/dLhL5oT2WeC787nMHAwtVSOzlwLo/8HGfgz5y
+         ByKSQMqZZGodSXzSIYSKoiYEVS0F3/9xa2CzIBRU=
+Date:   Sun, 7 Nov 2021 15:49:27 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 5.14.y-stable: Missing sound fixes from 5.15
+Message-ID: <YYfnd9YojggYJTUf@kroah.com>
+References: <s5hfssbgfa1.wl-tiwai@suse.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.254
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.14.y baseline: 147 runs, 1 regressions (v4.14.254)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hfssbgfa1.wl-tiwai@suse.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 147 runs, 1 regressions (v4.14.254)
+On Fri, Nov 05, 2021 at 09:47:34AM +0100, Takashi Iwai wrote:
+> Hi Greg,
+> 
+> could you cherry-pick the following three commits to 5.14.y tree?
+> The Cc-to-stable was missing on those, although they should have been
+> picked up.
+> 
+> cbea6e5a7772b7a5b80baa8f98fd77853487fd2a
+>     ALSA: pcm: Check mmap capability of runtime dma buffer at first
+> 0899a7a23047f106c06888769d6cd6ff43d7395f
+>     ALSA: pci: rme: Set up buffer type properly
+> 4d9e9153f1c64d91a125c6967bc0bfb0bb653ea0
+>     ALSA: pci: cs46xx: Fix set up buffer type properly
+> 
+> They are needed only for 5.14.y, not for older versions.
+> 
+> The relevant bug report is found at:
+>   https://bugzilla.kernel.org/show_bug.cgi?id=214947
 
-Regressions Summary
--------------------
+All now queued up, thanks.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.254/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.254
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0447aa205abe1c0c016b4f7fa9d7c08d920b5c8e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6181c0acd8ddb89fc33358eb
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-54/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-54/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6181c0acd8ddb89=
-fc33358ee
-        new failure (last pass: v4.14.253-26-g64fad352ab39)
-        2 lines
-
-    2021-11-07T10:08:26.972380  [   19.924804] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-07T10:08:27.015551  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/93
-    2021-11-07T10:08:27.024898  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+greg k-h
