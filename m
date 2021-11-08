@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C8AA44A04D
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:00:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E383A44A054
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:00:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241522AbhKIBC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:02:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59222 "EHLO mail.kernel.org"
+        id S241498AbhKIBDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:03:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241521AbhKIBCz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:02:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C71D36134F;
-        Tue,  9 Nov 2021 01:00:08 +0000 (UTC)
+        id S241528AbhKIBC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:02:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1735E6128B;
+        Tue,  9 Nov 2021 01:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419610;
-        bh=T1+nJFfKvlaqb7imTqvKvzCmxYQvZNCCpwEB9k3Raqw=;
+        s=k20201202; t=1636419611;
+        bh=1LAbinY4XrJhR0cGZxRyou3TsQQ45yvGzggk2EyJ6nI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fr0Y94bsFG9ma6zmI60Cn4sZVZwUDAbpP0nB/1giijM8SINFtpINrsqT8rmtiWpme
-         iCmxAkkOcQA/prKH0syjjjQfKQiaFNO2p2+XCgAaP9Hz2baG+PRtHKUx18c7M+1eA2
-         9mUuvFle4QkheIniPuT2eUsmQNBYLWQikheTlAjFAkFAqjE4T8/f4JDGbQPqky0QhD
-         JJVnhQFrbpImYIg5i9C4csiMHFhGNIsx134vrMfrVzPBgz6h0Yu3OGfmb8BP2A4jtE
-         23rIYAMNTzjTYbiQ+1pGv2Q12AGaYf62rPEuCrkSWNfdnObp133VH6FPV8SrvWQB6t
-         +wyTRBg6eFoGA==
+        b=AKiUbxsovrabb/i4ILyXn2jmKkWeI2Z58q1U7swhxex/Az9AcXQRilbKW0clVROfB
+         uqlZy/+y7duN5LTXjoLE1bxNNVR43hV1k/wKFXWh+9VCN5+xMj7p2+x1j/HX0TxNeT
+         dk1wyQ+f9KsZUWwBkXbAIGEJhVz5U6ENKyoRqRW3Mp9qZYRDT5sqiXqseLKVu1nD71
+         dIj5bugmnko9xopcI/G+61x8ZdUfLDOFe4T9AMIDkS0jjqKwdkoZBvb6ymdWoFWAL3
+         +HrKA1OcahrIbe78Q/vF1fYcvpDIXeY4qu/c2aCAyGwkvBg8suGpoD8BaFkd+YqEyT
+         Z5rs6KXy0N24A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jakub Kicinski <kuba@kernel.org>,
-        Matthew Massey <matthewmassey@fb.com>,
-        Dave Taht <dave.taht@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, jhs@mojatatu.com,
-        xiyou.wangcong@gmail.com, jiri@resnulli.us, atenart@kernel.org,
-        edumazet@google.com, daniel@iogearbox.net, alobakin@pm.me,
-        weiwan@google.com, bjorn@kernel.org, arnd@arndb.de,
-        memxor@gmail.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 015/146] net: sched: update default qdisc visibility after Tx queue cnt changes
-Date:   Mon,  8 Nov 2021 12:42:42 -0500
-Message-Id: <20211108174453.1187052-15-sashal@kernel.org>
+Cc:     Hui Wang <hui.wang@canonical.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Manuel Krause <manuelkrause@netscape.net>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 016/146] ACPI: resources: Add DMI-based legacy IRQ override quirk
+Date:   Mon,  8 Nov 2021 12:42:43 -0500
+Message-Id: <20211108174453.1187052-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108174453.1187052-1-sashal@kernel.org>
 References: <20211108174453.1187052-1-sashal@kernel.org>
@@ -48,183 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit 1e080f17750d1083e8a32f7b350584ae1cd7ff20 ]
+[ Upstream commit 892a012699fc0b91a2ed6309078936191447f480 ]
 
-mq / mqprio make the default child qdiscs visible. They only do
-so for the qdiscs which are within real_num_tx_queues when the
-device is registered. Depending on order of calls in the driver,
-or if user space changes config via ethtool -L the number of
-qdiscs visible under tc qdisc show will differ from the number
-of queues. This is confusing to users and potentially to system
-configuration scripts which try to make sure qdiscs have the
-right parameters.
+After the commit 0ec4e55e9f57 ("ACPI: resources: Add checks for ACPI
+IRQ override") is reverted, the keyboard on Medion laptops can't
+work again.
 
-Add a new Qdisc_ops callback and make relevant qdiscs TTRT.
+To fix the keyboard issue, add a DMI-based override check that will
+not affect other machines along the lines of prt_quirks[] in
+drivers/acpi/pci_irq.c.
 
-Note that this uncovers the "shortcut" created by
-commit 1f27cde313d7 ("net: sched: use pfifo_fast for non real queues")
-The default child qdiscs beyond initial real_num_tx are always
-pfifo_fast, no matter what the sysfs setting is. Fixing this
-gets a little tricky because we'd need to keep a reference
-on whatever the default qdisc was at the time of creation.
-In practice this is likely an non-issue the qdiscs likely have
-to be configured to non-default settings, so whatever user space
-is doing such configuration can replace the pfifos... now that
-it will see them.
+If similar issues are seen on other platforms, the quirk table could
+be expanded in the future.
 
-Reported-by: Matthew Massey <matthewmassey@fb.com>
-Reviewed-by: Dave Taht <dave.taht@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213031
+BugLink: http://bugs.launchpad.net/bugs/1909814
+Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: Manuel Krause <manuelkrause@netscape.net>
+Tested-by: Manuel Krause <manuelkrause@netscape.net>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sch_generic.h |  4 ++++
- net/core/dev.c            |  2 ++
- net/sched/sch_generic.c   |  9 +++++++++
- net/sched/sch_mq.c        | 24 ++++++++++++++++++++++++
- net/sched/sch_mqprio.c    | 23 +++++++++++++++++++++++
- 5 files changed, 62 insertions(+)
+ drivers/acpi/resource.c | 49 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 47 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index c0069ac00e62d..8c2d611639fca 100644
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -308,6 +308,8 @@ struct Qdisc_ops {
- 					  struct netlink_ext_ack *extack);
- 	void			(*attach)(struct Qdisc *sch);
- 	int			(*change_tx_queue_len)(struct Qdisc *, unsigned int);
-+	void			(*change_real_num_tx)(struct Qdisc *sch,
-+						      unsigned int new_real_tx);
+diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
+index ee78a210c6068..7bf38652e6aca 100644
+--- a/drivers/acpi/resource.c
++++ b/drivers/acpi/resource.c
+@@ -16,6 +16,7 @@
+ #include <linux/ioport.h>
+ #include <linux/slab.h>
+ #include <linux/irq.h>
++#include <linux/dmi.h>
  
- 	int			(*dump)(struct Qdisc *, struct sk_buff *);
- 	int			(*dump_stats)(struct Qdisc *, struct gnet_dump *);
-@@ -684,6 +686,8 @@ void qdisc_class_hash_grow(struct Qdisc *, struct Qdisc_class_hash *);
- void qdisc_class_hash_destroy(struct Qdisc_class_hash *);
- 
- int dev_qdisc_change_tx_queue_len(struct net_device *dev);
-+void dev_qdisc_change_real_num_tx(struct net_device *dev,
-+				  unsigned int new_real_tx);
- void dev_init_scheduler(struct net_device *dev);
- void dev_shutdown(struct net_device *dev);
- void dev_activate(struct net_device *dev);
-diff --git a/net/core/dev.c b/net/core/dev.c
-index eb3a366bf212c..aa7a98fd2d64b 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -2921,6 +2921,8 @@ int netif_set_real_num_tx_queues(struct net_device *dev, unsigned int txq)
- 		if (dev->num_tc)
- 			netif_setup_tc(dev, txq);
- 
-+		dev_qdisc_change_real_num_tx(dev, txq);
-+
- 		dev->real_num_tx_queues = txq;
- 
- 		if (disabling) {
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index a8dd06c74e318..66d2fbe9ef501 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -1330,6 +1330,15 @@ static int qdisc_change_tx_queue_len(struct net_device *dev,
- 	return 0;
+ #ifdef CONFIG_X86
+ #define valid_IRQ(i) (((i) != 0) && ((i) != 2))
+@@ -380,9 +381,51 @@ unsigned int acpi_dev_get_irq_type(int triggering, int polarity)
  }
+ EXPORT_SYMBOL_GPL(acpi_dev_get_irq_type);
  
-+void dev_qdisc_change_real_num_tx(struct net_device *dev,
-+				  unsigned int new_real_tx)
-+{
-+	struct Qdisc *qdisc = dev->qdisc;
++static const struct dmi_system_id medion_laptop[] = {
++	{
++		.ident = "MEDION P15651",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
++			DMI_MATCH(DMI_BOARD_NAME, "M15T"),
++		},
++	},
++	{ }
++};
 +
-+	if (qdisc->ops->change_real_num_tx)
-+		qdisc->ops->change_real_num_tx(qdisc, new_real_tx);
++struct irq_override_cmp {
++	const struct dmi_system_id *system;
++	unsigned char irq;
++	unsigned char triggering;
++	unsigned char polarity;
++	unsigned char shareable;
++};
++
++static const struct irq_override_cmp skip_override_table[] = {
++	{ medion_laptop, 1, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0 },
++};
++
++static bool acpi_dev_irq_override(u32 gsi, u8 triggering, u8 polarity,
++				  u8 shareable)
++{
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(skip_override_table); i++) {
++		const struct irq_override_cmp *entry = &skip_override_table[i];
++
++		if (dmi_check_system(entry->system) &&
++		    entry->irq == gsi &&
++		    entry->triggering == triggering &&
++		    entry->polarity == polarity &&
++		    entry->shareable == shareable)
++			return false;
++	}
++
++	return true;
 +}
 +
- int dev_qdisc_change_tx_queue_len(struct net_device *dev)
+ static void acpi_dev_get_irqresource(struct resource *res, u32 gsi,
+ 				     u8 triggering, u8 polarity, u8 shareable,
+-				     bool legacy)
++				     bool check_override)
  {
- 	bool up = dev->flags & IFF_UP;
-diff --git a/net/sched/sch_mq.c b/net/sched/sch_mq.c
-index e79f1afe0cfd6..db18d8a860f9c 100644
---- a/net/sched/sch_mq.c
-+++ b/net/sched/sch_mq.c
-@@ -125,6 +125,29 @@ static void mq_attach(struct Qdisc *sch)
- 	priv->qdiscs = NULL;
- }
+ 	int irq, p, t;
  
-+static void mq_change_real_num_tx(struct Qdisc *sch, unsigned int new_real_tx)
-+{
-+#ifdef CONFIG_NET_SCHED
-+	struct net_device *dev = qdisc_dev(sch);
-+	struct Qdisc *qdisc;
-+	unsigned int i;
-+
-+	for (i = new_real_tx; i < dev->real_num_tx_queues; i++) {
-+		qdisc = netdev_get_tx_queue(dev, i)->qdisc_sleeping;
-+		/* Only update the default qdiscs we created,
-+		 * qdiscs with handles are always hashed.
-+		 */
-+		if (qdisc != &noop_qdisc && !qdisc->handle)
-+			qdisc_hash_del(qdisc);
-+	}
-+	for (i = dev->real_num_tx_queues; i < new_real_tx; i++) {
-+		qdisc = netdev_get_tx_queue(dev, i)->qdisc_sleeping;
-+		if (qdisc != &noop_qdisc && !qdisc->handle)
-+			qdisc_hash_add(qdisc, false);
-+	}
-+#endif
-+}
-+
- static int mq_dump(struct Qdisc *sch, struct sk_buff *skb)
- {
- 	struct net_device *dev = qdisc_dev(sch);
-@@ -288,6 +311,7 @@ struct Qdisc_ops mq_qdisc_ops __read_mostly = {
- 	.init		= mq_init,
- 	.destroy	= mq_destroy,
- 	.attach		= mq_attach,
-+	.change_real_num_tx = mq_change_real_num_tx,
- 	.dump		= mq_dump,
- 	.owner		= THIS_MODULE,
- };
-diff --git a/net/sched/sch_mqprio.c b/net/sched/sch_mqprio.c
-index 5eb3b1b7ae5e7..50e15add6068f 100644
---- a/net/sched/sch_mqprio.c
-+++ b/net/sched/sch_mqprio.c
-@@ -306,6 +306,28 @@ static void mqprio_attach(struct Qdisc *sch)
- 	priv->qdiscs = NULL;
- }
+@@ -401,7 +444,9 @@ static void acpi_dev_get_irqresource(struct resource *res, u32 gsi,
+ 	 * using extended IRQ descriptors we take the IRQ configuration
+ 	 * from _CRS directly.
+ 	 */
+-	if (legacy && !acpi_get_override_irq(gsi, &t, &p)) {
++	if (check_override &&
++	    acpi_dev_irq_override(gsi, triggering, polarity, shareable) &&
++	    !acpi_get_override_irq(gsi, &t, &p)) {
+ 		u8 trig = t ? ACPI_LEVEL_SENSITIVE : ACPI_EDGE_SENSITIVE;
+ 		u8 pol = p ? ACPI_ACTIVE_LOW : ACPI_ACTIVE_HIGH;
  
-+static void mqprio_change_real_num_tx(struct Qdisc *sch,
-+				      unsigned int new_real_tx)
-+{
-+	struct net_device *dev = qdisc_dev(sch);
-+	struct Qdisc *qdisc;
-+	unsigned int i;
-+
-+	for (i = new_real_tx; i < dev->real_num_tx_queues; i++) {
-+		qdisc = netdev_get_tx_queue(dev, i)->qdisc_sleeping;
-+		/* Only update the default qdiscs we created,
-+		 * qdiscs with handles are always hashed.
-+		 */
-+		if (qdisc != &noop_qdisc && !qdisc->handle)
-+			qdisc_hash_del(qdisc);
-+	}
-+	for (i = dev->real_num_tx_queues; i < new_real_tx; i++) {
-+		qdisc = netdev_get_tx_queue(dev, i)->qdisc_sleeping;
-+		if (qdisc != &noop_qdisc && !qdisc->handle)
-+			qdisc_hash_add(qdisc, false);
-+	}
-+}
-+
- static struct netdev_queue *mqprio_queue_get(struct Qdisc *sch,
- 					     unsigned long cl)
- {
-@@ -629,6 +651,7 @@ static struct Qdisc_ops mqprio_qdisc_ops __read_mostly = {
- 	.init		= mqprio_init,
- 	.destroy	= mqprio_destroy,
- 	.attach		= mqprio_attach,
-+	.change_real_num_tx = mqprio_change_real_num_tx,
- 	.dump		= mqprio_dump,
- 	.owner		= THIS_MODULE,
- };
 -- 
 2.33.0
 
