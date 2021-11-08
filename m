@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8947144A03E
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:00:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0182444A03F
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:00:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241453AbhKIBCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241489AbhKIBCk (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Nov 2021 20:02:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58534 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241466AbhKIBCh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:02:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35A3F61208;
-        Tue,  9 Nov 2021 00:59:50 +0000 (UTC)
+        id S236525AbhKIBCi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:02:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28E3E61284;
+        Tue,  9 Nov 2021 00:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419591;
-        bh=nSosOyqjZ5AqMs0T6sr0nJBrA4Lt2qn/AX2MCMDgxDM=;
+        s=k20201202; t=1636419593;
+        bh=bnoyRb1o4+QmN4johhpzJ4PbjQX/YTEdqHj4bCwY+Fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pg8tbjnrCBCbPsV5cHzbryhmQ6bszRg3FO8OihD6hKAaTrrJbGLWN3QJ8QZgka/fh
-         y3nF3oWbmFB6xxsVEjlDbKUZNfUz9EAezQ5cOUTti3Nb3zQSkGXSRYvlRGKBstsbZt
-         zCa7uMBZ0mHajgOn4v9T3Dg1WvD46uWTfwwJE0jTkPliwFvqt9bP6vIraofOs37/kc
-         qQwlhu7FZGj9jTTBCHgot/ot0t97XdqyM/kDSI/pPWKRsbWhFx7I3U8MF6AWf6ScN4
-         aeyW6cuBvdr6K7MNDvBqaHWCnejCLq4rItshN6zeiA3GVWKzB44kqkRRzyYKOsjInJ
-         DpkLv9S46JLZg==
+        b=F/gchRFDT5s6Bj4aAMIzmxLrZp+Mc0A1JzB8QcXDIs5IuYBkM/NvC7QRJtN1odBx8
+         z9+XkHdxAeYUbkpDtkj8chQYQiLrSdeGSZ3IWja8lZiJm5y+gBp2oZiDxIkYdc7dBH
+         1M/sVOwUjMzmSX9BYlQckvlzO+R7mqz0e1lOS0bryQlFvHWiDv+DO5TIM7o/ehmnK/
+         KnasCkHGX/ao9K6KOcI9MgCVlQWx5kKXqvv6n/XkVdCQp8J9AjiuEeJtX1MKENuGaO
+         kJf52YCTeaFhsVD1HtWksBdUtv6P6bPRr+A9ucPpyZktZQzJUxKAGEMhbpykGdH+ik
+         2XYCMQKbiff/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Simon Ser <contact@emersion.fr>, Jared Baldridge <jrb@expunge.us>,
-        Emil Velikov <emil.l.velikov@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 008/146] drm/panel-orientation-quirks: add Valve Steam Deck
-Date:   Mon,  8 Nov 2021 12:42:35 -0500
-Message-Id: <20211108174453.1187052-8-sashal@kernel.org>
+Cc:     Scott Wood <swood@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, dave@stgolabs.net,
+        josh@joshtriplett.org, rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 009/146] rcutorture: Avoid problematic critical section nesting on PREEMPT_RT
+Date:   Mon,  8 Nov 2021 12:42:36 -0500
+Message-Id: <20211108174453.1187052-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108174453.1187052-1-sashal@kernel.org>
 References: <20211108174453.1187052-1-sashal@kernel.org>
@@ -48,44 +44,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Ser <contact@emersion.fr>
+From: Scott Wood <swood@redhat.com>
 
-[ Upstream commit 9eeb7b4e40bfd69d8aaa920c7e9df751c9e11dce ]
+[ Upstream commit 71921a9606ddbcc1d98c00eca7ae82c373d1fecd ]
 
-Valve's Steam Deck has a 800x1280 LCD screen.
+rcutorture is generating some nesting scenarios that are not compatible on PREEMPT_RT.
+For example:
+	preempt_disable();
+	rcu_read_lock_bh();
+	preempt_enable();
+	rcu_read_unlock_bh();
 
-Signed-off-by: Simon Ser <contact@emersion.fr>
-Cc: Jared Baldridge <jrb@expunge.us>
-Cc: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210911102430.253986-1-contact@emersion.fr
+The problem here is that on PREEMPT_RT the bottom halves have to be
+disabled and enabled in preemptible context.
+
+Reorder locking: start with BH locking and continue with then with
+disabling preemption or interrupts. In the unlocking do it reverse by
+first enabling interrupts and preemption and BH at the very end.
+Ensure that on PREEMPT_RT BH locking remains unchanged if in
+non-preemptible context.
+
+Link: https://lkml.kernel.org/r/20190911165729.11178-6-swood@redhat.com
+Link: https://lkml.kernel.org/r/20210819182035.GF4126399@paulmck-ThinkPad-P17-Gen-1
+Signed-off-by: Scott Wood <swood@redhat.com>
+[bigeasy: Drop ATOM_BH, make it only about changing BH in atomic
+context. Allow enabling RCU in IRQ-off section. Reword commit message.]
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ kernel/rcu/rcutorture.c | 48 ++++++++++++++++++++++++++++++-----------
+ 1 file changed, 36 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 926094b83e2f4..a950d5db211c5 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -261,6 +261,13 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Galaxy Book 10.6"),
- 		},
- 		.driver_data = (void *)&lcd1280x1920_rightside_up,
-+	}, {	/* Valve Steam Deck */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Valve"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Jupiter"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "1"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_rightside_up,
- 	}, {	/* VIOS LTH17 */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "VIOS"),
+diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
+index ab4215266ebee..968696ace8f3f 100644
+--- a/kernel/rcu/rcutorture.c
++++ b/kernel/rcu/rcutorture.c
+@@ -1432,28 +1432,34 @@ static void rcutorture_one_extend(int *readstate, int newstate,
+ 	/* First, put new protection in place to avoid critical-section gap. */
+ 	if (statesnew & RCUTORTURE_RDR_BH)
+ 		local_bh_disable();
++	if (statesnew & RCUTORTURE_RDR_RBH)
++		rcu_read_lock_bh();
+ 	if (statesnew & RCUTORTURE_RDR_IRQ)
+ 		local_irq_disable();
+ 	if (statesnew & RCUTORTURE_RDR_PREEMPT)
+ 		preempt_disable();
+-	if (statesnew & RCUTORTURE_RDR_RBH)
+-		rcu_read_lock_bh();
+ 	if (statesnew & RCUTORTURE_RDR_SCHED)
+ 		rcu_read_lock_sched();
+ 	if (statesnew & RCUTORTURE_RDR_RCU)
+ 		idxnew = cur_ops->readlock() << RCUTORTURE_RDR_SHIFT;
+ 
+-	/* Next, remove old protection, irq first due to bh conflict. */
++	/*
++	 * Next, remove old protection, in decreasing order of strength
++	 * to avoid unlock paths that aren't safe in the stronger
++	 * context. Namely: BH can not be enabled with disabled interrupts.
++	 * Additionally PREEMPT_RT requires that BH is enabled in preemptible
++	 * context.
++	 */
+ 	if (statesold & RCUTORTURE_RDR_IRQ)
+ 		local_irq_enable();
+-	if (statesold & RCUTORTURE_RDR_BH)
+-		local_bh_enable();
+ 	if (statesold & RCUTORTURE_RDR_PREEMPT)
+ 		preempt_enable();
+-	if (statesold & RCUTORTURE_RDR_RBH)
+-		rcu_read_unlock_bh();
+ 	if (statesold & RCUTORTURE_RDR_SCHED)
+ 		rcu_read_unlock_sched();
++	if (statesold & RCUTORTURE_RDR_BH)
++		local_bh_enable();
++	if (statesold & RCUTORTURE_RDR_RBH)
++		rcu_read_unlock_bh();
+ 	if (statesold & RCUTORTURE_RDR_RCU) {
+ 		bool lockit = !statesnew && !(torture_random(trsp) & 0xffff);
+ 
+@@ -1496,6 +1502,9 @@ rcutorture_extend_mask(int oldmask, struct torture_random_state *trsp)
+ 	int mask = rcutorture_extend_mask_max();
+ 	unsigned long randmask1 = torture_random(trsp) >> 8;
+ 	unsigned long randmask2 = randmask1 >> 3;
++	unsigned long preempts = RCUTORTURE_RDR_PREEMPT | RCUTORTURE_RDR_SCHED;
++	unsigned long preempts_irq = preempts | RCUTORTURE_RDR_IRQ;
++	unsigned long bhs = RCUTORTURE_RDR_BH | RCUTORTURE_RDR_RBH;
+ 
+ 	WARN_ON_ONCE(mask >> RCUTORTURE_RDR_SHIFT);
+ 	/* Mostly only one bit (need preemption!), sometimes lots of bits. */
+@@ -1503,11 +1512,26 @@ rcutorture_extend_mask(int oldmask, struct torture_random_state *trsp)
+ 		mask = mask & randmask2;
+ 	else
+ 		mask = mask & (1 << (randmask2 % RCUTORTURE_RDR_NBITS));
+-	/* Can't enable bh w/irq disabled. */
+-	if ((mask & RCUTORTURE_RDR_IRQ) &&
+-	    ((!(mask & RCUTORTURE_RDR_BH) && (oldmask & RCUTORTURE_RDR_BH)) ||
+-	     (!(mask & RCUTORTURE_RDR_RBH) && (oldmask & RCUTORTURE_RDR_RBH))))
+-		mask |= RCUTORTURE_RDR_BH | RCUTORTURE_RDR_RBH;
++
++	/*
++	 * Can't enable bh w/irq disabled.
++	 */
++	if (mask & RCUTORTURE_RDR_IRQ)
++		mask |= oldmask & bhs;
++
++	/*
++	 * Ideally these sequences would be detected in debug builds
++	 * (regardless of RT), but until then don't stop testing
++	 * them on non-RT.
++	 */
++	if (IS_ENABLED(CONFIG_PREEMPT_RT)) {
++		/* Can't modify BH in atomic context */
++		if (oldmask & preempts_irq)
++			mask &= ~bhs;
++		if ((oldmask | mask) & preempts_irq)
++			mask |= oldmask & bhs;
++	}
++
+ 	return mask ?: RCUTORTURE_RDR_RCU;
+ }
+ 
 -- 
 2.33.0
 
