@@ -2,89 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBF694497E1
-	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 16:12:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1316449843
+	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 16:31:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231268AbhKHPOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 10:14:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49856 "EHLO
+        id S235527AbhKHP3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 10:29:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240995AbhKHPNs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Nov 2021 10:13:48 -0500
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12A21C0432E6
-        for <stable@vger.kernel.org>; Mon,  8 Nov 2021 07:09:38 -0800 (PST)
-Received: by mail-wm1-x343.google.com with SMTP id y84-20020a1c7d57000000b00330cb84834fso15336210wmc.2
-        for <stable@vger.kernel.org>; Mon, 08 Nov 2021 07:09:38 -0800 (PST)
+        with ESMTP id S231453AbhKHP3i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Nov 2021 10:29:38 -0500
+Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70D0EC061570;
+        Mon,  8 Nov 2021 07:26:54 -0800 (PST)
+Received: by mail-ot1-x32e.google.com with SMTP id o15-20020a9d410f000000b0055c942cc7a0so3368811ote.8;
+        Mon, 08 Nov 2021 07:26:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=lpTj1qbBhUjsFO3ShCuhQlstpCRBWbI+98sXsatNNS0=;
-        b=h+Akt2mWPtp+E34mE6dgSNMQXWE8r/A3OLqHW2itcZrirRn7t9ijwAC9JBPL68gP3m
-         Cp3TAXLCnF8+UCv3th3q2u5K4LiuT+p82glnbKIKSSfOO8Jd6xOWgGixSO302BqaA6fV
-         MRiYaJmvheoYkSd48VMnRfjAc8QHg3eTmryw4p9XnBMIw+MbJSRn4BxNoBytcPW6mDrX
-         qvlbi7/pPASwg5F5rFL0zgAFp+JVIa2OVGZX1wk//Jgg4HJKjiag9GpEGjx1t8AGbnyL
-         e2sbe/Wxoq9LyRi76diEL38knC6aUlwiOK08elFKfz6moJSKVPwK8L3quPbWIu5LMghB
-         kPeg==
+        h=sender:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=chC3YbDWYzniOxK3WtaulowJ3UlKNSrFvxxb8N8ry0w=;
+        b=JxAFOgbVnHLwfMIQIECNqVQSIEcoAgACmUt5826itb3T19FXbfVsqi6R8OHrxR6Pi/
+         a3fKmxc9lYKcvMCR+G/vJOWKMYwYpyIXVyVrPZbz6eYkMlyM4lVnixHHKlX3KQvQ4csZ
+         dhgKnqbASbzPXqa5kxmcdMnb8bUnIgE2DxHEeRR+CABmKJEr9jnhQvavvAVu+yK1A2Il
+         ZJS2fy4SEhOVhDHSF2XdjyB3ZQj+yuOuKXQnca4wZznE2KcsTlEo6XuaWOEe1P9FWpbV
+         L6KelWpZhRfIIL1UzRbg2aZdaMQwH1zST7aFFyFtRUNfb5fcv3hche3SdjjNpo6K+4Vj
+         UmZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=lpTj1qbBhUjsFO3ShCuhQlstpCRBWbI+98sXsatNNS0=;
-        b=beaZhsMPy8kRdURZ72dZAnytCQCrnciOlgH9JrOWViJyCNCPpJ3OqPOQoHNmnleYlI
-         NUIm/jy6Ee5VvRzN8A1KbPZt81kvTukh4fmDRKLl1ZHl4WiJ9dt6uu0H/ngTofOXF+DI
-         SjWmZ85go8avjA4dPnBfMCMoT4V4Za7nL3R3TPyB1v4aQQwrTEvGzM3+dhYZItD57J9W
-         YGa1qMJHT/IHaGBClVNTtzui2bK6cipKA63O7uAemrh1vVC10oCsrJEz46OwPCfoU9Rk
-         LtZYGnsbhMjlREam0MvuCMPq0RRZ6CObP4artjvbhN1WFE1tbUzkefyUU8/MlBiMWu9I
-         3oOw==
-X-Gm-Message-State: AOAM533Ggvqte6lpnd06uJIX/0afXEPrHJQUGMrqQZtBzQZUgGyOi7kZ
-        nLBED9pd0By8LeKtPBEN9I/2xJXj52KupUUWLB4=
-X-Google-Smtp-Source: ABdhPJzxTv7GuI2pQtPbue6/Q0F9E1eD+aYuKodrcXeZjl4FMu0XEH7ha04ldOsp1YsMJB0nqcyiAZr/yN7qr0ijYos=
-X-Received: by 2002:a7b:c389:: with SMTP id s9mr87322wmj.133.1636384176624;
- Mon, 08 Nov 2021 07:09:36 -0800 (PST)
+        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
+         :subject:content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=chC3YbDWYzniOxK3WtaulowJ3UlKNSrFvxxb8N8ry0w=;
+        b=yj88Rb94cAGGbbT83zOfOEWIEjkdF2Y8EoUBWFu0aZRJbSCWzkGt9XiQwY8vJlY1LS
+         7/XCk/wK8lZkkVOUCsUbx6scuQQ/7gqD+IVJa9m44BUJqzB7AWxRykgjJYoPKniZvXN7
+         iZB9qWK/2ZEPseRHmMxzpKzFd8vo4PvlmEKFnlHTehMDi0cUyZMa2r1weK6WeKBnZHL/
+         +lkJUkm1q2Uol6mMVUl/KHvPkm4dl3YtU4DmUIamXJToY+rkrlR1KUVbgiQxkaLeo48z
+         K5zNAlMIJkYg05mZVopwPKGdVLHjjOSJdi3kWKZjjfrKuhdGpEHnIKdgyr8pQm2OXhXq
+         tznw==
+X-Gm-Message-State: AOAM530izV3ymCa8eNXxzNytdAPTuXyEtu4R9THDN8okvRU5l46lhYmp
+        VYhprwpufdNLerNTg4FyVrk=
+X-Google-Smtp-Source: ABdhPJxwcgDuYyz0EEyHfI3TSX7yBhwpJtM+JFS4OEO2EZ7En6LRbidEU30chVhLMO9MP31+OK13tg==
+X-Received: by 2002:a9d:590e:: with SMTP id t14mr530975oth.34.1636385213881;
+        Mon, 08 Nov 2021 07:26:53 -0800 (PST)
+Received: from [192.168.1.103] (cpe-24-31-246-181.kc.res.rr.com. [24.31.246.181])
+        by smtp.gmail.com with ESMTPSA id 97sm480880otv.80.2021.11.08.07.26.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 08 Nov 2021 07:26:53 -0800 (PST)
+Sender: Larry Finger <larry.finger@gmail.com>
+Message-ID: <0d24888e-0132-4a9a-f8cb-4f5a3d4b10c6@lwfinger.net>
+Date:   Mon, 8 Nov 2021 09:26:51 -0600
 MIME-Version: 1.0
-Received: by 2002:a05:600c:a44:0:0:0:0 with HTTP; Mon, 8 Nov 2021 07:09:36
- -0800 (PST)
-Reply-To: westernunion-claimcollector@collector.org
-From:   WESTERN UNION MONEY TRANSFER OFFICE <munaegono1@gmail.com>
-Date:   Mon, 8 Nov 2021 07:09:36 -0800
-Message-ID: <CAHKEO6i=OFg=Ry+c0EtQpcCjJqHw6RX8ioKRm3VGUaWvZnP6VQ@mail.gmail.com>
-Subject: THE MONEY HAS BEEN SENT, PLEASE CONFIRM
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.1
+Subject: Re: [PATCH v2] staging: r8188eu: Fix breakage introduced when 5G code
+ was removed
+Content-Language: en-US
+To:     David Laight <David.Laight@ACULAB.COM>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Cc:     "phil@philpotter.co.uk" <phil@philpotter.co.uk>,
+        "linux-staging@lists.linux.dev" <linux-staging@lists.linux.dev>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Zameer Manji <zmanji@gmail.com>,
+        kernel test robot <lkp@intel.com>,
+        Stable <stable@vger.kernel.org>
+References: <20211107173543.7486-1-Larry.Finger@lwfinger.net>
+ <8e4dd863ae894c8488a3d3d0f6a11f66@AcuMS.aculab.com>
+From:   Larry Finger <Larry.Finger@lwfinger.net>
+In-Reply-To: <8e4dd863ae894c8488a3d3d0f6a11f66@AcuMS.aculab.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
+On 11/8/21 04:55, David Laight wrote:
+> From: Larry Finger
+>> Sent: 07 November 2021 17:36
+>>
+>> In commit 221abd4d478a ("staging: r8188eu: Remove no more necessary definitions
+>> and code"), two entries were removed from RTW_ChannelPlanMap[], but not replaced
+>> with zeros. The position within this table is important, thus the patch broke
+>> systems operating in regulatory domains osted later than entry 0x13 in the table.
+>> Unfortunately, the FCC entry comes before that point and most testers did not see
+>> this problem.
+> ...
+>>   drivers/staging/r8188eu/core/rtw_mlme_ext.c | 2 ++
+>>   1 file changed, 2 insertions(+)
+>>
+>> diff --git a/drivers/staging/r8188eu/core/rtw_mlme_ext.c b/drivers/staging/r8188eu/core/rtw_mlme_ext.c
+>> index 55c3d4a6faeb..5b60e6df5f87 100644
+>> --- a/drivers/staging/r8188eu/core/rtw_mlme_ext.c
+>> +++ b/drivers/staging/r8188eu/core/rtw_mlme_ext.c
+>> @@ -107,6 +107,7 @@ static struct rt_channel_plan_map	RTW_ChannelPlanMap[RT_CHANNEL_DOMAIN_MAX] = {
+>>   	{0x01},	/* 0x10, RT_CHANNEL_DOMAIN_JAPAN */
+>>   	{0x02},	/* 0x11, RT_CHANNEL_DOMAIN_FCC_NO_DFS */
+>>   	{0x01},	/* 0x12, RT_CHANNEL_DOMAIN_JAPAN_NO_DFS */
+>> +	{0x00}, /* 0x13 */
+>>   	{0x02},	/* 0x14, RT_CHANNEL_DOMAIN_TAIWAN_NO_DFS */
+>>   	{0x00},	/* 0x15, RT_CHANNEL_DOMAIN_ETSI_NO_DFS */
+>>   	{0x00},	/* 0x16, RT_CHANNEL_DOMAIN_KOREA_NO_DFS */
+>> @@ -118,6 +119,7 @@ static struct rt_channel_plan_map	RTW_ChannelPlanMap[RT_CHANNEL_DOMAIN_MAX] = {
+>>   	{0x00},	/* 0x1C, */
+>>   	{0x00},	/* 0x1D, */
+>>   	{0x00},	/* 0x1E, */
+>> +	{0x00},	/* 0x1F, */
+>>   	/*  0x20 ~ 0x7F , New Define ===== */
+>>   	{0x00},	/* 0x20, RT_CHANNEL_DOMAIN_WORLD_NULL */
+>>   	{0x01},	/* 0x21, RT_CHANNEL_DOMAIN_ETSI1_NULL */
+> 
+> Is it worth changing that to use designated array initialisers?
+> so:
+> 	[0x21] = {0x01} /* RT_CHANNEL_DOMAIN_ETS11_NULL */
+> 
+> Then the {0x00} entries can be missed out (or just commented as not used).
 
+Yes, we could save a few bytes but risk getting into trouble aligning with some 
+other array that I have not located. I think it should be left the way it is.
 
-Dear Beneficiary;
+Larry
 
-Our Operation Manager has extract your 1st payment of $5,000.00 out of
-your total fund of ($1.5million) We need your full  information for
-the transfer.
-
-We scheduled installment sums of USD $5,000.00 daily through the cash
-fast Western Union, payment at counter as directed and we have
-commenced the relevant programming and the documentations of the said
-fund, as we are instructed to make the first payment of USD$5,000.00
-MTCN available in your name upon the receipt of your information from
-you as follows.
-
-Your Name,
-
-Address,
-
-Telephone
-
-ID CARD
-
-Contact our Operational Manager,Mr WETAYEM MYSHEAR through our office
-email for more enlightenment on your money.
-
-Email (westernunion.collector@collector.org)
-
-Thanks
-
-Managnment
