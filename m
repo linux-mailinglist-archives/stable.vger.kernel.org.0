@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0590644A28E
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CE6744A29F
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243024AbhKIBTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:19:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44370 "EHLO mail.kernel.org"
+        id S243174AbhKIBTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:19:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243201AbhKIBPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243203AbhKIBPR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Nov 2021 20:15:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9202D61A52;
-        Tue,  9 Nov 2021 01:06:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACC8A61A51;
+        Tue,  9 Nov 2021 01:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419973;
-        bh=ufrqD5GM6BCWE6ozeSLbaaPWgc65jOD7AnWNkV4ajrQ=;
+        s=k20201202; t=1636419974;
+        bh=U5k+KMIXFsTrLBCODPXlgLMvY1DiVuX8BiMWVz10IKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XZJZYziWSgEhKpqTIvBN0xr6T9GrulfjbPkUgBv4WazI5M9moRcCp3/mOTtQBVAVD
-         y0vOWSEeSDTKeLYEBqa7N5o953QbDGlbw64fQBNSjhjrEDavG5zmTGWpNDKaaIaSv3
-         6b+YM91PBgiFo74vKiVdIXodJ4rYOjw0Xd6UFZeWfIkd8rOjAUeyGqAy7MECfD1Zrb
-         qJNivpmwiWMkKq/Sjavp+1/HfauMxamWb/rUuDmEwx+240R7w2rXRxxdC+4sCDezEf
-         h+GrCuLX/0z2ImbvLm0EqI3b9NrQa7Hdnw4a5IXHAmiVRF+/Jnux8VaiCWGPrQvPX7
-         9/YW/R7MBopKw==
+        b=rRs/QE058jmaTrHw7FQaHOVxcqVovhdNr99SxKaghKKDI6bvzfXB6FIdtG09Me7Si
+         E6EihI2eEaX9gSRs/DjOyjP0b0R60WXYbLBwUeAyqlQIwmZZzl8nQN1Sx3v9DCQk2n
+         wEHHohOpFzigMd1c0ujsyskmYawo8i6W9C/Kkmsm8WIsCwl0wTiAJCry7rlfzoC4R0
+         hv2OfGYuvi5eiDssnWjJ4Ka7JPlsZy1dpJFhWUjirPtvf8USsDvqGO1LxHIDXcNfV3
+         AcUmhsqDMTX1S5+0og19W6M7DT9txD5HjmTucAiclIq+Ym4l7m3idcypUE7CW3gJ1B
+         2H+uMXwyTlVlQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Menglong Dong <imagedong@tencent.com>,
-        Mengen Sun <mengensun@tencent.com>, Tejun Heo <tj@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 32/47] workqueue: make sysfs of unbound kworker cpumask more clever
-Date:   Mon,  8 Nov 2021 12:50:16 -0500
-Message-Id: <20211108175031.1190422-32-sashal@kernel.org>
+Cc:     Kalesh Singh <kaleshsingh@google.com>,
+        kernel test robot <lkp@intel.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com
+Subject: [PATCH AUTOSEL 4.19 33/47] tracing/cfi: Fix cmp_entries_* functions signature mismatch
+Date:   Mon,  8 Nov 2021 12:50:17 -0500
+Message-Id: <20211108175031.1190422-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108175031.1190422-1-sashal@kernel.org>
 References: <20211108175031.1190422-1-sashal@kernel.org>
@@ -42,68 +43,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Menglong Dong <imagedong@tencent.com>
+From: Kalesh Singh <kaleshsingh@google.com>
 
-[ Upstream commit d25302e46592c97d29f70ccb1be558df31a9a360 ]
+[ Upstream commit 7ce1bb83a14019f8c396d57ec704d19478747716 ]
 
-Some unfriendly component, such as dpdk, write the same mask to
-unbound kworker cpumask again and again. Every time it write to
-this interface some work is queue to cpu, even though the mask
-is same with the original mask.
+If CONFIG_CFI_CLANG=y, attempting to read an event histogram will cause
+the kernel to panic due to failed CFI check.
 
-So, fix it by return success and do nothing if the cpumask is
-equal with the old one.
+    1. echo 'hist:keys=common_pid' >> events/sched/sched_switch/trigger
+    2. cat events/sched/sched_switch/hist
+    3. kernel panics on attempting to read hist
 
-Signed-off-by: Mengen Sun <mengensun@tencent.com>
-Signed-off-by: Menglong Dong <imagedong@tencent.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+This happens because the sort() function expects a generic
+int (*)(const void *, const void *) pointer for the compare function.
+To prevent this CFI failure, change tracing map cmp_entries_* function
+signatures to match this.
+
+Also, fix the build error reported by the kernel test robot [1].
+
+[1] https://lore.kernel.org/r/202110141140.zzi4dRh4-lkp@intel.com/
+
+Link: https://lkml.kernel.org/r/20211014045217.3265162-1-kaleshsingh@google.com
+
+Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/workqueue.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ kernel/trace/tracing_map.c | 40 ++++++++++++++++++++++----------------
+ 1 file changed, 23 insertions(+), 17 deletions(-)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 1573d1bf63007..b1bb6cb5802ec 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -5125,9 +5125,6 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
- 	int ret = -EINVAL;
- 	cpumask_var_t saved_cpumask;
+diff --git a/kernel/trace/tracing_map.c b/kernel/trace/tracing_map.c
+index 9e31bfc818ff8..10657b8dc2c2d 100644
+--- a/kernel/trace/tracing_map.c
++++ b/kernel/trace/tracing_map.c
+@@ -834,29 +834,35 @@ int tracing_map_init(struct tracing_map *map)
+ 	return err;
+ }
  
--	if (!zalloc_cpumask_var(&saved_cpumask, GFP_KERNEL))
--		return -ENOMEM;
--
- 	/*
- 	 * Not excluding isolated cpus on purpose.
- 	 * If the user wishes to include them, we allow that.
-@@ -5135,6 +5132,15 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
- 	cpumask_and(cpumask, cpumask, cpu_possible_mask);
- 	if (!cpumask_empty(cpumask)) {
- 		apply_wqattrs_lock();
-+		if (cpumask_equal(cpumask, wq_unbound_cpumask)) {
-+			ret = 0;
-+			goto out_unlock;
-+		}
+-static int cmp_entries_dup(const struct tracing_map_sort_entry **a,
+-			   const struct tracing_map_sort_entry **b)
++static int cmp_entries_dup(const void *A, const void *B)
+ {
++	const struct tracing_map_sort_entry *a, *b;
+ 	int ret = 0;
+ 
+-	if (memcmp((*a)->key, (*b)->key, (*a)->elt->map->key_size))
++	a = *(const struct tracing_map_sort_entry **)A;
++	b = *(const struct tracing_map_sort_entry **)B;
 +
-+		if (!zalloc_cpumask_var(&saved_cpumask, GFP_KERNEL)) {
-+			ret = -ENOMEM;
-+			goto out_unlock;
-+		}
++	if (memcmp(a->key, b->key, a->elt->map->key_size))
+ 		ret = 1;
  
- 		/* save the old wq_unbound_cpumask. */
- 		cpumask_copy(saved_cpumask, wq_unbound_cpumask);
-@@ -5147,10 +5153,11 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
- 		if (ret < 0)
- 			cpumask_copy(wq_unbound_cpumask, saved_cpumask);
- 
-+		free_cpumask_var(saved_cpumask);
-+out_unlock:
- 		apply_wqattrs_unlock();
- 	}
- 
--	free_cpumask_var(saved_cpumask);
  	return ret;
  }
+ 
+-static int cmp_entries_sum(const struct tracing_map_sort_entry **a,
+-			   const struct tracing_map_sort_entry **b)
++static int cmp_entries_sum(const void *A, const void *B)
+ {
+ 	const struct tracing_map_elt *elt_a, *elt_b;
++	const struct tracing_map_sort_entry *a, *b;
+ 	struct tracing_map_sort_key *sort_key;
+ 	struct tracing_map_field *field;
+ 	tracing_map_cmp_fn_t cmp_fn;
+ 	void *val_a, *val_b;
+ 	int ret = 0;
+ 
+-	elt_a = (*a)->elt;
+-	elt_b = (*b)->elt;
++	a = *(const struct tracing_map_sort_entry **)A;
++	b = *(const struct tracing_map_sort_entry **)B;
++
++	elt_a = a->elt;
++	elt_b = b->elt;
+ 
+ 	sort_key = &elt_a->map->sort_key;
+ 
+@@ -873,18 +879,21 @@ static int cmp_entries_sum(const struct tracing_map_sort_entry **a,
+ 	return ret;
+ }
+ 
+-static int cmp_entries_key(const struct tracing_map_sort_entry **a,
+-			   const struct tracing_map_sort_entry **b)
++static int cmp_entries_key(const void *A, const void *B)
+ {
+ 	const struct tracing_map_elt *elt_a, *elt_b;
++	const struct tracing_map_sort_entry *a, *b;
+ 	struct tracing_map_sort_key *sort_key;
+ 	struct tracing_map_field *field;
+ 	tracing_map_cmp_fn_t cmp_fn;
+ 	void *val_a, *val_b;
+ 	int ret = 0;
+ 
+-	elt_a = (*a)->elt;
+-	elt_b = (*b)->elt;
++	a = *(const struct tracing_map_sort_entry **)A;
++	b = *(const struct tracing_map_sort_entry **)B;
++
++	elt_a = a->elt;
++	elt_b = b->elt;
+ 
+ 	sort_key = &elt_a->map->sort_key;
+ 
+@@ -989,10 +998,8 @@ static void sort_secondary(struct tracing_map *map,
+ 			   struct tracing_map_sort_key *primary_key,
+ 			   struct tracing_map_sort_key *secondary_key)
+ {
+-	int (*primary_fn)(const struct tracing_map_sort_entry **,
+-			  const struct tracing_map_sort_entry **);
+-	int (*secondary_fn)(const struct tracing_map_sort_entry **,
+-			    const struct tracing_map_sort_entry **);
++	int (*primary_fn)(const void *, const void *);
++	int (*secondary_fn)(const void *, const void *);
+ 	unsigned i, start = 0, n_sub = 1;
+ 
+ 	if (is_key(map, primary_key->field_idx))
+@@ -1061,8 +1068,7 @@ int tracing_map_sort_entries(struct tracing_map *map,
+ 			     unsigned int n_sort_keys,
+ 			     struct tracing_map_sort_entry ***sort_entries)
+ {
+-	int (*cmp_entries_fn)(const struct tracing_map_sort_entry **,
+-			      const struct tracing_map_sort_entry **);
++	int (*cmp_entries_fn)(const void *, const void *);
+ 	struct tracing_map_sort_entry *sort_entry, **entries;
+ 	int i, n_entries, ret;
  
 -- 
 2.33.0
