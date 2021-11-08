@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9058944A1BF
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:09:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF4FB44A1BA
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:09:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241962AbhKIBMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:12:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39746 "EHLO mail.kernel.org"
+        id S234358AbhKIBLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:11:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242171AbhKIBJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:09:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54B8161A70;
-        Tue,  9 Nov 2021 01:04:21 +0000 (UTC)
+        id S242176AbhKIBJt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:09:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 062FF61A65;
+        Tue,  9 Nov 2021 01:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419862;
-        bh=hCBZVbn5ACGsSoRa85leu+ceg8jHthpi32UI/d/3jZQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vEoS73YZFbb9+gjznJxHDYjBOGz10H7t1kteHXECf45KFjXBx6/aQ0j3UUnDXK1t6
-         wjp2b6T8vQ0WmyTJNwZXgoh7VFB/PLqvrJbtrFi1vHVwy5Gafk1Gsgwyi046CUYLkh
-         WOOycUN/IV0h2g6wqjU9PbdMZHfqqcywW0+7Zg5wIXWn3sNQIWvgofPSQJJ7dFPk21
-         IRPp8tw+9asA34D1H56QQOqouFLt0RbfKFA/tJM7QaZerKxvXNvYVFOyaV0Lncq4mG
-         NdMYru0EkgflRh4Kve6/1r60yO//lrjPSenDN6/3vvwlCaMNEPLot8OsgrFdZS/sya
-         SUeWkKpjNp7ig==
+        s=k20201202; t=1636419867;
+        bh=EjAYMVikh+ar3WB5M1uox3DB/K28A+dIc56LbYZC5DM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=HOmHWeZwe/pmGdxGA/dPvGuYezpwn9XKxb6tBdJXWRLTX3Jw/ShH4W2Kwf1ps7Nn1
+         CWsPBn4nyEtCjOgPM7C9/QJs33PrM9Yx7LIw4AafS1tx/mXMP0QFA7sgJqYHqh6pjC
+         N+RAHYNzNo1Jj3EE+c4EDZpJ7jjttZIFNFaosyGHKN98KBFxAqq8MPvL1/l24AyI3F
+         y9d3dSS6AstJ26O2Fktx7cOPAFM7XeCmZ1XwqUjiOO4Urf1Brd0jIncZWzk/poQe7M
+         +uHlOOxDdKqMgRhIhej8tdr6ltUOnhxonICz0BImogAb1EFcxb5zD8Llfyp5oBNYL3
+         aROQucGEJwDmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nadezda Lutovinova <lutovinova@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, a.hajda@samsung.com,
-        mchehab@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 035/101] media: s5p-mfc: Add checking to s5p_mfc_probe().
-Date:   Mon,  8 Nov 2021 12:47:25 -0500
-Message-Id: <20211108174832.1189312-35-sashal@kernel.org>
+Cc:     Charan Teja Reddy <charante@codeaurora.org>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Sasha Levin <sashal@kernel.org>, sumit.semwal@linaro.org,
+        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linaro-mm-sig@lists.linaro.org
+Subject: [PATCH AUTOSEL 5.4 01/74] dma-buf: WARN on dmabuf release with pending attachments
+Date:   Mon,  8 Nov 2021 12:48:28 -0500
+Message-Id: <20211108174942.1189927-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211108174832.1189312-1-sashal@kernel.org>
-References: <20211108174832.1189312-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,39 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Charan Teja Reddy <charante@codeaurora.org>
 
-[ Upstream commit cdfaf4752e6915a4b455ad4400133e540e4dc965 ]
+[ Upstream commit f492283b157053e9555787262f058ae33096f568 ]
 
-If of_device_get_match_data() return NULL,
-then null pointer dereference occurs in  s5p_mfc_init_pm().
-The patch adds checking if dev->variant is NULL.
+It is expected from the clients to follow the below steps on an imported
+dmabuf fd:
+a) dmabuf = dma_buf_get(fd) // Get the dmabuf from fd
+b) dma_buf_attach(dmabuf); // Clients attach to the dmabuf
+   o Here the kernel does some slab allocations, say for
+dma_buf_attachment and may be some other slab allocation in the
+dmabuf->ops->attach().
+c) Client may need to do dma_buf_map_attachment().
+d) Accordingly dma_buf_unmap_attachment() should be called.
+e) dma_buf_detach () // Clients detach to the dmabuf.
+   o Here the slab allocations made in b) are freed.
+f) dma_buf_put(dmabuf) // Can free the dmabuf if it is the last
+reference.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Now say an erroneous client failed at step c) above thus it directly
+called dma_buf_put(), step f) above. Considering that it may be the last
+reference to the dmabuf, buffer will be freed with pending attachments
+left to the dmabuf which can show up as the 'memory leak'. This should
+at least be reported as the WARN().
 
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627043468-16381-1-git-send-email-charante@codeaurora.org
+Signed-off-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/dma-buf/dma-buf.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-index c763c0a03140c..f336a95432732 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-@@ -1288,6 +1288,10 @@ static int s5p_mfc_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+index 758de0e9b2ddc..16bbc9bc9e6d1 100644
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -79,6 +79,7 @@ static void dma_buf_release(struct dentry *dentry)
+ 	if (dmabuf->resv == (struct dma_resv *)&dmabuf[1])
+ 		dma_resv_fini(dmabuf->resv);
  
- 	dev->variant = of_device_get_match_data(&pdev->dev);
-+	if (!dev->variant) {
-+		dev_err(&pdev->dev, "Failed to get device MFC hardware variant information\n");
-+		return -ENOENT;
-+	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	dev->regs_base = devm_ioremap_resource(&pdev->dev, res);
++	WARN_ON(!list_empty(&dmabuf->attachments));
+ 	module_put(dmabuf->owner);
+ 	kfree(dmabuf->name);
+ 	kfree(dmabuf);
 -- 
 2.33.0
 
