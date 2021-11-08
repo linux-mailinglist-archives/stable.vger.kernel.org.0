@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A709144A228
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBD1C44A23A
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:15:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240831AbhKIBQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:16:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40938 "EHLO mail.kernel.org"
+        id S241929AbhKIBQt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:16:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242912AbhKIBOd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:14:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A704061ADF;
-        Tue,  9 Nov 2021 01:05:55 +0000 (UTC)
+        id S242925AbhKIBOi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:14:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F9C961353;
+        Tue,  9 Nov 2021 01:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419956;
-        bh=4TfVg6N8fklROGmd+YpdeLVHdfEn+tqcbh3nx7khnAk=;
+        s=k20201202; t=1636419959;
+        bh=4OooTmRztQJKUj11q08dZdpILcJXu/3V0osD63y2+JQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qBmT9MZoKgy6DnpRLE4X5QX9NEbcFYik19voT5mM7ddZdMkV1esFrxgO82CeA7IPu
-         JCbrhDKbLJXnj5/F/B0ELqohq+Wrh1M6w11G67VD21FJPy1b3TJtZxo+x++3C/lMA8
-         uL9oYbqXh/WcNpqqVdPULJ04Hb+IlRFmPSGsHrEKm9otbK9GtMpDPPa1HQjCHYPxUv
-         qI1864ESLchKSVKeaxoSfbL22gvj6HTUw7MDqr9Wnts4QV2Uao7LAWLLSAwJzu9ww7
-         0wOG6zh783ev6ZCojKGXpEvujvIz+6FhaccrSpvRYVyKi+jNA5WWBOUu0VWbAqx1Tb
-         R1ffhz8H/tTVg==
+        b=F64/yCvsY8O1eG93PpshnGMWICbtxgioLxFIZifOEd/el0aSVi1rHZwUpkRmoq9i3
+         toC1MXf29K38+k0065lVaUk8Hv/5bQWOXrFkyvmvrlA5EFF8s8To5S895bqJz6g4Zh
+         QuRC/DhQpjE0jk7f1v81AOS++wR4UmWryntOqaBKfZW/jDNeHYmb+buwB1XoBw/rru
+         hnCG548CzSklpfxYKUinAk2ICRnb6pGa3ZpgfThKu+mXHYVU/vnsuBaCU1zPcGAYWL
+         mF6mP8SMLz0l7mtUM6gHLpRTYr5ZOqIvOPdtnZlwPYFBnoNKg+xwsop9SKx4aQ4WaK
+         zt5urliOeIXFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Reik Keutterling <spielkind@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, robert.moore@intel.com,
-        linux-acpi@vger.kernel.org, devel@acpica.org
-Subject: [PATCH AUTOSEL 4.19 23/47] ACPICA: Avoid evaluating methods too early during system resume
-Date:   Mon,  8 Nov 2021 12:50:07 -0500
-Message-Id: <20211108175031.1190422-23-sashal@kernel.org>
+Cc:     Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 24/47] media: usb: dvd-usb: fix uninit-value bug in dibusb_read_eeprom_byte()
+Date:   Mon,  8 Nov 2021 12:50:08 -0500
+Message-Id: <20211108175031.1190422-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108175031.1190422-1-sashal@kernel.org>
 References: <20211108175031.1190422-1-sashal@kernel.org>
@@ -43,128 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit d3c4b6f64ad356c0d9ddbcf73fa471e6a841cc5c ]
+[ Upstream commit 899a61a3305d49e8a712e9ab20d0db94bde5929f ]
 
-ACPICA commit 0762982923f95eb652cf7ded27356b247c9774de
+In dibusb_read_eeprom_byte(), if dibusb_i2c_msg() fails, val gets
+assigned an value that's not properly initialized.
+Using kzalloc() in place of kmalloc() for the buffer fixes this issue,
+as the val can now be set to 0 in the event dibusb_i2c_msg() fails.
 
-During wakeup from system-wide sleep states, acpi_get_sleep_type_data()
-is called and it tries to get memory from the slab allocator in order
-to evaluate a control method, but if KFENCE is enabled in the kernel,
-the memory allocation attempt causes an IRQ work to be queued and a
-self-IPI to be sent to the CPU running the code which requires the
-memory controller to be ready, so if that happens too early in the
-wakeup path, it doesn't work.
-
-Prevent that from taking place by calling acpi_get_sleep_type_data()
-for S0 upfront, when preparing to enter a given sleep state, and
-saving the data obtained by it for later use during system wakeup.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214271
-Reported-by: Reik Keutterling <spielkind@gmail.com>
-Tested-by: Reik Keutterling <spielkind@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com
+Tested-by: syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/acglobal.h  |  2 ++
- drivers/acpi/acpica/hwesleep.c  |  8 ++------
- drivers/acpi/acpica/hwsleep.c   | 11 ++++-------
- drivers/acpi/acpica/hwxfsleep.c |  7 +++++++
- 4 files changed, 15 insertions(+), 13 deletions(-)
+ drivers/media/usb/dvb-usb/dibusb-common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpica/acglobal.h b/drivers/acpi/acpica/acglobal.h
-index 1e6204518496c..38712fa4dd9d2 100644
---- a/drivers/acpi/acpica/acglobal.h
-+++ b/drivers/acpi/acpica/acglobal.h
-@@ -224,6 +224,8 @@ extern struct acpi_bit_register_info
-     acpi_gbl_bit_register_info[ACPI_NUM_BITREG];
- ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a);
- ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b);
-+ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a_s0);
-+ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b_s0);
+diff --git a/drivers/media/usb/dvb-usb/dibusb-common.c b/drivers/media/usb/dvb-usb/dibusb-common.c
+index fb1b4f2d5f9de..85b7838b3ede3 100644
+--- a/drivers/media/usb/dvb-usb/dibusb-common.c
++++ b/drivers/media/usb/dvb-usb/dibusb-common.c
+@@ -226,7 +226,7 @@ int dibusb_read_eeprom_byte(struct dvb_usb_device *d, u8 offs, u8 *val)
+ 	u8 *buf;
+ 	int rc;
  
- /*****************************************************************************
-  *
-diff --git a/drivers/acpi/acpica/hwesleep.c b/drivers/acpi/acpica/hwesleep.c
-index e0ad3f11142e4..9516966124ae3 100644
---- a/drivers/acpi/acpica/hwesleep.c
-+++ b/drivers/acpi/acpica/hwesleep.c
-@@ -147,17 +147,13 @@ acpi_status acpi_hw_extended_sleep(u8 sleep_state)
+-	buf = kmalloc(2, GFP_KERNEL);
++	buf = kzalloc(2, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
  
- acpi_status acpi_hw_extended_wake_prep(u8 sleep_state)
- {
--	acpi_status status;
- 	u8 sleep_type_value;
- 
- 	ACPI_FUNCTION_TRACE(hw_extended_wake_prep);
- 
--	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
--					  &acpi_gbl_sleep_type_a,
--					  &acpi_gbl_sleep_type_b);
--	if (ACPI_SUCCESS(status)) {
-+	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
- 		sleep_type_value =
--		    ((acpi_gbl_sleep_type_a << ACPI_X_SLEEP_TYPE_POSITION) &
-+		    ((acpi_gbl_sleep_type_a_s0 << ACPI_X_SLEEP_TYPE_POSITION) &
- 		     ACPI_X_SLEEP_TYPE_MASK);
- 
- 		(void)acpi_write((u64)(sleep_type_value | ACPI_X_SLEEP_ENABLE),
-diff --git a/drivers/acpi/acpica/hwsleep.c b/drivers/acpi/acpica/hwsleep.c
-index d8b8fc2ff5633..f4282370947c8 100644
---- a/drivers/acpi/acpica/hwsleep.c
-+++ b/drivers/acpi/acpica/hwsleep.c
-@@ -179,7 +179,7 @@ acpi_status acpi_hw_legacy_sleep(u8 sleep_state)
- 
- acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
- {
--	acpi_status status;
-+	acpi_status status = AE_OK;
- 	struct acpi_bit_register_info *sleep_type_reg_info;
- 	struct acpi_bit_register_info *sleep_enable_reg_info;
- 	u32 pm1a_control;
-@@ -192,10 +192,7 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
- 	 * This is unclear from the ACPI Spec, but it is required
- 	 * by some machines.
- 	 */
--	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
--					  &acpi_gbl_sleep_type_a,
--					  &acpi_gbl_sleep_type_b);
--	if (ACPI_SUCCESS(status)) {
-+	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
- 		sleep_type_reg_info =
- 		    acpi_hw_get_bit_register_info(ACPI_BITREG_SLEEP_TYPE);
- 		sleep_enable_reg_info =
-@@ -216,9 +213,9 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
- 
- 			/* Insert the SLP_TYP bits */
- 
--			pm1a_control |= (acpi_gbl_sleep_type_a <<
-+			pm1a_control |= (acpi_gbl_sleep_type_a_s0 <<
- 					 sleep_type_reg_info->bit_position);
--			pm1b_control |= (acpi_gbl_sleep_type_b <<
-+			pm1b_control |= (acpi_gbl_sleep_type_b_s0 <<
- 					 sleep_type_reg_info->bit_position);
- 
- 			/* Write the control registers and ignore any errors */
-diff --git a/drivers/acpi/acpica/hwxfsleep.c b/drivers/acpi/acpica/hwxfsleep.c
-index 3f22f7dd4556d..dc1e44ccaae20 100644
---- a/drivers/acpi/acpica/hwxfsleep.c
-+++ b/drivers/acpi/acpica/hwxfsleep.c
-@@ -288,6 +288,13 @@ acpi_status acpi_enter_sleep_state_prep(u8 sleep_state)
- 		return_ACPI_STATUS(status);
- 	}
- 
-+	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
-+					  &acpi_gbl_sleep_type_a_s0,
-+					  &acpi_gbl_sleep_type_b_s0);
-+	if (ACPI_FAILURE(status)) {
-+		acpi_gbl_sleep_type_a_s0 = ACPI_SLEEP_TYPE_INVALID;
-+	}
-+
- 	/* Execute the _PTS method (Prepare To Sleep) */
- 
- 	arg_list.count = 1;
 -- 
 2.33.0
 
