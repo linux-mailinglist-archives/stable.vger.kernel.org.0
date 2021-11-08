@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 522D844A21B
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:15:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CBB744A21E
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:15:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239910AbhKIBQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:16:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39718 "EHLO mail.kernel.org"
+        id S241629AbhKIBQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:16:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242614AbhKIBNz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242613AbhKIBNz (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Nov 2021 20:13:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B334761ABF;
-        Tue,  9 Nov 2021 01:05:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7071661A86;
+        Tue,  9 Nov 2021 01:05:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419941;
-        bh=yJpfEgi86xUwzEv0QSvB5hQZIBPmSZ3laHF0izDcRlM=;
+        s=k20201202; t=1636419942;
+        bh=svtFdkae/ZD9yRAAJPa+Y8uFXyDBZcu1Qh/8cbt7Wvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eJVfruL7tT6TsepsVSioicYK+2SjfZt7u+vkgKOINPzONfAWGo5hy4XyU/q4FA6zm
-         1EZV5KFGWvrrGueDaHRCi7fd2LZ2M/DWGuh2Wi+JtyG5r3mSXKrBVXH2+DxheFXyc9
-         KyCeXh2wcuHzH+LxkbCHGWU+sOaZYMP9XWP1stYnUAM79f47SUfzbFqWudZMJT6H9G
-         NUNs9VKW+1RmqgXlPLdWhSFJhDkpoOelLF60Ec1uxwh3+AAlLAcrPosrbOa/m/DwT0
-         HDAen9imThb6sONVkvXUwgGXgkvU56dLtxtGz0IxadSUi087uVQ2B/+YQKZsk0fP9U
-         0oDvxS0pzHgkw==
+        b=npMIMND/4Iu0sIpz/m98ubyquvZc1XNmSHxbKMCF5ERGHghHGCaPpuy0fyUPqnaee
+         3C3lfKZnpc+24AFoQxsJSGNvWXitKt0E2Tm8Y3DSV5HLu3NiJbCfffpIFw/D2Qc1np
+         s8posSFXAWrFd3Ohy/6IAgYvt2exdeUt9dIiB969SJGEHRv5P/jvGTjdrHvjPDo6wK
+         Ls/QiOC3TfqEikbdnUFBqHonprQkNxzXUaMbYaysivmiQpEK097zo0TnF/wgcPRRBJ
+         SrmP2saNenSi2VzJFRkYq3h/gLxXUI5qWb+6Qs+ralOfOEQD1uk/K0Vw9PkFhA9MrK
+         19OLX1LkPJJAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, amitkarwar@gmail.com,
-        ganapathi017@gmail.com, sharvari.harisangam@nxp.com,
-        huxinming820@gmail.com, davem@davemloft.net, kuba@kernel.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 13/47] mwifiex: Properly initialize private structure on interface type changes
-Date:   Mon,  8 Nov 2021 12:49:57 -0500
-Message-Id: <20211108175031.1190422-13-sashal@kernel.org>
+Cc:     Dirk Bender <d.bender@phytec.de>,
+        Stefan Riedmueller <s.riedmueller@phytec.de>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        laurent.pinchart@ideasonboard.com, mchehab@kernel.org,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 14/47] media: mt9p031: Fix corrupted frame after restarting stream
+Date:   Mon,  8 Nov 2021 12:49:58 -0500
+Message-Id: <20211108175031.1190422-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108175031.1190422-1-sashal@kernel.org>
 References: <20211108175031.1190422-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,59 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Dreßler <verdre@v0yd.nl>
+From: Dirk Bender <d.bender@phytec.de>
 
-[ Upstream commit c606008b70627a2fc485732a53cc22f0f66d0981 ]
+[ Upstream commit 0961ba6dd211a4a52d1dd4c2d59be60ac2dc08c7 ]
 
-When creating a new virtual interface in mwifiex_add_virtual_intf(), we
-update our internal driver states like bss_type, bss_priority, bss_role
-and bss_mode to reflect the mode the firmware will be set to.
+To prevent corrupted frames after starting and stopping the sensor its
+datasheet specifies a specific pause sequence to follow:
 
-When switching virtual interface mode using
-mwifiex_init_new_priv_params() though, we currently only update bss_mode
-and bss_role. In order for the interface mode switch to actually work,
-we also need to update bss_type to its proper value, so do that.
+Stopping:
+	Set Pause_Restart Bit -> Set Restart Bit -> Set Chip_Enable Off
 
-This fixes a crash of the firmware (because the driver tries to execute
-commands that are invalid in AP mode) when switching from station mode
-to AP mode.
+Restarting:
+	Set Chip_Enable On -> Clear Pause_Restart Bit
 
-Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210914195909.36035-9-verdre@v0yd.nl
+The Restart Bit is cleared automatically and must not be cleared
+manually as this would cause undefined behavior.
+
+Signed-off-by: Dirk Bender <d.bender@phytec.de>
+Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/cfg80211.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/media/i2c/mt9p031.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/cfg80211.c b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-index becde7c254de2..892247145f428 100644
---- a/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-+++ b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-@@ -912,16 +912,20 @@ mwifiex_init_new_priv_params(struct mwifiex_private *priv,
- 	switch (type) {
- 	case NL80211_IFTYPE_STATION:
- 	case NL80211_IFTYPE_ADHOC:
--		priv->bss_role =  MWIFIEX_BSS_ROLE_STA;
-+		priv->bss_role = MWIFIEX_BSS_ROLE_STA;
-+		priv->bss_type = MWIFIEX_BSS_TYPE_STA;
- 		break;
- 	case NL80211_IFTYPE_P2P_CLIENT:
--		priv->bss_role =  MWIFIEX_BSS_ROLE_STA;
-+		priv->bss_role = MWIFIEX_BSS_ROLE_STA;
-+		priv->bss_type = MWIFIEX_BSS_TYPE_P2P;
- 		break;
- 	case NL80211_IFTYPE_P2P_GO:
--		priv->bss_role =  MWIFIEX_BSS_ROLE_UAP;
-+		priv->bss_role = MWIFIEX_BSS_ROLE_UAP;
-+		priv->bss_type = MWIFIEX_BSS_TYPE_P2P;
- 		break;
- 	case NL80211_IFTYPE_AP:
- 		priv->bss_role = MWIFIEX_BSS_ROLE_UAP;
-+		priv->bss_type = MWIFIEX_BSS_TYPE_UAP;
- 		break;
- 	default:
- 		mwifiex_dbg(adapter, ERROR,
+diff --git a/drivers/media/i2c/mt9p031.c b/drivers/media/i2c/mt9p031.c
+index 715be3632b01a..eb08acf43e3a2 100644
+--- a/drivers/media/i2c/mt9p031.c
++++ b/drivers/media/i2c/mt9p031.c
+@@ -81,7 +81,9 @@
+ #define		MT9P031_PIXEL_CLOCK_INVERT		(1 << 15)
+ #define		MT9P031_PIXEL_CLOCK_SHIFT(n)		((n) << 8)
+ #define		MT9P031_PIXEL_CLOCK_DIVIDE(n)		((n) << 0)
+-#define MT9P031_FRAME_RESTART				0x0b
++#define MT9P031_RESTART					0x0b
++#define		MT9P031_FRAME_PAUSE_RESTART		(1 << 1)
++#define		MT9P031_FRAME_RESTART			(1 << 0)
+ #define MT9P031_SHUTTER_DELAY				0x0c
+ #define MT9P031_RST					0x0d
+ #define		MT9P031_RST_ENABLE			1
+@@ -448,9 +450,23 @@ static int mt9p031_set_params(struct mt9p031 *mt9p031)
+ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
+ {
+ 	struct mt9p031 *mt9p031 = to_mt9p031(subdev);
++	struct i2c_client *client = v4l2_get_subdevdata(subdev);
++	int val;
+ 	int ret;
+ 
+ 	if (!enable) {
++		/* enable pause restart */
++		val = MT9P031_FRAME_PAUSE_RESTART;
++		ret = mt9p031_write(client, MT9P031_RESTART, val);
++		if (ret < 0)
++			return ret;
++
++		/* enable restart + keep pause restart set */
++		val |= MT9P031_FRAME_RESTART;
++		ret = mt9p031_write(client, MT9P031_RESTART, val);
++		if (ret < 0)
++			return ret;
++
+ 		/* Stop sensor readout */
+ 		ret = mt9p031_set_output_control(mt9p031,
+ 						 MT9P031_OUTPUT_CONTROL_CEN, 0);
+@@ -470,6 +486,16 @@ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
+ 	if (ret < 0)
+ 		return ret;
+ 
++	/*
++	 * - clear pause restart
++	 * - don't clear restart as clearing restart manually can cause
++	 *   undefined behavior
++	 */
++	val = MT9P031_FRAME_RESTART;
++	ret = mt9p031_write(client, MT9P031_RESTART, val);
++	if (ret < 0)
++		return ret;
++
+ 	return mt9p031_pll_enable(mt9p031);
+ }
+ 
 -- 
 2.33.0
 
