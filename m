@@ -2,105 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAF40447B86
-	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 09:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18F08447B9D
+	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 09:10:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234649AbhKHIJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 03:09:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46462 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230389AbhKHIJj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 03:09:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5A486125F;
-        Mon,  8 Nov 2021 08:06:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636358815;
-        bh=wFrYQYcCiXXh+Q8kD72HnRRnPHObi25norI94Y6SVA0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ccp3Rtr0sFzZ4+0tDqvlGKQSOu6k5EVraHHm+hAwHqH3GK4XOHPzZKKHsHdOD2J2j
-         peh1zuMXSC1tf9CfJo55pj8xE5w44Fu2PfYwuwqnwXtH9BHqXcR9Fj3fLEGKukmz9G
-         HQ4VgPwiRIWOf+YuJcC3+hz1NyZSe1W2f/nzkqZE=
-Date:   Mon, 8 Nov 2021 09:06:44 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Yang Shi <shy828301@gmail.com>
-Cc:     naoya.horiguchi@nec.com, hughd@google.com,
-        kirill.shutemov@linux.intel.com, willy@infradead.org,
-        osalvador@suse.de, peterx@redhat.com, akpm@linux-foundation.org,
-        stable@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [stable 5.10 v2 PATCH 1/2] mm: hwpoison: remove the unnecessary
- THP check
-Message-ID: <YYjalO3gt3YczsY5@kroah.com>
-References: <20211104210752.390351-1-shy828301@gmail.com>
+        id S237817AbhKHINh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 03:13:37 -0500
+Received: from mx3.molgen.mpg.de ([141.14.17.11]:54571 "EHLO mx1.molgen.mpg.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S237864AbhKHINb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 03:13:31 -0500
+Received: from [192.168.0.2] (ip5f5aef86.dynamic.kabel-deutschland.de [95.90.239.134])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 9875361E5FE00;
+        Mon,  8 Nov 2021 09:10:46 +0100 (CET)
+Message-ID: <75e1d301-f92f-3237-8bf8-5f0ab308b9a4@molgen.mpg.de>
+Date:   Mon, 8 Nov 2021 09:10:46 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211104210752.390351-1-shy828301@gmail.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v2] drm/amdgpu/gmc6: fix DMA mask from 44 to 40 bits
+Content-Language: en-US
+To:     stable@vger.kernel.org
+Cc:     =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+        amd-gfx@lists.freedesktop.org,
+        Alex Deucher <alexander.deucher@amd.com>
+References: <20211028142144.210568-1-alexander.deucher@amd.com>
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
+In-Reply-To: <20211028142144.210568-1-alexander.deucher@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 04, 2021 at 02:07:51PM -0700, Yang Shi wrote:
-> commit c7cb42e94473aafe553c0f2a3d8ca904599399ed upstream.
-> 
-> When handling THP hwpoison checked if the THP is in allocation or free
-> stage since hwpoison may mistreat it as hugetlb page.  After commit
-> 415c64c1453a ("mm/memory-failure: split thp earlier in memory error
-> handling") the problem has been fixed, so this check is no longer
-> needed.  Remove it.  The side effect of the removal is hwpoison may
-> report unsplit THP instead of unknown error for shmem THP.  It seems not
-> like a big deal.
-> 
-> The following patch "mm: filemap: check if THP has hwpoisoned subpage
-> for PMD page fault" depends on this, which fixes shmem THP with
-> hwpoisoned subpage(s) are mapped PMD wrongly.  So this patch needs to be
-> backported to -stable as well.
-> 
-> Link: https://lkml.kernel.org/r/20211020210755.23964-2-shy828301@gmail.com
-> Signed-off-by: Yang Shi <shy828301@gmail.com>
-> Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-> Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-> Cc: Hugh Dickins <hughd@google.com>
-> Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Cc: Peter Xu <peterx@redhat.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> ---
->  mm/memory-failure.c | 14 --------------
->  1 file changed, 14 deletions(-)
-> 
-> diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-> index 01445ddff58d..bd2cd4dd59b6 100644
-> --- a/mm/memory-failure.c
-> +++ b/mm/memory-failure.c
-> @@ -956,20 +956,6 @@ static int get_hwpoison_page(struct page *page)
->  {
->  	struct page *head = compound_head(page);
->  
-> -	if (!PageHuge(head) && PageTransHuge(head)) {
-> -		/*
-> -		 * Non anonymous thp exists only in allocation/free time. We
-> -		 * can't handle such a case correctly, so let's give it up.
-> -		 * This should be better than triggering BUG_ON when kernel
-> -		 * tries to touch the "partially handled" page.
-> -		 */
-> -		if (!PageAnon(head)) {
-> -			pr_err("Memory failure: %#lx: non anonymous thp\n",
-> -				page_to_pfn(page));
-> -			return 0;
-> -		}
-> -	}
-> -
->  	if (get_page_unless_zero(head)) {
->  		if (head == compound_head(page))
->  			return 1;
-> -- 
-> 2.26.2
-> 
+Dear Linux stable folks,
 
-Thanks, both now queued up.
 
-greg k-h
+Am 28.10.21 um 16:21 schrieb Alex Deucher:
+> The DMA mask on SI parts is 40 bits not 44.  Copy
+> paste typo.
+> 
+> Fixes: 244511f386ccb9 ("drm/amdgpu: simplify and cleanup setting the dma mask")
+> Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1762
+> Acked-by: Christian König <christian.koenig@amd.com>
+> Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
+> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+
+This is commit 403475be6d8b122c3e6b8a47e075926d7299e5ef in Linus’ master 
+branch. Could you please apply it to the stable series (5.4+)?
+
+
+Kind regards,
+
+Paul
