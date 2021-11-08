@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 412DF44A1A4
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:09:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3386F44A1AD
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:09:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240544AbhKIBK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:10:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33602 "EHLO mail.kernel.org"
+        id S242087AbhKIBLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:11:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242018AbhKIBIv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:08:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95FD8619F6;
-        Tue,  9 Nov 2021 01:04:05 +0000 (UTC)
+        id S239361AbhKIBJK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:09:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E52261A54;
+        Tue,  9 Nov 2021 01:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419846;
-        bh=hmu+N6SDxU2j51vgWSqTSsSPerqeeMoo7dgvOvk2bBM=;
+        s=k20201202; t=1636419848;
+        bh=PltFew8cSxT9J4N2kIO5GraBRERaDZL3wUDLRl1ndGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XyCmvsLamOHs8rDq2hD1q07Sg+k/9pgKOKWOS3+ADsaMugtK1oo6WaDh+7f06ZpDe
-         3J2KJ+xg2W/ysKXvzTM15tbpG9eOFuE9hb1iuyYT5AFVRdJJdlcTqOdSVfU3u0FYJk
-         DhaNiaSbo6y+v2J26WgtjkXO1HIVC5ppJCCfcmXJ7J8DI5xXuXn5j8E43b8fDz0Tme
-         tGmQutAtEg1CKhru8HJBDgC+L1+jWj0p0fwxW8iXUsDTn7XIUm+xs6KMnIOH8lB4KZ
-         Rl4zq0oqZ1vnH+ZMcWDXi+PbVA7YDBEbrtt5Zega5Z7WkfM0BXI+Uk7Lok7bAm8MlO
-         xQoJDulEU5pVg==
+        b=YahGms5/A8PLnTYgVWiC0pDVKGLT85lO9PTRXA2aJX6bgmuqlFULkc6KtgwF6o094
+         XCt//iV3+59bl/nvql0c0wcI2Do3Q+7BcidY/BQ8Z5CNtlL6gDBL2HmRGE1a20m8kl
+         BARsQqQ++TYdQ2PnhN6kDQeHDS18P21AmJSGVCB07+Bpth8UQTqACP30x4zoCBANcV
+         W/ACrtiiwQIkke3H7G30rrVpCYRVA9FCdDm8xg5LYZzSrR3oBb0H0bD3FtBoFdbKvW
+         tCb9d5cmZ9jxKLQgRmwcCnDIRTtuCRXDM4UBMggpjRleS8UMGwJxPPkKCFmjwRfbZO
+         32PcZS6stWa+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alagu Sankar <alagusankar@silex-india.com>,
-        Erik Stromdahl <erik.stromdahl@gmail.com>,
-        Fabio Estevam <festevam@denx.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        kuba@kernel.org, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 026/101] ath10k: high latency fixes for beacon buffer
-Date:   Mon,  8 Nov 2021 12:47:16 -0500
-Message-Id: <20211108174832.1189312-26-sashal@kernel.org>
+Cc:     Dirk Bender <d.bender@phytec.de>,
+        Stefan Riedmueller <s.riedmueller@phytec.de>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        laurent.pinchart@ideasonboard.com, mchehab@kernel.org,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 027/101] media: mt9p031: Fix corrupted frame after restarting stream
+Date:   Mon,  8 Nov 2021 12:47:17 -0500
+Message-Id: <20211108174832.1189312-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108174832.1189312-1-sashal@kernel.org>
 References: <20211108174832.1189312-1-sashal@kernel.org>
@@ -46,81 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alagu Sankar <alagusankar@silex-india.com>
+From: Dirk Bender <d.bender@phytec.de>
 
-[ Upstream commit e263bdab9c0e8025fb7f41f153709a9cda51f6b6 ]
+[ Upstream commit 0961ba6dd211a4a52d1dd4c2d59be60ac2dc08c7 ]
 
-Beacon buffer for high latency devices does not use DMA. other similar
-buffer allocation methods in the driver have already been modified for
-high latency path. Fix the beacon buffer allocation left out in the
-earlier high latency changes.
+To prevent corrupted frames after starting and stopping the sensor its
+datasheet specifies a specific pause sequence to follow:
 
-Signed-off-by: Alagu Sankar <alagusankar@silex-india.com>
-Signed-off-by: Erik Stromdahl <erik.stromdahl@gmail.com>
-[fabio: adapt it to use ar->bus_param.dev_type ]
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210818232627.2040121-1-festevam@denx.de
+Stopping:
+	Set Pause_Restart Bit -> Set Restart Bit -> Set Chip_Enable Off
+
+Restarting:
+	Set Chip_Enable On -> Clear Pause_Restart Bit
+
+The Restart Bit is cleared automatically and must not be cleared
+manually as this would cause undefined behavior.
+
+Signed-off-by: Dirk Bender <d.bender@phytec.de>
+Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 31 ++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ drivers/media/i2c/mt9p031.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 36183fdfb7f03..90dc48f66fbfe 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -982,8 +982,12 @@ static void ath10k_mac_vif_beacon_cleanup(struct ath10k_vif *arvif)
- 	ath10k_mac_vif_beacon_free(arvif);
+diff --git a/drivers/media/i2c/mt9p031.c b/drivers/media/i2c/mt9p031.c
+index dc23b9ed510a4..18440c5104ad9 100644
+--- a/drivers/media/i2c/mt9p031.c
++++ b/drivers/media/i2c/mt9p031.c
+@@ -78,7 +78,9 @@
+ #define		MT9P031_PIXEL_CLOCK_INVERT		(1 << 15)
+ #define		MT9P031_PIXEL_CLOCK_SHIFT(n)		((n) << 8)
+ #define		MT9P031_PIXEL_CLOCK_DIVIDE(n)		((n) << 0)
+-#define MT9P031_FRAME_RESTART				0x0b
++#define MT9P031_RESTART					0x0b
++#define		MT9P031_FRAME_PAUSE_RESTART		(1 << 1)
++#define		MT9P031_FRAME_RESTART			(1 << 0)
+ #define MT9P031_SHUTTER_DELAY				0x0c
+ #define MT9P031_RST					0x0d
+ #define		MT9P031_RST_ENABLE			1
+@@ -445,9 +447,23 @@ static int mt9p031_set_params(struct mt9p031 *mt9p031)
+ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
+ {
+ 	struct mt9p031 *mt9p031 = to_mt9p031(subdev);
++	struct i2c_client *client = v4l2_get_subdevdata(subdev);
++	int val;
+ 	int ret;
  
- 	if (arvif->beacon_buf) {
--		dma_free_coherent(ar->dev, IEEE80211_MAX_FRAME_LEN,
--				  arvif->beacon_buf, arvif->beacon_paddr);
-+		if (ar->bus_param.dev_type == ATH10K_DEV_TYPE_HL)
-+			kfree(arvif->beacon_buf);
-+		else
-+			dma_free_coherent(ar->dev, IEEE80211_MAX_FRAME_LEN,
-+					  arvif->beacon_buf,
-+					  arvif->beacon_paddr);
- 		arvif->beacon_buf = NULL;
- 	}
+ 	if (!enable) {
++		/* enable pause restart */
++		val = MT9P031_FRAME_PAUSE_RESTART;
++		ret = mt9p031_write(client, MT9P031_RESTART, val);
++		if (ret < 0)
++			return ret;
++
++		/* enable restart + keep pause restart set */
++		val |= MT9P031_FRAME_RESTART;
++		ret = mt9p031_write(client, MT9P031_RESTART, val);
++		if (ret < 0)
++			return ret;
++
+ 		/* Stop sensor readout */
+ 		ret = mt9p031_set_output_control(mt9p031,
+ 						 MT9P031_OUTPUT_CONTROL_CEN, 0);
+@@ -467,6 +483,16 @@ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
+ 	if (ret < 0)
+ 		return ret;
+ 
++	/*
++	 * - clear pause restart
++	 * - don't clear restart as clearing restart manually can cause
++	 *   undefined behavior
++	 */
++	val = MT9P031_FRAME_RESTART;
++	ret = mt9p031_write(client, MT9P031_RESTART, val);
++	if (ret < 0)
++		return ret;
++
+ 	return mt9p031_pll_enable(mt9p031);
  }
-@@ -5466,10 +5470,17 @@ static int ath10k_add_interface(struct ieee80211_hw *hw,
- 	if (vif->type == NL80211_IFTYPE_ADHOC ||
- 	    vif->type == NL80211_IFTYPE_MESH_POINT ||
- 	    vif->type == NL80211_IFTYPE_AP) {
--		arvif->beacon_buf = dma_alloc_coherent(ar->dev,
--						       IEEE80211_MAX_FRAME_LEN,
--						       &arvif->beacon_paddr,
--						       GFP_ATOMIC);
-+		if (ar->bus_param.dev_type == ATH10K_DEV_TYPE_HL) {
-+			arvif->beacon_buf = kmalloc(IEEE80211_MAX_FRAME_LEN,
-+						    GFP_KERNEL);
-+			arvif->beacon_paddr = (dma_addr_t)arvif->beacon_buf;
-+		} else {
-+			arvif->beacon_buf =
-+				dma_alloc_coherent(ar->dev,
-+						   IEEE80211_MAX_FRAME_LEN,
-+						   &arvif->beacon_paddr,
-+						   GFP_ATOMIC);
-+		}
- 		if (!arvif->beacon_buf) {
- 			ret = -ENOMEM;
- 			ath10k_warn(ar, "failed to allocate beacon buffer: %d\n",
-@@ -5684,8 +5695,12 @@ static int ath10k_add_interface(struct ieee80211_hw *hw,
- 
- err:
- 	if (arvif->beacon_buf) {
--		dma_free_coherent(ar->dev, IEEE80211_MAX_FRAME_LEN,
--				  arvif->beacon_buf, arvif->beacon_paddr);
-+		if (ar->bus_param.dev_type == ATH10K_DEV_TYPE_HL)
-+			kfree(arvif->beacon_buf);
-+		else
-+			dma_free_coherent(ar->dev, IEEE80211_MAX_FRAME_LEN,
-+					  arvif->beacon_buf,
-+					  arvif->beacon_paddr);
- 		arvif->beacon_buf = NULL;
- 	}
  
 -- 
 2.33.0
