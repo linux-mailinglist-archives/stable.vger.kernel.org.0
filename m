@@ -2,102 +2,336 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A921449FF5
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 01:49:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DD1C44A088
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:02:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235868AbhKIAwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 19:52:31 -0500
-Received: from mx0a-0016f401.pphosted.com ([67.231.148.174]:42814 "EHLO
-        mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S235850AbhKIAwa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Nov 2021 19:52:30 -0500
-Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
-        by mx0a-0016f401.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 1A8I0K1A011746;
-        Mon, 8 Nov 2021 16:49:43 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=date : from : to :
- cc : subject : in-reply-to : message-id : references : mime-version :
- content-type; s=pfpt0220; bh=Ly3oDC5BauenDJ6aZ3RGgF7++ooIQx/3RQ/9PYdZY+s=;
- b=EQ3BiUqgfsch/Cl/6YwJeMunYR3xyxzw8CJdZ0czGgzS4r3OVEAQKPVW05tGVYtFOiir
- CKKWRqyNKNYmxia3N/YzdxdFtpZ0WjmkEPa3ZU3R+5zGHLownZXPLf+zprnSstAdfZ6M
- L0R9b6aJ9adQsoSnm/dEz0z3GlS8Yyr1srDf9AUOZWT12wNyQQdwvr9ZGl6cRQNSTQJ7
- UUV2DqLVfCUULtT41l6GSSikBS4ImHw3bi2gPMV9bIyRmLT1tlVnNPRRpYUCcg8ia3D1
- QFxw5AqCrSPHPKJbMuS85VzjYpYYzx3R2nA2IPZqb8Xw67u/kf8fCnURJlGWuEwvsCxg Ow== 
-Received: from dc5-exch02.marvell.com ([199.233.59.182])
-        by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 3c726bkn97-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Mon, 08 Nov 2021 16:49:43 -0800
-Received: from DC5-EXCH01.marvell.com (10.69.176.38) by DC5-EXCH02.marvell.com
- (10.69.176.39) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Mon, 8 Nov
- 2021 16:49:42 -0800
-Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH01.marvell.com
- (10.69.176.38) with Microsoft SMTP Server id 15.0.1497.18 via Frontend
- Transport; Mon, 8 Nov 2021 16:49:42 -0800
-Received: from irv1user01.caveonetworks.com (unknown [10.104.116.179])
-        by maili.marvell.com (Postfix) with ESMTP id 3F6673F7041;
-        Mon,  8 Nov 2021 16:49:42 -0800 (PST)
-Received: from localhost (aeasi@localhost)
-        by irv1user01.caveonetworks.com (8.14.4/8.14.4/Submit) with ESMTP id 1A90nfdh011120;
-        Mon, 8 Nov 2021 16:49:42 -0800
-X-Authentication-Warning: irv1user01.caveonetworks.com: aeasi owned process doing -bs
-Date:   Mon, 8 Nov 2021 16:49:41 -0800
-From:   Arun Easi <aeasi@marvell.com>
-X-X-Sender: aeasi@irv1user01.caveonetworks.com
-To:     "Ewan D. Milne" <emilne@redhat.com>
-CC:     <linux-scsi@vger.kernel.org>, <stable@vger.kernel.org>,
-        <njavali@marvell.com>
-Subject: Re: [EXT] [PATCH] scsi: qla2xxx: fix mailbox direction flags in
- qla2xxx_get_adapter_id()
-In-Reply-To: <20211108183012.13895-1-emilne@redhat.com>
-Message-ID: <alpine.LRH.2.21.9999.2111081648230.30062@irv1user01.caveonetworks.com>
-References: <20211108183012.13895-1-emilne@redhat.com>
-User-Agent: Alpine 2.21.9999 (LRH 334 2019-03-29)
+        id S241641AbhKIBD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:03:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60234 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S241680AbhKIBDi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:03:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 677EC619EA;
+        Tue,  9 Nov 2021 01:00:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1636419653;
+        bh=fCqHqkmUE/E2BXeR07rNehjkdO7/tamy3VndTpB36NQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=AFYiSfhyApwVRX9f4QjmkH0WASBtta7ImVGbw7mU1tqsNoMGtsKFJoSFewSuO7jm8
+         M7C5aSMsVF21uFi6FTZ3ft5be68Sl+xXSUq13b5KL0Jl8swOktTINnocXiT6DkxjOR
+         rOBNjdITGk5bCFBiJpENEUGkY0fK+pOl1kbsZcl9ELwUmg2gcJWO1Xe+OgEZzZgmzD
+         r42M4yrwUDYhnScyRatOZYlNxlb+wztE91VxV/LYLvIvLu79gbXL4lW85CzQf2Sz1h
+         bGYItIk8G0dtyB2Vmlkkb6IKVrsCa5v7ukdOP4kxdbalmi8V9ysRB4BcRJU8sAazEd
+         BpyKUwaNujz2g==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        Vladis Dronov <vdronov@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, Herbert@vger.kernel.org,
+        davem@davemloft.net, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 030/146] crypto: api - Fix built-in testing dependency failures
+Date:   Mon,  8 Nov 2021 12:42:57 -0500
+Message-Id: <20211108174453.1187052-30-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211108174453.1187052-1-sashal@kernel.org>
+References: <20211108174453.1187052-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-X-Proofpoint-ORIG-GUID: 6sSZrXN6_SkSuRuTUwIJzIXtmtS6KTLn
-X-Proofpoint-GUID: 6sSZrXN6_SkSuRuTUwIJzIXtmtS6KTLn
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-08_07,2021-11-08_02,2020-04-07_01
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Looks good. Thanks Ewan.
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-Reviewed-by: Arun Easi <aeasi@marvell.com>
+[ Upstream commit adad556efcdd42a1d9e060cbe5f6161cccf1fa28 ]
 
-Regards,
--Arun
+When complex algorithms that depend on other algorithms are built
+into the kernel, the order of registration must be done such that
+the underlying algorithms are ready before the ones on top are
+registered.  As otherwise they would fail during the self-test
+which is required during registration.
 
-On Mon, 8 Nov 2021, 10:30am, Ewan D. Milne wrote:
+In the past we have used subsystem initialisation ordering to
+guarantee this.  The number of such precedence levels are limited
+and they may cause ripple effects in other subsystems.
 
->
-> The SCM changes set the flags in mcp->out_mb instead of mcp->in_mb
-> so the data was not actually being read into the mcp->mb[] array from
-> the adapter.
-> 
-> Fixes: 9f2475fe7406 ("scsi: qla2xxx: SAN congestion management implementation")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Ewan D. Milne <emilne@redhat.com>
-> ---
->  drivers/scsi/qla2xxx/qla_mbx.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
-> index 7811c4952035..a6debeea3079 100644
-> --- a/drivers/scsi/qla2xxx/qla_mbx.c
-> +++ b/drivers/scsi/qla2xxx/qla_mbx.c
-> @@ -1695,10 +1695,8 @@ qla2x00_get_adapter_id(scsi_qla_host_t *vha, uint16_t *id, uint8_t *al_pa,
->  		mcp->in_mb |= MBX_13|MBX_12|MBX_11|MBX_10;
->  	if (IS_FWI2_CAPABLE(vha->hw))
->  		mcp->in_mb |= MBX_19|MBX_18|MBX_17|MBX_16;
-> -	if (IS_QLA27XX(vha->hw) || IS_QLA28XX(vha->hw)) {
-> -		mcp->in_mb |= MBX_15;
-> -		mcp->out_mb |= MBX_7|MBX_21|MBX_22|MBX_23;
-> -	}
-> +	if (IS_QLA27XX(vha->hw) || IS_QLA28XX(vha->hw))
-> +		mcp->in_mb |= MBX_15|MBX_21|MBX_22|MBX_23;
->  
->  	mcp->tov = MBX_TOV_SECONDS;
->  	mcp->flags = 0;
-> 
+This patch solves this problem by delaying all self-tests during
+boot-up for built-in algorithms.  They will be tested either when
+something else in the kernel requests for them, or when we have
+finished registering all built-in algorithms, whichever comes
+earlier.
+
+Reported-by: Vladis Dronov <vdronov@redhat.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ crypto/algapi.c   | 73 +++++++++++++++++++++++++++++++++--------------
+ crypto/api.c      | 52 +++++++++++++++++++++++++++++----
+ crypto/internal.h | 10 +++++++
+ 3 files changed, 108 insertions(+), 27 deletions(-)
+
+diff --git a/crypto/algapi.c b/crypto/algapi.c
+index 43f999dba4dc0..422bdca214e1c 100644
+--- a/crypto/algapi.c
++++ b/crypto/algapi.c
+@@ -389,29 +389,10 @@ void crypto_remove_final(struct list_head *list)
+ }
+ EXPORT_SYMBOL_GPL(crypto_remove_final);
+ 
+-static void crypto_wait_for_test(struct crypto_larval *larval)
+-{
+-	int err;
+-
+-	err = crypto_probing_notify(CRYPTO_MSG_ALG_REGISTER, larval->adult);
+-	if (err != NOTIFY_STOP) {
+-		if (WARN_ON(err != NOTIFY_DONE))
+-			goto out;
+-		crypto_alg_tested(larval->alg.cra_driver_name, 0);
+-	}
+-
+-	err = wait_for_completion_killable(&larval->completion);
+-	WARN_ON(err);
+-	if (!err)
+-		crypto_notify(CRYPTO_MSG_ALG_LOADED, larval);
+-
+-out:
+-	crypto_larval_kill(&larval->alg);
+-}
+-
+ int crypto_register_alg(struct crypto_alg *alg)
+ {
+ 	struct crypto_larval *larval;
++	bool test_started;
+ 	int err;
+ 
+ 	alg->cra_flags &= ~CRYPTO_ALG_DEAD;
+@@ -421,12 +402,15 @@ int crypto_register_alg(struct crypto_alg *alg)
+ 
+ 	down_write(&crypto_alg_sem);
+ 	larval = __crypto_register_alg(alg);
++	test_started = static_key_enabled(&crypto_boot_test_finished);
++	larval->test_started = test_started;
+ 	up_write(&crypto_alg_sem);
+ 
+ 	if (IS_ERR(larval))
+ 		return PTR_ERR(larval);
+ 
+-	crypto_wait_for_test(larval);
++	if (test_started)
++		crypto_wait_for_test(larval);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(crypto_register_alg);
+@@ -633,6 +617,8 @@ int crypto_register_instance(struct crypto_template *tmpl,
+ 	if (IS_ERR(larval))
+ 		goto unlock;
+ 
++	larval->test_started = true;
++
+ 	hlist_add_head(&inst->list, &tmpl->instances);
+ 	inst->tmpl = tmpl;
+ 
+@@ -1261,9 +1247,48 @@ void crypto_stats_skcipher_decrypt(unsigned int cryptlen, int ret,
+ EXPORT_SYMBOL_GPL(crypto_stats_skcipher_decrypt);
+ #endif
+ 
++static void __init crypto_start_tests(void)
++{
++	for (;;) {
++		struct crypto_larval *larval = NULL;
++		struct crypto_alg *q;
++
++		down_write(&crypto_alg_sem);
++
++		list_for_each_entry(q, &crypto_alg_list, cra_list) {
++			struct crypto_larval *l;
++
++			if (!crypto_is_larval(q))
++				continue;
++
++			l = (void *)q;
++
++			if (!crypto_is_test_larval(l))
++				continue;
++
++			if (l->test_started)
++				continue;
++
++			l->test_started = true;
++			larval = l;
++			break;
++		}
++
++		up_write(&crypto_alg_sem);
++
++		if (!larval)
++			break;
++
++		crypto_wait_for_test(larval);
++	}
++
++	static_branch_enable(&crypto_boot_test_finished);
++}
++
+ static int __init crypto_algapi_init(void)
+ {
+ 	crypto_init_proc();
++	crypto_start_tests();
+ 	return 0;
+ }
+ 
+@@ -1272,7 +1297,11 @@ static void __exit crypto_algapi_exit(void)
+ 	crypto_exit_proc();
+ }
+ 
+-module_init(crypto_algapi_init);
++/*
++ * We run this at late_initcall so that all the built-in algorithms
++ * have had a chance to register themselves first.
++ */
++late_initcall(crypto_algapi_init);
+ module_exit(crypto_algapi_exit);
+ 
+ MODULE_LICENSE("GPL");
+diff --git a/crypto/api.c b/crypto/api.c
+index c4eda56cff891..1cf1f03347cc3 100644
+--- a/crypto/api.c
++++ b/crypto/api.c
+@@ -12,6 +12,7 @@
+ 
+ #include <linux/err.h>
+ #include <linux/errno.h>
++#include <linux/jump_label.h>
+ #include <linux/kernel.h>
+ #include <linux/kmod.h>
+ #include <linux/module.h>
+@@ -30,6 +31,8 @@ EXPORT_SYMBOL_GPL(crypto_alg_sem);
+ BLOCKING_NOTIFIER_HEAD(crypto_chain);
+ EXPORT_SYMBOL_GPL(crypto_chain);
+ 
++DEFINE_STATIC_KEY_FALSE(crypto_boot_test_finished);
++
+ static struct crypto_alg *crypto_larval_wait(struct crypto_alg *alg);
+ 
+ struct crypto_alg *crypto_mod_get(struct crypto_alg *alg)
+@@ -47,11 +50,6 @@ void crypto_mod_put(struct crypto_alg *alg)
+ }
+ EXPORT_SYMBOL_GPL(crypto_mod_put);
+ 
+-static inline int crypto_is_test_larval(struct crypto_larval *larval)
+-{
+-	return larval->alg.cra_driver_name[0];
+-}
+-
+ static struct crypto_alg *__crypto_alg_lookup(const char *name, u32 type,
+ 					      u32 mask)
+ {
+@@ -163,11 +161,55 @@ void crypto_larval_kill(struct crypto_alg *alg)
+ }
+ EXPORT_SYMBOL_GPL(crypto_larval_kill);
+ 
++void crypto_wait_for_test(struct crypto_larval *larval)
++{
++	int err;
++
++	err = crypto_probing_notify(CRYPTO_MSG_ALG_REGISTER, larval->adult);
++	if (err != NOTIFY_STOP) {
++		if (WARN_ON(err != NOTIFY_DONE))
++			goto out;
++		crypto_alg_tested(larval->alg.cra_driver_name, 0);
++	}
++
++	err = wait_for_completion_killable(&larval->completion);
++	WARN_ON(err);
++	if (!err)
++		crypto_notify(CRYPTO_MSG_ALG_LOADED, larval);
++
++out:
++	crypto_larval_kill(&larval->alg);
++}
++EXPORT_SYMBOL_GPL(crypto_wait_for_test);
++
++static void crypto_start_test(struct crypto_larval *larval)
++{
++	if (!crypto_is_test_larval(larval))
++		return;
++
++	if (larval->test_started)
++		return;
++
++	down_write(&crypto_alg_sem);
++	if (larval->test_started) {
++		up_write(&crypto_alg_sem);
++		return;
++	}
++
++	larval->test_started = true;
++	up_write(&crypto_alg_sem);
++
++	crypto_wait_for_test(larval);
++}
++
+ static struct crypto_alg *crypto_larval_wait(struct crypto_alg *alg)
+ {
+ 	struct crypto_larval *larval = (void *)alg;
+ 	long timeout;
+ 
++	if (!static_branch_likely(&crypto_boot_test_finished))
++		crypto_start_test(larval);
++
+ 	timeout = wait_for_completion_killable_timeout(
+ 		&larval->completion, 60 * HZ);
+ 
+diff --git a/crypto/internal.h b/crypto/internal.h
+index f00869af689f5..c08385571853e 100644
+--- a/crypto/internal.h
++++ b/crypto/internal.h
+@@ -10,6 +10,7 @@
+ 
+ #include <crypto/algapi.h>
+ #include <linux/completion.h>
++#include <linux/jump_label.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+ #include <linux/notifier.h>
+@@ -27,6 +28,7 @@ struct crypto_larval {
+ 	struct crypto_alg *adult;
+ 	struct completion completion;
+ 	u32 mask;
++	bool test_started;
+ };
+ 
+ enum {
+@@ -45,6 +47,8 @@ extern struct list_head crypto_alg_list;
+ extern struct rw_semaphore crypto_alg_sem;
+ extern struct blocking_notifier_head crypto_chain;
+ 
++DECLARE_STATIC_KEY_FALSE(crypto_boot_test_finished);
++
+ #ifdef CONFIG_PROC_FS
+ void __init crypto_init_proc(void);
+ void __exit crypto_exit_proc(void);
+@@ -70,6 +74,7 @@ struct crypto_alg *crypto_alg_mod_lookup(const char *name, u32 type, u32 mask);
+ 
+ struct crypto_larval *crypto_larval_alloc(const char *name, u32 type, u32 mask);
+ void crypto_larval_kill(struct crypto_alg *alg);
++void crypto_wait_for_test(struct crypto_larval *larval);
+ void crypto_alg_tested(const char *name, int err);
+ 
+ void crypto_remove_spawns(struct crypto_alg *alg, struct list_head *list,
+@@ -156,5 +161,10 @@ static inline void crypto_yield(u32 flags)
+ 		cond_resched();
+ }
+ 
++static inline int crypto_is_test_larval(struct crypto_larval *larval)
++{
++	return larval->alg.cra_driver_name[0];
++}
++
+ #endif	/* _CRYPTO_INTERNAL_H */
+ 
+-- 
+2.33.0
+
