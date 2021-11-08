@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6680D44A19D
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:09:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2716F44A19F
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:09:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242265AbhKIBKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:10:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33380 "EHLO mail.kernel.org"
+        id S241867AbhKIBKx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:10:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242006AbhKIBIu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:08:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E101B61A6D;
-        Tue,  9 Nov 2021 01:03:58 +0000 (UTC)
+        id S242011AbhKIBIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:08:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0334961361;
+        Tue,  9 Nov 2021 01:04:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419840;
-        bh=S7Dw+3DdnT9UPzw6RE9uFMMvxAPcKRqS9QoHw4jsG5M=;
+        s=k20201202; t=1636419842;
+        bh=SqMwSJlsmhRnzp2vM6XUPwpHBdW+FdUM2Grw036Ydhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jXsSdehrrkRFc8RSq9cpIKOgZcGSq0ehk2Tt0nnDaHQxYR8j1sKQr00+p4w1l2fB2
-         E/xiJ5OkFlmlzQuIcogvEDr9rqlKS3+NAc+/Lg+NY1rQhPDv+KokKVkSZ/LP+zAUFu
-         0WOdaf3abp1nyf1coPf8rPrn+NNQDN8bAvn2DLB0u6tWYll3PvFHFCPQu5+dM6NON3
-         BZwXWw86luODNP479mkpk2X2LWx+Oay0vUFBwE9OLLzR710i1z33Jcm/sRJHVwmeOw
-         BjxUYyy+GaCqA/3smrwLVLBxcccUvjkgGVQZnNx1yvzUVqYnHihimF+eVMMEGPMBja
-         67wzgFq/GDCcw==
+        b=QXY86Hk3UBksnZoIJikSuIpj8pGbNA/9S5cC/JnzL9MADPEYlvtOPH6hTdoH2uyD7
+         oemV5i0dikhtbAkI0v1NcyL6OrHmCec46qDvU7ImFAUNvMRzAQxz/kNXZh5KqXk1yM
+         +aynRbNbMNI5aD9GplZeMFaewNyoWkLcurVbKto7K+Z2pPQGblyZeRzSX8gZK4nRLx
+         0lwSWGh7/qfC42pYH2UPL8TnjyuHy14urWFIZSWXWIpVdp19RYJqD/Jp//FeIRHZf2
+         SiIuZQaL6hC883XBDza8byK5KYirD4vVcx0dJWUwkmF79fC254CAfGQ6KBYOSQ7Y9C
+         1YmrEZ9jOXSAA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        James Zhu <James.Zhu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        leo.liu@amd.com, Oak.Zeng@amd.com, satyajit.sahu@amd.com,
-        guchun.chen@amd.com, lee.jones@linaro.org,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 022/101] drm/amdgpu: Fix MMIO access page fault
-Date:   Mon,  8 Nov 2021 12:47:12 -0500
-Message-Id: <20211108174832.1189312-22-sashal@kernel.org>
+Cc:     Sriram R <srirrama@codeaurora.org>,
+        Jouni Malinen <jouni@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, ath11k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 023/101] ath11k: Avoid reg rules update during firmware recovery
+Date:   Mon,  8 Nov 2021 12:47:13 -0500
+Message-Id: <20211108174832.1189312-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108174832.1189312-1-sashal@kernel.org>
 References: <20211108174832.1189312-1-sashal@kernel.org>
@@ -47,92 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+From: Sriram R <srirrama@codeaurora.org>
 
-[ Upstream commit c03509cbc01559549700e14c4a6239f2572ab4ba ]
+[ Upstream commit 69a0fcf8a9f2273040d03e5ee77c9689c09e9d3a ]
 
-Add more guards to MMIO access post device
-unbind/unplug
+During firmware recovery, the default reg rules which are
+received via WMI_REG_CHAN_LIST_CC_EVENT can overwrite
+the currently configured user regd.
 
-Bug: https://bugs.archlinux.org/task/72092?project=1&order=dateopened&sort=desc&pagenum=1
-Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Reviewed-by: James Zhu <James.Zhu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+See below snap for example,
+
+root@OpenWrt:/# iw reg get | grep country
+country FR: DFS-ETSI
+country FR: DFS-ETSI
+country FR: DFS-ETSI
+country FR: DFS-ETSI
+
+root@OpenWrt:/# echo assert > /sys/kernel/debug/ath11k/ipq8074\ hw2.0/simulate_f
+w_crash
+<snip>
+[ 5290.471696] ath11k c000000.wifi1: pdev 1 successfully recovered
+
+root@OpenWrt:/# iw reg get | grep country
+country FR: DFS-ETSI
+country US: DFS-FCC
+country US: DFS-FCC
+country US: DFS-FCC
+
+In the above, the user configured country 'FR' is overwritten
+when the rules of default country 'US' are received and updated during
+recovery. Hence avoid processing of these rules in general
+during firmware recovery as they have been already applied during
+driver registration or after last set user country is configured.
+
+This scenario applies for both AP and STA devices basically because
+cfg80211 is not aware of the recovery and only the driver recovers, but
+changing or resetting of the reg domain during recovery is not needed so
+as to continue with the configured regdomain currently in use.
+
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.4.0.1-01460-QCAHKSWPL_SILICONZ-1
+
+Signed-off-by: Sriram R <srirrama@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210721212029.142388-3-jouni@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c |  8 ++++++--
- drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c | 17 +++++++++++------
- 2 files changed, 17 insertions(+), 8 deletions(-)
+ drivers/net/wireless/ath/ath11k/wmi.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
-index f493b5c3d382b..79bcc78f77045 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
-@@ -22,6 +22,7 @@
-  */
+diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
+index fca71e00123d9..2f777d61f9065 100644
+--- a/drivers/net/wireless/ath/ath11k/wmi.c
++++ b/drivers/net/wireless/ath/ath11k/wmi.c
+@@ -5362,6 +5362,17 @@ static int ath11k_reg_chan_list_event(struct ath11k_base *ab, struct sk_buff *sk
  
- #include <linux/firmware.h>
-+#include <drm/drm_drv.h>
+ 	pdev_idx = reg_info->phy_id;
  
- #include "amdgpu.h"
- #include "amdgpu_vcn.h"
-@@ -192,11 +193,14 @@ static int vcn_v2_0_sw_init(void *handle)
-  */
- static int vcn_v2_0_sw_fini(void *handle)
- {
--	int r;
-+	int r, idx;
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 	volatile struct amdgpu_fw_shared *fw_shared = adev->vcn.inst->fw_shared_cpu_addr;
- 
--	fw_shared->present_flag_0 = 0;
-+	if (drm_dev_enter(&adev->ddev, &idx)) {
-+		fw_shared->present_flag_0 = 0;
-+		drm_dev_exit(idx);
++	/* Avoid default reg rule updates sent during FW recovery if
++	 * it is already available
++	 */
++	spin_lock(&ab->base_lock);
++	if (test_bit(ATH11K_FLAG_RECOVERY, &ab->dev_flags) &&
++	    ab->default_regd[pdev_idx]) {
++		spin_unlock(&ab->base_lock);
++		goto mem_free;
 +	}
- 
- 	amdgpu_virt_free_mm_table(adev);
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-index ce64d4016f903..381839d005db9 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-@@ -22,6 +22,7 @@
-  */
- 
- #include <linux/firmware.h>
-+#include <drm/drm_drv.h>
- 
- #include "amdgpu.h"
- #include "amdgpu_vcn.h"
-@@ -233,17 +234,21 @@ static int vcn_v2_5_sw_init(void *handle)
-  */
- static int vcn_v2_5_sw_fini(void *handle)
- {
--	int i, r;
-+	int i, r, idx;
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 	volatile struct amdgpu_fw_shared *fw_shared;
- 
--	for (i = 0; i < adev->vcn.num_vcn_inst; i++) {
--		if (adev->vcn.harvest_config & (1 << i))
--			continue;
--		fw_shared = adev->vcn.inst[i].fw_shared_cpu_addr;
--		fw_shared->present_flag_0 = 0;
-+	if (drm_dev_enter(&adev->ddev, &idx)) {
-+		for (i = 0; i < adev->vcn.num_vcn_inst; i++) {
-+			if (adev->vcn.harvest_config & (1 << i))
-+				continue;
-+			fw_shared = adev->vcn.inst[i].fw_shared_cpu_addr;
-+			fw_shared->present_flag_0 = 0;
-+		}
-+		drm_dev_exit(idx);
- 	}
- 
++	spin_unlock(&ab->base_lock);
 +
- 	if (amdgpu_sriov_vf(adev))
- 		amdgpu_virt_free_mm_table(adev);
- 
+ 	if (pdev_idx >= ab->num_radios) {
+ 		/* Process the event for phy0 only if single_pdev_only
+ 		 * is true. If pdev_idx is valid but not 0, discard the
 -- 
 2.33.0
 
