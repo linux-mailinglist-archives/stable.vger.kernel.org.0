@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C67E44A28A
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28C5144A299
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242940AbhKIBT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241630AbhKIBT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Nov 2021 20:19:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44356 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243104AbhKIBPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243103AbhKIBPF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Nov 2021 20:15:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C7FC613A6;
-        Tue,  9 Nov 2021 01:06:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0AC161989;
+        Tue,  9 Nov 2021 01:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419963;
-        bh=NEX9F5tlQR/ZiiWHVqR4NwwF82136ZtSd4RehFPZPQY=;
+        s=k20201202; t=1636419964;
+        bh=gSKZ8ZQS1zDIh541hS5ZMLEVK9bKopB7UiB0BBGvPEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZXaUaHt4CWBzzkhk7IIOJb1YwV3qZOkroL9DFQqxLMLJGG+1wOUI/t/sK/cjcfziG
-         G8D6bbw7mJ4aEBNf+yFAL4ErPDY9KGHeeX0xhYiSoaSTDVuC5FK/d+nBKZCUeUqsWT
-         lfLWTlXN7VQ2I/eZVx6n/dH1MWi2bWK9fABGgC9ysl6epQQtlI1wPYA6wrIgYc6wap
-         Tt19KWD/U/ALPmGLdU1KVZJ//z/YJNuLXJ6kgDRsFOfqgIjf6W6fU28Ke2q/WrxK/3
-         lhV3dJuIDWsmJ7UdG/OG6COQ4huGQ+8L1bHwpbEYDeJK9w+Vn44J6Gt+on2pQFHHFp
-         5xzl1FdpEFySQ==
+        b=FLnA0B33ofx7TT3AkS1K5IKHDbS2rkonmiCN0CbdHGe2O0lBdSendh7mBe+X/acDN
+         +nl8qV4qFYapiwDo2ykR2K9mJhnmt/0QhXdLt/UYvE2gN61spsFXyTFQku3ZwOx3fw
+         84IDiiQGP95Se51aEntfp2LOpWhepiutKy11F0aJ4bIpywrUEP4HcS3EWCpSRnlKNu
+         I4N7cDA8dSyAnGTw+x8dP94DfFBzUvzycUUSn6zCQNQd5aXhi83ceJZ6MTvd5FAvw5
+         r6Q+78+Dmotz2ExomR0W8FuMk8QDRcyKvp0JFBw50QN+XcO5KL9MPqSGcFLxJV5Mfh
+         5pMrISYk/gUrQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 27/47] ACPI: battery: Accept charges over the design capacity as full
-Date:   Mon,  8 Nov 2021 12:50:11 -0500
-Message-Id: <20211108175031.1190422-27-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>, me@tobin.cc,
+        tycho@tycho.pizza, linux-hardening@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 28/47] leaking_addresses: Always print a trailing newline
+Date:   Mon,  8 Nov 2021 12:50:12 -0500
+Message-Id: <20211108175031.1190422-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108175031.1190422-1-sashal@kernel.org>
 References: <20211108175031.1190422-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,39 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: André Almeida <andrealmeid@collabora.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 2835f327bd1240508db2c89fe94a056faa53c49a ]
+[ Upstream commit cf2a85efdade117e2169d6e26641016cbbf03ef0 ]
 
-Some buggy firmware and/or brand new batteries can support a charge that's
-slightly over the reported design capacity. In such cases, the kernel will
-report to userspace that the charging state of the battery is "Unknown",
-when in reality the battery charge is "Full", at least from the design
-capacity point of view. Make the fallback condition accepts capacities
-over the designed capacity so userspace knows that is full.
+For files that lack trailing newlines and match a leaking address (e.g.
+wchan[1]), the leaking_addresses.pl report would run together with the
+next line, making things look corrupted.
 
-Signed-off-by: André Almeida <andrealmeid@collabora.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Unconditionally remove the newline on input, and write it back out on
+output.
+
+[1] https://lore.kernel.org/all/20210103142726.GC30643@xsang-OptiPlex-9020/
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20211008111626.151570317@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/battery.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/leaking_addresses.pl | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index 674a0e92b798f..0bbf8b453ebf2 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -198,7 +198,7 @@ static int acpi_battery_is_charged(struct acpi_battery *battery)
- 		return 1;
+diff --git a/scripts/leaking_addresses.pl b/scripts/leaking_addresses.pl
+index 6a897788f5a7e..6e4b0f7ae38cf 100755
+--- a/scripts/leaking_addresses.pl
++++ b/scripts/leaking_addresses.pl
+@@ -456,8 +456,9 @@ sub parse_file
  
- 	/* fallback to using design values for broken batteries */
--	if (battery->design_capacity == battery->capacity_now)
-+	if (battery->design_capacity <= battery->capacity_now)
- 		return 1;
- 
- 	/* we don't do any sort of metric based on percentages */
+ 	open my $fh, "<", $file or return;
+ 	while ( <$fh> ) {
++		chomp;
+ 		if (may_leak_address($_)) {
+-			print $file . ': ' . $_;
++			printf("$file: $_\n");
+ 		}
+ 	}
+ 	close $fh;
 -- 
 2.33.0
 
