@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36EBC44A171
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:07:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B73E444A170
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:07:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239838AbhKIBJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238057AbhKIBJp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Nov 2021 20:09:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60570 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239340AbhKIBHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:07:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2018061452;
-        Tue,  9 Nov 2021 01:03:17 +0000 (UTC)
+        id S240632AbhKIBHu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:07:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B59561A3D;
+        Tue,  9 Nov 2021 01:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419798;
-        bh=xbBnIUX/zyaJx7lBhF4iyaKWUIKp0gzgpFILNaZqnwY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=mmy2IAwcmn0rf43MkV4cKBBHvUMY2P73K2MdK3BxGlQ3BiJnEjyTa8NLqPs3mPgDf
-         s5sOhANzHx9H5GqH9bSySZU7bljZRSp9q5zX12g3X/goF2rRA1Q1MXjctYMJlshq1d
-         xiqtRe/4cJw3JKwxyOQR4FAIvDpkNX6jgsvNALFZZR+VMWG9H1ATfT7eZTPxmjaXQW
-         3fVbyGmZkidGD5XvN1wYmbDmLsSoYjMGyWpHraq2GFqDUxL7eGE6nZ+XOAT/5fVB4L
-         Y3xz9PYFqAr1VvhCMkP4FgnUFbiWAHKM4it9fvgasi94ChZc3xG/TnGweVtohsAcwT
-         UjjyHyVqRRODg==
+        s=k20201202; t=1636419799;
+        bh=x8J2gIrW8uI3T2QvaNjVhOCRiVSsbbBRWDZBYz0GvM4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=p+OacwzhCnB7YVbyxRl3vFequKwCCHaVf8graeBuPCA5UCcAY+BGJ2Y/n6R/9L7Hh
+         ta8xh9U/E9f9CfhpKal5C1U+aC6pHjUPaYWWZXNvGRn/SEcR9DXfvUAdkC4AL5dBMA
+         lf2Lwn/1+0wdxlaWFllWj5KuAVFSJNM2Um+BMKHCyhbfU8DDVUy8etmTqXMvVJflPL
+         CLYKC1mrenVH1qLFTnPzF+FAKImpsGTkbx2+RhWkkUPvPPkSzJqNrdn6Buf/4Qv2ge
+         VU4on2Xyw2DFoRqsXS6AD3YOaqv/ByknYGoCTCidlJ/I9frbLWFDTHvAebgDNEL+l8
+         hfIJyZl5wM9uA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charan Teja Reddy <charante@codeaurora.org>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Sasha Levin <sashal@kernel.org>, sumit.semwal@linaro.org,
-        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linaro-mm-sig@lists.linaro.org
-Subject: [PATCH AUTOSEL 5.10 001/101] dma-buf: WARN on dmabuf release with pending attachments
-Date:   Mon,  8 Nov 2021 12:46:51 -0500
-Message-Id: <20211108174832.1189312-1-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Simon Ser <contact@emersion.fr>,
+        Sasha Levin <sashal@kernel.org>,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 002/101] drm: panel-orientation-quirks: Update the Lenovo Ideapad D330 quirk (v2)
+Date:   Mon,  8 Nov 2021 12:46:52 -0500
+Message-Id: <20211108174832.1189312-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211108174832.1189312-1-sashal@kernel.org>
+References: <20211108174832.1189312-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,51 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Reddy <charante@codeaurora.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f492283b157053e9555787262f058ae33096f568 ]
+[ Upstream commit 820a2ab23d5eab4ccfb82581eda8ad4acf18458f ]
 
-It is expected from the clients to follow the below steps on an imported
-dmabuf fd:
-a) dmabuf = dma_buf_get(fd) // Get the dmabuf from fd
-b) dma_buf_attach(dmabuf); // Clients attach to the dmabuf
-   o Here the kernel does some slab allocations, say for
-dma_buf_attachment and may be some other slab allocation in the
-dmabuf->ops->attach().
-c) Client may need to do dma_buf_map_attachment().
-d) Accordingly dma_buf_unmap_attachment() should be called.
-e) dma_buf_detach () // Clients detach to the dmabuf.
-   o Here the slab allocations made in b) are freed.
-f) dma_buf_put(dmabuf) // Can free the dmabuf if it is the last
-reference.
+2 improvements to the Lenovo Ideapad D330 panel-orientation quirks:
 
-Now say an erroneous client failed at step c) above thus it directly
-called dma_buf_put(), step f) above. Considering that it may be the last
-reference to the dmabuf, buffer will be freed with pending attachments
-left to the dmabuf which can show up as the 'memory leak'. This should
-at least be reported as the WARN().
+1. Some versions of the Lenovo Ideapad D330 have a DMI_PRODUCT_NAME of
+"81H3" and others have "81MD". Testing has shown that the "81MD" also has
+a 90 degree mounted panel. Drop the DMI_PRODUCT_NAME from the existing
+quirk so that the existing quirk matches both variants.
 
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1627043468-16381-1-git-send-email-charante@codeaurora.org
-Signed-off-by: Christian König <christian.koenig@amd.com>
+2. Some of the Lenovo Ideapad D330 models have a HD (800x1280) screen
+instead of a FHD (1200x1920) screen (both are mounted right-side-up) add
+a second Lenovo Ideapad D330 quirk for the HD version.
+
+Changes in v2:
+- Add a new quirk for Lenovo Ideapad D330 models with a HD screen instead
+  of a FHD screen
+
+Link: https://github.com/systemd/systemd/pull/18884
+Acked-by: Simon Ser <contact@emersion.fr>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210530110428.12994-2-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/dma-buf.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-index 922416b3aaceb..93e9bf7382595 100644
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -79,6 +79,7 @@ static void dma_buf_release(struct dentry *dentry)
- 	if (dmabuf->resv == (struct dma_resv *)&dmabuf[1])
- 		dma_resv_fini(dmabuf->resv);
- 
-+	WARN_ON(!list_empty(&dmabuf->attachments));
- 	module_put(dmabuf->owner);
- 	kfree(dmabuf->name);
- 	kfree(dmabuf);
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index f6bdec7fa9253..604535b1c3a95 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -211,10 +211,15 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo MIIX 320-10ICR"),
+ 		},
+ 		.driver_data = (void *)&lcd800x1280_rightside_up,
+-	}, {	/* Lenovo Ideapad D330 */
++	}, {	/* Lenovo Ideapad D330-10IGM (HD) */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGM"),
++		},
++		.driver_data = (void *)&lcd800x1280_rightside_up,
++	}, {	/* Lenovo Ideapad D330-10IGM (FHD) */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+-		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "81H3"),
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGM"),
+ 		},
+ 		.driver_data = (void *)&lcd1200x1920_rightside_up,
 -- 
 2.33.0
 
