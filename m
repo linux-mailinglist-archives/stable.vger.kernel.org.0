@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF48744A1B5
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:09:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7674444A1C2
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:09:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241914AbhKIBLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:11:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39304 "EHLO mail.kernel.org"
+        id S242207AbhKIBMI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:12:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237637AbhKIBJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:09:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED34D61A7E;
-        Tue,  9 Nov 2021 01:04:16 +0000 (UTC)
+        id S242166AbhKIBJr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:09:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57B02613B3;
+        Tue,  9 Nov 2021 01:04:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419857;
-        bh=TrqC39b+5B+mLhZ+hdMZwwgK0dB5G4OJpZfPs3U+494=;
+        s=k20201202; t=1636419859;
+        bh=ck8XyBZYnj+ck7af5VYCTGfN3BGiqOHzr1XyLdEhGOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XLrXk0eqP5WoOnwN9u+PYqZiQAnPVwmdwocPwSW6BrspjTzobBDWe9f3l6zpFPD3n
-         v+REY7wfYP8o1q3FoNCdwMCINnp9IQMglmhE4ufUl7fxH23jWRT04mKJBraHwpLAYg
-         UbIz2aDUYz/BLaKegcdtjepCXVr19co1sc0a0t818J1H+1vz9aPJLKC7isw0PLIT1F
-         KKYjUS8v1w0b37z9Ds5AzN1FlN5hc3CEJWC/USFpzM1CgzTvCnfoO9OzpvUhCjOewC
-         y5On9fuKk9bsRum1FCehPdrXxCEsm751QLqvN9sZHkcJiFI8xl4JS/Y+XgY+tR7zu6
-         JVgqV8ZRNNifQ==
+        b=JobZ3qWQPrUmvdi9Bs3oj2pUl8gmSbeBMyJ6epTjoyp3XmSrd7i+ZqqnqPhYlcroB
+         MaX0UyMke/Oc0wbzdWJD0oq0G+74RWS3jGGAcvrUI5FWrzDGyWcorYkqx9IoutpWRP
+         dxJ4Yy5NEkHys1APTNmamTmWoL9Rf0GhsThd7EFibo1YTC+IAMFGs21r3hrnXmVjOV
+         CZWXUbxqu6xsLOXo2j0JdK7/c0b+DMCBbg11UZIjpWgpqF14eMgsjYs7AUfFolawCH
+         bA9NMOjvFOAY6nhDtKb49ETqPUoBsT03xk5qyl2zmhQ4k2AYOCwx5GY6hW+/DK5EYN
+         0r9emkhdDVwpw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ricardo Ribalda <ribalda@chromium.org>,
@@ -31,9 +31,9 @@ Cc:     Ricardo Ribalda <ribalda@chromium.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
         linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 032/101] media: uvcvideo: Return -EIO for control errors
-Date:   Mon,  8 Nov 2021 12:47:22 -0500
-Message-Id: <20211108174832.1189312-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 033/101] media: uvcvideo: Set unique vdev name based in type
+Date:   Mon,  8 Nov 2021 12:47:23 -0500
+Message-Id: <20211108174832.1189312-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108174832.1189312-1-sashal@kernel.org>
 References: <20211108174832.1189312-1-sashal@kernel.org>
@@ -47,44 +47,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit ffccdde5f0e17d2f0d788a9d831a027187890eaa ]
+[ Upstream commit e3f60e7e1a2b451f538f9926763432249bcf39c4 ]
 
-The device is doing something unexpected with the control. Either because
-the protocol is not properly implemented or there has been a HW error.
+All the entities must have a unique name. We can have a descriptive and
+unique name by appending the function and the entity->id.
+
+This is even resilent to multi chain devices.
 
 Fixes v4l2-compliance:
+Media Controller ioctls:
+                fail: v4l2-test-media.cpp(205): v2_entity_names_set.find(key) != v2_entity_names_set.end()
+        test MEDIA_IOC_G_TOPOLOGY: FAIL
+                fail: v4l2-test-media.cpp(394): num_data_links != num_links
+	test MEDIA_IOC_ENUM_ENTITIES/LINKS: FAIL
 
-Control ioctls (Input 0):
-                fail: v4l2-test-controls.cpp(448): s_ctrl returned an error (22)
-        test VIDIOC_G/S_CTRL: FAIL
-                fail: v4l2-test-controls.cpp(698): s_ext_ctrls returned an error (22)
-        test VIDIOC_G/S/TRY_EXT_CTRLS: FAIL
-
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_video.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/usb/uvc/uvc_driver.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
-index 5878c78334862..b8477fa93b7d7 100644
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -112,6 +112,11 @@ int uvc_query_ctrl(struct uvc_device *dev, u8 query, u8 unit,
- 	case 5: /* Invalid unit */
- 	case 6: /* Invalid control */
- 	case 7: /* Invalid Request */
-+		/*
-+		 * The firmware has not properly implemented
-+		 * the control or there has been a HW error.
-+		 */
-+		return -EIO;
- 	case 8: /* Invalid value within range */
- 		return -EINVAL;
- 	default: /* reserved or unknown */
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 282f3d2388cc2..447b6a198926e 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -2065,6 +2065,7 @@ int uvc_register_video_device(struct uvc_device *dev,
+ 			      const struct v4l2_file_operations *fops,
+ 			      const struct v4l2_ioctl_ops *ioctl_ops)
+ {
++	const char *name;
+ 	int ret;
+ 
+ 	/* Initialize the video buffers queue. */
+@@ -2093,16 +2094,20 @@ int uvc_register_video_device(struct uvc_device *dev,
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+ 	default:
+ 		vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
++		name = "Video Capture";
+ 		break;
+ 	case V4L2_BUF_TYPE_VIDEO_OUTPUT:
+ 		vdev->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
++		name = "Video Output";
+ 		break;
+ 	case V4L2_BUF_TYPE_META_CAPTURE:
+ 		vdev->device_caps = V4L2_CAP_META_CAPTURE | V4L2_CAP_STREAMING;
++		name = "Metadata";
+ 		break;
+ 	}
+ 
+-	strscpy(vdev->name, dev->name, sizeof(vdev->name));
++	snprintf(vdev->name, sizeof(vdev->name), "%s %u", name,
++		 stream->header.bTerminalLink);
+ 
+ 	/*
+ 	 * Set the driver data before calling video_register_device, otherwise
 -- 
 2.33.0
 
