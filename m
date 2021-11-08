@@ -2,66 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B348447EC3
-	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 12:19:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A14447F72
+	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 13:22:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239162AbhKHLWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 06:22:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54214 "EHLO
+        id S234601AbhKHMYr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 07:24:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239170AbhKHLWa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Nov 2021 06:22:30 -0500
-Received: from mail-lj1-x22e.google.com (mail-lj1-x22e.google.com [IPv6:2a00:1450:4864:20::22e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 709E2C061570
-        for <stable@vger.kernel.org>; Mon,  8 Nov 2021 03:19:46 -0800 (PST)
-Received: by mail-lj1-x22e.google.com with SMTP id e9so8299774ljl.5
-        for <stable@vger.kernel.org>; Mon, 08 Nov 2021 03:19:46 -0800 (PST)
+        with ESMTP id S232912AbhKHMYq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Nov 2021 07:24:46 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEF39C061714
+        for <stable@vger.kernel.org>; Mon,  8 Nov 2021 04:22:02 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id j5-20020a17090a318500b001a6c749e697so6454829pjb.1
+        for <stable@vger.kernel.org>; Mon, 08 Nov 2021 04:22:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=AWy7nTOvaqSkFgtuiWpF+Dau+BC5cDGH9eLCN5enbXg=;
-        b=S+ezIZ9aLBLjaInCf0PlDHfP0AeVgEUVo87GbmfByx7uC5u/xnBOQ0JNqkmkv76plY
-         PZzMhaIbnA2I31Xf1CAB0EYNvrBkJQFCy0aM1Du2gho9CzaIgerRrwxy8S9SAwgdvsMS
-         vPiaAoOoo6xVAxps+bDa1oeA1UVCCp/vazHifdLtENkcN3k5EJpF4oYtU5hmTA7FNJC0
-         u0c16jq8yoHsdBCeb4139zHJNyjscFtMoxdGu7MoGvsbhel3vpKkj0K71Hb+p1SOFdVN
-         u04wzrtuLzph2jAVcvCYgVI8etsgXJeg40toL4dwr88IE2XFID6WUcdenDeuljC9uaZG
-         2RfA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=1WVZcWEyn2QOx5d+5NApITM5NUDdQo0JQ3Y+U4AhbM4=;
+        b=8BpC9QJZ+3UCK3F3/ort+uWmxK89qsx+TvL0knTNN3VGxM5Z+sPgZnE4H5vABpJA55
+         lStk2/3jNHHbyRc6+6tX1+VtfW5FxB3WGpvT9zSfIo1HyafbobPNQzcWT3DmUIDBqF/j
+         pHGaqXsbQAcjM6POuyzVP8RgxH2PJr++esvm9zf1/MStvp1iZKrZDpKtQbmLMjJiOk+U
+         0k+MjqEzWwidX7Sxrn9hJg17p7TKNN+KhMTqkyLCR3FORhS7g4XISDnAFTmZeZE6uyGi
+         98wQjLeB8KerELOwL8qPzuMcbD5fDbaPQ6vakFrHLdyK9szS7Qo4UkhkGHy1393g8XQ1
+         CeQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=AWy7nTOvaqSkFgtuiWpF+Dau+BC5cDGH9eLCN5enbXg=;
-        b=QqjrTRmchHjv35Iot4xuxHju0KP08zxZ8VBcqQNl0VsH1c4zV45jPVcTSmJL7ozshx
-         zUNnVHXwaX4Ay6KVZVm28ynbCtRUr8hN9Am9MDP5xLXNCfCi8fDN74z1JyBbxoFu+Ljr
-         qwVL7oQG9Y8dEm22DhRA3ehZ4JbOEJZGsANt/hhCUfo5YFvr+PcDr7mxKQgcpYTln4sy
-         YIei2gTF1XXDm1XBYh31Qa5UBh8h6nUilLSrJJ4rVVal4MIHTIVJRuk8SklibHGcjn0k
-         6tr6uz0aukA+2zxj3xaIVd8/MjOFqpsifOQ2ikFkwEDcSbGB9oqmSVs7nCa9CJIYJ4jw
-         Lj3g==
-X-Gm-Message-State: AOAM533Q6gVAw2eMByTXMrwF4cYLA65mqkn4mPSTFGL9PMZMrZOCWCyT
-        OactTeqFNBTDFE01OILX+2P6/+H8j2hCERpRC2g=
-X-Google-Smtp-Source: ABdhPJyHa+fAYu2bh2TDMU75IWT1a7H3fe5MaXQV4PGrZpjUezlVEzDUyeBzvP08Y+XEgeYcc9SW+sbB16yxpUy/V/4=
-X-Received: by 2002:a05:651c:28a:: with SMTP id b10mr8453446ljo.110.1636370384853;
- Mon, 08 Nov 2021 03:19:44 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=1WVZcWEyn2QOx5d+5NApITM5NUDdQo0JQ3Y+U4AhbM4=;
+        b=FYD5862kEpijpkThd2FjVIyPSShxskk4kfEr94O42snT+bfZFjzTJm49KzPO0EyGP0
+         KzgoKbSFDR/spe9jQcGH2N7fAXIqN+Dgly35850FR1rRtXwDghHbwzcEdUaCplXNjoG6
+         6ZJqwyhHRlVPLs5PRFoRO7mLIsPRTUp6x3n/zazl8PZMRT37RWZGV8Zr39TLdY69pEoN
+         MxpuxrJtHaTj/1CAJe8XWd77AY7F5v7aqyqeeGGj+vONHpLTUovA6fzk/KcTKviQRO2R
+         dyQBw8WQ7T18htf5+T5KJfE9C/n91eLP0ogp+ytVdtSrNRmPvQZPHGphMR9REkjlfvNy
+         6Z0A==
+X-Gm-Message-State: AOAM532oqDrhbcOt81z9A4zwsaeU1bJnAu3XcgKc2b69Zy8ial2zNV3Z
+        KrhflQ30dVyuXdtk/sZwg69wCBHq8McOZD8V
+X-Google-Smtp-Source: ABdhPJyDVOpdtZrMQwj6PJ1Jb5OrDI/c9uCT3QwaryrRftjsS9BtETiCJ8nbT9BJabN7xc7gxIq6FA==
+X-Received: by 2002:a17:90b:38c9:: with SMTP id nn9mr38953261pjb.192.1636374122134;
+        Mon, 08 Nov 2021 04:22:02 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mv22sm13139583pjb.36.2021.11.08.04.22.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Nov 2021 04:22:01 -0800 (PST)
+Message-ID: <61891669.1c69fb81.72e92.7f48@mx.google.com>
+Date:   Mon, 08 Nov 2021 04:22:01 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Sender: michealkevin3322@gmail.com
-Received: by 2002:a2e:9c48:0:0:0:0:0 with HTTP; Mon, 8 Nov 2021 03:19:44 -0800 (PST)
-From:   Aisha Al-Qaddafi <aisha.gdaffi24@gmail.com>
-Date:   Mon, 8 Nov 2021 12:19:44 +0100
-X-Google-Sender-Auth: AxgCP6TknfnNLtT-rsOOgsL7RKY
-Message-ID: <CAM06TjjzHNsCpzCPb4TNqp63vaJ4gS3qWX-=u3_y=BbtTfuh7w@mail.gmail.com>
-Subject: My Dear Friend
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.291-3-gec781d93e42c
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.4 baseline: 129 runs,
+ 1 regressions (v4.4.291-3-gec781d93e42c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Assalamu alaikum,
-I came across your e-mail contact prior to a private search while in
-need of a trusted person. My name is Mrs. Aisha Gaddafi, a single
-Mother and a Widow with three Children. I am the only biological
-Daughter of late Libyan President (Late Colonel Muammar Gaddafi)I have
-a business Proposal for you worth $27.5Million dollars and I need
-mutual respect, trust, honesty, transparency, adequate support and
-assistance, Hope to hear from you for more details.
-Warmest regards
+stable-rc/queue/4.4 baseline: 129 runs, 1 regressions (v4.4.291-3-gec781d93=
+e42c)
+
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.291-3-gec781d93e42c/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.291-3-gec781d93e42c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ec781d93e42ccc20e630a50f0333f7f40b3887c5 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/6188db5759f21604b43358dd
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-3=
+-gec781d93e42c/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-3=
+-gec781d93e42c/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6188db5759f2160=
+4b43358e0
+        failing since 1 day (last pass: v4.4.291-3-ge1223ca4fb61, first fai=
+l: v4.4.291-3-g4b7696b55f5d)
+        2 lines
+
+    2021-11-08T08:09:42.670094  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/110
+    2021-11-08T08:09:42.679639  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
+    2021-11-08T08:09:42.695050  [   19.758819] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
