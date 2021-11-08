@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E92544A0B6
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:02:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6915744A0B9
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239029AbhKIBEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:04:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59938 "EHLO mail.kernel.org"
+        id S239142AbhKIBFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:05:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241643AbhKIBD7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:03:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6F446120D;
-        Tue,  9 Nov 2021 01:01:12 +0000 (UTC)
+        id S241739AbhKIBEA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:04:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2802F61881;
+        Tue,  9 Nov 2021 01:01:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419673;
-        bh=yqS5EcZ/hI7QK4grPthEC7x/xBPlFyeCWGV5YGToVBM=;
+        s=k20201202; t=1636419675;
+        bh=6XPr30Qa6htGATQEnJrk0YD7dgGT0l9kyX5Ji03LveA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bEgzV9nO4RVQyYYvoifBMHg+o4/oKehU1SGHc00zo5oHolHCs2jGSgdh+Veas/P0q
-         KymlG5DYkVcAAzTLU4Qy5mNaVFqDojeRUYDeGtYYhtfWZKtG5nVWGczIWzgyYDWBNR
-         I6x0wzmPJV/OWNN8sGMPQsO2ca7dnH4WDnEiQPUQy6LltOV+poj534hCdYdtYrMepA
-         YARdmW5ry2KEm92PZtrXjbYOkkAuiEp3tCNFgEbdYPfSvwq05TFbjL7+JmeKN6ZQXV
-         5x29ES9X7Brc6KGcbY9KiEqSFKo2OW7UqNFF4tRuyQ2+ghv+f2iSFO/dagAiAwzs6s
-         WV3/vIJL0jDLw==
+        b=jKeA/TxWo4oesh6UJcLw5YYNSeRYpZgM7apk6AUFMUWBFBcNgOAlsDviBs9nWCeSb
+         LnVW0QKV4Kyi35B4DqqBaLJqE7CjlYQirz89kNvADbCjKsokfYyAL0FwXrYkuPoGw9
+         sJI/5wAPtc93uj/16DFkh508jgsUG2gY4FYIVUNmid/wQ/3zKne6Ui6gFlTY0SMFc8
+         Si615LvtjpRGyCvW/s9k7svgLbKHWGwThf6hrVy7Br3RQa6SNC2yXtrup+qYbiUHy6
+         cpfQYSwBxgCYXOzDZIzdiEYrbIzNhQHen0BUC7tbJWcDq7DrZwVS2rLSjw7Jz+Cqgy
+         CkxxPOuEsNksA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ricardo Ribalda <ribalda@chromium.org>,
@@ -31,9 +31,9 @@ Cc:     Ricardo Ribalda <ribalda@chromium.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
         linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 042/146] media: uvcvideo: Set capability in s_param
-Date:   Mon,  8 Nov 2021 12:43:09 -0500
-Message-Id: <20211108174453.1187052-42-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 043/146] media: uvcvideo: Return -EIO for control errors
+Date:   Mon,  8 Nov 2021 12:43:10 -0500
+Message-Id: <20211108174453.1187052-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108174453.1187052-1-sashal@kernel.org>
 References: <20211108174453.1187052-1-sashal@kernel.org>
@@ -47,13 +47,18 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit 97a2777a96070afb7da5d587834086c0b586c8cc ]
+[ Upstream commit ffccdde5f0e17d2f0d788a9d831a027187890eaa ]
+
+The device is doing something unexpected with the control. Either because
+the protocol is not properly implemented or there has been a HW error.
 
 Fixes v4l2-compliance:
 
-Format ioctls (Input 0):
-                warn: v4l2-test-formats.cpp(1339): S_PARM is supported but doesn't report V4L2_CAP_TIMEPERFRAME
-                fail: v4l2-test-formats.cpp(1241): node->has_frmintervals && !cap->capability
+Control ioctls (Input 0):
+                fail: v4l2-test-controls.cpp(448): s_ctrl returned an error (22)
+        test VIDIOC_G/S_CTRL: FAIL
+                fail: v4l2-test-controls.cpp(698): s_ext_ctrls returned an error (22)
+        test VIDIOC_G/S/TRY_EXT_CTRLS: FAIL
 
 Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
@@ -61,29 +66,25 @@ Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_v4l2.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/media/usb/uvc/uvc_video.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
-index 6acb8013de08b..c9d208677bcd8 100644
---- a/drivers/media/usb/uvc/uvc_v4l2.c
-+++ b/drivers/media/usb/uvc/uvc_v4l2.c
-@@ -472,10 +472,13 @@ static int uvc_v4l2_set_streamparm(struct uvc_streaming *stream,
- 	uvc_simplify_fraction(&timeperframe.numerator,
- 		&timeperframe.denominator, 8, 333);
- 
--	if (parm->type == V4L2_BUF_TYPE_VIDEO_CAPTURE)
-+	if (parm->type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
- 		parm->parm.capture.timeperframe = timeperframe;
--	else
-+		parm->parm.capture.capability = V4L2_CAP_TIMEPERFRAME;
-+	} else {
- 		parm->parm.output.timeperframe = timeperframe;
-+		parm->parm.output.capability = V4L2_CAP_TIMEPERFRAME;
-+	}
- 
- 	return 0;
- }
+diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
+index e16464606b140..9f37eaf28ce7e 100644
+--- a/drivers/media/usb/uvc/uvc_video.c
++++ b/drivers/media/usb/uvc/uvc_video.c
+@@ -115,6 +115,11 @@ int uvc_query_ctrl(struct uvc_device *dev, u8 query, u8 unit,
+ 	case 5: /* Invalid unit */
+ 	case 6: /* Invalid control */
+ 	case 7: /* Invalid Request */
++		/*
++		 * The firmware has not properly implemented
++		 * the control or there has been a HW error.
++		 */
++		return -EIO;
+ 	case 8: /* Invalid value within range */
+ 		return -EINVAL;
+ 	default: /* reserved or unknown */
 -- 
 2.33.0
 
