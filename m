@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A083A44A0CE
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:03:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB2CF44A0D2
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:03:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237889AbhKIBFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:05:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60044 "EHLO mail.kernel.org"
+        id S237560AbhKIBFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:05:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241769AbhKIBET (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:04:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C00E76124D;
-        Tue,  9 Nov 2021 01:01:19 +0000 (UTC)
+        id S241575AbhKIBEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:04:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8103B6137F;
+        Tue,  9 Nov 2021 01:01:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419680;
-        bh=hCBZVbn5ACGsSoRa85leu+ceg8jHthpi32UI/d/3jZQ=;
+        s=k20201202; t=1636419683;
+        bh=HYqPAY4YBniglO35a64L1/ivNGtdZldAx7vZJEWow3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGAsnJ6u4iJpYmHjC+w183slSvA5hHn+5izqp/tn0uKWmtM2p65fZ8Q1hEsRn1WxE
-         Ea66bXMNyERAIbtJHdFSMkPK473ouz2okzv7nopkIWNZxh2s1Kp0a7O2R2sYIoFKKy
-         gtARW/9nTOMiejW4tNFe1ICHiA0PHVXLFH3+f/k97beG+UGEvGQ4IPmJc4EMc/29du
-         m7sLFZoy7fz2RQb/etuqss4FygOmJ3oO+cLzFeCokVT1uSYijBPKDwhREWqLtJ2Qkv
-         rb3EEW3kqYTnqDZ5RSpQKH4ez4RWommwtPWVzVsKp5m/s8p9QvWUPVWg0EEEy5H3xO
-         xegv9QfmEa30Q==
+        b=qvERl5OxnhEf9jgx/s3BbXIkdmVFVCpdPDzPrzANPaFH+/KUZciUFGv203VEBGglS
+         BQyXsI1UCxB0VRSz8KGS50jIH99l2jie58EzCQTOFWqQhA0vSW/u3eXGAZ55X4OkM+
+         cXmHnmU8xjEQz7oNPdR5THWCt9OK2VLhLiuUVZRAx/Q1fK1500R4Usdn0tjHTtnhxV
+         fqEh2oChbUq4bVc8xjl4VEqBnNfRZ4crgHoqJITNgM92Jys+yDBIa28ENt9DvzH8dJ
+         FhGMSLPRR6gJ+a1pod1OcbtckJEcFL16WQoqrj2gB31i4g3Uh6OTGiadQGzPz/qBQ5
+         OMrBd8ppMLj3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nadezda Lutovinova <lutovinova@ispras.ru>,
+Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, a.hajda@samsung.com,
-        mchehab@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 047/146] media: s5p-mfc: Add checking to s5p_mfc_probe().
-Date:   Mon,  8 Nov 2021 12:43:14 -0500
-Message-Id: <20211108174453.1187052-47-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, tfiga@chromium.org,
+        m.szyprowski@samsung.com, mchehab@kernel.org,
+        sumit.semwal@linaro.org, christian.koenig@amd.com,
+        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linaro-mm-sig@lists.linaro.org
+Subject: [PATCH AUTOSEL 5.15 048/146] media: videobuf2: rework vb2_mem_ops API
+Date:   Mon,  8 Nov 2021 12:43:15 -0500
+Message-Id: <20211108174453.1187052-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108174453.1187052-1-sashal@kernel.org>
 References: <20211108174453.1187052-1-sashal@kernel.org>
@@ -45,39 +47,553 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
 
-[ Upstream commit cdfaf4752e6915a4b455ad4400133e540e4dc965 ]
+[ Upstream commit a4b83deb3e76fb9385ca58e2c072a145b3a320d6 ]
 
-If of_device_get_match_data() return NULL,
-then null pointer dereference occurs in  s5p_mfc_init_pm().
-The patch adds checking if dev->variant is NULL.
+With the new DMA API we need an extension of the videobuf2 API.
+Previously, videobuf2 core would set the non-coherent DMA bit
+in the vb2_queue dma_attr field (if user-space would pass a
+corresponding memory hint); the vb2 core then would pass the
+vb2_queue dma_attrs to the vb2 allocators. The vb2 allocator
+would use the queue's dma_attr and the DMA API would allocate
+either coherent or non-coherent memory.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+But we cannot do this anymore, since there is no corresponding DMA
+attr flag and, hence, there is no way for the allocator to become
+aware of what type of allocation user-space has requested. So we
+need to pass more context from videobuf2 core to the allocators.
 
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
+Fix this by changing the call_ptr_memop() macro to pass the
+vb2 pointer to the corresponding op callbacks.
+
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../media/common/videobuf2/videobuf2-core.c   | 42 +++++++++++--------
+ .../common/videobuf2/videobuf2-dma-contig.c   | 36 +++++++++-------
+ .../media/common/videobuf2/videobuf2-dma-sg.c | 33 ++++++++-------
+ .../common/videobuf2/videobuf2-vmalloc.c      | 30 ++++++-------
+ include/media/videobuf2-core.h                | 37 ++++++++--------
+ 5 files changed, 98 insertions(+), 80 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-index c763c0a03140c..f336a95432732 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-@@ -1288,6 +1288,10 @@ static int s5p_mfc_probe(struct platform_device *pdev)
+diff --git a/drivers/media/common/videobuf2/videobuf2-core.c b/drivers/media/common/videobuf2/videobuf2-core.c
+index 508ac295eb06e..033b0c83272fe 100644
+--- a/drivers/media/common/videobuf2/videobuf2-core.c
++++ b/drivers/media/common/videobuf2/videobuf2-core.c
+@@ -68,13 +68,13 @@ module_param(debug, int, 0644);
+ 	err;								\
+ })
+ 
+-#define call_ptr_memop(vb, op, args...)					\
++#define call_ptr_memop(op, vb, args...)					\
+ ({									\
+ 	struct vb2_queue *_q = (vb)->vb2_queue;				\
+ 	void *ptr;							\
+ 									\
+ 	log_memop(vb, op);						\
+-	ptr = _q->mem_ops->op ? _q->mem_ops->op(args) : NULL;		\
++	ptr = _q->mem_ops->op ? _q->mem_ops->op(vb, args) : NULL;	\
+ 	if (!IS_ERR_OR_NULL(ptr))					\
+ 		(vb)->cnt_mem_ ## op++;					\
+ 	ptr;								\
+@@ -144,9 +144,9 @@ module_param(debug, int, 0644);
+ 	((vb)->vb2_queue->mem_ops->op ?					\
+ 		(vb)->vb2_queue->mem_ops->op(args) : 0)
+ 
+-#define call_ptr_memop(vb, op, args...)					\
++#define call_ptr_memop(op, vb, args...)					\
+ 	((vb)->vb2_queue->mem_ops->op ?					\
+-		(vb)->vb2_queue->mem_ops->op(args) : NULL)
++		(vb)->vb2_queue->mem_ops->op(vb, args) : NULL)
+ 
+ #define call_void_memop(vb, op, args...)				\
+ 	do {								\
+@@ -230,9 +230,10 @@ static int __vb2_buf_mem_alloc(struct vb2_buffer *vb)
+ 		if (size < vb->planes[plane].length)
+ 			goto free;
+ 
+-		mem_priv = call_ptr_memop(vb, alloc,
+-				q->alloc_devs[plane] ? : q->dev,
+-				q->dma_attrs, size, q->dma_dir, q->gfp_flags);
++		mem_priv = call_ptr_memop(alloc,
++					  vb,
++					  q->alloc_devs[plane] ? : q->dev,
++					  size);
+ 		if (IS_ERR_OR_NULL(mem_priv)) {
+ 			if (mem_priv)
+ 				ret = PTR_ERR(mem_priv);
+@@ -975,7 +976,7 @@ void *vb2_plane_vaddr(struct vb2_buffer *vb, unsigned int plane_no)
+ 	if (plane_no >= vb->num_planes || !vb->planes[plane_no].mem_priv)
+ 		return NULL;
+ 
+-	return call_ptr_memop(vb, vaddr, vb->planes[plane_no].mem_priv);
++	return call_ptr_memop(vaddr, vb, vb->planes[plane_no].mem_priv);
+ 
+ }
+ EXPORT_SYMBOL_GPL(vb2_plane_vaddr);
+@@ -985,7 +986,7 @@ void *vb2_plane_cookie(struct vb2_buffer *vb, unsigned int plane_no)
+ 	if (plane_no >= vb->num_planes || !vb->planes[plane_no].mem_priv)
+ 		return NULL;
+ 
+-	return call_ptr_memop(vb, cookie, vb->planes[plane_no].mem_priv);
++	return call_ptr_memop(cookie, vb, vb->planes[plane_no].mem_priv);
+ }
+ EXPORT_SYMBOL_GPL(vb2_plane_cookie);
+ 
+@@ -1125,10 +1126,11 @@ static int __prepare_userptr(struct vb2_buffer *vb)
+ 		vb->planes[plane].data_offset = 0;
+ 
+ 		/* Acquire each plane's memory */
+-		mem_priv = call_ptr_memop(vb, get_userptr,
+-				q->alloc_devs[plane] ? : q->dev,
+-				planes[plane].m.userptr,
+-				planes[plane].length, q->dma_dir);
++		mem_priv = call_ptr_memop(get_userptr,
++					  vb,
++					  q->alloc_devs[plane] ? : q->dev,
++					  planes[plane].m.userptr,
++					  planes[plane].length);
+ 		if (IS_ERR(mem_priv)) {
+ 			dprintk(q, 1, "failed acquiring userspace memory for plane %d\n",
+ 				plane);
+@@ -1249,9 +1251,11 @@ static int __prepare_dmabuf(struct vb2_buffer *vb)
+ 		vb->planes[plane].data_offset = 0;
+ 
+ 		/* Acquire each plane's memory */
+-		mem_priv = call_ptr_memop(vb, attach_dmabuf,
+-				q->alloc_devs[plane] ? : q->dev,
+-				dbuf, planes[plane].length, q->dma_dir);
++		mem_priv = call_ptr_memop(attach_dmabuf,
++					  vb,
++					  q->alloc_devs[plane] ? : q->dev,
++					  dbuf,
++					  planes[plane].length);
+ 		if (IS_ERR(mem_priv)) {
+ 			dprintk(q, 1, "failed to attach dmabuf\n");
+ 			ret = PTR_ERR(mem_priv);
+@@ -2187,8 +2191,10 @@ int vb2_core_expbuf(struct vb2_queue *q, int *fd, unsigned int type,
+ 
+ 	vb_plane = &vb->planes[plane];
+ 
+-	dbuf = call_ptr_memop(vb, get_dmabuf, vb_plane->mem_priv,
+-				flags & O_ACCMODE);
++	dbuf = call_ptr_memop(get_dmabuf,
++			      vb,
++			      vb_plane->mem_priv,
++			      flags & O_ACCMODE);
+ 	if (IS_ERR_OR_NULL(dbuf)) {
+ 		dprintk(q, 1, "failed to export buffer %d, plane %d\n",
+ 			index, plane);
+diff --git a/drivers/media/common/videobuf2/videobuf2-dma-contig.c b/drivers/media/common/videobuf2/videobuf2-dma-contig.c
+index a7f61ba854405..019c3843dc6d5 100644
+--- a/drivers/media/common/videobuf2/videobuf2-dma-contig.c
++++ b/drivers/media/common/videobuf2/videobuf2-dma-contig.c
+@@ -40,6 +40,8 @@ struct vb2_dc_buf {
+ 
+ 	/* DMABUF related */
+ 	struct dma_buf_attachment	*db_attach;
++
++	struct vb2_buffer		*vb;
+ };
+ 
+ /*********************************************/
+@@ -66,14 +68,14 @@ static unsigned long vb2_dc_get_contiguous_size(struct sg_table *sgt)
+ /*         callbacks for all buffers         */
+ /*********************************************/
+ 
+-static void *vb2_dc_cookie(void *buf_priv)
++static void *vb2_dc_cookie(struct vb2_buffer *vb, void *buf_priv)
+ {
+ 	struct vb2_dc_buf *buf = buf_priv;
+ 
+ 	return &buf->dma_addr;
+ }
+ 
+-static void *vb2_dc_vaddr(void *buf_priv)
++static void *vb2_dc_vaddr(struct vb2_buffer *vb, void *buf_priv)
+ {
+ 	struct vb2_dc_buf *buf = buf_priv;
+ 	struct dma_buf_map map;
+@@ -137,9 +139,9 @@ static void vb2_dc_put(void *buf_priv)
+ 	kfree(buf);
+ }
+ 
+-static void *vb2_dc_alloc(struct device *dev, unsigned long attrs,
+-			  unsigned long size, enum dma_data_direction dma_dir,
+-			  gfp_t gfp_flags)
++static void *vb2_dc_alloc(struct vb2_buffer *vb,
++			  struct device *dev,
++			  unsigned long size)
+ {
+ 	struct vb2_dc_buf *buf;
+ 
+@@ -150,9 +152,10 @@ static void *vb2_dc_alloc(struct device *dev, unsigned long attrs,
+ 	if (!buf)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	buf->attrs = attrs;
++	buf->attrs = vb->vb2_queue->dma_attrs;
+ 	buf->cookie = dma_alloc_attrs(dev, size, &buf->dma_addr,
+-					GFP_KERNEL | gfp_flags, buf->attrs);
++				      GFP_KERNEL | vb->vb2_queue->gfp_flags,
++				      buf->attrs);
+ 	if (!buf->cookie) {
+ 		dev_err(dev, "dma_alloc_coherent of size %ld failed\n", size);
+ 		kfree(buf);
+@@ -165,11 +168,12 @@ static void *vb2_dc_alloc(struct device *dev, unsigned long attrs,
+ 	/* Prevent the device from being released while the buffer is used */
+ 	buf->dev = get_device(dev);
+ 	buf->size = size;
+-	buf->dma_dir = dma_dir;
++	buf->dma_dir = vb->vb2_queue->dma_dir;
+ 
+ 	buf->handler.refcount = &buf->refcount;
+ 	buf->handler.put = vb2_dc_put;
+ 	buf->handler.arg = buf;
++	buf->vb = vb;
+ 
+ 	refcount_set(&buf->refcount, 1);
+ 
+@@ -397,7 +401,9 @@ static struct sg_table *vb2_dc_get_base_sgt(struct vb2_dc_buf *buf)
+ 	return sgt;
+ }
+ 
+-static struct dma_buf *vb2_dc_get_dmabuf(void *buf_priv, unsigned long flags)
++static struct dma_buf *vb2_dc_get_dmabuf(struct vb2_buffer *vb,
++					 void *buf_priv,
++					 unsigned long flags)
+ {
+ 	struct vb2_dc_buf *buf = buf_priv;
+ 	struct dma_buf *dbuf;
+@@ -459,8 +465,8 @@ static void vb2_dc_put_userptr(void *buf_priv)
+ 	kfree(buf);
+ }
+ 
+-static void *vb2_dc_get_userptr(struct device *dev, unsigned long vaddr,
+-	unsigned long size, enum dma_data_direction dma_dir)
++static void *vb2_dc_get_userptr(struct vb2_buffer *vb, struct device *dev,
++				unsigned long vaddr, unsigned long size)
+ {
+ 	struct vb2_dc_buf *buf;
+ 	struct frame_vector *vec;
+@@ -490,7 +496,7 @@ static void *vb2_dc_get_userptr(struct device *dev, unsigned long vaddr,
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	buf->dev = dev;
+-	buf->dma_dir = dma_dir;
++	buf->dma_dir = vb->vb2_queue->dma_dir;
+ 
+ 	offset = lower_32_bits(offset_in_page(vaddr));
+ 	vec = vb2_create_framevec(vaddr, size);
+@@ -660,8 +666,8 @@ static void vb2_dc_detach_dmabuf(void *mem_priv)
+ 	kfree(buf);
+ }
+ 
+-static void *vb2_dc_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
+-	unsigned long size, enum dma_data_direction dma_dir)
++static void *vb2_dc_attach_dmabuf(struct vb2_buffer *vb, struct device *dev,
++				  struct dma_buf *dbuf, unsigned long size)
+ {
+ 	struct vb2_dc_buf *buf;
+ 	struct dma_buf_attachment *dba;
+@@ -685,7 +691,7 @@ static void *vb2_dc_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
+ 		return dba;
  	}
  
- 	dev->variant = of_device_get_match_data(&pdev->dev);
-+	if (!dev->variant) {
-+		dev_err(&pdev->dev, "Failed to get device MFC hardware variant information\n");
-+		return -ENOENT;
-+	}
+-	buf->dma_dir = dma_dir;
++	buf->dma_dir = vb->vb2_queue->dma_dir;
+ 	buf->size = size;
+ 	buf->db_attach = dba;
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	dev->regs_base = devm_ioremap_resource(&pdev->dev, res);
+diff --git a/drivers/media/common/videobuf2/videobuf2-dma-sg.c b/drivers/media/common/videobuf2/videobuf2-dma-sg.c
+index c5b06a5095661..50265080cfc80 100644
+--- a/drivers/media/common/videobuf2/videobuf2-dma-sg.c
++++ b/drivers/media/common/videobuf2/videobuf2-dma-sg.c
+@@ -51,6 +51,8 @@ struct vb2_dma_sg_buf {
+ 	struct vb2_vmarea_handler	handler;
+ 
+ 	struct dma_buf_attachment	*db_attach;
++
++	struct vb2_buffer		*vb;
+ };
+ 
+ static void vb2_dma_sg_put(void *buf_priv);
+@@ -96,9 +98,8 @@ static int vb2_dma_sg_alloc_compacted(struct vb2_dma_sg_buf *buf,
+ 	return 0;
+ }
+ 
+-static void *vb2_dma_sg_alloc(struct device *dev, unsigned long dma_attrs,
+-			      unsigned long size, enum dma_data_direction dma_dir,
+-			      gfp_t gfp_flags)
++static void *vb2_dma_sg_alloc(struct vb2_buffer *vb, struct device *dev,
++			      unsigned long size)
+ {
+ 	struct vb2_dma_sg_buf *buf;
+ 	struct sg_table *sgt;
+@@ -113,7 +114,7 @@ static void *vb2_dma_sg_alloc(struct device *dev, unsigned long dma_attrs,
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	buf->vaddr = NULL;
+-	buf->dma_dir = dma_dir;
++	buf->dma_dir = vb->vb2_queue->dma_dir;
+ 	buf->offset = 0;
+ 	buf->size = size;
+ 	/* size is already page aligned */
+@@ -130,7 +131,7 @@ static void *vb2_dma_sg_alloc(struct device *dev, unsigned long dma_attrs,
+ 	if (!buf->pages)
+ 		goto fail_pages_array_alloc;
+ 
+-	ret = vb2_dma_sg_alloc_compacted(buf, gfp_flags);
++	ret = vb2_dma_sg_alloc_compacted(buf, vb->vb2_queue->gfp_flags);
+ 	if (ret)
+ 		goto fail_pages_alloc;
+ 
+@@ -154,6 +155,7 @@ static void *vb2_dma_sg_alloc(struct device *dev, unsigned long dma_attrs,
+ 	buf->handler.refcount = &buf->refcount;
+ 	buf->handler.put = vb2_dma_sg_put;
+ 	buf->handler.arg = buf;
++	buf->vb = vb;
+ 
+ 	refcount_set(&buf->refcount, 1);
+ 
+@@ -213,9 +215,8 @@ static void vb2_dma_sg_finish(void *buf_priv)
+ 	dma_sync_sgtable_for_cpu(buf->dev, sgt, buf->dma_dir);
+ }
+ 
+-static void *vb2_dma_sg_get_userptr(struct device *dev, unsigned long vaddr,
+-				    unsigned long size,
+-				    enum dma_data_direction dma_dir)
++static void *vb2_dma_sg_get_userptr(struct vb2_buffer *vb, struct device *dev,
++				    unsigned long vaddr, unsigned long size)
+ {
+ 	struct vb2_dma_sg_buf *buf;
+ 	struct sg_table *sgt;
+@@ -230,7 +231,7 @@ static void *vb2_dma_sg_get_userptr(struct device *dev, unsigned long vaddr,
+ 
+ 	buf->vaddr = NULL;
+ 	buf->dev = dev;
+-	buf->dma_dir = dma_dir;
++	buf->dma_dir = vb->vb2_queue->dma_dir;
+ 	buf->offset = vaddr & ~PAGE_MASK;
+ 	buf->size = size;
+ 	buf->dma_sgt = &buf->sg_table;
+@@ -292,7 +293,7 @@ static void vb2_dma_sg_put_userptr(void *buf_priv)
+ 	kfree(buf);
+ }
+ 
+-static void *vb2_dma_sg_vaddr(void *buf_priv)
++static void *vb2_dma_sg_vaddr(struct vb2_buffer *vb, void *buf_priv)
+ {
+ 	struct vb2_dma_sg_buf *buf = buf_priv;
+ 	struct dma_buf_map map;
+@@ -511,7 +512,9 @@ static const struct dma_buf_ops vb2_dma_sg_dmabuf_ops = {
+ 	.release = vb2_dma_sg_dmabuf_ops_release,
+ };
+ 
+-static struct dma_buf *vb2_dma_sg_get_dmabuf(void *buf_priv, unsigned long flags)
++static struct dma_buf *vb2_dma_sg_get_dmabuf(struct vb2_buffer *vb,
++					     void *buf_priv,
++					     unsigned long flags)
+ {
+ 	struct vb2_dma_sg_buf *buf = buf_priv;
+ 	struct dma_buf *dbuf;
+@@ -605,8 +608,8 @@ static void vb2_dma_sg_detach_dmabuf(void *mem_priv)
+ 	kfree(buf);
+ }
+ 
+-static void *vb2_dma_sg_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
+-	unsigned long size, enum dma_data_direction dma_dir)
++static void *vb2_dma_sg_attach_dmabuf(struct vb2_buffer *vb, struct device *dev,
++				      struct dma_buf *dbuf, unsigned long size)
+ {
+ 	struct vb2_dma_sg_buf *buf;
+ 	struct dma_buf_attachment *dba;
+@@ -630,14 +633,14 @@ static void *vb2_dma_sg_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
+ 		return dba;
+ 	}
+ 
+-	buf->dma_dir = dma_dir;
++	buf->dma_dir = vb->vb2_queue->dma_dir;
+ 	buf->size = size;
+ 	buf->db_attach = dba;
+ 
+ 	return buf;
+ }
+ 
+-static void *vb2_dma_sg_cookie(void *buf_priv)
++static void *vb2_dma_sg_cookie(struct vb2_buffer *vb, void *buf_priv)
+ {
+ 	struct vb2_dma_sg_buf *buf = buf_priv;
+ 
+diff --git a/drivers/media/common/videobuf2/videobuf2-vmalloc.c b/drivers/media/common/videobuf2/videobuf2-vmalloc.c
+index 83f95258ec8c6..ef36abd912dcc 100644
+--- a/drivers/media/common/videobuf2/videobuf2-vmalloc.c
++++ b/drivers/media/common/videobuf2/videobuf2-vmalloc.c
+@@ -34,13 +34,12 @@ struct vb2_vmalloc_buf {
+ 
+ static void vb2_vmalloc_put(void *buf_priv);
+ 
+-static void *vb2_vmalloc_alloc(struct device *dev, unsigned long attrs,
+-			       unsigned long size, enum dma_data_direction dma_dir,
+-			       gfp_t gfp_flags)
++static void *vb2_vmalloc_alloc(struct vb2_buffer *vb, struct device *dev,
++			       unsigned long size)
+ {
+ 	struct vb2_vmalloc_buf *buf;
+ 
+-	buf = kzalloc(sizeof(*buf), GFP_KERNEL | gfp_flags);
++	buf = kzalloc(sizeof(*buf), GFP_KERNEL | vb->vb2_queue->gfp_flags);
+ 	if (!buf)
+ 		return ERR_PTR(-ENOMEM);
+ 
+@@ -52,7 +51,7 @@ static void *vb2_vmalloc_alloc(struct device *dev, unsigned long attrs,
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
+-	buf->dma_dir = dma_dir;
++	buf->dma_dir = vb->vb2_queue->dma_dir;
+ 	buf->handler.refcount = &buf->refcount;
+ 	buf->handler.put = vb2_vmalloc_put;
+ 	buf->handler.arg = buf;
+@@ -71,9 +70,8 @@ static void vb2_vmalloc_put(void *buf_priv)
+ 	}
+ }
+ 
+-static void *vb2_vmalloc_get_userptr(struct device *dev, unsigned long vaddr,
+-				     unsigned long size,
+-				     enum dma_data_direction dma_dir)
++static void *vb2_vmalloc_get_userptr(struct vb2_buffer *vb, struct device *dev,
++				     unsigned long vaddr, unsigned long size)
+ {
+ 	struct vb2_vmalloc_buf *buf;
+ 	struct frame_vector *vec;
+@@ -84,7 +82,7 @@ static void *vb2_vmalloc_get_userptr(struct device *dev, unsigned long vaddr,
+ 	if (!buf)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	buf->dma_dir = dma_dir;
++	buf->dma_dir = vb->vb2_queue->dma_dir;
+ 	offset = vaddr & ~PAGE_MASK;
+ 	buf->size = size;
+ 	vec = vb2_create_framevec(vaddr, size);
+@@ -147,7 +145,7 @@ static void vb2_vmalloc_put_userptr(void *buf_priv)
+ 	kfree(buf);
+ }
+ 
+-static void *vb2_vmalloc_vaddr(void *buf_priv)
++static void *vb2_vmalloc_vaddr(struct vb2_buffer *vb, void *buf_priv)
+ {
+ 	struct vb2_vmalloc_buf *buf = buf_priv;
+ 
+@@ -339,7 +337,9 @@ static const struct dma_buf_ops vb2_vmalloc_dmabuf_ops = {
+ 	.release = vb2_vmalloc_dmabuf_ops_release,
+ };
+ 
+-static struct dma_buf *vb2_vmalloc_get_dmabuf(void *buf_priv, unsigned long flags)
++static struct dma_buf *vb2_vmalloc_get_dmabuf(struct vb2_buffer *vb,
++					      void *buf_priv,
++					      unsigned long flags)
+ {
+ 	struct vb2_vmalloc_buf *buf = buf_priv;
+ 	struct dma_buf *dbuf;
+@@ -403,8 +403,10 @@ static void vb2_vmalloc_detach_dmabuf(void *mem_priv)
+ 	kfree(buf);
+ }
+ 
+-static void *vb2_vmalloc_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
+-	unsigned long size, enum dma_data_direction dma_dir)
++static void *vb2_vmalloc_attach_dmabuf(struct vb2_buffer *vb,
++				       struct device *dev,
++				       struct dma_buf *dbuf,
++				       unsigned long size)
+ {
+ 	struct vb2_vmalloc_buf *buf;
+ 
+@@ -416,7 +418,7 @@ static void *vb2_vmalloc_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	buf->dbuf = dbuf;
+-	buf->dma_dir = dma_dir;
++	buf->dma_dir = vb->vb2_queue->dma_dir;
+ 	buf->size = size;
+ 
+ 	return buf;
+diff --git a/include/media/videobuf2-core.h b/include/media/videobuf2-core.h
+index 12955cb460d23..3b5986cee0739 100644
+--- a/include/media/videobuf2-core.h
++++ b/include/media/videobuf2-core.h
+@@ -46,6 +46,7 @@ enum vb2_memory {
+ 
+ struct vb2_fileio_data;
+ struct vb2_threadio_data;
++struct vb2_buffer;
+ 
+ /**
+  * struct vb2_mem_ops - memory handling/memory allocator operations.
+@@ -53,10 +54,8 @@ struct vb2_threadio_data;
+  *		return ERR_PTR() on failure or a pointer to allocator private,
+  *		per-buffer data on success; the returned private structure
+  *		will then be passed as @buf_priv argument to other ops in this
+- *		structure. Additional gfp_flags to use when allocating the
+- *		are also passed to this operation. These flags are from the
+- *		gfp_flags field of vb2_queue. The size argument to this function
+- *		shall be *page aligned*.
++ *		structure. The size argument to this function shall be
++ *		*page aligned*.
+  * @put:	inform the allocator that the buffer will no longer be used;
+  *		usually will result in the allocator freeing the buffer (if
+  *		no other users of this buffer are present); the @buf_priv
+@@ -117,31 +116,33 @@ struct vb2_threadio_data;
+  *       map_dmabuf, unmap_dmabuf.
+  */
+ struct vb2_mem_ops {
+-	void		*(*alloc)(struct device *dev, unsigned long attrs,
+-				  unsigned long size,
+-				  enum dma_data_direction dma_dir,
+-				  gfp_t gfp_flags);
++	void		*(*alloc)(struct vb2_buffer *vb,
++				  struct device *dev,
++				  unsigned long size);
+ 	void		(*put)(void *buf_priv);
+-	struct dma_buf *(*get_dmabuf)(void *buf_priv, unsigned long flags);
+-
+-	void		*(*get_userptr)(struct device *dev, unsigned long vaddr,
+-					unsigned long size,
+-					enum dma_data_direction dma_dir);
++	struct dma_buf *(*get_dmabuf)(struct vb2_buffer *vb,
++				      void *buf_priv,
++				      unsigned long flags);
++
++	void		*(*get_userptr)(struct vb2_buffer *vb,
++					struct device *dev,
++					unsigned long vaddr,
++					unsigned long size);
+ 	void		(*put_userptr)(void *buf_priv);
+ 
+ 	void		(*prepare)(void *buf_priv);
+ 	void		(*finish)(void *buf_priv);
+ 
+-	void		*(*attach_dmabuf)(struct device *dev,
++	void		*(*attach_dmabuf)(struct vb2_buffer *vb,
++					  struct device *dev,
+ 					  struct dma_buf *dbuf,
+-					  unsigned long size,
+-					  enum dma_data_direction dma_dir);
++					  unsigned long size);
+ 	void		(*detach_dmabuf)(void *buf_priv);
+ 	int		(*map_dmabuf)(void *buf_priv);
+ 	void		(*unmap_dmabuf)(void *buf_priv);
+ 
+-	void		*(*vaddr)(void *buf_priv);
+-	void		*(*cookie)(void *buf_priv);
++	void		*(*vaddr)(struct vb2_buffer *vb, void *buf_priv);
++	void		*(*cookie)(struct vb2_buffer *vb, void *buf_priv);
+ 
+ 	unsigned int	(*num_users)(void *buf_priv);
+ 
 -- 
 2.33.0
 
