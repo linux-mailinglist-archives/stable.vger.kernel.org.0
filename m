@@ -2,129 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F4DE449E52
-	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 22:38:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64681449E80
+	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 22:52:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240469AbhKHVlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 16:41:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54230 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238291AbhKHVlB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Nov 2021 16:41:01 -0500
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA4D7C061570
-        for <stable@vger.kernel.org>; Mon,  8 Nov 2021 13:38:16 -0800 (PST)
-Received: by mail-pf1-x434.google.com with SMTP id z6so1577019pfe.7
-        for <stable@vger.kernel.org>; Mon, 08 Nov 2021 13:38:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ahC/xI3Eh5yXWxIa7xCmv3KelNhHGvK6GvhHzSLDToI=;
-        b=1yUGKHOqCvpG9X0aLRjdq+h11QsF2fGc92UzIKcd/sDAhWsxxlrfXPXsq7BuiI2nLz
-         IVuomOdB6+oPDSvCxNrSVVDJkMHB6NhNJa0E/uOez+a+0XOBLlaRFWVCvude/zlkW9T1
-         E9kB/ISiNNKOK6BKapydRZLAij5teWg11afL+YcwymfMZWtrVepjCwHaL07FPnjxu3Ht
-         SzBLYHXGXmUg4ZbFxLOcLlM7fl+3yTuPuPRTEXqG2GF3e0Rox4/+fmh+9uj27IC1aac3
-         kS/nC7IVi8MrfkbKDl8+VGw6ng3GdUsdgbr3p+htkOnP7pd0IErV4wv12K57aZ815iqR
-         1Inw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ahC/xI3Eh5yXWxIa7xCmv3KelNhHGvK6GvhHzSLDToI=;
-        b=oZ2RhJlkXrE/XtLRdJoqaP5KHlHhSGqrKb0FpHKHGpVsMlGcpr65qhS9dHvk2tL2ff
-         uVaYvhLqLlYOHrIfpKnEZvJBEd9+05m4TCao/eM4ExTxTQL756Ecw78hBdvOBGAAR4VA
-         640qrD8PMc8g5DlXagb4bhmbALLz4sEe2IJ3XaPqw0/uc3J7TQG00PcH/srcfwtmDb0p
-         uVkPtZny72jQcS9eNbqnAxUnCHhXbb9elcFk0Yx+8UiSOEMr09kniZNQMrfPrM+xycyC
-         pELxKSWKMnBzZ9qoY1cV4EB5nkFx+Et/tSgfFbKbBPcny9V9G70qUrrgk9RmabJnKY2K
-         B3/w==
-X-Gm-Message-State: AOAM531GJGWjebkkE2ta0m2MnQsne/k3Ndy+iHzrvUvnCdT8JmJh920U
-        1lmvW2aQX7WYEID7FKINnePE9oG9277v3W99
-X-Google-Smtp-Source: ABdhPJw7OmS44Hcg4kceGSy/axAWlPIGYcvkUULRaxDovKxEb8fIFD2VKyFEeD7xCuO4Cq8Ix7Ftew==
-X-Received: by 2002:a62:8f93:0:b0:49f:ed44:54ac with SMTP id n141-20020a628f93000000b0049fed4454acmr2489177pfd.72.1636407496013;
-        Mon, 08 Nov 2021 13:38:16 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id mz24sm260107pjb.42.2021.11.08.13.38.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Nov 2021 13:38:15 -0800 (PST)
-Message-ID: <618998c7.1c69fb81.e746c.14f3@mx.google.com>
-Date:   Mon, 08 Nov 2021 13:38:15 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S234885AbhKHVza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 16:55:30 -0500
+Received: from vps0.lunn.ch ([185.16.172.187]:51480 "EHLO vps0.lunn.ch"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231769AbhKHVz3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 16:55:29 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+        bh=ovPaXzYtv4dqZpHKUHD2SKIBwktpdZxt9iGlCiyHgaI=; b=amNr8+7oAkSd/1r4EQBEYMW0Rx
+        3fND2hx88wQD8vghRSZ0XcBeS4ZCDSEvpD2NoSGprYeaeGVc4X/HUvXuf45d8euSouyyx8GaabDEb
+        8q+CyEOyapc0fH/pgB9sfWUum/utKFU2NqKqFKvkrFZ8n2hAGeTQyvGDowxrSfnukX5I=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1mkCZF-00CvxY-Ca; Mon, 08 Nov 2021 22:52:41 +0100
+Date:   Mon, 8 Nov 2021 22:52:41 +0100
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Ariel Elior <aelior@marvell.com>
+Cc:     Manish Chopra <manishc@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        "malin1024@gmail.com" <malin1024@gmail.com>,
+        Shai Malin <smalin@marvell.com>,
+        Omkar Kulkarni <okulkarni@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "GR-everest-linux-l2@marvell.com" <GR-everest-linux-l2@marvell.com>
+Subject: Re: [EXT] Re: [PATCH net-next 1/2] bnx2x: Utilize firmware 7.13.20.0
+Message-ID: <YYmcKa7H6l+k6KYg@lunn.ch>
+References: <20211026193717.2657-1-manishc@marvell.com>
+ <20211026140759.77dd8818@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <PH0PR18MB465598CDD29377C300C3184CC4859@PH0PR18MB4655.namprd18.prod.outlook.com>
+ <20211027070341.159b15fa@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <PH0PR18MB4655F97255C0E8AEF5E3FDCDC4869@PH0PR18MB4655.namprd18.prod.outlook.com>
+ <BY3PR18MB4612A7CB285470543A6A3C3CAB919@BY3PR18MB4612.namprd18.prod.outlook.com>
+ <YYkpxML6243IkbeK@lunn.ch>
+ <PH0PR18MB465524FFA9F75FE858918CE8C4919@PH0PR18MB4655.namprd18.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.14.17-9-g9f7eecaa70b3
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.14 baseline: 208 runs,
- 1 regressions (v5.14.17-9-g9f7eecaa70b3)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <PH0PR18MB465524FFA9F75FE858918CE8C4919@PH0PR18MB4655.namprd18.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 208 runs, 1 regressions (v5.14.17-9-g9f7eeca=
-a70b3)
+> > I'm i right in says, the bad firmware was introduced with:
+> Correct.
+> 
+> > commit 0a6890b9b4df89a83678eba0bee3541bcca8753c
+> > Author: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+> > Date:   Mon Nov 4 21:51:09 2019 -0800
+> > 
+> >     bnx2x: Utilize FW 7.13.15.0.
+> > 
+> >     Commit 97a27d6d6e8d "bnx2x: Add FW 7.13.15.0" added said .bin FW to
+> >     linux-firmware tree. This FW addresses few important issues in the earlier
+> >     FW release.
+> >     This patch incorporates FW 7.13.15.0 in the bnx2x driver.
+> > 
+> > And that means v5.5 through to at least 5.16 will be broken? It has
+> > been broken for a little under 2 years? And both 5.10 and 5.15 are
+> > LTS. And you don't care.You will leave them broken, even knowing that
+> > distribution kernels are going to use these LTS kernel?
+> Not Correct. We would like to solve the problem here too. But what we plan
+> is to push these fixes upstream
 
-Regressions Summary
--------------------
+Isn't mainline the top of upstream? You cannot get any further up. Yet
+you plan to drop stable? Please could you explain some more.
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Are you thinking of releasing a 7.13.15.1 which only fixes the
+problem, keeping ABI compatibility, so it can be added to stable?
+And then submit 7.13.20.0 for net-next?
 
+> It is not correct that this would have been avoided by not Breaking the ABI.
+> The breakage was a bug introduced in the FW for SR-IOV. Having
+> backwards/forwards compatible ABI would not change the fact that the bug
+> would be there. The bug is only exposed with old VM running on new
+> Hypervisor, so it is not correct to say "bug was there for 2 years".
+> Although problem was introduced 2 years ago, it was exposed now, and now
+> we want to fix it. Whether the fix is done in a manner by which driver
+> can work with old FW file on disk or not is not related to the problem itself.
+> 
+> I stand by that *generally* this HW architecture is not designed for
+> backward/forward compatibility with regard to this FW. But it is true that in
+> this case it can be done. Numerous FW versions of this device which were already
+> accepted and all were non backwards compatible and all had this same issue
+> (updating driver mandates syncing up to latest FW tree, otherwise driver load
+> gracefully fails). Since this is the last FW we are pushing for this EOLing
+> device it seems a bit meticulous to insist on this for this (hopefully) last
+> version of the device FW.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.17-9-g9f7eecaa70b3/plan/baseline/
+Part of the problem is the Marvell keeps doing this for its
+products. See the discussion with Prestera. It is like there is a
+Marvell policy to not even bother to try to keep ABI compatibility
+with the firmware.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.17-9-g9f7eecaa70b3
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9f7eecaa70b3cec9afa340bb6f31ff9192aff77c =
+If the community wants Marvell to get better in this respect, we need
+to push back and say ABI compatibility is important. I hope Prestera
+has learned its lesion, they say they will never break ABI
+compatibility again, but i think we need to wait a few years before we
+can actually trust that statement.
 
+What about other NIC drivers. I hope you don't have any other ABI
+breaks planned.
 
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61896208264e178a3f3358e4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
-9-g9f7eecaa70b3/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
-9-g9f7eecaa70b3/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
--xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61896208264e178a3f335=
-8e5
-        failing since 15 days (last pass: v5.14.14-64-gb66eb77f69e4, first =
-fail: v5.14.14-124-g710e5bbf51e3) =
-
- =20
+       Andrew
