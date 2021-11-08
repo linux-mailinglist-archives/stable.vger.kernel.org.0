@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B82FD44A2FD
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:23:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B28BF44A302
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:23:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242108AbhKIBZh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:25:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40814 "EHLO mail.kernel.org"
+        id S242019AbhKIBZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:25:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243348AbhKIBPa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:15:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 359056128B;
-        Tue,  9 Nov 2021 01:06:28 +0000 (UTC)
+        id S243360AbhKIBPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:15:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E13AF61A3C;
+        Tue,  9 Nov 2021 01:06:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419989;
-        bh=K15zpbvGvoOyEAgc1q267wln0cn4CGaE1QidG057S7k=;
+        s=k20201202; t=1636419992;
+        bh=pUOlhPtSxwTDpxwkWaljN4R3YlOk7FLKyz4dRr4FNnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOvelYmW+3jrSuHFHcfc8ArGGZkKlE4wtrt8owdqvGab0KIOkmu5Xz2F2GpjD3hyM
-         qmJUIVcK6LoALhscXq8LvHFSSgJu7q5kT6AZSaN9qA2MJB9h2XWH45dcVm2u6TiJaM
-         g5CdXAAeTm/qOSUT44CcbgGXEISq0aNNhFAGHZ0TY+iyrqLCDU82k3bjOPPmy1m9Xn
-         0zYKjMsGqTdjvzbaIe1TB+tBAQKnC45CBauu+i4P7WYDCCmDqwFaEUcSkTahoXwEC8
-         lTU86qX6YFzmCLT7ZCATAXap1VEs9xO1Xlj7cxsjIEEa68eLpioPU4hMfzOqmViIHc
-         GxQTzQWO1+w7g==
+        b=Cy3ucWaEPLkBIPIgeiWwMNonlNU24t4+gkAeAGThThNJjm1qpVn381gSmiM42v+rG
+         dleMmcLWWV84DbHdTMCx4ttIRV+Qd414IR7O8oypuTDr9VrlHf/2o2SLAHvq275pLC
+         EZdeYz00B6SeKwXEPRiwot7etafYLoK2zgK9yJfwyR4f3jNaTz8TL21b4HPxwAMkDL
+         LVjCOohspFaFd6ZfnmdOnnLFjtelQDzy97KUIDfnC1656ra2HLWkxy3iPVAqpN00Nb
+         qqXhLd8bKc0DxndUo++ZlraMmRka0veum0fLPK3pCDhwea94ATFlSuWhO78umgqz9c
+         kB7gSAKXxLaeg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Suryaputra <ssuryaextr@gmail.com>,
-        Antonio Quartulli <a@unstable.cc>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        yoshfuji@linux-ipv6.org, dsahern@kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 39/47] gre/sit: Don't generate link-local addr if addr_gen_mode is IN6_ADDR_GEN_MODE_NONE
-Date:   Mon,  8 Nov 2021 12:50:23 -0500
-Message-Id: <20211108175031.1190422-39-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Vladimir Murzin <vladimir.murzin@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        ndesaulniers@google.com, wangkefeng.wang@huawei.com,
+        ardb@kernel.org, u.kleine-koenig@pengutronix.de,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 40/47] ARM: 9136/1: ARMv7-M uses BE-8, not BE-32
+Date:   Mon,  8 Nov 2021 12:50:24 -0500
+Message-Id: <20211108175031.1190422-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108175031.1190422-1-sashal@kernel.org>
 References: <20211108175031.1190422-1-sashal@kernel.org>
@@ -44,41 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Suryaputra <ssuryaextr@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 61e18ce7348bfefb5688a8bcd4b4d6b37c0f9b2a ]
+[ Upstream commit 345dac33f58894a56d17b92a41be10e16585ceff ]
 
-When addr_gen_mode is set to IN6_ADDR_GEN_MODE_NONE, the link-local addr
-should not be generated. But it isn't the case for GRE (as well as GRE6)
-and SIT tunnels. Make it so that tunnels consider the addr_gen_mode,
-especially for IN6_ADDR_GEN_MODE_NONE.
+When configuring the kernel for big-endian, we set either BE-8 or BE-32
+based on the CPU architecture level. Until linux-4.4, we did not have
+any ARMv7-M platform allowing big-endian builds, but now i.MX/Vybrid
+is in that category, adn we get a build error because of this:
 
-Do this in add_v4_addrs() to cover both GRE and SIT only if the addr
-scope is link.
+arch/arm/kernel/module-plts.c: In function 'get_module_plt':
+arch/arm/kernel/module-plts.c:60:46: error: implicit declaration of function '__opcode_to_mem_thumb32' [-Werror=implicit-function-declaration]
 
-Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Acked-by: Antonio Quartulli <a@unstable.cc>
-Link: https://lore.kernel.org/r/20211020200618.467342-1-ssuryaextr@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This comes down to picking the wrong default, ARMv7-M uses BE8
+like ARMv7-A does. Changing the default gets the kernel to compile
+and presumably works.
+
+https://lore.kernel.org/all/1455804123-2526139-2-git-send-email-arnd@arndb.de/
+
+Tested-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrconf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/mm/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 76c097552ea74..9d8b791f63efc 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -3054,6 +3054,9 @@ static void sit_add_v4_addrs(struct inet6_dev *idev)
- 	memcpy(&addr.s6_addr32[3], idev->dev->dev_addr, 4);
+diff --git a/arch/arm/mm/Kconfig b/arch/arm/mm/Kconfig
+index b169e580bf829..9738c1f9737c9 100644
+--- a/arch/arm/mm/Kconfig
++++ b/arch/arm/mm/Kconfig
+@@ -751,7 +751,7 @@ config CPU_BIG_ENDIAN
+ config CPU_ENDIAN_BE8
+ 	bool
+ 	depends on CPU_BIG_ENDIAN
+-	default CPU_V6 || CPU_V6K || CPU_V7
++	default CPU_V6 || CPU_V6K || CPU_V7 || CPU_V7M
+ 	help
+ 	  Support for the BE-8 (big-endian) mode on ARMv6 and ARMv7 processors.
  
- 	if (idev->dev->flags&IFF_POINTOPOINT) {
-+		if (idev->cnf.addr_gen_mode == IN6_ADDR_GEN_MODE_NONE)
-+			return;
-+
- 		addr.s6_addr32[0] = htonl(0xfe800000);
- 		scope = IFA_LINK;
- 		plen = 64;
 -- 
 2.33.0
 
