@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60DF744A20D
+	by mail.lfdr.de (Postfix) with ESMTP id 1533644A20C
 	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:15:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242098AbhKIBQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:16:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40982 "EHLO mail.kernel.org"
+        id S240892AbhKIBQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:16:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242082AbhKIBMx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240313AbhKIBMx (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Nov 2021 20:12:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0328F61A8E;
-        Tue,  9 Nov 2021 01:05:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41B2E61A35;
+        Tue,  9 Nov 2021 01:05:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419921;
-        bh=RdyAUPeWHwqSaZcCBqjgldY7s4d+hnJI9k5HpUxAa28=;
+        s=k20201202; t=1636419924;
+        bh=EiK1Q/68IY129PrOUGnJGHjqgdC2UACaw6JmorVVP+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+PqNWvJBnV0se24GhMNzVrCLdBorwiCBzgwywLXPKs1FOSRRIuHsucuz9dQL3KEL
-         YsYpMKHPR/GrmHTF421/v9G1EM8PcA8LG+vzyNoP+AbPNf8R2anrYZYV4FJ+Dqrf/r
-         QysDytnLWc8eMjLSsx5rpmR6gpXHWBifEO+I+ISSNrxk29rG+KVF91dCWPdwh3onKD
-         ESVZdKJqEaIvO93GfQgaMS2UDDeVdyznPZIWJYG/VMBon/7khlNV4LD12zqHDKd1mI
-         b3tFQihMCEYkbSN6pnJ8B0M4DFN2uH4p7xoR0UIA6mZAw9taQ7ZqhFwDJOHJCaahnP
-         b7LI9k1RnlzsQ==
+        b=GekT7mlBh3itipuoRlrHiFMVtTsHNwoTi4TvFPdhJdpgqAghyHb/ohyTVHrhc9/xb
+         aoTzYScw9TO9Gw/vOetl/uLabNqW2UQT0Gqk71R93e+PwcX9ofUIfjly8DpkA2OQeu
+         1tWp7QsTV2eecamkqoNH1C1DzsgkmeVrlD64fi75E7p1SD68mFI/VOWIGhiYIZJfgy
+         jmDBjZGa6ZnQz21Mw9N2QiWIDiIK+xfKsnZgvUpmm2M3lzTPXSnnkqgj4NglhD5jOl
+         1IrzxA7bO3MjPf1PIx8nFORneK3TsxQTyF/PYhiVV9Fv10LuRdNxl0TDhh09E2m2e1
+         L9l0gY81jncug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/47] platform/x86: wmi: do not fail if disabling fails
-Date:   Mon,  8 Nov 2021 12:49:48 -0500
-Message-Id: <20211108175031.1190422-4-sashal@kernel.org>
+Cc:     Aleksander Jan Bajkowski <olek2@wp.pl>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, john@phrozen.org,
+        tsbogend@alpha.franken.de, hauke@hauke-m.de, maz@kernel.org,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 05/47] MIPS: lantiq: dma: add small delay after reset
+Date:   Mon,  8 Nov 2021 12:49:49 -0500
+Message-Id: <20211108175031.1190422-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108175031.1190422-1-sashal@kernel.org>
 References: <20211108175031.1190422-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,47 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Barnabás Pőcze <pobrn@protonmail.com>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit 1975718c488a39128f1f515b23ae61a5a214cc3d ]
+[ Upstream commit c12aa581f6d5e80c3c3675ab26a52c2b3b62f76e ]
 
-Previously, `__query_block()` would fail if the
-second WCxx method call failed. However, the
-WQxx method might have succeeded, and potentially
-allocated memory for the result. Instead of
-throwing away the result and potentially
-leaking memory, ignore the result of
-the second WCxx call.
+Reading the DMA registers immediately after the reset causes
+Data Bus Error. Adding a small delay fixes this issue.
 
-Signed-off-by: Barnabás Pőcze <pobrn@protonmail.com>
-Link: https://lore.kernel.org/r/20210904175450.156801-25-pobrn@protonmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/wmi.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/mips/lantiq/xway/dma.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/platform/x86/wmi.c b/drivers/platform/x86/wmi.c
-index 35cdc3998eb59..387358af685c5 100644
---- a/drivers/platform/x86/wmi.c
-+++ b/drivers/platform/x86/wmi.c
-@@ -350,7 +350,14 @@ static acpi_status __query_block(struct wmi_block *wblock, u8 instance,
- 	 * the WQxx method failed - we should disable collection anyway.
- 	 */
- 	if ((block->flags & ACPI_WMI_EXPENSIVE) && ACPI_SUCCESS(wc_status)) {
--		status = acpi_execute_simple_method(handle, wc_method, 0);
-+		/*
-+		 * Ignore whether this WCxx call succeeds or not since
-+		 * the previously executed WQxx method call might have
-+		 * succeeded, and returning the failing status code
-+		 * of this call would throw away the result of the WQxx
-+		 * call, potentially leaking memory.
-+		 */
-+		acpi_execute_simple_method(handle, wc_method, 0);
- 	}
+diff --git a/arch/mips/lantiq/xway/dma.c b/arch/mips/lantiq/xway/dma.c
+index 664f2f7f55c1c..45a622b72cd13 100644
+--- a/arch/mips/lantiq/xway/dma.c
++++ b/arch/mips/lantiq/xway/dma.c
+@@ -22,6 +22,7 @@
+ #include <linux/export.h>
+ #include <linux/spinlock.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/err.h>
  
- 	return status;
+ #include <lantiq_soc.h>
+@@ -233,6 +234,8 @@ ltq_dma_init(struct platform_device *pdev)
+ 	clk_enable(clk);
+ 	ltq_dma_w32_mask(0, DMA_RESET, LTQ_DMA_CTRL);
+ 
++	usleep_range(1, 10);
++
+ 	/* disable all interrupts */
+ 	ltq_dma_w32(0, LTQ_DMA_IRNEN);
+ 
 -- 
 2.33.0
 
