@@ -2,117 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F691447B7D
-	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 09:00:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFBC7447B83
+	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 09:03:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237378AbhKHIDW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 03:03:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45786 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230103AbhKHIDW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 03:03:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 051B161208;
-        Mon,  8 Nov 2021 08:00:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636358438;
-        bh=tqu30Ls3jqH8qP5ybm2cZPk6iDQyP34VG7dzFK8+5aQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Kqj7QUntQ+MW+zxPP2ODUephaHgoAPJCfUWEWB1zQyPoaCv5ZCYJBeVVtIew/2uQE
-         2t/g9s/jT7gCoRCCu2b7lwlqa/L0N4Qsr05ga4PagRcY62fuc2HFY6ovssuPxvWFxI
-         GNj4/bDVQ9RP3RUzic4xE6whu3vifl2BHu1oTUoY=
-Date:   Mon, 8 Nov 2021 09:00:35 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Yi Fan <yfa@google.com>
-Cc:     stable@vger.kernel.org, Greg Kroah-Hartman <gregkh@google.com>,
-        shreyas.joshi@biamp.com, Joshua Levasseur <jlevasseur@google.com>,
-        pmladek@suse.com, sashal@kernel.org
-Subject: Re: null console related kerne performance issue
-Message-ID: <YYjZIxabCA95Lvbw@kroah.com>
-References: <CA+DW03VfQpOJUWAM9CZMCM4Vkw8KVbNWAxgsq-g615QPz_3=YQ@mail.gmail.com>
- <CA+DW03WPM1b_01eNB3cE7kVsp+tRbzv-O-=TvX627ATOUSywBQ@mail.gmail.com>
- <YYQsw+GBLr1WXidM@kroah.com>
- <CA+DW03WkHiq1tpfVJ33onMytp-0AmqTYGcvtNwdkzwxm+7qpQA@mail.gmail.com>
+        id S237422AbhKHIF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 03:05:56 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:33073 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230103AbhKHIF4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Nov 2021 03:05:56 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id C67515C00F5;
+        Mon,  8 Nov 2021 03:03:11 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Mon, 08 Nov 2021 03:03:11 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=6onizj35llXqjVpM6j57otHXMeO
+        F0HU8T031ZzfdTDY=; b=p1SiTNhrjwQHIlLFRrAghwR170Uv0ApZOV+uU+pdurL
+        ENoPRUZRGxQTxLXXvT9ToXaV1EzooOFeTFXsLT+SkJnd2pomKCp6UJrCvj+lH8nQ
+        pptNTR6xR+4bT7ac3/pvXRwTUvKP5q7CsbFIYZ8wuDftjCtVwI1SKY0a+KmHe/o2
+        aYUN606+xSTqPQj/6xMK3yM2cjdFaBNG+AQ3CfqaiPTzYM239BkQjCpz6RaJRb6U
+        gP2DFN4vaUz4Mg4F0aaH+wDn9Lj4ev8RC1dl9nkEenMD8cMsrfqGTMeTRHAzaHnL
+        X/dGksg3Ot0I6zvIxiZ4wg8nHuZSyNH4bXVCYBamUgA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=6onizj
+        35llXqjVpM6j57otHXMeOF0HU8T031ZzfdTDY=; b=gnpLzv89DhgLVmT3SIxD3P
+        0kH18QjgsIlwxL7KsxW3vynr+/4KiOURfNTB/Yyt7MmUpSDfl9gK+7LQFI56L9mi
+        sQHXHzhJi+3cXMKBeiRBhCewkG+aLXvu0deAL+acIF018EpYMn/qmemwu7/i9sev
+        Yzw2+AqqJ7/0G+EtniuggwbCzV02BO8cimIP1PYXjVdx3Z9yfpgSZHqu3i5lbcOL
+        MpCL6Kik9zYVpGvXi7HEEVHev7PK+EyHlftH5rj3Y1hVEGaM1CIJY+OkslrTCNvv
+        r8wWCbLMT/pa48+JxtLZYXXrQI1pPZ9k4PjzWV2YpNSNZxUCwkfi/ruEirO/S6tg
+        ==
+X-ME-Sender: <xms:v9mIYbVI6rX4db5KJi8VNQmK0vbwnGZuBibaNmdE5qVe8330Gii_Jg>
+    <xme:v9mIYTmv5TYdV1Y6_jzPJiBS_KfOnlX5ivUELYBzanQ_sOwQ8xVRCa9uLobZsvSjb
+    uFT8x2Y3v9ZRA>
+X-ME-Received: <xmr:v9mIYXYpJamQc8y1RrRXpoi0pi-SERovPL63dG1SDvN4Eg2RFUBPqXAhRD8Rgp6FKtQWM9NCDi3RGdz6-5oFJbIpHDiIK_WG>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddruddugddutdelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggujgesthdtre
+    dttddtvdenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheq
+    necuggftrfgrthhtvghrnhepveeuheejgfffgfeivddukedvkedtleelleeghfeljeeiue
+    eggeevueduudekvdetnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghi
+    lhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:v9mIYWUXvjlk5zQUHRxROE9rBVAobLiF4kfV58wPT9WjmhlClBmR5g>
+    <xmx:v9mIYVl4VMLvjLAtt3gvp67M-FcLJW2eoluHfY8ZnhN_K-SIQnmMTA>
+    <xmx:v9mIYTfQCUOZ7lDnMGJwVFxbcQszdus9_N3PsoafwsOToOThmNFoPQ>
+    <xmx:v9mIYeA-n0sxF7TzM07xFtcSN_DnlDYxWH6SavFYOSDRzR1J_3lNHg>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 8 Nov 2021 03:03:10 -0500 (EST)
+Date:   Mon, 8 Nov 2021 09:03:09 +0100
+From:   Greg KH <greg@kroah.com>
+To:     mike.marciniszyn@cornelisnetworks.com
+Cc:     stable@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH 4.9-stable v2 0/2] Port upstream patch v2 to 4.9.x
+Message-ID: <YYjZve1RZIIFPfFW@kroah.com>
+References: <1636039416-138753-1-git-send-email-mike.marciniszyn@cornelisnetworks.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+DW03WkHiq1tpfVJ33onMytp-0AmqTYGcvtNwdkzwxm+7qpQA@mail.gmail.com>
+In-Reply-To: <1636039416-138753-1-git-send-email-mike.marciniszyn@cornelisnetworks.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 04, 2021 at 12:40:32PM -0700, Yi Fan wrote:
-> Reply inline.
+On Thu, Nov 04, 2021 at 11:23:34AM -0400, mike.marciniszyn@cornelisnetworks.com wrote:
+> From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 > 
-> On Thu, Nov 4, 2021 at 11:56 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Thu, Nov 04, 2021 at 11:14:55AM -0700, Yi Fan wrote:
-> > > Resend the email using plain text.
-> > >
-> > > I found some kernel performance regression issues that might be
-> > > related w/ 4.14.y LTS commit.
-> > >
-> > > 4.14.y commit: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=v4.14.253&id=27d185697322f9547bfd381c71252ce0bc1c0ee4
-> > >
-> > > The issue is observed when "console=" is used as a kernel parameter to
-> > > disable the kernel console.
-> >
-> > What exact "performance issue" are you seeing?
-> >
-> [YF] one kernel thread was randomly blocked for more than ~40
-> milliseconds, causing a certain task to fail to process in time.
-> [YF] the issue is highly random on a single device. But it might
-> happen a few times per 24 hours on a certain percentage of devices.
-> The overall percentage of devices that show the issue seems quite
-> stable over a long period of time (somehow the magic number is ~40%.).
-> [YF] local test on a pool of devices does not show any correlation w/
-> any particular devices.
-> [YF] local test after reverting the above single commit passes, no
-> issue is observed.
-
-And what type of device is this?
-
-If you see this thread:
-	https://lore.kernel.org/r/f19c18fd-20b3-b694-5448-7d899966a868@roeck-us.net
-it looks like chromeos devices have now disabled this change, and there
-was a long discussion about possible issues and solutions.
-
-Can you try the patch set referenced in that thread to see if that
-resolves the issue for you or not?  Given that I have not seen any
-reports of this being an issue since over a year ago, odds are it has
-been resolved already with some change that we probably also need to
-backport to 4.14.y.
-
-So any help in identifying that change would be appreciated.
-
-> > And what kernel version are you seeing it on?
-> >
-> [YF] it was first found on some products w/ kernel version 4.14.210.
-> through bisection, we located the commit on 4.14.200.
+> This series ports upstream commit:
 > 
-> > > I browsed android common kernel logs and the upstream stable kernel
-> > > tree, found some related changes.
-> > >
-> > > printk: handle blank console arguments passed in. (link:
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=v5.14.15&id=3cffa06aeef7ece30f6b5ac0ea51f264e8fea4d0)
-> > > Revert "init/console: Use ttynull as a fallback when there is no
-> > > console" (link:
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=v5.14.15&id=a91bd6223ecd46addc71ee6fcd432206d39365d2)
-> > >
-> > > It looks like upstream also noticed the regression introduced by the
-> > > commit, and the workaround is to use "ttynull" to handle "console="
-> > > case. But the "ttynull" was reverted due to some other reasons
-> > > mentioned in the commit message.
-> > >
-> > > Any insight or recommendation will be appreciated.
-> >
-> > What problem exactly are you now seeing?  And does it also happen on
-> > 5.15?
-> >
-> [YF] we do not perform any tests on 5.15 yet. so no idea about whether
-> the issue happens on 5.15.
+> d39bf40e55e6 ("IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields")
+> 
+> Gustavo A. R. Silva (1):
+>   IB/qib: Use struct_size() helper
+> 
+> Mike Marciniszyn (1):
+>   IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt
+>     fields
+> 
+>  drivers/infiniband/hw/qib/qib_user_sdma.c | 35 ++++++++++++++++++++++---------
+>  1 file changed, 25 insertions(+), 10 deletions(-)
+> 
+> -- 
+> Changes from v1:
+> Correct signed off for Mike Marciniszyn
 
-How about any other newer stable kernel version like 5.4.y or 5.10.y?
-
-thanks,
+All now applied, thanks.
 
 greg k-h
