@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B28BF44A302
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:23:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 586DD44A2FF
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:23:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242019AbhKIBZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:25:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44174 "EHLO mail.kernel.org"
+        id S242171AbhKIBZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:25:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243360AbhKIBPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243362AbhKIBPb (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Nov 2021 20:15:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E13AF61A3C;
-        Tue,  9 Nov 2021 01:06:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE533619E8;
+        Tue,  9 Nov 2021 01:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419992;
-        bh=pUOlhPtSxwTDpxwkWaljN4R3YlOk7FLKyz4dRr4FNnc=;
+        s=k20201202; t=1636419994;
+        bh=jK+KlWA15rDlMjhrFyJCeP1LJpavxjun6T9le43kq+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cy3ucWaEPLkBIPIgeiWwMNonlNU24t4+gkAeAGThThNJjm1qpVn381gSmiM42v+rG
-         dleMmcLWWV84DbHdTMCx4ttIRV+Qd414IR7O8oypuTDr9VrlHf/2o2SLAHvq275pLC
-         EZdeYz00B6SeKwXEPRiwot7etafYLoK2zgK9yJfwyR4f3jNaTz8TL21b4HPxwAMkDL
-         LVjCOohspFaFd6ZfnmdOnnLFjtelQDzy97KUIDfnC1656ra2HLWkxy3iPVAqpN00Nb
-         qqXhLd8bKc0DxndUo++ZlraMmRka0veum0fLPK3pCDhwea94ATFlSuWhO78umgqz9c
-         kB7gSAKXxLaeg==
+        b=rMWIZfnhMEp7rja3Yxrvw8LaOvDcT75uYobuQdsd3z2udVkhakStEQRiVjGp/Z1mo
+         mjQZy/a2u+2L7mDsLPJm5s6uz4k4beXpgGlA+68ToFKZMg5hNsOz8bRF0t4pJf965F
+         VQDt8pRizt06DTzAHVURuR8d8+mj2bFCGUox7wI9R1duzcYXWBXbhbOHRBzGEyStM3
+         RY3yql8KD1pKu84sNbdshDu8L4pNaVJ0is6c2k6aH93Ux2cP3emaKSc2H6WK6mVKr7
+         iLeXOg1WQfX4eeHGVIFHq1m4UNm7deDKhk7WvCpetVEyJHdsjkdmacBurShyzjiT6k
+         gHn4UkTzPg/5A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Vladimir Murzin <vladimir.murzin@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
-        ndesaulniers@google.com, wangkefeng.wang@huawei.com,
-        ardb@kernel.org, u.kleine-koenig@pengutronix.de,
+Cc:     Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        maz@kernel.org, Dave.Martin@arm.com, tanxiaofei@huawei.com,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 40/47] ARM: 9136/1: ARMv7-M uses BE-8, not BE-32
-Date:   Mon,  8 Nov 2021 12:50:24 -0500
-Message-Id: <20211108175031.1190422-40-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 41/47] arm64/sve: Add stub for sve_max_virtualisable_vl()
+Date:   Mon,  8 Nov 2021 12:50:25 -0500
+Message-Id: <20211108175031.1190422-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108175031.1190422-1-sashal@kernel.org>
 References: <20211108175031.1190422-1-sashal@kernel.org>
@@ -46,45 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 345dac33f58894a56d17b92a41be10e16585ceff ]
+[ Upstream commit 49ed920408f85fb143020cf7d95612b6b12a84a2 ]
 
-When configuring the kernel for big-endian, we set either BE-8 or BE-32
-based on the CPU architecture level. Until linux-4.4, we did not have
-any ARMv7-M platform allowing big-endian builds, but now i.MX/Vybrid
-is in that category, adn we get a build error because of this:
+Fixes build problems for configurations with KVM enabled but SVE disabled.
 
-arch/arm/kernel/module-plts.c: In function 'get_module_plt':
-arch/arm/kernel/module-plts.c:60:46: error: implicit declaration of function '__opcode_to_mem_thumb32' [-Werror=implicit-function-declaration]
-
-This comes down to picking the wrong default, ARMv7-M uses BE8
-like ARMv7-A does. Changing the default gets the kernel to compile
-and presumably works.
-
-https://lore.kernel.org/all/1455804123-2526139-2-git-send-email-arnd@arndb.de/
-
-Tested-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reported-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20211022141635.2360415-2-broonie@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/fpsimd.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm/mm/Kconfig b/arch/arm/mm/Kconfig
-index b169e580bf829..9738c1f9737c9 100644
---- a/arch/arm/mm/Kconfig
-+++ b/arch/arm/mm/Kconfig
-@@ -751,7 +751,7 @@ config CPU_BIG_ENDIAN
- config CPU_ENDIAN_BE8
- 	bool
- 	depends on CPU_BIG_ENDIAN
--	default CPU_V6 || CPU_V6K || CPU_V7
-+	default CPU_V6 || CPU_V6K || CPU_V7 || CPU_V7M
- 	help
- 	  Support for the BE-8 (big-endian) mode on ARMv6 and ARMv7 processors.
+diff --git a/arch/arm64/include/asm/fpsimd.h b/arch/arm64/include/asm/fpsimd.h
+index dd1ad3950ef5d..5bd799ea683b4 100644
+--- a/arch/arm64/include/asm/fpsimd.h
++++ b/arch/arm64/include/asm/fpsimd.h
+@@ -130,6 +130,11 @@ static inline void fpsimd_release_task(struct task_struct *task) { }
+ static inline void sve_sync_to_fpsimd(struct task_struct *task) { }
+ static inline void sve_sync_from_fpsimd_zeropad(struct task_struct *task) { }
  
++static inline int sve_max_virtualisable_vl(void)
++{
++	return 0;
++}
++
+ static inline int sve_set_current_vl(unsigned long arg)
+ {
+ 	return -EINVAL;
 -- 
 2.33.0
 
