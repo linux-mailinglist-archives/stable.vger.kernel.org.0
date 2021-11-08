@@ -2,129 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8A93447FFB
-	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 14:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D512C448038
+	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 14:23:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237857AbhKHNEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 08:04:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49148 "EHLO
+        id S237175AbhKHN0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 08:26:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230303AbhKHNEV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Nov 2021 08:04:21 -0500
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8173CC061570
-        for <stable@vger.kernel.org>; Mon,  8 Nov 2021 05:01:37 -0800 (PST)
-Received: by mail-pg1-x530.google.com with SMTP id g28so6436528pgg.3
-        for <stable@vger.kernel.org>; Mon, 08 Nov 2021 05:01:37 -0800 (PST)
+        with ESMTP id S239918AbhKHN0Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Nov 2021 08:26:16 -0500
+Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6036FC061746
+        for <stable@vger.kernel.org>; Mon,  8 Nov 2021 05:23:32 -0800 (PST)
+Received: by mail-io1-xd36.google.com with SMTP id m9so3753638iop.0
+        for <stable@vger.kernel.org>; Mon, 08 Nov 2021 05:23:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=GlLDJTpeVh/QBbR4c0nobyMF6oRDfpRTNNXiYowiWMo=;
-        b=IjEBA0CZL4gNGVIUqZAy3LHMglVc+KJjdr5vpifi+BWhn+vTcFOZeNBskZXzpvQaKk
-         BRjFmRJ26NUPbt3xjXGZTXEWUVjkv1FkFhKxTObuH6cSFTbMr7FkKb9kNT+xFbgNu3wN
-         z9bEylev74leU0xJuXBn/slUSsPxcRiPTJSfHTEP2byZ4fblurCfRGb0m6r99si6+ptH
-         DpQmPoIRvTx8PDLVB0oBSVh1nQWucp1ToR2vrcyJzriH2sMZmwANcEjzSH6+NnfnUt30
-         IMaJt//C2qwqFYCRvaomgj8OFCZOBNbsrCz+bMwQXxsqC0hXaVctstmDQblCQDzKW8n4
-         HpXQ==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:in-reply-to:references:subject:message-id:date
+         :mime-version:content-transfer-encoding;
+        bh=zx65JLNOcPnDI4dtvkfbte1frN4DHKsfW28wO+xNDk8=;
+        b=N3p7mfBsF/b9XqjFOHzoQvKO+snYbEhyySBtvG0xgYU1ZjzuKhBlmLTNLyy6bqL741
+         EY/2FkRQ4ytvnA8pTw2ae46JWzb5yJVZgaKn2rk5osCACt9kmM1rFMFnfZN1wAFFcj8c
+         Hw2Uj9jBBYHOUmuRxKQSkx9cT6xRPkdHkNLgmN73XEJUPQYTHjQmJXHuvt9OcxbnvRCx
+         3JfH/EBj9jHUPMiT+pf6IFxAab4ZXt5kphAa4yZYMXBnuWkgkqlIT1zwoTeV2jYjfK7t
+         bU21n16ZnV7IpSzPXnxqxKI/rq4NvBjERACJi0H1nxHfA2RsBs7RDoDGtopw3nECtuCj
+         pDyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=GlLDJTpeVh/QBbR4c0nobyMF6oRDfpRTNNXiYowiWMo=;
-        b=yrqWKgLvsJE/FzeiwYxYBDc2mCN7aa+9Oqyet5CtKDlI4cKQKig3e1XhoaApBS4EA5
-         CPIjZjKJYfqueyWjI/lhQXIlgLQuD8bXK5W6wqcXXlzxv1ui3KjAi7YLj5L/i1kcOVh/
-         LimhaxsBWwNeOQ7FE/EXlENTYNK61/AQFZXuN19GinDw/LoYKBe+2Eea75FSqk98J7Qo
-         xJ/wjFv83F5EcGqPfxgWZtr0v2h/gFJtlBZQItPdg9r4nvlbhuBraUzl/e7jHG/Bc2EH
-         sYJ/963vBlj82nG2BafE8WD0HlNMj75fKlMfZQuAh5vjmxs8SV6LZAFEYkDB4d835zW0
-         1Cug==
-X-Gm-Message-State: AOAM531r+cBj4jLO2IRNnEYbj7HagFdsdlqCEOPD5PLKH9mkdGyaN71Q
-        3+zXc9WgAvKZ8qPHHwVcXnX3MhyV1jQXh/Tr
-X-Google-Smtp-Source: ABdhPJz/AQZ9I3CItapNFjdZ7x9RyycKPBoniSIrFRWDgASVLG5x4smYO3B3L1+hY2r7Xjoh3DkvTg==
-X-Received: by 2002:a63:83c2:: with SMTP id h185mr44241012pge.342.1636376496834;
-        Mon, 08 Nov 2021 05:01:36 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b7sm16451811pfm.28.2021.11.08.05.01.36
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
+         :message-id:date:mime-version:content-transfer-encoding;
+        bh=zx65JLNOcPnDI4dtvkfbte1frN4DHKsfW28wO+xNDk8=;
+        b=wLt72EuiFZXPnFsI5JVwD9qqcJb9KjM8cZ5p88snwdvJx0DeedA+5wkvmnu4m0/G8L
+         XSccS7ZlaFcRFO8qLla1/Ymc4qpOR+ZeZEetqd89VBimRAyYqlmRK6b03WJZ8AR2yHP0
+         CTmtonxy70dVCG5g4mtJZjcAqCMNfUyAwyYatX3hzmUBsS7nlOQ35IZ9W+tVkePAFvqe
+         d7eNsIzJQ9CLBgunHpPzxzYhSvNhq2EWg3d4VMlyQ8BHpr21YUoRIFSxxgXIkm/titb4
+         aQawVxb3QeVCQ12IxSjsnr8L3Ko+ZW4ktASCCQN6uaACr73mBr+wm0EQ7EyqPhPysoAr
+         IgqQ==
+X-Gm-Message-State: AOAM5330ElzAoElLPI31AhzGrifcNYYF7IjcEn7mKOsVFqKDlpazd5KT
+        HW2iqQeh1RiCGs+hjw3BdAFdE75dbrzTJw==
+X-Google-Smtp-Source: ABdhPJw5WAMhm8dqmbV0nJCeP1M4lOIsqvKRPj/3pqL9uPEGRkLn5aG9pzKCY3t0f1xHb1Orja2+EA==
+X-Received: by 2002:a5e:d602:: with SMTP id w2mr4824918iom.121.1636377811696;
+        Mon, 08 Nov 2021 05:23:31 -0800 (PST)
+Received: from [127.0.1.1] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id c7sm1192920iob.28.2021.11.08.05.23.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Nov 2021 05:01:36 -0800 (PST)
-Message-ID: <61891fb0.1c69fb81.971c.0e34@mx.google.com>
-Date:   Mon, 08 Nov 2021 05:01:36 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 08 Nov 2021 05:23:31 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Coly Li <colyli@suse.de>
+Cc:     stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        linux-block@vger.kernel.org, linux-bcache@vger.kernel.org
+In-Reply-To: <20211103151041.70516-1-colyli@suse.de>
+References: <20211103151041.70516-1-colyli@suse.de>
+Subject: Re: [PATCH] bcache: Revert "bcache: use bvec_virt"
+Message-Id: <163637780949.313555.17062223275836707712.b4-ty@kernel.dk>
+Date:   Mon, 08 Nov 2021 06:23:29 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.14.17-5-gd64db7a57ba2
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.14 baseline: 190 runs,
- 1 regressions (v5.14.17-5-gd64db7a57ba2)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 190 runs, 1 regressions (v5.14.17-5-gd64db7a=
-57ba2)
+On Wed, 3 Nov 2021 23:10:41 +0800, Coly Li wrote:
+> This reverts commit 2fd3e5efe791946be0957c8e1eed9560b541fe46.
+> 
+> The above commit replaces page_address(bv->bv_page) by bvec_virt(bv) to
+> avoid directly access to bv->bv_page, but in situation bv->bv_offset is
+> not zero and page_address(bv->bv_page) is not equal to bvec_virt(bv). In
+> such case a memory corruption may happen because memory in next page is
+> tainted by following line in do_btree_node_write(),
+> 	memcpy(bvec_virt(bv), addr, PAGE_SIZE);
+> 
+> [...]
 
-Regressions Summary
--------------------
+Applied, thanks!
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
+[1/1] bcache: Revert "bcache: use bvec_virt"
+      commit: 2878feaed543c35f9dbbe6d8ce36fb67ac803eef
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.17-5-gd64db7a57ba2/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.17-5-gd64db7a57ba2
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d64db7a57ba2ca1407224a72ac884dcf410f5209 =
+Best regards,
+-- 
+Jens Axboe
 
 
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6188e7cae4c2725c5d3358dc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
-5-gd64db7a57ba2/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
-5-gd64db7a57ba2/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
--xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6188e7cae4c2725c5d335=
-8dd
-        failing since 14 days (last pass: v5.14.14-64-gb66eb77f69e4, first =
-fail: v5.14.14-124-g710e5bbf51e3) =
-
- =20
