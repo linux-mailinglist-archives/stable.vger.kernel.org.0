@@ -2,136 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60BD8448053
-	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 14:34:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F0C44806B
+	for <lists+stable@lfdr.de>; Mon,  8 Nov 2021 14:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239972AbhKHNhf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 08:37:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56626 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235700AbhKHNhf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Nov 2021 08:37:35 -0500
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9BB0C061570
-        for <stable@vger.kernel.org>; Mon,  8 Nov 2021 05:34:50 -0800 (PST)
-Received: by mail-pg1-x535.google.com with SMTP id j9so15184868pgh.1
-        for <stable@vger.kernel.org>; Mon, 08 Nov 2021 05:34:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=XSlUdrQBtDJYvTKew8a89dSNTJd+ghFoh/2VTJsIGwI=;
-        b=5KJbftDFB5/KkRsm/SfxSwLAeXexadEu1n1M7tYfKrocCfjt3743OwdKkyDbSjjQkA
-         AB/rU6y6gTFoxNnG1GNxLL4BS5kb8bAIfjayRgi2GBhl0JcjTta4P9/KpKct7TBWmlyr
-         T8Vhq5HmipI4ZvXdfqWxMPTdm8MVBFtnUrs4NPp780B4OuQeg1ZW2+Ejz3qMoKInuvZ7
-         Vc4rMkuV1kYinCGPqkthpvPatCUPQGdcgE3/K1wQ19pqfRL2qrWpxQNDAxl1I52mxfO0
-         r0hDKpKTm3VUlLz4/WsFFtoG3TcrkLU9Mn0OvkCYZTGMs1/SXvf0HUHqrP2cZonhq9SQ
-         ldUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=XSlUdrQBtDJYvTKew8a89dSNTJd+ghFoh/2VTJsIGwI=;
-        b=ltR6O0r89oe656E/l6K357gZFQxPCe5mPQwQDPAje7vDEKU2atl/qCDTWZ0sezDYxF
-         rzjYJvr2O4SISBU4GvssZ2zxWLXrr45HGdPQhdXCkjh4+BQOvl7fxPZemzOnBN3DwQBF
-         n+95TLIWY7DBD3Yk+eaY0YS/nio3dkeG3L76j5tl1vXEHtFxZnimiuaAlpZaQYMp4kQV
-         0hUzyCbmZWfmw0Mx+QpAPm08jffc/aMvEGJEqwaqm4PvMbY8/3HS6Kmpg6MShZqoDS9f
-         5LG9iq3aEOJSZZvbPcpROxY0rhhgU+LAVns5YAx4j2qGClAiJxw0/YLbpx2k9/j/Zdjp
-         3+Pw==
-X-Gm-Message-State: AOAM531sK1WQ260xevKLlp/FBDNILqZSi8MdOXpt/uAevPYmh/zSOTx4
-        5oIJG2HKhPmM3QiPNJHKi7WkB4cmRGeZo0CR
-X-Google-Smtp-Source: ABdhPJy6oiIUqGdzbTYZHDrQ5tuxyNFN8Fs9Vbm7HKiaCGwxCiGryRZU6MEGbtjvZQWAY/eJJwzqtw==
-X-Received: by 2002:aa7:93c4:0:b0:49f:a7f5:7f5a with SMTP id y4-20020aa793c4000000b0049fa7f57f5amr21344674pff.8.1636378490092;
-        Mon, 08 Nov 2021 05:34:50 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z30sm5748950pfg.30.2021.11.08.05.34.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Nov 2021 05:34:49 -0800 (PST)
-Message-ID: <61892779.1c69fb81.c9c54.f1ab@mx.google.com>
-Date:   Mon, 08 Nov 2021 05:34:49 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S238955AbhKHNrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 08:47:25 -0500
+Received: from vps0.lunn.ch ([185.16.172.187]:50586 "EHLO vps0.lunn.ch"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237322AbhKHNrZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 08:47:25 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+        bh=xEHMVQxQzXWXbVjjxt2s0c6U82YUUn7Z9UHtoS4BjNU=; b=wRcAvExq+9faWw9zHyTUSxF4ZY
+        ZIe6/waXzMA+1N+43Rhts/lnsRHIAtyGPJWwlGcJPFkOPHt4KH4PaQ+O/FMoXgOHfAz+1sLGV0b7t
+        lYF7Hqr0v/5CUkWv6BXXfIaI9i41xsex8Duw7lPj1BbQ+RttjClePAbz9Gj/pGirxX1I=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1mk4wu-00Ctp4-4D; Mon, 08 Nov 2021 14:44:36 +0100
+Date:   Mon, 8 Nov 2021 14:44:36 +0100
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Manish Chopra <manishc@marvell.com>
+Cc:     Ariel Elior <aelior@marvell.com>, Jakub Kicinski <kuba@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        "malin1024@gmail.com" <malin1024@gmail.com>,
+        Shai Malin <smalin@marvell.com>,
+        Omkar Kulkarni <okulkarni@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "GR-everest-linux-l2@marvell.com" <GR-everest-linux-l2@marvell.com>
+Subject: Re: [EXT] Re: [PATCH net-next 1/2] bnx2x: Utilize firmware 7.13.20.0
+Message-ID: <YYkpxML6243IkbeK@lunn.ch>
+References: <20211026193717.2657-1-manishc@marvell.com>
+ <20211026140759.77dd8818@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <PH0PR18MB465598CDD29377C300C3184CC4859@PH0PR18MB4655.namprd18.prod.outlook.com>
+ <20211027070341.159b15fa@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <PH0PR18MB4655F97255C0E8AEF5E3FDCDC4869@PH0PR18MB4655.namprd18.prod.outlook.com>
+ <BY3PR18MB4612A7CB285470543A6A3C3CAB919@BY3PR18MB4612.namprd18.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.254-9-g32e6402e132a
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.14 baseline: 162 runs,
- 1 regressions (v4.14.254-9-g32e6402e132a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BY3PR18MB4612A7CB285470543A6A3C3CAB919@BY3PR18MB4612.namprd18.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 162 runs, 1 regressions (v4.14.254-9-g32e640=
-2e132a)
+> Hello Jakub et al,
+> 
+> Just following up based on the comments put by Ariel a week
+> back. The earlier firmware has caused some important regression
+> w.r.t SR-IOV compatibility, so it's critical to have these new FW
+> patches to be accepted sooner (thinking of the impact on various
+> Linux distributions/kernels where that bug/regression will be
+> carried over with earlier firmware), as Ariel pointed out the
+> complexities, in general making the FW backwards compatible on these
+> devices architecture meaning supporting different data/control path
+> (which is not good from performance perspective), However these two
+> particular versions are not changing that much (from data/control
+> path perspective) so we could have made them backward compatible for
+> these two particular versions but given the time criticality,
+> regression/bug introduced by the earlier FW, bnx2x devices being
+> almost EOL, this would be our last FW submission hopefully so we
+> don't want to re-invent something which has been continued for many
+> years now for these bnx2* devices.
 
-Regressions Summary
--------------------
+> PS: this series was not meant for stable (I have Cced stable
+> mistakenly), please let me know if I can send v2 with stable removed
+> from recipients.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+I'm i right in says, the bad firmware was introduced with:
 
+commit 0a6890b9b4df89a83678eba0bee3541bcca8753c
+Author: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Date:   Mon Nov 4 21:51:09 2019 -0800
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.254-9-g32e6402e132a/plan/baseline/
+    bnx2x: Utilize FW 7.13.15.0.
+    
+    Commit 97a27d6d6e8d "bnx2x: Add FW 7.13.15.0" added said .bin FW to
+    linux-firmware tree. This FW addresses few important issues in the earlier
+    FW release.
+    This patch incorporates FW 7.13.15.0 in the bnx2x driver.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.254-9-g32e6402e132a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      32e6402e132a2b495f8c44407b6aff5af867b66a =
+And that means v5.5 through to at least 5.16 will be broken? It has
+been broken for a little under 2 years? And both 5.10 and 5.15 are
+LTS. And you don't care. You will leave them broken, even knowing that
+distribution kernels are going to use these LTS kernel?
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6188efe8ff5a12b1d0335905
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--9-g32e6402e132a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--9-g32e6402e132a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+And you could of avoided this by not breaking the firmware ABI. Which
+you now say is actually possible. And after being broken for 2 years
+it is now time critical?
 
 
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6188efe8ff5a12b=
-1d0335908
-        new failure (last pass: v4.14.254-7-g292cb9a1cdd5)
-        2 lines
-
-    2021-11-08T09:37:26.297434  [   20.179351] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-08T09:37:26.338263  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/103
-    2021-11-08T09:37:26.347470  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+    Andrew
