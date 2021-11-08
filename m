@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9717E44A045
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:00:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC24044A048
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:00:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239054AbhKIBCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:02:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58856 "EHLO mail.kernel.org"
+        id S241527AbhKIBCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:02:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241498AbhKIBCo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:02:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D4C461353;
-        Tue,  9 Nov 2021 00:59:58 +0000 (UTC)
+        id S237261AbhKIBCr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:02:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 894A96134F;
+        Tue,  9 Nov 2021 01:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636419599;
-        bh=UENeAA502HIHNyO7CyFRjrTKbnGmtxfBOjhgp7HsDCI=;
+        s=k20201202; t=1636419602;
+        bh=5TaTadUUlRIm99JBWT3Hg8pPrx4O+pzJ82CGst/LFJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNTB/b7b9ta4ueNp5+q5kFJBViKu7PiWTp61gZkdwjNWZSnRJ1fwv8DenJwXxZvIQ
-         gaBqw+cVc51VV/ohXToGzk0n4naHAcHzkbKsi/3RoWudb35L+xS3DzGp0R82a36+ri
-         kIjIR3RBgf/DMtWaiWSNK0qrUT3HXhKyONHmLHCfUKeL7wrpkLN7J+V2juumyTSORQ
-         PAM0Q5zj0oLs+3/ZSmtlvSmQEJ91MEvXhma6Qy5A2gnuX1tTb8QJKk8c0PJTYIKpYU
-         JuYBWdXN3h0yR8juVvq/IfMOs/0+6MdIdVeNxX3zNTAQO3ovuWwwHFYlF4qd2ZzVt0
-         Fbzlzxwy/HxoA==
+        b=P7tAlUaHYHQhfjXF6PB1BM3oGjkZN9kXfhbNeoBQeOmkXyppPs+1NWa3t8Gvv6iXq
+         AV4xLvOrVWv9UOoL6A2TXkvc0GNAclHG52Sbw8H5lUbsXirX8Dz3VacI2V+u1/Tb+e
+         A9cNw/bLuj4NE+INnsNjd2LJpBMWFk3y2H19pGdA9ROOwyFQsfYyuqBrboBFpG0Pny
+         hGJVK8naysvHqVFc96WRTfrBpGFp5By8znzgOw6r9jsW3qzl7Gto7iws8FEWJ3S7Rf
+         HaSpffWOQAhoi7FcVvB2ccRnCeD1H9W2hvgcXPLac1wDpem0y7cpBgQtauJiNO0AQM
+         z6Y1eYiX40LgA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Zhu <James.Zhu@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        evan.quan@amd.com, Hawking.Zhang@amd.com,
-        andrey.grodzovsky@amd.com, shaoyun.liu@amd.com,
-        Jack.Zhang1@amd.com, lijo.lazar@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 011/146] drm/amdgpu: move iommu_resume before ip init/resume
-Date:   Mon,  8 Nov 2021 12:42:38 -0500
-Message-Id: <20211108174453.1187052-11-sashal@kernel.org>
+Cc:     Aleksander Jan Bajkowski <olek2@wp.pl>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, john@phrozen.org,
+        tsbogend@alpha.franken.de, maz@kernel.org, hauke@hauke-m.de,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 012/146] MIPS: lantiq: dma: add small delay after reset
+Date:   Mon,  8 Nov 2021 12:42:39 -0500
+Message-Id: <20211108174453.1187052-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211108174453.1187052-1-sashal@kernel.org>
 References: <20211108174453.1187052-1-sashal@kernel.org>
@@ -48,37 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Zhu <James.Zhu@amd.com>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit 9cec53c18a3170c7e5673c414da56aeecee94832 ]
+[ Upstream commit c12aa581f6d5e80c3c3675ab26a52c2b3b62f76e ]
 
-Separate iommu_resume from kfd_resume, and move it before
-other amdgpu ip init/resume.
+Reading the DMA registers immediately after the reset causes
+Data Bus Error. Adding a small delay fixes this issue.
 
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=211277
-Signed-off-by: James Zhu <James.Zhu@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/mips/lantiq/xway/dma.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index af9bdf16eefd4..f5ce8bcb313e5 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2394,6 +2394,10 @@ static int amdgpu_device_ip_init(struct amdgpu_device *adev)
- 	if (r)
- 		goto init_failed;
+diff --git a/arch/mips/lantiq/xway/dma.c b/arch/mips/lantiq/xway/dma.c
+index 63dccb2ed08b2..2784715933d13 100644
+--- a/arch/mips/lantiq/xway/dma.c
++++ b/arch/mips/lantiq/xway/dma.c
+@@ -11,6 +11,7 @@
+ #include <linux/export.h>
+ #include <linux/spinlock.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/of.h>
  
-+	r = amdgpu_amdkfd_resume_iommu(adev);
-+	if (r)
-+		goto init_failed;
+@@ -222,6 +223,8 @@ ltq_dma_init(struct platform_device *pdev)
+ 	clk_enable(clk);
+ 	ltq_dma_w32_mask(0, DMA_RESET, LTQ_DMA_CTRL);
+ 
++	usleep_range(1, 10);
 +
- 	r = amdgpu_device_ip_hw_init_phase1(adev);
- 	if (r)
- 		goto init_failed;
+ 	/* disable all interrupts */
+ 	ltq_dma_w32(0, LTQ_DMA_IRNEN);
+ 
 -- 
 2.33.0
 
