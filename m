@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A10444A780
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 08:23:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 256E244A77F
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 08:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240071AbhKIH0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 02:26:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41328 "EHLO mail.kernel.org"
+        id S241044AbhKIH0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 02:26:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240999AbhKIH0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 02:26:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8EBB61056;
-        Tue,  9 Nov 2021 07:23:17 +0000 (UTC)
+        id S240071AbhKIH0B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 02:26:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 563FE61165;
+        Tue,  9 Nov 2021 07:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636442598;
-        bh=A7k7bT+V3R4wehEcl3BCpSLb+WzZzswMfoMX2Y9Zhmk=;
+        s=korg; t=1636442595;
+        bh=FRY2NeBGnnZzYkxzAdi6/EjK3XgLR0VWkM9LRaCd/g4=;
         h=Subject:To:Cc:From:Date:From;
-        b=HPInvt4GdKHginVGgtO9/8n5ghenrR78zMXEVYxjiO5Tw/iMlgUnZACxVfLK8hBjH
-         0T7/FhcRMLjkuS1Xl6DTb/WG5LUOHMGsBDuYkFzRU+57Q+0uQfIjZ041ScBJiY1zJR
-         tre7WtwuWS6KdkxTaYl2Vi/hymXR9ACGHQqDEFDw=
-Subject: FAILED: patch "[PATCH] binder: use euid from cred instead of using task" failed to apply to 4.14-stable tree
+        b=jKGlbcBJZNQlKtFllYjeFw97QatT1DBsrXfctJcaiGJdulHLZGsvHaD+yj9rbG5Qf
+         i+Sa21u+TEWSlouKasVEGPm6i3hpP334bdEJoYU70TMR/eTFvAWmiJ8TIbsotATdqh
+         NT11rG+eH4qcxs2VJb1jItDLmDH1JPjeamjrAfIk=
+Subject: FAILED: patch "[PATCH] binder: use euid from cred instead of using task" failed to apply to 4.19-stable tree
 To:     tkjos@google.com, casey@schaufler-ca.com, jannh@google.com,
         paul@paul-moore.com, stephen.smalley.work@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 09 Nov 2021 08:23:03 +0100
-Message-ID: <163644258314212@kroah.com>
+Message-ID: <1636442583229101@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
