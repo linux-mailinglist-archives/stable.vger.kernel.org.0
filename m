@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E01644A313
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:24:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A97B044A2B5
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239825AbhKIBZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:25:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44184 "EHLO mail.kernel.org"
+        id S241949AbhKIBT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:19:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242517AbhKIBRf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:17:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEA84611BF;
-        Tue,  9 Nov 2021 01:07:16 +0000 (UTC)
+        id S241845AbhKIBRw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:17:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A1DF6105A;
+        Tue,  9 Nov 2021 01:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420037;
-        bh=dCwoXnhB7rCQYl8wLUkS+EPFS16+T+dDRIuuteO4X8c=;
+        s=k20201202; t=1636420039;
+        bh=aS48cdu/g7cxpO4hT84SWpmFYddKWPbxux5idUI8kbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZK9PK07Q6ox5zdcF1wqH8eVBkYnYvtrI9iHCSY22r9DCFE9vSNTq+4UwmZ1ntgI7
-         4Z6zE7X2fPB2W2VfQCqbrhqDCG7Xf6bAls0+Trkod2u+87qhVX4AMUhCDfOv7i+wfR
-         WWJonEgW/bkddy9NLQEj38pvmhrKVXr1XWWBcfnSEGi+ZDv6YAjRCCG2BveGDPzosH
-         OE8aOwX0FsLxZZ4JmaS155wjdtK51CV61pY46jlawVuqEVIf6+SGN7/3y+XV870jpt
-         3ON+8rfgdJGb5pYTLCL8WIWjsuyaDTcZEmjvuLQzMhmoLmkHi5xvaMAduq+pDhj+Zw
-         pTJ0ltR5C7hYw==
+        b=lEy7lr82aFXIZ9M+u+mCcxN5HBFXbbR9CxqBlPCHxU9Td6SO9zeXCdC661H0WnxJR
+         liO4LBPWwHUrF6jdrr3D7KUd3YMlDUB8EGYedtEa9fF0y+Uyos1dxNDZcV36R7ja+M
+         hEGIiPXJlsgfjFK91pkcTaQYNUQiAt0WEMSWqRVLG56DL8TZ4SFKO50OVdv8NpNyq8
+         Ci1i0Us22bJO9lp4CGaQD1BihF7scKTemhUyEmStQ6qqtev7RvmAJo+vIziEYMOzpb
+         1dBOgEOnJM7e19XRL2IBv7JlKggvqNBbJL54/3DYOqSDSnvNGJmZmipnEoS7gwIxnh
+         HavIaPF+zPbmg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nadezda Lutovinova <lutovinova@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+Cc:     Rajat Asthana <rajatasthana4@gmail.com>,
+        syzbot+4d3749e9612c2cfab956@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, a.hajda@samsung.com,
-        mchehab@kernel.org, linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
         linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 16/39] media: s5p-mfc: Add checking to s5p_mfc_probe().
-Date:   Mon,  8 Nov 2021 20:06:26 -0500
-Message-Id: <20211109010649.1191041-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 17/39] media: mceusb: return without resubmitting URB in case of -EPROTO error.
+Date:   Mon,  8 Nov 2021 20:06:27 -0500
+Message-Id: <20211109010649.1191041-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010649.1191041-1-sashal@kernel.org>
 References: <20211109010649.1191041-1-sashal@kernel.org>
@@ -45,39 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Rajat Asthana <rajatasthana4@gmail.com>
 
-[ Upstream commit cdfaf4752e6915a4b455ad4400133e540e4dc965 ]
+[ Upstream commit 476db72e521983ecb847e4013b263072bb1110fc ]
 
-If of_device_get_match_data() return NULL,
-then null pointer dereference occurs in  s5p_mfc_init_pm().
-The patch adds checking if dev->variant is NULL.
+Syzkaller reported a warning called "rcu detected stall in dummy_timer".
 
-Found by Linux Driver Verification project (linuxtesting.org).
+The error seems to be an error in mceusb_dev_recv(). In the case of
+-EPROTO error, the routine immediately resubmits the URB. Instead it
+should return without resubmitting URB.
 
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: syzbot+4d3749e9612c2cfab956@syzkaller.appspotmail.com
+Signed-off-by: Rajat Asthana <rajatasthana4@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/rc/mceusb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-index 63d46fae9b289..75be40608bae8 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-@@ -1285,6 +1285,10 @@ static int s5p_mfc_probe(struct platform_device *pdev)
- 	}
- 
- 	dev->variant = of_device_get_match_data(&pdev->dev);
-+	if (!dev->variant) {
-+		dev_err(&pdev->dev, "Failed to get device MFC hardware variant information\n");
-+		return -ENOENT;
-+	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	dev->regs_base = devm_ioremap_resource(&pdev->dev, res);
+diff --git a/drivers/media/rc/mceusb.c b/drivers/media/rc/mceusb.c
+index bbbbfd697f9c4..035b2455b26aa 100644
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -1080,6 +1080,7 @@ static void mceusb_dev_recv(struct urb *urb)
+ 	case -ECONNRESET:
+ 	case -ENOENT:
+ 	case -EILSEQ:
++	case -EPROTO:
+ 	case -ESHUTDOWN:
+ 		usb_unlink_urb(urb);
+ 		return;
 -- 
 2.33.0
 
