@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 951E444B6B7
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:26:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B9F44B6A0
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:26:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344374AbhKIW31 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:29:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51472 "EHLO mail.kernel.org"
+        id S1343990AbhKIW27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:28:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344568AbhKIW1J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:27:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDD6761A3A;
-        Tue,  9 Nov 2021 22:20:05 +0000 (UTC)
+        id S1344569AbhKIW1K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:27:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65EDE61A56;
+        Tue,  9 Nov 2021 22:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496407;
-        bh=oG/uIkjLf5CEuRpeIfPLBoyhAMHDQ+aFP2cDf3DGI9k=;
+        s=k20201202; t=1636496408;
+        bh=bjPXB5HH1GtIMshiC2IBO4Pln2KOJyhpk465bQoQ92w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mT+mlOvLcgHVqr2U+FIKnBlxfo7h3cV7Yp9V1PsISm2fuschC8R344AsUwzK9Ansq
-         M8oaJjp3KnXzYVHWcxXew0gUedD2xDqQlBtXpH4qlDqrSmBmWAvop3vNBo1n5X5dt4
-         Vdoueyakpx1f1N/wF6oKkQYPUQZ3ILiSz3GNFNcf/KYfABgy4U5+g/aoDdezEeeaQX
-         dGINzrerlJJBWgXXVJ+PtwmQfPE4xleqNW/Cq8zmB4q78DYbo9t74fLPgLhRfmmXk/
-         BepJ1txeZPElDhuh4wvRrNZHU8dnS41Ee1vltUeF4engrmUwDADPt5e3De8kquY++v
-         PD8k4Vp6dYpuA==
+        b=ky88OnNf9HJ4mpcNOufxMFmlSVcZ4TqfmYL6llWF1aqFZpuMr2nf2kUY+SZg6yiY9
+         WZjvnHesTu0QHtO1Sm7+yPOIw2YgG8EgAlRcyy47zCZcRtlq1ZdSVVBHh1BtVhdzzf
+         ECqgSfsX4boXx618pMq2etQflou2tXP9MTqNV7x9n9zS6HBlh8Dqu18DlOzjtCnyEO
+         llnv2lLFZXYp+PDGFoNzl/KzNGkA7fkg+VamV2wg+7egEMBusjgJcfqcMOtbJ5KbDt
+         PHgfIbY6JqQ/fifRV+IvZqMDf2+AuKoSMURo6xiPOBygu6GQjmG3XpMzBvcRmNjyv5
+         lSNpUMAdOOlpw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Riedmueller <s.riedmueller@phytec.de>,
-        Abel Vesa <abel.vesa@nxp.com>, Sasha Levin <sashal@kernel.org>,
-        shawnguo@kernel.org, kernel@pengutronix.de,
-        mturquette@baylibre.com, sboyd@codeaurora.org,
-        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 36/75] clk: imx: imx6ul: Move csi_sel mux to correct base register
-Date:   Tue,  9 Nov 2021 17:18:26 -0500
-Message-Id: <20211109221905.1234094-36-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.14 37/75] ASoC: es8316: Use IRQF_NO_AUTOEN when requesting the IRQ
+Date:   Tue,  9 Nov 2021 17:18:27 -0500
+Message-Id: <20211109221905.1234094-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221905.1234094-1-sashal@kernel.org>
 References: <20211109221905.1234094-1-sashal@kernel.org>
@@ -44,49 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Riedmueller <s.riedmueller@phytec.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 2f9d61869640f732599ec36b984c2b5c46067519 ]
+[ Upstream commit 1cf2aa665901054b140eb71748661ceae99b6b5a ]
 
-The csi_sel mux register is located in the CCM register base and not the
-CCM_ANALOG register base. So move it to the correct position in code.
+Use the new IRQF_NO_AUTOEN flag when requesting the IRQ, rather then
+disabling it immediately after requesting it.
 
-Otherwise changing the parent of the csi clock can lead to a complete
-system failure due to the CCM_ANALOG_PLL_SYS_TOG register being falsely
-modified.
+This fixes a possible race where the IRQ might trigger between requesting
+and disabling it; and this also leads to a small code cleanup.
 
-Also remove the SET_RATE_PARENT flag since one possible supply for the
-csi_sel mux is the system PLL which we don't want to modify.
-
-Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
-Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
-Link: https://lore.kernel.org/r/20210927072857.3940880-1-s.riedmueller@phytec.de
-Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20211003132255.31743-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx6ul.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/es8316.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-imx6ul.c b/drivers/clk/imx/clk-imx6ul.c
-index 5dbb6a9377324..206e4c43f68f8 100644
---- a/drivers/clk/imx/clk-imx6ul.c
-+++ b/drivers/clk/imx/clk-imx6ul.c
-@@ -161,7 +161,6 @@ static void __init imx6ul_clocks_init(struct device_node *ccm_node)
- 	hws[IMX6UL_PLL5_BYPASS] = imx_clk_hw_mux_flags("pll5_bypass", base + 0xa0, 16, 1, pll5_bypass_sels, ARRAY_SIZE(pll5_bypass_sels), CLK_SET_RATE_PARENT);
- 	hws[IMX6UL_PLL6_BYPASS] = imx_clk_hw_mux_flags("pll6_bypass", base + 0xe0, 16, 1, pll6_bypass_sels, ARRAY_SIZE(pll6_bypass_sels), CLK_SET_RATE_PARENT);
- 	hws[IMX6UL_PLL7_BYPASS] = imx_clk_hw_mux_flags("pll7_bypass", base + 0x20, 16, 1, pll7_bypass_sels, ARRAY_SIZE(pll7_bypass_sels), CLK_SET_RATE_PARENT);
--	hws[IMX6UL_CLK_CSI_SEL] = imx_clk_hw_mux_flags("csi_sel", base + 0x3c, 9, 2, csi_sels, ARRAY_SIZE(csi_sels), CLK_SET_RATE_PARENT);
+diff --git a/sound/soc/codecs/es8316.c b/sound/soc/codecs/es8316.c
+index 067757d1d70a3..5fb02635c1406 100644
+--- a/sound/soc/codecs/es8316.c
++++ b/sound/soc/codecs/es8316.c
+@@ -811,12 +811,9 @@ static int es8316_i2c_probe(struct i2c_client *i2c_client,
+ 	mutex_init(&es8316->lock);
  
- 	/* Do not bypass PLLs initially */
- 	clk_set_parent(hws[IMX6UL_PLL1_BYPASS]->clk, hws[IMX6UL_CLK_PLL1]->clk);
-@@ -270,6 +269,7 @@ static void __init imx6ul_clocks_init(struct device_node *ccm_node)
- 	hws[IMX6UL_CLK_ECSPI_SEL]	  = imx_clk_hw_mux("ecspi_sel",	base + 0x38, 18, 1, ecspi_sels, ARRAY_SIZE(ecspi_sels));
- 	hws[IMX6UL_CLK_LCDIF_PRE_SEL]	  = imx_clk_hw_mux_flags("lcdif_pre_sel", base + 0x38, 15, 3, lcdif_pre_sels, ARRAY_SIZE(lcdif_pre_sels), CLK_SET_RATE_PARENT);
- 	hws[IMX6UL_CLK_LCDIF_SEL]	  = imx_clk_hw_mux("lcdif_sel",	base + 0x38, 9, 3, lcdif_sels, ARRAY_SIZE(lcdif_sels));
-+	hws[IMX6UL_CLK_CSI_SEL]		  = imx_clk_hw_mux("csi_sel", base + 0x3c, 9, 2, csi_sels, ARRAY_SIZE(csi_sels));
- 
- 	hws[IMX6UL_CLK_LDB_DI0_DIV_SEL]  = imx_clk_hw_mux("ldb_di0", base + 0x20, 10, 1, ldb_di0_div_sels, ARRAY_SIZE(ldb_di0_div_sels));
- 	hws[IMX6UL_CLK_LDB_DI1_DIV_SEL]  = imx_clk_hw_mux("ldb_di1", base + 0x20, 11, 1, ldb_di1_div_sels, ARRAY_SIZE(ldb_di1_div_sels));
+ 	ret = devm_request_threaded_irq(dev, es8316->irq, NULL, es8316_irq,
+-					IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
++					IRQF_TRIGGER_HIGH | IRQF_ONESHOT | IRQF_NO_AUTOEN,
+ 					"es8316", es8316);
+-	if (ret == 0) {
+-		/* Gets re-enabled by es8316_set_jack() */
+-		disable_irq(es8316->irq);
+-	} else {
++	if (ret) {
+ 		dev_warn(dev, "Failed to get IRQ %d: %d\n", es8316->irq, ret);
+ 		es8316->irq = -ENXIO;
+ 	}
 -- 
 2.33.0
 
