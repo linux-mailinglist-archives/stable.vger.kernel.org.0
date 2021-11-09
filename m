@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D49FD44B7FD
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ABC544B829
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:38:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344525AbhKIWj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:39:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59460 "EHLO mail.kernel.org"
+        id S1345430AbhKIWkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:40:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345401AbhKIWh2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:37:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9B66619FA;
-        Tue,  9 Nov 2021 22:22:49 +0000 (UTC)
+        id S1344778AbhKIWhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:37:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 185E561502;
+        Tue,  9 Nov 2021 22:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496570;
-        bh=mr5m1kRKNtM8q/hm5ZR5bqjCDDynuR6Dkjet3knk2ds=;
+        s=k20201202; t=1636496571;
+        bh=koakP1kq5ghA8PaKPOtqW/BoN7OP8N9bVeyGs9jDBWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A+2K4g3VA8SMj8RDmkPeTX4T8uQOLO3rSKRVvcEISeIH6iv9bzgJuDxkLSmAGditL
-         TCDDEV1urgjNTJp5apav2imDSw/5n2qsjxWvg2/SE++cJVONdoyDV5nOZD3WW/wTmB
-         CuLZYWq3IHfd3HO/xkJg8G6jMWdisUsJ1VycYELZDxtFKyKopzReJSqhbbdgzhcatO
-         Y2x/VlMthqT2tYAjhDivNu5KbYooRsoDEnDx+hlUzUpRt94UuDGsT7Xv15hc+NC0oq
-         2DjcmRWuCZV81Yx+uDb27y5SNXQGkguR2gSSOXEU34TdnPepZ6wE80ksXMNwGtTcSf
-         VgtmdMOnVB90Q==
+        b=TLCO1Ct4D0fck5bUXL6r5RHzBbKusC/2nnqgSOm6qzZ6MeJQSj2KQJc22bB9fUnJ/
+         xG8WR1LdmaDYNcuauHR9peIfscoo8yIK/WrZh56P7SVyO5ZzuaWltcki8LorrAtSn+
+         Xogn4m54Z77ISAjkUt79d1WnRRkg5WCxoqIIdhHlOoxfa6SjbVipcbUwXt6cY+4/lR
+         vnUOAvZ43RBZdchNPBXMVLqHCGHw8W0MhtSmuMKZD7Rpw0fsQ7aDaeej3CaX7PMV9e
+         FyExG4me1MNNrRsx/xNP86qqYYckdSvz8180HlLOCZRPohRmCwjEUDyMUSuqda3uCV
+         +/x5XTvOFcBTQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guo Zhi <qtxuning1999@sjtu.edu.cn>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, matthew@wil.cx, hare@suse.com,
-        JBottomley@odin.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/30] scsi: advansys: Fix kernel pointer leak
-Date:   Tue,  9 Nov 2021 17:22:10 -0500
-Message-Id: <20211109222224.1235388-16-sashal@kernel.org>
+Cc:     Luis Chamberlain <mcgrof@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 17/30] firmware_loader: fix pre-allocated buf built-in firmware use
+Date:   Tue,  9 Nov 2021 17:22:11 -0500
+Message-Id: <20211109222224.1235388-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222224.1235388-1-sashal@kernel.org>
 References: <20211109222224.1235388-1-sashal@kernel.org>
@@ -43,37 +42,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Zhi <qtxuning1999@sjtu.edu.cn>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit d4996c6eac4c81b8872043e9391563f67f13e406 ]
+[ Upstream commit f7a07f7b96033df7709042ff38e998720a3f7119 ]
 
-Pointers should be printed with %p or %px rather than cast to 'unsigned
-long' and printed with %lx.
+The firmware_loader can be used with a pre-allocated buffer
+through the use of the API calls:
 
-Change %lx to %p to print the hashed pointer.
+  o request_firmware_into_buf()
+  o request_partial_firmware_into_buf()
 
-Link: https://lore.kernel.org/r/20210929122538.1158235-1-qtxuning1999@sjtu.edu.cn
-Signed-off-by: Guo Zhi <qtxuning1999@sjtu.edu.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+If the firmware was built-in and present, our current check
+for if the built-in firmware fits into the pre-allocated buffer
+does not return any errors, and we proceed to tell the caller
+that everything worked fine. It's a lie and no firmware would
+end up being copied into the pre-allocated buffer. So if the
+caller trust the result it may end up writing a bunch of 0's
+to a device!
+
+Fix this by making the function that checks for the pre-allocated
+buffer return non-void. Since the typical use case is when no
+pre-allocated buffer is provided make this return successfully
+for that case. If the built-in firmware does *not* fit into the
+pre-allocated buffer size return a failure as we should have
+been doing before.
+
+I'm not aware of users of the built-in firmware using the API
+calls with a pre-allocated buffer, as such I doubt this fixes
+any real life issue. But you never know... perhaps some oddball
+private tree might use it.
+
+In so far as upstream is concerned this just fixes our code for
+correctness.
+
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/20210917182226.3532898-2-mcgrof@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/advansys.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/base/firmware_loader/main.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/advansys.c b/drivers/scsi/advansys.c
-index a242a62caaa16..7b3e52ff5f516 100644
---- a/drivers/scsi/advansys.c
-+++ b/drivers/scsi/advansys.c
-@@ -3366,8 +3366,8 @@ static void asc_prt_adv_board_info(struct seq_file *m, struct Scsi_Host *shost)
- 		   shost->host_no);
+diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
+index 249349f64bfe9..4f6b76bd957ef 100644
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -98,12 +98,15 @@ static struct firmware_cache fw_cache;
+ extern struct builtin_fw __start_builtin_fw[];
+ extern struct builtin_fw __end_builtin_fw[];
  
- 	seq_printf(m,
--		   " iop_base 0x%lx, cable_detect: %X, err_code %u\n",
--		   (unsigned long)v->iop_base,
-+		   " iop_base 0x%p, cable_detect: %X, err_code %u\n",
-+		   v->iop_base,
- 		   AdvReadWordRegister(iop_base,IOPW_SCSI_CFG1) & CABLE_DETECT,
- 		   v->err_code);
+-static void fw_copy_to_prealloc_buf(struct firmware *fw,
++static bool fw_copy_to_prealloc_buf(struct firmware *fw,
+ 				    void *buf, size_t size)
+ {
+-	if (!buf || size < fw->size)
+-		return;
++	if (!buf)
++		return true;
++	if (size < fw->size)
++		return false;
+ 	memcpy(buf, fw->data, fw->size);
++	return true;
+ }
+ 
+ static bool fw_get_builtin_firmware(struct firmware *fw, const char *name,
+@@ -115,9 +118,7 @@ static bool fw_get_builtin_firmware(struct firmware *fw, const char *name,
+ 		if (strcmp(name, b_fw->name) == 0) {
+ 			fw->size = b_fw->size;
+ 			fw->data = b_fw->data;
+-			fw_copy_to_prealloc_buf(fw, buf, size);
+-
+-			return true;
++			return fw_copy_to_prealloc_buf(fw, buf, size);
+ 		}
+ 	}
  
 -- 
 2.33.0
