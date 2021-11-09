@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 032EE44A2A4
+	by mail.lfdr.de (Postfix) with ESMTP id A4B3744A2A6
 	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237114AbhKIBTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:19:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44046 "EHLO mail.kernel.org"
+        id S239806AbhKIBTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:19:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241965AbhKIBRT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:17:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 050DB61A57;
-        Tue,  9 Nov 2021 01:07:05 +0000 (UTC)
+        id S242396AbhKIBRX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:17:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A6A261AFB;
+        Tue,  9 Nov 2021 01:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420027;
-        bh=Q0iVTnW0UUWj/MGIy+a7Z2i9YAx1Nh9hx+WYO7uayhU=;
+        s=k20201202; t=1636420028;
+        bh=fUGXu9XiCLQlNUs3S91utdZvZpz/jZEZ4cd17L50V2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YouAUHSzONnVvxv8VoZ8w32JqYW9Yuyw7JMabTD2sHXKuFRtVEQTnIkByngiBlxcD
-         p8l01wNJRyNuZVeHn9zx7bmvBGZNkOvfy+iMKQdEGQajh+4J2IeU91/VwlmcTD6afo
-         1BzbZ8po3z/d8hFO5uOJ636T3oZQg7Up431P8277kPAoyxtiJanCPOWLuZW/kZ3xqo
-         Tv0zsS0hJyNhX4ZD59YG+6BILouL65xjL2EDppywqOdR31i0G9DbfMfasuTD71I+do
-         AWhZJMWUsmnvbHrVXlYCw6LwWH6JiW+xQCMmIKIuHJNcbcQIcyKqYJlhP6TOH0JSXe
-         PvxZLeUOrSSdQ==
+        b=j+fEtnJuRH1O1LPW65X8z60v5gFR4RtZZk7x9c26lScZqm4fZMJKXwpvAO1XRsRIm
+         UnIrCBE9gIQc9YVD82uJ7O6gffoMgnYF+dQoDrvnOJIMXCGJ3HnWky3RhI/rcnQsf4
+         EvPclwmQNYyj83R4GhZrKB+yI6XtLO1e7MhD91v8aTgjRru9n7JUqNUPzHzSt1FXhE
+         3kcqS8gWZ1TFjTHSc3pkz2UsTxkTyWoiKaj+uhlpWJl4MFVmg+VsnxTCrciCivlUFb
+         4MsL5a1REI7uIG8zBSznX++Nw/BQ+Es86/FYZeB7UgoPPGzEGfdbdZIVJMKOBQngg8
+         kOdK1CnGteHQQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Michael Wang <yun.wang@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, adobriyan@gmail.com
-Subject: [PATCH AUTOSEL 4.14 09/39] x86: Increase exception stack sizes
-Date:   Mon,  8 Nov 2021 20:06:19 -0500
-Message-Id: <20211109010649.1191041-9-sashal@kernel.org>
+Cc:     =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, amitkarwar@gmail.com,
+        ganapathi017@gmail.com, sharvari.harisangam@nxp.com,
+        huxinming820@gmail.com, davem@davemloft.net, kuba@kernel.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 10/39] mwifiex: Run SET_BSS_MODE when changing from P2P to STATION vif-type
+Date:   Mon,  8 Nov 2021 20:06:20 -0500
+Message-Id: <20211109010649.1191041-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010649.1191041-1-sashal@kernel.org>
 References: <20211109010649.1191041-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,35 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Jonas Dreßler <verdre@v0yd.nl>
 
-[ Upstream commit 7fae4c24a2b84a66c7be399727aca11e7a888462 ]
+[ Upstream commit c2e9666cdffd347460a2b17988db4cfaf2a68fb9 ]
 
-It turns out that a single page of stack is trivial to overflow with
-all the tracing gunk enabled. Raise the exception stacks to 2 pages,
-which is still half the interrupt stacks, which are at 4 pages.
+We currently handle changing from the P2P to the STATION virtual
+interface type slightly different than changing from P2P to ADHOC: When
+changing to STATION, we don't send the SET_BSS_MODE command. We do send
+that command on all other type-changes though, and it probably makes
+sense to send the command since after all we just changed our BSS_MODE.
+Looking at prior changes to this part of the code, it seems that this is
+simply a leftover from old refactorings.
 
-Reported-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/YUIO9Ye98S5Eb68w@hirez.programming.kicks-ass.net
+Since sending the SET_BSS_MODE command is the only difference between
+mwifiex_change_vif_to_sta_adhoc() and the current code, we can now use
+mwifiex_change_vif_to_sta_adhoc() for both switching to ADHOC and
+STATION interface type.
+
+This does not fix any particular bug and just "looked right", so there's
+a small chance it might be a regression.
+
+Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210914195909.36035-4-verdre@v0yd.nl
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/page_64_types.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/wireless/marvell/mwifiex/cfg80211.c   | 22 ++++---------------
+ 1 file changed, 4 insertions(+), 18 deletions(-)
 
-diff --git a/arch/x86/include/asm/page_64_types.h b/arch/x86/include/asm/page_64_types.h
-index 50c8baaca4b06..4c807635e6244 100644
---- a/arch/x86/include/asm/page_64_types.h
-+++ b/arch/x86/include/asm/page_64_types.h
-@@ -20,7 +20,7 @@
- #define THREAD_SIZE  (PAGE_SIZE << THREAD_SIZE_ORDER)
- #define CURRENT_MASK (~(THREAD_SIZE - 1))
- 
--#define EXCEPTION_STACK_ORDER (0 + KASAN_STACK_ORDER)
-+#define EXCEPTION_STACK_ORDER (1 + KASAN_STACK_ORDER)
- #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
- 
- #define DEBUG_STACK_ORDER (EXCEPTION_STACK_ORDER + 1)
+diff --git a/drivers/net/wireless/marvell/mwifiex/cfg80211.c b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
+index 79c50aebffc4b..7bdcbe79d963d 100644
+--- a/drivers/net/wireless/marvell/mwifiex/cfg80211.c
++++ b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
+@@ -1217,29 +1217,15 @@ mwifiex_cfg80211_change_virtual_intf(struct wiphy *wiphy,
+ 		break;
+ 	case NL80211_IFTYPE_P2P_CLIENT:
+ 	case NL80211_IFTYPE_P2P_GO:
++		if (mwifiex_cfg80211_deinit_p2p(priv))
++			return -EFAULT;
++
+ 		switch (type) {
+-		case NL80211_IFTYPE_STATION:
+-			if (mwifiex_cfg80211_deinit_p2p(priv))
+-				return -EFAULT;
+-			priv->adapter->curr_iface_comb.p2p_intf--;
+-			priv->adapter->curr_iface_comb.sta_intf++;
+-			dev->ieee80211_ptr->iftype = type;
+-			if (mwifiex_deinit_priv_params(priv))
+-				return -1;
+-			if (mwifiex_init_new_priv_params(priv, dev, type))
+-				return -1;
+-			if (mwifiex_sta_init_cmd(priv, false, false))
+-				return -1;
+-			break;
+ 		case NL80211_IFTYPE_ADHOC:
+-			if (mwifiex_cfg80211_deinit_p2p(priv))
+-				return -EFAULT;
++		case NL80211_IFTYPE_STATION:
+ 			return mwifiex_change_vif_to_sta_adhoc(dev, curr_iftype,
+ 							       type, params);
+-			break;
+ 		case NL80211_IFTYPE_AP:
+-			if (mwifiex_cfg80211_deinit_p2p(priv))
+-				return -EFAULT;
+ 			return mwifiex_change_vif_to_ap(dev, curr_iftype, type,
+ 							params);
+ 		case NL80211_IFTYPE_UNSPECIFIED:
 -- 
 2.33.0
 
