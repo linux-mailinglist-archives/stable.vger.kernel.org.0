@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CAD844B741
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:31:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6460A44B733
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:30:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344808AbhKIWc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:32:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55108 "EHLO mail.kernel.org"
+        id S1344755AbhKIWcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:32:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344816AbhKIWat (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344815AbhKIWat (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:30:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35C1A61A81;
-        Tue,  9 Nov 2021 22:20:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F98661A6C;
+        Tue,  9 Nov 2021 22:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496458;
-        bh=w5Xb6WCzlZ8aPhmrZpZHwKQX/kb2t2tuhtwlxNHDG2k=;
+        s=k20201202; t=1636496460;
+        bh=CEcvv+vzt12RPoJlIolDN3gbYICVproW8INlvGSj9bM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XA0hMKlxCPbW179RCE8sL3wHUx/FMntXtrtZTxM7xXp/XjVmV7T1swr4JqNCySC5H
-         4pp/BtxFc4/ZtF+ZT3pYdCY922nBwIONXXcSqAYcsPYllzlUZvilUgMo/5Gd6Evdjx
-         ZXm80pzc/gayC61aTDm1TUNmrYH6pGSWg+rrJs3B7HvrMSGDhLuxyPJOukSylHtYrI
-         bKBVMAptj1bDvWtPmJVabAp0DV4GfWx+cCHe89CNihEb8VBsqYX1pWBvEaFp9FjLR/
-         x8S9meaFM8We+escSkrWMIIfRCUHTRKl3sFn7RNwqSwWTpeiA7eQ3OM557MXQXOwY8
-         CPhdmf9QkQtWg==
+        b=ZhXr5rLlnEM0IJQNbq4hv539RZSVnssDV9F1jsg15eRPRrvAyL46kWUwRiEjRDrB4
+         aSJtBPxh/DFI3VUeWq+Ed39mcowgv+kKeFst8Ro4B8jsyVTekAEoGsMfeHuvSB4yWB
+         0ww5dqldUPWUkKKZNp9qfFLj44OY/zeNem0xZAF2pJMI4seYrOflJlCXb0jDrURQvY
+         KmTkyocJtUsqwa7ZhuODHbwroHb2RuBlz124tEoJZmF46WXIuZAAaUgVoontDry3aR
+         /hnK7eVcCrL6cKuzPrAffOJeDnXGkl3ClYmPrdzlIqiTpj1bceIMRNmWpuBZNxmiL8
+         PadM29uTEv6Dw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, benh@kernel.crashing.org,
-        paulus@samba.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.14 73/75] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
-Date:   Tue,  9 Nov 2021 17:19:03 -0500
-Message-Id: <20211109221905.1234094-73-sashal@kernel.org>
+        paulus@samba.org, gregkh@linuxfoundation.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.14 74/75] powerpc/8xx: Fix Oops with STRICT_KERNEL_RWX without DEBUG_RODATA_TEST
+Date:   Tue,  9 Nov 2021 17:19:04 -0500
+Message-Id: <20211109221905.1234094-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221905.1234094-1-sashal@kernel.org>
 References: <20211109221905.1234094-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,61 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
+[ Upstream commit c12ab8dbc492b992e1ea717db933cee568780c47 ]
 
-In dcr-low.S we use cmpli with three arguments, instead of four
-arguments as defined in the ISA:
+Until now, all tests involving CONFIG_STRICT_KERNEL_RWX were done with
+DEBUG_RODATA_TEST to check the result. But now that
+CONFIG_STRICT_KERNEL_RWX is selected by default, it came without
+CONFIG_DEBUG_RODATA_TEST and led to the following Oops
 
-	cmpli	cr0,r3,1024
+[    6.830908] Freeing unused kernel image (initmem) memory: 352K
+[    6.840077] BUG: Unable to handle kernel data access on write at 0xc1285200
+[    6.846836] Faulting instruction address: 0xc0004b6c
+[    6.851745] Oops: Kernel access of bad area, sig: 11 [#1]
+[    6.857075] BE PAGE_SIZE=16K PREEMPT CMPC885
+[    6.861348] SAF3000 DIE NOTIFICATION
+[    6.864830] CPU: 0 PID: 1 Comm: swapper Not tainted 5.15.0-rc5-s3k-dev-02255-g2747d7b7916f #451
+[    6.873429] NIP:  c0004b6c LR: c0004b60 CTR: 00000000
+[    6.878419] REGS: c902be60 TRAP: 0300   Not tainted  (5.15.0-rc5-s3k-dev-02255-g2747d7b7916f)
+[    6.886852] MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 53000335  XER: 8000ff40
+[    6.893564] DAR: c1285200 DSISR: 82000000
+[    6.893564] GPR00: 0c000000 c902bf20 c20f4000 08000000 00000001 04001f00 c1800000 00000035
+[    6.893564] GPR08: ff0001ff c1280000 00000002 c0004b60 00001000 00000000 c0004b1c 00000000
+[    6.893564] GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[    6.893564] GPR24: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 c1060000
+[    6.932034] NIP [c0004b6c] kernel_init+0x50/0x138
+[    6.936682] LR [c0004b60] kernel_init+0x44/0x138
+[    6.941245] Call Trace:
+[    6.943653] [c902bf20] [c0004b60] kernel_init+0x44/0x138 (unreliable)
+[    6.950022] [c902bf30] [c001122c] ret_from_kernel_thread+0x5c/0x64
+[    6.956135] Instruction dump:
+[    6.959060] 48ffc521 48045469 4800d8cd 3d20c086 89295fa0 2c090000 41820058 480796c9
+[    6.966890] 4800e48d 3d20c128 39400002 3fe0c106 <91495200> 3bff8000 4806fa1d 481f7d75
+[    6.974902] ---[ end trace 1e397bacba4aa610 ]---
 
-This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
-User’s Manual" it shows cmpli having no L field, but implied to be 0 due
-to the core being 32-bit. It mentions that the ISA defines four
-arguments and recommends using cmplwi.
+0xc1285200 corresponds to 'system_state' global var that the kernel is trying to set to
+SYSTEM_RUNNING. This var is above the RO/RW limit so it shouldn't Oops.
 
-It also corresponds to the old POWER instruction set, which had no L
-field there, a reserved bit instead.
+It oopses because the dirty bit is missing.
 
-dcr-low.S is only built 32-bit, because it is only built when
-DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
-generated code (with gcc/gas) we see cmplwi as expected.
-
-Although gas is happy with the 3-argument version when building for
-32-bit, the LLVM assembler is not and errors out with:
-
-  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
-   cmpli 0,%r3,1024; ...
-           ^
-
-Switch to the cmplwi extended opcode, which avoids any confusion when
-reading the ISA, fixes the issue with the LLVM assembler, and also means
-the code could be built 64-bit in future (though that's very unlikely).
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
-Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/3d5800b0bbcd7b19761b98f50421358667b45331.1635520232.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/dcr-low.S | 2 +-
+ arch/powerpc/kernel/head_8xx.S | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
-index efeeb1b885a17..329b9c4ae5429 100644
---- a/arch/powerpc/sysdev/dcr-low.S
-+++ b/arch/powerpc/sysdev/dcr-low.S
-@@ -11,7 +11,7 @@
- #include <asm/export.h>
+diff --git a/arch/powerpc/kernel/head_8xx.S b/arch/powerpc/kernel/head_8xx.S
+index 9bdb95f5694f7..2d596881b70e7 100644
+--- a/arch/powerpc/kernel/head_8xx.S
++++ b/arch/powerpc/kernel/head_8xx.S
+@@ -755,7 +755,7 @@ _GLOBAL(mmu_pin_tlb)
+ 	cmplw	r6, r9
+ 	bdnzt	lt, 2b
  
- #define DCR_ACCESS_PROLOG(table) \
--	cmpli	cr0,r3,1024;	 \
-+	cmplwi	cr0,r3,1024;	 \
- 	rlwinm  r3,r3,4,18,27;   \
- 	lis     r5,table@h;      \
- 	ori     r5,r5,table@l;   \
+-4:	LOAD_REG_IMMEDIATE(r8, 0xf0 | _PAGE_SPS | _PAGE_SH | _PAGE_PRESENT)
++4:	LOAD_REG_IMMEDIATE(r8, 0xf0 | _PAGE_DIRTY | _PAGE_SPS | _PAGE_SH | _PAGE_PRESENT)
+ 2:	ori	r0, r6, MD_EVALID
+ 	mtspr	SPRN_MD_CTR, r5
+ 	mtspr	SPRN_MD_EPN, r0
 -- 
 2.33.0
 
