@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAB2544B6AD
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:26:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 876D944B6AF
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:26:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343703AbhKIW3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:29:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50282 "EHLO mail.kernel.org"
+        id S236328AbhKIW3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:29:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344377AbhKIW0W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:26:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D25876108C;
-        Tue,  9 Nov 2021 22:19:42 +0000 (UTC)
+        id S1344415AbhKIW01 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:26:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDA9661A53;
+        Tue,  9 Nov 2021 22:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496383;
-        bh=wUtuqPafkjHuIBSa8o+gQLFE+TdhXk32F5NW/Iv+NVQ=;
+        s=k20201202; t=1636496385;
+        bh=nE358nGDGr7KcK43TlL/FW4cfCEKyXOcwBJem4GhvV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uRj+lozdHJWEAMq0KvOwyGZvJfb+CnRhqx5FkI375EKwx+nRaL9I23lC0ypmV470t
-         Gg5LiqR7nXBJA+VdeSJPLRlai9C+SU7RY/XerNQWFVXyNOrDmXhl8W1BNmOOsMoUyv
-         kcXUd/vTH50mHiTQQ2k79Ie6Cni6dAWRoakzDPhP7ckxaUyHm3/FyRVYRsMcaw62jM
-         5wkvjUAI5TjiJ+MG7+FfyOMfn9GSwCbMhi4stJBMvJTzJI88mIrOeku9O1sEn9/qTt
-         3F7ZCL/LQikGl8YDp1Pg7VOMNuBxtaCXNJcl16+iZqVYXL4UMK2yqANMFdZlBtdkxv
-         Q0s8Qz4fElxIw==
+        b=fbsqDSsti6W6UrMHyomg/zd6qSU5MhaY/m5XigvQ5KAAqIsmG2s6TZPOb9rkfAnS5
+         Jo3SteIA5MOYAChKd6vEaVZa5SsMvFI3lypqclL7LAejxGOMekkgj+5LmX8SdNayR+
+         e6HhzojhI5zoNawQC+inggLycszsyCldk7wwXgtLpuGaroG6J61PTkKA7mnSotgIHt
+         ISbOlKofafNwytN20R2ybBGtzTsGvN0v/qmLtH1rKcJaI5rEMGS4fwV2sDbYkXC7gP
+         v7HdKJ/IzGR2NOEtaQB1UZGwIp+lbSKivg2fKNlo4Tbdu5IVYVTaEe6KDeJiCIG0ew
+         5qYVkJ/c6Z38w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Peter <sven@svenpeter.dev>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 21/75] usb: typec: tipd: Remove WARN_ON in tps6598x_block_read
-Date:   Tue,  9 Nov 2021 17:18:11 -0500
-Message-Id: <20211109221905.1234094-21-sashal@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        linux@arm.linux.org.uk, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.14 22/75] ARM: dts: ux500: Skomer regulator fixes
+Date:   Tue,  9 Nov 2021 17:18:12 -0500
+Message-Id: <20211109221905.1234094-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221905.1234094-1-sashal@kernel.org>
 References: <20211109221905.1234094-1-sashal@kernel.org>
@@ -43,36 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Peter <sven@svenpeter.dev>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit b7a0a63f3fed57d413bb857de164ea9c3984bc4e ]
+[ Upstream commit 7aee0288beab72cdfa35af51f62e94373fca595d ]
 
-Calling tps6598x_block_read with a higher than allowed len can be
-handled by just returning an error. There's no need to crash systems
-with panic-on-warn enabled.
+AUX2 has slightly wrong voltage and AUX5 doesn't need to be
+always on.
 
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Link: https://lore.kernel.org/r/20210914140235.65955-3-sven@svenpeter.dev
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/tipd/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/ste-ux500-samsung-skomer.dts | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
-index ea4cc0a6e40cc..97f50f301f13b 100644
---- a/drivers/usb/typec/tipd/core.c
-+++ b/drivers/usb/typec/tipd/core.c
-@@ -117,7 +117,7 @@ tps6598x_block_read(struct tps6598x *tps, u8 reg, void *val, size_t len)
- 	u8 data[TPS_MAX_LEN + 1];
- 	int ret;
+diff --git a/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts b/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts
+index 94afd7a0fe1f0..9a90e7bbb4673 100644
+--- a/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts
++++ b/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts
+@@ -290,10 +290,10 @@
+ 					};
  
--	if (WARN_ON(len + 1 > sizeof(data)))
-+	if (len + 1 > sizeof(data))
- 		return -EINVAL;
+ 					ab8500_ldo_aux2 {
+-						/* Supplies the Cypress TMA140 touchscreen only with 3.3V */
++						/* Supplies the Cypress TMA140 touchscreen only with 3.0V */
+ 						regulator-name = "AUX2";
+-						regulator-min-microvolt = <3300000>;
+-						regulator-max-microvolt = <3300000>;
++						regulator-min-microvolt = <3000000>;
++						regulator-max-microvolt = <3000000>;
+ 					};
  
- 	if (!tps->i2c_protocol)
+ 					ab8500_ldo_aux3 {
+@@ -312,9 +312,9 @@
+ 
+ 					ab8500_ldo_aux5 {
+ 						regulator-name = "AUX5";
++						/* Intended for 1V8 for touchscreen but actually left unused */
+ 						regulator-min-microvolt = <1050000>;
+ 						regulator-max-microvolt = <2790000>;
+-						regulator-always-on;
+ 					};
+ 
+ 					ab8500_ldo_aux6 {
 -- 
 2.33.0
 
