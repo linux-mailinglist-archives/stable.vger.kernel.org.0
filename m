@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D141644B7E2
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:36:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 741C944B7EA
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:36:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345563AbhKIWiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:38:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58688 "EHLO mail.kernel.org"
+        id S1345114AbhKIWjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:39:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344690AbhKIWgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344670AbhKIWgL (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:36:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 104CE6135E;
-        Tue,  9 Nov 2021 22:22:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50F4E61AFB;
+        Tue,  9 Nov 2021 22:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496558;
-        bh=MbljPlGWIgZ6aE1b8hrYn73E3WqClBJ8p6vdASrke7Y=;
+        s=k20201202; t=1636496559;
+        bh=sQQuDsAz4XaUdqpfDeZQWEr/ejmbJZi8Sa5xGXMaYqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XeLlNtN/+fgyCZBLvrHaW48hMpbMYXpFg2JTvgAGIhzicK1P2N+clONk0Qgkzrrf2
-         WGRq3jq+Z0AH/aY4wowFlv9VLLKwOpp5pc22rFb6jX/8ysvMv2B3OBRH+5UYIihrPH
-         Kq7giJlv36hWwvLGmyuYFPTLIW4LDxmndCOAb7bp915zhCoNlFE570S3o5PU+pumK0
-         FTCxMG8tlMH/DTimg5tb+y0GED73xQgk4WAWnKxeG9tCiUmJkQRWurnaaJRgxj+Cj1
-         tEFwlhAbe5p9ahsFgcAVk76rEOsuYFePl1qor7u7xmTleDHAT9bpSN5ZegymJuuSuY
-         +oMlUomBK30sg==
+        b=bf3VXKYZBpQ0CzDLCzCIeT6XIIHtVQdml+RvqumImPk6OXxzWQ5upPhJxPuYCPXxM
+         xVMgepUVxoVxX8Gh2fIvdizV7ayV927cBqxKs+1g+MeYJaMuHGvfTrLWPlt+JrSRjp
+         NRdvsP3HRqPPhGV45608Niwl5RT36TlD7QEZvPfTTuZGEmQGLsNUdFmboYpXhC1bzN
+         bsxM2V5dlNT/6J1gmXTkMT6oqUsZKbiZ+IhKMjJZibJbuGoopzBRRE/vRobrlWdJKP
+         pbKuwXaebVVdsEX5FrFsvqSsExXVEckyQH2H6xeTKqfbmXSaSqx4rrYoo6oBoBViwj
+         dNRFjwfDh9umQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Selvin Xavier <selvin.xavier@broadcom.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, dledford@redhat.com,
-        sean.hefty@intel.com, hal.rosenstock@gmail.com,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/30] RDMA/bnxt_re: Check if the vlan is valid before reporting
-Date:   Tue,  9 Nov 2021 17:22:01 -0500
-Message-Id: <20211109222224.1235388-7-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, balbi@ti.com,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 08/30] usb: musb: tusb6010: check return value after calling platform_get_resource()
+Date:   Tue,  9 Nov 2021 17:22:02 -0500
+Message-Id: <20211109222224.1235388-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222224.1235388-1-sashal@kernel.org>
 References: <20211109222224.1235388-1-sashal@kernel.org>
@@ -44,55 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Selvin Xavier <selvin.xavier@broadcom.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 6bda39149d4b8920fdb8744090653aca3daa792d ]
+[ Upstream commit 14651496a3de6807a17c310f63c894ea0c5d858e ]
 
-When VF is configured with default vlan, HW strips the vlan from the
-packet and driver receives it in Rx completion. VLAN needs to be reported
-for UD work completion only if the vlan is configured on the host. Add a
-check for valid vlan in the UD receive path.
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-Link: https://lore.kernel.org/r/1631709163-2287-12-git-send-email-selvin.xavier@broadcom.com
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210915034925.2399823-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/ib_verbs.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/usb/musb/tusb6010.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/ib_verbs.c b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
-index a96f9142fe08e..dd006b177b544 100644
---- a/drivers/infiniband/hw/bnxt_re/ib_verbs.c
-+++ b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
-@@ -3081,8 +3081,11 @@ static void bnxt_re_process_res_ud_wc(struct bnxt_re_qp *qp,
- 				      struct ib_wc *wc,
- 				      struct bnxt_qplib_cqe *cqe)
- {
-+	struct bnxt_re_dev *rdev;
-+	u16 vlan_id = 0;
- 	u8 nw_type;
+diff --git a/drivers/usb/musb/tusb6010.c b/drivers/usb/musb/tusb6010.c
+index 4ecfbf6bb1fa8..902507da8aa85 100644
+--- a/drivers/usb/musb/tusb6010.c
++++ b/drivers/usb/musb/tusb6010.c
+@@ -1103,6 +1103,11 @@ static int tusb_musb_init(struct musb *musb)
  
-+	rdev = qp->rdev;
- 	wc->opcode = IB_WC_RECV;
- 	wc->status = __rc_to_ib_wc_status(cqe->status);
+ 	/* dma address for async dma */
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!mem) {
++		pr_debug("no async dma resource?\n");
++		ret = -ENODEV;
++		goto done;
++	}
+ 	musb->async = mem->start;
  
-@@ -3094,9 +3097,12 @@ static void bnxt_re_process_res_ud_wc(struct bnxt_re_qp *qp,
- 		memcpy(wc->smac, cqe->smac, ETH_ALEN);
- 		wc->wc_flags |= IB_WC_WITH_SMAC;
- 		if (cqe->flags & CQ_RES_UD_FLAGS_META_FORMAT_VLAN) {
--			wc->vlan_id = (cqe->cfa_meta & 0xFFF);
--			if (wc->vlan_id < 0x1000)
--				wc->wc_flags |= IB_WC_WITH_VLAN;
-+			vlan_id = (cqe->cfa_meta & 0xFFF);
-+		}
-+		/* Mark only if vlan_id is non zero */
-+		if (vlan_id && bnxt_re_check_if_vlan_valid(rdev, vlan_id)) {
-+			wc->vlan_id = vlan_id;
-+			wc->wc_flags |= IB_WC_WITH_VLAN;
- 		}
- 		nw_type = (cqe->flags & CQ_RES_UD_FLAGS_ROCE_IP_VER_MASK) >>
- 			   CQ_RES_UD_FLAGS_ROCE_IP_VER_SFT;
+ 	/* dma address for sync dma */
 -- 
 2.33.0
 
