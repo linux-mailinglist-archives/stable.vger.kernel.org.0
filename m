@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFA1A44A33E
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:24:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6F3644A33F
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:24:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242869AbhKIB01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242880AbhKIB01 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Nov 2021 20:26:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46240 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243317AbhKIBVn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243009AbhKIBVn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Nov 2021 20:21:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C7FB61A50;
-        Tue,  9 Nov 2021 01:08:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2399261B08;
+        Tue,  9 Nov 2021 01:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420115;
-        bh=KleTAuiYN08CCakSJryb9oz0+fFiyLC9ruYBaQfpj4A=;
+        s=k20201202; t=1636420117;
+        bh=WFumPmJnZSeHUJSwY3nEH+IGpy9O6vMUvL0USWl6cKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K4OnlsKMtS8DePD0P15yg0gO96VuG5hQKO3ffkrBegExLA0/OGCHQzs5VjNFzYnfB
-         j5FQLWgBi5fPyoo+P7LkpDWnWAj3KKzOGZHrCieU8mKaf3SvRWg2Rk89eMaJU8jEhr
-         sPtk2okBM1W8Uvao9hharSKf2SX5FZ2I9dbXvG1UdKHrOG5gb9YZlfXcu14NTqpZUB
-         It5h4IDWIAoW3ATMVElcT8SrRc0wp4UTHNw1zZVsiBQgTsroTgr+qjJ1yPjeqR8PAm
-         p1cgepJLwBLpfc0B+rt9jl0obU4b+fJ/LMEDfDSQMswFhGAgSVljZ+AQz9u31VBfgt
-         2G99ohv/e0saw==
+        b=uNvxEkrvqEiEyK2OXXWOBjAxONCdrNGxUOorTyOWf+Sbav+O5Kd0WiZKK2BhtvNlz
+         WFu0/5ccQhmCWL0sSOKdrC9SFHNUoCV6uQUd/Y+QPWcKl8WvMWxvAheyOq5vMLbXYw
+         S/L7y+G9hMLysLv9o3MTfoEqac/cJSmDGzKbJ2AIEWyjHcq2m7NuT821mQy8Q+ubvX
+         z1C3Zm9WJ4OVaUJjKDZfvHfTzAM67wm/Q+HRHBI2LEpkbA4yesM2LbcLNYY8KEX7Ht
+         GyvXaEXYxHbIfWvNwIx5AcXwT/qHh3w/c302hNd+GS0dHDnW6hbQ9Ta0YyWn4Ao0bm
+         Vgo7eiheLN13A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>, linux-ia64@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Chris Down <chris@chrisdown.name>,
-        Paul Gortmaker <paul.gortmaker@windriver.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 15/33] ia64: don't do IA64_CMPXCHG_DEBUG without CONFIG_PRINTK
-Date:   Mon,  8 Nov 2021 20:07:49 -0500
-Message-Id: <20211109010807.1191567-15-sashal@kernel.org>
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Reik Keutterling <spielkind@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, robert.moore@intel.com,
+        linux-acpi@vger.kernel.org, devel@acpica.org
+Subject: [PATCH AUTOSEL 4.9 16/33] ACPICA: Avoid evaluating methods too early during system resume
+Date:   Mon,  8 Nov 2021 20:07:50 -0500
+Message-Id: <20211109010807.1191567-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010807.1191567-1-sashal@kernel.org>
 References: <20211109010807.1191567-1-sashal@kernel.org>
@@ -46,51 +43,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 
-[ Upstream commit c15b5fc054c3d6c97e953617605235c5cb8ce979 ]
+[ Upstream commit d3c4b6f64ad356c0d9ddbcf73fa471e6a841cc5c ]
 
-When CONFIG_PRINTK is not set, the CMPXCHG_BUGCHECK() macro calls
-_printk(), but _printk() is a static inline function, not available
-as an extern.
-Since the purpose of the macro is to print the BUGCHECK info,
-make this config option depend on PRINTK.
+ACPICA commit 0762982923f95eb652cf7ded27356b247c9774de
 
-Fixes multiple occurrences of this build error:
+During wakeup from system-wide sleep states, acpi_get_sleep_type_data()
+is called and it tries to get memory from the slab allocator in order
+to evaluate a control method, but if KFENCE is enabled in the kernel,
+the memory allocation attempt causes an IRQ work to be queued and a
+self-IPI to be sent to the CPU running the code which requires the
+memory controller to be ready, so if that happens too early in the
+wakeup path, it doesn't work.
 
-../include/linux/printk.h:208:5: error: static declaration of '_printk' follows non-static declaration
-  208 | int _printk(const char *s, ...)
-      |     ^~~~~~~
-In file included from ../arch/ia64/include/asm/cmpxchg.h:5,
-../arch/ia64/include/uapi/asm/cmpxchg.h:146:28: note: previous declaration of '_printk' with type 'int(const char *, ...)'
-  146 |                 extern int _printk(const char *fmt, ...);
+Prevent that from taking place by calling acpi_get_sleep_type_data()
+for S0 upfront, when preparing to enter a given sleep state, and
+saving the data obtained by it for later use during system wakeup.
 
-Cc: linux-ia64@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Chris Down <chris@chrisdown.name>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214271
+Reported-by: Reik Keutterling <spielkind@gmail.com>
+Tested-by: Reik Keutterling <spielkind@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/Kconfig.debug | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/acpica/acglobal.h  |  2 ++
+ drivers/acpi/acpica/hwesleep.c  |  8 ++------
+ drivers/acpi/acpica/hwsleep.c   | 11 ++++-------
+ drivers/acpi/acpica/hwxfsleep.c |  7 +++++++
+ 4 files changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/arch/ia64/Kconfig.debug b/arch/ia64/Kconfig.debug
-index de9d507ba0fd4..ee6c7f75f479d 100644
---- a/arch/ia64/Kconfig.debug
-+++ b/arch/ia64/Kconfig.debug
-@@ -41,7 +41,7 @@ config DISABLE_VHPT
+diff --git a/drivers/acpi/acpica/acglobal.h b/drivers/acpi/acpica/acglobal.h
+index 750fa824d42c4..a04bb91d56ca6 100644
+--- a/drivers/acpi/acpica/acglobal.h
++++ b/drivers/acpi/acpica/acglobal.h
+@@ -259,6 +259,8 @@ extern struct acpi_bit_register_info
  
- config IA64_DEBUG_CMPXCHG
- 	bool "Turn on compare-and-exchange bug checking (slow!)"
--	depends on DEBUG_KERNEL
-+	depends on DEBUG_KERNEL && PRINTK
- 	help
- 	  Selecting this option turns on bug checking for the IA-64
- 	  compare-and-exchange instructions.  This is slow!  Itaniums
+ ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a);
+ ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b);
++ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a_s0);
++ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b_s0);
+ 
+ /*****************************************************************************
+  *
+diff --git a/drivers/acpi/acpica/hwesleep.c b/drivers/acpi/acpica/hwesleep.c
+index 3f2fb4b31fdc0..7e2f9b0e66eea 100644
+--- a/drivers/acpi/acpica/hwesleep.c
++++ b/drivers/acpi/acpica/hwesleep.c
+@@ -184,17 +184,13 @@ acpi_status acpi_hw_extended_sleep(u8 sleep_state)
+ 
+ acpi_status acpi_hw_extended_wake_prep(u8 sleep_state)
+ {
+-	acpi_status status;
+ 	u8 sleep_type_value;
+ 
+ 	ACPI_FUNCTION_TRACE(hw_extended_wake_prep);
+ 
+-	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
+-					  &acpi_gbl_sleep_type_a,
+-					  &acpi_gbl_sleep_type_b);
+-	if (ACPI_SUCCESS(status)) {
++	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
+ 		sleep_type_value =
+-		    ((acpi_gbl_sleep_type_a << ACPI_X_SLEEP_TYPE_POSITION) &
++		    ((acpi_gbl_sleep_type_a_s0 << ACPI_X_SLEEP_TYPE_POSITION) &
+ 		     ACPI_X_SLEEP_TYPE_MASK);
+ 
+ 		(void)acpi_write((u64)(sleep_type_value | ACPI_X_SLEEP_ENABLE),
+diff --git a/drivers/acpi/acpica/hwsleep.c b/drivers/acpi/acpica/hwsleep.c
+index d00c9810845b2..ddf198de87295 100644
+--- a/drivers/acpi/acpica/hwsleep.c
++++ b/drivers/acpi/acpica/hwsleep.c
+@@ -217,7 +217,7 @@ acpi_status acpi_hw_legacy_sleep(u8 sleep_state)
+ 
+ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
+ {
+-	acpi_status status;
++	acpi_status status = AE_OK;
+ 	struct acpi_bit_register_info *sleep_type_reg_info;
+ 	struct acpi_bit_register_info *sleep_enable_reg_info;
+ 	u32 pm1a_control;
+@@ -230,10 +230,7 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
+ 	 * This is unclear from the ACPI Spec, but it is required
+ 	 * by some machines.
+ 	 */
+-	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
+-					  &acpi_gbl_sleep_type_a,
+-					  &acpi_gbl_sleep_type_b);
+-	if (ACPI_SUCCESS(status)) {
++	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
+ 		sleep_type_reg_info =
+ 		    acpi_hw_get_bit_register_info(ACPI_BITREG_SLEEP_TYPE);
+ 		sleep_enable_reg_info =
+@@ -254,9 +251,9 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
+ 
+ 			/* Insert the SLP_TYP bits */
+ 
+-			pm1a_control |= (acpi_gbl_sleep_type_a <<
++			pm1a_control |= (acpi_gbl_sleep_type_a_s0 <<
+ 					 sleep_type_reg_info->bit_position);
+-			pm1b_control |= (acpi_gbl_sleep_type_b <<
++			pm1b_control |= (acpi_gbl_sleep_type_b_s0 <<
+ 					 sleep_type_reg_info->bit_position);
+ 
+ 			/* Write the control registers and ignore any errors */
+diff --git a/drivers/acpi/acpica/hwxfsleep.c b/drivers/acpi/acpica/hwxfsleep.c
+index f76e0eab32b8e..53f9f4c359579 100644
+--- a/drivers/acpi/acpica/hwxfsleep.c
++++ b/drivers/acpi/acpica/hwxfsleep.c
+@@ -315,6 +315,13 @@ acpi_status acpi_enter_sleep_state_prep(u8 sleep_state)
+ 		return_ACPI_STATUS(status);
+ 	}
+ 
++	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
++					  &acpi_gbl_sleep_type_a_s0,
++					  &acpi_gbl_sleep_type_b_s0);
++	if (ACPI_FAILURE(status)) {
++		acpi_gbl_sleep_type_a_s0 = ACPI_SLEEP_TYPE_INVALID;
++	}
++
+ 	/* Execute the _PTS method (Prepare To Sleep) */
+ 
+ 	arg_list.count = 1;
 -- 
 2.33.0
 
