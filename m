@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F6144B579
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:18:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B92C044B57E
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:18:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343551AbhKIWVC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:21:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41188 "EHLO mail.kernel.org"
+        id S1343583AbhKIWVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:21:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245561AbhKIWUd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245422AbhKIWUd (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:20:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C119461248;
-        Tue,  9 Nov 2021 22:17:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 226B461211;
+        Tue,  9 Nov 2021 22:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496247;
-        bh=4CRT7RCXMKiOsgu3ogcz06kWJVI2Tfh4ozMN2bCKil8=;
+        s=k20201202; t=1636496248;
+        bh=wUtuqPafkjHuIBSa8o+gQLFE+TdhXk32F5NW/Iv+NVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mNNIslf5Ttp1EMjEK+8uiSQE71j9avEujesk+b+vYb1Qy/Yf76Iz9Zk20dN1kA+Ss
-         TfNwnL7Xyb3rOA2XN1NFMzJ+Z1B2itTUE8NO+xwFW4Y4zizoW4+nYIDC9ezIfHL4dn
-         Ah60Yjp0wwcnf4o2orHnVD/AJAMehetFAwJyLuYXA2YgHRnflOFY3d1zzUybO7WnDB
-         2iEoSULcuOtB8FqfnTk/hoJ1h88M5/bzq1n7SdcmCgg/wtgb/bn1brlGKQZQDCKWJ2
-         cPjyUS7qqbQRO5ib7Y4KXyMm6nHRS2IZLi4Rj+M982Xe+4QfJcWjkMXiEvoBdzTSai
-         kQ6+TfyKpipKg==
+        b=Wb307X7E2XAs67F+wUJUgSQaF4wjqLP9tEb2vExBmqX61QduUfYHel+vYmGfZj3P/
+         EGjKnLDS0Hq1S2lsNvlkHmkIcL0bV1yZlQJmSBeF0bHJ/IyRBwd5p57QsNNeJy58Uj
+         ZTYilD6oPNmnY7WNthD6egfi+Z2KzGI+VLyFEYQA1zjTP+zFLEY28ExO50tAz/3OdP
+         PDUiMUB39B9ddd3l2Bv9C1RAxun0/Xdu3opdd3YXWQ0LkPZ53UzQNPuHA7Fmyqt10K
+         ghgP2A7/ghJiHWaAfcMjBk5NZc2FllL3hJT7tp71EzufCxktjjxGnmG3E8DhEIkxIE
+         73g9jQt+6WvWw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+Cc:     Sven Peter <sven@svenpeter.dev>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, balbi@ti.com,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 21/82] usb: musb: tusb6010: check return value after calling platform_get_resource()
-Date:   Tue,  9 Nov 2021 17:15:39 -0500
-Message-Id: <20211109221641.1233217-21-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 22/82] usb: typec: tipd: Remove WARN_ON in tps6598x_block_read
+Date:   Tue,  9 Nov 2021 17:15:40 -0500
+Message-Id: <20211109221641.1233217-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
@@ -43,37 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit 14651496a3de6807a17c310f63c894ea0c5d858e ]
+[ Upstream commit b7a0a63f3fed57d413bb857de164ea9c3984bc4e ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+Calling tps6598x_block_read with a higher than allowed len can be
+handled by just returning an error. There's no need to crash systems
+with panic-on-warn enabled.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210915034925.2399823-1-yangyingliang@huawei.com
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20210914140235.65955-3-sven@svenpeter.dev
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/tusb6010.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/typec/tipd/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/musb/tusb6010.c b/drivers/usb/musb/tusb6010.c
-index c968ecda42aa8..7ed4cc348d993 100644
---- a/drivers/usb/musb/tusb6010.c
-+++ b/drivers/usb/musb/tusb6010.c
-@@ -1104,6 +1104,11 @@ static int tusb_musb_init(struct musb *musb)
+diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
+index ea4cc0a6e40cc..97f50f301f13b 100644
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -117,7 +117,7 @@ tps6598x_block_read(struct tps6598x *tps, u8 reg, void *val, size_t len)
+ 	u8 data[TPS_MAX_LEN + 1];
+ 	int ret;
  
- 	/* dma address for async dma */
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!mem) {
-+		pr_debug("no async dma resource?\n");
-+		ret = -ENODEV;
-+		goto done;
-+	}
- 	musb->async = mem->start;
+-	if (WARN_ON(len + 1 > sizeof(data)))
++	if (len + 1 > sizeof(data))
+ 		return -EINVAL;
  
- 	/* dma address for sync dma */
+ 	if (!tps->i2c_protocol)
 -- 
 2.33.0
 
