@@ -2,134 +2,468 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F5A644AFDC
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 15:58:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE9AD44B028
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 16:15:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234226AbhKIPBE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 10:01:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60986 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234250AbhKIPA4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 10:00:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5561F61211;
-        Tue,  9 Nov 2021 14:58:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636469890;
-        bh=+9UT4JjEfvmDWmb+FT+mdfKzE0MepG7Qp1SoI0567aU=;
-        h=In-Reply-To:References:Date:From:To:Cc:Subject:From;
-        b=tES8zGCsmzJ78bp2AWpu3CbxhGHSYr+TrJEUdu/i/tstneuZIWFWNEHn0zduEzbSr
-         cSj2Xc5xlNuC9prdBemJI63dbh+TdKLce8FGfubFxkx3cTR5yLDu5iQjTHYurbqZ7r
-         Nnvr3gT5Wonwi8vC8gjoeI13e67rydusl0dKmTZvKbM8wtiMcwLXPUDHNwL3Baugfk
-         AZExFuFAppcrPuRVSb8D9e6f4S7p5XnQXeZUQFQjiB/5at3+2iRyePPL1ktO8TQCmO
-         bKs0St3v3cDm3lQYkcIRIwGvA2GyLM8Ftiji1+gXIkHGXvMIptKMW3Fb/vKxBz66x4
-         VSpSRBvQuNGCA==
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailauth.nyi.internal (Postfix) with ESMTP id 3D00D27C0054;
-        Tue,  9 Nov 2021 09:58:08 -0500 (EST)
-Received: from imap48 ([10.202.2.98])
-  by compute4.internal (MEProxy); Tue, 09 Nov 2021 09:58:08 -0500
-X-ME-Sender: <xms:f4yKYUXKr4-CT8beC1A5iT6grcp995HCA47W30aSNpR62p8ERrUx_w>
-    <xme:f4yKYYiepNPxP1ASrcrrpr1VvfbSlyN7seq0cR1dPR5kXzHFCJh2ribvqCjqap0RD
-    qmZtA6tZ7crxELWvfo>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrudeggdeilecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfgjfhffhffvufgtsehttdertderredtnecuhfhrohhmpedftehnugih
-    ucfnuhhtohhmihhrshhkihdfuceolhhuthhosehkvghrnhgvlhdrohhrgheqnecuggftrf
-    grthhtvghrnheptdfhheettddvtedvtedugfeuuefhtddugedvleevleefvdetleffgfef
-    vdekgeefnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    eprghnugihodhmvghsmhhtphgruhhthhhpvghrshhonhgrlhhithihqdduudeiudekheei
-    fedvqddvieefudeiiedtkedqlhhuthhopeepkhgvrhhnvghlrdhorhhgsehlihhnuhigrd
-    hluhhtohdruhhs
-X-ME-Proxy: <xmx:f4yKYVSlCrrEAdVakqANq050XSTUaKW3gOiCZ2T5xhCkWhlVIm9WKA>
-    <xmx:f4yKYbHJLMpqr9AxNJh1-vIZp9-Pb6J8uXsuCNKvYLSYTd8doVLcwg>
-    <xmx:f4yKYdnvcc6uundS8jT1bKtoOgeQvlLPNaENjuu4DqYxjeqFsuNJ9A>
-    <xmx:gIyKYaTAIK2SgkeWwfD-3HB9hv9Zp6bdUDiE7T0tJ5KXHNkFJvsY6A>
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id C523321E0429; Tue,  9 Nov 2021 09:58:07 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.5.0-alpha0-1371-g2296cc3491-fm-20211109.003-g2296cc34
-Mime-Version: 1.0
-Message-Id: <649f4de7-3c91-4974-9af7-d981a2bf6224@www.fastmail.com>
-In-Reply-To: <CADyq12whSxPdJhf4qg_w-7YXgEKWx4SDHByNBNZbfWDOeEY-8w@mail.gmail.com>
-References: <CADyq12yY25-LS8cV5LY-C=6_0HLPVZbSJCKtCDJm+wyHQSeVTg@mail.gmail.com>
- <cb682c8a-255e-28e5-d4e0-0981c2ab6ffd@intel.com>
- <85925a39-37c3-a79a-a084-51f2f291ca9c@intel.com>
- <CADyq12y0o=Y1MOMe7pCghy2ZEV2Y0Dd7jm5e=3o2N4-i088MWw@mail.gmail.com>
- <472b8dbf-2c55-98c9-39ad-2db32a649a20@intel.com>
- <CADyq12whSxPdJhf4qg_w-7YXgEKWx4SDHByNBNZbfWDOeEY-8w@mail.gmail.com>
-Date:   Tue, 09 Nov 2021 06:57:47 -0800
-From:   "Andy Lutomirski" <luto@kernel.org>
-To:     "Brian Geffon" <bgeffon@google.com>,
-        "Dave Hansen" <dave.hansen@intel.com>
-Cc:     "Thomas Gleixner" <tglx@linutronix.de>,
-        "Guenter Roeck" <groeck@google.com>,
-        "Borislav Petkov" <bp@suse.de>, stable@vger.kernel.org,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: XSAVE / RDPKRU on Intel 11th Gen Core CPUs
-Content-Type: text/plain
+        id S237260AbhKIPRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 10:17:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39086 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237685AbhKIPRw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 10:17:52 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47169C061764
+        for <stable@vger.kernel.org>; Tue,  9 Nov 2021 07:15:06 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id d3so33570816wrh.8
+        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 07:15:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=colorfullife-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=mhzOH7xfydKZMvLNqtDkjnShqw3ekGpdBMmJ9w0BzNM=;
+        b=iObIHSKHnLR0BtaLc8hcR0i/dgDWgk5VZbjtIYdAeIfSXi9iyKcRBOsAygCftiipik
+         n1ifcmQ6qTce4rUrnkX0dZtr2LopfZh3BE9LavAxJmfdpfWGdeoRA7IVvYhAajeiLFuh
+         VpE7/HxX/OUXoRsPE4iompoKNR0aGLjxauZlYCx4p+0KNnhNVmG87cO6tu5GRF+zQWA1
+         PN5DsESrIKPWz6Cf/t1hCHDvMPB3Z7mvT8aZSjJeM3vqc6EBz05SfBRqdoBzXM548Tea
+         x9SGtwDbcEaGzdiZ7zpX7eSYqB9CuO3iIQnpWR+g4Qr9OlT5LKSKD9fDJn5sdMhPZulG
+         /2uA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=mhzOH7xfydKZMvLNqtDkjnShqw3ekGpdBMmJ9w0BzNM=;
+        b=Frh71RUskljUDpPCsOC6AU/PXmuT2vFJ5JH2iXc9Tc6iCivYVFeQ21UIouiVlKnAUt
+         3gzJqb8IU4U+PF7iuTrR54eKAV3zjVZf50H9m63iy2wwhPI6JLfqI8jIt6PBTepHSlNQ
+         gHSLJAwzzWrxC98a53ASdrMD8OT7t6oHsWckDK3UtkNv9avUmDbZx/hz8syjXVWnOA8A
+         3xP50Tb4aqttFh8GWYTO/dTZDlQG7C/vR9WVVFgfIz1LE5LJ8NHw7dI27WdwtgVhlR8Z
+         zZ2BZ5WGY3Hsd6WhZmbo7gCaGCRzE6ItKSqGpRbANzo0Lenb5bxALREl2yGaEq0uCVGd
+         4mnQ==
+X-Gm-Message-State: AOAM533n4sUQFO83Fm5GJ0W7r1gi68c2Bv8LIkrLdK2vJ5UVVBfy4m7S
+        for79n+EzXHkeuPv9Bc0FknRVA==
+X-Google-Smtp-Source: ABdhPJzmGHtf2chaZ2RP1MWnaXH7jz+x8hsA62dxBDkowv1q2Qdciw/A4d+fUGE/Ish7GKCkcrG30Q==
+X-Received: by 2002:a5d:49c3:: with SMTP id t3mr10299412wrs.207.1636470904781;
+        Tue, 09 Nov 2021 07:15:04 -0800 (PST)
+Received: from localhost.localdomain (p200300d99704020088d2dfbbd7d5e2dd.dip0.t-ipconnect.de. [2003:d9:9704:200:88d2:dfbb:d7d5:e2dd])
+        by smtp.googlemail.com with ESMTPSA id e18sm20008840wrs.48.2021.11.09.07.15.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Nov 2021 07:15:04 -0800 (PST)
+From:   Manfred Spraul <manfred@colorfullife.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     "Eric W . Biederman" <ebiederm@xmission.com>,
+        Davidlohr Bueso <dave@stgolabs.net>, 1vier1@web.de,
+        Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Alexander Mikhalitsyn <alexander@mihalicyn.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] shm: extend forced shm destroy to support objects from several IPC nses
+Date:   Tue,  9 Nov 2021 16:15:01 +0100
+Message-Id: <20211109151501.4921-1-manfred@colorfullife.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20211108190409.cq401zwTV%akpm@linux-foundation.org>
+References: <20211108190409.cq401zwTV%akpm@linux-foundation.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
 
-On Tue, Nov 9, 2021, at 5:43 AM, Brian Geffon wrote:
-> Hi Dave,
->
-> On Tue, Nov 9, 2021 at 1:49 AM Dave Hansen <dave.hansen@intel.com> wrote:
->> Well, gosh, it's making it back to the software init value.  If you do:
->>
->>         echo 0x15555554 > /sys/kernel/debug/x86/init_pkru
->>
->> do you end up with 0x15555554 as the value?
->
-> What's interesting is that writing to init_pkru fails with -EINVAL for me,
-> and I've traced it down to get_xsave_addr() returning NULL on the following
-> check:
->
->   /*
->   * This assumes the last 'xsave*' instruction to
->   * have requested that 'xfeature_nr' be saved.
->   * If it did not, we might be seeing and old value
->   * of the field in the buffer.
->   *
->   * This can happen because the last 'xsave' did not
->   * request that this feature be saved (unlikely)
->   * or because the "init optimization" caused it
->   * to not be saved.
->   */
->   if (!(xsave->header.xfeatures & BIT_ULL(xfeature_nr)))
->      return NULL;
+Currently, exit_shm function not designed to work properly when
+task->sysvshm.shm_clist holds shm objects from different IPC namespaces.
 
-Here's an excerpt from an old email that I, perhaps unwisely, sent to Dave but not to a public list:
+This is a real pain when sysctl kernel.shm_rmid_forced = 1, because
+it leads to use-after-free (reproducer exists).
 
-static inline void write_pkru(u32 pkru)
-{
-        struct pkru_state *pk;
+That particular patch is attempt to fix the problem by extending exit_shm
+mechanism to handle shm's destroy from several IPC ns'es.
 
-        if (!boot_cpu_has(X86_FEATURE_OSPKE))
-                return;
+To achieve that we do several things:
+1. add namespace (non-refcounted) pointer to the struct shmid_kernel
+2. during new shm object creation (newseg()/shmget syscall) we initialize
+this pointer by current task IPC ns
+3. exit_shm() fully reworked such that it traverses over all
+shp's in task->sysvshm.shm_clist and gets IPC namespace not
+from current task as it was before but from shp's object itself, then
+call shm_destroy(shp, ns).
 
-        pk = get_xsave_addr(&current->thread.fpu.state.xsave,
-XFEATURE_PKRU);
+Note. We need to be really careful here, because as it was said before
+(1), our pointer to IPC ns non-refcnt'ed. To be on the safe side we using
+special helper get_ipc_ns_not_zero() which allows to get IPC ns refcounter
+only if IPC ns not in the "state of destruction".
 
-        /*
-         * The PKRU value in xstate needs to be in sync with the value
-that is
-         * written to the CPU. The FPU restore on return to userland would
-         * otherwise load the previous value again.
-         */
-        fpregs_lock();
-        if (pk)
-                pk->pkru = pkru;
+Q/A
 
-^^^
-else we just write to the PKRU register but leave XINUSE[PKRU] clear on
-return to usermode?  That seems... unwise.
+Q: Why we can access shp->ns memory using non-refcounted pointer?
+A: Because shp object lifetime is always shorther
+than IPC namespace lifetime, so, if we get shp object from the
+task->sysvshm.shm_clist while holding task_lock(task) nobody can
+steal our namespace.
 
-        __write_pkru(pkru);
-        fpregs_unlock();
-}
+Q: Does this patch change semantics of unshare/setns/clone syscalls?
+A: Not. It's just fixes non-covered case when process may leave
+IPC namespace without getting task->sysvshm.shm_clist list cleaned up.
 
-I bet you're hitting exactly this bug.  The fix ended up being a whole series of patches, but the gist of it is that the write_pkru() slow path needs to set the xfeature bit in the xsave buffer and then do the write.  It should be possible to make a little patch to do just this in a couple lines of code.
+Fixes: ab602f79915 ("shm: make exit_shm work proportional to task activity")
+
+Link: https://lkml.kernel.org/r/20211027224348.611025-3-alexander.mikhalitsyn@virtuozzo.com
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Andrei Vagin <avagin@gmail.com>
+Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+Cc: Vasily Averin <vvs@virtuozzo.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: Alexander Mikhalitsyn <alexander@mihalicyn.com>
+Cc: stable@vger.kernel.org
+Co-developed-by: Manfred Spraul <manfred@colorfullife.com>
+Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
+Signed-off-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+- comment corrections, shm_clist_lock was replaced by task_lock()
+- if/else exchanged as recommended by Eric
+- bugfix for shp refcounting. Actually, this probably the real
+  use-after-free bug, the current code contains a use-after-free even
+  without using namespaces.
+- add rcu_read_lock() into shm_clist_rm(), to protect against
+  a use-after-free for shm_creator->alloc_lock.
+- bugfix for review finding from Eric: ns could disappear as well,
+  the list_del_init() must be done last.
+Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
+---
+ include/linux/ipc_namespace.h |  15 +++
+ include/linux/sched/task.h    |   2 +-
+ ipc/shm.c                     | 189 +++++++++++++++++++++++++---------
+ 3 files changed, 159 insertions(+), 47 deletions(-)
+
+diff --git a/include/linux/ipc_namespace.h b/include/linux/ipc_namespace.h
+index 05e22770af51..b75395ec8d52 100644
+--- a/include/linux/ipc_namespace.h
++++ b/include/linux/ipc_namespace.h
+@@ -131,6 +131,16 @@ static inline struct ipc_namespace *get_ipc_ns(struct ipc_namespace *ns)
+ 	return ns;
+ }
+ 
++static inline struct ipc_namespace *get_ipc_ns_not_zero(struct ipc_namespace *ns)
++{
++	if (ns) {
++		if (refcount_inc_not_zero(&ns->ns.count))
++			return ns;
++	}
++
++	return NULL;
++}
++
+ extern void put_ipc_ns(struct ipc_namespace *ns);
+ #else
+ static inline struct ipc_namespace *copy_ipcs(unsigned long flags,
+@@ -147,6 +157,11 @@ static inline struct ipc_namespace *get_ipc_ns(struct ipc_namespace *ns)
+ 	return ns;
+ }
+ 
++static inline struct ipc_namespace *get_ipc_ns_not_zero(struct ipc_namespace *ns)
++{
++	return ns;
++}
++
+ static inline void put_ipc_ns(struct ipc_namespace *ns)
+ {
+ }
+diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
+index ba88a6987400..058d7f371e25 100644
+--- a/include/linux/sched/task.h
++++ b/include/linux/sched/task.h
+@@ -158,7 +158,7 @@ static inline struct vm_struct *task_stack_vm_area(const struct task_struct *t)
+  * Protects ->fs, ->files, ->mm, ->group_info, ->comm, keyring
+  * subscriptions and synchronises with wait4().  Also used in procfs.  Also
+  * pins the final release of task.io_context.  Also protects ->cpuset and
+- * ->cgroup.subsys[]. And ->vfork_done.
++ * ->cgroup.subsys[]. And ->vfork_done. And ->sysvshm.shm_clist.
+  *
+  * Nests both inside and outside of read_lock(&tasklist_lock).
+  * It must not be nested with write_lock_irq(&tasklist_lock),
+diff --git a/ipc/shm.c b/ipc/shm.c
+index ab749be6d8b7..048eb183b24b 100644
+--- a/ipc/shm.c
++++ b/ipc/shm.c
+@@ -62,9 +62,18 @@ struct shmid_kernel /* private to the kernel */
+ 	struct pid		*shm_lprid;
+ 	struct ucounts		*mlock_ucounts;
+ 
+-	/* The task created the shm object.  NULL if the task is dead. */
++	/*
++	 * The task created the shm object, for
++	 * task_lock(shp->shm_creator)
++	 */
+ 	struct task_struct	*shm_creator;
+-	struct list_head	shm_clist;	/* list by creator */
++
++	/*
++	 * List by creator. task_lock(->shm_creator) required for read/write.
++	 * If list_empty(), then the creator is dead already.
++	 */
++	struct list_head	shm_clist;
++	struct ipc_namespace	*ns;
+ } __randomize_layout;
+ 
+ /* shm_mode upper byte flags */
+@@ -115,6 +124,7 @@ static void do_shm_rmid(struct ipc_namespace *ns, struct kern_ipc_perm *ipcp)
+ 	struct shmid_kernel *shp;
+ 
+ 	shp = container_of(ipcp, struct shmid_kernel, shm_perm);
++	WARN_ON(ns != shp->ns);
+ 
+ 	if (shp->shm_nattch) {
+ 		shp->shm_perm.mode |= SHM_DEST;
+@@ -225,10 +235,43 @@ static void shm_rcu_free(struct rcu_head *head)
+ 	kfree(shp);
+ }
+ 
+-static inline void shm_rmid(struct ipc_namespace *ns, struct shmid_kernel *s)
++/*
++ * It has to be called with shp locked.
++ * It must be called before ipc_rmid()
++ */
++static inline void shm_clist_rm(struct shmid_kernel *shp)
+ {
+-	list_del(&s->shm_clist);
+-	ipc_rmid(&shm_ids(ns), &s->shm_perm);
++	struct task_struct *creator;
++
++	/* ensure that shm_creator does not disappear */
++	rcu_read_lock();
++
++	/*
++	 * A concurrent exit_shm may do a list_del_init() as well.
++	 * Just do nothing if exit_shm already did the work
++	 */
++	if (!list_empty(&shp->shm_clist)) {
++		/*
++		 * shp->shm_creator is guaranteed to be valid *only*
++		 * if shp->shm_clist is not empty.
++		 */
++		creator = shp->shm_creator;
++
++		task_lock(creator);
++		/*
++		 * list_del_init() is a nop if the entry was already removed
++		 * from the list.
++		 */
++		list_del_init(&shp->shm_clist);
++		task_unlock(creator);
++	}
++	rcu_read_unlock();
++}
++
++static inline void shm_rmid(struct shmid_kernel *s)
++{
++	shm_clist_rm(s);
++	ipc_rmid(&shm_ids(s->ns), &s->shm_perm);
+ }
+ 
+ 
+@@ -283,7 +326,7 @@ static void shm_destroy(struct ipc_namespace *ns, struct shmid_kernel *shp)
+ 	shm_file = shp->shm_file;
+ 	shp->shm_file = NULL;
+ 	ns->shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
+-	shm_rmid(ns, shp);
++	shm_rmid(shp);
+ 	shm_unlock(shp);
+ 	if (!is_file_hugepages(shm_file))
+ 		shmem_lock(shm_file, 0, shp->mlock_ucounts);
+@@ -306,10 +349,10 @@ static void shm_destroy(struct ipc_namespace *ns, struct shmid_kernel *shp)
+  *
+  * 2) sysctl kernel.shm_rmid_forced is set to 1.
+  */
+-static bool shm_may_destroy(struct ipc_namespace *ns, struct shmid_kernel *shp)
++static bool shm_may_destroy(struct shmid_kernel *shp)
+ {
+ 	return (shp->shm_nattch == 0) &&
+-	       (ns->shm_rmid_forced ||
++	       (shp->ns->shm_rmid_forced ||
+ 		(shp->shm_perm.mode & SHM_DEST));
+ }
+ 
+@@ -340,7 +383,7 @@ static void shm_close(struct vm_area_struct *vma)
+ 	ipc_update_pid(&shp->shm_lprid, task_tgid(current));
+ 	shp->shm_dtim = ktime_get_real_seconds();
+ 	shp->shm_nattch--;
+-	if (shm_may_destroy(ns, shp))
++	if (shm_may_destroy(shp))
+ 		shm_destroy(ns, shp);
+ 	else
+ 		shm_unlock(shp);
+@@ -361,10 +404,10 @@ static int shm_try_destroy_orphaned(int id, void *p, void *data)
+ 	 *
+ 	 * As shp->* are changed under rwsem, it's safe to skip shp locking.
+ 	 */
+-	if (shp->shm_creator != NULL)
++	if (!list_empty(&shp->shm_clist))
+ 		return 0;
+ 
+-	if (shm_may_destroy(ns, shp)) {
++	if (shm_may_destroy(shp)) {
+ 		shm_lock_by_ptr(shp);
+ 		shm_destroy(ns, shp);
+ 	}
+@@ -382,48 +425,97 @@ void shm_destroy_orphaned(struct ipc_namespace *ns)
+ /* Locking assumes this will only be called with task == current */
+ void exit_shm(struct task_struct *task)
+ {
+-	struct ipc_namespace *ns = task->nsproxy->ipc_ns;
+-	struct shmid_kernel *shp, *n;
++	for (;;) {
++		struct shmid_kernel *shp;
++		struct ipc_namespace *ns;
+ 
+-	if (list_empty(&task->sysvshm.shm_clist))
+-		return;
++		task_lock(task);
++
++		if (list_empty(&task->sysvshm.shm_clist)) {
++			task_unlock(task);
++			break;
++		}
++
++		shp = list_first_entry(&task->sysvshm.shm_clist, struct shmid_kernel,
++				shm_clist);
+ 
+-	/*
+-	 * If kernel.shm_rmid_forced is not set then only keep track of
+-	 * which shmids are orphaned, so that a later set of the sysctl
+-	 * can clean them up.
+-	 */
+-	if (!ns->shm_rmid_forced) {
+-		down_read(&shm_ids(ns).rwsem);
+-		list_for_each_entry(shp, &task->sysvshm.shm_clist, shm_clist)
+-			shp->shm_creator = NULL;
+ 		/*
+-		 * Only under read lock but we are only called on current
+-		 * so no entry on the list will be shared.
++		 * 1) Get pointer to the ipc namespace. It is worth to say
++		 * that this pointer is guaranteed to be valid because
++		 * shp lifetime is always shorter than namespace lifetime
++		 * in which shp lives.
++		 * We taken task_lock it means that shp won't be freed.
+ 		 */
+-		list_del(&task->sysvshm.shm_clist);
+-		up_read(&shm_ids(ns).rwsem);
+-		return;
+-	}
++		ns = shp->ns;
+ 
+-	/*
+-	 * Destroy all already created segments, that were not yet mapped,
+-	 * and mark any mapped as orphan to cover the sysctl toggling.
+-	 * Destroy is skipped if shm_may_destroy() returns false.
+-	 */
+-	down_write(&shm_ids(ns).rwsem);
+-	list_for_each_entry_safe(shp, n, &task->sysvshm.shm_clist, shm_clist) {
+-		shp->shm_creator = NULL;
++		/*
++		 * 2) If kernel.shm_rmid_forced is not set then only keep track of
++		 * which shmids are orphaned, so that a later set of the sysctl
++		 * can clean them up.
++		 */
++		if (!ns->shm_rmid_forced)
++			goto unlink_continue;
+ 
+-		if (shm_may_destroy(ns, shp)) {
+-			shm_lock_by_ptr(shp);
+-			shm_destroy(ns, shp);
++		/*
++		 * 3) get a reference to the namespace.
++		 *    The refcount could be already 0. If it is 0, then
++		 *    the shm objects will be free by free_ipc_work().
++		 */
++		ns = get_ipc_ns_not_zero(ns);
++		if (!ns) {
++unlink_continue:
++			list_del_init(&shp->shm_clist);
++			task_unlock(task);
++			continue;
+ 		}
+-	}
+ 
+-	/* Remove the list head from any segments still attached. */
+-	list_del(&task->sysvshm.shm_clist);
+-	up_write(&shm_ids(ns).rwsem);
++		/*
++		 * 4) get a reference to shp.
++		 *   This cannot fail: shm_clist_rm() is called before
++		 *   ipc_rmid(), thus the refcount cannot be 0.
++		 */
++		WARN_ON(!ipc_rcu_getref(&shp->shm_perm));
++
++		/*
++		 * 5) unlink the shm segment from the list of segments
++		 *    created by current.
++		 *    This must be done last. After unlinking,
++		 *    only the refcounts obtained above prevent IPC_RMID
++		 *    from destroying the segment or the namespace.
++		 */
++		list_del_init(&shp->shm_clist);
++
++		task_unlock(task);
++
++		/*
++		 * 6) we have all references
++		 *    Thus lock & if needed destroy shp.
++		 */
++		down_write(&shm_ids(ns).rwsem);
++		shm_lock_by_ptr(shp);
++		/*
++		 * rcu_read_lock was implicitly taken in shm_lock_by_ptr, it's
++		 * safe to call ipc_rcu_putref here
++		 */
++		ipc_rcu_putref(&shp->shm_perm, shm_rcu_free);
++
++		if (ipc_valid_object(&shp->shm_perm)) {
++			if (shm_may_destroy(shp))
++				shm_destroy(ns, shp);
++			else
++				shm_unlock(shp);
++		} else {
++			/*
++			 * Someone else deleted the shp from namespace
++			 * idr/kht while we have waited.
++			 * Just unlock and continue.
++			 */
++			shm_unlock(shp);
++		}
++
++		up_write(&shm_ids(ns).rwsem);
++		put_ipc_ns(ns); /* paired with get_ipc_ns_not_zero */
++	}
+ }
+ 
+ static vm_fault_t shm_fault(struct vm_fault *vmf)
+@@ -680,7 +772,11 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
+ 	if (error < 0)
+ 		goto no_id;
+ 
++	shp->ns = ns;
++
++	task_lock(current);
+ 	list_add(&shp->shm_clist, &current->sysvshm.shm_clist);
++	task_unlock(current);
+ 
+ 	/*
+ 	 * shmid gets reported as "inode#" in /proc/pid/maps.
+@@ -1573,7 +1669,8 @@ long do_shmat(int shmid, char __user *shmaddr, int shmflg,
+ 	down_write(&shm_ids(ns).rwsem);
+ 	shp = shm_lock(ns, shmid);
+ 	shp->shm_nattch--;
+-	if (shm_may_destroy(ns, shp))
++
++	if (shm_may_destroy(shp))
+ 		shm_destroy(ns, shp);
+ 	else
+ 		shm_unlock(shp);
+-- 
+2.31.1
+
