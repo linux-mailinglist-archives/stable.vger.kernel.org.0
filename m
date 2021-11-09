@@ -2,117 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE02344B0EB
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 17:13:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB1C044B108
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 17:19:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238599AbhKIQQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 11:16:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52418 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238523AbhKIQQX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 11:16:23 -0500
-Received: from mail-ua1-x92b.google.com (mail-ua1-x92b.google.com [IPv6:2607:f8b0:4864:20::92b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BDE3C061764;
-        Tue,  9 Nov 2021 08:13:37 -0800 (PST)
-Received: by mail-ua1-x92b.google.com with SMTP id p2so550747uad.11;
-        Tue, 09 Nov 2021 08:13:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=tzUBCRI0ZEiUTjI4kQ5UxbfpHunrGMBYtyyXAY2lvGg=;
-        b=oQhkxKUY2gj5xInLINgKaVx+p/wLVFabBC7fYFCIDQx0W6JIYXvo0jwaHBTa8RYCNC
-         dI6AAummztsVAF4+SqaSi0Z6lLliTs/1h9SRyn8Ac3OgKkKfl571n67ZfFPvBqDfJkEM
-         uLZ2kp632JLI7bZIBgo514Hj14HaZL2r63V6zpsiStjuIGYcWrs9YigDprMwlPcrwH7s
-         mWl5RrJTA49BA8UYwG2TJ6KNE3rC5Cn/AKm+WzVuUv6fEtus64XtW9q3q2R9W91CIF+b
-         /gPgH/FS7BPA9hwCuKr88ZrMt7kGoLD0rWVWlLdhPf7xtFcbaoEbYnijSqhQVIdtNaq2
-         pGZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=tzUBCRI0ZEiUTjI4kQ5UxbfpHunrGMBYtyyXAY2lvGg=;
-        b=DZsE+xZXzCY1FAxltv6+hp1JJKXymeZkLxRXTLPmpGnoblD4/KxpPweL/Lr92MF991
-         JloPp35IzC25koe5EkwCMC21HScb/NUNTG86QrDTX4HiAlnBotI2W7gtoeWCpA1sxKwu
-         MdoudCnqczFdx/kZ15Y/0/jThOQZumdz0sZMQ8nJ4w6sE5xHrRJawmBCHC9w9WAsw0ns
-         1eqzDHUeUNEfvqPOxUBXsDlZKrWIZm/fqzriBnwfOEznAcESS7SYVgrKpxYt8hoq+cut
-         atIlfYHagNIhVuix0BDtDNHCoSWTp58LG1HBfhn7tglXJL0cOIt8+nkRzSBUeQSBlpJI
-         qmRA==
-X-Gm-Message-State: AOAM531WG1LiYC2xfafEoVLDZrpHoI2OjBflppoo8WZGu4SA3fluMay7
-        ZPgZxe70L++NdFcXMdsc/JNB1hdLKBKbjqWZRudtl8q7
-X-Google-Smtp-Source: ABdhPJxJsA1OpsfRaeJj56kz8UpgIOw/68ZpDLgwd/qYQplYu8lGvuXPpsAPLvn+NEIdMLzetIp3L1Wnf9Ymq+Q0LF0=
-X-Received: by 2002:ab0:3898:: with SMTP id z24mr11672656uav.26.1636474416650;
- Tue, 09 Nov 2021 08:13:36 -0800 (PST)
+        id S234903AbhKIQV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 11:21:59 -0500
+Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:40917 "EHLO
+        wnew4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234118AbhKIQV7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 11:21:59 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailnew.west.internal (Postfix) with ESMTP id 9E64C2B011F4;
+        Tue,  9 Nov 2021 11:19:11 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Tue, 09 Nov 2021 11:19:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=w6h/00s3fE/I2eJ4cKpEmxU04lj
+        siJquGF6dd7lneQM=; b=FBMjAAKXuPFhilEYET/+Al0Gg7ZcnoAxLtAryS2Itsm
+        PFnBEJpTtecEfHPvXBaqzHPDbKDlrdvxqgt/wbfwWizWwVYM9XB9jOOgg5PBOHpo
+        zOfK2W9oHMOTuZuzEiKJhfP3EbajoX92yS0i5279Q6CUxZiynZH7AxdrTetCP9aL
+        2ytYCPcZNOuZHf8LxSDvZNdZ/ksEteLg9u5tKlu6ZeuslFiBxO8ICM/U7L6Uu7CM
+        /lLpnSVQZdkogpxaDw9u80puLasJx+r/ES3DCSG2HPnyyg1BmsX6QIXhk+CuWPDd
+        HqOtHjx6Zz7Zie/RaE9QgJWeHgYokXLDqNXFw/iyluw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=w6h/00
+        s3fE/I2eJ4cKpEmxU04ljsiJquGF6dd7lneQM=; b=mpkPx3SFw0zVDkEJlXZwKO
+        gDL5KhA4qdM7T7Xbt2/ZMPjYLuStFjY6PEMYt4EEeRhLfnkhM/+qHLBecJPzHsHt
+        Wxwf27O+8B03nIL9WUQePMqMUdq8G+gwH0Y1zTJ2TTdnpVIiq7Bl54U1jn81USNV
+        FgsgeYL5iSpY4est1xYc7T5rF/YMXKzFTB1416UCkHKMYqRzjnic6Zirtcu4Smti
+        olVEIl7114DcQiIQR+B0+y9rAe3iysXdZlwx4vFyKjlIFedsSGsKbiH7PfqsV3BF
+        h4ptFI+SqfGd3rVhE8RxmoyMPNkzMd3qTrWR950w/y+rPOfKsRn/EljmIprP8RYA
+        ==
+X-ME-Sender: <xms:f5-KYQ7q9w4rzcFUCVeY7Glkm31rD7n4VPDJhwdbR-e248twPQCsEQ>
+    <xme:f5-KYR5YtUzhbDwIRVbvTCn64ZG2EW59wFxcH287LuHhPasxbpnnZ857GVXJL6m5O
+    OTt2ESOuCIfXw>
+X-ME-Received: <xmr:f5-KYffQac2dxKLQO2SjhycGFZ-V6Ojar3wmmnhLvYcd0zDMQaV9cVvShKYBw-IATmK8Ye01V8bi-lLFhELVlZqRoAmckJZ0>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrudeggdekiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhephfegleetue
+    eitdegiedutefhvdehtedtheejkeegkeejkeetkeefteevieffvdffnecuffhomhgrihhn
+    pehkvghrnhgvlhdrohhrghdpshhpihhnihgtshdrnhgvthenucevlhhushhtvghrufhiii
+    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:f5-KYVJPY6JZ4_-RSH1Fys662MdeywozgUODZzoUEi9W-yeN9YVPuw>
+    <xmx:f5-KYUI2aNWXkEoFI2srKz0o8OR8Z4_0JP-Wbg2rGGtbtyBRYExCqw>
+    <xmx:f5-KYWwC3T_IpR_AYcpJXfg9vOA4ivQ_o9ghdCi09QGd9I_6leRMrA>
+    <xmx:f5-KYV4Ymz-67qG8qVACmSyvqDCof_k_BWkMmNTR-cnjIt5PGqmPcj45xSY>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 9 Nov 2021 11:19:10 -0500 (EST)
+Date:   Tue, 9 Nov 2021 17:19:09 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Petr Mladek <pmladek@suse.com>
+Cc:     stable@vger.kernel.org, Greg Kroah-Hartman <gregkh@google.com>,
+        Yi Fan <yfa@google.com>, shreyas.joshi@biamp.com,
+        Joshua Levasseur <jlevasseur@google.com>, sashal@kernel.org,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>
+Subject: Re: [PATCH] printk/console: Allow to disable console output by using
+ console="" or console=null
+Message-ID: <YYqfffh2daWMA5Pa@kroah.com>
+References: <YYqZdkLBAC8mtRSC@alley>
 MIME-Version: 1.0
-References: <20211109100203.c61007433ed6.I1dade57aba7de9c4f48d68249adbae62636fd98c@changeid>
-In-Reply-To: <20211109100203.c61007433ed6.I1dade57aba7de9c4f48d68249adbae62636fd98c@changeid>
-From:   Sid Hayn <sidhayn@gmail.com>
-Date:   Tue, 9 Nov 2021 11:13:26 -0500
-Message-ID: <CAM0KTbAHBkpdfK2DxnhbxvaqQYHJEF-iY7Nnt1___PUHk8y0Lg@mail.gmail.com>
-Subject: Re: [PATCH] mac80211: fix radiotap header generation
-To:     Johannes Berg <johannes@sipsolutions.net>
-Cc:     linux-wireless@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Johannes Berg <johannes.berg@intel.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YYqZdkLBAC8mtRSC@alley>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please add my tested-by as well.  I tested with and without this patch
-on multiple chipsets and everything appears functional now.  Thanks
-for the quick fix!
-
-Tested-by: Sid Hayn <sidhayn@gmail.com>
-
-On Tue, Nov 9, 2021 at 4:02 AM Johannes Berg <johannes@sipsolutions.net> wrote:
->
-> From: Johannes Berg <johannes.berg@intel.com>
->
-> In commit 8c89f7b3d3f2 ("mac80211: Use flex-array for radiotap header
-> bitmap") we accidentally pointed the position to the wrong place, so
-> we overwrite a present bitmap, and thus cause all kinds of trouble.
->
-> To see the issue, note that the previous code read:
->
->   pos = (void *)(it_present + 1);
->
-> The requirement now is that we need to calculate pos via it_optional,
-> to not trigger the compiler hardening checks, as:
->
->   pos = (void *)&rthdr->it_optional[...];
->
-> Rewriting the original expression, we get (obviously, since that just
-> adds "+ x - x" terms):
->
->   pos = (void *)(it_present + 1 + rthdr->it_optional - rthdr->it_optional)
->
-> and moving the "+ rthdr->it_optional" outside to be used as an array:
->
->   pos = (void *)&rthdr->it_optional[it_present + 1 - rthdr->it_optional];
->
-> The original is off by one, fix it.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 8c89f7b3d3f2 ("mac80211: Use flex-array for radiotap header bitmap")
-> Reported-by: Sid Hayn <sidhayn@gmail.com>
-> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+On Tue, Nov 09, 2021 at 04:53:26PM +0100, Petr Mladek wrote:
+> The commit 48021f98130880dd74 ("printk: handle blank console arguments
+> passed in.") prevented crash caused by empty console= parameter value.
+> 
+> Unfortunately, this value is widely used on Chromebooks to disable
+> the console output. The above commit caused performance regression
+> because the messages were pushed on slow console even though nobody
+> was watching it.
+> 
+> Use ttynull driver explicitly for console="" and console=null
+> parameters. It has been created for exactly this purpose.
+> 
+> It causes that preferred_console is set. As a result, ttySX and ttyX
+> are not used as a fallback. And only ttynull console gets registered by
+> default.
+> 
+> It still allows to register other consoles either by additional console=
+> parameters or SPCR. It prevents regression because it worked this way even
+> before. Also it is a sane semantic. Preventing output on all consoles
+> should be done another way, for example, by introducing mute_console
+> parameter.
+> 
+> Link: https://lore.kernel.org/r/20201006025935.GA597@jagdpanzerIV.localdomain
+> Suggested-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Tested-by: Guenter Roeck <linux@roeck-us.net>
+> Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+> Signed-off-by: Petr Mladek <pmladek@suse.com>
+> Link: https://lore.kernel.org/r/20201111135450.11214-3-pmladek@suse.com
 > ---
->  net/mac80211/rx.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-> index fc5c608d02e2..3562730ea0f8 100644
-> --- a/net/mac80211/rx.c
-> +++ b/net/mac80211/rx.c
-> @@ -364,7 +364,7 @@ ieee80211_add_rx_radiotap_header(struct ieee80211_local *local,
->          * the compiler to think we have walked past the end of the
->          * struct member.
->          */
-> -       pos = (void *)&rthdr->it_optional[it_present - rthdr->it_optional];
-> +       pos = (void *)&rthdr->it_optional[it_present + 1 - rthdr->it_optional];
->
->         /* the order of the following fields is important */
->
-> --
-> 2.31.1
->
+> 
+> This is backport of the commit 3cffa06aeef7ece30f6b5ac0e
+> ("printk/console: Allow to disable console output by using
+> console="" or console=null") for stable release:
+> 
+>     + 4.4, 4.9, 4.14, 4.19, 5.4
+> 
+> Please, use the original upstream commit for stable release:
+> 
+>    + 5.10
+> 
+> It should fix the problem reported at
+> https://www.spinics.net/lists/stable/msg509616.html
+
+Thanks, now all queued up!
+
+greg k-h
