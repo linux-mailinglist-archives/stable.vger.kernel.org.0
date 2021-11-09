@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A414744B77E
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:32:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67E6944B78A
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344547AbhKIWfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:35:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55748 "EHLO mail.kernel.org"
+        id S1344734AbhKIWfc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:35:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345124AbhKIWd3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:33:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B123861AA8;
-        Tue,  9 Nov 2021 22:21:41 +0000 (UTC)
+        id S1345201AbhKIWdh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:33:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B812361AA3;
+        Tue,  9 Nov 2021 22:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496503;
-        bh=g+IK4tugMcqN/w2rXb8kU9s+3UO5IS4HgrSzRgfbPfQ=;
+        s=k20201202; t=1636496505;
+        bh=aTjvIykUk5TfpE6/YuOUKRXdaX4dsBSl3NKee7ot4fk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9iI81yIKe2kk7KGXrEpER0AqDcRhOpLBkiLtlyklCkKZ+luF9qb88f853BMV2hHU
-         U+owvSf9v7LrqHjkUIr0nKab9kmE8h0DZmIgay+3BW1qSHEZr9yEnctbK5W64VndAr
-         i95G2gWfAz8eS4Pl/AY4OYGPdiHXug2e92aOi5NXpVqhf8eJUUwuUpF/pFB2gJqSoi
-         sp5gAAQYZ/0Bbi2pUzQZpuGVjOT6goe8LQ+y1pbhvTHFhgmOjIriTuCC6UG2IxwM1n
-         NDxk/iIRPzIXRV9lBUBJJwajIFeicQZx1ZeXcK5B6hOlHTnVsLUW2ETi1Apo2cWr4G
-         6zJVBWDP7fNog==
+        b=F7cFW7e0SSFUyxSnnfwpOsMaTsSdtBo+eHGfXHr69xg62H2ZuEOK7/hybZJrDn8e3
+         iigNQoMS20jAFLz8KHkgwuLC9BM0RMELdnARWmeVOnS5NR4r5awtleeYdxmI0vMZgM
+         qdYhXKYJIvuNVgzDgQvJz/ons6UYNAbVIGPd85JWISBR104u7wVlyqtyJq5898VbeB
+         HZfHVxC+MuqHbuRvvL9AuHpgSqAvSqRpLoo48+2JJqHrAh735GsavbYeAcK+CeL9uU
+         qpUgcaaCkOEG2j5CyQ41s+/044wg3UcsBIkD2HL71yTrEwHKAPyeqavemezdqzYk2D
+         z5nT4YPc8IEcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+Cc:     Michael Walle <michael@walle.cc>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         pawel.moll@arm.com, mark.rutland@arm.com,
         ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
         catalin.marinas@arm.com, will.deacon@arm.com,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 23/50] arm64: dts: qcom: msm8916: Add unit name for /soc node
-Date:   Tue,  9 Nov 2021 17:20:36 -0500
-Message-Id: <20211109222103.1234885-23-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 24/50] arm64: dts: freescale: fix arm,sp805 compatible string
+Date:   Tue,  9 Nov 2021 17:20:37 -0500
+Message-Id: <20211109222103.1234885-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222103.1234885-1-sashal@kernel.org>
 References: <20211109222103.1234885-1-sashal@kernel.org>
@@ -47,36 +45,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 7a62bfebc8c94bdb6eb8f54f49889dc6b5b79601 ]
+[ Upstream commit 99a7cacc66cae92db40139b57689be2af75fc6b8 ]
 
-This fixes the following warning when building with W=1:
-Warning (unit_address_vs_reg): /soc: node has a reg or ranges property,
-but no unit name
+According to Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
+the compatible is:
+  compatible = "arm,sp805", "arm,primecell";
 
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20210921152120.6710-1-stephan@gerhold.net
+The current compatible string doesn't exist at all. Fix it.
+
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi | 16 ++++++++--------
+ arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi | 16 ++++++++--------
+ 2 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index 0e34ed48b9fae..277f9e8a281ad 100644
---- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -384,7 +384,7 @@
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
+index 692d8f4a206da..334af263d7b5d 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
+@@ -673,56 +673,56 @@
  		};
- 	};
  
--	soc: soc {
-+	soc: soc@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		ranges = <0 0 0 0xffffffff>;
+ 		cluster1_core0_watchdog: wdt@c000000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc000000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster1_core1_watchdog: wdt@c010000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc010000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster1_core2_watchdog: wdt@c020000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc020000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster1_core3_watchdog: wdt@c030000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc030000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster2_core0_watchdog: wdt@c100000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc100000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster2_core1_watchdog: wdt@c110000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc110000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster2_core2_watchdog: wdt@c120000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc120000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster2_core3_watchdog: wdt@c130000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc130000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 15>, <&clockgen 4 15>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+index 4d34d82b898a4..eb6641a3566e1 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+@@ -351,56 +351,56 @@
+ 		};
+ 
+ 		cluster1_core0_watchdog: wdt@c000000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc000000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster1_core1_watchdog: wdt@c010000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc010000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster2_core0_watchdog: wdt@c100000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc100000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster2_core1_watchdog: wdt@c110000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc110000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster3_core0_watchdog: wdt@c200000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc200000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster3_core1_watchdog: wdt@c210000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc210000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster4_core0_watchdog: wdt@c300000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc300000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster4_core1_watchdog: wdt@c310000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc310000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
 -- 
 2.33.0
 
