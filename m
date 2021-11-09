@@ -2,96 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 216FC44A400
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:32:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37DCE44A42C
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:48:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243270AbhKIBfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:35:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34938 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243601AbhKIBdE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:33:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02F76610CB;
-        Tue,  9 Nov 2021 01:30:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636421418;
-        bh=5z6TWhdFMQk1gL5oxmD2fxZ7CtBItaMocNOJZwNfzPU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=t89kRIHv9SZoV/lY55zqqQ1bd1DzE1HAtw4pwhZyoXt13xn27f59QvHOasrMOlZa5
-         RSwpyZxK5fAwyH+C0yTKF/9BJJTFqihMcfCZpXDtG5Kl5Y6CrO1QPQYXs+g3mi8krf
-         E7KS95bBNWkcvw9VQ1A0E1jSGovPEzdjvQX/TVLlBeC5WX8YPL6gpl/LeN9aV0Iyew
-         Q1pkshfpy+MuYli0SFspIjXvJdVqSnEISHYLqTaliCx5315V8z/MbCYqrZhdTsbFLC
-         YA13JvBls9hOLPxupDVasnWELr1cvhJMHSs8mnFjQ1mJrYVYcWSYpea7pMwb9d7OR8
-         d/d+eUpZe8qjw==
-Date:   Tue, 9 Nov 2021 03:30:15 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Reinette Chatre <reinette.chatre@intel.com>
-Cc:     dave.hansen@linux.intel.com, tglx@linutronix.de, bp@alien8.de,
-        mingo@redhat.com, linux-sgx@vger.kernel.org, x86@kernel.org,
-        seanjc@google.com, tony.luck@intel.com, hpa@zytor.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] x86/sgx: Fix free page accounting
-Message-ID: <YYnPJ3a9PSSy/gFZ@iki.fi>
-References: <373992d869cd356ce9e9afe43ef4934b70d604fd.1636049678.git.reinette.chatre@intel.com>
- <6e51fdacc2c1d834258f00ad8cc268b8d782eca7.camel@kernel.org>
- <2a0b84575733e4aaee13926387d997c35ac23130.camel@kernel.org>
- <d7a6dedb-03c5-fad1-e112-c912473c7214@intel.com>
- <YYmEwobYw+jGBSwV@iki.fi>
- <ced9786a-b8ac-2575-02b0-04323c83ca4e@intel.com>
+        id S234944AbhKIBvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:51:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53562 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229879AbhKIBvC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Nov 2021 20:51:02 -0500
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35B86C061764
+        for <stable@vger.kernel.org>; Mon,  8 Nov 2021 17:48:17 -0800 (PST)
+Received: by mail-ed1-x531.google.com with SMTP id f8so70320157edy.4
+        for <stable@vger.kernel.org>; Mon, 08 Nov 2021 17:48:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1+K2DVKOFTv6zJj3P2tlCMYZGpaMiCNTrYZWnpyj3TU=;
+        b=YpViJGhRGGbw3HKZVVJ8dDOcx4Z22oHf96nvV3o92sw1NRcI++oIekQ+kwN8T5APNE
+         DjnYn1Nmec1KRlhtjhq+ZBx4cjEIuuUDqzjMVedxtR8mYceY0fJ+8cmacqw8ofsFM/oj
+         B7mJhz08GmzD3uL0VYXNKqRxw/QCrppKmUKp7vyoQkguz2hq46FVTv7Np12Yvxhm73y7
+         tB6MwLFHob58kaG7u+7I5EyrDM3MpFFb/3i695XCiNHlRSrPyzh/7dnJLiDkrc++fJ91
+         ITrjNUIfl1jxwIiOp691hm7SQx+m+KlAvAfTeSIq+n1DYoiWNwR1BZz4K3G0MoX4qxDl
+         87qg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1+K2DVKOFTv6zJj3P2tlCMYZGpaMiCNTrYZWnpyj3TU=;
+        b=W5q/ii2ng2H8nqrENN9BOq3sDCrtkgKg27LF9SHNDY55poNzi0znexdyN9Df/OZCfH
+         yhCVOGp4WlkuqLj6me7MHFWzk//wgy6N9IQ4+KNqkWig3HCOFqdfydZVaZodjQQxWtKF
+         Q+U26ohrYPhj2tjaZ72/kdvkEJ6nF08NCxOToc0u6EYDT5cBopVhq9E6tN05zI6VbSSF
+         krKGzK5kom7cSUp3BgH68CO5VDtclel+MPw3S+HLAOvQjuyjS9OYIuUWlcYq/0CS7s+0
+         SnHj2S65p3tokW1/gHZhF3mN8Do/q2JKZaozHviXX4Py6bIbxTkm3O6KesicDizPhxFY
+         ai4Q==
+X-Gm-Message-State: AOAM530FxBwkHsM1RrZv2uYhJ5RmDIGkN2JDQ8AlcP5ylUdp4wYT75rP
+        0vIMKTSONJZyzIxcEGR+Ldg2YhzYwW0MFee7LTqfuNs/VdNatQ==
+X-Google-Smtp-Source: ABdhPJxAVjfPG+W7R04rfc5Q+ZIFbFRhqgt5yvRkS9Rx27yUWta7jbDH0JsPt6gQblJQX5hFRg753ZZ6kBp5LdaNYaA=
+X-Received: by 2002:a50:d984:: with SMTP id w4mr4797521edj.375.1636422495629;
+ Mon, 08 Nov 2021 17:48:15 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ced9786a-b8ac-2575-02b0-04323c83ca4e@intel.com>
+References: <CADyq12yY25-LS8cV5LY-C=6_0HLPVZbSJCKtCDJm+wyHQSeVTg@mail.gmail.com>
+ <cb682c8a-255e-28e5-d4e0-0981c2ab6ffd@intel.com> <85925a39-37c3-a79a-a084-51f2f291ca9c@intel.com>
+In-Reply-To: <85925a39-37c3-a79a-a084-51f2f291ca9c@intel.com>
+From:   Brian Geffon <bgeffon@google.com>
+Date:   Mon, 8 Nov 2021 20:47:39 -0500
+Message-ID: <CADyq12y0o=Y1MOMe7pCghy2ZEV2Y0Dd7jm5e=3o2N4-i088MWw@mail.gmail.com>
+Subject: Re: XSAVE / RDPKRU on Intel 11th Gen Core CPUs
+To:     Dave Hansen <dave.hansen@intel.com>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Guenter Roeck <groeck@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 08, 2021 at 12:56:21PM -0800, Reinette Chatre wrote:
-> Hi Jarkko,
-> 
-> On 11/8/2021 12:12 PM, Jarkko Sakkinen wrote:
-> > On Mon, Nov 08, 2021 at 11:48:18AM -0800, Reinette Chatre wrote:
-> > > Hi Jarkko,
-> > > 
-> > > On 11/7/2021 8:47 AM, Jarkko Sakkinen wrote:
-> > > > On Sun, 2021-11-07 at 18:45 +0200, Jarkko Sakkinen wrote:
-> > > > > On Thu, 2021-11-04 at 11:28 -0700, Reinette Chatre wrote:
-> > > > > > The consequence of sgx_nr_free_pages not being protected is that
-> > > > > > its value may not accurately reflect the actual number of free
-> > > > > > pages on the system, impacting the availability of free pages in
-> > > > > > support of many flows. The problematic scenario is when the
-> > > > > > reclaimer never runs because it believes there to be sufficient
-> > > > > > free pages while any attempt to allocate a page fails because there
-> > > > > > are no free pages available. The worst scenario observed was a
-> > > > > > user space hang because of repeated page faults caused by
-> > > > > > no free pages ever made available.
-> > > > > 
-> > > > > Can you go in detail with the "concrete scenario" in the commit
-> > > > > message? It does not have to describe all the possible scenarios
-> > > > > but at least one sequence of events.
-> > > 
-> > > 
-> > > I provided significant detail regarding the "concrete scenario" in a
-> > > separate response to Greg:
-> > > https://lore.kernel.org/lkml/a636290d-db04-be16-1c86-a8dcc3719b39@intel.com/
-> > > 
-> > > That message details the test that was run (the test hangs before the fix
-> > > and can complete after the fix), the traces captured at the time the test
-> > > hung, analysis of the traces with root cause of why the system is hung,
-> > > traces after fix applied demonstrating why user space is able to make
-> > > progress and explaining why the test can complete.
-> > 
-> > For me that sequence looks like something that you could "abstract"
-> > a bit and get a rough description of the concurrency scenario.
-> > 
-> > It is as important in this type of patch, as the code change itself,
-> > not least because it helps with maintaining in the future to have
-> > that info in some level of detail in the commit log.
-> 
-> My apologies. I understood your comment to be a concern with the change
-> itself instead of just the commit message. I will add more detail about the
-> failing scenario encountered to the commit message.
+> One more thing...  Does the protection_keys kernel selftest hit any
+> errors on this same setup?  It does a lot of PKRU sanity checking and
+> I'm a bit surprised it hasn't caught something yet.
 
-Yeah, I went through the log and the code change makes sense :-)
+Hi Dave,
 
-/Jarkko
+This issue does reproduce with the self tests too, my simple test
+program also fails consistently [1], all it does is spin executing
+RDPKRU waiting for a context switch to clobber the value.
+
+$ ./test
+unexpected value on iteration 3772082 value:0x55555554 expected:0x55555550
+
+==========================
+self tests:
+
+$ ./protection_keys_64
+has pkeys: 1
+startup pkey_reg: 0000000055555550
+WARNING: not run as root, can not do hugetlb test
+test 0 PASSED (iteration 1)
+test 1 PASSED (iteration 1)
+test 2 PASSED (iteration 1)
+test 3 PASSED (iteration 1)
+test 4 PASSED (iteration 1)
+test 5 PASSED (iteration 1)
+protection_keys_64: pkey-helpers.h:127: _read_pkey_reg: Assertion
+`pkey_reg == shadow_pkey_reg' failed.
+Aborted (core dumped)
+
+$ uname -a
+Linux localhost 5.13.0-17189-g62fb9874f5da #12 SMP PREEMPT Tue Nov 9
+01:29:44 UTC 2021 x86_64 11th Gen Intel(R) Core(TM) i5-1135G7 @
+2.40GHz GenuineIntel GNU/Linux
+
+Let me know if I can provide anything else, I'm happy to help troubleshoot this.
+
+Thanks,
+Brian
+
+1. https://gist.github.com/bgaff/e4b5457ab1cf5126fea6327666c63441
