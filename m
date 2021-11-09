@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C0EF44B670
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F39A044B66D
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:24:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344151AbhKIW1K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:27:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41760 "EHLO mail.kernel.org"
+        id S1344161AbhKIW1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:27:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344176AbhKIWZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344180AbhKIWZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:25:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F19F61881;
-        Tue,  9 Nov 2021 22:19:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D016061A3F;
+        Tue,  9 Nov 2021 22:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496372;
-        bh=pwYooDjxk7XjEE9LvlQ9MxKn6KoJEb7RHxwEpdhgtkU=;
+        s=k20201202; t=1636496374;
+        bh=qR8ttzQ+HcT95TOU3T643QpXnqN44D8DenWBQhzqmzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7K96Ll++MVZLBrnobaER0DCUdR7qbzGwM6kzO/trJ2NhKdc7I9k+R+Lk3BZ32TJu
-         uh/L2z/5y/9LbOJnFKAkJP3W1I8c8s8EBmPPF2hkob9wZo3agSVWwEeeRJJE6pYPrO
-         Tpj2zpHjAoeqCYdcOz0HeJTKyFqBMwdN5dq2bXDeXg8wt0WR8zbXUJfGRMA3/7acHO
-         pIJy57xxrSBQy7TVCzwnq/E1CFhuexcNVVzfHTtv/ZPsq7YiVZ+ZFI+vJhwAERP/0B
-         fh8heEe44aFJ8HDRu6KySl9f0Xv4CExdSw9ZJlN/mxEsjL46RsP/o1dGRN+7oT+wjA
-         Jc2AnoYaS11wg==
+        b=Y+/hD3xWOBNymo1CV7MRODHoq+Whya6Kc/M1Tfq0+cOu0/9AXW0LNoGYdM5O3+Zwn
+         vP0S0hGAsuINKO7A0Xgn9eJGkoWhpSZSs9568S9QdG04ZQ7BFnriOVmNAH5Q34DB8N
+         3VRAiy0jdUqwB/LQ62j+npaP0GyWt1C94Yb/Ch0HuMLAlK36nc3Sja5HWuiHbxEjlR
+         XoQ2ktSFMiTwNeWFKFAeNEGzarL1as5d899wLDqxMFJzcfRMiHp+m99kk55FeNBYDz
+         5YBmhcirBNwDkBNYx44P2LGj+Hq1CedQ/ytCpkX/aX8BlWdEfhJ38BBvkD89sezAgM
+         fIfXs4dkNbjiQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Justin Tee <justin.tee@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, james.smart@avagotech.com,
-        dick.kennedy@avagotech.com, JBottomley@odin.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 13/75] scsi: lpfc: Fix list_add() corruption in lpfc_drain_txq()
-Date:   Tue,  9 Nov 2021 17:18:03 -0500
-Message-Id: <20211109221905.1234094-13-sashal@kernel.org>
+Cc:     Matthias Brugger <mbrugger@suse.com>,
+        Guillaume Gardet <guillaume.gardet@arm.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        catalin.marinas@arm.com, will.deacon@arm.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.14 14/75] arm64: dts: rockchip: Disable CDN DP on Pinebook Pro
+Date:   Tue,  9 Nov 2021 17:18:04 -0500
+Message-Id: <20211109221905.1234094-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221905.1234094-1-sashal@kernel.org>
 References: <20211109221905.1234094-1-sashal@kernel.org>
@@ -45,46 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Matthias Brugger <mbrugger@suse.com>
 
-[ Upstream commit 99154581b05c8fb22607afb7c3d66c1bace6aa5d ]
+[ Upstream commit 2513fa5c25d42f55ca5f0f0ab247af7c9fbfa3b1 ]
 
-When parsing the txq list in lpfc_drain_txq(), the driver attempts to pass
-the requests to the adapter. If such an attempt fails, a local "fail_msg"
-string is set and a log message output.  The job is then added to a
-completions list for cancellation.
+The CDN DP needs a PHY and a extcon to work correctly. But no extcon is
+provided by the device-tree, which leads to an error:
+cdn-dp fec00000.dp: [drm:cdn_dp_probe [rockchipdrm]] *ERROR* missing extcon or phy
+cdn-dp: probe of fec00000.dp failed with error -22
 
-Processing of any further jobs from the txq list continues, but since
-"fail_msg" remains set, jobs are added to the completions list regardless
-of whether a wqe was passed to the adapter.  If successfully added to
-txcmplq, jobs are added to both lists resulting in list corruption.
+Disable the CDN DP to make graphic work on the Pinebook Pro.
 
-Fix by clearing the fail_msg string after adding a job to the completions
-list. This stops the subsequent jobs from being added to the completions
-list unless they had an appropriate failure.
-
-Link: https://lore.kernel.org/r/20210910233159.115896-2-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Guillaume Gardet <guillaume.gardet@arm.com>
+Signed-off-by: Matthias Brugger <mbrugger@suse.com>
+Link: https://lore.kernel.org/r/20210715164101.11486-1-matthias.bgg@kernel.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_sli.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index f530d8fe7a8ce..260e09b8ba38d 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -20357,6 +20357,7 @@ lpfc_drain_txq(struct lpfc_hba *phba)
- 					fail_msg,
- 					piocbq->iotag, piocbq->sli4_xritag);
- 			list_add_tail(&piocbq->list, &completions);
-+			fail_msg = NULL;
- 		}
- 		spin_unlock_irqrestore(&pring->ring_lock, iflags);
- 	}
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts b/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts
+index 2b5f001ff4a61..9e5d07f5712e6 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts
+@@ -385,10 +385,6 @@
+ 	};
+ };
+ 
+-&cdn_dp {
+-	status = "okay";
+-};
+-
+ &cpu_b0 {
+ 	cpu-supply = <&vdd_cpu_b>;
+ };
 -- 
 2.33.0
 
