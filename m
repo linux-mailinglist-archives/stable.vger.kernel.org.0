@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB8A44B568
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:18:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F7BA44B577
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:18:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236871AbhKIWUs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:20:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40834 "EHLO mail.kernel.org"
+        id S1343514AbhKIWU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:20:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245480AbhKIWUQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:20:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E58DF61350;
-        Tue,  9 Nov 2021 22:17:14 +0000 (UTC)
+        id S245500AbhKIWUV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:20:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 998FA61207;
+        Tue,  9 Nov 2021 22:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496236;
-        bh=pVycJHCOHhJHYDGpvWVmOqvqDvlFgZCXvpf4/RBRYyI=;
+        s=k20201202; t=1636496238;
+        bh=qR8ttzQ+HcT95TOU3T643QpXnqN44D8DenWBQhzqmzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgiM7TRw0zhuOW4ermPjO1H7C0n/oYZwkSb+hJgEq+GbBKliiFaJ453PyE9YJKPs2
-         Tzr3t6q/bhLxmOLEHhzsIIMlmHOSRsvTRE594PE1UbZ/lzkB1ZIwF971F+X1TfjHOM
-         ucLUrpAAMyYbeoF+5hoUb5HzhCc8rXDQJvJBIfjmXNElPcFfqb6CnEpqzlCaGjCe1i
-         HOkRmPnyBJnKiBwvFMQbWIVUkXnj3xAyAEwYuork1YjMU5I57wbH+S6q4QLXzA7Tpo
-         5TDTQI3PF6wBhukRtuernNxOmTQkc1Qoh0oFLZIkwvbckxwIyFo2w+z186R94dAE7W
-         AxfOdSwMpms2Q==
+        b=e0kReMqfTAurzCI3vJbOIlsjW4xUcDCzVsksF7gqJiCQ96f1RHx1w6AJfC6CAIt0v
+         2fDFOGkwLf+fANQvunWAXIXWi7g32+CCh0ar+Xzl/MSNcjR9kTUf9CV2orFQcNkFCQ
+         iXMwfHc3pbfdcQhemN8LCjcvpSRdNsdgEHLSOQ2T5nhbURuTFZmyoqxfek2IgrU86c
+         MteIUTuLOFm+PZt2LjQNekDsWooSrrhDe8t5p4/3grs+liF11uUut9QCtw7Q2MBFbK
+         1lnpqN1ECCVvPO8QzDg0NSgIRZf1zrMZUhYP5LeRxuYODpXF9brGRX6/G/GUGHaxpZ
+         C6GUlFryBMZ9w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
-        alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 14/82] ASoC: mediatek: mt8195: Add missing of_node_put()
-Date:   Tue,  9 Nov 2021 17:15:32 -0500
-Message-Id: <20211109221641.1233217-14-sashal@kernel.org>
+Cc:     Matthias Brugger <mbrugger@suse.com>,
+        Guillaume Gardet <guillaume.gardet@arm.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        catalin.marinas@arm.com, will.deacon@arm.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 15/82] arm64: dts: rockchip: Disable CDN DP on Pinebook Pro
+Date:   Tue,  9 Nov 2021 17:15:33 -0500
+Message-Id: <20211109221641.1233217-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
@@ -45,47 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Matthias Brugger <mbrugger@suse.com>
 
-[ Upstream commit b2fc2c92d2fd34d93268f677e514936f50dd6b5c ]
+[ Upstream commit 2513fa5c25d42f55ca5f0f0ab247af7c9fbfa3b1 ]
 
-The platform_node is returned by of_parse_phandle() should have
-of_node_put() before return.
+The CDN DP needs a PHY and a extcon to work correctly. But no extcon is
+provided by the device-tree, which leads to an error:
+cdn-dp fec00000.dp: [drm:cdn_dp_probe [rockchipdrm]] *ERROR* missing extcon or phy
+cdn-dp: probe of fec00000.dp failed with error -22
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Link: https://lore.kernel.org/r/20210911081246.33867-1-cuibixuan@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Disable the CDN DP to make graphic work on the Pinebook Pro.
+
+Reported-by: Guillaume Gardet <guillaume.gardet@arm.com>
+Signed-off-by: Matthias Brugger <mbrugger@suse.com>
+Link: https://lore.kernel.org/r/20210715164101.11486-1-matthias.bgg@kernel.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c b/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c
-index de09f67c04502..a3fa8efc8f81c 100644
---- a/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c
-+++ b/sound/soc/mediatek/mt8195/mt8195-mt6359-rt1019-rt5682.c
-@@ -1040,8 +1040,10 @@ static int mt8195_mt6359_rt1019_rt5682_dev_probe(struct platform_device *pdev)
- 	}
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts b/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts
+index 2b5f001ff4a61..9e5d07f5712e6 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts
+@@ -385,10 +385,6 @@
+ 	};
+ };
  
- 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
--	if (!priv)
-+	if (!priv) {
-+		of_node_put(platform_node);
- 		return -ENOMEM;
-+	}
- 
- 	snd_soc_card_set_drvdata(card, priv);
- 
-@@ -1049,6 +1051,8 @@ static int mt8195_mt6359_rt1019_rt5682_dev_probe(struct platform_device *pdev)
- 	if (ret)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
-+
-+	of_node_put(platform_node);
- 	return ret;
- }
- 
+-&cdn_dp {
+-	status = "okay";
+-};
+-
+ &cpu_b0 {
+ 	cpu-supply = <&vdd_cpu_b>;
+ };
 -- 
 2.33.0
 
