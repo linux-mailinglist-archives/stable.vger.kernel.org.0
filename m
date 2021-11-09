@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F14144B7C2
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:34:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FEDD44B7C4
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:34:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344682AbhKIWh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:37:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55842 "EHLO mail.kernel.org"
+        id S1345146AbhKIWha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:37:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344744AbhKIWf1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345134AbhKIWf1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:35:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E896360F42;
-        Tue,  9 Nov 2021 22:22:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CC756109D;
+        Tue,  9 Nov 2021 22:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496532;
-        bh=T/VLGws0oxAJsjjoi9Cn7Me0fLjDhjG950pEH7pakLc=;
+        s=k20201202; t=1636496535;
+        bh=A0IhG0duW+sokUwebqnXxg/iOEkbWqw7YJjmQJh7+Ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNSAIKYfveVI3W3IS/ncUPb3W0oQb26AXEsBHVfWC1C8Sv1oPF+FxpwcBV0wkw2h8
-         oet2CwvfpFgoPnabug4QVNSYiaDYji6ZOHbBo5nusqxwWHCGljOYGdRUFQp/SozPgj
-         p+cS1ESVQWzkaeYBVUsF0q5O6JJn2NvPc8GCMpc/DSrKQpLBseRv2bg+P/l800x/VZ
-         1WQ85Xw4yC7mETk43RF1gNOBLY+A/GptzL0bw0agwv0I0B5jjrZTJow+1L1hnSHDIj
-         X5ahFnzzbNMYNxg8F4pArOtNRu82WcnkkBLtVzzvZxBj9mBd4zb85djrxOR4XQlHkp
-         32s8N3LqTuPXg==
+        b=VE1My35AdBRjdUT/Q95fU+bWBmYitUzw+DfFkXzyUJUpNNUN1MzMq99HFIJuDZCay
+         c/UK147GoPKd5iML6dcvD93nc0bobZcYhY58mofEC2YpUvHGI28gQV9w9tBY3py9Xe
+         aFLil523pm6g6L3+XxqzJ9j5w9XjKpJEmccys8xeMhgncqoA/+hXpRwAGw3B0Mgsan
+         b8d/0kOJ9aUObHblyYLGq0hbADUq+z6aErADA4SQZQu5EBM5UVhgwb4np1eKUNbqEO
+         EGIstuXXBP4oOgnKntxxFYpIZgEC9CHUyF7AkNVMjG84oVtPrus6xEUWE9aALp7t9f
+         eRHlfl5jayU5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Teng Qi <starmiku1207184332@gmail.com>,
-        TOTE Robot <oslab@tsinghua.edu.cn>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
-        linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 44/50] iio: imu: st_lsm6dsx: Avoid potential array overflow in st_lsm6dsx_set_odr()
-Date:   Tue,  9 Nov 2021 17:20:57 -0500
-Message-Id: <20211109222103.1234885-44-sashal@kernel.org>
+Cc:     Anatolij Gustschin <agust@denx.de>, Rob Herring <robh@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        benh@kernel.crashing.org, paulus@samba.org,
+        devicetree@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.10 45/50] powerpc/5200: dts: fix memory node unit name
+Date:   Tue,  9 Nov 2021 17:20:58 -0500
+Message-Id: <20211109222103.1234885-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222103.1234885-1-sashal@kernel.org>
 References: <20211109222103.1234885-1-sashal@kernel.org>
@@ -45,62 +46,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Teng Qi <starmiku1207184332@gmail.com>
+From: Anatolij Gustschin <agust@denx.de>
 
-[ Upstream commit 94be878c882d8d784ff44c639bf55f3b029f85af ]
+[ Upstream commit aed2886a5e9ffc8269a4220bff1e9e030d3d2eb1 ]
 
-The length of hw->settings->odr_table is 2 and ref_sensor->id is an enum
-variable whose value is between 0 and 5.
-However, the value ST_LSM6DSX_ID_MAX (i.e. 5) is not caught properly in
- switch (sensor->id) {
+Fixes build warnings:
+Warning (unit_address_vs_reg): /memory: node has a reg or ranges property, but no unit name
 
-If ref_sensor->id is ST_LSM6DSX_ID_MAX, an array overflow will ocurrs in
-function st_lsm6dsx_check_odr():
-  odr_table = &sensor->hw->settings->odr_table[sensor->id];
-
-and in function st_lsm6dsx_set_odr():
-  reg = &hw->settings->odr_table[ref_sensor->id].reg;
-
-To avoid this array overflow, handle ST_LSM6DSX_ID_GYRO explicitly and
-return -EINVAL for the default case.
-
-The enum value ST_LSM6DSX_ID_MAX is only present as an easy way to check
-the limit and as such is never used, however this is not locally obvious.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Teng Qi <starmiku1207184332@gmail.com>
-Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Link: https://lore.kernel.org/r/20211011114003.976221-1-starmiku1207184332@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Anatolij Gustschin <agust@denx.de>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211013220532.24759-4-agust@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/powerpc/boot/dts/charon.dts    | 2 +-
+ arch/powerpc/boot/dts/digsy_mtc.dts | 2 +-
+ arch/powerpc/boot/dts/lite5200.dts  | 2 +-
+ arch/powerpc/boot/dts/lite5200b.dts | 2 +-
+ arch/powerpc/boot/dts/media5200.dts | 2 +-
+ arch/powerpc/boot/dts/mpc5200b.dtsi | 2 +-
+ arch/powerpc/boot/dts/o2d.dts       | 2 +-
+ arch/powerpc/boot/dts/o2d.dtsi      | 2 +-
+ arch/powerpc/boot/dts/o2dnt2.dts    | 2 +-
+ arch/powerpc/boot/dts/o3dnt.dts     | 2 +-
+ arch/powerpc/boot/dts/pcm032.dts    | 2 +-
+ arch/powerpc/boot/dts/tqm5200.dts   | 2 +-
+ 12 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-index 2ab1ac5a2412f..558ca3843bb95 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -1465,6 +1465,8 @@ st_lsm6dsx_set_odr(struct st_lsm6dsx_sensor *sensor, u32 req_odr)
- 	int err;
+diff --git a/arch/powerpc/boot/dts/charon.dts b/arch/powerpc/boot/dts/charon.dts
+index 408b486b13dff..cd589539f313f 100644
+--- a/arch/powerpc/boot/dts/charon.dts
++++ b/arch/powerpc/boot/dts/charon.dts
+@@ -35,7 +35,7 @@
+ 		};
+ 	};
  
- 	switch (sensor->id) {
-+	case ST_LSM6DSX_ID_GYRO:
-+		break;
- 	case ST_LSM6DSX_ID_EXT0:
- 	case ST_LSM6DSX_ID_EXT1:
- 	case ST_LSM6DSX_ID_EXT2:
-@@ -1490,8 +1492,8 @@ st_lsm6dsx_set_odr(struct st_lsm6dsx_sensor *sensor, u32 req_odr)
- 		}
- 		break;
- 	}
--	default:
--		break;
-+	default: /* should never occur */
-+		return -EINVAL;
- 	}
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>;	// 128MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/digsy_mtc.dts b/arch/powerpc/boot/dts/digsy_mtc.dts
+index 0e5e9d3acf79f..19a14e62e65f4 100644
+--- a/arch/powerpc/boot/dts/digsy_mtc.dts
++++ b/arch/powerpc/boot/dts/digsy_mtc.dts
+@@ -16,7 +16,7 @@
+ 	model = "intercontrol,digsy-mtc";
+ 	compatible = "intercontrol,digsy-mtc";
  
- 	if (req_odr > 0) {
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x02000000>;	// 32MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/lite5200.dts b/arch/powerpc/boot/dts/lite5200.dts
+index cb2782dd6132c..e7b194775d783 100644
+--- a/arch/powerpc/boot/dts/lite5200.dts
++++ b/arch/powerpc/boot/dts/lite5200.dts
+@@ -32,7 +32,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/lite5200b.dts b/arch/powerpc/boot/dts/lite5200b.dts
+index 2b86c81f90485..547cbe726ff23 100644
+--- a/arch/powerpc/boot/dts/lite5200b.dts
++++ b/arch/powerpc/boot/dts/lite5200b.dts
+@@ -31,7 +31,7 @@
+ 		led4 { gpios = <&gpio_simple 2 1>; };
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x10000000>;	// 256MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/media5200.dts b/arch/powerpc/boot/dts/media5200.dts
+index 61cae9dcddef4..f3188018faceb 100644
+--- a/arch/powerpc/boot/dts/media5200.dts
++++ b/arch/powerpc/boot/dts/media5200.dts
+@@ -32,7 +32,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;	// 128MB RAM
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/mpc5200b.dtsi b/arch/powerpc/boot/dts/mpc5200b.dtsi
+index 648fe31795f49..8b796f3b11da7 100644
+--- a/arch/powerpc/boot/dts/mpc5200b.dtsi
++++ b/arch/powerpc/boot/dts/mpc5200b.dtsi
+@@ -33,7 +33,7 @@
+ 		};
+ 	};
+ 
+-	memory: memory {
++	memory: memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/o2d.dts b/arch/powerpc/boot/dts/o2d.dts
+index 24a46f65e5299..e0a8d3034417f 100644
+--- a/arch/powerpc/boot/dts/o2d.dts
++++ b/arch/powerpc/boot/dts/o2d.dts
+@@ -12,7 +12,7 @@
+ 	model = "ifm,o2d";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;  // 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o2d.dtsi b/arch/powerpc/boot/dts/o2d.dtsi
+index 6661955a2be47..b55a9e5bd828c 100644
+--- a/arch/powerpc/boot/dts/o2d.dtsi
++++ b/arch/powerpc/boot/dts/o2d.dtsi
+@@ -19,7 +19,7 @@
+ 	model = "ifm,o2d";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o2dnt2.dts b/arch/powerpc/boot/dts/o2dnt2.dts
+index eeba7f5507d5d..c2eedbd1f5fcb 100644
+--- a/arch/powerpc/boot/dts/o2dnt2.dts
++++ b/arch/powerpc/boot/dts/o2dnt2.dts
+@@ -12,7 +12,7 @@
+ 	model = "ifm,o2dnt2";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;  // 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o3dnt.dts b/arch/powerpc/boot/dts/o3dnt.dts
+index fd00396b0593e..e4c1bdd412716 100644
+--- a/arch/powerpc/boot/dts/o3dnt.dts
++++ b/arch/powerpc/boot/dts/o3dnt.dts
+@@ -12,7 +12,7 @@
+ 	model = "ifm,o3dnt";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x04000000>;  // 64MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/pcm032.dts b/arch/powerpc/boot/dts/pcm032.dts
+index 780e13d99e7b8..1895bc95900cc 100644
+--- a/arch/powerpc/boot/dts/pcm032.dts
++++ b/arch/powerpc/boot/dts/pcm032.dts
+@@ -20,7 +20,7 @@
+ 	model = "phytec,pcm032";
+ 	compatible = "phytec,pcm032";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;	// 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/tqm5200.dts b/arch/powerpc/boot/dts/tqm5200.dts
+index 9ed0bc78967e1..5bb25a9e40a01 100644
+--- a/arch/powerpc/boot/dts/tqm5200.dts
++++ b/arch/powerpc/boot/dts/tqm5200.dts
+@@ -32,7 +32,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
 -- 
 2.33.0
 
