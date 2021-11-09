@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D8444B844
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:39:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD07744B848
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:39:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345251AbhKIWlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:41:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59706 "EHLO mail.kernel.org"
+        id S1345566AbhKIWlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:41:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345354AbhKIWjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:39:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38E5861B20;
-        Tue,  9 Nov 2021 22:23:24 +0000 (UTC)
+        id S1344102AbhKIWjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:39:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0585F61B24;
+        Tue,  9 Nov 2021 22:23:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496605;
-        bh=Y7UHtO8zCz13xTp4KkbbSEpOtFB7rZqowaLKNnNNkjg=;
+        s=k20201202; t=1636496606;
+        bh=dp4wwUseV5qUf5xSbC9F2O0f3tz/bFtGcn0p2CQcR9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gXlb/EKW55xxGKj+JmJK1HxmvcEzly0lLDMGGnQb9TKOjsSBnLoNkPVW9C1DlMPlb
-         mYh2Cbz0ZSoGt0r0BPYF/hDMH6l70IOJSaMS3hIjzv1cOH1rvDN0elGL76d1EqN3Ez
-         6dicHePgbJN3KA4iXqK5wwZ6h0BiOWwqyd0vGJIYYfSEC/FAmWYttXjVNVO0s5igdr
-         qhzuTDH6qb2PLjLZyKGiUmfhevW9ySHfmbtTcDFVRsP6v5X/lrkdNddRWvkBQHNtE8
-         LjN9O4DRw1jCSlV9gi9EJQttz3VeSqB68cxZuiY+8KaYh40vCEWJ+NuQmTxdFNsmIL
-         KniesEjqSs8fw==
+        b=vJeXNmmJzHqqMULJen/ITNbyY3+J8fdWp57c9cJqL456GZw7IxlZtvUNx17PPnfFN
+         9Tcy8GiiL9atwjdG/FpPaI15b2Pl/ccdfACtkfNUnwQuFBuBVORlz3LL/rAzOtMQMp
+         eEnb5nO+Q/CliLjB9ZLlG2OihTpZzMgw3R/hXWZwIw+8PhqiXMnp59wunYXvlQuLvS
+         6GknzCYbI/NIBGoo/S1HsqRzILdT2JVhT/my+SB/3l/rdQ/wBq2/1OgcA2MWcZ7aaP
+         kcq07QQn7KKRbszUOZyjAoTRiE5TGzUuu7xFm2IP8qV+gkba2YriKZH60GrPWkJv/R
+         75HTNWyXJP7tg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Walle <michael@walle.cc>, Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        pawel.moll@arm.com, mark.rutland@arm.com,
-        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 08/21] arm64: dts: freescale: fix arm,sp805 compatible string
-Date:   Tue,  9 Nov 2021 17:22:57 -0500
-Message-Id: <20211109222311.1235686-8-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 09/21] ASoC: nau8824: Add DMI quirk mechanism for active-high jack-detect
+Date:   Tue,  9 Nov 2021 17:22:58 -0500
+Message-Id: <20211109222311.1235686-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222311.1235686-1-sashal@kernel.org>
 References: <20211109222311.1235686-1-sashal@kernel.org>
@@ -45,162 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 99a7cacc66cae92db40139b57689be2af75fc6b8 ]
+[ Upstream commit 92d3360108f1839ca40451bad20ff67dd24a1964 ]
 
-According to Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
-the compatible is:
-  compatible = "arm,sp805", "arm,primecell";
+Add a quirk mechanism to allow specifying that active-high jack-detection
+should be used on platforms where this info is not available in devicetree.
 
-The current compatible string doesn't exist at all. Fix it.
+And add an entry for the Cyberbook T116 tablet to the DMI table, so that
+jack-detection will work properly on this tablet.
 
-Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20211002211459.110124-2-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi | 16 ++++++++--------
- arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi | 16 ++++++++--------
- 2 files changed, 16 insertions(+), 16 deletions(-)
+ sound/soc/codecs/nau8824.c | 40 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-index a07f612ab56b7..b3b87c4c738e6 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-@@ -584,56 +584,56 @@
- 		};
+diff --git a/sound/soc/codecs/nau8824.c b/sound/soc/codecs/nau8824.c
+index 663a208c2f784..4af87340b1655 100644
+--- a/sound/soc/codecs/nau8824.c
++++ b/sound/soc/codecs/nau8824.c
+@@ -11,6 +11,7 @@
  
- 		cluster1_core0_watchdog: wdt@c000000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc000000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
+ #include <linux/module.h>
+ #include <linux/delay.h>
++#include <linux/dmi.h>
+ #include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/regmap.h>
+@@ -30,6 +31,12 @@
  
- 		cluster1_core1_watchdog: wdt@c010000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc010000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
+ #include "nau8824.h"
  
- 		cluster1_core2_watchdog: wdt@c020000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc020000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
++#define NAU8824_JD_ACTIVE_HIGH			BIT(0)
++
++static int nau8824_quirk;
++static int quirk_override = -1;
++module_param_named(quirk, quirk_override, uint, 0444);
++MODULE_PARM_DESC(quirk, "Board-specific quirk override");
  
- 		cluster1_core3_watchdog: wdt@c030000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc030000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
+ static int nau8824_config_sysclk(struct nau8824 *nau8824,
+ 	int clk_id, unsigned int freq);
+@@ -1878,6 +1885,34 @@ static int nau8824_read_device_properties(struct device *dev,
+ 	return 0;
+ }
  
- 		cluster2_core0_watchdog: wdt@c100000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc100000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
++/* Please keep this list alphabetically sorted */
++static const struct dmi_system_id nau8824_quirk_table[] = {
++	{
++		/* Cyberbook T116 rugged tablet */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Default string"),
++			DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "20170531"),
++		},
++		.driver_data = (void *)(NAU8824_JD_ACTIVE_HIGH),
++	},
++	{}
++};
++
++static void nau8824_check_quirks(void)
++{
++	const struct dmi_system_id *dmi_id;
++
++	if (quirk_override != -1) {
++		nau8824_quirk = quirk_override;
++		return;
++	}
++
++	dmi_id = dmi_first_match(nau8824_quirk_table);
++	if (dmi_id)
++		nau8824_quirk = (unsigned long)dmi_id->driver_data;
++}
++
+ static int nau8824_i2c_probe(struct i2c_client *i2c,
+ 	const struct i2c_device_id *id)
+ {
+@@ -1902,6 +1937,11 @@ static int nau8824_i2c_probe(struct i2c_client *i2c,
+ 	nau8824->irq = i2c->irq;
+ 	sema_init(&nau8824->jd_sem, 1);
  
- 		cluster2_core1_watchdog: wdt@c110000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc110000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
++	nau8824_check_quirks();
++
++	if (nau8824_quirk & NAU8824_JD_ACTIVE_HIGH)
++		nau8824->jkdet_polarity = 0;
++
+ 	nau8824_print_device_properties(nau8824);
  
- 		cluster2_core2_watchdog: wdt@c120000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc120000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
- 
- 		cluster2_core3_watchdog: wdt@c130000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc130000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-index 8c22ce904e655..73a60fd516e06 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-@@ -222,56 +222,56 @@
- 		};
- 
- 		cluster1_core0_watchdog: wdt@c000000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc000000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
- 
- 		cluster1_core1_watchdog: wdt@c010000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc010000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
- 
- 		cluster2_core0_watchdog: wdt@c100000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc100000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
- 
- 		cluster2_core1_watchdog: wdt@c110000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc110000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
- 
- 		cluster3_core0_watchdog: wdt@c200000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc200000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
- 
- 		cluster3_core1_watchdog: wdt@c210000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc210000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
- 
- 		cluster4_core0_watchdog: wdt@c300000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc300000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
- 		};
- 
- 		cluster4_core1_watchdog: wdt@c310000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xc310000 0x0 0x1000>;
- 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
- 			clock-names = "apb_pclk", "wdog_clk";
+ 	ret = regmap_read(nau8824->regmap, NAU8824_REG_I2C_DEVICE_ID, &value);
 -- 
 2.33.0
 
