@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D89E44A3F0
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:30:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C51E44A3ED
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:29:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242043AbhKIBci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:32:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53912 "EHLO mail.kernel.org"
+        id S242994AbhKIBcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:32:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242258AbhKIBZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:25:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB03A61B44;
-        Tue,  9 Nov 2021 01:10:05 +0000 (UTC)
+        id S243156AbhKIB0y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:26:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3278361B51;
+        Tue,  9 Nov 2021 01:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420206;
-        bh=2g6uoVwI8XWT0DCm0+zBjkaYZ7m+41pw/tE2yKLiexM=;
+        s=k20201202; t=1636420208;
+        bh=72ypZuCUMzT6BiLWCUpF5OO0s46E8zScmkNo2fVNvyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=avddYSsethml/nUqW69ItR9wrlxdH4iplyLOmMTfzx6X/hJ3fRjwnATkt9YtPmWbr
-         uJ4VkMWiqc186NHo2+qPAzPws8IvQOpZxJmGRqTk0sOcCuJfCThFwqjDwMx3hIm1Uv
-         cBP050YNyTGdbuOEhnKgmvC52+fHl5WrHfIh2LR/MlB0c5SAi+njuIxb6KZ+oiVCES
-         1XJYx2Ku3pd/S15nHrv6b4risR+/iLWHok9/mtbYOLLngLo5qTVE2CliaMhM/diQpT
-         SZFvL5E66Jf4OD/CLvXWC2oHui4lDmpRXiLoluwZvWgwMtXgI3Ulz7sbaXCUzi3MWV
-         8O5Kf6kbz5JQg==
+        b=IJfY/Re178Y7OQQ6DfUZVLvNoOyEEBArPP+9rzzE0IkpNOJuX+/Nlbe7K1B7TJLUl
+         iI2+xhmPUm0c/Qm8TTu5tf+InAr+gOchCSAewK7GG274O/M3NikmYFx6OMjrV1jVgh
+         j+8M+oYIT0GCblzt4mpRK6Pdfj9Bq6rtMgwKytEwxPCAJVUVf1GFRThZ6QQcNd51bN
+         cEjhfr2mlpmwsxrrh+TJ3btOY/Ig7GGny9WCrSx+erI8IVlgCDr9SPLnpaEs+ABYn1
+         dQq+XK9pH0Gs7UAf1HDm9D3fO8hj2UR3dKS3Cag18uaHudBNctNonueRsJtX2ZLk6A
+         K1NpQjm1B1riw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@codeaurora.org,
-        davem@davemloft.net, kuba@kernel.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 25/30] iwlwifi: mvm: disable RX-diversity in powersave
-Date:   Mon,  8 Nov 2021 20:09:13 -0500
-Message-Id: <20211109010918.1192063-25-sashal@kernel.org>
+Cc:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Sasha Levin <sashal@kernel.org>, jmorris@namei.org,
+        serge@hallyn.com, linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 26/30] smackfs: use __GFP_NOFAIL for smk_cipso_doi()
+Date:   Mon,  8 Nov 2021 20:09:14 -0500
+Message-Id: <20211109010918.1192063-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010918.1192063-1-sashal@kernel.org>
 References: <20211109010918.1192063-1-sashal@kernel.org>
@@ -44,37 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit e5322b9ab5f63536c41301150b7ce64605ce52cc ]
+[ Upstream commit f91488ee15bd3cac467e2d6a361fc2d34d1052ae ]
 
-Just like we have default SMPS mode as dynamic in powersave,
-we should not enable RX-diversity in powersave, to reduce
-power consumption when connected to a non-MIMO AP.
+syzbot is reporting kernel panic at smk_cipso_doi() due to memory
+allocation fault injection [1]. The reason for need to use panic() was
+not explained. But since no fix was proposed for 18 months, for now
+let's use __GFP_NOFAIL for utilizing syzbot resource on other bugs.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211017113927.fc896bc5cdaa.I1d11da71b8a5cbe921a37058d5f578f1b14a2023@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://syzkaller.appspot.com/bug?extid=89731ccb6fec15ce1c22 [1]
+Reported-by: syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/iwlwifi/mvm/utils.c | 3 +++
- 1 file changed, 3 insertions(+)
+ security/smack/smackfs.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/iwlwifi/mvm/utils.c b/drivers/net/wireless/iwlwifi/mvm/utils.c
-index ad0f16909e2e2..3d089eb9dff51 100644
---- a/drivers/net/wireless/iwlwifi/mvm/utils.c
-+++ b/drivers/net/wireless/iwlwifi/mvm/utils.c
-@@ -923,6 +923,9 @@ bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm)
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 845ed464fb8cd..40c8b2b8a4722 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -721,9 +721,7 @@ static void smk_cipso_doi(void)
+ 		printk(KERN_WARNING "%s:%d remove rc = %d\n",
+ 		       __func__, __LINE__, rc);
  
- 	lockdep_assert_held(&mvm->mutex);
- 
-+	if (iwlmvm_mod_params.power_scheme != IWL_POWER_SCHEME_CAM)
-+		return false;
-+
- 	if (num_of_ant(iwl_mvm_get_valid_rx_ant(mvm)) == 1)
- 		return false;
- 
+-	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL);
+-	if (doip == NULL)
+-		panic("smack:  Failed to initialize cipso DOI.\n");
++	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL | __GFP_NOFAIL);
+ 	doip->map.std = NULL;
+ 	doip->doi = smk_cipso_doi_value;
+ 	doip->type = CIPSO_V4_MAP_PASS;
 -- 
 2.33.0
 
