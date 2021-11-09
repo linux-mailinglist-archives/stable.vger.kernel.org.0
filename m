@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CFBA44B61B
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:22:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B19EB44B621
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:22:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343678AbhKIWZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:25:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41598 "EHLO mail.kernel.org"
+        id S1343860AbhKIWZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:25:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344214AbhKIWXL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:23:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFCA2619E9;
-        Tue,  9 Nov 2021 22:18:41 +0000 (UTC)
+        id S1344246AbhKIWXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:23:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 899316128B;
+        Tue,  9 Nov 2021 22:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496322;
-        bh=bUQaBqHTtxUlALgr+LG5G8Ft7r3Zz7zjIOAUhBks0i0=;
+        s=k20201202; t=1636496324;
+        bh=DYyIzSGTQ8W6spGmBqd+117i5tD1eiwjX3gTuBDc7F4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHCUlmMiyJXExu0lB2URjt2ZdDozwrZ5q63T/N2IZ1+I/itm+c82+SliPD5puqJ/6
-         mcf3G9F2C3C+XW8ibFNfH6TPgOnUk5jEVdiBlFcwRZthRo00b5Rm/eANeO4PifKEed
-         OiPx08YhfuY3SIZoPiye7GlL/ItWxZBMYuZdTV0/EVBsg7aFAtus8o3pO/UZH09ab1
-         uIRoLA6UobwopxaeH6AlLQ4CujujQPcu3ZToy/Ni2qN7gi3yPno8j44PEFlBcJTfZv
-         17BaBPfRC9cpoetupoo+8kI1puTm53gP1kE8dcD+qGdwe6+jrvA/W1z7GSjfX/9Ya9
-         6iZNybLeHhVHA==
+        b=Xi2EKuz1CyHXcQv2NiJKkl47wnJSjHjSxIG3MG/EP2f4VEOw0uG3S2TYHCCX+AS/p
+         DTtfZLzVXLshAX0GSYUjHGrDJylkxWOuDLJEGyDnQ7UI7O8dVr0EruE2dbWV+ldQrY
+         y82uq8HDjaQJOEQ6tvJXTc8IIL9eAp9Uqk+NZ+7eDNBd7+ioYte3bUFzSDS7bWI0Uo
+         8xjrxf6ENeohK0Rgmk1SvJpgIEe2/OF6+hX44MnpUcvctbC60++EeE/i09VEf/us+s
+         LCTIlpxflCFlTjDbnzMNtTWzIPjmdGuU5Dotvq4JHQsep88+whga4yvxSVrzWFMjDR
+         99Loa5zQTwzcw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Justin Tee <justin.tee@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, james.smart@avagotech.com,
-        dick.kennedy@avagotech.com, JBottomley@odin.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 70/82] scsi: lpfc: Allow fabric node recovery if recovery is in progress before devloss
-Date:   Tue,  9 Nov 2021 17:16:28 -0500
-Message-Id: <20211109221641.1233217-70-sashal@kernel.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Nicolas Chauvet <kwizart@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sasha Levin <sashal@kernel.org>, swarren@wwwdotorg.org,
+        thierry.reding@gmail.com, gnurou@gmail.com,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 71/82] memory: tegra20-emc: Add runtime dependency on devfreq governor module
+Date:   Tue,  9 Nov 2021 17:16:29 -0500
+Message-Id: <20211109221641.1233217-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
@@ -45,336 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit af984c87293b19dccbd0b16afc57c5c9a4a279c7 ]
+[ Upstream commit 14b43c20c283de36131da0cb44f3170b9ffa7630 ]
 
-A link bounce to a slow fabric may observe FDISC response delays lasting
-longer than devloss tmo.  Current logic decrements the final fabric node
-kref during a devloss tmo event.  This results in a NULL ptr dereference
-crash if the FDISC completes for that fabric node after devloss tmo.
+Tegra20 EMC driver uses simple devfreq governor. Add simple devfreq
+governor to the list of the Tegra20 EMC driver module softdeps to allow
+userspace initramfs tools like dracut to automatically pull the devfreq
+module into ramfs image together with the EMC module.
 
-Fix by adding the NLP_IN_RECOV_POST_DEV_LOSS flag, which is set when
-devloss tmo triggers and we've noticed that fabric node recovery has
-already started or finished in between the time lpfc_dev_loss_tmo_callbk
-queues lpfc_dev_loss_tmo_handler.  If fabric node recovery succeeds, then
-the driver reverses the devloss tmo marked kref put with a kref get.  If
-fabric node recovery fails, then the final kref put relies on the ELS
-timing out or the REG_LOGIN cmpl routine.
-
-Link: https://lore.kernel.org/r/20211020211417.88754-8-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Nicolas Chauvet <kwizart@gmail.com>
+Suggested-by: Nicolas Chauvet <kwizart@gmail.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20211019231524.888-1-digetx@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_crtn.h    |   2 +
- drivers/scsi/lpfc/lpfc_disc.h    |  12 +++-
- drivers/scsi/lpfc/lpfc_els.c     |   7 +-
- drivers/scsi/lpfc/lpfc_hbadisc.c | 111 ++++++++++++++++++++++++++++++-
- drivers/scsi/lpfc/lpfc_init.c    |  12 ++--
- drivers/scsi/lpfc/lpfc_scsi.c    |  10 +--
- 6 files changed, 139 insertions(+), 15 deletions(-)
+ drivers/memory/tegra/tegra20-emc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_crtn.h b/drivers/scsi/lpfc/lpfc_crtn.h
-index c512f41991429..c9770b1d2366a 100644
---- a/drivers/scsi/lpfc/lpfc_crtn.h
-+++ b/drivers/scsi/lpfc/lpfc_crtn.h
-@@ -119,6 +119,8 @@ int lpfc_check_sli_ndlp(struct lpfc_hba *, struct lpfc_sli_ring *,
- struct lpfc_nodelist *lpfc_nlp_init(struct lpfc_vport *vport, uint32_t did);
- struct lpfc_nodelist *lpfc_nlp_get(struct lpfc_nodelist *);
- int  lpfc_nlp_put(struct lpfc_nodelist *);
-+void lpfc_check_nlp_post_devloss(struct lpfc_vport *vport,
-+				 struct lpfc_nodelist *ndlp);
- void lpfc_ignore_els_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 			  struct lpfc_iocbq *rspiocb);
- int  lpfc_nlp_not_used(struct lpfc_nodelist *ndlp);
-diff --git a/drivers/scsi/lpfc/lpfc_disc.h b/drivers/scsi/lpfc/lpfc_disc.h
-index 871b665bd72e3..37a4b79010bfc 100644
---- a/drivers/scsi/lpfc/lpfc_disc.h
-+++ b/drivers/scsi/lpfc/lpfc_disc.h
-@@ -85,6 +85,13 @@ enum lpfc_fc4_xpt_flags {
- 	NLP_XPT_HAS_HH		= 0x10
- };
+diff --git a/drivers/memory/tegra/tegra20-emc.c b/drivers/memory/tegra/tegra20-emc.c
+index c3462dbc8c22b..6fc90f2160e93 100644
+--- a/drivers/memory/tegra/tegra20-emc.c
++++ b/drivers/memory/tegra/tegra20-emc.c
+@@ -1117,4 +1117,5 @@ module_platform_driver(tegra_emc_driver);
  
-+enum lpfc_nlp_save_flags {
-+	/* devloss occurred during recovery */
-+	NLP_IN_RECOV_POST_DEV_LOSS	= 0x1,
-+	/* wait for outstanding LOGO to cmpl */
-+	NLP_WAIT_FOR_LOGO		= 0x2,
-+};
-+
- struct lpfc_nodelist {
- 	struct list_head nlp_listp;
- 	struct serv_parm fc_sparam;		/* buffer for service params */
-@@ -144,8 +151,9 @@ struct lpfc_nodelist {
- 	unsigned long *active_rrqs_xri_bitmap;
- 	struct lpfc_scsicmd_bkt *lat_data;	/* Latency data */
- 	uint32_t fc4_prli_sent;
--	u32 upcall_flags;
--#define	NLP_WAIT_FOR_LOGO 0x2
-+
-+	/* flags to keep ndlp alive until special conditions are met */
-+	enum lpfc_nlp_save_flags save_flags;
- 
- 	enum lpfc_fc4_xpt_flags fc4_xpt_flags;
- 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 052c0e5b11195..537482c2d7dab 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -2899,9 +2899,9 @@ lpfc_cmpl_els_logo(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 	irsp = &(rspiocb->iocb);
- 	spin_lock_irq(&ndlp->lock);
- 	ndlp->nlp_flag &= ~NLP_LOGO_SND;
--	if (ndlp->upcall_flags & NLP_WAIT_FOR_LOGO) {
-+	if (ndlp->save_flags & NLP_WAIT_FOR_LOGO) {
- 		wake_up_waiter = 1;
--		ndlp->upcall_flags &= ~NLP_WAIT_FOR_LOGO;
-+		ndlp->save_flags &= ~NLP_WAIT_FOR_LOGO;
- 	}
- 	spin_unlock_irq(&ndlp->lock);
- 
-@@ -10713,6 +10713,9 @@ lpfc_cmpl_els_fdisc(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 				 irsp->ulpStatus, irsp->un.ulpWord[4]);
- 		goto fdisc_failed;
- 	}
-+
-+	lpfc_check_nlp_post_devloss(vport, ndlp);
-+
- 	spin_lock_irq(shost->host_lock);
- 	vport->fc_flag &= ~FC_VPORT_CVL_RCVD;
- 	vport->fc_flag &= ~FC_VPORT_LOGO_RCVD;
-diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
-index 787898d25670d..5880fcda9f312 100644
---- a/drivers/scsi/lpfc/lpfc_hbadisc.c
-+++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
-@@ -209,7 +209,12 @@ lpfc_dev_loss_tmo_callbk(struct fc_rport *rport)
- 
- 	spin_lock_irqsave(&ndlp->lock, iflags);
- 	ndlp->nlp_flag |= NLP_IN_DEV_LOSS;
--	ndlp->nlp_flag &= ~NLP_NPR_2B_DISC;
-+
-+	/* If there is a PLOGI in progress, and we are in a
-+	 * NLP_NPR_2B_DISC state, don't turn off the flag.
-+	 */
-+	if (ndlp->nlp_state != NLP_STE_PLOGI_ISSUE)
-+		ndlp->nlp_flag &= ~NLP_NPR_2B_DISC;
- 
- 	/*
- 	 * The backend does not expect any more calls associated with this
-@@ -340,6 +345,37 @@ static void lpfc_check_inactive_vmid(struct lpfc_hba *phba)
- 	lpfc_destroy_vport_work_array(phba, vports);
- }
- 
-+/**
-+ * lpfc_check_nlp_post_devloss - Check to restore ndlp refcnt after devloss
-+ * @vport: Pointer to vport object.
-+ * @ndlp: Pointer to remote node object.
-+ *
-+ * If NLP_IN_RECOV_POST_DEV_LOSS flag was set due to outstanding recovery of
-+ * node during dev_loss_tmo processing, then this function restores the nlp_put
-+ * kref decrement from lpfc_dev_loss_tmo_handler.
-+ **/
-+void
-+lpfc_check_nlp_post_devloss(struct lpfc_vport *vport,
-+			    struct lpfc_nodelist *ndlp)
-+{
-+	unsigned long iflags;
-+
-+	spin_lock_irqsave(&ndlp->lock, iflags);
-+	if (ndlp->save_flags & NLP_IN_RECOV_POST_DEV_LOSS) {
-+		ndlp->save_flags &= ~NLP_IN_RECOV_POST_DEV_LOSS;
-+		spin_unlock_irqrestore(&ndlp->lock, iflags);
-+		lpfc_nlp_get(ndlp);
-+		lpfc_printf_vlog(vport, KERN_INFO, LOG_DISCOVERY | LOG_NODE,
-+				 "8438 Devloss timeout reversed on DID x%x "
-+				 "refcnt %d ndlp %p flag x%x "
-+				 "port_state = x%x\n",
-+				 ndlp->nlp_DID, kref_read(&ndlp->kref), ndlp,
-+				 ndlp->nlp_flag, vport->port_state);
-+		spin_lock_irqsave(&ndlp->lock, iflags);
-+	}
-+	spin_unlock_irqrestore(&ndlp->lock, iflags);
-+}
-+
- /**
-  * lpfc_dev_loss_tmo_handler - Remote node devloss timeout handler
-  * @ndlp: Pointer to remote node object.
-@@ -358,6 +394,8 @@ lpfc_dev_loss_tmo_handler(struct lpfc_nodelist *ndlp)
- 	uint8_t *name;
- 	int warn_on = 0;
- 	int fcf_inuse = 0;
-+	bool recovering = false;
-+	struct fc_vport *fc_vport = NULL;
- 	unsigned long iflags;
- 
- 	vport = ndlp->vport;
-@@ -394,6 +432,64 @@ lpfc_dev_loss_tmo_handler(struct lpfc_nodelist *ndlp)
- 
- 	/* Fabric nodes are done. */
- 	if (ndlp->nlp_type & NLP_FABRIC) {
-+		spin_lock_irqsave(&ndlp->lock, iflags);
-+		/* In massive vport configuration settings, it's possible
-+		 * dev_loss_tmo fired during node recovery.  So, check if
-+		 * fabric nodes are in discovery states outstanding.
-+		 */
-+		switch (ndlp->nlp_DID) {
-+		case Fabric_DID:
-+			fc_vport = vport->fc_vport;
-+			if (fc_vport &&
-+			    fc_vport->vport_state == FC_VPORT_INITIALIZING)
-+				recovering = true;
-+			break;
-+		case Fabric_Cntl_DID:
-+			if (ndlp->nlp_flag & NLP_REG_LOGIN_SEND)
-+				recovering = true;
-+			break;
-+		case FDMI_DID:
-+			fallthrough;
-+		case NameServer_DID:
-+			if (ndlp->nlp_state >= NLP_STE_PLOGI_ISSUE &&
-+			    ndlp->nlp_state <= NLP_STE_REG_LOGIN_ISSUE)
-+				recovering = true;
-+			break;
-+		}
-+		spin_unlock_irqrestore(&ndlp->lock, iflags);
-+
-+		/* Mark an NLP_IN_RECOV_POST_DEV_LOSS flag to know if reversing
-+		 * the following lpfc_nlp_put is necessary after fabric node is
-+		 * recovered.
-+		 */
-+		if (recovering) {
-+			lpfc_printf_vlog(vport, KERN_INFO,
-+					 LOG_DISCOVERY | LOG_NODE,
-+					 "8436 Devloss timeout marked on "
-+					 "DID x%x refcnt %d ndlp %p "
-+					 "flag x%x port_state = x%x\n",
-+					 ndlp->nlp_DID, kref_read(&ndlp->kref),
-+					 ndlp, ndlp->nlp_flag,
-+					 vport->port_state);
-+			spin_lock_irqsave(&ndlp->lock, iflags);
-+			ndlp->save_flags |= NLP_IN_RECOV_POST_DEV_LOSS;
-+			spin_unlock_irqrestore(&ndlp->lock, iflags);
-+		} else if (ndlp->nlp_state == NLP_STE_UNMAPPED_NODE) {
-+			/* Fabric node fully recovered before this dev_loss_tmo
-+			 * queue work is processed.  Thus, ignore the
-+			 * dev_loss_tmo event.
-+			 */
-+			lpfc_printf_vlog(vport, KERN_INFO,
-+					 LOG_DISCOVERY | LOG_NODE,
-+					 "8437 Devloss timeout ignored on "
-+					 "DID x%x refcnt %d ndlp %p "
-+					 "flag x%x port_state = x%x\n",
-+					 ndlp->nlp_DID, kref_read(&ndlp->kref),
-+					 ndlp, ndlp->nlp_flag,
-+					 vport->port_state);
-+			return fcf_inuse;
-+		}
-+
- 		lpfc_nlp_put(ndlp);
- 		return fcf_inuse;
- 	}
-@@ -423,6 +519,14 @@ lpfc_dev_loss_tmo_handler(struct lpfc_nodelist *ndlp)
- 				 ndlp->nlp_state, ndlp->nlp_rpi);
- 	}
- 
-+	/* If we are devloss, but we are in the process of rediscovering the
-+	 * ndlp, don't issue a NLP_EVT_DEVICE_RM event.
-+	 */
-+	if (ndlp->nlp_state >= NLP_STE_PLOGI_ISSUE &&
-+	    ndlp->nlp_state <= NLP_STE_PRLI_ISSUE) {
-+		return fcf_inuse;
-+	}
-+
- 	if (!(ndlp->fc4_xpt_flags & NVME_XPT_REGD))
- 		lpfc_disc_state_machine(vport, ndlp, NULL, NLP_EVT_DEVICE_RM);
- 
-@@ -4351,6 +4455,8 @@ lpfc_mbx_cmpl_fc_reg_login(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
- 		goto out;
- 	}
- 
-+	lpfc_check_nlp_post_devloss(vport, ndlp);
-+
- 	if (phba->sli_rev < LPFC_SLI_REV4)
- 		ndlp->nlp_rpi = mb->un.varWords[0];
- 
-@@ -4526,9 +4632,10 @@ lpfc_nlp_counters(struct lpfc_vport *vport, int state, int count)
- void
- lpfc_nlp_reg_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
- {
--
- 	unsigned long iflags;
- 
-+	lpfc_check_nlp_post_devloss(vport, ndlp);
-+
- 	spin_lock_irqsave(&ndlp->lock, iflags);
- 	if (ndlp->fc4_xpt_flags & NLP_XPT_REGD) {
- 		/* Already registered with backend, trigger rescan */
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index 195169badb372..0fee8d590b0c4 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -3694,12 +3694,16 @@ lpfc_offline_prep(struct lpfc_hba *phba, int mbx_action)
- 					lpfc_disc_state_machine(vports[i], ndlp,
- 						NULL, NLP_EVT_DEVICE_RECOVERY);
- 
--					/* Don't remove the node unless the
-+					/* Don't remove the node unless the node
- 					 * has been unregistered with the
--					 * transport.  If so, let dev_loss
--					 * take care of the node.
-+					 * transport, and we're not in recovery
-+					 * before dev_loss_tmo triggered.
-+					 * Otherwise, let dev_loss take care of
-+					 * the node.
- 					 */
--					if (!(ndlp->fc4_xpt_flags &
-+					if (!(ndlp->save_flags &
-+					      NLP_IN_RECOV_POST_DEV_LOSS) &&
-+					    !(ndlp->fc4_xpt_flags &
- 					      (NVME_XPT_REGD | SCSI_XPT_REGD)))
- 						lpfc_disc_state_machine
- 							(vports[i], ndlp,
-diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
-index befdf864c43bd..1bfd8b677f8ef 100644
---- a/drivers/scsi/lpfc/lpfc_scsi.c
-+++ b/drivers/scsi/lpfc/lpfc_scsi.c
-@@ -6455,28 +6455,28 @@ lpfc_target_reset_handler(struct scsi_cmnd *cmnd)
- 
- 		/* Issue LOGO, if no LOGO is outstanding */
- 		spin_lock_irqsave(&pnode->lock, flags);
--		if (!(pnode->upcall_flags & NLP_WAIT_FOR_LOGO) &&
-+		if (!(pnode->save_flags & NLP_WAIT_FOR_LOGO) &&
- 		    !pnode->logo_waitq) {
- 			pnode->logo_waitq = &waitq;
- 			pnode->nlp_fcp_info &= ~NLP_FCP_2_DEVICE;
- 			pnode->nlp_flag |= NLP_ISSUE_LOGO;
--			pnode->upcall_flags |= NLP_WAIT_FOR_LOGO;
-+			pnode->save_flags |= NLP_WAIT_FOR_LOGO;
- 			spin_unlock_irqrestore(&pnode->lock, flags);
- 			lpfc_unreg_rpi(vport, pnode);
- 			wait_event_timeout(waitq,
--					   (!(pnode->upcall_flags &
-+					   (!(pnode->save_flags &
- 					      NLP_WAIT_FOR_LOGO)),
- 					   msecs_to_jiffies(dev_loss_tmo *
- 							    1000));
- 
--			if (pnode->upcall_flags & NLP_WAIT_FOR_LOGO) {
-+			if (pnode->save_flags & NLP_WAIT_FOR_LOGO) {
- 				lpfc_printf_vlog(vport, KERN_ERR, logit,
- 						 "0725 SCSI layer TGTRST "
- 						 "failed & LOGO TMO (%d, %llu) "
- 						 "return x%x\n",
- 						 tgt_id, lun_id, status);
- 				spin_lock_irqsave(&pnode->lock, flags);
--				pnode->upcall_flags &= ~NLP_WAIT_FOR_LOGO;
-+				pnode->save_flags &= ~NLP_WAIT_FOR_LOGO;
- 			} else {
- 				spin_lock_irqsave(&pnode->lock, flags);
- 			}
+ MODULE_AUTHOR("Dmitry Osipenko <digetx@gmail.com>");
+ MODULE_DESCRIPTION("NVIDIA Tegra20 EMC driver");
++MODULE_SOFTDEP("pre: governor_simpleondemand");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.33.0
 
