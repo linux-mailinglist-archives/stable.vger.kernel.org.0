@@ -2,165 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4738E44B91C
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:57:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBF2244B959
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 00:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237370AbhKIXAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 18:00:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59226 "EHLO
+        id S231572AbhKIX2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 18:28:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235437AbhKIXAA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 18:00:00 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D36EC014A84
-        for <stable@vger.kernel.org>; Tue,  9 Nov 2021 14:48:41 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id b11so1233016pld.12
-        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 14:48:41 -0800 (PST)
+        with ESMTP id S231825AbhKIX2o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 18:28:44 -0500
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F21DC061766
+        for <stable@vger.kernel.org>; Tue,  9 Nov 2021 15:25:58 -0800 (PST)
+Received: by mail-ot1-x330.google.com with SMTP id u18-20020a9d7212000000b00560cb1dc10bso1067494otj.11
+        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 15:25:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=RyUbzbLT7TyFTwsD4K+vvBkFaPCFe0nrPtJ3YkrUusU=;
-        b=HyOX0DXuUXOTPNrAah15F4KqQbsnBC6ZPmAz19M35N72oghtoWehDsgf9ddtiqUSc+
-         QIIN+3hGJuDr8JtE8lNNGFtsoW1u8fRjOoF+lwn4npLYCNQnLciZvFUzB4PWRWB3OnqG
-         iHXJSJ+oz9daC3EqZ4FQDw6bsWT1ephSx8zAIXFTeSKWVaAYyGPaf59jIIDrOMgW5yYa
-         WE2Wb0qi0E1fQlicB/ktmKH3NNsfYPqCmmWlDZ5uP5J+eSRnuAfZDByoU2g9pA2kl4Ig
-         OQo+0eYyu+yUK08RMDm0ymDGNy3aPJAJccMcTnUBUEVqCEId30vujknP6wQboSpIMaOr
-         EVOQ==
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nL261LfEnE+lH5hQroZYFitjsNXa1tK6YPPcrVYv6c4=;
+        b=N1HvdV99468q9bEv5q7ellPorYQd/W8mpCPrWLqn8S4ksJv0XInlTz/z79o91irx8F
+         IBinuVJR+3dv3ohTcMOjoLOjds8IlTm/Ay2TbcpMEIQb7TPl2tCqAAaonqYywCgsr4kN
+         ZCEWZuQ1MSmhqlppYjbvItwe0X/k2DasKrpK8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=RyUbzbLT7TyFTwsD4K+vvBkFaPCFe0nrPtJ3YkrUusU=;
-        b=GYoMVo7iywOh6binkrS+wZQeZKhnjpyGgI1Xg1zkBKY4z7pWF+O2wkXl891KhJtoTj
-         syNuKS0FeFje3iYIfXEY8bJ8+uBvMBSzeku8T5aANtkIYgRUE7s/XUZj9M/FM1NSOtrm
-         tHeyanIsgH82kEnKs+8J26s6QnFDRTMEKv6HcpUcLnR6GTs3J3Wmjt6v/XOuOCz9F3v+
-         bSzQX0rXEwmzLoBReSVy3lmufCn0n20EeRotTOzY7rLTFe4Cn9SCRArLi7EZLe9liKNC
-         /61DBB6gt9noCofFttkZtDRsxztHIIX25/gUxmQkyXgp7V2AfIBE/A7cLzBoPs09vlkR
-         nsFg==
-X-Gm-Message-State: AOAM530YXbcpblPWjiQ9R21GqiXyzr5Fs9DgkerS3kVnL9WJpLETnOkW
-        5x0cIM3TaGd5SMet+E9E0Y7JwVeShthWouKl
-X-Google-Smtp-Source: ABdhPJy7JRPd3rrQQ7s1aE+zQ+MWHBTGfndUkElCldCbKVzkwgOOrVQQNPY6CRUtNYlbXztu2ZEJfA==
-X-Received: by 2002:a17:90b:1812:: with SMTP id lw18mr11271269pjb.196.1636498120694;
-        Tue, 09 Nov 2021 14:48:40 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j62sm15699402pgc.62.2021.11.09.14.48.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Nov 2021 14:48:40 -0800 (PST)
-Message-ID: <618afac8.1c69fb81.fcb49.06b3@mx.google.com>
-Date:   Tue, 09 Nov 2021 14:48:40 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nL261LfEnE+lH5hQroZYFitjsNXa1tK6YPPcrVYv6c4=;
+        b=tCeQg4epiNJXovqWlC/1vVbjMwpi11H4VR08yxFGyDQWIyYblH8KiDyimPmtRooyF5
+         mQMUMfaAeASCqJ9DhPwgXAd+nvRt8S6iHAQBEbftyUkI/h5KA7y91/Xj1zy7xKkyIVEK
+         Z4+gsiPNYp0FZZNfaPPEgR/Y4+WakRhGlmgVxUNWBMdms4nIEboPjPM749gIqGa+y0i4
+         0jd3yyFNVKr13Fon7302fFtEmZCST7RaHyWnhHb7bQm6vhH+5zkr5FBmrkHNkf1h5eqw
+         RUd/UIW6jN7Lj8SoaGsLDaKksZoEaqqf5UV8kX+1Ko5moY1eeeBapnHmydYVCBhtKySA
+         lUIw==
+X-Gm-Message-State: AOAM533P+RA78IRa4sq9VLS1wSrEDNmgwrNWOFHJGnxcMUI1S27lGR2T
+        BC5VepTJFJ2QDqX6rQZ8BFCx01TI0ysa0w==
+X-Google-Smtp-Source: ABdhPJzZkRVlyb0xDQQjnJDUsfNWW/k3qqt2M1oQYAmiY1NYxq9ee37f1eCWMolQAJEeHmDS4PuEfA==
+X-Received: by 2002:a9d:6953:: with SMTP id p19mr9193302oto.138.1636500356733;
+        Tue, 09 Nov 2021 15:25:56 -0800 (PST)
+Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com. [209.85.210.45])
+        by smtp.gmail.com with ESMTPSA id k12sm2748515ots.77.2021.11.09.15.25.55
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Nov 2021 15:25:55 -0800 (PST)
+Received: by mail-ot1-f45.google.com with SMTP id z2-20020a9d71c2000000b0055c6a7d08b8so1118809otj.5
+        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 15:25:55 -0800 (PST)
+X-Received: by 2002:a9d:734a:: with SMTP id l10mr9337755otk.3.1636500354735;
+ Tue, 09 Nov 2021 15:25:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.14.17-13-gbb0509ba5901
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.14 baseline: 218 runs,
- 2 regressions (v5.14.17-13-gbb0509ba5901)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20211109221641.1233217-1-sashal@kernel.org> <20211109221641.1233217-17-sashal@kernel.org>
+In-Reply-To: <20211109221641.1233217-17-sashal@kernel.org>
+From:   Brian Norris <briannorris@chromium.org>
+Date:   Tue, 9 Nov 2021 15:25:39 -0800
+X-Gmail-Original-Message-ID: <CA+ASDXNcC4_MpURRjbeXsyXsQ9Qte_YgoXFCJUKtrSWpZsHn-g@mail.gmail.com>
+Message-ID: <CA+ASDXNcC4_MpURRjbeXsyXsQ9Qte_YgoXFCJUKtrSWpZsHn-g@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.15 17/82] arm64: dts: rockchip: add Coresight
+ debug range for RK3399
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Leo Yan <leo.yan@linaro.org>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>, robh+dt@kernel.org,
+        pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        catalin.marinas@arm.com, will.deacon@arm.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 218 runs, 2 regressions (v5.14.17-13-gbb0509=
-ba5901)
+On Tue, Nov 9, 2021 at 2:17 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: Brian Norris <briannorris@chromium.org>
+>
+> [ Upstream commit 75dccea503b8e176ad044175e891d7bb291b6ba0 ]
+>
+> Per Documentation/devicetree/bindings/arm/coresight-cpu-debug.txt.
+>
+> This IP block can be used for sampling the PC of any given CPU, which is
+> useful in certain panic scenarios where you can't get the CPU to stop
+> cleanly (e.g., hard lockup).
 
-Regressions Summary
--------------------
+I don't understand why this is being backported to -stable. First of
+all, it won't work because it's missing dependencies (specifically,
+around the RK3399 clock driver). But even if it did, I don't see how
+this is a candidate for -stable.
 
-platform                     | arch  | lab          | compiler | defconfig =
-          | regressions
------------------------------+-------+--------------+----------+-----------=
-----------+------------
-beagle-xm                    | arm   | lab-baylibre | gcc-10   | omap2plus_=
-defconfig | 1          =
+Methinks the AI has gone too far again.
 
-meson-g12b-a311d-khadas-vim3 | arm64 | lab-baylibre | gcc-10   | defconfig =
-          | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.17-13-gbb0509ba5901/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.17-13-gbb0509ba5901
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      bb0509ba59015cf61f988fcf8d302e23be5817b6 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch  | lab          | compiler | defconfig =
-          | regressions
------------------------------+-------+--------------+----------+-----------=
-----------+------------
-beagle-xm                    | arm   | lab-baylibre | gcc-10   | omap2plus_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/618ac401e8d18e882b3358f3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
-13-gbb0509ba5901/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
-13-gbb0509ba5901/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/618ac401e8d18e882b335=
-8f4
-        failing since 16 days (last pass: v5.14.14-64-gb66eb77f69e4, first =
-fail: v5.14.14-124-g710e5bbf51e3) =
-
- =
-
-
-
-platform                     | arch  | lab          | compiler | defconfig =
-          | regressions
------------------------------+-------+--------------+----------+-----------=
-----------+------------
-meson-g12b-a311d-khadas-vim3 | arm64 | lab-baylibre | gcc-10   | defconfig =
-          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/618ac478fdec7f74ef335906
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
-13-gbb0509ba5901/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12b-a3=
-11d-khadas-vim3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
-13-gbb0509ba5901/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12b-a3=
-11d-khadas-vim3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/618ac478fdec7f74ef335=
-907
-        new failure (last pass: v5.14.17-9-g9f7eecaa70b3) =
-
- =20
+Brian
