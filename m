@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21DB044B5D5
+	by mail.lfdr.de (Postfix) with ESMTP id CD51844B5D6
 	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:21:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241998AbhKIWXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:23:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41654 "EHLO mail.kernel.org"
+        id S236033AbhKIWXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:23:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343840AbhKIWVf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:21:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFEC061350;
-        Tue,  9 Nov 2021 22:18:15 +0000 (UTC)
+        id S1343940AbhKIWWB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:22:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27FC6613B3;
+        Tue,  9 Nov 2021 22:18:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496296;
-        bh=ElkS4QiHnUadwnwFY/s/b/QddH2qo6jnXRZBJtdHE20=;
+        s=k20201202; t=1636496298;
+        bh=yRU2nC94K7wNrUtgKiFvZusWJJCgd3iynH7iUVZAMW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0OHHU7/RybZ120/Sn4+80ietJwBtHE/PKDpxgSxRx4dup2rKLViwaJSkPUQe3MuB
-         hbM/pcd/DIP7TlAm+FRpqTXO0UxQl6VhVO775fVRvwFVTBWPztHCNpAJ1LuZwcy6Ct
-         +v9OH5xgVeeJHQR3UqudHMdzemfOYj0pomxazLY/KO6XhJ6tDcEqpvRE3xX3TzwtwO
-         m7Vj+ZNBv6W8qUEnGMwpvY6lxndP0YI5H7WjLUnVmN5ZfsONOGx7ezWjZK7SNO6/x0
-         JqMnrg7lsBpLKR5d0HwVG1nUHFM4sEjgZT0WnZimVJy4xVAcNCDqIKUjxkbOo1VI0H
-         /4m+FcH2w3yKA==
+        b=IfuzkhP4jwBc9fM4hSApgywrCY0Yctz8lxuhOqOpqSIaTaqGXaRdPcyhlT4QwD0FD
+         a6KXns0druWYYQ3WjixvGMb+Y9L5j4S44HJdC8K7Z1fCBa04hfyYyTmphBBYnPMN+w
+         XYnVPkaq9IfmzId37eW6TiQCLah89y5bOe+k/b8bABpHdwX9M8Vi/O9WQR7h2OIRXs
+         s/2UvTjHFDIneeMGKK1F6z89wO/eiQN+7vZiRS5tbnekWWKmo278Cha7rKTozn6Ptj
+         43yk0biOxpe51tGZNM6QvFuZnvvg2epiajOuibwLWLxFYihF4JbcyKIvkFcyWEPH8V
+         Fa0xaSzyBE8Jw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     William Overton <willovertonuk@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, gregkh@linuxfoundation.org,
-        brendan@grieve.com.au, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 52/82] ALSA: usb-audio: Add support for the Pioneer DJM 750MK2 Mixer/Soundcard
-Date:   Tue,  9 Nov 2021 17:16:10 -0500
-Message-Id: <20211109221641.1233217-52-sashal@kernel.org>
+Cc:     Roger Quadros <rogerq@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, bcousson@baylibre.com,
+        robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        linux@arm.linux.org.uk, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 53/82] ARM: dts: omap: fix gpmc,mux-add-data type
+Date:   Tue,  9 Nov 2021 17:16:11 -0500
+Message-Id: <20211109221641.1233217-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
@@ -43,159 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Overton <willovertonuk@gmail.com>
+From: Roger Quadros <rogerq@kernel.org>
 
-[ Upstream commit 6d27788160362a7ee6c0d317636fe4b1ddbe59a7 ]
+[ Upstream commit 51b9e22ffd3c4c56cbb7caae9750f70e55ffa603 ]
 
-The kernel already has support for very similar Pioneer djm products
-and this work is based on that.
+gpmc,mux-add-data is not boolean.
 
-Added device to quirks-table.h and added control info to
-mixer_quirks.c.
+Fixes the below errors flagged by dtbs_check.
 
-Tested on my hardware and all working.
+"ethernet@4,0:gpmc,mux-add-data: True is not of type 'array'"
 
-Signed-off-by: William Overton <willovertonuk@gmail.com>
-Link: https://lore.kernel.org/r/20211010145841.11907-1-willovertonuk@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Roger Quadros <rogerq@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer_quirks.c | 34 +++++++++++++++++++++++
- sound/usb/quirks-table.h | 58 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 92 insertions(+)
+ arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi         | 2 +-
+ arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
-index 46082dc57be09..d489c1de3baec 100644
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -2795,6 +2795,7 @@ static int snd_bbfpro_controls_create(struct usb_mixer_interface *mixer)
- #define SND_DJM_750_IDX		0x1
- #define SND_DJM_850_IDX		0x2
- #define SND_DJM_900NXS2_IDX	0x3
-+#define SND_DJM_750MK2_IDX	0x4
+diff --git a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+index 7f6aefd134514..e7534fe9c53cf 100644
+--- a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
++++ b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+@@ -29,7 +29,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
  
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
+diff --git a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+index e5da3bc6f1050..218a10c0d8159 100644
+--- a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+@@ -22,7 +22,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
  
- #define SND_DJM_CTL(_name, suffix, _default_value, _windex) { \
-@@ -2984,10 +2985,40 @@ static const struct snd_djm_ctl snd_djm_ctls_900nxs2[] = {
- 	SND_DJM_CTL("Ch5 Input",   900nxs2_cap5, 3, SND_DJM_WINDEX_CAP)
- };
- 
-+// DJM-750MK2
-+static const u16 snd_djm_opts_750mk2_cap1[] = {
-+	0x0100, 0x0102, 0x0103, 0x0106, 0x0107, 0x0108, 0x0109, 0x010a };
-+static const u16 snd_djm_opts_750mk2_cap2[] = {
-+	0x0200, 0x0202, 0x0203, 0x0206, 0x0207, 0x0208, 0x0209, 0x020a };
-+static const u16 snd_djm_opts_750mk2_cap3[] = {
-+	0x0300, 0x0302, 0x0303, 0x0306, 0x0307, 0x0308, 0x0309, 0x030a };
-+static const u16 snd_djm_opts_750mk2_cap4[] = {
-+	0x0400, 0x0402, 0x0403, 0x0406, 0x0407, 0x0408, 0x0409, 0x040a };
-+static const u16 snd_djm_opts_750mk2_cap5[] = {
-+	0x0507, 0x0508, 0x0509, 0x050a, 0x0511, 0x0512, 0x0513, 0x0514 };
-+
-+static const u16 snd_djm_opts_750mk2_pb1[] = { 0x0100, 0x0101, 0x0104 };
-+static const u16 snd_djm_opts_750mk2_pb2[] = { 0x0200, 0x0201, 0x0204 };
-+static const u16 snd_djm_opts_750mk2_pb3[] = { 0x0300, 0x0301, 0x0304 };
-+
-+
-+static const struct snd_djm_ctl snd_djm_ctls_750mk2[] = {
-+	SND_DJM_CTL("Capture Level", cap_level, 0, SND_DJM_WINDEX_CAPLVL),
-+	SND_DJM_CTL("Ch1 Input",   750mk2_cap1, 2, SND_DJM_WINDEX_CAP),
-+	SND_DJM_CTL("Ch2 Input",   750mk2_cap2, 2, SND_DJM_WINDEX_CAP),
-+	SND_DJM_CTL("Ch3 Input",   750mk2_cap3, 2, SND_DJM_WINDEX_CAP),
-+	SND_DJM_CTL("Ch4 Input",   750mk2_cap4, 2, SND_DJM_WINDEX_CAP),
-+	SND_DJM_CTL("Ch5 Input",   750mk2_cap5, 3, SND_DJM_WINDEX_CAP),
-+	SND_DJM_CTL("Ch1 Output",   750mk2_pb1, 0, SND_DJM_WINDEX_PB),
-+	SND_DJM_CTL("Ch2 Output",   750mk2_pb2, 1, SND_DJM_WINDEX_PB),
-+	SND_DJM_CTL("Ch3 Output",   750mk2_pb3, 2, SND_DJM_WINDEX_PB)
-+};
-+
- 
- static const struct snd_djm_device snd_djm_devices[] = {
- 	SND_DJM_DEVICE(250mk2),
- 	SND_DJM_DEVICE(750),
-+	SND_DJM_DEVICE(750mk2),
- 	SND_DJM_DEVICE(850),
- 	SND_DJM_DEVICE(900nxs2)
- };
-@@ -3235,6 +3266,9 @@ int snd_usb_mixer_apply_create_quirk(struct usb_mixer_interface *mixer)
- 	case USB_ID(0x08e4, 0x017f): /* Pioneer DJ DJM-750 */
- 		err = snd_djm_controls_create(mixer, SND_DJM_750_IDX);
- 		break;
-+	case USB_ID(0x2b73, 0x001b): /* Pioneer DJ DJM-750MK2 */
-+		err = snd_djm_controls_create(mixer, SND_DJM_750MK2_IDX);
-+		break;
- 	case USB_ID(0x08e4, 0x0163): /* Pioneer DJ DJM-850 */
- 		err = snd_djm_controls_create(mixer, SND_DJM_850_IDX);
- 		break;
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index 2af8c68fac275..b1522e43173e1 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3892,6 +3892,64 @@ YAMAHA_DEVICE(0x7010, "UB99"),
- 		}
- 	}
- },
-+{
-+	/*
-+	 * Pioneer DJ DJM-750MK2
-+	 * 10 channels playback & 12 channels capture @ 48kHz S24LE
-+	 */
-+	USB_DEVICE_VENDOR_SPEC(0x2b73, 0x001b),
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = (const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 0,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
-+					.channels = 10,
-+					.iface = 0,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x01,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC|
-+					    USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_48000,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) {
-+						48000
-+					}
-+				}
-+			},
-+			{
-+				.ifnum = 0,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
-+					.channels = 12,
-+					.iface = 0,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x82,
-+					.ep_idx = 1,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC|
-+						USB_ENDPOINT_SYNC_ASYNC|
-+						USB_ENDPOINT_USAGE_IMPLICIT_FB,
-+					.rates = SNDRV_PCM_RATE_48000,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) { 48000 }
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
- {
- 	/*
- 	 * Pioneer DJ DJM-850
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
 -- 
 2.33.0
 
