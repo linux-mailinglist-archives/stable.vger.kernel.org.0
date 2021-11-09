@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D70244B7A8
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:33:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A338744B7A6
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:33:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345203AbhKIWg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:36:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56632 "EHLO mail.kernel.org"
+        id S1345153AbhKIWgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:36:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345510AbhKIWeM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345513AbhKIWeM (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:34:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2C9061AD1;
-        Tue,  9 Nov 2021 22:22:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1697960231;
+        Tue,  9 Nov 2021 22:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496528;
-        bh=3Vu0XxQGctumngGP0qAUb+siqu5jgLpyDhFnayMstWY=;
+        s=k20201202; t=1636496530;
+        bh=l4tHxrOOGBLqmc3toYEVXRi8C9IsnN2PFRJTQcIExAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QSAe6Hx8R4VidMFsckGhGwdbwuhVc8Kqb7a3H9csZ3APRol3r/e1RyOUriLPgzdyN
-         DDrBiosPGrjXKweu/7a69wLqdGux+RGJOnPtDYI2nEiGaObPb1P87X/MkbMo0ePJrV
-         RFgUq6Zn1axeSPofICQhNj8b+FgC4AX19zIX61KnOZgQcJapKzhffVynNVPBf27uwS
-         qot24AW/w3JG60U74TJRNhmKi2LsubnDttEyxrk2/asnfptT285oNjMSnfd2uZTamq
-         NQNBgxSIt5klMA3L1okT2WSCrbkn9vSNEIUlYamansd9mhDQ9BwzjYGAl9BCAz3RfX
-         MtjoWS2DsnXXA==
+        b=XW1uybi5F8W+bBtrOgyKEQFJ9ZV2/whM6mmyzkAidBtKgBEVLbVBlqER524qz2Jfd
+         stuO1SMHN6WwKZxNrkjCCipfm6TAWrXYXVLjnFGKUteynezPy7mPChGt+9hBv3UZGR
+         qoAY6npDk4uSVe/kIzuKq+TmOoAJRJMTV8+1VGO6l21Es6mhuXz/885AFQyVC7ZPbd
+         SuiofTwGlVHFP9vJ3zEUx452/tv18ndTP/LKysV+t575k3ZO3iWJuzqDNYLpJlS8sZ
+         bOqUswG1ehU5nED1bAS9+0W10gLNp6UZoHCVmsr25PnZwnBImf+qJQ5wXc4TUm5P5B
+         n0BPZCOibDsKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
+Cc:     Mike Christie <michael.christie@oracle.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, JBottomley@odin.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 41/50] scsi: scsi_debug: Fix out-of-bound read in resp_report_tgtpgs()
-Date:   Tue,  9 Nov 2021 17:20:54 -0500
-Message-Id: <20211109222103.1234885-41-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, nab@linux-iscsi.org,
+        rjui@broadcom.com, sbranden@broadcom.com, jonmason@broadcom.com,
+        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        bcm-kernel-feedback-list@broadcom.com
+Subject: [PATCH AUTOSEL 5.10 42/50] scsi: target: Fix ordered tag handling
+Date:   Tue,  9 Nov 2021 17:20:55 -0500
+Message-Id: <20211109222103.1234885-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222103.1234885-1-sashal@kernel.org>
 References: <20211109222103.1234885-1-sashal@kernel.org>
@@ -44,87 +46,264 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit f347c26836c270199de1599c3cd466bb7747caa9 ]
+[ Upstream commit ed1227e080990ffec5bf39006ec8a57358e6689a ]
 
-The following issue was observed running syzkaller:
+This patch fixes the following bugs:
 
-BUG: KASAN: slab-out-of-bounds in memcpy include/linux/string.h:377 [inline]
-BUG: KASAN: slab-out-of-bounds in sg_copy_buffer+0x150/0x1c0 lib/scatterlist.c:831
-Read of size 2132 at addr ffff8880aea95dc8 by task syz-executor.0/9815
+1. If there are multiple ordered cmds queued and multiple simple cmds
+   completing, target_restart_delayed_cmds() could be called on different
+   CPUs and each instance could start a ordered cmd. They could then run in
+   different orders than they were queued.
 
-CPU: 0 PID: 9815 Comm: syz-executor.0 Not tainted 4.19.202-00874-gfc0fe04215a9 #2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xe4/0x14a lib/dump_stack.c:118
- print_address_description+0x73/0x280 mm/kasan/report.c:253
- kasan_report_error mm/kasan/report.c:352 [inline]
- kasan_report+0x272/0x370 mm/kasan/report.c:410
- memcpy+0x1f/0x50 mm/kasan/kasan.c:302
- memcpy include/linux/string.h:377 [inline]
- sg_copy_buffer+0x150/0x1c0 lib/scatterlist.c:831
- fill_from_dev_buffer+0x14f/0x340 drivers/scsi/scsi_debug.c:1021
- resp_report_tgtpgs+0x5aa/0x770 drivers/scsi/scsi_debug.c:1772
- schedule_resp+0x464/0x12f0 drivers/scsi/scsi_debug.c:4429
- scsi_debug_queuecommand+0x467/0x1390 drivers/scsi/scsi_debug.c:5835
- scsi_dispatch_cmd+0x3fc/0x9b0 drivers/scsi/scsi_lib.c:1896
- scsi_request_fn+0x1042/0x1810 drivers/scsi/scsi_lib.c:2034
- __blk_run_queue_uncond block/blk-core.c:464 [inline]
- __blk_run_queue+0x1a4/0x380 block/blk-core.c:484
- blk_execute_rq_nowait+0x1c2/0x2d0 block/blk-exec.c:78
- sg_common_write.isra.19+0xd74/0x1dc0 drivers/scsi/sg.c:847
- sg_write.part.23+0x6e0/0xd00 drivers/scsi/sg.c:716
- sg_write+0x64/0xa0 drivers/scsi/sg.c:622
- __vfs_write+0xed/0x690 fs/read_write.c:485
-kill_bdev:block_device:00000000e138492c
- vfs_write+0x184/0x4c0 fs/read_write.c:549
- ksys_write+0x107/0x240 fs/read_write.c:599
- do_syscall_64+0xc2/0x560 arch/x86/entry/common.c:293
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+2. target_restart_delayed_cmds() and target_handle_task_attr() can race
+   where:
 
-We get 'alen' from command its type is int. If userspace passes a large
-length we will get a negative 'alen'.
+   1. target_handle_task_attr() has passed the simple_cmds == 0 check.
 
-Switch n, alen, and rlen to u32.
+   2. transport_complete_task_attr() then decrements simple_cmds to 0.
 
-Link: https://lore.kernel.org/r/20211013033913.2551004-3-yebin10@huawei.com
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
+   3. transport_complete_task_attr() runs target_restart_delayed_cmds() and
+      it does not see any cmds on the delayed_cmd_list.
+
+   4. target_handle_task_attr() adds the cmd to the delayed_cmd_list.
+
+   The cmd will then end up timing out.
+
+3. If we are sent > 1 ordered cmds and simple_cmds == 0, we can execute
+   them out of order, because target_handle_task_attr() will hit that
+   simple_cmds check first and return false for all ordered cmds sent.
+
+4. We run target_restart_delayed_cmds() after every cmd completion, so if
+   there is more than 1 simple cmd running, we start executing ordered cmds
+   after that first cmd instead of waiting for all of them to complete.
+
+5. Ordered cmds are not supposed to start until HEAD OF QUEUE and all older
+   cmds have completed, and not just simple.
+
+6. It's not a bug but it doesn't make sense to take the delayed_cmd_lock
+   for every cmd completion when ordered cmds are almost never used. Just
+   replacing that lock with an atomic increases IOPs by up to 10% when
+   completions are spread over multiple CPUs and there are multiple
+   sessions/ mqs/thread accessing the same device.
+
+This patch moves the queued delayed handling to a per device work to
+serialze the cmd executions for each device and adds a new counter to track
+HEAD_OF_QUEUE and SIMPLE cmds. We can then check the new counter to
+determine when to run the work on the completion path.
+
+Link: https://lore.kernel.org/r/20210930020422.92578-3-michael.christie@oracle.com
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_debug.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/target/target_core_device.c    |  2 +
+ drivers/target/target_core_internal.h  |  1 +
+ drivers/target/target_core_transport.c | 76 ++++++++++++++++++--------
+ include/target/target_core_base.h      |  6 +-
+ 4 files changed, 61 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index 63504dc63d878..3fc7c2a31c191 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -1895,8 +1895,9 @@ static int resp_report_tgtpgs(struct scsi_cmnd *scp,
- 	unsigned char *cmd = scp->cmnd;
- 	unsigned char *arr;
- 	int host_no = devip->sdbg_host->shost->host_no;
--	int n, ret, alen, rlen;
- 	int port_group_a, port_group_b, port_a, port_b;
-+	u32 alen, n, rlen;
-+	int ret;
+diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
+index 405d82d447176..109f019d21480 100644
+--- a/drivers/target/target_core_device.c
++++ b/drivers/target/target_core_device.c
+@@ -758,6 +758,8 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
+ 	INIT_LIST_HEAD(&dev->t10_alua.lba_map_list);
+ 	spin_lock_init(&dev->t10_alua.lba_map_lock);
  
- 	alen = get_unaligned_be32(cmd + 6);
- 	arr = kzalloc(SDEBUG_MAX_TGTPGS_ARR_SZ, GFP_ATOMIC);
-@@ -1958,9 +1959,9 @@ static int resp_report_tgtpgs(struct scsi_cmnd *scp,
- 	 * - The constructed command length
- 	 * - The maximum array size
++	INIT_WORK(&dev->delayed_cmd_work, target_do_delayed_work);
++
+ 	dev->t10_wwn.t10_dev = dev;
+ 	dev->t10_alua.t10_dev = dev;
+ 
+diff --git a/drivers/target/target_core_internal.h b/drivers/target/target_core_internal.h
+index e7b3c6e5d5744..e4f072a680d41 100644
+--- a/drivers/target/target_core_internal.h
++++ b/drivers/target/target_core_internal.h
+@@ -150,6 +150,7 @@ int	transport_dump_vpd_ident(struct t10_vpd *, unsigned char *, int);
+ void	transport_clear_lun_ref(struct se_lun *);
+ sense_reason_t	target_cmd_size_check(struct se_cmd *cmd, unsigned int size);
+ void	target_qf_do_work(struct work_struct *work);
++void	target_do_delayed_work(struct work_struct *work);
+ bool	target_check_wce(struct se_device *dev);
+ bool	target_check_fua(struct se_device *dev);
+ void	__target_execute_cmd(struct se_cmd *, bool);
+diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
+index 61b79804d462c..bca3a32a4bfb7 100644
+--- a/drivers/target/target_core_transport.c
++++ b/drivers/target/target_core_transport.c
+@@ -2065,32 +2065,35 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
  	 */
--	rlen = min_t(int, alen, n);
-+	rlen = min(alen, n);
- 	ret = fill_from_dev_buffer(scp, arr,
--			   min_t(int, rlen, SDEBUG_MAX_TGTPGS_ARR_SZ));
-+			   min_t(u32, rlen, SDEBUG_MAX_TGTPGS_ARR_SZ));
- 	kfree(arr);
- 	return ret;
+ 	switch (cmd->sam_task_attr) {
+ 	case TCM_HEAD_TAG:
++		atomic_inc_mb(&dev->non_ordered);
+ 		pr_debug("Added HEAD_OF_QUEUE for CDB: 0x%02x\n",
+ 			 cmd->t_task_cdb[0]);
+ 		return false;
+ 	case TCM_ORDERED_TAG:
+-		atomic_inc_mb(&dev->dev_ordered_sync);
++		atomic_inc_mb(&dev->delayed_cmd_count);
+ 
+ 		pr_debug("Added ORDERED for CDB: 0x%02x to ordered list\n",
+ 			 cmd->t_task_cdb[0]);
+-
+-		/*
+-		 * Execute an ORDERED command if no other older commands
+-		 * exist that need to be completed first.
+-		 */
+-		if (!atomic_read(&dev->simple_cmds))
+-			return false;
+ 		break;
+ 	default:
+ 		/*
+ 		 * For SIMPLE and UNTAGGED Task Attribute commands
+ 		 */
+-		atomic_inc_mb(&dev->simple_cmds);
++		atomic_inc_mb(&dev->non_ordered);
++
++		if (atomic_read(&dev->delayed_cmd_count) == 0)
++			return false;
+ 		break;
+ 	}
+ 
+-	if (atomic_read(&dev->dev_ordered_sync) == 0)
+-		return false;
++	if (cmd->sam_task_attr != TCM_ORDERED_TAG) {
++		atomic_inc_mb(&dev->delayed_cmd_count);
++		/*
++		 * We will account for this when we dequeue from the delayed
++		 * list.
++		 */
++		atomic_dec_mb(&dev->non_ordered);
++	}
+ 
+ 	spin_lock(&dev->delayed_cmd_lock);
+ 	list_add_tail(&cmd->se_delayed_node, &dev->delayed_cmd_list);
+@@ -2098,6 +2101,12 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
+ 
+ 	pr_debug("Added CDB: 0x%02x Task Attr: 0x%02x to delayed CMD listn",
+ 		cmd->t_task_cdb[0], cmd->sam_task_attr);
++	/*
++	 * We may have no non ordered cmds when this function started or we
++	 * could have raced with the last simple/head cmd completing, so kick
++	 * the delayed handler here.
++	 */
++	schedule_work(&dev->delayed_cmd_work);
+ 	return true;
  }
+ 
+@@ -2135,29 +2144,48 @@ EXPORT_SYMBOL(target_execute_cmd);
+  * Process all commands up to the last received ORDERED task attribute which
+  * requires another blocking boundary
+  */
+-static void target_restart_delayed_cmds(struct se_device *dev)
++void target_do_delayed_work(struct work_struct *work)
+ {
+-	for (;;) {
++	struct se_device *dev = container_of(work, struct se_device,
++					     delayed_cmd_work);
++
++	spin_lock(&dev->delayed_cmd_lock);
++	while (!dev->ordered_sync_in_progress) {
+ 		struct se_cmd *cmd;
+ 
+-		spin_lock(&dev->delayed_cmd_lock);
+-		if (list_empty(&dev->delayed_cmd_list)) {
+-			spin_unlock(&dev->delayed_cmd_lock);
++		if (list_empty(&dev->delayed_cmd_list))
+ 			break;
+-		}
+ 
+ 		cmd = list_entry(dev->delayed_cmd_list.next,
+ 				 struct se_cmd, se_delayed_node);
++
++		if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
++			/*
++			 * Check if we started with:
++			 * [ordered] [simple] [ordered]
++			 * and we are now at the last ordered so we have to wait
++			 * for the simple cmd.
++			 */
++			if (atomic_read(&dev->non_ordered) > 0)
++				break;
++
++			dev->ordered_sync_in_progress = true;
++		}
++
+ 		list_del(&cmd->se_delayed_node);
++		atomic_dec_mb(&dev->delayed_cmd_count);
+ 		spin_unlock(&dev->delayed_cmd_lock);
+ 
++		if (cmd->sam_task_attr != TCM_ORDERED_TAG)
++			atomic_inc_mb(&dev->non_ordered);
++
+ 		cmd->transport_state |= CMD_T_SENT;
+ 
+ 		__target_execute_cmd(cmd, true);
+ 
+-		if (cmd->sam_task_attr == TCM_ORDERED_TAG)
+-			break;
++		spin_lock(&dev->delayed_cmd_lock);
+ 	}
++	spin_unlock(&dev->delayed_cmd_lock);
+ }
+ 
+ /*
+@@ -2175,14 +2203,17 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
+ 		goto restart;
+ 
+ 	if (cmd->sam_task_attr == TCM_SIMPLE_TAG) {
+-		atomic_dec_mb(&dev->simple_cmds);
++		atomic_dec_mb(&dev->non_ordered);
+ 		dev->dev_cur_ordered_id++;
+ 	} else if (cmd->sam_task_attr == TCM_HEAD_TAG) {
++		atomic_dec_mb(&dev->non_ordered);
+ 		dev->dev_cur_ordered_id++;
+ 		pr_debug("Incremented dev_cur_ordered_id: %u for HEAD_OF_QUEUE\n",
+ 			 dev->dev_cur_ordered_id);
+ 	} else if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
+-		atomic_dec_mb(&dev->dev_ordered_sync);
++		spin_lock(&dev->delayed_cmd_lock);
++		dev->ordered_sync_in_progress = false;
++		spin_unlock(&dev->delayed_cmd_lock);
+ 
+ 		dev->dev_cur_ordered_id++;
+ 		pr_debug("Incremented dev_cur_ordered_id: %u for ORDERED\n",
+@@ -2191,7 +2222,8 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
+ 	cmd->se_cmd_flags &= ~SCF_TASK_ATTR_SET;
+ 
+ restart:
+-	target_restart_delayed_cmds(dev);
++	if (atomic_read(&dev->delayed_cmd_count) > 0)
++		schedule_work(&dev->delayed_cmd_work);
+ }
+ 
+ static void transport_complete_qf(struct se_cmd *cmd)
+diff --git a/include/target/target_core_base.h b/include/target/target_core_base.h
+index 549947d407cfd..18a5dcd275f88 100644
+--- a/include/target/target_core_base.h
++++ b/include/target/target_core_base.h
+@@ -788,8 +788,9 @@ struct se_device {
+ 	atomic_long_t		read_bytes;
+ 	atomic_long_t		write_bytes;
+ 	/* Active commands on this virtual SE device */
+-	atomic_t		simple_cmds;
+-	atomic_t		dev_ordered_sync;
++	atomic_t		non_ordered;
++	bool			ordered_sync_in_progress;
++	atomic_t		delayed_cmd_count;
+ 	atomic_t		dev_qf_count;
+ 	u32			export_count;
+ 	spinlock_t		delayed_cmd_lock;
+@@ -811,6 +812,7 @@ struct se_device {
+ 	struct list_head	dev_sep_list;
+ 	struct list_head	dev_tmr_list;
+ 	struct work_struct	qf_work_queue;
++	struct work_struct	delayed_cmd_work;
+ 	struct list_head	delayed_cmd_list;
+ 	struct list_head	state_list;
+ 	struct list_head	qf_cmd_list;
 -- 
 2.33.0
 
