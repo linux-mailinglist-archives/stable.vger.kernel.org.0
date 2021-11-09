@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5493344A2A5
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A31444A2A0
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242655AbhKIBTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:19:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44370 "EHLO mail.kernel.org"
+        id S241882AbhKIBTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:19:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236838AbhKIBRR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:17:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F02C161AEE;
-        Tue,  9 Nov 2021 01:07:00 +0000 (UTC)
+        id S241154AbhKIBRS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:17:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3D8961AFC;
+        Tue,  9 Nov 2021 01:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420021;
-        bh=MONHKaE1Shr4/p9mTgmL0HzssTSE32eQycoFwXU3yW4=;
+        s=k20201202; t=1636420022;
+        bh=TslBu8qF10g5S/5SN3YoqK+yp13DOd4gZDb9BGhTW18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjj9+0/AFhOP2iPp2RelD7NAglbN3rR4GgQPOQdkUwstOg0LNum5HSPJCjDlzgsxD
-         eVI3XzNpsrciXl7N2iN7dIyKNjh5QP2wOFkZ4dJSTBhMqRSa7Sg+81t4/S1Y2eiS4o
-         OM+blgTCuIjG6HyMO0Ps9mTRNXkuBc3EdKTVboHmAu8e4ysn8UyfqQ4P+8052YagO5
-         Hiqwq2SHxqhOa66pZmNY/T26EC1vsNoHmYcK/dD9urHIyaX9Mn95fk4qBZ8LKLxKaw
-         v7fqAp1fZY5IrlURdnzFfYKXneIwY+sCkvOZsrCS3uVHb/4+yuAlKEbzyqqmz5NgYw
-         j+v11dHVWRa6A==
+        b=ixVtRE7Mp8TNzkPpDe3Yo1d1CwJrh4pn93ua2MwaOnUAl0ZeNaKuaXOAVwp8BAhOC
+         RPaicERAAjSIUf0S1YxG4hFAqbpIsi3/eX237qViF4sECj/qHw2YyqOgApTTeuAsx5
+         j4tKSjZntU1lAuWfjSr3ZbGLFHID3GVh9+Ew1T5prp/5IHflhp/iAyu4IAEZpE5Ls/
+         7xsKPcSHTcz+YZqvVmbULDu7x6iP7ncgCHdEPHacFSjz5jdH3YmTc+DSwoxI8RUQxt
+         9vPKLdfCh+TaCYp92WEri4CjEmunhZXgSlHOK0QBzRRLIpIwOgavv+ntCklqgEh3OQ
+         U8Cv3IVCzEIjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        will@kernel.org
-Subject: [PATCH AUTOSEL 4.14 06/39] locking/lockdep: Avoid RCU-induced noinstr fail
-Date:   Mon,  8 Nov 2021 20:06:16 -0500
-Message-Id: <20211109010649.1191041-6-sashal@kernel.org>
+Cc:     Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        syzbot+3f91de0b813cc3d19a80@syzkaller.appspotmail.com,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Sasha Levin <sashal@kernel.org>, jmorris@namei.org,
+        serge@hallyn.com, linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 07/39] smackfs: Fix use-after-free in netlbl_catmap_walk()
+Date:   Mon,  8 Nov 2021 20:06:17 -0500
+Message-Id: <20211109010649.1191041-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010649.1191041-1-sashal@kernel.org>
 References: <20211109010649.1191041-1-sashal@kernel.org>
@@ -42,32 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-[ Upstream commit ce0b9c805dd66d5e49fd53ec5415ae398f4c56e6 ]
+[ Upstream commit 0817534ff9ea809fac1322c5c8c574be8483ea57 ]
 
-vmlinux.o: warning: objtool: look_up_lock_class()+0xc7: call to rcu_read_lock_any_held() leaves .noinstr.text section
+Syzkaller reported use-after-free bug as described in [1]. The bug is
+triggered when smk_set_cipso() tries to free stale category bitmaps
+while there are concurrent reader(s) using the same bitmaps.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20210624095148.311980536@infradead.org
+Wait for RCU grace period to finish before freeing the category bitmaps
+in smk_set_cipso(). This makes sure that there are no more readers using
+the stale bitmaps and freeing them should be safe.
+
+[1] https://lore.kernel.org/netdev/000000000000a814c505ca657a4e@google.com/
+
+Reported-by: syzbot+3f91de0b813cc3d19a80@syzkaller.appspotmail.com
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/smack/smackfs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 03e3ab61a2edd..ac0725b1ada75 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -713,7 +713,7 @@ look_up_lock_class(struct lockdep_map *lock, unsigned int subclass)
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
- 		return NULL;
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 009e83ee2d002..25705a72d31bc 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -859,6 +859,7 @@ static int smk_open_cipso(struct inode *inode, struct file *file)
+ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
+ 				size_t count, loff_t *ppos, int format)
+ {
++	struct netlbl_lsm_catmap *old_cat;
+ 	struct smack_known *skp;
+ 	struct netlbl_lsm_secattr ncats;
+ 	char mapcatset[SMK_CIPSOLEN];
+@@ -948,9 +949,11 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
  
--	hlist_for_each_entry_rcu(class, hash_head, hash_entry) {
-+	hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
- 		if (class->key == key) {
- 			/*
- 			 * Huh! same key, different name? Did someone trample
+ 	rc = smk_netlbl_mls(maplevel, mapcatset, &ncats, SMK_CIPSOLEN);
+ 	if (rc >= 0) {
+-		netlbl_catmap_free(skp->smk_netlabel.attr.mls.cat);
++		old_cat = skp->smk_netlabel.attr.mls.cat;
+ 		skp->smk_netlabel.attr.mls.cat = ncats.attr.mls.cat;
+ 		skp->smk_netlabel.attr.mls.lvl = ncats.attr.mls.lvl;
++		synchronize_rcu();
++		netlbl_catmap_free(old_cat);
+ 		rc = count;
+ 	}
+ 
 -- 
 2.33.0
 
