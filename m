@@ -2,104 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE34A44A78F
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 08:24:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81CE844A7E9
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 08:54:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243637AbhKIH1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 02:27:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41924 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243634AbhKIH1F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 02:27:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AFB56115B;
-        Tue,  9 Nov 2021 07:24:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636442660;
-        bh=B+qwQqAlULFf7MzMXt4NMEe6B5x4bD1/n4WZNu9q3Jc=;
-        h=Subject:To:Cc:From:Date:From;
-        b=xBqES6tVMb+MExfsACEm3As/5fuF7V4DhhJKt2tnueXa/emJ3ro3dqDdBbNtJaaDo
-         i2stiAhV5mzgfbDgPL7r/AnFNmiMvOZ/JNDAtMOBU7YsTttmmyzzL73+w1EQvdAjaJ
-         Uz6q/GED9+F5kL2Qg8NTg+sIhxAR+F33ZU3+EAWc=
-Subject: FAILED: patch "[PATCH] binder: use cred instead of task for getsecid" failed to apply to 4.19-stable tree
-To:     tkjos@google.com, casey@schaufler-ca.com, lkp@intel.com,
-        paul@paul-moore.com, stephen.smalley.work@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 09 Nov 2021 08:24:00 +0100
-Message-ID: <1636442640255248@kroah.com>
+        id S243786AbhKIH5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 02:57:15 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:45564 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236392AbhKIH5M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 02:57:12 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id EF81C1C0B9C; Tue,  9 Nov 2021 08:54:24 +0100 (CET)
+Date:   Tue, 9 Nov 2021 08:54:23 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Charan Teja Reddy <charante@codeaurora.org>,
+        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+        sumit.semwal@linaro.org, linux-media@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org
+Subject: AUTOSEL series truncated was -- Re: [PATCH AUTOSEL 5.15 001/146]
+ dma-buf: WARN on dmabuf release with pending attachments
+Message-ID: <20211109075423.GA16766@amd>
+References: <20211108174453.1187052-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Content-Disposition: inline
+In-Reply-To: <20211108174453.1187052-1-sashal@kernel.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+Hi!
 
-greg k-h
+This series is truncated .. I only got first patches. Similary, 5.10
+series is truncated, [PATCH AUTOSEL 5.10 035/101] media: s5p-mfc: Add
+checking to s5p_mfc_probe... is last one I got.
 
------------------- original commit in Linus's tree ------------------
+I got all the patches before that, so I believe it is not problem on
+my side, but I'd not mind someone confirming they are seeing the same
+problem...
 
-From 4d5b5539742d2554591751b4248b0204d20dcc9d Mon Sep 17 00:00:00 2001
-From: Todd Kjos <tkjos@google.com>
-Date: Tue, 12 Oct 2021 09:56:14 -0700
-Subject: [PATCH] binder: use cred instead of task for getsecid
+Best regards,
+								Pavel
 
-Use the 'struct cred' saved at binder_open() to lookup
-the security ID via security_cred_getsecid(). This
-ensures that the security context that opened binder
-is the one used to generate the secctx.
+--=20
+http://www.livejournal.com/~pavelmachek
 
-Cc: stable@vger.kernel.org # 5.4+
-Fixes: ec74136ded79 ("binder: create node flag to request sender's security context")
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 1571e01cfa52..49b08c04fa09 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2713,16 +2713,7 @@ static void binder_transaction(struct binder_proc *proc,
- 		u32 secid;
- 		size_t added_size;
- 
--		/*
--		 * Arguably this should be the task's subjective LSM secid but
--		 * we can't reliably access the subjective creds of a task
--		 * other than our own so we must use the objective creds, which
--		 * are safe to access.  The downside is that if a task is
--		 * temporarily overriding it's creds it will not be reflected
--		 * here; however, it isn't clear that binder would handle that
--		 * case well anyway.
--		 */
--		security_task_getsecid_obj(proc->tsk, &secid);
-+		security_cred_getsecid(proc->cred, &secid);
- 		ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
- 		if (ret) {
- 			return_error = BR_FAILED_REPLY;
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 9be72166e859..cc6d39358336 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -1041,6 +1041,11 @@ static inline void security_transfer_creds(struct cred *new,
- {
- }
- 
-+static inline void security_cred_getsecid(const struct cred *c, u32 *secid)
-+{
-+	*secid = 0;
-+}
-+
- static inline int security_kernel_act_as(struct cred *cred, u32 secid)
- {
- 	return 0;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
+iEYEARECAAYFAmGKKS8ACgkQMOfwapXb+vLl1gCfd+r5euddR11xuPpPtrlVxdPt
+/RIAn2wKamYNq6ES+jXc31enja7CHe16
+=uSLT
+-----END PGP SIGNATURE-----
+
+--AhhlLboLdkugWU4S--
