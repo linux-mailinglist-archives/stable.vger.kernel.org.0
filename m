@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8358344A3F8
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:30:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 283FB44A39B
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:26:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243391AbhKIBcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:32:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50390 "EHLO mail.kernel.org"
+        id S242156AbhKIB1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:27:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244298AbhKIBZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:25:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A7F861B48;
-        Tue,  9 Nov 2021 01:09:49 +0000 (UTC)
+        id S230441AbhKIBZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:25:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81CFC61B4A;
+        Tue,  9 Nov 2021 01:09:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420190;
-        bh=yt4WxWc8mA1mqGGxncUnXYf9t8HDqrMxQ8cYyQuRUeo=;
+        s=k20201202; t=1636420191;
+        bh=hXW8FtxbzZ1SI7n0WtdWelRy0BL6GlcbWUAnMOdKOtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmIyDlC2UHwnyElWwK7Jtij2w1xXbuCptR7CYS3Xf3NqJ5yN9WOA+AYYhUpv6/Tj9
-         jt/KQJfYGSRK0RsZZ97KaFDKDy/rvhsc4Sw58zQClm1ewIgLEi9z8h2+7kfAtbCO/w
-         Blvr6R+nlge3szuhI56q+Q+3if/LHOfJClEM/CUeCojZm0VZzG/U3cr6CeLsWYMkhD
-         nikbwPmfseXhUT8jH26mAJU/F5rKvlduhHbLx1zA3SKJ+ZLMHh8kHkZgPMYdruYFVH
-         T+/AvjYTNbP4d73PY7sQiA+bKwTP04rBYeVfFbHcedepR/GFHzVYrHPdyBfxSEqN6A
-         tvWBJpm49HMCQ==
+        b=NBZpZENh6V5a+bsQ45AphrjcyNzfGEv63Gok7RjjqLRZbLD41uuxdRwtb09pr6APS
+         /dS0b2HCp/rTNly68/g2SRxPO9j4FAolyZxCDEptcdC/gECVcmux9Gbq5LHmHGOaLm
+         TkGy6xPR6wBie0Hmq3T0rYSeV5WIaizPS7fOpp0lUiovL13gwYpRwkBz05PfN/wS+5
+         CyMyDtPMC3AHx7d7t5lF4hz7egHEKVr32kiRkzG65nDzw83GCN19B78J3rx+kY8+XS
+         DpGpDZa6Xao4yekwq4uDtyiWR2GLloAZF+Jflqek+XlBplDQKUbyRxm5fVHzX+nZEC
+         EBg3wdFzRxPwQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com
-Subject: [PATCH AUTOSEL 4.4 17/30] tracefs: Have tracefs directories not set OTH permission bits by default
-Date:   Mon,  8 Nov 2021 20:09:05 -0500
-Message-Id: <20211109010918.1192063-17-sashal@kernel.org>
+Cc:     Tuo Li <islituo@gmail.com>, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 18/30] ath: dfs_pattern_detector: Fix possible null-pointer dereference in channel_detector_create()
+Date:   Mon,  8 Nov 2021 20:09:06 -0500
+Message-Id: <20211109010918.1192063-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010918.1192063-1-sashal@kernel.org>
 References: <20211109010918.1192063-1-sashal@kernel.org>
@@ -41,44 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+From: Tuo Li <islituo@gmail.com>
 
-[ Upstream commit 49d67e445742bbcb03106b735b2ab39f6e5c56bc ]
+[ Upstream commit 4b6012a7830b813799a7faf40daa02a837e0fd5b ]
 
-The tracefs file system is by default mounted such that only root user can
-access it. But there are legitimate reasons to create a group and allow
-those added to the group to have access to tracing. By changing the
-permissions of the tracefs mount point to allow access, it will allow
-group access to the tracefs directory.
+kzalloc() is used to allocate memory for cd->detectors, and if it fails,
+channel_detector_exit() behind the label fail will be called:
+  channel_detector_exit(dpd, cd);
 
-There should not be any real reason to allow all access to the tracefs
-directory as it contains sensitive information. Have the default
-permission of directories being created not have any OTH (other) bits set,
-such that an admin that wants to give permission to a group has to first
-disable all OTH bits in the file system.
+In channel_detector_exit(), cd->detectors is dereferenced through:
+  struct pri_detector *de = cd->detectors[i];
 
-Link: https://lkml.kernel.org/r/20210818153038.664127804@goodmis.org
+To fix this possible null-pointer dereference, check cd->detectors before
+the for loop to dereference cd->detectors.
 
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Tuo Li <islituo@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210805153854.154066-1-islituo@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/tracefs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/dfs_pattern_detector.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
-index c66f2423e1f5c..6ccfd47157d37 100644
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -429,7 +429,8 @@ static struct dentry *__create_dir(const char *name, struct dentry *parent,
- 	if (unlikely(!inode))
- 		return failed_creating(dentry);
- 
--	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO;
-+	/* Do not set bits for OTH */
-+	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
- 	inode->i_op = ops;
- 	inode->i_fop = &simple_dir_operations;
- 
+diff --git a/drivers/net/wireless/ath/dfs_pattern_detector.c b/drivers/net/wireless/ath/dfs_pattern_detector.c
+index 0835828ffed77..2f4b79102a27a 100644
+--- a/drivers/net/wireless/ath/dfs_pattern_detector.c
++++ b/drivers/net/wireless/ath/dfs_pattern_detector.c
+@@ -182,10 +182,12 @@ static void channel_detector_exit(struct dfs_pattern_detector *dpd,
+ 	if (cd == NULL)
+ 		return;
+ 	list_del(&cd->head);
+-	for (i = 0; i < dpd->num_radar_types; i++) {
+-		struct pri_detector *de = cd->detectors[i];
+-		if (de != NULL)
+-			de->exit(de);
++	if (cd->detectors) {
++		for (i = 0; i < dpd->num_radar_types; i++) {
++			struct pri_detector *de = cd->detectors[i];
++			if (de != NULL)
++				de->exit(de);
++		}
+ 	}
+ 	kfree(cd->detectors);
+ 	kfree(cd);
 -- 
 2.33.0
 
