@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2BE044B581
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:18:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6422044B583
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:18:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343610AbhKIWVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:21:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41238 "EHLO mail.kernel.org"
+        id S236467AbhKIWVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:21:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245579AbhKIWUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:20:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA6EA6134F;
-        Tue,  9 Nov 2021 22:17:31 +0000 (UTC)
+        id S245591AbhKIWUj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:20:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00B5C61251;
+        Tue,  9 Nov 2021 22:17:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496252;
-        bh=/5zez7hVinTGDeNT0I40LTwLCZBgw5pQS48rmZhh7VI=;
+        s=k20201202; t=1636496254;
+        bh=8YTO9GM2snWCx4syTdijevGapzQg0EPpWDzJb1mHziw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KMKOaHWE2uqTOg6E5/M/72GUguEFGozgcdV8SlDOgM4laTyrWTGl70I6CRwA5z+6b
-         T8ej/ER2XWkLD82Gs22Ca05Vm5Eyq3cUZbRD0COtFy/OYVlajcAKc4Gr1KTz9xho33
-         YiyEV5mZQrBgw6yCAm8AgH2tXeiKxGrDSXGiuoZQPGRV9E7Vbn70FMt5M7HmBnvbJG
-         L0+4RbOS7Xd9+dhXs2kefxhMAdCVmmfQ3lIEqRF1yFRuG2G1TGPLBBydlgnhQYMYLo
-         Aa4O91piSt7gawkJ4OCqTMIsd9+McLjUaXJweT2Yqimak8IgX/gJo6ivpTz2ojpP4W
-         utSKvdGA6kK6w==
+        b=IRLUWcucd5PdCItHYG/2ifA/qRplWCaNZKA1j3Q1EFhInhMacw2TZWA/sAGibhqJ+
+         Ek5rb5O7n8NQhgoRP3uYxpbIn9EOCEc9A6q/Qe+WNnVwnVVrPRZTePKZzWxvSkusT4
+         jT9MENdtGa3P3hKePzr7aIB0s0oBodXHAOiOtftIKR68cztmOO74Lrl/D2AGS3BnP3
+         EmCbIGMUgOOG8d29Qs0LekwuAWrXn+Zp3sb3Y7hM1Xnyam/x240fvJI6uqoNIEWHbH
+         SK1i7z7NPAn+TThsVHm8qd2FmMbICxMsNejWsin7WAtn8Mhvid5qYmXyW8xMi8w4QS
+         ocNgyIdRX7sZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabio Aiuto <fabioaiuto83@gmail.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Hans de Goede <hdegoede@redhat.com>,
+Cc:     Hans de Goede <hdegoede@redhat.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.15 24/82] staging: rtl8723bs: remove possible deadlock when disconnect (v2)
-Date:   Tue,  9 Nov 2021 17:15:42 -0500
-Message-Id: <20211109221641.1233217-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 25/82] staging: rtl8723bs: remove a second possible deadlock
+Date:   Tue,  9 Nov 2021 17:15:43 -0500
+Message-Id: <20211109221641.1233217-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
@@ -44,441 +42,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Aiuto <fabioaiuto83@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 54659ca026e586bbb33a7e60daa6443a3ac6b5df ]
+[ Upstream commit a7ac783c338bafc04d3259600646350dba989043 ]
 
-when turning off a connection, lockdep complains with the
-following warning (a modprobe has been done but the same
-happens with a disconnection from NetworkManager,
-it's enough to trigger a cfg80211_disconnect call):
+Lockdep complains about rtw_free_assoc_resources() taking the sta_hash_lock
+followed by it calling rtw_free_stainfo() which takes xmitpriv->lock.
+While the rtl8723bs_xmit_thread takes the sta_hash_lock while already
+holding the xmitpriv->lock:
 
-[  682.855867] ======================================================
-[  682.855877] WARNING: possible circular locking dependency detected
-[  682.855887] 5.14.0-rc6+ #16 Tainted: G         C OE
-[  682.855898] ------------------------------------------------------
-[  682.855906] modprobe/1770 is trying to acquire lock:
-[  682.855916] ffffb6d000332b00 (&pxmitpriv->lock){+.-.}-{2:2},
-		at: rtw_free_stainfo+0x52/0x4a0 [r8723bs]
-[  682.856073]
+[  103.849756] ======================================================
+[  103.849761] WARNING: possible circular locking dependency detected
+[  103.849767] 5.15.0-rc1+ #470 Tainted: G         C  E
+[  103.849773] ------------------------------------------------------
+[  103.849776] wpa_supplicant/695 is trying to acquire lock:
+[  103.849781] ffffa5d0c0562b00 (&pxmitpriv->lock){+.-.}-{2:2}, at: rtw_free_stainfo+0x8a/0x510 [r8723bs]
+[  103.849840]
                but task is already holding lock:
-[  682.856081] ffffb6d0003336a8 (&pstapriv->sta_hash_lock){+.-.}-{2:2},
-		at: rtw_free_assoc_resources+0x48/0x110 [r8723bs]
-[  682.856207]
+[  103.849843] ffffa5d0c05636a8 (&pstapriv->sta_hash_lock){+.-.}-{2:2}, at: rtw_free_assoc_resources+0x48/0x110 [r8723bs]
+[  103.849881]
                which lock already depends on the new lock.
 
-[  682.856215]
+[  103.849884]
                the existing dependency chain (in reverse order) is:
-[  682.856223]
+[  103.849887]
                -> #1 (&pstapriv->sta_hash_lock){+.-.}-{2:2}:
-[  682.856247]        _raw_spin_lock_bh+0x34/0x40
-[  682.856265]        rtw_get_stainfo+0x9a/0x110 [r8723bs]
-[  682.856389]        rtw_xmit_classifier+0x27/0x130 [r8723bs]
-[  682.856515]        rtw_xmitframe_enqueue+0xa/0x20 [r8723bs]
-[  682.856642]        rtl8723bs_hal_xmit+0x3b/0xb0 [r8723bs]
-[  682.856752]        rtw_xmit+0x4ef/0x890 [r8723bs]
-[  682.856879]        _rtw_xmit_entry+0xba/0x350 [r8723bs]
-[  682.856981]        dev_hard_start_xmit+0xee/0x320
-[  682.856999]        sch_direct_xmit+0x8c/0x330
-[  682.857014]        __dev_queue_xmit+0xba5/0xf00
-[  682.857030]        packet_sendmsg+0x981/0x1b80
-[  682.857047]        sock_sendmsg+0x5b/0x60
-[  682.857060]        __sys_sendto+0xf1/0x160
-[  682.857073]        __x64_sys_sendto+0x24/0x30
-[  682.857087]        do_syscall_64+0x3a/0x80
-[  682.857102]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  682.857117]
+[  103.849898]        _raw_spin_lock_bh+0x34/0x40
+[  103.849913]        rtw_get_stainfo+0x93/0x110 [r8723bs]
+[  103.849948]        rtw_make_wlanhdr+0x14a/0x270 [r8723bs]
+[  103.849983]        rtw_xmitframe_coalesce+0x5c/0x6c0 [r8723bs]
+[  103.850019]        rtl8723bs_xmit_thread+0x4ac/0x620 [r8723bs]
+[  103.850050]        kthread+0x143/0x160
+[  103.850058]        ret_from_fork+0x22/0x30
+[  103.850067]
                -> #0 (&pxmitpriv->lock){+.-.}-{2:2}:
-[  682.857142]        __lock_acquire+0xfd9/0x1b50
-[  682.857158]        lock_acquire+0xb4/0x2c0
-[  682.857172]        _raw_spin_lock_bh+0x34/0x40
-[  682.857185]        rtw_free_stainfo+0x52/0x4a0 [r8723bs]
-[  682.857308]        rtw_free_assoc_resources+0x53/0x110 [r8723bs]
-[  682.857415]        cfg80211_rtw_disconnect+0x4b/0x70 [r8723bs]
-[  682.857522]        cfg80211_disconnect+0x12e/0x2f0 [cfg80211]
-[  682.857759]        cfg80211_leave+0x2b/0x40 [cfg80211]
-[  682.857961]        cfg80211_netdev_notifier_call+0xa9/0x560 [cfg80211]
-[  682.858163]        raw_notifier_call_chain+0x41/0x50
-[  682.858180]        __dev_close_many+0x62/0x100
-[  682.858195]        dev_close_many+0x7d/0x120
-[  682.858209]        unregister_netdevice_many+0x416/0x680
-[  682.858225]        unregister_netdevice_queue+0xab/0xf0
-[  682.858240]        unregister_netdev+0x18/0x20
-[  682.858255]        rtw_unregister_netdevs+0x28/0x40 [r8723bs]
-[  682.858360]        rtw_dev_remove+0x24/0xd0 [r8723bs]
-[  682.858463]        sdio_bus_remove+0x31/0xd0 [mmc_core]
-[  682.858532]        device_release_driver_internal+0xf7/0x1d0
-[  682.858550]        driver_detach+0x47/0x90
-[  682.858564]        bus_remove_driver+0x77/0xd0
-[  682.858579]        rtw_drv_halt+0xc/0x678 [r8723bs]
-[  682.858685]        __x64_sys_delete_module+0x13f/0x250
-[  682.858699]        do_syscall_64+0x3a/0x80
-[  682.858715]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  682.858729]
+[  103.850077]        __lock_acquire+0x1158/0x1de0
+[  103.850084]        lock_acquire+0xb5/0x2b0
+[  103.850090]        _raw_spin_lock_bh+0x34/0x40
+[  103.850095]        rtw_free_stainfo+0x8a/0x510 [r8723bs]
+[  103.850130]        rtw_free_assoc_resources+0x53/0x110 [r8723bs]
+[  103.850159]        PHY_IQCalibrate_8723B+0x122b/0x36a0 [r8723bs]
+[  103.850189]        cfg80211_disconnect+0x173/0x320 [cfg80211]
+[  103.850331]        nl80211_disconnect+0x6e/0xb0 [cfg80211]
+[  103.850422]        genl_family_rcv_msg_doit+0xcd/0x110
+[  103.850430]        genl_rcv_msg+0xce/0x1c0
+[  103.850435]        netlink_rcv_skb+0x50/0xf0
+[  103.850441]        genl_rcv+0x24/0x40
+[  103.850446]        netlink_unicast+0x16d/0x230
+[  103.850452]        netlink_sendmsg+0x22b/0x450
+[  103.850457]        sock_sendmsg+0x5e/0x60
+[  103.850465]        ____sys_sendmsg+0x22f/0x270
+[  103.850472]        ___sys_sendmsg+0x81/0xc0
+[  103.850479]        __sys_sendmsg+0x49/0x80
+[  103.850485]        do_syscall_64+0x3b/0x90
+[  103.850493]        entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  103.850500]
                other info that might help us debug this:
 
-[  682.858737]  Possible unsafe locking scenario:
+[  103.850504]  Possible unsafe locking scenario:
 
-[  682.858744]        CPU0                    CPU1
-[  682.858751]        ----                    ----
-[  682.858758]   lock(&pstapriv->sta_hash_lock);
-[  682.858772]                                lock(&pxmitpriv->lock);
-[  682.858786]                                lock(&pstapriv->sta_hash_lock);
-[  682.858799]   lock(&pxmitpriv->lock);
-[  682.858812]
+[  103.850507]        CPU0                    CPU1
+[  103.850510]        ----                    ----
+[  103.850512]   lock(&pstapriv->sta_hash_lock);
+[  103.850518]                                lock(&pxmitpriv->lock);
+[  103.850524]                                lock(&pstapriv->sta_hash_lock);
+[  103.850530]   lock(&pxmitpriv->lock);
+[  103.850535]
                 *** DEADLOCK ***
 
-[  682.858820] 5 locks held by modprobe/1770:
-[  682.858831]  #0: ffff8d870697d980 (&dev->mutex){....}-{3:3},
-		at: device_release_driver_internal+0x1a/0x1d0
-[  682.858869]  #1: ffffffffbdbbf1c8 (rtnl_mutex){+.+.}-{3:3},
-		at: unregister_netdev+0xe/0x20
-[  682.858906]  #2: ffff8d87054ee5e8 (&rdev->wiphy.mtx){+.+.}-{3:3},
-		at: cfg80211_netdev_notifier_call+0x9e/0x560 [cfg80211]
-[  682.859131]  #3: ffff8d870f2bc8f0 (&wdev->mtx){+.+.}-{3:3},
-		at: cfg80211_leave+0x20/0x40 [cfg80211]
-[  682.859354]  #4: ffffb6d0003336a8 (&pstapriv->sta_hash_lock){+.-.}-{2:2},
-		at: rtw_free_assoc_resources+0x48/0x110 [r8723bs]
-[  682.859482]
-               stack backtrace:
-[  682.859491] CPU: 1 PID: 1770 Comm: modprobe Tainted: G
-		C OE     5.14.0-rc6+ #16
-[  682.859507] Hardware name: LENOVO 80NR/Madrid, BIOS DACN25WW 08/20/2015
-[  682.859517] Call Trace:
-[  682.859531]  dump_stack_lvl+0x56/0x6f
-[  682.859551]  check_noncircular+0xdb/0xf0
-[  682.859579]  __lock_acquire+0xfd9/0x1b50
-[  682.859606]  lock_acquire+0xb4/0x2c0
-[  682.859623]  ? rtw_free_stainfo+0x52/0x4a0 [r8723bs]
-[  682.859752]  ? mark_held_locks+0x48/0x70
-[  682.859769]  ? rtw_free_stainfo+0x4a/0x4a0 [r8723bs]
-[  682.859898]  _raw_spin_lock_bh+0x34/0x40
-[  682.859914]  ? rtw_free_stainfo+0x52/0x4a0 [r8723bs]
-[  682.860039]  rtw_free_stainfo+0x52/0x4a0 [r8723bs]
-[  682.860171]  rtw_free_assoc_resources+0x53/0x110 [r8723bs]
-[  682.860286]  cfg80211_rtw_disconnect+0x4b/0x70 [r8723bs]
-[  682.860397]  cfg80211_disconnect+0x12e/0x2f0 [cfg80211]
-[  682.860629]  cfg80211_leave+0x2b/0x40 [cfg80211]
-[  682.860836]  cfg80211_netdev_notifier_call+0xa9/0x560 [cfg80211]
-[  682.861048]  ? __lock_acquire+0x4dc/0x1b50
-[  682.861070]  ? lock_is_held_type+0xa8/0x110
-[  682.861089]  ? lock_is_held_type+0xa8/0x110
-[  682.861104]  ? find_held_lock+0x2d/0x90
-[  682.861120]  ? packet_notifier+0x173/0x300
-[  682.861141]  ? lock_release+0xb3/0x250
-[  682.861160]  ? packet_notifier+0x192/0x300
-[  682.861184]  raw_notifier_call_chain+0x41/0x50
-[  682.861205]  __dev_close_many+0x62/0x100
-[  682.861224]  dev_close_many+0x7d/0x120
-[  682.861245]  unregister_netdevice_many+0x416/0x680
-[  682.861264]  ? find_held_lock+0x2d/0x90
-[  682.861284]  unregister_netdevice_queue+0xab/0xf0
-[  682.861306]  unregister_netdev+0x18/0x20
-[  682.861325]  rtw_unregister_netdevs+0x28/0x40 [r8723bs]
-[  682.861434]  rtw_dev_remove+0x24/0xd0 [r8723bs]
-[  682.861542]  sdio_bus_remove+0x31/0xd0 [mmc_core]
-[  682.861615]  device_release_driver_internal+0xf7/0x1d0
-[  682.861637]  driver_detach+0x47/0x90
-[  682.861656]  bus_remove_driver+0x77/0xd0
-[  682.861674]  rtw_drv_halt+0xc/0x678 [r8723bs]
-[  682.861782]  __x64_sys_delete_module+0x13f/0x250
-[  682.861801]  ? lockdep_hardirqs_on_prepare+0xf3/0x170
-[  682.861817]  ? syscall_enter_from_user_mode+0x20/0x70
-[  682.861836]  do_syscall_64+0x3a/0x80
-[  682.861855]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  682.861873] RIP: 0033:0x7f6dbe85400b
-[  682.861890] Code: 73 01 c3 48 8b 0d 6d 1e 0c 00 f7 d8 64 89
-01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa
-b8 b0 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 3d
-1e 0c 00 f7 d8 64 89 01 48
-[  682.861906] RSP: 002b:00007ffe7a82f538 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
-[  682.861923] RAX: ffffffffffffffda RBX: 000055a64693bd20 RCX: 00007f6dbe85400b
-[  682.861935] RDX: 0000000000000000 RSI: 0000000000000800 RDI: 000055a64693bd88
-[  682.861946] RBP: 000055a64693bd20 R08: 0000000000000000 R09: 0000000000000000
-[  682.861957] R10: 00007f6dbe8c7ac0 R11: 0000000000000206 R12: 000055a64693bd88
-[  682.861967] R13: 0000000000000000 R14: 000055a64693bd88 R15: 00007ffe7a831848
+Push the taking of sta_hash_lock down into rtw_free_stainfo(),
+where the critical section is, this allows taking the lock after
+rtw_free_stainfo() has released pxmitpriv->lock.
 
-This happens because when we enqueue a frame for
-transmission we do it under xmit_priv lock, then calling
-rtw_get_stainfo (needed for enqueuing) takes sta_hash_lock
-and this leads to the following lock dependency:
+This requires changing rtw_free_all_stainfo() so that it does its freeing
+in 2 steps, first moving all stainfo-s to free to a local list while
+holding the sta_hash_lock and then walking that list to call
+rtw_free_stainfo() on them without holding the sta_hash_lock.
 
-xmit_priv->lock -> sta_hash_lock
+Pushing the taking of sta_hash_lock down into rtw_free_stainfo(),
+also fixes a whole bunch of callers of rtw_free_stainfo() which
+were not holding that lock even though they should.
 
-Turning off a connection will bring to call
-rtw_free_assoc_resources which will set up
-the inverse dependency:
+Note that this also fixes the deadlock from the "remove possible
+deadlock when disconnect" patch in a different way. But the
+changes from that patch offer a nice locking cleanup regardless.
 
-sta_hash_lock -> xmit_priv_lock
-
-This could lead to a deadlock as lockdep complains.
-
-Fix it by removing the xmit_priv->lock around
-rtw_xmitframe_enqueue call inside rtl8723bs_hal_xmit
-and put it in a smaller critical section inside
-rtw_xmit_classifier, the only place where
-xmit_priv data are actually accessed.
-
-Replace spin_{lock,unlock}_bh(pxmitpriv->lock)
-in other tx paths leading to rtw_xmitframe_enqueue
-call with spin_{lock,unlock}_bh(psta->sleep_q.lock)
-- it's not clear why accessing a sleep_q was protected
-by a spinlock on xmitpriv->lock.
-
-This way is avoided the same faulty lock nesting
-order.
-
-Extra changes in v2 by Hans de Goede:
--Lift the taking of the struct __queue.lock spinlock out of
- rtw_free_xmitframe_queue() into the callers this allows also
- protecting a bunch of related state in rtw_free_stainfo():
--Protect psta->sleepq_len on rtw_free_xmitframe_queue(&psta->sleep_q);
--Protect struct tx_servq.tx_pending and tx_servq.qcnt when
- calling rtw_free_xmitframe_queue(&tx_servq.sta_pending)
--This also allows moving the spin_lock_bh(&pxmitpriv->lock); to below
- the sleep_q free-ing code, avoiding another ABBA locking issue
-
-CC: Larry Finger <Larry.Finger@lwfinger.net>
-Co-developed-by: Hans de Goede <hdegoede@redhat.com>
-Tested-on: Lenovo Ideapad MiiX 300-10IBY
-Signed-off-by: Fabio Aiuto <fabioaiuto83@gmail.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210920145502.155454-1-hdegoede@redhat.com
+Link: https://lore.kernel.org/r/20210920145502.155454-2-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/core/rtw_mlme_ext.c |  7 ++----
- drivers/staging/rtl8723bs/core/rtw_recv.c     | 10 +++------
- drivers/staging/rtl8723bs/core/rtw_sta_mgt.c  | 22 ++++++++++---------
- drivers/staging/rtl8723bs/core/rtw_xmit.c     | 16 ++++++--------
- .../staging/rtl8723bs/hal/rtl8723bs_xmit.c    |  2 --
- 5 files changed, 24 insertions(+), 33 deletions(-)
+ drivers/staging/rtl8723bs/core/rtw_mlme.c      |  5 -----
+ drivers/staging/rtl8723bs/core/rtw_mlme_ext.c  |  4 ----
+ drivers/staging/rtl8723bs/core/rtw_sta_mgt.c   | 11 +++++++++--
+ drivers/staging/rtl8723bs/os_dep/ioctl_linux.c |  2 --
+ 4 files changed, 9 insertions(+), 13 deletions(-)
 
+diff --git a/drivers/staging/rtl8723bs/core/rtw_mlme.c b/drivers/staging/rtl8723bs/core/rtw_mlme.c
+index ab6a24d70cc96..1f49c49e10b45 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_mlme.c
++++ b/drivers/staging/rtl8723bs/core/rtw_mlme.c
+@@ -897,7 +897,6 @@ void rtw_free_assoc_resources(struct adapter *adapter, int lock_scanned_queue)
+ {
+ 	struct	mlme_priv *pmlmepriv = &adapter->mlmepriv;
+ 	struct wlan_network *tgt_network = &pmlmepriv->cur_network;
+-	struct	sta_priv *pstapriv = &adapter->stapriv;
+ 	struct dvobj_priv *psdpriv = adapter->dvobj;
+ 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
+ 
+@@ -905,11 +904,7 @@ void rtw_free_assoc_resources(struct adapter *adapter, int lock_scanned_queue)
+ 		struct sta_info *psta;
+ 
+ 		psta = rtw_get_stainfo(&adapter->stapriv, tgt_network->network.mac_address);
+-		spin_lock_bh(&(pstapriv->sta_hash_lock));
+ 		rtw_free_stainfo(adapter,  psta);
+-
+-		spin_unlock_bh(&(pstapriv->sta_hash_lock));
+-
+ 	}
+ 
+ 	if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE|WIFI_ADHOC_MASTER_STATE|WIFI_AP_STATE)) {
 diff --git a/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c b/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
-index 375d2a742dd2d..a1ae16ec69eb6 100644
+index a1ae16ec69eb6..ad9c237054c4b 100644
 --- a/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
 +++ b/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
-@@ -5919,7 +5919,6 @@ u8 chk_bmc_sleepq_hdl(struct adapter *padapter, unsigned char *pbuf)
- 	struct sta_info *psta_bmc;
- 	struct list_head *xmitframe_plist, *xmitframe_phead, *tmp;
- 	struct xmit_frame *pxmitframe = NULL;
--	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
- 	struct sta_priv  *pstapriv = &padapter->stapriv;
+@@ -1489,9 +1489,7 @@ unsigned int OnDeAuth(struct adapter *padapter, union recv_frame *precv_frame)
+ 		struct sta_info *psta;
+ 		struct sta_priv *pstapriv = &padapter->stapriv;
  
- 	/* for BC/MC Frames */
-@@ -5930,8 +5929,7 @@ u8 chk_bmc_sleepq_hdl(struct adapter *padapter, unsigned char *pbuf)
- 	if ((pstapriv->tim_bitmap&BIT(0)) && (psta_bmc->sleepq_len > 0)) {
- 		msleep(10);/*  10ms, ATIM(HIQ) Windows */
+-		/* spin_lock_bh(&(pstapriv->sta_hash_lock)); */
+ 		/* rtw_free_stainfo(padapter, psta); */
+-		/* spin_unlock_bh(&(pstapriv->sta_hash_lock)); */
  
--		/* spin_lock_bh(&psta_bmc->sleep_q.lock); */
--		spin_lock_bh(&pxmitpriv->lock);
-+		spin_lock_bh(&psta_bmc->sleep_q.lock);
+ 		netdev_dbg(padapter->pnetdev,
+ 			   "ap recv deauth reason code(%d) sta:%pM\n", reason,
+@@ -1565,9 +1563,7 @@ unsigned int OnDisassoc(struct adapter *padapter, union recv_frame *precv_frame)
+ 		struct sta_info *psta;
+ 		struct sta_priv *pstapriv = &padapter->stapriv;
  
- 		xmitframe_phead = get_list_head(&psta_bmc->sleep_q);
- 		list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
-@@ -5954,8 +5952,7 @@ u8 chk_bmc_sleepq_hdl(struct adapter *padapter, unsigned char *pbuf)
- 			rtw_hal_xmitframe_enqueue(padapter, pxmitframe);
- 		}
+-		/* spin_lock_bh(&(pstapriv->sta_hash_lock)); */
+ 		/* rtw_free_stainfo(padapter, psta); */
+-		/* spin_unlock_bh(&(pstapriv->sta_hash_lock)); */
  
--		/* spin_unlock_bh(&psta_bmc->sleep_q.lock); */
--		spin_unlock_bh(&pxmitpriv->lock);
-+		spin_unlock_bh(&psta_bmc->sleep_q.lock);
- 
- 		/* check hi queue and bmc_sleepq */
- 		rtw_chk_hi_queue_cmd(padapter);
-diff --git a/drivers/staging/rtl8723bs/core/rtw_recv.c b/drivers/staging/rtl8723bs/core/rtw_recv.c
-index 5b0a596eefb77..3564e2af5741b 100644
---- a/drivers/staging/rtl8723bs/core/rtw_recv.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_recv.c
-@@ -953,10 +953,8 @@ static signed int validate_recv_ctrl_frame(struct adapter *padapter, union recv_
- 		if ((psta->state&WIFI_SLEEP_STATE) && (pstapriv->sta_dz_bitmap&BIT(psta->aid))) {
- 			struct list_head	*xmitframe_plist, *xmitframe_phead;
- 			struct xmit_frame *pxmitframe = NULL;
--			struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
- 
--			/* spin_lock_bh(&psta->sleep_q.lock); */
--			spin_lock_bh(&pxmitpriv->lock);
-+			spin_lock_bh(&psta->sleep_q.lock);
- 
- 			xmitframe_phead = get_list_head(&psta->sleep_q);
- 			xmitframe_plist = get_next(xmitframe_phead);
-@@ -987,12 +985,10 @@ static signed int validate_recv_ctrl_frame(struct adapter *padapter, union recv_
- 					update_beacon(padapter, WLAN_EID_TIM, NULL, true);
- 				}
- 
--				/* spin_unlock_bh(&psta->sleep_q.lock); */
--				spin_unlock_bh(&pxmitpriv->lock);
-+				spin_unlock_bh(&psta->sleep_q.lock);
- 
- 			} else {
--				/* spin_unlock_bh(&psta->sleep_q.lock); */
--				spin_unlock_bh(&pxmitpriv->lock);
-+				spin_unlock_bh(&psta->sleep_q.lock);
- 
- 				if (pstapriv->tim_bitmap&BIT(psta->aid)) {
- 					if (psta->sleepq_len == 0) {
+ 		netdev_dbg(padapter->pnetdev,
+ 			   "ap recv disassoc reason code(%d) sta:%pM\n",
 diff --git a/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c b/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
-index 67ca219f95bf8..c23d0c833ecf8 100644
+index c23d0c833ecf8..3d269842677dd 100644
 --- a/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
 +++ b/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
-@@ -289,46 +289,48 @@ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
+@@ -263,7 +263,6 @@ exit:
+ 	return psta;
+ }
  
- 	/* list_del_init(&psta->wakeup_list); */
- 
--	spin_lock_bh(&pxmitpriv->lock);
--
-+	spin_lock_bh(&psta->sleep_q.lock);
- 	rtw_free_xmitframe_queue(pxmitpriv, &psta->sleep_q);
- 	psta->sleepq_len = 0;
-+	spin_unlock_bh(&psta->sleep_q.lock);
-+
-+	spin_lock_bh(&pxmitpriv->lock);
- 
- 	/* vo */
--	/* spin_lock_bh(&(pxmitpriv->vo_pending.lock)); */
-+	spin_lock_bh(&pstaxmitpriv->vo_q.sta_pending.lock);
- 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->vo_q.sta_pending);
- 	list_del_init(&(pstaxmitpriv->vo_q.tx_pending));
- 	phwxmit = pxmitpriv->hwxmits;
- 	phwxmit->accnt -= pstaxmitpriv->vo_q.qcnt;
- 	pstaxmitpriv->vo_q.qcnt = 0;
--	/* spin_unlock_bh(&(pxmitpriv->vo_pending.lock)); */
-+	spin_unlock_bh(&pstaxmitpriv->vo_q.sta_pending.lock);
- 
- 	/* vi */
--	/* spin_lock_bh(&(pxmitpriv->vi_pending.lock)); */
-+	spin_lock_bh(&pstaxmitpriv->vi_q.sta_pending.lock);
- 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->vi_q.sta_pending);
- 	list_del_init(&(pstaxmitpriv->vi_q.tx_pending));
- 	phwxmit = pxmitpriv->hwxmits+1;
- 	phwxmit->accnt -= pstaxmitpriv->vi_q.qcnt;
- 	pstaxmitpriv->vi_q.qcnt = 0;
--	/* spin_unlock_bh(&(pxmitpriv->vi_pending.lock)); */
-+	spin_unlock_bh(&pstaxmitpriv->vi_q.sta_pending.lock);
- 
- 	/* be */
--	/* spin_lock_bh(&(pxmitpriv->be_pending.lock)); */
-+	spin_lock_bh(&pstaxmitpriv->be_q.sta_pending.lock);
- 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->be_q.sta_pending);
- 	list_del_init(&(pstaxmitpriv->be_q.tx_pending));
- 	phwxmit = pxmitpriv->hwxmits+2;
- 	phwxmit->accnt -= pstaxmitpriv->be_q.qcnt;
- 	pstaxmitpriv->be_q.qcnt = 0;
--	/* spin_unlock_bh(&(pxmitpriv->be_pending.lock)); */
-+	spin_unlock_bh(&pstaxmitpriv->be_q.sta_pending.lock);
- 
- 	/* bk */
--	/* spin_lock_bh(&(pxmitpriv->bk_pending.lock)); */
-+	spin_lock_bh(&pstaxmitpriv->bk_q.sta_pending.lock);
- 	rtw_free_xmitframe_queue(pxmitpriv, &pstaxmitpriv->bk_q.sta_pending);
- 	list_del_init(&(pstaxmitpriv->bk_q.tx_pending));
- 	phwxmit = pxmitpriv->hwxmits+3;
- 	phwxmit->accnt -= pstaxmitpriv->bk_q.qcnt;
- 	pstaxmitpriv->bk_q.qcnt = 0;
--	/* spin_unlock_bh(&(pxmitpriv->bk_pending.lock)); */
-+	spin_unlock_bh(&pstaxmitpriv->bk_q.sta_pending.lock);
+-/*  using pstapriv->sta_hash_lock to protect */
+ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
+ {
+ 	int i;
+@@ -334,8 +333,10 @@ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
  
  	spin_unlock_bh(&pxmitpriv->lock);
  
-diff --git a/drivers/staging/rtl8723bs/core/rtw_xmit.c b/drivers/staging/rtl8723bs/core/rtw_xmit.c
-index 79e4d7df1ef57..6b37b42ec2266 100644
---- a/drivers/staging/rtl8723bs/core/rtw_xmit.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_xmit.c
-@@ -1723,15 +1723,12 @@ void rtw_free_xmitframe_queue(struct xmit_priv *pxmitpriv, struct __queue *pfram
- 	struct list_head *plist, *phead, *tmp;
- 	struct	xmit_frame	*pxmitframe;
++	spin_lock_bh(&pstapriv->sta_hash_lock);
+ 	list_del_init(&psta->hash_list);
+ 	pstapriv->asoc_sta_count--;
++	spin_unlock_bh(&pstapriv->sta_hash_lock);
  
--	spin_lock_bh(&pframequeue->lock);
--
- 	phead = get_list_head(pframequeue);
- 	list_for_each_safe(plist, tmp, phead) {
- 		pxmitframe = list_entry(plist, struct xmit_frame, list);
+ 	/*  re-init sta_info; 20061114 will be init in alloc_stainfo */
+ 	/* _rtw_init_sta_xmit_priv(&psta->sta_xmitpriv); */
+@@ -430,6 +431,7 @@ void rtw_free_all_stainfo(struct adapter *padapter)
+ 	struct sta_info *psta = NULL;
+ 	struct	sta_priv *pstapriv = &padapter->stapriv;
+ 	struct sta_info *pbcmc_stainfo = rtw_get_bcmc_stainfo(padapter);
++	LIST_HEAD(stainfo_free_list);
  
- 		rtw_free_xmitframe(pxmitpriv, pxmitframe);
- 	}
--	spin_unlock_bh(&pframequeue->lock);
- }
+ 	if (pstapriv->asoc_sta_count == 1)
+ 		return;
+@@ -442,11 +444,16 @@ void rtw_free_all_stainfo(struct adapter *padapter)
+ 			psta = list_entry(plist, struct sta_info, hash_list);
  
- s32 rtw_xmitframe_enqueue(struct adapter *padapter, struct xmit_frame *pxmitframe)
-@@ -1786,6 +1783,7 @@ s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
- 	struct sta_info *psta;
- 	struct tx_servq	*ptxservq;
- 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
-+	struct xmit_priv *xmit_priv = &padapter->xmitpriv;
- 	struct hw_xmit	*phwxmits =  padapter->xmitpriv.hwxmits;
- 	signed int res = _SUCCESS;
- 
-@@ -1803,12 +1801,14 @@ s32 rtw_xmit_classifier(struct adapter *padapter, struct xmit_frame *pxmitframe)
- 
- 	ptxservq = rtw_get_sta_pending(padapter, psta, pattrib->priority, (u8 *)(&ac_index));
- 
-+	spin_lock_bh(&xmit_priv->lock);
- 	if (list_empty(&ptxservq->tx_pending))
- 		list_add_tail(&ptxservq->tx_pending, get_list_head(phwxmits[ac_index].sta_queue));
- 
- 	list_add_tail(&pxmitframe->list, get_list_head(&ptxservq->sta_pending));
- 	ptxservq->qcnt++;
- 	phwxmits[ac_index].accnt++;
-+	spin_unlock_bh(&xmit_priv->lock);
- 
- exit:
- 
-@@ -2191,11 +2191,10 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
- 	struct list_head *xmitframe_plist, *xmitframe_phead, *tmp;
- 	struct xmit_frame *pxmitframe = NULL;
- 	struct sta_priv *pstapriv = &padapter->stapriv;
--	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
- 
- 	psta_bmc = rtw_get_bcmc_stainfo(padapter);
- 
--	spin_lock_bh(&pxmitpriv->lock);
-+	spin_lock_bh(&psta->sleep_q.lock);
- 
- 	xmitframe_phead = get_list_head(&psta->sleep_q);
- 	list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
-@@ -2296,7 +2295,7 @@ void wakeup_sta_to_xmit(struct adapter *padapter, struct sta_info *psta)
- 
- _exit:
- 
--	spin_unlock_bh(&pxmitpriv->lock);
-+	spin_unlock_bh(&psta->sleep_q.lock);
- 
- 	if (update_mask)
- 		update_beacon(padapter, WLAN_EID_TIM, NULL, true);
-@@ -2308,9 +2307,8 @@ void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *pst
- 	struct list_head *xmitframe_plist, *xmitframe_phead, *tmp;
- 	struct xmit_frame *pxmitframe = NULL;
- 	struct sta_priv *pstapriv = &padapter->stapriv;
--	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
- 
--	spin_lock_bh(&pxmitpriv->lock);
-+	spin_lock_bh(&psta->sleep_q.lock);
- 
- 	xmitframe_phead = get_list_head(&psta->sleep_q);
- 	list_for_each_safe(xmitframe_plist, tmp, xmitframe_phead) {
-@@ -2363,7 +2361,7 @@ void xmit_delivery_enabled_frames(struct adapter *padapter, struct sta_info *pst
+ 			if (pbcmc_stainfo != psta)
+-				rtw_free_stainfo(padapter, psta);
++				list_move(&psta->hash_list, &stainfo_free_list);
  		}
  	}
  
--	spin_unlock_bh(&pxmitpriv->lock);
-+	spin_unlock_bh(&psta->sleep_q.lock);
+ 	spin_unlock_bh(&pstapriv->sta_hash_lock);
++
++	list_for_each_safe(plist, tmp, &stainfo_free_list) {
++		psta = list_entry(plist, struct sta_info, hash_list);
++		rtw_free_stainfo(padapter, psta);
++	}
  }
  
- void enqueue_pending_xmitbuf(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf)
-diff --git a/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c b/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c
-index 156d6aba18ca1..5f5c4719b5868 100644
---- a/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c
-+++ b/drivers/staging/rtl8723bs/hal/rtl8723bs_xmit.c
-@@ -507,9 +507,7 @@ s32 rtl8723bs_hal_xmit(
- 			rtw_issue_addbareq_cmd(padapter, pxmitframe);
+ /* any station allocated can be searched by hash list */
+diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+index 9d4a233a861e3..295121c268bd4 100644
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+@@ -835,9 +835,7 @@ static int rtw_add_sta(struct net_device *dev, struct ieee_param *param)
+ 	psta = rtw_get_stainfo(pstapriv, param->sta_addr);
+ 	if (psta)
+ 	{
+-		spin_lock_bh(&(pstapriv->sta_hash_lock));
+ 		rtw_free_stainfo(padapter,  psta);
+-		spin_unlock_bh(&(pstapriv->sta_hash_lock));
+ 
+ 		psta = NULL;
  	}
- 
--	spin_lock_bh(&pxmitpriv->lock);
- 	err = rtw_xmitframe_enqueue(padapter, pxmitframe);
--	spin_unlock_bh(&pxmitpriv->lock);
- 	if (err != _SUCCESS) {
- 		rtw_free_xmitframe(pxmitpriv, pxmitframe);
- 
 -- 
 2.33.0
 
