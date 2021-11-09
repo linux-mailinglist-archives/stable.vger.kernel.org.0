@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E22EB44A2E6
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:23:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F059344A2E2
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:23:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241787AbhKIBWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:22:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44378 "EHLO mail.kernel.org"
+        id S235309AbhKIBWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:22:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243663AbhKIBTY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:19:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FFAE61B06;
-        Tue,  9 Nov 2021 01:07:44 +0000 (UTC)
+        id S243681AbhKIBT0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:19:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDF4561AF7;
+        Tue,  9 Nov 2021 01:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420065;
-        bh=k/kqDllMJcJTNn2fNzcoNAOr9A9Tr/OB75k4QeDqbbY=;
+        s=k20201202; t=1636420069;
+        bh=KjBcQ+WI1oP0C2UNHD/b64r3d+eqgFExUu/QF5FfxGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAn9dorwAD7rh5lqjmS3sWGmzc3Jx2C+SxsB+TMXb3hGe3qcYWSoRLtIesB7LPMg8
-         MSWOSnFOWZDB3tpXfad90W5xAUGlJCSF2DomunjXkiMdABOyuus8/x0sMV/qszAuIe
-         OKYRuyqobNSjKjd41vKPeD9RcDBky8a5diW3tG01pmQdnMF43Vkl5PEfmCNKEb65lT
-         ToDkV7TJJUgwB+yIQr2SVU+dgVOCwVQVsD9mSOU5m7YqzsXttCwG15lYsM+FRgrRG6
-         9FKZOgbMzp5qHIlea4+H9X5zgbQfufGnkGuEJ1scv4RG0ApIXxa7MTpCDWhi7tE/O7
-         gKq8+WUphQS+g==
+        b=WHk21hBQXyFv/DVu6zKyqQono35o/5BmnnKi0kjRbqHPjKbc8D+A1cacvDGPaO/7z
+         Uc+svb8OKx1+tlarihl8fuYzZTuIVrNP/1n5stUkYv3VNpHVtNnU3vnqpmEJaat68m
+         2FkMYC9myLNcDGagvB8cETXOFLmp4eJUl3UWWfmbhhmxDAcl3CpGJSP9iSnmGJTEI4
+         QgqOyoIy0lX+fvGZ5oxnUiFgmBAsTcxW5+f8ubZtyRqVdrn9R2M/ccqagOHLOB06O7
+         s0P3niRUS5rr4gnYlQKuqbbfBjQg4TjWOuLpijejxbtnH71+85ZQ3xrOMvnaZ/jEG3
+         RBLDYoS5P0w4Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        pavel@ucw.cz, len.brown@intel.com, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 30/39] PM: hibernate: Get block device exclusively in swsusp_check()
-Date:   Mon,  8 Nov 2021 20:06:40 -0500
-Message-Id: <20211109010649.1191041-30-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>, kvalo@codeaurora.org,
+        davem@davemloft.net, kuba@kernel.org,
+        miriam.rachel.korenblit@intel.com, mordechay.goodstein@intel.com,
+        emmanuel.grumbach@intel.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 31/39] iwlwifi: mvm: disable RX-diversity in powersave
+Date:   Mon,  8 Nov 2021 20:06:41 -0500
+Message-Id: <20211109010649.1191041-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010649.1191041-1-sashal@kernel.org>
 References: <20211109010649.1191041-1-sashal@kernel.org>
@@ -43,98 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 39fbef4b0f77f9c89c8f014749ca533643a37c9f ]
+[ Upstream commit e5322b9ab5f63536c41301150b7ce64605ce52cc ]
 
-The following kernel crash can be triggered:
+Just like we have default SMPS mode as dynamic in powersave,
+we should not enable RX-diversity in powersave, to reduce
+power consumption when connected to a non-MIMO AP.
 
-[   89.266592] ------------[ cut here ]------------
-[   89.267427] kernel BUG at fs/buffer.c:3020!
-[   89.268264] invalid opcode: 0000 [#1] SMP KASAN PTI
-[   89.269116] CPU: 7 PID: 1750 Comm: kmmpd-loop0 Not tainted 5.10.0-862.14.0.6.x86_64-08610-gc932cda3cef4-dirty #20
-[   89.273169] RIP: 0010:submit_bh_wbc.isra.0+0x538/0x6d0
-[   89.277157] RSP: 0018:ffff888105ddfd08 EFLAGS: 00010246
-[   89.278093] RAX: 0000000000000005 RBX: ffff888124231498 RCX: ffffffffb2772612
-[   89.279332] RDX: 1ffff11024846293 RSI: 0000000000000008 RDI: ffff888124231498
-[   89.280591] RBP: ffff8881248cc000 R08: 0000000000000001 R09: ffffed1024846294
-[   89.281851] R10: ffff88812423149f R11: ffffed1024846293 R12: 0000000000003800
-[   89.283095] R13: 0000000000000001 R14: 0000000000000000 R15: ffff8881161f7000
-[   89.284342] FS:  0000000000000000(0000) GS:ffff88839b5c0000(0000) knlGS:0000000000000000
-[   89.285711] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   89.286701] CR2: 00007f166ebc01a0 CR3: 0000000435c0e000 CR4: 00000000000006e0
-[   89.287919] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   89.289138] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   89.290368] Call Trace:
-[   89.290842]  write_mmp_block+0x2ca/0x510
-[   89.292218]  kmmpd+0x433/0x9a0
-[   89.294902]  kthread+0x2dd/0x3e0
-[   89.296268]  ret_from_fork+0x22/0x30
-[   89.296906] Modules linked in:
-
-by running the following commands:
-
- 1. mkfs.ext4 -O mmp  /dev/sda -b 1024
- 2. mount /dev/sda /home/test
- 3. echo "/dev/sda" > /sys/power/resume
-
-That happens because swsusp_check() calls set_blocksize() on the
-target partition which confuses the file system:
-
-       Thread1                       Thread2
-mount /dev/sda /home/test
-get s_mmp_bh  --> has mapped flag
-start kmmpd thread
-				echo "/dev/sda" > /sys/power/resume
-				  resume_store
-				    software_resume
-				      swsusp_check
-				        set_blocksize
-					  truncate_inode_pages_range
-					    truncate_cleanup_page
-					      block_invalidatepage
-					        discard_buffer --> clean mapped flag
-write_mmp_block
-  submit_bh
-    submit_bh_wbc
-      BUG_ON(!buffer_mapped(bh))
-
-To address this issue, modify swsusp_check() to open the target block
-device with exclusive access.
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211017113927.fc896bc5cdaa.I1d11da71b8a5cbe921a37058d5f578f1b14a2023@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/swap.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/utils.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/power/swap.c b/kernel/power/swap.c
-index d7cdc426ee380..2bd3670a093de 100644
---- a/kernel/power/swap.c
-+++ b/kernel/power/swap.c
-@@ -1526,9 +1526,10 @@ int swsusp_read(unsigned int *flags_p)
- int swsusp_check(void)
- {
- 	int error;
-+	void *holder;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/utils.c b/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
+index d2cada0ab4264..3303fc85d76f5 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
+@@ -1029,6 +1029,9 @@ bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm)
  
- 	hib_resume_bdev = blkdev_get_by_dev(swsusp_resume_device,
--					    FMODE_READ, NULL);
-+					    FMODE_READ | FMODE_EXCL, &holder);
- 	if (!IS_ERR(hib_resume_bdev)) {
- 		set_blocksize(hib_resume_bdev, PAGE_SIZE);
- 		clear_page(swsusp_header);
-@@ -1550,7 +1551,7 @@ int swsusp_check(void)
+ 	lockdep_assert_held(&mvm->mutex);
  
- put:
- 		if (error)
--			blkdev_put(hib_resume_bdev, FMODE_READ);
-+			blkdev_put(hib_resume_bdev, FMODE_READ | FMODE_EXCL);
- 		else
- 			pr_debug("PM: Image signature found, resuming\n");
- 	} else {
++	if (iwlmvm_mod_params.power_scheme != IWL_POWER_SCHEME_CAM)
++		return false;
++
+ 	if (num_of_ant(iwl_mvm_get_valid_rx_ant(mvm)) == 1)
+ 		return false;
+ 
 -- 
 2.33.0
 
