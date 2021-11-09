@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33CAF44B746
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:31:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CAD844B741
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:31:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343925AbhKIWdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:33:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51454 "EHLO mail.kernel.org"
+        id S1344808AbhKIWc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:32:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344814AbhKIWat (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344816AbhKIWat (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:30:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C22C361A84;
-        Tue,  9 Nov 2021 22:20:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35C1A61A81;
+        Tue,  9 Nov 2021 22:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496457;
-        bh=s42mWIpAsOZrqBiWAEm25NkcCa/cXzGgUEKUh0F8EgY=;
+        s=k20201202; t=1636496458;
+        bh=w5Xb6WCzlZ8aPhmrZpZHwKQX/kb2t2tuhtwlxNHDG2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V4dh0FHYTbMlhkJd63vDdRPy91FU7JKXz0+PaPrfZhgAp84p2x4VYfkJ3mxVTVndE
-         dCvYorZLcOETm4MuoJxnQzGaMoww/02YchPEDmkSEJCuLUfB/3lJESWKGmCTytSndm
-         qa71s0dbTO+XInKDb2Jq4QaJjAaeqSGF6TGi9NfBLLjHGt8K4/UJ0RcafgBXBgrTiO
-         DC3CCxdWWtp3Vzo5aGL897QQZPqjFGTkycM/zpFNR2a6dx7/BHjKN1a43F6WvU52iG
-         VfhtNEY3FeBliZriXipqREaOjW7gjyBEIFgCGDaCKoCgr7uP+bH30HOpCqDa1O6qbd
-         6l3BgWakpW1Jg==
+        b=XA0hMKlxCPbW179RCE8sL3wHUx/FMntXtrtZTxM7xXp/XjVmV7T1swr4JqNCySC5H
+         4pp/BtxFc4/ZtF+ZT3pYdCY922nBwIONXXcSqAYcsPYllzlUZvilUgMo/5Gd6Evdjx
+         ZXm80pzc/gayC61aTDm1TUNmrYH6pGSWg+rrJs3B7HvrMSGDhLuxyPJOukSylHtYrI
+         bKBVMAptj1bDvWtPmJVabAp0DV4GfWx+cCHe89CNihEb8VBsqYX1pWBvEaFp9FjLR/
+         x8S9meaFM8We+escSkrWMIIfRCUHTRKl3sFn7RNwqSwWTpeiA7eQ3OM557MXQXOwY8
+         CPhdmf9QkQtWg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        boris.brezillon@free-electrons.com, mturquette@baylibre.com,
-        sboyd@codeaurora.org, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 72/75] clk: at91: sama7g5: remove prescaler part of master clock
-Date:   Tue,  9 Nov 2021 17:19:02 -0500
-Message-Id: <20211109221905.1234094-72-sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sasha Levin <sashal@kernel.org>, benh@kernel.crashing.org,
+        paulus@samba.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.14 73/75] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
+Date:   Tue,  9 Nov 2021 17:19:03 -0500
+Message-Id: <20211109221905.1234094-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221905.1234094-1-sashal@kernel.org>
 References: <20211109221905.1234094-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,52 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit facb87ad75603813bc3b1314f5a87377f020fcb8 ]
+[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
 
-On SAMA7G5 the prescaler part of master clock has been implemented as a
-changeable one. Everytime the prescaler is changed the PMC_SR.MCKRDY bit
-must be polled. Value 1 for PMC_SR.MCKRDY means the prescaler update is
-done. Driver polls for this bit until it becomes 1. On SAMA7G5 it has
-been discovered that in some conditions the PMC_SR.MCKRDY is not rising
-but the rate it provides it's stable. The workaround is to add a timeout
-when polling for PMC_SR.MCKRDY. At the moment, for SAMA7G5, the prescaler
-will be removed from Linux clock tree as all the frequencies for CPU could
-be obtained from PLL and also there will be less overhead when changing
-frequency via DVFS.
+In dcr-low.S we use cmpli with three arguments, instead of four
+arguments as defined in the ISA:
 
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20211011112719.3951784-14-claudiu.beznea@microchip.com
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+	cmpli	cr0,r3,1024
+
+This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
+User’s Manual" it shows cmpli having no L field, but implied to be 0 due
+to the core being 32-bit. It mentions that the ISA defines four
+arguments and recommends using cmplwi.
+
+It also corresponds to the old POWER instruction set, which had no L
+field there, a reserved bit instead.
+
+dcr-low.S is only built 32-bit, because it is only built when
+DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
+generated code (with gcc/gas) we see cmplwi as expected.
+
+Although gas is happy with the 3-argument version when building for
+32-bit, the LLVM assembler is not and errors out with:
+
+  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
+   cmpli 0,%r3,1024; ...
+           ^
+
+Switch to the cmplwi extended opcode, which avoids any confusion when
+reading the ISA, fixes the issue with the LLVM assembler, and also means
+the code could be built 64-bit in future (though that's very unlikely).
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
+Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/at91/sama7g5.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ arch/powerpc/sysdev/dcr-low.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/at91/sama7g5.c b/drivers/clk/at91/sama7g5.c
-index 9e1ec48c44747..9c05ecb760b79 100644
---- a/drivers/clk/at91/sama7g5.c
-+++ b/drivers/clk/at91/sama7g5.c
-@@ -982,16 +982,7 @@ static void __init sama7g5_pmc_setup(struct device_node *np)
- 	}
+diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
+index efeeb1b885a17..329b9c4ae5429 100644
+--- a/arch/powerpc/sysdev/dcr-low.S
++++ b/arch/powerpc/sysdev/dcr-low.S
+@@ -11,7 +11,7 @@
+ #include <asm/export.h>
  
- 	parent_names[0] = "cpupll_divpmcck";
--	hw = at91_clk_register_master_pres(regmap, "cpuck", 1, parent_names,
--					   &mck0_layout, &mck0_characteristics,
--					   &pmc_mck0_lock,
--					   CLK_SET_RATE_PARENT, 0);
--	if (IS_ERR(hw))
--		goto err_free;
--
--	sama7g5_pmc->chws[PMC_CPU] = hw;
--
--	hw = at91_clk_register_master_div(regmap, "mck0", "cpuck",
-+	hw = at91_clk_register_master_div(regmap, "mck0", "cpupll_divpmcck",
- 					  &mck0_layout, &mck0_characteristics,
- 					  &pmc_mck0_lock, 0);
- 	if (IS_ERR(hw))
+ #define DCR_ACCESS_PROLOG(table) \
+-	cmpli	cr0,r3,1024;	 \
++	cmplwi	cr0,r3,1024;	 \
+ 	rlwinm  r3,r3,4,18,27;   \
+ 	lis     r5,table@h;      \
+ 	ori     r5,r5,table@l;   \
 -- 
 2.33.0
 
