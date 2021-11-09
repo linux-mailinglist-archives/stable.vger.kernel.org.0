@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 814C744B557
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:17:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98F1944B55B
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:17:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245554AbhKIWUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:20:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40274 "EHLO mail.kernel.org"
+        id S245427AbhKIWUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:20:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245420AbhKIWTy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:19:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50BF56121F;
-        Tue,  9 Nov 2021 22:17:06 +0000 (UTC)
+        id S245425AbhKIWT4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:19:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00DB961221;
+        Tue,  9 Nov 2021 22:17:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496227;
-        bh=NNmy4jwqEz7jV8ggkkrX6c46LlgBk5vR4SOzWMcdR8I=;
+        s=k20201202; t=1636496229;
+        bh=n2QY9ZCzMQ5L/diKzzoUTzlNgTpWjhhgc9Cx+9G/Tvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VaA6n5BYBoD7/kseZDaRJe649l6xZxisvMRCg0MkELLMbOGC0LxA807wplvgUjDyT
-         pAbbX+D4XMBki4uHquXqg2FCXo48L++gAdgTvx3UFbZ/KB71CYxFwep5RUsGzHM1HT
-         6MO0+VJPIK6xoGEDyE6HXQCWXljurqLhlUOaBJjNXNNaROD2w6pDg/eNrZLIz7NnxJ
-         ztAQ8CXJtZsNYBwGhCHUMMYWDez8iDgdxpH3XhCo/b0vcW6CdCKw2qTYDqOPM34mob
-         gaI8KQ3DW7+6C0+iU3JfFzURa0z5TuaWdCqm5LIg85QmSVqeEVn1Nbaqa/TkD14HWG
-         O2Qed9TcjcESA==
+        b=gcBuLI4DJV+WRb0haCmOthYCgx0Yx5XaIca/ID8lnu7NaW3waMybAwk4vZNkyAf6i
+         RIv+eKH6P7JZKPrIS1t6ZAeX5y17EhETt9uJXghzWDOTlzMb2pjboVEx+otDnyNmBy
+         7twKHwmIrO702vjlJ5QR0nnf8kHbmtMXyC8Cwy5Vqe6YElOpriqU7kIALx8gb7QxkV
+         +NBr/MDHNe8hnO49Y59/xWeFsIEWXMzMyq+eU4HqHkjEnhFUmrGDo287tPQrgzy1rw
+         zV3MtBckVinGkBhx8j5f4SdwwobR2YT+WODQLf8N9kfDzqu+GwOBzH8zDmuyZQITF1
+         NP9gizDo0+mWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+Cc:     Matthew Hagan <mnhagan88@gmail.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, hauke@hauke-m.de,
-        robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        pawel.moll@arm.com, mark.rutland@arm.com,
         ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-        linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 09/82] ARM: dts: BCM5301X: Fix MDIO mux binding
-Date:   Tue,  9 Nov 2021 17:15:27 -0500
-Message-Id: <20211109221641.1233217-9-sashal@kernel.org>
+        linux@arm.linux.org.uk, rjui@broadcom.com, sbranden@broadcom.com,
+        jonmason@broadcom.com, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        bcm-kernel-feedback-list@broadcom.com
+Subject: [PATCH AUTOSEL 5.15 10/82] ARM: dts: NSP: Fix mpcore, mmc node names
+Date:   Tue,  9 Nov 2021 17:15:28 -0500
+Message-Id: <20211109221641.1233217-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,33 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Matthew Hagan <mnhagan88@gmail.com>
 
-[ Upstream commit 6ee0b56f7530e0ebb496fe15d0b54c5f3a1b5e17 ]
+[ Upstream commit 15a563d008ef9d04df525f0c476cd7d7127bb883 ]
 
-This fixes following error for all BCM5301X dts files:
-mdio-bus-mux@18003000: compatible: ['mdio-mux-mmioreg'] is too short
+Running dtbs_check yielded the issues with bcm-nsp.dtsi.
 
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Firstly this patch fixes the following message by appending "-bus" to
+the mpcore node name:
+mpcore@19000000: $nodename:0: 'mpcore@19000000' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+
+Secondly mmc node name. The label name can remain as is.
+sdhci@21000: $nodename:0: 'sdhci@21000' does not match '^mmc(@.*)?$'
+
+Signed-off-by: Matthew Hagan <mnhagan88@gmail.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm5301x.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/bcm-nsp.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
-index f9d3a53065ef7..d4f355015e3ca 100644
---- a/arch/arm/boot/dts/bcm5301x.dtsi
-+++ b/arch/arm/boot/dts/bcm5301x.dtsi
-@@ -370,7 +370,7 @@
+diff --git a/arch/arm/boot/dts/bcm-nsp.dtsi b/arch/arm/boot/dts/bcm-nsp.dtsi
+index 748df7955ae67..e96ddb2e26e2c 100644
+--- a/arch/arm/boot/dts/bcm-nsp.dtsi
++++ b/arch/arm/boot/dts/bcm-nsp.dtsi
+@@ -77,7 +77,7 @@
+ 		interrupt-affinity = <&cpu0>, <&cpu1>;
  	};
  
- 	mdio-mux@18003000 {
--		compatible = "mdio-mux-mmioreg";
-+		compatible = "mdio-mux-mmioreg", "mdio-mux";
- 		mdio-parent-bus = <&mdio>;
+-	mpcore@19000000 {
++	mpcore-bus@19000000 {
+ 		compatible = "simple-bus";
+ 		ranges = <0x00000000 0x19000000 0x00023000>;
  		#address-cells = <1>;
- 		#size-cells = <0>;
+@@ -219,7 +219,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		sdio: sdhci@21000 {
++		sdio: mmc@21000 {
+ 			compatible = "brcm,sdhci-iproc-cygnus";
+ 			reg = <0x21000 0x100>;
+ 			interrupts = <GIC_SPI 145 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 2.33.0
 
