@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB06A44B804
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:37:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F44344B805
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:37:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343870AbhKIWjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:39:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59904 "EHLO mail.kernel.org"
+        id S1344563AbhKIWj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:39:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345500AbhKIWhw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:37:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 359A161506;
-        Tue,  9 Nov 2021 22:22:58 +0000 (UTC)
+        id S1345505AbhKIWhz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:37:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76A9A61AED;
+        Tue,  9 Nov 2021 22:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496579;
-        bh=bZYwmws7ttw+7pmQhuTuxLgNOJ+/Q2vHTKQPCg9K4Ws=;
+        s=k20201202; t=1636496580;
+        bh=0DFNQf+D2nNrpoWEiiHOZDH/2OGH8W4NFbon9vnXo5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EBuYlWXn4q4BT5Hu1wFVx6xX+6+6IYrOyqQuZNVkpCt3itIw1cM/qmuIr8ati2kdg
-         Gg/rTQIOLwKQW/JWrVjrc+EiVAmwPB93zYPstTs8AoSWQ2TquUXuXOWU5FI8JGWeKF
-         2HQXooX6gb8g94i2EDBWpSvoXqn6OxmJbU1zSjGGD8rxkRjUk5bgkzqx8dDeW4NnqU
-         8fXw1lFX0HVDYjjJq+1fNWr6rRq6UB+o9iubWDGQeBGgCKrDNKiopzyiChg8LeXYZW
-         4yk3TVxH1K6OxG9u41SwB9iK25Qhqix14ZmrHPUHPXZbxAI1LSYDZFC52H6nOvlIhT
-         0SuOaHKkmqY5A==
+        b=QUgZVexRTgXsC/4lDRh4pbSUoOxe0jvQRVsJufzkoNnuNS2ygWxOKvoZoFsHo067h
+         Rrj9kqnGZ3hz+X6YR+Vk+v/TTUyPA2a/eZ8X7t+Rm9jO1Tq/SRLA823AzikjJMdKzX
+         /zouUCW642SJBXVJnxrYGePG1lhnfWw2XWfFEbMInYssCWrH63bQE/JyT2kq/aapN0
+         hzBrPF3erzyzubsXLGLo2Jgh5ekpISAw2RvNeRW1qZy5EGGHgDNqiwJ/DT06FsXEBj
+         x05kLfdlZsxH/OeQV6AkVzGvX7ZXP0ALHVV7ES/s527od9D0gt9qixp5/1my6n3x9O
+         kS2kFXalWL3Pg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
-        linux-m68k@lists.linux-m68k.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 22/30] ALSA: ISA: not for M68K
-Date:   Tue,  9 Nov 2021 17:22:16 -0500
-Message-Id: <20211109222224.1235388-22-sashal@kernel.org>
+Cc:     Guanghui Feng <guanghuifeng@linux.alibaba.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, jslaby@suse.com
+Subject: [PATCH AUTOSEL 5.4 23/30] tty: tty_buffer: Fix the softlockup issue in flush_to_ldisc
+Date:   Tue,  9 Nov 2021 17:22:17 -0500
+Message-Id: <20211109222224.1235388-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222224.1235388-1-sashal@kernel.org>
 References: <20211109222224.1235388-1-sashal@kernel.org>
@@ -45,86 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Guanghui Feng <guanghuifeng@linux.alibaba.com>
 
-[ Upstream commit 3c05f1477e62ea5a0a8797ba6a545b1dc751fb31 ]
+[ Upstream commit 3968ddcf05fb4b9409cd1859feb06a5b0550a1c1 ]
 
-On m68k, compiling drivers under SND_ISA causes build errors:
+When running ltp testcase(ltp/testcases/kernel/pty/pty04.c) with arm64, there is a soft lockup,
+which look like this one:
 
-../sound/core/isadma.c: In function 'snd_dma_program':
-../sound/core/isadma.c:33:17: error: implicit declaration of function 'claim_dma_lock' [-Werror=implicit-function-declaration]
-   33 |         flags = claim_dma_lock();
-      |                 ^~~~~~~~~~~~~~
-../sound/core/isadma.c:41:9: error: implicit declaration of function 'release_dma_lock' [-Werror=implicit-function-declaration]
-   41 |         release_dma_lock(flags);
-      |         ^~~~~~~~~~~~~~~~
+  Workqueue: events_unbound flush_to_ldisc
+  Call trace:
+   dump_backtrace+0x0/0x1ec
+   show_stack+0x24/0x30
+   dump_stack+0xd0/0x128
+   panic+0x15c/0x374
+   watchdog_timer_fn+0x2b8/0x304
+   __run_hrtimer+0x88/0x2c0
+   __hrtimer_run_queues+0xa4/0x120
+   hrtimer_interrupt+0xfc/0x270
+   arch_timer_handler_phys+0x40/0x50
+   handle_percpu_devid_irq+0x94/0x220
+   __handle_domain_irq+0x88/0xf0
+   gic_handle_irq+0x84/0xfc
+   el1_irq+0xc8/0x180
+   slip_unesc+0x80/0x214 [slip]
+   tty_ldisc_receive_buf+0x64/0x80
+   tty_port_default_receive_buf+0x50/0x90
+   flush_to_ldisc+0xbc/0x110
+   process_one_work+0x1d4/0x4b0
+   worker_thread+0x180/0x430
+   kthread+0x11c/0x120
 
-../sound/isa/sb/sb16_main.c: In function 'snd_sb16_playback_prepare':
-../sound/isa/sb/sb16_main.c:253:72: error: 'DMA_AUTOINIT' undeclared (first use in this function)
-  253 |         snd_dma_program(dma, runtime->dma_addr, size, DMA_MODE_WRITE | DMA_AUTOINIT);
-      |                                                                        ^~~~~~~~~~~~
-../sound/isa/sb/sb16_main.c:253:72: note: each undeclared identifier is reported only once for each function it appears in
-../sound/isa/sb/sb16_main.c: In function 'snd_sb16_capture_prepare':
-../sound/isa/sb/sb16_main.c:322:71: error: 'DMA_AUTOINIT' undeclared (first use in this function)
-  322 |         snd_dma_program(dma, runtime->dma_addr, size, DMA_MODE_READ | DMA_AUTOINIT);
-      |                                                                       ^~~~~~~~~~~~
+In the testcase pty04, The first process call the write syscall to send
+data to the pty master. At the same time, the workqueue will do the
+flush_to_ldisc to pop data in a loop until there is no more data left.
+When the sender and workqueue running in different core, the sender sends
+data fastly in full time which will result in workqueue doing work in loop
+for a long time and occuring softlockup in flush_to_ldisc with kernel
+configured without preempt. So I add need_resched check and cond_resched
+in the flush_to_ldisc loop to avoid it.
 
-and more...
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: alsa-devel@alsa-project.org
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20211016062602.3588-1-rdunlap@infradead.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Guanghui Feng <guanghuifeng@linux.alibaba.com>
+Link: https://lore.kernel.org/r/1633961304-24759-1-git-send-email-guanghuifeng@linux.alibaba.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/Makefile | 2 ++
- sound/isa/Kconfig   | 2 +-
- sound/pci/Kconfig   | 1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/tty/tty_buffer.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/core/Makefile b/sound/core/Makefile
-index ee4a4a6b99ba7..d123587c0fd8f 100644
---- a/sound/core/Makefile
-+++ b/sound/core/Makefile
-@@ -9,7 +9,9 @@ ifneq ($(CONFIG_SND_PROC_FS),)
- snd-y += info.o
- snd-$(CONFIG_SND_OSSEMUL) += info_oss.o
- endif
-+ifneq ($(CONFIG_M68K),y)
- snd-$(CONFIG_ISA_DMA_API) += isadma.o
-+endif
- snd-$(CONFIG_SND_OSSEMUL) += sound_oss.o
- snd-$(CONFIG_SND_VMASTER) += vmaster.o
- snd-$(CONFIG_SND_JACK)	  += ctljack.o jack.o
-diff --git a/sound/isa/Kconfig b/sound/isa/Kconfig
-index b690ed937cbe8..df2e45c8814e9 100644
---- a/sound/isa/Kconfig
-+++ b/sound/isa/Kconfig
-@@ -22,7 +22,7 @@ config SND_SB16_DSP
- menuconfig SND_ISA
- 	bool "ISA sound devices"
- 	depends on ISA || COMPILE_TEST
--	depends on ISA_DMA_API
-+	depends on ISA_DMA_API && !M68K
- 	default y
- 	help
- 	  Support for sound devices connected via the ISA bus.
-diff --git a/sound/pci/Kconfig b/sound/pci/Kconfig
-index 7630f808d087c..6edde2f145025 100644
---- a/sound/pci/Kconfig
-+++ b/sound/pci/Kconfig
-@@ -279,6 +279,7 @@ config SND_CS46XX_NEW_DSP
- config SND_CS5530
- 	tristate "CS5530 Audio"
- 	depends on ISA_DMA_API && (X86_32 || COMPILE_TEST)
-+	depends on !M68K
- 	select SND_SB16_DSP
- 	help
- 	  Say Y here to include support for audio on Cyrix/NatSemi CS5530 chips.
+diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
+index ec145a59f1993..bb148dbfbb88f 100644
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -534,6 +534,9 @@ static void flush_to_ldisc(struct work_struct *work)
+ 		if (!count)
+ 			break;
+ 		head->read += count;
++
++		if (need_resched())
++			cond_resched();
+ 	}
+ 
+ 	mutex_unlock(&buf->lock);
 -- 
 2.33.0
 
