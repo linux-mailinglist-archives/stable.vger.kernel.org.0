@@ -2,151 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ACFB44A825
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 09:07:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9046844A94A
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 09:37:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235973AbhKIIKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 03:10:19 -0500
-Received: from mail-bn8nam11on2086.outbound.protection.outlook.com ([40.107.236.86]:54497
-        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S235389AbhKIIKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 03:10:18 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oEsKn6cVsz6fY/ovnXb0barrb7Rf+u6oZITRpHnt1FgvMXxa/F6YwQYCMFZhAUbkvsZGQDNlMEhqi4yxHuDRFmVTnhZ2nC4ytnAUqVqzulsPpLfJlFDGB4quMO6OA1Dol+lXk6Ie8+w7dqRuhPljoh2EVqT/6QNsuRYgs4oVg8Dr4Lp6J8VPkAJnGRCvPTVMrBsg0LAV2lFhXr+YDszG4TLWzhlMAFB34P81oSna6QjJjoX1GHoo86xmvC2XOH5n8NaCn2apEv8hz7Dgiw7GTnn+bPAWtWKTylvY/xMnIUGCyZTzyKOEoSfif/Zrtch+hwkyEnJWnpidNkricwVEsg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=UE8P2LReeqJBaVSY4oBIHfoxsyBe3PdmpbhwCNLQKow=;
- b=EVJTh8ZAAV+TbRCfUtfKYXVqL3mNuAI3CJGAeflhFV2Uii2Oi9J+sWJjTwsAntf4YesuzHXVOSjwG+qZJT5du6hjtndJHOfmhK+gFlACg+NuVbZjkx/35LIfG2mYDIHO1U1LUhmJSoszEwMp5No5QwrDZjmgL2Gx7Or65bQxtdRPKC8/evhr5ata6kS05lQ06RXNlZh453CAloam6l7UP2duOkK0EL9Szw6AxSqN4KbG9kPjNI2dP5xFpzcvwceNrS+dJvOhApCEWkXrIlrzeVtzmeAZfMe35/n4Ho66h88saI6E/S1LR12asLOUYN+zjWuyfdoSFowPjYBO/aupXw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UE8P2LReeqJBaVSY4oBIHfoxsyBe3PdmpbhwCNLQKow=;
- b=nqInLRxa9A5tXJJ4NIyoSKojA/IuiRxnZd8rnWN9hY52NRIY54Y9S97nUsdLK6/Y6a2fPHrzy5sAjZ9nzazNLZq0tJ0oFVcQgstdjJO3uzCcUj0FlxU2hPL9r2/2K2AHkuhMdFt6KBVnH6nmji8WiJ2ycQtrkN6JtZlFaqGtI18=
-Authentication-Results: lists.linaro.org; dkim=none (message not signed)
- header.d=none;lists.linaro.org; dmarc=none action=none header.from=amd.com;
-Received: from MWHPR1201MB0192.namprd12.prod.outlook.com
- (2603:10b6:301:5a::14) by MWHPR1201MB0191.namprd12.prod.outlook.com
- (2603:10b6:301:56::13) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4669.10; Tue, 9 Nov
- 2021 08:07:30 +0000
-Received: from MWHPR1201MB0192.namprd12.prod.outlook.com
- ([fe80::2d02:26e7:a2d0:3769]) by MWHPR1201MB0192.namprd12.prod.outlook.com
- ([fe80::2d02:26e7:a2d0:3769%5]) with mapi id 15.20.4669.016; Tue, 9 Nov 2021
- 08:07:30 +0000
-Subject: Re: AUTOSEL series truncated was -- Re: [PATCH AUTOSEL 5.15 001/146]
- dma-buf: WARN on dmabuf release with pending attachments
-To:     Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        sumit.semwal@linaro.org, linux-media@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org
-References: <20211108174453.1187052-1-sashal@kernel.org>
- <20211109075423.GA16766@amd>
-From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-Message-ID: <29a8e3e9-b1c6-fbd8-ddc6-1dc9f16ef68a@amd.com>
-Date:   Tue, 9 Nov 2021 09:07:23 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
-In-Reply-To: <20211109075423.GA16766@amd>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-ClientProxiedBy: AS9PR06CA0082.eurprd06.prod.outlook.com
- (2603:10a6:20b:464::31) To MWHPR1201MB0192.namprd12.prod.outlook.com
- (2603:10b6:301:5a::14)
+        id S241890AbhKIIjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 03:39:54 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:39316 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239047AbhKIIjx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 03:39:53 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id A20881FDB9;
+        Tue,  9 Nov 2021 08:37:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1636447026; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ISui45MiW1iSkWfrfQHkCQ78kkzQnzcEI0m54hrX6Cs=;
+        b=iA0cqCM5D1iX1zabZ+RzQADzC8ITWLpzlL/SLtFOW6W92JhwwFvgjYibwR6AKYA2zehxDh
+        a0is3HIitYueTm1BWVxooAullll9qeCnxeIbMOLMncOqvVcB3rSfB1vtGatJFHlbrqgFth
+        gI6zhT9ep+H37zqAmfGB7eDxx9D7ssw=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 71F1FA3B81;
+        Tue,  9 Nov 2021 08:37:06 +0000 (UTC)
+Date:   Tue, 9 Nov 2021 09:37:02 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     amakhalov@vmware.com, cl@linux.com, david@redhat.com,
+        dennis@kernel.org, mm-commits@vger.kernel.org, osalvador@suse.de,
+        stable@vger.kernel.org, tj@kernel.org
+Subject: Re: + mm-fix-panic-in-__alloc_pages.patch added to -mm tree
+Message-ID: <YYozLsIECu0Jnv0p@dhcp22.suse.cz>
+References: <20211108205031.UxDPHBZWa%akpm@linux-foundation.org>
 MIME-Version: 1.0
-Received: from [192.168.178.21] (79.194.4.163) by AS9PR06CA0082.eurprd06.prod.outlook.com (2603:10a6:20b:464::31) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4669.10 via Frontend Transport; Tue, 9 Nov 2021 08:07:27 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: e45af0ee-976c-4303-82ce-08d9a357fa06
-X-MS-TrafficTypeDiagnostic: MWHPR1201MB0191:
-X-Microsoft-Antispam-PRVS: <MWHPR1201MB0191D58BEC7AF4F5D1FCCE3E83929@MWHPR1201MB0191.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: DavXAhSekKnTg8bNUZVAtR/9ddwf6wjlAeFXhQlkUxdBVHT6rLeHjJgayKjsqpkhgODR47iM1iOPD3UW2KOVKRoynwGZfeGRk0SsdLCsbOvMyh3SINDZbN0CWEOwNYYMA4rk/7qj4yXzpWeODBqJsfxhDh/smBGLIrXQ/yruF7WmoIW82Y+sLrhkSkO+s6vwnEO44ZevUOVcXbzGCvIEHRGKecXS/ndeMGrbBaWIi9QgDPpdAb1BTYPlOuFuFRw6j7nDgVM/ELVUEbnfLLnQiVcYcdyNPi75N9BnhajpByvNQ2XNCCwLI0D33U91aDciM0/fGAknGa7piAVyqYaCePXqjxcA6aa+aKRwyJSjhSqAbm/YfJ04fysDw9MD2QCAmM6prPr/V+Xw9kbKwiVoGSgPQzNQsy7u4mK/69lUuN0ApuORXVfH9jLmixthcPE/JMqw/Cl0fzJWJRwATBILLXmkL9A2s6f0Aoye2kt+2XDSxniQxgA3A+/CmGrTnvaG8jr/YsOPz8JfgkXyJJ/XbfuLv9L3ns3uWKjzfx3EX2tIwhWcoS5BJcleHEY2DaSk2vz8f9CKuMMA1TKc1f3tA4H2VBD3mG8HPVH29PsB1Qg3BZbWo6gnWEI4h50X+s2tudJa0n0rAzmDlSLO3EWlVVg5vBD/wUZmIc4cna+DZ+6tg+8beoSufBBtrsxNuQRTw3IOV5axpiCa/y7ET3qsA16LJN91k/KbA85BbM0v1aQ=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR1201MB0192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(86362001)(6666004)(36756003)(16576012)(8676002)(110136005)(956004)(26005)(66556008)(6486002)(66946007)(31696002)(2616005)(5660300002)(66476007)(316002)(186003)(508600001)(4326008)(83380400001)(38100700002)(8936002)(2906002)(31686004)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?Windows-1252?Q?XmbUb1lu3RkwQ+eEcV4WyjwMDuefaR4ApF6NOtuqKDmkJGHf559J9Y8n?=
- =?Windows-1252?Q?gOd5DyYktfk19lYD16KuauQfOL0/S7RZofXGuVgDte9qhhAMB+SWWTFy?=
- =?Windows-1252?Q?Sy1JcAHL/h3EbS9yd0IG9gbY9VmtE56VY6LDy/Shw/GFcb929FX1PyzK?=
- =?Windows-1252?Q?VGP1hph0lZfj2lIrXSk0U2gYZaUMgdljowF2k4B/E+82Xd4YdpgLxy1J?=
- =?Windows-1252?Q?XIAlON0f4ZJJHIIhfhsulp2I83s9bSJM0KcFlVmFbE/2dP5Ed/QVzSvv?=
- =?Windows-1252?Q?/3TGctcbxKPZrBh9p6ASx81+FS7Yv+5C8mmcBemKB7sEvzjkM8G8GSJk?=
- =?Windows-1252?Q?gadgpyBkz5TX3NJhwuEeete4DiPeMeEqYGyzDpYUbm3re+4DnBARA0Dw?=
- =?Windows-1252?Q?4AZOpiziSXEDyKXV5BwDSYNIdo1Hofprcvon9mjqm5+kBp7a7dIRbVGP?=
- =?Windows-1252?Q?XRp93ba4rnAWDHL7b7yZRfetj/7OYWMHZGypYT4tBkC+1pAZ6a5wjzHL?=
- =?Windows-1252?Q?q9iCcD9PcnEIrRv/PERGdIm3D2vH0jDPbbYpAkhaRRkF3gHEbnEj9C90?=
- =?Windows-1252?Q?BstjFZG6DvB+6RRUtFXoS55bz9JVBQpWVzMPfeFqg7vycDweZ/cAszGB?=
- =?Windows-1252?Q?2AjQWMzx8qBUjfZDDnUOYZWd8iaJdzNpNX2qXm1n5ZBqGllxaz6YDyKt?=
- =?Windows-1252?Q?Sib4K+xOVfzg08cpBUX/aBCcBLjbIb/gYn0ufmwfMZ53SfwX7y7dCIfm?=
- =?Windows-1252?Q?i6yZF9DCLjIybD/nWHuymDJ94vuTOSIdHPTaJO0uf4Ib6aRHMPDU9Ysy?=
- =?Windows-1252?Q?PcG8Ng7n5oqDllMhZ0yfIqWhzQibPLhf9a/Y80fr2i/ZDmHzrBqGWAt4?=
- =?Windows-1252?Q?H4FxXtWmKFXvnU5H3PM1AHIp9lvXtynmsTKxi3qI7n0dxpGCKglQ9yE0?=
- =?Windows-1252?Q?6BMzH2q8XjWiNxzlbVjp/Q1V39AHd9higFneSh059zdoxwAo9DjPXzl0?=
- =?Windows-1252?Q?Lrm6UYwVAsDtda1UKMghcWAXcxco7iKVL3lep9zuiXqnkDEXl5xRhMqE?=
- =?Windows-1252?Q?XUuT9QqPzWHWtGBq6LhBxtF4471hwGgUkSV6TtiSh+UX3QSDus3kks8E?=
- =?Windows-1252?Q?VrElcwtALjdnTeIiz+tcrENNmQcnaqUldcSrjOyHeu5nldu6qEtL66mb?=
- =?Windows-1252?Q?E2XOlppv2Kl8iQ3u0OrIFQSMMe2lL0YJK1cAzVt8kYg7wMAkyfkPsIhn?=
- =?Windows-1252?Q?Z5L/xQFkBd+gTALuGhQQyf9nRuq895c8AJjYRlt7TBtuCmIOquT1h8d3?=
- =?Windows-1252?Q?bVbWd4kfJU9N2B+MslRDgkr3f93Hn8PcVznYgXeVz7hAjimwYwIu31BN?=
- =?Windows-1252?Q?jUJtE2St3637ElSwy4c0AJwqEMPRa9YKsc4cWDjA2m6AP+wvYIr+/QR9?=
- =?Windows-1252?Q?wAnUOjai49JiyhQibSKaO92oR7zVODrgpt5wCmECEBFkrln9AUBO6gbX?=
- =?Windows-1252?Q?3laNiS76D3VWJ6ZO+JB5DwUUxoithPcb4Nq3a6UIXnBBF9inkQynV4JB?=
- =?Windows-1252?Q?wv/U9grNaczXR7xHsklLcRID/1jwUzfpVk6K7ah8FQ3xirUl30fGr0ZN?=
- =?Windows-1252?Q?zZ/1pqudb1z5Buy3Zr9b4hg5bqtQhpArHWg9LPbbaYdJxmeD6oMdv1BQ?=
- =?Windows-1252?Q?XBAgr2cx+7U=3D?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e45af0ee-976c-4303-82ce-08d9a357fa06
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR1201MB0192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Nov 2021 08:07:30.3378
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 4Y5+29/4QQTINJIosCxP8uIHhtAMW4OVsmS0N2dipQR8s3Ma6UgfoodC/VQcESQb
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR1201MB0191
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211108205031.UxDPHBZWa%akpm@linux-foundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Pavel,
+I have opposed this patch http://lkml.kernel.org/r/YYj91Mkt4m8ySIWt@dhcp22.suse.cz
+There was no response to that feedback. I will not go as far as to nack
+it explicitly because pcp allocator is not an area I would nack patches
+but seriously, this issue needs a deeper look rather than a paper over
+patch. I hope we do not want to do a similar thing to all callers of
+cpu_to_mem.
 
-Am 09.11.21 um 08:54 schrieb Pavel Machek:
-> Hi!
->
-> This series is truncated .. I only got first patches. Similary, 5.10
-> series is truncated, [PATCH AUTOSEL 5.10 035/101] media: s5p-mfc: Add
-> checking to s5p_mfc_probe... is last one I got.
->
-> I got all the patches before that, so I believe it is not problem on
-> my side, but I'd not mind someone confirming they are seeing the same
-> problem...
+On Mon 08-11-21 12:50:31, Andrew Morton wrote:
+> 
+> The patch titled
+>      Subject: mm: fix panic in __alloc_pages
+> has been added to the -mm tree.  Its filename is
+>      mm-fix-panic-in-__alloc_pages.patch
+> 
+> This patch should soon appear at
+>     https://ozlabs.org/~akpm/mmots/broken-out/mm-fix-panic-in-__alloc_pages.patch
+> and later at
+>     https://ozlabs.org/~akpm/mmotm/broken-out/mm-fix-panic-in-__alloc_pages.patch
+> 
+> Before you just go and hit "reply", please:
+>    a) Consider who else should be cc'ed
+>    b) Prefer to cc a suitable mailing list as well
+>    c) Ideally: find the original patch on the mailing list and do a
+>       reply-to-all to that, adding suitable additional cc's
+> 
+> *** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+> 
+> The -mm tree is included into linux-next and is updated
+> there every 3-4 working days
+> 
+> ------------------------------------------------------
+> From: Alexey Makhalov <amakhalov@vmware.com>
+> Subject: mm: fix panic in __alloc_pages
+> 
+> There is a kernel panic caused by pcpu_alloc_pages() passing offlined and
+> uninitialized node to alloc_pages_node() leading to panic by NULL
+> dereferencing uninitialized NODE_DATA(nid).
+> 
+>  CPU2 has been hot-added
+>  BUG: unable to handle page fault for address: 0000000000001608
+>  #PF: supervisor read access in kernel mode
+>  #PF: error_code(0x0000) - not-present page
+>  PGD 0 P4D 0
+>  Oops: 0000 [#1] SMP PTI
+>  CPU: 0 PID: 1 Comm: systemd Tainted: G            E     5.15.0-rc7+ #11
+>  Hardware name: VMware, Inc. VMware7,1/440BX Desktop Reference Platform, BIOS VMW
+> 
+>  RIP: 0010:__alloc_pages+0x127/0x290
+>  Code: 4c 89 f0 5b 41 5c 41 5d 41 5e 41 5f 5d c3 44 89 e0 48 8b 55 b8 c1 e8 0c 83 e0 01 88 45 d0 4c 89 c8 48 85 d2 0f 85 1a 01 00 00 <45> 3b 41 08 0f 82 10 01 00 00 48 89 45 c0 48 8b 00 44 89 e2 81 e2
+>  RSP: 0018:ffffc900006f3bc8 EFLAGS: 00010246
+>  RAX: 0000000000001600 RBX: 0000000000000000 RCX: 0000000000000000
+>  RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000cc2
+>  RBP: ffffc900006f3c18 R08: 0000000000000001 R09: 0000000000001600
+>  R10: ffffc900006f3a40 R11: ffff88813c9fffe8 R12: 0000000000000cc2
+>  R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000cc2
+>  FS:  00007f27ead70500(0000) GS:ffff88807ce00000(0000) knlGS:0000000000000000
+>  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>  CR2: 0000000000001608 CR3: 000000000582c003 CR4: 00000000001706b0
+>  Call Trace:
+>   pcpu_alloc_pages.constprop.0+0xe4/0x1c0
+>   pcpu_populate_chunk+0x33/0xb0
+>   pcpu_alloc+0x4d3/0x6f0
+>   __alloc_percpu_gfp+0xd/0x10
+>   alloc_mem_cgroup_per_node_info+0x54/0xb0
+>   mem_cgroup_alloc+0xed/0x2f0
+>   mem_cgroup_css_alloc+0x33/0x2f0
+>   css_create+0x3a/0x1f0
+>   cgroup_apply_control_enable+0x12b/0x150
+>   cgroup_mkdir+0xdd/0x110
+>   kernfs_iop_mkdir+0x4f/0x80
+>   vfs_mkdir+0x178/0x230
+>   do_mkdirat+0xfd/0x120
+>   __x64_sys_mkdir+0x47/0x70
+>   ? syscall_exit_to_user_mode+0x21/0x50
+>   do_syscall_64+0x43/0x90
+>   entry_SYSCALL_64_after_hwframe+0x44/0xae
+> 
+> Panic can be easily reproduced by disabling udev rule for automatic
+> onlining hot added CPU followed by CPU with memoryless node (NUMA node
+> with CPU only) hot add.
+> 
+> Hot adding CPU and memoryless node does not bring the node to online
+> state.  Memoryless node will be onlined only during the onlining its CPU.
+> 
+> Node can be in one of the following states:
+> 1. not present.(nid == NUMA_NO_NODE)
+> 2. present, but offline (nid > NUMA_NO_NODE, node_online(nid) == 0,
+> 				NODE_DATA(nid) == NULL)
+> 3. present and online (nid > NUMA_NO_NODE, node_online(nid) > 0,
+> 				NODE_DATA(nid) != NULL)
+> 
+> Percpu code is doing allocations for all possible CPUs.  The issue happens
+> when it serves hot added but not yet onlined CPU when its node is in 2nd
+> state.  This node is not ready to use, fallback to numa_mem_id().
+> 
+> Link: https://lkml.kernel.org/r/20211108202325.20304-1-amakhalov@vmware.com
+> Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Oscar Salvador <osalvador@suse.de>
+> Cc: Dennis Zhou <dennis@kernel.org>
+> Cc: Tejun Heo <tj@kernel.org>
+> Cc: Christoph Lameter <cl@linux.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> ---
+> 
+>  mm/percpu-vm.c |    8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> --- a/mm/percpu-vm.c~mm-fix-panic-in-__alloc_pages
+> +++ a/mm/percpu-vm.c
+> @@ -84,15 +84,19 @@ static int pcpu_alloc_pages(struct pcpu_
+>  			    gfp_t gfp)
+>  {
+>  	unsigned int cpu, tcpu;
+> -	int i;
+> +	int i, nid;
+>  
+>  	gfp |= __GFP_HIGHMEM;
+>  
+>  	for_each_possible_cpu(cpu) {
+> +		nid = cpu_to_node(cpu);
+> +		if (nid == NUMA_NO_NODE || !node_online(nid))
+> +			nid = numa_mem_id();
+> +
+>  		for (i = page_start; i < page_end; i++) {
+>  			struct page **pagep = &pages[pcpu_page_idx(cpu, i)];
+>  
+> -			*pagep = alloc_pages_node(cpu_to_node(cpu), gfp, 0);
+> +			*pagep = alloc_pages_node(nid, gfp, 0);
+>  			if (!*pagep)
+>  				goto err;
+>  		}
+> _
+> 
+> Patches currently in -mm which might be from amakhalov@vmware.com are
+> 
+> mm-fix-panic-in-__alloc_pages.patch
 
-It could of course be a different issue, but I've been experiencing 
-similar problems since a couple of weeks now, especially with mailing 
-lists hosted on the freedesktop.org servers and long series of mails. 
-The symptons are that individual mails are missing from a series.
-
-I'm usually registered with two completely separated mail accounts 
-(private and work) on those lists and if a mail is missing it is always 
-missing on both accounts. The interesting thing is that if it is a patch 
-set then patchwork (https://patchwork.freedesktop.org/) always seems to 
-get all mails.
-
-No idea what's going on here and so far it was to rarely to complain, 
-but with this series it is totally obvious that something is wrong.
-
-Regards,
-Christian.
-
->
-> Best regards,
-> 								Pavel
->
-
+-- 
+Michal Hocko
+SUSE Labs
