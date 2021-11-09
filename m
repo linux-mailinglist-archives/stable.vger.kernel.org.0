@@ -2,201 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 136E944B38A
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 20:54:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38A9244B3AB
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 21:01:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243938AbhKIT5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 14:57:42 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:53572 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243249AbhKIT5l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 14:57:41 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id ACA3B1FD6F;
-        Tue,  9 Nov 2021 19:54:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1636487693; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Y2OXf18Y/MTI9Z9OxFGo3yBDa2tKzuDPogvq8TubkCc=;
-        b=gzhTgFdOzsIrvUHTNWLHF+uNXyROpaRjxXE3LcWYYIQJaiTc9LAMxuABnMofgHZM9b36sR
-        j9kFqaLXgXvOAoduC6Xa2ZauP2kPLjkQAuUmFNrphK5THVf8jeixSHiINOTM1lRs2fJgyi
-        g4zJ1lRShfA6KXX8V6OrfEoghJuncCA=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 77640A3B81;
-        Tue,  9 Nov 2021 19:54:53 +0000 (UTC)
-Date:   Tue, 9 Nov 2021 20:54:51 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Dennis Zhou <dennis@kernel.org>
-Cc:     Eric Dumazet <eric.dumazet@gmail.com>,
-        Alexey Makhalov <amakhalov@vmware.com>, linux-mm@kvack.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
-Message-ID: <YYrSC7vtSQXz652a@dhcp22.suse.cz>
-References: <908909e0-4815-b580-7ff5-d824d36a141c@redhat.com>
- <20211108202325.20304-1-amakhalov@vmware.com>
- <2e191db3-286f-90c6-bf96-3f89891e9926@gmail.com>
- <YYqstfX8PSGDfWsn@dhcp22.suse.cz>
- <YYrGpn/52HaLCAyo@fedora>
+        id S244043AbhKIUDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 15:03:52 -0500
+Received: from mga01.intel.com ([192.55.52.88]:59920 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242871AbhKIUDv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 15:03:51 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10163"; a="256212988"
+X-IronPort-AV: E=Sophos;i="5.87,221,1631602800"; 
+   d="scan'208";a="256212988"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2021 12:01:04 -0800
+X-IronPort-AV: E=Sophos;i="5.87,221,1631602800"; 
+   d="scan'208";a="452039533"
+Received: from rchatre-ws.ostc.intel.com ([10.54.69.144])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2021 12:01:03 -0800
+From:   Reinette Chatre <reinette.chatre@intel.com>
+To:     dave.hansen@linux.intel.com, jarkko@kernel.org, tglx@linutronix.de,
+        bp@alien8.de, mingo@redhat.com, linux-sgx@vger.kernel.org,
+        x86@kernel.org
+Cc:     seanjc@google.com, tony.luck@intel.com, hpa@zytor.com,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH V2] x86/sgx: Fix free page accounting
+Date:   Tue,  9 Nov 2021 12:00:56 -0800
+Message-Id: <b2e69e9febcae5d98d331de094d9cc7ce3217e66.1636487172.git.reinette.chatre@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YYrGpn/52HaLCAyo@fedora>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 09-11-21 14:06:14, Dennis Zhou wrote:
-> Hello,
-> 
-> On Tue, Nov 09, 2021 at 06:15:33PM +0100, Michal Hocko wrote:
-> > On Mon 08-11-21 18:08:52, Eric Dumazet wrote:
-> > > 
-> > > 
-> > > On 11/8/21 12:23 PM, Alexey Makhalov wrote:
-> > > > There is a kernel panic caused by pcpu_alloc_pages() passing
-> > > > offlined and uninitialized node to alloc_pages_node() leading
-> > > > to panic by NULL dereferencing uninitialized NODE_DATA(nid).
-> > > > 
-> > > >  CPU2 has been hot-added
-> > > >  BUG: unable to handle page fault for address: 0000000000001608
-> > > >  #PF: supervisor read access in kernel mode
-> > > >  #PF: error_code(0x0000) - not-present page
-> > > >  PGD 0 P4D 0
-> > > >  Oops: 0000 [#1] SMP PTI
-> > > >  CPU: 0 PID: 1 Comm: systemd Tainted: G            E     5.15.0-rc7+ #11
-> > > >  Hardware name: VMware, Inc. VMware7,1/440BX Desktop Reference Platform, BIOS VMW
-> > > > 
-> > > >  RIP: 0010:__alloc_pages+0x127/0x290
-> > > >  Code: 4c 89 f0 5b 41 5c 41 5d 41 5e 41 5f 5d c3 44 89 e0 48 8b 55 b8 c1 e8 0c 83 e0 01 88 45 d0 4c 89 c8 48 85 d2 0f 85 1a 01 00 00 <45> 3b 41 08 0f 82 10 01 00 00 48 89 45 c0 48 8b 00 44 89 e2 81 e2
-> > > >  RSP: 0018:ffffc900006f3bc8 EFLAGS: 00010246
-> > > >  RAX: 0000000000001600 RBX: 0000000000000000 RCX: 0000000000000000
-> > > >  RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000cc2
-> > > >  RBP: ffffc900006f3c18 R08: 0000000000000001 R09: 0000000000001600
-> > > >  R10: ffffc900006f3a40 R11: ffff88813c9fffe8 R12: 0000000000000cc2
-> > > >  R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000cc2
-> > > >  FS:  00007f27ead70500(0000) GS:ffff88807ce00000(0000) knlGS:0000000000000000
-> > > >  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > >  CR2: 0000000000001608 CR3: 000000000582c003 CR4: 00000000001706b0
-> > > >  Call Trace:
-> > > >   pcpu_alloc_pages.constprop.0+0xe4/0x1c0
-> > > >   pcpu_populate_chunk+0x33/0xb0
-> > > >   pcpu_alloc+0x4d3/0x6f0
-> > > >   __alloc_percpu_gfp+0xd/0x10
-> > > >   alloc_mem_cgroup_per_node_info+0x54/0xb0
-> > > >   mem_cgroup_alloc+0xed/0x2f0
-> > > >   mem_cgroup_css_alloc+0x33/0x2f0
-> > > >   css_create+0x3a/0x1f0
-> > > >   cgroup_apply_control_enable+0x12b/0x150
-> > > >   cgroup_mkdir+0xdd/0x110
-> > > >   kernfs_iop_mkdir+0x4f/0x80
-> > > >   vfs_mkdir+0x178/0x230
-> > > >   do_mkdirat+0xfd/0x120
-> > > >   __x64_sys_mkdir+0x47/0x70
-> > > >   ? syscall_exit_to_user_mode+0x21/0x50
-> > > >   do_syscall_64+0x43/0x90
-> > > >   entry_SYSCALL_64_after_hwframe+0x44/0xae
-> > > > 
-> > > > Panic can be easily reproduced by disabling udev rule for
-> > > > automatic onlining hot added CPU followed by CPU with
-> > > > memoryless node (NUMA node with CPU only) hot add.
-> > > > 
-> > > > Hot adding CPU and memoryless node does not bring the node
-> > > > to online state. Memoryless node will be onlined only during
-> > > > the onlining its CPU.
-> > > > 
-> > > > Node can be in one of the following states:
-> > > > 1. not present.(nid == NUMA_NO_NODE)
-> > > > 2. present, but offline (nid > NUMA_NO_NODE, node_online(nid) == 0,
-> > > > 				NODE_DATA(nid) == NULL)
-> > > > 3. present and online (nid > NUMA_NO_NODE, node_online(nid) > 0,
-> > > > 				NODE_DATA(nid) != NULL)
-> > > > 
-> > > > Percpu code is doing allocations for all possible CPUs. The
-> > > > issue happens when it serves hot added but not yet onlined
-> > > > CPU when its node is in 2nd state. This node is not ready
-> > > > to use, fallback to numa_mem_id().
-> > > > 
-> > > > Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-> > > > Reviewed-by: David Hildenbrand <david@redhat.com>
-> > > > Cc: Andrew Morton <akpm@linux-foundation.org>
-> > > > Cc: David Hildenbrand <david@redhat.com>
-> > > > Cc: Michal Hocko <mhocko@suse.com>
-> > > > Cc: Oscar Salvador <osalvador@suse.de>
-> > > > Cc: Dennis Zhou <dennis@kernel.org>
-> > > > Cc: Tejun Heo <tj@kernel.org>
-> > > > Cc: Christoph Lameter <cl@linux.com>
-> > > > Cc: linux-mm@kvack.org
-> > > > Cc: linux-kernel@vger.kernel.org
-> > > > Cc: stable@vger.kernel.org
-> > > > ---
-> > > >  mm/percpu-vm.c | 8 ++++++--
-> > > >  1 file changed, 6 insertions(+), 2 deletions(-)
-> > > > 
-> > > > diff --git a/mm/percpu-vm.c b/mm/percpu-vm.c
-> > > > index 2054c9213..f58d73c92 100644
-> > > > --- a/mm/percpu-vm.c
-> > > > +++ b/mm/percpu-vm.c
-> > > > @@ -84,15 +84,19 @@ static int pcpu_alloc_pages(struct pcpu_chunk *chunk,
-> > > >  			    gfp_t gfp)
-> > > >  {
-> > > >  	unsigned int cpu, tcpu;
-> > > > -	int i;
-> > > > +	int i, nid;
-> > > >  
-> > > >  	gfp |= __GFP_HIGHMEM;
-> > > >  
-> > > >  	for_each_possible_cpu(cpu) {
-> > > > +		nid = cpu_to_node(cpu);
-> > > > +		if (nid == NUMA_NO_NODE || !node_online(nid))
-> > > > +			nid = numa_mem_id();
-> > > 
-> > > Maybe we should fail this fallback if (gfp & __GFP_THISNODE) ?
-> > > 
-> > > Or maybe there is no support for this constraint in per-cpu allocator anyway.
-> > 
-> > I would be really curious about the usecase. Not to mention that pcp
-> > allocation would be effectively unusable on any setups with memory less
-> > nodes.
-> > 
-> 
-> Sorry, I briefly saw this thread last week but was on jury duty and got
-> sequestered when the fix fell into percpu-vm.c.
-> 
-> I'm also not involved with any hotplug work, so my forgive my limited
-> understanding.
-> 
-> I'm understanding this as a cpu/mem hotplug problem that we're papering
-> over with this fix. Given that, I should be looking to take this out
-> when the proper fix to the hotplug subsystem is added. Is that right?
+The SGX driver maintains a single global free page counter,
+sgx_nr_free_pages, that reflects the number of free pages available
+across all NUMA nodes. Correspondingly, a list of free pages is
+associated with each NUMA node and sgx_nr_free_pages is updated
+every time a page is added or removed from any of the free page
+lists. The main usage of sgx_nr_free_pages is by the reclaimer
+that will run when it (sgx_nr_free_pages) goes below a watermark
+to ensure that there are always some free pages available to, for
+example, support efficient page faults.
 
-Yes.
+With sgx_nr_free_pages accessed and modified from a few places
+it is essential to ensure that these accesses are done safely but
+this is not the case. sgx_nr_free_pages is read without any
+protection and updated with inconsistent protection by any one
+of the spin locks associated with the individual NUMA nodes.
+For example:
 
-> > > I am a bit worried that we do not really know if pages are
-> > > allocated on the right node or not.
-> > 
-> > There hasn't been any guarantee like that. Page allocator would fallback
-> > to other nodes (in the node distance order) unless __GFP_THISNODE is
-> > specified. This patch just papers over the fact that currently we can
-> > end up having an invalid numa node associated with a cpu. This is a bug
-> > in the initialization code. Even if that is fixed the node fallback is
-> > still a real thing that might happen.
-> > 
-> 
-> Percpu has always allocated for_each_possible_cpu(). This means even
-> before a cpu online and corresponding numa node online, we're not
-> allocating on the right node anyway. But to me this just seems like a
-> straight up bug we're papering over as I said above for memoryless node
-> cpu hotplug.
+      CPU_A                                 CPU_B
+      -----                                 -----
+ spin_lock(&nodeA->lock);              spin_lock(&nodeB->lock);
+ ...                                   ...
+ sgx_nr_free_pages--;  /* NOT SAFE */  sgx_nr_free_pages--;
 
-Agreed. As mentioned elsewhere in the thread cpu_to_node resp.
-cpu_to_mem shouldn't return a garbage. 
+ spin_unlock(&nodeA->lock);            spin_unlock(&nodeB->lock);
+
+The consequence of sgx_nr_free_pages not being protected is that
+its value may not accurately reflect the actual number of free
+pages on the system, impacting the availability of free pages in
+support of many flows. The problematic scenario is when the
+reclaimer does not run because it believes there to be sufficient
+free pages while any attempt to allocate a page fails because there
+are no free pages available.
+
+The worst scenario observed was a user space hang because of
+repeated page faults caused by no free pages made available.
+
+The following flow was encountered:
+asm_exc_page_fault
+ ...
+   sgx_vma_fault()
+     sgx_encl_load_page()
+       sgx_encl_eldu() // Encrypted page needs to be loaded from backing
+                       // storage into newly allocated SGX memory page
+         sgx_alloc_epc_page() // Allocate a page of SGX memory
+           __sgx_alloc_epc_page() // Fails, no free SGX memory
+           ...
+           if (sgx_should_reclaim(SGX_NR_LOW_PAGES)) // Wake reclaimer
+             wake_up(&ksgxd_waitq);
+           return -EBUSY; // Return -EBUSY giving reclaimer time to run
+       return -EBUSY;
+     return -EBUSY;
+   return VM_FAULT_NOPAGE;
+
+The reclaimer is triggered in above flow with the following code:
+
+static bool sgx_should_reclaim(unsigned long watermark)
+{
+        return sgx_nr_free_pages < watermark &&
+               !list_empty(&sgx_active_page_list);
+}
+
+In the problematic scenario there were no free pages available yet the
+value of sgx_nr_free_pages was above the watermark. The allocation of
+SGX memory thus always failed because of a lack of free pages while no
+free pages were made available because the reclaimer is never started
+because of sgx_nr_free_pages' incorrect value. The consequence was that
+user space kept encountering VM_FAULT_NOPAGE that caused the same
+address to be accessed repeatedly with the same result.
+
+Change the global free page counter to an atomic type that
+ensures simultaneous updates are done safely. While doing so, move
+the updating of the variable outside of the spin lock critical
+section to which it does not belong.
+
+Cc: stable@vger.kernel.org
+Fixes: 901ddbb9ecf5 ("x86/sgx: Add a basic NUMA allocation scheme to sgx_alloc_epc_page()")
+Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+---
+
+Changes since V1:
+- V1:
+  https://lore.kernel.org/lkml/373992d869cd356ce9e9afe43ef4934b70d604fd.1636049678.git.reinette.chatre@intel.com/
+- Add static to definition of sgx_nr_free_pages (Tony).
+- Add Tony's signature.
+- Provide detail about error scenario in changelog (Jarkko).
+
+ arch/x86/kernel/cpu/sgx/main.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
+index 63d3de02bbcc..8471a8b9b48e 100644
+--- a/arch/x86/kernel/cpu/sgx/main.c
++++ b/arch/x86/kernel/cpu/sgx/main.c
+@@ -28,8 +28,7 @@ static DECLARE_WAIT_QUEUE_HEAD(ksgxd_waitq);
+ static LIST_HEAD(sgx_active_page_list);
+ static DEFINE_SPINLOCK(sgx_reclaimer_lock);
+ 
+-/* The free page list lock protected variables prepend the lock. */
+-static unsigned long sgx_nr_free_pages;
++static atomic_long_t sgx_nr_free_pages = ATOMIC_LONG_INIT(0);
+ 
+ /* Nodes with one or more EPC sections. */
+ static nodemask_t sgx_numa_mask;
+@@ -403,14 +402,15 @@ static void sgx_reclaim_pages(void)
+ 
+ 		spin_lock(&node->lock);
+ 		list_add_tail(&epc_page->list, &node->free_page_list);
+-		sgx_nr_free_pages++;
+ 		spin_unlock(&node->lock);
++		atomic_long_inc(&sgx_nr_free_pages);
+ 	}
+ }
+ 
+ static bool sgx_should_reclaim(unsigned long watermark)
+ {
+-	return sgx_nr_free_pages < watermark && !list_empty(&sgx_active_page_list);
++	return atomic_long_read(&sgx_nr_free_pages) < watermark &&
++	       !list_empty(&sgx_active_page_list);
+ }
+ 
+ static int ksgxd(void *p)
+@@ -471,9 +471,9 @@ static struct sgx_epc_page *__sgx_alloc_epc_page_from_node(int nid)
+ 
+ 	page = list_first_entry(&node->free_page_list, struct sgx_epc_page, list);
+ 	list_del_init(&page->list);
+-	sgx_nr_free_pages--;
+ 
+ 	spin_unlock(&node->lock);
++	atomic_long_dec(&sgx_nr_free_pages);
+ 
+ 	return page;
+ }
+@@ -625,9 +625,9 @@ void sgx_free_epc_page(struct sgx_epc_page *page)
+ 	spin_lock(&node->lock);
+ 
+ 	list_add_tail(&page->list, &node->free_page_list);
+-	sgx_nr_free_pages++;
+ 
+ 	spin_unlock(&node->lock);
++	atomic_long_inc(&sgx_nr_free_pages);
+ }
+ 
+ static bool __init sgx_setup_epc_section(u64 phys_addr, u64 size,
 -- 
-Michal Hocko
-SUSE Labs
+2.25.1
+
