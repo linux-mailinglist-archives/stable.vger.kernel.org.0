@@ -2,114 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8ABB44B0B4
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 16:53:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87CCE44B0D4
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 17:05:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238173AbhKIP4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 10:56:13 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:36434 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235835AbhKIP4N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 10:56:13 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 75D8521B1B;
-        Tue,  9 Nov 2021 15:53:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1636473206; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type;
-        bh=X3MM7A8ZGk2V92RPG18+Ia7HOOHXI7EShA0+rrV/h04=;
-        b=N0c51wVyTr0Ytxxc7QJrCIuQ4LMuA3C0a/RMC4guv4jkXh2x6u0DcIvi3hsDP/1upLSRwG
-        QsFb2E6/0efP5fPZpiZ+AZjRap7OGmjvO2wyX6eWwekpOn/7bSXhNfi0WNzIljca8HFsWg
-        iFRMN3qqgzHkLMIyV0eeKkmk86OI+28=
-Received: from suse.cz (unknown [10.100.224.162])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 58003A3B81;
-        Tue,  9 Nov 2021 15:53:26 +0000 (UTC)
-Date:   Tue, 9 Nov 2021 16:53:26 +0100
-From:   Petr Mladek <pmladek@suse.com>
-To:     stable@vger.kernel.org, Greg Kroah-Hartman <gregkh@google.com>
-Cc:     Yi Fan <yfa@google.com>, shreyas.joshi@biamp.com,
-        Joshua Levasseur <jlevasseur@google.com>, sashal@kernel.org,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>
-Subject: [PATCH] printk/console: Allow to disable console output by using
- console="" or console=null
-Message-ID: <YYqZdkLBAC8mtRSC@alley>
+        id S237396AbhKIQIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 11:08:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50630 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238548AbhKIQIT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 11:08:19 -0500
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1234::107])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1613C061764;
+        Tue,  9 Nov 2021 08:05:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
+        :Reply-To:Content-ID:Content-Description;
+        bh=HKqZVUTyITTKjgy2bSV7h4abqd5N6tsdpToL4Lb0mKc=; b=Xz8Jhef9yQSyM4bHzlcdA32i3e
+        PyDBMANcwcbhPo4zFx69oE+cnWHgIViH/8GIUv8YiGxaB0YbY/9NzMUSgXLunYsidm8W9hZfm5jxT
+        MfoNs4YehQA8Hvr0jkp10nf/fGIHnDH2nLPBhfXg8ZoI6rAWZewXPs3fiCdVLtVxKN5qCHrwfIOzk
+        yq0kZIcFl+vUn3B9ZBT2/6PFjHV0JN+xkmJa4IjniApZyP05znVwVu66ZRPgfy1manp4ctHepA1HP
+        rwCjUHGioV1FU3XaiSSKqeWv7ks6TZUzjFhRDsG9qPSfSrGrU51mcuKSG3iEoXeLJ8kHeqfNT//og
+        +fgVl8cw==;
+Received: from [2601:1c0:6280:3f0::aa0b]
+        by merlin.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mkTcl-008nze-Vs; Tue, 09 Nov 2021 16:05:28 +0000
+Subject: Re: AUTOSEL series truncated was -- Re: [PATCH AUTOSEL 5.15 001/146]
+ dma-buf: WARN on dmabuf release with pending attachments
+To:     Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Charan Teja Reddy <charante@codeaurora.org>,
+        =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+        sumit.semwal@linaro.org, linux-media@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org
+References: <20211108174453.1187052-1-sashal@kernel.org>
+ <20211109075423.GA16766@amd>
+From:   Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <3957633e-9596-e329-c79b-b45e9993d139@infradead.org>
+Date:   Tue, 9 Nov 2021 08:05:23 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <20211109075423.GA16766@amd>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The commit 48021f98130880dd74 ("printk: handle blank console arguments
-passed in.") prevented crash caused by empty console= parameter value.
+On 11/8/21 11:54 PM, Pavel Machek wrote:
+> Hi!
+> 
+> This series is truncated .. I only got first patches. Similary, 5.10
+> series is truncated, [PATCH AUTOSEL 5.10 035/101] media: s5p-mfc: Add
+> checking to s5p_mfc_probe... is last one I got.
+> 
+> I got all the patches before that, so I believe it is not problem on
+> my side, but I'd not mind someone confirming they are seeing the same
+> problem...
 
-Unfortunately, this value is widely used on Chromebooks to disable
-the console output. The above commit caused performance regression
-because the messages were pushed on slow console even though nobody
-was watching it.
+Yes, several of the patch series were incomplete for me also...
 
-Use ttynull driver explicitly for console="" and console=null
-parameters. It has been created for exactly this purpose.
-
-It causes that preferred_console is set. As a result, ttySX and ttyX
-are not used as a fallback. And only ttynull console gets registered by
-default.
-
-It still allows to register other consoles either by additional console=
-parameters or SPCR. It prevents regression because it worked this way even
-before. Also it is a sane semantic. Preventing output on all consoles
-should be done another way, for example, by introducing mute_console
-parameter.
-
-Link: https://lore.kernel.org/r/20201006025935.GA597@jagdpanzerIV.localdomain
-Suggested-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20201111135450.11214-3-pmladek@suse.com
----
-
-This is backport of the commit 3cffa06aeef7ece30f6b5ac0e
-("printk/console: Allow to disable console output by using
-console="" or console=null") for stable release:
-
-    + 4.4, 4.9, 4.14, 4.19, 5.4
-
-Please, use the original upstream commit for stable release:
-
-   + 5.10
-
-It should fix the problem reported at
-https://www.spinics.net/lists/stable/msg509616.html
-
-kernel/printk/printk.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index b55dfb3e801f..6d3e1f4961fb 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -2032,8 +2032,15 @@ static int __init console_setup(char *str)
- 	char *s, *options, *brl_options = NULL;
- 	int idx;
- 
--	if (str[0] == 0)
-+	/*
-+	 * console="" or console=null have been suggested as a way to
-+	 * disable console output. Use ttynull that has been created
-+	 * for exacly this purpose.
-+	 */
-+	if (str[0] == 0 || strcmp(str, "null") == 0) {
-+		__add_preferred_console("ttynull", 0, NULL, NULL);
- 		return 1;
-+	}
- 
- 	if (_braille_console_setup(&str, &brl_options))
- 		return 1;
 -- 
-2.26.2
-
+~Randy
