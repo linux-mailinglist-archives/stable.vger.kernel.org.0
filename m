@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CB7A44B7EB
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:36:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E1844B7D8
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:35:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345123AbhKIWjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:39:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56192 "EHLO mail.kernel.org"
+        id S237467AbhKIWhz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:37:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345065AbhKIWfv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:35:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09C4F61ADF;
-        Tue,  9 Nov 2021 22:22:27 +0000 (UTC)
+        id S1345333AbhKIWfy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:35:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B616F619E9;
+        Tue,  9 Nov 2021 22:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496549;
-        bh=CUSDUWwRVHFjbZttDqLPGZfzAjvFgpYBR1ad5DVNlz8=;
+        s=k20201202; t=1636496551;
+        bh=waWzpIJdhFhYvusS3tLb5b8eJ4KDgs0tBUtmWZy/vLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xw30FEifnY+oaUbFbAFJ6uITMNs1CLPb7dGrwU5ImwLHrpYVy6dUgpDYfs2Vgjadx
-         7Losu2KNdIJrFdb14G/QfUVza5T9UD4c9ldFaOvPVUq80WnkRaYX26oDmrx5uDz9L7
-         5QdoeSCYtuOXESWQFnCsKHMG8Ean8XNK+Lo/2yl1MXUkOkERU+G0Rux02MgqRmlgBx
-         13wnC12JnXbzm8rH2ZPRCmtd/WHPsauQ50ZdFeAvVyqmOuU3F0kq7TQ/dF4nUWwo52
-         gZLeqV5vRY/h5S6ihUEEkNtAywiq7YUCeJ4M7cfgY4ws+Hg8/e0oSBkJQvZyg/3nwc
-         mCrq3TriT91gg==
+        b=CygzTq5c/ps4U+03fIRdiF61flBeUTMXr9sdWGykdKhVa+TIgthDQ57jNDEBHZCCk
+         ZB0WeDpn0K0cIMfh7P8yYDf4+HtQkQqvMlK4D7QBcoOFcP32sTuHcsiFIHlHEmWDcA
+         H/szIc2Hnr5c63DiO6UYdWZLzaKbPNDekpiMAlYSX2XdwVRJ80l+t8K1cbkIpQS+3o
+         iywxFophCnwVMC1HfSaQl4qLw89r9K/A3jLgVCnvulTULt6wceIvhKzwmTrVUeqlak
+         UIBdpyVa5laSKqH1j3L5t08I+rehAvpypZWMfCQvHQfc0wO777eAhbF/QahkhWZE2V
+         2WSUXVdozrXNg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michal Simek <michal.simek@xilinx.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+Cc:     Matthew Hagan <mnhagan88@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         pawel.moll@arm.com, mark.rutland@arm.com,
         ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 02/30] arm64: zynqmp: Fix serial compatible string
-Date:   Tue,  9 Nov 2021 17:21:56 -0500
-Message-Id: <20211109222224.1235388-2-sashal@kernel.org>
+        linux@arm.linux.org.uk, rjui@broadcom.com, sbranden@broadcom.com,
+        jonmason@broadcom.com, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        bcm-kernel-feedback-list@broadcom.com
+Subject: [PATCH AUTOSEL 5.4 03/30] ARM: dts: NSP: Fix mpcore, mmc node names
+Date:   Tue,  9 Nov 2021 17:21:57 -0500
+Message-Id: <20211109222224.1235388-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222224.1235388-1-sashal@kernel.org>
 References: <20211109222224.1235388-1-sashal@kernel.org>
@@ -46,44 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Simek <michal.simek@xilinx.com>
+From: Matthew Hagan <mnhagan88@gmail.com>
 
-[ Upstream commit 812fa2f0e9d33564bd0131a69750e0d165f4c82a ]
+[ Upstream commit 15a563d008ef9d04df525f0c476cd7d7127bb883 ]
 
-Based on commit 65a2c14d4f00 ("dt-bindings: serial: convert Cadence UART
-bindings to YAML") compatible string should look like differently that's
-why fix it to be aligned with dt binding.
+Running dtbs_check yielded the issues with bcm-nsp.dtsi.
 
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://lore.kernel.org/r/89b36e0a6187cc6b05b27a035efdf79173bd4486.1628240307.git.michal.simek@xilinx.com
+Firstly this patch fixes the following message by appending "-bus" to
+the mpcore node name:
+mpcore@19000000: $nodename:0: 'mpcore@19000000' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+
+Secondly mmc node name. The label name can remain as is.
+sdhci@21000: $nodename:0: 'sdhci@21000' does not match '^mmc(@.*)?$'
+
+Signed-off-by: Matthew Hagan <mnhagan88@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/xilinx/zynqmp.dtsi | 4 ++--
+ arch/arm/boot/dts/bcm-nsp.dtsi | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
-index a2645262f8623..b92549fb32400 100644
---- a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
-+++ b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
-@@ -582,7 +582,7 @@
+diff --git a/arch/arm/boot/dts/bcm-nsp.dtsi b/arch/arm/boot/dts/bcm-nsp.dtsi
+index 43ff85d31dc12..5a1352fd90d16 100644
+--- a/arch/arm/boot/dts/bcm-nsp.dtsi
++++ b/arch/arm/boot/dts/bcm-nsp.dtsi
+@@ -77,7 +77,7 @@
+ 		interrupt-affinity = <&cpu0>, <&cpu1>;
+ 	};
+ 
+-	mpcore@19000000 {
++	mpcore-bus@19000000 {
+ 		compatible = "simple-bus";
+ 		ranges = <0x00000000 0x19000000 0x00023000>;
+ 		#address-cells = <1>;
+@@ -217,7 +217,7 @@
+ 			#dma-cells = <1>;
  		};
  
- 		uart0: serial@ff000000 {
--			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
-+			compatible = "xlnx,zynqmp-uart", "cdns,uart-r1p12";
- 			status = "disabled";
- 			interrupt-parent = <&gic>;
- 			interrupts = <0 21 4>;
-@@ -591,7 +591,7 @@
- 		};
- 
- 		uart1: serial@ff010000 {
--			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
-+			compatible = "xlnx,zynqmp-uart", "cdns,uart-r1p12";
- 			status = "disabled";
- 			interrupt-parent = <&gic>;
- 			interrupts = <0 22 4>;
+-		sdio: sdhci@21000 {
++		sdio: mmc@21000 {
+ 			compatible = "brcm,sdhci-iproc-cygnus";
+ 			reg = <0x21000 0x100>;
+ 			interrupts = <GIC_SPI 145 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 2.33.0
 
