@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA1D344B633
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:22:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C85744B634
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:22:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344218AbhKIWZe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:25:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41762 "EHLO mail.kernel.org"
+        id S1344227AbhKIWZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:25:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344374AbhKIWX3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:23:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E36861A02;
-        Tue,  9 Nov 2021 22:18:57 +0000 (UTC)
+        id S1344379AbhKIWXa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:23:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEBE661A03;
+        Tue,  9 Nov 2021 22:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496338;
-        bh=a0Cro++qhmuF6Bm4xZmuXmLi0pMKBpnB/iLX8qruxKw=;
+        s=k20201202; t=1636496339;
+        bh=w5Xb6WCzlZ8aPhmrZpZHwKQX/kb2t2tuhtwlxNHDG2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oe7WIZRVct3DmPm3m6qdXR5IzjRPwhjPQe0qlDzNCfb0vaejq5YkZ3Zo6j20T3Kyv
-         yl2yCjIZ27pDBIgNF2YLK8+piqt7EBlldpHQd9JV0FJRcGeDjsjC+szwMcnZSv1csj
-         4eGCOrc3fpw4jdKgAB7VksDvtFXmLnj+/h8/vnvcGpqgGkquGwFHKt001+DmXy1mAp
-         BUVBrlkYnP4a41v8cCUscwv59u+ykRcmCaNl4SBVeuLdiMtJUKkRJzAwE6ySYe/yCl
-         duJGJj/+YVaQ/3ZeKfz95KiD9PJxt1XJx1dTQz9+iLczqDQa3f5py5d+apc7xqTDgm
-         jtey22rPv4q+Q==
+        b=Yj+5TCU0AOXdj7KQM35zg10zVG5UCYlYWE9f2O+PrDNEkKC0gVPIGIMHPl9M4Vr9A
+         RZIWoPuK4mGjarCaDcPA9jQ0OrMbOH68CvJbhOJxFY+4Zj5hmCb1Ub4zYpgYLiIXr4
+         uFjm9kOEf8Drp4OwfpNdo3DMFDd15nJ1z2eEqnMOtmLOjwjnKDKjXX6IpL+6Aw67jU
+         r0k892S5UzqH1USRhpG+pBQXhYJc7eh/GrX1Mm/9DUcPBGU23/IvRp5O25pt2KOwqj
+         wOpEbo6GLOmylBTl878jHIHnqWb0B58+8nNK0z//5Oqq/rKcp7SPHuo9gOmz/n1Imr
+         xIuT8OYYxqV4Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Peter <sven@svenpeter.dev>,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik@protonmail.com>,
-        Hector Martin <marcan@marcan.st>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.15 79/82] iommu/dart: Initialize DART_STREAMS_ENABLE
-Date:   Tue,  9 Nov 2021 17:16:37 -0500
-Message-Id: <20211109221641.1233217-79-sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sasha Levin <sashal@kernel.org>, benh@kernel.crashing.org,
+        paulus@samba.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.15 80/82] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
+Date:   Tue,  9 Nov 2021 17:16:38 -0500
+Message-Id: <20211109221641.1233217-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
@@ -46,50 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Peter <sven@svenpeter.dev>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 5a009fc1364170b240a4d351b345e69bb3728b3e ]
+[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
 
-DART has an additional global register to control which streams are
-isolated. This register is a bit redundant since DART_TCR can already
-be used to control isolation and is usually initialized to DART_STREAM_ALL
-by the time we get control. Some DARTs (namely the one used for the audio
-controller) however have some streams disabled initially. Make sure those
-work by initializing DART_STREAMS_ENABLE during reset.
+In dcr-low.S we use cmpli with three arguments, instead of four
+arguments as defined in the ISA:
 
-Reported-by: Martin Povišer <povik@protonmail.com>
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Reviewed-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20211019162253.45919-1-sven@svenpeter.dev
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+	cmpli	cr0,r3,1024
+
+This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
+User’s Manual" it shows cmpli having no L field, but implied to be 0 due
+to the core being 32-bit. It mentions that the ISA defines four
+arguments and recommends using cmplwi.
+
+It also corresponds to the old POWER instruction set, which had no L
+field there, a reserved bit instead.
+
+dcr-low.S is only built 32-bit, because it is only built when
+DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
+generated code (with gcc/gas) we see cmplwi as expected.
+
+Although gas is happy with the 3-argument version when building for
+32-bit, the LLVM assembler is not and errors out with:
+
+  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
+   cmpli 0,%r3,1024; ...
+           ^
+
+Switch to the cmplwi extended opcode, which avoids any confusion when
+reading the ISA, fixes the issue with the LLVM assembler, and also means
+the code could be built 64-bit in future (though that's very unlikely).
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
+Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/apple-dart.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/powerpc/sysdev/dcr-low.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/apple-dart.c b/drivers/iommu/apple-dart.c
-index fdfa39ec2a4d4..ad69eeb5ac5ba 100644
---- a/drivers/iommu/apple-dart.c
-+++ b/drivers/iommu/apple-dart.c
-@@ -70,6 +70,8 @@
- #define DART_ERROR_ADDR_HI 0x54
- #define DART_ERROR_ADDR_LO 0x50
+diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
+index efeeb1b885a17..329b9c4ae5429 100644
+--- a/arch/powerpc/sysdev/dcr-low.S
++++ b/arch/powerpc/sysdev/dcr-low.S
+@@ -11,7 +11,7 @@
+ #include <asm/export.h>
  
-+#define DART_STREAMS_ENABLE 0xfc
-+
- #define DART_TCR(sid) (0x100 + 4 * (sid))
- #define DART_TCR_TRANSLATE_ENABLE BIT(7)
- #define DART_TCR_BYPASS0_ENABLE BIT(8)
-@@ -301,6 +303,9 @@ static int apple_dart_hw_reset(struct apple_dart *dart)
- 	apple_dart_hw_disable_dma(&stream_map);
- 	apple_dart_hw_clear_all_ttbrs(&stream_map);
- 
-+	/* enable all streams globally since TCR is used to control isolation */
-+	writel(DART_STREAM_ALL, dart->regs + DART_STREAMS_ENABLE);
-+
- 	/* clear any pending errors before the interrupt is unmasked */
- 	writel(readl(dart->regs + DART_ERROR), dart->regs + DART_ERROR);
- 
+ #define DCR_ACCESS_PROLOG(table) \
+-	cmpli	cr0,r3,1024;	 \
++	cmplwi	cr0,r3,1024;	 \
+ 	rlwinm  r3,r3,4,18,27;   \
+ 	lis     r5,table@h;      \
+ 	ori     r5,r5,table@l;   \
 -- 
 2.33.0
 
