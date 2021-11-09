@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0912244B584
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:18:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E976F44B58D
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:18:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245452AbhKIWVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:21:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41388 "EHLO mail.kernel.org"
+        id S1343756AbhKIWV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:21:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245415AbhKIWUj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:20:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F9106137F;
-        Tue,  9 Nov 2021 22:17:35 +0000 (UTC)
+        id S245466AbhKIWUr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:20:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 719D26128B;
+        Tue,  9 Nov 2021 22:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496256;
-        bh=Kj0BiRQz8juWA2+x1nym7Z6iPXe8zwyMyI2FDZB84cA=;
+        s=k20201202; t=1636496257;
+        bh=M6aKZ9T5FKtso8ltx5RT1jq4WgxJaF4uumo4QS7copU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZJvM4fxPZXgGHdQZitNod+ULnhGK8/tRdmsXSANNsyo93RBcb4OMkPq94SH+FkrL
-         gJZMY1XxAHC3quiANTPIWkFSBpgEpgj+ngbpCs/LwqK2PmdFatr/Pyz3IXsay2txFq
-         MgCKIQxrU4iRwC/N1QEWw6stPnIKQeNyZWK6u6ALxlq7iyZTkbUvI1eTuBlbcts2yb
-         w5UI6QhScjdyrpc02KKdHjhh2grFI1cFprgHZvrXyqFVNThglLRY2syf8KkGIIJTlT
-         k+eVfxquK6YJdisMZjD501R68VanyrrjuwcxooMu2Mr320N8p6tE35+Pn4nHVXGcbb
-         0n08HgMqFUZSQ==
+        b=CbhYBKs9E8S7BalBzJw6ENdc8yka7ci61TYrUIEUF22yk1GapzFgOKP5S1w4SazSM
+         wBujr2HQEDgA+ejFrm/LpY8GgxKuc9XE5sRV30N2yjaHL26ckksynTj0Y3BjNLAhPn
+         syHEmGlP4ihnP10N6dNobJyw9RLev1w3iP2ZQ5TXIolNkCqrSeZpy/eXe9wMbILFJJ
+         I4qhDXY9e/CUSGDHbgWlfK7yqNnfKZ97kpCZQEMu89IeqLOllvAEgZtPUkbCgVEoXt
+         xKpcGF6Prsg9y+ug39WaPhCga0CZ653VmzeSLoMWOigGStxpOldDyHQONgp/KRt7bp
+         nsOM3SlCdV5Yg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.15 26/82] staging: rtl8723bs: remove a third possible deadlock
-Date:   Tue,  9 Nov 2021 17:15:44 -0500
-Message-Id: <20211109221641.1233217-26-sashal@kernel.org>
+Cc:     Christian Lamparter <chunkeey@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        linux@arm.linux.org.uk, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 27/82] ARM: BCM53016: Specify switch ports for Meraki MR32
+Date:   Tue,  9 Nov 2021 17:15:45 -0500
+Message-Id: <20211109221641.1233217-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,156 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-[ Upstream commit bdc1bbdbaa92df19a14d4c1902088c8432b46c6f ]
+[ Upstream commit 6abc4ca5a28070945e0d68cb4160b309bfbf4b8b ]
 
-The assoc_timer takes the pmlmepriv->lock and various functions which
-take the pmlmepriv->scanned_queue.lock first take the pmlmepriv->lock,
-this means that we cannot have code which waits for the timer
-(timer_del_sync) while holding the pmlmepriv->scanned_queue.lock
-to avoid a triangle deadlock:
+the switch identifies itself as a BCM53012 (rev 5)...
+This patch has been tested & verified on OpenWrt's
+snapshot with Linux 5.10 (didn't test any older kernels).
+The MR32 is able to "talk to the network" as before with
+OpenWrt's SWITCHDEV b53 driver.
 
-[  363.139361] ======================================================
-[  363.139377] WARNING: possible circular locking dependency detected
-[  363.139396] 5.15.0-rc1+ #470 Tainted: G         C  E
-[  363.139413] ------------------------------------------------------
-[  363.139424] RTW_CMD_THREAD/2466 is trying to acquire lock:
-[  363.139441] ffffbacd00699038 (&pmlmepriv->lock){+.-.}-{2:2}, at: _rtw_join_timeout_handler+0x3c/0x160 [r8723bs]
-[  363.139598]
-               but task is already holding lock:
-[  363.139610] ffffbacd00128ea0 ((&pmlmepriv->assoc_timer)){+.-.}-{0:0}, at: call_timer_fn+0x5/0x260
-[  363.139673]
-               which lock already depends on the new lock.
+| b53-srab-switch 18007000.ethernet-switch: found switch: BCM53012, rev 5
+| libphy: dsa slave smi: probed
+| b53-srab-switch 18007000.ethernet-switch poe (uninitialized):
+|	PHY [dsa-0.0:00] driver [Generic PHY] (irq=POLL)
+| b53-srab-switch 18007000.ethernet-switch: Using legacy PHYLIB callbacks.
+|	Please migrate to PHYLINK!
+| DSA: tree 0 setup
 
-[  363.139684]
-               the existing dependency chain (in reverse order) is:
-[  363.139696]
-               -> #2 ((&pmlmepriv->assoc_timer)){+.-.}-{0:0}:
-[  363.139734]        del_timer_sync+0x59/0x100
-[  363.139762]        rtw_joinbss_event_prehandle+0x342/0x640 [r8723bs]
-[  363.139870]        report_join_res+0xdf/0x110 [r8723bs]
-[  363.139980]        OnAssocRsp+0x17a/0x200 [r8723bs]
-[  363.140092]        rtw_recv_entry+0x190/0x1120 [r8723bs]
-[  363.140209]        rtl8723b_process_phy_info+0x3f9/0x750 [r8723bs]
-[  363.140318]        tasklet_action_common.constprop.0+0xe8/0x110
-[  363.140345]        __do_softirq+0xde/0x485
-[  363.140372]        __irq_exit_rcu+0xd0/0x100
-[  363.140393]        irq_exit_rcu+0xa/0x20
-[  363.140413]        common_interrupt+0x83/0xa0
-[  363.140440]        asm_common_interrupt+0x1e/0x40
-[  363.140463]        finish_task_switch.isra.0+0x157/0x3d0
-[  363.140492]        __schedule+0x447/0x1880
-[  363.140516]        schedule+0x59/0xc0
-[  363.140537]        smpboot_thread_fn+0x161/0x1c0
-[  363.140565]        kthread+0x143/0x160
-[  363.140585]        ret_from_fork+0x22/0x30
-[  363.140614]
-               -> #1 (&pmlmepriv->scanned_queue.lock){+.-.}-{2:2}:
-[  363.140653]        _raw_spin_lock_bh+0x34/0x40
-[  363.140675]        rtw_free_network_queue+0x31/0x80 [r8723bs]
-[  363.140776]        rtw_sitesurvey_cmd+0x79/0x1e0 [r8723bs]
-[  363.140869]        rtw_cfg80211_surveydone_event_callback+0x3cf/0x470 [r8723bs]
-[  363.140973]        rdev_scan+0x42/0x1a0 [cfg80211]
-[  363.141307]        nl80211_trigger_scan+0x566/0x660 [cfg80211]
-[  363.141635]        genl_family_rcv_msg_doit+0xcd/0x110
-[  363.141661]        genl_rcv_msg+0xce/0x1c0
-[  363.141680]        netlink_rcv_skb+0x50/0xf0
-[  363.141699]        genl_rcv+0x24/0x40
-[  363.141717]        netlink_unicast+0x16d/0x230
-[  363.141736]        netlink_sendmsg+0x22b/0x450
-[  363.141755]        sock_sendmsg+0x5e/0x60
-[  363.141781]        ____sys_sendmsg+0x22f/0x270
-[  363.141803]        ___sys_sendmsg+0x81/0xc0
-[  363.141828]        __sys_sendmsg+0x49/0x80
-[  363.141851]        do_syscall_64+0x3b/0x90
-[  363.141873]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  363.141895]
-               -> #0 (&pmlmepriv->lock){+.-.}-{2:2}:
-[  363.141930]        __lock_acquire+0x1158/0x1de0
-[  363.141954]        lock_acquire+0xb5/0x2b0
-[  363.141974]        _raw_spin_lock_bh+0x34/0x40
-[  363.141993]        _rtw_join_timeout_handler+0x3c/0x160 [r8723bs]
-[  363.142097]        call_timer_fn+0x94/0x260
-[  363.142122]        __run_timers.part.0+0x1bf/0x290
-[  363.142147]        run_timer_softirq+0x26/0x50
-[  363.142171]        __do_softirq+0xde/0x485
-[  363.142193]        __irq_exit_rcu+0xd0/0x100
-[  363.142215]        irq_exit_rcu+0xa/0x20
-[  363.142235]        sysvec_apic_timer_interrupt+0x72/0x90
-[  363.142260]        asm_sysvec_apic_timer_interrupt+0x12/0x20
-[  363.142283]        __module_address.part.0+0x0/0xd0
-[  363.142309]        is_module_address+0x25/0x40
-[  363.142334]        static_obj+0x4f/0x60
-[  363.142361]        lockdep_init_map_type+0x47/0x220
-[  363.142382]        __init_swait_queue_head+0x45/0x60
-[  363.142408]        mmc_wait_for_req+0x4a/0xc0 [mmc_core]
-[  363.142504]        mmc_wait_for_cmd+0x55/0x70 [mmc_core]
-[  363.142592]        mmc_io_rw_direct+0x75/0xe0 [mmc_core]
-[  363.142691]        sdio_writeb+0x2e/0x50 [mmc_core]
-[  363.142788]        _sd_cmd52_write+0x62/0x80 [r8723bs]
-[  363.142885]        sd_cmd52_write+0x6c/0xb0 [r8723bs]
-[  363.142981]        rtl8723bs_set_hal_ops+0x982/0x9b0 [r8723bs]
-[  363.143089]        rtw_write16+0x1e/0x30 [r8723bs]
-[  363.143184]        SetHwReg8723B+0xcc9/0xd30 [r8723bs]
-[  363.143294]        mlmeext_joinbss_event_callback+0x17a/0x1a0 [r8723bs]
-[  363.143405]        rtw_joinbss_event_callback+0x11/0x20 [r8723bs]
-[  363.143507]        mlme_evt_hdl+0x4d/0x70 [r8723bs]
-[  363.143620]        rtw_cmd_thread+0x168/0x3c0 [r8723bs]
-[  363.143712]        kthread+0x143/0x160
-[  363.143732]        ret_from_fork+0x22/0x30
-[  363.143757]
-               other info that might help us debug this:
-
-[  363.143768] Chain exists of:
-                 &pmlmepriv->lock --> &pmlmepriv->scanned_queue.lock --> (&pmlmepriv->assoc_timer)
-
-[  363.143809]  Possible unsafe locking scenario:
-
-[  363.143819]        CPU0                    CPU1
-[  363.143831]        ----                    ----
-[  363.143841]   lock((&pmlmepriv->assoc_timer));
-[  363.143862]                                lock(&pmlmepriv->scanned_queue.lock);
-[  363.143882]                                lock((&pmlmepriv->assoc_timer));
-[  363.143902]   lock(&pmlmepriv->lock);
-[  363.143921]
-                *** DEADLOCK ***
-
-Make rtw_joinbss_event_prehandle() release the scanned_queue.lock before
-it deletes the timer to avoid this (it is still holding pmlmepriv->lock
-protecting against racing the timer).
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210920145502.155454-3-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Rafał Miłecki <zajec5@gmail.com>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/core/rtw_mlme.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/bcm53016-meraki-mr32.dts | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/staging/rtl8723bs/core/rtw_mlme.c b/drivers/staging/rtl8723bs/core/rtw_mlme.c
-index 1f49c49e10b45..cf79bec916c51 100644
---- a/drivers/staging/rtl8723bs/core/rtw_mlme.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_mlme.c
-@@ -1234,16 +1234,13 @@ void rtw_joinbss_event_prehandle(struct adapter *adapter, u8 *pbuf)
- 				rtw_indicate_connect(adapter);
- 			}
- 
-+			spin_unlock_bh(&pmlmepriv->scanned_queue.lock);
+diff --git a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
+index 3b978dc8997a4..1dbfa05b65015 100644
+--- a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
++++ b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
+@@ -195,3 +195,25 @@
+ 		};
+ 	};
+ };
 +
- 			/* s5. Cancel assoc_timer */
- 			del_timer_sync(&pmlmepriv->assoc_timer);
--
- 		} else {
- 			spin_unlock_bh(&(pmlmepriv->scanned_queue.lock));
--			goto ignore_joinbss_callback;
- 		}
--
--		spin_unlock_bh(&(pmlmepriv->scanned_queue.lock));
--
- 	} else if (pnetwork->join_res == -4) {
- 		rtw_reset_securitypriv(adapter);
- 		_set_timer(&pmlmepriv->assoc_timer, 1);
++&srab {
++	status = "okay";
++
++	ports {
++		port@0 {
++			reg = <0>;
++			label = "poe";
++		};
++
++		port@5 {
++			reg = <5>;
++			label = "cpu";
++			ethernet = <&gmac0>;
++
++			fixed-link {
++				speed = <1000>;
++				duplex-full;
++			};
++		};
++	};
++};
 -- 
 2.33.0
 
