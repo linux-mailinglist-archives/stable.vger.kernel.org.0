@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E307A44A29B
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B521544A30B
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:23:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229879AbhKIBTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:19:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44354 "EHLO mail.kernel.org"
+        id S241641AbhKIBZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:25:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242266AbhKIBRL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242267AbhKIBRL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Nov 2021 20:17:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F0F761A4F;
-        Tue,  9 Nov 2021 01:06:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BF4161ACE;
+        Tue,  9 Nov 2021 01:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420008;
-        bh=2Fz1alJR0sRa2U93z50qxHzPvVUeyZ90gC0q24iS+fI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpdSq6q6q/VLgWJgVYJ1hbyl21HMjJmlNb4rdWpghObedZKkG7no1Tvk20eFxDxjM
-         1HED0qlwsCfnSY+Ad/+bKdTEC1AA83PISEw5byHkzwXfVPgDC5YI/xvbI0u3wxRsHc
-         f+FXGWG7M0W6FCjYRL6Hwm5q5fUgPbfkwpwkEUN1iGC0NDkhgoe2c1vMKfHdLV+qCB
-         4ZzJbOwI9SulFufqz8Zm/DuSsfnz+GEJknF3wnr8YWqtJ6Ce49+Brb95X9fL+Xc3Iz
-         nOT6d9tUkv9RUnqE0FhtgUXLkPuZoD9YgKF4ABgcSpTFvi6ShlhF2a2N0JSCmhF8B2
-         iF0uFJWAC4rOw==
+        s=k20201202; t=1636420012;
+        bh=tAeMvQvi+vg3kKnhpw01b73sBeDIm/BIgffhPNvBl1w=;
+        h=From:To:Cc:Subject:Date:From;
+        b=AGpminiHhbD/FxdnRC4F3mb4HzgDcYEfoNjd9BvUIQSB1f+sG4ReH60LH49CZS+ut
+         fVKSBsFRLBWp8Zc6wrHEBFaKqAnJIvIiFkA6qDZx0LsoY+yphXykjTwp5WAy8cBhEG
+         7KBgrdrJnigtys6liyZOU9FyKzMJQ5MgeamzUZZwsetkT7CwD+SUg4RUkK7o0wPptC
+         2XqeuJFEylzgHYJGAgP1hzagOaaP4uORXPRt2yni10wPV6cdFY0lDtAc7yIeNod2CY
+         H8NRyfqh0UYkO8/x6fh3G0oMSpxaiN7OEqobMiF/anv6odtKO06sAv0PTMviU2XEmm
+         xjUoHhfTL9mLg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Schnelle <svens@stackframe.org>, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>,
-        James.Bottomley@HansenPartnership.com, valentin.schneider@arm.com,
-        peterz@infradead.org, mingo@kernel.org, ardb@kernel.org,
-        linux-parisc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 47/47] parisc/kgdb: add kgdb_roundup() to make kgdb work with idle polling
-Date:   Mon,  8 Nov 2021 12:50:31 -0500
-Message-Id: <20211108175031.1190422-47-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>, johan.hedberg@gmail.com,
+        luiz.dentz@gmail.com, davem@davemloft.net, kuba@kernel.org,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 01/39] Bluetooth: sco: Fix lock_sock() blockage by memcpy_from_msg()
+Date:   Mon,  8 Nov 2021 20:06:11 -0500
+Message-Id: <20211109010649.1191041-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211108175031.1190422-1-sashal@kernel.org>
-References: <20211108175031.1190422-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,76 +42,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@stackframe.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 66e29fcda1824f0427966fbee2bd2c85bf362c82 ]
+[ Upstream commit 99c23da0eed4fd20cae8243f2b51e10e66aa0951 ]
 
-With idle polling, IPIs are not sent when a CPU idle, but queued
-and run later from do_idle(). The default kgdb_call_nmi_hook()
-implementation gets the pointer to struct pt_regs from get_irq_reqs(),
-which doesn't work in that case because it was not called from the
-IPI interrupt handler. Fix it by defining our own kgdb_roundup()
-function which sents an IPI_ENTER_KGDB. When that IPI is received
-on the target CPU kgdb_nmicallback() is called.
+The sco_send_frame() also takes lock_sock() during memcpy_from_msg()
+call that may be endlessly blocked by a task with userfaultd
+technique, and this will result in a hung task watchdog trigger.
 
-Signed-off-by: Sven Schnelle <svens@stackframe.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Just like the similar fix for hci_sock_sendmsg() in commit
+92c685dc5de0 ("Bluetooth: reorganize functions..."), this patch moves
+the  memcpy_from_msg() out of lock_sock() for addressing the hang.
+
+This should be the last piece for fixing CVE-2021-3640 after a few
+already queued fixes.
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/smp.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ net/bluetooth/sco.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-diff --git a/arch/parisc/kernel/smp.c b/arch/parisc/kernel/smp.c
-index 5e26dbede5fc2..ae4fc8769c38b 100644
---- a/arch/parisc/kernel/smp.c
-+++ b/arch/parisc/kernel/smp.c
-@@ -32,6 +32,7 @@
- #include <linux/bitops.h>
- #include <linux/ftrace.h>
- #include <linux/cpu.h>
-+#include <linux/kgdb.h>
- 
- #include <linux/atomic.h>
- #include <asm/current.h>
-@@ -74,7 +75,10 @@ enum ipi_message_type {
- 	IPI_CALL_FUNC,
- 	IPI_CPU_START,
- 	IPI_CPU_STOP,
--	IPI_CPU_TEST
-+	IPI_CPU_TEST,
-+#ifdef CONFIG_KGDB
-+	IPI_ENTER_KGDB,
-+#endif
- };
- 
- 
-@@ -170,7 +174,12 @@ ipi_interrupt(int irq, void *dev_id)
- 			case IPI_CPU_TEST:
- 				smp_debug(100, KERN_DEBUG "CPU%d is alive!\n", this_cpu);
- 				break;
--
-+#ifdef CONFIG_KGDB
-+			case IPI_ENTER_KGDB:
-+				smp_debug(100, KERN_DEBUG "CPU%d ENTER_KGDB\n", this_cpu);
-+				kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
-+				break;
-+#endif
- 			default:
- 				printk(KERN_CRIT "Unknown IPI num on CPU%d: %lu\n",
- 					this_cpu, which);
-@@ -226,6 +235,12 @@ send_IPI_allbutself(enum ipi_message_type op)
- 	}
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index f681e7ce89457..a5cc8942fc3f8 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -255,7 +255,8 @@ static int sco_connect(struct hci_dev *hdev, struct sock *sk)
+ 	return err;
  }
  
-+#ifdef CONFIG_KGDB
-+void kgdb_roundup_cpus(void)
-+{
-+	send_IPI_allbutself(IPI_ENTER_KGDB);
-+}
-+#endif
+-static int sco_send_frame(struct sock *sk, struct msghdr *msg, int len)
++static int sco_send_frame(struct sock *sk, void *buf, int len,
++			  unsigned int msg_flags)
+ {
+ 	struct sco_conn *conn = sco_pi(sk)->conn;
+ 	struct sk_buff *skb;
+@@ -267,15 +268,11 @@ static int sco_send_frame(struct sock *sk, struct msghdr *msg, int len)
  
- inline void 
- smp_send_stop(void)	{ send_IPI_allbutself(IPI_CPU_STOP); }
+ 	BT_DBG("sk %p len %d", sk, len);
+ 
+-	skb = bt_skb_send_alloc(sk, len, msg->msg_flags & MSG_DONTWAIT, &err);
++	skb = bt_skb_send_alloc(sk, len, msg_flags & MSG_DONTWAIT, &err);
+ 	if (!skb)
+ 		return err;
+ 
+-	if (memcpy_from_msg(skb_put(skb, len), msg, len)) {
+-		kfree_skb(skb);
+-		return -EFAULT;
+-	}
+-
++	memcpy(skb_put(skb, len), buf, len);
+ 	hci_send_sco(conn->hcon, skb);
+ 
+ 	return len;
+@@ -692,6 +689,7 @@ static int sco_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 			    size_t len)
+ {
+ 	struct sock *sk = sock->sk;
++	void *buf;
+ 	int err;
+ 
+ 	BT_DBG("sock %p, sk %p", sock, sk);
+@@ -703,14 +701,24 @@ static int sco_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 	if (msg->msg_flags & MSG_OOB)
+ 		return -EOPNOTSUPP;
+ 
++	buf = kmalloc(len, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	if (memcpy_from_msg(buf, msg, len)) {
++		kfree(buf);
++		return -EFAULT;
++	}
++
+ 	lock_sock(sk);
+ 
+ 	if (sk->sk_state == BT_CONNECTED)
+-		err = sco_send_frame(sk, msg, len);
++		err = sco_send_frame(sk, buf, len, msg->msg_flags);
+ 	else
+ 		err = -ENOTCONN;
+ 
+ 	release_sock(sk);
++	kfree(buf);
+ 	return err;
+ }
+ 
 -- 
 2.33.0
 
