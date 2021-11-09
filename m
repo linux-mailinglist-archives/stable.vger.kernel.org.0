@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B42A44B89D
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB31344B875
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:41:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345092AbhKIWpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:45:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59460 "EHLO mail.kernel.org"
+        id S240623AbhKIWol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:44:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240523AbhKIWl3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344980AbhKIWl3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:41:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40DD261A09;
-        Tue,  9 Nov 2021 22:23:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41E9361B29;
+        Tue,  9 Nov 2021 22:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496629;
-        bh=/RhO3cc31Q2lvSql6+/05yAwJFD5udIYx0uH6CwOs3E=;
+        s=k20201202; t=1636496630;
+        bh=/FX/HvPV1wbd/mWSfwnt+7LoURga2Z4SLtXXZalJUT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tlo10SaM1b6DJPa1ZSbn4ZmNJQwhVdbtXV5XnFgldmcVwoV6JiUMTSYIEOBa2LFZN
-         9kG0bEKnjsYHB5G1pUJVKRwAvSetMpDniEViu5MlmrXbO9lqgAefNHaDRyOH5eYhnO
-         5zmlQEyMbqThC/xU3O1Ukloqt/GsZE5itfYN84uflfilmrFHEir60Q/NWYDzWfjCec
-         YXXuGRuLrrXT+/qefuKhu++b6cDjZzsnkvzAgaoMhQ9ojW4wFTLP6NWql0PLDsGoZu
-         BdYgcvfRQ40vvp6mv4rY/qsMHTSH0weiFX4WYuESkkr24LJrjqj+1ESg/NuXS6UF0B
-         15YfJikDmXLvA==
+        b=jR2lNZUPMYhsYP9HinsDl+eLlEDKXdSMKpQlbnLdc7sk6ccm26llu8LwxaCeAl1xN
+         BjuqLmFKv7h1ONGWpyPOVswBFrsmrkWtwaTLPatryxG8OnQq31weiJYfVJJ6DgnndE
+         k61qqwUet7yhHOclpdXcW0a/awO3fcLBtg0wBxHS32uGWo2Tipld7XwHmW3E4UzywM
+         PULOyOgLKZrW+GemmIoJRBtlKFtIjn1AfKSfT9399AUX7tcE9gja9L6X4NYDVLD/kX
+         ydG6JyKnStFgeokIR3/Fz9aA+4w/UlynARRQkE5VR0Y9MsK6sGigEwBfAMCmA1iKS2
+         GjBvABgw1B3qg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Norris <briannorris@chromium.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        pawel.moll@arm.com, mark.rutland@arm.com,
-        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 03/14] arm64: dts: rockchip: add Coresight debug range for RK3399
-Date:   Tue,  9 Nov 2021 17:23:32 -0500
-Message-Id: <20211109222343.1235902-3-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, balbi@ti.com,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 04/14] usb: musb: tusb6010: check return value after calling platform_get_resource()
+Date:   Tue,  9 Nov 2021 17:23:33 -0500
+Message-Id: <20211109222343.1235902-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222343.1235902-1-sashal@kernel.org>
 References: <20211109222343.1235902-1-sashal@kernel.org>
@@ -50,86 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 75dccea503b8e176ad044175e891d7bb291b6ba0 ]
+[ Upstream commit 14651496a3de6807a17c310f63c894ea0c5d858e ]
 
-Per Documentation/devicetree/bindings/arm/coresight-cpu-debug.txt.
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-This IP block can be used for sampling the PC of any given CPU, which is
-useful in certain panic scenarios where you can't get the CPU to stop
-cleanly (e.g., hard lockup).
-
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Link: https://lore.kernel.org/r/20210908111337.v2.3.Ibc87b4785709543c998cc852c1edaeb7a08edf5c@changeid
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210915034925.2399823-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 48 ++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+ drivers/usb/musb/tusb6010.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index 029d4578bca3c..0b0b19618c1ea 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -394,6 +394,54 @@
- 		status = "disabled";
- 	};
+diff --git a/drivers/usb/musb/tusb6010.c b/drivers/usb/musb/tusb6010.c
+index 7d7cb1c5ec808..9a7b5b2d7ccc7 100644
+--- a/drivers/usb/musb/tusb6010.c
++++ b/drivers/usb/musb/tusb6010.c
+@@ -1108,6 +1108,11 @@ static int tusb_musb_init(struct musb *musb)
  
-+	debug@fe430000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe430000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_L>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_l0>;
-+	};
-+
-+	debug@fe432000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe432000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_L>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_l1>;
-+	};
-+
-+	debug@fe434000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe434000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_L>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_l2>;
-+	};
-+
-+	debug@fe436000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe436000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_L>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_l3>;
-+	};
-+
-+	debug@fe610000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe610000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_B>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_b0>;
-+	};
-+
-+	debug@fe710000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe710000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_B>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_b1>;
-+	};
-+
- 	usbdrd3_0: usb@fe800000 {
- 		compatible = "rockchip,rk3399-dwc3";
- 		#address-cells = <2>;
+ 	/* dma address for async dma */
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!mem) {
++		pr_debug("no async dma resource?\n");
++		ret = -ENODEV;
++		goto done;
++	}
+ 	musb->async = mem->start;
+ 
+ 	/* dma address for sync dma */
 -- 
 2.33.0
 
