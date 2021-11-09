@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A27844B62C
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:22:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54D5444B62A
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:22:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344187AbhKIWZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:25:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41662 "EHLO mail.kernel.org"
+        id S1344193AbhKIWZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:25:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344342AbhKIWXZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:23:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DA71611C9;
-        Tue,  9 Nov 2021 22:18:49 +0000 (UTC)
+        id S1344366AbhKIWX2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:23:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A31F56152A;
+        Tue,  9 Nov 2021 22:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496330;
-        bh=YnSUH4i92y3wsbYvZQr2aBVb4zHiBKZF4DdXLYi017w=;
+        s=k20201202; t=1636496333;
+        bh=u9lcDjWyBGUbuieQbADVPuw7NpTyX3Tab5S9QV3nZEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hUAFKsPA1Jhmmep97CfgQJveZvTfuDMiauNQaIAEjiBfdMK0MZtKF5869qmF5Aqbr
-         6yfaRzRI8skf2k1otnyl7zC0bJLUoH03QDRcsOkc4zE1aLA4IDc8KFoOgB/iLntvlk
-         t1jteDWTsnrl4txDIJokCwIzTq58BL106dob7XfswS2sRIIlvUcxiOdyTTSh4nNSSb
-         1hPKYfZJ1k6OuQR5/PZtLQuvbQE55pOQD86oURy5StvdHpXEE2AvFrucOP50sc0VXg
-         daXEqdINAJ9P8dEiW10x0U6ed3fnHxphBlfDdwMUVkKUwASewpVTy+6hNBugAEdzCE
-         Ury+QS+AWhVGQ==
+        b=Zkp2OHtKwMeVKNlQleVZQFBFOKE7XlDhoA12mX3Bru891JfhLKR1IkKk1kPNA+z4U
+         TAJPc7SZ2wiI3EpdVGAicWz/xmJULRsd6Rqq/ajCFphxQPS+bzj1XWa+dpc7qJ2FJa
+         3LzMH2k1g4Xa50mjDSM513GKoUIweubxczw0fO8AG3FvS+fnqojY+ZI6JHyy5fX6SA
+         P2Xuk7e5zC0XLKbIxwBoT5OuZyA9TAHFDsyYDJHZQb0nRI9QkRy6KT1uZITCVRYPg2
+         kD7sNrHCckqT+44XOH/FScN16rnm0On9R+8cS7ZnEfzHE0/aCfcgIVwBA9d+X2PxsU
+         iNJHqTOwsRX/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Heidelberg <david@ixit.cz>,
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         pawel.moll@arm.com, mark.rutland@arm.com,
         ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-        linux@arm.linux.org.uk, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 74/82] ARM: dts: qcom: fix memory and mdio nodes naming for RB3011
-Date:   Tue,  9 Nov 2021 17:16:32 -0500
-Message-Id: <20211109221641.1233217-74-sashal@kernel.org>
+        catalin.marinas@arm.com, will.deacon@arm.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 75/82] arm64: dts: qcom: Fix node name of rpm-msg-ram device nodes
+Date:   Tue,  9 Nov 2021 17:16:33 -0500
+Message-Id: <20211109221641.1233217-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
@@ -46,49 +46,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 14a1f6c9d8017ffbf388e82e1a1f023196d98612 ]
+[ Upstream commit 179811bebc7b91e0f9d0adee9bfa3d2af9c43869 ]
 
-Fixes warnings regarding to memory and mdio nodes and
-apply new naming following dt-schema.
+According to the new DT schema for qcom,rpm-msg-ram the node name
+should be sram@. memory@ is reserved for definition of physical RAM
+(usable by Linux).
 
-Signed-off-by: David Heidelberg <david@ixit.cz>
+This fixes the following dtbs_check error on various device trees:
+memory@60000: 'device_type' is a required property
+        From schema: dtschema/schemas/memory.yaml
+
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211020214741.261509-1-david@ixit.cz
+Link: https://lore.kernel.org/r/20211018110009.30837-1-stephan@gerhold.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-ipq8064-rb3011.dts | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8916.dtsi | 2 +-
+ arch/arm64/boot/dts/qcom/msm8994.dtsi | 2 +-
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 2 +-
+ arch/arm64/boot/dts/qcom/msm8998.dtsi | 2 +-
+ arch/arm64/boot/dts/qcom/qcs404.dtsi  | 2 +-
+ arch/arm64/boot/dts/qcom/sdm630.dtsi  | 2 +-
+ arch/arm64/boot/dts/qcom/sm6125.dtsi  | 2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom-ipq8064-rb3011.dts b/arch/arm/boot/dts/qcom-ipq8064-rb3011.dts
-index f7ea2e5dd1914..971d2e2292600 100644
---- a/arch/arm/boot/dts/qcom-ipq8064-rb3011.dts
-+++ b/arch/arm/boot/dts/qcom-ipq8064-rb3011.dts
-@@ -19,12 +19,12 @@
- 		stdout-path = "serial0:115200n8";
- 	};
- 
--	memory@0 {
-+	memory@42000000 {
- 		reg = <0x42000000 0x3e000000>;
- 		device_type = "memory";
- 	};
- 
--	mdio0: mdio@0 {
-+	mdio0: mdio-0 {
- 		status = "okay";
- 		compatible = "virtual,mdio-gpio";
- 		gpios = <&qcom_pinmux 1 GPIO_ACTIVE_HIGH>,
-@@ -91,7 +91,7 @@
+diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+index c9467665250e7..b9d465b578760 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+@@ -453,7 +453,7 @@
+ 			};
  		};
- 	};
  
--	mdio1: mdio@1 {
-+	mdio1: mdio-1 {
- 		status = "okay";
- 		compatible = "virtual,mdio-gpio";
- 		gpios = <&qcom_pinmux 11 GPIO_ACTIVE_HIGH>,
+-		rpm_msg_ram: memory@60000 {
++		rpm_msg_ram: sram@60000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x00060000 0x8000>;
+ 		};
+diff --git a/arch/arm64/boot/dts/qcom/msm8994.dtsi b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+index 986fe60dec5fb..5a9a5ed0565f6 100644
+--- a/arch/arm64/boot/dts/qcom/msm8994.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+@@ -715,7 +715,7 @@
+ 			reg = <0xfc400000 0x2000>;
+ 		};
+ 
+-		rpm_msg_ram: memory@fc428000 {
++		rpm_msg_ram: sram@fc428000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0xfc428000 0x4000>;
+ 		};
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index 52df22ab3f6ae..f8d28dd76cfa8 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -638,7 +638,7 @@
+ 			};
+ 		};
+ 
+-		rpm_msg_ram: memory@68000 {
++		rpm_msg_ram: sram@68000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x00068000 0x6000>;
+ 		};
+diff --git a/arch/arm64/boot/dts/qcom/msm8998.dtsi b/arch/arm64/boot/dts/qcom/msm8998.dtsi
+index 5a221cfc41387..228339f81c327 100644
+--- a/arch/arm64/boot/dts/qcom/msm8998.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8998.dtsi
+@@ -861,7 +861,7 @@
+ 			reg = <0x00100000 0xb0000>;
+ 		};
+ 
+-		rpm_msg_ram: memory@778000 {
++		rpm_msg_ram: sram@778000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x00778000 0x7000>;
+ 		};
+diff --git a/arch/arm64/boot/dts/qcom/qcs404.dtsi b/arch/arm64/boot/dts/qcom/qcs404.dtsi
+index 339790ba585de..ca5be16479809 100644
+--- a/arch/arm64/boot/dts/qcom/qcs404.dtsi
++++ b/arch/arm64/boot/dts/qcom/qcs404.dtsi
+@@ -318,7 +318,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		rpm_msg_ram: memory@60000 {
++		rpm_msg_ram: sram@60000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x00060000 0x6000>;
+ 		};
+diff --git a/arch/arm64/boot/dts/qcom/sdm630.dtsi b/arch/arm64/boot/dts/qcom/sdm630.dtsi
+index 9c7f87e42fccd..a8724fd60645f 100644
+--- a/arch/arm64/boot/dts/qcom/sdm630.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm630.dtsi
+@@ -541,7 +541,7 @@
+ 					<&sleep_clk>;
+ 		};
+ 
+-		rpm_msg_ram: memory@778000 {
++		rpm_msg_ram: sram@778000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x00778000 0x7000>;
+ 		};
+diff --git a/arch/arm64/boot/dts/qcom/sm6125.dtsi b/arch/arm64/boot/dts/qcom/sm6125.dtsi
+index 2b37ce6a9f9c5..9f476e3d0720b 100644
+--- a/arch/arm64/boot/dts/qcom/sm6125.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm6125.dtsi
+@@ -380,7 +380,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		rpm_msg_ram: memory@45f0000 {
++		rpm_msg_ram: sram@45f0000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x045f0000 0x7000>;
+ 		};
 -- 
 2.33.0
 
