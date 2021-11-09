@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9F1944B884
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:42:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 379E544B8A2
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:42:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345632AbhKIWow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:44:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34964 "EHLO mail.kernel.org"
+        id S1345165AbhKIWpT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:45:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241405AbhKIWmN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:42:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E90F961B3C;
-        Tue,  9 Nov 2021 22:24:08 +0000 (UTC)
+        id S1345024AbhKIWmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:42:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A227461B3B;
+        Tue,  9 Nov 2021 22:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496650;
-        bh=u/I56GRwtTcKSHg3nKUPUeSkPN08FMTItD1vbc3pHDA=;
+        s=k20201202; t=1636496651;
+        bh=AUBpS3ubOHiAhI5sJh5pGe9SIkaMFAgSqepsC0LcDGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WrEeZIh+AzbUxILdQMDZ3/IWD4V9xyUieYcEu1bEPJ7pjYbaSKgBNHxzRYXN57A/s
-         aPS6Ss+TIYTevlv+3sU4QzJL5NfFASSQguJm+IeHuhKd1tKjGiPZafp/wsUvgVxqt6
-         zF93qZJzpkue2+U8PIpsVL4szZc2b59W0k7j4851tzrFTy79wLtqrNmoLPLPtRhL0j
-         0Qd6IJoqbF//0Wt+ec0AM/ENT9xy9ifmJNuLgitaEY9Ctpyy0wvVaEbCSIAYGWWraD
-         vwyKEBgK7qKA1ftKIHElOOIXZ5FYarriqT42V76IkVcXXvJxn+iwPLXIPpLuGEP4dS
-         FL+ThU4c6iBvw==
+        b=doEVSTiqg29N9b/0k21r9dN5IlX7XRcxdE9NhtPiLPAsjVQvee3iJd0pwbkCcyMR1
+         8BQKfGRwq0ghyvs7YELxa6Z55IbF6zT4oKi/OCfwUMYC9tt7iqxO+QZtTipqZqsU48
+         ytatJAYLycNjxy1S3lFysNA5FX8yHVKyGJATN2FNgHQD3uXF7XX4yHMDWFbzq5JNNo
+         jJPhC2Jo7JxWr+3VdYNjlAJFMo1lvEIcqu+O/co8z01OfOE9soCVqI5j7o8rxbg8L/
+         EBS7MsS8GCEx1vgUe87FYAlj4KhvwDamWuTa6YN1HoUYLfXID+Fp7y/Ayk9+Ufh675
+         lxGMLru3qBHKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        pawel.moll@arm.com, mark.rutland@arm.com,
-        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 03/13] arm64: dts: qcom: msm8916: Add unit name for /soc node
-Date:   Tue,  9 Nov 2021 17:23:54 -0500
-Message-Id: <20211109222405.1236040-3-sashal@kernel.org>
+Cc:     Guo Zhi <qtxuning1999@sjtu.edu.cn>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, matthew@wil.cx, hare@suse.com,
+        JBottomley@odin.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 04/13] scsi: advansys: Fix kernel pointer leak
+Date:   Tue,  9 Nov 2021 17:23:55 -0500
+Message-Id: <20211109222405.1236040-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222405.1236040-1-sashal@kernel.org>
 References: <20211109222405.1236040-1-sashal@kernel.org>
@@ -47,36 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Guo Zhi <qtxuning1999@sjtu.edu.cn>
 
-[ Upstream commit 7a62bfebc8c94bdb6eb8f54f49889dc6b5b79601 ]
+[ Upstream commit d4996c6eac4c81b8872043e9391563f67f13e406 ]
 
-This fixes the following warning when building with W=1:
-Warning (unit_address_vs_reg): /soc: node has a reg or ranges property,
-but no unit name
+Pointers should be printed with %p or %px rather than cast to 'unsigned
+long' and printed with %lx.
 
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20210921152120.6710-1-stephan@gerhold.net
+Change %lx to %p to print the hashed pointer.
+
+Link: https://lore.kernel.org/r/20210929122538.1158235-1-qtxuning1999@sjtu.edu.cn
+Signed-off-by: Guo Zhi <qtxuning1999@sjtu.edu.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/advansys.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index c2557cf43b3dc..eb806e73d598b 100644
---- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -243,7 +243,7 @@
- 		};
- 	};
+diff --git a/drivers/scsi/advansys.c b/drivers/scsi/advansys.c
+index 24e57e770432b..6efd17692a55a 100644
+--- a/drivers/scsi/advansys.c
++++ b/drivers/scsi/advansys.c
+@@ -3370,8 +3370,8 @@ static void asc_prt_adv_board_info(struct seq_file *m, struct Scsi_Host *shost)
+ 		   shost->host_no);
  
--	soc: soc {
-+	soc: soc@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		ranges = <0 0 0 0xffffffff>;
+ 	seq_printf(m,
+-		   " iop_base 0x%lx, cable_detect: %X, err_code %u\n",
+-		   (unsigned long)v->iop_base,
++		   " iop_base 0x%p, cable_detect: %X, err_code %u\n",
++		   v->iop_base,
+ 		   AdvReadWordRegister(iop_base,IOPW_SCSI_CFG1) & CABLE_DETECT,
+ 		   v->err_code);
+ 
 -- 
 2.33.0
 
