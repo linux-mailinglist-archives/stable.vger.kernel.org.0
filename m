@@ -2,92 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F43444AF44
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 15:14:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F351644AF50
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 15:18:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237435AbhKIORk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 09:17:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53676 "EHLO
+        id S231250AbhKIOVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 09:21:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237380AbhKIORk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 09:17:40 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02C79C061766
-        for <stable@vger.kernel.org>; Tue,  9 Nov 2021 06:14:54 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id j21so77035472edt.11
-        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 06:14:53 -0800 (PST)
+        with ESMTP id S229568AbhKIOVC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 09:21:02 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5592AC061764
+        for <stable@vger.kernel.org>; Tue,  9 Nov 2021 06:18:16 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id p18so21094428plf.13
+        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 06:18:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=35Sg/kjjFoX51dQQ64PItZWdmNgeLJSxHQmhQKr8pEo=;
-        b=Yr2rb5Lzb2GOeBqUovyq2W5e/t5FUdpxiO9nNTMxUtJopCqkMdoKTk8ldtWq2htk9y
-         ldwSTcGN6Snh/+A82H4zx1lDxDoRwjaM4shnBkU4TEiFbYJ+4KmAOC+uXjCdjRuN9kiP
-         M+AK04QZlCWOcmVN79IH6viA2/UJbtlR8rVcDxEchb/spSxP/bpdU7ojHD4/UGJe83BV
-         B436MFMoRMng3VXrBLqhqPoOVuFkUeQDZurbNiqg2ZteS4YkTVRjkGcNqxYtuuODYfKi
-         5z1SwbP1FskerG6QymdzUga4sxKJpy+7ILe9GH7IsVv7K7tKeP8smdB6CRquaXC7WkBp
-         L71Q==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Hp1KQJ+b3W4t698jmyku/FCNKE8HuXGhwNa7rKGpxUA=;
+        b=DqlvnNn54o62zM4O9Y+5SBE54slP618QmLd/DCQ65H+X5JssIYedQnjXSm1fxD6VEf
+         rH15XpcMIEQLSsXqOVoj4yKGZkUFFvZQScnUNrDV1jj1Izodpl+T5gBPWpC0yhJ+aCL0
+         3f+yhbR9aERlvg37G0CE5emCJELoreSa7Nct+clEP5GRU81cWFRYfklLV88kteqlmgvI
+         LKGloKHAJ95yX4HlgzOvze5J6BXzF1WfsYJm+UKAjaqCasa2Bw/N60qdH1HkY/n31lej
+         WkozGbJVdnu1/c7YdsLMpwNUrpfziIzx7aNbYKgxUKcq62SqLa5q/Gub74ZIOk4rZ3HH
+         cwiw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=35Sg/kjjFoX51dQQ64PItZWdmNgeLJSxHQmhQKr8pEo=;
-        b=sJ3jW9hAGzUBzWpS8cqi0BArY3gFCErZWpLAyBtjQPBay+s3vLpWwhz3ZC6th5PyKE
-         KdZHNEOHp/caWZmNYGWkdcdw6hZcq3cPBzRcbewTZCHcr3XBDf5XaDkqklOpUmMi0JU9
-         IC4rfMG0xgZx9ENK/5mm/cgrsJLwmLAWNIvGlJulpsYtB61pV1ifTttNZfn3TtROZBfk
-         FH5Z0wZ6NxGDFsKxvQnqFTbIoZtaFrXhcU2gW43HN1AIj4i5aLaE+tqzt4XHnHlA83nt
-         9gBWd0N5ketRlRWzZlkto3Rj84jIDjhsQCY/tkbKLF/bot159/1duCn1ocMaHAJEo4QR
-         0VYQ==
-X-Gm-Message-State: AOAM530YeA2HBO8x3R5s7X+Bta0ks1d3dY8mc5gbr6X8HVtcMtRAoccg
-        qFVYuNX0msDCg9o9CLaARasdhDw1YLA3Zj+uA0y8kQ==
-X-Google-Smtp-Source: ABdhPJy2jhGZSZW0YwIHsaG+Un9wKKPJzRkMy/xStg9kqI8zo4/hHzHqDfg0VQi6xjn1mLHYGfvVJu+WpjJRPyCZvSE=
-X-Received: by 2002:a50:e184:: with SMTP id k4mr10632554edl.217.1636467292402;
- Tue, 09 Nov 2021 06:14:52 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Hp1KQJ+b3W4t698jmyku/FCNKE8HuXGhwNa7rKGpxUA=;
+        b=Ly3naOAfOyGn/Gh/+gkSLWm9YyL2prqpdybFfCcFdC1yYg0vIHBaS4pAgYaM82kGUY
+         VgLlcpyAt/eSUYDunKBGqeuTyaXS2sEkkmOWzTHvPU14z9V9omk3Fx7WKnk6NHr0TUsw
+         Wz33Bbzy9dHkiFCqdEGNVDASt9fmhN9VDQyqVt0bijG4AG//O0xDmbnvqpHglb+EXsXc
+         JEYZe3ByO74wlMwP6iN0N106FHl6ooYrSe8D7VcnsdNlTdVF4AoxMopM2qWioUGteOJH
+         1o9IKLKPgeTc+4XammYLdSjP8yp9Q+nNmA5AJ6KNywjs6/Xo7BSv7zMGEs+rfGQf2qEK
+         W7Cw==
+X-Gm-Message-State: AOAM530uxbzWgDn1rg8jMtr3iScI0irqEncWxhAUUN/q7jxxQeTnZ56Q
+        NUClVgW4P+Zx0H8Wx//9fAjAUvxAB3HVgH6y
+X-Google-Smtp-Source: ABdhPJw4qexjOgvl9HLLIBqnYaK2wJFqEY1FTY+91dRUjLZucQBA8dS6iM8y0bSknvFEXOquRHfapQ==
+X-Received: by 2002:a17:90a:e7c4:: with SMTP id kb4mr7563390pjb.237.1636467495697;
+        Tue, 09 Nov 2021 06:18:15 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a8sm4923501pgh.84.2021.11.09.06.18.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Nov 2021 06:18:15 -0800 (PST)
+Message-ID: <618a8327.1c69fb81.720af.e028@mx.google.com>
+Date:   Tue, 09 Nov 2021 06:18:15 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <CADyq12yY25-LS8cV5LY-C=6_0HLPVZbSJCKtCDJm+wyHQSeVTg@mail.gmail.com>
- <cb682c8a-255e-28e5-d4e0-0981c2ab6ffd@intel.com> <85925a39-37c3-a79a-a084-51f2f291ca9c@intel.com>
- <CADyq12y0o=Y1MOMe7pCghy2ZEV2Y0Dd7jm5e=3o2N4-i088MWw@mail.gmail.com>
- <472b8dbf-2c55-98c9-39ad-2db32a649a20@intel.com> <CADyq12whSxPdJhf4qg_w-7YXgEKWx4SDHByNBNZbfWDOeEY-8w@mail.gmail.com>
-In-Reply-To: <CADyq12whSxPdJhf4qg_w-7YXgEKWx4SDHByNBNZbfWDOeEY-8w@mail.gmail.com>
-From:   Brian Geffon <bgeffon@google.com>
-Date:   Tue, 9 Nov 2021 09:14:16 -0500
-Message-ID: <CADyq12yrcJkxALo4muEnR3Nm2yyZAvtabN3RY4fm1DSqtNTF0A@mail.gmail.com>
-Subject: Re: XSAVE / RDPKRU on Intel 11th Gen Core CPUs
-To:     Dave Hansen <dave.hansen@intel.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Guenter Roeck <groeck@google.com>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.291-7-gf3d4ec0d5ea8
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.4 baseline: 123 runs,
+ 1 regressions (v4.4.291-7-gf3d4ec0d5ea8)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 9, 2021 at 8:43 AM Brian Geffon <bgeffon@google.com> wrote:
+stable-rc/queue/4.4 baseline: 123 runs, 1 regressions (v4.4.291-7-gf3d4ec0d=
+5ea8)
 
-> What's interesting is that writing to init_pkru fails with -EINVAL for me,
-> and I've traced it down to get_xsave_addr() returning NULL on the following
-> check:
->
->   /*
->   * This assumes the last 'xsave*' instruction to
->   * have requested that 'xfeature_nr' be saved.
->   * If it did not, we might be seeing and old value
->   * of the field in the buffer.
->   *
->   * This can happen because the last 'xsave' did not
->   * request that this feature be saved (unlikely)
->   * or because the "init optimization" caused it
->   * to not be saved.
->   */
->   if (!(xsave->header.xfeatures & BIT_ULL(xfeature_nr)))
->      return NULL;
->
+Regressions Summary
+-------------------
 
-Sorry, I should have probably also shared the value of xfeatures at
-this point is 0x3: which appears to be: (X86_FEATURE_FPU |
-X86_FEATURE_XMM)
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-Brian
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.291-7-gf3d4ec0d5ea8/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.291-7-gf3d4ec0d5ea8
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f3d4ec0d5ea81ecaa48c794dfc7cfaecba2ef784 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/618a4bf087333ca2f13358eb
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-7=
+-gf3d4ec0d5ea8/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-7=
+-gf3d4ec0d5ea8/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/618a4bf087333ca=
+2f13358ee
+        failing since 2 days (last pass: v4.4.291-3-ge1223ca4fb61, first fa=
+il: v4.4.291-3-g4b7696b55f5d)
+        2 lines
+
+    2021-11-09T10:22:19.741539  [   19.443878] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-11-09T10:22:19.783753  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/116
+    2021-11-09T10:22:19.792795  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
