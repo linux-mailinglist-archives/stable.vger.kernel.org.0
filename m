@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 379E544B8A2
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:42:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF42944B88E
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:42:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345165AbhKIWpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:45:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60086 "EHLO mail.kernel.org"
+        id S1345893AbhKIWoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:44:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345024AbhKIWmO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:42:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A227461B3B;
-        Tue,  9 Nov 2021 22:24:10 +0000 (UTC)
+        id S1345744AbhKIWmP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:42:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D44C861221;
+        Tue,  9 Nov 2021 22:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496651;
-        bh=AUBpS3ubOHiAhI5sJh5pGe9SIkaMFAgSqepsC0LcDGM=;
+        s=k20201202; t=1636496653;
+        bh=MIv2PVE0hYJ/DibRIv6CQED5BS/nlyXUll2BwE/PMrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=doEVSTiqg29N9b/0k21r9dN5IlX7XRcxdE9NhtPiLPAsjVQvee3iJd0pwbkCcyMR1
-         8BQKfGRwq0ghyvs7YELxa6Z55IbF6zT4oKi/OCfwUMYC9tt7iqxO+QZtTipqZqsU48
-         ytatJAYLycNjxy1S3lFysNA5FX8yHVKyGJATN2FNgHQD3uXF7XX4yHMDWFbzq5JNNo
-         jJPhC2Jo7JxWr+3VdYNjlAJFMo1lvEIcqu+O/co8z01OfOE9soCVqI5j7o8rxbg8L/
-         EBS7MsS8GCEx1vgUe87FYAlj4KhvwDamWuTa6YN1HoUYLfXID+Fp7y/Ayk9+Ufh675
-         lxGMLru3qBHKQ==
+        b=Rc+R+nslKvY1K2e7nqJFIGF/ASA3NN+3VF3AiuTg6RFEkaDJ+GdKFuPF96ezpgwSg
+         7b+55ZX5JSkeeLkBcDIp3TPxlsvPzlwAhebbPa5sAWT1I2cT9f7yDn7uzTz1W5m2E4
+         3ps/BFeeagM8NjelacEWkiisJfSM9+HUVRaIN5kUyKKtvhjOka0fbpjjdZs7xH8rjl
+         N5ZX/hyWkxLkvwr+AerVTXS+ARBENM2s2vNvBzU9wN9Vk8zfGVoRRDTLBBSIQfmiVd
+         jbZ84fCQanVsoedTpKhGuAq1XdXUrlSlqDuSnCnuJW8GvCpiE2/aiwq25FZGCArrP8
+         ef+hiyLOMLprQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guo Zhi <qtxuning1999@sjtu.edu.cn>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, matthew@wil.cx, hare@suse.com,
-        JBottomley@odin.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 04/13] scsi: advansys: Fix kernel pointer leak
-Date:   Tue,  9 Nov 2021 17:23:55 -0500
-Message-Id: <20211109222405.1236040-4-sashal@kernel.org>
+Cc:     Roger Quadros <rogerq@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, bcousson@baylibre.com,
+        robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        linux@arm.linux.org.uk, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 05/13] ARM: dts: omap: fix gpmc,mux-add-data type
+Date:   Tue,  9 Nov 2021 17:23:56 -0500
+Message-Id: <20211109222405.1236040-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222405.1236040-1-sashal@kernel.org>
 References: <20211109222405.1236040-1-sashal@kernel.org>
@@ -43,38 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Zhi <qtxuning1999@sjtu.edu.cn>
+From: Roger Quadros <rogerq@kernel.org>
 
-[ Upstream commit d4996c6eac4c81b8872043e9391563f67f13e406 ]
+[ Upstream commit 51b9e22ffd3c4c56cbb7caae9750f70e55ffa603 ]
 
-Pointers should be printed with %p or %px rather than cast to 'unsigned
-long' and printed with %lx.
+gpmc,mux-add-data is not boolean.
 
-Change %lx to %p to print the hashed pointer.
+Fixes the below errors flagged by dtbs_check.
 
-Link: https://lore.kernel.org/r/20210929122538.1158235-1-qtxuning1999@sjtu.edu.cn
-Signed-off-by: Guo Zhi <qtxuning1999@sjtu.edu.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+"ethernet@4,0:gpmc,mux-add-data: True is not of type 'array'"
+
+Signed-off-by: Roger Quadros <rogerq@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/advansys.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi         | 2 +-
+ arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/advansys.c b/drivers/scsi/advansys.c
-index 24e57e770432b..6efd17692a55a 100644
---- a/drivers/scsi/advansys.c
-+++ b/drivers/scsi/advansys.c
-@@ -3370,8 +3370,8 @@ static void asc_prt_adv_board_info(struct seq_file *m, struct Scsi_Host *shost)
- 		   shost->host_no);
+diff --git a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+index 73e272fadc202..58d288fddd9c2 100644
+--- a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
++++ b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+@@ -28,7 +28,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
  
- 	seq_printf(m,
--		   " iop_base 0x%lx, cable_detect: %X, err_code %u\n",
--		   (unsigned long)v->iop_base,
-+		   " iop_base 0x%p, cable_detect: %X, err_code %u\n",
-+		   v->iop_base,
- 		   AdvReadWordRegister(iop_base,IOPW_SCSI_CFG1) & CABLE_DETECT,
- 		   v->err_code);
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
+diff --git a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+index 82e98ee3023ad..3dbeb7a6c569c 100644
+--- a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+@@ -25,7 +25,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
  
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
 -- 
 2.33.0
 
