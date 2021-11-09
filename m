@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 703A244B836
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:38:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 830FD44B83E
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:38:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345103AbhKIWlL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:41:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59348 "EHLO mail.kernel.org"
+        id S1345078AbhKIWlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:41:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345112AbhKIWjL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:39:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F3C761B1D;
-        Tue,  9 Nov 2021 22:23:16 +0000 (UTC)
+        id S1345240AbhKIWj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:39:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD839619F7;
+        Tue,  9 Nov 2021 22:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496597;
-        bh=DXPJin+CE2xZp1acdbPmxh1Z4QPChmnWizcEkUFwARI=;
+        s=k20201202; t=1636496599;
+        bh=uzih/MgCnlFHjfvYlRWX+QV036+AU3MhjdpH8N4OYIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mmBFhfys5Qd1BI+foOuUzeurh5jPCwzZnEgHYzNwaKIamAVXYDN7Z6zrlTM+owFBD
-         x2keYT70jtTvwm/Ls1JbrtusFle8liyrTg543+w2CWEPvWXEeGwwsK/0N/CX9EFI4J
-         kIhiwn8+ssHJIdXNx0gAYAWZMjMcsOv/VCafiRALJnSC5QAYAe3YfnFYPrV/H0ynL4
-         nUX6Pxy8l5Y+DnYYsK8ROtfOvt4EsSNBbksmVcfZAhSEbdcXbLO9pvwyYyFv2zaUys
-         2aMihgI6/G+p0hbWrfYN46Hcy6zIwdIVED7iKqScZ5U9Wt6fPr+uyTAgBETb4G9/KU
-         u63w17o0q59cg==
+        b=CMWfPNZcitAinJv+ya+qOwn+MtO8YQSl5PKyuKU47UNkqVIQYPpROGlJSAF0t/9rm
+         NuBdqyXCSxiUL5Zc3bo13m5/oyJaDyo9Oh6xFsjLC6cC51dxksZuUYqjHbr0lfOa35
+         rXhxDtxrzKbA6NuFfWeCtqU2OEXWXmggBhHRAYxt2exnV+DaLe6ot7iW5T46rMlfyy
+         rN4O8TF2VjTRoae9G2fwghM4xdNbt+qZThRRVevhh5UxhGXgHd5ccPDX0ba+asFMDr
+         ZeCIGaTdAzuMy78prIqIAxv16bL4YzdHL3fZFcAb03lgMYJCCcq2t6nlb5cWKRQCqL
+         SbTIciJxUbk5A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Justin Tee <justin.tee@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, james.smart@avagotech.com,
-        dick.kennedy@avagotech.com, JBottomley@odin.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 03/21] scsi: lpfc: Fix list_add() corruption in lpfc_drain_txq()
-Date:   Tue,  9 Nov 2021 17:22:52 -0500
-Message-Id: <20211109222311.1235686-3-sashal@kernel.org>
+Cc:     Michael Walle <michael@walle.cc>, Wei Xu <xuwei5@hisilicon.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        catalin.marinas@arm.com, will.deacon@arm.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 04/21] arm64: dts: hisilicon: fix arm,sp805 compatible string
+Date:   Tue,  9 Nov 2021 17:22:53 -0500
+Message-Id: <20211109222311.1235686-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222311.1235686-1-sashal@kernel.org>
 References: <20211109222311.1235686-1-sashal@kernel.org>
@@ -45,46 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 99154581b05c8fb22607afb7c3d66c1bace6aa5d ]
+[ Upstream commit 894d4f1f77d0e88f1f81af2e1e37333c1c41b631 ]
 
-When parsing the txq list in lpfc_drain_txq(), the driver attempts to pass
-the requests to the adapter. If such an attempt fails, a local "fail_msg"
-string is set and a log message output.  The job is then added to a
-completions list for cancellation.
+According to Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
+the compatible is:
+  compatible = "arm,sp805", "arm,primecell";
 
-Processing of any further jobs from the txq list continues, but since
-"fail_msg" remains set, jobs are added to the completions list regardless
-of whether a wqe was passed to the adapter.  If successfully added to
-txcmplq, jobs are added to both lists resulting in list corruption.
+The current compatible string doesn't exist at all. Fix it.
 
-Fix by clearing the fail_msg string after adding a job to the completions
-list. This stops the subsequent jobs from being added to the completions
-list unless they had an appropriate failure.
-
-Link: https://lore.kernel.org/r/20210910233159.115896-2-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_sli.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/hisilicon/hi3660.dtsi | 4 ++--
+ arch/arm64/boot/dts/hisilicon/hi6220.dtsi | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 40d6537e64dd6..e72fc88aeb40e 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -19171,6 +19171,7 @@ lpfc_drain_txq(struct lpfc_hba *phba)
- 					fail_msg,
- 					piocbq->iotag, piocbq->sli4_xritag);
- 			list_add_tail(&piocbq->list, &completions);
-+			fail_msg = NULL;
- 		}
- 		spin_unlock_irqrestore(&pring->ring_lock, iflags);
- 	}
+diff --git a/arch/arm64/boot/dts/hisilicon/hi3660.dtsi b/arch/arm64/boot/dts/hisilicon/hi3660.dtsi
+index f432b0a88c65d..6d4dee3cac16b 100644
+--- a/arch/arm64/boot/dts/hisilicon/hi3660.dtsi
++++ b/arch/arm64/boot/dts/hisilicon/hi3660.dtsi
+@@ -1062,7 +1062,7 @@
+ 		};
+ 
+ 		watchdog0: watchdog@e8a06000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xe8a06000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&crg_ctrl HI3660_OSC32K>;
+@@ -1070,7 +1070,7 @@
+ 		};
+ 
+ 		watchdog1: watchdog@e8a07000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xe8a07000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&crg_ctrl HI3660_OSC32K>;
+diff --git a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+index 247024df714fc..5e9ae262caf3e 100644
+--- a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
++++ b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+@@ -830,7 +830,7 @@
+ 		};
+ 
+ 		watchdog0: watchdog@f8005000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xf8005000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&ao_ctrl HI6220_WDT0_PCLK>;
 -- 
 2.33.0
 
