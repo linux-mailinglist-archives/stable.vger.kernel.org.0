@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2066D44A3FA
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:30:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8BDF44A38F
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:25:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243410AbhKIBcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:32:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50180 "EHLO mail.kernel.org"
+        id S243323AbhKIB1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:27:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244263AbhKIBZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:25:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C45E61B55;
-        Tue,  9 Nov 2021 01:09:39 +0000 (UTC)
+        id S244265AbhKIBZE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:25:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CDFD61B46;
+        Tue,  9 Nov 2021 01:09:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420180;
-        bh=Uex9h7YseuhlAs0JCsyeFQpH1/CR2LdViy8pLjB+99k=;
+        s=k20201202; t=1636420182;
+        bh=ajKFuw6OzkumHocnwxV/0XnlPlwEXcr5Ee7zwODGrmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/VYxR3GHFL/brTjldyEouJHIOPiuR9xBh2Emnvadzl1laDNIz1Viq3A7JI4DFkkz
-         AAiSF4YCZ743ZlRsP04NaVlgUnE3iIZDwHvYrtI+O8KsAvH9+pg2cIE7ghJJ7C2AD+
-         l8a9JYQOnTbsBn7oYp5pezSEZkRIxwriyYbT44ws0oN86iQjV4Z+Leb0SiuRQ54YlS
-         27AXWVROGexomBiZz/jTfzQKbanHTZA4so+k8xQU6o6KI3zBS5quyr0Xh/aGV6PwGE
-         6EOhtc8zoE7SJkCdZP6O3ab8zIcdYgasT/p5sCUJY+2dmi+wx1FjRvc3tWdFYyDbOH
-         ewpOpkJQ3bOtA==
+        b=ZHBAXA75WCJBHl06bKayByqXggDZVF7EBTfh1a0HkcK9Voj+RgP1dv/c7HQN+VfpZ
+         srX+63hzLFR90Xw527iFBxL20Y8uAftW+USsHtNfVJ5TugX1MtP2myfE3zfJNW22+a
+         7nWNr9krdfASTw7GJ40Y0D75dyE+h5XgLlJLu2EjfbxAwe7FFiHlESkqEfbT4dyd2V
+         MyOsSziMNFgleJt98EwBYyGqHTWfFTICjEQDkuCbJluCDHOi2Q91dWALDFCn4e03Ce
+         4iyHed5CA4xDpTI+iG1rmKa5JG+OK78/9W0LHVbko7YxqHAWC3DvHhFF6e9/20zIwD
+         9ak7vTvlvsOug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tuo Li <islituo@gmail.com>, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+Cc:     Rajat Asthana <rajatasthana4@gmail.com>,
+        syzbot+4d3749e9612c2cfab956@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, a.hajda@samsung.com,
-        mchehab@kernel.org, linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
         linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 12/30] media: s5p-mfc: fix possible null-pointer dereference in s5p_mfc_probe()
-Date:   Mon,  8 Nov 2021 20:09:00 -0500
-Message-Id: <20211109010918.1192063-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 13/30] media: mceusb: return without resubmitting URB in case of -EPROTO error.
+Date:   Mon,  8 Nov 2021 20:09:01 -0500
+Message-Id: <20211109010918.1192063-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010918.1192063-1-sashal@kernel.org>
 References: <20211109010918.1192063-1-sashal@kernel.org>
@@ -45,46 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Rajat Asthana <rajatasthana4@gmail.com>
 
-[ Upstream commit 8515965e5e33f4feb56134348c95953f3eadfb26 ]
+[ Upstream commit 476db72e521983ecb847e4013b263072bb1110fc ]
 
-The variable pdev is assigned to dev->plat_dev, and dev->plat_dev is
-checked in:
-  if (!dev->plat_dev)
+Syzkaller reported a warning called "rcu detected stall in dummy_timer".
 
-This indicates both dev->plat_dev and pdev can be NULL. If so, the
-function dev_err() is called to print error information.
-  dev_err(&pdev->dev, "No platform data specified\n");
+The error seems to be an error in mceusb_dev_recv(). In the case of
+-EPROTO error, the routine immediately resubmits the URB. Instead it
+should return without resubmitting URB.
 
-However, &pdev->dev is an illegal address, and it is dereferenced in
-dev_err().
-
-To fix this possible null-pointer dereference, replace dev_err() with
-mfc_err().
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: syzbot+4d3749e9612c2cfab956@syzkaller.appspotmail.com
+Signed-off-by: Rajat Asthana <rajatasthana4@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/rc/mceusb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-index 7727789dbda14..daa5b4dea092c 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-@@ -1102,7 +1102,7 @@ static int s5p_mfc_probe(struct platform_device *pdev)
- 	spin_lock_init(&dev->condlock);
- 	dev->plat_dev = pdev;
- 	if (!dev->plat_dev) {
--		dev_err(&pdev->dev, "No platform data specified\n");
-+		mfc_err("No platform data specified\n");
- 		return -ENODEV;
- 	}
- 
+diff --git a/drivers/media/rc/mceusb.c b/drivers/media/rc/mceusb.c
+index 0fba4a2c16028..7b9800d3446cf 100644
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -1079,6 +1079,7 @@ static void mceusb_dev_recv(struct urb *urb)
+ 	case -ECONNRESET:
+ 	case -ENOENT:
+ 	case -EILSEQ:
++	case -EPROTO:
+ 	case -ESHUTDOWN:
+ 		usb_unlink_urb(urb);
+ 		return;
 -- 
 2.33.0
 
