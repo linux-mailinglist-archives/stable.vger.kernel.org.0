@@ -2,103 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A62844B8D5
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:43:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EE7F44B903
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:51:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345481AbhKIWqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:46:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36108 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346262AbhKIWoK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:44:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4DFA61B47;
-        Tue,  9 Nov 2021 22:24:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496686;
-        bh=iudG8ri3aafLAIe2fV+orn+ebUq8ci3wOfMOvnn/MR8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BjbUw2Z4oMlSbr04KKxTVGILQm8XKyMBQ2TgEEm6Dk5dyuiLeo8AB+ylKKQNC80Zm
-         DSxgMoWHaf5fbFUkSVsbw+l3f0Yy/2ZazBTAFL3Pj1N+q3CU0rOYoLJGlT9rjM/xii
-         B5a8P1p5lH5YW7AE7Rcuu4vGpiCptYR898f9zcaCNFe6ajiqkpHEGdMhys8hgdO4Rs
-         l16Ahy/hHqy6MdsXa5vm0UR3JSFIOG/U9I7BVYVkjYhgGmltVQC1Duh/gluROz2FFi
-         2dej57opVc+AotgNUXwlYXTUst3Q/NW1qZ/a8QA+IAolWxotBcwCyDa0W3LlCErDBA
-         95GAwej4q8ixw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sasha Levin <sashal@kernel.org>, benh@kernel.crashing.org,
-        paulus@samba.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 12/12] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
-Date:   Tue,  9 Nov 2021 17:24:26 -0500
-Message-Id: <20211109222426.1236575-12-sashal@kernel.org>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211109222426.1236575-1-sashal@kernel.org>
-References: <20211109222426.1236575-1-sashal@kernel.org>
+        id S242236AbhKIWyb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:54:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57104 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345695AbhKIWyI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 17:54:08 -0500
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CBD9C0432D2
+        for <stable@vger.kernel.org>; Tue,  9 Nov 2021 14:25:20 -0800 (PST)
+Received: by mail-pl1-x62c.google.com with SMTP id u11so1239103plf.3
+        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 14:25:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=s5LCZ8fJIVkHdkaIIHi3cIJeKjxOIi968Q/qqiw01DM=;
+        b=OkTfpOL2FCTZiE/d1txHTlbozqvNFnlvJvVWxRmHBzVxd+tRSFYy9wUqrQ6hgWTJGe
+         N3JPK17Ak1gMrMwvtEzwgNgXTPm+hpUP73+sYGnadDbsLiqM36lnLHaKELJ9FtiDB7Pj
+         8C3DSTyxBNIsKdCkCotNgDVtOo1RetDhAtPvMRvoGXrUu+X/rB64HC7XfdlHsi9oshq/
+         q/DtmfWunOKlXia7InuK0vaBiyP7VJFiNwCemp2XJ6g7c/Q9DnE/OhIp3ml3fsk0isGj
+         m2n0QCaDDzqDkQYguK/f5oSZfgKt5VkuKrsuw2A+Jiwu+5x4f0iAl7b1yVep6bnHo1p4
+         IAEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=s5LCZ8fJIVkHdkaIIHi3cIJeKjxOIi968Q/qqiw01DM=;
+        b=R2XGJiOKGdN3MJiViVzi1YlqzDmbcPl3QecBpUFf86vnmUAUE2krYZDsQNyl6fUFvo
+         zDD4x2f78kzpF+mgyQsCBt8a2uX2snBQ1hQFEBTEMhYTRM+w1jyU47OToofpQGUgeCrH
+         uF7d9wpE9yKZ69KSByBut+xrsmmNd6hOzhqG24DAD1MaOBx5zIz6SmRWsruuCSZeD82C
+         Oxboadsb3y5cZRPyA8IzcBlhzSqjVHh4pyVf36DESfTxD1NvkExaziKZ/q+sVMmyFZ9U
+         S2UkgAHl83PSOS39YoHDxCTsf+IIRZ72WE3A7PfS44Qj8kzDquKDR+GJM7+L0ULSJ3NY
+         ziiA==
+X-Gm-Message-State: AOAM5306V61o5mhnxmIggheap+dg+mLekYI8hjOeQl9OhR3Ea4/lfqLz
+        aeZrbQeLXwxvognbheshmN0ewHydo3llSd2e
+X-Google-Smtp-Source: ABdhPJwYTSgTXT0bOKdD6tJMrnTWL8cCngatwYVVE8lhtcYbi2p+J4+Mcf2hLmo/LpK3qPm2jSQW8A==
+X-Received: by 2002:a17:902:6acb:b0:142:76c3:d35f with SMTP id i11-20020a1709026acb00b0014276c3d35fmr10746035plt.89.1636496719377;
+        Tue, 09 Nov 2021 14:25:19 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d17sm19673723pfo.40.2021.11.09.14.25.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Nov 2021 14:25:19 -0800 (PST)
+Message-ID: <618af54f.1c69fb81.11afa.cd9b@mx.google.com>
+Date:   Tue, 09 Nov 2021 14:25:19 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.78-10-gbb7301181e71
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 218 runs,
+ 1 regressions (v5.10.78-10-gbb7301181e71)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+stable-rc/queue/5.10 baseline: 218 runs, 1 regressions (v5.10.78-10-gbb7301=
+181e71)
 
-[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
+Regressions Summary
+-------------------
 
-In dcr-low.S we use cmpli with three arguments, instead of four
-arguments as defined in the ISA:
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
-	cmpli	cr0,r3,1024
 
-This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
-User’s Manual" it shows cmpli having no L field, but implied to be 0 due
-to the core being 32-bit. It mentions that the ISA defines four
-arguments and recommends using cmplwi.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.78-10-gbb7301181e71/plan/baseline/
 
-It also corresponds to the old POWER instruction set, which had no L
-field there, a reserved bit instead.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.78-10-gbb7301181e71
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      bb7301181e7118f6c6769385bd37248b50dee4f0 =
 
-dcr-low.S is only built 32-bit, because it is only built when
-DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
-generated code (with gcc/gas) we see cmplwi as expected.
 
-Although gas is happy with the 3-argument version when building for
-32-bit, the LLVM assembler is not and errors out with:
 
-  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
-   cmpli 0,%r3,1024; ...
-           ^
+Test Regressions
+---------------- =
 
-Switch to the cmplwi extended opcode, which avoids any confusion when
-reading the ISA, fixes the issue with the LLVM assembler, and also means
-the code could be built 64-bit in future (though that's very unlikely).
 
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
-Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/powerpc/sysdev/dcr-low.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
-index d3098ef1404a2..3943d19d5f63b 100644
---- a/arch/powerpc/sysdev/dcr-low.S
-+++ b/arch/powerpc/sysdev/dcr-low.S
-@@ -14,7 +14,7 @@
- #include <asm/bug.h>
- 
- #define DCR_ACCESS_PROLOG(table) \
--	cmpli	cr0,r3,1024;	 \
-+	cmplwi	cr0,r3,1024;	 \
- 	rlwinm  r3,r3,4,18,27;   \
- 	lis     r5,table@h;      \
- 	ori     r5,r5,table@l;   \
--- 
-2.33.0
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
+
+  Details:     https://kernelci.org/test/plan/id/618abab07ed78d153f3358e6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.78-=
+10-gbb7301181e71/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-minnowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.78-=
+10-gbb7301181e71/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-minnowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/618abab07ed78d153f335=
+8e7
+        new failure (last pass: v5.10.78-9-ge3bb388aea14) =
+
+ =20
