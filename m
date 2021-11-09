@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 889E144B540
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:16:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C939F44B543
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:16:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245311AbhKIWTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:19:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39804 "EHLO mail.kernel.org"
+        id S245346AbhKIWTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:19:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245214AbhKIWTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:19:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 587CA611C9;
-        Tue,  9 Nov 2021 22:16:43 +0000 (UTC)
+        id S245262AbhKIWTd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:19:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4767461221;
+        Tue,  9 Nov 2021 22:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496204;
-        bh=iTIe+tzwDMl8swDkHkd8BHWOqtn7QkfBKkFbiUzNYLA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=L+oQM75dBwbIK526zkgtl5ARsPt/uV6HJhAOcPlw8FZHfND4NlgSKiS0nItwlSAFP
-         zHfIntoa6hhFZS7DmnAPkHxEVkNKhy0zHMSBTI97gURn7+oydqj6f30V7bz8/5/fRn
-         V6qd3kPdl5c6QLyrZ1oPv8axREQ9FIfAjY8+QhiMVIi9wTkgV+anlVJ3dr6TanUacZ
-         ZAGhlp/SsJyD5Syklsa2cgtFdNOVRigE+6bICXJuF6i8bqgU/iz0DFq4JRptRDIVTy
-         36N6nwD7Y4IgsYupCCxtWtZA6vc8Wuf3lrrOPX3j0lo8LqYoWgDpCtL9t2mZu+DHe0
-         C0OrbwHmWjaJQ==
+        s=k20201202; t=1636496206;
+        bh=kPxX8Ibz8j/DEU/LjYZR6lYgG89AyU+9mad55ZEPNCA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=E/jFls9qUZYnd3IUTQpNwNd4YH6JDHVlkj4M688cr4tVgT9nlgrusgbOAG8YRl23g
+         ybeDYqbELeR1mLpb4Ct8h16AT6Y1AopDi9gZhb2yK+cahueuQxdQEMm0wTSlmzWkMH
+         Uw1x5N4154TY3j5XSZlGloVj9Lu/eB4AhoMO2DJe7pqmPpBCSI4nCQRYUNYkr7BfXC
+         Ev34Qq1U5YRCESZGva/AwviKe46aYmmAjUY2Fw4J0nTdUwy7DCkLZRzt3dlNmM9NXu
+         0Fq47Dzztmto6Ke78h6i1L+chFLLqi0QQ1waI1XiLF7ZAsjLLN/IlkcPCXcXXG/H8q
+         916Azc8eZulHA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
+Cc:     Michal Simek <michal.simek@xilinx.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         pawel.moll@arm.com, mark.rutland@arm.com,
         ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
         catalin.marinas@arm.com, will.deacon@arm.com,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 01/82] arm64: zynqmp: Do not duplicate flash partition label property
-Date:   Tue,  9 Nov 2021 17:15:19 -0500
-Message-Id: <20211109221641.1233217-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 02/82] arm64: zynqmp: Fix serial compatible string
+Date:   Tue,  9 Nov 2021 17:15:20 -0500
+Message-Id: <20211109221641.1233217-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
+References: <20211109221641.1233217-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,52 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
+From: Michal Simek <michal.simek@xilinx.com>
 
-[ Upstream commit 167721a5909f867f8c18c8e78ea58e705ad9bbd4 ]
+[ Upstream commit 812fa2f0e9d33564bd0131a69750e0d165f4c82a ]
 
-In kernel 5.4, support has been added for reading MTD devices via the nvmem
-API.
-For this the mtd devices are registered as read-only NVMEM providers under
-sysfs with the same name as the flash partition label property.
+Based on commit 65a2c14d4f00 ("dt-bindings: serial: convert Cadence UART
+bindings to YAML") compatible string should look like differently that's
+why fix it to be aligned with dt binding.
 
-So if flash partition label property of multiple flash devices are
-identical then the second mtd device fails to get registered as a NVMEM
-provider.
-
-This patch fixes the issue by having different label property for different
-flashes.
-
-Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
 Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Link: https://lore.kernel.org/r/6c4b9b9232b93d9e316a63c086540fd5bf6b8687.1623684253.git.michal.simek@xilinx.com
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/89b36e0a6187cc6b05b27a035efdf79173bd4486.1628240307.git.michal.simek@xilinx.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts | 4 ++--
+ arch/arm64/boot/dts/xilinx/zynqmp.dtsi | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts b/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts
-index 4a86efa32d687..f7124e15f0ff6 100644
---- a/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts
-+++ b/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts
-@@ -131,7 +131,7 @@
- 		reg = <0>;
- 
- 		partition@0 {
--			label = "data";
-+			label = "spi0-data";
- 			reg = <0x0 0x100000>;
+diff --git a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+index 28dccb891a535..8278876ad33fa 100644
+--- a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
++++ b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+@@ -792,7 +792,7 @@
  		};
- 	};
-@@ -149,7 +149,7 @@
- 		reg = <0>;
  
- 		partition@0 {
--			label = "data";
-+			label = "spi1-data";
- 			reg = <0x0 0x84000>;
+ 		uart0: serial@ff000000 {
+-			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
++			compatible = "xlnx,zynqmp-uart", "cdns,uart-r1p12";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 21 4>;
+@@ -802,7 +802,7 @@
  		};
- 	};
+ 
+ 		uart1: serial@ff010000 {
+-			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
++			compatible = "xlnx,zynqmp-uart", "cdns,uart-r1p12";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 22 4>;
 -- 
 2.33.0
 
