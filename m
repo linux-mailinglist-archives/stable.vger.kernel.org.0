@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6C844B745
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:31:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFF2344B734
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:30:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344807AbhKIWdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:33:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51456 "EHLO mail.kernel.org"
+        id S1344758AbhKIWcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:32:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344813AbhKIWat (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344819AbhKIWat (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:30:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2CBE61A87;
-        Tue,  9 Nov 2021 22:21:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F1EA61A86;
+        Tue,  9 Nov 2021 22:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496461;
-        bh=K1siIXcn2UDX39tR/eDohFHQ0q4cdToUEV419aT4pp4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LG+BZRH+b8D22AZj5nx5rf8iS9WBHpQZq89tRBs1hD4ldI1h+tvn05nMVSMZh7p26
-         KZbWehWwJyVuXijrle/O3285jU25ix2H368rrv6aJId+URRIfqFsSl+rfwdFVH4+8j
-         CWutmv3qy0Njx8RaCR1guT97AOlf6qoHh9ytB2xAifBD8c6a4F6wMJvHITzA6mOn2X
-         eeJPRRK6F7ybVTG7/T7Tk5c9xs7QL9m5lNHlORml7wzv2ev3w34tNpADyaN3Kc9dGo
-         hTSasCSXEO50l9tuXPPD+ctUwPZZfeMm4mievhvCEV4quGXlMxNztmCM5X7Sclo/jL
-         JMCI81JJZQhxQ==
+        s=k20201202; t=1636496466;
+        bh=iTIe+tzwDMl8swDkHkd8BHWOqtn7QkfBKkFbiUzNYLA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Lly26C0DmjfPgn/YFL0zdCQWX2AFaIPO+ufS+/oaaoYNah2HGtHpeVJE3rqhYXRpa
+         HkyE+SOHpHohWs7n8MADHy5TFq2mWyMeNfF/qFDl8ZHrYztNc/OCQJE9zXqHP165fG
+         wIxJt44yqknQ7GsQDNQcFSpqWOSILDJAL7yT5H/yldizxX5EmecgayKkKfhtsCkB5/
+         x3CIG91aJlP24O4J3TkA+MKwuc+2F5iZHi3PFiyLX6Y3Anhtu0+daO8zSy2urV2WoS
+         XhREoIn7EKDZk9k+704q82II7udpAMQ6WvCO7KKN1z2EnME0UR/xVuIT5KSiAnq53E
+         AqElNWKtfRWig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Kosina <jkosina@suse.cz>, kernel test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 75/75] HID: playstation: require multicolor LED functionality
-Date:   Tue,  9 Nov 2021 17:19:05 -0500
-Message-Id: <20211109221905.1234094-75-sashal@kernel.org>
+Cc:     Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        catalin.marinas@arm.com, will.deacon@arm.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 01/50] arm64: zynqmp: Do not duplicate flash partition label property
+Date:   Tue,  9 Nov 2021 17:20:14 -0500
+Message-Id: <20211109222103.1234885-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211109221905.1234094-1-sashal@kernel.org>
-References: <20211109221905.1234094-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,31 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
 
-[ Upstream commit d7f1f9fec09adc1d77092cb2db0e56e2a4efd262 ]
+[ Upstream commit 167721a5909f867f8c18c8e78ea58e705ad9bbd4 ]
 
-The driver requires multicolor LED support; express that in Kconfig.
+In kernel 5.4, support has been added for reading MTD devices via the nvmem
+API.
+For this the mtd devices are registered as read-only NVMEM providers under
+sysfs with the same name as the flash partition label property.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+So if flash partition label property of multiple flash devices are
+identical then the second mtd device fails to get registered as a NVMEM
+provider.
+
+This patch fixes the issue by having different label property for different
+flashes.
+
+Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lore.kernel.org/r/6c4b9b9232b93d9e316a63c086540fd5bf6b8687.1623684253.git.michal.simek@xilinx.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 76937f716fbe1..0a6d1c2861bcd 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -867,6 +867,7 @@ config HID_PLANTRONICS
- config HID_PLAYSTATION
- 	tristate "PlayStation HID Driver"
- 	depends on HID
-+	depends on LEDS_CLASS_MULTICOLOR
- 	select CRC32
- 	select POWER_SUPPLY
- 	help
+diff --git a/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts b/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts
+index 4a86efa32d687..f7124e15f0ff6 100644
+--- a/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts
++++ b/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts
+@@ -131,7 +131,7 @@
+ 		reg = <0>;
+ 
+ 		partition@0 {
+-			label = "data";
++			label = "spi0-data";
+ 			reg = <0x0 0x100000>;
+ 		};
+ 	};
+@@ -149,7 +149,7 @@
+ 		reg = <0>;
+ 
+ 		partition@0 {
+-			label = "data";
++			label = "spi1-data";
+ 			reg = <0x0 0x84000>;
+ 		};
+ 	};
 -- 
 2.33.0
 
