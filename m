@@ -2,126 +2,201 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F3F644B373
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 20:43:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 136E944B38A
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 20:54:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243860AbhKITqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 14:46:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44050 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237907AbhKITqa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 14:46:30 -0500
-Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE01C061764;
-        Tue,  9 Nov 2021 11:43:44 -0800 (PST)
-Received: by mail-ot1-x32e.google.com with SMTP id v40-20020a056830092800b0055591caa9c6so335492ott.4;
-        Tue, 09 Nov 2021 11:43:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=Hn1N4S+EOUFMYFm5rM50RY8TSGpVs4TLCixBeC9QDjs=;
-        b=C199LwFa+kMPYkHTv+iloNSgczkEpRhH4WphKQX/xcrngTFoXndmt4ZgBxTIECHr7G
-         JBwN42XTTP2qjNSNL++ITZjGGlQMzV4xil0X/P/1D7Aw9oz0uQE31yT/5hvToKzeDcFU
-         a59z5RBfzXtzpqAF+AtBcxZ1C+2qptZ+iiXkslvhizS7hnGebS0sxL7Sx2MDn9e8+C62
-         jQZLZVbZhxO0Stn34u9o4ZupEYO4toPbrBRMZVkDuJxhmFyw0qYB96d1WwbkOsDlR9r6
-         ivVdjPYDmN/uHFStFsEWjvmyCjV25M4iza4swXc3Lmn6EMHyOcYL85qfCD3cAup6NvLp
-         AOMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :mime-version:content-disposition;
-        bh=Hn1N4S+EOUFMYFm5rM50RY8TSGpVs4TLCixBeC9QDjs=;
-        b=u3O8If/Fr75Lu9mr1e0bf8MIUqy9Gsa5Y5wqMF/9THiYSqwdA2OZ1Z4DxSEWrerago
-         001g6UvhtnznprG/TaF4CGnwzLBu3coZDoQhHFZthsg3ir0hrzp6SairknoT9Bzx8uJO
-         iYB8EJlxQQjs18LWyJ1oeMIVNQYZMMC6I8lx/Ywm94qo1jgbmymU5s6vNbkF4UuYu31O
-         aiMpZPkafAfm35KCDVw9dj1LAQ24Ar2LiAERbVOm0zFRMnRDAiHDgidEi3OUYKXf/Hlj
-         xckoyVRMHt12eVBHykxI+b1Aowbd8X75CqRy21L8UV4nLQZBGjAPn/LlbccErsalEpci
-         9Thw==
-X-Gm-Message-State: AOAM533GsTUVCqzy4Z8amvx7WDdroSLFk1HbkM1vXUnu7vTcXhz81dhN
-        fklp+JiLa1MU7zC5CBPAa6o=
-X-Google-Smtp-Source: ABdhPJx3+rPyg7q/ZQLHOXOcuB1lPuFMF9z3rf7bbuzpwG1UfPSr7pVuXCafh/+AVhZEyERZ6CxIrQ==
-X-Received: by 2002:a05:6830:1cc:: with SMTP id r12mr8159931ota.76.1636487023958;
-        Tue, 09 Nov 2021 11:43:43 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id s20sm8311620oiw.53.2021.11.09.11.43.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Nov 2021 11:43:43 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 9 Nov 2021 11:43:42 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Rob Herring <robh@kernel.org>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S243938AbhKIT5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 14:57:42 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:53572 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243249AbhKIT5l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 14:57:41 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id ACA3B1FD6F;
+        Tue,  9 Nov 2021 19:54:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1636487693; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Y2OXf18Y/MTI9Z9OxFGo3yBDa2tKzuDPogvq8TubkCc=;
+        b=gzhTgFdOzsIrvUHTNWLHF+uNXyROpaRjxXE3LcWYYIQJaiTc9LAMxuABnMofgHZM9b36sR
+        j9kFqaLXgXvOAoduC6Xa2ZauP2kPLjkQAuUmFNrphK5THVf8jeixSHiINOTM1lRs2fJgyi
+        g4zJ1lRShfA6KXX8V6OrfEoghJuncCA=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 77640A3B81;
+        Tue,  9 Nov 2021 19:54:53 +0000 (UTC)
+Date:   Tue, 9 Nov 2021 20:54:51 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Dennis Zhou <dennis@kernel.org>
+Cc:     Eric Dumazet <eric.dumazet@gmail.com>,
+        Alexey Makhalov <amakhalov@vmware.com>, linux-mm@kvack.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>,
+        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
+        Christoph Lameter <cl@linux.com>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] clk: versatile: clk-icst: Ensure clock names are
- unique
-Message-ID: <20211109194342.GA3689749@roeck-us.net>
+Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
+Message-ID: <YYrSC7vtSQXz652a@dhcp22.suse.cz>
+References: <908909e0-4815-b580-7ff5-d824d36a141c@redhat.com>
+ <20211108202325.20304-1-amakhalov@vmware.com>
+ <2e191db3-286f-90c6-bf96-3f89891e9926@gmail.com>
+ <YYqstfX8PSGDfWsn@dhcp22.suse.cz>
+ <YYrGpn/52HaLCAyo@fedora>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <YYrGpn/52HaLCAyo@fedora>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 09, 2021 at 10:46:50AM -0600, Rob Herring wrote:
-> Commit 2d3de197a818 ("ARM: dts: arm: Update ICST clock nodes 'reg' and
-> node names") moved to using generic node names. That results in trying
-> to register multiple clocks with the same name. Fix this by including
-> the unit-address in the clock name.
+On Tue 09-11-21 14:06:14, Dennis Zhou wrote:
+> Hello,
 > 
-> Fixes: 2d3de197a818 ("ARM: dts: arm: Update ICST clock nodes 'reg' and node names")
-> Cc: stable@vger.kernel.org
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Stephen Boyd <sboyd@kernel.org>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-clk@vger.kernel.org
-> Signed-off-by: Rob Herring <robh@kernel.org>
+> On Tue, Nov 09, 2021 at 06:15:33PM +0100, Michal Hocko wrote:
+> > On Mon 08-11-21 18:08:52, Eric Dumazet wrote:
+> > > 
+> > > 
+> > > On 11/8/21 12:23 PM, Alexey Makhalov wrote:
+> > > > There is a kernel panic caused by pcpu_alloc_pages() passing
+> > > > offlined and uninitialized node to alloc_pages_node() leading
+> > > > to panic by NULL dereferencing uninitialized NODE_DATA(nid).
+> > > > 
+> > > >  CPU2 has been hot-added
+> > > >  BUG: unable to handle page fault for address: 0000000000001608
+> > > >  #PF: supervisor read access in kernel mode
+> > > >  #PF: error_code(0x0000) - not-present page
+> > > >  PGD 0 P4D 0
+> > > >  Oops: 0000 [#1] SMP PTI
+> > > >  CPU: 0 PID: 1 Comm: systemd Tainted: G            E     5.15.0-rc7+ #11
+> > > >  Hardware name: VMware, Inc. VMware7,1/440BX Desktop Reference Platform, BIOS VMW
+> > > > 
+> > > >  RIP: 0010:__alloc_pages+0x127/0x290
+> > > >  Code: 4c 89 f0 5b 41 5c 41 5d 41 5e 41 5f 5d c3 44 89 e0 48 8b 55 b8 c1 e8 0c 83 e0 01 88 45 d0 4c 89 c8 48 85 d2 0f 85 1a 01 00 00 <45> 3b 41 08 0f 82 10 01 00 00 48 89 45 c0 48 8b 00 44 89 e2 81 e2
+> > > >  RSP: 0018:ffffc900006f3bc8 EFLAGS: 00010246
+> > > >  RAX: 0000000000001600 RBX: 0000000000000000 RCX: 0000000000000000
+> > > >  RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000cc2
+> > > >  RBP: ffffc900006f3c18 R08: 0000000000000001 R09: 0000000000001600
+> > > >  R10: ffffc900006f3a40 R11: ffff88813c9fffe8 R12: 0000000000000cc2
+> > > >  R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000cc2
+> > > >  FS:  00007f27ead70500(0000) GS:ffff88807ce00000(0000) knlGS:0000000000000000
+> > > >  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > > >  CR2: 0000000000001608 CR3: 000000000582c003 CR4: 00000000001706b0
+> > > >  Call Trace:
+> > > >   pcpu_alloc_pages.constprop.0+0xe4/0x1c0
+> > > >   pcpu_populate_chunk+0x33/0xb0
+> > > >   pcpu_alloc+0x4d3/0x6f0
+> > > >   __alloc_percpu_gfp+0xd/0x10
+> > > >   alloc_mem_cgroup_per_node_info+0x54/0xb0
+> > > >   mem_cgroup_alloc+0xed/0x2f0
+> > > >   mem_cgroup_css_alloc+0x33/0x2f0
+> > > >   css_create+0x3a/0x1f0
+> > > >   cgroup_apply_control_enable+0x12b/0x150
+> > > >   cgroup_mkdir+0xdd/0x110
+> > > >   kernfs_iop_mkdir+0x4f/0x80
+> > > >   vfs_mkdir+0x178/0x230
+> > > >   do_mkdirat+0xfd/0x120
+> > > >   __x64_sys_mkdir+0x47/0x70
+> > > >   ? syscall_exit_to_user_mode+0x21/0x50
+> > > >   do_syscall_64+0x43/0x90
+> > > >   entry_SYSCALL_64_after_hwframe+0x44/0xae
+> > > > 
+> > > > Panic can be easily reproduced by disabling udev rule for
+> > > > automatic onlining hot added CPU followed by CPU with
+> > > > memoryless node (NUMA node with CPU only) hot add.
+> > > > 
+> > > > Hot adding CPU and memoryless node does not bring the node
+> > > > to online state. Memoryless node will be onlined only during
+> > > > the onlining its CPU.
+> > > > 
+> > > > Node can be in one of the following states:
+> > > > 1. not present.(nid == NUMA_NO_NODE)
+> > > > 2. present, but offline (nid > NUMA_NO_NODE, node_online(nid) == 0,
+> > > > 				NODE_DATA(nid) == NULL)
+> > > > 3. present and online (nid > NUMA_NO_NODE, node_online(nid) > 0,
+> > > > 				NODE_DATA(nid) != NULL)
+> > > > 
+> > > > Percpu code is doing allocations for all possible CPUs. The
+> > > > issue happens when it serves hot added but not yet onlined
+> > > > CPU when its node is in 2nd state. This node is not ready
+> > > > to use, fallback to numa_mem_id().
+> > > > 
+> > > > Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+> > > > Reviewed-by: David Hildenbrand <david@redhat.com>
+> > > > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > > > Cc: David Hildenbrand <david@redhat.com>
+> > > > Cc: Michal Hocko <mhocko@suse.com>
+> > > > Cc: Oscar Salvador <osalvador@suse.de>
+> > > > Cc: Dennis Zhou <dennis@kernel.org>
+> > > > Cc: Tejun Heo <tj@kernel.org>
+> > > > Cc: Christoph Lameter <cl@linux.com>
+> > > > Cc: linux-mm@kvack.org
+> > > > Cc: linux-kernel@vger.kernel.org
+> > > > Cc: stable@vger.kernel.org
+> > > > ---
+> > > >  mm/percpu-vm.c | 8 ++++++--
+> > > >  1 file changed, 6 insertions(+), 2 deletions(-)
+> > > > 
+> > > > diff --git a/mm/percpu-vm.c b/mm/percpu-vm.c
+> > > > index 2054c9213..f58d73c92 100644
+> > > > --- a/mm/percpu-vm.c
+> > > > +++ b/mm/percpu-vm.c
+> > > > @@ -84,15 +84,19 @@ static int pcpu_alloc_pages(struct pcpu_chunk *chunk,
+> > > >  			    gfp_t gfp)
+> > > >  {
+> > > >  	unsigned int cpu, tcpu;
+> > > > -	int i;
+> > > > +	int i, nid;
+> > > >  
+> > > >  	gfp |= __GFP_HIGHMEM;
+> > > >  
+> > > >  	for_each_possible_cpu(cpu) {
+> > > > +		nid = cpu_to_node(cpu);
+> > > > +		if (nid == NUMA_NO_NODE || !node_online(nid))
+> > > > +			nid = numa_mem_id();
+> > > 
+> > > Maybe we should fail this fallback if (gfp & __GFP_THISNODE) ?
+> > > 
+> > > Or maybe there is no support for this constraint in per-cpu allocator anyway.
+> > 
+> > I would be really curious about the usecase. Not to mention that pcp
+> > allocation would be effectively unusable on any setups with memory less
+> > nodes.
+> > 
+> 
+> Sorry, I briefly saw this thread last week but was on jury duty and got
+> sequestered when the fix fell into percpu-vm.c.
+> 
+> I'm also not involved with any hotplug work, so my forgive my limited
+> understanding.
+> 
+> I'm understanding this as a cpu/mem hotplug problem that we're papering
+> over with this fix. Given that, I should be looking to take this out
+> when the proper fix to the hotplug subsystem is added. Is that right?
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Yes.
 
-> ---
-> This should be applied to stable to minimize DT ABI breakage.
-> ---
->  drivers/clk/versatile/clk-icst.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
+> > > I am a bit worried that we do not really know if pages are
+> > > allocated on the right node or not.
+> > 
+> > There hasn't been any guarantee like that. Page allocator would fallback
+> > to other nodes (in the node distance order) unless __GFP_THISNODE is
+> > specified. This patch just papers over the fact that currently we can
+> > end up having an invalid numa node associated with a cpu. This is a bug
+> > in the initialization code. Even if that is fixed the node fallback is
+> > still a real thing that might happen.
+> > 
 > 
-> diff --git a/drivers/clk/versatile/clk-icst.c b/drivers/clk/versatile/clk-icst.c
-> index 77fd0ecaf155..d52f976dc875 100644
-> --- a/drivers/clk/versatile/clk-icst.c
-> +++ b/drivers/clk/versatile/clk-icst.c
-> @@ -484,7 +484,7 @@ static void __init of_syscon_icst_setup(struct device_node *np)
->  	struct device_node *parent;
->  	struct regmap *map;
->  	struct clk_icst_desc icst_desc;
-> -	const char *name = np->name;
-> +	const char *name;
->  	const char *parent_name;
->  	struct clk *regclk;
->  	enum icst_control_type ctype;
-> @@ -533,15 +533,17 @@ static void __init of_syscon_icst_setup(struct device_node *np)
->  		icst_desc.params = &icst525_apcp_cm_params;
->  		ctype = ICST_INTEGRATOR_CP_CM_MEM;
->  	} else {
-> -		pr_err("unknown ICST clock %s\n", name);
-> +		pr_err("unknown ICST clock %pOF\n", np);
->  		return;
->  	}
->  
->  	/* Parent clock name is not the same as node parent */
->  	parent_name = of_clk_get_parent_name(np, 0);
-> +	name = kasprintf(GFP_KERNEL, "%pOFP", np);
->  
->  	regclk = icst_clk_setup(NULL, &icst_desc, name, parent_name, map, ctype);
->  	if (IS_ERR(regclk)) {
-> +		kfree(name);
->  		pr_err("error setting up syscon ICST clock %s\n", name);
->  		return;
->  	}
-> -- 
-> 2.32.0
-> 
+> Percpu has always allocated for_each_possible_cpu(). This means even
+> before a cpu online and corresponding numa node online, we're not
+> allocating on the right node anyway. But to me this just seems like a
+> straight up bug we're papering over as I said above for memoryless node
+> cpu hotplug.
+
+Agreed. As mentioned elsewhere in the thread cpu_to_node resp.
+cpu_to_mem shouldn't return a garbage. 
+-- 
+Michal Hocko
+SUSE Labs
