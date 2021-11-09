@@ -2,128 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D31D344B234
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 18:51:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD58844B274
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 19:07:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240951AbhKIRyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 12:54:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46962 "EHLO
+        id S242171AbhKISKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 13:10:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239360AbhKIRyV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 12:54:21 -0500
-Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53941C061764
-        for <stable@vger.kernel.org>; Tue,  9 Nov 2021 09:51:35 -0800 (PST)
-Received: by mail-oi1-x230.google.com with SMTP id be32so31842oib.11
-        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 09:51:35 -0800 (PST)
+        with ESMTP id S241890AbhKISJg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 13:09:36 -0500
+Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 675D0C061767
+        for <stable@vger.kernel.org>; Tue,  9 Nov 2021 10:06:47 -0800 (PST)
+Received: by mail-ot1-x32e.google.com with SMTP id w6-20020a9d77c6000000b0055e804fa524so3701136otl.3
+        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 10:06:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
+        d=chromium.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=mbH/j7Zs+KKUZIh6/EIHYpOhvYavkv0KBf6ZqH7w8wo=;
-        b=nV06dYHYG2V/+k89FCyMdaz2pFZM8n2VALpJFg0pqPyNxY7YovqwFJMWbIzD58EOX0
-         8VItk28OhtoWxhrYQjcmWuem0zVPMLK4pGxR/AdqJPa3AsxMub0WhsxJ74kjLA7UKJ3x
-         GGgXg9w65el1/16GHTKHeIca3e6PrG+acKKBkYUkgeprHM+WEkCRagTK8NQ3gm+rrT6h
-         y+fIBkPCwpXiXwsH6p3EpG4sziKBhqmKWjTGUESk99XOnNiY/o+yUv5f2tZcLbkPhirK
-         D8LmrBUR5Mdvm9xo07PKxaDNX1fSvBlKuQ/lAbQ2H3LMx/MSmT7Gn3n3v30fUu3Bhm6y
-         2B5Q==
+         :cc:content-transfer-encoding;
+        bh=O+fhYkcqhMQ8k14bNZcPRV6UkOwVHbARh5DBR4w4Kpg=;
+        b=CPnbviPehHndJcufAKnxvmQCz4mp4bEQpdeHccnDuhigP6kyJib/gphfqJKMBD9sYN
+         oez1oJmgZmzZ9XoEAsKiegEc6B939nNhVcBQpeUfDIlRCKzPMyNeltxhWg23GOET6xug
+         ceiQT9g16XrsJlHxHY1H3O2rBE2zM0ITmzCjE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mbH/j7Zs+KKUZIh6/EIHYpOhvYavkv0KBf6ZqH7w8wo=;
-        b=N+TU06PrUAFmDTPFyke0Z37CuVe2IPIYW29mmPSDEsEFYGXK91DF5hlsZGwg3kd2nL
-         Dk/buTjeF4ZAeFbQdqsIHrqVdFkYDs+4XBQXta1FnR4CGe7ot5g8V6VXFO3inEuaSu72
-         AcXXqpvYTdT8bP/D5gwsUjeylKhyBIPZSY8KAvHarPYeqh2795JbIiF18N2OPo483rFB
-         CcCK3tUHnAHSy9CJ/YKZ5XZjFA3s6bHCL9YDbxacmGdvrNL9LGkTtHKV6DD0mDYQA5Gz
-         YYJPPPV3Lmdjcq7DODv3wjn3qvT7y3XoADPfB3/J9ecVTSFUMiyFxPpZOrqVkfZCEzng
-         5ayA==
-X-Gm-Message-State: AOAM533Lct7xumqLurB8dVWPuOsaVeZGqp7KQZR0+aa2OHAkmE2nmjmP
-        cGk212pO0Gi3NhSQo9o4MPV60LvPrThrBeh9GEoT4Q==
-X-Google-Smtp-Source: ABdhPJym0mnlo1uXcHZ+VO65UWm/SqlOxjKNnP2dXbi+4oWS8zENJt8dhae8rIHoEi3bShRzUpP8D74h/+gBueaW1u4=
-X-Received: by 2002:a05:6808:179d:: with SMTP id bg29mr7124704oib.138.1636480294465;
- Tue, 09 Nov 2021 09:51:34 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=O+fhYkcqhMQ8k14bNZcPRV6UkOwVHbARh5DBR4w4Kpg=;
+        b=IfVQ2YMaTSravqOjwmJTVUvl+UizJ6AZHsejS2v/RJgfDlG24tRpY1pYhU5LX/9Ong
+         N2pm5gv+HwTnjhniLpSwUL34zV9HkCoiz2db+Cz6CXlSV9EH4DwrpPBBNXJx4OtR1/7t
+         l9bERIUiVlW9HuMCOpFRq95wQHmpUT2f95KP2ePNoKVAMV+XwdOyetFW35Q9pZ52iCbd
+         RNAWloulsp7AOUcqQM5abUYOk+hmbdxZXjxVh7b3fVbbbQP2yzaGhxQcH1pNE/izPEUI
+         T3xNaIvTQl3FtCpKoA554mD1DPF66B39LG/8QmhGZXBriwZ1w0w8kWxkY529zVM1T76o
+         j86Q==
+X-Gm-Message-State: AOAM533ePKs09rcOPHB8O/LNkzN61mErW/rcBRRsQ5KC1rIv+R994un5
+        tbVLUjEQw7YVpVkeyTv3RmLvwyPo+vYFhA==
+X-Google-Smtp-Source: ABdhPJymElRtuF0rDeRNJiCaGRgogFTaholViC4rrFvygNRtD+ncbA8/bn2lFtBXK95CB4pKqgzGDQ==
+X-Received: by 2002:a05:6830:1c74:: with SMTP id s20mr7449924otg.384.1636481206572;
+        Tue, 09 Nov 2021 10:06:46 -0800 (PST)
+Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com. [209.85.210.42])
+        by smtp.gmail.com with ESMTPSA id s20sm8203515oiw.53.2021.11.09.10.06.31
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Nov 2021 10:06:32 -0800 (PST)
+Received: by mail-ot1-f42.google.com with SMTP id h12-20020a056830034c00b0055c8458126fso13141632ote.0
+        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 10:06:31 -0800 (PST)
+X-Received: by 2002:a9d:734a:: with SMTP id l10mr7706868otk.3.1636481191553;
+ Tue, 09 Nov 2021 10:06:31 -0800 (PST)
 MIME-Version: 1.0
-References: <CA+DW03VfQpOJUWAM9CZMCM4Vkw8KVbNWAxgsq-g615QPz_3=YQ@mail.gmail.com>
- <CA+DW03WPM1b_01eNB3cE7kVsp+tRbzv-O-=TvX627ATOUSywBQ@mail.gmail.com>
- <YYQsw+GBLr1WXidM@kroah.com> <CA+DW03WkHiq1tpfVJ33onMytp-0AmqTYGcvtNwdkzwxm+7qpQA@mail.gmail.com>
- <YYjZIxabCA95Lvbw@kroah.com> <CA+DW03X8mAPq7-z6ts0zYqvPeOZpFyqVyC8pEyaAyUdPfcGorQ@mail.gmail.com>
- <YYoU19O/NNb9uZ5x@kroah.com> <YYqTt27ZGutMJyZc@alley>
-In-Reply-To: <YYqTt27ZGutMJyZc@alley>
-From:   Yi Fan <yfa@google.com>
-Date:   Tue, 9 Nov 2021 09:51:23 -0800
-Message-ID: <CA+DW03WhrHH-DZHyiqe0CfC3274amySqiSydNDs-_V5w9HQpwA@mail.gmail.com>
-Subject: Re: null console related kerne performance issue
-To:     Petr Mladek <pmladek@suse.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@google.com>,
-        shreyas.joshi@biamp.com, Joshua Levasseur <jlevasseur@google.com>,
-        sashal@kernel.org
+References: <20211109010649.1191041-1-sashal@kernel.org> <20211109010649.1191041-10-sashal@kernel.org>
+In-Reply-To: <20211109010649.1191041-10-sashal@kernel.org>
+From:   Brian Norris <briannorris@chromium.org>
+Date:   Tue, 9 Nov 2021 10:06:19 -0800
+X-Gmail-Original-Message-ID: <CA+ASDXPwH9esHZFVy4bD+D+NtfvU6qJ_sJH+JxMmj3APkdCWiw@mail.gmail.com>
+Message-ID: <CA+ASDXPwH9esHZFVy4bD+D+NtfvU6qJ_sJH+JxMmj3APkdCWiw@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.14 10/39] mwifiex: Run SET_BSS_MODE when
+ changing from P2P to STATION vif-type
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        =?UTF-8?Q?Jonas_Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        Kalle Valo <kvalo@codeaurora.org>, amitkarwar@gmail.com,
+        ganapathi017@gmail.com, sharvari.harisangam@nxp.com,
+        huxinming820@gmail.com, davem@davemloft.net, kuba@kernel.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks a lot, Petr and Greg.
+On Mon, Nov 8, 2021 at 5:18 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: Jonas Dre=C3=9Fler <verdre@v0yd.nl>
+>
+> [ Upstream commit c2e9666cdffd347460a2b17988db4cfaf2a68fb9 ]
+...
+> This does not fix any particular bug and just "looked right", so there's
+> a small chance it might be a regression.
 
-I saw the patches and just started to prepare the test on devices
-using the 4.14.y tree. will update the test result later.
+I won't insist on rejecting this one, but especially given this
+sentence, this doesn't really pass the smell test for -stable
+candidates. It's stuff like this that pushes me a bit toward the camp
+of those who despise the ML-based selection methods here, even though
+it occasionally (or even often) may produce some good.
 
-@Greg Kroah-Hartman Sorry for not providing the details in the public
-thread. I can sync w/ you offline.
-
-Thanks,
-Yi Fan
-
-On Tue, Nov 9, 2021 at 7:28 AM Petr Mladek <pmladek@suse.com> wrote:
->
-> On Tue 2021-11-09 07:27:35, Greg KH wrote:
-> > On Mon, Nov 08, 2021 at 11:17:07AM -0800, Yi Fan wrote:
-> > > On Mon, Nov 8, 2021 at 12:00 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > On Thu, Nov 04, 2021 at 12:40:32PM -0700, Yi Fan wrote:
-> > > > > Reply inline.
-> > > > >
-> > > > > On Thu, Nov 4, 2021 at 11:56 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > > >
-> > > > > > On Thu, Nov 04, 2021 at 11:14:55AM -0700, Yi Fan wrote:
-> > > > > > > Resend the email using plain text.
-> > > > > > >
-> > > > > > > I found some kernel performance regression issues that might be
-> > > > > > > related w/ 4.14.y LTS commit.
-> > > > > > >
-> > > > > > > 4.14.y commit: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=v4.14.253&id=27d185697322f9547bfd381c71252ce0bc1c0ee4
-> > > > > > >
-> > > > > > > The issue is observed when "console=" is used as a kernel parameter to
-> > > > > > > disable the kernel console.
->
-> I think that I see the problem. linux-4.14.y stable branch currently
-> ignores "console=" parameter. As a result, a console (ttyX) is enabled
-> by default.
->
-> > > > > > What exact "performance issue" are you seeing?
-> > > > > >
-> > > > > [YF] one kernel thread was randomly blocked for more than ~40
-> > > > > milliseconds, causing a certain task to fail to process in time.
-> > > > > [YF] the issue is highly random on a single device. But it might
-> > > > > happen a few times per 24 hours on a certain percentage of devices.
-> > > > > The overall percentage of devices that show the issue seems quite
-> > > > > stable over a long period of time (somehow the magic number is ~40%.).
-> > > > > [YF] local test on a pool of devices does not show any correlation w/
-> > > > > any particular devices.
->
-> This might happen when there is a flood of messages to be printed to
-> the console. It does not happen when there is no console.
->
-> It has been fixed by the upstream commit 3cffa06aeef7ece30f6b5ac0
-> ("printk/console: Allow to disable console output by using  console=""
-> or console=null")
->
-> The fix needs some tweaking for the stable branches because
-> __add_preferred_console() has gained more parameters over time.
->
-> It seems that all longterm stable branches are affected. I am going
-> to prepare the backports.
->
-> Best Regards,
-> Petr
+Brian
