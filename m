@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7169844B798
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:33:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E78B44B79B
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:33:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344785AbhKIWfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:35:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56192 "EHLO mail.kernel.org"
+        id S1344990AbhKIWf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:35:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345346AbhKIWdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:33:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E249761AE4;
-        Tue,  9 Nov 2021 22:21:54 +0000 (UTC)
+        id S1345371AbhKIWdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:33:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B4A961AA9;
+        Tue,  9 Nov 2021 22:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496516;
-        bh=2xIC4RW/7+34GK6xmB3u03swd/O3KlxuJtrTuGNn2wg=;
+        s=k20201202; t=1636496517;
+        bh=yRU2nC94K7wNrUtgKiFvZusWJJCgd3iynH7iUVZAMW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9aK8oM0UyNxOxkV6TDj0p53OJy5aXgRd1L/hiqUpjV7SD3tRSRAvz5Bt8byHHKdx
-         wNlnmlYbKYOoBC7Wwvq34yidrFQMopu/yhqQ5NMm36B86bVFlEFExfcw61JflirK5k
-         JBIAmOe1TVF/2Vj2X25kEyv+cwSrVasECG4bIPo+KZt2JxR+am5ukhadEvkEFt5dtE
-         NP0mSi23AsoXCa9h9458vpchonj7/Vir2RGSHGen/5ZbWxFYKpj5ARMLHbCzCiI76w
-         0vdHCrVmJZRnjk3McVS0Vfl+br4JPmt148DljtS5PzgIIBovcXw3Bdvlyo2firRz/f
-         E99kpLQIhEp3A==
+        b=J1tn8gW+fjOLM+3AfHIjYOi1SthnPbA3j5zYEXZxbVwWW0M3PpAPSN3lIcUi4ulcY
+         ++/gcyDrQDdZDPq9hubFp7y0C9rZV2yVnCQwgDKrWtPjmz5EjO5uPHgMkyYZEjw4bw
+         9IoMNEG8DHHBKnb8JUFT9Tg0UKgDGa6eXC88pY5Lj2Tr97bkNPiKkiXm+IML3r+FVN
+         NrrstaSqRfisoo/pSb6h1BSlCgV9+vF6vvzyjWZRhrapPQ2Q5I026bnv59urgQmV1i
+         j5M4hibW0TofkNKgns+Cg4mWXhYr/Gu2DWqcwUelfBJcBoKNVzwyh12jXQsGoBTODN
+         dBnfEJkib3Bcw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, rjw@rjwysocki.net,
-        swarren@wwwdotorg.org, thierry.reding@gmail.com, gnurou@gmail.com,
-        linux-pm@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 32/50] cpuidle: tegra: Check whether PMC is ready
-Date:   Tue,  9 Nov 2021 17:20:45 -0500
-Message-Id: <20211109222103.1234885-32-sashal@kernel.org>
+Cc:     Roger Quadros <rogerq@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, bcousson@baylibre.com,
+        robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        linux@arm.linux.org.uk, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 33/50] ARM: dts: omap: fix gpmc,mux-add-data type
+Date:   Tue,  9 Nov 2021 17:20:46 -0500
+Message-Id: <20211109222103.1234885-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222103.1234885-1-sashal@kernel.org>
 References: <20211109222103.1234885-1-sashal@kernel.org>
@@ -45,37 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Roger Quadros <rogerq@kernel.org>
 
-[ Upstream commit bdb1ffdad3b73e4d0538098fc02e2ea87a6b27cd ]
+[ Upstream commit 51b9e22ffd3c4c56cbb7caae9750f70e55ffa603 ]
 
-Check whether PMC is ready before proceeding with the cpuidle registration.
-This fixes racing with the PMC driver probe order, which results in a
-disabled deepest CC6 idling state if cpuidle driver is probed before the
-PMC.
+gpmc,mux-add-data is not boolean.
 
-Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes the below errors flagged by dtbs_check.
+
+"ethernet@4,0:gpmc,mux-add-data: True is not of type 'array'"
+
+Signed-off-by: Roger Quadros <rogerq@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/cpuidle-tegra.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi         | 2 +-
+ arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpuidle/cpuidle-tegra.c b/drivers/cpuidle/cpuidle-tegra.c
-index 29c5e83500d33..e6f96d272d240 100644
---- a/drivers/cpuidle/cpuidle-tegra.c
-+++ b/drivers/cpuidle/cpuidle-tegra.c
-@@ -346,6 +346,9 @@ static void tegra_cpuidle_setup_tegra114_c7_state(void)
+diff --git a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+index 7f6aefd134514..e7534fe9c53cf 100644
+--- a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
++++ b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+@@ -29,7 +29,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
  
- static int tegra_cpuidle_probe(struct platform_device *pdev)
- {
-+	if (tegra_pmc_get_suspend_mode() == TEGRA_SUSPEND_NOT_READY)
-+		return -EPROBE_DEFER;
-+
- 	/* LP2 could be disabled in device-tree */
- 	if (tegra_pmc_get_suspend_mode() < TEGRA_SUSPEND_LP2)
- 		tegra_cpuidle_disable_state(TEGRA_CC6);
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
+diff --git a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+index e5da3bc6f1050..218a10c0d8159 100644
+--- a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+@@ -22,7 +22,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
+ 
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
 -- 
 2.33.0
 
