@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6E2444B6F8
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68E0744B6EF
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:28:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243504AbhKIWa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:30:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48846 "EHLO mail.kernel.org"
+        id S1344832AbhKIWau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:30:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344889AbhKIW2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344892AbhKIW2s (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:28:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B66961A57;
-        Tue,  9 Nov 2021 22:20:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DA426128E;
+        Tue,  9 Nov 2021 22:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496429;
-        bh=4SocQtq8qZg7rNVIqVpPuI7ulAJS4JvkpVTR/mszbKE=;
+        s=k20201202; t=1636496431;
+        bh=U22rbgzymfHX++0ABHjijmAjDVGHM7QIFGG1734d080=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bSZE98zHpuNbbJ/9I6s29S8WfMyu8yuAXMzAbj6/h9+bpB6GweBWn4dK81fjC+DJD
-         IwBGCmrMlyysf8wCBY8N1POxJCnCVuJhpGpbdvIQoIP2N86G7mtQKUleAqfo63l/dy
-         TNwW67mR/e4HD9AGYngTnKqjxEtiFrfwWtXFeWqb33ywIl2uRD+2x9FcBvWstjIj5f
-         Mx0CjDjqOGKZGvf1SOvlq8boHCpzVKp+RAaTcW9PYrT2E5Fsyoan6whK1InvUOx5oF
-         gL12JlBWZSZjnEWamMUer7JlLoiO2NdbrxpDnhcwOWID/92n+9k3WqXxKmNVb9/d7j
-         JhOpMXmOC6G7Q==
+        b=IzDm/5Vo1ecWzvByxSwfTXWm8+uw4rd4veQnY2OCANt04SSMr+mtAOPtzRM53KiNC
+         UnUtuHtgragpv41hdSsy+m2JiT7cTljC56mebAdUS21t05jOC0/FWIKfLGEFYPbMxn
+         7qcjAfamg2QHN3TipeCumnzQWH5Qld2MErvaV2UU86+06vsr6fErqbq4clnO78RUIq
+         jQjbmS4Kl3+KiV/9NnqrBPtI2C+G6GWmtYUwsolhAUcI85sPUH5uu8f3rG1UAEfXX7
+         WehtBeM7Ib6LjEqzVg7c/gHJJW2clT/fZcYWiAxF/F5pHT9L5LFEACX6I/CNYHHI+J
+         5obaXw618Xkww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li Yang <leoyang.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+Cc:     Li Yang <leoyang.li@nxp.com>,
+        Kuldeep Singh <kuldeep.singh@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         pawel.moll@arm.com, mark.rutland@arm.com,
         ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
         linux@arm.linux.org.uk, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.14 52/75] ARM: dts: ls1021a: move thermal-zones node out of soc/
-Date:   Tue,  9 Nov 2021 17:18:42 -0500
-Message-Id: <20211109221905.1234094-52-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 53/75] ARM: dts: ls1021a-tsn: use generic "jedec,spi-nor" compatible for flash
+Date:   Tue,  9 Nov 2021 17:18:43 -0500
+Message-Id: <20211109221905.1234094-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221905.1234094-1-sashal@kernel.org>
 References: <20211109221905.1234094-1-sashal@kernel.org>
@@ -47,101 +49,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Li Yang <leoyang.li@nxp.com>
 
-[ Upstream commit 1ee1500ef717eefb5d9bdaf97905cb81b4e69aa4 ]
+[ Upstream commit 05e63b48b20fa70726be505a7660d1a07bc1cffb ]
 
-This fixes dtbs-check error from simple-bus schema:
-soc: thermal-zones: {'type': 'object'} is not allowed for {'cpu-thermal': ..... }
-        From schema: /home/leo/.local/lib/python3.8/site-packages/dtschema/schemas/simple-bus.yaml
+We cannot list all the possible chips used in different board revisions,
+just use the generic "jedec,spi-nor" compatible instead.  This also
+fixes dtbs_check error:
+['jedec,spi-nor', 's25fl256s1', 's25fl512s'] is too long
 
 Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Reviewed-by: Kuldeep Singh <kuldeep.singh@nxp.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ls1021a.dtsi | 66 +++++++++++++++++-----------------
- 1 file changed, 33 insertions(+), 33 deletions(-)
+ arch/arm/boot/dts/ls1021a-tsn.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/ls1021a.dtsi b/arch/arm/boot/dts/ls1021a.dtsi
-index 4fce81422943b..f3b8540750b61 100644
---- a/arch/arm/boot/dts/ls1021a.dtsi
-+++ b/arch/arm/boot/dts/ls1021a.dtsi
-@@ -329,39 +329,6 @@
- 			#thermal-sensor-cells = <1>;
- 		};
+diff --git a/arch/arm/boot/dts/ls1021a-tsn.dts b/arch/arm/boot/dts/ls1021a-tsn.dts
+index 9d8f0c2a8aba3..aca78b5eddf20 100644
+--- a/arch/arm/boot/dts/ls1021a-tsn.dts
++++ b/arch/arm/boot/dts/ls1021a-tsn.dts
+@@ -251,7 +251,7 @@
  
--		thermal-zones {
--			cpu_thermal: cpu-thermal {
--				polling-delay-passive = <1000>;
--				polling-delay = <5000>;
--
--				thermal-sensors = <&tmu 0>;
--
--				trips {
--					cpu_alert: cpu-alert {
--						temperature = <85000>;
--						hysteresis = <2000>;
--						type = "passive";
--					};
--					cpu_crit: cpu-crit {
--						temperature = <95000>;
--						hysteresis = <2000>;
--						type = "critical";
--					};
--				};
--
--				cooling-maps {
--					map0 {
--						trip = <&cpu_alert>;
--						cooling-device =
--							<&cpu0 THERMAL_NO_LIMIT
--							THERMAL_NO_LIMIT>,
--							<&cpu1 THERMAL_NO_LIMIT
--							THERMAL_NO_LIMIT>;
--					};
--				};
--			};
--		};
--
- 		dspi0: spi@2100000 {
- 			compatible = "fsl,ls1021a-v1.0-dspi";
- 			#address-cells = <1>;
-@@ -1016,4 +983,37 @@
- 			big-endian;
- 		};
- 	};
-+
-+	thermal-zones {
-+		cpu_thermal: cpu-thermal {
-+			polling-delay-passive = <1000>;
-+			polling-delay = <5000>;
-+
-+			thermal-sensors = <&tmu 0>;
-+
-+			trips {
-+				cpu_alert: cpu-alert {
-+					temperature = <85000>;
-+					hysteresis = <2000>;
-+					type = "passive";
-+				};
-+				cpu_crit: cpu-crit {
-+					temperature = <95000>;
-+					hysteresis = <2000>;
-+					type = "critical";
-+				};
-+			};
-+
-+			cooling-maps {
-+				map0 {
-+					trip = <&cpu_alert>;
-+					cooling-device =
-+						<&cpu0 THERMAL_NO_LIMIT
-+						THERMAL_NO_LIMIT>,
-+						<&cpu1 THERMAL_NO_LIMIT
-+						THERMAL_NO_LIMIT>;
-+				};
-+			};
-+		};
-+	};
- };
+ 	flash@0 {
+ 		/* Rev. A uses 64MB flash, Rev. B & C use 32MB flash */
+-		compatible = "jedec,spi-nor", "s25fl256s1", "s25fl512s";
++		compatible = "jedec,spi-nor";
+ 		spi-max-frequency = <20000000>;
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
 -- 
 2.33.0
 
