@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC2A144B882
+	by mail.lfdr.de (Postfix) with ESMTP id 3BCFA44B881
 	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:42:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345680AbhKIWot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:44:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34944 "EHLO mail.kernel.org"
+        id S1345627AbhKIWor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:44:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345733AbhKIWmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345732AbhKIWmM (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:42:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5233C61A0B;
-        Tue,  9 Nov 2021 22:24:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83B8860524;
+        Tue,  9 Nov 2021 22:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496644;
-        bh=0IqvRS0IJRKnNqDAY5t3blXGq9LRZKZOmBpJ5DNEVc4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uR4YAlDP+dWGGJJx3O5aO0ei6CmNfx0afl78nlEKg08CmwLYVOC7zZESxkD2HgzWX
-         GcQmUocpnL9fTxcRYGfQP4qvxlbwCSZEZKTJvg2hR51NBngR5LhoupzortCm3QCqkV
-         ggZa8UC/iiHGIrvzBcfSzuorc7NAUrks3U/RLisg7Ukpq47KFkubZil+SXY6yQXM74
-         jUEZtUlND9SuuVvCoEfMVcpcRHJO8mkmDtAmlVJj2FSVMPmOdWkga/j+4wtUzjcRI3
-         DuVZP2J4GVhz/oLQ4GGZ8KrlJrOPFZYH0K7t0d1vxHIOccUf+tpCTxywITc32MvYWz
-         J/o41OUDw7fGw==
+        s=k20201202; t=1636496647;
+        bh=nzsXTx0P7obTY78Y1iLFMUWEmoTyHdi/l37FhHwOOc8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VuCzYLw9c5SD+YzJq1PhsXqqfe2FNg3L7WBHNFYyMtNOMdiC1Gvgc9fSYGGEY7hoC
+         g/LYylLrMn3bSrFOQ7Jo7jSup6ie8oYo3f5GN1z3HQtbNrFwGaoWvXKBIqblWXeTvo
+         N/S9qjFrMw6L3/f0lFFOLMD20CF40Ew0id3o4D7KOZhqminq7vsiiVugpXZXp/qHtY
+         v3ugqTri84LE4kl+O3r6gipzZlvErlERhosHe9loVK5c5a2GtOsEczEt7d60tyfphT
+         BOq1DH+OkyHPIbBQVhnsKSuVe6D7GFjiG4z5KjR3/f5ndfuPPs3vz9qkhtmS/nMibQ
+         H87frBcA7BsLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sasha Levin <sashal@kernel.org>, benh@kernel.crashing.org,
-        paulus@samba.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 14/14] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
-Date:   Tue,  9 Nov 2021 17:23:43 -0500
-Message-Id: <20211109222343.1235902-14-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, james.smart@avagotech.com,
+        dick.kennedy@avagotech.com, JBottomley@odin.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/13] scsi: lpfc: Fix list_add() corruption in lpfc_drain_txq()
+Date:   Tue,  9 Nov 2021 17:23:52 -0500
+Message-Id: <20211109222405.1236040-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211109222343.1235902-1-sashal@kernel.org>
-References: <20211109222343.1235902-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,61 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
+[ Upstream commit 99154581b05c8fb22607afb7c3d66c1bace6aa5d ]
 
-In dcr-low.S we use cmpli with three arguments, instead of four
-arguments as defined in the ISA:
+When parsing the txq list in lpfc_drain_txq(), the driver attempts to pass
+the requests to the adapter. If such an attempt fails, a local "fail_msg"
+string is set and a log message output.  The job is then added to a
+completions list for cancellation.
 
-	cmpli	cr0,r3,1024
+Processing of any further jobs from the txq list continues, but since
+"fail_msg" remains set, jobs are added to the completions list regardless
+of whether a wqe was passed to the adapter.  If successfully added to
+txcmplq, jobs are added to both lists resulting in list corruption.
 
-This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
-User’s Manual" it shows cmpli having no L field, but implied to be 0 due
-to the core being 32-bit. It mentions that the ISA defines four
-arguments and recommends using cmplwi.
+Fix by clearing the fail_msg string after adding a job to the completions
+list. This stops the subsequent jobs from being added to the completions
+list unless they had an appropriate failure.
 
-It also corresponds to the old POWER instruction set, which had no L
-field there, a reserved bit instead.
-
-dcr-low.S is only built 32-bit, because it is only built when
-DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
-generated code (with gcc/gas) we see cmplwi as expected.
-
-Although gas is happy with the 3-argument version when building for
-32-bit, the LLVM assembler is not and errors out with:
-
-  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
-   cmpli 0,%r3,1024; ...
-           ^
-
-Switch to the cmplwi extended opcode, which avoids any confusion when
-reading the ISA, fixes the issue with the LLVM assembler, and also means
-the code could be built 64-bit in future (though that's very unlikely).
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
-Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/20210910233159.115896-2-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/dcr-low.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
-index e687bb2003ff0..5589fbe48bbdc 100644
---- a/arch/powerpc/sysdev/dcr-low.S
-+++ b/arch/powerpc/sysdev/dcr-low.S
-@@ -15,7 +15,7 @@
- #include <asm/export.h>
- 
- #define DCR_ACCESS_PROLOG(table) \
--	cmpli	cr0,r3,1024;	 \
-+	cmplwi	cr0,r3,1024;	 \
- 	rlwinm  r3,r3,4,18,27;   \
- 	lis     r5,table@h;      \
- 	ori     r5,r5,table@l;   \
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 0e7915ecb85a5..5c847ef459cd1 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -17274,6 +17274,7 @@ lpfc_drain_txq(struct lpfc_hba *phba)
+ 					fail_msg,
+ 					piocbq->iotag, piocbq->sli4_xritag);
+ 			list_add_tail(&piocbq->list, &completions);
++			fail_msg = NULL;
+ 		}
+ 		spin_unlock_irqrestore(&pring->ring_lock, iflags);
+ 	}
 -- 
 2.33.0
 
