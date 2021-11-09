@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 461E444B84F
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:39:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BA0444B851
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:39:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344322AbhKIWmD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:42:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59934 "EHLO mail.kernel.org"
+        id S1345219AbhKIWmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:42:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345111AbhKIWjz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:39:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E17261B00;
-        Tue,  9 Nov 2021 22:23:31 +0000 (UTC)
+        id S1344673AbhKIWkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:40:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C13461B2A;
+        Tue,  9 Nov 2021 22:23:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496611;
-        bh=r1WmjwjlC6jxKn/YidomiPIH0ZoPKcK7bHjyxb/w5Fo=;
+        s=k20201202; t=1636496613;
+        bh=aOK/IR1dpDc8S/kfx4aITc/e7OlsxFe9NaHm55Gg33M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJX/2j6PedeKyEhw+gxYDLyI033cmNhXnjEDR6vCkjAaO1DH+YbVHkYDEgiBJt48S
-         O08OAop44GCz56YkXfwI5aerDjtEchRUZPG6Ai2J9epUN9236IYMaKCdozdbCxIg9U
-         66xIlZBGLRGT4uhbzrzMOUa28+/c/Sl4LJKblVvTNXwEPYlQzqy/45RVLfaNzCtJNv
-         +APMl+OlEjFbcOXTfT0OdeowAXlzD+NhPZnv5+nn2D7U8nBDMPxC3EmkRnFFAyaZLm
-         Vlt9RjT/ygJlwbURXhj18i/u36ETmkmRQu1jVYVqHYXl26v1XgXLl5iMPdkXMbjpqy
-         Z7+r4ICdNuh/g==
+        b=kOmWts9gLwzKExj/pzPp7XOQB82oSdbuGQ5Xu5NvgOAKsJuo6KjWcwr7+4iK6H2QT
+         aPLavPRwaH1Pm7E4vJ9A5RKyRrUmTTg2QY5JtMqA8kSqc7VlaWSjxhw5NNBI/armvM
+         OleDkx+K1BAXKKVJViNMErV085pu5vhXTn+NPI6UbehQr0PNBWhrmtwXlFO890ngCC
+         5QJ6/ZljVd/IhmI+rRHKDzv6SZ5BD5dItLZn/DYLUmRWrjja7q89PXSihBFxjmWp5n
+         GyPJ87vlQBuMkfBe8Rb3n2jMoyVQGpMUAVb7ItNMOP0EFxNhm48heGTfSl7Hu9VOpD
+         50+4yivW0Kq9A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 13/21] usb: host: ohci-tmio: check return value after calling platform_get_resource()
-Date:   Tue,  9 Nov 2021 17:23:02 -0500
-Message-Id: <20211109222311.1235686-13-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
+        linux-m68k@lists.linux-m68k.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 14/21] ALSA: ISA: not for M68K
+Date:   Tue,  9 Nov 2021 17:23:03 -0500
+Message-Id: <20211109222311.1235686-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222311.1235686-1-sashal@kernel.org>
 References: <20211109222311.1235686-1-sashal@kernel.org>
@@ -43,35 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 9eff2b2e59fda25051ab36cd1cb5014661df657b ]
+[ Upstream commit 3c05f1477e62ea5a0a8797ba6a545b1dc751fb31 ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+On m68k, compiling drivers under SND_ISA causes build errors:
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211011134920.118477-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+../sound/core/isadma.c: In function 'snd_dma_program':
+../sound/core/isadma.c:33:17: error: implicit declaration of function 'claim_dma_lock' [-Werror=implicit-function-declaration]
+   33 |         flags = claim_dma_lock();
+      |                 ^~~~~~~~~~~~~~
+../sound/core/isadma.c:41:9: error: implicit declaration of function 'release_dma_lock' [-Werror=implicit-function-declaration]
+   41 |         release_dma_lock(flags);
+      |         ^~~~~~~~~~~~~~~~
+
+../sound/isa/sb/sb16_main.c: In function 'snd_sb16_playback_prepare':
+../sound/isa/sb/sb16_main.c:253:72: error: 'DMA_AUTOINIT' undeclared (first use in this function)
+  253 |         snd_dma_program(dma, runtime->dma_addr, size, DMA_MODE_WRITE | DMA_AUTOINIT);
+      |                                                                        ^~~~~~~~~~~~
+../sound/isa/sb/sb16_main.c:253:72: note: each undeclared identifier is reported only once for each function it appears in
+../sound/isa/sb/sb16_main.c: In function 'snd_sb16_capture_prepare':
+../sound/isa/sb/sb16_main.c:322:71: error: 'DMA_AUTOINIT' undeclared (first use in this function)
+  322 |         snd_dma_program(dma, runtime->dma_addr, size, DMA_MODE_READ | DMA_AUTOINIT);
+      |                                                                       ^~~~~~~~~~~~
+
+and more...
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: alsa-devel@alsa-project.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20211016062602.3588-1-rdunlap@infradead.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ohci-tmio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/Makefile | 2 ++
+ sound/isa/Kconfig   | 2 +-
+ sound/pci/Kconfig   | 1 +
+ 3 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/ohci-tmio.c b/drivers/usb/host/ohci-tmio.c
-index 983a00e2988dc..702d78e0d903a 100644
---- a/drivers/usb/host/ohci-tmio.c
-+++ b/drivers/usb/host/ohci-tmio.c
-@@ -196,7 +196,7 @@ static int ohci_hcd_tmio_drv_probe(struct platform_device *dev)
- 	if (usb_disabled())
- 		return -ENODEV;
- 
--	if (!cell)
-+	if (!cell || !regs || !config || !sram)
- 		return -EINVAL;
- 
- 	if (irq < 0)
+diff --git a/sound/core/Makefile b/sound/core/Makefile
+index ee4a4a6b99ba7..d123587c0fd8f 100644
+--- a/sound/core/Makefile
++++ b/sound/core/Makefile
+@@ -9,7 +9,9 @@ ifneq ($(CONFIG_SND_PROC_FS),)
+ snd-y += info.o
+ snd-$(CONFIG_SND_OSSEMUL) += info_oss.o
+ endif
++ifneq ($(CONFIG_M68K),y)
+ snd-$(CONFIG_ISA_DMA_API) += isadma.o
++endif
+ snd-$(CONFIG_SND_OSSEMUL) += sound_oss.o
+ snd-$(CONFIG_SND_VMASTER) += vmaster.o
+ snd-$(CONFIG_SND_JACK)	  += ctljack.o jack.o
+diff --git a/sound/isa/Kconfig b/sound/isa/Kconfig
+index d7db1eeebc844..f8f3433925bb4 100644
+--- a/sound/isa/Kconfig
++++ b/sound/isa/Kconfig
+@@ -21,7 +21,7 @@ config SND_SB16_DSP
+ menuconfig SND_ISA
+ 	bool "ISA sound devices"
+ 	depends on ISA || COMPILE_TEST
+-	depends on ISA_DMA_API
++	depends on ISA_DMA_API && !M68K
+ 	default y
+ 	help
+ 	  Support for sound devices connected via the ISA bus.
+diff --git a/sound/pci/Kconfig b/sound/pci/Kconfig
+index 4105d9f653d90..bbaf46dc3f804 100644
+--- a/sound/pci/Kconfig
++++ b/sound/pci/Kconfig
+@@ -278,6 +278,7 @@ config SND_CS46XX_NEW_DSP
+ config SND_CS5530
+ 	tristate "CS5530 Audio"
+ 	depends on ISA_DMA_API && (X86_32 || COMPILE_TEST)
++	depends on !M68K
+ 	select SND_SB16_DSP
+ 	help
+ 	  Say Y here to include support for audio on Cyrix/NatSemi CS5530 chips.
 -- 
 2.33.0
 
