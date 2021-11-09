@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8947C44A786
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 08:23:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D58344A788
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 08:23:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243616AbhKIH0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 02:26:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41584 "EHLO mail.kernel.org"
+        id S243620AbhKIH0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 02:26:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243606AbhKIH0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 02:26:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0C3D6115B;
-        Tue,  9 Nov 2021 07:23:46 +0000 (UTC)
+        id S243618AbhKIH0i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 02:26:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4726961165;
+        Tue,  9 Nov 2021 07:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636442627;
-        bh=tezKTGBjkyVl2gwpatqVnkMrzddTseZYvplhu4vwg9Q=;
+        s=korg; t=1636442632;
+        bh=qMO05gy6EzQ03kMsTUOyOWN2oiOn6Yw6RXW339gqTOI=;
         h=Subject:To:Cc:From:Date:From;
-        b=BaQmlNiRlVkuAbSMWBT8A4QY7ONC6ScUQh9CTohwPadKkvgaIFxZWwvDItUyPNPWF
-         pGvHkzvkofINGfN3Gl9msPC2sjRwnidU/DjTBqnXCawlgWbt9TPFkLwcV0KTq9jQFd
-         O07MH2Y0udun4XE7lG+Dgbl/GjhzKrgBLuIY4hQ8=
-Subject: FAILED: patch "[PATCH] binder: use cred instead of task for selinux checks" failed to apply to 5.4-stable tree
+        b=qsVGSiwGiCI2SGlohQPU/X1yLR9AEo1SbAcuMt0aczIHfWldvqZ/MmxkUr5MMF3au
+         w6EHqR10hoAQ5xWKmJTsXjTsthSeayVf1bcJKGyFO02sqY7gAV84/sCR7d7TDfO/J3
+         PQtURzaBveiapcJsDhNW+VPF7rNZllBoQL5fsnbI=
+Subject: FAILED: patch "[PATCH] binder: use cred instead of task for selinux checks" failed to apply to 5.10-stable tree
 To:     tkjos@google.com, casey@schaufler-ca.com, jannh@google.com,
         paul@paul-moore.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 09 Nov 2021 08:23:38 +0100
-Message-ID: <1636442618129168@kroah.com>
+Date:   Tue, 09 Nov 2021 08:23:39 +0100
+Message-ID: <16364426197642@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
