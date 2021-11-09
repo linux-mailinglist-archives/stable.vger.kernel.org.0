@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4CE44B760
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:32:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D708944B763
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:32:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345012AbhKIWet (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:34:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55954 "EHLO mail.kernel.org"
+        id S240868AbhKIWeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:34:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344448AbhKIWcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344449AbhKIWcI (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:32:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58B1A61A8E;
-        Tue,  9 Nov 2021 22:21:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4981D61AAA;
+        Tue,  9 Nov 2021 22:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496477;
-        bh=s5d3xTZ4wPKJc4vp6TTuDBExFdW+10gH8wVS9+oMBqQ=;
+        s=k20201202; t=1636496479;
+        bh=qfFlfqDA5pAXcEcgIuDZ+7gYPnCF+hGsicps8o7dUY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lSAv4oQUTu7/rvrgZAOQ9b6j1UvJwb2vmueNRM5K5fwgz1oYbllo3Fb+BkipLRGVQ
-         EHHpR7/xdSU/Euvcy1jEb4m+jviKwfEz86SMJeAPrBxav3DAJ/iyW1C0z48seNuZjD
-         YzglsxIMMouwtKu32F2Zrch6XbCDv8Vy0qtUt3az/UWL1aygLu5QWC0NxBl7/mEMeI
-         tDyOm2T6Di9Qh0/C6KiqH0jAlokhB+HfvwrfgO0gHXhzEo3gjKAL2tNP77fIBhJ/oy
-         HdxTEz7o0Y0XLrsOBrpkKZ+QB4UMx4ntYD3a+IqYfTdDihgmut7q8MvRYor3xw+f3G
-         zZpr2GH85hFsQ==
+        b=IlNhzZdVOG56/JVXhopATKPyMTeeNRt098b8ngI3UXtdma+iENMoVbUSbg/cIG1Iq
+         1hIot9L685vby5ShZxYLFRynj6OctO3OsJnWNSgjf+fywwpNyT5PMc910xlJC71QmH
+         HJ9jnK5WAFylZNHM+aNgSiJqey0TlMQLWOSoPF+NF47iq+Q4MqLLiv4sMmEl7S4o8W
+         SlZZTvDd9AOMynwh19Fnfprz92HTzsvfvfACEWbjFVrA+0OQnFqQsxTKXGIMVq5to5
+         1o0Nijfe1zERykABi4pNd/kfKUqRkX2s+YdvGAn6qukDPpHBD9OlLULa9M2+R2bntp
+         lpv22TBQW/zyA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matthew Hagan <mnhagan88@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        pawel.moll@arm.com, mark.rutland@arm.com,
-        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-        linux@arm.linux.org.uk, rjui@broadcom.com, sbranden@broadcom.com,
-        jonmason@broadcom.com, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        bcm-kernel-feedback-list@broadcom.com
-Subject: [PATCH AUTOSEL 5.10 07/50] ARM: dts: NSP: Fix mpcore, mmc node names
-Date:   Tue,  9 Nov 2021 17:20:20 -0500
-Message-Id: <20211109222103.1234885-7-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, james.smart@avagotech.com,
+        dick.kennedy@avagotech.com, JBottomley@odin.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 08/50] scsi: lpfc: Fix list_add() corruption in lpfc_drain_txq()
+Date:   Tue,  9 Nov 2021 17:20:21 -0500
+Message-Id: <20211109222103.1234885-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222103.1234885-1-sashal@kernel.org>
 References: <20211109222103.1234885-1-sashal@kernel.org>
@@ -48,48 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Hagan <mnhagan88@gmail.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 15a563d008ef9d04df525f0c476cd7d7127bb883 ]
+[ Upstream commit 99154581b05c8fb22607afb7c3d66c1bace6aa5d ]
 
-Running dtbs_check yielded the issues with bcm-nsp.dtsi.
+When parsing the txq list in lpfc_drain_txq(), the driver attempts to pass
+the requests to the adapter. If such an attempt fails, a local "fail_msg"
+string is set and a log message output.  The job is then added to a
+completions list for cancellation.
 
-Firstly this patch fixes the following message by appending "-bus" to
-the mpcore node name:
-mpcore@19000000: $nodename:0: 'mpcore@19000000' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+Processing of any further jobs from the txq list continues, but since
+"fail_msg" remains set, jobs are added to the completions list regardless
+of whether a wqe was passed to the adapter.  If successfully added to
+txcmplq, jobs are added to both lists resulting in list corruption.
 
-Secondly mmc node name. The label name can remain as is.
-sdhci@21000: $nodename:0: 'sdhci@21000' does not match '^mmc(@.*)?$'
+Fix by clearing the fail_msg string after adding a job to the completions
+list. This stops the subsequent jobs from being added to the completions
+list unless they had an appropriate failure.
 
-Signed-off-by: Matthew Hagan <mnhagan88@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20210910233159.115896-2-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm-nsp.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/bcm-nsp.dtsi b/arch/arm/boot/dts/bcm-nsp.dtsi
-index 605b6d2f4a569..1dae02bb82c2d 100644
---- a/arch/arm/boot/dts/bcm-nsp.dtsi
-+++ b/arch/arm/boot/dts/bcm-nsp.dtsi
-@@ -77,7 +77,7 @@
- 		interrupt-affinity = <&cpu0>, <&cpu1>;
- 	};
- 
--	mpcore@19000000 {
-+	mpcore-bus@19000000 {
- 		compatible = "simple-bus";
- 		ranges = <0x00000000 0x19000000 0x00023000>;
- 		#address-cells = <1>;
-@@ -219,7 +219,7 @@
- 			status = "disabled";
- 		};
- 
--		sdio: sdhci@21000 {
-+		sdio: mmc@21000 {
- 			compatible = "brcm,sdhci-iproc-cygnus";
- 			reg = <0x21000 0x100>;
- 			interrupts = <GIC_SPI 145 IRQ_TYPE_LEVEL_HIGH>;
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 990b700de6892..06a23718a7c7f 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -20080,6 +20080,7 @@ lpfc_drain_txq(struct lpfc_hba *phba)
+ 					fail_msg,
+ 					piocbq->iotag, piocbq->sli4_xritag);
+ 			list_add_tail(&piocbq->list, &completions);
++			fail_msg = NULL;
+ 		}
+ 		spin_unlock_irqrestore(&pring->ring_lock, iflags);
+ 	}
 -- 
 2.33.0
 
