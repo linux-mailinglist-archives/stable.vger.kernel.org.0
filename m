@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 528D544A2C7
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:23:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA48644A2C6
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:23:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240596AbhKIBVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:21:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44372 "EHLO mail.kernel.org"
+        id S239372AbhKIBVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:21:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243175AbhKIBTS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243177AbhKIBTS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Nov 2021 20:19:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B06C661A6C;
-        Tue,  9 Nov 2021 01:07:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BA6461AE3;
+        Tue,  9 Nov 2021 01:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420056;
-        bh=iMiSQysa73jwBc9OUzTzJvJcmqImLeoHVcWuSrD8heg=;
+        s=k20201202; t=1636420059;
+        bh=zqqkFx/omr5n5IvJLSH3YWicnLaayEf/zl3DEO8ju6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DZOLwg8+eLcJbfQjLPIzGl0btzwlJPnNCA5cMY3Uu7b0RppAlzrcuIs5TLucJPNdl
-         E8qBATAZK0Bhgdvyg7qRoH8BN0I0r0gYc2WZCb/UFsTVrjMITMLLl7I+EQozrXNcSe
-         IUa0FvxgwXExa6Nuxj7BctmEMAI8GBEUrNP06tLICnWi1HLY7780HxlYP9OO8Gt/mX
-         UcgGZ8yqZciPpcY0ZX276fg1l8FT7vzEI7apBlPZTcOQPb35vQsVwH04Pdv9UkFD57
-         khD/Yj3wwfSyK0X5JDxP+JnNdb4GID6lh+EP0WmQI4wZ5xTKk2mpB37GwTCk1viYn3
-         Fn79x+c/5R/fg==
+        b=EN8weln55FgLbcNGNs7ItNfR7yRO0s1ACVZEmU8kq2x+pwfh0zhKv0X8XrPAJkDEX
+         3dm8VoUZGFZF4VZRm1pfZRsHrSKRLLVcGn80NE+AymSk1a0bfm4faBYiueha8eoxta
+         E0Sj9LxAkSH4M5LayFFFTNReg0nv/L2aGlRW8YnwFw0GzcmH80HQPgQjpffikcA+jE
+         mF3AkJcIm9pN3QZx+5wCUfDUoZ2O+pWLXywWtFhoE6pPKa9ZwSPRRZBQR7Ub5vruqC
+         4Tj+RwSHGiG3yn0JkuQJ04SK4+OlLjWQJxpThrO6fANAe9YgWeze/s93Xg4AoiPwyP
+         JJDOz64y2TPJA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Lasse Collin <lasse.collin@tukaani.org>,
         Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>, thunder.leizhen@huawei.com,
-        akpm@linux-foundation.org, gustavoars@kernel.org, ojeda@kernel.org,
-        ndesaulniers@google.com
-Subject: [PATCH AUTOSEL 4.14 26/39] lib/xz: Avoid overlapping memcpy() with invalid input with in-place decompression
-Date:   Mon,  8 Nov 2021 20:06:36 -0500
-Message-Id: <20211109010649.1191041-26-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, gustavoars@kernel.org,
+        ojeda@kernel.org, ndesaulniers@google.com, nathan@kernel.org
+Subject: [PATCH AUTOSEL 4.14 27/39] lib/xz: Validate the value before assigning it to an enum variable
+Date:   Mon,  8 Nov 2021 20:06:37 -0500
+Message-Id: <20211109010649.1191041-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010649.1191041-1-sashal@kernel.org>
 References: <20211109010649.1191041-1-sashal@kernel.org>
@@ -46,86 +45,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lasse Collin <lasse.collin@tukaani.org>
 
-[ Upstream commit 83d3c4f22a36d005b55f44628f46cc0d319a75e8 ]
+[ Upstream commit 4f8d7abaa413c34da9d751289849dbfb7c977d05 ]
 
-With valid files, the safety margin described in lib/decompress_unxz.c
-ensures that these buffers cannot overlap. But if the uncompressed size
-of the input is larger than the caller thought, which is possible when
-the input file is invalid/corrupt, the buffers can overlap. Obviously
-the result will then be garbage (and usually the decoder will return
-an error too) but no other harm will happen when such an over-run occurs.
+This might matter, for example, if the underlying type of enum xz_check
+was a signed char. In such a case the validation wouldn't have caught an
+unsupported header. I don't know if this problem can occur in the kernel
+on any arch but it's still good to fix it because some people might copy
+the XZ code to their own projects from Linux instead of the upstream
+XZ Embedded repository.
 
-This change only affects uncompressed LZMA2 chunks and so this
-should have no effect on performance.
+This change may increase the code size by a few bytes. An alternative
+would have been to use an unsigned int instead of enum xz_check but
+using an enumeration looks cleaner.
 
-Link: https://lore.kernel.org/r/20211010213145.17462-2-xiang@kernel.org
+Link: https://lore.kernel.org/r/20211010213145.17462-3-xiang@kernel.org
 Signed-off-by: Lasse Collin <lasse.collin@tukaani.org>
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/decompress_unxz.c |  2 +-
- lib/xz/xz_dec_lzma2.c | 21 +++++++++++++++++++--
- 2 files changed, 20 insertions(+), 3 deletions(-)
+ lib/xz/xz_dec_stream.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/lib/decompress_unxz.c b/lib/decompress_unxz.c
-index 25d59a95bd668..abea25310ac73 100644
---- a/lib/decompress_unxz.c
-+++ b/lib/decompress_unxz.c
-@@ -167,7 +167,7 @@
-  * memeq and memzero are not used much and any remotely sane implementation
-  * is fast enough. memcpy/memmove speed matters in multi-call mode, but
-  * the kernel image is decompressed in single-call mode, in which only
-- * memcpy speed can matter and only if there is a lot of uncompressible data
-+ * memmove speed can matter and only if there is a lot of uncompressible data
-  * (LZMA2 stores uncompressible chunks in uncompressed form). Thus, the
-  * functions below should just be kept small; it's probably not worth
-  * optimizing for speed.
-diff --git a/lib/xz/xz_dec_lzma2.c b/lib/xz/xz_dec_lzma2.c
-index 08c3c80499983..2c5197d6b944d 100644
---- a/lib/xz/xz_dec_lzma2.c
-+++ b/lib/xz/xz_dec_lzma2.c
-@@ -387,7 +387,14 @@ static void dict_uncompressed(struct dictionary *dict, struct xz_buf *b,
+diff --git a/lib/xz/xz_dec_stream.c b/lib/xz/xz_dec_stream.c
+index ac809b1e64f78..9e5b9ab537fea 100644
+--- a/lib/xz/xz_dec_stream.c
++++ b/lib/xz/xz_dec_stream.c
+@@ -402,12 +402,12 @@ static enum xz_ret dec_stream_header(struct xz_dec *s)
+ 	 * we will accept other check types too, but then the check won't
+ 	 * be verified and a warning (XZ_UNSUPPORTED_CHECK) will be given.
+ 	 */
++	if (s->temp.buf[HEADER_MAGIC_SIZE + 1] > XZ_CHECK_MAX)
++		return XZ_OPTIONS_ERROR;
++
+ 	s->check_type = s->temp.buf[HEADER_MAGIC_SIZE + 1];
  
- 		*left -= copy_size;
- 
--		memcpy(dict->buf + dict->pos, b->in + b->in_pos, copy_size);
-+		/*
-+		 * If doing in-place decompression in single-call mode and the
-+		 * uncompressed size of the file is larger than the caller
-+		 * thought (i.e. it is invalid input!), the buffers below may
-+		 * overlap and cause undefined behavior with memcpy().
-+		 * With valid inputs memcpy() would be fine here.
-+		 */
-+		memmove(dict->buf + dict->pos, b->in + b->in_pos, copy_size);
- 		dict->pos += copy_size;
- 
- 		if (dict->full < dict->pos)
-@@ -397,7 +404,11 @@ static void dict_uncompressed(struct dictionary *dict, struct xz_buf *b,
- 			if (dict->pos == dict->end)
- 				dict->pos = 0;
- 
--			memcpy(b->out + b->out_pos, b->in + b->in_pos,
-+			/*
-+			 * Like above but for multi-call mode: use memmove()
-+			 * to avoid undefined behavior with invalid input.
-+			 */
-+			memmove(b->out + b->out_pos, b->in + b->in_pos,
- 					copy_size);
- 		}
- 
-@@ -421,6 +432,12 @@ static uint32_t dict_flush(struct dictionary *dict, struct xz_buf *b)
- 		if (dict->pos == dict->end)
- 			dict->pos = 0;
- 
-+		/*
-+		 * These buffers cannot overlap even if doing in-place
-+		 * decompression because in multi-call mode dict->buf
-+		 * has been allocated by us in this file; it's not
-+		 * provided by the caller like in single-call mode.
-+		 */
- 		memcpy(b->out + b->out_pos, dict->buf + dict->start,
- 				copy_size);
- 	}
+ #ifdef XZ_DEC_ANY_CHECK
+-	if (s->check_type > XZ_CHECK_MAX)
+-		return XZ_OPTIONS_ERROR;
+-
+ 	if (s->check_type > XZ_CHECK_CRC32)
+ 		return XZ_UNSUPPORTED_CHECK;
+ #else
 -- 
 2.33.0
 
