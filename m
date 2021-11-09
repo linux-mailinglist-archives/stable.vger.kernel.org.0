@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C22A544B65E
+	by mail.lfdr.de (Postfix) with ESMTP id B315C44B65D
 	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:24:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343767AbhKIW0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238711AbhKIW0u (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 9 Nov 2021 17:26:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40832 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343703AbhKIWZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343706AbhKIWZH (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 9 Nov 2021 17:25:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2F6461A3D;
-        Tue,  9 Nov 2021 22:19:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4AEF61A0B;
+        Tue,  9 Nov 2021 22:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496361;
-        bh=ZqJljDphuKdeHOn5RS+GpUkZPitLaXlIykVrdPvKGsg=;
+        s=k20201202; t=1636496362;
+        bh=/ahGexqzVTXG7JFQ0rzYJgACzFkUSORSyfe96ic9jA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QWLVi/Qbh4eturrQWuLOg6rDpoQcvsMvMOQ0NKwlWoNbR/CgTW5g4pSBetfSypV/r
-         kvu46S9gSewgxzvSYic1UV3ZviUMQcxNqkAxvQ1+649futW0Bhki6s4nBabOdm5UMh
-         jBF6hOpOUuWv4lIL69l6bOTx31ErM0JipKlMViyhhdbLtt9WfEP7S17TBH2KcIw7UF
-         U5iHMVRjVYiefpkvhzNYCGK04zMGM3/ZXafpIVczF643b7rcqa56LH6aAeIEeWoIWe
-         WMvpQQ6nTjZudk/N1+xnu0FHmCPvJPms5ZCwB0KgSCBcFb1n8GfW5AXcWsEsrQJ5oG
-         KaD2+JI31XbsA==
+        b=Kml9NAqWxdYjKLokZG61+5zj96y/clb3n4/zCFdDph7W0+KfkonUXAJZweI04xM+Q
+         WsjBq/Cubnqf3CLRF/043IRq7dUPtsEJiVsmf6ESD06KPNrFQ5fpCY4Kfwbly+8UrW
+         QygezoK6zd1OC1n3m0c3Ycgwxuf3G5unNoaLfHCaR9dRO9ShWjh+/6SX56oauZImda
+         dixt1xhmYGGtE5vlf7d7ixK6bhP5DN5gilCJVRBaXdIsrIfRk0icI3KhC6niTqO4ol
+         TKmnyKRpdi2X5unxoXWspFnkG48xzcEybAsqWwKY+r9Tmg96KzZcQkbQrsEMlJNk9P
+         jLGp5XVQAHtXQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxime Ripard <maxime@cerno.tech>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        pawel.moll@arm.com, mark.rutland@arm.com,
-        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.14 06/75] arm64: dts: allwinner: a100: Fix thermal zone node name
-Date:   Tue,  9 Nov 2021 17:17:56 -0500
-Message-Id: <20211109221905.1234094-6-sashal@kernel.org>
+Cc:     =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
+        <jerome.pouiller@silabs.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.14 07/75] staging: wfx: ensure IRQ is ready before enabling it
+Date:   Tue,  9 Nov 2021 17:17:57 -0500
+Message-Id: <20211109221905.1234094-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221905.1234094-1-sashal@kernel.org>
 References: <20211109221905.1234094-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,50 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Jérôme Pouiller <jerome.pouiller@silabs.com>
 
-[ Upstream commit 5c34c4e46e601554bfa370b23c8ae3c3c734e9f7 ]
+[ Upstream commit 5e57c668dc097c6c27c973504706edec53f79281 ]
 
-The thermal zones one the A100 are called $device-thermal-zone.
+Since commit 5561770f80b1 ("staging: wfx: repair external IRQ for
+SDIO"), wfx_sdio_irq_subscribe() enforce the device to use IRQs.
+However, there is currently a race in this code. An IRQ may happen
+before the IRQ has been registered.
 
-However, the thermal zone binding explicitly requires that zones are
-called *-thermal. Let's fix it.
+The problem has observed during debug session when the device crashes
+before the IRQ set up:
 
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20210901091852.479202-50-maxime@cerno.tech
+    [ 1.546] wfx-sdio mmc0:0001:1: started firmware 3.12.2 "WF200_ASIC_WFM_(Jenkins)_FW3.12.2" (API: 3.7, keyset: C0, caps: 0x00000002)
+    [ 2.559] wfx-sdio mmc0:0001:1: time out while polling control register
+    [ 3.565] wfx-sdio mmc0:0001:1: chip is abnormally long to answer
+    [ 6.563] wfx-sdio mmc0:0001:1: chip did not answer
+    [ 6.568] wfx-sdio mmc0:0001:1: hardware request CONFIGURATION (0x09) on vif 2 returned error -110
+    [ 6.577] wfx-sdio mmc0:0001:1: PDS bytes 0 to 12: chip didn't reply (corrupted file?)
+    [ 6.585] Unable to handle kernel NULL pointer dereference at virtual address 00000000
+    [ 6.592] pgd = c0004000
+    [ 6.595] [00000000] *pgd=00000000
+    [ 6.598] Internal error: Oops - BUG: 17 [#1] THUMB2
+    [ 6.603] Modules linked in:
+    [ 6.606] CPU: 0 PID: 23 Comm: kworker/u2:1 Not tainted 3.18.19 #78
+    [ 6.612] Workqueue: kmmcd mmc_rescan
+    [ 6.616] task: c176d100 ti: c0e50000 task.ti: c0e50000
+    [ 6.621] PC is at wake_up_process+0xa/0x14
+    [ 6.625] LR is at sdio_irq+0x61/0x250
+    [ 6.629] pc : [<c001e8ae>] lr : [<c00ec5bd>] psr: 600001b3
+    [ 6.629] sp : c0e51bd8 ip : c0e51cc8 fp : 00000001
+    [ 6.640] r10: 00000003 r9 : 00000000 r8 : c0003c34
+    [ 6.644] r7 : c0e51bd8 r6 : c0003c30 r5 : 00000001 r4 : c0e78c00
+    [ 6.651] r3 : 00000000 r2 : 00000000 r1 : 00000003 r0 : 00000000
+    [ 6.657] Flags: nZCv IRQs off FIQs on Mode SVC_32 ISA Thumb Segment kernel
+    [ 6.664] Control: 50c53c7d Table: 11fd8059 DAC: 00000015
+    [ 6.670] Process kworker/u2:1 (pid: 23, stack limit = 0xc0e501b0)
+    [ 6.676] Stack: (0xc0e51bd8 to 0xc0e52000)
+    [...]
+    [ 6.949] [<c001e8ae>] (wake_up_process) from [<c00ec5bd>] (sdio_irq+0x61/0x250)
+    [ 6.956] [<c00ec5bd>] (sdio_irq) from [<c0025099>] (handle_irq_event_percpu+0x17/0x92)
+    [ 6.964] [<c0025099>] (handle_irq_event_percpu) from [<c002512f>] (handle_irq_event+0x1b/0x24)
+    [ 6.973] [<c002512f>] (handle_irq_event) from [<c0026577>] (handle_level_irq+0x5d/0x76)
+    [ 6.981] [<c0026577>] (handle_level_irq) from [<c0024cc3>] (generic_handle_irq+0x13/0x1c)
+    [ 6.989] [<c0024cc3>] (generic_handle_irq) from [<c0024dd9>] (__handle_domain_irq+0x31/0x48)
+    [ 6.997] [<c0024dd9>] (__handle_domain_irq) from [<c0008359>] (ov_handle_irq+0x31/0xe0)
+    [ 7.005] [<c0008359>] (ov_handle_irq) from [<c000af5b>] (__irq_svc+0x3b/0x5c)
+    [ 7.013] Exception stack(0xc0e51c68 to 0xc0e51cb0)
+    [...]
+    [ 7.038] [<c000af5b>] (__irq_svc) from [<c01775aa>] (wait_for_common+0x9e/0xc4)
+    [ 7.045] [<c01775aa>] (wait_for_common) from [<c00e1dc3>] (mmc_wait_for_req+0x4b/0xdc)
+    [ 7.053] [<c00e1dc3>] (mmc_wait_for_req) from [<c00e1e83>] (mmc_wait_for_cmd+0x2f/0x34)
+    [ 7.061] [<c00e1e83>] (mmc_wait_for_cmd) from [<c00e7b2b>] (mmc_io_rw_direct_host+0x71/0xac)
+    [ 7.070] [<c00e7b2b>] (mmc_io_rw_direct_host) from [<c00e8f79>] (sdio_claim_irq+0x6b/0x116)
+    [ 7.078] [<c00e8f79>] (sdio_claim_irq) from [<c00d8415>] (wfx_sdio_irq_subscribe+0x19/0x94)
+    [ 7.086] [<c00d8415>] (wfx_sdio_irq_subscribe) from [<c00d5229>] (wfx_probe+0x189/0x2ac)
+    [ 7.095] [<c00d5229>] (wfx_probe) from [<c00d83bf>] (wfx_sdio_probe+0x8f/0xcc)
+    [ 7.102] [<c00d83bf>] (wfx_sdio_probe) from [<c00e7fbb>] (sdio_bus_probe+0x5f/0xa8)
+    [ 7.109] [<c00e7fbb>] (sdio_bus_probe) from [<c00be229>] (driver_probe_device+0x59/0x134)
+    [ 7.118] [<c00be229>] (driver_probe_device) from [<c00bd4d7>] (bus_for_each_drv+0x3f/0x4a)
+    [ 7.126] [<c00bd4d7>] (bus_for_each_drv) from [<c00be1a5>] (device_attach+0x3b/0x52)
+    [ 7.134] [<c00be1a5>] (device_attach) from [<c00bdc2b>] (bus_probe_device+0x17/0x4c)
+    [ 7.141] [<c00bdc2b>] (bus_probe_device) from [<c00bcd69>] (device_add+0x2c5/0x334)
+    [ 7.149] [<c00bcd69>] (device_add) from [<c00e80bf>] (sdio_add_func+0x23/0x44)
+    [ 7.156] [<c00e80bf>] (sdio_add_func) from [<c00e79eb>] (mmc_attach_sdio+0x187/0x1ec)
+    [ 7.164] [<c00e79eb>] (mmc_attach_sdio) from [<c00e31bd>] (mmc_rescan+0x18d/0x1fc)
+    [ 7.172] [<c00e31bd>] (mmc_rescan) from [<c001a14f>] (process_one_work+0xd7/0x170)
+    [ 7.179] [<c001a14f>] (process_one_work) from [<c001a59b>] (worker_thread+0x103/0x1bc)
+    [ 7.187] [<c001a59b>] (worker_thread) from [<c001c731>] (kthread+0x7d/0x90)
+    [ 7.194] [<c001c731>] (kthread) from [<c0008ce1>] (ret_from_fork+0x11/0x30)
+    [ 7.201] Code: 2103 b580 2200 af00 (681b) 46bd
+    [ 7.206] ---[ end trace 3ab50aced42eedb4 ]---
+
+Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Link: https://lore.kernel.org/r/20210913130203.1903622-33-Jerome.Pouiller@silabs.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/wfx/bus_sdio.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
-index cc321c04f1219..f6d7d7f7fdabe 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
-@@ -343,19 +343,19 @@
- 	};
+diff --git a/drivers/staging/wfx/bus_sdio.c b/drivers/staging/wfx/bus_sdio.c
+index e06d7e1ebe9c3..61b8cc05f2935 100644
+--- a/drivers/staging/wfx/bus_sdio.c
++++ b/drivers/staging/wfx/bus_sdio.c
+@@ -120,19 +120,22 @@ static int wfx_sdio_irq_subscribe(void *priv)
+ 		return ret;
+ 	}
  
- 	thermal-zones {
--		cpu-thermal-zone {
-+		cpu-thermal {
- 			polling-delay-passive = <0>;
- 			polling-delay = <0>;
- 			thermal-sensors = <&ths 0>;
- 		};
++	flags = irq_get_trigger_type(bus->of_irq);
++	if (!flags)
++		flags = IRQF_TRIGGER_HIGH;
++	flags |= IRQF_ONESHOT;
++	ret = devm_request_threaded_irq(&bus->func->dev, bus->of_irq, NULL,
++					wfx_sdio_irq_handler_ext, flags,
++					"wfx", bus);
++	if (ret)
++		return ret;
+ 	sdio_claim_host(bus->func);
+ 	cccr = sdio_f0_readb(bus->func, SDIO_CCCR_IENx, NULL);
+ 	cccr |= BIT(0);
+ 	cccr |= BIT(bus->func->num);
+ 	sdio_f0_writeb(bus->func, cccr, SDIO_CCCR_IENx, NULL);
+ 	sdio_release_host(bus->func);
+-	flags = irq_get_trigger_type(bus->of_irq);
+-	if (!flags)
+-		flags = IRQF_TRIGGER_HIGH;
+-	flags |= IRQF_ONESHOT;
+-	return devm_request_threaded_irq(&bus->func->dev, bus->of_irq, NULL,
+-					 wfx_sdio_irq_handler_ext, flags,
+-					 "wfx", bus);
++	return 0;
+ }
  
--		ddr-thermal-zone {
-+		ddr-thermal {
- 			polling-delay-passive = <0>;
- 			polling-delay = <0>;
- 			thermal-sensors = <&ths 2>;
- 		};
- 
--		gpu-thermal-zone {
-+		gpu-thermal {
- 			polling-delay-passive = <0>;
- 			polling-delay = <0>;
- 			thermal-sensors = <&ths 1>;
+ static int wfx_sdio_irq_unsubscribe(void *priv)
 -- 
 2.33.0
 
