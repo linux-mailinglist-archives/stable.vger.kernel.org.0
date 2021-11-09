@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A31444A2A0
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77CB544A2A3
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241882AbhKIBTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:19:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44374 "EHLO mail.kernel.org"
+        id S242545AbhKIBTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:19:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241154AbhKIBRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:17:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3D8961AFC;
-        Tue,  9 Nov 2021 01:07:01 +0000 (UTC)
+        id S242035AbhKIBRT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:17:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5729D61A53;
+        Tue,  9 Nov 2021 01:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420022;
-        bh=TslBu8qF10g5S/5SN3YoqK+yp13DOd4gZDb9BGhTW18=;
+        s=k20201202; t=1636420024;
+        bh=ULKQ63rfbo3UsSQPS/WJaTvKPIUI/gelpcCUQyW5j8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixVtRE7Mp8TNzkPpDe3Yo1d1CwJrh4pn93ua2MwaOnUAl0ZeNaKuaXOAVwp8BAhOC
-         RPaicERAAjSIUf0S1YxG4hFAqbpIsi3/eX237qViF4sECj/qHw2YyqOgApTTeuAsx5
-         j4tKSjZntU1lAuWfjSr3ZbGLFHID3GVh9+Ew1T5prp/5IHflhp/iAyu4IAEZpE5Ls/
-         7xsKPcSHTcz+YZqvVmbULDu7x6iP7ncgCHdEPHacFSjz5jdH3YmTc+DSwoxI8RUQxt
-         9vPKLdfCh+TaCYp92WEri4CjEmunhZXgSlHOK0QBzRRLIpIwOgavv+ntCklqgEh3OQ
-         U8Cv3IVCzEIjQ==
+        b=NKX8uE7N23yh7RmtA0dKJIGzCvxhAgVAUlMihGkPdTNSs88ODkwmX0Fugn4r9Jh7P
+         qtds3CRYUEgx5RDQyrVy9b7gjBST7QA6tHcLiqgeTuxr1JWN4/ox0beo3OqiWppuM+
+         eLwT5H9us4atK5OnELEmWjNmj5/YzERCpASgbKjnBb5ur8AYEfWfFPYpWWrTkzsaTu
+         Cbz/4s3rZX/RKF3jFnbCkXg0jCJzTuTpNhcgxEjAjowVEripO9W2h2pzmyqGdioaLx
+         xjCRlEye463wL2dHPbwVMmHM5nuMh0CP2jSFu/JK9XbxN3YDnj6Eotav1OcXIcKeO1
+         iBxrxtZ4RsdKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        syzbot+3f91de0b813cc3d19a80@syzkaller.appspotmail.com,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Sasha Levin <sashal@kernel.org>, jmorris@namei.org,
-        serge@hallyn.com, linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 07/39] smackfs: Fix use-after-free in netlbl_catmap_walk()
-Date:   Mon,  8 Nov 2021 20:06:17 -0500
-Message-Id: <20211109010649.1191041-7-sashal@kernel.org>
+Cc:     wangzhitong <wangzhitong@uniontech.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, paul@paul-moore.com,
+        yoshfuji@linux-ipv6.org, dsahern@kernel.org, kuba@kernel.org,
+        netdev@vger.kernel.org, linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 08/39] NET: IPV4: fix error "do not initialise globals to 0"
+Date:   Mon,  8 Nov 2021 20:06:18 -0500
+Message-Id: <20211109010649.1191041-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010649.1191041-1-sashal@kernel.org>
 References: <20211109010649.1191041-1-sashal@kernel.org>
@@ -44,53 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: wangzhitong <wangzhitong@uniontech.com>
 
-[ Upstream commit 0817534ff9ea809fac1322c5c8c574be8483ea57 ]
+[ Upstream commit db9c8e2b1e246fc2dc20828932949437793146cc ]
 
-Syzkaller reported use-after-free bug as described in [1]. The bug is
-triggered when smk_set_cipso() tries to free stale category bitmaps
-while there are concurrent reader(s) using the same bitmaps.
+this patch fixes below Errors reported by checkpatch
+    ERROR: do not initialise globals to 0
+    +int cipso_v4_rbm_optfmt = 0;
 
-Wait for RCU grace period to finish before freeing the category bitmaps
-in smk_set_cipso(). This makes sure that there are no more readers using
-the stale bitmaps and freeing them should be safe.
-
-[1] https://lore.kernel.org/netdev/000000000000a814c505ca657a4e@google.com/
-
-Reported-by: syzbot+3f91de0b813cc3d19a80@syzkaller.appspotmail.com
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: wangzhitong <wangzhitong@uniontech.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smackfs.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/ipv4/cipso_ipv4.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index 009e83ee2d002..25705a72d31bc 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -859,6 +859,7 @@ static int smk_open_cipso(struct inode *inode, struct file *file)
- static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
- 				size_t count, loff_t *ppos, int format)
- {
-+	struct netlbl_lsm_catmap *old_cat;
- 	struct smack_known *skp;
- 	struct netlbl_lsm_secattr ncats;
- 	char mapcatset[SMK_CIPSOLEN];
-@@ -948,9 +949,11 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
+diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
+index e8b8dd1cb1576..75908722de47a 100644
+--- a/net/ipv4/cipso_ipv4.c
++++ b/net/ipv4/cipso_ipv4.c
+@@ -87,7 +87,7 @@ struct cipso_v4_map_cache_entry {
+ static struct cipso_v4_map_cache_bkt *cipso_v4_cache;
  
- 	rc = smk_netlbl_mls(maplevel, mapcatset, &ncats, SMK_CIPSOLEN);
- 	if (rc >= 0) {
--		netlbl_catmap_free(skp->smk_netlabel.attr.mls.cat);
-+		old_cat = skp->smk_netlabel.attr.mls.cat;
- 		skp->smk_netlabel.attr.mls.cat = ncats.attr.mls.cat;
- 		skp->smk_netlabel.attr.mls.lvl = ncats.attr.mls.lvl;
-+		synchronize_rcu();
-+		netlbl_catmap_free(old_cat);
- 		rc = count;
- 	}
+ /* Restricted bitmap (tag #1) flags */
+-int cipso_v4_rbm_optfmt = 0;
++int cipso_v4_rbm_optfmt;
+ int cipso_v4_rbm_strictvalid = 1;
  
+ /*
 -- 
 2.33.0
 
