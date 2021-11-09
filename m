@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE45444B6DA
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:27:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED66E44B6E0
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:27:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344619AbhKIWaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:30:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50850 "EHLO mail.kernel.org"
+        id S1344694AbhKIWae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:30:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344742AbhKIW23 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:28:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BA2761A61;
-        Tue,  9 Nov 2021 22:20:19 +0000 (UTC)
+        id S1344749AbhKIW2a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:28:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AE5461A7B;
+        Tue,  9 Nov 2021 22:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496420;
-        bh=D0YXkbFvM3on7muiiVcfWSJQ6wyBEmnxfe0uDuKK/UM=;
+        s=k20201202; t=1636496421;
+        bh=W+AmS8/JMVZC3xZfY0CjrOobJuawsCHHZdpidwTZVCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFcAIJ+kKud8gf/QpM6rGMxYldGcYh7auwWK5etaFxRu+RYnEovMxYfgXnDg3trJQ
-         9kmnwSueYY8XJeh4FttdL0K7vNNbz4Pj/rbghPWAy2TFaUVdJpJYdPCBnKgFZD0t+d
-         kpwLlgasVxn6hpVYiRU0jlJxu127+szlqDoCIH2bqde5QLOHRygyUZij1qYL5a8vad
-         zZnHXTB3hzG8x9cdeAY8WqlXdtnDxvmmKH1Z1p0a9S+jACJZMIej9X8KAQ0xKidekz
-         zKJopjb/3XxUMBc1SNb5NTIvPStpGW5xOEjxS/abrypRTupobqK0TQgQMztclT5xWC
-         zQP/cbtDyw3Qg==
+        b=BOI1tqLHqumbdmy0kD9pHZqfyqFmWEK7OeAAU2G1BdVazTnuEV30ItEWAmTNPH7aU
+         ufA1N1iOT7hLKngRH/MsiiJwIRADU6C3Pee649RyLUsFbnYDZqjQzNIZpsiW7olo1k
+         wrCPqpFOJ03EH1JhLptxVMvR3Ru/V5918QbaXVeroTyrjW4Ov+6uL17X4KrTxTUH5P
+         YOv7SvFgBx8GyAtnNDsey1JnJ+d5e06KBZqyeP0VXex7dkw22uZaWcWVqKKjvtRYUw
+         iYqjBRjZNyZtiR9w5fsL9UxLVM6UQ3iXcu1vrnqlSnCsNHR3Lcrc4cJbTBo2G+SUL1
+         VT8OwFrSCP+Jw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <bard.liao@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.14 45/75] ASoC: Intel: sof_sdw: add missing quirk for Dell SKU 0A45
-Date:   Tue,  9 Nov 2021 17:18:35 -0500
-Message-Id: <20211109221905.1234094-45-sashal@kernel.org>
+Cc:     Luis Chamberlain <mcgrof@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 46/75] firmware_loader: fix pre-allocated buf built-in firmware use
+Date:   Tue,  9 Nov 2021 17:18:36 -0500
+Message-Id: <20211109221905.1234094-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221905.1234094-1-sashal@kernel.org>
 References: <20211109221905.1234094-1-sashal@kernel.org>
@@ -45,45 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit 64ba6d2ce72ffde70dc5a1794917bf1573203716 ]
+[ Upstream commit f7a07f7b96033df7709042ff38e998720a3f7119 ]
 
-This device is based on SDCA codecs but with a single amplifier
-instead of two.
+The firmware_loader can be used with a pre-allocated buffer
+through the use of the API calls:
 
-BugLink: https://github.com/thesofproject/linux/issues/3161
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20211004213512.220836-6-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  o request_firmware_into_buf()
+  o request_partial_firmware_into_buf()
+
+If the firmware was built-in and present, our current check
+for if the built-in firmware fits into the pre-allocated buffer
+does not return any errors, and we proceed to tell the caller
+that everything worked fine. It's a lie and no firmware would
+end up being copied into the pre-allocated buffer. So if the
+caller trust the result it may end up writing a bunch of 0's
+to a device!
+
+Fix this by making the function that checks for the pre-allocated
+buffer return non-void. Since the typical use case is when no
+pre-allocated buffer is provided make this return successfully
+for that case. If the built-in firmware does *not* fit into the
+pre-allocated buffer size return a failure as we should have
+been doing before.
+
+I'm not aware of users of the built-in firmware using the API
+calls with a pre-allocated buffer, as such I doubt this fixes
+any real life issue. But you never know... perhaps some oddball
+private tree might use it.
+
+In so far as upstream is concerned this just fixes our code for
+correctness.
+
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/20210917182226.3532898-2-mcgrof@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/base/firmware_loader/main.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index cb3afc4519cf6..041717c71c930 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -189,6 +189,16 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 					SOF_RT715_DAI_ID_FIX |
- 					SOF_SDW_FOUR_SPK),
- 	},
-+	{
-+		.callback = sof_sdw_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0A45")
-+		},
-+		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-+					RT711_JD2 |
-+					SOF_RT715_DAI_ID_FIX),
-+	},
- 	/* AlderLake devices */
- 	{
- 		.callback = sof_sdw_quirk_cb,
+diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
+index bdbedc6660a87..ef904b8b112e6 100644
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -100,12 +100,15 @@ static struct firmware_cache fw_cache;
+ extern struct builtin_fw __start_builtin_fw[];
+ extern struct builtin_fw __end_builtin_fw[];
+ 
+-static void fw_copy_to_prealloc_buf(struct firmware *fw,
++static bool fw_copy_to_prealloc_buf(struct firmware *fw,
+ 				    void *buf, size_t size)
+ {
+-	if (!buf || size < fw->size)
+-		return;
++	if (!buf)
++		return true;
++	if (size < fw->size)
++		return false;
+ 	memcpy(buf, fw->data, fw->size);
++	return true;
+ }
+ 
+ static bool fw_get_builtin_firmware(struct firmware *fw, const char *name,
+@@ -117,9 +120,7 @@ static bool fw_get_builtin_firmware(struct firmware *fw, const char *name,
+ 		if (strcmp(name, b_fw->name) == 0) {
+ 			fw->size = b_fw->size;
+ 			fw->data = b_fw->data;
+-			fw_copy_to_prealloc_buf(fw, buf, size);
+-
+-			return true;
++			return fw_copy_to_prealloc_buf(fw, buf, size);
+ 		}
+ 	}
+ 
 -- 
 2.33.0
 
