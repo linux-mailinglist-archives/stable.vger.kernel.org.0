@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CBEA44B87F
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:42:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC2A144B882
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:42:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234921AbhKIWoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:44:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59994 "EHLO mail.kernel.org"
+        id S1345680AbhKIWot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:44:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344543AbhKIWmD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:42:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E56E61B3A;
-        Tue,  9 Nov 2021 22:24:02 +0000 (UTC)
+        id S1345733AbhKIWmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:42:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5233C61A0B;
+        Tue,  9 Nov 2021 22:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496642;
-        bh=nj1FTzjwkeR7B4FSSl63i4tJKlVTSuNv7GNf3Bc4GDw=;
+        s=k20201202; t=1636496644;
+        bh=0IqvRS0IJRKnNqDAY5t3blXGq9LRZKZOmBpJ5DNEVc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmK4i1FLquzk5fkIcjNa6BrLaw5ihyfpXllTl301E9/bGKSuKq+u0jF7f8QbTUXJj
-         O2TGJx3K9ajYlpzACeXILCdTEAEw8bErMuxX/NF+21+WpD8KJjS3tiUPXGMsYApwuY
-         R7yXNiPsff/1Tlp4k4PdVhplbxW5QhX1ABGZ+8Y3Hoypxj0zte/MiOmgrguCMeMLom
-         TIdXGLFl2t0Zu80AmkdsL8PRs4oXdGLT5s9lvft9sL4foskLou6muakxlhz6ZhxPEI
-         IR/EIC1YTKp//0IH5uFE36qqLdtkmS8dxlyY8wn67tAcgOSArAQvxuyfUxbG5XKOCi
-         VXMLUbE6ZlGcA==
+        b=uR4YAlDP+dWGGJJx3O5aO0ei6CmNfx0afl78nlEKg08CmwLYVOC7zZESxkD2HgzWX
+         GcQmUocpnL9fTxcRYGfQP4qvxlbwCSZEZKTJvg2hR51NBngR5LhoupzortCm3QCqkV
+         ggZa8UC/iiHGIrvzBcfSzuorc7NAUrks3U/RLisg7Ukpq47KFkubZil+SXY6yQXM74
+         jUEZtUlND9SuuVvCoEfMVcpcRHJO8mkmDtAmlVJj2FSVMPmOdWkga/j+4wtUzjcRI3
+         DuVZP2J4GVhz/oLQ4GGZ8KrlJrOPFZYH0K7t0d1vxHIOccUf+tpCTxywITc32MvYWz
+         J/o41OUDw7fGw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengfeng Ye <cyeaa@connect.ust.hk>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 13/14] ALSA: gus: fix null pointer dereference on pointer block
-Date:   Tue,  9 Nov 2021 17:23:42 -0500
-Message-Id: <20211109222343.1235902-13-sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sasha Levin <sashal@kernel.org>, benh@kernel.crashing.org,
+        paulus@samba.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 14/14] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
+Date:   Tue,  9 Nov 2021 17:23:43 -0500
+Message-Id: <20211109222343.1235902-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222343.1235902-1-sashal@kernel.org>
 References: <20211109222343.1235902-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,35 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengfeng Ye <cyeaa@connect.ust.hk>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit a0d21bb3279476c777434c40d969ea88ca64f9aa ]
+[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
 
-The pointer block return from snd_gf1_dma_next_block could be
-null, so there is a potential null pointer dereference issue.
-Fix this by adding a null check before dereference.
+In dcr-low.S we use cmpli with three arguments, instead of four
+arguments as defined in the ISA:
 
-Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
-Link: https://lore.kernel.org/r/20211024104611.9919-1-cyeaa@connect.ust.hk
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+	cmpli	cr0,r3,1024
+
+This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
+User’s Manual" it shows cmpli having no L field, but implied to be 0 due
+to the core being 32-bit. It mentions that the ISA defines four
+arguments and recommends using cmplwi.
+
+It also corresponds to the old POWER instruction set, which had no L
+field there, a reserved bit instead.
+
+dcr-low.S is only built 32-bit, because it is only built when
+DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
+generated code (with gcc/gas) we see cmplwi as expected.
+
+Although gas is happy with the 3-argument version when building for
+32-bit, the LLVM assembler is not and errors out with:
+
+  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
+   cmpli 0,%r3,1024; ...
+           ^
+
+Switch to the cmplwi extended opcode, which avoids any confusion when
+reading the ISA, fixes the issue with the LLVM assembler, and also means
+the code could be built 64-bit in future (though that's very unlikely).
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
+Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/gus/gus_dma.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/sysdev/dcr-low.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/isa/gus/gus_dma.c b/sound/isa/gus/gus_dma.c
-index 36c27c8323601..2e27cd3427c87 100644
---- a/sound/isa/gus/gus_dma.c
-+++ b/sound/isa/gus/gus_dma.c
-@@ -141,6 +141,8 @@ static void snd_gf1_dma_interrupt(struct snd_gus_card * gus)
- 	}
- 	block = snd_gf1_dma_next_block(gus);
- 	spin_unlock(&gus->dma_lock);
-+	if (!block)
-+		return;
- 	snd_gf1_dma_program(gus, block->addr, block->buf_addr, block->count, (unsigned short) block->cmd);
- 	kfree(block);
- #if 0
+diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
+index e687bb2003ff0..5589fbe48bbdc 100644
+--- a/arch/powerpc/sysdev/dcr-low.S
++++ b/arch/powerpc/sysdev/dcr-low.S
+@@ -15,7 +15,7 @@
+ #include <asm/export.h>
+ 
+ #define DCR_ACCESS_PROLOG(table) \
+-	cmpli	cr0,r3,1024;	 \
++	cmplwi	cr0,r3,1024;	 \
+ 	rlwinm  r3,r3,4,18,27;   \
+ 	lis     r5,table@h;      \
+ 	ori     r5,r5,table@l;   \
 -- 
 2.33.0
 
