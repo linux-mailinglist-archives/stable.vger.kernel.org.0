@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B838044B7DC
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D141644B7E2
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:36:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344385AbhKIWiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:38:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58684 "EHLO mail.kernel.org"
+        id S1345563AbhKIWiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:38:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245733AbhKIWgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:36:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6D2B61AF0;
-        Tue,  9 Nov 2021 22:22:34 +0000 (UTC)
+        id S1344690AbhKIWgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:36:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 104CE6135E;
+        Tue,  9 Nov 2021 22:22:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496556;
-        bh=rDbHEjuvXOYY3Wjuu4ouvGZnXTueKZNWfPv+fX5LIL0=;
+        s=k20201202; t=1636496558;
+        bh=MbljPlGWIgZ6aE1b8hrYn73E3WqClBJ8p6vdASrke7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CCNyUweV32HiyyEZRK5lN/0t7n9F+mRedEi0da/6kJh+68rjxMXpX4TsjQVZY2zzG
-         knyM76duXEfNtlrWqSb1saEJjc2/vkNvHgv0TZvJBcTT0ysZZcrN40A9OQ7FgMD5YG
-         niL6z0HI9lBO1OmfbvQjUB9JHG98HeMD2YYRwmK8QClAMmZd0UIFK6A9kwGChJVdm6
-         US1OhlhPBMDNFljwvy1C/osHy8WQh9h8MLY2Tk4KSOXVjbrgmKM3UPO9iBsYJQlDom
-         +JV7ZuGzAyWAejELwfphllJEPlAYaSeXkZ/BRwM6s8nUyW5Z1C+Ch09fNSnTQmFL3/
-         7nqbHYhyRamRw==
+        b=XeLlNtN/+fgyCZBLvrHaW48hMpbMYXpFg2JTvgAGIhzicK1P2N+clONk0Qgkzrrf2
+         WGRq3jq+Z0AH/aY4wowFlv9VLLKwOpp5pc22rFb6jX/8ysvMv2B3OBRH+5UYIihrPH
+         Kq7giJlv36hWwvLGmyuYFPTLIW4LDxmndCOAb7bp915zhCoNlFE570S3o5PU+pumK0
+         FTCxMG8tlMH/DTimg5tb+y0GED73xQgk4WAWnKxeG9tCiUmJkQRWurnaaJRgxj+Cj1
+         tEFwlhAbe5p9ahsFgcAVk76rEOsuYFePl1qor7u7xmTleDHAT9bpSN5ZegymJuuSuY
+         +oMlUomBK30sg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Norris <briannorris@chromium.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        pawel.moll@arm.com, mark.rutland@arm.com,
-        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-        catalin.marinas@arm.com, will.deacon@arm.com,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 06/30] arm64: dts: rockchip: add Coresight debug range for RK3399
-Date:   Tue,  9 Nov 2021 17:22:00 -0500
-Message-Id: <20211109222224.1235388-6-sashal@kernel.org>
+Cc:     Selvin Xavier <selvin.xavier@broadcom.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, dledford@redhat.com,
+        sean.hefty@intel.com, hal.rosenstock@gmail.com,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 07/30] RDMA/bnxt_re: Check if the vlan is valid before reporting
+Date:   Tue,  9 Nov 2021 17:22:01 -0500
+Message-Id: <20211109222224.1235388-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109222224.1235388-1-sashal@kernel.org>
 References: <20211109222224.1235388-1-sashal@kernel.org>
@@ -50,86 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Selvin Xavier <selvin.xavier@broadcom.com>
 
-[ Upstream commit 75dccea503b8e176ad044175e891d7bb291b6ba0 ]
+[ Upstream commit 6bda39149d4b8920fdb8744090653aca3daa792d ]
 
-Per Documentation/devicetree/bindings/arm/coresight-cpu-debug.txt.
+When VF is configured with default vlan, HW strips the vlan from the
+packet and driver receives it in Rx completion. VLAN needs to be reported
+for UD work completion only if the vlan is configured on the host. Add a
+check for valid vlan in the UD receive path.
 
-This IP block can be used for sampling the PC of any given CPU, which is
-useful in certain panic scenarios where you can't get the CPU to stop
-cleanly (e.g., hard lockup).
-
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Link: https://lore.kernel.org/r/20210908111337.v2.3.Ibc87b4785709543c998cc852c1edaeb7a08edf5c@changeid
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/1631709163-2287-12-git-send-email-selvin.xavier@broadcom.com
+Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 48 ++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+ drivers/infiniband/hw/bnxt_re/ib_verbs.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index 750dad0d17400..26c9c9317a642 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -398,6 +398,54 @@
- 		status = "disabled";
- 	};
+diff --git a/drivers/infiniband/hw/bnxt_re/ib_verbs.c b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+index a96f9142fe08e..dd006b177b544 100644
+--- a/drivers/infiniband/hw/bnxt_re/ib_verbs.c
++++ b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+@@ -3081,8 +3081,11 @@ static void bnxt_re_process_res_ud_wc(struct bnxt_re_qp *qp,
+ 				      struct ib_wc *wc,
+ 				      struct bnxt_qplib_cqe *cqe)
+ {
++	struct bnxt_re_dev *rdev;
++	u16 vlan_id = 0;
+ 	u8 nw_type;
  
-+	debug@fe430000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe430000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_L>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_l0>;
-+	};
-+
-+	debug@fe432000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe432000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_L>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_l1>;
-+	};
-+
-+	debug@fe434000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe434000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_L>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_l2>;
-+	};
-+
-+	debug@fe436000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe436000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_L>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_l3>;
-+	};
-+
-+	debug@fe610000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe610000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_B>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_b0>;
-+	};
-+
-+	debug@fe710000 {
-+		compatible = "arm,coresight-cpu-debug", "arm,primecell";
-+		reg = <0 0xfe710000 0 0x1000>;
-+		clocks = <&cru PCLK_COREDBG_B>;
-+		clock-names = "apb_pclk";
-+		cpu = <&cpu_b1>;
-+	};
-+
- 	usbdrd3_0: usb@fe800000 {
- 		compatible = "rockchip,rk3399-dwc3";
- 		#address-cells = <2>;
++	rdev = qp->rdev;
+ 	wc->opcode = IB_WC_RECV;
+ 	wc->status = __rc_to_ib_wc_status(cqe->status);
+ 
+@@ -3094,9 +3097,12 @@ static void bnxt_re_process_res_ud_wc(struct bnxt_re_qp *qp,
+ 		memcpy(wc->smac, cqe->smac, ETH_ALEN);
+ 		wc->wc_flags |= IB_WC_WITH_SMAC;
+ 		if (cqe->flags & CQ_RES_UD_FLAGS_META_FORMAT_VLAN) {
+-			wc->vlan_id = (cqe->cfa_meta & 0xFFF);
+-			if (wc->vlan_id < 0x1000)
+-				wc->wc_flags |= IB_WC_WITH_VLAN;
++			vlan_id = (cqe->cfa_meta & 0xFFF);
++		}
++		/* Mark only if vlan_id is non zero */
++		if (vlan_id && bnxt_re_check_if_vlan_valid(rdev, vlan_id)) {
++			wc->vlan_id = vlan_id;
++			wc->wc_flags |= IB_WC_WITH_VLAN;
+ 		}
+ 		nw_type = (cqe->flags & CQ_RES_UD_FLAGS_ROCE_IP_VER_MASK) >>
+ 			   CQ_RES_UD_FLAGS_ROCE_IP_VER_SFT;
 -- 
 2.33.0
 
