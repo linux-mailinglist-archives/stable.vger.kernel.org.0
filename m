@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 594A144A78D
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 08:24:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B3D44A78E
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 08:24:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243635AbhKIH1D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 02:27:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41846 "EHLO mail.kernel.org"
+        id S243632AbhKIH1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 02:27:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243632AbhKIH1A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 02:27:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61E0C6115B;
-        Tue,  9 Nov 2021 07:24:14 +0000 (UTC)
+        id S243634AbhKIH1C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 02:27:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0520861175;
+        Tue,  9 Nov 2021 07:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636442654;
-        bh=2SNoXmO7IWJ+U1VsvNlafeSOKK2gz6ISkNFHhgBWx6o=;
+        s=korg; t=1636442657;
+        bh=HBwqoX145LdC2LVHgQhX/ETqNcXILHKnV6XSEDFZw9c=;
         h=Subject:To:Cc:From:Date:From;
-        b=Yvi17F/NpFAMu9fgUhdu2ABShJgxYcaJAhjC3346Lfg9LuRNlJ58naev1Und/aeB8
-         b+5mpEOuJMz9BXJhJ0M4Bi5GtaMfjLRB34CeOp9RIU68heX0J40sXAuleN2ep5oxQb
-         q7GuTOnrlhdqxygrvqggDPJ9gho9z6IrGurqhi6E=
-Subject: FAILED: patch "[PATCH] binder: use cred instead of task for getsecid" failed to apply to 5.4-stable tree
+        b=r9SPt2CXhqz4d2PkhCFQIr+RNCkU7Yj4VhP/T6i2mG/EVBZILeKmLf2w+skSvK31/
+         y8hgDVuG3UUhPSTrSn0rDkT8Tkuf8c8ww7l7huMEvb5idysbYu/vYwyJWsQkvpnZGh
+         c0PdTleimFGkjxq550bTll5WSv+0q20W04C9oxsY=
+Subject: FAILED: patch "[PATCH] binder: use cred instead of task for getsecid" failed to apply to 5.10-stable tree
 To:     tkjos@google.com, casey@schaufler-ca.com, lkp@intel.com,
         paul@paul-moore.com, stephen.smalley.work@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 09 Nov 2021 08:24:00 +0100
-Message-ID: <163644264014217@kroah.com>
+Message-ID: <1636442640343@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
