@@ -2,241 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66F5944B4E2
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 22:44:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C42EE44B51E
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243356AbhKIVqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 16:46:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43062 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239105AbhKIVqx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 16:46:53 -0500
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E98C061764
-        for <stable@vger.kernel.org>; Tue,  9 Nov 2021 13:44:07 -0800 (PST)
-Received: by mail-pg1-x534.google.com with SMTP id n23so321508pgh.8
-        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 13:44:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hH5+3Tl62maPZ5S8Ad7ueKnn8MGHWX7mtQ3PX4fr3uI=;
-        b=jkMeVyuIupRJv1cO4d0iY4P/CepvpvQZpqpVKL1yuMn8ghicfliUtdlc8aPjCkgyq1
-         3ZdMc0DBOacdJaFJtrCxY1vyA86MGerK5jhGDp1aLnFnquawVWugAbZPfKe+BTApXDqp
-         4FtYi/sxVNwRPpv/j0aFOFXUn2MZnYynwfHlmErCjLFxsNj8JEbHj3u2Wy8bu7yg2GuJ
-         f5a0LvIZ9A7I32r2LmRONnz+t05cGDmRyWYA/vjrjiTajuAivJINGhB3emCX4Ajze33o
-         R9yR/nOcjT2ztwgoPFp4e/e49u0+QPBuwZzjE0k4TqFIoSwbotZY4Z229WfNoqyHda7Y
-         psqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hH5+3Tl62maPZ5S8Ad7ueKnn8MGHWX7mtQ3PX4fr3uI=;
-        b=0rvl2Ja4f6P7pP011+h2SRy6YXB//MWZRVQaBr1qIm6g+XUSCusdP1WMZnqJ2t0QxL
-         6kEiVmFDzUnqcJpx6i00uJ15UZhAvdLYnY4kMsC36ASyMV+URf9v09y6iKq0nB98/vcg
-         fem8bRWjqk4Y/X0G+X48wvrdf8xSe60JgEhTd4nJjutGHeQHrsATTGfLupzvHk1KgwLR
-         Yx1OIMnODq07nJxh8bTjuB2QaLggEL/X9gm8xzlETsPE3KzudHxa7YbYix/Yf4eItJBS
-         GqqE90+++AcJv5RYfIfvuDn2wpPICKLrZI2/znw7uEknRydksll/7fdxgBecAUN2xxKw
-         o0aQ==
-X-Gm-Message-State: AOAM532c3FNy+mge3NEyHhqr5IPI/ymT9zWm5hCjcoj2xp3gI0M0TA3g
-        3249ntmWAVoUzl8FEX5yHMRLZQvkdk7xBHhJ
-X-Google-Smtp-Source: ABdhPJw87MV//iMyVUZQeV5syOKp6yKtFtaXKJbayaCkezXLp9MES2awkNEGAjTaW7tWlwMwoOge/w==
-X-Received: by 2002:a63:6bca:: with SMTP id g193mr8404478pgc.358.1636494246481;
-        Tue, 09 Nov 2021 13:44:06 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m184sm7084042pga.61.2021.11.09.13.44.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Nov 2021 13:44:06 -0800 (PST)
-Message-ID: <618aeba6.1c69fb81.e86fd.48c7@mx.google.com>
-Date:   Tue, 09 Nov 2021 13:44:06 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S244530AbhKIWKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:10:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35812 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235632AbhKIWKF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:10:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3CE460524;
+        Tue,  9 Nov 2021 22:07:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1636495639;
+        bh=+qSgvYpQTfGO4XzzrvtjFVSaT33ud9DXLSG7u/nEfKs=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=fq2dTkrvLVbcHQygx3bgnOZwesHj+kuGNINPDowb8PKPAyzzmrBcWAyRx2ZFunkUg
+         0if6hh7IFlxwkpFpQ/F/W+qj0jQbhbDctVE1h9yVj1rWbWu1hnNEGYTQ53Kp8XOVv/
+         81mCqvd37Kktfx/b7Lvje2zcE/wAvz6kTxcGoFLsmIi2ZH6r9AWIRJtDASK6VwZnrk
+         Dr1GkmXmlbDggxypf9yCBwIcCsohexJTK1Dz6cZ1AUEAFzl4AlU7f/HMbZyl4WhmHi
+         WYvVagrMdUsemxqWIHAIOK3Czdsk8kuiprhR8JKmEdQFU1YFH3Fg7k0IkY+3bySgMP
+         Mz2Yt9vWcEBRA==
+Date:   Tue, 9 Nov 2021 16:07:17 -0600
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Myron Stowe <myron.stowe@redhat.com>,
+        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H . Peter Anvin" <hpa@zytor.com>, linux-acpi@vger.kernel.org,
+        linux-pci@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org,
+        Benoit =?iso-8859-1?Q?Gr=E9goire?= <benoitg@coeus.ca>,
+        Hui Wang <hui.wang@canonical.com>, stable@vger.kernel.org,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Subject: Re: [PATCH v5 1/2] x86/PCI: Ignore E820 reservations for bridge
+ windows on newer systems
+Message-ID: <20211109220717.GA1187103@bhelgaas>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.254-13-gf0ce35059c8b
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.14 baseline: 170 runs,
- 4 regressions (v4.14.254-13-gf0ce35059c8b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c85a917e-143d-1218-61fa-e4f4810c4950@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 170 runs, 4 regressions (v4.14.254-13-gf0ce3=
-5059c8b)
+On Sat, Nov 06, 2021 at 11:15:07AM +0100, Hans de Goede wrote:
+> On 10/20/21 23:14, Bjorn Helgaas wrote:
+> > On Wed, Oct 20, 2021 at 12:23:26PM +0200, Hans de Goede wrote:
+> >> On 10/19/21 23:52, Bjorn Helgaas wrote:
+> >>> On Thu, Oct 14, 2021 at 08:39:42PM +0200, Hans de Goede wrote:
+> >>>> Some BIOS-es contain a bug where they add addresses which map to system
+> >>>> RAM in the PCI host bridge window returned by the ACPI _CRS method, see
+> >>>> commit 4dc2287c1805 ("x86: avoid E820 regions when allocating address
+> >>>> space").
+> >>>>
+> >>>> To work around this bug Linux excludes E820 reserved addresses when
+> >>>> allocating addresses from the PCI host bridge window since 2010.
+> >>>> ...
+> > 
+> >>> I haven't seen anybody else eager to merge this, so I guess I'll stick
+> >>> my neck out here.
+> >>>
+> >>> I applied this to my for-linus branch for v5.15.
+> >>
+> >> Thank you, and sorry about the build-errors which the lkp
+> >> kernel-test-robot found.
+> >>
+> >> I've just send out a patch which fixes these build-errors
+> >> (verified with both .config-s from the lkp reports).
+> >> Feel free to squash this into the original patch (or keep
+> >> them separate, whatever works for you).
+> > 
+> > Thanks, I squashed the fix in.
+> > 
+> > HOWEVER, I think it would be fairly risky to push this into v5.15.
+> > We would be relying on the assumption that current machines have all
+> > fixed the BIOS defect that 4dc2287c1805 addressed, and we have little
+> > evidence for that.
+> >
+> > I'm not sure there's significant benefit to having this in v5.15.
+> > Yes, the mainline v5.15 kernel would work on the affected machines,
+> > but I suspect most people with those machines are running distro
+> > kernels, not mainline kernels.
+> 
+> I understand that you were reluctant to add this to 5.15 so close
+> near the end of the 5.15 cycle, but can we please get this into
+> 5.16 now ?
+> 
+> I know you ultimately want to see if there is a better fix,
+> but this is hitting a *lot* of users right now and if we come up
+> with a better fix we can always use that to replace this one
+> later.
 
-Regressions Summary
--------------------
+I don't know whether there's a "better" fix, but I do know that if we
+merge what we have right now, nobody will be looking for a better
+one.
 
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
+We're in the middle of the merge window, so the v5.16 development
+cycle is over.  The v5.17 cycle is just starting, so we have time to
+hit that.  Obviously a fix can be backported to older kernels as
+needed.
 
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig             | 1          =
+> So can we please just go with this fix now, so that we can
+> fix the issues a lot of users are seeing caused by the current
+> *wrong* behavior of taking the e820 reservations into account ?
 
-panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
-fconfig          | 1          =
+I think the fix on the table is "ignore E820 for BIOS date >= 2018"
+plus the obvious parameters to force it both ways.
 
-qemu_i386-uefi           | i386   | lab-collabora | gcc-10   | i386_defconf=
-ig               | 1          =
+The thing I don't like is that this isn't connected at all to the
+actual BIOS defect.  We have no indication that current BIOSes have
+fixed the defect, and we have no assurance that future ones will not
+have the defect.  It would be better if we had some algorithmic way of
+figuring out what to do.
 
+Thank you very much for chasing down the dmesg log archive
+(https://github.com/linuxhw/Dmesg; see
+https://lore.kernel.org/r/82035130-d810-9f0b-259e-61280de1d81f@redhat.com).
+Unfortunately I haven't had time to look through it myself, and I
+haven't heard of anybody else doing it either.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.254-13-gf0ce35059c8b/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.254-13-gf0ce35059c8b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f0ce35059c8bbc36a33d41be20304a53d2b2edf9 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/618aaf8eae0b60652f3358f6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--13-gf0ce35059c8b/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-minnowboard-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--13-gf0ce35059c8b/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-minnowboard-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/618aaf8eae0b60652f335=
-8f7
-        new failure (last pass: v4.14.254-12-g923d11bd34b9) =
-
- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/618ab2e8c10b2b15373358f9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--13-gf0ce35059c8b/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-min=
-nowboard-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--13-gf0ce35059c8b/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-min=
-nowboard-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/618ab2e8c10b2b1537335=
-8fa
-        new failure (last pass: v4.14.254-12-gd0fa8635586f) =
-
- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
-fconfig          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/618ab41970ded70e533358f3
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--13-gf0ce35059c8b/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--13-gf0ce35059c8b/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/618ab41970ded70=
-e533358f6
-        new failure (last pass: v4.14.254-12-gd0fa8635586f)
-        2 lines
-
-    2021-11-09T17:46:47.636518  [   20.091278] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-09T17:46:47.679702  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/104
-    2021-11-09T17:46:47.689118  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-qemu_i386-uefi           | i386   | lab-collabora | gcc-10   | i386_defconf=
-ig               | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/618ac8a7edebe1642d33590f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--13-gf0ce35059c8b/i386/i386_defconfig/gcc-10/lab-collabora/baseline-qemu_i3=
-86-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.254=
--13-gf0ce35059c8b/i386/i386_defconfig/gcc-10/lab-collabora/baseline-qemu_i3=
-86-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/618ac8a7edebe1642d335=
-910
-        new failure (last pass: v4.14.254-12-gd0fa8635586f) =
-
- =20
+Bjorn
