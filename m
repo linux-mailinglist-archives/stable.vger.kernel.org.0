@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77CB544A2A3
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 032EE44A2A4
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:17:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242545AbhKIBTs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:19:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44376 "EHLO mail.kernel.org"
+        id S237114AbhKIBTx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:19:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242035AbhKIBRT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241965AbhKIBRT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Nov 2021 20:17:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5729D61A53;
-        Tue,  9 Nov 2021 01:07:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 050DB61A57;
+        Tue,  9 Nov 2021 01:07:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420024;
-        bh=ULKQ63rfbo3UsSQPS/WJaTvKPIUI/gelpcCUQyW5j8E=;
+        s=k20201202; t=1636420027;
+        bh=Q0iVTnW0UUWj/MGIy+a7Z2i9YAx1Nh9hx+WYO7uayhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NKX8uE7N23yh7RmtA0dKJIGzCvxhAgVAUlMihGkPdTNSs88ODkwmX0Fugn4r9Jh7P
-         qtds3CRYUEgx5RDQyrVy9b7gjBST7QA6tHcLiqgeTuxr1JWN4/ox0beo3OqiWppuM+
-         eLwT5H9us4atK5OnELEmWjNmj5/YzERCpASgbKjnBb5ur8AYEfWfFPYpWWrTkzsaTu
-         Cbz/4s3rZX/RKF3jFnbCkXg0jCJzTuTpNhcgxEjAjowVEripO9W2h2pzmyqGdioaLx
-         xjCRlEye463wL2dHPbwVMmHM5nuMh0CP2jSFu/JK9XbxN3YDnj6Eotav1OcXIcKeO1
-         iBxrxtZ4RsdKg==
+        b=YouAUHSzONnVvxv8VoZ8w32JqYW9Yuyw7JMabTD2sHXKuFRtVEQTnIkByngiBlxcD
+         p8l01wNJRyNuZVeHn9zx7bmvBGZNkOvfy+iMKQdEGQajh+4J2IeU91/VwlmcTD6afo
+         1BzbZ8po3z/d8hFO5uOJ636T3oZQg7Up431P8277kPAoyxtiJanCPOWLuZW/kZ3xqo
+         Tv0zsS0hJyNhX4ZD59YG+6BILouL65xjL2EDppywqOdR31i0G9DbfMfasuTD71I+do
+         AWhZJMWUsmnvbHrVXlYCw6LwWH6JiW+xQCMmIKIuHJNcbcQIcyKqYJlhP6TOH0JSXe
+         PvxZLeUOrSSdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     wangzhitong <wangzhitong@uniontech.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, paul@paul-moore.com,
-        yoshfuji@linux-ipv6.org, dsahern@kernel.org, kuba@kernel.org,
-        netdev@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 08/39] NET: IPV4: fix error "do not initialise globals to 0"
-Date:   Mon,  8 Nov 2021 20:06:18 -0500
-Message-Id: <20211109010649.1191041-8-sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Michael Wang <yun.wang@linux.alibaba.com>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, adobriyan@gmail.com
+Subject: [PATCH AUTOSEL 4.14 09/39] x86: Increase exception stack sizes
+Date:   Mon,  8 Nov 2021 20:06:19 -0500
+Message-Id: <20211109010649.1191041-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010649.1191041-1-sashal@kernel.org>
 References: <20211109010649.1191041-1-sashal@kernel.org>
@@ -44,34 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wangzhitong <wangzhitong@uniontech.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit db9c8e2b1e246fc2dc20828932949437793146cc ]
+[ Upstream commit 7fae4c24a2b84a66c7be399727aca11e7a888462 ]
 
-this patch fixes below Errors reported by checkpatch
-    ERROR: do not initialise globals to 0
-    +int cipso_v4_rbm_optfmt = 0;
+It turns out that a single page of stack is trivial to overflow with
+all the tracing gunk enabled. Raise the exception stacks to 2 pages,
+which is still half the interrupt stacks, which are at 4 pages.
 
-Signed-off-by: wangzhitong <wangzhitong@uniontech.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Michael Wang <yun.wang@linux.alibaba.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/YUIO9Ye98S5Eb68w@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/cipso_ipv4.c | 2 +-
+ arch/x86/include/asm/page_64_types.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-index e8b8dd1cb1576..75908722de47a 100644
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -87,7 +87,7 @@ struct cipso_v4_map_cache_entry {
- static struct cipso_v4_map_cache_bkt *cipso_v4_cache;
+diff --git a/arch/x86/include/asm/page_64_types.h b/arch/x86/include/asm/page_64_types.h
+index 50c8baaca4b06..4c807635e6244 100644
+--- a/arch/x86/include/asm/page_64_types.h
++++ b/arch/x86/include/asm/page_64_types.h
+@@ -20,7 +20,7 @@
+ #define THREAD_SIZE  (PAGE_SIZE << THREAD_SIZE_ORDER)
+ #define CURRENT_MASK (~(THREAD_SIZE - 1))
  
- /* Restricted bitmap (tag #1) flags */
--int cipso_v4_rbm_optfmt = 0;
-+int cipso_v4_rbm_optfmt;
- int cipso_v4_rbm_strictvalid = 1;
+-#define EXCEPTION_STACK_ORDER (0 + KASAN_STACK_ORDER)
++#define EXCEPTION_STACK_ORDER (1 + KASAN_STACK_ORDER)
+ #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
  
- /*
+ #define DEBUG_STACK_ORDER (EXCEPTION_STACK_ORDER + 1)
 -- 
 2.33.0
 
