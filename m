@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CA5E44B5EE
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:21:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A725C44B5F8
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:21:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343510AbhKIWYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:24:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41188 "EHLO mail.kernel.org"
+        id S245560AbhKIWYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:24:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343535AbhKIWWV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:22:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84ABF6137F;
-        Tue,  9 Nov 2021 22:18:29 +0000 (UTC)
+        id S1343561AbhKIWWZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:22:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B791061872;
+        Tue,  9 Nov 2021 22:18:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496310;
-        bh=mhSzMwWW4rI8F89tcktNvyzwyOgUJFo1iiLUthPJbbQ=;
+        s=k20201202; t=1636496311;
+        bh=JhgAtN774Pou7HOw4OaGDPO929cZub21tWdavgvxMMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7OrudC1G1qQEBZACs/FQXmIbUDm9G3O047AcG+UJznDnfOFBOXuG6DAqHAacRU8Q
-         9jDYvcVCn8z9rmNxrbrs/g1Lj5zeoIhhivl05SEkpK1BGK3YaO6igb+pUaNSH5j+Wa
-         kvxLxY7Ae6cFdh6QrLIt5/kXCuWti+fPsR4fgBgWG6BZWXJXUGMEuwmmT6WsV1AkvV
-         r6oMFMniKWa5SeAILNxOXS5XZDKkfXQv/E4lGdzthqHTIdcuZAwebzGfB6PUyKyUcO
-         6IyS8b6w0VPddQoAbEP09kjZHQ6gHcyxEzfUbDWrfz88VnndDlHRRRgOpzOsN672Sr
-         iWJA6Z/q48p0A==
+        b=jlShHBMxxGY+tHidhw0XT9Pyno7r4wKse+zsC7YrQbsOPZgKr4mvU2Mr+giP1ce1T
+         esEjuIq/N/0l2cgHllzVLMhXoO65XIzEFX79EpUwI+35nuegXxM9tgySw3ss3ozQO1
+         SJ/Lz4EKXvUHYd/+1YseTrvgV3Pw+UdhXL7uYU4Zx0D7g1OFlOx0W4DDOO7ok7H/tI
+         +5qbWehWRX1X6+B3aUKQGNYOaD9vvIn/38i7iYrp65fGpu+rVv+uPzRDCAINWLc8c8
+         Yy8B2woQAAd8KtdRJvnp/MdEQuUCgGBcd+CChpmfWD95QjEE/+Ft6s/lVzbTDj/EJK
+         JRPI+NSKLP/tw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>, linux-mips@vger.kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, Ralf@vger.kernel.org,
-        linux-mips@linux-mips.org
-Subject: [PATCH AUTOSEL 5.15 61/82] MIPS: sni: Fix the build
-Date:   Tue,  9 Nov 2021 17:16:19 -0500
-Message-Id: <20211109221641.1233217-61-sashal@kernel.org>
+Cc:     Ye Bin <yebin10@huawei.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, JBottomley@odin.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 62/82] scsi: scsi_debug: Fix out-of-bound read in resp_readcap16()
+Date:   Tue,  9 Nov 2021 17:16:20 -0500
+Message-Id: <20211109221641.1233217-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,49 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit c91cf42f61dc77b289784ea7b15a8531defa41c0 ]
+[ Upstream commit 4e3ace0051e7e504b55d239daab8789dd89b863c ]
 
-This patch fixes the following gcc 10 build error:
+The following warning was observed running syzkaller:
 
-arch/mips/sni/time.c: In function ‘a20r_set_periodic’:
-arch/mips/sni/time.c:15:26: error: unsigned conversion from ‘int’ to ‘u8’ {aka ‘volatile unsigned char’} changes value from ‘576’ to ‘64’ [-Werror=overflow]
-   15 | #define SNI_COUNTER0_DIV ((SNI_CLOCK_TICK_RATE / SNI_COUNTER2_DIV) / HZ)
-      |                          ^
-arch/mips/sni/time.c:21:45: note: in expansion of macro ‘SNI_COUNTER0_DIV’
-   21 |  *(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV;
-      |                                             ^~~~~~~~~~~~~~~~
+[ 3813.830724] sg_write: data in/out 65466/242 bytes for SCSI command 0x9e-- guessing data in;
+[ 3813.830724]    program syz-executor not setting count and/or reply_len properly
+[ 3813.836956] ==================================================================
+[ 3813.839465] BUG: KASAN: stack-out-of-bounds in sg_copy_buffer+0x157/0x1e0
+[ 3813.841773] Read of size 4096 at addr ffff8883cf80f540 by task syz-executor/1549
+[ 3813.846612] Call Trace:
+[ 3813.846995]  dump_stack+0x108/0x15f
+[ 3813.847524]  print_address_description+0xa5/0x372
+[ 3813.848243]  kasan_report.cold+0x236/0x2a8
+[ 3813.849439]  check_memory_region+0x240/0x270
+[ 3813.850094]  memcpy+0x30/0x80
+[ 3813.850553]  sg_copy_buffer+0x157/0x1e0
+[ 3813.853032]  sg_copy_from_buffer+0x13/0x20
+[ 3813.853660]  fill_from_dev_buffer+0x135/0x370
+[ 3813.854329]  resp_readcap16+0x1ac/0x280
+[ 3813.856917]  schedule_resp+0x41f/0x1630
+[ 3813.858203]  scsi_debug_queuecommand+0xb32/0x17e0
+[ 3813.862699]  scsi_dispatch_cmd+0x330/0x950
+[ 3813.863329]  scsi_request_fn+0xd8e/0x1710
+[ 3813.863946]  __blk_run_queue+0x10b/0x230
+[ 3813.864544]  blk_execute_rq_nowait+0x1d8/0x400
+[ 3813.865220]  sg_common_write.isra.0+0xe61/0x2420
+[ 3813.871637]  sg_write+0x6c8/0xef0
+[ 3813.878853]  __vfs_write+0xe4/0x800
+[ 3813.883487]  vfs_write+0x17b/0x530
+[ 3813.884008]  ksys_write+0x103/0x270
+[ 3813.886268]  __x64_sys_write+0x77/0xc0
+[ 3813.886841]  do_syscall_64+0x106/0x360
+[ 3813.887415]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Cc: linux-mips@vger.kernel.org
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+This issue can be reproduced with the following syzkaller log:
+
+r0 = openat(0xffffffffffffff9c, &(0x7f0000000040)='./file0\x00', 0x26e1, 0x0)
+r1 = syz_open_procfs(0xffffffffffffffff, &(0x7f0000000000)='fd/3\x00')
+open_by_handle_at(r1, &(0x7f00000003c0)=ANY=[@ANYRESHEX], 0x602000)
+r2 = syz_open_dev$sg(&(0x7f0000000000), 0x0, 0x40782)
+write$binfmt_aout(r2, &(0x7f0000000340)=ANY=[@ANYBLOB="00000000deff000000000000000000000000000000000000000000000000000047f007af9e107a41ec395f1bded7be24277a1501ff6196a83366f4e6362bc0ff2b247f68a972989b094b2da4fb3607fcf611a22dd04310d28c75039d"], 0x126)
+
+In resp_readcap16() we get "int alloc_len" value -1104926854, and then pass
+the huge arr_len to fill_from_dev_buffer(), but arr is only 32 bytes. This
+leads to OOB in sg_copy_buffer().
+
+To solve this issue, define alloc_len as u32.
+
+Link: https://lore.kernel.org/r/20211013033913.2551004-2-yebin10@huawei.com
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/sni/time.c | 4 ++--
+ drivers/scsi/scsi_debug.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/sni/time.c b/arch/mips/sni/time.c
-index 240bb68ec2478..ff3ba7e778901 100644
---- a/arch/mips/sni/time.c
-+++ b/arch/mips/sni/time.c
-@@ -18,14 +18,14 @@ static int a20r_set_periodic(struct clock_event_device *evt)
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 66f507469a31a..be04405457447 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -1856,7 +1856,7 @@ static int resp_readcap16(struct scsi_cmnd *scp,
  {
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 12) = 0x34;
- 	wmb();
--	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV;
-+	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV & 0xff;
- 	wmb();
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV >> 8;
- 	wmb();
+ 	unsigned char *cmd = scp->cmnd;
+ 	unsigned char arr[SDEBUG_READCAP16_ARR_SZ];
+-	int alloc_len;
++	u32 alloc_len;
  
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 12) = 0xb4;
- 	wmb();
--	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 8) = SNI_COUNTER2_DIV;
-+	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 8) = SNI_COUNTER2_DIV & 0xff;
- 	wmb();
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 8) = SNI_COUNTER2_DIV >> 8;
- 	wmb();
+ 	alloc_len = get_unaligned_be32(cmd + 10);
+ 	/* following just in case virtual_gb changed */
+@@ -1885,7 +1885,7 @@ static int resp_readcap16(struct scsi_cmnd *scp,
+ 	}
+ 
+ 	return fill_from_dev_buffer(scp, arr,
+-			    min_t(int, alloc_len, SDEBUG_READCAP16_ARR_SZ));
++			    min_t(u32, alloc_len, SDEBUG_READCAP16_ARR_SZ));
+ }
+ 
+ #define SDEBUG_MAX_TGTPGS_ARR_SZ 1412
 -- 
 2.33.0
 
