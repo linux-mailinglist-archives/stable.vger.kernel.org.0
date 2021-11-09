@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B19EB44B621
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:22:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 260AC44B622
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:22:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343860AbhKIWZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240165AbhKIWZV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 9 Nov 2021 17:25:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344246AbhKIWXP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:23:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 899316128B;
-        Tue,  9 Nov 2021 22:18:43 +0000 (UTC)
+        id S1344257AbhKIWXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:23:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6075C619E8;
+        Tue,  9 Nov 2021 22:18:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496324;
-        bh=DYyIzSGTQ8W6spGmBqd+117i5tD1eiwjX3gTuBDc7F4=;
+        s=k20201202; t=1636496326;
+        bh=A0IhG0duW+sokUwebqnXxg/iOEkbWqw7YJjmQJh7+Ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xi2EKuz1CyHXcQv2NiJKkl47wnJSjHjSxIG3MG/EP2f4VEOw0uG3S2TYHCCX+AS/p
-         DTtfZLzVXLshAX0GSYUjHGrDJylkxWOuDLJEGyDnQ7UI7O8dVr0EruE2dbWV+ldQrY
-         y82uq8HDjaQJOEQ6tvJXTc8IIL9eAp9Uqk+NZ+7eDNBd7+ioYte3bUFzSDS7bWI0Uo
-         8xjrxf6ENeohK0Rgmk1SvJpgIEe2/OF6+hX44MnpUcvctbC60++EeE/i09VEf/us+s
-         LCTIlpxflCFlTjDbnzMNtTWzIPjmdGuU5Dotvq4JHQsep88+whga4yvxSVrzWFMjDR
-         99Loa5zQTwzcw==
+        b=hTcplnMdJx7AGaQnL19U8HiEtwG3+qNCKDou5qPl3zbmVvJ/moDrLV8TJVGxp0hQB
+         RcgTGyUXVM96WmXakcO0U0Y0Xqfn7J53XPYE/R+lj243b4WWX4H6Ni1KlQDbALdE6R
+         99lnfk9xKitgxtBouZu+/eCcR7FWvakRcpEYwf5ELCycM9Bdu96HYFxnZum6EE/i4N
+         DphOjAM7DZ2ZPsoQOL5GI7rlPjifHPDZk8xCJPNyzjdOq52F7LKKItFqhFV57llWE5
+         2YVGPT+qtcWwN3TGpljABO8f7ck/Q19nIlpKaZu96nIWe3O89Btj1Mfrmi9smL6qo1
+         dtq5zpj+zQ3vA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Nicolas Chauvet <kwizart@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sasha Levin <sashal@kernel.org>, swarren@wwwdotorg.org,
-        thierry.reding@gmail.com, gnurou@gmail.com,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 71/82] memory: tegra20-emc: Add runtime dependency on devfreq governor module
-Date:   Tue,  9 Nov 2021 17:16:29 -0500
-Message-Id: <20211109221641.1233217-71-sashal@kernel.org>
+Cc:     Anatolij Gustschin <agust@denx.de>, Rob Herring <robh@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        pawel.moll@arm.com, mark.rutland@arm.com,
+        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
+        benh@kernel.crashing.org, paulus@samba.org,
+        devicetree@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.15 72/82] powerpc/5200: dts: fix memory node unit name
+Date:   Tue,  9 Nov 2021 17:16:30 -0500
+Message-Id: <20211109221641.1233217-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
@@ -45,35 +46,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Anatolij Gustschin <agust@denx.de>
 
-[ Upstream commit 14b43c20c283de36131da0cb44f3170b9ffa7630 ]
+[ Upstream commit aed2886a5e9ffc8269a4220bff1e9e030d3d2eb1 ]
 
-Tegra20 EMC driver uses simple devfreq governor. Add simple devfreq
-governor to the list of the Tegra20 EMC driver module softdeps to allow
-userspace initramfs tools like dracut to automatically pull the devfreq
-module into ramfs image together with the EMC module.
+Fixes build warnings:
+Warning (unit_address_vs_reg): /memory: node has a reg or ranges property, but no unit name
 
-Reported-by: Nicolas Chauvet <kwizart@gmail.com>
-Suggested-by: Nicolas Chauvet <kwizart@gmail.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20211019231524.888-1-digetx@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Anatolij Gustschin <agust@denx.de>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211013220532.24759-4-agust@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/tegra/tegra20-emc.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/boot/dts/charon.dts    | 2 +-
+ arch/powerpc/boot/dts/digsy_mtc.dts | 2 +-
+ arch/powerpc/boot/dts/lite5200.dts  | 2 +-
+ arch/powerpc/boot/dts/lite5200b.dts | 2 +-
+ arch/powerpc/boot/dts/media5200.dts | 2 +-
+ arch/powerpc/boot/dts/mpc5200b.dtsi | 2 +-
+ arch/powerpc/boot/dts/o2d.dts       | 2 +-
+ arch/powerpc/boot/dts/o2d.dtsi      | 2 +-
+ arch/powerpc/boot/dts/o2dnt2.dts    | 2 +-
+ arch/powerpc/boot/dts/o3dnt.dts     | 2 +-
+ arch/powerpc/boot/dts/pcm032.dts    | 2 +-
+ arch/powerpc/boot/dts/tqm5200.dts   | 2 +-
+ 12 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/memory/tegra/tegra20-emc.c b/drivers/memory/tegra/tegra20-emc.c
-index c3462dbc8c22b..6fc90f2160e93 100644
---- a/drivers/memory/tegra/tegra20-emc.c
-+++ b/drivers/memory/tegra/tegra20-emc.c
-@@ -1117,4 +1117,5 @@ module_platform_driver(tegra_emc_driver);
+diff --git a/arch/powerpc/boot/dts/charon.dts b/arch/powerpc/boot/dts/charon.dts
+index 408b486b13dff..cd589539f313f 100644
+--- a/arch/powerpc/boot/dts/charon.dts
++++ b/arch/powerpc/boot/dts/charon.dts
+@@ -35,7 +35,7 @@
+ 		};
+ 	};
  
- MODULE_AUTHOR("Dmitry Osipenko <digetx@gmail.com>");
- MODULE_DESCRIPTION("NVIDIA Tegra20 EMC driver");
-+MODULE_SOFTDEP("pre: governor_simpleondemand");
- MODULE_LICENSE("GPL v2");
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>;	// 128MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/digsy_mtc.dts b/arch/powerpc/boot/dts/digsy_mtc.dts
+index 0e5e9d3acf79f..19a14e62e65f4 100644
+--- a/arch/powerpc/boot/dts/digsy_mtc.dts
++++ b/arch/powerpc/boot/dts/digsy_mtc.dts
+@@ -16,7 +16,7 @@
+ 	model = "intercontrol,digsy-mtc";
+ 	compatible = "intercontrol,digsy-mtc";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x02000000>;	// 32MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/lite5200.dts b/arch/powerpc/boot/dts/lite5200.dts
+index cb2782dd6132c..e7b194775d783 100644
+--- a/arch/powerpc/boot/dts/lite5200.dts
++++ b/arch/powerpc/boot/dts/lite5200.dts
+@@ -32,7 +32,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/lite5200b.dts b/arch/powerpc/boot/dts/lite5200b.dts
+index 2b86c81f90485..547cbe726ff23 100644
+--- a/arch/powerpc/boot/dts/lite5200b.dts
++++ b/arch/powerpc/boot/dts/lite5200b.dts
+@@ -31,7 +31,7 @@
+ 		led4 { gpios = <&gpio_simple 2 1>; };
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x10000000>;	// 256MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/media5200.dts b/arch/powerpc/boot/dts/media5200.dts
+index 61cae9dcddef4..f3188018faceb 100644
+--- a/arch/powerpc/boot/dts/media5200.dts
++++ b/arch/powerpc/boot/dts/media5200.dts
+@@ -32,7 +32,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;	// 128MB RAM
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/mpc5200b.dtsi b/arch/powerpc/boot/dts/mpc5200b.dtsi
+index 648fe31795f49..8b796f3b11da7 100644
+--- a/arch/powerpc/boot/dts/mpc5200b.dtsi
++++ b/arch/powerpc/boot/dts/mpc5200b.dtsi
+@@ -33,7 +33,7 @@
+ 		};
+ 	};
+ 
+-	memory: memory {
++	memory: memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/o2d.dts b/arch/powerpc/boot/dts/o2d.dts
+index 24a46f65e5299..e0a8d3034417f 100644
+--- a/arch/powerpc/boot/dts/o2d.dts
++++ b/arch/powerpc/boot/dts/o2d.dts
+@@ -12,7 +12,7 @@
+ 	model = "ifm,o2d";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;  // 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o2d.dtsi b/arch/powerpc/boot/dts/o2d.dtsi
+index 6661955a2be47..b55a9e5bd828c 100644
+--- a/arch/powerpc/boot/dts/o2d.dtsi
++++ b/arch/powerpc/boot/dts/o2d.dtsi
+@@ -19,7 +19,7 @@
+ 	model = "ifm,o2d";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o2dnt2.dts b/arch/powerpc/boot/dts/o2dnt2.dts
+index eeba7f5507d5d..c2eedbd1f5fcb 100644
+--- a/arch/powerpc/boot/dts/o2dnt2.dts
++++ b/arch/powerpc/boot/dts/o2dnt2.dts
+@@ -12,7 +12,7 @@
+ 	model = "ifm,o2dnt2";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;  // 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o3dnt.dts b/arch/powerpc/boot/dts/o3dnt.dts
+index fd00396b0593e..e4c1bdd412716 100644
+--- a/arch/powerpc/boot/dts/o3dnt.dts
++++ b/arch/powerpc/boot/dts/o3dnt.dts
+@@ -12,7 +12,7 @@
+ 	model = "ifm,o3dnt";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x04000000>;  // 64MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/pcm032.dts b/arch/powerpc/boot/dts/pcm032.dts
+index 780e13d99e7b8..1895bc95900cc 100644
+--- a/arch/powerpc/boot/dts/pcm032.dts
++++ b/arch/powerpc/boot/dts/pcm032.dts
+@@ -20,7 +20,7 @@
+ 	model = "phytec,pcm032";
+ 	compatible = "phytec,pcm032";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;	// 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/tqm5200.dts b/arch/powerpc/boot/dts/tqm5200.dts
+index 9ed0bc78967e1..5bb25a9e40a01 100644
+--- a/arch/powerpc/boot/dts/tqm5200.dts
++++ b/arch/powerpc/boot/dts/tqm5200.dts
+@@ -32,7 +32,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
 -- 
 2.33.0
 
