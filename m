@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5197144A2CF
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:23:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 208BD44A2D4
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 02:23:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242904AbhKIBVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Nov 2021 20:21:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46194 "EHLO mail.kernel.org"
+        id S243000AbhKIBWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Nov 2021 20:22:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243117AbhKIBTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Nov 2021 20:19:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E27A61B03;
-        Tue,  9 Nov 2021 01:07:49 +0000 (UTC)
+        id S243158AbhKIBTc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Nov 2021 20:19:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DB1561284;
+        Tue,  9 Nov 2021 01:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636420070;
-        bh=8oDn/mKKwZW39jfc27elu3K7XvGSEnv0UEF+EV8qVY0=;
+        s=k20201202; t=1636420073;
+        bh=fZXrAMowt1mPhO6b8vKZbcOJ66dxfQP3LqK1emOm2MI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=boJ/ROJhiWSpfPM5Byzk80MYgGVsIW9j106//QG155JIDRjIpsjK+wojV0ag/zgzl
-         FNKwICYuvJc2hiTefTlLJxvJg/JlyQk3PuQjpDm6215Tml2ZqALtJIWARQH09ZOx+8
-         EEgNFtK43cA89HgWtmd+O6aNz8IX5g/FeXEsvEfFArV2FlDY+BTR2GOQSjqwGzTHoH
-         8CRtODpp4DaB9v5pqiriQpEYaM8iLAeHl95E+Uk1dzWvAcFX6UEiJmslXQKgYIJzgT
-         qyzFMVpTRdybTiOQ6u0/0zFbnNVm97xCRLTVDvw1W9KFt11RvIQzbTDNc9Vm9o0+D/
-         ToplmFJvcFPKA==
+        b=eFFF5u50Swqb8NtLkN64ubK5qlNUCu5iXIce0ecHF6kUha/yDuzpiSfrtnrWoIBCj
+         YYT8g4ZslL1ZNlThlf03e/YEndnBNx4ZHQ7babSe/Wux7ujd2A9HN5kQGJfSoxU55J
+         EhdJoBYzEauX8r4LAnDLBrSzAlqx4P5LMP3FVyS77nAeP5kkWJ2nbEMVyLTXKaI7MY
+         BXSgFtMHeb7v8U6T5N06rXk7darWiBuuVSblxg0018L5ifiNfZvYpXy+8QL6PZKL1d
+         04LAcTpCM2g9v3bGtLpu1kMZucwukCYpi9MpKKejpjiQty0hIcZ1S1QJ799Og49W1L
+         pBCuNiU6G0sbw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Sasha Levin <sashal@kernel.org>, jmorris@namei.org,
-        serge@hallyn.com, linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 32/39] smackfs: use __GFP_NOFAIL for smk_cipso_doi()
-Date:   Mon,  8 Nov 2021 20:06:42 -0500
-Message-Id: <20211109010649.1191041-32-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        nathan@kernel.org, linux-arm-kernel@lists.infradead.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 4.14 33/39] ARM: clang: Do not rely on lr register for stacktrace
+Date:   Mon,  8 Nov 2021 20:06:43 -0500
+Message-Id: <20211109010649.1191041-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109010649.1191041-1-sashal@kernel.org>
 References: <20211109010649.1191041-1-sashal@kernel.org>
@@ -45,39 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit f91488ee15bd3cac467e2d6a361fc2d34d1052ae ]
+[ Upstream commit b3ea5d56f212ad81328c82454829a736197ebccc ]
 
-syzbot is reporting kernel panic at smk_cipso_doi() due to memory
-allocation fault injection [1]. The reason for need to use panic() was
-not explained. But since no fix was proposed for 18 months, for now
-let's use __GFP_NOFAIL for utilizing syzbot resource on other bugs.
+Currently the stacktrace on clang compiled arm kernel uses the 'lr'
+register to find the first frame address from pt_regs. However, that
+is wrong after calling another function, because the 'lr' register
+is used by 'bl' instruction and never be recovered.
 
-Link: https://syzkaller.appspot.com/bug?extid=89731ccb6fec15ce1c22 [1]
-Reported-by: syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+As same as gcc arm kernel, directly use the frame pointer (r11) of
+the pt_regs to find the first frame address.
+
+Note that this fixes kretprobe stacktrace issue only with
+CONFIG_UNWINDER_FRAME_POINTER=y. For the CONFIG_UNWINDER_ARM,
+we need another fix.
+
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smackfs.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/arm/kernel/stacktrace.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index 25705a72d31bc..9fdf404a318f9 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -721,9 +721,7 @@ static void smk_cipso_doi(void)
- 		printk(KERN_WARNING "%s:%d remove rc = %d\n",
- 		       __func__, __LINE__, rc);
+diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
+index ba9b9a77bcd2c..31af81d46aaed 100644
+--- a/arch/arm/kernel/stacktrace.c
++++ b/arch/arm/kernel/stacktrace.c
+@@ -52,8 +52,7 @@ int notrace unwind_frame(struct stackframe *frame)
  
--	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL);
--	if (doip == NULL)
--		panic("smack:  Failed to initialize cipso DOI.\n");
-+	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL | __GFP_NOFAIL);
- 	doip->map.std = NULL;
- 	doip->doi = smk_cipso_doi_value;
- 	doip->type = CIPSO_V4_MAP_PASS;
+ 	frame->sp = frame->fp;
+ 	frame->fp = *(unsigned long *)(fp);
+-	frame->pc = frame->lr;
+-	frame->lr = *(unsigned long *)(fp + 4);
++	frame->pc = *(unsigned long *)(fp + 4);
+ #else
+ 	/* check current frame pointer is within bounds */
+ 	if (fp < low + 12 || fp > high - 4)
 -- 
 2.33.0
 
