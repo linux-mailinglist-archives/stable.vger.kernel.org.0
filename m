@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0AFA44B710
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:29:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C515744B717
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:29:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344419AbhKIWcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:32:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50284 "EHLO mail.kernel.org"
+        id S1344451AbhKIWcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:32:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344543AbhKIWaM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:30:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02DD161A7A;
-        Tue,  9 Nov 2021 22:20:40 +0000 (UTC)
+        id S240669AbhKIWaQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:30:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4293860E54;
+        Tue,  9 Nov 2021 22:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496441;
-        bh=0i/dt9SXHFlPpdZxbJZ7t2pzOSXUtRPVQ3Ou4zXpaNU=;
+        s=k20201202; t=1636496443;
+        bh=/muP2UIDb2cnSO54BuNa9JqODtLJYe/zlk6ygSqVLao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QGdUGUWNfnmkgxvPc1cN4OHXP34ZOgoQUQU1uLKaA7jnBkanrNY7BZEQ/w+ek8k3o
-         x24NZwvtiVlA+KJP43V4lur+isEz0xFWV+yTjLUVlj24WIpd0nJHeHP2iMHPmBaogl
-         bsnLlsw5A0TOWYvfUP3bAkE3hJoWFgNCfprvWyknjbQMZU4VQLn+1lm+T+ivDorbh7
-         CLN70gGo/W15gEZZFZNXocalcjOzaCLdhtWoUOI2PZZek6BP8C2PC0piQkOqb84Ks1
-         R6vsWxWZGDcMetugSi1QKpFA/fk2UNow/FILkmHOSppvMcTz9X4GVSnkPFijsn2L8J
-         +qMOuLQidYDrw==
+        b=nzOWmUsoTP13wPuQFOnc8CervSs9UmJ93E7SbvLfMShfWScqcj15c1aZjgYreekAp
+         4jKGLOqwqUhYKbLXdYajVihw20wSNjbwrn0t28NLwWt8RbzP4nOXU2uq1cQ0uqf0Ti
+         Q9sJIIfq9j1nlUlmNzWjvGBne7Or5UB9HhduN6bPtrufqkREdHKfwfuqU0rsbo+caT
+         lb1W2zi+2JA4S1M/Mx3DMpAVcp4muOhQIA1dYRCNvVW00sZd33J4vtw1tQ7/AWU6aW
+         qAaPDZL6SARcF23kz+WfpRZDq1I/ENEIldkVsH0rrl97AVSsfRM9y8/Rk7/qVUrbjh
+         c2VBlmMB7g/1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Christie <michael.christie@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, nab@linux-iscsi.org,
-        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 61/75] scsi: target: Fix alua_tg_pt_gps_count tracking
-Date:   Tue,  9 Nov 2021 17:18:51 -0500
-Message-Id: <20211109221905.1234094-61-sashal@kernel.org>
+Cc:     Teng Qi <starmiku1207184332@gmail.com>,
+        TOTE Robot <oslab@tsinghua.edu.cn>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
+        linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 62/75] iio: imu: st_lsm6dsx: Avoid potential array overflow in st_lsm6dsx_set_odr()
+Date:   Tue,  9 Nov 2021 17:18:52 -0500
+Message-Id: <20211109221905.1234094-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221905.1234094-1-sashal@kernel.org>
 References: <20211109221905.1234094-1-sashal@kernel.org>
@@ -43,43 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Teng Qi <starmiku1207184332@gmail.com>
 
-[ Upstream commit 1283c0d1a32bb924324481586b5d6e8e76f676ba ]
+[ Upstream commit 94be878c882d8d784ff44c639bf55f3b029f85af ]
 
-We can't free the tg_pt_gp in core_alua_set_tg_pt_gp_id() because it's
-still accessed via configfs. Its release must go through the normal
-configfs/refcount process.
+The length of hw->settings->odr_table is 2 and ref_sensor->id is an enum
+variable whose value is between 0 and 5.
+However, the value ST_LSM6DSX_ID_MAX (i.e. 5) is not caught properly in
+ switch (sensor->id) {
 
-The max alua_tg_pt_gps_count check should probably have been done in
-core_alua_allocate_tg_pt_gp(), but with the current code userspace could
-have created 0x0000ffff + 1 groups, but only set the id for 0x0000ffff.
-Then it could have deleted a group with an ID set, and then set the ID for
-that extra group and it would work ok.
+If ref_sensor->id is ST_LSM6DSX_ID_MAX, an array overflow will ocurrs in
+function st_lsm6dsx_check_odr():
+  odr_table = &sensor->hw->settings->odr_table[sensor->id];
 
-It's unlikely, but just in case this patch continues to allow that type of
-behavior, and just fixes the kfree() while in use bug.
+and in function st_lsm6dsx_set_odr():
+  reg = &hw->settings->odr_table[ref_sensor->id].reg;
 
-Link: https://lore.kernel.org/r/20210930020422.92578-4-michael.christie@oracle.com
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+To avoid this array overflow, handle ST_LSM6DSX_ID_GYRO explicitly and
+return -EINVAL for the default case.
+
+The enum value ST_LSM6DSX_ID_MAX is only present as an easy way to check
+the limit and as such is never used, however this is not locally obvious.
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Teng Qi <starmiku1207184332@gmail.com>
+Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Link: https://lore.kernel.org/r/20211011114003.976221-1-starmiku1207184332@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_alua.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/target/target_core_alua.c b/drivers/target/target_core_alua.c
-index 3bb921345bce3..69dc6038ad110 100644
---- a/drivers/target/target_core_alua.c
-+++ b/drivers/target/target_core_alua.c
-@@ -1700,7 +1700,6 @@ int core_alua_set_tg_pt_gp_id(
- 		pr_err("Maximum ALUA alua_tg_pt_gps_count:"
- 			" 0x0000ffff reached\n");
- 		spin_unlock(&dev->t10_alua.tg_pt_gps_lock);
--		kmem_cache_free(t10_alua_tg_pt_gp_cache, tg_pt_gp);
- 		return -ENOSPC;
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+index db45f1fc0b817..8dbf744c5651f 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+@@ -1279,6 +1279,8 @@ st_lsm6dsx_set_odr(struct st_lsm6dsx_sensor *sensor, u32 req_odr)
+ 	int err;
+ 
+ 	switch (sensor->id) {
++	case ST_LSM6DSX_ID_GYRO:
++		break;
+ 	case ST_LSM6DSX_ID_EXT0:
+ 	case ST_LSM6DSX_ID_EXT1:
+ 	case ST_LSM6DSX_ID_EXT2:
+@@ -1304,8 +1306,8 @@ st_lsm6dsx_set_odr(struct st_lsm6dsx_sensor *sensor, u32 req_odr)
+ 		}
+ 		break;
  	}
- again:
+-	default:
+-		break;
++	default: /* should never occur */
++		return -EINVAL;
+ 	}
+ 
+ 	if (req_odr > 0) {
 -- 
 2.33.0
 
