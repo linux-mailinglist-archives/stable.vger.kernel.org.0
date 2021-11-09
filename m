@@ -2,185 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38A9244B3AB
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 21:01:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55AC244B451
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 21:53:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244043AbhKIUDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 15:03:52 -0500
-Received: from mga01.intel.com ([192.55.52.88]:59920 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242871AbhKIUDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 15:03:51 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10163"; a="256212988"
-X-IronPort-AV: E=Sophos;i="5.87,221,1631602800"; 
-   d="scan'208";a="256212988"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2021 12:01:04 -0800
-X-IronPort-AV: E=Sophos;i="5.87,221,1631602800"; 
-   d="scan'208";a="452039533"
-Received: from rchatre-ws.ostc.intel.com ([10.54.69.144])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2021 12:01:03 -0800
-From:   Reinette Chatre <reinette.chatre@intel.com>
-To:     dave.hansen@linux.intel.com, jarkko@kernel.org, tglx@linutronix.de,
-        bp@alien8.de, mingo@redhat.com, linux-sgx@vger.kernel.org,
-        x86@kernel.org
-Cc:     seanjc@google.com, tony.luck@intel.com, hpa@zytor.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH V2] x86/sgx: Fix free page accounting
-Date:   Tue,  9 Nov 2021 12:00:56 -0800
-Message-Id: <b2e69e9febcae5d98d331de094d9cc7ce3217e66.1636487172.git.reinette.chatre@intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S243334AbhKIU4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 15:56:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59830 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241538AbhKIU4C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 15:56:02 -0500
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B498C061764
+        for <stable@vger.kernel.org>; Tue,  9 Nov 2021 12:53:16 -0800 (PST)
+Received: by mail-pf1-x42e.google.com with SMTP id b68so497753pfg.11
+        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 12:53:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=C0q/gONsB7oSIPxLMQps1uwp4+esGAZmUgn1vc0hcno=;
+        b=G/xc1itt4Ayaq1p9uTIqmcJRBEf6QxSi3rWttfC/4zSgQQ9/xIgCu17AhG1biR9DFI
+         fmIfq+C+01i1MoaPNCOXAMVAxMGqN/0q8XjLZ7mdMI1q4Dh9tUyHzPHN199wojYs9bBk
+         IJ9JenqmbJvDNXQJ5gip+ZEspncZSajDHbcY3D5IIfXnl/q78s4QVFeX5ytn1OStjlcc
+         MtMLh+GOYfVJCUN2yceNgxMROS1bot9J/FtEtAvL/A/yZbANI2x4EcWOxzOhkdqOftSC
+         44wmnoKUskcKWU7Q3bRk46ArOzptjREavu6AAxjNguivkLsMaD2F1YJef6e6FF2F/m7K
+         L4ew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=C0q/gONsB7oSIPxLMQps1uwp4+esGAZmUgn1vc0hcno=;
+        b=FrGv2focRMsxxFl7vyDiJmIRCURb4DxmLpXw0GF9W7Cow2dgjOhJ37H/FPcyPk6ZTW
+         2kg/f2whSGv8je5dpUSXTlAd220USAFVvyJsyrnklw5kspSA0wXbS4DdfiAWrHiKppzy
+         QdTSHrhBt6wJ/n0OzBhyDAIiBkf6lnOZYjxy8uRX+mznHgPBf8Dk5eNd7zq6RiSKlL2N
+         OOz/8cFK2vtoTy5suzoUdXKq2YTsYA/QsIu/BPgGFOY/sAEsqtMT4EWhC4Sw1ZoCJGxo
+         J3o95+AhJNdTSXne4S7vvDDLRNgwPhHeWkMKGXMM8D6yo7HgMR2ukfGeqpucs0uS1lhX
+         gRNw==
+X-Gm-Message-State: AOAM532lb469CS8WWKs4QNv1h/RdrMcYfYV1hvdh90ClgbMvegV6keSV
+        6vijNn6jkgJU5UhFzX9AR6326iu+8ghsvD/C
+X-Google-Smtp-Source: ABdhPJw3ghHAogNeS1thWlbL9E4StndiuYZNrQZQt8J20lfuZuJflC5Us/Gq4lRqQapbJrFitbi71A==
+X-Received: by 2002:a63:3c4c:: with SMTP id i12mr8125089pgn.447.1636491195908;
+        Tue, 09 Nov 2021 12:53:15 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ls14sm3590457pjb.49.2021.11.09.12.53.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Nov 2021 12:53:15 -0800 (PST)
+Message-ID: <618adfbb.1c69fb81.f00f6.b2e5@mx.google.com>
+Date:   Tue, 09 Nov 2021 12:53:15 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.291-8-g748a6d994abf
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.4 baseline: 137 runs,
+ 2 regressions (v4.4.291-8-g748a6d994abf)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The SGX driver maintains a single global free page counter,
-sgx_nr_free_pages, that reflects the number of free pages available
-across all NUMA nodes. Correspondingly, a list of free pages is
-associated with each NUMA node and sgx_nr_free_pages is updated
-every time a page is added or removed from any of the free page
-lists. The main usage of sgx_nr_free_pages is by the reclaimer
-that will run when it (sgx_nr_free_pages) goes below a watermark
-to ensure that there are always some free pages available to, for
-example, support efficient page faults.
+stable-rc/queue/4.4 baseline: 137 runs, 2 regressions (v4.4.291-8-g748a6d99=
+4abf)
 
-With sgx_nr_free_pages accessed and modified from a few places
-it is essential to ensure that these accesses are done safely but
-this is not the case. sgx_nr_free_pages is read without any
-protection and updated with inconsistent protection by any one
-of the spin locks associated with the individual NUMA nodes.
-For example:
+Regressions Summary
+-------------------
 
-      CPU_A                                 CPU_B
-      -----                                 -----
- spin_lock(&nodeA->lock);              spin_lock(&nodeB->lock);
- ...                                   ...
- sgx_nr_free_pages--;  /* NOT SAFE */  sgx_nr_free_pages--;
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig             | 1          =
 
- spin_unlock(&nodeA->lock);            spin_unlock(&nodeB->lock);
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
-The consequence of sgx_nr_free_pages not being protected is that
-its value may not accurately reflect the actual number of free
-pages on the system, impacting the availability of free pages in
-support of many flows. The problematic scenario is when the
-reclaimer does not run because it believes there to be sufficient
-free pages while any attempt to allocate a page fails because there
-are no free pages available.
 
-The worst scenario observed was a user space hang because of
-repeated page faults caused by no free pages made available.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.291-8-g748a6d994abf/plan/baseline/
 
-The following flow was encountered:
-asm_exc_page_fault
- ...
-   sgx_vma_fault()
-     sgx_encl_load_page()
-       sgx_encl_eldu() // Encrypted page needs to be loaded from backing
-                       // storage into newly allocated SGX memory page
-         sgx_alloc_epc_page() // Allocate a page of SGX memory
-           __sgx_alloc_epc_page() // Fails, no free SGX memory
-           ...
-           if (sgx_should_reclaim(SGX_NR_LOW_PAGES)) // Wake reclaimer
-             wake_up(&ksgxd_waitq);
-           return -EBUSY; // Return -EBUSY giving reclaimer time to run
-       return -EBUSY;
-     return -EBUSY;
-   return VM_FAULT_NOPAGE;
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.291-8-g748a6d994abf
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      748a6d994abf5788e87fdd01daf8b2f6d0f9484f =
 
-The reclaimer is triggered in above flow with the following code:
 
-static bool sgx_should_reclaim(unsigned long watermark)
-{
-        return sgx_nr_free_pages < watermark &&
-               !list_empty(&sgx_active_page_list);
-}
 
-In the problematic scenario there were no free pages available yet the
-value of sgx_nr_free_pages was above the watermark. The allocation of
-SGX memory thus always failed because of a lack of free pages while no
-free pages were made available because the reclaimer is never started
-because of sgx_nr_free_pages' incorrect value. The consequence was that
-user space kept encountering VM_FAULT_NOPAGE that caused the same
-address to be accessed repeatedly with the same result.
+Test Regressions
+---------------- =
 
-Change the global free page counter to an atomic type that
-ensures simultaneous updates are done safely. While doing so, move
-the updating of the variable outside of the spin lock critical
-section to which it does not belong.
 
-Cc: stable@vger.kernel.org
-Fixes: 901ddbb9ecf5 ("x86/sgx: Add a basic NUMA allocation scheme to sgx_alloc_epc_page()")
-Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
----
 
-Changes since V1:
-- V1:
-  https://lore.kernel.org/lkml/373992d869cd356ce9e9afe43ef4934b70d604fd.1636049678.git.reinette.chatre@intel.com/
-- Add static to definition of sgx_nr_free_pages (Tony).
-- Add Tony's signature.
-- Provide detail about error scenario in changelog (Jarkko).
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig             | 1          =
 
- arch/x86/kernel/cpu/sgx/main.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
-index 63d3de02bbcc..8471a8b9b48e 100644
---- a/arch/x86/kernel/cpu/sgx/main.c
-+++ b/arch/x86/kernel/cpu/sgx/main.c
-@@ -28,8 +28,7 @@ static DECLARE_WAIT_QUEUE_HEAD(ksgxd_waitq);
- static LIST_HEAD(sgx_active_page_list);
- static DEFINE_SPINLOCK(sgx_reclaimer_lock);
- 
--/* The free page list lock protected variables prepend the lock. */
--static unsigned long sgx_nr_free_pages;
-+static atomic_long_t sgx_nr_free_pages = ATOMIC_LONG_INIT(0);
- 
- /* Nodes with one or more EPC sections. */
- static nodemask_t sgx_numa_mask;
-@@ -403,14 +402,15 @@ static void sgx_reclaim_pages(void)
- 
- 		spin_lock(&node->lock);
- 		list_add_tail(&epc_page->list, &node->free_page_list);
--		sgx_nr_free_pages++;
- 		spin_unlock(&node->lock);
-+		atomic_long_inc(&sgx_nr_free_pages);
- 	}
- }
- 
- static bool sgx_should_reclaim(unsigned long watermark)
- {
--	return sgx_nr_free_pages < watermark && !list_empty(&sgx_active_page_list);
-+	return atomic_long_read(&sgx_nr_free_pages) < watermark &&
-+	       !list_empty(&sgx_active_page_list);
- }
- 
- static int ksgxd(void *p)
-@@ -471,9 +471,9 @@ static struct sgx_epc_page *__sgx_alloc_epc_page_from_node(int nid)
- 
- 	page = list_first_entry(&node->free_page_list, struct sgx_epc_page, list);
- 	list_del_init(&page->list);
--	sgx_nr_free_pages--;
- 
- 	spin_unlock(&node->lock);
-+	atomic_long_dec(&sgx_nr_free_pages);
- 
- 	return page;
- }
-@@ -625,9 +625,9 @@ void sgx_free_epc_page(struct sgx_epc_page *page)
- 	spin_lock(&node->lock);
- 
- 	list_add_tail(&page->list, &node->free_page_list);
--	sgx_nr_free_pages++;
- 
- 	spin_unlock(&node->lock);
-+	atomic_long_inc(&sgx_nr_free_pages);
- }
- 
- static bool __init sgx_setup_epc_section(u64 phys_addr, u64 size,
--- 
-2.25.1
+  Details:     https://kernelci.org/test/plan/id/618aa79e4195f4d0e03358ea
 
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-8=
+-g748a6d994abf/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minnow=
+board-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-8=
+-g748a6d994abf/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minnow=
+board-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/618aa79e4195f4d0e0335=
+8eb
+        new failure (last pass: v4.4.291-7-gc8615621e022) =
+
+ =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/618aa95f1fa5763e203358f1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-8=
+-g748a6d994abf/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/=
+baseline-minnowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-8=
+-g748a6d994abf/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/=
+baseline-minnowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/618aa95f1fa5763e20335=
+8f2
+        new failure (last pass: v4.4.291-7-gf3d4ec0d5ea8) =
+
+ =20
