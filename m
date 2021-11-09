@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE1EB44B6EB
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:28:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A94144B6EC
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:28:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344803AbhKIWar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:30:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51348 "EHLO mail.kernel.org"
+        id S1344820AbhKIWat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:30:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344859AbhKIW2p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:28:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1FB561207;
-        Tue,  9 Nov 2021 22:20:25 +0000 (UTC)
+        id S1344874AbhKIW2q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:28:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74B3661208;
+        Tue,  9 Nov 2021 22:20:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496427;
-        bh=yRU2nC94K7wNrUtgKiFvZusWJJCgd3iynH7iUVZAMW8=;
+        s=k20201202; t=1636496428;
+        bh=wywaTOUg4rQhajJSmVTWOlOkW6JYAOE/z69eL1ZC92g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bwGmhQmcYtkHsZmr/bjTEGt8K6jryc3Hpc9l6kL6XKy9Pxw723N67dXAZAprLglim
-         WgKxoJRbl/+6/LbOAOXtBO482UAJcsunjGo04ZA+2UZWMmo3wlN2CcK6M8rMFewW3h
-         LgMdMHzRa41pr5FksX4DrU6LBKBL/PLWow3j2M1+xCDdVHnlpDPirFR0N9llq21zfz
-         eon77/TUnMagHj0rUosW+/TWe/pvU3T/WQzT7NYISqANQooQUozg8ku9HZP82zU8xL
-         95ULIMYWbVwwFcUc9OlvFTV3/lhjuXoWEb64y0jWzkjAZW9jhrLtAnorM2qe2aaS6Q
-         2gHrIDk1PgttA==
+        b=JRdFFf5MNMSCXX9qLE2B6DXoQdb6cYBfJKdbCi7eqmF8D02TwZCyqi7tqWnNgPcQ1
+         FtEcu0FueIN6XnxnLbjwMc5xkAkVM6L7hfoVRJgFalJYS0rTFIJEHXs9qTVi02f71o
+         Sawq+GzgHKO4BR2Pkw4Ny+3NYgL4eNV7RjqddjolDf06OyrLiHVUv9GsHeG1kS3sPJ
+         JSkYgCVlzFjL/i+iwR501kTT6Pca6N/3kaiTjzUXnyc4VKnrgM+cv2ULehBHR3tO1N
+         4w3DTqFXFioGZXAHrMsnonRNjHWRGgsS89qmPFDsK8rmBobzvyptKlkMfA+pdqKplR
+         VLITeHkbxvAbg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roger Quadros <rogerq@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, bcousson@baylibre.com,
-        robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com,
-        ijc+devicetree@hellion.org.uk, galak@codeaurora.org,
-        linux@arm.linux.org.uk, linux-omap@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.14 50/75] ARM: dts: omap: fix gpmc,mux-add-data type
-Date:   Tue,  9 Nov 2021 17:18:40 -0500
-Message-Id: <20211109221905.1234094-50-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 51/75] usb: host: ohci-tmio: check return value after calling platform_get_resource()
+Date:   Tue,  9 Nov 2021 17:18:41 -0500
+Message-Id: <20211109221905.1234094-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221905.1234094-1-sashal@kernel.org>
 References: <20211109221905.1234094-1-sashal@kernel.org>
@@ -46,50 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@kernel.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 51b9e22ffd3c4c56cbb7caae9750f70e55ffa603 ]
+[ Upstream commit 9eff2b2e59fda25051ab36cd1cb5014661df657b ]
 
-gpmc,mux-add-data is not boolean.
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-Fixes the below errors flagged by dtbs_check.
-
-"ethernet@4,0:gpmc,mux-add-data: True is not of type 'array'"
-
-Signed-off-by: Roger Quadros <rogerq@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20211011134920.118477-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi         | 2 +-
- arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/ohci-tmio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
-index 7f6aefd134514..e7534fe9c53cf 100644
---- a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
-+++ b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
-@@ -29,7 +29,7 @@
- 		compatible = "smsc,lan9221","smsc,lan9115";
- 		bank-width = <2>;
+diff --git a/drivers/usb/host/ohci-tmio.c b/drivers/usb/host/ohci-tmio.c
+index 08ec2ab0d95a5..3f3d62dc06746 100644
+--- a/drivers/usb/host/ohci-tmio.c
++++ b/drivers/usb/host/ohci-tmio.c
+@@ -199,7 +199,7 @@ static int ohci_hcd_tmio_drv_probe(struct platform_device *dev)
+ 	if (usb_disabled())
+ 		return -ENODEV;
  
--		gpmc,mux-add-data;
-+		gpmc,mux-add-data = <0>;
- 		gpmc,cs-on-ns = <0>;
- 		gpmc,cs-rd-off-ns = <42>;
- 		gpmc,cs-wr-off-ns = <36>;
-diff --git a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
-index e5da3bc6f1050..218a10c0d8159 100644
---- a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
-+++ b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
-@@ -22,7 +22,7 @@
- 		compatible = "smsc,lan9221","smsc,lan9115";
- 		bank-width = <2>;
+-	if (!cell)
++	if (!cell || !regs || !config || !sram)
+ 		return -EINVAL;
  
--		gpmc,mux-add-data;
-+		gpmc,mux-add-data = <0>;
- 		gpmc,cs-on-ns = <0>;
- 		gpmc,cs-rd-off-ns = <42>;
- 		gpmc,cs-wr-off-ns = <36>;
+ 	if (irq < 0)
 -- 
 2.33.0
 
