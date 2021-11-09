@@ -2,173 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5FE844B1CB
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 18:15:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D150244B1D4
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 18:17:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231695AbhKIRSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 12:18:22 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:46186 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235222AbhKIRSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 12:18:21 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id F3E571FD34;
-        Tue,  9 Nov 2021 17:15:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1636478134; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=w2u1c/OVbCzJIJ5761FcTJUE1XzuOMfSX3Bnp8Mme7s=;
-        b=ZwQV9ABZLTcCLrPTJXvGjA+CksqOScnFQ8y0snD8Rj9xiiHPpSSUpj06oAM7Oxqgy0kvMt
-        Jxkr/KioI9GmfnXam3MDeBKl9K/OCjxRfLkcFPCuRSbcGuZEhgA6MLKgWN+4ynU3ZVoEI7
-        LIW5/W375caR/JxKMeZFxQZVyx26PGo=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id AFE77A3B83;
-        Tue,  9 Nov 2021 17:15:33 +0000 (UTC)
-Date:   Tue, 9 Nov 2021 18:15:33 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Eric Dumazet <eric.dumazet@gmail.com>
-Cc:     Alexey Makhalov <amakhalov@vmware.com>, linux-mm@kvack.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
-Message-ID: <YYqstfX8PSGDfWsn@dhcp22.suse.cz>
-References: <908909e0-4815-b580-7ff5-d824d36a141c@redhat.com>
- <20211108202325.20304-1-amakhalov@vmware.com>
- <2e191db3-286f-90c6-bf96-3f89891e9926@gmail.com>
+        id S239874AbhKIRUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 12:20:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39182 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239433AbhKIRUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Nov 2021 12:20:05 -0500
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8D8C061766
+        for <stable@vger.kernel.org>; Tue,  9 Nov 2021 09:17:16 -0800 (PST)
+Received: by mail-pl1-x631.google.com with SMTP id p18so22054777plf.13
+        for <stable@vger.kernel.org>; Tue, 09 Nov 2021 09:17:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=90sXlU1lQK9Mv8Sz1Pt9KnDVPcr15fT4vQgBIBLOsdY=;
+        b=TlZhoYnziXpLUxFsEQ1mTBynyM7etKcuh/5AWZm6cM1WA1Jh/f1xiNi2D9S9adPyW2
+         1VK7KfZBSVRULpmSHKd7wJNlihIkn26Zyeb+SjNHG0iBMlfgEThgo1T/eFHUP7qxt/JL
+         cpqqajPlfzjQHX+Ytm3IRpcAJ3DKr1OX+XSCM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=90sXlU1lQK9Mv8Sz1Pt9KnDVPcr15fT4vQgBIBLOsdY=;
+        b=U9fPU8ms1yiE+sm+BzTDyvcAbAqI1+XQrcIWBWDeEjITvGMSyzb657+S033REKVGjI
+         ikgqlOEOZpaudDbilmwZr/2sQd8LmyC0ml9+CV15BgNl/o6p8is8w6wIQ3F1I5Eb79nm
+         Imh08wvLuWM1d3XiSkB/HJ70B8g/t/wTcauqAYQBG5b83v20EdnZbIXc5J4TEO5Oc4pa
+         a8sWDcrb2Ck6JhqCn6so40SFEu7Qzj/6PavJulIyIJiK2EkzrrTE/0oX8b2Q4TahAYWf
+         aQuhgLV6udsC+6tBwzHpihxgMVNpoDq9llPbiiXvY9YHlQi0mpMukppJQIluRNKIMbPB
+         qBJg==
+X-Gm-Message-State: AOAM531ByZTf4rjDLyr5lo3VhBHEKSeTAnon8uk6A9FrkXKQ9E7Szs5c
+        0i44m03WODZR9SRe7siZeyPpxB2m0IYswA==
+X-Google-Smtp-Source: ABdhPJwpgkyrJmn1FLYF19VxwgKPh2GVNmY4LJ1P0P2cED9BgxwbrHQHpr6VFvt4fD8OX6w6v2CBrw==
+X-Received: by 2002:a17:902:bd01:b0:140:4094:c70a with SMTP id p1-20020a170902bd0100b001404094c70amr8701452pls.70.1636478236253;
+        Tue, 09 Nov 2021 09:17:16 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id e14sm11008006pfv.18.2021.11.09.09.17.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Nov 2021 09:17:16 -0800 (PST)
+Date:   Tue, 9 Nov 2021 09:17:15 -0800
+From:   Kees Cook <keescook@chromium.org>
+To:     Johannes Berg <johannes@sipsolutions.net>
+Cc:     linux-wireless@vger.kernel.org,
+        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Sid Hayn <sidhayn@gmail.com>
+Subject: Re: [PATCH] mac80211: fix radiotap header generation
+Message-ID: <202111090915.F881B406B@keescook>
+References: <20211109100203.c61007433ed6.I1dade57aba7de9c4f48d68249adbae62636fd98c@changeid>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2e191db3-286f-90c6-bf96-3f89891e9926@gmail.com>
+In-Reply-To: <20211109100203.c61007433ed6.I1dade57aba7de9c4f48d68249adbae62636fd98c@changeid>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon 08-11-21 18:08:52, Eric Dumazet wrote:
+On Tue, Nov 09, 2021 at 10:02:04AM +0100, Johannes Berg wrote:
+> From: Johannes Berg <johannes.berg@intel.com>
 > 
+> In commit 8c89f7b3d3f2 ("mac80211: Use flex-array for radiotap header
+> bitmap") we accidentally pointed the position to the wrong place, so
+> we overwrite a present bitmap, and thus cause all kinds of trouble.
 > 
-> On 11/8/21 12:23 PM, Alexey Makhalov wrote:
-> > There is a kernel panic caused by pcpu_alloc_pages() passing
-> > offlined and uninitialized node to alloc_pages_node() leading
-> > to panic by NULL dereferencing uninitialized NODE_DATA(nid).
-> > 
-> >  CPU2 has been hot-added
-> >  BUG: unable to handle page fault for address: 0000000000001608
-> >  #PF: supervisor read access in kernel mode
-> >  #PF: error_code(0x0000) - not-present page
-> >  PGD 0 P4D 0
-> >  Oops: 0000 [#1] SMP PTI
-> >  CPU: 0 PID: 1 Comm: systemd Tainted: G            E     5.15.0-rc7+ #11
-> >  Hardware name: VMware, Inc. VMware7,1/440BX Desktop Reference Platform, BIOS VMW
-> > 
-> >  RIP: 0010:__alloc_pages+0x127/0x290
-> >  Code: 4c 89 f0 5b 41 5c 41 5d 41 5e 41 5f 5d c3 44 89 e0 48 8b 55 b8 c1 e8 0c 83 e0 01 88 45 d0 4c 89 c8 48 85 d2 0f 85 1a 01 00 00 <45> 3b 41 08 0f 82 10 01 00 00 48 89 45 c0 48 8b 00 44 89 e2 81 e2
-> >  RSP: 0018:ffffc900006f3bc8 EFLAGS: 00010246
-> >  RAX: 0000000000001600 RBX: 0000000000000000 RCX: 0000000000000000
-> >  RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000cc2
-> >  RBP: ffffc900006f3c18 R08: 0000000000000001 R09: 0000000000001600
-> >  R10: ffffc900006f3a40 R11: ffff88813c9fffe8 R12: 0000000000000cc2
-> >  R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000cc2
-> >  FS:  00007f27ead70500(0000) GS:ffff88807ce00000(0000) knlGS:0000000000000000
-> >  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> >  CR2: 0000000000001608 CR3: 000000000582c003 CR4: 00000000001706b0
-> >  Call Trace:
-> >   pcpu_alloc_pages.constprop.0+0xe4/0x1c0
-> >   pcpu_populate_chunk+0x33/0xb0
-> >   pcpu_alloc+0x4d3/0x6f0
-> >   __alloc_percpu_gfp+0xd/0x10
-> >   alloc_mem_cgroup_per_node_info+0x54/0xb0
-> >   mem_cgroup_alloc+0xed/0x2f0
-> >   mem_cgroup_css_alloc+0x33/0x2f0
-> >   css_create+0x3a/0x1f0
-> >   cgroup_apply_control_enable+0x12b/0x150
-> >   cgroup_mkdir+0xdd/0x110
-> >   kernfs_iop_mkdir+0x4f/0x80
-> >   vfs_mkdir+0x178/0x230
-> >   do_mkdirat+0xfd/0x120
-> >   __x64_sys_mkdir+0x47/0x70
-> >   ? syscall_exit_to_user_mode+0x21/0x50
-> >   do_syscall_64+0x43/0x90
-> >   entry_SYSCALL_64_after_hwframe+0x44/0xae
-> > 
-> > Panic can be easily reproduced by disabling udev rule for
-> > automatic onlining hot added CPU followed by CPU with
-> > memoryless node (NUMA node with CPU only) hot add.
-> > 
-> > Hot adding CPU and memoryless node does not bring the node
-> > to online state. Memoryless node will be onlined only during
-> > the onlining its CPU.
-> > 
-> > Node can be in one of the following states:
-> > 1. not present.(nid == NUMA_NO_NODE)
-> > 2. present, but offline (nid > NUMA_NO_NODE, node_online(nid) == 0,
-> > 				NODE_DATA(nid) == NULL)
-> > 3. present and online (nid > NUMA_NO_NODE, node_online(nid) > 0,
-> > 				NODE_DATA(nid) != NULL)
-> > 
-> > Percpu code is doing allocations for all possible CPUs. The
-> > issue happens when it serves hot added but not yet onlined
-> > CPU when its node is in 2nd state. This node is not ready
-> > to use, fallback to numa_mem_id().
-> > 
-> > Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-> > Reviewed-by: David Hildenbrand <david@redhat.com>
-> > Cc: Andrew Morton <akpm@linux-foundation.org>
-> > Cc: David Hildenbrand <david@redhat.com>
-> > Cc: Michal Hocko <mhocko@suse.com>
-> > Cc: Oscar Salvador <osalvador@suse.de>
-> > Cc: Dennis Zhou <dennis@kernel.org>
-> > Cc: Tejun Heo <tj@kernel.org>
-> > Cc: Christoph Lameter <cl@linux.com>
-> > Cc: linux-mm@kvack.org
-> > Cc: linux-kernel@vger.kernel.org
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  mm/percpu-vm.c | 8 ++++++--
-> >  1 file changed, 6 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/mm/percpu-vm.c b/mm/percpu-vm.c
-> > index 2054c9213..f58d73c92 100644
-> > --- a/mm/percpu-vm.c
-> > +++ b/mm/percpu-vm.c
-> > @@ -84,15 +84,19 @@ static int pcpu_alloc_pages(struct pcpu_chunk *chunk,
-> >  			    gfp_t gfp)
-> >  {
-> >  	unsigned int cpu, tcpu;
-> > -	int i;
-> > +	int i, nid;
-> >  
-> >  	gfp |= __GFP_HIGHMEM;
-> >  
-> >  	for_each_possible_cpu(cpu) {
-> > +		nid = cpu_to_node(cpu);
-> > +		if (nid == NUMA_NO_NODE || !node_online(nid))
-> > +			nid = numa_mem_id();
+> To see the issue, note that the previous code read:
 > 
-> Maybe we should fail this fallback if (gfp & __GFP_THISNODE) ?
+>   pos = (void *)(it_present + 1);
 > 
-> Or maybe there is no support for this constraint in per-cpu allocator anyway.
+> The requirement now is that we need to calculate pos via it_optional,
+> to not trigger the compiler hardening checks, as:
+> 
+>   pos = (void *)&rthdr->it_optional[...];
+> 
+> Rewriting the original expression, we get (obviously, since that just
+> adds "+ x - x" terms):
+> 
+>   pos = (void *)(it_present + 1 + rthdr->it_optional - rthdr->it_optional)
+> 
+> and moving the "+ rthdr->it_optional" outside to be used as an array:
+> 
+>   pos = (void *)&rthdr->it_optional[it_present + 1 - rthdr->it_optional];
+> 
+> The original is off by one, fix it.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 8c89f7b3d3f2 ("mac80211: Use flex-array for radiotap header bitmap")
+> Reported-by: Sid Hayn <sidhayn@gmail.com>
+> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
-I would be really curious about the usecase. Not to mention that pcp
-allocation would be effectively unusable on any setups with memory less
-nodes.
+Argh! Thank you for the fix and sorry for the trouble the earlier patch
+created!
 
-> I am a bit worried that we do not really know if pages are
-> allocated on the right node or not.
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-There hasn't been any guarantee like that. Page allocator would fallback
-to other nodes (in the node distance order) unless __GFP_THISNODE is
-specified. This patch just papers over the fact that currently we can
-end up having an invalid numa node associated with a cpu. This is a bug
-in the initialization code. Even if that is fixed the node fallback is
-still a real thing that might happen.
+-Kees
+
+> ---
+>  net/mac80211/rx.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+> index fc5c608d02e2..3562730ea0f8 100644
+> --- a/net/mac80211/rx.c
+> +++ b/net/mac80211/rx.c
+> @@ -364,7 +364,7 @@ ieee80211_add_rx_radiotap_header(struct ieee80211_local *local,
+>  	 * the compiler to think we have walked past the end of the
+>  	 * struct member.
+>  	 */
+> -	pos = (void *)&rthdr->it_optional[it_present - rthdr->it_optional];
+> +	pos = (void *)&rthdr->it_optional[it_present + 1 - rthdr->it_optional];
+>  
+>  	/* the order of the following fields is important */
+>  
+> -- 
+> 2.31.1
+> 
 
 -- 
-Michal Hocko
-SUSE Labs
+Kees Cook
