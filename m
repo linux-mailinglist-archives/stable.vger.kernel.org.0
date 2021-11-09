@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D2FF44B5DC
-	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:21:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF6AE44B5E7
+	for <lists+stable@lfdr.de>; Tue,  9 Nov 2021 23:21:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245631AbhKIWXu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Nov 2021 17:23:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41762 "EHLO mail.kernel.org"
+        id S241848AbhKIWXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Nov 2021 17:23:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343989AbhKIWWJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Nov 2021 17:22:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 396D261360;
-        Tue,  9 Nov 2021 22:18:27 +0000 (UTC)
+        id S1343995AbhKIWWK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Nov 2021 17:22:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AA8261406;
+        Tue,  9 Nov 2021 22:18:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636496308;
-        bh=gjUG6+LBHjMZ1Kr7edkSf0qs+90PlyljuxOKpiXbHnQ=;
+        s=k20201202; t=1636496309;
+        bh=VkGIgQI/Q4vnAShDJpYhnKrHk+3p99DTLWYI3OrhNnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQTNuEweTrU3WWfTzlhCmQQn9OkZUKqPbovlQWS+2myUFtv/16fYKbUjDfi5+wQzh
-         5+TE4YCxwD5UbY55GQ5h2WIzA2QywmveMWH6XQSP+w034CfLRI9EcYcTOCirA1kUje
-         1CSl991dcwG7gqeKMqmO3pKRjkfv0nnGj4Ud6HJpxoWOiQmY7u2cj88VC/v/MhW1N4
-         fqwgzVP0juUpfEmUG8aGX3wjEkSC8iYT3Bv4cBw/UrGsgpUVmy+Hka0vZ1sQggT4HQ
-         2AuY341p7DNFgOKDDGBAxOg2cVsTFC5GwlAaS4998ZQ4hl8BhTzCwOymMIjoPmBHbw
-         9C8oPK3W8XUEw==
+        b=WWRdJcp2298/kBqtXpvmMVAA4KSMI4YgJKXvjZ13qu8FAjdkns57I39eZ8OO7iY7w
+         uiYXkzomRHuDyefVawOaXDxwjf6rOPanguAu311GR0SS2BzW6mFS3D6peUfJMNu67x
+         sf1rXkhJ90EtunBYMH0BNJ8f7zUQKfx5oQb7Kim9v63vFmqA74E6enqfRny5DncdYU
+         Bz6O4AzMNWDonmo/NrKI3NLEDZOANOdxdHeiVgJeCNzlBKAr8NlsMhqEt16bSSKLA4
+         pHup4dJLEkQ6GDuRCrhz9JNWR1xiQwiwQTnsSw756hGB7Q5v4yAGSNdI9/po/XbroA
+         IKZVUwj+c4XBg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Eero Tamminen <eero.t.tamminen@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.15 59/82] iommu/vt-d: Do not falsely log intel_iommu is unsupported kernel option
-Date:   Tue,  9 Nov 2021 17:16:17 -0500
-Message-Id: <20211109221641.1233217-59-sashal@kernel.org>
+Cc:     Guanghui Feng <guanghuifeng@linux.alibaba.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, jslaby@suse.com
+Subject: [PATCH AUTOSEL 5.15 60/82] tty: tty_buffer: Fix the softlockup issue in flush_to_ldisc
+Date:   Tue,  9 Nov 2021 17:16:18 -0500
+Message-Id: <20211109221641.1233217-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211109221641.1233217-1-sashal@kernel.org>
 References: <20211109221641.1233217-1-sashal@kernel.org>
@@ -45,58 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+From: Guanghui Feng <guanghuifeng@linux.alibaba.com>
 
-[ Upstream commit 5240aed2cd2594fb392239f11b9681e5e1591619 ]
+[ Upstream commit 3968ddcf05fb4b9409cd1859feb06a5b0550a1c1 ]
 
-Handling of intel_iommu kernel command line option should return "true" to
-indicate option is valid and so avoid logging it as unknown by the core
-parsing code.
+When running ltp testcase(ltp/testcases/kernel/pty/pty04.c) with arm64, there is a soft lockup,
+which look like this one:
 
-Also log unknown sub-options at the notice level to let user know of
-potential typos or similar.
+  Workqueue: events_unbound flush_to_ldisc
+  Call trace:
+   dump_backtrace+0x0/0x1ec
+   show_stack+0x24/0x30
+   dump_stack+0xd0/0x128
+   panic+0x15c/0x374
+   watchdog_timer_fn+0x2b8/0x304
+   __run_hrtimer+0x88/0x2c0
+   __hrtimer_run_queues+0xa4/0x120
+   hrtimer_interrupt+0xfc/0x270
+   arch_timer_handler_phys+0x40/0x50
+   handle_percpu_devid_irq+0x94/0x220
+   __handle_domain_irq+0x88/0xf0
+   gic_handle_irq+0x84/0xfc
+   el1_irq+0xc8/0x180
+   slip_unesc+0x80/0x214 [slip]
+   tty_ldisc_receive_buf+0x64/0x80
+   tty_port_default_receive_buf+0x50/0x90
+   flush_to_ldisc+0xbc/0x110
+   process_one_work+0x1d4/0x4b0
+   worker_thread+0x180/0x430
+   kthread+0x11c/0x120
 
-Reported-by: Eero Tamminen <eero.t.tamminen@intel.com>
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://lore.kernel.org/r/20210831112947.310080-1-tvrtko.ursulin@linux.intel.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20211014053839.727419-2-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+In the testcase pty04, The first process call the write syscall to send
+data to the pty master. At the same time, the workqueue will do the
+flush_to_ldisc to pop data in a loop until there is no more data left.
+When the sender and workqueue running in different core, the sender sends
+data fastly in full time which will result in workqueue doing work in loop
+for a long time and occuring softlockup in flush_to_ldisc with kernel
+configured without preempt. So I add need_resched check and cond_resched
+in the flush_to_ldisc loop to avoid it.
+
+Signed-off-by: Guanghui Feng <guanghuifeng@linux.alibaba.com>
+Link: https://lore.kernel.org/r/1633961304-24759-1-git-send-email-guanghuifeng@linux.alibaba.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/tty/tty_buffer.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index d75f59ae28e6e..9a356075d3450 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -412,6 +412,7 @@ static int __init intel_iommu_setup(char *str)
- {
- 	if (!str)
- 		return -EINVAL;
+diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
+index 635d0af229b72..6c7e65b1d9a1c 100644
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -544,6 +544,9 @@ static void flush_to_ldisc(struct work_struct *work)
+ 		if (!count)
+ 			break;
+ 		head->read += count;
 +
- 	while (*str) {
- 		if (!strncmp(str, "on", 2)) {
- 			dmar_disabled = 0;
-@@ -441,13 +442,16 @@ static int __init intel_iommu_setup(char *str)
- 		} else if (!strncmp(str, "tboot_noforce", 13)) {
- 			pr_info("Intel-IOMMU: not forcing on after tboot. This could expose security risk for tboot\n");
- 			intel_iommu_tboot_noforce = 1;
-+		} else {
-+			pr_notice("Unknown option - '%s'\n", str);
- 		}
- 
- 		str += strcspn(str, ",");
- 		while (*str == ',')
- 			str++;
++		if (need_resched())
++			cond_resched();
  	}
--	return 0;
-+
-+	return 1;
- }
- __setup("intel_iommu=", intel_iommu_setup);
  
+ 	mutex_unlock(&buf->lock);
 -- 
 2.33.0
 
