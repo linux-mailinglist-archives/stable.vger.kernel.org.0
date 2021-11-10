@@ -2,92 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 634F244C362
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 15:52:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B82D844C365
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 15:52:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231824AbhKJOzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 09:55:03 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47066 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231593AbhKJOzD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 09:55:03 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636555935;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=JGaRarhvw23xm4PTZjUPJaQyjQW9oMGbXcgdEZdlsWo=;
-        b=bpq+4tAjtLJi02ygf6uFhRIQpfQooVlKVgvjY2qAB0Hu7Pvt4gua9+nnkdt5Crz/WdKJva
-        wvmWtBzvUW87Gb0UDFATvPdfQOn3eBG4L5vPUDyITZ82N6c/sS+qUw7Vr/aVJN95RK2iXM
-        Mhhw3bOKR+dRI0BPQQqmtGjPHE1IGLc=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-459-kv6ThWOANZeiLpOr5laCbQ-1; Wed, 10 Nov 2021 09:52:14 -0500
-X-MC-Unique: kv6ThWOANZeiLpOr5laCbQ-1
-Received: by mail-wm1-f72.google.com with SMTP id n16-20020a05600c3b9000b003331973fdbbso1321097wms.0
-        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 06:52:13 -0800 (PST)
+        id S231731AbhKJOzf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 09:55:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47796 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231703AbhKJOze (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 09:55:34 -0500
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B129C061764
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 06:52:47 -0800 (PST)
+Received: by mail-pl1-x631.google.com with SMTP id o14so3215798plg.5
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 06:52:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=rrNkgYs2KmLus0iHO25km5VDDTh/mdjzmezX6EheYoM=;
+        b=MdWDhJUBponaSSh7jzzz39ekAuWXAePndxyQGQkLh8GP0yMkBIelT63HIWWhcYl6tx
+         UjqYluQ4sd5EXssF/2FNtnhNKi38aBhlE19wsI0lU6E0e7FkPFg97Eb5q5wxVRvUDVf4
+         4NCW1iUStyh3XHctImFa/w5BuGhaJJmbzGDrx/pcyNfd1/wYRa+nyniCKM2Cd2cAFL78
+         dnlTY/xvE8/ct19Onep6A7BUyNN6BhqO3K1DKVNVSlM0GDJlOcKxx/F/YiG2qLT4zsti
+         Qj51VpYIO7V2X/EawwZRVLglpWQeP1WI9cBobwdrZK5pkT8MPtwpc12ID3q5082uA59P
+         hO7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JGaRarhvw23xm4PTZjUPJaQyjQW9oMGbXcgdEZdlsWo=;
-        b=SUVQTnoarv2jmpZkBftD5xJIYr0PRdnN8zcDDjsjfrU6hreGqn5MGGCyXhpphpzvgy
-         VJkLDMVzh/BYS4Hnx/0bdB++Bl928FfwnQhXsXKH4e1/DN+HMOnb/+Ba2Hd0xKNAxeSw
-         0dm4FVRHrHxg083PFjfzJQBKYU6IBXZYXZwOB1XW+m/LWOBdOskNp7l54n7f7GZS9pqq
-         xASo3ti02G3JFoS78Elih3u5Mx0tmwO0K6P82/iYTY/km4Oc+Yeos55XK4jtyW199js7
-         35gNBdDk2QTRXclShQ580CrHcfE+grHMyGSZ9ap1nEUKNAluBtY6VlpeMlTDZVyOHuO7
-         FNdg==
-X-Gm-Message-State: AOAM532gDIpWRzSXRUhQA4JEduvdtC28n+JCqzJOywrwo9KI8RviIz4U
-        N0in7HLKS3jrroVH36zeMmpMdYrnQZ/NchT3izPwRJI+Z0yNOV7ZV+XJ6WfppTH6QUzoYcwyL98
-        RFkZlMstvAmASJfAZvXPPXSVXC16Gan4M
-X-Received: by 2002:a5d:43c5:: with SMTP id v5mr356454wrr.11.1636555932911;
-        Wed, 10 Nov 2021 06:52:12 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx6l6A0hw8OFbT4CeKMWuzjHe409Rc88qj5MEQ+MgMfrW4P0aNPr9xBjEscvoB2kMqOlJr33ybNzTxG6gtHVog=
-X-Received: by 2002:a5d:43c5:: with SMTP id v5mr356435wrr.11.1636555932767;
- Wed, 10 Nov 2021 06:52:12 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=rrNkgYs2KmLus0iHO25km5VDDTh/mdjzmezX6EheYoM=;
+        b=HZH/SKQsfb8gpPxR7V2jMs5StO1mcTfbH0DEq+Pq2qnMl83jlaN88/WmiQRp4OeCe0
+         IdTQqLZj4JcmwJYu1x6DHdv20J9CLJjtA8UhU5CginUU0PsnkLnniU6MXtoaZgiRLEN8
+         5D5Ua7lc0KC/5ewulAyTl+ummCqqWWlVm7O/yHEdDsmWW4mRJuaMwDMblT3UXNwQt7hT
+         XHJLBGdU3thXAR9jNbGbCxoSSMZfRxIIYAtEryuWZjzd4DyVO/o5SrNPGvMs5hLhXmMv
+         x3mLo7XL6F7CJVx0CXSuz3UxDMz/+HcxXzxMKHyoqkqKAQ9wdNTNikdxdh+ZIU7QZ8S6
+         VQHQ==
+X-Gm-Message-State: AOAM530S7Gx/QirB0eDxeVZUlYYSq/qxwmCTY5jnha2jDFNKIqgFKu3Y
+        9jQ0RDPBccqJ/1rcwIoYb5W7XsFcW6oKWmZh
+X-Google-Smtp-Source: ABdhPJyHAZeIo8qW8GQwx89TDpkdc6UOieHSupgFMxM2zXb7ZGbtz4T1rMazXmmjCtA243vx2zqKGQ==
+X-Received: by 2002:a17:902:b7cb:b0:141:b33a:9589 with SMTP id v11-20020a170902b7cb00b00141b33a9589mr16119516plz.9.1636555966576;
+        Wed, 10 Nov 2021 06:52:46 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y32sm25638825pfa.145.2021.11.10.06.52.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Nov 2021 06:52:46 -0800 (PST)
+Message-ID: <618bdcbe.1c69fb81.e5607.b30e@mx.google.com>
+Date:   Wed, 10 Nov 2021 06:52:46 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20211110113842.517426-1-agruenba@redhat.com> <20211110125527.GA25465@lst.de>
-In-Reply-To: <20211110125527.GA25465@lst.de>
-From:   Andreas Gruenbacher <agruenba@redhat.com>
-Date:   Wed, 10 Nov 2021 15:52:01 +0100
-Message-ID: <CAHc6FU49TnYvrL-FU5oz9th6STuQ=eYokjsD+0QpbkdHedRd9w@mail.gmail.com>
-Subject: Re: [5.15 REGRESSION] iomap: Fix inline extent handling in iomap_readpage
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     "Darrick J . Wong" <djwong@kernel.org>, linux-xfs@vger.kernel.org,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        cluster-devel <cluster-devel@redhat.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.78-10-gd690741e8b33
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 217 runs,
+ 1 regressions (v5.10.78-10-gd690741e8b33)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 10, 2021 at 1:55 PM Christoph Hellwig <hch@lst.de> wrote:
-> On Wed, Nov 10, 2021 at 12:38:42PM +0100, Andreas Gruenbacher wrote:
-> > +     if (iomap->type == IOMAP_INLINE) {
-> > +             /*
-> > +              * The filesystem sets iomap->length to the size of the inline
-> > +              * data.  We're at the end of the file, so we know that the
-> > +              * rest of the page needs to be zeroed out.
-> > +              */
-> > +             iomap->length = iomap_read_inline_data(iter, page);
-> > +             return iomap->length;
->
-> You can't just change iomap->length here.  Fix the file system to
-> return the right length, please.
+stable-rc/queue/5.10 baseline: 217 runs, 1 regressions (v5.10.78-10-gd69074=
+1e8b33)
 
-Hmm, that doesn't make sense to me: the filesystem doesn't know that
-iomap_readpage will pad to page boundaries. This happens at the iomap
-layer, so the iomap layer should also deal with the consequences.
-We're using different alignment rules here and for direct I/O, so that
-makes fake-aligning the extent size in iomap_begin even more
-questionable.
+Regressions Summary
+-------------------
 
-"Fixing" the extent size the filesystem returns would also break
-direct I/O. We could add some additional padding code to
-iomap_dio_inline_iter to deal with that, but currently, there's no
-need for that.
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
-Thanks,
-Andreas
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.78-10-gd690741e8b33/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.78-10-gd690741e8b33
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d690741e8b33eab8c76f63bf0b43c6e921c10454 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/618ba310391175f5603358ed
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.78-=
+10-gd690741e8b33/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-minnowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.78-=
+10-gd690741e8b33/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-minnowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/618ba310391175f560335=
+8ee
+        failing since 0 day (last pass: v5.10.78-9-ge3bb388aea14, first fai=
+l: v5.10.78-10-gbb7301181e71) =
+
+ =20
