@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D2F844C805
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F22244C822
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233030AbhKJS5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:57:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53674 "EHLO mail.kernel.org"
+        id S233655AbhKJS67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:58:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232949AbhKJSzn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:55:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A75F4619F7;
-        Wed, 10 Nov 2021 18:49:41 +0000 (UTC)
+        id S234029AbhKJS5h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:57:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 938FA61A03;
+        Wed, 10 Nov 2021 18:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570182;
-        bh=0oH85cjq7vTw6si60/MnAKRM5WZ4EBlcJF4dA31QY9c=;
+        s=korg; t=1636570230;
+        bh=NsbIr5bChjjcUDITu5+6wWc7IBaJx+yTotGfwq4f0Ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZLBm3omHtw8CXgZxxKP1eo2vYMUWBTCVjelMQR6G2MndmLfpUiJyS85Kq7eFD31AX
-         5W1EteGdAERAU53YYMWQtpXfbErtRHfmjXu1mpiBFuwqEmIfdxO6t/oCUJcvIexNYc
-         kECM1jdu8Sl8/yJy16N3Tl1UIAYOsfdS5HwIJVf4=
+        b=LU80CqhTtIdoTs4hEEF15pEK2rXVL/DdYdLIRVJSxAb7czhr7TtGq30YSGljGLOSZ
+         AepfcrcimeMOQPs2KGKooLT+eGE+WGrBspSlraxs7UbD+pz8PBNogwPsYFTAbfAsq7
+         dBvI0rE+rUwg6IAOA7BkWi5sAsbm4IAYXNhGth3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Vito Caputo <vcaputo@pengaru.com>,
-        Jann Horn <jannh@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.14 09/24] Revert "proc/wchan: use printk format instead of lookup_symbol_name()"
+        stable@vger.kernel.org, Eduardo Habkost <ehabkost@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 02/26] Revert "x86/kvm: fix vcpu-id indexed array sizes"
 Date:   Wed, 10 Nov 2021 19:44:01 +0100
-Message-Id: <20211110182003.631273586@linuxfoundation.org>
+Message-Id: <20211110182003.794713588@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
-References: <20211110182003.342919058@linuxfoundation.org>
+In-Reply-To: <20211110182003.700594531@linuxfoundation.org>
+References: <20211110182003.700594531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,66 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit 54354c6a9f7fd5572d2b9ec108117c4f376d4d23 upstream.
+commit 1e254d0d86a0f2efd4190a89d5204b37c18c6381 upstream.
 
-This reverts commit 152c432b128cb043fc107e8f211195fe94b2159c.
+This reverts commit 76b4f357d0e7d8f6f0013c733e6cba1773c266d3.
 
-When a kernel address couldn't be symbolized for /proc/$pid/wchan, it
-would leak the raw value, a potential information exposure. This is a
-regression compared to the safer pre-v5.12 behavior.
+The commit has the wrong reasoning, as KVM_MAX_VCPU_ID is not defining the
+maximum allowed vcpu-id as its name suggests, but the number of vcpu-ids.
+So revert this patch again.
 
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Reported-by: Vito Caputo <vcaputo@pengaru.com>
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20211008111626.090829198@infradead.org
+Suggested-by: Eduardo Habkost <ehabkost@redhat.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <20210913135745.13944-2-jgross@suse.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/proc/base.c |   21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ arch/x86/kvm/ioapic.c |    2 +-
+ arch/x86/kvm/ioapic.h |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -67,6 +67,7 @@
- #include <linux/mm.h>
- #include <linux/swap.h>
- #include <linux/rcupdate.h>
-+#include <linux/kallsyms.h>
- #include <linux/stacktrace.h>
- #include <linux/resource.h>
- #include <linux/module.h>
-@@ -385,17 +386,19 @@ static int proc_pid_wchan(struct seq_fil
- 			  struct pid *pid, struct task_struct *task)
+--- a/arch/x86/kvm/ioapic.c
++++ b/arch/x86/kvm/ioapic.c
+@@ -96,7 +96,7 @@ static unsigned long ioapic_read_indirec
+ static void rtc_irq_eoi_tracking_reset(struct kvm_ioapic *ioapic)
  {
- 	unsigned long wchan;
-+	char symname[KSYM_NAME_LEN];
- 
--	if (ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
--		wchan = get_wchan(task);
--	else
--		wchan = 0;
--
--	if (wchan)
--		seq_printf(m, "%ps", (void *) wchan);
--	else
--		seq_putc(m, '0');
-+	if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
-+		goto print0;
- 
-+	wchan = get_wchan(task);
-+	if (wchan && !lookup_symbol_name(wchan, symname)) {
-+		seq_puts(m, symname);
-+		return 0;
-+	}
-+
-+print0:
-+	seq_putc(m, '0');
- 	return 0;
+ 	ioapic->rtc_status.pending_eoi = 0;
+-	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID + 1);
++	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID);
  }
- #endif /* CONFIG_KALLSYMS */
+ 
+ static void kvm_rtc_eoi_tracking_restore_all(struct kvm_ioapic *ioapic);
+--- a/arch/x86/kvm/ioapic.h
++++ b/arch/x86/kvm/ioapic.h
+@@ -39,13 +39,13 @@ struct kvm_vcpu;
+ 
+ struct dest_map {
+ 	/* vcpu bitmap where IRQ has been sent */
+-	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID + 1);
++	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID);
+ 
+ 	/*
+ 	 * Vector sent to a given vcpu, only valid when
+ 	 * the vcpu's bit in map is set
+ 	 */
+-	u8 vectors[KVM_MAX_VCPU_ID + 1];
++	u8 vectors[KVM_MAX_VCPU_ID];
+ };
+ 
+ 
 
 
