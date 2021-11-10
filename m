@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A0B544C678
+	by mail.lfdr.de (Postfix) with ESMTP id 8392E44C679
 	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 18:50:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232531AbhKJRxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 12:53:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34870 "EHLO mail.kernel.org"
+        id S232439AbhKJRx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 12:53:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232538AbhKJRxX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 12:53:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBDAD61002;
-        Wed, 10 Nov 2021 17:50:34 +0000 (UTC)
+        id S232554AbhKJRxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 12:53:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84CD561002;
+        Wed, 10 Nov 2021 17:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636566635;
-        bh=SrgAvBpt3/I1aPG2LrCuf1uI5bO3/eYelhAQJCCqPAg=;
+        s=korg; t=1636566638;
+        bh=nhdNL6bNz2gEWjVs98yp10h01mo5uTxVZX3ZqXb8Mw0=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ou+P2NK8xwDQ9VqNknjRJKzCeGFCVeDVxxmxTbL/sx07Ltxkqtwu07lCxXWZOnRwe
-         pBm+GPrZDxtJpAQsT59R6uaGaRdWQreJA+XknG6A14T3bHHSFRQYKUwPn/SVFrdkMB
-         O1Vaul61HE7lDxZ+1/YDOZpwnELaAdOZcRnkDYnc=
-Subject: FAILED: patch "[PATCH] staging: rtl8712: fix use-after-free in rtl8712_dl_fw" failed to apply to 4.9-stable tree
+        b=xe1i/F36NXUQ4Ty7VUTbUNPMaSqI9+DJsp0Jg2TZUz0eyGgYc7JwQnKQ2+OzcaB1F
+         0ttu3ZYcNYpnarMEqAymSF0EXJK9w4FpIJi2ZpZ3lye8H0zXOfQbPzI4iLfXz69skQ
+         nTkfgkoICkjBjStzCGKj5uOStiic6zJNvD3Nx1TE=
+Subject: FAILED: patch "[PATCH] staging: rtl8712: fix use-after-free in rtl8712_dl_fw" failed to apply to 4.14-stable tree
 To:     paskripkin@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 10 Nov 2021 18:50:24 +0100
-Message-ID: <163656662486208@kroah.com>
+Date:   Wed, 10 Nov 2021 18:50:25 +0100
+Message-ID: <1636566625249105@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
