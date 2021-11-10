@@ -2,80 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 886FB44C80C
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75C5244C85F
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 20:05:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232949AbhKJS55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:57:57 -0500
-Received: from smarthost01c.sbp.mail.zen.net.uk ([212.23.1.5]:58030 "EHLO
-        smarthost01c.sbp.mail.zen.net.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233934AbhKJSz4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 13:55:56 -0500
-X-Greylist: delayed 8724 seconds by postgrey-1.27 at vger.kernel.org; Wed, 10 Nov 2021 13:55:56 EST
-Received: from [217.155.148.18] (helo=swift)
-        by smarthost01c.sbp.mail.zen.net.uk with esmtp (Exim 4.90_1)
-        (envelope-from <lkml@badpenguin.co.uk>)
-        id 1mksiV-00083j-7p; Wed, 10 Nov 2021 18:53:03 +0000
-Received: from localhost (localhost [127.0.0.1])
-        by swift (Postfix) with ESMTP id C3BA72C99FA;
-        Wed, 10 Nov 2021 18:53:02 +0000 (GMT)
-X-Virus-Scanned: Debian amavisd-new at badpenguin.co.uk
-Received: from swift ([127.0.0.1])
-        by localhost (swift.badpenguin.co.uk [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id xj5NaD9G6LVK; Wed, 10 Nov 2021 18:53:00 +0000 (GMT)
-Received: from [192.168.42.11] (katana [192.168.42.11])
-        by swift (Postfix) with ESMTPS id 798E12C9951;
-        Wed, 10 Nov 2021 18:53:00 +0000 (GMT)
-Subject: Re: kernel 5.15.1: AMD RX 6700 XT - Fails to resume after screen
- blank
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
-References: <dbadfe41-24bf-5811-cf38-74973df45214@badpenguin.co.uk>
- <YYwDnbpES0rrnWBw@kroah.com>
-From:   Mark Boddington <lkml@badpenguin.co.uk>
-Message-ID: <b42db67d-4c13-9623-7f17-5c04023e27ba@badpenguin.co.uk>
-Date:   Wed, 10 Nov 2021 18:53:00 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S233176AbhKJTH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 14:07:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47704 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233301AbhKJTHx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 14:07:53 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5336C049569
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 10:57:59 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id gx15-20020a17090b124f00b001a695f3734aso2621385pjb.0
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 10:57:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=hAkmL5khATGPXadCWaSNDN68jeyzr6KLgfzSnIMUotw=;
+        b=HtLPR1N0mCu/RKcgMjcUtujGcqMB4pAOoMYlTtNDabGSP1Xq+jq7dVEpGVMSpAuTo+
+         GyPbPLPQpzUlWNczTXgphb8eBlrAHFjTRJze3HL3QfQrYSM7/rdjtqYCR4okc1Ly+mvV
+         m3AdOd89ihcpL9+xDM+UmhwhBFqzqKXCeIIc8pIEa+AYUgiTpYy8XHhFLHe3WvXN3p2E
+         uA3vVmQ864Xn96fXPCoXdxLshLNuNXkk3XLNc8583biX9TJ/hslXlmw2/gSgHoBj9TOK
+         CrqlJKETRyiSvriZIZxYzGMNRWNJb2bjo87AxLmSnVS/fh6jrY8bXs4KvJGkG3GEkvrL
+         gLlw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=hAkmL5khATGPXadCWaSNDN68jeyzr6KLgfzSnIMUotw=;
+        b=2tNui7nTDUCJJPfezc6D9GpRLeh2qytwOUPRuDkSgU66NDoPPK1SwsZ1YEjiGeTaJv
+         xkporvau+D4YfT9cESNZaYARcD5BvUNiOBmAIYLDdQ/KNZdmT+hGtUkRCANChSm9dLaT
+         beV6xYs9e7PtCh8Td30xwZR+8TtKHqVAZu8b0NFNrt2LpmRvh0H8vW+HeDh+1Cm51gIm
+         J78rZtdqNIZO3JUJlC436k/ZlSVDWTd8G7XuwsxPF1S05hF6pHOJsr0wzm2d2vyZUIlm
+         3B3xW/tyoOkAZ8FDKKqZrRirSYZ0Pww+QkpcxGNYM2yblATj1JMQ1wyAsF0EUmJHQKEz
+         EUbQ==
+X-Gm-Message-State: AOAM533leltlcYVFx5Xs8AihmtzPEztbRTCI0P9sZ/DELBKmKbDdfOPE
+        1+dEnhKqNp9PUZQ8T1q4yVMHKfminDrlWuNFJXA=
+X-Google-Smtp-Source: ABdhPJy/BVBe/nctwoFzd6xr5VFk/BwOlkP4rbY/zZROQDQ4nE0FTP5c6aKOLaDzeY1gjFFWROniNA==
+X-Received: by 2002:a17:90a:3e09:: with SMTP id j9mr1279721pjc.24.1636570679170;
+        Wed, 10 Nov 2021 10:57:59 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l11sm404154pfu.129.2021.11.10.10.57.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Nov 2021 10:57:58 -0800 (PST)
+Message-ID: <618c1636.1c69fb81.a9748.180b@mx.google.com>
+Date:   Wed, 10 Nov 2021 10:57:58 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <YYwDnbpES0rrnWBw@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Originating-smarthost01c-IP: [217.155.148.18]
-Feedback-ID: 217.155.148.18
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.289-13-g0082655058e8
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.9 baseline: 151 runs,
+ 2 regressions (v4.9.289-13-g0082655058e8)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+stable-rc/queue/4.9 baseline: 151 runs, 2 regressions (v4.9.289-13-g0082655=
+058e8)
 
-I'll can try reverting that patch, and check.
+Regressions Summary
+-------------------
 
-This hardware has been stable with all kernels from around 5.11 up to 
-and including 5.15.
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
-Cheers,
+panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
+fconfig          | 1          =
 
-Mark
 
-On 10/11/2021 17:38, Greg KH wrote:
-> On Wed, Nov 10, 2021 at 04:27:39PM +0000, Mark Boddington wrote:
->> Hi all,
->>
->> I run the mainline Linux kernel on Ubuntu 20.04, built from
->> https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.15.1/
->>
->> There appears to be a regression in 5.15.1 which causes the GPU to fail to
->> resume after power saving.
->>
->> Could it be this change??:
->>
->> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c?h=v5.15.1&id=8af3a335b5531ca3df0920b1cca43e456cd110ad
-> If you revert it, does it solve the problem for you?
->
-> If not, what kernel version did work for you with this hardware?
->
-> thanks,
->
-> greg k-h
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.289-13-g0082655058e8/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.289-13-g0082655058e8
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0082655058e8717d0a4dd3bf371221cbb35c45d4 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/618bdbd4e88ac536a83358fb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.289-1=
+3-g0082655058e8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora=
+/baseline-minnowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.289-1=
+3-g0082655058e8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora=
+/baseline-minnowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/618bdbd4e88ac536a8335=
+8fc
+        failing since 0 day (last pass: v4.9.289-12-ga8dbc302bd30, first fa=
+il: v4.9.289-13-gedccd370d9d7) =
+
+ =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
+fconfig          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/618bdc2c2c039975813358df
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.289-1=
+3-g0082655058e8/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.289-1=
+3-g0082655058e8/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/618bdc2c2c03997=
+5813358e2
+        new failure (last pass: v4.9.289-13-gedccd370d9d7)
+        2 lines
+
+    2021-11-10T14:50:02.158591  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/119
+    2021-11-10T14:50:02.167374  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
+    2021-11-10T14:50:02.183100  [   20.108703] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
