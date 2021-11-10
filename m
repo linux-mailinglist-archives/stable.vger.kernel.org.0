@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18BE544C7D0
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5208D44C7DD
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233840AbhKJSzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:55:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48748 "EHLO mail.kernel.org"
+        id S233302AbhKJS4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:56:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233886AbhKJSxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:53:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E71CA61884;
-        Wed, 10 Nov 2021 18:48:44 +0000 (UTC)
+        id S232697AbhKJSya (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:54:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB636619E8;
+        Wed, 10 Nov 2021 18:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570125;
-        bh=JNdynLpeDmu9NFBKceo37u4Nd1rMzCB8lZ4lphLDOWU=;
+        s=korg; t=1636570138;
+        bh=5P+CV5TATPTtoir218qglaHIm3frLX7l/G/zKQctxZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3v3Z/nHlj9YHP4s6J8PEFpMzpJXYz1lNrQ3TtM1iDokOc3Zw7mz2Fj8Y8n1iFJM+
-         ssMFQxWZi6HS3MeAAn7i0LNF/LazAjSLYupxxaavU0/P6IXJjNsdPZLW4QKzZRO9cG
-         +J7SHZwiHSHSm9VzQIcXWvz76qR6DGwr1TCDb/Ak=
+        b=KzNfpPJqGvIO49xi4aCGUWKeDI/bcGSF7FarX43TimPef7Ffp92WLuHWt5BZiE8yT
+         RhRDau1tu/blzP9wc24gydI/qhVq1EenFvr6qTbOKw71DuY4lbysp8ImxSp8QGlM8Y
+         GsE9J2YMe8IVdEdwx2g7PaMx7KPoGUy/bqHLxCNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Viraj Shah <viraj.shah@linutronix.de>
-Subject: [PATCH 5.10 07/21] usb: musb: Balance list entry in musb_gadget_queue
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.14 01/24] ALSA: pcm: Check mmap capability of runtime dma buffer at first
 Date:   Wed, 10 Nov 2021 19:43:53 +0100
-Message-Id: <20211110182003.198481716@linuxfoundation.org>
+Message-Id: <20211110182003.386664901@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182002.964190708@linuxfoundation.org>
-References: <20211110182002.964190708@linuxfoundation.org>
+In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
+References: <20211110182003.342919058@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -38,42 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viraj Shah <viraj.shah@linutronix.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 21b5fcdccb32ff09b6b63d4a83c037150665a83f upstream.
+commit cbea6e5a7772b7a5b80baa8f98fd77853487fd2a upstream.
 
-musb_gadget_queue() adds the passed request to musb_ep::req_list. If the
-endpoint is idle and it is the first request then it invokes
-musb_queue_resume_work(). If the function returns an error then the
-error is passed to the caller without any clean-up and the request
-remains enqueued on the list. If the caller enqueues the request again
-then the list corrupts.
+Currently we check only the substream->dma_buffer as the preset of the
+buffer configuration for verifying the availability of mmap.  But a
+few drivers rather set up the buffer in the own way without the
+standard buffer preallocation using substream->dma_buffer, and they
+miss the proper checks.  (Now it's working more or less fine as most
+of them are running only on x86).
 
-Remove the request from the list on error.
+Actually, they may set up the runtime dma_buffer (referred via
+snd_pcm_get_dma_buf()) at the open callback, though.  That is, this
+could have been used as the primary source.
 
-Fixes: ea2f35c01d5ea ("usb: musb: Fix sleeping function called from invalid context for hdrc glue")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Viraj Shah <viraj.shah@linutronix.de>
-Link: https://lore.kernel.org/r/20211021093644.4734-1-viraj.shah@linutronix.de
+This patch changes the hw_support_mmap() function to check the runtime
+dma buffer at first.  It's usually NULL with the standard buffer
+preallocation, and in that case, we continue checking
+substream->dma_buffer as fallback.
+
+Link: https://lore.kernel.org/r/20210809071829.22238-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/musb/musb_gadget.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/core/pcm_native.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/musb/musb_gadget.c
-+++ b/drivers/usb/musb/musb_gadget.c
-@@ -1247,9 +1247,11 @@ static int musb_gadget_queue(struct usb_
- 		status = musb_queue_resume_work(musb,
- 						musb_ep_restart_resume_work,
- 						request);
--		if (status < 0)
-+		if (status < 0) {
- 			dev_err(musb->controller, "%s resume work: %i\n",
- 				__func__, status);
-+			list_del(&request->list);
-+		}
- 	}
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -243,13 +243,18 @@ int snd_pcm_info_user(struct snd_pcm_sub
  
- unlock:
+ static bool hw_support_mmap(struct snd_pcm_substream *substream)
+ {
++	struct snd_dma_buffer *dmabuf;
++
+ 	if (!(substream->runtime->hw.info & SNDRV_PCM_INFO_MMAP))
+ 		return false;
+ 
+ 	if (substream->ops->mmap || substream->ops->page)
+ 		return true;
+ 
+-	switch (substream->dma_buffer.dev.type) {
++	dmabuf = snd_pcm_get_dma_buf(substream);
++	if (!dmabuf)
++		dmabuf = &substream->dma_buffer;
++	switch (dmabuf->dev.type) {
+ 	case SNDRV_DMA_TYPE_UNKNOWN:
+ 		/* we can't know the device, so just assume that the driver does
+ 		 * everything right
+@@ -259,7 +264,7 @@ static bool hw_support_mmap(struct snd_p
+ 	case SNDRV_DMA_TYPE_VMALLOC:
+ 		return true;
+ 	default:
+-		return dma_can_mmap(substream->dma_buffer.dev.dev);
++		return dma_can_mmap(dmabuf->dev.dev);
+ 	}
+ }
+ 
 
 
