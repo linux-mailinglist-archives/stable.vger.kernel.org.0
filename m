@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5C6144C7B4
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD96944C7FD
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233055AbhKJSyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:54:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47916 "EHLO mail.kernel.org"
+        id S233718AbhKJS5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:57:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233518AbhKJSwn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:52:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB583611C9;
-        Wed, 10 Nov 2021 18:48:03 +0000 (UTC)
+        id S233719AbhKJSzc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:55:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FA05619E1;
+        Wed, 10 Nov 2021 18:49:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570084;
-        bh=Xn9aN5+dTpM/GJ8v52QVm3tmUw34lTPLdIW6zEmrrDs=;
+        s=korg; t=1636570168;
+        bh=m91u4AUSBvuJlLQR5nC2A9E4fcoxzN+ge/HimR2tUro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fq/K/Hy9rzKr/T5emeu84IN4k+WVCv/Es/BICV99DpWLDJm/xFHEPDvQO50ZpkXWw
-         6/qhCiEj0pidAD19iqmYBEx306ay1L/9AvvMrZykKlILNwQpMWpFuG+wGIllRILVSr
-         aot/7YaXFSyjkn19BQrxLb04gV1IF7NLMSr8AWy0=
+        b=M8CX7ECc3pQGyD1Lgb+as5Po8AezbWEg4ddkiyCTOpqLDkQQCB5OilY6ZZL9WfIQi
+         uKFW9TkRzExqBo3aT7b1tNAiIBYPJRI/ir3CyZI8TLxc/XpMHwsfPgw91IHDwiWbjv
+         QGBI/peRGrBd+vVzv3Z9Ztaipqc68HRnAnOCxx/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Petr Mladek <pmladek@suse.com>, Yi Fan <yfa@google.com>
-Subject: [PATCH 5.10 10/21] printk/console: Allow to disable console output by using console="" or console=null
+        stable@vger.kernel.org, Eduardo Habkost <ehabkost@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 04/24] Revert "x86/kvm: fix vcpu-id indexed array sizes"
 Date:   Wed, 10 Nov 2021 19:43:56 +0100
-Message-Id: <20211110182003.286987628@linuxfoundation.org>
+Message-Id: <20211110182003.477469174@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182002.964190708@linuxfoundation.org>
-References: <20211110182002.964190708@linuxfoundation.org>
+In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
+References: <20211110182003.342919058@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Mladek <pmladek@suse.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 3cffa06aeef7ece30f6b5ac0ea51f264e8fea4d0 upstream.
+commit 1e254d0d86a0f2efd4190a89d5204b37c18c6381 upstream.
 
-The commit 48021f98130880dd74 ("printk: handle blank console arguments
-passed in.") prevented crash caused by empty console= parameter value.
+This reverts commit 76b4f357d0e7d8f6f0013c733e6cba1773c266d3.
 
-Unfortunately, this value is widely used on Chromebooks to disable
-the console output. The above commit caused performance regression
-because the messages were pushed on slow console even though nobody
-was watching it.
+The commit has the wrong reasoning, as KVM_MAX_VCPU_ID is not defining the
+maximum allowed vcpu-id as its name suggests, but the number of vcpu-ids.
+So revert this patch again.
 
-Use ttynull driver explicitly for console="" and console=null
-parameters. It has been created for exactly this purpose.
-
-It causes that preferred_console is set. As a result, ttySX and ttyX
-are not used as a fallback. And only ttynull console gets registered by
-default.
-
-It still allows to register other consoles either by additional console=
-parameters or SPCR. It prevents regression because it worked this way even
-before. Also it is a sane semantic. Preventing output on all consoles
-should be done another way, for example, by introducing mute_console
-parameter.
-
-Link: https://lore.kernel.org/r/20201006025935.GA597@jagdpanzerIV.localdomain
-Suggested-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20201111135450.11214-3-pmladek@suse.com
-Cc: Yi Fan <yfa@google.com>
+Suggested-by: Eduardo Habkost <ehabkost@redhat.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <20210913135745.13944-2-jgross@suse.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/printk/printk.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/x86/kvm/ioapic.c |    2 +-
+ arch/x86/kvm/ioapic.h |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -2213,8 +2213,15 @@ static int __init console_setup(char *st
- 	char *s, *options, *brl_options = NULL;
- 	int idx;
+--- a/arch/x86/kvm/ioapic.c
++++ b/arch/x86/kvm/ioapic.c
+@@ -96,7 +96,7 @@ static unsigned long ioapic_read_indirec
+ static void rtc_irq_eoi_tracking_reset(struct kvm_ioapic *ioapic)
+ {
+ 	ioapic->rtc_status.pending_eoi = 0;
+-	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID + 1);
++	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID);
+ }
  
--	if (str[0] == 0)
-+	/*
-+	 * console="" or console=null have been suggested as a way to
-+	 * disable console output. Use ttynull that has been created
-+	 * for exacly this purpose.
-+	 */
-+	if (str[0] == 0 || strcmp(str, "null") == 0) {
-+		__add_preferred_console("ttynull", 0, NULL, NULL, true);
- 		return 1;
-+	}
+ static void kvm_rtc_eoi_tracking_restore_all(struct kvm_ioapic *ioapic);
+--- a/arch/x86/kvm/ioapic.h
++++ b/arch/x86/kvm/ioapic.h
+@@ -43,13 +43,13 @@ struct kvm_vcpu;
  
- 	if (_braille_console_setup(&str, &brl_options))
- 		return 1;
+ struct dest_map {
+ 	/* vcpu bitmap where IRQ has been sent */
+-	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID + 1);
++	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID);
+ 
+ 	/*
+ 	 * Vector sent to a given vcpu, only valid when
+ 	 * the vcpu's bit in map is set
+ 	 */
+-	u8 vectors[KVM_MAX_VCPU_ID + 1];
++	u8 vectors[KVM_MAX_VCPU_ID];
+ };
+ 
+ 
 
 
