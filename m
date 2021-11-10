@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD96944C7FD
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1252744C7FE
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233718AbhKJS5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:57:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54844 "EHLO mail.kernel.org"
+        id S234018AbhKJS5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:57:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233719AbhKJSzc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233739AbhKJSzc (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 10 Nov 2021 13:55:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FA05619E1;
-        Wed, 10 Nov 2021 18:49:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D60AC613B3;
+        Wed, 10 Nov 2021 18:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570168;
-        bh=m91u4AUSBvuJlLQR5nC2A9E4fcoxzN+ge/HimR2tUro=;
+        s=korg; t=1636570171;
+        bh=jolTYIlWAv1XV/vFVHcUWqVHiS9lKRkVwdeRpjfvihU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M8CX7ECc3pQGyD1Lgb+as5Po8AezbWEg4ddkiyCTOpqLDkQQCB5OilY6ZZL9WfIQi
-         uKFW9TkRzExqBo3aT7b1tNAiIBYPJRI/ir3CyZI8TLxc/XpMHwsfPgw91IHDwiWbjv
-         QGBI/peRGrBd+vVzv3Z9Ztaipqc68HRnAnOCxx/0=
+        b=2GEb/OeFekdE5+nWwJlujRPyKXe5SoK4FGjorNER7LPV1XbjGDtRq4a0ORuU1g5w3
+         XBeCknZe+eY85wrrxZf5dTHV/oUDwUOvidpkvwSA2T9CS2MhyLMojXcsV6NtcL9Ibq
+         hwZuIlKamAwQUdulN7LqRdKtGsgXDFxEHFhWxXjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eduardo Habkost <ehabkost@redhat.com>,
-        Juergen Gross <jgross@suse.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.14 04/24] Revert "x86/kvm: fix vcpu-id indexed array sizes"
-Date:   Wed, 10 Nov 2021 19:43:56 +0100
-Message-Id: <20211110182003.477469174@linuxfoundation.org>
+        stable@vger.kernel.org, Tao Ren <rentao.bupt@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Neal Liu <neal_liu@aspeedtech.com>,
+        Joel Stanley <joel@jms.id.au>
+Subject: [PATCH 5.14 05/24] usb: ehci: handshake CMD_RUN instead of STS_HALT
+Date:   Wed, 10 Nov 2021 19:43:57 +0100
+Message-Id: <20211110182003.506669963@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
 References: <20211110182003.342919058@linuxfoundation.org>
@@ -40,55 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Neal Liu <neal_liu@aspeedtech.com>
 
-commit 1e254d0d86a0f2efd4190a89d5204b37c18c6381 upstream.
+commit 7f2d73788d9067fd4f677ac5f60ffd25945af7af upstream.
 
-This reverts commit 76b4f357d0e7d8f6f0013c733e6cba1773c266d3.
+For Aspeed, HCHalted status depends on not only Run/Stop but also
+ASS/PSS status.
+Handshake CMD_RUN on startup instead.
 
-The commit has the wrong reasoning, as KVM_MAX_VCPU_ID is not defining the
-maximum allowed vcpu-id as its name suggests, but the number of vcpu-ids.
-So revert this patch again.
-
-Suggested-by: Eduardo Habkost <ehabkost@redhat.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Message-Id: <20210913135745.13944-2-jgross@suse.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Tested-by: Tao Ren <rentao.bupt@gmail.com>
+Reviewed-by: Tao Ren <rentao.bupt@gmail.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Neal Liu <neal_liu@aspeedtech.com>
+Link: https://lore.kernel.org/r/20210910073619.26095-1-neal_liu@aspeedtech.com
+Cc: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/ioapic.c |    2 +-
- arch/x86/kvm/ioapic.h |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/host/ehci-hcd.c      |   11 ++++++++++-
+ drivers/usb/host/ehci-platform.c |    6 ++++++
+ drivers/usb/host/ehci.h          |    1 +
+ 3 files changed, 17 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/ioapic.c
-+++ b/arch/x86/kvm/ioapic.c
-@@ -96,7 +96,7 @@ static unsigned long ioapic_read_indirec
- static void rtc_irq_eoi_tracking_reset(struct kvm_ioapic *ioapic)
- {
- 	ioapic->rtc_status.pending_eoi = 0;
--	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID + 1);
-+	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID);
- }
+--- a/drivers/usb/host/ehci-hcd.c
++++ b/drivers/usb/host/ehci-hcd.c
+@@ -634,7 +634,16 @@ static int ehci_run (struct usb_hcd *hcd
+ 	/* Wait until HC become operational */
+ 	ehci_readl(ehci, &ehci->regs->command);	/* unblock posted writes */
+ 	msleep(5);
+-	rc = ehci_handshake(ehci, &ehci->regs->status, STS_HALT, 0, 100 * 1000);
++
++	/* For Aspeed, STS_HALT also depends on ASS/PSS status.
++	 * Check CMD_RUN instead.
++	 */
++	if (ehci->is_aspeed)
++		rc = ehci_handshake(ehci, &ehci->regs->command, CMD_RUN,
++				    1, 100 * 1000);
++	else
++		rc = ehci_handshake(ehci, &ehci->regs->status, STS_HALT,
++				    0, 100 * 1000);
  
- static void kvm_rtc_eoi_tracking_restore_all(struct kvm_ioapic *ioapic);
---- a/arch/x86/kvm/ioapic.h
-+++ b/arch/x86/kvm/ioapic.h
-@@ -43,13 +43,13 @@ struct kvm_vcpu;
+ 	up_write(&ehci_cf_port_reset_rwsem);
  
- struct dest_map {
- 	/* vcpu bitmap where IRQ has been sent */
--	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID + 1);
-+	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID);
+--- a/drivers/usb/host/ehci-platform.c
++++ b/drivers/usb/host/ehci-platform.c
+@@ -297,6 +297,12 @@ static int ehci_platform_probe(struct pl
+ 					  "has-transaction-translator"))
+ 			hcd->has_tt = 1;
  
- 	/*
- 	 * Vector sent to a given vcpu, only valid when
- 	 * the vcpu's bit in map is set
- 	 */
--	u8 vectors[KVM_MAX_VCPU_ID + 1];
-+	u8 vectors[KVM_MAX_VCPU_ID];
- };
++		if (of_device_is_compatible(dev->dev.of_node,
++					    "aspeed,ast2500-ehci") ||
++		    of_device_is_compatible(dev->dev.of_node,
++					    "aspeed,ast2600-ehci"))
++			ehci->is_aspeed = 1;
++
+ 		if (soc_device_match(quirk_poll_match))
+ 			priv->quirk_poll = true;
  
+--- a/drivers/usb/host/ehci.h
++++ b/drivers/usb/host/ehci.h
+@@ -219,6 +219,7 @@ struct ehci_hcd {			/* one per controlle
+ 	unsigned		need_oc_pp_cycle:1; /* MPC834X port power */
+ 	unsigned		imx28_write_fix:1; /* For Freescale i.MX28 */
+ 	unsigned		spurious_oc:1;
++	unsigned		is_aspeed:1;
  
+ 	/* required for usb32 quirk */
+ 	#define OHCI_CTRL_HCFS          (3 << 6)
 
 
