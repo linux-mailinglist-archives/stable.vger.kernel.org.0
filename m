@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 992C344C748
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F63544C777
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233412AbhKJStu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:49:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47364 "EHLO mail.kernel.org"
+        id S233836AbhKJSwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:52:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232818AbhKJSsh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:48:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C975E61279;
-        Wed, 10 Nov 2021 18:45:48 +0000 (UTC)
+        id S233481AbhKJSuG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:50:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0697661360;
+        Wed, 10 Nov 2021 18:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636569949;
-        bh=aUxJBoVf4Th1jRRTCdRJlx38T/xtmE2lG68lokh+Y/Y=;
+        s=korg; t=1636570016;
+        bh=9vh4/Poq6fHp7ATT1zlN7oohjKfXqdwbh1vvydivTTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KwuY2P5JcjcxES7EXrwZIL9x6ig+qIBLuPEiF+ndU58/xljKjQp7dAF0mfwvFzOnb
-         2+ckCyfUuuZXTcxSFv25UZZR0n7wXiSyOB2nV5TPXxcbrs+NxEV1uuMx4CrSBr8Fyk
-         rAY578Hw8NOF1jPjw80/zI6NZdRmMgigS65B+45E=
+        b=KALeciXJeDLwzuG4iB//ZNGuVPP+Lz6joN9RYo7xXKyatVxMzBB4FXgZESeGqlLEc
+         09odE8HwZ/rXsf6/U1yLoxuq+VQ8FueOHwyZ1KL9NoSWw2n00rJQmD4jbPNuKy19PC
+         Y0iFu6ZUrxEZLhSH1sMcu8d/ThYzC9Cj0NJ7UqkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Ellero <luca.ellero@brickedbrain.com>,
-        Ian Abbott <abbotti@mev.co.uk>, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 16/22] comedi: ni_usb6501: fix NULL-deref in command paths
-Date:   Wed, 10 Nov 2021 19:43:36 +0100
-Message-Id: <20211110182003.189019495@linuxfoundation.org>
+        stable@vger.kernel.org, Li Yang <leoyang.li@nxp.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 4.19 04/16] usb: gadget: Mark USB_FSL_QE broken on 64-bit
+Date:   Wed, 10 Nov 2021 19:43:37 +0100
+Message-Id: <20211110182002.134980347@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182002.666244094@linuxfoundation.org>
-References: <20211110182002.666244094@linuxfoundation.org>
+In-Reply-To: <20211110182001.994215976@linuxfoundation.org>
+References: <20211110182001.994215976@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,54 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-commit 907767da8f3a925b060c740e0b5c92ea7dbec440 upstream.
+commit a0548b26901f082684ad1fb3ba397d2de3a1406a upstream.
 
-The driver uses endpoint-sized USB transfer buffers but had no sanity
-checks on the sizes. This can lead to zero-size-pointer dereferences or
-overflowed transfer buffers in ni6501_port_command() and
-ni6501_counter_command() if a (malicious) device has smaller max-packet
-sizes than expected (or when doing descriptor fuzz testing).
+On 64-bit:
 
-Add the missing sanity checks to probe().
+    drivers/usb/gadget/udc/fsl_qe_udc.c: In function ‘qe_ep0_rx’:
+    drivers/usb/gadget/udc/fsl_qe_udc.c:842:13: error: cast from pointer to integer of different size [-Werror=pointer-to-int-cast]
+      842 |     vaddr = (u32)phys_to_virt(in_be32(&bd->buf));
+	  |             ^
+    In file included from drivers/usb/gadget/udc/fsl_qe_udc.c:41:
+    drivers/usb/gadget/udc/fsl_qe_udc.c:843:28: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
+      843 |     frame_set_data(pframe, (u8 *)vaddr);
+	  |                            ^
 
-Fixes: a03bb00e50ab ("staging: comedi: add NI USB-6501 support")
-Cc: stable@vger.kernel.org      # 3.18
-Cc: Luca Ellero <luca.ellero@brickedbrain.com>
-Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211027093529.30896-2-johan@kernel.org
+The driver assumes physical and virtual addresses are 32-bit, hence it
+cannot work on 64-bit platforms.
+
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20211027080849.3276289-1-geert@linux-m68k.org
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/ni_usb6501.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/usb/gadget/udc/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/comedi/drivers/ni_usb6501.c
-+++ b/drivers/staging/comedi/drivers/ni_usb6501.c
-@@ -153,6 +153,10 @@ static const u8 READ_COUNTER_RESPONSE[]
- 					   0x00, 0x00, 0x00, 0x02,
- 					   0x00, 0x00, 0x00, 0x00};
- 
-+/* Largest supported packets */
-+static const size_t TX_MAX_SIZE	= sizeof(SET_PORT_DIR_REQUEST);
-+static const size_t RX_MAX_SIZE	= sizeof(READ_PORT_RESPONSE);
-+
- enum commands {
- 	READ_PORT,
- 	WRITE_PORT,
-@@ -510,6 +514,12 @@ static int ni6501_find_endpoints(struct
- 	if (!devpriv->ep_rx || !devpriv->ep_tx)
- 		return -ENODEV;
- 
-+	if (usb_endpoint_maxp(devpriv->ep_rx) < RX_MAX_SIZE)
-+		return -ENODEV;
-+
-+	if (usb_endpoint_maxp(devpriv->ep_tx) < TX_MAX_SIZE)
-+		return -ENODEV;
-+
- 	return 0;
- }
- 
+--- a/drivers/usb/gadget/udc/Kconfig
++++ b/drivers/usb/gadget/udc/Kconfig
+@@ -328,6 +328,7 @@ config USB_AMD5536UDC
+ config USB_FSL_QE
+ 	tristate "Freescale QE/CPM USB Device Controller"
+ 	depends on FSL_SOC && (QUICC_ENGINE || CPM)
++	depends on !64BIT || BROKEN
+ 	help
+ 	   Some of Freescale PowerPC processors have a Full Speed
+ 	   QE/CPM2 USB controller, which support device mode with 4
 
 
