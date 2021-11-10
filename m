@@ -2,88 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E1FE44BCCF
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 09:26:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E41B44BCE8
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 09:31:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbhKJI2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 03:28:46 -0500
-Received: from new2-smtp.messagingengine.com ([66.111.4.224]:49399 "EHLO
-        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229582AbhKJI2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 03:28:45 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id E229A580858;
-        Wed, 10 Nov 2021 03:25:57 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 10 Nov 2021 03:25:57 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=cIlTsNIIT4hbZQLMjkWIVkOUHBh
-        6DMvakfyjAaD2FGI=; b=doOdTkxxbaubdu18iLGj2O7vLD8n8e3leX9yK468G5B
-        dZBRs6MuvzZWx4FXNxkN3gZUDxSAGkoYsQqpYNkOAjRXOLlF0jfbikX2GvBomP3z
-        WNLXza81DD2qmJPiHLaZyn07Ydz0b6xlRzTkWqdRbWcsPskoh1Mz7boocEAF/G98
-        DpO7YoO0oLREqcITLCS/0/5qQmq4jS6wsUVMr2k93YpJfB7pLZmhksfurCT/9V90
-        Woj4iTBeDLZlVgE53FM8SBYex0Qpmu5WwIjF1lHmQ0YiesCZ40NnlHXwFEzfKhKr
-        L2TVHu6bud5/ADLIpk4CSZtdsLOm/s+pUunKFELY0qQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=cIlTsN
-        IIT4hbZQLMjkWIVkOUHBh6DMvakfyjAaD2FGI=; b=aUX0lzxXZ7hWZd78tWQ1lD
-        Thp2VbC8z5R3TRmNzebAwML+Id3Bz+oXwcE+w4wICvvMuanqPXh52F9vOKO+zxPn
-        LLL+FTehNZYaH48zEyUbou6DyUkjBDxqNbrGstKGjF9stLgrKt0wOQIu0YZoffY7
-        HTIipwBrYvJx1QKjxcCkAN9DGosaN7BPAopv1vZCTWIQtkSpJL4vdXvHeFzBM/CQ
-        0HE0lZTUS/SCORWrLh3ErIm0cz7Vfhv5OS3xAaoNS96hfIkyBP5xMZ2deiaSZl0z
-        qXendacbMCabdWVCDqCfLY+1SCRnAovCb6reLN7ehTidpuDEvErUY8ixWQABvMcw
-        ==
-X-ME-Sender: <xms:FYKLYavL0M_ssBC5HfcmdPNtEFylslOhOD_wRoIN8lmPhKWYKB_PkQ>
-    <xme:FYKLYfd1fGaM6KHRCdrjeSd5zHb8bn-amb-GaTZFSouKFmKK4lyzDOItgRMYa-AkN
-    rnEw3ZHK0LWmw>
-X-ME-Received: <xmr:FYKLYVx8Dl4IJ4igt9s6J-8kear2_niRuMfBO2k1lvUY-WippNBgoJAjbsaNif86GtZnEmyBJbsujvdUBC3fhKl283UBpMVx>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrudeigddtiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
-    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:FYKLYVMHmcFYSThEVV9tob9DUbCZa9UMN7kwgv7HCYZQXAFimbuVyg>
-    <xmx:FYKLYa90hOFB5kV5JI2s93n9Pq3hRX-4wdnOmHkSFEm3uDNKOYZ1mg>
-    <xmx:FYKLYdWEddoJsE3qcF1A0uNAzw-4OhDtXudB4UEhhOe0423afLyC5g>
-    <xmx:FYKLYVV6jvmke-9SbwMUQi-iYdAAZFDrlLbzpJD68SLOqQiyyUDB4Q>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 10 Nov 2021 03:25:56 -0500 (EST)
-Date:   Wed, 10 Nov 2021 09:25:55 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andreas Kemnade <andreas@kemnade.info>,
-        "H . Nikolaus Schaller" <hns@goldelico.com>,
-        Johan Hovold <johan@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 4.9 1/2] net: hso: register netdev later to avoid a race
- condition
-Message-ID: <YYuCE9EoMu+4zsiF@kroah.com>
-References: <20211109093959.173885-1-lee.jones@linaro.org>
+        id S229931AbhKJIeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 03:34:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39258 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230117AbhKJIeJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 03:34:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6851561076;
+        Wed, 10 Nov 2021 08:31:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1636533081;
+        bh=nq2uOtXVYNz9SOdu50irlTfzRk28CEBB4QXolJQ53aY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0lO+EfYu4pkQyIcfDAsZQ+D4CQf9aA6RpijroJpLjftzP7xVMdJmgtjDAv1siAs65
+         RCSahdRX71KnbiOTSV/O344ywuBLqkeP7YYui+dxUVEAhZXS4v/NqTh02ez24hotzk
+         F8aHqnhaqtbuJV4Jyl8KVPvdPBls3vjWpi8zFj50=
+Date:   Wed, 10 Nov 2021 09:31:19 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Marco Elver <elver@google.com>
+Cc:     stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Alexander Potapenko <glider@google.com>,
+        kasan-dev <kasan-dev@googlegroups.com>
+Subject: Re: [5.15.y] kfence: default to dynamic branch instead of static
+ keys mode
+Message-ID: <YYuDVxniscyNtBua@kroah.com>
+References: <YYqtuk4r2F9Pal+4@elver.google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211109093959.173885-1-lee.jones@linaro.org>
+In-Reply-To: <YYqtuk4r2F9Pal+4@elver.google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 09, 2021 at 09:39:58AM +0000, Lee Jones wrote:
-> From: Andreas Kemnade <andreas@kemnade.info>
+On Tue, Nov 09, 2021 at 06:19:54PM +0100, Marco Elver wrote:
+> Dear stable maintainers,
 > 
-> [ Upstream commit 4c761daf8bb9a2cbda9facf53ea85d9061f4281e ]
+> We propose picking the following 2 patches to 5.15.y:
+> 
+> 	07e8481d3c38 kfence: always use static branches to guard kfence_alloc()
+> 	4f612ed3f748 kfence: default to dynamic branch instead of static keys mode
+> 
+> , which had not been marked for stable initially, but upon re-evaluation
+> conclude that it will also avoid various unexpected behaviours [1], [2]
+> as the use of frequently-switched static keys (at least on x86) is more
+> trouble than it's worth.
+> 
+> [1] https://lkml.kernel.org/r/CANpmjNOw--ZNyhmn-GjuqU+aH5T98HMmBoCM4z=JFvajC913Qg@mail.gmail.com
+> [2] https://patchwork.kernel.org/project/linux-acpi/patch/2618833.mvXUDI8C0e@kreacher/
+> 
+> While optional, we recommend 07e8481d3c38 as well, as it avoids the
+> dynamic branch, now the default, if kfence is disabled at boot.
+> 
+> The main thing is to make the default less troublesome and be more
+> conservative. Those choosing to enable CONFIG_KFENCE_STATIC_KEYS can
+> still do so, but requires a deliberate opt-in via a config change.
 
-You already sent this for inclusion:
-	https://lore.kernel.org/r/YYU1KqvnZLyPbFcb@google.com
-
-Why send it again?
-
-confused,
+Both now queued up, thanks.
 
 greg k-h
