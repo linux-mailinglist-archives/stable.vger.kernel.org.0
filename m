@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F63544C777
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E373344C749
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233836AbhKJSwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:52:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48616 "EHLO mail.kernel.org"
+        id S233417AbhKJStv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:49:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233481AbhKJSuG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:50:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0697661360;
-        Wed, 10 Nov 2021 18:46:55 +0000 (UTC)
+        id S232937AbhKJSsj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:48:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A5AF61288;
+        Wed, 10 Nov 2021 18:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570016;
-        bh=9vh4/Poq6fHp7ATT1zlN7oohjKfXqdwbh1vvydivTTo=;
+        s=korg; t=1636569951;
+        bh=s2V5MnLlW1fKa6K6bEJQ+I6bI2Bx4vdOgM2Q2Toj/sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KALeciXJeDLwzuG4iB//ZNGuVPP+Lz6joN9RYo7xXKyatVxMzBB4FXgZESeGqlLEc
-         09odE8HwZ/rXsf6/U1yLoxuq+VQ8FueOHwyZ1KL9NoSWw2n00rJQmD4jbPNuKy19PC
-         Y0iFu6ZUrxEZLhSH1sMcu8d/ThYzC9Cj0NJ7UqkA=
+        b=kTEe7hTtNxuXNZ1LdVpQYKyWQtscSLS1dcBmfFwdKGwAHS3RHLZZ7WGR6IVyWo4fC
+         1NxaUKbUCemxfdF4PhvB7GxReePSGlaDG3/s2oaDaf0mVbCGqxfa6guQyxqw+5Vo9b
+         MFF9YJ8fXf2PbWJ/gCFEVUolKvyyA1yqnFisHego=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Yang <leoyang.li@nxp.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 4.19 04/16] usb: gadget: Mark USB_FSL_QE broken on 64-bit
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.14 17/22] comedi: vmk80xx: fix transfer-buffer overflows
 Date:   Wed, 10 Nov 2021 19:43:37 +0100
-Message-Id: <20211110182002.134980347@linuxfoundation.org>
+Message-Id: <20211110182003.219716559@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182001.994215976@linuxfoundation.org>
-References: <20211110182001.994215976@linuxfoundation.org>
+In-Reply-To: <20211110182002.666244094@linuxfoundation.org>
+References: <20211110182002.666244094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit a0548b26901f082684ad1fb3ba397d2de3a1406a upstream.
+commit a23461c47482fc232ffc9b819539d1f837adf2b1 upstream.
 
-On 64-bit:
+The driver uses endpoint-sized USB transfer buffers but up until
+recently had no sanity checks on the sizes.
 
-    drivers/usb/gadget/udc/fsl_qe_udc.c: In function ‘qe_ep0_rx’:
-    drivers/usb/gadget/udc/fsl_qe_udc.c:842:13: error: cast from pointer to integer of different size [-Werror=pointer-to-int-cast]
-      842 |     vaddr = (u32)phys_to_virt(in_be32(&bd->buf));
-	  |             ^
-    In file included from drivers/usb/gadget/udc/fsl_qe_udc.c:41:
-    drivers/usb/gadget/udc/fsl_qe_udc.c:843:28: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
-      843 |     frame_set_data(pframe, (u8 *)vaddr);
-	  |                            ^
+Commit e1f13c879a7c ("staging: comedi: check validity of wMaxPacketSize
+of usb endpoints found") inadvertently fixed NULL-pointer dereferences
+when accessing the transfer buffers in case a malicious device has a
+zero wMaxPacketSize.
 
-The driver assumes physical and virtual addresses are 32-bit, hence it
-cannot work on 64-bit platforms.
+Make sure to allocate buffers large enough to handle also the other
+accesses that are done without a size check (e.g. byte 18 in
+vmk80xx_cnt_insn_read() for the VMK8061_MODEL) to avoid writing beyond
+the buffers, for example, when doing descriptor fuzzing.
 
-Acked-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20211027080849.3276289-1-geert@linux-m68k.org
-Cc: stable <stable@vger.kernel.org>
+The original driver was for a low-speed device with 8-byte buffers.
+Support was later added for a device that uses bulk transfers and is
+presumably a full-speed device with a maximum 64-byte wMaxPacketSize.
+
+Fixes: 985cafccbf9b ("Staging: Comedi: vmk80xx: Add k8061 support")
+Cc: stable@vger.kernel.org      # 2.6.31
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20211025114532.4599-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/comedi/drivers/vmk80xx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/udc/Kconfig
-+++ b/drivers/usb/gadget/udc/Kconfig
-@@ -328,6 +328,7 @@ config USB_AMD5536UDC
- config USB_FSL_QE
- 	tristate "Freescale QE/CPM USB Device Controller"
- 	depends on FSL_SOC && (QUICC_ENGINE || CPM)
-+	depends on !64BIT || BROKEN
- 	help
- 	   Some of Freescale PowerPC processors have a Full Speed
- 	   QE/CPM2 USB controller, which support device mode with 4
+--- a/drivers/staging/comedi/drivers/vmk80xx.c
++++ b/drivers/staging/comedi/drivers/vmk80xx.c
+@@ -99,6 +99,8 @@ enum {
+ #define IC3_VERSION		BIT(0)
+ #define IC6_VERSION		BIT(1)
+ 
++#define MIN_BUF_SIZE		64
++
+ enum vmk80xx_model {
+ 	VMK8055_MODEL,
+ 	VMK8061_MODEL
+@@ -687,12 +689,12 @@ static int vmk80xx_alloc_usb_buffers(str
+ 	struct vmk80xx_private *devpriv = dev->private;
+ 	size_t size;
+ 
+-	size = usb_endpoint_maxp(devpriv->ep_rx);
++	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
+ 	devpriv->usb_rx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_rx_buf)
+ 		return -ENOMEM;
+ 
+-	size = usb_endpoint_maxp(devpriv->ep_tx);
++	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
+ 	devpriv->usb_tx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_tx_buf)
+ 		return -ENOMEM;
 
 
