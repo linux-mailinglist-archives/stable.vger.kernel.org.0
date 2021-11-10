@@ -2,35 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2770A44C6FF
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:46:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D27744C720
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:46:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232920AbhKJSrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:47:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46388 "EHLO mail.kernel.org"
+        id S233022AbhKJSsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:48:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232743AbhKJSrE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:47:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A037F61250;
-        Wed, 10 Nov 2021 18:44:16 +0000 (UTC)
+        id S232890AbhKJSrq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:47:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A7D56115A;
+        Wed, 10 Nov 2021 18:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636569857;
-        bh=hmpt0t7s2mzqAM7p8O2m4L1D0HY8K1NRb553eb7twx4=;
+        s=korg; t=1636569898;
+        bh=A/a3mWgbDNcCyooqNdGK+K9Dna0CV9VP38v63dTkbLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IkSFsCcZR7l9aQ5i5z0YKrHplnh/HIyR5DxqrQyr5/RE/v+3lTIXD9qUQWKta4qce
-         x5Gu/i2D80Ux8M8xvupQEDVbts0cbOVC3toj39uzhURrDe79X3V1P0WwOoO6Io5VP8
-         bdY4muchRPviul1WdP2gfhXNgV3MsKIOBUpgx4pE=
+        b=Ex0nEeGcvzNwpbJv6dUG6Vhdj2xCXziEDruJ5qtM1wrTZZzM5yIQqMiVjRRhEOHHw
+         4g0JdL+TZFD/xHRM/uvYrZ5J2jtrsib0LLAyaT9bUoUgYSxN+DPG+s2LGQ3hPxKDfP
+         LHsnqWmbl3A4vceQ6Y1Z1VRZWqQOpYaVEvhN6+xs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Yang <leoyang.li@nxp.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 4.4 06/19] usb: gadget: Mark USB_FSL_QE broken on 64-bit
-Date:   Wed, 10 Nov 2021 19:43:08 +0100
-Message-Id: <20211110182001.459100822@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Borislav Petkov <bp@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>, linux-mm@kvack.org,
+        Ingo Molnar <mingo@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.9 02/22] mm/zsmalloc: Prepare to variable MAX_PHYSMEM_BITS
+Date:   Wed, 10 Nov 2021 19:43:09 +0100
+Message-Id: <20211110182001.660492600@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182001.257350381@linuxfoundation.org>
-References: <20211110182001.257350381@linuxfoundation.org>
+In-Reply-To: <20211110182001.579561273@linuxfoundation.org>
+References: <20211110182001.579561273@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +49,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 
-commit a0548b26901f082684ad1fb3ba397d2de3a1406a upstream.
+commit 02390b87a9459937cdb299e6b34ff33992512ec7 upstream
 
-On 64-bit:
+With boot-time switching between paging mode we will have variable
+MAX_PHYSMEM_BITS.
 
-    drivers/usb/gadget/udc/fsl_qe_udc.c: In function ‘qe_ep0_rx’:
-    drivers/usb/gadget/udc/fsl_qe_udc.c:842:13: error: cast from pointer to integer of different size [-Werror=pointer-to-int-cast]
-      842 |     vaddr = (u32)phys_to_virt(in_be32(&bd->buf));
-	  |             ^
-    In file included from drivers/usb/gadget/udc/fsl_qe_udc.c:41:
-    drivers/usb/gadget/udc/fsl_qe_udc.c:843:28: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
-      843 |     frame_set_data(pframe, (u8 *)vaddr);
-	  |                            ^
+Let's use the maximum variable possible for CONFIG_X86_5LEVEL=y
+configuration to define zsmalloc data structures.
 
-The driver assumes physical and virtual addresses are 32-bit, hence it
-cannot work on 64-bit platforms.
+The patch introduces MAX_POSSIBLE_PHYSMEM_BITS to cover such case.
+It also suits well to handle PAE special case.
 
-Acked-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20211027080849.3276289-1-geert@linux-m68k.org
-Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Reviewed-by: Nitin Gupta <ngupta@vflare.org>
+Acked-by: Minchan Kim <minchan@kernel.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-mm@kvack.org
+Link: http://lkml.kernel.org/r/20180214111656.88514-3-kirill.shutemov@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+[florian: drop arch/x86/include/asm/pgtable_64_types.h changes since
+there is no CONFIG_X86_5LEVEL]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/pgtable-3level_types.h |    1 +
+ mm/zsmalloc.c                               |   13 +++++++------
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/gadget/udc/Kconfig
-+++ b/drivers/usb/gadget/udc/Kconfig
-@@ -265,6 +265,7 @@ config USB_AMD5536UDC
- config USB_FSL_QE
- 	tristate "Freescale QE/CPM USB Device Controller"
- 	depends on FSL_SOC && (QUICC_ENGINE || CPM)
-+	depends on !64BIT || BROKEN
- 	help
- 	   Some of Freescale PowerPC processors have a Full Speed
- 	   QE/CPM2 USB controller, which support device mode with 4
+--- a/arch/x86/include/asm/pgtable-3level_types.h
++++ b/arch/x86/include/asm/pgtable-3level_types.h
+@@ -42,5 +42,6 @@ typedef union {
+  */
+ #define PTRS_PER_PTE	512
+ 
++#define MAX_POSSIBLE_PHYSMEM_BITS	36
+ 
+ #endif /* _ASM_X86_PGTABLE_3LEVEL_DEFS_H */
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -83,18 +83,19 @@
+  * This is made more complicated by various memory models and PAE.
+  */
+ 
+-#ifndef MAX_PHYSMEM_BITS
+-#ifdef CONFIG_HIGHMEM64G
+-#define MAX_PHYSMEM_BITS 36
+-#else /* !CONFIG_HIGHMEM64G */
++#ifndef MAX_POSSIBLE_PHYSMEM_BITS
++#ifdef MAX_PHYSMEM_BITS
++#define MAX_POSSIBLE_PHYSMEM_BITS MAX_PHYSMEM_BITS
++#else
+ /*
+  * If this definition of MAX_PHYSMEM_BITS is used, OBJ_INDEX_BITS will just
+  * be PAGE_SHIFT
+  */
+-#define MAX_PHYSMEM_BITS BITS_PER_LONG
++#define MAX_POSSIBLE_PHYSMEM_BITS BITS_PER_LONG
+ #endif
+ #endif
+-#define _PFN_BITS		(MAX_PHYSMEM_BITS - PAGE_SHIFT)
++
++#define _PFN_BITS		(MAX_POSSIBLE_PHYSMEM_BITS - PAGE_SHIFT)
+ 
+ /*
+  * Memory for allocating for handle keeps object position by
 
 
