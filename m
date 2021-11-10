@@ -2,113 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3079244CC9C
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 23:24:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FDFA44CCBB
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 23:30:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233570AbhKJW1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 17:27:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58838 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233552AbhKJW1D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 17:27:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C93AD61213;
-        Wed, 10 Nov 2021 22:24:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636583055;
-        bh=0fre3SfK7wolFNYE3+elp2EAeuxzNIUlhw2MJlqR2YI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=qJwZtK0YNM4LSAIpSGnz+GMPkKwY05rEjGKMOVkYvw1I/fkCQb5+NVkaJ9TMiUUhB
-         oOneNgf//xVucjOdymwI1SYmNF5DLu0FiKFdkc3HgqGm6Os2e7CA2RTNZZTzxLG9Px
-         62EgLOqgf22/mKhHkxiCjBY+lYYqIujKHlIRGDJrnKcE17hLo5ofrDiGd+cr1A6smN
-         V/1xBUBbXum6TyYTOcBOrLgJsabIfldqU/cITk6ebhCoZsK2hJRIaNwRk6vDWgNUTq
-         /uimdCnaxoEtcg697CvcPGPO7Kwd1ZUmCznmOOwhCVWhh81uR5QUZC+Os2tFbbML+3
-         EUnOyoe1pRgjA==
-Received: by mail-oo1-f50.google.com with SMTP id z11-20020a4a870b000000b002b883011c77so1250558ooh.5;
-        Wed, 10 Nov 2021 14:24:15 -0800 (PST)
-X-Gm-Message-State: AOAM530z5Ls4Qs+6uSrQcNUgdH4d8RAb7p8WRMjSKlifcWxSlMt6BDsF
-        dVXj68w79s/MivTqWVGllL9xhITJmgedmvp8p5s=
-X-Google-Smtp-Source: ABdhPJwTbANCR4LyGDnbFZlq9QNtUtJ2ht9HKEiYvAszj6gDBkZxO/hSaVifqPNefuFrcmHrEmsRPVYdZZNQeOj2G0Q=
-X-Received: by 2002:a4a:a641:: with SMTP id j1mr1471623oom.63.1636583055093;
- Wed, 10 Nov 2021 14:24:15 -0800 (PST)
-MIME-Version: 1.0
-References: <20211110200253.rfudkt3edbd3nsyj@lahvuun>
-In-Reply-To: <20211110200253.rfudkt3edbd3nsyj@lahvuun>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Wed, 10 Nov 2021 23:24:03 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXHuU8dFBUeM41bHu13nd2qQVPJizt8Epw596K89_samiQ@mail.gmail.com>
-Message-ID: <CAMj1kXHuU8dFBUeM41bHu13nd2qQVPJizt8Epw596K89_samiQ@mail.gmail.com>
-Subject: Re: [REGRESSION]: drivers/firmware: move x86 Generic System
- Framebuffers support
-To:     Ilya Trukhanov <lahvuun@gmail.com>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>, regressions@lists.linux.dev,
-        linux-efi <linux-efi@vger.kernel.org>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Len Brown <len.brown@intel.com>, pavel@ucw.cz
+        id S233719AbhKJWdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 17:33:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38916 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233718AbhKJWdH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 17:33:07 -0500
+Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B8FDC061766
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 14:30:19 -0800 (PST)
+Received: by mail-pf1-x44a.google.com with SMTP id u4-20020a056a00098400b004946fc3e863so2738431pfg.8
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 14:30:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=FRB6mm7PujoNC1Ip5uFqQse8luP5YPrMmL6VDyk5GCE=;
+        b=Nt5BR3PiOgQTw8FUcX5skE2ch2lPLxQWVTBrDMy4YFLGVgQYZag+CKculiu8sqrIfL
+         DdobjvG46z80R2cYmz8B0PcUayjlB/PhMaYxLLSlSWl92Og7lK9BU2+InmmStyUjz7ae
+         mu4PD2iilAOO5bTrtvN9BT9iwgj9rxiV22MQQqWXEhJ6Hkg2hM1vfgZg42wFeroYe9iq
+         VxfIG3SAo5XZHo8FmgYOkuunLEvsADqvNd4jak+eDW5DNggcXceHLAeTxnzMHKu12qg+
+         60gSIOxPDC9fPUFv1x8/bA0/ejnnZML2Bjq+2dR9r7JlD63lEoGp/xvimaPcc0HeIpnR
+         fqrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=FRB6mm7PujoNC1Ip5uFqQse8luP5YPrMmL6VDyk5GCE=;
+        b=Vsp4BN1NlMqcR1HJuFKp+6UKEQovoge3dM6HU5zDzA4c8z7alCabo8McpElLPDwpQ2
+         LWb8fGM5fhtwNLiHWDhLk7EePP05bo2C2DXeSPMZDy+KqduzsW0X3wnUhOuoVnuzd5kA
+         3CoATjjLPLAHuCNMY2PKEEuPi0r/dpUSWFzPYTOFSsrTxih+0+aZ/GnuVHaw1oJnBUHQ
+         zcxCoZwTshpr0bbf/tP3V5lDj4PZqIodYijMip9tlf4HKzn7ufo2ID5M4b/TWobnMgaF
+         gGZHpHj8E0YKYtIJThM76quJaHusfPCI8pZLnwl+48DQZM5fOzFgvQwTuYf/uYVSSUSv
+         LpOQ==
+X-Gm-Message-State: AOAM533PMvy6F/7isbwKrTHA5xAZ5w0st9lU09EzjLKVZ1/A7MX5nWfZ
+        Ifa08cbEdvPO+fHfSz3MXQjExfhZGhXx
+X-Google-Smtp-Source: ABdhPJzkseJVP2CacQrpdbltO1iscfhno95GIazSs8qQiDiZsu7BWitWeqFF2GfZtoXwDIwG/N18FYwEt/RS
+X-Received: from bgardon.sea.corp.google.com ([2620:15c:100:202:6586:7b2f:b259:2011])
+ (user=bgardon job=sendgmr) by 2002:a17:902:7086:b0:143:6ba3:9b27 with SMTP id
+ z6-20020a170902708600b001436ba39b27mr2875988plk.60.1636583418880; Wed, 10 Nov
+ 2021 14:30:18 -0800 (PST)
+Date:   Wed, 10 Nov 2021 14:29:52 -0800
+In-Reply-To: <20211110223010.1392399-1-bgardon@google.com>
+Message-Id: <20211110223010.1392399-2-bgardon@google.com>
+Mime-Version: 1.0
+References: <20211110223010.1392399-1-bgardon@google.com>
+X-Mailer: git-send-email 2.34.0.rc0.344.g81b53c2807-goog
+Subject: [RFC 01/19] KVM: x86/mmu: Fix TLB flush range when handling
+ disconnected pt
+From:   Ben Gardon <bgardon@google.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Peter Shier <pshier@google.com>,
+        David Matlack <dmatlack@google.com>,
+        Mingwei Zhang <mizhang@google.com>,
+        Yulei Zhang <yulei.kernel@gmail.com>,
+        Wanpeng Li <kernellwp@gmail.com>,
+        Xiao Guangrong <xiaoguangrong.eric@gmail.com>,
+        Kai Huang <kai.huang@intel.com>,
+        Keqian Zhu <zhukeqian1@huawei.com>,
+        David Hildenbrand <david@redhat.com>,
+        Ben Gardon <bgardon@google.com>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Ilya,
+When recursively clearing out disconnected pts, the range based TLB
+flush in handle_removed_tdp_mmu_page uses the wrong starting GFN,
+resulting in the flush mostly missing the affected range. Fix this by
+using base_gfn for the flush.
 
-On Wed, 10 Nov 2021 at 21:02, Ilya Trukhanov <lahvuun@gmail.com> wrote:
->
-> Suspend-to-RAM with elogind under Wayland stopped working in 5.15.
->
-> This occurs with 5.15, 5.15.1 and latest master at
-> 89d714ab6043bca7356b5c823f5335f5dce1f930. 5.14 and earlier releases work
-> fine.
->
-> git bisect gives d391c58271072d0b0fad93c82018d495b2633448.
->
-> To reproduce:
-> - Use elogind and Linux 5.15.1 with CONFIG_SYSFB_SIMPLEFB=n.
-> - Start a Wayland session. I tested sway and weston, neither worked.
-> - In a terminal emulator (I used alacritty) execute `loginctl suspend`.
->
-> Normally after the last step the system would suspend, but it no longer
-> does so after I upgraded to Linux 5.15. After running `loginctl suspend`
-> in dmesg I get the following:
-> [  103.098782] elogind-daemon[2357]: Suspending system...
-> [  103.098794] PM: suspend entry (deep)
-> [  103.124621] Filesystems sync: 0.025 seconds
->
-> But nothing happens afterwards.
->
-> Suspend works as expected if I do any of the following:
-> - Revert d391c58271072d0b0fad93c82018d495b2633448.
-> - Build with CONFIG_SYSFB_SIMPLEFB=y.
+Fixes: a066e61f13cf ("KVM: x86/mmu: Factor out handling of removed page tables")
+CC: stable@vger.kernel.org
 
-If this solves the issue, what else is there to discuss?
+Signed-off-by: Ben Gardon <bgardon@google.com>
+---
+ arch/x86/kvm/mmu/tdp_mmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+index 7c5dd83e52de..866c2b191e1e 100644
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -374,7 +374,7 @@ static void handle_removed_tdp_mmu_page(struct kvm *kvm, tdp_ptep_t pt,
+ 				    shared);
+ 	}
+ 
+-	kvm_flush_remote_tlbs_with_address(kvm, gfn,
++	kvm_flush_remote_tlbs_with_address(kvm, base_gfn,
+ 					   KVM_PAGES_PER_HPAGE(level + 1));
+ 
+ 	call_rcu(&sp->rcu_head, tdp_mmu_free_sp_rcu_callback);
+-- 
+2.34.0.rc0.344.g81b53c2807-goog
 
-
-> - Suspend from tty, even if a Wayland session is running in parallel.
-> - Suspend from under an X11 session.
-> - Suspend with `echo mem > /sys/power/state`.
->
-> If I attach strace to the elogind-daemon process after running
-> `loginctl suspend` then the system immediately suspends. However, if
-> I attach strace *prior* to running `loginctl suspend` then no suspend,
-> and the process gets stuck on a write syscall to `/sys/power/state`.
->
-> I "traced" a little bit with printk (sorry, I don't know of a better
-> way) and the call chain is as follows:
-> state_store -> pm_suspend -> enter_state -> suspend_prepare
-> -> pm_prepare_console -> vt_move_to_console -> vt_waitactive
-> -> __vt_event_wait
->
-> __vt_event_wait just waits until wait_event_interruptible completes, but
-> it never does (not until I attach to elogind-daemon with strace, at
-> least). I did not follow the chain further.
->
-> - Linux version 5.15.1 (lahvuun@lahvuun) (gcc (Gentoo 11.2.0 p1) 11.2.0,
->   GNU ld (Gentoo 2.37_p1 p0) 2.37) #51 SMP PREEMPT Tue Nov 9 23:39:25
->   EET 2021
-> - Gentoo Linux 2.8
-> - x86_64 AuthenticAMD
-> - dmesg: https://pastebin.com/duj33bY8
-> - .config: https://pastebin.com/7Hew1g0T
