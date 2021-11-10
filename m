@@ -2,191 +2,246 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42F6344C84C
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:59:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C57F44C7B7
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233849AbhKJTAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 14:00:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57162 "EHLO mail.kernel.org"
+        id S233682AbhKJSye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:54:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234464AbhKJS6r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:58:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B163E61213;
-        Wed, 10 Nov 2021 18:51:08 +0000 (UTC)
+        id S232924AbhKJSwp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:52:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EA6E61178;
+        Wed, 10 Nov 2021 18:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570269;
-        bh=Pscvcjb96NM4zvDaxzISIdeTzUHjlNGHXrJhBoXozBs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=wEKgluUhfzfQhLZ62bffknlaMn22x5AlknHtwRH8Sm3v9fmehTkv+iwiNnbfYDC/Q
-         +x3ehQYAjLJQy9nAF2ggrIOBElO2X2N05fHIyN1On9TRUKQSYzZ5W/VfyfV3KrJVYR
-         3/0VUT82cQWDlZa1Pbx1v4VX+u4g+qRWBjZeVXJw=
+        s=korg; t=1636570091;
+        bh=0B+S5HHLftd4CK4sZB6M2fCjaBfYmlfb89gFDQi37/Q=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=wTSTGsDvxGzN6SJdG4P35VmHJlTvf/k3eGeDraG2P1T7Q0QAf7GEH1IPqEXmw7Lm0
+         Gz6Pbt1xFDry2Kkru//2jodAhKuQsKon/sLY0inpUEAJs8MirGH5QYKTL85dbiievz
+         Y+B7o2pfdqpU10OFzHO1SoswnOK45l1mZEvHH7ys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.15 00/26] 5.15.2-rc1 review
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 13/21] comedi: dt9812: fix DMA buffers on stack
 Date:   Wed, 10 Nov 2021 19:43:59 +0100
-Message-Id: <20211110182003.700594531@linuxfoundation.org>
+Message-Id: <20211110182003.379534261@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-MIME-Version: 1.0
+In-Reply-To: <20211110182002.964190708@linuxfoundation.org>
+References: <20211110182002.964190708@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.2-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.15.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.15.2-rc1
-X-KernelTest-Deadline: 2021-11-12T18:20+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.15.2 release.
-There are 26 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Johan Hovold <johan@kernel.org>
 
-Responses should be made by Fri, 12 Nov 2021 18:19:54 +0000.
-Anything received after that time might be too late.
+commit 536de747bc48262225889a533db6650731ab25d3 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.2-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-and the diffstat can be found below.
+USB transfer buffers are typically mapped for DMA and must not be
+allocated on the stack or transfers will fail.
 
-thanks,
+Allocate proper transfer buffers in the various command helpers and
+return an error on short transfers instead of acting on random stack
+data.
 
-greg k-h
+Note that this also fixes a stack info leak on systems where DMA is not
+used as 32 bytes are always sent to the device regardless of how short
+the command is.
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: 63274cd7d38a ("Staging: comedi: add usb dt9812 driver")
+Cc: stable@vger.kernel.org      # 2.6.29
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211027093529.30896-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/comedi/drivers/dt9812.c |  115 +++++++++++++++++++++++---------
+ 1 file changed, 86 insertions(+), 29 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.15.2-rc1
-
-Johan Hovold <johan@kernel.org>
-    rsi: fix control-message timeout
-
-Gustavo A. R. Silva <gustavoars@kernel.org>
-    media: staging/intel-ipu3: css: Fix wrong size comparison imgu_css_fw_init
-
-Martin Kaiser <martin@kaiser.cx>
-    staging: r8188eu: fix memleak in rtw_wx_set_enc_ext
-
-Johan Hovold <johan@kernel.org>
-    staging: rtl8192u: fix control-message timeouts
-
-Johan Hovold <johan@kernel.org>
-    staging: r8712u: fix control-message timeout
-
-Johan Hovold <johan@kernel.org>
-    comedi: vmk80xx: fix bulk and interrupt message timeouts
-
-Johan Hovold <johan@kernel.org>
-    comedi: vmk80xx: fix bulk-buffer overflow
-
-Johan Hovold <johan@kernel.org>
-    comedi: vmk80xx: fix transfer-buffer overflows
-
-Johan Hovold <johan@kernel.org>
-    comedi: ni_usb6501: fix NULL-deref in command paths
-
-Johan Hovold <johan@kernel.org>
-    comedi: dt9812: fix DMA buffers on stack
-
-Jan Kara <jack@suse.cz>
-    isofs: Fix out of bound access for corrupted isofs image
-
-Pavel Skripkin <paskripkin@gmail.com>
-    staging: rtl8712: fix use-after-free in rtl8712_dl_fw
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    btrfs: fix lzo_decompress_bio() kmap leakage
-
-Marco Elver <elver@google.com>
-    kfence: default to dynamic branch instead of static keys mode
-
-Marco Elver <elver@google.com>
-    kfence: always use static branches to guard kfence_alloc()
-
-Todd Kjos <tkjos@google.com>
-    binder: don't detect sender/target during buffer cleanup
-
-Todd Kjos <tkjos@google.com>
-    binder: use cred instead of task for getsecid
-
-Todd Kjos <tkjos@google.com>
-    binder: use cred instead of task for selinux checks
-
-Todd Kjos <tkjos@google.com>
-    binder: use euid from cred instead of using task
-
-Kees Cook <keescook@chromium.org>
-    Revert "proc/wchan: use printk format instead of lookup_symbol_name()"
-
-James Buren <braewoods+lkml@braewoods.net>
-    usb-storage: Add compatibility quirk flags for iODD 2531/2541
-
-Viraj Shah <viraj.shah@linutronix.de>
-    usb: musb: Balance list entry in musb_gadget_queue
-
-Geert Uytterhoeven <geert@linux-m68k.org>
-    usb: gadget: Mark USB_FSL_QE broken on 64-bit
-
-Neal Liu <neal_liu@aspeedtech.com>
-    usb: ehci: handshake CMD_RUN instead of STS_HALT
-
-Juergen Gross <jgross@suse.com>
-    Revert "x86/kvm: fix vcpu-id indexed array sizes"
-
-Paolo Bonzini <pbonzini@redhat.com>
-    KVM: x86: avoid warning with -Wbitwise-instead-of-logical
-
-
--------------
-
-Diffstat:
-
- Documentation/dev-tools/kfence.rst           |  12 ++-
- Makefile                                     |   4 +-
- arch/x86/kvm/ioapic.c                        |   2 +-
- arch/x86/kvm/ioapic.h                        |   4 +-
- arch/x86/kvm/mmu/spte.h                      |   7 +-
- drivers/android/binder.c                     |  41 ++++------
- drivers/android/binder_internal.h            |   4 +
- drivers/comedi/drivers/dt9812.c              | 115 ++++++++++++++++++++-------
- drivers/comedi/drivers/ni_usb6501.c          |  10 +++
- drivers/comedi/drivers/vmk80xx.c             |  28 ++++---
- drivers/net/wireless/rsi/rsi_91x_usb.c       |   2 +-
- drivers/staging/media/ipu3/ipu3-css-fw.c     |   7 +-
- drivers/staging/media/ipu3/ipu3-css-fw.h     |   2 +-
- drivers/staging/r8188eu/os_dep/ioctl_linux.c |   5 +-
- drivers/staging/rtl8192u/r8192U_core.c       |  18 ++---
- drivers/staging/rtl8712/usb_intf.c           |   4 +-
- drivers/staging/rtl8712/usb_ops_linux.c      |   2 +-
- drivers/usb/gadget/udc/Kconfig               |   1 +
- drivers/usb/host/ehci-hcd.c                  |  11 ++-
- drivers/usb/host/ehci-platform.c             |   6 ++
- drivers/usb/host/ehci.h                      |   1 +
- drivers/usb/musb/musb_gadget.c               |   4 +-
- drivers/usb/storage/unusual_devs.h           |  10 +++
- fs/btrfs/lzo.c                               |   3 +-
- fs/isofs/inode.c                             |   2 +
- fs/proc/base.c                               |  19 +++--
- include/linux/kfence.h                       |  21 ++---
- include/linux/lsm_hook_defs.h                |  14 ++--
- include/linux/lsm_hooks.h                    |  14 ++--
- include/linux/security.h                     |  33 ++++----
- lib/Kconfig.kfence                           |  26 +++---
- mm/kfence/core.c                             |  16 ++--
- security/security.c                          |  14 ++--
- security/selinux/hooks.c                     |  48 +++--------
- 34 files changed, 298 insertions(+), 212 deletions(-)
+--- a/drivers/staging/comedi/drivers/dt9812.c
++++ b/drivers/staging/comedi/drivers/dt9812.c
+@@ -32,6 +32,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/errno.h>
++#include <linux/slab.h>
+ #include <linux/uaccess.h>
+ 
+ #include "../comedi_usb.h"
+@@ -237,22 +238,42 @@ static int dt9812_read_info(struct comed
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
++	size_t tbuf_size;
+ 	int count, ret;
++	void *tbuf;
+ 
+-	cmd.cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
+-	cmd.u.flash_data_info.address =
++	tbuf_size = max(sizeof(*cmd), buf_size);
++
++	tbuf = kzalloc(tbuf_size, GFP_KERNEL);
++	if (!tbuf)
++		return -ENOMEM;
++
++	cmd = tbuf;
++
++	cmd->cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
++	cmd->u.flash_data_info.address =
+ 	    cpu_to_le16(DT9812_DIAGS_BOARD_INFO_ADDR + offset);
+-	cmd.u.flash_data_info.numbytes = cpu_to_le16(buf_size);
++	cmd->u.flash_data_info.numbytes = cpu_to_le16(buf_size);
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+ 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
+ 	if (ret)
+-		return ret;
++		goto out;
++
++	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
++			   tbuf, buf_size, &count, DT9812_USB_TIMEOUT);
++	if (!ret) {
++		if (count == buf_size)
++			memcpy(buf, tbuf, buf_size);
++		else
++			ret = -EREMOTEIO;
++	}
++out:
++	kfree(tbuf);
+ 
+-	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+-			    buf, buf_size, &count, DT9812_USB_TIMEOUT);
++	return ret;
+ }
+ 
+ static int dt9812_read_multiple_registers(struct comedi_device *dev,
+@@ -261,22 +282,42 @@ static int dt9812_read_multiple_register
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count, ret;
++	size_t buf_size;
++	void *buf;
++
++	buf_size = max_t(size_t, sizeof(*cmd), reg_count);
++
++	buf = kzalloc(buf_size, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	cmd = buf;
+ 
+-	cmd.cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
+-	cmd.u.read_multi_info.count = reg_count;
++	cmd->cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
++	cmd->u.read_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++)
+-		cmd.u.read_multi_info.address[i] = address[i];
++		cmd->u.read_multi_info.address[i] = address[i];
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+ 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+-	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+-			    value, reg_count, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
++			   buf, reg_count, &count, DT9812_USB_TIMEOUT);
++	if (!ret) {
++		if (count == reg_count)
++			memcpy(value, buf, reg_count);
++		else
++			ret = -EREMOTEIO;
++	}
++out:
++	kfree(buf);
++
++	return ret;
+ }
+ 
+ static int dt9812_write_multiple_registers(struct comedi_device *dev,
+@@ -285,19 +326,27 @@ static int dt9812_write_multiple_registe
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count;
++	int ret;
+ 
+-	cmd.cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
+-	cmd.u.read_multi_info.count = reg_count;
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
++	if (!cmd)
++		return -ENOMEM;
++
++	cmd->cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
++	cmd->u.read_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++) {
+-		cmd.u.write_multi_info.write[i].address = address[i];
+-		cmd.u.write_multi_info.write[i].value = value[i];
++		cmd->u.write_multi_info.write[i].address = address[i];
++		cmd->u.write_multi_info.write[i].value = value[i];
+ 	}
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+-	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
++	kfree(cmd);
++
++	return ret;
+ }
+ 
+ static int dt9812_rmw_multiple_registers(struct comedi_device *dev,
+@@ -306,17 +355,25 @@ static int dt9812_rmw_multiple_registers
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count;
++	int ret;
++
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
++	if (!cmd)
++		return -ENOMEM;
+ 
+-	cmd.cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
+-	cmd.u.rmw_multi_info.count = reg_count;
++	cmd->cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
++	cmd->u.rmw_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++)
+-		cmd.u.rmw_multi_info.rmw[i] = rmw[i];
++		cmd->u.rmw_multi_info.rmw[i] = rmw[i];
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+-	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
++	kfree(cmd);
++
++	return ret;
+ }
+ 
+ static int dt9812_digital_in(struct comedi_device *dev, u8 *bits)
 
 
