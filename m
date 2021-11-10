@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71A3244C815
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 185A644C7BD
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233426AbhKJS6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:58:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54534 "EHLO mail.kernel.org"
+        id S232835AbhKJSyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:54:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233214AbhKJS4y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:56:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 867EA619E9;
-        Wed, 10 Nov 2021 18:50:01 +0000 (UTC)
+        id S232884AbhKJSww (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:52:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 909EA61205;
+        Wed, 10 Nov 2021 18:48:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570202;
-        bh=kGRRujJ0TVYCqkl5oZ2FAq43hUPCyXV5Cn7Rt0hFsQU=;
+        s=korg; t=1636570097;
+        bh=c8ra0pIBJ5eI7IiPbFL8LoXo1mqKH+PpSvWSjzsxwt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVMRPGPZO+TXgK7hYgQqxI8K9Ddgb7HwahPmLN525t3yLKJmfkB4FusU8SgPkDr/T
-         HhWdim/BjB5MfaMeC8HelmvYOHv+cMN2lt4RtaiOgCM+0+AKW9/dPR3Tg/511luQEv
-         GU+vgBE5ZEJdNH5Scl4bm7UQ9qi/2S/35TS/PVWY=
+        b=nE4Fob1aJ0BwIdut8mktv1Sm1E0nZeev29RvhTkrlUiqK8yvRWwY/a6Xa6VjMAx2y
+         3mmDp88NWelUwaCLgMrddP3OJjxQf6QQg4Ca8LHxkcXOrB1VLiQaEjpXc7RSMrqsOP
+         pAbVvhbbeptalqgsKMN+DEh+NeKcJMXklSI473uU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvic9@mailbox.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.15 01/26] KVM: x86: avoid warning with -Wbitwise-instead-of-logical
-Date:   Wed, 10 Nov 2021 19:44:00 +0100
-Message-Id: <20211110182003.757795469@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.10 15/21] comedi: vmk80xx: fix transfer-buffer overflows
+Date:   Wed, 10 Nov 2021 19:44:01 +0100
+Message-Id: <20211110182003.447634505@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182003.700594531@linuxfoundation.org>
-References: <20211110182003.700594531@linuxfoundation.org>
+In-Reply-To: <20211110182002.964190708@linuxfoundation.org>
+References: <20211110182002.964190708@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,45 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 3d5e7a28b1ea2d603dea478e58e37ce75b9597ab upstream.
+commit a23461c47482fc232ffc9b819539d1f837adf2b1 upstream.
 
-This is a new warning in clang top-of-tree (will be clang 14):
+The driver uses endpoint-sized USB transfer buffers but up until
+recently had no sanity checks on the sizes.
 
-In file included from arch/x86/kvm/mmu/mmu.c:27:
-arch/x86/kvm/mmu/spte.h:318:9: error: use of bitwise '|' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
-        return __is_bad_mt_xwr(rsvd_check, spte) |
-               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                                 ||
-arch/x86/kvm/mmu/spte.h:318:9: note: cast one or both operands to int to silence this warning
+Commit e1f13c879a7c ("staging: comedi: check validity of wMaxPacketSize
+of usb endpoints found") inadvertently fixed NULL-pointer dereferences
+when accessing the transfer buffers in case a malicious device has a
+zero wMaxPacketSize.
 
-The code is fine, but change it anyway to shut up this clever clogs
-of a compiler.
+Make sure to allocate buffers large enough to handle also the other
+accesses that are done without a size check (e.g. byte 18 in
+vmk80xx_cnt_insn_read() for the VMK8061_MODEL) to avoid writing beyond
+the buffers, for example, when doing descriptor fuzzing.
 
-Reported-by: torvic9@mailbox.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
+The original driver was for a low-speed device with 8-byte buffers.
+Support was later added for a device that uses bulk transfers and is
+presumably a full-speed device with a maximum 64-byte wMaxPacketSize.
+
+Fixes: 985cafccbf9b ("Staging: Comedi: vmk80xx: Add k8061 support")
+Cc: stable@vger.kernel.org      # 2.6.31
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20211025114532.4599-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/spte.h |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/staging/comedi/drivers/vmk80xx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/mmu/spte.h
-+++ b/arch/x86/kvm/mmu/spte.h
-@@ -310,12 +310,7 @@ static inline bool __is_bad_mt_xwr(struc
- static __always_inline bool is_rsvd_spte(struct rsvd_bits_validate *rsvd_check,
- 					 u64 spte, int level)
- {
--	/*
--	 * Use a bitwise-OR instead of a logical-OR to aggregate the reserved
--	 * bits and EPT's invalid memtype/XWR checks to avoid an extra Jcc
--	 * (this is extremely unlikely to be short-circuited as true).
--	 */
--	return __is_bad_mt_xwr(rsvd_check, spte) |
-+	return __is_bad_mt_xwr(rsvd_check, spte) ||
- 	       __is_rsvd_bits_set(rsvd_check, spte, level);
- }
+--- a/drivers/staging/comedi/drivers/vmk80xx.c
++++ b/drivers/staging/comedi/drivers/vmk80xx.c
+@@ -90,6 +90,8 @@ enum {
+ #define IC3_VERSION		BIT(0)
+ #define IC6_VERSION		BIT(1)
  
++#define MIN_BUF_SIZE		64
++
+ enum vmk80xx_model {
+ 	VMK8055_MODEL,
+ 	VMK8061_MODEL
+@@ -678,12 +680,12 @@ static int vmk80xx_alloc_usb_buffers(str
+ 	struct vmk80xx_private *devpriv = dev->private;
+ 	size_t size;
+ 
+-	size = usb_endpoint_maxp(devpriv->ep_rx);
++	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
+ 	devpriv->usb_rx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_rx_buf)
+ 		return -ENOMEM;
+ 
+-	size = usb_endpoint_maxp(devpriv->ep_tx);
++	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
+ 	devpriv->usb_tx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_tx_buf)
+ 		return -ENOMEM;
 
 
