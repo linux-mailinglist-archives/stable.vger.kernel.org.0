@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD72244C7DE
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F18144C7C3
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233671AbhKJS4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:56:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54184 "EHLO mail.kernel.org"
+        id S232904AbhKJSzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:55:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233133AbhKJSyb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:54:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35743619EC;
-        Wed, 10 Nov 2021 18:49:00 +0000 (UTC)
+        id S233459AbhKJSxG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:53:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD305613D3;
+        Wed, 10 Nov 2021 18:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570140;
-        bh=NHZfkMiEXUyTjy4oDkxM1iO1u2XI/Ed+Nfr2aDOQ0/U=;
+        s=korg; t=1636570102;
+        bh=q9aydd/CFdTUD+m0FPc5a7Q3PINsajNfFPjpq+9ald8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E5TnlUZwZ/9ShvIJeQKoDevhPaDlfpj9bnAflmrwZVoaVLclSiYzYuq6NNO9Ydm5+
-         JGFzZXW5K/bQfWjizSSFgcMfo6gbb6PlCDoeDO4jkPFmLkqnHz7VTxcfoMDx6zj7N/
-         3HFKsn2uNBmtefFfTLyV252LBdR3gf8NK1U/Dc3Y=
+        b=0XSzBT6ja+OSzcdOSh0xY1PamTKeUfpwPeETIziwWbraD3qoeRJEGu0pmvXt3PzSv
+         xdv7YUDcKoQ70HU7KcALpvHrtjvL5DiwCv8Qsdd6nqs1cAyOruZC4xJchCNSEbwkps
+         w+KjwgKqhEF5isd/YxWJpDZ+/ZeHCSAF8kxhHJL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Jann Horn <jannh@google.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.14 10/24] binder: use euid from cred instead of using task
-Date:   Wed, 10 Nov 2021 19:44:02 +0100
-Message-Id: <20211110182003.660752571@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.10 17/21] comedi: vmk80xx: fix bulk and interrupt message timeouts
+Date:   Wed, 10 Nov 2021 19:44:03 +0100
+Message-Id: <20211110182003.509132581@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
-References: <20211110182003.342919058@linuxfoundation.org>
+In-Reply-To: <20211110182002.964190708@linuxfoundation.org>
+References: <20211110182002.964190708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,79 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 29bc22ac5e5bc63275e850f0c8fc549e3d0e306b upstream.
+commit a56d3e40bda460edf3f8d6aac00ec0b322b4ab83 upstream.
 
-Save the 'struct cred' associated with a binder process
-at initial open to avoid potential race conditions
-when converting to an euid.
+USB bulk and interrupt message timeouts are specified in milliseconds
+and should specifically not vary with CONFIG_HZ.
 
-Set a transaction's sender_euid from the 'struct cred'
-saved at binder_open() instead of looking up the euid
-from the binder proc's 'struct task'. This ensures
-the euid is associated with the security context that
-of the task that opened binder.
+Note that the bulk-out transfer timeout was set to the endpoint
+bInterval value, which should be ignored for bulk endpoints and is
+typically set to zero. This meant that a failing bulk-out transfer
+would never time out.
 
-Cc: stable@vger.kernel.org # 4.4+
-Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Suggested-by: Jann Horn <jannh@google.com>
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Assume that the 10 second timeout used for all other transfers is more
+than enough also for the bulk-out endpoint.
+
+Fixes: 985cafccbf9b ("Staging: Comedi: vmk80xx: Add k8061 support")
+Fixes: 951348b37738 ("staging: comedi: vmk80xx: wait for URBs to complete")
+Cc: stable@vger.kernel.org      # 2.6.31
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20211025114532.4599-6-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c          |    4 +++-
- drivers/android/binder_internal.h |    4 ++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/vmk80xx.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2711,7 +2711,7 @@ static void binder_transaction(struct bi
- 		t->from = thread;
- 	else
- 		t->from = NULL;
--	t->sender_euid = task_euid(proc->tsk);
-+	t->sender_euid = proc->cred->euid;
- 	t->to_proc = target_proc;
- 	t->to_thread = target_thread;
- 	t->code = tr->code;
-@@ -4353,6 +4353,7 @@ static void binder_free_proc(struct bind
- 	}
- 	binder_alloc_deferred_release(&proc->alloc);
- 	put_task_struct(proc->tsk);
-+	put_cred(proc->cred);
- 	binder_stats_deleted(BINDER_STAT_PROC);
- 	kfree(proc);
+--- a/drivers/staging/comedi/drivers/vmk80xx.c
++++ b/drivers/staging/comedi/drivers/vmk80xx.c
+@@ -91,6 +91,7 @@ enum {
+ #define IC6_VERSION		BIT(1)
+ 
+ #define MIN_BUF_SIZE		64
++#define PACKET_TIMEOUT		10000	/* ms */
+ 
+ enum vmk80xx_model {
+ 	VMK8055_MODEL,
+@@ -169,10 +170,11 @@ static void vmk80xx_do_bulk_msg(struct c
+ 	tx_size = usb_endpoint_maxp(devpriv->ep_tx);
+ 	rx_size = usb_endpoint_maxp(devpriv->ep_rx);
+ 
+-	usb_bulk_msg(usb, tx_pipe, devpriv->usb_tx_buf,
+-		     tx_size, NULL, devpriv->ep_tx->bInterval);
++	usb_bulk_msg(usb, tx_pipe, devpriv->usb_tx_buf, tx_size, NULL,
++		     PACKET_TIMEOUT);
+ 
+-	usb_bulk_msg(usb, rx_pipe, devpriv->usb_rx_buf, rx_size, NULL, HZ * 10);
++	usb_bulk_msg(usb, rx_pipe, devpriv->usb_rx_buf, rx_size, NULL,
++		     PACKET_TIMEOUT);
  }
-@@ -5055,6 +5056,7 @@ static int binder_open(struct inode *nod
- 	spin_lock_init(&proc->outer_lock);
- 	get_task_struct(current->group_leader);
- 	proc->tsk = current->group_leader;
-+	proc->cred = get_cred(filp->f_cred);
- 	INIT_LIST_HEAD(&proc->todo);
- 	init_waitqueue_head(&proc->freeze_wait);
- 	proc->default_priority = task_nice(current);
---- a/drivers/android/binder_internal.h
-+++ b/drivers/android/binder_internal.h
-@@ -364,6 +364,9 @@ struct binder_ref {
-  *                        (invariant after initialized)
-  * @tsk                   task_struct for group_leader of process
-  *                        (invariant after initialized)
-+ * @cred                  struct cred associated with the `struct file`
-+ *                        in binder_open()
-+ *                        (invariant after initialized)
-  * @deferred_work_node:   element for binder_deferred_list
-  *                        (protected by binder_deferred_lock)
-  * @deferred_work:        bitmap of deferred work to perform
-@@ -426,6 +429,7 @@ struct binder_proc {
- 	struct list_head waiting_threads;
- 	int pid;
- 	struct task_struct *tsk;
-+	const struct cred *cred;
- 	struct hlist_node deferred_work_node;
- 	int deferred_work;
- 	int outstanding_txns;
+ 
+ static int vmk80xx_read_packet(struct comedi_device *dev)
+@@ -191,7 +193,7 @@ static int vmk80xx_read_packet(struct co
+ 	pipe = usb_rcvintpipe(usb, ep->bEndpointAddress);
+ 	return usb_interrupt_msg(usb, pipe, devpriv->usb_rx_buf,
+ 				 usb_endpoint_maxp(ep), NULL,
+-				 HZ * 10);
++				 PACKET_TIMEOUT);
+ }
+ 
+ static int vmk80xx_write_packet(struct comedi_device *dev, int cmd)
+@@ -212,7 +214,7 @@ static int vmk80xx_write_packet(struct c
+ 	pipe = usb_sndintpipe(usb, ep->bEndpointAddress);
+ 	return usb_interrupt_msg(usb, pipe, devpriv->usb_tx_buf,
+ 				 usb_endpoint_maxp(ep), NULL,
+-				 HZ * 10);
++				 PACKET_TIMEOUT);
+ }
+ 
+ static int vmk80xx_reset_device(struct comedi_device *dev)
 
 
