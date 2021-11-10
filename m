@@ -2,135 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D28744C7A9
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AC4D44C7DA
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233310AbhKJSyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:54:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47790 "EHLO mail.kernel.org"
+        id S233489AbhKJS4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:56:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233322AbhKJSwa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:52:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D5B361241;
-        Wed, 10 Nov 2021 18:47:58 +0000 (UTC)
+        id S233496AbhKJSy2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:54:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A8B0617E4;
+        Wed, 10 Nov 2021 18:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570079;
-        bh=9JlpnTwZKhhA1Y9I8SvjaZr6wkbw3NCjEl/pWlPAgAk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YDiNW5SbJhyHk54jHbOsZpUp1Je5stZneM3ddf4aNFw0izZ/zuzFnVH54ckNh5RBQ
-         PamMrPcSR0Q+qMs7sHFAY4PZV10gv4kueeGGAanSfX5EOc4fbBCLfb+21YSCdwOsJ8
-         WMnpRPMR5+Kb9nLn3noO5hZ6kK2CMuSAQue+wt7Y=
+        s=korg; t=1636570132;
+        bh=98sKkZZPvkammjksF+JcTzu+ulOF2D8/btXb/dgKDjY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=dQ4flgOCoSqDFsXUwsQTnNN5Z6gMNjrQtPbLC5oAJOE0kh2Pm9SqIcyZEsDibtNj5
+         rc9OkPkIADUCitOFTh5KSgXgTUIRTf1TbDnHE3zsHqt/7kBxcishAb0wfko+zaW5iS
+         OKQagj3R+P8TT6DXUkp0kNIu8wsAc8myDs/oybIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Todd Kjos <tkjos@google.com>
-Subject: [PATCH 5.4 06/17] binder: dont detect sender/target during buffer cleanup
-Date:   Wed, 10 Nov 2021 19:43:45 +0100
-Message-Id: <20211110182002.408349335@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.10 00/21] 5.10.79-rc1 review
+Date:   Wed, 10 Nov 2021 19:43:46 +0100
+Message-Id: <20211110182002.964190708@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182002.206203228@linuxfoundation.org>
-References: <20211110182002.206203228@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.79-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.79-rc1
+X-KernelTest-Deadline: 2021-11-12T18:20+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@google.com>
+This is the start of the stable review cycle for the 5.10.79 release.
+There are 21 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 32e9f56a96d8d0f23cb2aeb2a3cd18d40393e787 upstream.
+Responses should be made by Fri, 12 Nov 2021 18:19:54 +0000.
+Anything received after that time might be too late.
 
-When freeing txn buffers, binder_transaction_buffer_release()
-attempts to detect whether the current context is the target by
-comparing current->group_leader to proc->tsk. This is an unreliable
-test. Instead explicitly pass an 'is_failure' boolean.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.79-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-Detecting the sender was being used as a way to tell if the
-transaction failed to be sent.  When cleaning up after
-failing to send a transaction, there is no need to close
-the fds associated with a BINDER_TYPE_FDA object. Now
-'is_failure' can be used to accurately detect this case.
+thanks,
 
-Fixes: 44d8047f1d87 ("binder: use standard functions to allocate fds")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Link: https://lore.kernel.org/r/20211015233811.3532235-1-tkjos@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/android/binder.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+greg k-h
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2257,7 +2257,7 @@ static void binder_transaction_buffer_re
- 		binder_dec_node(buffer->target_node, 1, 0);
- 
- 	off_start_offset = ALIGN(buffer->data_size, sizeof(void *));
--	off_end_offset = is_failure ? failed_at :
-+	off_end_offset = is_failure && failed_at ? failed_at :
- 				off_start_offset + buffer->offsets_size;
- 	for (buffer_offset = off_start_offset; buffer_offset < off_end_offset;
- 	     buffer_offset += sizeof(binder_size_t)) {
-@@ -2343,9 +2343,8 @@ static void binder_transaction_buffer_re
- 			binder_size_t fd_buf_size;
- 			binder_size_t num_valid;
- 
--			if (proc->tsk != current->group_leader) {
-+			if (is_failure) {
- 				/*
--				 * Nothing to do if running in sender context
- 				 * The fd fixups have not been applied so no
- 				 * fds need to be closed.
- 				 */
-@@ -3548,6 +3547,7 @@ err_invalid_target_handle:
-  * binder_free_buf() - free the specified buffer
-  * @proc:	binder proc that owns buffer
-  * @buffer:	buffer to be freed
-+ * @is_failure:	failed to send transaction
-  *
-  * If buffer for an async transaction, enqueue the next async
-  * transaction from the node.
-@@ -3557,7 +3557,7 @@ err_invalid_target_handle:
- static void
- binder_free_buf(struct binder_proc *proc,
- 		struct binder_thread *thread,
--		struct binder_buffer *buffer)
-+		struct binder_buffer *buffer, bool is_failure)
- {
- 	binder_inner_proc_lock(proc);
- 	if (buffer->transaction) {
-@@ -3585,7 +3585,7 @@ binder_free_buf(struct binder_proc *proc
- 		binder_node_inner_unlock(buf_node);
- 	}
- 	trace_binder_transaction_buffer_release(buffer);
--	binder_transaction_buffer_release(proc, thread, buffer, 0, false);
-+	binder_transaction_buffer_release(proc, thread, buffer, 0, is_failure);
- 	binder_alloc_free_buf(&proc->alloc, buffer);
- }
- 
-@@ -3786,7 +3786,7 @@ static int binder_thread_write(struct bi
- 				     proc->pid, thread->pid, (u64)data_ptr,
- 				     buffer->debug_id,
- 				     buffer->transaction ? "active" : "finished");
--			binder_free_buf(proc, thread, buffer);
-+			binder_free_buf(proc, thread, buffer, false);
- 			break;
- 		}
- 
-@@ -4474,7 +4474,7 @@ retry:
- 			buffer->transaction = NULL;
- 			binder_cleanup_transaction(t, "fd fixups failed",
- 						   BR_FAILED_REPLY);
--			binder_free_buf(proc, thread, buffer);
-+			binder_free_buf(proc, thread, buffer, true);
- 			binder_debug(BINDER_DEBUG_FAILED_TRANSACTION,
- 				     "%d:%d %stransaction %d fd fixups failed %d/%d, line %d\n",
- 				     proc->pid, thread->pid,
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.79-rc1
+
+Johan Hovold <johan@kernel.org>
+    rsi: fix control-message timeout
+
+Gustavo A. R. Silva <gustavoars@kernel.org>
+    media: staging/intel-ipu3: css: Fix wrong size comparison imgu_css_fw_init
+
+Johan Hovold <johan@kernel.org>
+    staging: rtl8192u: fix control-message timeouts
+
+Johan Hovold <johan@kernel.org>
+    staging: r8712u: fix control-message timeout
+
+Johan Hovold <johan@kernel.org>
+    comedi: vmk80xx: fix bulk and interrupt message timeouts
+
+Johan Hovold <johan@kernel.org>
+    comedi: vmk80xx: fix bulk-buffer overflow
+
+Johan Hovold <johan@kernel.org>
+    comedi: vmk80xx: fix transfer-buffer overflows
+
+Johan Hovold <johan@kernel.org>
+    comedi: ni_usb6501: fix NULL-deref in command paths
+
+Johan Hovold <johan@kernel.org>
+    comedi: dt9812: fix DMA buffers on stack
+
+Jan Kara <jack@suse.cz>
+    isofs: Fix out of bound access for corrupted isofs image
+
+Pavel Skripkin <paskripkin@gmail.com>
+    staging: rtl8712: fix use-after-free in rtl8712_dl_fw
+
+Petr Mladek <pmladek@suse.com>
+    printk/console: Allow to disable console output by using console="" or console=null
+
+Todd Kjos <tkjos@google.com>
+    binder: don't detect sender/target during buffer cleanup
+
+James Buren <braewoods+lkml@braewoods.net>
+    usb-storage: Add compatibility quirk flags for iODD 2531/2541
+
+Viraj Shah <viraj.shah@linutronix.de>
+    usb: musb: Balance list entry in musb_gadget_queue
+
+Geert Uytterhoeven <geert@linux-m68k.org>
+    usb: gadget: Mark USB_FSL_QE broken on 64-bit
+
+Yang Shi <shy828301@gmail.com>
+    mm: filemap: check if THP has hwpoisoned subpage for PMD page fault
+
+Yang Shi <shy828301@gmail.com>
+    mm: hwpoison: remove the unnecessary THP check
+
+Neal Liu <neal_liu@aspeedtech.com>
+    usb: ehci: handshake CMD_RUN instead of STS_HALT
+
+Juergen Gross <jgross@suse.com>
+    Revert "x86/kvm: fix vcpu-id indexed array sizes"
+
+Paolo Bonzini <pbonzini@redhat.com>
+    KVM: x86: avoid warning with -Wbitwise-instead-of-logical
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                    |   4 +-
+ arch/x86/kvm/ioapic.c                       |   2 +-
+ arch/x86/kvm/ioapic.h                       |   4 +-
+ arch/x86/kvm/mmu/mmu.c                      |   2 +-
+ drivers/android/binder.c                    |  14 ++--
+ drivers/net/wireless/rsi/rsi_91x_usb.c      |   2 +-
+ drivers/staging/comedi/drivers/dt9812.c     | 115 +++++++++++++++++++++-------
+ drivers/staging/comedi/drivers/ni_usb6501.c |  10 +++
+ drivers/staging/comedi/drivers/vmk80xx.c    |  28 +++----
+ drivers/staging/media/ipu3/ipu3-css-fw.c    |   7 +-
+ drivers/staging/media/ipu3/ipu3-css-fw.h    |   2 +-
+ drivers/staging/rtl8192u/r8192U_core.c      |  18 ++---
+ drivers/staging/rtl8712/usb_intf.c          |   4 +-
+ drivers/staging/rtl8712/usb_ops_linux.c     |   2 +-
+ drivers/usb/gadget/udc/Kconfig              |   1 +
+ drivers/usb/host/ehci-hcd.c                 |  11 ++-
+ drivers/usb/host/ehci-platform.c            |   6 ++
+ drivers/usb/host/ehci.h                     |   1 +
+ drivers/usb/musb/musb_gadget.c              |   4 +-
+ drivers/usb/storage/unusual_devs.h          |  10 +++
+ fs/isofs/inode.c                            |   2 +
+ include/linux/page-flags.h                  |  23 ++++++
+ kernel/printk/printk.c                      |   9 ++-
+ mm/huge_memory.c                            |   2 +
+ mm/memory-failure.c                         |  28 +++----
+ mm/memory.c                                 |   9 +++
+ mm/page_alloc.c                             |   4 +-
+ 27 files changed, 233 insertions(+), 91 deletions(-)
 
 
