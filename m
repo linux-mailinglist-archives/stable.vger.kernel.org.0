@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6CE844C70A
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:46:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2770A44C6FF
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:46:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233024AbhKJSrq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:47:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46184 "EHLO mail.kernel.org"
+        id S232920AbhKJSrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:47:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232896AbhKJSrR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:47:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94CE56115A;
-        Wed, 10 Nov 2021 18:44:29 +0000 (UTC)
+        id S232743AbhKJSrE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:47:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A037F61250;
+        Wed, 10 Nov 2021 18:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636569870;
-        bh=zcHyq49sTh9mXhWeGeX8Zs82VtijvsSELOCePhpwUxA=;
+        s=korg; t=1636569857;
+        bh=hmpt0t7s2mzqAM7p8O2m4L1D0HY8K1NRb553eb7twx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHbrCj/sUt0V7xw16iBIOC35k6g+E2hBnLl65m76z+IveDkl+XYlbWWMEFA4G5RxN
-         SmP2SrI0/gW9hrM/I/M4OrH3F567Xi43Vtp/gvqwImJ7fnze312PrMClzS9Ca1SvUm
-         KmystQkCszWHJR3TCfisgcCodhempfpBNr/EAF4w=
+        b=IkSFsCcZR7l9aQ5i5z0YKrHplnh/HIyR5DxqrQyr5/RE/v+3lTIXD9qUQWKta4qce
+         x5Gu/i2D80Ux8M8xvupQEDVbts0cbOVC3toj39uzhURrDe79X3V1P0WwOoO6Io5VP8
+         bdY4muchRPviul1WdP2gfhXNgV3MsKIOBUpgx4pE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changhui Zhong <czhong@redhat.com>,
-        Yi Zhang <yi.zhang@redhat.com>, Ming Lei <ming.lei@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 01/22] scsi: core: Put LLD module refcnt after SCSI device is released
+        stable@vger.kernel.org, Li Yang <leoyang.li@nxp.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 4.4 06/19] usb: gadget: Mark USB_FSL_QE broken on 64-bit
 Date:   Wed, 10 Nov 2021 19:43:08 +0100
-Message-Id: <20211110182001.628982980@linuxfoundation.org>
+Message-Id: <20211110182001.459100822@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182001.579561273@linuxfoundation.org>
-References: <20211110182001.579561273@linuxfoundation.org>
+In-Reply-To: <20211110182001.257350381@linuxfoundation.org>
+References: <20211110182001.257350381@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,79 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-commit f2b85040acec9a928b4eb1b57a989324e8e38d3f upstream.
+commit a0548b26901f082684ad1fb3ba397d2de3a1406a upstream.
 
-SCSI host release is triggered when SCSI device is freed. We have to make
-sure that the low-level device driver module won't be unloaded before SCSI
-host instance is released because shost->hostt is required in the release
-handler.
+On 64-bit:
 
-Make sure to put LLD module refcnt after SCSI device is released.
+    drivers/usb/gadget/udc/fsl_qe_udc.c: In function ‘qe_ep0_rx’:
+    drivers/usb/gadget/udc/fsl_qe_udc.c:842:13: error: cast from pointer to integer of different size [-Werror=pointer-to-int-cast]
+      842 |     vaddr = (u32)phys_to_virt(in_be32(&bd->buf));
+	  |             ^
+    In file included from drivers/usb/gadget/udc/fsl_qe_udc.c:41:
+    drivers/usb/gadget/udc/fsl_qe_udc.c:843:28: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
+      843 |     frame_set_data(pframe, (u8 *)vaddr);
+	  |                            ^
 
-Fixes a kernel panic of 'BUG: unable to handle page fault for address'
-reported by Changhui and Yi.
+The driver assumes physical and virtual addresses are 32-bit, hence it
+cannot work on 64-bit platforms.
 
-Link: https://lore.kernel.org/r/20211008050118.1440686-1-ming.lei@redhat.com
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reported-by: Changhui Zhong <czhong@redhat.com>
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Tested-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20211027080849.3276289-1-geert@linux-m68k.org
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi.c       |    4 +++-
- drivers/scsi/scsi_sysfs.c |    9 +++++++++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/scsi.c
-+++ b/drivers/scsi/scsi.c
-@@ -951,8 +951,10 @@ EXPORT_SYMBOL(scsi_device_get);
-  */
- void scsi_device_put(struct scsi_device *sdev)
- {
--	module_put(sdev->host->hostt->module);
-+	struct module *mod = sdev->host->hostt->module;
-+
- 	put_device(&sdev->sdev_gendev);
-+	module_put(mod);
- }
- EXPORT_SYMBOL(scsi_device_put);
- 
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -427,9 +427,12 @@ static void scsi_device_dev_release_user
- 	struct device *parent;
- 	struct list_head *this, *tmp;
- 	unsigned long flags;
-+	struct module *mod;
- 
- 	sdev = container_of(work, struct scsi_device, ew.work);
- 
-+	mod = sdev->host->hostt->module;
-+
- 	scsi_dh_release_device(sdev);
- 
- 	parent = sdev->sdev_gendev.parent;
-@@ -461,11 +464,17 @@ static void scsi_device_dev_release_user
- 
- 	if (parent)
- 		put_device(parent);
-+	module_put(mod);
- }
- 
- static void scsi_device_dev_release(struct device *dev)
- {
- 	struct scsi_device *sdp = to_scsi_device(dev);
-+
-+	/* Set module pointer as NULL in case of module unloading */
-+	if (!try_module_get(sdp->host->hostt->module))
-+		sdp->host->hostt->module = NULL;
-+
- 	execute_in_process_context(scsi_device_dev_release_usercontext,
- 				   &sdp->ew);
- }
+--- a/drivers/usb/gadget/udc/Kconfig
++++ b/drivers/usb/gadget/udc/Kconfig
+@@ -265,6 +265,7 @@ config USB_AMD5536UDC
+ config USB_FSL_QE
+ 	tristate "Freescale QE/CPM USB Device Controller"
+ 	depends on FSL_SOC && (QUICC_ENGINE || CPM)
++	depends on !64BIT || BROKEN
+ 	help
+ 	   Some of Freescale PowerPC processors have a Full Speed
+ 	   QE/CPM2 USB controller, which support device mode with 4
 
 
