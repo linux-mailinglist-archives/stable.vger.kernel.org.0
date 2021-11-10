@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FAA244C7A2
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F74644C7C9
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232702AbhKJSx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:53:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46804 "EHLO mail.kernel.org"
+        id S233805AbhKJSzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:55:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233819AbhKJSwA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:52:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 853D86152A;
-        Wed, 10 Nov 2021 18:47:40 +0000 (UTC)
+        id S233863AbhKJSxn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:53:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9165261881;
+        Wed, 10 Nov 2021 18:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570061;
-        bh=0B+S5HHLftd4CK4sZB6M2fCjaBfYmlfb89gFDQi37/Q=;
+        s=korg; t=1636570110;
+        bh=m91u4AUSBvuJlLQR5nC2A9E4fcoxzN+ge/HimR2tUro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yf21n/IkhcDQHMszZ1v/UYjBa19LNKQMSbvXxCG+uAbkkrdozxwYU7xDCIRYZJfIa
-         LQldgGHdwSWrY79IuVkUGjvOqmjiKa1HfT4P7bIjft6UG4HqMfVLL/o+C+qo6thp0w
-         Br2eoEdz95ofTiFGU+xdGlHrIhqqPv0SDUEXhFv8=
+        b=UJaQT+Kn2VWjZmyZTHwns/hRTGYMrtvB7fpZ/J7dm14koHlfPeqr+IYOUkQheodfx
+         robFOPOEQK8kEBkAYJpqzqeMy1O9RFxNkEJ/A3sh8EwoowZqzbklwf/mZhYRW05qkY
+         Wvv7pg3fEr1ieEbp2PDehM0ou4F5rPcD4k/AAmvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 09/17] comedi: dt9812: fix DMA buffers on stack
+        stable@vger.kernel.org, Eduardo Habkost <ehabkost@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 02/21] Revert "x86/kvm: fix vcpu-id indexed array sizes"
 Date:   Wed, 10 Nov 2021 19:43:48 +0100
-Message-Id: <20211110182002.511106955@linuxfoundation.org>
+Message-Id: <20211110182003.041413509@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182002.206203228@linuxfoundation.org>
-References: <20211110182002.206203228@linuxfoundation.org>
+In-Reply-To: <20211110182002.964190708@linuxfoundation.org>
+References: <20211110182002.964190708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,209 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit 536de747bc48262225889a533db6650731ab25d3 upstream.
+commit 1e254d0d86a0f2efd4190a89d5204b37c18c6381 upstream.
 
-USB transfer buffers are typically mapped for DMA and must not be
-allocated on the stack or transfers will fail.
+This reverts commit 76b4f357d0e7d8f6f0013c733e6cba1773c266d3.
 
-Allocate proper transfer buffers in the various command helpers and
-return an error on short transfers instead of acting on random stack
-data.
+The commit has the wrong reasoning, as KVM_MAX_VCPU_ID is not defining the
+maximum allowed vcpu-id as its name suggests, but the number of vcpu-ids.
+So revert this patch again.
 
-Note that this also fixes a stack info leak on systems where DMA is not
-used as 32 bytes are always sent to the device regardless of how short
-the command is.
-
-Fixes: 63274cd7d38a ("Staging: comedi: add usb dt9812 driver")
-Cc: stable@vger.kernel.org      # 2.6.29
-Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211027093529.30896-3-johan@kernel.org
+Suggested-by: Eduardo Habkost <ehabkost@redhat.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <20210913135745.13944-2-jgross@suse.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/dt9812.c |  115 +++++++++++++++++++++++---------
- 1 file changed, 86 insertions(+), 29 deletions(-)
+ arch/x86/kvm/ioapic.c |    2 +-
+ arch/x86/kvm/ioapic.h |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/comedi/drivers/dt9812.c
-+++ b/drivers/staging/comedi/drivers/dt9812.c
-@@ -32,6 +32,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/errno.h>
-+#include <linux/slab.h>
- #include <linux/uaccess.h>
- 
- #include "../comedi_usb.h"
-@@ -237,22 +238,42 @@ static int dt9812_read_info(struct comed
+--- a/arch/x86/kvm/ioapic.c
++++ b/arch/x86/kvm/ioapic.c
+@@ -96,7 +96,7 @@ static unsigned long ioapic_read_indirec
+ static void rtc_irq_eoi_tracking_reset(struct kvm_ioapic *ioapic)
  {
- 	struct usb_device *usb = comedi_to_usb_dev(dev);
- 	struct dt9812_private *devpriv = dev->private;
--	struct dt9812_usb_cmd cmd;
-+	struct dt9812_usb_cmd *cmd;
-+	size_t tbuf_size;
- 	int count, ret;
-+	void *tbuf;
- 
--	cmd.cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
--	cmd.u.flash_data_info.address =
-+	tbuf_size = max(sizeof(*cmd), buf_size);
-+
-+	tbuf = kzalloc(tbuf_size, GFP_KERNEL);
-+	if (!tbuf)
-+		return -ENOMEM;
-+
-+	cmd = tbuf;
-+
-+	cmd->cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
-+	cmd->u.flash_data_info.address =
- 	    cpu_to_le16(DT9812_DIAGS_BOARD_INFO_ADDR + offset);
--	cmd.u.flash_data_info.numbytes = cpu_to_le16(buf_size);
-+	cmd->u.flash_data_info.numbytes = cpu_to_le16(buf_size);
- 
- 	/* DT9812 only responds to 32 byte writes!! */
- 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
--			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
-+			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
- 	if (ret)
--		return ret;
-+		goto out;
-+
-+	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
-+			   tbuf, buf_size, &count, DT9812_USB_TIMEOUT);
-+	if (!ret) {
-+		if (count == buf_size)
-+			memcpy(buf, tbuf, buf_size);
-+		else
-+			ret = -EREMOTEIO;
-+	}
-+out:
-+	kfree(tbuf);
- 
--	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
--			    buf, buf_size, &count, DT9812_USB_TIMEOUT);
-+	return ret;
+ 	ioapic->rtc_status.pending_eoi = 0;
+-	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID + 1);
++	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID);
  }
  
- static int dt9812_read_multiple_registers(struct comedi_device *dev,
-@@ -261,22 +282,42 @@ static int dt9812_read_multiple_register
- {
- 	struct usb_device *usb = comedi_to_usb_dev(dev);
- 	struct dt9812_private *devpriv = dev->private;
--	struct dt9812_usb_cmd cmd;
-+	struct dt9812_usb_cmd *cmd;
- 	int i, count, ret;
-+	size_t buf_size;
-+	void *buf;
-+
-+	buf_size = max_t(size_t, sizeof(*cmd), reg_count);
-+
-+	buf = kzalloc(buf_size, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	cmd = buf;
+ static void kvm_rtc_eoi_tracking_restore_all(struct kvm_ioapic *ioapic);
+--- a/arch/x86/kvm/ioapic.h
++++ b/arch/x86/kvm/ioapic.h
+@@ -43,13 +43,13 @@ struct kvm_vcpu;
  
--	cmd.cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
--	cmd.u.read_multi_info.count = reg_count;
-+	cmd->cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
-+	cmd->u.read_multi_info.count = reg_count;
- 	for (i = 0; i < reg_count; i++)
--		cmd.u.read_multi_info.address[i] = address[i];
-+		cmd->u.read_multi_info.address[i] = address[i];
+ struct dest_map {
+ 	/* vcpu bitmap where IRQ has been sent */
+-	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID + 1);
++	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID);
  
- 	/* DT9812 only responds to 32 byte writes!! */
- 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
--			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
-+			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
- 	if (ret)
--		return ret;
-+		goto out;
+ 	/*
+ 	 * Vector sent to a given vcpu, only valid when
+ 	 * the vcpu's bit in map is set
+ 	 */
+-	u8 vectors[KVM_MAX_VCPU_ID + 1];
++	u8 vectors[KVM_MAX_VCPU_ID];
+ };
  
--	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
--			    value, reg_count, &count, DT9812_USB_TIMEOUT);
-+	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
-+			   buf, reg_count, &count, DT9812_USB_TIMEOUT);
-+	if (!ret) {
-+		if (count == reg_count)
-+			memcpy(value, buf, reg_count);
-+		else
-+			ret = -EREMOTEIO;
-+	}
-+out:
-+	kfree(buf);
-+
-+	return ret;
- }
  
- static int dt9812_write_multiple_registers(struct comedi_device *dev,
-@@ -285,19 +326,27 @@ static int dt9812_write_multiple_registe
- {
- 	struct usb_device *usb = comedi_to_usb_dev(dev);
- 	struct dt9812_private *devpriv = dev->private;
--	struct dt9812_usb_cmd cmd;
-+	struct dt9812_usb_cmd *cmd;
- 	int i, count;
-+	int ret;
- 
--	cmd.cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
--	cmd.u.read_multi_info.count = reg_count;
-+	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
-+	if (!cmd)
-+		return -ENOMEM;
-+
-+	cmd->cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
-+	cmd->u.read_multi_info.count = reg_count;
- 	for (i = 0; i < reg_count; i++) {
--		cmd.u.write_multi_info.write[i].address = address[i];
--		cmd.u.write_multi_info.write[i].value = value[i];
-+		cmd->u.write_multi_info.write[i].address = address[i];
-+		cmd->u.write_multi_info.write[i].value = value[i];
- 	}
- 
- 	/* DT9812 only responds to 32 byte writes!! */
--	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
--			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
-+	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
-+			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
-+	kfree(cmd);
-+
-+	return ret;
- }
- 
- static int dt9812_rmw_multiple_registers(struct comedi_device *dev,
-@@ -306,17 +355,25 @@ static int dt9812_rmw_multiple_registers
- {
- 	struct usb_device *usb = comedi_to_usb_dev(dev);
- 	struct dt9812_private *devpriv = dev->private;
--	struct dt9812_usb_cmd cmd;
-+	struct dt9812_usb_cmd *cmd;
- 	int i, count;
-+	int ret;
-+
-+	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
-+	if (!cmd)
-+		return -ENOMEM;
- 
--	cmd.cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
--	cmd.u.rmw_multi_info.count = reg_count;
-+	cmd->cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
-+	cmd->u.rmw_multi_info.count = reg_count;
- 	for (i = 0; i < reg_count; i++)
--		cmd.u.rmw_multi_info.rmw[i] = rmw[i];
-+		cmd->u.rmw_multi_info.rmw[i] = rmw[i];
- 
- 	/* DT9812 only responds to 32 byte writes!! */
--	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
--			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
-+	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
-+			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
-+	kfree(cmd);
-+
-+	return ret;
- }
- 
- static int dt9812_digital_in(struct comedi_device *dev, u8 *bits)
 
 
