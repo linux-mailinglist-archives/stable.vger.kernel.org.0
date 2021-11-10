@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1859744C77A
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FAA244C7A2
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232512AbhKJSwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:52:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48432 "EHLO mail.kernel.org"
+        id S232702AbhKJSx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:53:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232622AbhKJStw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:49:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3D9861353;
-        Wed, 10 Nov 2021 18:46:45 +0000 (UTC)
+        id S233819AbhKJSwA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:52:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 853D86152A;
+        Wed, 10 Nov 2021 18:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570006;
-        bh=PVH2vp4nA0n/Zg21MzVGDgbl7Yu3KpSiXpOkgwQa8ME=;
+        s=korg; t=1636570061;
+        bh=0B+S5HHLftd4CK4sZB6M2fCjaBfYmlfb89gFDQi37/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yfk9BaAnDYBJuiZgUrWOn0j82YuwY5FgtJpO8CHggLPyRSdTImm9J0MLdKBjEj2rz
-         r/3Q1KLWcjR6Df/ny7pwXUAEqkz81Af1m59OMH/cuvYhBQ21gKVIapOwhluJrVYIW8
-         f7BhUITfs7CA/RYjHaCA9FvKh4SqxTcKHclJ7aa0=
+        b=yf21n/IkhcDQHMszZ1v/UYjBa19LNKQMSbvXxCG+uAbkkrdozxwYU7xDCIRYZJfIa
+         LQldgGHdwSWrY79IuVkUGjvOqmjiKa1HfT4P7bIjft6UG4HqMfVLL/o+C+qo6thp0w
+         Br2eoEdz95ofTiFGU+xdGlHrIhqqPv0SDUEXhFv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 15/16] staging: rtl8192u: fix control-message timeouts
+Subject: [PATCH 5.4 09/17] comedi: dt9812: fix DMA buffers on stack
 Date:   Wed, 10 Nov 2021 19:43:48 +0100
-Message-Id: <20211110182002.479621355@linuxfoundation.org>
+Message-Id: <20211110182002.511106955@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182001.994215976@linuxfoundation.org>
-References: <20211110182001.994215976@linuxfoundation.org>
+In-Reply-To: <20211110182002.206203228@linuxfoundation.org>
+References: <20211110182002.206203228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,103 +41,207 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 4cfa36d312d6789448b59a7aae770ac8425017a3 upstream.
+commit 536de747bc48262225889a533db6650731ab25d3 upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+USB transfer buffers are typically mapped for DMA and must not be
+allocated on the stack or transfers will fail.
 
-Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
-Cc: stable@vger.kernel.org      # 2.6.33
-Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Allocate proper transfer buffers in the various command helpers and
+return an error on short transfers instead of acting on random stack
+data.
+
+Note that this also fixes a stack info leak on systems where DMA is not
+used as 32 bytes are always sent to the device regardless of how short
+the command is.
+
+Fixes: 63274cd7d38a ("Staging: comedi: add usb dt9812 driver")
+Cc: stable@vger.kernel.org      # 2.6.29
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211025120910.6339-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20211027093529.30896-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8192u/r8192U_core.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/staging/comedi/drivers/dt9812.c |  115 +++++++++++++++++++++++---------
+ 1 file changed, 86 insertions(+), 29 deletions(-)
 
---- a/drivers/staging/rtl8192u/r8192U_core.c
-+++ b/drivers/staging/rtl8192u/r8192U_core.c
-@@ -266,7 +266,7 @@ int write_nic_byte_E(struct net_device *
+--- a/drivers/staging/comedi/drivers/dt9812.c
++++ b/drivers/staging/comedi/drivers/dt9812.c
+@@ -32,6 +32,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/errno.h>
++#include <linux/slab.h>
+ #include <linux/uaccess.h>
  
- 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
--				 indx | 0xfe00, 0, usbdata, 1, HZ / 2);
-+				 indx | 0xfe00, 0, usbdata, 1, 500);
- 	kfree(usbdata);
+ #include "../comedi_usb.h"
+@@ -237,22 +238,42 @@ static int dt9812_read_info(struct comed
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
++	size_t tbuf_size;
+ 	int count, ret;
++	void *tbuf;
  
- 	if (status < 0) {
-@@ -288,7 +288,7 @@ int read_nic_byte_E(struct net_device *d
+-	cmd.cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
+-	cmd.u.flash_data_info.address =
++	tbuf_size = max(sizeof(*cmd), buf_size);
++
++	tbuf = kzalloc(tbuf_size, GFP_KERNEL);
++	if (!tbuf)
++		return -ENOMEM;
++
++	cmd = tbuf;
++
++	cmd->cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
++	cmd->u.flash_data_info.address =
+ 	    cpu_to_le16(DT9812_DIAGS_BOARD_INFO_ADDR + offset);
+-	cmd.u.flash_data_info.numbytes = cpu_to_le16(buf_size);
++	cmd->u.flash_data_info.numbytes = cpu_to_le16(buf_size);
  
- 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
--				 indx | 0xfe00, 0, usbdata, 1, HZ / 2);
-+				 indx | 0xfe00, 0, usbdata, 1, 500);
- 	*data = *usbdata;
- 	kfree(usbdata);
+ 	/* DT9812 only responds to 32 byte writes!! */
+ 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
+ 	if (ret)
+-		return ret;
++		goto out;
++
++	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
++			   tbuf, buf_size, &count, DT9812_USB_TIMEOUT);
++	if (!ret) {
++		if (count == buf_size)
++			memcpy(buf, tbuf, buf_size);
++		else
++			ret = -EREMOTEIO;
++	}
++out:
++	kfree(tbuf);
  
-@@ -316,7 +316,7 @@ int write_nic_byte(struct net_device *de
- 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 1, HZ / 2);
-+				 usbdata, 1, 500);
- 	kfree(usbdata);
+-	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+-			    buf, buf_size, &count, DT9812_USB_TIMEOUT);
++	return ret;
+ }
  
- 	if (status < 0) {
-@@ -343,7 +343,7 @@ int write_nic_word(struct net_device *de
- 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 2, HZ / 2);
-+				 usbdata, 2, 500);
- 	kfree(usbdata);
+ static int dt9812_read_multiple_registers(struct comedi_device *dev,
+@@ -261,22 +282,42 @@ static int dt9812_read_multiple_register
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count, ret;
++	size_t buf_size;
++	void *buf;
++
++	buf_size = max_t(size_t, sizeof(*cmd), reg_count);
++
++	buf = kzalloc(buf_size, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	cmd = buf;
  
- 	if (status < 0) {
-@@ -370,7 +370,7 @@ int write_nic_dword(struct net_device *d
- 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 4, HZ / 2);
-+				 usbdata, 4, 500);
- 	kfree(usbdata);
+-	cmd.cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
+-	cmd.u.read_multi_info.count = reg_count;
++	cmd->cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
++	cmd->u.read_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++)
+-		cmd.u.read_multi_info.address[i] = address[i];
++		cmd->u.read_multi_info.address[i] = address[i];
  
+ 	/* DT9812 only responds to 32 byte writes!! */
+ 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
+ 	if (ret)
+-		return ret;
++		goto out;
  
-@@ -397,7 +397,7 @@ int read_nic_byte(struct net_device *dev
- 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 1, HZ / 2);
-+				 usbdata, 1, 500);
- 	*data = *usbdata;
- 	kfree(usbdata);
+-	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+-			    value, reg_count, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
++			   buf, reg_count, &count, DT9812_USB_TIMEOUT);
++	if (!ret) {
++		if (count == reg_count)
++			memcpy(value, buf, reg_count);
++		else
++			ret = -EREMOTEIO;
++	}
++out:
++	kfree(buf);
++
++	return ret;
+ }
  
-@@ -424,7 +424,7 @@ int read_nic_word(struct net_device *dev
- 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 2, HZ / 2);
-+				 usbdata, 2, 500);
- 	*data = *usbdata;
- 	kfree(usbdata);
+ static int dt9812_write_multiple_registers(struct comedi_device *dev,
+@@ -285,19 +326,27 @@ static int dt9812_write_multiple_registe
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count;
++	int ret;
  
-@@ -448,7 +448,7 @@ static int read_nic_word_E(struct net_de
+-	cmd.cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
+-	cmd.u.read_multi_info.count = reg_count;
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
++	if (!cmd)
++		return -ENOMEM;
++
++	cmd->cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
++	cmd->u.read_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++) {
+-		cmd.u.write_multi_info.write[i].address = address[i];
+-		cmd.u.write_multi_info.write[i].value = value[i];
++		cmd->u.write_multi_info.write[i].address = address[i];
++		cmd->u.write_multi_info.write[i].value = value[i];
+ 	}
  
- 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
--				 indx | 0xfe00, 0, usbdata, 2, HZ / 2);
-+				 indx | 0xfe00, 0, usbdata, 2, 500);
- 	*data = *usbdata;
- 	kfree(usbdata);
+ 	/* DT9812 only responds to 32 byte writes!! */
+-	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
++	kfree(cmd);
++
++	return ret;
+ }
  
-@@ -474,7 +474,7 @@ int read_nic_dword(struct net_device *de
- 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 4, HZ / 2);
-+				 usbdata, 4, 500);
- 	*data = *usbdata;
- 	kfree(usbdata);
+ static int dt9812_rmw_multiple_registers(struct comedi_device *dev,
+@@ -306,17 +355,25 @@ static int dt9812_rmw_multiple_registers
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count;
++	int ret;
++
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
++	if (!cmd)
++		return -ENOMEM;
  
+-	cmd.cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
+-	cmd.u.rmw_multi_info.count = reg_count;
++	cmd->cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
++	cmd->u.rmw_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++)
+-		cmd.u.rmw_multi_info.rmw[i] = rmw[i];
++		cmd->u.rmw_multi_info.rmw[i] = rmw[i];
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+-	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
++	kfree(cmd);
++
++	return ret;
+ }
+ 
+ static int dt9812_digital_in(struct comedi_device *dev, u8 *bits)
 
 
