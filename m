@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1252744C7FE
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D52D44C7B5
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234018AbhKJS5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:57:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54864 "EHLO mail.kernel.org"
+        id S233513AbhKJSyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:54:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233739AbhKJSzc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:55:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D60AC613B3;
-        Wed, 10 Nov 2021 18:49:30 +0000 (UTC)
+        id S233519AbhKJSwn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:52:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E2E76128E;
+        Wed, 10 Nov 2021 18:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570171;
-        bh=jolTYIlWAv1XV/vFVHcUWqVHiS9lKRkVwdeRpjfvihU=;
+        s=korg; t=1636570086;
+        bh=C8a3MwOrR8m+3IiuKM9vKOkETQUCWt9ErBJwNT+WfR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2GEb/OeFekdE5+nWwJlujRPyKXe5SoK4FGjorNER7LPV1XbjGDtRq4a0ORuU1g5w3
-         XBeCknZe+eY85wrrxZf5dTHV/oUDwUOvidpkvwSA2T9CS2MhyLMojXcsV6NtcL9Ibq
-         hwZuIlKamAwQUdulN7LqRdKtGsgXDFxEHFhWxXjI=
+        b=GCVn15HlKqFQm3jkZBfiQhWMAlluWq7SdKhLKdJnAmInXDZYU6JBPJYAZGtg0xSvx
+         LWFEiFJKt6tMvCwcA11fJ5GhklbSmbOccytajyePGuvYi4tgRTx3NE+TYrY+1Ompvp
+         TqGq5VhqxDuvx1xXU0IONJ5docCzQxroUn9qvXkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Ren <rentao.bupt@gmail.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Neal Liu <neal_liu@aspeedtech.com>,
-        Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 5.14 05/24] usb: ehci: handshake CMD_RUN instead of STS_HALT
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+c55162be492189fb4f51@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 11/21] staging: rtl8712: fix use-after-free in rtl8712_dl_fw
 Date:   Wed, 10 Nov 2021 19:43:57 +0100
-Message-Id: <20211110182003.506669963@linuxfoundation.org>
+Message-Id: <20211110182003.315710855@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
-References: <20211110182003.342919058@linuxfoundation.org>
+In-Reply-To: <20211110182002.964190708@linuxfoundation.org>
+References: <20211110182002.964190708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Liu <neal_liu@aspeedtech.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 7f2d73788d9067fd4f677ac5f60ffd25945af7af upstream.
+commit c052cc1a069c3e575619cf64ec427eb41176ca70 upstream.
 
-For Aspeed, HCHalted status depends on not only Run/Stop but also
-ASS/PSS status.
-Handshake CMD_RUN on startup instead.
+Syzbot reported use-after-free in rtl8712_dl_fw(). The problem was in
+race condition between r871xu_dev_remove() ->ndo_open() callback.
 
-Tested-by: Tao Ren <rentao.bupt@gmail.com>
-Reviewed-by: Tao Ren <rentao.bupt@gmail.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Neal Liu <neal_liu@aspeedtech.com>
-Link: https://lore.kernel.org/r/20210910073619.26095-1-neal_liu@aspeedtech.com
-Cc: Joel Stanley <joel@jms.id.au>
+It's easy to see from crash log, that driver accesses released firmware
+in ->ndo_open() callback. It may happen, since driver was releasing
+firmware _before_ unregistering netdev. Fix it by moving
+unregister_netdev() before cleaning up resources.
+
+Call Trace:
+...
+ rtl871x_open_fw drivers/staging/rtl8712/hal_init.c:83 [inline]
+ rtl8712_dl_fw+0xd95/0xe10 drivers/staging/rtl8712/hal_init.c:170
+ rtl8712_hal_init drivers/staging/rtl8712/hal_init.c:330 [inline]
+ rtl871x_hal_init+0xae/0x180 drivers/staging/rtl8712/hal_init.c:394
+ netdev_open+0xe6/0x6c0 drivers/staging/rtl8712/os_intfs.c:380
+ __dev_open+0x2bc/0x4d0 net/core/dev.c:1484
+
+Freed by task 1306:
+...
+ release_firmware+0x1b/0x30 drivers/base/firmware_loader/main.c:1053
+ r871xu_dev_remove+0xcc/0x2c0 drivers/staging/rtl8712/usb_intf.c:599
+ usb_unbind_interface+0x1d8/0x8d0 drivers/usb/core/driver.c:458
+
+Fixes: 8c213fa59199 ("staging: r8712u: Use asynchronous firmware loading")
+Cc: stable <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+c55162be492189fb4f51@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20211019211718.26354-1-paskripkin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/ehci-hcd.c      |   11 ++++++++++-
- drivers/usb/host/ehci-platform.c |    6 ++++++
- drivers/usb/host/ehci.h          |    1 +
- 3 files changed, 17 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8712/usb_intf.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/ehci-hcd.c
-+++ b/drivers/usb/host/ehci-hcd.c
-@@ -634,7 +634,16 @@ static int ehci_run (struct usb_hcd *hcd
- 	/* Wait until HC become operational */
- 	ehci_readl(ehci, &ehci->regs->command);	/* unblock posted writes */
- 	msleep(5);
--	rc = ehci_handshake(ehci, &ehci->regs->status, STS_HALT, 0, 100 * 1000);
-+
-+	/* For Aspeed, STS_HALT also depends on ASS/PSS status.
-+	 * Check CMD_RUN instead.
-+	 */
-+	if (ehci->is_aspeed)
-+		rc = ehci_handshake(ehci, &ehci->regs->command, CMD_RUN,
-+				    1, 100 * 1000);
-+	else
-+		rc = ehci_handshake(ehci, &ehci->regs->status, STS_HALT,
-+				    0, 100 * 1000);
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -598,12 +598,12 @@ static void r871xu_dev_remove(struct usb
  
- 	up_write(&ehci_cf_port_reset_rwsem);
- 
---- a/drivers/usb/host/ehci-platform.c
-+++ b/drivers/usb/host/ehci-platform.c
-@@ -297,6 +297,12 @@ static int ehci_platform_probe(struct pl
- 					  "has-transaction-translator"))
- 			hcd->has_tt = 1;
- 
-+		if (of_device_is_compatible(dev->dev.of_node,
-+					    "aspeed,ast2500-ehci") ||
-+		    of_device_is_compatible(dev->dev.of_node,
-+					    "aspeed,ast2600-ehci"))
-+			ehci->is_aspeed = 1;
-+
- 		if (soc_device_match(quirk_poll_match))
- 			priv->quirk_poll = true;
- 
---- a/drivers/usb/host/ehci.h
-+++ b/drivers/usb/host/ehci.h
-@@ -219,6 +219,7 @@ struct ehci_hcd {			/* one per controlle
- 	unsigned		need_oc_pp_cycle:1; /* MPC834X port power */
- 	unsigned		imx28_write_fix:1; /* For Freescale i.MX28 */
- 	unsigned		spurious_oc:1;
-+	unsigned		is_aspeed:1;
- 
- 	/* required for usb32 quirk */
- 	#define OHCI_CTRL_HCFS          (3 << 6)
+ 	/* never exit with a firmware callback pending */
+ 	wait_for_completion(&padapter->rtl8712_fw_ready);
++	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
++		unregister_netdev(pnetdev); /* will call netdev_close() */
+ 	usb_set_intfdata(pusb_intf, NULL);
+ 	release_firmware(padapter->fw);
+ 	if (drvpriv.drv_registered)
+ 		padapter->surprise_removed = true;
+-	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
+-		unregister_netdev(pnetdev); /* will call netdev_close() */
+ 	r8712_flush_rwctrl_works(padapter);
+ 	r8712_flush_led_works(padapter);
+ 	udelay(1);
 
 
