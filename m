@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DAB844C6EC
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:44:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E63A44C70E
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:46:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232686AbhKJSqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:46:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45924 "EHLO mail.kernel.org"
+        id S232602AbhKJSry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:47:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232634AbhKJSqn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:46:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E3276117A;
-        Wed, 10 Nov 2021 18:43:55 +0000 (UTC)
+        id S232741AbhKJSrX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:47:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA5EB6117A;
+        Wed, 10 Nov 2021 18:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636569835;
-        bh=pahhpuMqktSJ7r8nHi1WF/68crfEvk3jPzbP+U6xGNQ=;
+        s=korg; t=1636569875;
+        bh=+RJOikzqaPjSJ7Afmx00law7LQp4nB053FnvaT69blQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=coFcHT2tTl2hFHYFOddGRQJvhWuRGzEr803gBdbAnq7QGyLehSPNaxMb4RO5IERSy
-         x7xvNu8aEwDDYZE+nODl2asyy6yV/Deda+grMmT8tzJ6j83On8/2JC0xPIa3B4G0vh
-         iFDsAQ+qh9Pzu9wQE3WBfnyEyORMgDGPygOhW7nE=
+        b=mP94qK4r/Sz2wurAIzmEY9oUpiCNX89Q1pkt1NxASp+idC7wtOyU2+1q0dCs11YWS
+         EMrpVwzgontIokNYkFOh/NyTUe16chlygLShjB5+J+BTPoMX3UuTnwLPbqtreO8wOt
+         mGdEurPPvSqzReW4HkCu1Ib6GOd5SVsDzI86hhio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.4 16/19] comedi: vmk80xx: fix bulk and interrupt message timeouts
+        stable@vger.kernel.org, Viraj Shah <viraj.shah@linutronix.de>
+Subject: [PATCH 4.9 11/22] usb: musb: Balance list entry in musb_gadget_queue
 Date:   Wed, 10 Nov 2021 19:43:18 +0100
-Message-Id: <20211110182001.786459586@linuxfoundation.org>
+Message-Id: <20211110182001.942351911@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182001.257350381@linuxfoundation.org>
-References: <20211110182001.257350381@linuxfoundation.org>
+In-Reply-To: <20211110182001.579561273@linuxfoundation.org>
+References: <20211110182001.579561273@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,74 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Viraj Shah <viraj.shah@linutronix.de>
 
-commit a56d3e40bda460edf3f8d6aac00ec0b322b4ab83 upstream.
+commit 21b5fcdccb32ff09b6b63d4a83c037150665a83f upstream.
 
-USB bulk and interrupt message timeouts are specified in milliseconds
-and should specifically not vary with CONFIG_HZ.
+musb_gadget_queue() adds the passed request to musb_ep::req_list. If the
+endpoint is idle and it is the first request then it invokes
+musb_queue_resume_work(). If the function returns an error then the
+error is passed to the caller without any clean-up and the request
+remains enqueued on the list. If the caller enqueues the request again
+then the list corrupts.
 
-Note that the bulk-out transfer timeout was set to the endpoint
-bInterval value, which should be ignored for bulk endpoints and is
-typically set to zero. This meant that a failing bulk-out transfer
-would never time out.
+Remove the request from the list on error.
 
-Assume that the 10 second timeout used for all other transfers is more
-than enough also for the bulk-out endpoint.
-
-Fixes: 985cafccbf9b ("Staging: Comedi: vmk80xx: Add k8061 support")
-Fixes: 951348b37738 ("staging: comedi: vmk80xx: wait for URBs to complete")
-Cc: stable@vger.kernel.org      # 2.6.31
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20211025114532.4599-6-johan@kernel.org
+Fixes: ea2f35c01d5ea ("usb: musb: Fix sleeping function called from invalid context for hdrc glue")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Viraj Shah <viraj.shah@linutronix.de>
+Link: https://lore.kernel.org/r/20211021093644.4734-1-viraj.shah@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/vmk80xx.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/usb/musb/musb_gadget.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/vmk80xx.c
-+++ b/drivers/staging/comedi/drivers/vmk80xx.c
-@@ -100,6 +100,7 @@ enum {
- #define IC6_VERSION		BIT(1)
+--- a/drivers/usb/musb/musb_gadget.c
++++ b/drivers/usb/musb/musb_gadget.c
+@@ -1284,9 +1284,11 @@ static int musb_gadget_queue(struct usb_
+ 		status = musb_queue_resume_work(musb,
+ 						musb_ep_restart_resume_work,
+ 						request);
+-		if (status < 0)
++		if (status < 0) {
+ 			dev_err(musb->controller, "%s resume work: %i\n",
+ 				__func__, status);
++			list_del(&request->list);
++		}
+ 	}
  
- #define MIN_BUF_SIZE		64
-+#define PACKET_TIMEOUT		10000	/* ms */
- 
- enum vmk80xx_model {
- 	VMK8055_MODEL,
-@@ -178,10 +179,11 @@ static void vmk80xx_do_bulk_msg(struct c
- 	tx_size = usb_endpoint_maxp(devpriv->ep_tx);
- 	rx_size = usb_endpoint_maxp(devpriv->ep_rx);
- 
--	usb_bulk_msg(usb, tx_pipe, devpriv->usb_tx_buf,
--		     tx_size, NULL, devpriv->ep_tx->bInterval);
-+	usb_bulk_msg(usb, tx_pipe, devpriv->usb_tx_buf, tx_size, NULL,
-+		     PACKET_TIMEOUT);
- 
--	usb_bulk_msg(usb, rx_pipe, devpriv->usb_rx_buf, rx_size, NULL, HZ * 10);
-+	usb_bulk_msg(usb, rx_pipe, devpriv->usb_rx_buf, rx_size, NULL,
-+		     PACKET_TIMEOUT);
- }
- 
- static int vmk80xx_read_packet(struct comedi_device *dev)
-@@ -200,7 +202,7 @@ static int vmk80xx_read_packet(struct co
- 	pipe = usb_rcvintpipe(usb, ep->bEndpointAddress);
- 	return usb_interrupt_msg(usb, pipe, devpriv->usb_rx_buf,
- 				 usb_endpoint_maxp(ep), NULL,
--				 HZ * 10);
-+				 PACKET_TIMEOUT);
- }
- 
- static int vmk80xx_write_packet(struct comedi_device *dev, int cmd)
-@@ -221,7 +223,7 @@ static int vmk80xx_write_packet(struct c
- 	pipe = usb_sndintpipe(usb, ep->bEndpointAddress);
- 	return usb_interrupt_msg(usb, pipe, devpriv->usb_tx_buf,
- 				 usb_endpoint_maxp(ep), NULL,
--				 HZ * 10);
-+				 PACKET_TIMEOUT);
- }
- 
- static int vmk80xx_reset_device(struct comedi_device *dev)
+ unlock:
 
 
