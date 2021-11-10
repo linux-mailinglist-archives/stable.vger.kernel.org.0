@@ -2,148 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB80944BE22
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 10:56:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32EBD44BE24
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 10:58:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229831AbhKJJ7o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 04:59:44 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:55568 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229653AbhKJJ7o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 04:59:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636538216;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=7mD/gMeFasrqBd75QCYdV3SBahZEqnqh6dt0KHDOo8Q=;
-        b=SiZzTGMw12QxVerqDWVA5D+B7mQwQPBgB5TcAvrnkpSeae9YPRI3Q4xIH6QduMDIAe79t5
-        gzg4a6g1DJIHIL7pUROjydow3dFT8CtbN9/d07/OyEIYpyFYWAk/p4GXKhQ10ZOuIC+5d6
-        KF/B+iyWzhfn9m8PBv33oOTnjzt4bKE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-125-DU4gV1YlMpa_tjuCVsJgJA-1; Wed, 10 Nov 2021 04:56:53 -0500
-X-MC-Unique: DU4gV1YlMpa_tjuCVsJgJA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 758671030C20;
-        Wed, 10 Nov 2021 09:56:52 +0000 (UTC)
-Received: from localhost (ovpn-8-19.pek2.redhat.com [10.72.8.19])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9767156A86;
-        Wed, 10 Nov 2021 09:56:29 +0000 (UTC)
-From:   Ming Lei <ming.lei@redhat.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org,
-        czhong@redhat.com
-Subject: [PATCH] block: avoid to touch unloaded module instance when opening bdev
-Date:   Wed, 10 Nov 2021 17:55:11 +0800
-Message-Id: <20211110095511.294645-1-ming.lei@redhat.com>
+        id S230455AbhKJKBA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 05:01:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35968 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229653AbhKJKBA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 05:01:00 -0500
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB21C061766
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 01:58:12 -0800 (PST)
+Received: by mail-wr1-x432.google.com with SMTP id c4so2953377wrd.9
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 01:58:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=3AbiBQH2HhvwDd/cmsVihdBdDFvYCYJXZoH8Ax426TA=;
+        b=VTMuDSrJbZbjIZt8dDCsxg+7KySbWV8k4SzeeO3wirV1IvkgRt/u7zPs/EnQaMMobV
+         qUXkVKpnP5lD1OkivTHqFw3S1fUBtKbuupqEG/O6awQBSmDMcJUCjaOngNk3z7iF7j7D
+         fenSMNHZfkz8HWvr/Rp2HOf0VNTgMocqwJC7PVmW/ayX93E0gro9S51Ijw8FIUC8/teC
+         yRV4dncjCdYEyKULeDoPA+ActfMC6UygutXq/U2q+G+0GdZE9wTyocvT7ObSH6UALUgz
+         a4aJM5hsCmm0cSKVdfXMK3BxQupCnRrRBoBLqkkZDnt3YoRmHG1wBCU/VV8+WxXiSszt
+         f1dw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=3AbiBQH2HhvwDd/cmsVihdBdDFvYCYJXZoH8Ax426TA=;
+        b=HtlVf++bIZUUspzU5wGVLgV5APv4JF6h/2gdzSWXu5y0zwmfJgxMEwcxeVZ3Hb8nC3
+         PPWHxb/Go+xwcid5W2nMITk/onfX8stZ8AFIHEK8RWGCNGY5k4oo1pD9hHGE4LYSLJ7D
+         F/8/meFeBRLoz2Dtm8dgJF8R4mnuP5uZy8XBDzWKUyeNDzYER1Saug92te/Vs3Erj/qt
+         uMiOmpC9Jr9fCID3MxmMRDIEqaWkMOTsGtovnNICF4rjQY4oz2yfgnzFTJ/fWDxI/SNj
+         jb3VJXXZHcdAPjjMYvdb5ppXhTOH5noCadPFnFUKcK5wmmXW7nHeo2dsBwAZthM8lNGl
+         dq2w==
+X-Gm-Message-State: AOAM5339/MvOOjoWyxPAFf0NrJos+DRYK1zL3CerxOlTKD/zTECeszeE
+        qftBQQ7BFRChTtzh7KQaVIYn5w==
+X-Google-Smtp-Source: ABdhPJxBNXK9ALzwPxILP5oIzJfssmCGJCQJWHw7+v593j8ZZy5c/gZK6PcEoJsvCfYey8wvsbo+Tw==
+X-Received: by 2002:a5d:64ed:: with SMTP id g13mr18129715wri.222.1636538291167;
+        Wed, 10 Nov 2021 01:58:11 -0800 (PST)
+Received: from google.com ([95.148.6.174])
+        by smtp.gmail.com with ESMTPSA id l16sm5376909wmq.46.2021.11.10.01.58.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Nov 2021 01:58:10 -0800 (PST)
+Date:   Wed, 10 Nov 2021 09:58:03 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Greg KH <greg@kroah.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Andreas Kemnade <andreas@kemnade.info>,
+        "H . Nikolaus Schaller" <hns@goldelico.com>,
+        Johan Hovold <johan@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 4.9 1/2] net: hso: register netdev later to avoid a race
+ condition
+Message-ID: <YYuXq3wOdmWc+8lo@google.com>
+References: <20211109093959.173885-1-lee.jones@linaro.org>
+ <YYuCE9EoMu+4zsiF@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+In-Reply-To: <YYuCE9EoMu+4zsiF@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-disk->fops->owner is grabbed in blkdev_get_no_open() after the disk
-kobject refcount is increased. This way can't make sure that
-disk->fops->owner is still alive since del_gendisk() still can move
-on if the kobject refcount of disk is grabbed by open() and ->open()
-isn't called yet.
+On Wed, 10 Nov 2021, Greg KH wrote:
 
-Fixes the issue by moving try_module_get() into blkdev_get_by_dev()
-with ->open_mutex() held, then we can drain the in-progress open()
-in del_gendisk(). Meantime new open() won't succeed because disk
-becomes not alive.
+> On Tue, Nov 09, 2021 at 09:39:58AM +0000, Lee Jones wrote:
+> > From: Andreas Kemnade <andreas@kemnade.info>
+> > 
+> > [ Upstream commit 4c761daf8bb9a2cbda9facf53ea85d9061f4281e ]
+> 
+> You already sent this for inclusion:
+> 	https://lore.kernel.org/r/YYU1KqvnZLyPbFcb@google.com
+> 
+> Why send it again?
 
-This way is reasonable because blkdev_get_no_open() doesn't need
-to grab disk->fops->owner which is required only if callback in
-disk->fops is needed.
+The real question is; why didn't I sent patch 2 at the same time!
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org
-Cc: czhong@redhat.com
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
----
- block/bdev.c  | 12 +++++++-----
- block/genhd.c |  6 ++++++
- 2 files changed, 13 insertions(+), 5 deletions(-)
+> confused,
 
-diff --git a/block/bdev.c b/block/bdev.c
-index b4dab2fb6a74..b1d087e5e205 100644
---- a/block/bdev.c
-+++ b/block/bdev.c
-@@ -753,8 +753,7 @@ struct block_device *blkdev_get_no_open(dev_t dev)
- 
- 	if (!bdev)
- 		return NULL;
--	if ((bdev->bd_disk->flags & GENHD_FL_HIDDEN) ||
--	    !try_module_get(bdev->bd_disk->fops->owner)) {
-+	if ((bdev->bd_disk->flags & GENHD_FL_HIDDEN)) {
- 		put_device(&bdev->bd_device);
- 		return NULL;
- 	}
-@@ -764,7 +763,6 @@ struct block_device *blkdev_get_no_open(dev_t dev)
- 
- void blkdev_put_no_open(struct block_device *bdev)
- {
--	module_put(bdev->bd_disk->fops->owner);
- 	put_device(&bdev->bd_device);
- }
- 
-@@ -820,12 +818,14 @@ struct block_device *blkdev_get_by_dev(dev_t dev, fmode_t mode, void *holder)
- 	ret = -ENXIO;
- 	if (!disk_live(disk))
- 		goto abort_claiming;
-+	if (!try_module_get(disk->fops->owner))
-+		goto abort_claiming;
- 	if (bdev_is_partition(bdev))
- 		ret = blkdev_get_part(bdev, mode);
- 	else
- 		ret = blkdev_get_whole(bdev, mode);
- 	if (ret)
--		goto abort_claiming;
-+		goto put_module;
- 	if (mode & FMODE_EXCL) {
- 		bd_finish_claiming(bdev, holder);
- 
-@@ -847,7 +847,8 @@ struct block_device *blkdev_get_by_dev(dev_t dev, fmode_t mode, void *holder)
- 	if (unblock_events)
- 		disk_unblock_events(disk);
- 	return bdev;
--
-+put_module:
-+	module_put(disk->fops->owner);
- abort_claiming:
- 	if (mode & FMODE_EXCL)
- 		bd_abort_claiming(bdev, holder);
-@@ -956,6 +957,7 @@ void blkdev_put(struct block_device *bdev, fmode_t mode)
- 		blkdev_put_whole(bdev, mode);
- 	mutex_unlock(&disk->open_mutex);
- 
-+	module_put(disk->fops->owner);
- 	blkdev_put_no_open(bdev);
- }
- EXPORT_SYMBOL(blkdev_put);
-diff --git a/block/genhd.c b/block/genhd.c
-index a4e9e8ebd941..5f427fdc9e23 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -576,6 +576,12 @@ void del_gendisk(struct gendisk *disk)
- 	blk_integrity_del(disk);
- 	disk_del_events(disk);
- 
-+	/*
-+	 * New open() will be failed since disk becomes not alive, and old
-+	 * open() has either grabbed the module refcnt or been failed in
-+	 * case of deleting from module_exit(), so disk->fops->owner won't
-+	 * be unloaded if the disk is opened.
-+	 */
- 	mutex_lock(&disk->open_mutex);
- 	remove_inode_hash(disk->part0->bd_inode);
- 	blk_drop_partitions(disk);
+I feel ya! ;)
+
 -- 
-2.31.1
-
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
