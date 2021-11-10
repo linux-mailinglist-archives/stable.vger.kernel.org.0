@@ -2,488 +2,1137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 914E544C546
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 17:44:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47D8244C51D
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 17:35:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229785AbhKJQra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 11:47:30 -0500
-Received: from queue02b.mail.zen.net.uk ([212.23.3.237]:58391 "EHLO
-        queue02b.mail.zen.net.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231679AbhKJQra (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 11:47:30 -0500
-X-Greylist: delayed 1010 seconds by postgrey-1.27 at vger.kernel.org; Wed, 10 Nov 2021 11:47:30 EST
-Received: from [212.23.1.21] (helo=smarthost01b.ixn.mail.zen.net.uk)
-        by queue02b.mail.zen.net.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.90_1)
-        (envelope-from <lkml@badpenguin.co.uk>)
-        id 1mkqRy-000723-Rq; Wed, 10 Nov 2021 16:27:50 +0000
-Received: from [217.155.148.18] (helo=swift)
-        by smarthost01b.ixn.mail.zen.net.uk with esmtp (Exim 4.90_1)
-        (envelope-from <lkml@badpenguin.co.uk>)
-        id 1mkqRq-0007HB-PR; Wed, 10 Nov 2021 16:27:42 +0000
-Received: from localhost (localhost [127.0.0.1])
-        by swift (Postfix) with ESMTP id 8DC9F2C9336;
-        Wed, 10 Nov 2021 16:27:42 +0000 (GMT)
-X-Virus-Scanned: Debian amavisd-new at badpenguin.co.uk
-Received: from swift ([127.0.0.1])
-        by localhost (swift.badpenguin.co.uk [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id XkHQ5IbJHKQI; Wed, 10 Nov 2021 16:27:39 +0000 (GMT)
-Received: from [192.168.42.11] (katana [192.168.42.11])
-        by swift (Postfix) with ESMTPS id 66CF12C9333;
-        Wed, 10 Nov 2021 16:27:39 +0000 (GMT)
-To:     stable@vger.kernel.org
-Cc:     regressions@lists.linux.dev
-From:   Mark Boddington <lkml@badpenguin.co.uk>
-Subject: kernel 5.15.1: AMD RX 6700 XT - Fails to resume after screen blank
-Message-ID: <dbadfe41-24bf-5811-cf38-74973df45214@badpenguin.co.uk>
-Date:   Wed, 10 Nov 2021 16:27:39 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S229995AbhKJQii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 11:38:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42820 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229582AbhKJQii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 11:38:38 -0500
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B782AC061764
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 08:35:50 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id m26so3140590pff.3
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 08:35:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=17aOXOlEw2DwJ75BbL+QH+SfUh+rCM9cxJN0Irt3V0w=;
+        b=vPAhKvOcOmeixBuUARvrA9029appG5TEWUPgxfqs1vjOVzE0flkQd2dq03KgNAh25I
+         /PIK7c9dXVUsN0QqD4HBVr1QzRBIvrloJfk2qFeHfnNhu93viXIJpQ6Yoqr0IhpyoOnJ
+         oqZM4wLe9WiT0ylCYQNze8PlQDynFE5Dh8TMFnXHVKPjRMm91iSauTS7V+KkxZ721D08
+         m6QcCAM47LqOdBsNAZCd4Px4UaNEOqhFne43DsNXjNPmS3GtiGsT+iQY4BSVKdU2Odee
+         r561YL7sQqz570f3TCu4YH3E7Y63a9pd1ZWM1/E1G/H0GGdY7m7w34JDTc0N+fjTZFYA
+         QX2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=17aOXOlEw2DwJ75BbL+QH+SfUh+rCM9cxJN0Irt3V0w=;
+        b=VxRKNGKSsiM7DCedSFRlCPdzwOYz66jWtpHjEjBuvXMklPO2VBeJtmIF2QmLukkNXv
+         hEc6EOHyATFDCM40FnsDtdlvTGnstnMulVXslnGXs6zRHNd4T/g4wviSNrIPKwsFdrQG
+         Q92l+45eC7P3dB9JbuiuaeQ71FvLji0Q5NTlGYWiHlFroGF/wF7s8ZkQD0LXHwUA2Mv8
+         WKN92LQHArCmrCPn9eNNunWhU1fijpJkSEit/FJSvavWFRz/l5URIfGErwqtwHWA1XUv
+         6pj6hIl+inCpqqIsihEw4FydsweccFixsrBebjIcd9b+r5BqZHNhOlFjZaIYVxBjAXON
+         fBGg==
+X-Gm-Message-State: AOAM533G6P1tAVpLjJ7evuJ2S+xlyfD7fT0UUN/Bir6ieCiby8DEmgO1
+        QaifGKJbgQ3Fr88RkT0qc8QiakA+RdXLNf+zp4g=
+X-Google-Smtp-Source: ABdhPJzE912KsK8/mSYjM7R4bxXhs1T3FP7PZWkut0Q500J1caJI/ugwaSRD8n0ONfMzvs13NfpV1g==
+X-Received: by 2002:a62:31c5:0:b0:447:b30c:9a79 with SMTP id x188-20020a6231c5000000b00447b30c9a79mr496142pfx.67.1636562149567;
+        Wed, 10 Nov 2021 08:35:49 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t13sm101222pgn.94.2021.11.10.08.35.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Nov 2021 08:35:49 -0800 (PST)
+Message-ID: <618bf4e5.1c69fb81.62e54.064c@mx.google.com>
+Date:   Wed, 10 Nov 2021 08:35:49 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Originating-smarthost01b-IP: [217.155.148.18]
-Feedback-ID: 217.155.148.18
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.158-7-gae53c49d452f
+X-Kernelci-Report-Type: build
+Subject: stable-rc/queue/5.4 build: 174 builds: 2 failed, 172 passed, 4 errors,
+ 27 warnings (v5.4.158-7-gae53c49d452f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi all,
+stable-rc/queue/5.4 build: 174 builds: 2 failed, 172 passed, 4 errors, 27 w=
+arnings (v5.4.158-7-gae53c49d452f)
 
-I run the mainline Linux kernel on Ubuntu 20.04, built from 
-https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.15.1/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
+/kernel/v5.4.158-7-gae53c49d452f/
 
-There appears to be a regression in 5.15.1 which causes the GPU to fail 
-to resume after power saving.
+Tree: stable-rc
+Branch: queue/5.4
+Git Describe: v5.4.158-7-gae53c49d452f
+Git Commit: ae53c49d452fd1353e3b4e47eae2b7398b24d3e1
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-Could it be this change??:
+Build Failures Detected:
 
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c?h=v5.15.1&id=8af3a335b5531ca3df0920b1cca43e456cd110ad
+arm:
+    rpc_defconfig: (gcc-10) FAIL
 
-The errors I see when the card tries to resume the DP output are:
+mips:
+    ip27_defconfig: (gcc-10) FAIL
 
-ov 10 09:37:55 katana rtkit-daemon[2577]: Supervising 3 threads of 1 
-processes of 1 users.
-Nov 10 09:37:55 katana rtkit-daemon[2577]: Successfully made thread 
-12215 of process 2820 owned by '10000' RT at priority 5.
-Nov 10 09:37:55 katana rtkit-daemon[2577]: Supervising 4 threads of 1 
-processes of 1 users.
-Nov 10 09:37:55 katana kernel: [ 3296.643206] [drm:dc_dmub_srv_wait_idle 
-[amdgpu]] *ERROR* Error waiting for DMUB idle: status=3
-Nov 10 09:38:01 katana kernel: [ 3302.722202] snd_hda_intel 
-0000:0d:00.1: refused to change power state from D0 to D3hot
-Nov 10 09:38:01 katana kernel: [ 3302.988931] amdgpu 0000:0d:00.0: 
-amdgpu: Failed to export SMU metrics table!
-Nov 10 09:38:06 katana kernel: [ 3308.243937] amdgpu 0000:0d:00.0: 
-amdgpu: SMU: I'm not done with your previous command!
-Nov 10 09:38:06 katana kernel: [ 3308.243941] amdgpu 0000:0d:00.0: 
-amdgpu: Failed to export SMU metrics table!
-Nov 10 09:38:06 katana kernel: [ 3308.320003] [drm:amdgpu_job_timedout 
-[amdgpu]] *ERROR* ring gfx_0.0.0 timeout, signaled seq=250622, emitted 
-seq=250624
-Nov 10 09:38:06 katana kernel: [ 3308.320185] [drm:amdgpu_job_timedout 
-[amdgpu]] *ERROR* Process information: process Xorg pid 2203 thread 
-Xorg:cs0 pid 2355
-Nov 10 09:38:06 katana kernel: [ 3308.320334] amdgpu 0000:0d:00.0: 
-amdgpu: GPU reset begin!
-Nov 10 09:38:12 katana kernel: [ 3313.469702] amdgpu 0000:0d:00.0: 
-amdgpu: SMU: I'm not done with your previous command!
-Nov 10 09:38:12 katana kernel: [ 3313.469707] amdgpu 0000:0d:00.0: 
-amdgpu: Failed to export SMU metrics table!
-Nov 10 09:38:17 katana kernel: [ 3318.899866] amdgpu 0000:0d:00.0: 
-amdgpu: SMU: I'm not done with your previous command!
-Nov 10 09:38:17 katana kernel: [ 3318.899871] amdgpu 0000:0d:00.0: 
-amdgpu: Failed to disable gfxoff!
-Nov 10 09:38:18 katana kernel: [ 3319.514045] [drm:dc_dmub_srv_wait_idle 
-[amdgpu]] *ERROR* Error waiting for DMUB idle: status=3
-Nov 10 09:38:20 katana kernel: [ 3322.195318] [drm:dc_dmub_srv_wait_idle 
-[amdgpu]] *ERROR* Error waiting for DMUB idle: status=3
-Nov 10 09:38:30 katana kernel: [ 3331.866060] amdgpu 0000:0d:00.0: 
-[drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring kiq_2.1.0 test 
-failed (-110)
-Nov 10 09:38:30 katana kernel: [ 3331.866199] [drm:gfx_v10_0_hw_fini 
-[amdgpu]] *ERROR* KGQ disable failed
-Nov 10 09:38:30 katana kernel: [ 3332.187330] amdgpu 0000:0d:00.0: 
-[drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring kiq_2.1.0 test 
-failed (-110)
-Nov 10 09:38:30 katana kernel: [ 3332.187465] [drm:gfx_v10_0_hw_fini 
-[amdgpu]] *ERROR* KCQ disable failed
-Nov 10 09:38:36 katana kernel: [ 3337.614265] amdgpu 0000:0d:00.0: 
-amdgpu: SMU: I'm not done with your previous command!
-Nov 10 09:38:36 katana kernel: [ 3337.614269] amdgpu 0000:0d:00.0: 
-amdgpu: Failed to disable smu features.
-Nov 10 09:38:36 katana kernel: [ 3337.614273] amdgpu 0000:0d:00.0: 
-amdgpu: Fail to disable dpm features!
-Nov 10 09:38:36 katana kernel: [ 3337.614274] 
-[drm:amdgpu_device_ip_suspend_phase2 [amdgpu]] *ERROR* suspend of IP 
-block <smu> failed -62
-Nov 10 09:38:36 katana kernel: [ 3337.625941] [drm] free PSP TMR buffer
-Nov 10 09:38:37 katana kernel: [ 3338.724759] [drm] psp gfx command 
-DESTROY_TMR(0x7) failed and response status is (0x80000306)
-Nov 10 09:38:37 katana kernel: [ 3338.745744] amdgpu 0000:0d:00.0: 
-amdgpu: MODE1 reset
-Nov 10 09:38:37 katana kernel: [ 3338.745748] amdgpu 0000:0d:00.0: 
-amdgpu: GPU mode1 reset
-Nov 10 09:38:37 katana kernel: [ 3338.745832] amdgpu 0000:0d:00.0: 
-amdgpu: GPU smu mode1 reset
-Nov 10 09:38:42 katana kernel: [ 3344.061148] amdgpu 0000:0d:00.0: 
-amdgpu: SMU: I'm not done with your previous command!
-Nov 10 09:38:42 katana kernel: [ 3344.061151] amdgpu 0000:0d:00.0: 
-amdgpu: GPU mode1 reset failed
-Nov 10 09:38:42 katana kernel: [ 3344.061265] amdgpu 0000:0d:00.0: 
-amdgpu: ASIC reset failed with error, -62 for drm dev, 0000:0d:00.0
-Nov 10 09:38:53 katana kernel: [ 3355.141401] amdgpu 0000:0d:00.0: 
-amdgpu: GPU reset succeeded, trying to resume
-Nov 10 09:38:53 katana kernel: [ 3355.141674] [drm] PCIE GART of 512M 
-enabled (table at 0x0000008000300000).
-Nov 10 09:38:53 katana kernel: [ 3355.141709] [drm] VRAM is lost due to 
-GPU reset!
-Nov 10 09:38:53 katana kernel: [ 3355.142685] [drm] PSP is resuming...
-Nov 10 09:38:54 katana kernel: [ 3356.258540] [drm] failed to load ucode 
-SMC(0x18)
-Nov 10 09:38:54 katana kernel: [ 3356.258567] [drm] psp gfx command 
-LOAD_IP_FW(0x6) failed and response status is (0x80000306)
-Nov 10 09:38:54 katana kernel: [ 3356.258572] [drm] reserve 0xa00000 
-from 0x82fe000000 for PSP TMR
-Nov 10 09:38:55 katana kernel: [ 3356.503720] amdgpu 0000:0d:00.0: 
-amdgpu: RAS: optional ras ta ucode is not available
-Nov 10 09:38:55 katana kernel: [ 3356.517290] amdgpu 0000:0d:00.0: 
-amdgpu: SECUREDISPLAY: securedisplay ta ucode is not available
-Nov 10 09:38:55 katana kernel: [ 3356.517293] amdgpu 0000:0d:00.0: 
-amdgpu: SMU is resuming...
-Nov 10 09:39:00 katana kernel: [ 3361.828868] amdgpu 0000:0d:00.0: 
-amdgpu: SMU: I'm not done with your previous command!
-Nov 10 09:39:00 katana kernel: [ 3361.828871] amdgpu 0000:0d:00.0: 
-amdgpu: Failed to SetDriverDramAddr!
-Nov 10 09:39:00 katana kernel: [ 3361.828873] amdgpu 0000:0d:00.0: 
-amdgpu: Failed to setup smc hw!
-Nov 10 09:39:00 katana kernel: [ 3361.828874] 
-[drm:amdgpu_device_ip_resume_phase2 [amdgpu]] *ERROR* resume of IP block 
-<smu> failed -62
-Nov 10 09:39:00 katana kernel: [ 3361.829025] amdgpu 0000:0d:00.0: 
-amdgpu: GPU reset(2) failed
-Nov 10 09:39:00 katana kernel: [ 3361.831396] amdgpu 0000:0d:00.0: 
-amdgpu: GPU reset end with ret = -62
-Nov 10 09:39:00 katana kernel: [ 3361.848123] snd_hda_intel 
-0000:0d:00.1: refused to change power state from D0 to D3hot
-Nov 10 09:39:10 katana kernel: [ 3372.062062] [drm:amdgpu_job_timedout 
-[amdgpu]] *ERROR* ring gfx_0.0.0 timeout, signaled seq=250624, emitted 
-seq=250624
-Nov 10 09:39:10 katana kernel: [ 3372.062243] [drm:amdgpu_job_timedout 
-[amdgpu]] *ERROR* Process information: process Xorg pid 2203 thread 
-Xorg:cs0 pid 2355
-Nov 10 09:39:10 katana kernel: [ 3372.062395] amdgpu 0000:0d:00.0: 
-amdgpu: GPU reset begin!
-Nov 10 09:41:13 katana systemd[1]: Starting Ubuntu Advantage Timer for 
-running repeated jobs...
-Nov 10 09:41:13 katana systemd[1]: ua-timer.service: Succeeded.
-Nov 10 09:41:13 katana systemd[1]: Finished Ubuntu Advantage Timer for 
-running repeated jobs.
-Nov 10 09:41:23 katana kernel: [ 3505.167372] INFO: task 
-kworker/11:2:284 blocked for more than 120 seconds.
-Nov 10 09:41:23 katana kernel: [ 3505.167377]       Not tainted 
-5.15.1-051501-generic #202111071208-Ubuntu
-Nov 10 09:41:23 katana kernel: [ 3505.167379] "echo 0 > 
-/proc/sys/kernel/hung_task_timeout_secs" disables this message.
-Nov 10 09:41:23 katana kernel: [ 3505.167380] task:kworker/11:2 state:D 
-stack:    0 pid:  284 ppid:     2 flags:0x00004000
-Nov 10 09:41:23 katana kernel: [ 3505.167384] Workqueue: events 
-drm_sched_job_timedout [gpu_sched]
-Nov 10 09:41:23 katana kernel: [ 3505.167392] Call Trace:
-Nov 10 09:41:23 katana kernel: [ 3505.167394] __schedule+0x2b6/0x7e0
-Nov 10 09:41:23 katana kernel: [ 3505.167398]  schedule+0x4e/0xb0
-Nov 10 09:41:23 katana kernel: [ 3505.167400] schedule_timeout+0x202/0x290
-Nov 10 09:41:23 katana kernel: [ 3505.167402]  ? 
-raw_spin_rq_lock_nested.constprop.0+0x10/0x20
-Nov 10 09:41:23 katana kernel: [ 3505.167405] 
-dma_fence_default_wait+0x174/0x200
-Nov 10 09:41:23 katana kernel: [ 3505.167409]  ? 
-dma_fence_release+0x140/0x140
-Nov 10 09:41:23 katana kernel: [ 3505.167410] 
-dma_fence_wait_timeout+0xb7/0xd0
-Nov 10 09:41:23 katana kernel: [ 3505.167412] drm_sched_stop+0xf7/0x170 
-[gpu_sched]
-Nov 10 09:41:23 katana kernel: [ 3505.167417] 
-amdgpu_device_gpu_recover.cold+0xabd/0xad3 [amdgpu]
-Nov 10 09:41:23 katana kernel: [ 3505.167569]  ? 
-amdgpu_job_timedout+0xf5/0x170 [amdgpu]
-Nov 10 09:41:23 katana kernel: [ 3505.167698] 
-amdgpu_job_timedout+0x14f/0x170 [amdgpu]
-Nov 10 09:41:23 katana kernel: [ 3505.167811] 
-drm_sched_job_timedout+0x76/0xf0 [gpu_sched]
-Nov 10 09:41:23 katana kernel: [ 3505.167814] process_one_work+0x22b/0x3d0
-Nov 10 09:41:23 katana kernel: [ 3505.167816] worker_thread+0x4d/0x3f0
-Nov 10 09:41:23 katana kernel: [ 3505.167818]  ? 
-process_one_work+0x3d0/0x3d0
-Nov 10 09:41:23 katana kernel: [ 3505.167820]  kthread+0x12a/0x150
-Nov 10 09:41:23 katana kernel: [ 3505.167821]  ? 
-set_kthread_struct+0x40/0x40
-Nov 10 09:41:23 katana kernel: [ 3505.167822] ret_from_fork+0x22/0x30
-Nov 10 09:41:23 katana kernel: [ 3505.167896] INFO: task chrome:sh1:3814 
-blocked for more than 120 seconds.
-Nov 10 09:41:23 katana kernel: [ 3505.167898]       Not tainted 
-5.15.1-051501-generic #202111071208-Ubuntu
-Nov 10 09:41:23 katana kernel: [ 3505.167899] "echo 0 > 
-/proc/sys/kernel/hung_task_timeout_secs" disables this message.
-Nov 10 09:41:23 katana kernel: [ 3505.167900] task:chrome:sh1 state:D 
-stack:    0 pid: 3814 ppid:  3747 flags:0x00004002
-Nov 10 09:41:23 katana kernel: [ 3505.167902] Call Trace:
-Nov 10 09:41:23 katana kernel: [ 3505.167903] __schedule+0x2b6/0x7e0
-Nov 10 09:41:23 katana kernel: [ 3505.167905]  schedule+0x4e/0xb0
-Nov 10 09:41:23 katana kernel: [ 3505.167906] schedule_timeout+0x202/0x290
-Nov 10 09:41:23 katana kernel: [ 3505.167908] 
-dma_fence_default_wait+0x174/0x200
-Nov 10 09:41:23 katana kernel: [ 3505.167910]  ? 
-dma_fence_release+0x140/0x140
-Nov 10 09:41:23 katana kernel: [ 3505.167912] 
-dma_fence_wait_timeout+0xb7/0xd0
-Nov 10 09:41:23 katana kernel: [ 3505.167913] 
-drm_sched_entity_fini+0xd8/0x220 [gpu_sched]
-Nov 10 09:41:23 katana kernel: [ 3505.167917] 
-amdgpu_ctx_mgr_entity_fini+0xa6/0xf0 [amdgpu]
-Nov 10 09:41:23 katana kernel: [ 3505.168020] 
-amdgpu_ctx_mgr_fini+0x32/0xc0 [amdgpu]
-Nov 10 09:41:23 katana kernel: [ 3505.168119] 
-amdgpu_driver_postclose_kms+0x16e/0x240 [amdgpu]
-Nov 10 09:41:23 katana kernel: [ 3505.168216]  ? idr_destroy+0x7f/0xc0
-Nov 10 09:41:23 katana kernel: [ 3505.168219] 
-drm_file_free.part.0+0x1e5/0x250 [drm]
-Nov 10 09:41:23 katana kernel: [ 3505.168235] 
-drm_close_helper.isra.0+0x65/0x70 [drm]
-Nov 10 09:41:23 katana kernel: [ 3505.168249]  drm_release+0x6e/0xf0 [drm]
-Nov 10 09:41:23 katana kernel: [ 3505.168263]  __fput+0x9f/0x260
-Nov 10 09:41:23 katana kernel: [ 3505.168266]  ____fput+0xe/0x10
-Nov 10 09:41:23 katana kernel: [ 3505.168267] task_work_run+0x70/0xb0
-Nov 10 09:41:23 katana kernel: [ 3505.168269]  do_exit+0x367/0xad0
-Nov 10 09:41:23 katana kernel: [ 3505.168271] do_group_exit+0x43/0xb0
-Nov 10 09:41:23 katana kernel: [ 3505.168272] get_signal+0x171/0x890
-Nov 10 09:41:23 katana kernel: [ 3505.168274]  ? do_futex+0x1b6/0x820
-Nov 10 09:41:23 katana kernel: [ 3505.168277] 
-arch_do_signal_or_restart+0xf3/0x290
-Nov 10 09:41:23 katana kernel: [ 3505.168280] 
-exit_to_user_mode_prepare+0x12c/0x1c0
-Nov 10 09:41:23 katana kernel: [ 3505.168281] 
-syscall_exit_to_user_mode+0x27/0x50
-Nov 10 09:41:23 katana kernel: [ 3505.168284] do_syscall_64+0x69/0xc0
-Nov 10 09:41:23 katana kernel: [ 3505.168285]  ? switch_fpu_return+0x56/0xc0
-Nov 10 09:41:23 katana kernel: [ 3505.168288]  ? 
-exit_to_user_mode_prepare+0x98/0x1c0
-Nov 10 09:41:23 katana kernel: [ 3505.168289]  ? 
-syscall_exit_to_user_mode+0x27/0x50
-Nov 10 09:41:23 katana kernel: [ 3505.168291]  ? do_syscall_64+0x69/0xc0
-Nov 10 09:41:23 katana kernel: [ 3505.168292]  ? do_syscall_64+0x69/0xc0
-Nov 10 09:41:23 katana kernel: [ 3505.168293]  ? 
-syscall_exit_to_user_mode+0x27/0x50
-Nov 10 09:41:23 katana kernel: [ 3505.168294]  ? __x64_sys_close+0x12/0x40
-Nov 10 09:41:23 katana kernel: [ 3505.168297]  ? do_syscall_64+0x69/0xc0
-Nov 10 09:41:23 katana kernel: [ 3505.168298] 
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-Nov 10 09:41:23 katana kernel: [ 3505.168300] RIP: 0033:0x7f0c2e2d5376
-Nov 10 09:41:23 katana kernel: [ 3505.168301] RSP: 002b:00007f0c1c84b580 
-EFLAGS: 00000282 ORIG_RAX: 00000000000000ca
-Nov 10 09:41:23 katana kernel: [ 3505.168303] RAX: fffffffffffffe00 RBX: 
-0000000000000000 RCX: 00007f0c2e2d5376
-Nov 10 09:41:23 katana kernel: [ 3505.168304] RDX: 0000000000000000 RSI: 
-0000000000000080 RDI: 00002bc8000dae24
-Nov 10 09:41:23 katana kernel: [ 3505.168305] RBP: 00002bc8000dadf8 R08: 
-0000000000000000 R09: 0000000000000004
-Nov 10 09:41:23 katana kernel: [ 3505.168306] R10: 0000000000000000 R11: 
-0000000000000282 R12: 00002bc8000dae1c
-Nov 10 09:41:23 katana kernel: [ 3505.168306] R13: 00002bc8000dadd0 R14: 
-00007f0c1c84b5c0 R15: 00002bc8000dae24
-Nov 10 09:43:24 katana kernel: [ 3625.995050] INFO: task 
-kworker/11:2:284 blocked for more than 241 seconds.
-Nov 10 09:43:24 katana kernel: [ 3625.995057]       Not tainted 
-5.15.1-051501-generic #202111071208-Ubuntu
-Nov 10 09:43:24 katana kernel: [ 3625.995059] "echo 0 > 
-/proc/sys/kernel/hung_task_timeout_secs" disables this message.
-Nov 10 09:43:24 katana kernel: [ 3625.995060] task:kworker/11:2 state:D 
-stack:    0 pid:  284 ppid:     2 flags:0x00004000
-Nov 10 09:43:24 katana kernel: [ 3625.995065] Workqueue: events 
-drm_sched_job_timedout [gpu_sched]
-Nov 10 09:43:24 katana kernel: [ 3625.995073] Call Trace:
-Nov 10 09:43:24 katana kernel: [ 3625.995076] __schedule+0x2b6/0x7e0
-Nov 10 09:43:24 katana kernel: [ 3625.995081]  schedule+0x4e/0xb0
-Nov 10 09:43:24 katana kernel: [ 3625.995083] schedule_timeout+0x202/0x290
-Nov 10 09:43:24 katana kernel: [ 3625.995085]  ? 
-raw_spin_rq_lock_nested.constprop.0+0x10/0x20
-Nov 10 09:43:24 katana kernel: [ 3625.995090] 
-dma_fence_default_wait+0x174/0x200
-Nov 10 09:43:24 katana kernel: [ 3625.995093]  ? 
-dma_fence_release+0x140/0x140
-Nov 10 09:43:24 katana kernel: [ 3625.995095] 
-dma_fence_wait_timeout+0xb7/0xd0
-Nov 10 09:43:24 katana kernel: [ 3625.995097] drm_sched_stop+0xf7/0x170 
-[gpu_sched]
-Nov 10 09:43:24 katana kernel: [ 3625.995103] 
-amdgpu_device_gpu_recover.cold+0xabd/0xad3 [amdgpu]
-Nov 10 09:43:24 katana kernel: [ 3625.995299]  ? 
-amdgpu_job_timedout+0xf5/0x170 [amdgpu]
-Nov 10 09:43:24 katana kernel: [ 3625.995465] 
-amdgpu_job_timedout+0x14f/0x170 [amdgpu]
-Nov 10 09:43:24 katana kernel: [ 3625.995614] 
-drm_sched_job_timedout+0x76/0xf0 [gpu_sched]
-Nov 10 09:43:24 katana kernel: [ 3625.995618] process_one_work+0x22b/0x3d0
-Nov 10 09:43:24 katana kernel: [ 3625.995621] worker_thread+0x4d/0x3f0
-Nov 10 09:43:24 katana kernel: [ 3625.995624]  ? 
-process_one_work+0x3d0/0x3d0
-Nov 10 09:43:24 katana kernel: [ 3625.995626]  kthread+0x12a/0x150
-Nov 10 09:43:24 katana kernel: [ 3625.995627]  ? 
-set_kthread_struct+0x40/0x40
-Nov 10 09:43:24 katana kernel: [ 3625.995629] ret_from_fork+0x22/0x30
-Nov 10 09:43:24 katana kernel: [ 3625.995667] INFO: task 
-InputThread:2548 blocked for more than 120 seconds.
-Nov 10 09:43:24 katana kernel: [ 3625.995669]       Not tainted 
-5.15.1-051501-generic #202111071208-Ubuntu
-Nov 10 09:43:24 katana kernel: [ 3625.995671] "echo 0 > 
-/proc/sys/kernel/hung_task_timeout_secs" disables this message.
-Nov 10 09:43:24 katana kernel: [ 3625.995672] task:InputThread state:D 
-stack:    0 pid: 2548 ppid:  2105 flags:0x00000000
-Nov 10 09:43:24 katana kernel: [ 3625.995674] Call Trace:
-Nov 10 09:43:24 katana kernel: [ 3625.995676] __schedule+0x2b6/0x7e0
-Nov 10 09:43:24 katana kernel: [ 3625.995678]  schedule+0x4e/0xb0
-Nov 10 09:43:24 katana kernel: [ 3625.995680] 
-schedule_preempt_disabled+0xe/0x10
-Nov 10 09:43:24 katana kernel: [ 3625.995681] 
-__mutex_lock.isra.0+0x208/0x470
-Nov 10 09:43:24 katana kernel: [ 3625.995684] 
-__mutex_lock_slowpath+0x13/0x20
-Nov 10 09:43:24 katana kernel: [ 3625.995686]  mutex_lock+0x32/0x40
-Nov 10 09:43:24 katana kernel: [ 3625.995688] 
-handle_cursor_update.isra.0+0x197/0x320 [amdgpu]
-Nov 10 09:43:24 katana kernel: [ 3625.995865] 
-dm_plane_atomic_async_update+0xc4/0x100 [amdgpu]
-Nov 10 09:43:24 katana kernel: [ 3625.996030] 
-drm_atomic_helper_async_commit+0x6f/0x110 [drm_kms_helper]
-Nov 10 09:43:24 katana kernel: [ 3625.996046] 
-drm_atomic_helper_commit+0xf4/0x150 [drm_kms_helper]
-Nov 10 09:43:24 katana kernel: [ 3625.996059] 
-drm_atomic_commit+0x4a/0x50 [drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996084] 
-drm_atomic_helper_update_plane+0xe7/0x140 [drm_kms_helper]
-Nov 10 09:43:24 katana kernel: [ 3625.996098] 
-__setplane_atomic+0xcc/0x110 [drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996121] 
-drm_mode_cursor_universal+0x13e/0x260 [drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996141] 
-drm_mode_cursor_common+0xef/0x220 [drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996160]  ? 
-drm_mode_setplane+0x340/0x340 [drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996179] 
-drm_mode_cursor_ioctl+0x4a/0x60 [drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996198] drm_ioctl_kernel+0xae/0xf0 
-[drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996218]  drm_ioctl+0x25f/0x420 [drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996237]  ? 
-drm_mode_setplane+0x340/0x340 [drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996256]  ? aa_file_perm+0x11d/0x470
-Nov 10 09:43:24 katana kernel: [ 3625.996260] amdgpu_drm_ioctl+0x4e/0x80 
-[amdgpu]
-Nov 10 09:43:24 katana kernel: [ 3625.996384] __x64_sys_ioctl+0x91/0xc0
-Nov 10 09:43:24 katana kernel: [ 3625.996387] do_syscall_64+0x5c/0xc0
-Nov 10 09:43:24 katana kernel: [ 3625.996390]  ? vfs_read+0xa0/0x1a0
-Nov 10 09:43:24 katana kernel: [ 3625.996393]  ? 
-exit_to_user_mode_prepare+0x3d/0x1c0
-Nov 10 09:43:24 katana kernel: [ 3625.996395]  ? ksys_read+0xce/0xe0
-Nov 10 09:43:24 katana kernel: [ 3625.996398]  ? 
-syscall_exit_to_user_mode+0x27/0x50
-Nov 10 09:43:24 katana kernel: [ 3625.996400]  ? __x64_sys_read+0x1a/0x20
-Nov 10 09:43:24 katana kernel: [ 3625.996403]  ? do_syscall_64+0x69/0xc0
-Nov 10 09:43:24 katana kernel: [ 3625.996404]  ? 
-syscall_exit_to_user_mode+0x27/0x50
-Nov 10 09:43:24 katana kernel: [ 3625.996406]  ? do_syscall_64+0x69/0xc0
-Nov 10 09:43:24 katana kernel: [ 3625.996407]  ? do_syscall_64+0x69/0xc0
-Nov 10 09:43:24 katana kernel: [ 3625.996409] 
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-Nov 10 09:43:24 katana kernel: [ 3625.996411] RIP: 0033:0x7f547252750b
-Nov 10 09:43:24 katana kernel: [ 3625.996413] RSP: 002b:00007f5404dfb318 
-EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-Nov 10 09:43:24 katana kernel: [ 3625.996415] RAX: ffffffffffffffda RBX: 
-00007f5404dfb350 RCX: 00007f547252750b
-Nov 10 09:43:24 katana kernel: [ 3625.996417] RDX: 00007f5404dfb350 RSI: 
-00000000c01c64a3 RDI: 000000000000000d
-Nov 10 09:43:24 katana kernel: [ 3625.996418] RBP: 00000000c01c64a3 R08: 
-000000000000069b R09: 0000000000000001
-Nov 10 09:43:24 katana kernel: [ 3625.996419] R10: 0000000000000000 R11: 
-0000000000000246 R12: 000055886a8123a0
-Nov 10 09:43:24 katana kernel: [ 3625.996420] R13: 000000000000000d R14: 
-00000000000006a2 R15: 0000000000000431
-Nov 10 09:43:24 katana kernel: [ 3625.996462] INFO: task chrome:sh1:3814 
-blocked for more than 241 seconds.
-Nov 10 09:43:24 katana kernel: [ 3625.996464]       Not tainted 
-5.15.1-051501-generic #202111071208-Ubuntu
-Nov 10 09:43:24 katana kernel: [ 3625.996465] "echo 0 > 
-/proc/sys/kernel/hung_task_timeout_secs" disables this message.
-Nov 10 09:43:24 katana kernel: [ 3625.996466] task:chrome:sh1 state:D 
-stack:    0 pid: 3814 ppid:  3747 flags:0x00004002
-Nov 10 09:43:24 katana kernel: [ 3625.996468] Call Trace:
-Nov 10 09:43:24 katana kernel: [ 3625.996470] __schedule+0x2b6/0x7e0
-Nov 10 09:43:24 katana kernel: [ 3625.996472]  schedule+0x4e/0xb0
-Nov 10 09:43:24 katana kernel: [ 3625.996474] schedule_timeout+0x202/0x290
-Nov 10 09:43:24 katana kernel: [ 3625.996476] 
-dma_fence_default_wait+0x174/0x200
-Nov 10 09:43:24 katana kernel: [ 3625.996479]  ? 
-dma_fence_release+0x140/0x140
-Nov 10 09:43:24 katana kernel: [ 3625.996481] 
-dma_fence_wait_timeout+0xb7/0xd0
-Nov 10 09:43:24 katana kernel: [ 3625.996483] 
-drm_sched_entity_fini+0xd8/0x220 [gpu_sched]
-Nov 10 09:43:24 katana kernel: [ 3625.996487] 
-amdgpu_ctx_mgr_entity_fini+0xa6/0xf0 [amdgpu]
-Nov 10 09:43:24 katana kernel: [ 3625.996620] 
-amdgpu_ctx_mgr_fini+0x32/0xc0 [amdgpu]
-Nov 10 09:43:24 katana kernel: [ 3625.996749] 
-amdgpu_driver_postclose_kms+0x16e/0x240 [amdgpu]
-Nov 10 09:43:24 katana kernel: [ 3625.996872]  ? idr_destroy+0x7f/0xc0
-Nov 10 09:43:24 katana kernel: [ 3625.996876] 
-drm_file_free.part.0+0x1e5/0x250 [drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996895] 
-drm_close_helper.isra.0+0x65/0x70 [drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996913]  drm_release+0x6e/0xf0 [drm]
-Nov 10 09:43:24 katana kernel: [ 3625.996931]  __fput+0x9f/0x260
-Nov 10 09:43:24 katana kernel: [ 3625.996933]  ____fput+0xe/0x10
-Nov 10 09:43:24 katana kernel: [ 3625.996935] task_work_run+0x70/0xb0
-Nov 10 09:43:24 katana kernel: [ 3625.996937]  do_exit+0x367/0xad0
-Nov 10 09:43:24 katana kernel: [ 3625.996940] do_group_exit+0x43/0xb0
-Nov 10 09:43:24 katana kernel: [ 3625.996941] get_signal+0x171/0x890
-Nov 10 09:43:24 katana kernel: [ 3625.996944]  ? do_futex+0x1b6/0x820
-Nov 10 09:43:24 katana kernel: [ 3625.996947] 
-arch_do_signal_or_restart+0xf3/0x290
-Nov 10 09:43:24 katana kernel: [ 3625.996951] 
-exit_to_user_mode_prepare+0x12c/0x1c0
-Nov 10 09:43:24 katana kernel: [ 3625.996952] 
-syscall_exit_to_user_mode+0x27/0x50
-Nov 10 09:43:24 katana kernel: [ 3625.996955] do_syscall_64+0x69/0xc0
-Nov 10 09:43:24 katana kernel: [ 3625.996956]  ? switch_fpu_return+0x56/0xc0
-Nov 10 09:43:24 katana kernel: [ 3625.996960]  ? 
-exit_to_user_mode_prepare+0x98/0x1c0
-Nov 10 09:43:24 katana kernel: [ 3625.996961]  ? 
-syscall_exit_to_user_mode+0x27/0x50
-Nov 10 09:43:24 katana kernel: [ 3625.996963]  ? do_syscall_64+0x69/0xc0
-Nov 10 09:43:24 katana kernel: [ 3625.996965]  ? do_syscall_64+0x69/0xc0
-Nov 10 09:43:24 katana kernel: [ 3625.996966]  ? 
-syscall_exit_to_user_mode+0x27/0x50
-Nov 10 09:43:24 katana kernel: [ 3625.996968]  ? __x64_sys_close+0x12/0x40
-Nov 10 09:43:24 katana kernel: [ 3625.996970]  ? do_syscall_64+0x69/0xc0
-Nov 10 09:43:24 katana kernel: [ 3625.996971] 
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-Nov 10 09:43:24 katana kernel: [ 3625.996973] RIP: 0033:0x7f0c2e2d5376
-Nov 10 09:43:24 katana kernel: [ 3625.996975] RSP: 002b:00007f0c1c84b580 
-EFLAGS: 00000282 ORIG_RAX: 00000000000000ca
-Nov 10 09:43:24 katana kernel: [ 3625.996976] RAX: fffffffffffffe00 RBX: 
-0000000000000000 RCX: 00007f0c2e2d5376
-Nov 10 09:43:24 katana kernel: [ 3625.996977] RDX: 0000000000000000 RSI: 
-0000000000000080 RDI: 00002bc8000dae24
-Nov 10 09:43:24 katana kernel: [ 3625.996978] RBP: 00002bc8000dadf8 R08: 
-0000000000000000 R09: 0000000000000004
-Nov 10 09:43:24 katana kernel: [ 3625.996979] R10: 0000000000000000 R11: 
-0000000000000282 R12: 00002bc8000dae1c
-Nov 10 09:43:24 katana kernel: [ 3625.996980] R13: 00002bc8000dadd0 R14: 
-00007f0c1c84b5c0 R15: 00002bc8000dae24
+Errors and Warnings Detected:
 
-Cheers,
+arc:
 
-Mark
+arm64:
+    defconfig (gcc-10): 2 warnings
 
+arm:
+    assabet_defconfig (gcc-10): 1 warning
+    collie_defconfig (gcc-10): 1 warning
+    h3600_defconfig (gcc-10): 1 warning
+    neponset_defconfig (gcc-10): 1 warning
+    rpc_defconfig (gcc-10): 4 errors
+    shannon_defconfig (gcc-10): 1 warning
 
+i386:
+    allnoconfig (gcc-10): 2 warnings
+    tinyconfig (gcc-10): 2 warnings
+
+mips:
+    mtx1_defconfig (gcc-10): 3 warnings
+
+riscv:
+    defconfig (gcc-10): 3 warnings
+
+x86_64:
+    allnoconfig (gcc-10): 3 warnings
+    tinyconfig (gcc-10): 3 warnings
+    x86_64_defconfig (gcc-10): 2 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 2 warnings
+
+Errors summary:
+
+    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+h=3D=E2=80=99
+
+Warnings summary:
+
+    6    ld: warning: creating DT_TEXTREL in a PIE
+    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
+min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+d-only section `.head.text'
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    2    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
+    2    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
+    2    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
+ to integer of different size [-Wpointer-to-int-cast]
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    1    include/linux/of_clk.h:13:31: warning: =E2=80=98struct of_device_i=
+d=E2=80=99 declared inside parameter list will not be visible outside of th=
+is definition or declaration
+    1    include/linux/of_clk.h:12:43: warning: =E2=80=98struct device_node=
+=E2=80=99 declared inside parameter list will not be visible outside of thi=
+s definition or declaration
+    1    include/linux/of_clk.h:11:45: warning: =E2=80=98struct device_node=
+=E2=80=99 declared inside parameter list will not be visible outside of thi=
+s definition or declaration
+
+Section mismatches summary:
+
+    1    WARNING: vmlinux.o(.text.unlikely+0x3774): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
+    1    WARNING: vmlinux.o(.text.unlikely+0x349c): Section mismatch in ref=
+erence from the function pmax_setup_memory_region() to the function .init.t=
+ext:add_memory_region()
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
+mismatches
+
+Warnings:
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x3774): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+Section mismatches:
+    WARNING: vmlinux.o(.text.unlikely+0x349c): Section mismatch in referenc=
+e from the function pmax_setup_memory_region() to the function .init.text:a=
+dd_memory_region()
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    include/linux/of_clk.h:11:45: warning: =E2=80=98struct device_node=E2=
+=80=99 declared inside parameter list will not be visible outside of this d=
+efinition or declaration
+    include/linux/of_clk.h:12:43: warning: =E2=80=98struct device_node=E2=
+=80=99 declared inside parameter list will not be visible outside of this d=
+efinition or declaration
+    include/linux/of_clk.h:13:31: warning: =E2=80=98struct of_device_id=E2=
+=80=99 declared inside parameter list will not be visible outside of this d=
+efinition or declaration
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
+nteger of different size [-Wpointer-to-int-cast]
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
+ismatches
+
+Warnings:
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
+ mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
+2 warnings, 0 section mismatches
+
+Warnings:
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---
+For more info write to <info@kernelci.org>
