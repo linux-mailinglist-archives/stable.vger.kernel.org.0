@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 185A644C7BD
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D2F844C805
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232835AbhKJSyp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:54:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48172 "EHLO mail.kernel.org"
+        id S233030AbhKJS5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:57:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232884AbhKJSww (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:52:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 909EA61205;
-        Wed, 10 Nov 2021 18:48:16 +0000 (UTC)
+        id S232949AbhKJSzn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:55:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A75F4619F7;
+        Wed, 10 Nov 2021 18:49:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570097;
-        bh=c8ra0pIBJ5eI7IiPbFL8LoXo1mqKH+PpSvWSjzsxwt0=;
+        s=korg; t=1636570182;
+        bh=0oH85cjq7vTw6si60/MnAKRM5WZ4EBlcJF4dA31QY9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nE4Fob1aJ0BwIdut8mktv1Sm1E0nZeev29RvhTkrlUiqK8yvRWwY/a6Xa6VjMAx2y
-         3mmDp88NWelUwaCLgMrddP3OJjxQf6QQg4Ca8LHxkcXOrB1VLiQaEjpXc7RSMrqsOP
-         pAbVvhbbeptalqgsKMN+DEh+NeKcJMXklSI473uU=
+        b=ZLBm3omHtw8CXgZxxKP1eo2vYMUWBTCVjelMQR6G2MndmLfpUiJyS85Kq7eFD31AX
+         5W1EteGdAERAU53YYMWQtpXfbErtRHfmjXu1mpiBFuwqEmIfdxO6t/oCUJcvIexNYc
+         kECM1jdu8Sl8/yJy16N3Tl1UIAYOsfdS5HwIJVf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.10 15/21] comedi: vmk80xx: fix transfer-buffer overflows
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Vito Caputo <vcaputo@pengaru.com>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.14 09/24] Revert "proc/wchan: use printk format instead of lookup_symbol_name()"
 Date:   Wed, 10 Nov 2021 19:44:01 +0100
-Message-Id: <20211110182003.447634505@linuxfoundation.org>
+Message-Id: <20211110182003.631273586@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182002.964190708@linuxfoundation.org>
-References: <20211110182002.964190708@linuxfoundation.org>
+In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
+References: <20211110182003.342919058@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit a23461c47482fc232ffc9b819539d1f837adf2b1 upstream.
+commit 54354c6a9f7fd5572d2b9ec108117c4f376d4d23 upstream.
 
-The driver uses endpoint-sized USB transfer buffers but up until
-recently had no sanity checks on the sizes.
+This reverts commit 152c432b128cb043fc107e8f211195fe94b2159c.
 
-Commit e1f13c879a7c ("staging: comedi: check validity of wMaxPacketSize
-of usb endpoints found") inadvertently fixed NULL-pointer dereferences
-when accessing the transfer buffers in case a malicious device has a
-zero wMaxPacketSize.
+When a kernel address couldn't be symbolized for /proc/$pid/wchan, it
+would leak the raw value, a potential information exposure. This is a
+regression compared to the safer pre-v5.12 behavior.
 
-Make sure to allocate buffers large enough to handle also the other
-accesses that are done without a size check (e.g. byte 18 in
-vmk80xx_cnt_insn_read() for the VMK8061_MODEL) to avoid writing beyond
-the buffers, for example, when doing descriptor fuzzing.
-
-The original driver was for a low-speed device with 8-byte buffers.
-Support was later added for a device that uses bulk transfers and is
-presumably a full-speed device with a maximum 64-byte wMaxPacketSize.
-
-Fixes: 985cafccbf9b ("Staging: Comedi: vmk80xx: Add k8061 support")
-Cc: stable@vger.kernel.org      # 2.6.31
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20211025114532.4599-4-johan@kernel.org
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Reported-by: Vito Caputo <vcaputo@pengaru.com>
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20211008111626.090829198@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/vmk80xx.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/proc/base.c |   21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
---- a/drivers/staging/comedi/drivers/vmk80xx.c
-+++ b/drivers/staging/comedi/drivers/vmk80xx.c
-@@ -90,6 +90,8 @@ enum {
- #define IC3_VERSION		BIT(0)
- #define IC6_VERSION		BIT(1)
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -67,6 +67,7 @@
+ #include <linux/mm.h>
+ #include <linux/swap.h>
+ #include <linux/rcupdate.h>
++#include <linux/kallsyms.h>
+ #include <linux/stacktrace.h>
+ #include <linux/resource.h>
+ #include <linux/module.h>
+@@ -385,17 +386,19 @@ static int proc_pid_wchan(struct seq_fil
+ 			  struct pid *pid, struct task_struct *task)
+ {
+ 	unsigned long wchan;
++	char symname[KSYM_NAME_LEN];
  
-+#define MIN_BUF_SIZE		64
+-	if (ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
+-		wchan = get_wchan(task);
+-	else
+-		wchan = 0;
+-
+-	if (wchan)
+-		seq_printf(m, "%ps", (void *) wchan);
+-	else
+-		seq_putc(m, '0');
++	if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
++		goto print0;
+ 
++	wchan = get_wchan(task);
++	if (wchan && !lookup_symbol_name(wchan, symname)) {
++		seq_puts(m, symname);
++		return 0;
++	}
 +
- enum vmk80xx_model {
- 	VMK8055_MODEL,
- 	VMK8061_MODEL
-@@ -678,12 +680,12 @@ static int vmk80xx_alloc_usb_buffers(str
- 	struct vmk80xx_private *devpriv = dev->private;
- 	size_t size;
- 
--	size = usb_endpoint_maxp(devpriv->ep_rx);
-+	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
- 	devpriv->usb_rx_buf = kzalloc(size, GFP_KERNEL);
- 	if (!devpriv->usb_rx_buf)
- 		return -ENOMEM;
- 
--	size = usb_endpoint_maxp(devpriv->ep_tx);
-+	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
- 	devpriv->usb_tx_buf = kzalloc(size, GFP_KERNEL);
- 	if (!devpriv->usb_tx_buf)
- 		return -ENOMEM;
++print0:
++	seq_putc(m, '0');
+ 	return 0;
+ }
+ #endif /* CONFIG_KALLSYMS */
 
 
