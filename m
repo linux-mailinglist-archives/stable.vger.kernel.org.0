@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3DCB44C81C
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3CCD44C810
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233254AbhKJS64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:58:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53390 "EHLO mail.kernel.org"
+        id S232771AbhKJS6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:58:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233993AbhKJS5b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:57:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B712B61A0D;
-        Wed, 10 Nov 2021 18:50:16 +0000 (UTC)
+        id S233970AbhKJS4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:56:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E58F461052;
+        Wed, 10 Nov 2021 18:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570217;
-        bh=r4EKlAP/qT+/vmwpqdDkK+ExL9hnK0ixt3w74HlTU88=;
+        s=korg; t=1636570194;
+        bh=7ELfN9JM7gUP38esY+laJAI+JHO6KXQwvUnsXFCAlrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w/Tmn9M3nIikFSWxkFasOz5rMuum37IIecApW5jd85zBxtcArHJookFKy1bk88kck
-         UYg+2kHlqG3PKwc2kXLX3QZtyV4znCdqc/A7e2eaFXdx+Qvzx6YvvnqZ0JqzYC0j3y
-         JFr9pnwAcY4R5TGo6We8i1S4yOHdjBLb4IYez3iY=
+        b=O5N3U+FA3Q1lKxb2YKZZG5/224HC4dt5qaw8kA4qI3faYxzSw9ncx9zWbDqStTU07
+         nZ80sxarPQwjVkgxEYB+1W32r3ygMfq6SyU18zoqJCx60qTn0Q4n1I+j2QrVOjQfLX
+         v/fC6EQMX+90iHyIzOdtDXcJGmLQhemaYmhfi+Qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+c55162be492189fb4f51@syzkaller.appspotmail.com
-Subject: [PATCH 5.15 15/26] staging: rtl8712: fix use-after-free in rtl8712_dl_fw
-Date:   Wed, 10 Nov 2021 19:44:14 +0100
-Message-Id: <20211110182004.180385504@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.14 23/24] media: staging/intel-ipu3: css: Fix wrong size comparison imgu_css_fw_init
+Date:   Wed, 10 Nov 2021 19:44:15 +0100
+Message-Id: <20211110182004.077953974@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182003.700594531@linuxfoundation.org>
-References: <20211110182003.700594531@linuxfoundation.org>
+In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
+References: <20211110182003.342919058@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-commit c052cc1a069c3e575619cf64ec427eb41176ca70 upstream.
+commit a44f9d6f9dc1fb314a3f1ed2dcd4fbbcc3d9f892 upstream.
 
-Syzbot reported use-after-free in rtl8712_dl_fw(). The problem was in
-race condition between r871xu_dev_remove() ->ndo_open() callback.
+There is a wrong comparison of the total size of the loaded firmware
+css->fw->size with the size of a pointer to struct imgu_fw_header.
 
-It's easy to see from crash log, that driver accesses released firmware
-in ->ndo_open() callback. It may happen, since driver was releasing
-firmware _before_ unregistering netdev. Fix it by moving
-unregister_netdev() before cleaning up resources.
+Turn binary_header into a flexible-array member[1][2], use the
+struct_size() helper and fix the wrong size comparison. Notice
+that the loaded firmware needs to contain at least one 'struct
+imgu_fw_info' item in the binary_header[] array.
 
-Call Trace:
-...
- rtl871x_open_fw drivers/staging/rtl8712/hal_init.c:83 [inline]
- rtl8712_dl_fw+0xd95/0xe10 drivers/staging/rtl8712/hal_init.c:170
- rtl8712_hal_init drivers/staging/rtl8712/hal_init.c:330 [inline]
- rtl871x_hal_init+0xae/0x180 drivers/staging/rtl8712/hal_init.c:394
- netdev_open+0xe6/0x6c0 drivers/staging/rtl8712/os_intfs.c:380
- __dev_open+0x2bc/0x4d0 net/core/dev.c:1484
+It's also worth mentioning that
 
-Freed by task 1306:
-...
- release_firmware+0x1b/0x30 drivers/base/firmware_loader/main.c:1053
- r871xu_dev_remove+0xcc/0x2c0 drivers/staging/rtl8712/usb_intf.c:599
- usb_unbind_interface+0x1d8/0x8d0 drivers/usb/core/driver.c:458
+	"css->fw->size < struct_size(css->fwp, binary_header, 1)"
 
-Fixes: 8c213fa59199 ("staging: r8712u: Use asynchronous firmware loading")
-Cc: stable <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+c55162be492189fb4f51@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20211019211718.26354-1-paskripkin@gmail.com
+with binary_header declared as a flexible-array member is equivalent
+to
+
+	"css->fw->size < sizeof(struct imgu_fw_header)"
+
+with binary_header declared as a one-element array (as in the original
+code).
+
+The replacement of the one-element array with a flexible-array member
+also helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
+
+[1] https://en.wikipedia.org/wiki/Flexible_array_member
+[2] https://www.kernel.org/doc/html/v5.10/process/deprecated.html#zero-length-and-one-element-arrays
+
+Link: https://github.com/KSPP/linux/issues/79
+Link: https://github.com/KSPP/linux/issues/109
+
+Fixes: 09d290f0ba21 ("media: staging/intel-ipu3: css: Add support for firmware management")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/usb_intf.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/media/ipu3/ipu3-css-fw.c |    7 +++----
+ drivers/staging/media/ipu3/ipu3-css-fw.h |    2 +-
+ 2 files changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -595,12 +595,12 @@ static void r871xu_dev_remove(struct usb
+--- a/drivers/staging/media/ipu3/ipu3-css-fw.c
++++ b/drivers/staging/media/ipu3/ipu3-css-fw.c
+@@ -124,12 +124,11 @@ int imgu_css_fw_init(struct imgu_css *cs
+ 	/* Check and display fw header info */
  
- 	/* never exit with a firmware callback pending */
- 	wait_for_completion(&padapter->rtl8712_fw_ready);
-+	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
-+		unregister_netdev(pnetdev); /* will call netdev_close() */
- 	usb_set_intfdata(pusb_intf, NULL);
- 	release_firmware(padapter->fw);
- 	if (drvpriv.drv_registered)
- 		padapter->surprise_removed = true;
--	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
--		unregister_netdev(pnetdev); /* will call netdev_close() */
- 	r8712_flush_rwctrl_works(padapter);
- 	r8712_flush_led_works(padapter);
- 	udelay(1);
+ 	css->fwp = (struct imgu_fw_header *)css->fw->data;
+-	if (css->fw->size < sizeof(struct imgu_fw_header *) ||
++	if (css->fw->size < struct_size(css->fwp, binary_header, 1) ||
+ 	    css->fwp->file_header.h_size != sizeof(struct imgu_fw_bi_file_h))
+ 		goto bad_fw;
+-	if (sizeof(struct imgu_fw_bi_file_h) +
+-	    css->fwp->file_header.binary_nr * sizeof(struct imgu_fw_info) >
+-	    css->fw->size)
++	if (struct_size(css->fwp, binary_header,
++			css->fwp->file_header.binary_nr) > css->fw->size)
+ 		goto bad_fw;
+ 
+ 	dev_info(dev, "loaded firmware version %.64s, %u binaries, %zu bytes\n",
+--- a/drivers/staging/media/ipu3/ipu3-css-fw.h
++++ b/drivers/staging/media/ipu3/ipu3-css-fw.h
+@@ -171,7 +171,7 @@ struct imgu_fw_bi_file_h {
+ 
+ struct imgu_fw_header {
+ 	struct imgu_fw_bi_file_h file_header;
+-	struct imgu_fw_info binary_header[1];	/* binary_nr items */
++	struct imgu_fw_info binary_header[];	/* binary_nr items */
+ };
+ 
+ /******************* Firmware functions *******************/
 
 
