@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91D3644C76A
+	by mail.lfdr.de (Postfix) with ESMTP id DADC444C76B
 	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233650AbhKJSu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:50:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48172 "EHLO mail.kernel.org"
+        id S233365AbhKJSu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:50:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233254AbhKJStf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:49:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1C9761178;
-        Wed, 10 Nov 2021 18:46:32 +0000 (UTC)
+        id S232890AbhKJStg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:49:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7269E61205;
+        Wed, 10 Nov 2021 18:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636569993;
-        bh=r9c4M28T/B5cCe7kYAPWH6EhTTjF4No8DvsRibfL7NY=;
+        s=korg; t=1636569995;
+        bh=c8ra0pIBJ5eI7IiPbFL8LoXo1mqKH+PpSvWSjzsxwt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GKIVoIx9pwxDrwK1r9zB+dd1RXY4h6hzuxasSPuBCLloGEhIMfmonAS8rc6gEDX4Z
-         iUQ6X9bC7qW6ZojX8E+9WV1EKQq5LxSBYFL5uOIytRIQzN0NGA/JdYOuMYiFH54WpI
-         xjlZ5CziWHb04gZN38EV4pNFySUlFxqwtHyC/ujQ=
+        b=RNupyGV52Bm6u0aOOeJWkPr3DNaLze4BZ2yOi8y8pLtFSvkqdP11Eczj5JAnsPhD1
+         uEauZv5G8oT0OxfA8PzuEayO04jZOHji2Zfs/XaKG7O0roUAlpAJj5A7TVdmzklJwh
+         51Iet9xpuxDtJUMnxAZPinXlKT0YodDxuTSJCdnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Ellero <luca.ellero@brickedbrain.com>,
-        Ian Abbott <abbotti@mev.co.uk>, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 10/16] comedi: ni_usb6501: fix NULL-deref in command paths
-Date:   Wed, 10 Nov 2021 19:43:43 +0100
-Message-Id: <20211110182002.319464581@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.19 11/16] comedi: vmk80xx: fix transfer-buffer overflows
+Date:   Wed, 10 Nov 2021 19:43:44 +0100
+Message-Id: <20211110182002.350260443@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211110182001.994215976@linuxfoundation.org>
 References: <20211110182001.994215976@linuxfoundation.org>
@@ -41,52 +41,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 907767da8f3a925b060c740e0b5c92ea7dbec440 upstream.
+commit a23461c47482fc232ffc9b819539d1f837adf2b1 upstream.
 
-The driver uses endpoint-sized USB transfer buffers but had no sanity
-checks on the sizes. This can lead to zero-size-pointer dereferences or
-overflowed transfer buffers in ni6501_port_command() and
-ni6501_counter_command() if a (malicious) device has smaller max-packet
-sizes than expected (or when doing descriptor fuzz testing).
+The driver uses endpoint-sized USB transfer buffers but up until
+recently had no sanity checks on the sizes.
 
-Add the missing sanity checks to probe().
+Commit e1f13c879a7c ("staging: comedi: check validity of wMaxPacketSize
+of usb endpoints found") inadvertently fixed NULL-pointer dereferences
+when accessing the transfer buffers in case a malicious device has a
+zero wMaxPacketSize.
 
-Fixes: a03bb00e50ab ("staging: comedi: add NI USB-6501 support")
-Cc: stable@vger.kernel.org      # 3.18
-Cc: Luca Ellero <luca.ellero@brickedbrain.com>
-Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Make sure to allocate buffers large enough to handle also the other
+accesses that are done without a size check (e.g. byte 18 in
+vmk80xx_cnt_insn_read() for the VMK8061_MODEL) to avoid writing beyond
+the buffers, for example, when doing descriptor fuzzing.
+
+The original driver was for a low-speed device with 8-byte buffers.
+Support was later added for a device that uses bulk transfers and is
+presumably a full-speed device with a maximum 64-byte wMaxPacketSize.
+
+Fixes: 985cafccbf9b ("Staging: Comedi: vmk80xx: Add k8061 support")
+Cc: stable@vger.kernel.org      # 2.6.31
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211027093529.30896-2-johan@kernel.org
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20211025114532.4599-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/ni_usb6501.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/staging/comedi/drivers/vmk80xx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/comedi/drivers/ni_usb6501.c
-+++ b/drivers/staging/comedi/drivers/ni_usb6501.c
-@@ -144,6 +144,10 @@ static const u8 READ_COUNTER_RESPONSE[]
- 					   0x00, 0x00, 0x00, 0x02,
- 					   0x00, 0x00, 0x00, 0x00};
+--- a/drivers/staging/comedi/drivers/vmk80xx.c
++++ b/drivers/staging/comedi/drivers/vmk80xx.c
+@@ -90,6 +90,8 @@ enum {
+ #define IC3_VERSION		BIT(0)
+ #define IC6_VERSION		BIT(1)
  
-+/* Largest supported packets */
-+static const size_t TX_MAX_SIZE	= sizeof(SET_PORT_DIR_REQUEST);
-+static const size_t RX_MAX_SIZE	= sizeof(READ_PORT_RESPONSE);
++#define MIN_BUF_SIZE		64
 +
- enum commands {
- 	READ_PORT,
- 	WRITE_PORT,
-@@ -501,6 +505,12 @@ static int ni6501_find_endpoints(struct
- 	if (!devpriv->ep_rx || !devpriv->ep_tx)
- 		return -ENODEV;
+ enum vmk80xx_model {
+ 	VMK8055_MODEL,
+ 	VMK8061_MODEL
+@@ -678,12 +680,12 @@ static int vmk80xx_alloc_usb_buffers(str
+ 	struct vmk80xx_private *devpriv = dev->private;
+ 	size_t size;
  
-+	if (usb_endpoint_maxp(devpriv->ep_rx) < RX_MAX_SIZE)
-+		return -ENODEV;
-+
-+	if (usb_endpoint_maxp(devpriv->ep_tx) < TX_MAX_SIZE)
-+		return -ENODEV;
-+
- 	return 0;
- }
+-	size = usb_endpoint_maxp(devpriv->ep_rx);
++	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
+ 	devpriv->usb_rx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_rx_buf)
+ 		return -ENOMEM;
  
+-	size = usb_endpoint_maxp(devpriv->ep_tx);
++	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
+ 	devpriv->usb_tx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_tx_buf)
+ 		return -ENOMEM;
 
 
