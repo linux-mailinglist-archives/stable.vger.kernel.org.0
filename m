@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9133344C6F8
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:44:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8926F44C6FB
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:44:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232797AbhKJSrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:47:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46184 "EHLO mail.kernel.org"
+        id S232912AbhKJSrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:47:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232707AbhKJSq4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:46:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 973136115A;
-        Wed, 10 Nov 2021 18:44:08 +0000 (UTC)
+        id S232814AbhKJSq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:46:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D34D61207;
+        Wed, 10 Nov 2021 18:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636569849;
-        bh=f7r/UKwGKsncOIG4f0R/pZKjy0GthSEL7lxfuyu9Pbs=;
+        s=korg; t=1636569852;
+        bh=Ce4TQy3CCpmLf57BqYJkYIvw20ySz8aVBhjZxseVVoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C5wbNHcT1Gh7TUV0+zALxCPuG+cF2HyrZMYe1E0YkAy+SHnRhALLN9Asct64UTgq/
-         KLXyofOzaR5DyLdlkgGc8CTvVOyRK/FrgCnkRRknwNPS1dussfgUV/48pEAk3rpvv3
-         ndObEUcGNS3ucm9496Stkqh11O3ZlDDyrE4bzhOY=
+        b=PhR9rCaR2qOBBrVtS1wqMXGJGP+E2KAwhyrecTlSseRltyclUJDOf+A9hqveJkRDV
+         jn+NUinbTOAHCpr7rQ+H0tgpvEizcsII1ynxWQd12OmxOLZBhPO55dbMFl/N+uQPAa
+         mp8jFkhUrE10YcBb4J2Zu2tIGr/0g1zs/k333wkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Andreas Kemnade <andreas@kemnade.info>,
-        Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 03/19] net: hso: register netdev later to avoid a race condition
-Date:   Wed, 10 Nov 2021 19:43:05 +0100
-Message-Id: <20211110182001.365275753@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.4 04/19] IB/qib: Use struct_size() helper
+Date:   Wed, 10 Nov 2021 19:43:06 +0100
+Message-Id: <20211110182001.396547296@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211110182001.257350381@linuxfoundation.org>
 References: <20211110182001.257350381@linuxfoundation.org>
@@ -42,118 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit 4c761daf8bb9a2cbda9facf53ea85d9061f4281e upstream.
+commit 829ca44ecf60e9b6f83d0161a6ef10c1304c5060 upstream.
 
-If the netdev is accessed before the urbs are initialized,
-there will be NULL pointer dereferences. That is avoided by
-registering it when it is fully initialized.
+Make use of the struct_size() helper instead of an open-coded version
+in order to avoid any potential type mistakes, in particular in the
+context in which this code is being used.
 
-This case occurs e.g. if dhcpcd is running in the background
-and the device is probed, either after insmod hso or
-when the device appears on the usb bus.
+So, replace the following form:
 
-A backtrace is the following:
+sizeof(*pkt) + sizeof(pkt->addr[0])*n
 
-[ 1357.356048] usb 1-2: new high-speed USB device number 12 using ehci-omap
-[ 1357.551177] usb 1-2: New USB device found, idVendor=0af0, idProduct=8800
-[ 1357.558654] usb 1-2: New USB device strings: Mfr=3, Product=2, SerialNumber=0
-[ 1357.568572] usb 1-2: Product: Globetrotter HSUPA Modem
-[ 1357.574096] usb 1-2: Manufacturer: Option N.V.
-[ 1357.685882] hso 1-2:1.5: Not our interface
-[ 1460.886352] hso: unloaded
-[ 1460.889984] usbcore: deregistering interface driver hso
-[ 1513.769134] hso: ../drivers/net/usb/hso.c: Option Wireless
-[ 1513.846771] Unable to handle kernel NULL pointer dereference at virtual address 00000030
-[ 1513.887664] hso 1-2:1.5: Not our interface
-[ 1513.906890] usbcore: registered new interface driver hso
-[ 1513.937988] pgd = ecdec000
-[ 1513.949890] [00000030] *pgd=acd15831, *pte=00000000, *ppte=00000000
-[ 1513.956573] Internal error: Oops: 817 [#1] PREEMPT SMP ARM
-[ 1513.962371] Modules linked in: hso usb_f_ecm omap2430 bnep bluetooth g_ether usb_f_rndis u_ether libcomposite configfs ipv6 arc4 wl18xx wlcore mac80211 cfg80211 bq27xxx_battery panel_tpo_td028ttec1 omapdrm drm_kms_helper cfbfillrect snd_soc_simple_card syscopyarea cfbimgblt snd_soc_simple_card_utils sysfillrect sysimgblt fb_sys_fops snd_soc_omap_twl4030 cfbcopyarea encoder_opa362 drm twl4030_madc_hwmon wwan_on_off snd_soc_gtm601 pwm_omap_dmtimer generic_adc_battery connector_analog_tv pwm_bl extcon_gpio omap3_isp wlcore_sdio videobuf2_dma_contig videobuf2_memops w1_bq27000 videobuf2_v4l2 videobuf2_core omap_hdq snd_soc_omap_mcbsp ov9650 snd_soc_omap bmp280_i2c bmg160_i2c v4l2_common snd_pcm_dmaengine bmp280 bmg160_core at24 bmc150_magn_i2c nvmem_core videodev phy_twl4030_usb bmc150_accel_i2c tsc2007
-[ 1514.037384]  bmc150_magn bmc150_accel_core media leds_tca6507 bno055 industrialio_triggered_buffer kfifo_buf gpio_twl4030 musb_hdrc snd_soc_twl4030 twl4030_vibra twl4030_madc twl4030_pwrbutton twl4030_charger industrialio w2sg0004 ehci_omap omapdss [last unloaded: hso]
-[ 1514.062622] CPU: 0 PID: 3433 Comm: dhcpcd Tainted: G        W       4.11.0-rc8-letux+ #1
-[ 1514.071136] Hardware name: Generic OMAP36xx (Flattened Device Tree)
-[ 1514.077758] task: ee748240 task.stack: ecdd6000
-[ 1514.082580] PC is at hso_start_net_device+0x50/0xc0 [hso]
-[ 1514.088287] LR is at hso_net_open+0x68/0x84 [hso]
-[ 1514.093231] pc : [<bf79c304>]    lr : [<bf79ced8>]    psr: a00f0013
-sp : ecdd7e20  ip : 00000000  fp : ffffffff
-[ 1514.105316] r10: 00000000  r9 : ed0e080c  r8 : ecd8fe2c
-[ 1514.110839] r7 : bf79cef4  r6 : ecd8fe00  r5 : 00000000  r4 : ed0dbd80
-[ 1514.117706] r3 : 00000000  r2 : c0020c80  r1 : 00000000  r0 : ecdb7800
-[ 1514.124572] Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-[ 1514.132110] Control: 10c5387d  Table: acdec019  DAC: 00000051
-[ 1514.138153] Process dhcpcd (pid: 3433, stack limit = 0xecdd6218)
-[ 1514.144470] Stack: (0xecdd7e20 to 0xecdd8000)
-[ 1514.149078] 7e20: ed0dbd80 ecd8fe98 00000001 00000000 ecd8f800 ecd8fe00 ecd8fe60 00000000
-[ 1514.157714] 7e40: ed0e080c bf79ced8 bf79ce70 ecd8f800 00000001 bf7a0258 ecd8f830 c068d958
-[ 1514.166320] 7e60: c068d8b8 ecd8f800 00000001 00001091 00001090 c068dba4 ecd8f800 00001090
-[ 1514.174926] 7e80: ecd8f940 ecd8f800 00000000 c068dc60 00000000 00000001 ed0e0800 ecd8f800
-[ 1514.183563] 7ea0: 00000000 c06feaa8 c0ca39c2 beea57dc 00000020 00000000 306f7368 00000000
-[ 1514.192169] 7ec0: 00000000 00000000 00001091 00000000 00000000 00000000 00000000 00008914
-[ 1514.200805] 7ee0: eaa9ab60 beea57dc c0c9bfc0 eaa9ab40 00000006 00000000 00046858 c066a948
-[ 1514.209411] 7f00: beea57dc eaa9ab60 ecc6b0c0 c02837b0 00000006 c0282c90 0000c000 c0283654
-[ 1514.218017] 7f20: c09b0c00 c098bc31 00000001 c0c5e513 c0c5e513 00000000 c0151354 c01a20c0
-[ 1514.226654] 7f40: c0c5e513 c01a3134 ecdd6000 c01a3160 ee7487f0 600f0013 00000000 ee748240
-[ 1514.235260] 7f60: ee748734 00000000 ecc6b0c0 ecc6b0c0 beea57dc 00008914 00000006 00000000
-[ 1514.243896] 7f80: 00046858 c02837b0 00001091 0003a1f0 00046608 0003a248 00000036 c01071e4
-[ 1514.252502] 7fa0: ecdd6000 c0107040 0003a1f0 00046608 00000006 00008914 beea57dc 00001091
-[ 1514.261108] 7fc0: 0003a1f0 00046608 0003a248 00000036 0003ac0c 00046608 00046610 00046858
-[ 1514.269744] 7fe0: 0003a0ac beea57d4 000167eb b6f23106 400f0030 00000006 00000000 00000000
-[ 1514.278411] [<bf79c304>] (hso_start_net_device [hso]) from [<bf79ced8>] (hso_net_open+0x68/0x84 [hso])
-[ 1514.288238] [<bf79ced8>] (hso_net_open [hso]) from [<c068d958>] (__dev_open+0xa0/0xf4)
-[ 1514.296600] [<c068d958>] (__dev_open) from [<c068dba4>] (__dev_change_flags+0x8c/0x130)
-[ 1514.305023] [<c068dba4>] (__dev_change_flags) from [<c068dc60>] (dev_change_flags+0x18/0x48)
-[ 1514.313934] [<c068dc60>] (dev_change_flags) from [<c06feaa8>] (devinet_ioctl+0x348/0x714)
-[ 1514.322540] [<c06feaa8>] (devinet_ioctl) from [<c066a948>] (sock_ioctl+0x2b0/0x308)
-[ 1514.330627] [<c066a948>] (sock_ioctl) from [<c0282c90>] (vfs_ioctl+0x20/0x34)
-[ 1514.338165] [<c0282c90>] (vfs_ioctl) from [<c0283654>] (do_vfs_ioctl+0x82c/0x93c)
-[ 1514.346038] [<c0283654>] (do_vfs_ioctl) from [<c02837b0>] (SyS_ioctl+0x4c/0x74)
-[ 1514.353759] [<c02837b0>] (SyS_ioctl) from [<c0107040>] (ret_fast_syscall+0x0/0x1c)
-[ 1514.361755] Code: e3822103 e3822080 e1822781 e5981014 (e5832030)
-[ 1514.510833] ---[ end trace dfb3e53c657f34a0 ]---
+with:
 
-Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Lee Jones <lee.jones@linaro.org>
+struct_size(pkt, addr, n)
+
+Also, notice that variable size is unnecessary, hence it is removed.
+
+This code was detected with the help of Coccinelle.
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/usb/hso.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2546,13 +2546,6 @@ static struct hso_device *hso_create_net
- 	SET_NETDEV_DEV(net, &interface->dev);
- 	SET_NETDEV_DEVTYPE(net, &hso_type);
+---
+ drivers/infiniband/hw/qib/qib_user_sdma.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/drivers/infiniband/hw/qib/qib_user_sdma.c
++++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
+@@ -41,6 +41,7 @@
+ #include <linux/rbtree.h>
+ #include <linux/spinlock.h>
+ #include <linux/delay.h>
++#include <linux/overflow.h>
  
--	/* registering our net device */
--	result = register_netdev(net);
--	if (result) {
--		dev_err(&interface->dev, "Failed to register device\n");
--		goto exit;
--	}
--
- 	/* start allocating */
- 	for (i = 0; i < MUX_BULK_RX_BUF_COUNT; i++) {
- 		hso_net->mux_bulk_rx_urb_pool[i] = usb_alloc_urb(0, GFP_KERNEL);
-@@ -2576,6 +2569,13 @@ static struct hso_device *hso_create_net
+ #include "qib.h"
+ #include "qib_user_sdma.h"
+@@ -908,10 +909,11 @@ static int qib_user_sdma_queue_pkts(cons
+ 		}
  
- 	add_net_device(hso_dev);
+ 		if (frag_size) {
+-			int pktsize, tidsmsize, n;
++			int tidsmsize, n;
++			size_t pktsize;
  
-+	/* registering our net device */
-+	result = register_netdev(net);
-+	if (result) {
-+		dev_err(&interface->dev, "Failed to register device\n");
-+		goto exit;
-+	}
-+
- 	hso_log_port(hso_dev);
+ 			n = npages*((2*PAGE_SIZE/frag_size)+1);
+-			pktsize = sizeof(*pkt) + sizeof(pkt->addr[0])*n;
++			pktsize = struct_size(pkt, addr, n);
  
- 	hso_create_rfkill(hso_dev, interface);
+ 			/*
+ 			 * Determine if this is tid-sdma or just sdma.
 
 
