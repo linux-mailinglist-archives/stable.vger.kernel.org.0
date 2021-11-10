@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B724144C7E6
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:54:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD0BC44C7EA
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233549AbhKJS4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:56:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54426 "EHLO mail.kernel.org"
+        id S233220AbhKJS4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:56:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233715AbhKJSyp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:54:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19728619EA;
-        Wed, 10 Nov 2021 18:49:07 +0000 (UTC)
+        id S233560AbhKJSyy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:54:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C523561267;
+        Wed, 10 Nov 2021 18:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570148;
-        bh=CF0B4qdBRt2TJVQY65TiIf6oSFnUxWCikjLAXxCIRsY=;
+        s=korg; t=1636570151;
+        bh=r4EKlAP/qT+/vmwpqdDkK+ExL9hnK0ixt3w74HlTU88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2sX9/RoI3Nkm1sJ7gMsMhwOX/amyylma+Korxfq/C4NyuhoLOiIguHpV6TDRjzV8
-         EZ2N3TTR+MUwTTkMSpsIXWC2x1dMoqp0bzOmnuAxVGnlgn0y2RXASec8nyY923Etng
-         2fUfLu3LXWbwOReF5edAS9xGKad1YP6gK6gdZ0ZM=
+        b=Cb1sjnAe8ujhYraIKWD3Y5h9EIpYwbVOVYOV/1EgCvVLTPSjz7tQypQF9SfhwU0YF
+         ogcizPZ/0u3jyNgzI5txDVlEsgFgKAaRDKWCDWI1dKyAJzJGcCYtXxddqPpteNX6Uw
+         +jDwWgf9URpmpu3CR3xGMhN4gBTK3D0jQdlkpLqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Todd Kjos <tkjos@google.com>
-Subject: [PATCH 5.14 13/24] binder: dont detect sender/target during buffer cleanup
-Date:   Wed, 10 Nov 2021 19:44:05 +0100
-Message-Id: <20211110182003.753890524@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+c55162be492189fb4f51@syzkaller.appspotmail.com
+Subject: [PATCH 5.14 14/24] staging: rtl8712: fix use-after-free in rtl8712_dl_fw
+Date:   Wed, 10 Nov 2021 19:44:06 +0100
+Message-Id: <20211110182003.788283916@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
 References: <20211110182003.342919058@linuxfoundation.org>
@@ -40,97 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@google.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 32e9f56a96d8d0f23cb2aeb2a3cd18d40393e787 upstream.
+commit c052cc1a069c3e575619cf64ec427eb41176ca70 upstream.
 
-When freeing txn buffers, binder_transaction_buffer_release()
-attempts to detect whether the current context is the target by
-comparing current->group_leader to proc->tsk. This is an unreliable
-test. Instead explicitly pass an 'is_failure' boolean.
+Syzbot reported use-after-free in rtl8712_dl_fw(). The problem was in
+race condition between r871xu_dev_remove() ->ndo_open() callback.
 
-Detecting the sender was being used as a way to tell if the
-transaction failed to be sent.  When cleaning up after
-failing to send a transaction, there is no need to close
-the fds associated with a BINDER_TYPE_FDA object. Now
-'is_failure' can be used to accurately detect this case.
+It's easy to see from crash log, that driver accesses released firmware
+in ->ndo_open() callback. It may happen, since driver was releasing
+firmware _before_ unregistering netdev. Fix it by moving
+unregister_netdev() before cleaning up resources.
 
-Fixes: 44d8047f1d87 ("binder: use standard functions to allocate fds")
+Call Trace:
+...
+ rtl871x_open_fw drivers/staging/rtl8712/hal_init.c:83 [inline]
+ rtl8712_dl_fw+0xd95/0xe10 drivers/staging/rtl8712/hal_init.c:170
+ rtl8712_hal_init drivers/staging/rtl8712/hal_init.c:330 [inline]
+ rtl871x_hal_init+0xae/0x180 drivers/staging/rtl8712/hal_init.c:394
+ netdev_open+0xe6/0x6c0 drivers/staging/rtl8712/os_intfs.c:380
+ __dev_open+0x2bc/0x4d0 net/core/dev.c:1484
+
+Freed by task 1306:
+...
+ release_firmware+0x1b/0x30 drivers/base/firmware_loader/main.c:1053
+ r871xu_dev_remove+0xcc/0x2c0 drivers/staging/rtl8712/usb_intf.c:599
+ usb_unbind_interface+0x1d8/0x8d0 drivers/usb/core/driver.c:458
+
+Fixes: 8c213fa59199 ("staging: r8712u: Use asynchronous firmware loading")
 Cc: stable <stable@vger.kernel.org>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Link: https://lore.kernel.org/r/20211015233811.3532235-1-tkjos@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-and-tested-by: syzbot+c55162be492189fb4f51@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20211019211718.26354-1-paskripkin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/staging/rtl8712/usb_intf.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -1870,7 +1870,7 @@ static void binder_transaction_buffer_re
- 		binder_dec_node(buffer->target_node, 1, 0);
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -595,12 +595,12 @@ static void r871xu_dev_remove(struct usb
  
- 	off_start_offset = ALIGN(buffer->data_size, sizeof(void *));
--	off_end_offset = is_failure ? failed_at :
-+	off_end_offset = is_failure && failed_at ? failed_at :
- 				off_start_offset + buffer->offsets_size;
- 	for (buffer_offset = off_start_offset; buffer_offset < off_end_offset;
- 	     buffer_offset += sizeof(binder_size_t)) {
-@@ -1956,9 +1956,8 @@ static void binder_transaction_buffer_re
- 			binder_size_t fd_buf_size;
- 			binder_size_t num_valid;
- 
--			if (proc->tsk != current->group_leader) {
-+			if (is_failure) {
- 				/*
--				 * Nothing to do if running in sender context
- 				 * The fd fixups have not been applied so no
- 				 * fds need to be closed.
- 				 */
-@@ -3176,6 +3175,7 @@ err_invalid_target_handle:
-  * binder_free_buf() - free the specified buffer
-  * @proc:	binder proc that owns buffer
-  * @buffer:	buffer to be freed
-+ * @is_failure:	failed to send transaction
-  *
-  * If buffer for an async transaction, enqueue the next async
-  * transaction from the node.
-@@ -3185,7 +3185,7 @@ err_invalid_target_handle:
- static void
- binder_free_buf(struct binder_proc *proc,
- 		struct binder_thread *thread,
--		struct binder_buffer *buffer)
-+		struct binder_buffer *buffer, bool is_failure)
- {
- 	binder_inner_proc_lock(proc);
- 	if (buffer->transaction) {
-@@ -3213,7 +3213,7 @@ binder_free_buf(struct binder_proc *proc
- 		binder_node_inner_unlock(buf_node);
- 	}
- 	trace_binder_transaction_buffer_release(buffer);
--	binder_transaction_buffer_release(proc, thread, buffer, 0, false);
-+	binder_transaction_buffer_release(proc, thread, buffer, 0, is_failure);
- 	binder_alloc_free_buf(&proc->alloc, buffer);
- }
- 
-@@ -3415,7 +3415,7 @@ static int binder_thread_write(struct bi
- 				     proc->pid, thread->pid, (u64)data_ptr,
- 				     buffer->debug_id,
- 				     buffer->transaction ? "active" : "finished");
--			binder_free_buf(proc, thread, buffer);
-+			binder_free_buf(proc, thread, buffer, false);
- 			break;
- 		}
- 
-@@ -4108,7 +4108,7 @@ retry:
- 			buffer->transaction = NULL;
- 			binder_cleanup_transaction(t, "fd fixups failed",
- 						   BR_FAILED_REPLY);
--			binder_free_buf(proc, thread, buffer);
-+			binder_free_buf(proc, thread, buffer, true);
- 			binder_debug(BINDER_DEBUG_FAILED_TRANSACTION,
- 				     "%d:%d %stransaction %d fd fixups failed %d/%d, line %d\n",
- 				     proc->pid, thread->pid,
+ 	/* never exit with a firmware callback pending */
+ 	wait_for_completion(&padapter->rtl8712_fw_ready);
++	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
++		unregister_netdev(pnetdev); /* will call netdev_close() */
+ 	usb_set_intfdata(pusb_intf, NULL);
+ 	release_firmware(padapter->fw);
+ 	if (drvpriv.drv_registered)
+ 		padapter->surprise_removed = true;
+-	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
+-		unregister_netdev(pnetdev); /* will call netdev_close() */
+ 	r8712_flush_rwctrl_works(padapter);
+ 	r8712_flush_led_works(padapter);
+ 	udelay(1);
 
 
