@@ -2,109 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5E6A44C027
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 12:34:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2519644C02E
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 12:35:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231316AbhKJLgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 06:36:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58050 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231131AbhKJLgp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 06:36:45 -0500
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28210C061766
-        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 03:33:57 -0800 (PST)
-Received: by mail-wm1-x336.google.com with SMTP id z200so1866646wmc.1
-        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 03:33:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=PiCJPKq4B/c2pDOax4h3Wik5ueo54GMsOopU4l+/WnQ=;
-        b=UK+z9kKdScaxl38LAt27JPlLf7WPqx7Osf+Wjvt+GPTMPOlaRg3NVKSblOh1Qg7yzO
-         aLLca1Jh+JbPZwPbhpLP3RiHiF0rbWMr+z5hB6uhlD673ZgH652+oxrRN2FFz+d7Bv/Q
-         WeWjW94B8ySqdywvFYnNeAn+/uqqFkdGSJsjyS3O5ZkOE82Ht13HQJqQKdVElHu5UHTj
-         OKzORDOYrFB9iXmOc08wZJM47NTEP1clIu1Z0/Uw1xYn/qsd2rh/Zlumw0Ng9FhKb9OO
-         yFv4A3YSzDirncsfn1Rf3vWc5H/AkhwM9K+0BxUCp91vlVgeL5Ldmz9k7SKK86PO2exD
-         A6Hg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=PiCJPKq4B/c2pDOax4h3Wik5ueo54GMsOopU4l+/WnQ=;
-        b=YMPzWGGEHmgSa+PccsKRONUdJDrhLZ/WpbkoN+EP+NNZRNOZEfmdndpsURnkQuiBVK
-         tb2Kw++XJVDQvvKnppBy43iilpO6vdmh3WNWCO7LbFaEnBii7qxZt0P6OACjs+9kkfTO
-         Sr80x/VLecjGjQZRw0rwp6hhPw/OAQ7YIyi3kWubniQzEIhHVJpd3u6A2QfFf1BMZazg
-         kfZxIjwGWhwoo1bovhFSdgo3vAgEV/aZUu5db0lpnrUcZX99v1DvHqsKp/EAMxr58u5i
-         Ph4f1cHVq3fUfNMx4iTElY0knhQaMqPxmLTn5K8KXN9qArC7TrkceOopijq0/OBUkQcx
-         njrw==
-X-Gm-Message-State: AOAM532XpOV33EJp1+0qIct7YhyTezfed8hRiLj5/FBEgG/whOSd0uOx
-        KXRkUckuevH6k7i427SoYL3sXw==
-X-Google-Smtp-Source: ABdhPJwrAG/u4ilxTYbP2ZfozDcPzBvMj+ufRTjxP0Et6ljauH8h5h4Z7tPzRYZ+lv72bj8DKjvzLA==
-X-Received: by 2002:a1c:2b04:: with SMTP id r4mr16283166wmr.48.1636544035688;
-        Wed, 10 Nov 2021 03:33:55 -0800 (PST)
-Received: from google.com ([95.148.6.174])
-        by smtp.gmail.com with ESMTPSA id r68sm279916wmr.45.2021.11.10.03.33.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Nov 2021 03:33:55 -0800 (PST)
-Date:   Wed, 10 Nov 2021 11:33:48 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andreas Kemnade <andreas@kemnade.info>,
-        "H . Nikolaus Schaller" <hns@goldelico.com>,
-        Johan Hovold <johan@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 4.9 1/2] net: hso: register netdev later to avoid a race
- condition
-Message-ID: <YYuuHPXYwGGYhrc2@google.com>
-References: <20211109093959.173885-1-lee.jones@linaro.org>
- <YYuCE9EoMu+4zsiF@kroah.com>
- <YYuXq3wOdmWc+8lo@google.com>
- <YYuYyROE7FKrQgIF@google.com>
- <YYue00HWr1hW/8cE@kroah.com>
+        id S231494AbhKJLiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 06:38:25 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:41992 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231460AbhKJLiV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 06:38:21 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 567991FD43;
+        Wed, 10 Nov 2021 11:35:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1636544133; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6srsL7vTMG8eDCjtld9gs4O/t8JoHE+gnO+/i9FChDY=;
+        b=lQIK2LYdIk/xK50a4cmJdF/JVAbtW1VIwmF6kfpcQLz6Heiv4aAqx5Pk5d0dLWuq3UlpJn
+        TqjTitQmR3+HXkT0mhPQrBBLrWwEaQ4xAurmoXjeAkxnbeWccwC6wjuiYSCZqsCZTleD+c
+        3VtA9tfrs8otZJiT55OEM3HPDvRXC+s=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1636544133;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6srsL7vTMG8eDCjtld9gs4O/t8JoHE+gnO+/i9FChDY=;
+        b=9b9jX5qwGRPIY5rXsVSFLvb8IjyMj6HVjSMIfZesMRnBOMoXRoTUmuNJq7p0eceQMV7L+w
+        /roIvghhQ0CZ5pBA==
+Received: from quack2.suse.cz (unknown [10.100.200.198])
+        by relay2.suse.de (Postfix) with ESMTP id 48125A3B81;
+        Wed, 10 Nov 2021 11:35:33 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 6560E1E1649; Wed, 10 Nov 2021 12:35:30 +0100 (CET)
+Date:   Wed, 10 Nov 2021 12:35:30 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
+        Nathan Wilson <nate@chickenbrittle.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] udf: Fix crash after seekdir
+Message-ID: <20211110113530.GB4048@quack2.suse.cz>
+References: <20211109114841.30310-1-jack@suse.cz>
+ <YYqhRmm/+XHrCgxP@casper.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YYue00HWr1hW/8cE@kroah.com>
+In-Reply-To: <YYqhRmm/+XHrCgxP@casper.infradead.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 10 Nov 2021, Greg KH wrote:
-
-> On Wed, Nov 10, 2021 at 10:02:49AM +0000, Lee Jones wrote:
-> > On Wed, 10 Nov 2021, Lee Jones wrote:
-> > 
-> > > On Wed, 10 Nov 2021, Greg KH wrote:
-> > > 
-> > > > On Tue, Nov 09, 2021 at 09:39:58AM +0000, Lee Jones wrote:
-> > > > > From: Andreas Kemnade <andreas@kemnade.info>
-> > > > > 
-> > > > > [ Upstream commit 4c761daf8bb9a2cbda9facf53ea85d9061f4281e ]
-> > > > 
-> > > > You already sent this for inclusion:
-> > > > 	https://lore.kernel.org/r/YYU1KqvnZLyPbFcb@google.com
-> > > > 
-> > > > Why send it again?
-> > > 
-> > > The real question is; why didn't I sent patch 2 at the same time!
-> > 
-> > Also, why didn't it go away when I rebased prior to sending this?
+On Tue 09-11-21 16:26:46, Matthew Wilcox wrote:
+> On Tue, Nov 09, 2021 at 12:48:41PM +0100, Jan Kara wrote:
+> > udf_readdir() didn't validate the directory position it should start
+> > reading from. Thus when user uses lseek(2) on directory file descriptor
+> > it can trick udf_readdir() into reading from a position in the middle of
+> > directory entry which then upsets directory parsing code resulting in
+> > errors or even possible kernel crashes. Similarly when the directory is
+> > modified between two readdir calls, the directory position need not be
+> > valid anymore.
 > 
-> Because it is still in the queue and has not been in a released 4.4.y or
-> 4.9.y kernel yet.
+> ... We don't have an xfstest for this already?  Actually, two.  One for
+> lseek() and one for modifying the directory as it's being read.
 
-I guess that answers all of our questions then.
+Good question which I also wanted to investigate. We do have generic/310
+which tests the seek + readdir case (but for some reason it does not hit
+any problem with udf). Also tests using fsstress can in principle hit the
+readdir + dir modification case although because glibc implementation of
+readdir(3) does a lot of caching (directories smaller than 32k worth of dir
+entries are read in one go), hiting some problematic cornercase is rare I
+guess. So I guess the coverage needs some expansion.  I'll have a look into
+it.
 
-Both patches still reside on the topic branch and I don't have the
-brain capacity nor project management skills to keep track of all the
-patch status' without Git branches. :)
-
+								Honza
 -- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
