@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B519844C78C
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4754644C752
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232758AbhKJSwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:52:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47916 "EHLO mail.kernel.org"
+        id S233095AbhKJSuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:50:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233210AbhKJSun (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:50:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A2576117A;
-        Wed, 10 Nov 2021 18:47:14 +0000 (UTC)
+        id S233106AbhKJSsu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:48:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B28B161186;
+        Wed, 10 Nov 2021 18:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570035;
-        bh=zl5fIc+J7gApGW3KdDWdXsSunJb+MCshZL/8Bl7wsDU=;
+        s=korg; t=1636569962;
+        bh=PVH2vp4nA0n/Zg21MzVGDgbl7Yu3KpSiXpOkgwQa8ME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFkgsnk4wCXISCICfflClegniIM6F9KbdUJ0HPdyvNi9HFEo69PG9gWELKEXyqBLu
-         I1C+uYUZTcLKc0IzeVdOSBeVf+psBKqEk1CRJGF6Mb2DO5NY1udCWUs6LW31Gzl8uX
-         MXx8mOr/i5nTvy2UXWFsSahzHhu/4bEK7t+ZRSz0=
+        b=SVeulXrk0k6uadir90u3S+6W4AfCmkzrksGjWOpU1tuM2fRJfMxdqG0Gatd33FY44
+         TbrAv+/FtNhVdzpRd7b4jBB24QjMnk4Ty6Wl5TPENs49rcliE7BSQvIWtAlDHBEvGX
+         098ROsA3TvK0BOsQisa3IrXPsjxhFNDegihVtSDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eduardo Habkost <ehabkost@redhat.com>,
-        Juergen Gross <jgross@suse.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 01/17] Revert "x86/kvm: fix vcpu-id indexed array sizes"
-Date:   Wed, 10 Nov 2021 19:43:40 +0100
-Message-Id: <20211110182002.254018693@linuxfoundation.org>
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 21/22] staging: rtl8192u: fix control-message timeouts
+Date:   Wed, 10 Nov 2021 19:43:41 +0100
+Message-Id: <20211110182003.338214616@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182002.206203228@linuxfoundation.org>
-References: <20211110182002.206203228@linuxfoundation.org>
+In-Reply-To: <20211110182002.666244094@linuxfoundation.org>
+References: <20211110182002.666244094@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,55 +39,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 1e254d0d86a0f2efd4190a89d5204b37c18c6381 upstream.
+commit 4cfa36d312d6789448b59a7aae770ac8425017a3 upstream.
 
-This reverts commit 76b4f357d0e7d8f6f0013c733e6cba1773c266d3.
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-The commit has the wrong reasoning, as KVM_MAX_VCPU_ID is not defining the
-maximum allowed vcpu-id as its name suggests, but the number of vcpu-ids.
-So revert this patch again.
-
-Suggested-by: Eduardo Habkost <ehabkost@redhat.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Message-Id: <20210913135745.13944-2-jgross@suse.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
+Cc: stable@vger.kernel.org      # 2.6.33
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211025120910.6339-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/ioapic.c |    2 +-
- arch/x86/kvm/ioapic.h |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/rtl8192u/r8192U_core.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kvm/ioapic.c
-+++ b/arch/x86/kvm/ioapic.c
-@@ -91,7 +91,7 @@ static unsigned long ioapic_read_indirec
- static void rtc_irq_eoi_tracking_reset(struct kvm_ioapic *ioapic)
- {
- 	ioapic->rtc_status.pending_eoi = 0;
--	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID + 1);
-+	bitmap_zero(ioapic->rtc_status.dest_map.map, KVM_MAX_VCPU_ID);
- }
+--- a/drivers/staging/rtl8192u/r8192U_core.c
++++ b/drivers/staging/rtl8192u/r8192U_core.c
+@@ -266,7 +266,7 @@ int write_nic_byte_E(struct net_device *
  
- static void kvm_rtc_eoi_tracking_restore_all(struct kvm_ioapic *ioapic);
---- a/arch/x86/kvm/ioapic.h
-+++ b/arch/x86/kvm/ioapic.h
-@@ -43,13 +43,13 @@ struct kvm_vcpu;
+ 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
+-				 indx | 0xfe00, 0, usbdata, 1, HZ / 2);
++				 indx | 0xfe00, 0, usbdata, 1, 500);
+ 	kfree(usbdata);
  
- struct dest_map {
- 	/* vcpu bitmap where IRQ has been sent */
--	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID + 1);
-+	DECLARE_BITMAP(map, KVM_MAX_VCPU_ID);
+ 	if (status < 0) {
+@@ -288,7 +288,7 @@ int read_nic_byte_E(struct net_device *d
  
- 	/*
- 	 * Vector sent to a given vcpu, only valid when
- 	 * the vcpu's bit in map is set
- 	 */
--	u8 vectors[KVM_MAX_VCPU_ID + 1];
-+	u8 vectors[KVM_MAX_VCPU_ID];
- };
+ 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+ 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
+-				 indx | 0xfe00, 0, usbdata, 1, HZ / 2);
++				 indx | 0xfe00, 0, usbdata, 1, 500);
+ 	*data = *usbdata;
+ 	kfree(usbdata);
  
+@@ -316,7 +316,7 @@ int write_nic_byte(struct net_device *de
+ 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
+ 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
+-				 usbdata, 1, HZ / 2);
++				 usbdata, 1, 500);
+ 	kfree(usbdata);
+ 
+ 	if (status < 0) {
+@@ -343,7 +343,7 @@ int write_nic_word(struct net_device *de
+ 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
+ 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
+-				 usbdata, 2, HZ / 2);
++				 usbdata, 2, 500);
+ 	kfree(usbdata);
+ 
+ 	if (status < 0) {
+@@ -370,7 +370,7 @@ int write_nic_dword(struct net_device *d
+ 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
+ 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
+-				 usbdata, 4, HZ / 2);
++				 usbdata, 4, 500);
+ 	kfree(usbdata);
+ 
+ 
+@@ -397,7 +397,7 @@ int read_nic_byte(struct net_device *dev
+ 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+ 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
+ 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
+-				 usbdata, 1, HZ / 2);
++				 usbdata, 1, 500);
+ 	*data = *usbdata;
+ 	kfree(usbdata);
+ 
+@@ -424,7 +424,7 @@ int read_nic_word(struct net_device *dev
+ 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+ 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
+ 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
+-				 usbdata, 2, HZ / 2);
++				 usbdata, 2, 500);
+ 	*data = *usbdata;
+ 	kfree(usbdata);
+ 
+@@ -448,7 +448,7 @@ static int read_nic_word_E(struct net_de
+ 
+ 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+ 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
+-				 indx | 0xfe00, 0, usbdata, 2, HZ / 2);
++				 indx | 0xfe00, 0, usbdata, 2, 500);
+ 	*data = *usbdata;
+ 	kfree(usbdata);
+ 
+@@ -474,7 +474,7 @@ int read_nic_dword(struct net_device *de
+ 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+ 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
+ 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
+-				 usbdata, 4, HZ / 2);
++				 usbdata, 4, 500);
+ 	*data = *usbdata;
+ 	kfree(usbdata);
  
 
 
