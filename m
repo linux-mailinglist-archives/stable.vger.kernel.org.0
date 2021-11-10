@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8384944C755
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C78244C71E
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:46:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232889AbhKJSuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:50:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47598 "EHLO mail.kernel.org"
+        id S233002AbhKJSsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:48:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232960AbhKJSsz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:48:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAB2F61211;
-        Wed, 10 Nov 2021 18:46:06 +0000 (UTC)
+        id S233005AbhKJSro (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:47:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB0D96124C;
+        Wed, 10 Nov 2021 18:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636569967;
-        bh=/fTmYjv0NMcHwpgQTRMHv5+sOyo5hbKetklmzTtChyc=;
+        s=korg; t=1636569896;
+        bh=pahhpuMqktSJ7r8nHi1WF/68crfEvk3jPzbP+U6xGNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xflUFcbPIcsLDFeEQ7Dnuc+k++yDKXielYOvCX59gtegWDky8xRDvsDw2we30KYM4
-         IRj1Wx1QDpgSEQATlsveDKk8lDwjT1KMKAuSXfYajlpKKpzHHwf7CIUsAilhrjb8KZ
-         AdRYVXL2y/9lCePXPQY+KQA0Odj4jPsx8bHOY9/M=
+        b=D26ZJq6aER/F4IBLNc+sZ6fTp4mP/fD7EhgIT0BQrSNTjt8eJD0vuvTBRe06+6Qv4
+         tGHxV0kNzyiErbHOoKTDGNtnAdvJiPUoYKko9Ln6PKJA6sKgw0jEOHb+XrKSIwKhxJ
+         w4fhbPCSVqSztJ/7WLKKFf8NzX7cQ33ap+2hULMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Subject: [PATCH 4.14 06/22] IB/qib: Use struct_size() helper
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.9 19/22] comedi: vmk80xx: fix bulk and interrupt message timeouts
 Date:   Wed, 10 Nov 2021 19:43:26 +0100
-Message-Id: <20211110182002.874158603@linuxfoundation.org>
+Message-Id: <20211110182002.203288597@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182002.666244094@linuxfoundation.org>
-References: <20211110182002.666244094@linuxfoundation.org>
+In-Reply-To: <20211110182001.579561273@linuxfoundation.org>
+References: <20211110182001.579561273@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,58 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 829ca44ecf60e9b6f83d0161a6ef10c1304c5060 upstream.
+commit a56d3e40bda460edf3f8d6aac00ec0b322b4ab83 upstream.
 
-Make use of the struct_size() helper instead of an open-coded version
-in order to avoid any potential type mistakes, in particular in the
-context in which this code is being used.
+USB bulk and interrupt message timeouts are specified in milliseconds
+and should specifically not vary with CONFIG_HZ.
 
-So, replace the following form:
+Note that the bulk-out transfer timeout was set to the endpoint
+bInterval value, which should be ignored for bulk endpoints and is
+typically set to zero. This meant that a failing bulk-out transfer
+would never time out.
 
-sizeof(*pkt) + sizeof(pkt->addr[0])*n
+Assume that the 10 second timeout used for all other transfers is more
+than enough also for the bulk-out endpoint.
 
-with:
-
-struct_size(pkt, addr, n)
-
-Also, notice that variable size is unnecessary, hence it is removed.
-
-This code was detected with the help of Coccinelle.
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Fixes: 985cafccbf9b ("Staging: Comedi: vmk80xx: Add k8061 support")
+Fixes: 951348b37738 ("staging: comedi: vmk80xx: wait for URBs to complete")
+Cc: stable@vger.kernel.org      # 2.6.31
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20211025114532.4599-6-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/qib/qib_user_sdma.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/staging/comedi/drivers/vmk80xx.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/infiniband/hw/qib/qib_user_sdma.c
-+++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
-@@ -41,6 +41,7 @@
- #include <linux/rbtree.h>
- #include <linux/spinlock.h>
- #include <linux/delay.h>
-+#include <linux/overflow.h>
+--- a/drivers/staging/comedi/drivers/vmk80xx.c
++++ b/drivers/staging/comedi/drivers/vmk80xx.c
+@@ -100,6 +100,7 @@ enum {
+ #define IC6_VERSION		BIT(1)
  
- #include "qib.h"
- #include "qib_user_sdma.h"
-@@ -908,10 +909,11 @@ static int qib_user_sdma_queue_pkts(cons
- 		}
+ #define MIN_BUF_SIZE		64
++#define PACKET_TIMEOUT		10000	/* ms */
  
- 		if (frag_size) {
--			int pktsize, tidsmsize, n;
-+			int tidsmsize, n;
-+			size_t pktsize;
+ enum vmk80xx_model {
+ 	VMK8055_MODEL,
+@@ -178,10 +179,11 @@ static void vmk80xx_do_bulk_msg(struct c
+ 	tx_size = usb_endpoint_maxp(devpriv->ep_tx);
+ 	rx_size = usb_endpoint_maxp(devpriv->ep_rx);
  
- 			n = npages*((2*PAGE_SIZE/frag_size)+1);
--			pktsize = sizeof(*pkt) + sizeof(pkt->addr[0])*n;
-+			pktsize = struct_size(pkt, addr, n);
+-	usb_bulk_msg(usb, tx_pipe, devpriv->usb_tx_buf,
+-		     tx_size, NULL, devpriv->ep_tx->bInterval);
++	usb_bulk_msg(usb, tx_pipe, devpriv->usb_tx_buf, tx_size, NULL,
++		     PACKET_TIMEOUT);
  
- 			/*
- 			 * Determine if this is tid-sdma or just sdma.
+-	usb_bulk_msg(usb, rx_pipe, devpriv->usb_rx_buf, rx_size, NULL, HZ * 10);
++	usb_bulk_msg(usb, rx_pipe, devpriv->usb_rx_buf, rx_size, NULL,
++		     PACKET_TIMEOUT);
+ }
+ 
+ static int vmk80xx_read_packet(struct comedi_device *dev)
+@@ -200,7 +202,7 @@ static int vmk80xx_read_packet(struct co
+ 	pipe = usb_rcvintpipe(usb, ep->bEndpointAddress);
+ 	return usb_interrupt_msg(usb, pipe, devpriv->usb_rx_buf,
+ 				 usb_endpoint_maxp(ep), NULL,
+-				 HZ * 10);
++				 PACKET_TIMEOUT);
+ }
+ 
+ static int vmk80xx_write_packet(struct comedi_device *dev, int cmd)
+@@ -221,7 +223,7 @@ static int vmk80xx_write_packet(struct c
+ 	pipe = usb_sndintpipe(usb, ep->bEndpointAddress);
+ 	return usb_interrupt_msg(usb, pipe, devpriv->usb_tx_buf,
+ 				 usb_endpoint_maxp(ep), NULL,
+-				 HZ * 10);
++				 PACKET_TIMEOUT);
+ }
+ 
+ static int vmk80xx_reset_device(struct comedi_device *dev)
 
 
