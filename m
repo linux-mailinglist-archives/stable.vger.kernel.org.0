@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1328A44C736
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7512B44C6E8
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:44:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233200AbhKJStO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:49:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47820 "EHLO mail.kernel.org"
+        id S232648AbhKJSqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:46:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233206AbhKJSsM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:48:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70744611C9;
-        Wed, 10 Nov 2021 18:45:24 +0000 (UTC)
+        id S232657AbhKJSqi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:46:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD19A6115A;
+        Wed, 10 Nov 2021 18:43:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636569925;
-        bh=TFKKCp702roCavE9raQfj2r9Iduu7fXo/JYH88mLjmE=;
+        s=korg; t=1636569830;
+        bh=s2V5MnLlW1fKa6K6bEJQ+I6bI2Bx4vdOgM2Q2Toj/sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FI0H4I7vSmhtbIz9xBNG63bqWANSsCmWpEvtid32bALOPRhGmGyAaxo9McaAF8Yjh
-         +SO67WbIK1nbswq4gLzhpfZbqe9JBtvnyaz6Ega/Up8yzSBj6xxCiXD4LXAAlUz4bY
-         Q+jpjHEZLAyIQu4Wwh0aj6aDmTLB4TYkB181Ys6c=
+        b=nue4RRShJzzC/jSvoRGvIrXMyqBaeefkQDamScCusAgVCp6QaAKv65z3NUvWld2Za
+         5KqI45BT46rp6RHTE5bJ7Ki41sU1z7W1CkNnqwCcMLep16kqvUM41dkaXqg2f+Ux2t
+         caYL9uLWB1uU4gz40+GOJTG89Cjn3E69fT3KZTbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 4.9 09/22] IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.4 14/19] comedi: vmk80xx: fix transfer-buffer overflows
 Date:   Wed, 10 Nov 2021 19:43:16 +0100
-Message-Id: <20211110182001.880130769@linuxfoundation.org>
+Message-Id: <20211110182001.723648936@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182001.579561273@linuxfoundation.org>
-References: <20211110182001.579561273@linuxfoundation.org>
+In-Reply-To: <20211110182001.257350381@linuxfoundation.org>
+References: <20211110182001.257350381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,115 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit d39bf40e55e666b5905fdbd46a0dced030ce87be upstream.
+commit a23461c47482fc232ffc9b819539d1f837adf2b1 upstream.
 
-Overflowing either addrlimit or bytes_togo can allow userspace to trigger
-a buffer overflow of kernel memory. Check for overflows in all the places
-doing math on user controlled buffers.
+The driver uses endpoint-sized USB transfer buffers but up until
+recently had no sanity checks on the sizes.
 
-Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
-Link: https://lore.kernel.org/r/20211012175519.7298.77738.stgit@awfm-01.cornelisnetworks.com
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Commit e1f13c879a7c ("staging: comedi: check validity of wMaxPacketSize
+of usb endpoints found") inadvertently fixed NULL-pointer dereferences
+when accessing the transfer buffers in case a malicious device has a
+zero wMaxPacketSize.
+
+Make sure to allocate buffers large enough to handle also the other
+accesses that are done without a size check (e.g. byte 18 in
+vmk80xx_cnt_insn_read() for the VMK8061_MODEL) to avoid writing beyond
+the buffers, for example, when doing descriptor fuzzing.
+
+The original driver was for a low-speed device with 8-byte buffers.
+Support was later added for a device that uses bulk transfers and is
+presumably a full-speed device with a maximum 64-byte wMaxPacketSize.
+
+Fixes: 985cafccbf9b ("Staging: Comedi: vmk80xx: Add k8061 support")
+Cc: stable@vger.kernel.org      # 2.6.31
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20211025114532.4599-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/qib/qib_user_sdma.c |   33 ++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+ drivers/staging/comedi/drivers/vmk80xx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/qib/qib_user_sdma.c
-+++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
-@@ -607,7 +607,7 @@ done:
- /*
-  * How many pages in this iovec element?
-  */
--static int qib_user_sdma_num_pages(const struct iovec *iov)
-+static size_t qib_user_sdma_num_pages(const struct iovec *iov)
- {
- 	const unsigned long addr  = (unsigned long) iov->iov_base;
- 	const unsigned long  len  = iov->iov_len;
-@@ -663,7 +663,7 @@ static void qib_user_sdma_free_pkt_frag(
- static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
- 				   struct qib_user_sdma_queue *pq,
- 				   struct qib_user_sdma_pkt *pkt,
--				   unsigned long addr, int tlen, int npages)
-+				   unsigned long addr, int tlen, size_t npages)
- {
- 	struct page *pages[8];
- 	int i, j;
-@@ -727,7 +727,7 @@ static int qib_user_sdma_pin_pkt(const s
- 	unsigned long idx;
+--- a/drivers/staging/comedi/drivers/vmk80xx.c
++++ b/drivers/staging/comedi/drivers/vmk80xx.c
+@@ -99,6 +99,8 @@ enum {
+ #define IC3_VERSION		BIT(0)
+ #define IC6_VERSION		BIT(1)
  
- 	for (idx = 0; idx < niov; idx++) {
--		const int npages = qib_user_sdma_num_pages(iov + idx);
-+		const size_t npages = qib_user_sdma_num_pages(iov + idx);
- 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
++#define MIN_BUF_SIZE		64
++
+ enum vmk80xx_model {
+ 	VMK8055_MODEL,
+ 	VMK8061_MODEL
+@@ -687,12 +689,12 @@ static int vmk80xx_alloc_usb_buffers(str
+ 	struct vmk80xx_private *devpriv = dev->private;
+ 	size_t size;
  
- 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
-@@ -829,8 +829,8 @@ static int qib_user_sdma_queue_pkts(cons
- 		unsigned pktnw;
- 		unsigned pktnwc;
- 		int nfrags = 0;
--		int npages = 0;
--		int bytes_togo = 0;
-+		size_t npages = 0;
-+		size_t bytes_togo = 0;
- 		int tiddma = 0;
- 		int cfur;
+-	size = usb_endpoint_maxp(devpriv->ep_rx);
++	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
+ 	devpriv->usb_rx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_rx_buf)
+ 		return -ENOMEM;
  
-@@ -890,7 +890,11 @@ static int qib_user_sdma_queue_pkts(cons
- 
- 			npages += qib_user_sdma_num_pages(&iov[idx]);
- 
--			bytes_togo += slen;
-+			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
-+			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
- 			pktnwc += slen >> 2;
- 			idx++;
- 			nfrags++;
-@@ -909,8 +913,7 @@ static int qib_user_sdma_queue_pkts(cons
- 		}
- 
- 		if (frag_size) {
--			int tidsmsize, n;
--			size_t pktsize;
-+			size_t tidsmsize, n, pktsize, sz, addrlimit;
- 
- 			n = npages*((2*PAGE_SIZE/frag_size)+1);
- 			pktsize = struct_size(pkt, addr, n);
-@@ -928,14 +931,24 @@ static int qib_user_sdma_queue_pkts(cons
- 			else
- 				tidsmsize = 0;
- 
--			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
-+			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt = kmalloc(sz, GFP_KERNEL);
- 			if (!pkt) {
- 				ret = -ENOMEM;
- 				goto free_pbc;
- 			}
- 			pkt->largepkt = 1;
- 			pkt->frag_size = frag_size;
--			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
-+			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
-+					       &addrlimit) ||
-+			    addrlimit > type_max(typeof(pkt->addrlimit))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt->addrlimit = addrlimit;
- 
- 			if (tiddma) {
- 				char *tidsm = (char *)pkt + pktsize;
+-	size = usb_endpoint_maxp(devpriv->ep_tx);
++	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
+ 	devpriv->usb_tx_buf = kzalloc(size, GFP_KERNEL);
+ 	if (!devpriv->usb_tx_buf)
+ 		return -ENOMEM;
 
 
