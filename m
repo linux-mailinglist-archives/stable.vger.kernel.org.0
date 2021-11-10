@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AED044C763
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3EDF44C743
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233349AbhKJSuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:50:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47974 "EHLO mail.kernel.org"
+        id S233262AbhKJSth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:49:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232861AbhKJStX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:49:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C20061213;
-        Wed, 10 Nov 2021 18:46:25 +0000 (UTC)
+        id S232421AbhKJSsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:48:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C62A661250;
+        Wed, 10 Nov 2021 18:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636569985;
-        bh=7DS4N2LAyz8Z9TbnDN6W5IBnwi9lDyJSPiDIMzpTAyY=;
+        s=korg; t=1636569944;
+        bh=FJWUPVMHT2DM3DWqrQBzZ1SeN2TtCRd6e/zHpoXnl3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZfWHt6lqLQ3GC6ELh8G6K0kblh6wBHhheSqugqtv6avJFzub5NiYshYvBYPmFOrH
-         oaXzCvkEweIfEOc5ezceb3ZPOXJoAgurO1b4B8sLz/dC13uDq4XNpK726dWeNAt+9a
-         7LPqgVxXw5t1gFP/s89eVuAaNRHLy6EtcdQnGLU8=
+        b=EUyCjs9lzBVGEMRR8FAhRc5cmag/sh5Ko+7Iil66QPCwQLDd3ChURgrsP/8ne2UBr
+         7XazCzJgKFNmThVHCCca0C5bB62sa3sGojd9TmbEtWP/cPWRWjqWMA1C/OdpnkXyBE
+         tEwFDMqxIS8cxGqq9uBHlOkgoKqsXYYZ8zJpyCok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Petr Mladek <pmladek@suse.com>, Yi Fan <yfa@google.com>
-Subject: [PATCH 4.14 13/22] printk/console: Allow to disable console output by using console="" or console=null
-Date:   Wed, 10 Nov 2021 19:43:33 +0100
-Message-Id: <20211110182003.095006247@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        syzbot+6fc7fb214625d82af7d1@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 14/22] isofs: Fix out of bound access for corrupted isofs image
+Date:   Wed, 10 Nov 2021 19:43:34 +0100
+Message-Id: <20211110182003.124943663@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211110182002.666244094@linuxfoundation.org>
 References: <20211110182002.666244094@linuxfoundation.org>
@@ -41,62 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Mladek <pmladek@suse.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 3cffa06aeef7ece30f6b5ac0ea51f264e8fea4d0 upstream.
+commit e96a1866b40570b5950cda8602c2819189c62a48 upstream.
 
-The commit 48021f98130880dd74 ("printk: handle blank console arguments
-passed in.") prevented crash caused by empty console= parameter value.
+When isofs image is suitably corrupted isofs_read_inode() can read data
+beyond the end of buffer. Sanity-check the directory entry length before
+using it.
 
-Unfortunately, this value is widely used on Chromebooks to disable
-the console output. The above commit caused performance regression
-because the messages were pushed on slow console even though nobody
-was watching it.
-
-Use ttynull driver explicitly for console="" and console=null
-parameters. It has been created for exactly this purpose.
-
-It causes that preferred_console is set. As a result, ttySX and ttyX
-are not used as a fallback. And only ttynull console gets registered by
-default.
-
-It still allows to register other consoles either by additional console=
-parameters or SPCR. It prevents regression because it worked this way even
-before. Also it is a sane semantic. Preventing output on all consoles
-should be done another way, for example, by introducing mute_console
-parameter.
-
-Link: https://lore.kernel.org/r/20201006025935.GA597@jagdpanzerIV.localdomain
-Suggested-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20201111135450.11214-3-pmladek@suse.com
-Cc: Yi Fan <yfa@google.com>
+Reported-and-tested-by: syzbot+6fc7fb214625d82af7d1@syzkaller.appspotmail.com
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/printk/printk.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/isofs/inode.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -2092,8 +2092,15 @@ static int __init console_setup(char *st
- 	char *s, *options, *brl_options = NULL;
- 	int idx;
+--- a/fs/isofs/inode.c
++++ b/fs/isofs/inode.c
+@@ -1326,6 +1326,8 @@ static int isofs_read_inode(struct inode
  
--	if (str[0] == 0)
-+	/*
-+	 * console="" or console=null have been suggested as a way to
-+	 * disable console output. Use ttynull that has been created
-+	 * for exacly this purpose.
-+	 */
-+	if (str[0] == 0 || strcmp(str, "null") == 0) {
-+		__add_preferred_console("ttynull", 0, NULL, NULL);
- 		return 1;
-+	}
+ 	de = (struct iso_directory_record *) (bh->b_data + offset);
+ 	de_len = *(unsigned char *) de;
++	if (de_len < sizeof(struct iso_directory_record))
++		goto fail;
  
- 	if (_braille_console_setup(&str, &brl_options))
- 		return 1;
+ 	if (offset + de_len > bufsize) {
+ 		int frag1 = bufsize - offset;
 
 
