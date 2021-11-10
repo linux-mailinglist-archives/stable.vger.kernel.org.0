@@ -2,56 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC30B44CD7E
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 00:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D04A944CD84
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 00:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234057AbhKJXD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 18:03:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46392 "EHLO
+        id S233725AbhKJXD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 18:03:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234158AbhKJXDV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 18:03:21 -0500
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 526F7C06127A
-        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 15:00:33 -0800 (PST)
-Received: by mail-pj1-x104a.google.com with SMTP id d7-20020a17090a7bc700b001a6ebe3f9cbso1395207pjl.0
-        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 15:00:33 -0800 (PST)
+        with ESMTP id S234071AbhKJXD2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 18:03:28 -0500
+Received: from mail-qv1-xf4a.google.com (mail-qv1-xf4a.google.com [IPv6:2607:f8b0:4864:20::f4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAA27C0613F5
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 15:00:40 -0800 (PST)
+Received: by mail-qv1-xf4a.google.com with SMTP id o3-20020a0562140e4300b0039a8ccca8efso4038107qvc.7
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 15:00:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=yNrrb1MY66o5TEyam1VaYvCkGo/lj2vOXH/uZFJ75Lc=;
-        b=CUiAJ9p5bk6Iv5tdC414ooYPRjb2bhcAWHQgOvROCxmPWVNHbu21+CN5VqNAqK+mcs
-         FFtDjMO7bm0CbatcQhs84QzxXP94big3USlPHlyS3RGDCvEhnlsWpqBJZOVY8lIJp5hn
-         3Go0qjSqbksTmIablvqW2e/FGdfCqpq6cyxLCONn7aCyrDVeFrErwdojbZM0cWHT3SRo
-         3L9gRGkHDx4RmWHyqr/NfoVpe2WoTMZmIE0oHCr1zWm82eVeif7vlOfe1rGu3wFnjLec
-         05IJIhEFUy7/jOUiv46ST6F/2eIPPE2FtQc6HN5u5tB7qBOo/oW1Lzhol+VXAc50CbA6
-         8xpA==
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=B5qR9IFfPYyqZzAR1NtxHfHPCrwSatA1W5mjCxV+NDo=;
+        b=dxpfCGJxE0aLuP6SejLibiTWJsNl6eV6c/7AD/qBuov+nxRRy9M+Huw3sdeCqSw3xv
+         untZb7uJRe2oloH8KlA+ToFNZyo1bQX1//VSPZG1xBzkjFFmXQ8FUT0loiOBRk/qzJQ+
+         vUFvWT9J8gW7RNdvL06j01uuCWnmRV4JaOhGfxGF/4xo3f7jewGnfVu/v8rQDnTqCv63
+         vbIOKJhptN6quN5JVzvqlOdqkPmVW0QhGrE+OVgPBU+w1jzf9h4Q2dIgNefrreNPlTZt
+         NOf9feJkkaU36k5lWJJBZaNmDy6lqNrPoJ4cLXDaA8pj5JkDO/RivBeoALWPLGPNC18B
+         RCew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=yNrrb1MY66o5TEyam1VaYvCkGo/lj2vOXH/uZFJ75Lc=;
-        b=AkVHJ6wL5vAp8Vue3wm6YjSxBqUx25555ng0yjOTAawd+m2E1rbK/MckkkdCCh+ueS
-         kSNKX4BoZjewVgJXg0D/IUun+jLtE43TyOvFOVsNjhGUAgpBzd7Zh5Q7DXEsOeFf//pI
-         QNvSUkrfaL989FeHTM4sBM/xpRK5/atHX154GVA8E466zIE3f2L1qhnHBR3oPwWDWSvr
-         LgY4E1A2lReLj6YXxaAI7QDlHqlbjRhFe4BAezkbcEpThc4BJnNxHsxPc1zdz6DIoqjP
-         +z/TM4RtxNzk1l4sLo9T2k3iaLOxhAjFtvb08v6U+BejygM1HGtT7GlxgCr+/18m5TfR
-         vupg==
-X-Gm-Message-State: AOAM532baWJfvDRn/kV4xOs1OqGOMVrFHPS753iGfbWWq5stqUtteyx3
-        z0AaoChrRIFVoMCQy/AYI0wOTHR3VWHGTp7NqL1ZrXQaJtCVflH0GMNST/GHfu/gqNr/tMwJlLX
-        p0aKnnDZmXmISriRNwUd610Kh7LDqo9RKkVPQo2D/VloNYxFdeq7rvYaCgCo=
-X-Google-Smtp-Source: ABdhPJywdaxOOw9nASlhOPJsKBRybMvXwDYonXMni0w7Qq+5w6A1MNcPmMEClR1ICZ6i+XHI8LUP2VsobA==
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=B5qR9IFfPYyqZzAR1NtxHfHPCrwSatA1W5mjCxV+NDo=;
+        b=0ko8QFQy+ZkJOcGtQbQEbSoKESD6uz+2XWy5Cjd6xoefKMb2OVCDy63+5rxfLVBHs6
+         KjO93+rVDhHsTr7uQnyCwCD2a9h6wN9PKxS49Kc4rBOtQ8DezZqXNvPOVaUZVYnxoPsq
+         FClYpfg7yeZGL2yeUuDgFS60n4guL2+ML/EO2bnkzrLLupUd7ijdBlio9zicKuoIDY3H
+         UheF3OOsn99TrKzCaOoc4wFvwxdFv+tQi55fp5f5K7vGCLZ5zaCC+lO02ZVwTKelohlM
+         wIN1zkMK1hxDsh1AdhBqwt2MuaDoLQdp0qrY6Z7p9UzkXFIde93PAlR7VqlbVl0wwsGx
+         xV3Q==
+X-Gm-Message-State: AOAM531wpsxmOT/2WZQhwBLlZWMgtjsRSfw62i6S5vAHRYDnWsfVOD1D
+        I4eJPtAL4UlD/KVYsQtivk6LMLwGGMzPlfxmTbSK0TwkoBd1Ri2F+6//XJBoJ3dtNPSu4Z4evxq
+        JuZRssTBTHwXa95sC6YGAw/Uj5pAbWS3j1Et0sC2SBccNRyXKhj6DkWvybIE=
+X-Google-Smtp-Source: ABdhPJxNeI9pPQMczNqh7lTEOTjZOwslOwZWyiK/KZOlDPOiuxMgX0yqvhob/VWngaHy4gSf0G3hdmOstQ==
 X-Received: from tkjos-desktop.mtv.corp.google.com ([2620:15c:211:200:4a73:99b6:9694:8c4d])
- (user=tkjos job=sendgmr) by 2002:a17:90a:b107:: with SMTP id
- z7mr3006564pjq.104.1636585232687; Wed, 10 Nov 2021 15:00:32 -0800 (PST)
-Date:   Wed, 10 Nov 2021 15:00:25 -0800
-In-Reply-To: <20211110230025.3272776-1-tkjos@google.com>
-Message-Id: <20211110230025.3272776-3-tkjos@google.com>
+ (user=tkjos job=sendgmr) by 2002:a05:622a:20d:: with SMTP id
+ b13mr2915118qtx.368.1636585239970; Wed, 10 Nov 2021 15:00:39 -0800 (PST)
+Date:   Wed, 10 Nov 2021 15:00:34 -0800
+Message-Id: <20211110230036.3274365-1-tkjos@google.com>
 Mime-Version: 1.0
-References: <20211110230025.3272776-1-tkjos@google.com>
 X-Mailer: git-send-email 2.34.0.rc0.344.g81b53c2807-goog
-Subject: [PATCH 5.4 3/3] binder: use cred instead of task for getsecid
+Subject: [PATCH 5.10 1/3] binder: use euid from cred instead of using task
 From:   Todd Kjos <tkjos@google.com>
 To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
         arve@android.com, tkjos@android.com, maco@android.com,
@@ -63,62 +59,83 @@ To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
         devel@driverdev.osuosl.org
 Cc:     joel@joelfernandes.org, kernel-team@android.com,
         Todd Kjos <tkjos@google.com>,
-        kernel test robot <lkp@intel.com>,
         Casey Schaufler <casey@schaufler-ca.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 4d5b5539742d2554591751b4248b0204d20dcc9d upstream.
+commit 29bc22ac5e5bc63275e850f0c8fc549e3d0e306b upstream.
 
-Use the 'struct cred' saved at binder_open() to lookup
-the security ID via security_cred_getsecid(). This
-ensures that the security context that opened binder
-is the one used to generate the secctx.
+Save the 'struct cred' associated with a binder process
+at initial open to avoid potential race conditions
+when converting to an euid.
 
-Cc: stable@vger.kernel.org # 5.4+
-Fixes: ec74136ded79 ("binder: create node flag to request sender's security context")
+Set a transaction's sender_euid from the 'struct cred'
+saved at binder_open() instead of looking up the euid
+from the binder proc's 'struct task'. This ensures
+the euid is associated with the security context that
+of the task that opened binder.
+
+Cc: stable@vger.kernel.org # 4.4+
+Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
 Signed-off-by: Todd Kjos <tkjos@google.com>
 Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Jann Horn <jannh@google.com>
 Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
-Change-Id: Ia7b59804a0bdbd51191bbcca556414840307c623
+Change-Id: I91922e7f359df5901749f1b09094c3c68d45aed4
 ---
- drivers/android/binder.c | 2 +-
- include/linux/security.h | 5 +++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/android/binder.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index cebb2cd1876c..c2c411c458b2 100644
+index 65b22b5af51a..4e33f6e42ac4 100644
 --- a/drivers/android/binder.c
 +++ b/drivers/android/binder.c
-@@ -3107,7 +3107,7 @@ static void binder_transaction(struct binder_proc *proc,
- 		u32 secid;
- 		size_t added_size;
- 
--		security_task_getsecid(proc->tsk, &secid);
-+		security_cred_getsecid(proc->cred, &secid);
- 		ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
- 		if (ret) {
- 			return_error = BR_FAILED_REPLY;
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 0d4cb64cae1f..3f6b8195ae9e 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -985,6 +985,11 @@ static inline void security_transfer_creds(struct cred *new,
- {
+@@ -420,6 +420,9 @@ enum binder_deferred_state {
+  *                        (invariant after initialized)
+  * @tsk                   task_struct for group_leader of process
+  *                        (invariant after initialized)
++ * @cred                  struct cred associated with the `struct file`
++ *                        in binder_open()
++ *                        (invariant after initialized)
+  * @deferred_work_node:   element for binder_deferred_list
+  *                        (protected by binder_deferred_lock)
+  * @deferred_work:        bitmap of deferred work to perform
+@@ -465,6 +468,7 @@ struct binder_proc {
+ 	struct list_head waiting_threads;
+ 	int pid;
+ 	struct task_struct *tsk;
++	const struct cred *cred;
+ 	struct hlist_node deferred_work_node;
+ 	int deferred_work;
+ 	bool is_dead;
+@@ -3088,7 +3092,7 @@ static void binder_transaction(struct binder_proc *proc,
+ 		t->from = thread;
+ 	else
+ 		t->from = NULL;
+-	t->sender_euid = task_euid(proc->tsk);
++	t->sender_euid = proc->cred->euid;
+ 	t->to_proc = target_proc;
+ 	t->to_thread = target_thread;
+ 	t->code = tr->code;
+@@ -4703,6 +4707,7 @@ static void binder_free_proc(struct binder_proc *proc)
+ 	}
+ 	binder_alloc_deferred_release(&proc->alloc);
+ 	put_task_struct(proc->tsk);
++	put_cred(proc->cred);
+ 	binder_stats_deleted(BINDER_STAT_PROC);
+ 	kfree(proc);
  }
- 
-+static inline void security_cred_getsecid(const struct cred *c, u32 *secid)
-+{
-+	*secid = 0;
-+}
-+
- static inline int security_kernel_act_as(struct cred *cred, u32 secid)
- {
- 	return 0;
+@@ -5220,6 +5225,7 @@ static int binder_open(struct inode *nodp, struct file *filp)
+ 	spin_lock_init(&proc->outer_lock);
+ 	get_task_struct(current->group_leader);
+ 	proc->tsk = current->group_leader;
++	proc->cred = get_cred(filp->f_cred);
+ 	INIT_LIST_HEAD(&proc->todo);
+ 	proc->default_priority = task_nice(current);
+ 	/* binderfs stashes devices in i_private */
 -- 
 2.34.0.rc0.344.g81b53c2807-goog
 
