@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E546A46B996
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 11:54:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1A4A46B985
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 11:51:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235401AbhLGK5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 05:57:35 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:50012 "EHLO www.linuxtv.org"
+        id S230370AbhLGKyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 05:54:43 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:48612 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229903AbhLGK5e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Dec 2021 05:57:34 -0500
+        id S230169AbhLGKyn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Dec 2021 05:54:43 -0500
 Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1muXkE-00ARm1-Mk; Tue, 07 Dec 2021 10:30:46 +0000
+        id 1muXkN-00AS8N-W9; Tue, 07 Dec 2021 10:30:55 +0000
 From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Date:   Wed, 10 Nov 2021 11:39:08 +0000
-Subject: [git:media_stage/master] media: cec: copy sequence field for the reply
+Subject: [git:media_tree/master] media: cec: copy sequence field for the reply
 To:     linuxtv-commits@linuxtv.org
 Cc:     stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1muXkE-00ARm1-Mk@www.linuxtv.org>
+Message-Id: <E1muXkN-00AS8N-W9@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
