@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC98644C849
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:59:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 263AB44C7F6
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233711AbhKJTAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 14:00:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57154 "EHLO mail.kernel.org"
+        id S233640AbhKJS50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:57:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234461AbhKJS6q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:58:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFAA961284;
-        Wed, 10 Nov 2021 18:51:03 +0000 (UTC)
+        id S233644AbhKJSza (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:55:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 847056124C;
+        Wed, 10 Nov 2021 18:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570264;
-        bh=NHZfkMiEXUyTjy4oDkxM1iO1u2XI/Ed+Nfr2aDOQ0/U=;
+        s=korg; t=1636570156;
+        bh=ZYvJ7ogo0gIRKKqhMit7XvxuzwMWtcL54MW/24Up8+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VtLfdWHI8726vD4jYkoCOLPTauaCOcv1Bewj+ycGMm3gC1X9VTk/f6JA+qFHpzepG
-         JzcUOYHjn5z5IAbAfZl9n1G0jAjrJTMNp5EjkUrDT15GpyKtoPZSVMnukum9i94M+R
-         KsTK3YcbKXQqaMq8AyJD7HpNSlBtoanc0kU/TN48=
+        b=zwfSXs4MtbDDq0AF9zBm99ny8mU/GLkKHTfoZtuoBgxz+EijLZxW2Uzmvk0NWYa7M
+         4kaDuODFHZ/2lkVR1IT+cviqjHV1BmsAHNhEUbFZDSgHCQqzj2WOWqEnpV4Ce1pDJx
+         cM/Pc2lefQkEJL85LCPqHYkH8RZnr/4+ufrApbw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Jann Horn <jannh@google.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.15 08/26] binder: use euid from cred instead of using task
-Date:   Wed, 10 Nov 2021 19:44:07 +0100
-Message-Id: <20211110182003.972891971@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.14 16/24] comedi: dt9812: fix DMA buffers on stack
+Date:   Wed, 10 Nov 2021 19:44:08 +0100
+Message-Id: <20211110182003.848619931@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182003.700594531@linuxfoundation.org>
-References: <20211110182003.700594531@linuxfoundation.org>
+In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
+References: <20211110182003.342919058@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,79 +39,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 29bc22ac5e5bc63275e850f0c8fc549e3d0e306b upstream.
+commit 536de747bc48262225889a533db6650731ab25d3 upstream.
 
-Save the 'struct cred' associated with a binder process
-at initial open to avoid potential race conditions
-when converting to an euid.
+USB transfer buffers are typically mapped for DMA and must not be
+allocated on the stack or transfers will fail.
 
-Set a transaction's sender_euid from the 'struct cred'
-saved at binder_open() instead of looking up the euid
-from the binder proc's 'struct task'. This ensures
-the euid is associated with the security context that
-of the task that opened binder.
+Allocate proper transfer buffers in the various command helpers and
+return an error on short transfers instead of acting on random stack
+data.
 
-Cc: stable@vger.kernel.org # 4.4+
-Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Suggested-by: Jann Horn <jannh@google.com>
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Note that this also fixes a stack info leak on systems where DMA is not
+used as 32 bytes are always sent to the device regardless of how short
+the command is.
+
+Fixes: 63274cd7d38a ("Staging: comedi: add usb dt9812 driver")
+Cc: stable@vger.kernel.org      # 2.6.29
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211027093529.30896-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c          |    4 +++-
- drivers/android/binder_internal.h |    4 ++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/comedi/drivers/dt9812.c |  115 +++++++++++++++++++++++++++++-----------
+ 1 file changed, 86 insertions(+), 29 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2711,7 +2711,7 @@ static void binder_transaction(struct bi
- 		t->from = thread;
- 	else
- 		t->from = NULL;
--	t->sender_euid = task_euid(proc->tsk);
-+	t->sender_euid = proc->cred->euid;
- 	t->to_proc = target_proc;
- 	t->to_thread = target_thread;
- 	t->code = tr->code;
-@@ -4353,6 +4353,7 @@ static void binder_free_proc(struct bind
- 	}
- 	binder_alloc_deferred_release(&proc->alloc);
- 	put_task_struct(proc->tsk);
-+	put_cred(proc->cred);
- 	binder_stats_deleted(BINDER_STAT_PROC);
- 	kfree(proc);
+--- a/drivers/comedi/drivers/dt9812.c
++++ b/drivers/comedi/drivers/dt9812.c
+@@ -32,6 +32,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/errno.h>
++#include <linux/slab.h>
+ #include <linux/uaccess.h>
+ 
+ #include "../comedi_usb.h"
+@@ -237,22 +238,42 @@ static int dt9812_read_info(struct comed
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
++	size_t tbuf_size;
+ 	int count, ret;
++	void *tbuf;
+ 
+-	cmd.cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
+-	cmd.u.flash_data_info.address =
++	tbuf_size = max(sizeof(*cmd), buf_size);
++
++	tbuf = kzalloc(tbuf_size, GFP_KERNEL);
++	if (!tbuf)
++		return -ENOMEM;
++
++	cmd = tbuf;
++
++	cmd->cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
++	cmd->u.flash_data_info.address =
+ 	    cpu_to_le16(DT9812_DIAGS_BOARD_INFO_ADDR + offset);
+-	cmd.u.flash_data_info.numbytes = cpu_to_le16(buf_size);
++	cmd->u.flash_data_info.numbytes = cpu_to_le16(buf_size);
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+ 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
+ 	if (ret)
+-		return ret;
++		goto out;
++
++	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
++			   tbuf, buf_size, &count, DT9812_USB_TIMEOUT);
++	if (!ret) {
++		if (count == buf_size)
++			memcpy(buf, tbuf, buf_size);
++		else
++			ret = -EREMOTEIO;
++	}
++out:
++	kfree(tbuf);
+ 
+-	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+-			    buf, buf_size, &count, DT9812_USB_TIMEOUT);
++	return ret;
  }
-@@ -5055,6 +5056,7 @@ static int binder_open(struct inode *nod
- 	spin_lock_init(&proc->outer_lock);
- 	get_task_struct(current->group_leader);
- 	proc->tsk = current->group_leader;
-+	proc->cred = get_cred(filp->f_cred);
- 	INIT_LIST_HEAD(&proc->todo);
- 	init_waitqueue_head(&proc->freeze_wait);
- 	proc->default_priority = task_nice(current);
---- a/drivers/android/binder_internal.h
-+++ b/drivers/android/binder_internal.h
-@@ -364,6 +364,9 @@ struct binder_ref {
-  *                        (invariant after initialized)
-  * @tsk                   task_struct for group_leader of process
-  *                        (invariant after initialized)
-+ * @cred                  struct cred associated with the `struct file`
-+ *                        in binder_open()
-+ *                        (invariant after initialized)
-  * @deferred_work_node:   element for binder_deferred_list
-  *                        (protected by binder_deferred_lock)
-  * @deferred_work:        bitmap of deferred work to perform
-@@ -426,6 +429,7 @@ struct binder_proc {
- 	struct list_head waiting_threads;
- 	int pid;
- 	struct task_struct *tsk;
-+	const struct cred *cred;
- 	struct hlist_node deferred_work_node;
- 	int deferred_work;
- 	int outstanding_txns;
+ 
+ static int dt9812_read_multiple_registers(struct comedi_device *dev,
+@@ -261,22 +282,42 @@ static int dt9812_read_multiple_register
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count, ret;
++	size_t buf_size;
++	void *buf;
++
++	buf_size = max_t(size_t, sizeof(*cmd), reg_count);
++
++	buf = kzalloc(buf_size, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	cmd = buf;
+ 
+-	cmd.cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
+-	cmd.u.read_multi_info.count = reg_count;
++	cmd->cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
++	cmd->u.read_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++)
+-		cmd.u.read_multi_info.address[i] = address[i];
++		cmd->u.read_multi_info.address[i] = address[i];
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+ 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+-	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+-			    value, reg_count, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
++			   buf, reg_count, &count, DT9812_USB_TIMEOUT);
++	if (!ret) {
++		if (count == reg_count)
++			memcpy(value, buf, reg_count);
++		else
++			ret = -EREMOTEIO;
++	}
++out:
++	kfree(buf);
++
++	return ret;
+ }
+ 
+ static int dt9812_write_multiple_registers(struct comedi_device *dev,
+@@ -285,19 +326,27 @@ static int dt9812_write_multiple_registe
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count;
++	int ret;
+ 
+-	cmd.cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
+-	cmd.u.read_multi_info.count = reg_count;
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
++	if (!cmd)
++		return -ENOMEM;
++
++	cmd->cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
++	cmd->u.read_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++) {
+-		cmd.u.write_multi_info.write[i].address = address[i];
+-		cmd.u.write_multi_info.write[i].value = value[i];
++		cmd->u.write_multi_info.write[i].address = address[i];
++		cmd->u.write_multi_info.write[i].value = value[i];
+ 	}
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+-	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
++	kfree(cmd);
++
++	return ret;
+ }
+ 
+ static int dt9812_rmw_multiple_registers(struct comedi_device *dev,
+@@ -306,17 +355,25 @@ static int dt9812_rmw_multiple_registers
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count;
++	int ret;
++
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
++	if (!cmd)
++		return -ENOMEM;
+ 
+-	cmd.cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
+-	cmd.u.rmw_multi_info.count = reg_count;
++	cmd->cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
++	cmd->u.rmw_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++)
+-		cmd.u.rmw_multi_info.rmw[i] = rmw[i];
++		cmd->u.rmw_multi_info.rmw[i] = rmw[i];
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+-	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
++	kfree(cmd);
++
++	return ret;
+ }
+ 
+ static int dt9812_digital_in(struct comedi_device *dev, u8 *bits)
 
 
