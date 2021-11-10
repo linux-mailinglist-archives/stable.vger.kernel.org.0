@@ -2,57 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4E9844C60F
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 18:38:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B4F844C677
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 18:50:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231218AbhKJRl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 12:41:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59002 "EHLO mail.kernel.org"
+        id S231527AbhKJRxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 12:53:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230474AbhKJRl1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 12:41:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7493761246;
-        Wed, 10 Nov 2021 17:38:39 +0000 (UTC)
+        id S232530AbhKJRxP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 12:53:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAD9C61037;
+        Wed, 10 Nov 2021 17:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636565920;
-        bh=6G1IgHFg5QdJERQZMbsEQvzO9rPuJ1HBs90x9flrvVM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xUNZ52Q+5LwUFpNRyKzef3bePEUClWXsxzT1+52Kope87bognQ8sjTsMnCmYV1REr
-         /ENcsk4gfnCJp8bWAycg84YPRBvBzodQaucDhU2HbY+5UnWwghTV9rKYHMMveR8plC
-         GQjW8O7Hte8aW8kmVc+cTHxIq07SAOI0ytK7MArU=
-Date:   Wed, 10 Nov 2021 18:38:37 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mark Boddington <lkml@badpenguin.co.uk>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
-Subject: Re: kernel 5.15.1: AMD RX 6700 XT - Fails to resume after screen
- blank
-Message-ID: <YYwDnbpES0rrnWBw@kroah.com>
-References: <dbadfe41-24bf-5811-cf38-74973df45214@badpenguin.co.uk>
+        s=korg; t=1636566627;
+        bh=oaFLTTdW0bXLfcuTQoRw/u9p3qQphqxC127HhMjSdhw=;
+        h=Subject:To:Cc:From:Date:From;
+        b=BXpozbz6IvsRx4zRd4GowxAA0g+tapeSB4tqThXfrXuLYh5fxzvSpQyS7/ctPzgw4
+         cNhjbNmtsB+iKosvyExEJ1jNlo1pQzNe+GyXo8rXPm4Affl0HrD9chVx4OdrkvISVG
+         y7Jva4dofsAgCVIVVWjgn8Icg5y21Bzy0JDIc+zo=
+Subject: FAILED: patch "[PATCH] staging: rtl8712: fix use-after-free in rtl8712_dl_fw" failed to apply to 4.4-stable tree
+To:     paskripkin@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 10 Nov 2021 18:50:24 +0100
+Message-ID: <1636566624100106@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dbadfe41-24bf-5811-cf38-74973df45214@badpenguin.co.uk>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 10, 2021 at 04:27:39PM +0000, Mark Boddington wrote:
-> Hi all,
-> 
-> I run the mainline Linux kernel on Ubuntu 20.04, built from
-> https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.15.1/
-> 
-> There appears to be a regression in 5.15.1 which causes the GPU to fail to
-> resume after power saving.
-> 
-> Could it be this change??:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c?h=v5.15.1&id=8af3a335b5531ca3df0920b1cca43e456cd110ad
 
-If you revert it, does it solve the problem for you?
-
-If not, what kernel version did work for you with this hardware?
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From c052cc1a069c3e575619cf64ec427eb41176ca70 Mon Sep 17 00:00:00 2001
+From: Pavel Skripkin <paskripkin@gmail.com>
+Date: Wed, 20 Oct 2021 00:17:18 +0300
+Subject: [PATCH] staging: rtl8712: fix use-after-free in rtl8712_dl_fw
+
+Syzbot reported use-after-free in rtl8712_dl_fw(). The problem was in
+race condition between r871xu_dev_remove() ->ndo_open() callback.
+
+It's easy to see from crash log, that driver accesses released firmware
+in ->ndo_open() callback. It may happen, since driver was releasing
+firmware _before_ unregistering netdev. Fix it by moving
+unregister_netdev() before cleaning up resources.
+
+Call Trace:
+...
+ rtl871x_open_fw drivers/staging/rtl8712/hal_init.c:83 [inline]
+ rtl8712_dl_fw+0xd95/0xe10 drivers/staging/rtl8712/hal_init.c:170
+ rtl8712_hal_init drivers/staging/rtl8712/hal_init.c:330 [inline]
+ rtl871x_hal_init+0xae/0x180 drivers/staging/rtl8712/hal_init.c:394
+ netdev_open+0xe6/0x6c0 drivers/staging/rtl8712/os_intfs.c:380
+ __dev_open+0x2bc/0x4d0 net/core/dev.c:1484
+
+Freed by task 1306:
+...
+ release_firmware+0x1b/0x30 drivers/base/firmware_loader/main.c:1053
+ r871xu_dev_remove+0xcc/0x2c0 drivers/staging/rtl8712/usb_intf.c:599
+ usb_unbind_interface+0x1d8/0x8d0 drivers/usb/core/driver.c:458
+
+Fixes: 8c213fa59199 ("staging: r8712u: Use asynchronous firmware loading")
+Cc: stable <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+c55162be492189fb4f51@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20211019211718.26354-1-paskripkin@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
+index 17e705411e64..ee4c61f85a07 100644
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -595,12 +595,12 @@ static void r871xu_dev_remove(struct usb_interface *pusb_intf)
+ 
+ 	/* never exit with a firmware callback pending */
+ 	wait_for_completion(&padapter->rtl8712_fw_ready);
++	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
++		unregister_netdev(pnetdev); /* will call netdev_close() */
+ 	usb_set_intfdata(pusb_intf, NULL);
+ 	release_firmware(padapter->fw);
+ 	if (drvpriv.drv_registered)
+ 		padapter->surprise_removed = true;
+-	if (pnetdev->reg_state != NETREG_UNINITIALIZED)
+-		unregister_netdev(pnetdev); /* will call netdev_close() */
+ 	r8712_flush_rwctrl_works(padapter);
+ 	r8712_flush_led_works(padapter);
+ 	udelay(1);
+
