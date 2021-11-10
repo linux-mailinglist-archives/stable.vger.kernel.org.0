@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 946A644C83E
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0AFF44C7C1
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234231AbhKJTAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 14:00:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54426 "EHLO mail.kernel.org"
+        id S233781AbhKJSyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:54:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234279AbhKJS6V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:58:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C54461A3A;
-        Wed, 10 Nov 2021 18:50:50 +0000 (UTC)
+        id S233562AbhKJSw6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:52:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C98161268;
+        Wed, 10 Nov 2021 18:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570251;
-        bh=5IF/tV6ydWjsDd0Np+mHunEbyk2bXecu20EzsY5VWWI=;
+        s=korg; t=1636570099;
+        bh=O70moGovKKBeff/tnsM89R1q7iqLf2ZLZjTQ0N4uJxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bajFWT84EgzkmANvktzXW3Z1qKKoqU/IpuvF33n6YFtKJXluCpepnmQ64tEhDWGXH
-         JqXojQaOqDZVQ+R18J//W2MS5+az2LMQNx+PUyKMSCKQjzp1nd4APlh06TYSK8g+3M
-         jzRyaQ5JZ86AY+Dp7I0HLkC4JCK6SXRWpk41HaXw=
+        b=EQG70ZKC5zOgfTQQC7bfsDFF1Pe3X3YHsjZDfhhbp7ZdwXNccjcFQj8/Rt/jBh9zy
+         h60o53DyUNSplO9ERaD2OJcUyTCrteiXivtj67PbeqqPXGSJN/DaJbChke7f2tbmct
+         B06J7y+qrMBQRPmBIjyTRC/JblI3gwecuymIpGcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Ren <rentao.bupt@gmail.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Neal Liu <neal_liu@aspeedtech.com>,
-        Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 5.15 03/26] usb: ehci: handshake CMD_RUN instead of STS_HALT
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.10 16/21] comedi: vmk80xx: fix bulk-buffer overflow
 Date:   Wed, 10 Nov 2021 19:44:02 +0100
-Message-Id: <20211110182003.826259357@linuxfoundation.org>
+Message-Id: <20211110182003.478985878@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182003.700594531@linuxfoundation.org>
-References: <20211110182003.700594531@linuxfoundation.org>
+In-Reply-To: <20211110182002.964190708@linuxfoundation.org>
+References: <20211110182002.964190708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Liu <neal_liu@aspeedtech.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 7f2d73788d9067fd4f677ac5f60ffd25945af7af upstream.
+commit 78cdfd62bd54af615fba9e3ca1ba35de39d3871d upstream.
 
-For Aspeed, HCHalted status depends on not only Run/Stop but also
-ASS/PSS status.
-Handshake CMD_RUN on startup instead.
+The driver is using endpoint-sized buffers but must not assume that the
+tx and rx buffers are of equal size or a malicious device could overflow
+the slab-allocated receive buffer when doing bulk transfers.
 
-Tested-by: Tao Ren <rentao.bupt@gmail.com>
-Reviewed-by: Tao Ren <rentao.bupt@gmail.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Neal Liu <neal_liu@aspeedtech.com>
-Link: https://lore.kernel.org/r/20210910073619.26095-1-neal_liu@aspeedtech.com
-Cc: Joel Stanley <joel@jms.id.au>
+Fixes: 985cafccbf9b ("Staging: Comedi: vmk80xx: Add k8061 support")
+Cc: stable@vger.kernel.org      # 2.6.31
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20211025114532.4599-5-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/ehci-hcd.c      |   11 ++++++++++-
- drivers/usb/host/ehci-platform.c |    6 ++++++
- drivers/usb/host/ehci.h          |    1 +
- 3 files changed, 17 insertions(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/vmk80xx.c |   16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/host/ehci-hcd.c
-+++ b/drivers/usb/host/ehci-hcd.c
-@@ -635,7 +635,16 @@ static int ehci_run (struct usb_hcd *hcd
- 	/* Wait until HC become operational */
- 	ehci_readl(ehci, &ehci->regs->command);	/* unblock posted writes */
- 	msleep(5);
--	rc = ehci_handshake(ehci, &ehci->regs->status, STS_HALT, 0, 100 * 1000);
+--- a/drivers/staging/comedi/drivers/vmk80xx.c
++++ b/drivers/staging/comedi/drivers/vmk80xx.c
+@@ -159,22 +159,20 @@ static void vmk80xx_do_bulk_msg(struct c
+ 	__u8 rx_addr;
+ 	unsigned int tx_pipe;
+ 	unsigned int rx_pipe;
+-	size_t size;
++	size_t tx_size;
++	size_t rx_size;
+ 
+ 	tx_addr = devpriv->ep_tx->bEndpointAddress;
+ 	rx_addr = devpriv->ep_rx->bEndpointAddress;
+ 	tx_pipe = usb_sndbulkpipe(usb, tx_addr);
+ 	rx_pipe = usb_rcvbulkpipe(usb, rx_addr);
+-
+-	/*
+-	 * The max packet size attributes of the K8061
+-	 * input/output endpoints are identical
+-	 */
+-	size = usb_endpoint_maxp(devpriv->ep_tx);
++	tx_size = usb_endpoint_maxp(devpriv->ep_tx);
++	rx_size = usb_endpoint_maxp(devpriv->ep_rx);
+ 
+ 	usb_bulk_msg(usb, tx_pipe, devpriv->usb_tx_buf,
+-		     size, NULL, devpriv->ep_tx->bInterval);
+-	usb_bulk_msg(usb, rx_pipe, devpriv->usb_rx_buf, size, NULL, HZ * 10);
++		     tx_size, NULL, devpriv->ep_tx->bInterval);
 +
-+	/* For Aspeed, STS_HALT also depends on ASS/PSS status.
-+	 * Check CMD_RUN instead.
-+	 */
-+	if (ehci->is_aspeed)
-+		rc = ehci_handshake(ehci, &ehci->regs->command, CMD_RUN,
-+				    1, 100 * 1000);
-+	else
-+		rc = ehci_handshake(ehci, &ehci->regs->status, STS_HALT,
-+				    0, 100 * 1000);
++	usb_bulk_msg(usb, rx_pipe, devpriv->usb_rx_buf, rx_size, NULL, HZ * 10);
+ }
  
- 	up_write(&ehci_cf_port_reset_rwsem);
- 
---- a/drivers/usb/host/ehci-platform.c
-+++ b/drivers/usb/host/ehci-platform.c
-@@ -297,6 +297,12 @@ static int ehci_platform_probe(struct pl
- 					  "has-transaction-translator"))
- 			hcd->has_tt = 1;
- 
-+		if (of_device_is_compatible(dev->dev.of_node,
-+					    "aspeed,ast2500-ehci") ||
-+		    of_device_is_compatible(dev->dev.of_node,
-+					    "aspeed,ast2600-ehci"))
-+			ehci->is_aspeed = 1;
-+
- 		if (soc_device_match(quirk_poll_match))
- 			priv->quirk_poll = true;
- 
---- a/drivers/usb/host/ehci.h
-+++ b/drivers/usb/host/ehci.h
-@@ -219,6 +219,7 @@ struct ehci_hcd {			/* one per controlle
- 	unsigned		need_oc_pp_cycle:1; /* MPC834X port power */
- 	unsigned		imx28_write_fix:1; /* For Freescale i.MX28 */
- 	unsigned		spurious_oc:1;
-+	unsigned		is_aspeed:1;
- 
- 	/* required for usb32 quirk */
- 	#define OHCI_CTRL_HCFS          (3 << 6)
+ static int vmk80xx_read_packet(struct comedi_device *dev)
 
 
