@@ -2,145 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F19644C78D
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AED044C763
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233207AbhKJSwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:52:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47840 "EHLO mail.kernel.org"
+        id S233349AbhKJSuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:50:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233206AbhKJSun (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:50:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9842D60FC2;
-        Wed, 10 Nov 2021 18:47:12 +0000 (UTC)
+        id S232861AbhKJStX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:49:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C20061213;
+        Wed, 10 Nov 2021 18:46:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570033;
-        bh=rOELypSd6cQi+dmsFMG5VA5EvKDnDLOwZtu53DIgSh8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=S1ptYucYeHTT74VEe6rf1Tlobpzgx79QIngrP2oMBW1GMMjzCiwj51OG7zNPaNn/Q
-         Ie08BJxXETVDe0znePTITYSEJ96is6N9p8kmLPwQ00bFAYDO8Ro/AXOQOzociNsE41
-         dqv4IZ9ftID1ypQb6CU13c9DQfzQSOU/NurSBzyk=
+        s=korg; t=1636569985;
+        bh=7DS4N2LAyz8Z9TbnDN6W5IBnwi9lDyJSPiDIMzpTAyY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jZfWHt6lqLQ3GC6ELh8G6K0kblh6wBHhheSqugqtv6avJFzub5NiYshYvBYPmFOrH
+         oaXzCvkEweIfEOc5ezceb3ZPOXJoAgurO1b4B8sLz/dC13uDq4XNpK726dWeNAt+9a
+         7LPqgVxXw5t1gFP/s89eVuAaNRHLy6EtcdQnGLU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.19 00/16] 4.19.217-rc1 review
+        stable@vger.kernel.org,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Petr Mladek <pmladek@suse.com>, Yi Fan <yfa@google.com>
+Subject: [PATCH 4.14 13/22] printk/console: Allow to disable console output by using console="" or console=null
 Date:   Wed, 10 Nov 2021 19:43:33 +0100
-Message-Id: <20211110182001.994215976@linuxfoundation.org>
+Message-Id: <20211110182003.095006247@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-MIME-Version: 1.0
+In-Reply-To: <20211110182002.666244094@linuxfoundation.org>
+References: <20211110182002.666244094@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.217-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.217-rc1
-X-KernelTest-Deadline: 2021-11-12T18:20+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.217 release.
-There are 16 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Petr Mladek <pmladek@suse.com>
 
-Responses should be made by Fri, 12 Nov 2021 18:19:54 +0000.
-Anything received after that time might be too late.
+commit 3cffa06aeef7ece30f6b5ac0ea51f264e8fea4d0 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.217-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+The commit 48021f98130880dd74 ("printk: handle blank console arguments
+passed in.") prevented crash caused by empty console= parameter value.
 
-thanks,
+Unfortunately, this value is widely used on Chromebooks to disable
+the console output. The above commit caused performance regression
+because the messages were pushed on slow console even though nobody
+was watching it.
 
-greg k-h
+Use ttynull driver explicitly for console="" and console=null
+parameters. It has been created for exactly this purpose.
 
--------------
-Pseudo-Shortlog of commits:
+It causes that preferred_console is set. As a result, ttySX and ttyX
+are not used as a fallback. And only ttynull console gets registered by
+default.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.217-rc1
+It still allows to register other consoles either by additional console=
+parameters or SPCR. It prevents regression because it worked this way even
+before. Also it is a sane semantic. Preventing output on all consoles
+should be done another way, for example, by introducing mute_console
+parameter.
 
-Johan Hovold <johan@kernel.org>
-    rsi: fix control-message timeout
+Link: https://lore.kernel.org/r/20201006025935.GA597@jagdpanzerIV.localdomain
+Suggested-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20201111135450.11214-3-pmladek@suse.com
+Cc: Yi Fan <yfa@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ kernel/printk/printk.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-Johan Hovold <johan@kernel.org>
-    staging: rtl8192u: fix control-message timeouts
-
-Johan Hovold <johan@kernel.org>
-    staging: r8712u: fix control-message timeout
-
-Johan Hovold <johan@kernel.org>
-    comedi: vmk80xx: fix bulk and interrupt message timeouts
-
-Johan Hovold <johan@kernel.org>
-    comedi: vmk80xx: fix bulk-buffer overflow
-
-Johan Hovold <johan@kernel.org>
-    comedi: vmk80xx: fix transfer-buffer overflows
-
-Johan Hovold <johan@kernel.org>
-    comedi: ni_usb6501: fix NULL-deref in command paths
-
-Johan Hovold <johan@kernel.org>
-    comedi: dt9812: fix DMA buffers on stack
-
-Jan Kara <jack@suse.cz>
-    isofs: Fix out of bound access for corrupted isofs image
-
-Petr Mladek <pmladek@suse.com>
-    printk/console: Allow to disable console output by using console="" or console=null
-
-James Buren <braewoods+lkml@braewoods.net>
-    usb-storage: Add compatibility quirk flags for iODD 2531/2541
-
-Viraj Shah <viraj.shah@linutronix.de>
-    usb: musb: Balance list entry in musb_gadget_queue
-
-Geert Uytterhoeven <geert@linux-m68k.org>
-    usb: gadget: Mark USB_FSL_QE broken on 64-bit
-
-Neal Liu <neal_liu@aspeedtech.com>
-    usb: ehci: handshake CMD_RUN instead of STS_HALT
-
-Juergen Gross <jgross@suse.com>
-    Revert "x86/kvm: fix vcpu-id indexed array sizes"
-
-Ming Lei <ming.lei@redhat.com>
-    block: introduce multi-page bvec helpers
-
-
--------------
-
-Diffstat:
-
- Makefile                                    |   4 +-
- arch/x86/kvm/ioapic.c                       |   2 +-
- arch/x86/kvm/ioapic.h                       |   4 +-
- drivers/net/wireless/rsi/rsi_91x_usb.c      |   2 +-
- drivers/staging/comedi/drivers/dt9812.c     | 115 +++++++++++++++++++++-------
- drivers/staging/comedi/drivers/ni_usb6501.c |  10 +++
- drivers/staging/comedi/drivers/vmk80xx.c    |  28 +++----
- drivers/staging/rtl8192u/r8192U_core.c      |  18 ++---
- drivers/staging/rtl8712/usb_ops_linux.c     |   2 +-
- drivers/usb/gadget/udc/Kconfig              |   1 +
- drivers/usb/host/ehci-hcd.c                 |  11 ++-
- drivers/usb/host/ehci-platform.c            |   6 ++
- drivers/usb/host/ehci.h                     |   1 +
- drivers/usb/musb/musb_gadget.c              |   4 +-
- drivers/usb/storage/unusual_devs.h          |  10 +++
- fs/isofs/inode.c                            |   2 +
- include/linux/bvec.h                        |  30 +++++++-
- kernel/printk/printk.c                      |   9 ++-
- 18 files changed, 195 insertions(+), 64 deletions(-)
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -2092,8 +2092,15 @@ static int __init console_setup(char *st
+ 	char *s, *options, *brl_options = NULL;
+ 	int idx;
+ 
+-	if (str[0] == 0)
++	/*
++	 * console="" or console=null have been suggested as a way to
++	 * disable console output. Use ttynull that has been created
++	 * for exacly this purpose.
++	 */
++	if (str[0] == 0 || strcmp(str, "null") == 0) {
++		__add_preferred_console("ttynull", 0, NULL, NULL);
+ 		return 1;
++	}
+ 
+ 	if (_braille_console_setup(&str, &brl_options))
+ 		return 1;
 
 
