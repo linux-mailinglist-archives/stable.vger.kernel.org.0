@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1088544C83F
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4150B44C7E2
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:54:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234270AbhKJTA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 14:00:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54534 "EHLO mail.kernel.org"
+        id S232697AbhKJS4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:56:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234306AbhKJS6Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:58:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D1F061A3C;
-        Wed, 10 Nov 2021 18:50:53 +0000 (UTC)
+        id S233707AbhKJSyf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:54:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7409B619F5;
+        Wed, 10 Nov 2021 18:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570253;
-        bh=ZUCszzkNHx3BjscZ/Nt/SZfHTDRtReBAGaPyf3rdx9Q=;
+        s=korg; t=1636570145;
+        bh=An4mUW80MSsxbz+rCJVpLo3RQdg5IAnU60AaarSe0aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yH6yOAElqRgQsJjKgmegHqD3OtgCN04/vQwbrFzHzTf7qVUjfkBxjJai+CYJR+NBI
-         v3pkmDmGgBHCE6rDUxceB8rWQgnRxdcoO+TonkECyjzAIs7HUsPJteFtZ7euhzdqOF
-         xPZ65deh+S8lnS+8hP8VhJnVg/2/+AyUN1UFg2jk=
+        b=iQtXf+YuSjkFlW/mF8rzQUD81AxvHAb0yl7ZZHViuBAkypkPloBc4ON+Q9vxfbn30
+         LCRJ/TUcqkAG4pkzFshjnAO3t7ZREdRKpOJqdIzr3/m+4sszXleSSSDHEabstkRdM0
+         EQILnBPbUBXIA1k0j6QTqIcp2F2ppYIvqX5ieh9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Yang <leoyang.li@nxp.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 5.15 04/26] usb: gadget: Mark USB_FSL_QE broken on 64-bit
-Date:   Wed, 10 Nov 2021 19:44:03 +0100
-Message-Id: <20211110182003.856765684@linuxfoundation.org>
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        kernel test robot <lkp@intel.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.14 12/24] binder: use cred instead of task for getsecid
+Date:   Wed, 10 Nov 2021 19:44:04 +0100
+Message-Id: <20211110182003.724807094@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182003.700594531@linuxfoundation.org>
-References: <20211110182003.700594531@linuxfoundation.org>
+In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
+References: <20211110182003.342919058@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Todd Kjos <tkjos@google.com>
 
-commit a0548b26901f082684ad1fb3ba397d2de3a1406a upstream.
+commit 4d5b5539742d2554591751b4248b0204d20dcc9d upstream.
 
-On 64-bit:
+Use the 'struct cred' saved at binder_open() to lookup
+the security ID via security_cred_getsecid(). This
+ensures that the security context that opened binder
+is the one used to generate the secctx.
 
-    drivers/usb/gadget/udc/fsl_qe_udc.c: In function ‘qe_ep0_rx’:
-    drivers/usb/gadget/udc/fsl_qe_udc.c:842:13: error: cast from pointer to integer of different size [-Werror=pointer-to-int-cast]
-      842 |     vaddr = (u32)phys_to_virt(in_be32(&bd->buf));
-	  |             ^
-    In file included from drivers/usb/gadget/udc/fsl_qe_udc.c:41:
-    drivers/usb/gadget/udc/fsl_qe_udc.c:843:28: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
-      843 |     frame_set_data(pframe, (u8 *)vaddr);
-	  |                            ^
-
-The driver assumes physical and virtual addresses are 32-bit, hence it
-cannot work on 64-bit platforms.
-
-Acked-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20211027080849.3276289-1-geert@linux-m68k.org
-Cc: stable <stable@vger.kernel.org>
+Cc: stable@vger.kernel.org # 5.4+
+Fixes: ec74136ded79 ("binder: create node flag to request sender's security context")
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/android/binder.c |   11 +----------
+ include/linux/security.h |    5 +++++
+ 2 files changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
-index 8c614bb86c66..69394dc1cdfb 100644
---- a/drivers/usb/gadget/udc/Kconfig
-+++ b/drivers/usb/gadget/udc/Kconfig
-@@ -330,6 +330,7 @@ config USB_AMD5536UDC
- config USB_FSL_QE
- 	tristate "Freescale QE/CPM USB Device Controller"
- 	depends on FSL_SOC && (QUICC_ENGINE || CPM)
-+	depends on !64BIT || BROKEN
- 	help
- 	   Some of Freescale PowerPC processors have a Full Speed
- 	   QE/CPM2 USB controller, which support device mode with 4
--- 
-2.33.1
-
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -2722,16 +2722,7 @@ static void binder_transaction(struct bi
+ 		u32 secid;
+ 		size_t added_size;
+ 
+-		/*
+-		 * Arguably this should be the task's subjective LSM secid but
+-		 * we can't reliably access the subjective creds of a task
+-		 * other than our own so we must use the objective creds, which
+-		 * are safe to access.  The downside is that if a task is
+-		 * temporarily overriding it's creds it will not be reflected
+-		 * here; however, it isn't clear that binder would handle that
+-		 * case well anyway.
+-		 */
+-		security_task_getsecid_obj(proc->tsk, &secid);
++		security_cred_getsecid(proc->cred, &secid);
+ 		ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
+ 		if (ret) {
+ 			return_error = BR_FAILED_REPLY;
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1041,6 +1041,11 @@ static inline void security_transfer_cre
+ {
+ }
+ 
++static inline void security_cred_getsecid(const struct cred *c, u32 *secid)
++{
++	*secid = 0;
++}
++
+ static inline int security_kernel_act_as(struct cred *cred, u32 secid)
+ {
+ 	return 0;
 
 
