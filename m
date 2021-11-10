@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 499A244C765
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6913F44C745
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233233AbhKJSuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:50:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48126 "EHLO mail.kernel.org"
+        id S233030AbhKJStr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:49:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232895AbhKJSte (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:49:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D7D0611C9;
-        Wed, 10 Nov 2021 18:46:30 +0000 (UTC)
+        id S232846AbhKJSse (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:48:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A79D61284;
+        Wed, 10 Nov 2021 18:45:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636569990;
-        bh=/VzR6fTrF7cg/rn0LeHhBXa/700fkIa8fGD0E1bGZoE=;
+        s=korg; t=1636569946;
+        bh=RjInd3JGIV8bHmngubFKVhbNniHOFgdPRRrxz8odIdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DkuDnfsLyY3KzeTM44Rl73LYAbYc/XVkfpAHzy1+hVN/VNG/fQLVK9nLxSyhStxtc
-         jQNE6iLthA+HXC6rlKHpQIhx359sIIGLHWaRR+ihisKkydjYQ67EkIu6R8BSEqB4uf
-         G0612FHlpxs+VY6L3Ka7wJSVhO154yAuGZA+W4+Q=
+        b=ph+OyPVPWqx6dTnDYMeQmg9XeyCwEkRYJkm97nkpWlQaxI+hq3kyC6McaT78SdDm5
+         pPsU2ryqYyw/rVx85NObrwIeA/Y0UaD7qe+BWYRs6WGyPLRomfRiEK6ZD70u59/X1g
+         Yh2TSYv/UOb6fRC5wPFu+AthzR1amSPWR37s6eG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Omar Sandoval <osandov@fb.com>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Zubin Mithra <zsm@chromium.org>
-Subject: [PATCH 4.19 01/16] block: introduce multi-page bvec helpers
-Date:   Wed, 10 Nov 2021 19:43:34 +0100
-Message-Id: <20211110182002.041203616@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 15/22] comedi: dt9812: fix DMA buffers on stack
+Date:   Wed, 10 Nov 2021 19:43:35 +0100
+Message-Id: <20211110182003.156571211@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182001.994215976@linuxfoundation.org>
-References: <20211110182001.994215976@linuxfoundation.org>
+In-Reply-To: <20211110182002.666244094@linuxfoundation.org>
+References: <20211110182002.666244094@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,113 +39,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 3d75ca0adef4280650c6690a0c4702a74a6f3c95 upstream.
+commit 536de747bc48262225889a533db6650731ab25d3 upstream.
 
-This patch introduces helpers of 'mp_bvec_iter_*' for multi-page bvec
-support.
+USB transfer buffers are typically mapped for DMA and must not be
+allocated on the stack or transfers will fail.
 
-The introduced helpers treate one bvec as real multi-page segment,
-which may include more than one pages.
+Allocate proper transfer buffers in the various command helpers and
+return an error on short transfers instead of acting on random stack
+data.
 
-The existed helpers of bvec_iter_* are interfaces for supporting current
-bvec iterator which is thought as single-page by drivers, fs, dm and
-etc. These introduced helpers will build single-page bvec in flight, so
-this way won't break current bio/bvec users, which needn't any change.
+Note that this also fixes a stack info leak on systems where DMA is not
+used as 32 bytes are always sent to the device regardless of how short
+the command is.
 
-Follows some multi-page bvec background:
-
-- bvecs stored in bio->bi_io_vec is always multi-page style
-
-- bvec(struct bio_vec) represents one physically contiguous I/O
-  buffer, now the buffer may include more than one page after
-  multi-page bvec is supported, and all these pages represented
-  by one bvec is physically contiguous. Before multi-page bvec
-  support, at most one page is included in one bvec, we call it
-  single-page bvec.
-
-- .bv_page of the bvec points to the 1st page in the multi-page bvec
-
-- .bv_offset of the bvec is the offset of the buffer in the bvec
-
-The effect on the current drivers/filesystem/dm/bcache/...:
-
-- almost everyone supposes that one bvec only includes one single
-  page, so we keep the sp interface not changed, for example,
-  bio_for_each_segment() still returns single-page bvec
-
-- bio_for_each_segment_all() will return single-page bvec too
-
-- during iterating, iterator variable(struct bvec_iter) is always
-  updated in multi-page bvec style, and bvec_iter_advance() is kept
-  not changed
-
-- returned(copied) single-page bvec is built in flight by bvec
-  helpers from the stored multi-page bvec
-
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Omar Sandoval <osandov@fb.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Zubin Mithra <zsm@chromium.org>
+Fixes: 63274cd7d38a ("Staging: comedi: add usb dt9812 driver")
+Cc: stable@vger.kernel.org      # 2.6.29
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211027093529.30896-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bvec.h |   30 +++++++++++++++++++++++++++---
- 1 file changed, 27 insertions(+), 3 deletions(-)
+ drivers/staging/comedi/drivers/dt9812.c |  115 +++++++++++++++++++++++---------
+ 1 file changed, 86 insertions(+), 29 deletions(-)
 
---- a/include/linux/bvec.h
-+++ b/include/linux/bvec.h
-@@ -23,6 +23,7 @@
+--- a/drivers/staging/comedi/drivers/dt9812.c
++++ b/drivers/staging/comedi/drivers/dt9812.c
+@@ -41,6 +41,7 @@
  #include <linux/kernel.h>
- #include <linux/bug.h>
+ #include <linux/module.h>
  #include <linux/errno.h>
-+#include <linux/mm.h>
++#include <linux/slab.h>
+ #include <linux/uaccess.h>
  
- /*
-  * was unsigned short, but we might as well be ready for > 64kB I/O pages
-@@ -52,16 +53,39 @@ struct bvec_iter {
-  */
- #define __bvec_iter_bvec(bvec, iter)	(&(bvec)[(iter).bi_idx])
+ #include "../comedi_usb.h"
+@@ -246,22 +247,42 @@ static int dt9812_read_info(struct comed
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
++	size_t tbuf_size;
+ 	int count, ret;
++	void *tbuf;
  
--#define bvec_iter_page(bvec, iter)				\
-+/* multi-page (mp_bvec) helpers */
-+#define mp_bvec_iter_page(bvec, iter)				\
- 	(__bvec_iter_bvec((bvec), (iter))->bv_page)
+-	cmd.cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
+-	cmd.u.flash_data_info.address =
++	tbuf_size = max(sizeof(*cmd), buf_size);
++
++	tbuf = kzalloc(tbuf_size, GFP_KERNEL);
++	if (!tbuf)
++		return -ENOMEM;
++
++	cmd = tbuf;
++
++	cmd->cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
++	cmd->u.flash_data_info.address =
+ 	    cpu_to_le16(DT9812_DIAGS_BOARD_INFO_ADDR + offset);
+-	cmd.u.flash_data_info.numbytes = cpu_to_le16(buf_size);
++	cmd->u.flash_data_info.numbytes = cpu_to_le16(buf_size);
  
--#define bvec_iter_len(bvec, iter)				\
-+#define mp_bvec_iter_len(bvec, iter)				\
- 	min((iter).bi_size,					\
- 	    __bvec_iter_bvec((bvec), (iter))->bv_len - (iter).bi_bvec_done)
+ 	/* DT9812 only responds to 32 byte writes!! */
+ 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
+ 	if (ret)
+-		return ret;
++		goto out;
++
++	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
++			   tbuf, buf_size, &count, DT9812_USB_TIMEOUT);
++	if (!ret) {
++		if (count == buf_size)
++			memcpy(buf, tbuf, buf_size);
++		else
++			ret = -EREMOTEIO;
++	}
++out:
++	kfree(tbuf);
  
--#define bvec_iter_offset(bvec, iter)				\
-+#define mp_bvec_iter_offset(bvec, iter)				\
- 	(__bvec_iter_bvec((bvec), (iter))->bv_offset + (iter).bi_bvec_done)
+-	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+-			    buf, buf_size, &count, DT9812_USB_TIMEOUT);
++	return ret;
+ }
  
-+#define mp_bvec_iter_page_idx(bvec, iter)			\
-+	(mp_bvec_iter_offset((bvec), (iter)) / PAGE_SIZE)
+ static int dt9812_read_multiple_registers(struct comedi_device *dev,
+@@ -270,22 +291,42 @@ static int dt9812_read_multiple_register
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count, ret;
++	size_t buf_size;
++	void *buf;
 +
-+#define mp_bvec_iter_bvec(bvec, iter)				\
-+((struct bio_vec) {						\
-+	.bv_page	= mp_bvec_iter_page((bvec), (iter)),	\
-+	.bv_len		= mp_bvec_iter_len((bvec), (iter)),	\
-+	.bv_offset	= mp_bvec_iter_offset((bvec), (iter)),	\
-+})
++	buf_size = max_t(size_t, sizeof(*cmd), reg_count);
 +
-+/* For building single-page bvec in flight */
-+ #define bvec_iter_offset(bvec, iter)				\
-+	(mp_bvec_iter_offset((bvec), (iter)) % PAGE_SIZE)
++	buf = kzalloc(buf_size, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
 +
-+#define bvec_iter_len(bvec, iter)				\
-+	min_t(unsigned, mp_bvec_iter_len((bvec), (iter)),		\
-+	      PAGE_SIZE - bvec_iter_offset((bvec), (iter)))
++	cmd = buf;
+ 
+-	cmd.cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
+-	cmd.u.read_multi_info.count = reg_count;
++	cmd->cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
++	cmd->u.read_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++)
+-		cmd.u.read_multi_info.address[i] = address[i];
++		cmd->u.read_multi_info.address[i] = address[i];
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+ 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+-	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
+-			    value, reg_count, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
++			   buf, reg_count, &count, DT9812_USB_TIMEOUT);
++	if (!ret) {
++		if (count == reg_count)
++			memcpy(value, buf, reg_count);
++		else
++			ret = -EREMOTEIO;
++	}
++out:
++	kfree(buf);
 +
-+#define bvec_iter_page(bvec, iter)				\
-+	nth_page(mp_bvec_iter_page((bvec), (iter)),		\
-+		 mp_bvec_iter_page_idx((bvec), (iter)))
++	return ret;
+ }
+ 
+ static int dt9812_write_multiple_registers(struct comedi_device *dev,
+@@ -294,19 +335,27 @@ static int dt9812_write_multiple_registe
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count;
++	int ret;
+ 
+-	cmd.cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
+-	cmd.u.read_multi_info.count = reg_count;
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
++	if (!cmd)
++		return -ENOMEM;
 +
- #define bvec_iter_bvec(bvec, iter)				\
- ((struct bio_vec) {						\
- 	.bv_page	= bvec_iter_page((bvec), (iter)),	\
++	cmd->cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
++	cmd->u.read_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++) {
+-		cmd.u.write_multi_info.write[i].address = address[i];
+-		cmd.u.write_multi_info.write[i].value = value[i];
++		cmd->u.write_multi_info.write[i].address = address[i];
++		cmd->u.write_multi_info.write[i].value = value[i];
+ 	}
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+-	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
++	kfree(cmd);
++
++	return ret;
+ }
+ 
+ static int dt9812_rmw_multiple_registers(struct comedi_device *dev,
+@@ -315,17 +364,25 @@ static int dt9812_rmw_multiple_registers
+ {
+ 	struct usb_device *usb = comedi_to_usb_dev(dev);
+ 	struct dt9812_private *devpriv = dev->private;
+-	struct dt9812_usb_cmd cmd;
++	struct dt9812_usb_cmd *cmd;
+ 	int i, count;
++	int ret;
++
++	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
++	if (!cmd)
++		return -ENOMEM;
+ 
+-	cmd.cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
+-	cmd.u.rmw_multi_info.count = reg_count;
++	cmd->cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
++	cmd->u.rmw_multi_info.count = reg_count;
+ 	for (i = 0; i < reg_count; i++)
+-		cmd.u.rmw_multi_info.rmw[i] = rmw[i];
++		cmd->u.rmw_multi_info.rmw[i] = rmw[i];
+ 
+ 	/* DT9812 only responds to 32 byte writes!! */
+-	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
+-			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
++	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
++			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
++	kfree(cmd);
++
++	return ret;
+ }
+ 
+ static int dt9812_digital_in(struct comedi_device *dev, u8 *bits)
 
 
