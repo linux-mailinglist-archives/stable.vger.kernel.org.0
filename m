@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FDF544C722
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:46:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC69D44C756
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:49:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233037AbhKJSsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:48:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47246 "EHLO mail.kernel.org"
+        id S233090AbhKJSuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:50:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233043AbhKJSrt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:47:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F039461186;
-        Wed, 10 Nov 2021 18:45:00 +0000 (UTC)
+        id S233295AbhKJSs5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:48:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F49A6134F;
+        Wed, 10 Nov 2021 18:46:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636569901;
-        bh=aHc5jknybsG3Wm81xKHeZa7RkwTtI7oiN6Z7CZwMrxs=;
+        s=korg; t=1636569970;
+        bh=TFKKCp702roCavE9raQfj2r9Iduu7fXo/JYH88mLjmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ipMV0+0kDD7bk4UdtxW1bEyZBB+pHcTTzAj5JG+qdwvTMNkbbjVAarqh2TLel4PDs
-         C8Xs/g+G1Q1oOi3EmnfmxazlxLqWbNIa8vaTDGOflJ1U2HA8hE/APpARzjkoWqFgsB
-         TECuJ16GqGYmO0SqC8TbuXRx1Ls5RAPaHrZ3m41s=
+        b=c0Dp8t6PJHIUVHp881Lhp86gYT8nDVGTVsqQjrpVgW3IjcOWOyHQAlDEi8jsDSc+D
+         sKUHt7m1UroG2tU+DbfG7Ck002WmO2/zW+tkvTisPE7xhccHIbNBuOO2fEdun7zp8C
+         5wfoycVThMM/f4Jb3lW0yJ8OQk7idlmPyMqVWTLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 20/22] staging: r8712u: fix control-message timeout
+        stable@vger.kernel.org,
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 4.14 07/22] IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
 Date:   Wed, 10 Nov 2021 19:43:27 +0100
-Message-Id: <20211110182002.234440132@linuxfoundation.org>
+Message-Id: <20211110182002.903131036@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182001.579561273@linuxfoundation.org>
-References: <20211110182001.579561273@linuxfoundation.org>
+In-Reply-To: <20211110182002.666244094@linuxfoundation.org>
+References: <20211110182002.666244094@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +42,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-commit ce4940525f36ffdcf4fa623bcedab9c2a6db893a upstream.
+commit d39bf40e55e666b5905fdbd46a0dced030ce87be upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+Overflowing either addrlimit or bytes_togo can allow userspace to trigger
+a buffer overflow of kernel memory. Check for overflows in all the places
+doing math on user controlled buffers.
 
-Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
-Cc: stable@vger.kernel.org      # 2.6.37
-Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211025120910.6339-3-johan@kernel.org
+Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
+Link: https://lore.kernel.org/r/20211012175519.7298.77738.stgit@awfm-01.cornelisnetworks.com
+Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/usb_ops_linux.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/qib/qib_user_sdma.c |   33 ++++++++++++++++++++----------
+ 1 file changed, 23 insertions(+), 10 deletions(-)
 
---- a/drivers/staging/rtl8712/usb_ops_linux.c
-+++ b/drivers/staging/rtl8712/usb_ops_linux.c
-@@ -504,7 +504,7 @@ int r8712_usbctrl_vendorreq(struct intf_
- 		memcpy(pIo_buf, pdata, len);
- 	}
- 	status = usb_control_msg(udev, pipe, request, reqtype, value, index,
--				 pIo_buf, len, HZ / 2);
-+				 pIo_buf, len, 500);
- 	if (status > 0) {  /* Success this control transfer. */
- 		if (requesttype == 0x01) {
- 			/* For Control read transfer, we have to copy the read
+--- a/drivers/infiniband/hw/qib/qib_user_sdma.c
++++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
+@@ -607,7 +607,7 @@ done:
+ /*
+  * How many pages in this iovec element?
+  */
+-static int qib_user_sdma_num_pages(const struct iovec *iov)
++static size_t qib_user_sdma_num_pages(const struct iovec *iov)
+ {
+ 	const unsigned long addr  = (unsigned long) iov->iov_base;
+ 	const unsigned long  len  = iov->iov_len;
+@@ -663,7 +663,7 @@ static void qib_user_sdma_free_pkt_frag(
+ static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
+ 				   struct qib_user_sdma_queue *pq,
+ 				   struct qib_user_sdma_pkt *pkt,
+-				   unsigned long addr, int tlen, int npages)
++				   unsigned long addr, int tlen, size_t npages)
+ {
+ 	struct page *pages[8];
+ 	int i, j;
+@@ -727,7 +727,7 @@ static int qib_user_sdma_pin_pkt(const s
+ 	unsigned long idx;
+ 
+ 	for (idx = 0; idx < niov; idx++) {
+-		const int npages = qib_user_sdma_num_pages(iov + idx);
++		const size_t npages = qib_user_sdma_num_pages(iov + idx);
+ 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
+ 
+ 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
+@@ -829,8 +829,8 @@ static int qib_user_sdma_queue_pkts(cons
+ 		unsigned pktnw;
+ 		unsigned pktnwc;
+ 		int nfrags = 0;
+-		int npages = 0;
+-		int bytes_togo = 0;
++		size_t npages = 0;
++		size_t bytes_togo = 0;
+ 		int tiddma = 0;
+ 		int cfur;
+ 
+@@ -890,7 +890,11 @@ static int qib_user_sdma_queue_pkts(cons
+ 
+ 			npages += qib_user_sdma_num_pages(&iov[idx]);
+ 
+-			bytes_togo += slen;
++			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
++			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
++				ret = -EINVAL;
++				goto free_pbc;
++			}
+ 			pktnwc += slen >> 2;
+ 			idx++;
+ 			nfrags++;
+@@ -909,8 +913,7 @@ static int qib_user_sdma_queue_pkts(cons
+ 		}
+ 
+ 		if (frag_size) {
+-			int tidsmsize, n;
+-			size_t pktsize;
++			size_t tidsmsize, n, pktsize, sz, addrlimit;
+ 
+ 			n = npages*((2*PAGE_SIZE/frag_size)+1);
+ 			pktsize = struct_size(pkt, addr, n);
+@@ -928,14 +931,24 @@ static int qib_user_sdma_queue_pkts(cons
+ 			else
+ 				tidsmsize = 0;
+ 
+-			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
++			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
++				ret = -EINVAL;
++				goto free_pbc;
++			}
++			pkt = kmalloc(sz, GFP_KERNEL);
+ 			if (!pkt) {
+ 				ret = -ENOMEM;
+ 				goto free_pbc;
+ 			}
+ 			pkt->largepkt = 1;
+ 			pkt->frag_size = frag_size;
+-			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
++			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
++					       &addrlimit) ||
++			    addrlimit > type_max(typeof(pkt->addrlimit))) {
++				ret = -EINVAL;
++				goto free_pbc;
++			}
++			pkt->addrlimit = addrlimit;
+ 
+ 			if (tiddma) {
+ 				char *tidsm = (char *)pkt + pktsize;
 
 
