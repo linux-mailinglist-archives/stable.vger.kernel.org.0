@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93E2844C802
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E11A544C7B9
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:53:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233830AbhKJS5h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:57:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53486 "EHLO mail.kernel.org"
+        id S232974AbhKJSyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:54:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233834AbhKJSzg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:55:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3752E619F9;
-        Wed, 10 Nov 2021 18:49:38 +0000 (UTC)
+        id S233169AbhKJSwp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:52:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E106D61381;
+        Wed, 10 Nov 2021 18:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570179;
-        bh=08oGUgCNKqZEEcbBNz54bpGRAWPqPM6qIl8eztjzCSo=;
+        s=korg; t=1636570094;
+        bh=r9c4M28T/B5cCe7kYAPWH6EhTTjF4No8DvsRibfL7NY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GoIKQURYtjByiRZszTvl2bf9HRtgipTzNa2FwQ8A4vS1ZgS0BNQKnQJlQ5r5O1lCW
-         vQtAYGfEOckUoVjDPfb2sRGQhGh9jj0Eoz3fErOh53aBs30w91RBha85FRtXJIVkXl
-         WMyW5dPR+ofekP8ZaFDAD7CWwhTSFFNdbQsrduH0=
+        b=btGiTFuC9k2H/cf0PZrI18iGAdtBcK4aqc6mO6GFFnqyvEu6zPkJXwwzaRGY46mzq
+         gbU+iVTN2UKTri+WuBl5loD5632ZrU2fSOjFmKMoZg2WuhnTZ/DnS7t97b4dIm18sU
+         Ep9Qa4VguyvKyUAZycGq+qLNialDe+divoGRB4IY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        James Buren <braewoods+lkml@braewoods.net>
-Subject: [PATCH 5.14 08/24] usb-storage: Add compatibility quirk flags for iODD 2531/2541
+        stable@vger.kernel.org, Luca Ellero <luca.ellero@brickedbrain.com>,
+        Ian Abbott <abbotti@mev.co.uk>, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 14/21] comedi: ni_usb6501: fix NULL-deref in command paths
 Date:   Wed, 10 Nov 2021 19:44:00 +0100
-Message-Id: <20211110182003.600220659@linuxfoundation.org>
+Message-Id: <20211110182003.416780824@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
-References: <20211110182003.342919058@linuxfoundation.org>
+In-Reply-To: <20211110182002.964190708@linuxfoundation.org>
+References: <20211110182002.964190708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +39,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Buren <braewoods+lkml@braewoods.net>
+From: Johan Hovold <johan@kernel.org>
 
-commit 05c8f1b67e67dcd786ae3fe44492bbc617b4bd12 upstream.
+commit 907767da8f3a925b060c740e0b5c92ea7dbec440 upstream.
 
-These drive enclosures have firmware bugs that make it impossible to mount
-a new virtual ISO image after Linux ejects the old one if the device is
-locked by Linux. Windows bypasses this problem by the fact that they do
-not lock the device. Add a quirk to disable device locking for these
-drive enclosures.
+The driver uses endpoint-sized USB transfer buffers but had no sanity
+checks on the sizes. This can lead to zero-size-pointer dereferences or
+overflowed transfer buffers in ni6501_port_command() and
+ni6501_counter_command() if a (malicious) device has smaller max-packet
+sizes than expected (or when doing descriptor fuzz testing).
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: James Buren <braewoods+lkml@braewoods.net>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211014015504.2695089-1-braewoods+lkml@braewoods.net
+Add the missing sanity checks to probe().
+
+Fixes: a03bb00e50ab ("staging: comedi: add NI USB-6501 support")
+Cc: stable@vger.kernel.org      # 3.18
+Cc: Luca Ellero <luca.ellero@brickedbrain.com>
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211027093529.30896-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_devs.h |   10 ++++++++++
+ drivers/staging/comedi/drivers/ni_usb6501.c |   10 ++++++++++
  1 file changed, 10 insertions(+)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -407,6 +407,16 @@ UNUSUAL_DEV(  0x04b8, 0x0602, 0x0110, 0x
- 		USB_SC_SCSI, USB_PR_BULK, NULL, US_FL_SINGLE_LUN),
+--- a/drivers/staging/comedi/drivers/ni_usb6501.c
++++ b/drivers/staging/comedi/drivers/ni_usb6501.c
+@@ -144,6 +144,10 @@ static const u8 READ_COUNTER_RESPONSE[]
+ 					   0x00, 0x00, 0x00, 0x02,
+ 					   0x00, 0x00, 0x00, 0x00};
  
- /*
-+ * Reported by James Buren <braewoods+lkml@braewoods.net>
-+ * Virtual ISOs cannot be remounted if ejected while the device is locked
-+ * Disable locking to mimic Windows behavior that bypasses the issue
-+ */
-+UNUSUAL_DEV(  0x04c5, 0x2028, 0x0001, 0x0001,
-+		"iODD",
-+		"2531/2541",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL, US_FL_NOT_LOCKABLE),
++/* Largest supported packets */
++static const size_t TX_MAX_SIZE	= sizeof(SET_PORT_DIR_REQUEST);
++static const size_t RX_MAX_SIZE	= sizeof(READ_PORT_RESPONSE);
 +
-+/*
-  * Not sure who reported this originally but
-  * Pavel Machek <pavel@ucw.cz> reported that the extra US_FL_SINGLE_LUN
-  * flag be added */
+ enum commands {
+ 	READ_PORT,
+ 	WRITE_PORT,
+@@ -501,6 +505,12 @@ static int ni6501_find_endpoints(struct
+ 	if (!devpriv->ep_rx || !devpriv->ep_tx)
+ 		return -ENODEV;
+ 
++	if (usb_endpoint_maxp(devpriv->ep_rx) < RX_MAX_SIZE)
++		return -ENODEV;
++
++	if (usb_endpoint_maxp(devpriv->ep_tx) < TX_MAX_SIZE)
++		return -ENODEV;
++
+ 	return 0;
+ }
+ 
 
 
