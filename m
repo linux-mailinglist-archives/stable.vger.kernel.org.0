@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61B2B44C81B
-	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1938B44C811
+	for <lists+stable@lfdr.de>; Wed, 10 Nov 2021 19:57:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232861AbhKJS6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 13:58:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53388 "EHLO mail.kernel.org"
+        id S232689AbhKJS6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 13:58:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233989AbhKJS5b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 13:57:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CFC7619FA;
-        Wed, 10 Nov 2021 18:50:14 +0000 (UTC)
+        id S233497AbhKJS43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 13:56:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8CD861A09;
+        Wed, 10 Nov 2021 18:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636570214;
-        bh=lEqspUV7rcw4dwELpIRFYPtY7p3pQMXa7RX4y5Ua81U=;
+        s=korg; t=1636570189;
+        bh=u3r0Z/Juz08h7mxzl8vGp2X6mRKE+bAUTzREhiY4tUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zifd3pP7oa3dx7nOAjFHqPhSQ0id0rZpW6u4C8r0qLQwf4hzMn51+vF4S3mNW+Z8x
-         XJTT4LEFoP/pB93tsMkU8hQIR8aP1v/RhEFE61IZwIYf1kPUhmXJg1BV6la/OwpAWx
-         Bim8uneQaYUePoPo5q06J5n9VWuoODJjStthXDrY=
+        b=1gFz6F9F2ymqOz4X+aYIVzNLnco58TCzE2Wmq2BhP8h3UxadO4RKlD4jUzehInmJk
+         jZxpyVCZKnNLZAE9hGaEsHmZeKAYqPT4Bq1acEBUbIEUa7mEkML4RoOaNq1lgVJw8A
+         nzUxMKHeS3shBcAgXhnTrYlUTv6aEJnr1IBWP7ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        stable@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 14/26] btrfs: fix lzo_decompress_bio() kmap leakage
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.14 21/24] staging: r8712u: fix control-message timeout
 Date:   Wed, 10 Nov 2021 19:44:13 +0100
-Message-Id: <20211110182004.150674453@linuxfoundation.org>
+Message-Id: <20211110182004.009659352@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211110182003.700594531@linuxfoundation.org>
-References: <20211110182003.700594531@linuxfoundation.org>
+In-Reply-To: <20211110182003.342919058@linuxfoundation.org>
+References: <20211110182003.342919058@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit 2cf3f8133bda2a0945cc4c70e681ecb25b52b913 upstream.
+commit ce4940525f36ffdcf4fa623bcedab9c2a6db893a upstream.
 
-Commit ccaa66c8dd27 reinstated the kmap/kunmap that had been dropped in
-commit 8c945d32e604 ("btrfs: compression: drop kmap/kunmap from lzo").
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-However, it seems to have done so incorrectly due to the change not
-reverting cleanly, and lzo_decompress_bio() ended up not having a
-matching "kunmap()" to the "kmap()" that was put back.
-
-Also, any assert that the page pointer is not NULL should be before the
-kmap() of said pointer, since otherwise you'd just oops in the kmap()
-before the assert would even trigger.
-
-I noticed this when trying to verify my btrfs merge, and things not
-adding up.  I'm doing this fixup before re-doing my merge, because this
-commit needs to also be backported to 5.15 (after verification from the
-btrfs people).
-
-Fixes: ccaa66c8dd27 ("Revert 'btrfs: compression: drop kmap/kunmap from lzo'")
-Cc: David Sterba <dsterba@suse.com>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
+Cc: stable@vger.kernel.org      # 2.6.37
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211025120910.6339-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/lzo.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8712/usb_ops_linux.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/lzo.c
-+++ b/fs/btrfs/lzo.c
-@@ -357,9 +357,10 @@ int lzo_decompress_bio(struct list_head
- 		ASSERT(cur_in / sectorsize ==
- 		       (cur_in + LZO_LEN - 1) / sectorsize);
- 		cur_page = cb->compressed_pages[cur_in / PAGE_SIZE];
--		kaddr = kmap(cur_page);
- 		ASSERT(cur_page);
-+		kaddr = kmap(cur_page);
- 		seg_len = read_compress_length(kaddr + offset_in_page(cur_in));
-+		kunmap(cur_page);
- 		cur_in += LZO_LEN;
- 
- 		/* Copy the compressed segment payload into workspace */
+--- a/drivers/staging/rtl8712/usb_ops_linux.c
++++ b/drivers/staging/rtl8712/usb_ops_linux.c
+@@ -494,7 +494,7 @@ int r8712_usbctrl_vendorreq(struct intf_
+ 		memcpy(pIo_buf, pdata, len);
+ 	}
+ 	status = usb_control_msg(udev, pipe, request, reqtype, value, index,
+-				 pIo_buf, len, HZ / 2);
++				 pIo_buf, len, 500);
+ 	if (status > 0) {  /* Success this control transfer. */
+ 		if (requesttype == 0x01) {
+ 			/* For Control read transfer, we have to copy the read
 
 
