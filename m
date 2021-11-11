@@ -2,94 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CCC744DC36
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 20:37:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1557944DC4A
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 20:45:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233551AbhKKTjs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 14:39:48 -0500
-Received: from outgoing-stata.csail.mit.edu ([128.30.2.210]:33033 "EHLO
-        outgoing-stata.csail.mit.edu" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233752AbhKKTjr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 14:39:47 -0500
-Received: from [128.177.79.46] (helo=csail.mit.edu)
-        by outgoing-stata.csail.mit.edu with esmtpsa (TLS1.2:RSA_AES_256_CBC_SHA1:256)
-        (Exim 4.82)
-        (envelope-from <srivatsa@csail.mit.edu>)
-        id 1mlFsU-0003Le-47; Thu, 11 Nov 2021 14:36:54 -0500
-Date:   Thu, 11 Nov 2021 11:40:02 -0800
-From:   "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     jgross@suse.com, x86@kernel.org, pv-drivers@vmware.com,
-        Alexey Makhalov <amakhalov@vmware.com>,
-        Deep Shah <sdeep@vmware.com>, stable@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
-        srivatsab@vmware.com, anishs@vmware.com, vithampi@vmware.com,
-        linux-kernel@vger.kernel.org, namit@vmware.com, joe@perches.com,
-        kuba@kernel.org, rostedt@goodmis.org
-Subject: Re: [PATCH v3 1/3] MAINTAINERS: Update maintainers for paravirt ops
- and VMware hypervisor interface
-Message-ID: <20211111194002.GA8739@csail.mit.edu>
-References: <163657479269.84207.13658789048079672839.stgit@srivatsa-dev>
- <163657487268.84207.5604596767569015608.stgit@srivatsa-dev>
- <YYy9P7Rjg9hntmm3@kroah.com>
- <20211111153916.GA7966@csail.mit.edu>
- <YY1krlfM5R7uEzJF@kroah.com>
+        id S229710AbhKKTsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 14:48:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43854 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232513AbhKKTsf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 14:48:35 -0500
+Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3485C061766;
+        Thu, 11 Nov 2021 11:45:45 -0800 (PST)
+Received: by mail-yb1-xb2c.google.com with SMTP id a129so17711919yba.10;
+        Thu, 11 Nov 2021 11:45:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=KanKvW9knMkjHLSimNH2i1EojftG486/SdICiXW+qfg=;
+        b=IKQsnXqZWJvMVPghQJgbhDzCCV8cpx6a3W8Rut+aHVeIeuEEWlVptGPvyVI2tibdzL
+         gMpwXKiIEmr3N6aRa/SwFhygIV2CfXTFYIDp0nNLU14ZPAiQjjCvU617LmOZyEDHSoJz
+         M0gwQZO9W/WfQR668D2ajd8NmCUlXDcxpZ3xYBUp2QVA2pBRyDZ5xoxzVqDwWfF4IU96
+         SzM+huRzf5WpWLGQ55mghyum5zOtLSjlvTkAKeYuoA/zRY2TEqpfHbG7xxZUWdOtLmce
+         02j2j2PHESuWCQaPTom4qkH4kuql9TVMm5N02g8CHM8yPg2sELrtGtTpOU0/iqH54fax
+         PbxA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=KanKvW9knMkjHLSimNH2i1EojftG486/SdICiXW+qfg=;
+        b=3EcWAgNJeXRyDUdNQ/HSaKwFmS4Ajrd+kum5c8DTvTIUl7euBkdZZzXT0Fuv0Z5xmO
+         dmzGWOe2w55JRUmktUpNMbN5TDcD9TBXf6xX/jW8PwSGGw2yHuIH0tbI4Bf9G6FoymLw
+         O9quaaFF9pjhb4aQTm8Z1kP8eiBNcdi7FwronzSGSjhcVX1U2rPufyzVvM99gMTKP8pO
+         kQKW3UpOHW0qkMsa5YDsjTw3K6k0CEoNmLlE9kVe//SdurRzNdMc3V5ob15KjkczwvTS
+         vp9KQJsERBIA1xpU2g1NvCYUGQ6wWKXClE2GM8j/tjHVxqajtOM0suzQCOlxLa08ODrm
+         sdgw==
+X-Gm-Message-State: AOAM531GDY0xUZHbOX/zzr2Xpas61L72YVvyq/0piTOqxle0USX6Lp+d
+        X+lv5VHZKFOjKARbWrHGqPH557oSIdUKCoYuoC4=
+X-Google-Smtp-Source: ABdhPJy70nUyVVTxVdzTjmvH1Mw2XqCn4m+nK8DEGJoA2os2aO9KauZzEi2MpYSXNglAl7NJByGiRgL/w+FPE/dTSCw=
+X-Received: by 2002:a25:488:: with SMTP id 130mr10360670ybe.346.1636659945096;
+ Thu, 11 Nov 2021 11:45:45 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YY1krlfM5R7uEzJF@kroah.com>
+References: <20211110182002.964190708@linuxfoundation.org> <YY0UQAQ54Vq4vC3z@debian>
+In-Reply-To: <YY0UQAQ54Vq4vC3z@debian>
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Date:   Thu, 11 Nov 2021 19:45:09 +0000
+Message-ID: <CADVatmPdQzsMk4HSYftUwEQ8PXF5rBVuYN9kp4aOvj7Pd9ds6w@mail.gmail.com>
+Subject: Re: [PATCH 5.10 00/21] 5.10.79-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 11, 2021 at 07:45:02PM +0100, Greg KH wrote:
-> On Thu, Nov 11, 2021 at 07:39:16AM -0800, Srivatsa S. Bhat wrote:
-> > On Thu, Nov 11, 2021 at 07:50:39AM +0100, Greg KH wrote:
-> > > On Wed, Nov 10, 2021 at 12:08:16PM -0800, Srivatsa S. Bhat wrote:
-> > > > From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-> > > > 
-> > > > Deep has decided to transfer maintainership of the VMware hypervisor
-> > > > interface to Srivatsa, and the joint-maintainership of paravirt ops in
-> > > > the Linux kernel to Srivatsa and Alexey. Update the MAINTAINERS file
-> > > > to reflect this change.
-> > > > 
-> > > > Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-> > > > Acked-by: Alexey Makhalov <amakhalov@vmware.com>
-> > > > Acked-by: Deep Shah <sdeep@vmware.com>
-> > > > Acked-by: Juergen Gross <jgross@suse.com>
-> > > > Cc: stable@vger.kernel.org
-> > > 
-> > > Why are MAINTAINERS updates needed for stable?  That's not normal :(
-> > 
-> > So that people posting bug-fixes / backports to these subsystems for
-> > older kernels (stable and LTS releases) will CC the new subsystem
-> > maintainers.
-> 
-> That's not how stable releases work at all.
-> 
-> > That's why I added CC stable tag only to the first two
-> > patches which add/replace maintainers and not the third patch which is
-> > just a cleanup.
-> 
-> Patches for stable kernels need to go into Linus's tree first, and if
-> you have the MAINTAINERS file updated properly there, then you will be
-> properly cc:ed.  We do not look at the MAINTAINERS file for the older
-> kernel when sending patches out, it's totally ignored as that was the
-> snapshot at a point in time, which is usually no longer the true state.
-> 
+On Thu, Nov 11, 2021 at 1:01 PM Sudip Mukherjee
+<sudipm.mukherjee@gmail.com> wrote:
+>
+> Hi Greg,
+>
+> On Wed, Nov 10, 2021 at 07:43:46PM +0100, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.79 release.
+> > There are 21 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Fri, 12 Nov 2021 18:19:54 +0000.
+> > Anything received after that time might be too late.
+>
+> systemd-journal-flush.service failed due to a timeout resulting in a very very
+> slow boot on my test laptop. qemu test on openqa failed due to the same problem.
 
-Sure, but that's the case for patches that get mainlined (and
-subsequently backported to -stable) /after/ this update to the
-MAINTAINERS file gets merged into mainline.
+Build test:
+mips (gcc version 11.2.1 20211104): 63 configs -> no new failure
+arm (gcc version 11.2.1 20211104): 105 configs -> no new failure
+arm64 (gcc version 11.2.1 20211104): 3 configs -> no failure
+x86_64 (gcc version 11.2.1 20211104): 4 configs -> no failure
 
-When adding the CC stable tag, the case I was trying to address was
-for patches that are already in mainline but weren't CC'ed to stable,
-and at some later point, somebody decides to backport them to older
-stable kernels. In that case, there is a chance that the contributor
-might run ./get_maintainer.pl against the stable tree (as that's the
-tree they are backporting the upstream commit against) and end up not
-CC'ing the new maintainers. So, I thought it would be good to keep the
-maintainer info updated in the older stable kernels too.
+Boot test:
+x86_64: Regression mail sent earlier.  Caused by 8615ff6dd1ac ("mm:
+filemap: check if THP has
+hwpoisoned subpage for PMD page fault").
 
-Regards,
-Srivatsa
+arm64: Booted on rpi4b (4GB model). No regression. [1]
+
+[1]. https://openqa.qa.codethink.co.uk/tests/362
+
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
