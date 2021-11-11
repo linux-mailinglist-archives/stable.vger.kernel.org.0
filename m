@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DEE144D397
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 09:57:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 352E344D39C
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 09:58:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231576AbhKKJAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 04:00:37 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:48230 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230256AbhKKJAh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 04:00:37 -0500
-Date:   Thu, 11 Nov 2021 08:57:45 -0000
+        id S232520AbhKKJAm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 04:00:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37422 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232357AbhKKJAk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 04:00:40 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FD7AC061767;
+        Thu, 11 Nov 2021 00:57:51 -0800 (PST)
+Date:   Thu, 11 Nov 2021 08:57:48 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1636621067;
+        s=2020; t=1636621069;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=DbcwKz3W3qN9osp6n/72imrTqJ43KA0UAlr6lcDjls0=;
-        b=ATev9VUTGEhsUSCsAKfnGbjk6v5rkVse1ZynDcR6smx4PuH745NPk6Rj3nvtvajz0NiCon
-        l5EuXWxIxyqtLsDkJkyaxrw93YBFvifpu247JEkMunneeaZL/6GBlYZjbmV31g973dcBPX
-        I0ZtXa4YCQo65NygwueJ155RHtjOs+teu38UzTryhiHCErXaO/5Jzt9I44JC5dR0m4Tp+F
-        eQDbnK0DkxTVz0IbNWdoQV/8+Sla6wQvEyCfV3DlZSXNZTEQu26ie2ZP5rk69pgfvjyqKg
-        qmQtXTRuP4RZpIqX5x4wrAZLt24ACFLRPsUy7+3AD/NdPKZwiPq7urdB06DSuQ==
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=DB/6RgQ/PZizcqcCryGHpNqX5euRa/sbj4pJCAFPBsc=;
+        b=MzgT7Ol9MzuFhvso8ccr6eQFnIAwlWWF2LHomn2aCjslMc3nrI/RQy7HDq1FLqb4Z4r6b8
+        vOmqeu8flsl9kChLoy6DMDL431isKylQ4KTxtwIrl/K4BCo3yTdHkGWa8YzBaDhjlUsa8J
+        SlL3xHTOijvyS1XusZ7OjpJMVR6GZcwgp2u0ZAMNv5JpvMKZaR0fV5ygINqrSteGDu/fBO
+        aOlgIDldAviLCODsNGpkDIVfhnzgT0Piwaxh/xsdPJ1CeRTYk4lR+S/9Jy9IZx8d2yNlxn
+        nXv/X3R/JTphyp27E6rWVbvuiJKdTPk46WXJXqjY9uzRP5vnWVfDkgem8X0tJw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1636621067;
+        s=2020e; t=1636621069;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=DbcwKz3W3qN9osp6n/72imrTqJ43KA0UAlr6lcDjls0=;
-        b=VPENRKzIanxu8WC9rVuWg1Cze5LR+qGyPazoK3VVYpA/vwZxzp+7gXCNSWbUXFS1F2GzB2
-        wqmIaXw5tuIhoADw==
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=DB/6RgQ/PZizcqcCryGHpNqX5euRa/sbj4pJCAFPBsc=;
+        b=gPsN0m4hsP3OKBqkOfnm/aa1w7QpdbYM1Iwr1gE76qyI1E8KvZCdcGuKTc2VQ9OT78DE47
+        G6ENsoqsQFiTN8Cw==
 From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: irq/urgent] PCI/MSI: Destroy sysfs before freeing entries
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+Subject: [tip: irq/urgent] PCI/MSI: Move non-mask check back into low level accessors
+Cc:     Josef Johansson <josef@oderland.se>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Bjorn Helgaas <helgaas@kernel.org>, stable@vger.kernel.org,
         x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
-In-Reply-To: <87sfw5305m.ffs@tglx>
-References: <87sfw5305m.ffs@tglx>
 MIME-Version: 1.0
-Message-ID: <163662106535.414.10271441206287447086.tip-bot2@tip-bot2>
+Message-ID: <163662106897.414.14667708131641356919.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -58,57 +55,151 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the irq/urgent branch of tip:
 
-Commit-ID:     3735459037114d31e5acd9894fad9aed104231a0
-Gitweb:        https://git.kernel.org/tip/3735459037114d31e5acd9894fad9aed104231a0
+Commit-ID:     9c8e9c9681a0f3f1ae90a90230d059c7a1dece5a
+Gitweb:        https://git.kernel.org/tip/9c8e9c9681a0f3f1ae90a90230d059c7a1dece5a
 Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Tue, 09 Nov 2021 14:53:57 +01:00
+AuthorDate:    Thu, 04 Nov 2021 00:27:29 +01:00
 Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Thu, 11 Nov 2021 09:50:31 +01:00
+CommitterDate: Thu, 11 Nov 2021 09:50:30 +01:00
 
-PCI/MSI: Destroy sysfs before freeing entries
+PCI/MSI: Move non-mask check back into low level accessors
 
-free_msi_irqs() frees the MSI entries before destroying the sysfs entries
-which are exposing them. Nothing prevents a concurrent free while a sysfs
-file is read and accesses the possibly freed entry.
+The recent rework of PCI/MSI[X] masking moved the non-mask checks from the
+low level accessors into the higher level mask/unmask functions.
 
-Move the sysfs release ahead of freeing the entries.
+This missed the fact that these accessors can be invoked from other places
+as well. The missing checks break XEN-PV which sets pci_msi_ignore_mask and
+also violates the virtual MSIX and the msi_attrib.maskbit protections.
 
-Fixes: 1c51b50c2995 ("PCI/MSI: Export MSI mode using attributes, not kobjects")
+Instead of sprinkling checks all over the place, lift them back into the
+low level accessor functions. To avoid checking three different conditions
+combine them into one property of msi_desc::msi_attrib.
+
+[ josef: Fixed the missed conversion in the core code ]
+
+Fixes: fcacdfbef5a1 ("PCI/MSI: Provide a new set of mask and unmask functions")
+Reported-by: Josef Johansson <josef@oderland.se>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-by: Josef Johansson <josef@oderland.se>
 Cc: Bjorn Helgaas <helgaas@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87sfw5305m.ffs@tglx
-
 ---
- drivers/pci/msi.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/pci/msi.c   | 26 ++++++++++++++------------
+ include/linux/msi.h |  2 +-
+ kernel/irq/msi.c    |  4 ++--
+ 3 files changed, 17 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index 7043301..48e3f4e 100644
+index 12e296d..6da7910 100644
 --- a/drivers/pci/msi.c
 +++ b/drivers/pci/msi.c
-@@ -368,6 +368,11 @@ static void free_msi_irqs(struct pci_dev *dev)
- 			for (i = 0; i < entry->nvec_used; i++)
- 				BUG_ON(irq_has_action(entry->irq + i));
+@@ -148,6 +148,9 @@ static noinline void pci_msi_update_mask(struct msi_desc *desc, u32 clear, u32 s
+ 	raw_spinlock_t *lock = &desc->dev->msi_lock;
+ 	unsigned long flags;
  
-+	if (dev->msi_irq_groups) {
-+		msi_destroy_sysfs(&dev->dev, dev->msi_irq_groups);
-+		dev->msi_irq_groups = NULL;
-+	}
++	if (!desc->msi_attrib.can_mask)
++		return;
 +
- 	pci_msi_teardown_msi_irqs(dev);
+ 	raw_spin_lock_irqsave(lock, flags);
+ 	desc->msi_mask &= ~clear;
+ 	desc->msi_mask |= set;
+@@ -181,7 +184,8 @@ static void pci_msix_write_vector_ctrl(struct msi_desc *desc, u32 ctrl)
+ {
+ 	void __iomem *desc_addr = pci_msix_desc_addr(desc);
  
- 	list_for_each_entry_safe(entry, tmp, msi_list, list) {
-@@ -379,11 +384,6 @@ static void free_msi_irqs(struct pci_dev *dev)
- 		list_del(&entry->list);
- 		free_msi_entry(entry);
- 	}
--
--	if (dev->msi_irq_groups) {
--		msi_destroy_sysfs(&dev->dev, dev->msi_irq_groups);
--		dev->msi_irq_groups = NULL;
--	}
+-	writel(ctrl, desc_addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
++	if (desc->msi_attrib.can_mask)
++		writel(ctrl, desc_addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
  }
  
- static void pci_intx_for_msi(struct pci_dev *dev, int enable)
+ static inline void pci_msix_mask(struct msi_desc *desc)
+@@ -200,23 +204,17 @@ static inline void pci_msix_unmask(struct msi_desc *desc)
+ 
+ static void __pci_msi_mask_desc(struct msi_desc *desc, u32 mask)
+ {
+-	if (pci_msi_ignore_mask || desc->msi_attrib.is_virtual)
+-		return;
+-
+ 	if (desc->msi_attrib.is_msix)
+ 		pci_msix_mask(desc);
+-	else if (desc->msi_attrib.maskbit)
++	else
+ 		pci_msi_mask(desc, mask);
+ }
+ 
+ static void __pci_msi_unmask_desc(struct msi_desc *desc, u32 mask)
+ {
+-	if (pci_msi_ignore_mask || desc->msi_attrib.is_virtual)
+-		return;
+-
+ 	if (desc->msi_attrib.is_msix)
+ 		pci_msix_unmask(desc);
+-	else if (desc->msi_attrib.maskbit)
++	else
+ 		pci_msi_unmask(desc, mask);
+ }
+ 
+@@ -484,7 +482,8 @@ msi_setup_entry(struct pci_dev *dev, int nvec, struct irq_affinity *affd)
+ 	entry->msi_attrib.is_64		= !!(control & PCI_MSI_FLAGS_64BIT);
+ 	entry->msi_attrib.is_virtual    = 0;
+ 	entry->msi_attrib.entry_nr	= 0;
+-	entry->msi_attrib.maskbit	= !!(control & PCI_MSI_FLAGS_MASKBIT);
++	entry->msi_attrib.can_mask	= !pci_msi_ignore_mask &&
++					  !!(control & PCI_MSI_FLAGS_MASKBIT);
+ 	entry->msi_attrib.default_irq	= dev->irq;	/* Save IOAPIC IRQ */
+ 	entry->msi_attrib.multi_cap	= (control & PCI_MSI_FLAGS_QMASK) >> 1;
+ 	entry->msi_attrib.multiple	= ilog2(__roundup_pow_of_two(nvec));
+@@ -495,7 +494,7 @@ msi_setup_entry(struct pci_dev *dev, int nvec, struct irq_affinity *affd)
+ 		entry->mask_pos = dev->msi_cap + PCI_MSI_MASK_32;
+ 
+ 	/* Save the initial mask status */
+-	if (entry->msi_attrib.maskbit)
++	if (entry->msi_attrib.can_mask)
+ 		pci_read_config_dword(dev, entry->mask_pos, &entry->msi_mask);
+ 
+ out:
+@@ -639,10 +638,13 @@ static int msix_setup_entries(struct pci_dev *dev, void __iomem *base,
+ 		entry->msi_attrib.is_virtual =
+ 			entry->msi_attrib.entry_nr >= vec_count;
+ 
++		entry->msi_attrib.can_mask	= !pci_msi_ignore_mask &&
++						  !entry->msi_attrib.is_virtual;
++
+ 		entry->msi_attrib.default_irq	= dev->irq;
+ 		entry->mask_base		= base;
+ 
+-		if (!entry->msi_attrib.is_virtual) {
++		if (entry->msi_attrib.can_mask) {
+ 			addr = pci_msix_desc_addr(entry);
+ 			entry->msix_ctrl = readl(addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
+ 		}
+diff --git a/include/linux/msi.h b/include/linux/msi.h
+index 49cf6eb..e616f94 100644
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -148,7 +148,7 @@ struct msi_desc {
+ 				u8	is_msix		: 1;
+ 				u8	multiple	: 3;
+ 				u8	multi_cap	: 3;
+-				u8	maskbit		: 1;
++				u8	can_mask	: 1;
+ 				u8	is_64		: 1;
+ 				u8	is_virtual	: 1;
+ 				u16	entry_nr;
+diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
+index 6a5ecee..7f350ae 100644
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -529,10 +529,10 @@ static bool msi_check_reservation_mode(struct irq_domain *domain,
+ 
+ 	/*
+ 	 * Checking the first MSI descriptor is sufficient. MSIX supports
+-	 * masking and MSI does so when the maskbit is set.
++	 * masking and MSI does so when the can_mask attribute is set.
+ 	 */
+ 	desc = first_msi_entry(dev);
+-	return desc->msi_attrib.is_msix || desc->msi_attrib.maskbit;
++	return desc->msi_attrib.is_msix || desc->msi_attrib.can_mask;
+ }
+ 
+ int __msi_domain_alloc_irqs(struct irq_domain *domain, struct device *dev,
