@@ -2,111 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F27E44DB37
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 18:44:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDDAF44DB82
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 19:19:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232203AbhKKRrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 12:47:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44880 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234382AbhKKRrj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 12:47:39 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 914E6C0613F5
-        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 09:44:50 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id b13so6388404plg.2
-        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 09:44:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=7MaSOuEOp+CoiKDEE7sxnGw6C1tJ0+8FkGqNIXlaeOA=;
-        b=FnGpm3IF6H65QzbG3rCh8MmyvtNek0vSeOME3psBrfAVG3939I40wIxO2yosG1b+8B
-         Sad+hM2t4c7Fq3IyDGA/ZDs33DIANmy1v1UZ54FX49PnBvzAxDKGDiXxnKre5ZnZ2EHx
-         GBikptqHMGmMR1fbZe0CQDEHVxRj3jTEf6WAKF3OPOsO+6gGWOD8DLUg/cPexe3hcdQK
-         sokXOYi8CE4wwfpRZoSyOcV66zPu/K1RiporWSt6FZl3UrIwnHSqlY/o76+s1n7s/sHP
-         oRoqRk9VS3n4HdrD3JnlDvI76ep9sqJu43l+5FKoM2fsaI3n4pbsO9lB+R2XzlXMGlRO
-         oDkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=7MaSOuEOp+CoiKDEE7sxnGw6C1tJ0+8FkGqNIXlaeOA=;
-        b=KVIC1Xcg76GVir6SVi00/TdMWB4UPbVfbd20i/8mwIyB3Xj8o9uzCnbyKHFbnjBj3H
-         cwEEG2AkMXCzYiA8KPjD1K0AcrAudsjERdiNqp3pzy1ScWUWKYJUCPLvTZ3xhRWlIjeb
-         FUq7ACiuVa8ndRWMX+ReHkhV3Odf8CEsi0EfIzerLRzTvfieaA48od2GDHKF17ZV6tDQ
-         W/ODQLzdsjaHkXu+ZJRS2EiEQPKmhXokFF/TbKFEKtzwS3YooFiDSL33T+8Lg05Ll9K5
-         yVJ73SmUbyQDxI1N3gHquAg4+7sYLm0o6fCVWz28ibkKUJ5XcPYGgldxjAE5R7W5Bv3m
-         uTPA==
-X-Gm-Message-State: AOAM530AMzyHLv6asZXZFvFq5eICozc3ZvN4J/RPkiQBSIiB5MrVwwxK
-        +1FNax1CZcjWJc3ybQRfmSlxSg==
-X-Google-Smtp-Source: ABdhPJwsH3mjR1to/+eMgCPxKJRq74DHSnHEnWS89IVB3LZ0yYHt/FcM8e3ZoCMzCoQVNiPxhxvi5Q==
-X-Received: by 2002:a17:90a:6e41:: with SMTP id s1mr28492721pjm.166.1636652689846;
-        Thu, 11 Nov 2021 09:44:49 -0800 (PST)
-Received: from google.com (254.80.82.34.bc.googleusercontent.com. [34.82.80.254])
-        by smtp.gmail.com with ESMTPSA id f21sm4393355pfc.85.2021.11.11.09.44.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Nov 2021 09:44:49 -0800 (PST)
-Date:   Thu, 11 Nov 2021 17:44:45 +0000
-From:   David Matlack <dmatlack@google.com>
-To:     Ben Gardon <bgardon@google.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Peter Shier <pshier@google.com>,
-        Mingwei Zhang <mizhang@google.com>,
-        Yulei Zhang <yulei.kernel@gmail.com>,
-        Wanpeng Li <kernellwp@gmail.com>,
-        Xiao Guangrong <xiaoguangrong.eric@gmail.com>,
-        Kai Huang <kai.huang@intel.com>,
-        Keqian Zhu <zhukeqian1@huawei.com>,
-        David Hildenbrand <david@redhat.com>, stable@vger.kernel.org
-Subject: Re: [RFC 01/19] KVM: x86/mmu: Fix TLB flush range when handling
- disconnected pt
-Message-ID: <YY1Wje9zNEch6XvG@google.com>
-References: <20211110223010.1392399-1-bgardon@google.com>
- <20211110223010.1392399-2-bgardon@google.com>
+        id S233717AbhKKSV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 13:21:59 -0500
+Received: from mga01.intel.com ([192.55.52.88]:46403 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232366AbhKKSV7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Nov 2021 13:21:59 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10165"; a="256696589"
+X-IronPort-AV: E=Sophos;i="5.87,226,1631602800"; 
+   d="scan'208";a="256696589"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Nov 2021 10:19:06 -0800
+X-IronPort-AV: E=Sophos;i="5.87,226,1631602800"; 
+   d="scan'208";a="492642362"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.25])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Nov 2021 10:19:05 -0800
+Subject: [PATCH] cxl/pmem: Fix module reload vs workqueue state
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     linux-cxl@vger.kernel.org
+Cc:     stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        ben.widawsky@intel.com, ira.weiny@intel.com,
+        alison.schofield@intel.com, Jonathan.Cameron@huawei.com
+Date:   Thu, 11 Nov 2021 10:19:05 -0800
+Message-ID: <163665474585.3505991.8397182770066720755.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211110223010.1392399-2-bgardon@google.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 10, 2021 at 02:29:52PM -0800, Ben Gardon wrote:
-> When recursively clearing out disconnected pts, the range based TLB
-> flush in handle_removed_tdp_mmu_page uses the wrong starting GFN,
-> resulting in the flush mostly missing the affected range. Fix this by
-> using base_gfn for the flush.
-> 
-> Fixes: a066e61f13cf ("KVM: x86/mmu: Factor out handling of removed page tables")
-> CC: stable@vger.kernel.org
-> 
-> Signed-off-by: Ben Gardon <bgardon@google.com>
-> ---
->  arch/x86/kvm/mmu/tdp_mmu.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-> index 7c5dd83e52de..866c2b191e1e 100644
-> --- a/arch/x86/kvm/mmu/tdp_mmu.c
-> +++ b/arch/x86/kvm/mmu/tdp_mmu.c
-> @@ -374,7 +374,7 @@ static void handle_removed_tdp_mmu_page(struct kvm *kvm, tdp_ptep_t pt,
->  				    shared);
->  	}
->  
-> -	kvm_flush_remote_tlbs_with_address(kvm, gfn,
-> +	kvm_flush_remote_tlbs_with_address(kvm, base_gfn,
+A test of the form:
 
-Suggest pulling the definition of gfn into the for loop as well (along
-with sptep and old_child_spte for that matter) so that referencing it
-here isn't even possible.
+    while true; do modprobe -r cxl_pmem; modprobe cxl_pmem; done
 
->  					   KVM_PAGES_PER_HPAGE(level + 1));
->  
->  	call_rcu(&sp->rcu_head, tdp_mmu_free_sp_rcu_callback);
-> -- 
-> 2.34.0.rc0.344.g81b53c2807-goog
-> 
+May lead to a crash signature of the form:
+
+    BUG: unable to handle page fault for address: ffffffffc0660030
+    #PF: supervisor instruction fetch in kernel mode
+    #PF: error_code(0x0010) - not-present page
+    [..]
+    Workqueue: cxl_pmem 0xffffffffc0660030
+    RIP: 0010:0xffffffffc0660030
+    Code: Unable to access opcode bytes at RIP 0xffffffffc0660006.
+    [..]
+    Call Trace:
+     ? process_one_work+0x4ec/0x9c0
+     ? pwq_dec_nr_in_flight+0x100/0x100
+     ? rwlock_bug.part.0+0x60/0x60
+     ? worker_thread+0x2eb/0x700
+
+In that report the 0xffffffffc0660030 address corresponds to the former
+function address of cxl_nvb_update_state() from a previous load of the
+module, not the current address. Fix that by arranging for ->state_work
+in the 'struct cxl_nvdimm_bridge' object to be reinitialized on cxl_pmem
+module reload.
+
+Details:
+
+Recall that CXL subsystem wants to link a CXL memory expander device to
+an NVDIMM sub-hierarchy when both a persistent memory range has been
+registered by the CXL platform driver (cxl_acpi) *and* when that CXL
+memory expander has published persistent memory capacity (Get Partition
+Info). To this end the cxl_nvdimm_bridge driver arranges to rescan the
+CXL bus when either of those conditions change. The helper
+bus_rescan_devices() can not be called underneath the device_lock() for
+any device on that bus, so the cxl_nvdimm_bridge driver uses a workqueue
+for the rescan.
+
+Typically a driver allocates driver data to hold a 'struct work_struct'
+for a driven device, but for a workqueue that may run after ->remove()
+returns, driver data will have been freed. The 'struct
+cxl_nvdimm_bridge' object holds the state and work_struct directly.
+Unfortunately it was only arranging for that infrastructure to be
+initialized once per device creation rather than the necessary once per
+workqueue (cxl_pmem_wq) creation.
+
+Introduce is_cxl_nvdimm_bridge() and cxl_nvdimm_bridge_reset() in
+support of invalidating stale references to a recently destroyed
+cxl_pmem_wq.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 8fdcb1704f61 ("cxl/pmem: Add initial infrastructure for pmem support")
+Reported-by: Vishal Verma <vishal.l.verma@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+ drivers/cxl/core/pmem.c |    8 +++++++-
+ drivers/cxl/cxl.h       |    8 ++++++++
+ drivers/cxl/pmem.c      |   29 +++++++++++++++++++++++++++--
+ 3 files changed, 42 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/cxl/core/pmem.c b/drivers/cxl/core/pmem.c
+index 76a4fa39834c..cc402cb7a905 100644
+--- a/drivers/cxl/core/pmem.c
++++ b/drivers/cxl/core/pmem.c
+@@ -51,10 +51,16 @@ struct cxl_nvdimm_bridge *to_cxl_nvdimm_bridge(struct device *dev)
+ }
+ EXPORT_SYMBOL_NS_GPL(to_cxl_nvdimm_bridge, CXL);
+ 
+-__mock int match_nvdimm_bridge(struct device *dev, const void *data)
++bool is_cxl_nvdimm_bridge(struct device *dev)
+ {
+ 	return dev->type == &cxl_nvdimm_bridge_type;
+ }
++EXPORT_SYMBOL_NS_GPL(is_cxl_nvdimm_bridge, CXL);
++
++__mock int match_nvdimm_bridge(struct device *dev, const void *data)
++{
++	return is_cxl_nvdimm_bridge(dev);
++}
+ 
+ struct cxl_nvdimm_bridge *cxl_find_nvdimm_bridge(struct cxl_nvdimm *cxl_nvd)
+ {
+diff --git a/drivers/cxl/cxl.h b/drivers/cxl/cxl.h
+index 5e2e93451928..ca979ee11017 100644
+--- a/drivers/cxl/cxl.h
++++ b/drivers/cxl/cxl.h
+@@ -221,6 +221,13 @@ struct cxl_decoder {
+ };
+ 
+ 
++/**
++ * enum cxl_nvdimm_brige_state - state machine for managing bus rescans
++ * @CXL_NVB_NEW: Set at bridge create and after cxl_pmem_wq is destroyed
++ * @CXL_NVB_DEAD: Set at brige unregistration to preclude async probing
++ * @CXL_NVB_ONLINE: Target state after successful ->probe()
++ * @CXL_NVB_OFFLINE: Target state after ->remove() or failed ->probe()
++ */
+ enum cxl_nvdimm_brige_state {
+ 	CXL_NVB_NEW,
+ 	CXL_NVB_DEAD,
+@@ -333,6 +340,7 @@ struct cxl_nvdimm_bridge *devm_cxl_add_nvdimm_bridge(struct device *host,
+ 						     struct cxl_port *port);
+ struct cxl_nvdimm *to_cxl_nvdimm(struct device *dev);
+ bool is_cxl_nvdimm(struct device *dev);
++bool is_cxl_nvdimm_bridge(struct device *dev);
+ int devm_cxl_add_nvdimm(struct device *host, struct cxl_memdev *cxlmd);
+ struct cxl_nvdimm_bridge *cxl_find_nvdimm_bridge(struct cxl_nvdimm *cxl_nvd);
+ 
+diff --git a/drivers/cxl/pmem.c b/drivers/cxl/pmem.c
+index 17e82ae90456..b65a272a2d6d 100644
+--- a/drivers/cxl/pmem.c
++++ b/drivers/cxl/pmem.c
+@@ -315,6 +315,31 @@ static struct cxl_driver cxl_nvdimm_bridge_driver = {
+ 	.id = CXL_DEVICE_NVDIMM_BRIDGE,
+ };
+ 
++/*
++ * Return all bridges to the CXL_NVB_NEW state to invalidate any
++ * ->state_work referring to the now destroyed cxl_pmem_wq.
++ */
++static int cxl_nvdimm_bridge_reset(struct device *dev, void *data)
++{
++	struct cxl_nvdimm_bridge *cxl_nvb;
++
++	if (!is_cxl_nvdimm_bridge(dev))
++		return 0;
++
++	cxl_nvb = to_cxl_nvdimm_bridge(dev);
++	device_lock(dev);
++	cxl_nvb->state = CXL_NVB_NEW;
++	device_unlock(dev);
++
++	return 0;
++}
++
++static void destroy_cxl_pmem_wq(void)
++{
++	destroy_workqueue(cxl_pmem_wq);
++	bus_for_each_dev(&cxl_bus_type, NULL, NULL, cxl_nvdimm_bridge_reset);
++}
++
+ static __init int cxl_pmem_init(void)
+ {
+ 	int rc;
+@@ -340,7 +365,7 @@ static __init int cxl_pmem_init(void)
+ err_nvdimm:
+ 	cxl_driver_unregister(&cxl_nvdimm_bridge_driver);
+ err_bridge:
+-	destroy_workqueue(cxl_pmem_wq);
++	destroy_cxl_pmem_wq();
+ 	return rc;
+ }
+ 
+@@ -348,7 +373,7 @@ static __exit void cxl_pmem_exit(void)
+ {
+ 	cxl_driver_unregister(&cxl_nvdimm_driver);
+ 	cxl_driver_unregister(&cxl_nvdimm_bridge_driver);
+-	destroy_workqueue(cxl_pmem_wq);
++	destroy_cxl_pmem_wq();
+ }
+ 
+ MODULE_LICENSE("GPL v2");
+
