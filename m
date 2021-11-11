@@ -2,89 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F151F44D02D
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 03:56:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA02D44D033
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 04:00:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230027AbhKKC7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 21:59:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60708 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229699AbhKKC7e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 21:59:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6789F60F46;
-        Thu, 11 Nov 2021 02:56:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636599405;
-        bh=H6tHr5NfLSh87fUojoQq+mnI4oI93uWaeta7PBQYnnU=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=lSMuEbwpVcY1ImM3xTmDkuEh1C2lbjENZgUTqlQEhd2SvefbM1I6W4BkwcHO4ghot
-         aDvcC0wmjC+w85GI0+1nQ4WNYh/ViQeTjP4EXyVomnS5t/K+5irYhK8MOhTFdWqb7a
-         XQENvnAt7lYzsmi0C4nXZadzLdgRdOC6CRPLVAp4T7Mcnw9gUEnkPpl9IHxaxDOnx2
-         k4HR0gTbQehDrgltzN9h55WnXKrYV9H5QUiRit7iX5puqK/SLhuynaP+h9gwEuHtlj
-         b+kn9OvdnyLj+RCBEUB0ftU3scyDZjTPiOESgvDcAPFxFHa9pabBoa/bNhjtB5TbeB
-         XTnU6vgj/BWog==
-Message-ID: <e5bc04905eccbd0ac9fbcf20d363ab90371f6e1c.camel@kernel.org>
-Subject: Re: [PATCH V2] x86/sgx: Fix free page accounting
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     "Luck, Tony" <tony.luck@intel.com>,
-        "Chatre, Reinette" <reinette.chatre@intel.com>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "bp@alien8.de" <bp@alien8.de>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>
-Cc:     "seanjc@google.com" <seanjc@google.com>,
-        "hpa@zytor.com" <hpa@zytor.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Date:   Thu, 11 Nov 2021 04:56:43 +0200
-In-Reply-To: <bcc3a465dde24f8dab469b4260753e40@intel.com>
-References: <b2e69e9febcae5d98d331de094d9cc7ce3217e66.1636487172.git.reinette.chatre@intel.com>
-         <8e0bb87f05b79317a06ed2d8ab5e2f5cf6132b6a.camel@kernel.org>
-         <794a7034-f6a7-4aff-7958-b1bd959ced24@intel.com>
-         <bcc3a465dde24f8dab469b4260753e40@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.40.4-1 
+        id S229931AbhKKDDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 22:03:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43838 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229699AbhKKDDc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 22:03:32 -0500
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 215EAC061766
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 19:00:44 -0800 (PST)
+Received: by mail-pg1-x52b.google.com with SMTP id p17so3947566pgj.2
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 19:00:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=emaU97g2PIgayWrYFLWjuLGWBCX+amZHncXcro3Idt4=;
+        b=p7j8aJ9958f+IqCU9hdGhkRYCqymwr23sqQsrFWozYjFUon1filaX+TI4BD/Aze36h
+         ecX9GHU/1X/axabzGx8yuLERtwMLXQsZ4X+vbdhA70qWrVMg2ABgD1eVs1cbjtpqYCiI
+         C2YUZhABnmRHvDElyUh8twgYJ1B7QWVTTbys94OgrpjRfUOOVnHf9GFaiC99Qip7ijAd
+         8VEmQwA5p+GrW8dwueTQN0VePwd08wKeQhFSARSRvPuv7E5QydUjNY3XeMEmDhecZRKy
+         F+VE0696wN7qNQydKxhXFXx+KSeFwpTaEvtP6IsN7Ikq9ybfKVCB0ryyK3wlSPfim+nv
+         AUyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=emaU97g2PIgayWrYFLWjuLGWBCX+amZHncXcro3Idt4=;
+        b=enU9xtX0pILbLiewZsPrjjn51LFzeuL7scIc8LPPAlj68xJGMe++xGWLBRqaaSArQa
+         LAh2PbGzW2oG2FXlCuv4e9Kznnf9HgAVZ8+M5pgzSC3LQPr22GNzAFpzKcnDt3YuQYr7
+         y/O5mf2jK6AQuSwEpsc/XBwM4Lj2OFJLTobUEquCC32aIPdR4g2NaQ0cGQcVjOzVuWog
+         P6BTDnF2pMPL5VR8Ic9AXe2iCdNghx1rqsqpmUf7VicYim3YnFAOEc1O5J4x9ntrF7Pu
+         6AOTPMxzde2KO3Dg0kGmlPE3iqOiSn9aNbMJ/5N3pWegF39diW+VmymEpRPJXnilyw5i
+         tHZw==
+X-Gm-Message-State: AOAM531Yl3jaQ9sNJSR+gebE39SuCSpYtAhRPpjDRIDTSVLQdsMyt6Dh
+        sqZjvL/6/+MQZ9irTp6mDZoqSG0JvOjUxAWFVpY=
+X-Google-Smtp-Source: ABdhPJwhWvyQc0QvgjYoV8IrSwTfeaKoePfLyloQTLMuntFAj5/kSVgfNlLgZfwWnkX71nqzjgOb3g==
+X-Received: by 2002:a63:9844:: with SMTP id l4mr2466273pgo.271.1636599643523;
+        Wed, 10 Nov 2021 19:00:43 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id lj15sm845584pjb.12.2021.11.10.19.00.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Nov 2021 19:00:43 -0800 (PST)
+Message-ID: <618c875b.1c69fb81.15006.3a03@mx.google.com>
+Date:   Wed, 10 Nov 2021 19:00:43 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.14.17-24-g490e6570185e
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.14 baseline: 171 runs,
+ 1 regressions (v5.14.17-24-g490e6570185e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2021-11-10 at 19:16 +0000, Luck, Tony wrote:
-> > > > The consequence of sgx_nr_free_pages not being protected is that
-> > > > its value may not accurately reflect the actual number of free
-> > > > pages on the system, impacting the availability of free pages in
-> > > > support of many flows. The problematic scenario isu when the
-> > >=20
-> > > In non-atomicity is not a problem, when it is not a problem :-)
->=20
-> This is most definitely a problem.
->=20
-> start with sgx_nr_free_pages =3D=3D 100
->=20
-> Now have a cpu on node0 allocate a page at the same time as another
-> cpu on node1 allcoates a page. Each holds the relevent per-node lock,
-> but that doesn't stop both CPUs from accessing the global together:
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0CPU on node0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0CPU on node1
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0sgx_nr_free_pages--;=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0sgx_nr=
-_free_pages--;
->=20
-> What is the value of sgx_nr_free_pages now? We want it to be 98,
-> but it could be 99.
->=20
-> Rinse, repeat thousands of times. Eventually the value of sgx_nr_free_pag=
-es
-> has not even a close connection to the number of free pages.
->=20
-> -Tony
+stable-rc/queue/5.14 baseline: 171 runs, 1 regressions (v5.14.17-24-g490e65=
+70185e)
 
-Yeah, so I figured this (see my follow-up response to Reinette) but
-such description is lacking from the commit message.
+Regressions Summary
+-------------------
 
-/Jarkko
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
+nel/v5.14.17-24-g490e6570185e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.14
+  Describe: v5.14.17-24-g490e6570185e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      490e6570185e6437cf1186a728921c1311ebdcc6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/618c4e46cfa5b918f83358fe
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
+24-g490e6570185e/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
+e-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.17-=
+24-g490e6570185e/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
+e-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/618c4e46cfa5b918f8335=
+8ff
+        failing since 17 days (last pass: v5.14.14-64-gb66eb77f69e4, first =
+fail: v5.14.14-124-g710e5bbf51e3) =
+
+ =20
