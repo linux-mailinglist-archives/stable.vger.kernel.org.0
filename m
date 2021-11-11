@@ -2,109 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30D6744DA36
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 17:17:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E28044DA41
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 17:20:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234138AbhKKQUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 11:20:21 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:31116 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233937AbhKKQUU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 11:20:20 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636647450;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=xujJ/bq+SC+rezsEo80o3fydJSWpSL4LfjFJ7txhcyk=;
-        b=Ow5B4UqNLz4ZKTW++f61002AqEU9vsjY4mJC9E/RSSCToYfBzNNwG/ZMVCH6upmVffKXIc
-        qawMUsVnxQSy+HVY028K8qwyYllHK43G4C0CRuTjs2R+6Bp40j6DlrR4TPziT3/SU9GuT/
-        /MJkggHNJCmNDIFL0UupGCNFKIgPGQI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-21-A6_XSJcFNnupHv64UvLiwQ-1; Thu, 11 Nov 2021 11:17:25 -0500
-X-MC-Unique: A6_XSJcFNnupHv64UvLiwQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4871F10151E1;
-        Thu, 11 Nov 2021 16:17:24 +0000 (UTC)
-Received: from max.localdomain (unknown [10.40.195.95])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D7D3960854;
-        Thu, 11 Nov 2021 16:17:15 +0000 (UTC)
-From:   Andreas Gruenbacher <agruenba@redhat.com>
-To:     Christoph Hellwig <hch@lst.de>,
-        "Darrick J . Wong" <djwong@kernel.org>
-Cc:     linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        cluster-devel@redhat.com,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        stable@vger.kernel.org
-Subject: [5.15 REGRESSION v2] iomap: Fix inline extent handling in iomap_readpage
-Date:   Thu, 11 Nov 2021 17:17:14 +0100
-Message-Id: <20211111161714.584718-1-agruenba@redhat.com>
+        id S234057AbhKKQXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 11:23:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54060 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232033AbhKKQXV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 11:23:21 -0500
+Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA0EC061766
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 08:20:32 -0800 (PST)
+Received: by mail-io1-xd32.google.com with SMTP id k21so7602745ioh.4
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 08:20:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=B0W6G1UOKLiVk/uulG3jqtzFnzz9ZwgwPEbQZHyhcfg=;
+        b=QReSc04RD00zcTqdyAeWunQZQRfWnzJkUL762nQwBnDomBSzNH6vpQs35Ilua0kmmp
+         9vNJH1ugDashDZ44QsBIBAEZGTjG2QELjkWzhnh3GLPLVRhq2RR4U63VT48Bt3j51HcY
+         8H4uBq6xKQ4KaB7TS1zLTX8CoqwT6uY1rFo8c=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=B0W6G1UOKLiVk/uulG3jqtzFnzz9ZwgwPEbQZHyhcfg=;
+        b=ptu1gcpSVu8Ad7QVX2lhotSc4MsD/AAPxLCmxdHiEQyu7YCYncVnO2y3ltRze/3PcW
+         3Kx+m4m8zdmlOLj1IWo6XMYrr2v2oKmViopYYIdmfcYht8Qw7Wvsm81vWuLjSt+Wo2kE
+         fyySVnPv9bGjx/NzIUt6RHcbx9F719/xhQPQztBpteGZWKgMnRH7dQesB0lgTjO3sL3x
+         P0EnL9l8K90wjLw1+dJe+mW3mCZRYGdcfOVsjx1HtjvJG6OaRYfHMFm+DFVctJb8TN9H
+         nTxqoEjxE0fbnVyxUFLg1ioKIi2ayJp37FDgBeukPlXSuo6Nnn4P4IUb55H99WWnc/wM
+         D6gw==
+X-Gm-Message-State: AOAM532NNPe1KjpK3w026+S5VYMjsQmsgH+2x3TazQXw8n86cHz8UHrs
+        Ug+wL3a3VVGVCUiOkNGGrDJnHQ==
+X-Google-Smtp-Source: ABdhPJwm8KY930iocnfzXrIO6dNfqxVfdG7CQRARwIF1LCsptS+/NB4tMtOpzUyQPF2o+q1iw2Ix+w==
+X-Received: by 2002:a02:9609:: with SMTP id c9mr6406487jai.118.1636647631747;
+        Thu, 11 Nov 2021 08:20:31 -0800 (PST)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id g11sm2297295ile.30.2021.11.11.08.20.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Nov 2021 08:20:31 -0800 (PST)
+Subject: Re: [PATCH 5.10 00/21] 5.10.79-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20211110182002.964190708@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <aaa666ca-0b1f-9576-015a-7501aa4ff1d0@linuxfoundation.org>
+Date:   Thu, 11 Nov 2021 09:20:30 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+In-Reply-To: <20211110182002.964190708@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Before commit 740499c78408 ("iomap: fix the iomap_readpage_actor return
-value for inline data"), when hitting an IOMAP_INLINE extent,
-iomap_readpage_actor would report having read the entire page.  Since
-then, it only reports having read the inline data (iomap->length).
+On 11/10/21 11:43 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.79 release.
+> There are 21 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 12 Nov 2021 18:19:54 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.79-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-This will force iomap_readpage into another iteration, and the
-filesystem will report an unaligned hole after the IOMAP_INLINE extent.
-But iomap_readpage_actor (now iomap_readpage_iter) isn't prepared to
-deal with unaligned extents, it will get things wrong on filesystems
-with a block size smaller than the page size, and we'll eventually run
-into the following warning in iomap_iter_advance:
+Compiled and booted on my test system.
 
-  WARN_ON_ONCE(iter->processed > iomap_length(iter));
+dmesg regressions. It took a very long time in trying to start
+Journal services and finally timed out. Pervious boot was on
+5.14.18-rc1 both boot and shutdown were clean.
 
-Fix that by changing iomap_readpage_iter to return 0 when hitting an
-inline extent; this will cause iomap_iter to stop immediately.
+> systemd[1]: systemd-journald.service: Failed with result 'timeout'.
+> systemd[1]: Failed to start Journal Service.
+> systemd[1]: systemd-journald.service: Consumed 3min 490ms CPU time.
+> systemd[1]: systemd-journald.service: Scheduled restart job, restart counter is at 6.
+> systemd[1]: Stopped Journal Service.
+> systemd[1]: systemd-journald.service: Consumed 3min 490ms CPU time.
+> systemd[1]: Starting Journal Service...
+> systemd-journald[913]: File /run/log/journal/351d6659a0b4490baeff8ad3c4704a35/system.journal corrupted or uncleanly shut down, renaming and replacing.
+> systemd[1]: Started Journal Service.
 
-To fix readahead as well, change iomap_readahead_iter to pass on
-iomap_readpage_iter return values less than or equal to zero.
 
-Fixes: 740499c78408 ("iomap: fix the iomap_readpage_actor return value for inline data")
-Cc: stable@vger.kernel.org # v5.15+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
----
- fs/iomap/buffered-io.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
-index 1753c26c8e76..fe10d8a30f6b 100644
---- a/fs/iomap/buffered-io.c
-+++ b/fs/iomap/buffered-io.c
-@@ -256,8 +256,13 @@ static loff_t iomap_readpage_iter(const struct iomap_iter *iter,
- 	unsigned poff, plen;
- 	sector_t sector;
- 
--	if (iomap->type == IOMAP_INLINE)
--		return min(iomap_read_inline_data(iter, page), length);
-+	if (iomap->type == IOMAP_INLINE) {
-+		loff_t ret = iomap_read_inline_data(iter, page);
-+
-+		if (ret < 0)
-+			return ret;
-+		return 0;
-+	}
- 
- 	/* zero post-eof blocks as the page may be mapped */
- 	iop = iomap_page_create(iter->inode, page);
-@@ -370,6 +375,8 @@ static loff_t iomap_readahead_iter(const struct iomap_iter *iter,
- 			ctx->cur_page_in_bio = false;
- 		}
- 		ret = iomap_readpage_iter(iter, ctx, done);
-+		if (ret <= 0)
-+			return ret;
- 	}
- 
- 	return done;
--- 
-2.31.1
-
+thanks,
+-- Shuah
