@@ -2,104 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1557944DC4A
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 20:45:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3DB44DCD1
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 21:59:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229710AbhKKTsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 14:48:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43854 "EHLO
+        id S233835AbhKKVCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 16:02:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232513AbhKKTsf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 14:48:35 -0500
-Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3485C061766;
-        Thu, 11 Nov 2021 11:45:45 -0800 (PST)
-Received: by mail-yb1-xb2c.google.com with SMTP id a129so17711919yba.10;
-        Thu, 11 Nov 2021 11:45:45 -0800 (PST)
+        with ESMTP id S233760AbhKKVCc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 16:02:32 -0500
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1295FC061767
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 12:59:43 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id nh10-20020a17090b364a00b001a69adad5ebso5778893pjb.2
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 12:59:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KanKvW9knMkjHLSimNH2i1EojftG486/SdICiXW+qfg=;
-        b=IKQsnXqZWJvMVPghQJgbhDzCCV8cpx6a3W8Rut+aHVeIeuEEWlVptGPvyVI2tibdzL
-         gMpwXKiIEmr3N6aRa/SwFhygIV2CfXTFYIDp0nNLU14ZPAiQjjCvU617LmOZyEDHSoJz
-         M0gwQZO9W/WfQR668D2ajd8NmCUlXDcxpZ3xYBUp2QVA2pBRyDZ5xoxzVqDwWfF4IU96
-         SzM+huRzf5WpWLGQ55mghyum5zOtLSjlvTkAKeYuoA/zRY2TEqpfHbG7xxZUWdOtLmce
-         02j2j2PHESuWCQaPTom4qkH4kuql9TVMm5N02g8CHM8yPg2sELrtGtTpOU0/iqH54fax
-         PbxA==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=IYIYWvTKaNiKh2FFVLH9BIOQfrhImcibkGPrOfuAKQg=;
+        b=UcE6QNl2XRCnDx+XrGKPl1xkr6JDSUStc3RsBtpXSFFdxe++LPO8CeWfR6GJNndXPy
+         J+38XN0mhf6/S25ZaGevpo8iLUntXgAJxhu44bKvEqyeGs6teQtFOnXXeNfSXIIAI6eU
+         TCqlqGnj87r+fX6zsBSzmX36COIwz0+fwod2SqIIaiAizBP7U1snmQA1xwXn5X9BUs2U
+         Xs1yYu1nK8VcClOL/YpHWDNqN/1lOLcWzjs62D0LuTJWj8F1ZUZwVm0cyHRd1tEbY2ge
+         rNpi1kjQ2pe1BNb/nUcPSA0Wq61TpMkCI47eHxkQkWx3zKEIJiy5xjg3I1jl1nKcOOkT
+         LVmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=KanKvW9knMkjHLSimNH2i1EojftG486/SdICiXW+qfg=;
-        b=3EcWAgNJeXRyDUdNQ/HSaKwFmS4Ajrd+kum5c8DTvTIUl7euBkdZZzXT0Fuv0Z5xmO
-         dmzGWOe2w55JRUmktUpNMbN5TDcD9TBXf6xX/jW8PwSGGw2yHuIH0tbI4Bf9G6FoymLw
-         O9quaaFF9pjhb4aQTm8Z1kP8eiBNcdi7FwronzSGSjhcVX1U2rPufyzVvM99gMTKP8pO
-         kQKW3UpOHW0qkMsa5YDsjTw3K6k0CEoNmLlE9kVe//SdurRzNdMc3V5ob15KjkczwvTS
-         vp9KQJsERBIA1xpU2g1NvCYUGQ6wWKXClE2GM8j/tjHVxqajtOM0suzQCOlxLa08ODrm
-         sdgw==
-X-Gm-Message-State: AOAM531GDY0xUZHbOX/zzr2Xpas61L72YVvyq/0piTOqxle0USX6Lp+d
-        X+lv5VHZKFOjKARbWrHGqPH557oSIdUKCoYuoC4=
-X-Google-Smtp-Source: ABdhPJy70nUyVVTxVdzTjmvH1Mw2XqCn4m+nK8DEGJoA2os2aO9KauZzEi2MpYSXNglAl7NJByGiRgL/w+FPE/dTSCw=
-X-Received: by 2002:a25:488:: with SMTP id 130mr10360670ybe.346.1636659945096;
- Thu, 11 Nov 2021 11:45:45 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=IYIYWvTKaNiKh2FFVLH9BIOQfrhImcibkGPrOfuAKQg=;
+        b=wrfpbtMslF4iFz6kg+C2AeNqTWMc+Cpih9aFZx18hcQnyeoKu+qlQnXHf4ksdc2/Vr
+         44Q77Nx7BW/ormxhHT5UMfvdEuGZdS4GtggjRjo67DVJTmuOS868NvXyqdDyxAf8hl36
+         aK5oZ+Wiq37hoNXG5P0CL+rLVjhsE/4OsLhnciSKiGUJkLjMutz9RHNh2TyWdJOgpd6F
+         HluCk46A3VwbggegqDfrLNz2Bdt9d9wPZBCi7d0DNOL1JbAj0tT+xW5ZGHqgFS/jyXW9
+         1fvsuaQZMpzye4Da3ongNMyFnUlP5lrhMxeUMmF/bT7UTL/R8guV/6eB2fZDwhqsMj0b
+         HnhQ==
+X-Gm-Message-State: AOAM5303yZwOaL35CZ7Yrm6a3I0c+tvd9kTznJleTIhhYxam1QQJAq8s
+        HBdK7nDnMCXbMSBVufJcUmRVsQ==
+X-Google-Smtp-Source: ABdhPJylh8+qntfUSHiBAFlKENV8+xDWePE09jd/UmpP1PbprE9ejv8q8N+jiiFonhOc9DxJUuBm2Q==
+X-Received: by 2002:a17:902:ce8c:b0:141:d218:954 with SMTP id f12-20020a170902ce8c00b00141d2180954mr2011937plg.1.1636664382585;
+        Thu, 11 Nov 2021 12:59:42 -0800 (PST)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id g5sm9134575pjt.15.2021.11.11.12.59.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Nov 2021 12:59:42 -0800 (PST)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     jmaloy@redhat.com
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Ying Xue <ying.xue@windriver.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dmitry Vyukov <dvyukov@google.com>
+Subject: [PATCH] tipc: check for null after calling kmemdup
+Date:   Thu, 11 Nov 2021 12:59:15 -0800
+Message-Id: <20211111205916.37899-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.33.1
 MIME-Version: 1.0
-References: <20211110182002.964190708@linuxfoundation.org> <YY0UQAQ54Vq4vC3z@debian>
-In-Reply-To: <YY0UQAQ54Vq4vC3z@debian>
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Date:   Thu, 11 Nov 2021 19:45:09 +0000
-Message-ID: <CADVatmPdQzsMk4HSYftUwEQ8PXF5rBVuYN9kp4aOvj7Pd9ds6w@mail.gmail.com>
-Subject: Re: [PATCH 5.10 00/21] 5.10.79-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 11, 2021 at 1:01 PM Sudip Mukherjee
-<sudipm.mukherjee@gmail.com> wrote:
->
-> Hi Greg,
->
-> On Wed, Nov 10, 2021 at 07:43:46PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.10.79 release.
-> > There are 21 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Fri, 12 Nov 2021 18:19:54 +0000.
-> > Anything received after that time might be too late.
->
-> systemd-journal-flush.service failed due to a timeout resulting in a very very
-> slow boot on my test laptop. qemu test on openqa failed due to the same problem.
+kmemdup can return a null pointer so need to check for it, otherwise
+the null key will be dereferenced later in tipc_crypto_key_xmit as
+can be seen in the trace [1].
 
-Build test:
-mips (gcc version 11.2.1 20211104): 63 configs -> no new failure
-arm (gcc version 11.2.1 20211104): 105 configs -> no new failure
-arm64 (gcc version 11.2.1 20211104): 3 configs -> no failure
-x86_64 (gcc version 11.2.1 20211104): 4 configs -> no failure
+Cc: Jon Maloy <jmaloy@redhat.com>
+Cc: Ying Xue <ying.xue@windriver.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: tipc-discussion@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org # 5.15, 5.14, 5.10
 
-Boot test:
-x86_64: Regression mail sent earlier.  Caused by 8615ff6dd1ac ("mm:
-filemap: check if THP has
-hwpoisoned subpage for PMD page fault").
+[1] https://syzkaller.appspot.com/bug?id=bca180abb29567b189efdbdb34cbf7ba851c2a58
 
-arm64: Booted on rpi4b (4GB model). No regression. [1]
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+---
+ net/tipc/crypto.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-[1]. https://openqa.qa.codethink.co.uk/tests/362
+diff --git a/net/tipc/crypto.c b/net/tipc/crypto.c
+index dc60c32bb70d..988a343f9fd5 100644
+--- a/net/tipc/crypto.c
++++ b/net/tipc/crypto.c
+@@ -597,6 +597,11 @@ static int tipc_aead_init(struct tipc_aead **aead, struct tipc_aead_key *ukey,
+ 	tmp->cloned = NULL;
+ 	tmp->authsize = TIPC_AES_GCM_TAG_SIZE;
+ 	tmp->key = kmemdup(ukey, tipc_aead_key_size(ukey), GFP_KERNEL);
++	if (!tmp->key) {
++		free_percpu(tmp->tfm_entry);
++		kfree_sensitive(tmp);
++		return -ENOMEM;
++	}
+ 	memcpy(&tmp->salt, ukey->key + keylen, TIPC_AES_GCM_SALT_SIZE);
+ 	atomic_set(&tmp->users, 0);
+ 	atomic64_set(&tmp->seqno, 0);
+-- 
+2.33.1
 
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
