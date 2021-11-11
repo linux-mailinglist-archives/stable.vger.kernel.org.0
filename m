@@ -2,66 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF2B244CFD5
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 03:11:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B16544D014
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 03:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233491AbhKKCMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 21:12:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60292 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234450AbhKKCMd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 21:12:33 -0500
-Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2597C061205
-        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 18:08:27 -0800 (PST)
-Received: by mail-io1-xd33.google.com with SMTP id m9so5237015iop.0
-        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 18:08:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=uL72NBIDCvdq2/a4fKAJXgm9khZY4a2px1crTHjKYJQ=;
-        b=chvVoPwnam3QrDp9qdsWkYIi+N3bVyIAA+N6z8mFSXb8iD24+hSbwHJYl0uRqMK+Lr
-         b2A8jpozm+12FJ9pzZ9AzCCkRUl0d+L1CJsd2j8bU8MckgNuzdUsboFiSYd3YcLCfD7+
-         EguwiwISHe/lAnNjhm6sHmlAYONFvB8uuTHaR6op9XP7NgzcUHGi1p2YaWz9ZvmXx9OC
-         bnFduEAHUcrvAE9lkWXenEbuMS0qeSibB/YAgqA34MaMKA4rA6OSOXCA/rBCRR+0uain
-         D/ugYLQcqS4oMzThrR3AZMFsAbH/vl0jc5hRVKNkZJCnpsTHyYWG6AsumSyI+PPBgySc
-         0YUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=uL72NBIDCvdq2/a4fKAJXgm9khZY4a2px1crTHjKYJQ=;
-        b=EWO4FDznuOmNLvW3EJXCg5U93wP6EUKPk2nHFcDijVbOomGKznfNA5cXCGRcBxXgJ8
-         5AqtzJD1hq4y2I7K5rnJ9Y8hGuazfocSKrkAX7NlWqfCwvJL7xE5itOHUaCXDChjxMIR
-         AX2FSPrD9VwVdWfyaj+GJtGBuyfg+60PCDBa3kA6kh/317C+gdMouoYdLP0XFuJ1N2ol
-         vviAVj1r+wdvkbygd5GLa1EoRRSGIoq0poDtw+oawBqqLNFt/rZgDp1xpOLeA5ZP5tZT
-         tv2T1p0Lq9SayeVYKaqVu2vc4dxgYV8peJHxDiEEpYQHs87lGANpVqAcmO2VfdCs/e1U
-         AzOg==
-X-Gm-Message-State: AOAM532AR/Ykrs/7yJKk3fnqcK862qEZ0T9AyeE9oRRq6t5LoNFn1ELi
-        79IBRRVC3iUfkjdHw0cgnBFUfsWQAAzb0i5zuRw=
-X-Google-Smtp-Source: ABdhPJyRXEcneSpkf7FD16mSez8WXNTd/FAWnBDKvlrtJxcNj2xeFMHCOtEMyzJRxDG/h9OQMh9O9R7Kbzo4WtOPAtI=
-X-Received: by 2002:a6b:f212:: with SMTP id q18mr1419045ioh.16.1636596507179;
- Wed, 10 Nov 2021 18:08:27 -0800 (PST)
-MIME-Version: 1.0
-Received: by 2002:a6b:5f03:0:0:0:0:0 with HTTP; Wed, 10 Nov 2021 18:08:26
- -0800 (PST)
-Reply-To: mrsambamalick@gmail.com
-From:   MR MALICK <aiolarasr@gmail.com>
-Date:   Thu, 11 Nov 2021 03:08:26 +0100
-Message-ID: <CAKQXBZfYjPJeqkQNmjrC+HK_iv=uC3i0odEu3jN7oqMLkO1jtA@mail.gmail.com>
-Subject: CONGRATULATION
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S233425AbhKKCmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 21:42:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48002 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233120AbhKKCmV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Nov 2021 21:42:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9ED361872;
+        Thu, 11 Nov 2021 02:39:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1636598373;
+        bh=rj7RCXRc5RDuZpVn0g9/7+yFRxyUcHDfQf5P7GfxFRM=;
+        h=Date:From:To:Subject:From;
+        b=fDKkfY0R4HrO7s1Z+MpkzJGG0Y+QI73MC2tBilH2J+xDzAK31bbDubrHcrH/sR3Cr
+         o8jegHmxMEjuklQnYQNKxi8G7FfVQQjaOTaWVDclUBtCFm1iaGNHg4n8j7VuC2fdid
+         I+degOpYSAGhBvRpbDeDGN39Le/caE16rgZKbfis=
+Date:   Wed, 10 Nov 2021 18:39:32 -0800
+From:   akpm@linux-foundation.org
+To:     gechangwei@live.cn, ghe@suse.com, jack@suse.cz, jlbec@evilplan.org,
+        joseph.qi@linux.alibaba.com, junxiao.bi@oracle.com,
+        mark@fasheh.com, mm-commits@vger.kernel.org, piaojun@huawei.com,
+        stable@vger.kernel.org
+Subject:  [merged] ocfs2-fix-data-corruption-on-truncate.patch
+ removed from -mm tree
+Message-ID: <20211111023932.YJk_N-eHV%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LOTTO WINNING AWARD.
 
-Your email won 2.6 million dollars, Contact Barrister Marcel Cremer
-through his email here ( cremerrsolicitors@gmail.com) to claim your
-winning fund with your details as follows, your full name, your
-country, your home address and your phone number.
+The patch titled
+     Subject: ocfs2: fix data corruption on truncate
+has been removed from the -mm tree.  Its filename was
+     ocfs2-fix-data-corruption-on-truncate.patch
 
-Regards,,
-Mr.  Malick Samba.
+This patch was dropped because it was merged into mainline or a subsystem tree
+
+------------------------------------------------------
+From: Jan Kara <jack@suse.cz>
+Subject: ocfs2: fix data corruption on truncate
+
+Patch series "ocfs2: Truncate data corruption fix".
+
+As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
+corruption after conversion from inline format") didn't fix all the data
+corruption issues the customer started observing after 6dbf7bb55598 ("fs:
+Don't invalidate page buffers in block_write_full_page()") This time I
+have tracked them down to two bugs in ocfs2 truncation code.
+
+One bug (truncating page cache before clearing tail cluster and setting
+i_size) could cause data corruption even before 6dbf7bb55598, but before
+that commit it needed a race with page fault, after 6dbf7bb55598 it
+started to be pretty deterministic.
+
+Another bug (zeroing pages beyond old i_size) used to be harmless
+inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598 in
+combination with the first bug it resulted in deterministic data
+corruption.
+
+Although fixing only the first problem is needed to stop data corruption,
+I've fixed both issues to make the code more robust.
+
+
+This patch (of 2):
+
+ocfs2_truncate_file() did unmap invalidate page cache pages before zeroing
+partial tail cluster and setting i_size.  Thus some pages could be left
+(and likely have left if the cluster zeroing happened) in the page cache
+beyond i_size after truncate finished letting user possibly see stale data
+once the file was extended again.  Also the tail cluster zeroing was not
+guaranteed to finish before truncate finished causing possible stale data
+exposure.  The problem started to be particularly easy to hit after commit
+6dbf7bb55598 "fs: Don't invalidate page buffers in
+block_write_full_page()" stopped invalidation of pages beyond i_size from
+page writeback path.
+
+Fix these problems by unmapping and invalidating pages in the page cache
+after the i_size is reduced and tail cluster is zeroed out.
+
+Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
+Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
+Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/ocfs2/file.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+--- a/fs/ocfs2/file.c~ocfs2-fix-data-corruption-on-truncate
++++ a/fs/ocfs2/file.c
+@@ -476,10 +476,11 @@ int ocfs2_truncate_file(struct inode *in
+ 	 * greater than page size, so we have to truncate them
+ 	 * anyway.
+ 	 */
+-	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
+-	truncate_inode_pages(inode->i_mapping, new_i_size);
+ 
+ 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
++		unmap_mapping_range(inode->i_mapping,
++				    new_i_size + PAGE_SIZE - 1, 0, 1);
++		truncate_inode_pages(inode->i_mapping, new_i_size);
+ 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
+ 					       i_size_read(inode), 1);
+ 		if (status)
+@@ -498,6 +499,9 @@ int ocfs2_truncate_file(struct inode *in
+ 		goto bail_unlock_sem;
+ 	}
+ 
++	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
++	truncate_inode_pages(inode->i_mapping, new_i_size);
++
+ 	status = ocfs2_commit_truncate(osb, inode, di_bh);
+ 	if (status < 0) {
+ 		mlog_errno(status);
+_
+
+Patches currently in -mm which might be from jack@suse.cz are
+
+
