@@ -2,118 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 620B544DAFA
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 18:08:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C11944DB35
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 18:44:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229539AbhKKRLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 12:11:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36908 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233823AbhKKRLl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 12:11:41 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B90AAC061767
-        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 09:08:52 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id o14so6261196plg.5
-        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 09:08:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=MTeb7EwYQ6knt5Yt/ry55U3lnaRcmUX6EwlTrk8tx+c=;
-        b=ds20VIcMFOGuKghW/bzjxNO+bNyDsiYY41bgx6wWI5aCSCnwss/Co3Ny6XzbTFQeMy
-         yisAaMV+GRDylQ5IlXjZfRuEAPsgMR52HvS/aqqKnda7xSUt0Bh5+sunjV4Rv2gi9R1F
-         nkjmxOed+c9gGz0fMM/h5IaqQ2w7k3of2ZHwI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=MTeb7EwYQ6knt5Yt/ry55U3lnaRcmUX6EwlTrk8tx+c=;
-        b=kozx5F84zruxmvuZ0g3ICawpERKBxr6C23JtV0Ai+Ug5oRQyZGHJDsQUXOCLmf8u8P
-         qvMr81HuwfitiAQ16w4nJp98imYAf6bRLg/kxjRKLTulGYlB5Q0v77oocrgBOEZxb+Ol
-         GdznXBPHYqKQRXeb+oH/k+RzNYMk5pHp3NVkZ3BKnuqYNUMhUopd/bebsDk5rK4tiyQi
-         RM+4aXwzr+HERPO90KxrXphLFEbGt5nwofqgp8GM6JtCH6e+swcALmFwnvcaUZ6TbiRk
-         i/mPCIN7OENXsN416Bmnm8+RpVTsRZwj3NL8PugpYVMgC20OHtM9xscxTrBIx/C5PyiH
-         YhFA==
-X-Gm-Message-State: AOAM531yn0eOG0oKt615dwAFYOYYDJzJrDF/pSWymF7eM9TTMp6nCTF6
-        r//mZPqB4SDzCxSxslBYySvGKQ==
-X-Google-Smtp-Source: ABdhPJy+Wspr+wgSYV8eJ6xk+ftryfQPGFwP/r7UPzbjE2qFAC9uL0TIDG3ozkjbX8I7CNV0cO239g==
-X-Received: by 2002:a17:903:1110:b0:13f:d25c:eac5 with SMTP id n16-20020a170903111000b0013fd25ceac5mr641394plh.5.1636650532110;
-        Thu, 11 Nov 2021 09:08:52 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:8be6:66e1:e079:a091])
-        by smtp.googlemail.com with ESMTPSA id i184sm2735100pgc.77.2021.11.11.09.08.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Nov 2021 09:08:51 -0800 (PST)
-Date:   Thu, 11 Nov 2021 09:08:47 -0800
-From:   Zubin Mithra <zsm@chromium.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>, Omar Sandoval <osandov@fb.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH 4.19 01/16] block: introduce multi-page bvec helpers
-Message-ID: <YY1OHxpimjKYgxGR@google.com>
-References: <20211110182001.994215976@linuxfoundation.org>
- <20211110182002.041203616@linuxfoundation.org>
- <20211111164754.GA29545@duo.ucw.cz>
+        id S233583AbhKKRrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 12:47:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51382 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229710AbhKKRrJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Nov 2021 12:47:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 115F861268;
+        Thu, 11 Nov 2021 17:44:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1636652660;
+        bh=9Gq0v0p33pbfM5GnyjHDOkIzDG8zl78YxZZdO6V/SAo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ACl630hv72QwnL86vhB9yF7sypTrTSmWzpgqFQ+a9kIDxyiEpKURrCOJVrC/DDS1W
+         rklqg+8BIOiHAhLDV2SQCKFZOc+QDG8DjCXYIAKRYKqAPfvmE8PYtuGWFJKYbSVz1F
+         RnODRi4csuSnOsrozx6N4lc40x4lt2tcacxbJu7cnIyjurgxn85Is7ze3yvB+aYqbF
+         0rJbGgUa+gzrYGl5ZjOPjC2po0G3TvI3zZTqL9PFAmqQ9dvheguJ2PPDz4WhX+nci4
+         yeSDnGwG5S0/yXcufhU0u/0RsAc+j3JUkPuxC80aALGhjX2e+L35P/Gw1jtYHdmEeg
+         n+aw+cx+7NQDg==
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Jarkko Sakkinen <jarkko@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Jethro Beekman <jethro@fortanix.com>
+Cc:     reinette.chatre@intel.com, tony.luck@intel.com,
+        nathaniel@profian.com, stable@vger.kernel.org,
+        Borislav Petkov <bp@suse.de>, linux-sgx@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2] x86/sgx: Free backing memory after faulting the enclave page
+Date:   Thu, 11 Nov 2021 19:44:01 +0200
+Message-Id: <20211111174401.865493-1-jarkko@kernel.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211111164754.GA29545@duo.ucw.cz>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 11, 2021 at 05:47:54PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > From: Ming Lei <ming.lei@redhat.com>
-> > 
-> > commit 3d75ca0adef4280650c6690a0c4702a74a6f3c95 upstream.
-> > 
-> > This patch introduces helpers of 'mp_bvec_iter_*' for multi-page bvec
-> > support.
-> > 
-> > The introduced helpers treate one bvec as real multi-page segment,
-> > which may include more than one pages.
-> > 
-> > The existed helpers of bvec_iter_* are interfaces for supporting current
-> > bvec iterator which is thought as single-page by drivers, fs, dm and
-> > etc. These introduced helpers will build single-page bvec in flight, so
-> > this way won't break current bio/bvec users, which needn't any
-> > change.
-> 
-> I don't understand why we have this in 4.19-stable. I don't see
-> followup patches needing it, and it does not claim to fix a bug.
+There is a limited amount of SGX memory (EPC) on each system.  When that
+memory is used up, SGX has its own swapping mechanism which is similar
+in concept but totally separate from the core mm/* code.  Instead of
+swapping to disk, SGX swaps from EPC to normal RAM.  That normal RAM
+comes from a shared memory pseudo-file and can itself be swapped by the
+core mm code.  There is a hierarchy like this:
 
+	EPC <-> shmem <-> disk
 
-There is some more context on this at:
-https://lore.kernel.org/linux-block/YXweJ00CVsDLCI7b@google.com/T/#u
-and
-https://lore.kernel.org/stable/YYVZBuDaWBKT3vOS@google.com/T/#u
+After data is swapped back in from shmem to EPC, the shmem backing
+storage needs to be freed.  Currently, the backing shmem is not freed.
+This effectively wastes the shmem while the enclave is running.  The
+memory is recovered when the enclave is destroyed and the backing
+storage freed.
 
-Thanks,
-- Zubin
+Sort this out by freeing memory with shmem_truncate_range(), as soon as
+a page is faulted back to the EPC.  In addition, free the memory for
+PCMD pages as soon as all PCMD's in a page have been marked as unused
+by zeroing its contents.
 
-> 
-> > +#define mp_bvec_iter_bvec(bvec, iter)				\
-> > +((struct bio_vec) {						\
-> > +	.bv_page	= mp_bvec_iter_page((bvec), (iter)),	\
-> > +	.bv_len		= mp_bvec_iter_len((bvec), (iter)),	\
-> > +	.bv_offset	= mp_bvec_iter_offset((bvec), (iter)),	\
-> > +})
-> > +
-> > +/* For building single-page bvec in flight */
-> > + #define bvec_iter_offset(bvec, iter)				\
-> > +	(mp_bvec_iter_offset((bvec), (iter)) % PAGE_SIZE)
-> > +
-> 
-> Plus this one is strange. IIRC preprocessor directives have to put #
-> in column zero?
-> 
-> Best regards,
-> 								Pavel
-> -- 
-> http://www.livejournal.com/~pavelmachek
+Reported-by: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Fixes: 1728ab54b4be ("x86/sgx: Add a page reclaimer")
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+---
+v2:
+* Rewrite commit message as proposed by Dave.
+* Truncate PCMD pages (Dave).
+---
+ arch/x86/kernel/cpu/sgx/encl.c | 48 +++++++++++++++++++++++++++++++---
+ 1 file changed, 44 insertions(+), 4 deletions(-)
 
+diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
+index 001808e3901c..ea43c10e5458 100644
+--- a/arch/x86/kernel/cpu/sgx/encl.c
++++ b/arch/x86/kernel/cpu/sgx/encl.c
+@@ -12,6 +12,27 @@
+ #include "encls.h"
+ #include "sgx.h"
+ 
++
++/*
++ * Get the page number of the page in the backing storage, which stores the PCMD
++ * of the enclave page in the given page index.  PCMD pages are located after
++ * the backing storage for the visible enclave pages and SECS.
++ */
++static inline pgoff_t sgx_encl_get_backing_pcmd_nr(struct sgx_encl *encl, pgoff_t index)
++{
++	return PFN_DOWN(encl->size) + 1 + (index / sizeof(struct sgx_pcmd));
++}
++
++/*
++ * Free a page from the backing storage in the given page index.
++ */
++static inline void sgx_encl_truncate_backing_page(struct sgx_encl *encl, pgoff_t index)
++{
++	struct inode *inode = file_inode(encl->backing);
++
++	shmem_truncate_range(inode, PFN_PHYS(index), PFN_PHYS(index) + PAGE_SIZE - 1);
++}
++
+ /*
+  * ELDU: Load an EPC page as unblocked. For more info, see "OS Management of EPC
+  * Pages" in the SDM.
+@@ -24,7 +45,10 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
+ 	struct sgx_encl *encl = encl_page->encl;
+ 	struct sgx_pageinfo pginfo;
+ 	struct sgx_backing b;
++	bool pcmd_page_empty;
+ 	pgoff_t page_index;
++	pgoff_t pcmd_index;
++	u8 *pcmd_page;
+ 	int ret;
+ 
+ 	if (secs_page)
+@@ -38,8 +62,8 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
+ 
+ 	pginfo.addr = encl_page->desc & PAGE_MASK;
+ 	pginfo.contents = (unsigned long)kmap_atomic(b.contents);
+-	pginfo.metadata = (unsigned long)kmap_atomic(b.pcmd) +
+-			  b.pcmd_offset;
++	pcmd_page = kmap_atomic(b.pcmd);
++	pginfo.metadata = (unsigned long)pcmd_page + b.pcmd_offset;
+ 
+ 	if (secs_page)
+ 		pginfo.secs = (u64)sgx_get_epc_virt_addr(secs_page);
+@@ -55,11 +79,27 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
+ 		ret = -EFAULT;
+ 	}
+ 
+-	kunmap_atomic((void *)(unsigned long)(pginfo.metadata - b.pcmd_offset));
++	memset(pcmd_page + b.pcmd_offset, 0, sizeof(struct sgx_pcmd));
++
++	/*
++	 * The area for the PCMD in the page was zeroed above.  Check if the
++	 * whole page is now empty meaning that all PCMD's have been zeroed:
++	 */
++	pcmd_page_empty = !memchr_inv(pcmd_page, 0, PAGE_SIZE);
++
++	kunmap_atomic(pcmd_page);
+ 	kunmap_atomic((void *)(unsigned long)pginfo.contents);
+ 
+ 	sgx_encl_put_backing(&b, false);
+ 
++	/* Free the backing memory. */
++	sgx_encl_truncate_backing_page(encl, page_index);
++
++	if (pcmd_page_empty) {
++		pcmd_index = sgx_encl_get_backing_pcmd_nr(encl, page_index);
++		sgx_encl_truncate_backing_page(encl, pcmd_index);
++	}
++
+ 	return ret;
+ }
+ 
+@@ -577,7 +617,7 @@ static struct page *sgx_encl_get_backing_page(struct sgx_encl *encl,
+ int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
+ 			 struct sgx_backing *backing)
+ {
+-	pgoff_t pcmd_index = PFN_DOWN(encl->size) + 1 + (page_index >> 5);
++	pgoff_t pcmd_index = sgx_encl_get_backing_pcmd_nr(encl, page_index);
+ 	struct page *contents;
+ 	struct page *pcmd;
+ 
+-- 
+2.32.0
 
