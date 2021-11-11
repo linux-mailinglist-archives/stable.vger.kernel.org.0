@@ -2,70 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EFA644D6C5
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 13:46:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A76C44D6CB
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 13:49:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232126AbhKKMsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 07:48:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60750 "EHLO
+        id S232084AbhKKMwi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 07:52:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229946AbhKKMsw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 07:48:52 -0500
-Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 928C1C061766;
-        Thu, 11 Nov 2021 04:46:03 -0800 (PST)
-Received: from ssl.serverraum.org (web.serverraum.org [172.16.0.2])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id E0D6922236;
-        Thu, 11 Nov 2021 13:46:01 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1636634762;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=f+TAWD2aPFtiwm8hAkd9NRN9NVSO95emUnttm6E55YI=;
-        b=AYomQ9LHYEjiziwIM+OKUWO9gPSTwzkjGV+HEnUiE72UDSOFhs6OIY/ezdg3J0/+vjVJ7L
-        z8U97Qmb2v8iGPHOYrkNeq9s823AlbBVn6dxjoWLWEQKqvP5UEEjFhnvMiwpAgyJMOhwL6
-        pvegdN/G8ELXjIahSDOl7iiH62Y6nOk=
+        with ESMTP id S232033AbhKKMwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 07:52:38 -0500
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1789CC061766
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 04:49:49 -0800 (PST)
+Received: by mail-ed1-x544.google.com with SMTP id o8so23629479edc.3
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 04:49:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=LjD4GxWdc2zr8/9EZOl5q2FS3VyqZrhxuRWYjSCst2U=;
+        b=Ya0+5/A0F0k5Mc59EdP8XLsoJAmYxwXuGR5xUM8GZq6pvqOXIhDAE2SSWTgrqgRhsZ
+         ll6DtjsZpQZqwzNb6ZCGWzEJ2u7Mi2EYO7CjSko80VD86EHSBbiF1BjSwH/DmvL03AFO
+         W09Ws4abWTTwui0lmTFDqnRIFGG/qVaC2aSa4kZagbURE401dEf38S3u1MlsJ7oMEk7b
+         PvwU9RSEeKAe2RIxwRuFSK8AD8Qrk1RvgnnRrs7jvvGFHXFIf1dNnNEPjIok+THJcYS1
+         GFNJ1oiYJyIk7C8N07MD/z1ppM9PfbRmVO+CBg8bSun6BphhAglIAGIncCTHXjJd257z
+         UatQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=LjD4GxWdc2zr8/9EZOl5q2FS3VyqZrhxuRWYjSCst2U=;
+        b=NILwtICdUE4/xIWNE6W9wdtV23pbkPpOSbazk+cVWi2TxLAk2/2S1fV3tKNye1NpLo
+         gGQ961bXi2pcxvBsNMOYij+CMTWoqTV1+XnY9VYMPcM5kU8THxiScD+gkc/7OIe8JISM
+         3U3ijDN9Auw1zNZ00b7El5yLH/NrNABDiVJpkv+QlV3V3lWANd86/O6QJz5SfULfUUEw
+         k3tXNuydaDKke0lq6UvYDSVPCkeVJoseFniPCC9gA8kJo2TemmsiVxHS5teVz7TF819i
+         NJ/CWP8CZEzfXut5PK/XQNGS9XvEi0sVdc1/9THC51hp/52RosFHdKM+Sx5CfinCWTR4
+         Hpmw==
+X-Gm-Message-State: AOAM530nOI66h4e85CbiQzEA7pr3eeTaK3k+ek9AMNNU0Jwb3cj0Xejw
+        aLjKTGvummDJO8gf4sDidgpZ/eRLOnOfsKnkqes=
+X-Google-Smtp-Source: ABdhPJzw51vXzBuInVuimUuR1KMYGK3L9eyHkT200CiAJQtIbZ0A3rQWEFy2dM+TOO06kDl3FX9Zfnv1mIWM1Ig8+1E=
+X-Received: by 2002:a17:907:c0b:: with SMTP id ga11mr9063911ejc.39.1636634987561;
+ Thu, 11 Nov 2021 04:49:47 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Thu, 11 Nov 2021 13:46:01 +0100
-From:   Michael Walle <michael@walle.cc>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
-        Lukas Wunner <lukas@wunner.de>, stable@vger.kernel.org
-Subject: Re: [PATCH] spi: fix use-after-free of the add_lock mutex
-In-Reply-To: <YY0Oe9NjhfUvq0J+@sirena.org.uk>
-References: <20211111083713.3335171-1-michael@walle.cc>
- <YY0Oe9NjhfUvq0J+@sirena.org.uk>
-User-Agent: Roundcube Webmail/1.4.11
-Message-ID: <20cde88dd11fde7f6847506ffcaa67ed@walle.cc>
-X-Sender: michael@walle.cc
+Sender: sandrinejohnpaul30@gmail.com
+Received: by 2002:a54:3652:0:0:0:0:0 with HTTP; Thu, 11 Nov 2021 04:49:47
+ -0800 (PST)
+From:   Mrs Carlsen Monika <carlsen.monika@gmail.com>
+Date:   Thu, 11 Nov 2021 13:49:47 +0100
+X-Google-Sender-Auth: JQY6HiG6qlTJNzxCYBsKoaErdEg
+Message-ID: <CANWjYXi8dSWSkcBYCXz-ZYzHz38j7Tj0exwY3VUjUqOBbKNRoQ@mail.gmail.com>
+Subject: Hello my dear,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am 2021-11-11 13:37, schrieb Mark Brown:
-> On Thu, Nov 11, 2021 at 09:37:13AM +0100, Michael Walle wrote:
-> 
->> ---
->> changes since RFC:
->>  - fix call graph indendation in commit message
-> 
-> If you are sending a new version of something please flag that in the
-> commit message, this helps both people and automated systems identify
-> that this is a new version of the same thing.
+ I sent this mail praying it will found you in a good condition of
+health, since I myself are in a very critical health condition in
+which I sleep every night without knowing if I may be alive to see the
+next day.I'm Mrs.Monika John Carlsen, wife of late Mr John Carlsen, a
+widow suffering from long time illness.i have some funds i inherited
+from my late husband, the sum of (elevenmilliondollars) my Doctor told
+me recently that I have serious sickness which is cancer problem. What
+disturbs me most is my stroke sickness.Having known my condition,I
+decided to donate this fund to a good person that will utilize it the
+way i am going to instruct herein.I need a very honest and God fearing
+person who can claim this money and use it for Charity works,for
+orphanages,widows and also build schools for less privileges that will
+be named after my late husband if possible and to promote the word of
+God and the effort that the house of God is maintained.
 
-Are RFC patches eligible to be picked up? I wasn't sure if I had to
-resend it at all. But since there was a mistake in the commit message
-anyway, I went ahead and the the first "real" version. How would
-you flag that? Isn't changing the subject from "[PATCH RFC]" (ok it
-was "RFC PATCH", my bad) to "[PATCH]" enough?
+I do not want a situation where this money will be used in an ungodly
+manner.That's why I'm taking this decision. I'm not afraid of death so
+I know where I'm going.I accept this decision because I do not have
+any child who will inherit this money after I die. Please I want your
+sincerely and urgent answer to know if you will be able to execute
+this project, and I will give you more information on how the fund
+will be transferred to your bank account.I'm waiting for your reply.
 
--michael
+Best Regards,
+Mrs. Monika John Carlsen
