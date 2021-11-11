@@ -2,134 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B16544D014
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 03:39:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7E5344D015
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 03:40:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233425AbhKKCmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Nov 2021 21:42:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48002 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233120AbhKKCmV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Nov 2021 21:42:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9ED361872;
-        Thu, 11 Nov 2021 02:39:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1636598373;
-        bh=rj7RCXRc5RDuZpVn0g9/7+yFRxyUcHDfQf5P7GfxFRM=;
-        h=Date:From:To:Subject:From;
-        b=fDKkfY0R4HrO7s1Z+MpkzJGG0Y+QI73MC2tBilH2J+xDzAK31bbDubrHcrH/sR3Cr
-         o8jegHmxMEjuklQnYQNKxi8G7FfVQQjaOTaWVDclUBtCFm1iaGNHg4n8j7VuC2fdid
-         I+degOpYSAGhBvRpbDeDGN39Le/caE16rgZKbfis=
-Date:   Wed, 10 Nov 2021 18:39:32 -0800
-From:   akpm@linux-foundation.org
-To:     gechangwei@live.cn, ghe@suse.com, jack@suse.cz, jlbec@evilplan.org,
-        joseph.qi@linux.alibaba.com, junxiao.bi@oracle.com,
-        mark@fasheh.com, mm-commits@vger.kernel.org, piaojun@huawei.com,
-        stable@vger.kernel.org
-Subject:  [merged] ocfs2-fix-data-corruption-on-truncate.patch
- removed from -mm tree
-Message-ID: <20211111023932.YJk_N-eHV%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S233906AbhKKCnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Nov 2021 21:43:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39482 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233954AbhKKCni (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Nov 2021 21:43:38 -0500
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75F2DC061766
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 18:40:50 -0800 (PST)
+Received: by mail-pj1-x102e.google.com with SMTP id v23so3091344pjr.5
+        for <stable@vger.kernel.org>; Wed, 10 Nov 2021 18:40:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=lJv1xBqM8YjITJpvkhn5GJ32YGvltILhlnxN25wQxCQ=;
+        b=WLZzRKrNRH6m5awFFzlnhbS26zK6912IEPc7VHTE8hWMYMExnKaD01nI/rOT7/nT/z
+         dIsmV+i7cvGw21K704VrEj7WknueCqLYuCsDojabuoS42B1kOaEXP+2K84eiHfmUTebe
+         U7JCfWrWZN+4G25mYXJh3M7XeV/k35UERVqvFBccYGXlkE8UPDPIoO5xZLuwe6gtFZ1e
+         qpejjcnbgPl52tieb4/4vRfVNNvpRAq3rYKE3FcHXGDrxjRxeTpfIEjHVTI1yhcMsroW
+         Qw8xBKDkrCGhlzVnqX3IG1urrImIBuTwM46NB3PUOvLOfw0BFHWdP979rtIXCDFw7XGC
+         v54g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=lJv1xBqM8YjITJpvkhn5GJ32YGvltILhlnxN25wQxCQ=;
+        b=YUe2genFOetEJRpTIh2j16/Kx4ltTpiKp6d5WOtAkcJCHb2Fihj5O/QkH1mTZA/7qn
+         /VxPGoI44L0pTcGU2ocnihNznOaOe0i1OUmyCy4xz0R0iRtju62/5d6C62V4dL9d43mT
+         GYrB+tRDm2DoAjkgEG2/X4uD53xHLLg7o35tKygCOCZeQxtLbJy2HvZTiikCT4QNANy5
+         ZPXiTOJ75fjnXfIf1TlWoNbdm2znMh/COtpdvZnF5xJwFj9OF1YmsmqUEwWRW8A446+n
+         nDd4z3M3ioPGwB6iw9CQroKI4l0efKLxbQC16sqybmjlrCfmE6J0CdJYSGpHAVdCl20D
+         O/GQ==
+X-Gm-Message-State: AOAM530wGlzORDexvjG8qoWRcTZ4Rnj9y6W0iktoalKjiKUO8t7UEwLV
+        OQbIXD86WJITEKEzP1VzyU2gBXsGucM1S+ce3oo=
+X-Google-Smtp-Source: ABdhPJy3AynJH+xEP3LXvqPOWdkRBUjmkrG8fHyDLFaHuVAAKJ2n8Vruh18OlDZiZSLwzFkpOKfvcA==
+X-Received: by 2002:a17:90b:3e8b:: with SMTP id rj11mr4463931pjb.63.1636598449792;
+        Wed, 10 Nov 2021 18:40:49 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k19sm969088pff.20.2021.11.10.18.40.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Nov 2021 18:40:49 -0800 (PST)
+Message-ID: <618c82b1.1c69fb81.d7bf0.44e7@mx.google.com>
+Date:   Wed, 10 Nov 2021 18:40:49 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.291-19-g4087fc507b36
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.4 baseline: 117 runs,
+ 1 regressions (v4.4.291-19-g4087fc507b36)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.4 baseline: 117 runs, 1 regressions (v4.4.291-19-g4087fc5=
+07b36)
 
-The patch titled
-     Subject: ocfs2: fix data corruption on truncate
-has been removed from the -mm tree.  Its filename was
-     ocfs2-fix-data-corruption-on-truncate.patch
+Regressions Summary
+-------------------
 
-This patch was dropped because it was merged into mainline or a subsystem tree
-
-------------------------------------------------------
-From: Jan Kara <jack@suse.cz>
-Subject: ocfs2: fix data corruption on truncate
-
-Patch series "ocfs2: Truncate data corruption fix".
-
-As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
-corruption after conversion from inline format") didn't fix all the data
-corruption issues the customer started observing after 6dbf7bb55598 ("fs:
-Don't invalidate page buffers in block_write_full_page()") This time I
-have tracked them down to two bugs in ocfs2 truncation code.
-
-One bug (truncating page cache before clearing tail cluster and setting
-i_size) could cause data corruption even before 6dbf7bb55598, but before
-that commit it needed a race with page fault, after 6dbf7bb55598 it
-started to be pretty deterministic.
-
-Another bug (zeroing pages beyond old i_size) used to be harmless
-inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598 in
-combination with the first bug it resulted in deterministic data
-corruption.
-
-Although fixing only the first problem is needed to stop data corruption,
-I've fixed both issues to make the code more robust.
-
-
-This patch (of 2):
-
-ocfs2_truncate_file() did unmap invalidate page cache pages before zeroing
-partial tail cluster and setting i_size.  Thus some pages could be left
-(and likely have left if the cluster zeroing happened) in the page cache
-beyond i_size after truncate finished letting user possibly see stale data
-once the file was extended again.  Also the tail cluster zeroing was not
-guaranteed to finish before truncate finished causing possible stale data
-exposure.  The problem started to be particularly easy to hit after commit
-6dbf7bb55598 "fs: Don't invalidate page buffers in
-block_write_full_page()" stopped invalidation of pages beyond i_size from
-page writeback path.
-
-Fix these problems by unmapping and invalidating pages in the page cache
-after the i_size is reduced and tail cluster is zeroed out.
-
-Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
-Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
-Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
-
- fs/ocfs2/file.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
---- a/fs/ocfs2/file.c~ocfs2-fix-data-corruption-on-truncate
-+++ a/fs/ocfs2/file.c
-@@ -476,10 +476,11 @@ int ocfs2_truncate_file(struct inode *in
- 	 * greater than page size, so we have to truncate them
- 	 * anyway.
- 	 */
--	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
--	truncate_inode_pages(inode->i_mapping, new_i_size);
- 
- 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
-+		unmap_mapping_range(inode->i_mapping,
-+				    new_i_size + PAGE_SIZE - 1, 0, 1);
-+		truncate_inode_pages(inode->i_mapping, new_i_size);
- 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
- 					       i_size_read(inode), 1);
- 		if (status)
-@@ -498,6 +499,9 @@ int ocfs2_truncate_file(struct inode *in
- 		goto bail_unlock_sem;
- 	}
- 
-+	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
-+	truncate_inode_pages(inode->i_mapping, new_i_size);
-+
- 	status = ocfs2_commit_truncate(osb, inode, di_bh);
- 	if (status < 0) {
- 		mlog_errno(status);
-_
-
-Patches currently in -mm which might be from jack@suse.cz are
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.291-19-g4087fc507b36/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.291-19-g4087fc507b36
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4087fc507b36314fbe0f3ebd356b388e366a1d48 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/618c49e3492da456ee3358e8
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-1=
+9-g4087fc507b36/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.291-1=
+9-g4087fc507b36/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/618c49e3492da45=
+6ee3358eb
+        failing since 0 day (last pass: v4.4.291-8-g748a6d994abf, first fai=
+l: v4.4.291-9-gf5954069c4ee)
+        2 lines
+
+    2021-11-10T22:38:08.043640  [   19.681732] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-11-10T22:38:08.087585  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/114
+    2021-11-10T22:38:08.096701  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
