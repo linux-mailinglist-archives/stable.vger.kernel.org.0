@@ -2,83 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38EC844D782
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 14:47:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B649F44D7B1
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 14:57:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233498AbhKKNuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 08:50:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
+        id S233710AbhKKOAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 09:00:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232699AbhKKNuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Nov 2021 08:50:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEB9460F4A;
-        Thu, 11 Nov 2021 13:47:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636638441;
-        bh=9TFTxcUEdEwhp48u9fNkDL4nwF4RxAlnd8sjIj3YoQc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XXnI40erBUzui9bY1inM9UXZaj7r75cqdyYeqmZfqzBxLwvou3n+G5QQ5oZZu5Vzd
-         4CuKdyCkEifiATxnu+Ibg2qaYnvK8KNZnsvuA6tapAQRozlRKhx1IqIVG3G0v5nLb4
-         MnyUgYpskTg+mwNRN6ENI2vDagxPkK5nw0Y82c0g5phFIcsKgUd6fSsg+266SfeHyE
-         Daoqmm9aDauY88oN2sBogs/ZRCymaek9QOQBvrYVfuWeQEBXR8nmztWQwv13pDxtdD
-         9/8zU45xWKxfS/Odm07owHwhWrGFxmn7VCF/NApS9zyPtXdrV6dQiyl69E8GaQfoaq
-         Z4QtCy92Rmdww==
-Date:   Thu, 11 Nov 2021 13:47:16 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Michael Walle <michael@walle.cc>
-Cc:     linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Lukas Wunner <lukas@wunner.de>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] spi: fix use-after-free of the add_lock mutex
-Message-ID: <YY0e5GFrdgNde3m4@sirena.org.uk>
-References: <20211111083713.3335171-1-michael@walle.cc>
- <YY0Oe9NjhfUvq0J+@sirena.org.uk>
- <20cde88dd11fde7f6847506ffcaa67ed@walle.cc>
+        id S233630AbhKKOAG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Nov 2021 09:00:06 -0500
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 677C6610A0;
+        Thu, 11 Nov 2021 13:57:16 +0000 (UTC)
+Date:   Thu, 11 Nov 2021 08:57:14 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>, jgross@suse.com,
+        x86@kernel.org, pv-drivers@vmware.com,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        Deep Shah <sdeep@vmware.com>, stable@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
+        srivatsab@vmware.com, anishs@vmware.com, vithampi@vmware.com,
+        linux-kernel@vger.kernel.org, namit@vmware.com, joe@perches.com,
+        kuba@kernel.org
+Subject: Re: [PATCH v3 1/3] MAINTAINERS: Update maintainers for paravirt ops
+ and VMware hypervisor interface
+Message-ID: <20211111085714.57f8cd3f@gandalf.local.home>
+In-Reply-To: <YYy9P7Rjg9hntmm3@kroah.com>
+References: <163657479269.84207.13658789048079672839.stgit@srivatsa-dev>
+        <163657487268.84207.5604596767569015608.stgit@srivatsa-dev>
+        <YYy9P7Rjg9hntmm3@kroah.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Ser8Hc8y7Eyt67W5"
-Content-Disposition: inline
-In-Reply-To: <20cde88dd11fde7f6847506ffcaa67ed@walle.cc>
-X-Cookie: Teutonic:
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 11 Nov 2021 07:50:39 +0100
+Greg KH <gregkh@linuxfoundation.org> wrote:
 
---Ser8Hc8y7Eyt67W5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> > Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> > Acked-by: Alexey Makhalov <amakhalov@vmware.com>
+> > Acked-by: Deep Shah <sdeep@vmware.com>
+> > Acked-by: Juergen Gross <jgross@suse.com>
+> > Cc: stable@vger.kernel.org  
+> 
+> Why are MAINTAINERS updates needed for stable?  That's not normal :(
 
-On Thu, Nov 11, 2021 at 01:46:01PM +0100, Michael Walle wrote:
-> Am 2021-11-11 13:37, schrieb Mark Brown:
+Probably not needed, but does it hurt?  And who's normal?
 
-> > If you are sending a new version of something please flag that in the
-> > commit message, this helps both people and automated systems identify
-> > that this is a new version of the same thing.
-
-> Are RFC patches eligible to be picked up? I wasn't sure if I had to
-> resend it at all. But since there was a mistake in the commit message
-> anyway, I went ahead and the the first "real" version. How would
-> you flag that? Isn't changing the subject from "[PATCH RFC]" (ok it
-> was "RFC PATCH", my bad) to "[PATCH]" enough?
-
-No, both people and machines are going to get confused.
-
---Ser8Hc8y7Eyt67W5
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmGNHuQACgkQJNaLcl1U
-h9C2Ugf+PquYMxxYsWbB/sZkRXTWaLfsSZc9dPdO82Cc4RXf0ckpdjZA+uHhbles
-A1xhgfsUNvv9UekloIvZzc61NkcgM8r4GWFFI4skv7fvWxowYtn6iF/g2APvzmvw
-18v3TU+IIa4gKXHrYT96Iooo0gi6LmLbHQCI60ggDmMouurmGGLPYJovxJvQmuSs
-L+tx9obJQrxF3sGG8auD74u165362wU93weIHuN7UCUF0rGWosvopt4C1ekkT1UA
-cmyV/iSai8oXA2HUERoD21cZEceiWAUgK64v5dOGIRWAU4ne2p6LkTIccdFd0tje
-qpsy/E+oG8IEsQ2+ta2aE6pcVbyvHQ==
-=mcCk
------END PGP SIGNATURE-----
-
---Ser8Hc8y7Eyt67W5--
+-- Steve
