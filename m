@@ -2,92 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB54144D72D
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 14:26:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38EC844D782
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 14:47:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232701AbhKKN3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 08:29:13 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:44668 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232203AbhKKN3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 08:29:09 -0500
-Received: from [IPv6:2a00:23c7:68b7:9701:265e:513:1aea:5fb7] (unknown [IPv6:2a00:23c7:68b7:9701:265e:513:1aea:5fb7])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: obbardc)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 3B7651F45C03;
-        Thu, 11 Nov 2021 13:26:19 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=collabora.com; s=mail;
-        t=1636637179; bh=ws9AI98ohBYaWMhz8Pzoz4nmMkKBzFjzqgFAClF1QUE=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=pUM9C6ciVyrsxvmWoIgVoW4izCxl5ErhgUS2Zx2dt40zQO9mOHh8amWcFAJ5e216t
-         7SH5csRmVCKPh4l3x/J//5AJg2uoFQZTvp48wsW2IIZeSTDRZLtLa+GVXJQc1scBb7
-         02Y0S7mRW96XE2BM9PgAL6CKebD2xw3ima0qSYbXrlBRtXCtnTdZYgHq5s0uQw9ZDF
-         PSPxB9MKjcXonX3X+3btAk9LnqKhDugaZJ6lNGhSho9Ptm9ulREJfrKYUWPzg2wH55
-         qx2BTvsJ0TxRVHHvnAvufer6hc4pt/tfushVjSLjc+QbvL1/qcCI7eQX/1FhQi47su
-         bT5M0mj8BZlEg==
-Subject: Re: [PATCH] hostfs: Fix writeback of dirty pages
-To:     Sjoerd Simons <sjoerd@collabora.com>, linux-um@lists.infradead.org
-Cc:     Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20211105081052.2353801-1-sjoerd@collabora.com>
-From:   Christopher Obbard <chris.obbard@collabora.com>
-Message-ID: <d9bcb237-39e1-29b1-9718-b720a7e7540b@collabora.com>
-Date:   Thu, 11 Nov 2021 13:26:17 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S233498AbhKKNuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 08:50:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232699AbhKKNuK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Nov 2021 08:50:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEB9460F4A;
+        Thu, 11 Nov 2021 13:47:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1636638441;
+        bh=9TFTxcUEdEwhp48u9fNkDL4nwF4RxAlnd8sjIj3YoQc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XXnI40erBUzui9bY1inM9UXZaj7r75cqdyYeqmZfqzBxLwvou3n+G5QQ5oZZu5Vzd
+         4CuKdyCkEifiATxnu+Ibg2qaYnvK8KNZnsvuA6tapAQRozlRKhx1IqIVG3G0v5nLb4
+         MnyUgYpskTg+mwNRN6ENI2vDagxPkK5nw0Y82c0g5phFIcsKgUd6fSsg+266SfeHyE
+         Daoqmm9aDauY88oN2sBogs/ZRCymaek9QOQBvrYVfuWeQEBXR8nmztWQwv13pDxtdD
+         9/8zU45xWKxfS/Odm07owHwhWrGFxmn7VCF/NApS9zyPtXdrV6dQiyl69E8GaQfoaq
+         Z4QtCy92Rmdww==
+Date:   Thu, 11 Nov 2021 13:47:16 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     Michael Walle <michael@walle.cc>
+Cc:     linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Lukas Wunner <lukas@wunner.de>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] spi: fix use-after-free of the add_lock mutex
+Message-ID: <YY0e5GFrdgNde3m4@sirena.org.uk>
+References: <20211111083713.3335171-1-michael@walle.cc>
+ <YY0Oe9NjhfUvq0J+@sirena.org.uk>
+ <20cde88dd11fde7f6847506ffcaa67ed@walle.cc>
 MIME-Version: 1.0
-In-Reply-To: <20211105081052.2353801-1-sjoerd@collabora.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="Ser8Hc8y7Eyt67W5"
+Content-Disposition: inline
+In-Reply-To: <20cde88dd11fde7f6847506ffcaa67ed@walle.cc>
+X-Cookie: Teutonic:
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sjoerd,
 
-On 05/11/2021 08:10, Sjoerd Simons wrote:
-> Hostfs was not setting up the backing device information, which means it
-> uses the noop bdi. The noop bdi does not have the writeback capability
-> enabled, which in turns means  dirty pages never got written back to
-> storage.
-> 
-> In other words programs using mmap to write to files on  hostfs never
-> actually got their data written out...
-> 
-> Fix this by simply setting up the bdi with default settings as all the
-> required code for writeback is already in place.
-> 
-> Signed-off-by: Sjoerd Simons <sjoerd@collabora.com>
+--Ser8Hc8y7Eyt67W5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Christopher Obbard <chris.obbard@collabora.com>
+On Thu, Nov 11, 2021 at 01:46:01PM +0100, Michael Walle wrote:
+> Am 2021-11-11 13:37, schrieb Mark Brown:
 
-...replying mainly as I wonder if adding the stable tag in a reply will 
-make the patch appear in stable (obviously once it is in mainline) ? :-)
+> > If you are sending a new version of something please flag that in the
+> > commit message, this helps both people and automated systems identify
+> > that this is a new version of the same thing.
 
+> Are RFC patches eligible to be picked up? I wasn't sure if I had to
+> resend it at all. But since there was a mistake in the commit message
+> anyway, I went ahead and the the first "real" version. How would
+> you flag that? Isn't changing the subject from "[PATCH RFC]" (ok it
+> was "RFC PATCH", my bad) to "[PATCH]" enough?
 
-> 
-> ---
-> 
->   fs/hostfs/hostfs_kern.c | 3 +++
->   1 file changed, 3 insertions(+)
-> 
-> diff --git a/fs/hostfs/hostfs_kern.c b/fs/hostfs/hostfs_kern.c
-> index d5c9d886cd9f..ef481c3d9019 100644
-> --- a/fs/hostfs/hostfs_kern.c
-> +++ b/fs/hostfs/hostfs_kern.c
-> @@ -924,6 +924,9 @@ static int hostfs_fill_sb_common(struct super_block *sb, void *d, int silent)
->   	sb->s_op = &hostfs_sbops;
->   	sb->s_d_op = &simple_dentry_operations;
->   	sb->s_maxbytes = MAX_LFS_FILESIZE;
-> +	err = super_setup_bdi(sb);
-> +	if (err)
-> +		goto out;
->   
->   	/* NULL is printed as '(null)' by printf(): avoid that. */
->   	if (req_root == NULL)
->
+No, both people and machines are going to get confused.
+
+--Ser8Hc8y7Eyt67W5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmGNHuQACgkQJNaLcl1U
+h9C2Ugf+PquYMxxYsWbB/sZkRXTWaLfsSZc9dPdO82Cc4RXf0ckpdjZA+uHhbles
+A1xhgfsUNvv9UekloIvZzc61NkcgM8r4GWFFI4skv7fvWxowYtn6iF/g2APvzmvw
+18v3TU+IIa4gKXHrYT96Iooo0gi6LmLbHQCI60ggDmMouurmGGLPYJovxJvQmuSs
+L+tx9obJQrxF3sGG8auD74u165362wU93weIHuN7UCUF0rGWosvopt4C1ekkT1UA
+cmyV/iSai8oXA2HUERoD21cZEceiWAUgK64v5dOGIRWAU4ne2p6LkTIccdFd0tje
+qpsy/E+oG8IEsQ2+ta2aE6pcVbyvHQ==
+=mcCk
+-----END PGP SIGNATURE-----
+
+--Ser8Hc8y7Eyt67W5--
