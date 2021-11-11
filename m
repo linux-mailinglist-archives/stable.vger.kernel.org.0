@@ -2,234 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD97944D851
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 15:32:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EA1944D8A9
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 15:54:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232265AbhKKOfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 09:35:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57076 "EHLO
+        id S233316AbhKKO5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 09:57:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232182AbhKKOfU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 09:35:20 -0500
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B64E2C061766
-        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 06:32:31 -0800 (PST)
-Received: by mail-ed1-x532.google.com with SMTP id j21so24741115edt.11
-        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 06:32:31 -0800 (PST)
+        with ESMTP id S232796AbhKKO5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 09:57:45 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF6DAC061767
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 06:54:55 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id f8so25430259edy.4
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 06:54:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=ntyQoIMsqCXcReeRS5/ylB7GeUq21ujmpM7z4typwPw=;
-        b=fOvlvPBFrbQbpkouPvU6yzpZLf7IgKR+rMTwe7ar6Rk/aWzh1+3HwVOrXlAPd2pvru
-         1EaxYkmMeZmCUbQ7IDeKZxQibsPBDbWDLF8tsN7DLJeRMAt5SZ4W7dwvtpMULfvRoxoz
-         cvqRUvthlTOKJ++ru04nWDWKwdusixuXknL8QRCJjuKxmwhpW6P7sgh78SECog1718Gu
-         zpqXHqvrUasrRU5BBtPg79kZtUs4bGm9eAnwUyP4Wb8MXlK6xyS12GPfxpfJ0/S4nIXO
-         b+xNfbEnS52ysd1Da96ogKWWQJAu6tcc9PYflHLFmBDDVYwyZtO86XDLJIk5hqgDOpjt
-         P6+A==
+         :cc;
+        bh=1ql50oYZam8nRgTlii9W+zHR5ggQMofgyrRkyjXsb+4=;
+        b=g43zqm1IG0DUJDgX5IEt1eNNjc1wWkUZmlMYWGyjr0wQN0WbOgdCZ0dtI+X7lY9si0
+         Yvb32DVhCw7zzZrHT0V0kcFhyKiNjbFT8baaxAbPWvHuLf4tNRumfK9CUZHbUI5hsS3K
+         doOZc6r1hqgNzLdCxEWe0jc4CaHYH1uDPTL5EflUrJmKt4GNtsJRQMcTzg90cAw9XBGg
+         DBxQCGEcWR3Mh0XyG9sK9VZ2er5JqdnUizs6vMSZQDiLRb84emPWTpaKu/r0+uktyphi
+         oFPFZ/9jmVz7N83+KYRP7IgCtP4ObIRXEmUUYaGR5gwN4TzYXpU0UdPnRqd0SVb45XoW
+         7drQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ntyQoIMsqCXcReeRS5/ylB7GeUq21ujmpM7z4typwPw=;
-        b=j7C3Ks0n74ORaZ3dM+OlUtBEVLIbdmA5fRQFQZioKeJFHaoVB6dka09pLLsEB2CDxL
-         eD2hwsSZkZBYuAv+kSAvmICkRSteoCvhfqYfs8QorZz0ivtU0omwdFTy9L30KLcOrdMM
-         U3g75KLPaSFBLKti2NOsDu7bNBMhDgDfw4C2zXBAkZ0hLtnjkG0euMldoCzcXxLV68xX
-         Kal7vscnyXBkZX2choH2VNv4FqEnuYLid1t9MKb1kls5KUZ3xQBivhAZuUaHsq3USrTW
-         uC9EeNvFKuJg+uFpubkID6j2G9AyaSO45uP0wJ8b+imH3PlFG5/gAwRZLK2jv5DpC8c2
-         yJfA==
-X-Gm-Message-State: AOAM532mwNVZ6ktWBUR04vlimvK526NWHbauLHGoHV7HcSxfImzai7Ql
-        lIbdAe5/gTBJT1TBsWjRcSYqlbINXcL/mQi292U4fA==
-X-Google-Smtp-Source: ABdhPJyNGvtI0jStQdpzcqafH5hK8YL0uhi2mAyz5bo0nBTNG7M5zlU6whxmr4XRVNbjbu634WWWBSVWbeF1uHybIJQ=
-X-Received: by 2002:a05:6402:4412:: with SMTP id y18mr10191911eda.103.1636641150024;
- Thu, 11 Nov 2021 06:32:30 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=1ql50oYZam8nRgTlii9W+zHR5ggQMofgyrRkyjXsb+4=;
+        b=65JSrIvaClis64AOtSZ5Lgpd0eavtIOSQnHbpoRZ2xJbsgos1shcvJCGgxCN0Y8Hca
+         Ga+lYbcnUiU8t7T2Akr/OJc12WbZQWhyU7JDU2H4ijW31EawTMRse3bOxsZr6WacEqv/
+         LrDJkCXwlXiAjgwcCnbrzGZ7K2WIPtiS2pfo7Q0Zxq01AMTX7hUsMtf/zr+NE5iasaX2
+         BJGUGANw+It1c9E4sp4K47xWLiFmk0i9+gX3yKJKKaOh+vDrZ3XuIr7zZDW+2QONcUpa
+         2gXLASFpSeWEIk/jYzOMpqb9wEsMdP/5g0E1e6Pbmxi91o/kZbu7wa3l2IkKL5+lx8sH
+         uq2Q==
+X-Gm-Message-State: AOAM533f2mx/yvDx1AyHyZP5CKaj+eS6oVASijK/ywlmIirX+KdLkQlW
+        JAtohxGdf/9+YD5yFTgslTaGLaDjXbWwqBcNycESCQ==
+X-Google-Smtp-Source: ABdhPJx5p+j85XYeBZcKsv3Ca/CEMzLdz1mG5k9qaSMa2wd9b562ZENHOeC2Zz1dfD/ZkbQGylMu6AF6bqfQGeP0QEA=
+X-Received: by 2002:a17:906:4791:: with SMTP id cw17mr10160961ejc.493.1636642494002;
+ Thu, 11 Nov 2021 06:54:54 -0800 (PST)
 MIME-Version: 1.0
-References: <20211110182001.994215976@linuxfoundation.org>
-In-Reply-To: <20211110182001.994215976@linuxfoundation.org>
+References: <20211110182002.964190708@linuxfoundation.org> <YY0UQAQ54Vq4vC3z@debian>
+In-Reply-To: <YY0UQAQ54Vq4vC3z@debian>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 11 Nov 2021 20:02:18 +0530
-Message-ID: <CA+G9fYsUwT8QssS0p_r94QfFC6hG_dqkWGzkNOKgTGY_0BnkUw@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/16] 4.19.217-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
+Date:   Thu, 11 Nov 2021 20:24:42 +0530
+Message-ID: <CA+G9fYvu9VQY=_NgR6-UCFOZ+57pSy1xsPkCgJuQsAS-P62Umg@mail.gmail.com>
+Subject: Re: [PATCH 5.10 00/21] 5.10.79-rc1 review
+To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        f.fainelli@gmail.com, torvalds@linux-foundation.org,
+        linux-kernel@vger.kernel.org, lkft-triage@lists.linaro.org,
+        patches@kernelci.org, stable@vger.kernel.org, pavel@denx.de,
+        akpm@linux-foundation.org, jonathanh@nvidia.com, shuah@kernel.org,
+        linux@roeck-us.net, Yang Shi <shy828301@gmail.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Hugh Dickins <hughd@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Peter Xu <peterx@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 11 Nov 2021 at 00:17, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Thu, 11 Nov 2021 at 18:32, Sudip Mukherjee
+<sudipm.mukherjee@gmail.com> wrote:
 >
-> This is the start of the stable review cycle for the 4.19.217 release.
-> There are 16 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> Hi Greg,
 >
-> Responses should be made by Fri, 12 Nov 2021 18:19:54 +0000.
-> Anything received after that time might be too late.
+> On Wed, Nov 10, 2021 at 07:43:46PM +0100, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.79 release.
+> > There are 21 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Fri, 12 Nov 2021 18:19:54 +0000.
+> > Anything received after that time might be too late.
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.217-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
+> systemd-journal-flush.service failed due to a timeout resulting in a very very
+> slow boot on my test laptop. qemu test on openqa failed due to the same problem.
 >
-> thanks,
+> https://openqa.qa.codethink.co.uk/tests/365
 >
-> greg k-h
+> A bisect showed the problem to be 8615ff6dd1ac ("mm: filemap: check if THP has
+> hwpoisoned subpage for PMD page fault"). Reverting it on top of 5.10.79-rc1
+> fixed the problem.
+> Incidentally, I was having similar problem with Linus's tree
+> for last few days and was failing since 20211106 (did not get the time to check).
+> I will test mainline again with this commit reverted.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I have also noticed this problem and Anders bisected and found this
+first bad commit.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Failed test log link,
+A start job is running for Journal Service (5s / 1min 27s)
+https://lkft.validation.linaro.org/scheduler/job/3901980#L2234
 
-## Build
-* kernel: 4.19.217-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.19.y
-* git commit: f1ca790424bdd0693e501e24dc3300f01460cfed
-* git describe: v4.19.216-17-gf1ca790424bd
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
-.216-17-gf1ca790424bd
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-## No regressions (compared to v4.19.216)
+Bisect log:
 
-## No fixes (compared to v4.19.216)
+# bad: [b85617a6291f710807d0cd078c230626dee60b16] Linux 5.10.79-rc1
+# good: [5040520482a594e92d4f69141229a6dd26173511] Linux 5.10.78
+git bisect start 'b85617a6291f710807d0cd078c230626dee60b16'
+'5040520482a594e92d4f69141229a6dd26173511'
+# bad: [7ceeda856035991a6c9804916987a03759745fb0] staging: rtl8712:
+fix use-after-free in rtl8712_dl_fw
+git bisect bad 7ceeda856035991a6c9804916987a03759745fb0
+# bad: [8615ff6dd1ac9e01b6fcf0fc0652353f79f524ed] mm: filemap: check
+if THP has hwpoisoned subpage for PMD page fault
+git bisect bad 8615ff6dd1ac9e01b6fcf0fc0652353f79f524ed
+# good: [e9cb6ce4690749d42013f1d56874c624d7241740] Revert "x86/kvm:
+fix vcpu-id indexed array sizes"
+git bisect good e9cb6ce4690749d42013f1d56874c624d7241740
+# good: [dc385dfc126d51d7a93db694f8e151afe60eb06a] mm: hwpoison:
+remove the unnecessary THP check
+git bisect good dc385dfc126d51d7a93db694f8e151afe60eb06a
+# first bad commit: [8615ff6dd1ac9e01b6fcf0fc0652353f79f524ed] mm:
+filemap: check if THP has hwpoisoned subpage for PMD page fault
+commit 8615ff6dd1ac9e01b6fcf0fc0652353f79f524ed
+Author: Yang Shi <shy828301@gmail.com>
+Date:   Thu Oct 28 14:36:11 2021 -0700
 
-## Test result summary
-total: 83189, pass: 66945, fail: 783, skip: 13526, xfail: 1935
+    mm: filemap: check if THP has hwpoisoned subpage for PMD page fault
 
-## Build Summary
-* arm: 130 total, 108 passed, 22 failed
-* arm64: 38 total, 38 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 19 total, 19 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 27 total, 27 passed, 0 failed
-* s390: 12 total, 12 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 22 total, 22 passed, 0 failed
+    commit eac96c3efdb593df1a57bb5b95dbe037bfa9a522 upstream.
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+    When handling shmem page fault the THP with corrupted subpage could be
+    PMD mapped if certain conditions are satisfied.  But kernel is supposed
+    to send SIGBUS when trying to map hwpoisoned page.
+
+    There are two paths which may do PMD map: fault around and regular
+    fault.
+
+    Before commit f9ce0be71d1f ("mm: Cleanup faultaround and finish_fault()
+    codepaths") the thing was even worse in fault around path.  The THP
+    could be PMD mapped as long as the VMA fits regardless what subpage is
+    accessed and corrupted.  After this commit as long as head page is not
+    corrupted the THP could be PMD mapped.
+
+    In the regular fault path the THP could be PMD mapped as long as the
+    corrupted page is not accessed and the VMA fits.
+
+    This loophole could be fixed by iterating every subpage to check if any
+    of them is hwpoisoned or not, but it is somewhat costly in page fault
+    path.
+
+    So introduce a new page flag called HasHWPoisoned on the first tail
+    page.  It indicates the THP has hwpoisoned subpage(s).  It is set if any
+    subpage of THP is found hwpoisoned by memory failure and after the
+    refcount is bumped successfully, then cleared when the THP is freed or
+    split.
+
+    The soft offline path doesn't need this since soft offline handler just
+    marks a subpage hwpoisoned when the subpage is migrated successfully.
+    But shmem THP didn't get split then migrated at all.
+
+    Link: https://lkml.kernel.org/r/20211020210755.23964-3-shy828301@gmail.com
+    Fixes: 800d8c63b2e9 ("shmem: add huge pages support")
+    Signed-off-by: Yang Shi <shy828301@gmail.com>
+    Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+    Suggested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+    Cc: Hugh Dickins <hughd@google.com>
+    Cc: Matthew Wilcox <willy@infradead.org>
+    Cc: Oscar Salvador <osalvador@suse.de>
+    Cc: Peter Xu <peterx@redhat.com>
+    Cc: <stable@vger.kernel.org>
+    Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+    Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+    Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+ include/linux/page-flags.h | 23 +++++++++++++++++++++++
+ mm/huge_memory.c           |  2 ++
+ mm/memory-failure.c        | 14 ++++++++++++++
+ mm/memory.c                |  9 +++++++++
+ mm/page_alloc.c            |  4 +++-
+ 5 files changed, 51 insertions(+), 1 deletion(-)
+
 
 --
 Linaro LKFT
