@@ -2,72 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD4E944DA44
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 17:21:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B720444DA5C
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 17:26:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233945AbhKKQYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 11:24:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54260 "EHLO
+        id S234229AbhKKQ3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 11:29:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233890AbhKKQYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 11:24:11 -0500
-Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 137A3C061766;
-        Thu, 11 Nov 2021 08:21:22 -0800 (PST)
-Received: by mail-io1-xd2c.google.com with SMTP id m9so7678096iop.0;
-        Thu, 11 Nov 2021 08:21:22 -0800 (PST)
+        with ESMTP id S234203AbhKKQ3P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 11:29:15 -0500
+Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45D40C061766
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 08:26:26 -0800 (PST)
+Received: by mail-il1-x136.google.com with SMTP id j28so6402181ila.1
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 08:26:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=hBm6JO/iSJ+GL1C6xVW5PCmaMsD9ZfQqODjs2YkP1sU=;
-        b=YV71s0Ev2mXVcz6tWXyGZUsZLzfLGIkp3ELcfIJgPv2VpPq/w5tgNgNrqw+LhKSK60
-         ypAN/jXd2U6uHeSo6EKYM/zbuOJjvXF2o1EfAmhIYDnO4J2yvU2nNH4jhsF/rPgVr3bb
-         PA4/javfSdpJOvTjk44LNTGCIrwi2A5vk0Uny5Zc8EjPCM3Wp8yaJaeS7h9ev/9shMri
-         Y2aFBgo5K4oI03r0IdC4eQANOTblYgjhhh3f8yAxn3sUQHc7z6YHPMh8IvmNLzhD7nQc
-         iP4dlZyUtwFS6qHzAjhd+KnNGwdCOGRRlmSuuTRYwgG6vQzI7je8tn/bPRGwHXLJDZUH
-         GabQ==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Lk/yN+EyR4iwNeMFvXGxKhh7xX7AkHPc4DA7pDgu7gA=;
+        b=YviBg9nIwU+0ZlAjKHWEsoRn3nemhwHZs4+dZP+uZeDc4WswP3fYQi2kSA4VXMibRQ
+         POHRXwWre9oOnKOo4Dgl2NWDD29XuIyWa2ZT3uMY+S7/iCUKyCcBh9vc4f07UwNDTz9s
+         cvWPkG/lufaOJb2Z8I4YgNGkU0Z3HpIrysuhM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=hBm6JO/iSJ+GL1C6xVW5PCmaMsD9ZfQqODjs2YkP1sU=;
-        b=SarYalpw53/tK9IJkrSCNpMBj11LmTgwa6wmqR5HwTI0VBRr6D0jJCzZstX/+YJYNC
-         KBi6yHloW1K0Idgaj+hXuMnR2ecVaVCwxknBompUSGJDO1jXf4vnIYVzyNZiXaOItn6/
-         Etl7EEJdcS1YweBtfyJ4XumJTmrd3mLhdrnlXEOUHaYeTuzZAsNe/RYybpFN9pBIX1HT
-         D3e2CNbl0hNfwBDDXHWqzS8qtSXPtCuO3Bq7yn5LbONwkDcT587baYVWYM9yZC+o8FMv
-         C+rZ6gYOQP1vK6iif7eWCyYGVmBlUG4w7aiTb4HhwiY6J41mb1n8yNQ6Krof6cnHrNUM
-         j9Mw==
-X-Gm-Message-State: AOAM533j7Ya6DY7pA9xPOGxOxX3pU1e1q+ANgUbg4BTPT620QE4PB0Yz
-        GbUK2h5jEzIsRlNUwsh4ivJumBrlL1MIQj+8aaE=
-X-Google-Smtp-Source: ABdhPJxkBdvyWNsHljIwNTdiGRWG08lJpu3tGVUukky9muJYg0YaC5jYHTIk/gC7oo7gaQB5/SOPVDm2YXZLXvzSMe8=
-X-Received: by 2002:a05:6602:45d:: with SMTP id e29mr5752619iov.202.1636647681387;
- Thu, 11 Nov 2021 08:21:21 -0800 (PST)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Lk/yN+EyR4iwNeMFvXGxKhh7xX7AkHPc4DA7pDgu7gA=;
+        b=XZ2+Q691onAKtWpGXSiWCiCdpPSAhXgm2DccbzACoVjk1C1ACAkZvCv2wvDpIilxch
+         292tIVbKllOF9NZamtfL+0WSekYokNVv4/FQdylxBI1lsCGZBz78lyiXL8B2EiQX9os9
+         zlJZLXmH50Z6uX+PErMH8EzEv2XiVk0A2yYu92aRUnD6xQTvApVSe7TJBUCvoVEU8gsF
+         /VrZRR6NZXrbo16SLCnHjGw6wk49Q2GutHPKq9TbF3/mZaaHZkxTIJXE6lCbBdqolcku
+         uJHAcjDJBxoAeHGWF7edRiigzSCz3izLae4AeQn7WoyUYbKC6Du22sSvE+FQy5AHgRWb
+         aWKg==
+X-Gm-Message-State: AOAM5301OPZwC3O823PeRbzYsM269xorY8bq5fUvdBK0ZtORANv8BMq+
+        ++yp8KA51nnzi1ILYO6gXYBahg==
+X-Google-Smtp-Source: ABdhPJwZXBweMEyVtMRjaAjlS2dWfF+KVJRM4iJa0Xn4+XJyfT+YGQAgtJRH2SsOOQ3zMIOgfQ9Hxw==
+X-Received: by 2002:a92:d341:: with SMTP id a1mr5076548ilh.59.1636647985670;
+        Thu, 11 Nov 2021 08:26:25 -0800 (PST)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id c12sm2103142ils.31.2021.11.11.08.26.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Nov 2021 08:26:25 -0800 (PST)
+Subject: Re: [PATCH 5.15 00/26] 5.15.2-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20211110182003.700594531@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <83be18b6-dce4-d790-855a-d29b58643228@linuxfoundation.org>
+Date:   Thu, 11 Nov 2021 09:26:23 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-References: <20211110113842.517426-1-agruenba@redhat.com> <20211110125527.GA25465@lst.de>
- <CAHc6FU49TnYvrL-FU5oz9th6STuQ=eYokjsD+0QpbkdHedRd9w@mail.gmail.com> <20211111072506.GB30478@lst.de>
-In-Reply-To: <20211111072506.GB30478@lst.de>
-From:   =?UTF-8?Q?Andreas_Gr=C3=BCnbacher?= <andreas.gruenbacher@gmail.com>
-Date:   Thu, 11 Nov 2021 17:21:10 +0100
-Message-ID: <CAHpGcM+GVufLn_VZD_Kmrj=Y-XQwkqcjFxN4aFajh1Loi324ow@mail.gmail.com>
-Subject: Re: [5.15 REGRESSION] iomap: Fix inline extent handling in iomap_readpage
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        linux-xfs <linux-xfs@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        cluster-devel <cluster-devel@redhat.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20211110182003.700594531@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am Do., 11. Nov. 2021 um 08:26 Uhr schrieb Christoph Hellwig <hch@lst.de>:
-> The iomap mapping sizes are read-only to iomap for a good reason.  You
-> can't just break that design.
+On 11/10/21 11:43 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.2 release.
+> There are 26 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 12 Nov 2021 18:19:54 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.2-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Right. We can stop iomap_iter by returning 0 now though; see v2.
+Compiled and booted on my test system. No dmesg regressions.
 
-Thanks,
-Andreas
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+
+thanks,
+-- Shuah
+
+
+
