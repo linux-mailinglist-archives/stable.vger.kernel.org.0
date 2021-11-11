@@ -2,95 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 954CE44DBF5
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 20:06:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CCC744DC36
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 20:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234452AbhKKTJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 14:09:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35198 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234451AbhKKTJU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 14:09:20 -0500
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4BBBC061767
-        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 11:06:30 -0800 (PST)
-Received: by mail-oi1-x234.google.com with SMTP id r26so13339634oiw.5
-        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 11:06:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=LpIa3bf3TBcLyYaC3IxwKT+0MuYL8c7Wg6LYYqflE7o=;
-        b=CIYt2g5J0Lyve/8qbSE8bFc70Fm2WZUlttuBcdM6ht4dq+H1MzI5jvJ2MNha0kON8a
-         THItPp/temDILqK9z76LWvDiczb0XjMKT6NolJcGtRtcQyVqI5TCd/TEkOwmrkxfPwfS
-         w5SSXTA7gosLfCeIzY2ffySMunmd9UgVECTLU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=LpIa3bf3TBcLyYaC3IxwKT+0MuYL8c7Wg6LYYqflE7o=;
-        b=5rbExfjYiRUbxCYXkpsMAUbg89xKt3ab2al+b+RHhUfzQOmGTsBeaCNp7QV8sZpGI/
-         B+oibsD01asGJBEFSVPxh9eMEHRxhfUrhk56LNtdnuptPJO0u+9AXt/NS7K+4tYEbdyR
-         yWlvDiqKsNZzr+GW8u+7C8fNVIsyUhUpQrxSJ/naiOKoiaBtDjofPdcYenqbOpZ8WtcH
-         W/lfJN2s8I1SpWjvuTBTeoHQ3U/BNqmSI+0SXgECYWGIBwF6squtB24g/T58M/AhCIT0
-         e6/lun/Uco2rvT9iLkgmVJexbUpW7xO3ziSvyoRZUcMwbzk7y2qxEi5ydrAHYxB09ng0
-         7N7A==
-X-Gm-Message-State: AOAM5313CnplCfLgCpY3oeks9ewrtsEpt6pyjxSiBnt7KSVGIflF4+uo
-        4zS4VEF0pXr3DxO7dQr9tb5c8A==
-X-Google-Smtp-Source: ABdhPJyzzQSEz6nUU3Gp0wOt41rFinz9WqOulfcmPc/hA/zS+esoIM4qOgOpzTZSa1znyYMEkoyl6g==
-X-Received: by 2002:a05:6808:1287:: with SMTP id a7mr22286086oiw.59.1636657590264;
-        Thu, 11 Nov 2021 11:06:30 -0800 (PST)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id j20sm865199oig.52.2021.11.11.11.06.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 11 Nov 2021 11:06:29 -0800 (PST)
-Subject: Re: [PATCH 4.4 00/19] 4.4.292-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20211110182001.257350381@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <43b28e19-eda2-1da0-2e50-e390c865ea10@linuxfoundation.org>
-Date:   Thu, 11 Nov 2021 12:06:28 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S233551AbhKKTjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 14:39:48 -0500
+Received: from outgoing-stata.csail.mit.edu ([128.30.2.210]:33033 "EHLO
+        outgoing-stata.csail.mit.edu" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233752AbhKKTjr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 14:39:47 -0500
+Received: from [128.177.79.46] (helo=csail.mit.edu)
+        by outgoing-stata.csail.mit.edu with esmtpsa (TLS1.2:RSA_AES_256_CBC_SHA1:256)
+        (Exim 4.82)
+        (envelope-from <srivatsa@csail.mit.edu>)
+        id 1mlFsU-0003Le-47; Thu, 11 Nov 2021 14:36:54 -0500
+Date:   Thu, 11 Nov 2021 11:40:02 -0800
+From:   "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     jgross@suse.com, x86@kernel.org, pv-drivers@vmware.com,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        Deep Shah <sdeep@vmware.com>, stable@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
+        srivatsab@vmware.com, anishs@vmware.com, vithampi@vmware.com,
+        linux-kernel@vger.kernel.org, namit@vmware.com, joe@perches.com,
+        kuba@kernel.org, rostedt@goodmis.org
+Subject: Re: [PATCH v3 1/3] MAINTAINERS: Update maintainers for paravirt ops
+ and VMware hypervisor interface
+Message-ID: <20211111194002.GA8739@csail.mit.edu>
+References: <163657479269.84207.13658789048079672839.stgit@srivatsa-dev>
+ <163657487268.84207.5604596767569015608.stgit@srivatsa-dev>
+ <YYy9P7Rjg9hntmm3@kroah.com>
+ <20211111153916.GA7966@csail.mit.edu>
+ <YY1krlfM5R7uEzJF@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20211110182001.257350381@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YY1krlfM5R7uEzJF@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/10/21 11:43 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.292 release.
-> There are 19 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, Nov 11, 2021 at 07:45:02PM +0100, Greg KH wrote:
+> On Thu, Nov 11, 2021 at 07:39:16AM -0800, Srivatsa S. Bhat wrote:
+> > On Thu, Nov 11, 2021 at 07:50:39AM +0100, Greg KH wrote:
+> > > On Wed, Nov 10, 2021 at 12:08:16PM -0800, Srivatsa S. Bhat wrote:
+> > > > From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> > > > 
+> > > > Deep has decided to transfer maintainership of the VMware hypervisor
+> > > > interface to Srivatsa, and the joint-maintainership of paravirt ops in
+> > > > the Linux kernel to Srivatsa and Alexey. Update the MAINTAINERS file
+> > > > to reflect this change.
+> > > > 
+> > > > Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> > > > Acked-by: Alexey Makhalov <amakhalov@vmware.com>
+> > > > Acked-by: Deep Shah <sdeep@vmware.com>
+> > > > Acked-by: Juergen Gross <jgross@suse.com>
+> > > > Cc: stable@vger.kernel.org
+> > > 
+> > > Why are MAINTAINERS updates needed for stable?  That's not normal :(
+> > 
+> > So that people posting bug-fixes / backports to these subsystems for
+> > older kernels (stable and LTS releases) will CC the new subsystem
+> > maintainers.
 > 
-> Responses should be made by Fri, 12 Nov 2021 18:19:54 +0000.
-> Anything received after that time might be too late.
+> That's not how stable releases work at all.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.292-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
+> > That's why I added CC stable tag only to the first two
+> > patches which add/replace maintainers and not the third patch which is
+> > just a cleanup.
 > 
-> thanks,
-> 
-> greg k-h
+> Patches for stable kernels need to go into Linus's tree first, and if
+> you have the MAINTAINERS file updated properly there, then you will be
+> properly cc:ed.  We do not look at the MAINTAINERS file for the older
+> kernel when sending patches out, it's totally ignored as that was the
+> snapshot at a point in time, which is usually no longer the true state.
 > 
 
-Compiled and booted on my test system. No dmesg regressions.
+Sure, but that's the case for patches that get mainlined (and
+subsequently backported to -stable) /after/ this update to the
+MAINTAINERS file gets merged into mainline.
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+When adding the CC stable tag, the case I was trying to address was
+for patches that are already in mainline but weren't CC'ed to stable,
+and at some later point, somebody decides to backport them to older
+stable kernels. In that case, there is a chance that the contributor
+might run ./get_maintainer.pl against the stable tree (as that's the
+tree they are backporting the upstream commit against) and end up not
+CC'ing the new maintainers. So, I thought it would be good to keep the
+maintainer info updated in the older stable kernels too.
 
-thanks,
--- Shuah
+Regards,
+Srivatsa
