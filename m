@@ -2,102 +2,245 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B421C44D401
-	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 10:25:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 181B344D47E
+	for <lists+stable@lfdr.de>; Thu, 11 Nov 2021 10:57:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232543AbhKKJ1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Nov 2021 04:27:50 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:44846 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232456AbhKKJ1t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 04:27:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636622700;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=XoIxLEENy2F1Zskv5/PoD5j6jmD+4MPXDSF/F9jQnm4=;
-        b=S+4Z4z0VCGJ4JV80lSh/R9IRk17Q5RLrYlQfYsQhpk4svPRsQQDauKn8gxX355glaPIlLy
-        IodihxzWV8eUx7Uvnd7qb42Z/tWluATihq4c8hCvFLzISg6zaIHdYWtNIBQGm/ZWEWZXtR
-        hwALAzH0jHVHckb9AG6KXSMIHO4X3U0=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-400-XlCPoPmKPDuZnaG_fLV3LQ-1; Thu, 11 Nov 2021 04:24:59 -0500
-X-MC-Unique: XlCPoPmKPDuZnaG_fLV3LQ-1
-Received: by mail-wm1-f72.google.com with SMTP id n16-20020a05600c3b9000b003331973fdbbso2430425wms.0
-        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 01:24:59 -0800 (PST)
+        id S232808AbhKKKAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Nov 2021 05:00:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51136 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232783AbhKKKAc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Nov 2021 05:00:32 -0500
+Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A97C061766
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 01:57:43 -0800 (PST)
+Received: by mail-ot1-x32d.google.com with SMTP id v15-20020a9d604f000000b0056cdb373b82so174134otj.7
+        for <stable@vger.kernel.org>; Thu, 11 Nov 2021 01:57:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=x4E9Ov5wgrdVdgeFWkGeggKUzjHvS0JzcmCa1ngl0s8=;
+        b=vS4XkUpiD4sfEzmukFlYvNY703pATIFCuajmyF+67J3PnuqN68LVQkrx7alPwwCFeM
+         DDk+115mJ6/iYrrS4vsoX/onJOtHOctpKUmHeG13bKQu+oMsX8zqz+0mb0WhU2pGWUd9
+         GNm4aTwwLdW0V+mv5IlMD13cxv5vcDelHMil3j2M7FkaVfbkm/I6+nicUUFb6pyPzu2q
+         d7az40iNPsFf6miQgl7jkjxhAHt7bqAEGKVNqK2WI1QWX8pUaKsNKLqmnN0iF7itEL88
+         rWMF1sSEskMvP2swybjeHsodBojFd3y0w5x+7eO/HWJEDTKwPbjsZvjIBERA1BmKQ1Cu
+         8qoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:from:to:cc:references:in-reply-to
-         :content-transfer-encoding;
-        bh=XoIxLEENy2F1Zskv5/PoD5j6jmD+4MPXDSF/F9jQnm4=;
-        b=F2dz7yPCD8HDky3BIKA9QJ7uwtwN2oJzpOAnoYVUd7vMOYxo5ab0iTcPKCWIz6Nh8I
-         XPwvuSJDPurCh6lAGwjPMmlyiTjYodayezWIjW6IDhV+BbmR6XlF+wtr87IKTIDUvAAj
-         lHqOLRUA1Wa41ADZ9Tq51xVU1MwrQ6augt/mr2E7jNfi7u4pXmMUajv5/CElcUECKSln
-         683JgfDUHISKqPYwQNluofC37tVJ0hfO0FgmCDUpd4EZVOK562K++zuCJVWxn+qbusRj
-         aJtbfJz3NB6kJBTQkmwWOssEopLHNmvshy7oYryjJ/DaV19mP9pq98YBbjNg8OALdGjX
-         AfJQ==
-X-Gm-Message-State: AOAM533hWrUgBB5A8FhFt48npupuaJkVQX3SQdgiZRMxs82hc5+6vtuM
-        quugZM12Rvey+RNofPWq6fp3nEhPZFzxlfVVmlFaOLnFTQ7tBbRgYXqv4MrehCoo53UJgAUYRE5
-        clrxFDmR8jnWlQETp
-X-Received: by 2002:a05:6000:18ad:: with SMTP id b13mr7062535wri.195.1636622698149;
-        Thu, 11 Nov 2021 01:24:58 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz/L5EBwaiQ5M/k0471vvBJxC4do3fiwU7k3yCJtLLPx+phRd7gimWqthqE//nDPulozzVurg==
-X-Received: by 2002:a05:6000:18ad:: with SMTP id b13mr7062518wri.195.1636622697991;
-        Thu, 11 Nov 2021 01:24:57 -0800 (PST)
-Received: from [192.168.1.102] ([92.176.231.106])
-        by smtp.gmail.com with ESMTPSA id l26sm2293227wms.15.2021.11.11.01.24.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 11 Nov 2021 01:24:57 -0800 (PST)
-Message-ID: <1ddb9e88-1ef8-9888-113b-fd2a2759f019@redhat.com>
-Date:   Thu, 11 Nov 2021 10:24:56 +0100
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=x4E9Ov5wgrdVdgeFWkGeggKUzjHvS0JzcmCa1ngl0s8=;
+        b=syGp0yUpuRTpL8/uS1FDtYGJyE0X1Rmdvq9qyu46NZkeV55HiScAC1DzGQscvLervQ
+         yJ0vTr/ClQ/j34SOmKX05jKO2OZWIjiWGjy/DP4RRE8OubSWRg3wuCVBx/sD+iENbL4n
+         G8+82bCcTDeTaDfDm6N2FB+mowx9qL1j+rj4AGy/K9CpuX8bwYdYB+fcUukt69lAgDxk
+         HzM+ioBb6ETq1AuxNWc1cifbQt2auA+7TOuw7AmoOZ5Tvf8ya/tN/eEpg9Ia8yBs9LWs
+         HPEKTheqFJG0FQmbuo7XEORoxKkXPQCkpMijNXqt5rCcDZEAnVA75sqdRHmYBLKQeBEj
+         x50g==
+X-Gm-Message-State: AOAM5338eNpnkDcV8j4rkGZeUI6R2ZOoMjKVIPek9Nx0vK0o1EYnUkie
+        5PzNS+0z/xftFPfViFfBHiKaa+Et1ejgLuetJ6Hv2w==
+X-Google-Smtp-Source: ABdhPJzzeax4Y9MdA75mKpbwh7svAQ+pT4JrbHAXeyrrznETwzSW6Rjwrgp9K2swMh+ieiq9vCa5AWszPZGtmtyAe2A=
+X-Received: by 2002:a9d:61c1:: with SMTP id h1mr4904173otk.27.1636624662289;
+ Thu, 11 Nov 2021 01:57:42 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [REGRESSION]: drivers/firmware: move x86 Generic System
- Framebuffers support
-Content-Language: en-US
-From:   Javier Martinez Canillas <javierm@redhat.com>
-To:     Ilya Trukhanov <lahvuun@gmail.com>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev,
-        linux-efi@vger.kernel.org, linux-pm@vger.kernel.org,
-        tzimmermann@suse.de, ardb@kernel.org, rafael@kernel.org,
-        len.brown@intel.com, pavel@ucw.cz,
-        dri-devel <dri-devel@lists.freedesktop.org>
-References: <20211110200253.rfudkt3edbd3nsyj@lahvuun>
- <627b6cd1-3446-5e55-ea38-5283a186af39@redhat.com>
- <20211111004539.vd7nl3duciq72hkf@lahvuun>
- <af0552fb-5fb5-acae-2813-86c32e008e58@redhat.com>
-In-Reply-To: <af0552fb-5fb5-acae-2813-86c32e008e58@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20211110182003.700594531@linuxfoundation.org>
+In-Reply-To: <20211110182003.700594531@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 11 Nov 2021 15:27:30 +0530
+Message-ID: <CA+G9fYupujFit=XgfBtaz_EakkiP74-DYHQpFge24M2joXGbjw@mail.gmail.com>
+Subject: Re: [PATCH 5.15 00/26] 5.15.2-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/11/21 08:31, Javier Martinez Canillas wrote:
+On Thu, 11 Nov 2021 at 00:21, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.15.2 release.
+> There are 26 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 12 Nov 2021 18:19:54 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.2-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-[snip]
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
->>> And for each check /proc/fb, the kernel boot log, and if Suspend-to-RAM works.
->>>
->>> If the explanation above is correct, then I would expect (1) and (2) to work and
->>> (3) to also fail.
->>>
-> 
-> Your testing confirms my assumptions. I'll check how this could be solved to
-> prevent the efifb driver to be probed if there's already a framebuffer device.
-> 
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-I've posted [0] which does this and also for the simplefb driver.
+## Build
+* kernel: 5.15.2-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.15.y
+* git commit: 12d0445d66e0451efe07e65f9713fff3d71c3205
+* git describe: v5.15.1-27-g12d0445d66e0
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.1-27-g12d0445d66e0
 
-[0]: https://lore.kernel.org/dri-devel/20211111092053.1328304-1-javierm@redhat.com/T/#u
+## No regressions (compared to v5.15.1)
 
-Best regards,
--- 
-Javier Martinez Canillas
-Linux Engineering
-Red Hat
+## No fixes (compared to v5.15.1)
 
+
+## Test result summary
+total: 97508, pass: 82057, fail: 1042, skip: 13317, xfail: 1092
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 290 total, 268 passed, 22 failed
+* arm64: 40 total, 40 passed, 0 failed
+* dragonboard-410c: 2 total, 2 passed, 0 failed
+* hi6220-hikey: 2 total, 2 passed, 0 failed
+* i386: 40 total, 40 passed, 0 failed
+* juno-r2: 2 total, 2 passed, 0 failed
+* mips: 37 total, 37 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 45 total, 42 passed, 3 failed
+* riscv: 24 total, 24 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 2 total, 2 passed, 0 failed
+* x86: 2 total, 2 passed, 0 failed
+* x86_64: 40 total, 40 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
