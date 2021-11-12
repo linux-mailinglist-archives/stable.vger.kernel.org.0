@@ -2,152 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F3E44EBF7
-	for <lists+stable@lfdr.de>; Fri, 12 Nov 2021 18:26:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06A3744EBF8
+	for <lists+stable@lfdr.de>; Fri, 12 Nov 2021 18:28:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234572AbhKLR3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Nov 2021 12:29:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54186 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232231AbhKLR3r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Nov 2021 12:29:47 -0500
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 159D6C061766
-        for <stable@vger.kernel.org>; Fri, 12 Nov 2021 09:26:57 -0800 (PST)
-Received: by mail-pj1-x1030.google.com with SMTP id x7so7264273pjn.0
-        for <stable@vger.kernel.org>; Fri, 12 Nov 2021 09:26:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lFxY7XTL1hQtCUd0I+FFLXep/SCMsTQy0pWvjx1zCaM=;
-        b=ac991FZmyG7yzDp+CwhbT2xIN68/+OcWsplEc7I7idy3Je43TcSkJrWgtgnTlMBTZg
-         tQnykJyj6Jh8nfWQGDq9Ql5BG6LdZpj5lX9PUYZLnmD+/KAj/Gu3nOuu0niHjJqv0oqp
-         jr/sIhR7HyZTN8g80iWKP3GkSfM7ELsTZwLAYtBR+74YUpddd8V7sxNeQPPX6kVfAYYz
-         Gt43cSkpz4rQPRnWDZtbDaGZxSLLLXPpTsmtdB0tkNSIsYVaIaDyHJgpZhoKcsmm7hFQ
-         25ZXVc+guxJ8Lpczqh44A3h6W3uf/HnWWrDEvIrjpgYR0tRiZAuMMKqwbacVidP9Xi7Z
-         tvDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lFxY7XTL1hQtCUd0I+FFLXep/SCMsTQy0pWvjx1zCaM=;
-        b=RB4XIJv7AclNVtiBGFLmN8yR/fZq+H9qHC+0JQFmSkQvXvLoNndR8P9z9mQ/7O1E+C
-         pcaidtUt/gy+HNLN0BcfCSsphG/66qU27qcWCu/RzWtGyyhJePw5HeiaxZHZKK8i780h
-         QZLoyjgwE6LBQTnVswU1D0RjavgYUq9jWjwLAWXCUdNDo7+x8JZN6V/i6/QeJtN5RSvM
-         Jdp8kA+9z5eJ47X7+rNgRLMtdjXnf6Kn9pwHLySJds256oCItwy4os2/CwPknQchNO8c
-         aXgiy6j65uaAA/OhkCmRlMPCyr7DslMIel5fy1UgJ4EtUovw3it2MEstQGuPxjNZ0wbf
-         Cr/Q==
-X-Gm-Message-State: AOAM5320E8DVtf2h7ORB3cg6s8Se6vkpvBi3dQAW2zr8WDsAYTIZAeDK
-        hMQhEI40lGNiQ8ezB55pkGRCZ20FA694MdOD
-X-Google-Smtp-Source: ABdhPJwikXECiA+yKbQzPfRZjR/rxR6YpvVtnEXCPiqvajImMl/vrDGOgZlhLTbDPV1mj1CNKS8CZw==
-X-Received: by 2002:a17:90b:1812:: with SMTP id lw18mr19754989pjb.196.1636738016442;
-        Fri, 12 Nov 2021 09:26:56 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m12sm5728118pjr.14.2021.11.12.09.26.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Nov 2021 09:26:56 -0800 (PST)
-Message-ID: <618ea3e0.1c69fb81.301be.0a44@mx.google.com>
-Date:   Fri, 12 Nov 2021 09:26:56 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S233404AbhKLRbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Nov 2021 12:31:24 -0500
+Received: from outgoing-stata.csail.mit.edu ([128.30.2.210]:43413 "EHLO
+        outgoing-stata.csail.mit.edu" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232231AbhKLRbW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Nov 2021 12:31:22 -0500
+Received: from [128.177.79.46] (helo=csail.mit.edu)
+        by outgoing-stata.csail.mit.edu with esmtpsa (TLS1.2:RSA_AES_256_CBC_SHA1:256)
+        (Exim 4.82)
+        (envelope-from <srivatsa@csail.mit.edu>)
+        id 1mlaLj-0005KE-Ea; Fri, 12 Nov 2021 12:28:27 -0500
+Date:   Fri, 12 Nov 2021 09:31:36 -0800
+From:   "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     jgross@suse.com, x86@kernel.org, pv-drivers@vmware.com,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        Deep Shah <sdeep@vmware.com>, stable@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
+        srivatsab@vmware.com, anishs@vmware.com, vithampi@vmware.com,
+        linux-kernel@vger.kernel.org, namit@vmware.com, joe@perches.com,
+        kuba@kernel.org, rostedt@goodmis.org
+Subject: Re: [PATCH v3 1/3] MAINTAINERS: Update maintainers for paravirt ops
+ and VMware hypervisor interface
+Message-ID: <20211112173136.GA11364@csail.mit.edu>
+References: <163657479269.84207.13658789048079672839.stgit@srivatsa-dev>
+ <163657487268.84207.5604596767569015608.stgit@srivatsa-dev>
+ <YYy9P7Rjg9hntmm3@kroah.com>
+ <20211111153916.GA7966@csail.mit.edu>
+ <YY1krlfM5R7uEzJF@kroah.com>
+ <20211111194002.GA8739@csail.mit.edu>
+ <YY4P0lxIDNcOlc+2@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.216-16-g939af1e9357c
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 132 runs,
- 2 regressions (v4.19.216-16-g939af1e9357c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YY4P0lxIDNcOlc+2@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 132 runs, 2 regressions (v4.19.216-16-g939af=
-1e9357c)
+On Fri, Nov 12, 2021 at 07:55:14AM +0100, Greg KH wrote:
+> On Thu, Nov 11, 2021 at 11:40:02AM -0800, Srivatsa S. Bhat wrote:
+> > On Thu, Nov 11, 2021 at 07:45:02PM +0100, Greg KH wrote:
+> > > On Thu, Nov 11, 2021 at 07:39:16AM -0800, Srivatsa S. Bhat wrote:
+> > > > On Thu, Nov 11, 2021 at 07:50:39AM +0100, Greg KH wrote:
+> > > > > On Wed, Nov 10, 2021 at 12:08:16PM -0800, Srivatsa S. Bhat wrote:
+> > > > > > From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> > > > > > 
+> > > > > > Deep has decided to transfer maintainership of the VMware hypervisor
+> > > > > > interface to Srivatsa, and the joint-maintainership of paravirt ops in
+> > > > > > the Linux kernel to Srivatsa and Alexey. Update the MAINTAINERS file
+> > > > > > to reflect this change.
+> > > > > > 
+> > > > > > Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> > > > > > Acked-by: Alexey Makhalov <amakhalov@vmware.com>
+> > > > > > Acked-by: Deep Shah <sdeep@vmware.com>
+> > > > > > Acked-by: Juergen Gross <jgross@suse.com>
+> > > > > > Cc: stable@vger.kernel.org
+> > > > > 
+> > > > > Why are MAINTAINERS updates needed for stable?  That's not normal :(
+> > > > 
+> > > > So that people posting bug-fixes / backports to these subsystems for
+> > > > older kernels (stable and LTS releases) will CC the new subsystem
+> > > > maintainers.
+> > > 
+> > > That's not how stable releases work at all.
+> > > 
+> > > > That's why I added CC stable tag only to the first two
+> > > > patches which add/replace maintainers and not the third patch which is
+> > > > just a cleanup.
+> > > 
+> > > Patches for stable kernels need to go into Linus's tree first, and if
+> > > you have the MAINTAINERS file updated properly there, then you will be
+> > > properly cc:ed.  We do not look at the MAINTAINERS file for the older
+> > > kernel when sending patches out, it's totally ignored as that was the
+> > > snapshot at a point in time, which is usually no longer the true state.
+> > > 
+> > 
+> > Sure, but that's the case for patches that get mainlined (and
+> > subsequently backported to -stable) /after/ this update to the
+> > MAINTAINERS file gets merged into mainline.
+> > 
+> > When adding the CC stable tag, the case I was trying to address was
+> > for patches that are already in mainline but weren't CC'ed to stable,
+> > and at some later point, somebody decides to backport them to older
+> > stable kernels. In that case, there is a chance that the contributor
+> > might run ./get_maintainer.pl against the stable tree (as that's the
+> > tree they are backporting the upstream commit against) and end up not
+> > CC'ing the new maintainers. So, I thought it would be good to keep the
+> > maintainer info updated in the older stable kernels too.
+> 
+> I always ask that the current maintainers of the code be cc:ed when
+> asking for commits to be backported to the stable tree, so I think this
+> is not something you need to worry about.  I don't want to have to deal
+> with hundreds of patches to try to keep the MAINTAINERS file "up to
+> date" for this very very rare event.
+> 
 
-Regressions Summary
--------------------
+Sounds good, thank you!
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 2       =
-   =
+> You can prove me wrong by looking at our email archives and see where I
+> have missed ever doing this in the past 18 years and what the frequency
+> of it is...
+>
 
+I believe you :-)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.216-16-g939af1e9357c/plan/baseline/
+> But for now, no, this is not stable kernel material.
+>
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.216-16-g939af1e9357c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      939af1e9357c0d1754d5394c207377a97d4ac5d1 =
+I understand, and thank you for the clarification!
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 2       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/618e68dec7dd4b7a7e335900
-
-  Results:     4 PASS, 2 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.216=
--16-g939af1e9357c/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.216=
--16-g939af1e9357c/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/618e68dec7dd4b7=
-a7e335903
-        failing since 1 day (last pass: v4.19.216-7-ga721c571705e, first fa=
-il: v4.19.216-7-g1cf3c1269574)
-        2 lines
-
-    2021-11-12T13:14:55.552008  <8>[   21.661193] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D3>
-    2021-11-12T13:14:55.597627  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/102
-    2021-11-12T13:14:55.607781  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-11-12T13:14:55.621512  <8>[   21.731323] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/618e68dec7dd4b7=
-a7e335904
-        new failure (last pass: v4.19.216-16-ge7c4b3bfd26d)
-        3 lines
-
-    2021-11-12T13:14:55.478865  <8>[   21.587707] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcrit RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-12T13:14:55.526519  kern  :alert : Unhandled fault: imprecise e=
-xternal abort (0x1406) at 0xb6f3a898
-    2021-11-12T13:14:55.529487  kern  :alert : pgd =3D (ptrval)
-    2021-11-12T13:14:55.533084  kern  :alert : [b6f3a898] *pgd=3Dbc1fb831   =
-
- =20
+Regards,
+Srivatsa
