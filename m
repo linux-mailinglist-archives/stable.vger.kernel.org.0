@@ -2,822 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49D7544E79F
-	for <lists+stable@lfdr.de>; Fri, 12 Nov 2021 14:41:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDC8544E7A3
+	for <lists+stable@lfdr.de>; Fri, 12 Nov 2021 14:41:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231436AbhKLNoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Nov 2021 08:44:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42648 "EHLO mail.kernel.org"
+        id S235106AbhKLNoX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Nov 2021 08:44:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235057AbhKLNoQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Nov 2021 08:44:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B14361056;
-        Fri, 12 Nov 2021 13:41:25 +0000 (UTC)
+        id S235087AbhKLNoV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Nov 2021 08:44:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEB0B61054;
+        Fri, 12 Nov 2021 13:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636724486;
-        bh=iPPz/+vpvi02UqIc2Z20YKq7gZDhitMUlFGQ6+KRZP0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fq5bN+uNzVOqeeleuIkXEElORUux5H3j2jTaG7Jr8eujz38CYHZENgztq71ZrQLg7
-         aJzZthPD1z6NCwZCg8L1ron4iVbKEdmEd+/+CENmx0DUaC0Pl69KPWF5DXWfDGjhig
-         9VRsQr8EMDaBE2wow8BRcetZ7jBzDFy5Yl1gu00c=
+        s=korg; t=1636724491;
+        bh=YZQfxUhqVkCmi2qtXYtSrSWMDQg1aGKn/Bt9f8KjdPY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=oV9ZhYhR8OT4VUlqi4IfWSNaqYhMYu2uKHCDAVgdew1/tL8FHP7hNG36qdnEWqHY7
+         IL+/EpmTYZ5WY8NRFn9M5ONo6c1f9mI49nlmfsCiMk4qwen6KMQmfNR2ji+NGZvEWv
+         G1mzKKjNXJtAWva1CgEeLybRTpET0C1ovj4ccWaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.4.292
-Date:   Fri, 12 Nov 2021 14:41:18 +0100
-Message-Id: <163672447720868@kroah.com>
+Subject: Linux 4.9.290
+Date:   Fri, 12 Nov 2021 14:41:22 +0100
+Message-Id: <1636724482103131@kroah.com>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <1636724477210236@kroah.com>
-References: <1636724477210236@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 62b5a3cfaf4e..081525825956 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 4
--SUBLEVEL = 291
-+SUBLEVEL = 292
- EXTRAVERSION =
- NAME = Blurry Fish Butt
- 
-diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
-index 91c99cce22a4..f8e19ac8e328 100644
---- a/drivers/amba/bus.c
-+++ b/drivers/amba/bus.c
-@@ -360,9 +360,6 @@ int amba_device_add(struct amba_device *dev, struct resource *parent)
- 	void __iomem *tmp;
- 	int i, ret;
- 
--	WARN_ON(dev->irq[0] == (unsigned int)-1);
--	WARN_ON(dev->irq[1] == (unsigned int)-1);
--
- 	ret = request_resource(parent, &dev->res);
- 	if (ret)
- 		goto err_out;
-diff --git a/drivers/infiniband/hw/qib/qib_user_sdma.c b/drivers/infiniband/hw/qib/qib_user_sdma.c
-index 3e0677c51276..0dc15f95e762 100644
---- a/drivers/infiniband/hw/qib/qib_user_sdma.c
-+++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
-@@ -41,6 +41,7 @@
- #include <linux/rbtree.h>
- #include <linux/spinlock.h>
- #include <linux/delay.h>
-+#include <linux/overflow.h>
- 
- #include "qib.h"
- #include "qib_user_sdma.h"
-@@ -606,7 +607,7 @@ done:
- /*
-  * How many pages in this iovec element?
-  */
--static int qib_user_sdma_num_pages(const struct iovec *iov)
-+static size_t qib_user_sdma_num_pages(const struct iovec *iov)
- {
- 	const unsigned long addr  = (unsigned long) iov->iov_base;
- 	const unsigned long  len  = iov->iov_len;
-@@ -662,7 +663,7 @@ static void qib_user_sdma_free_pkt_frag(struct device *dev,
- static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
- 				   struct qib_user_sdma_queue *pq,
- 				   struct qib_user_sdma_pkt *pkt,
--				   unsigned long addr, int tlen, int npages)
-+				   unsigned long addr, int tlen, size_t npages)
- {
- 	struct page *pages[8];
- 	int i, j;
-@@ -726,7 +727,7 @@ static int qib_user_sdma_pin_pkt(const struct qib_devdata *dd,
- 	unsigned long idx;
- 
- 	for (idx = 0; idx < niov; idx++) {
--		const int npages = qib_user_sdma_num_pages(iov + idx);
-+		const size_t npages = qib_user_sdma_num_pages(iov + idx);
- 		const unsigned long addr = (unsigned long) iov[idx].iov_base;
- 
- 		ret = qib_user_sdma_pin_pages(dd, pq, pkt, addr,
-@@ -828,8 +829,8 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
- 		unsigned pktnw;
- 		unsigned pktnwc;
- 		int nfrags = 0;
--		int npages = 0;
--		int bytes_togo = 0;
-+		size_t npages = 0;
-+		size_t bytes_togo = 0;
- 		int tiddma = 0;
- 		int cfur;
- 
-@@ -889,7 +890,11 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
- 
- 			npages += qib_user_sdma_num_pages(&iov[idx]);
- 
--			bytes_togo += slen;
-+			if (check_add_overflow(bytes_togo, slen, &bytes_togo) ||
-+			    bytes_togo > type_max(typeof(pkt->bytes_togo))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
- 			pktnwc += slen >> 2;
- 			idx++;
- 			nfrags++;
-@@ -908,10 +913,10 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
- 		}
- 
- 		if (frag_size) {
--			int pktsize, tidsmsize, n;
-+			size_t tidsmsize, n, pktsize, sz, addrlimit;
- 
- 			n = npages*((2*PAGE_SIZE/frag_size)+1);
--			pktsize = sizeof(*pkt) + sizeof(pkt->addr[0])*n;
-+			pktsize = struct_size(pkt, addr, n);
- 
- 			/*
- 			 * Determine if this is tid-sdma or just sdma.
-@@ -926,14 +931,24 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
- 			else
- 				tidsmsize = 0;
- 
--			pkt = kmalloc(pktsize+tidsmsize, GFP_KERNEL);
-+			if (check_add_overflow(pktsize, tidsmsize, &sz)) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt = kmalloc(sz, GFP_KERNEL);
- 			if (!pkt) {
- 				ret = -ENOMEM;
- 				goto free_pbc;
- 			}
- 			pkt->largepkt = 1;
- 			pkt->frag_size = frag_size;
--			pkt->addrlimit = n + ARRAY_SIZE(pkt->addr);
-+			if (check_add_overflow(n, ARRAY_SIZE(pkt->addr),
-+					       &addrlimit) ||
-+			    addrlimit > type_max(typeof(pkt->addrlimit))) {
-+				ret = -EINVAL;
-+				goto free_pbc;
-+			}
-+			pkt->addrlimit = addrlimit;
- 
- 			if (tiddma) {
- 				char *tidsm = (char *)pkt + pktsize;
-diff --git a/drivers/net/usb/hso.c b/drivers/net/usb/hso.c
-index e6f272019da0..b35a887ba594 100644
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2522,7 +2522,7 @@ static struct hso_device *hso_create_net_device(struct usb_interface *interface,
- 			   hso_net_init);
- 	if (!net) {
- 		dev_err(&interface->dev, "Unable to create ethernet device\n");
--		goto exit;
-+		goto err_hso_dev;
- 	}
- 
- 	hso_net = netdev_priv(net);
-@@ -2535,54 +2535,67 @@ static struct hso_device *hso_create_net_device(struct usb_interface *interface,
- 				      USB_DIR_IN);
- 	if (!hso_net->in_endp) {
- 		dev_err(&interface->dev, "Can't find BULK IN endpoint\n");
--		goto exit;
-+		goto err_net;
- 	}
- 	hso_net->out_endp = hso_get_ep(interface, USB_ENDPOINT_XFER_BULK,
- 				       USB_DIR_OUT);
- 	if (!hso_net->out_endp) {
- 		dev_err(&interface->dev, "Can't find BULK OUT endpoint\n");
--		goto exit;
-+		goto err_net;
- 	}
- 	SET_NETDEV_DEV(net, &interface->dev);
- 	SET_NETDEV_DEVTYPE(net, &hso_type);
- 
--	/* registering our net device */
--	result = register_netdev(net);
--	if (result) {
--		dev_err(&interface->dev, "Failed to register device\n");
--		goto exit;
--	}
--
- 	/* start allocating */
- 	for (i = 0; i < MUX_BULK_RX_BUF_COUNT; i++) {
- 		hso_net->mux_bulk_rx_urb_pool[i] = usb_alloc_urb(0, GFP_KERNEL);
- 		if (!hso_net->mux_bulk_rx_urb_pool[i]) {
- 			dev_err(&interface->dev, "Could not allocate rx urb\n");
--			goto exit;
-+			goto err_mux_bulk_rx;
- 		}
- 		hso_net->mux_bulk_rx_buf_pool[i] = kzalloc(MUX_BULK_RX_BUF_SIZE,
- 							   GFP_KERNEL);
- 		if (!hso_net->mux_bulk_rx_buf_pool[i])
--			goto exit;
-+			goto err_mux_bulk_rx;
- 	}
- 	hso_net->mux_bulk_tx_urb = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!hso_net->mux_bulk_tx_urb) {
- 		dev_err(&interface->dev, "Could not allocate tx urb\n");
--		goto exit;
-+		goto err_mux_bulk_rx;
- 	}
- 	hso_net->mux_bulk_tx_buf = kzalloc(MUX_BULK_TX_BUF_SIZE, GFP_KERNEL);
- 	if (!hso_net->mux_bulk_tx_buf)
--		goto exit;
-+		goto err_free_tx_urb;
- 
- 	add_net_device(hso_dev);
- 
-+	/* registering our net device */
-+	result = register_netdev(net);
-+	if (result) {
-+		dev_err(&interface->dev, "Failed to register device\n");
-+		goto err_free_tx_buf;
-+	}
-+
- 	hso_log_port(hso_dev);
- 
- 	hso_create_rfkill(hso_dev, interface);
- 
- 	return hso_dev;
--exit:
--	hso_free_net_device(hso_dev);
-+
-+err_free_tx_buf:
-+	remove_net_device(hso_dev);
-+	kfree(hso_net->mux_bulk_tx_buf);
-+err_free_tx_urb:
-+	usb_free_urb(hso_net->mux_bulk_tx_urb);
-+err_mux_bulk_rx:
-+	for (i = 0; i < MUX_BULK_RX_BUF_COUNT; i++) {
-+		usb_free_urb(hso_net->mux_bulk_rx_urb_pool[i]);
-+		kfree(hso_net->mux_bulk_rx_buf_pool[i]);
-+	}
-+err_net:
-+	free_netdev(net);
-+err_hso_dev:
-+	kfree(hso_dev);
- 	return NULL;
- }
- 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_usb.c b/drivers/net/wireless/rsi/rsi_91x_usb.c
-index 974387ad1e8c..83cbaac877ea 100644
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -42,7 +42,7 @@ static int rsi_usb_card_write(struct rsi_hw *adapter,
- 			      buf,
- 			      len,
- 			      &transfer,
--			      HZ * 5);
-+			      USB_CTRL_SET_TIMEOUT);
- 
- 	if (status < 0) {
- 		rsi_dbg(ERR_ZONE,
-diff --git a/drivers/scsi/scsi.c b/drivers/scsi/scsi.c
-index d07fb653f5dc..d59ce94fdf73 100644
---- a/drivers/scsi/scsi.c
-+++ b/drivers/scsi/scsi.c
-@@ -936,8 +936,10 @@ EXPORT_SYMBOL(scsi_device_get);
-  */
- void scsi_device_put(struct scsi_device *sdev)
- {
--	module_put(sdev->host->hostt->module);
-+	struct module *mod = sdev->host->hostt->module;
-+
- 	put_device(&sdev->sdev_gendev);
-+	module_put(mod);
- }
- EXPORT_SYMBOL(scsi_device_put);
- 
-diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index b89af3841e44..7497917afdec 100644
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -396,9 +396,12 @@ static void scsi_device_dev_release_usercontext(struct work_struct *work)
- 	struct device *parent;
- 	struct list_head *this, *tmp;
- 	unsigned long flags;
-+	struct module *mod;
- 
- 	sdev = container_of(work, struct scsi_device, ew.work);
- 
-+	mod = sdev->host->hostt->module;
-+
- 	scsi_dh_release_device(sdev);
- 
- 	parent = sdev->sdev_gendev.parent;
-@@ -430,11 +433,17 @@ static void scsi_device_dev_release_usercontext(struct work_struct *work)
- 
- 	if (parent)
- 		put_device(parent);
-+	module_put(mod);
- }
- 
- static void scsi_device_dev_release(struct device *dev)
- {
- 	struct scsi_device *sdp = to_scsi_device(dev);
-+
-+	/* Set module pointer as NULL in case of module unloading */
-+	if (!try_module_get(sdp->host->hostt->module))
-+		sdp->host->hostt->module = NULL;
-+
- 	execute_in_process_context(scsi_device_dev_release_usercontext,
- 				   &sdp->ew);
- }
-diff --git a/drivers/staging/comedi/drivers/dt9812.c b/drivers/staging/comedi/drivers/dt9812.c
-index 3295bb4ac8c4..e758eb3d2d19 100644
---- a/drivers/staging/comedi/drivers/dt9812.c
-+++ b/drivers/staging/comedi/drivers/dt9812.c
-@@ -41,6 +41,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/errno.h>
-+#include <linux/slab.h>
- #include <linux/uaccess.h>
- 
- #include "../comedi_usb.h"
-@@ -246,22 +247,42 @@ static int dt9812_read_info(struct comedi_device *dev,
- {
- 	struct usb_device *usb = comedi_to_usb_dev(dev);
- 	struct dt9812_private *devpriv = dev->private;
--	struct dt9812_usb_cmd cmd;
-+	struct dt9812_usb_cmd *cmd;
-+	size_t tbuf_size;
- 	int count, ret;
-+	void *tbuf;
- 
--	cmd.cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
--	cmd.u.flash_data_info.address =
-+	tbuf_size = max(sizeof(*cmd), buf_size);
-+
-+	tbuf = kzalloc(tbuf_size, GFP_KERNEL);
-+	if (!tbuf)
-+		return -ENOMEM;
-+
-+	cmd = tbuf;
-+
-+	cmd->cmd = cpu_to_le32(DT9812_R_FLASH_DATA);
-+	cmd->u.flash_data_info.address =
- 	    cpu_to_le16(DT9812_DIAGS_BOARD_INFO_ADDR + offset);
--	cmd.u.flash_data_info.numbytes = cpu_to_le16(buf_size);
-+	cmd->u.flash_data_info.numbytes = cpu_to_le16(buf_size);
- 
- 	/* DT9812 only responds to 32 byte writes!! */
- 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
--			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
-+			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
- 	if (ret)
--		return ret;
-+		goto out;
-+
-+	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
-+			   tbuf, buf_size, &count, DT9812_USB_TIMEOUT);
-+	if (!ret) {
-+		if (count == buf_size)
-+			memcpy(buf, tbuf, buf_size);
-+		else
-+			ret = -EREMOTEIO;
-+	}
-+out:
-+	kfree(tbuf);
- 
--	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
--			    buf, buf_size, &count, DT9812_USB_TIMEOUT);
-+	return ret;
- }
- 
- static int dt9812_read_multiple_registers(struct comedi_device *dev,
-@@ -270,22 +291,42 @@ static int dt9812_read_multiple_registers(struct comedi_device *dev,
- {
- 	struct usb_device *usb = comedi_to_usb_dev(dev);
- 	struct dt9812_private *devpriv = dev->private;
--	struct dt9812_usb_cmd cmd;
-+	struct dt9812_usb_cmd *cmd;
- 	int i, count, ret;
-+	size_t buf_size;
-+	void *buf;
- 
--	cmd.cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
--	cmd.u.read_multi_info.count = reg_count;
-+	buf_size = max_t(size_t, sizeof(*cmd), reg_count);
-+
-+	buf = kzalloc(buf_size, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	cmd = buf;
-+
-+	cmd->cmd = cpu_to_le32(DT9812_R_MULTI_BYTE_REG);
-+	cmd->u.read_multi_info.count = reg_count;
- 	for (i = 0; i < reg_count; i++)
--		cmd.u.read_multi_info.address[i] = address[i];
-+		cmd->u.read_multi_info.address[i] = address[i];
- 
- 	/* DT9812 only responds to 32 byte writes!! */
- 	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
--			   &cmd, 32, &count, DT9812_USB_TIMEOUT);
-+			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
- 	if (ret)
--		return ret;
-+		goto out;
-+
-+	ret = usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
-+			   buf, reg_count, &count, DT9812_USB_TIMEOUT);
-+	if (!ret) {
-+		if (count == reg_count)
-+			memcpy(value, buf, reg_count);
-+		else
-+			ret = -EREMOTEIO;
-+	}
-+out:
-+	kfree(buf);
- 
--	return usb_bulk_msg(usb, usb_rcvbulkpipe(usb, devpriv->cmd_rd.addr),
--			    value, reg_count, &count, DT9812_USB_TIMEOUT);
-+	return ret;
- }
- 
- static int dt9812_write_multiple_registers(struct comedi_device *dev,
-@@ -294,19 +335,27 @@ static int dt9812_write_multiple_registers(struct comedi_device *dev,
- {
- 	struct usb_device *usb = comedi_to_usb_dev(dev);
- 	struct dt9812_private *devpriv = dev->private;
--	struct dt9812_usb_cmd cmd;
-+	struct dt9812_usb_cmd *cmd;
- 	int i, count;
-+	int ret;
-+
-+	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
-+	if (!cmd)
-+		return -ENOMEM;
- 
--	cmd.cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
--	cmd.u.read_multi_info.count = reg_count;
-+	cmd->cmd = cpu_to_le32(DT9812_W_MULTI_BYTE_REG);
-+	cmd->u.read_multi_info.count = reg_count;
- 	for (i = 0; i < reg_count; i++) {
--		cmd.u.write_multi_info.write[i].address = address[i];
--		cmd.u.write_multi_info.write[i].value = value[i];
-+		cmd->u.write_multi_info.write[i].address = address[i];
-+		cmd->u.write_multi_info.write[i].value = value[i];
- 	}
- 
- 	/* DT9812 only responds to 32 byte writes!! */
--	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
--			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
-+	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
-+			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
-+	kfree(cmd);
-+
-+	return ret;
- }
- 
- static int dt9812_rmw_multiple_registers(struct comedi_device *dev,
-@@ -315,17 +364,25 @@ static int dt9812_rmw_multiple_registers(struct comedi_device *dev,
- {
- 	struct usb_device *usb = comedi_to_usb_dev(dev);
- 	struct dt9812_private *devpriv = dev->private;
--	struct dt9812_usb_cmd cmd;
-+	struct dt9812_usb_cmd *cmd;
- 	int i, count;
-+	int ret;
-+
-+	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
-+	if (!cmd)
-+		return -ENOMEM;
- 
--	cmd.cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
--	cmd.u.rmw_multi_info.count = reg_count;
-+	cmd->cmd = cpu_to_le32(DT9812_RMW_MULTI_BYTE_REG);
-+	cmd->u.rmw_multi_info.count = reg_count;
- 	for (i = 0; i < reg_count; i++)
--		cmd.u.rmw_multi_info.rmw[i] = rmw[i];
-+		cmd->u.rmw_multi_info.rmw[i] = rmw[i];
- 
- 	/* DT9812 only responds to 32 byte writes!! */
--	return usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
--			    &cmd, 32, &count, DT9812_USB_TIMEOUT);
-+	ret = usb_bulk_msg(usb, usb_sndbulkpipe(usb, devpriv->cmd_wr.addr),
-+			   cmd, sizeof(*cmd), &count, DT9812_USB_TIMEOUT);
-+	kfree(cmd);
-+
-+	return ret;
- }
- 
- static int dt9812_digital_in(struct comedi_device *dev, u8 *bits)
-@@ -660,12 +717,12 @@ static int dt9812_find_endpoints(struct comedi_device *dev)
- 		case 1:
- 			dir = USB_DIR_OUT;
- 			devpriv->cmd_wr.addr = ep->bEndpointAddress;
--			devpriv->cmd_wr.size = le16_to_cpu(ep->wMaxPacketSize);
-+			devpriv->cmd_wr.size = usb_endpoint_maxp(ep);
- 			break;
- 		case 2:
- 			dir = USB_DIR_IN;
- 			devpriv->cmd_rd.addr = ep->bEndpointAddress;
--			devpriv->cmd_rd.size = le16_to_cpu(ep->wMaxPacketSize);
-+			devpriv->cmd_rd.size = usb_endpoint_maxp(ep);
- 			break;
- 		case 3:
- 			/* unused write stream */
-diff --git a/drivers/staging/comedi/drivers/ni_usb6501.c b/drivers/staging/comedi/drivers/ni_usb6501.c
-index 6778e2b73667..7f647d80ec05 100644
---- a/drivers/staging/comedi/drivers/ni_usb6501.c
-+++ b/drivers/staging/comedi/drivers/ni_usb6501.c
-@@ -153,6 +153,10 @@ static const u8 READ_COUNTER_RESPONSE[]	= {0x00, 0x01, 0x00, 0x10,
- 					   0x00, 0x00, 0x00, 0x02,
- 					   0x00, 0x00, 0x00, 0x00};
- 
-+/* Largest supported packets */
-+static const size_t TX_MAX_SIZE	= sizeof(SET_PORT_DIR_REQUEST);
-+static const size_t RX_MAX_SIZE	= sizeof(READ_PORT_RESPONSE);
-+
- enum commands {
- 	READ_PORT,
- 	WRITE_PORT,
-@@ -465,12 +469,12 @@ static int ni6501_alloc_usb_buffers(struct comedi_device *dev)
- 	struct ni6501_private *devpriv = dev->private;
- 	size_t size;
- 
--	size = le16_to_cpu(devpriv->ep_rx->wMaxPacketSize);
-+	size = usb_endpoint_maxp(devpriv->ep_rx);
- 	devpriv->usb_rx_buf = kzalloc(size, GFP_KERNEL);
- 	if (!devpriv->usb_rx_buf)
- 		return -ENOMEM;
- 
--	size = le16_to_cpu(devpriv->ep_tx->wMaxPacketSize);
-+	size = usb_endpoint_maxp(devpriv->ep_tx);
- 	devpriv->usb_tx_buf = kzalloc(size, GFP_KERNEL);
- 	if (!devpriv->usb_tx_buf)
- 		return -ENOMEM;
-@@ -510,6 +514,12 @@ static int ni6501_find_endpoints(struct comedi_device *dev)
- 	if (!devpriv->ep_rx || !devpriv->ep_tx)
- 		return -ENODEV;
- 
-+	if (usb_endpoint_maxp(devpriv->ep_rx) < RX_MAX_SIZE)
-+		return -ENODEV;
-+
-+	if (usb_endpoint_maxp(devpriv->ep_tx) < TX_MAX_SIZE)
-+		return -ENODEV;
-+
- 	return 0;
- }
- 
-diff --git a/drivers/staging/comedi/drivers/vmk80xx.c b/drivers/staging/comedi/drivers/vmk80xx.c
-index 51f9a7800edf..36470ee06596 100644
---- a/drivers/staging/comedi/drivers/vmk80xx.c
-+++ b/drivers/staging/comedi/drivers/vmk80xx.c
-@@ -99,6 +99,9 @@ enum {
- #define IC3_VERSION		BIT(0)
- #define IC6_VERSION		BIT(1)
- 
-+#define MIN_BUF_SIZE		64
-+#define PACKET_TIMEOUT		10000	/* ms */
-+
- enum vmk80xx_model {
- 	VMK8055_MODEL,
- 	VMK8061_MODEL
-@@ -166,22 +169,21 @@ static void vmk80xx_do_bulk_msg(struct comedi_device *dev)
- 	__u8 rx_addr;
- 	unsigned int tx_pipe;
- 	unsigned int rx_pipe;
--	size_t size;
-+	size_t tx_size;
-+	size_t rx_size;
- 
- 	tx_addr = devpriv->ep_tx->bEndpointAddress;
- 	rx_addr = devpriv->ep_rx->bEndpointAddress;
- 	tx_pipe = usb_sndbulkpipe(usb, tx_addr);
- 	rx_pipe = usb_rcvbulkpipe(usb, rx_addr);
-+	tx_size = usb_endpoint_maxp(devpriv->ep_tx);
-+	rx_size = usb_endpoint_maxp(devpriv->ep_rx);
- 
--	/*
--	 * The max packet size attributes of the K8061
--	 * input/output endpoints are identical
--	 */
--	size = le16_to_cpu(devpriv->ep_tx->wMaxPacketSize);
-+	usb_bulk_msg(usb, tx_pipe, devpriv->usb_tx_buf, tx_size, NULL,
-+		     PACKET_TIMEOUT);
- 
--	usb_bulk_msg(usb, tx_pipe, devpriv->usb_tx_buf,
--		     size, NULL, devpriv->ep_tx->bInterval);
--	usb_bulk_msg(usb, rx_pipe, devpriv->usb_rx_buf, size, NULL, HZ * 10);
-+	usb_bulk_msg(usb, rx_pipe, devpriv->usb_rx_buf, rx_size, NULL,
-+		     PACKET_TIMEOUT);
- }
- 
- static int vmk80xx_read_packet(struct comedi_device *dev)
-@@ -199,8 +201,8 @@ static int vmk80xx_read_packet(struct comedi_device *dev)
- 	ep = devpriv->ep_rx;
- 	pipe = usb_rcvintpipe(usb, ep->bEndpointAddress);
- 	return usb_interrupt_msg(usb, pipe, devpriv->usb_rx_buf,
--				 le16_to_cpu(ep->wMaxPacketSize), NULL,
--				 HZ * 10);
-+				 usb_endpoint_maxp(ep), NULL,
-+				 PACKET_TIMEOUT);
- }
- 
- static int vmk80xx_write_packet(struct comedi_device *dev, int cmd)
-@@ -220,8 +222,8 @@ static int vmk80xx_write_packet(struct comedi_device *dev, int cmd)
- 	ep = devpriv->ep_tx;
- 	pipe = usb_sndintpipe(usb, ep->bEndpointAddress);
- 	return usb_interrupt_msg(usb, pipe, devpriv->usb_tx_buf,
--				 le16_to_cpu(ep->wMaxPacketSize), NULL,
--				 HZ * 10);
-+				 usb_endpoint_maxp(ep), NULL,
-+				 PACKET_TIMEOUT);
- }
- 
- static int vmk80xx_reset_device(struct comedi_device *dev)
-@@ -230,7 +232,7 @@ static int vmk80xx_reset_device(struct comedi_device *dev)
- 	size_t size;
- 	int retval;
- 
--	size = le16_to_cpu(devpriv->ep_tx->wMaxPacketSize);
-+	size = usb_endpoint_maxp(devpriv->ep_tx);
- 	memset(devpriv->usb_tx_buf, 0, size);
- 	retval = vmk80xx_write_packet(dev, VMK8055_CMD_RST);
- 	if (retval)
-@@ -687,12 +689,12 @@ static int vmk80xx_alloc_usb_buffers(struct comedi_device *dev)
- 	struct vmk80xx_private *devpriv = dev->private;
- 	size_t size;
- 
--	size = le16_to_cpu(devpriv->ep_rx->wMaxPacketSize);
-+	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
- 	devpriv->usb_rx_buf = kzalloc(size, GFP_KERNEL);
- 	if (!devpriv->usb_rx_buf)
- 		return -ENOMEM;
- 
--	size = le16_to_cpu(devpriv->ep_tx->wMaxPacketSize);
-+	size = max(usb_endpoint_maxp(devpriv->ep_rx), MIN_BUF_SIZE);
- 	devpriv->usb_tx_buf = kzalloc(size, GFP_KERNEL);
- 	if (!devpriv->usb_tx_buf)
- 		return -ENOMEM;
-diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
-index 72dabbf19bc7..a8a4e45a2e51 100644
---- a/drivers/staging/rtl8192u/r8192U_core.c
-+++ b/drivers/staging/rtl8192u/r8192U_core.c
-@@ -267,7 +267,7 @@ void write_nic_byte_E(struct net_device *dev, int indx, u8 data)
- 
- 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
--				 indx | 0xfe00, 0, usbdata, 1, HZ / 2);
-+				 indx | 0xfe00, 0, usbdata, 1, 500);
- 	kfree(usbdata);
- 
- 	if (status < 0)
-@@ -287,7 +287,7 @@ int read_nic_byte_E(struct net_device *dev, int indx, u8 *data)
- 
- 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
--				 indx | 0xfe00, 0, usbdata, 1, HZ / 2);
-+				 indx | 0xfe00, 0, usbdata, 1, 500);
- 	*data = *usbdata;
- 	kfree(usbdata);
- 
-@@ -314,7 +314,7 @@ void write_nic_byte(struct net_device *dev, int indx, u8 data)
- 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 1, HZ / 2);
-+				 usbdata, 1, 500);
- 	kfree(usbdata);
- 
- 	if (status < 0)
-@@ -340,7 +340,7 @@ void write_nic_word(struct net_device *dev, int indx, u16 data)
- 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 2, HZ / 2);
-+				 usbdata, 2, 500);
- 	kfree(usbdata);
- 
- 	if (status < 0)
-@@ -365,7 +365,7 @@ void write_nic_dword(struct net_device *dev, int indx, u32 data)
- 	status = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				 RTL8187_REQ_SET_REGS, RTL8187_REQT_WRITE,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 4, HZ / 2);
-+				 usbdata, 4, 500);
- 	kfree(usbdata);
- 
- 
-@@ -390,7 +390,7 @@ int read_nic_byte(struct net_device *dev, int indx, u8 *data)
- 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 1, HZ / 2);
-+				 usbdata, 1, 500);
- 	*data = *usbdata;
- 	kfree(usbdata);
- 
-@@ -417,7 +417,7 @@ int read_nic_word(struct net_device *dev, int indx, u16 *data)
- 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 2, HZ / 2);
-+				 usbdata, 2, 500);
- 	*data = *usbdata;
- 	kfree(usbdata);
- 
-@@ -441,7 +441,7 @@ static int read_nic_word_E(struct net_device *dev, int indx, u16 *data)
- 
- 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
--				 indx | 0xfe00, 0, usbdata, 2, HZ / 2);
-+				 indx | 0xfe00, 0, usbdata, 2, 500);
- 	*data = *usbdata;
- 	kfree(usbdata);
- 
-@@ -467,7 +467,7 @@ int read_nic_dword(struct net_device *dev, int indx, u32 *data)
- 	status = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 				 RTL8187_REQ_GET_REGS, RTL8187_REQT_READ,
- 				 (indx & 0xff) | 0xff00, (indx >> 8) & 0x0f,
--				 usbdata, 4, HZ / 2);
-+				 usbdata, 4, 500);
- 	*data = *usbdata;
- 	kfree(usbdata);
- 
-diff --git a/drivers/staging/rtl8712/usb_ops_linux.c b/drivers/staging/rtl8712/usb_ops_linux.c
-index 489a9e6d52fc..fd4f1859cdae 100644
---- a/drivers/staging/rtl8712/usb_ops_linux.c
-+++ b/drivers/staging/rtl8712/usb_ops_linux.c
-@@ -511,7 +511,7 @@ int r8712_usbctrl_vendorreq(struct intf_priv *pintfpriv, u8 request, u16 value,
- 		memcpy(pIo_buf, pdata, len);
- 	}
- 	status = usb_control_msg(udev, pipe, request, reqtype, value, index,
--				 pIo_buf, len, HZ / 2);
-+				 pIo_buf, len, 500);
- 	if (status > 0) {  /* Success this control transfer. */
- 		if (requesttype == 0x01) {
- 			/* For Control read transfer, we have to copy the read
-diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
-index cdbff54e07ac..ee7afba5ca70 100644
---- a/drivers/usb/gadget/udc/Kconfig
-+++ b/drivers/usb/gadget/udc/Kconfig
-@@ -265,6 +265,7 @@ config USB_AMD5536UDC
- config USB_FSL_QE
- 	tristate "Freescale QE/CPM USB Device Controller"
- 	depends on FSL_SOC && (QUICC_ENGINE || CPM)
-+	depends on !64BIT || BROKEN
- 	help
- 	   Some of Freescale PowerPC processors have a Full Speed
- 	   QE/CPM2 USB controller, which support device mode with 4
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index 2c2ac15d2554..52895c462d7d 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -310,6 +310,16 @@ UNUSUAL_DEV(  0x045e, 0xffff, 0x0000, 0x0000,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_MAX_SECTORS_64 ),
- 
-+/*
-+ * Reported by James Buren <braewoods+lkml@braewoods.net>
-+ * Virtual ISOs cannot be remounted if ejected while the device is locked
-+ * Disable locking to mimic Windows behavior that bypasses the issue
-+ */
-+UNUSUAL_DEV(  0x04c5, 0x2028, 0x0001, 0x0001,
-+		"iODD",
-+		"2531/2541",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL, US_FL_NOT_LOCKABLE),
-+
- /*
-  * This virtual floppy is found in Sun equipment (x4600, x4200m2, etc.)
-  * Reported by Pete Zaitcev <zaitcev@redhat.com>
-diff --git a/fs/isofs/inode.c b/fs/isofs/inode.c
-index 350f67fb5b9c..41ece64f1a34 100644
---- a/fs/isofs/inode.c
-+++ b/fs/isofs/inode.c
-@@ -1268,6 +1268,8 @@ static int isofs_read_inode(struct inode *inode, int relocated)
- 
- 	de = (struct iso_directory_record *) (bh->b_data + offset);
- 	de_len = *(unsigned char *) de;
-+	if (de_len < sizeof(struct iso_directory_record))
-+		goto fail;
- 
- 	if (offset + de_len > bufsize) {
- 		int frag1 = bufsize - offset;
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index b55dfb3e801f..6d3e1f4961fb 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -2032,8 +2032,15 @@ static int __init console_setup(char *str)
- 	char *s, *options, *brl_options = NULL;
- 	int idx;
- 
--	if (str[0] == 0)
-+	/*
-+	 * console="" or console=null have been suggested as a way to
-+	 * disable console output. Use ttynull that has been created
-+	 * for exacly this purpose.
-+	 */
-+	if (str[0] == 0 || strcmp(str, "null") == 0) {
-+		__add_preferred_console("ttynull", 0, NULL, NULL);
- 		return 1;
-+	}
- 
- 	if (_braille_console_setup(&str, &brl_options))
- 		return 1;
+I'm announcing the release of the 4.9.290 kernel.
+
+All users of the 4.9 kernel series must upgrade.
+
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                    |    2 
+ arch/arc/include/asm/pgtable.h              |    2 
+ arch/arm/include/asm/pgtable-2level.h       |    2 
+ arch/arm/include/asm/pgtable-3level.h       |    2 
+ arch/mips/include/asm/pgtable-32.h          |    3 
+ arch/powerpc/include/asm/pte-common.h       |    2 
+ arch/x86/include/asm/pgtable-3level_types.h |    1 
+ arch/x86/kvm/ioapic.c                       |    2 
+ arch/x86/kvm/ioapic.h                       |    4 
+ drivers/amba/bus.c                          |    3 
+ drivers/infiniband/hw/qib/qib_user_sdma.c   |   35 ++++++--
+ drivers/net/usb/hso.c                       |   45 +++++++---
+ drivers/net/wireless/rsi/rsi_91x_usb.c      |    2 
+ drivers/scsi/scsi.c                         |    4 
+ drivers/scsi/scsi_sysfs.c                   |    9 ++
+ drivers/staging/comedi/drivers/dt9812.c     |  115 ++++++++++++++++++++--------
+ drivers/staging/comedi/drivers/ni_usb6501.c |   10 ++
+ drivers/staging/comedi/drivers/vmk80xx.c    |   28 +++---
+ drivers/staging/rtl8192u/r8192U_core.c      |   18 ++--
+ drivers/staging/rtl8712/usb_ops_linux.c     |    2 
+ drivers/usb/gadget/udc/Kconfig              |    1 
+ drivers/usb/musb/musb_gadget.c              |    4 
+ drivers/usb/storage/unusual_devs.h          |   10 ++
+ fs/isofs/inode.c                            |    2 
+ include/asm-generic/pgtable.h               |   13 +++
+ kernel/printk/printk.c                      |    9 +-
+ mm/zsmalloc.c                               |   13 +--
+ 27 files changed, 248 insertions(+), 95 deletions(-)
+
+Andreas Kemnade (1):
+      net: hso: register netdev later to avoid a race condition
+
+Arnd Bergmann (1):
+      arch: pgtable: define MAX_POSSIBLE_PHYSMEM_BITS where needed
+
+Dongliang Mu (1):
+      usb: hso: fix error handling code of hso_create_net_device
+
+Geert Uytterhoeven (1):
+      usb: gadget: Mark USB_FSL_QE broken on 64-bit
+
+Greg Kroah-Hartman (1):
+      Linux 4.9.290
+
+Gustavo A. R. Silva (1):
+      IB/qib: Use struct_size() helper
+
+James Buren (1):
+      usb-storage: Add compatibility quirk flags for iODD 2531/2541
+
+Jan Kara (1):
+      isofs: Fix out of bound access for corrupted isofs image
+
+Johan Hovold (8):
+      comedi: dt9812: fix DMA buffers on stack
+      comedi: ni_usb6501: fix NULL-deref in command paths
+      comedi: vmk80xx: fix transfer-buffer overflows
+      comedi: vmk80xx: fix bulk-buffer overflow
+      comedi: vmk80xx: fix bulk and interrupt message timeouts
+      staging: r8712u: fix control-message timeout
+      staging: rtl8192u: fix control-message timeouts
+      rsi: fix control-message timeout
+
+Juergen Gross (1):
+      Revert "x86/kvm: fix vcpu-id indexed array sizes"
+
+Kirill A. Shutemov (1):
+      mm/zsmalloc: Prepare to variable MAX_PHYSMEM_BITS
+
+Mike Marciniszyn (1):
+      IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields
+
+Ming Lei (1):
+      scsi: core: Put LLD module refcnt after SCSI device is released
+
+Petr Mladek (1):
+      printk/console: Allow to disable console output by using console="" or console=null
+
+Viraj Shah (1):
+      usb: musb: Balance list entry in musb_gadget_queue
+
+Wang Kefeng (1):
+      ARM: 9120/1: Revert "amba: make use of -1 IRQs warn"
+
