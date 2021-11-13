@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9836644F3B5
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:26:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A97244F3B7
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:26:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235812AbhKMO3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 09:29:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44938 "EHLO mail.kernel.org"
+        id S235890AbhKMO3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 09:29:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232965AbhKMO3F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 09:29:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1ED360F14;
-        Sat, 13 Nov 2021 14:26:12 +0000 (UTC)
+        id S231912AbhKMO3O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 09:29:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7D7F60F14;
+        Sat, 13 Nov 2021 14:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636813573;
-        bh=mMLyGB/0Y9TWI8TLYvv9YTJFfRv/HrNsVaGIhFuMuXM=;
+        s=korg; t=1636813582;
+        bh=DlBULN+9KLpQBLamkhXTgg4WRBfm4bqaaQuFSAtPkKA=;
         h=Subject:To:Cc:From:Date:From;
-        b=A5U9AkTps9ON6IQe43CYJ679oo9baj7FFVOcu4THdHY0cwkIftEk3Z6K1X4rA4N0U
-         DzpUIDJErrJxAwaWcBX8kgBzCNI2fLhYjokf8BEHhzkkjjkksJWODoqmWq3jsZRmFq
-         kcESJP1K5iSX00ftkXiXv/qlivdLpsQGR0pUpDiE=
-Subject: FAILED: patch "[PATCH] dma-buf: fix and rework dma_buf_poll v7" failed to apply to 5.14-stable tree
+        b=n0qMpTJm20EnHbVCFlP2y84cMX2T34ZDU4qqCgUzyMlAJ8gpAZqxxsGYzv+2sB8PF
+         vfQArktB5100Xz6rkIaUEjQZirVls7sQEBugVEE6q+sovX2Zip4uRkQCD/40QxOly4
+         KEQAflIDs0JujiYnfJuBAjEqdpejoybhytRuuyWE=
+Subject: FAILED: patch "[PATCH] dma-buf: fix and rework dma_buf_poll v7" failed to apply to 5.10-stable tree
 To:     christian.koenig@amd.com, daniel.vetter@ffwll.ch,
         mdaenzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 15:26:10 +0100
-Message-ID: <1636813570131206@kroah.com>
+Date:   Sat, 13 Nov 2021 15:26:11 +0100
+Message-ID: <1636813571216147@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
