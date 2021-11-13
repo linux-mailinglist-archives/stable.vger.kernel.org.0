@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65DAF44F3C1
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:46:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1B144F3C2
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:46:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231791AbhKMOsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 09:48:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51388 "EHLO mail.kernel.org"
+        id S231880AbhKMOs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 09:48:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229668AbhKMOsx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 09:48:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50E0A6054E;
-        Sat, 13 Nov 2021 14:46:00 +0000 (UTC)
+        id S229668AbhKMOs4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 09:48:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E6196054E;
+        Sat, 13 Nov 2021 14:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636814760;
-        bh=wdBtBJgN9pJMHmi9wAeigwDIVMwlNiYOr6yD9PLKBDE=;
+        s=korg; t=1636814764;
+        bh=ul8kol+kfiIEkfgbltb15xgFXAF8ogTWgK6k5xpgqMY=;
         h=Subject:To:Cc:From:Date:From;
-        b=GBHYRFDJcpx+kI19apmSit5okTMm2Gnd17QFGsOmwdTj9TUgo65FBn9rigZimN2g4
-         9GFRAYYnV/Ge+mFynWERH7LqxOQ3Dcw7PoqniKk1/t7GOHQEfPKdqcnsl47nNy0r8d
-         JdiyXG8l2W0aVjzRAOuO4Z++Zkci5QhASiKOaniI=
-Subject: FAILED: patch "[PATCH] memory: renesas-rpc-if: Avoid unaligned bus access for" failed to apply to 5.14-stable tree
+        b=AWUZREgXY0jkpZz3DPwtOnQIC1ghKIXGH3OrgHr5WHMGVMcsWzUzfs9GjaNt4E65V
+         M+3AH8ZC7siusmsHxG00x2OYngzqSnokmEX4SLciLeNsTta3TZR/GKH2RqyP6iMPxm
+         e1w2d+lLHJeEcKF2XoE4uc7DUEhTeHve5oCQtp7Q=
+Subject: FAILED: patch "[PATCH] memory: renesas-rpc-if: Avoid unaligned bus access for" failed to apply to 5.10-stable tree
 To:     andrew_gabbasov@mentor.com, krzysztof.kozlowski@canonical.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 15:45:50 +0100
-Message-ID: <1636814750230209@kroah.com>
+Date:   Sat, 13 Nov 2021 15:45:51 +0100
+Message-ID: <1636814751165252@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
