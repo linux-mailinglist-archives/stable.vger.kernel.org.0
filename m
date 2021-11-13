@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D4A944F3DA
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 16:20:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A347344F3DB
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 16:20:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233143AbhKMPWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 10:22:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42630 "EHLO mail.kernel.org"
+        id S233195AbhKMPXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 10:23:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231791AbhKMPWy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 10:22:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 720836108E;
-        Sat, 13 Nov 2021 15:20:01 +0000 (UTC)
+        id S231791AbhKMPXD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 10:23:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34C6761106;
+        Sat, 13 Nov 2021 15:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636816802;
-        bh=YptAMurNQZoNFeM81W8yIJMdlOmt+kuhFFl4XMj7vSk=;
+        s=korg; t=1636816810;
+        bh=5zzCUZg8XvS7kVqb5iTM98SDVrcEJ0qtSiQ+xjJsstM=;
         h=Subject:To:Cc:From:Date:From;
-        b=ImDtwzBg+bZ21njOqe9wtGjQ7zJoW2isYSoLC0gec8xLDHzB3SqiBHfTHE142UHgA
-         yze/wjYQnFIs94R240wphfgDftEHlirZS9Is2onu8kjx8lCEsknm8zEaW8R+PLT5vC
-         5JpXoaMOOtQTpK9SrXICfT+5yuGk8iJ/QXeejzfM=
-Subject: FAILED: patch "[PATCH] soc: fsl: dpio: replace smp_processor_id with" failed to apply to 4.19-stable tree
+        b=PFvsdy3pLhIeeC0IMWDKsH7whKx8ynKoD7bnZXg12VKjQUKZU90lhIrluLAASm8Mk
+         9Fk59PzzcMHbegmsEfY7ZFxifO+rK1PFMQYuJa6wWzbLJTyZBfgO4BlzXUzA4ju1X0
+         19J+esU7dtGeRDPhAnruNlnc9wXqzLsNsozsBx3Q=
+Subject: FAILED: patch "[PATCH] soc: fsl: dpio: replace smp_processor_id with" failed to apply to 5.4-stable tree
 To:     Meng.Li@windriver.com, leoyang.li@nxp.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 16:19:59 +0100
-Message-ID: <163681679954112@kroah.com>
+Date:   Sat, 13 Nov 2021 16:20:00 +0100
+Message-ID: <1636816800110243@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
