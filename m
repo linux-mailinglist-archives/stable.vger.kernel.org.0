@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A97244F3B7
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:26:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B87E544F3B8
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:27:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235890AbhKMO3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 09:29:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45060 "EHLO mail.kernel.org"
+        id S231319AbhKMOa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 09:30:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231912AbhKMO3O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 09:29:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7D7F60F14;
-        Sat, 13 Nov 2021 14:26:21 +0000 (UTC)
+        id S230001AbhKMOa2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 09:30:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE4E4604D1;
+        Sat, 13 Nov 2021 14:27:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636813582;
-        bh=DlBULN+9KLpQBLamkhXTgg4WRBfm4bqaaQuFSAtPkKA=;
+        s=korg; t=1636813656;
+        bh=a2M5dRT6hJCImdS9WpZ7ta98twVHkc0EgKADShARU5g=;
         h=Subject:To:Cc:From:Date:From;
-        b=n0qMpTJm20EnHbVCFlP2y84cMX2T34ZDU4qqCgUzyMlAJ8gpAZqxxsGYzv+2sB8PF
-         vfQArktB5100Xz6rkIaUEjQZirVls7sQEBugVEE6q+sovX2Zip4uRkQCD/40QxOly4
-         KEQAflIDs0JujiYnfJuBAjEqdpejoybhytRuuyWE=
-Subject: FAILED: patch "[PATCH] dma-buf: fix and rework dma_buf_poll v7" failed to apply to 5.10-stable tree
-To:     christian.koenig@amd.com, daniel.vetter@ffwll.ch,
-        mdaenzer@redhat.com
+        b=Z6VWbuRevPoHLOKVFEIzRPOHJTDh7JtVB2TGXuR5bph50BW8jsf3kf5UxE6J4ChTm
+         r4CY8NALeXaJGK/ixuf/Z/t0bI0ARg4ZKJ7omdX7Bxzy6ubX///lSW+cR8z+PtPrm3
+         m7kioFmKcdTwyY1zsySfvbT5QIeND0aiAbFmTTEg=
+Subject: FAILED: patch "[PATCH] rsi: fix rate mask set leading to P2P failure" failed to apply to 4.4-stable tree
+To:     martin.fuzzey@flowbird.group, kvalo@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 15:26:11 +0100
-Message-ID: <1636813571216147@kroah.com>
+Date:   Sat, 13 Nov 2021 15:27:33 +0100
+Message-ID: <16368136539294@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,271 +45,295 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6b51b02a3a0ac49dfe302818d0746a799545e4e9 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Date: Tue, 15 Jun 2021 13:12:33 +0200
-Subject: [PATCH] dma-buf: fix and rework dma_buf_poll v7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From b515d097053a71d624e0c5840b42cd4caa653941 Mon Sep 17 00:00:00 2001
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Date: Mon, 30 Aug 2021 17:26:46 +0200
+Subject: [PATCH] rsi: fix rate mask set leading to P2P failure
 
-Daniel pointed me towards this function and there are multiple obvious problems
-in the implementation.
+P2P client mode was only working the first time.
+On subsequent connection attempts the group was successfully created but
+no data was sent (no transmitted data packets were seen with a sniffer).
 
-First of all the retry loop is not working as intended. In general the retry
-makes only sense if you grab the reference first and then check the sequence
-values.
+The reason for this was that the hardware was being configured in fixed
+rate mode with rate RSI_RATE_1 (1Mbps) which is not valid in the 5GHz band.
 
-Then we should always also wait for the exclusive fence.
+In P2P mode wpa_supplicant uses NL80211_CMD_SET_TX_BITRATE_MASK to disallow
+the 11b rates in the 2.4GHz band which updated common->fixedrate_mask.
 
-It's also good practice to keep the reference around when installing callbacks
-to fences you don't own.
+rsi_set_min_rate() then used the fixedrate_mask to calculate the minimum
+allowed rate, or 0xffff = auto if none was found.
+However that calculation did not account for the different rate sets
+allowed in the different bands leading to the error.
 
-And last the whole implementation was unnecessary complex and rather hard to
-understand which could lead to probably unexpected behavior of the IOCTL.
+Fixing set_min_rate() would result in 6Mb/s being used all the time
+which is not what we want either.
 
-Fix all this by reworking the implementation from scratch. Dropping the
-whole RCU approach and taking the lock instead.
+The reason the problem did not occur on the first connection is that
+rsi_mac80211_set_rate_mask() only updated the fixedrate_mask for
+the *current* band. When it was called that was still 2.4GHz as the
+switch is done later. So the when set_min_rate() was subsequently
+called after the switch to 5GHz it still had a mask of zero, leading
+to defaulting to auto mode.
 
-Only mildly tested and needs a thoughtful review of the code.
+Fix this by differentiating the case of a single rate being
+requested, in which case the hardware will be used in fixed rate
+mode with just that rate, and multiple rates being requested,
+in which case we remain in auto mode but the firmware rate selection
+algorithm is configured with a restricted set of rates.
 
-Pushing through drm-misc-next to avoid merge conflicts and give the code
-another round of testing.
-
-v2: fix the reference counting as well
-v3: keep the excl fence handling as is for stable
-v4: back to testing all fences, drop RCU
-v5: handle in and out separately
-v6: add missing clear of events
-v7: change coding style as suggested by Michel, drop unused variables
-
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Tested-by: Michel Dänzer <mdaenzer@redhat.com>
+Fixes: dad0d04fa7ba ("rsi: Add RS9113 wireless driver")
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
 CC: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20210720131110.88512-1-christian.koenig@amd.com
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1630337206-12410-4-git-send-email-martin.fuzzey@flowbird.group
 
-diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-index 474de2d988ca..61e20ae7b08b 100644
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -74,7 +74,7 @@ static void dma_buf_release(struct dentry *dentry)
- 	 * If you hit this BUG() it means someone dropped their ref to the
- 	 * dma-buf while still having pending operation to the buffer.
- 	 */
--	BUG_ON(dmabuf->cb_shared.active || dmabuf->cb_excl.active);
-+	BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
+diff --git a/drivers/net/wireless/rsi/rsi_91x_hal.c b/drivers/net/wireless/rsi/rsi_91x_hal.c
+index 2aa9f0b12839..dca81a4bbdd7 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_hal.c
++++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
+@@ -214,15 +214,17 @@ int rsi_prepare_data_desc(struct rsi_common *common, struct sk_buff *skb)
+ 			RSI_WIFI_DATA_Q);
+ 	data_desc->header_len = ieee80211_size;
  
- 	dma_buf_stats_teardown(dmabuf);
- 	dmabuf->ops->release(dmabuf);
-@@ -206,16 +206,55 @@ static void dma_buf_poll_cb(struct dma_fence *fence, struct dma_fence_cb *cb)
- 	wake_up_locked_poll(dcb->poll, dcb->active);
- 	dcb->active = 0;
- 	spin_unlock_irqrestore(&dcb->poll->lock, flags);
-+	dma_fence_put(fence);
-+}
+-	if (common->min_rate != RSI_RATE_AUTO) {
++	if (common->rate_config[common->band].fixed_enabled) {
+ 		/* Send fixed rate */
++		u16 fixed_rate = common->rate_config[common->band].fixed_hw_rate;
 +
-+static bool dma_buf_poll_shared(struct dma_resv *resv,
-+				struct dma_buf_poll_cb_t *dcb)
-+{
-+	struct dma_resv_list *fobj = dma_resv_shared_list(resv);
-+	struct dma_fence *fence;
-+	int i, r;
+ 		data_desc->frame_info = cpu_to_le16(RATE_INFO_ENABLE);
+-		data_desc->rate_info = cpu_to_le16(common->min_rate);
++		data_desc->rate_info = cpu_to_le16(fixed_rate);
+ 
+ 		if (conf_is_ht40(&common->priv->hw->conf))
+ 			data_desc->bbp_info = cpu_to_le16(FULL40M_ENABLE);
+ 
+-		if ((common->vif_info[0].sgi) && (common->min_rate & 0x100)) {
++		if (common->vif_info[0].sgi && (fixed_rate & 0x100)) {
+ 		       /* Only MCS rates */
+ 			data_desc->rate_info |=
+ 				cpu_to_le16(ENABLE_SHORTGI_RATE);
+diff --git a/drivers/net/wireless/rsi/rsi_91x_mac80211.c b/drivers/net/wireless/rsi/rsi_91x_mac80211.c
+index b66975f54567..e70c1c7fdf59 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_mac80211.c
++++ b/drivers/net/wireless/rsi/rsi_91x_mac80211.c
+@@ -510,7 +510,6 @@ static int rsi_mac80211_add_interface(struct ieee80211_hw *hw,
+ 	if ((vif->type == NL80211_IFTYPE_AP) ||
+ 	    (vif->type == NL80211_IFTYPE_P2P_GO)) {
+ 		rsi_send_rx_filter_frame(common, DISALLOW_BEACONS);
+-		common->min_rate = RSI_RATE_AUTO;
+ 		for (i = 0; i < common->max_stations; i++)
+ 			common->stations[i].sta = NULL;
+ 	}
+@@ -1228,20 +1227,32 @@ static int rsi_mac80211_set_rate_mask(struct ieee80211_hw *hw,
+ 				      struct ieee80211_vif *vif,
+ 				      const struct cfg80211_bitrate_mask *mask)
+ {
++	const unsigned int mcs_offset = ARRAY_SIZE(rsi_rates);
+ 	struct rsi_hw *adapter = hw->priv;
+ 	struct rsi_common *common = adapter->priv;
+-	enum nl80211_band band = hw->conf.chandef.chan->band;
++	int i;
+ 
+ 	mutex_lock(&common->mutex);
+-	common->fixedrate_mask[band] = 0;
+ 
+-	if (mask->control[band].legacy == 0xfff) {
+-		common->fixedrate_mask[band] =
+-			(mask->control[band].ht_mcs[0] << 12);
+-	} else {
+-		common->fixedrate_mask[band] =
+-			mask->control[band].legacy;
++	for (i = 0; i < ARRAY_SIZE(common->rate_config); i++) {
++		struct rsi_rate_config *cfg = &common->rate_config[i];
++		u32 bm;
 +
-+	if (!fobj)
-+		return false;
++		bm = mask->control[i].legacy | (mask->control[i].ht_mcs[0] << mcs_offset);
++		if (hweight32(bm) == 1) { /* single rate */
++			int rate_index = ffs(bm) - 1;
 +
-+	for (i = 0; i < fobj->shared_count; ++i) {
-+		fence = rcu_dereference_protected(fobj->shared[i],
-+						  dma_resv_held(resv));
-+		dma_fence_get(fence);
-+		r = dma_fence_add_callback(fence, &dcb->cb, dma_buf_poll_cb);
-+		if (!r)
-+			return true;
-+		dma_fence_put(fence);
-+	}
++			if (rate_index < mcs_offset)
++				cfg->fixed_hw_rate = rsi_rates[rate_index].hw_value;
++			else
++				cfg->fixed_hw_rate = rsi_mcsrates[rate_index - mcs_offset];
++			cfg->fixed_enabled = true;
++		} else {
++			cfg->configured_mask = bm;
++			cfg->fixed_enabled = false;
++		}
+ 	}
 +
-+	return false;
-+}
-+
-+static bool dma_buf_poll_excl(struct dma_resv *resv,
-+			      struct dma_buf_poll_cb_t *dcb)
-+{
-+	struct dma_fence *fence = dma_resv_excl_fence(resv);
-+	int r;
-+
-+	if (!fence)
-+		return false;
-+
-+	dma_fence_get(fence);
-+	r = dma_fence_add_callback(fence, &dcb->cb, dma_buf_poll_cb);
-+	if (!r)
-+		return true;
-+	dma_fence_put(fence);
-+
-+	return false;
+ 	mutex_unlock(&common->mutex);
+ 
+ 	return 0;
+@@ -1378,46 +1389,6 @@ void rsi_indicate_pkt_to_os(struct rsi_common *common,
+ 	ieee80211_rx_irqsafe(hw, skb);
  }
  
- static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
- {
- 	struct dma_buf *dmabuf;
- 	struct dma_resv *resv;
--	struct dma_resv_list *fobj;
--	struct dma_fence *fence_excl;
- 	__poll_t events;
--	unsigned shared_count, seq;
- 
- 	dmabuf = file->private_data;
- 	if (!dmabuf || !dmabuf->resv)
-@@ -229,101 +268,50 @@ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
- 	if (!events)
- 		return 0;
- 
--retry:
--	seq = read_seqcount_begin(&resv->seq);
--	rcu_read_lock();
+-static void rsi_set_min_rate(struct ieee80211_hw *hw,
+-			     struct ieee80211_sta *sta,
+-			     struct rsi_common *common)
+-{
+-	u8 band = hw->conf.chandef.chan->band;
+-	u8 ii;
+-	u32 rate_bitmap;
+-	bool matched = false;
 -
--	fobj = rcu_dereference(resv->fence);
--	if (fobj)
--		shared_count = fobj->shared_count;
--	else
--		shared_count = 0;
--	fence_excl = dma_resv_excl_fence(resv);
--	if (read_seqcount_retry(&resv->seq, seq)) {
--		rcu_read_unlock();
--		goto retry;
+-	common->bitrate_mask[band] = sta->supp_rates[band];
+-
+-	rate_bitmap = (common->fixedrate_mask[band] & sta->supp_rates[band]);
+-
+-	if (rate_bitmap & 0xfff) {
+-		/* Find out the min rate */
+-		for (ii = 0; ii < ARRAY_SIZE(rsi_rates); ii++) {
+-			if (rate_bitmap & BIT(ii)) {
+-				common->min_rate = rsi_rates[ii].hw_value;
+-				matched = true;
+-				break;
+-			}
+-		}
 -	}
 -
--	if (fence_excl && (!(events & EPOLLOUT) || shared_count == 0)) {
--		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_excl;
--		__poll_t pevents = EPOLLIN;
-+	dma_resv_lock(resv, NULL);
- 
--		if (shared_count == 0)
--			pevents |= EPOLLOUT;
-+	if (events & EPOLLOUT) {
-+		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_out;
- 
-+		/* Check that callback isn't busy */
- 		spin_lock_irq(&dmabuf->poll.lock);
--		if (dcb->active) {
--			dcb->active |= pevents;
--			events &= ~pevents;
--		} else
--			dcb->active = pevents;
-+		if (dcb->active)
-+			events &= ~EPOLLOUT;
-+		else
-+			dcb->active = EPOLLOUT;
- 		spin_unlock_irq(&dmabuf->poll.lock);
- 
--		if (events & pevents) {
--			if (!dma_fence_get_rcu(fence_excl)) {
--				/* force a recheck */
--				events &= ~pevents;
--				dma_buf_poll_cb(NULL, &dcb->cb);
--			} else if (!dma_fence_add_callback(fence_excl, &dcb->cb,
--							   dma_buf_poll_cb)) {
--				events &= ~pevents;
--				dma_fence_put(fence_excl);
--			} else {
--				/*
--				 * No callback queued, wake up any additional
--				 * waiters.
--				 */
--				dma_fence_put(fence_excl);
-+		if (events & EPOLLOUT) {
-+			if (!dma_buf_poll_shared(resv, dcb) &&
-+			    !dma_buf_poll_excl(resv, dcb))
-+				/* No callback queued, wake up any other waiters */
- 				dma_buf_poll_cb(NULL, &dcb->cb);
--			}
-+			else
-+				events &= ~EPOLLOUT;
- 		}
- 	}
- 
--	if ((events & EPOLLOUT) && shared_count > 0) {
--		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_shared;
--		int i;
-+	if (events & EPOLLIN) {
-+		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_in;
- 
--		/* Only queue a new callback if no event has fired yet */
-+		/* Check that callback isn't busy */
- 		spin_lock_irq(&dmabuf->poll.lock);
- 		if (dcb->active)
--			events &= ~EPOLLOUT;
-+			events &= ~EPOLLIN;
- 		else
--			dcb->active = EPOLLOUT;
-+			dcb->active = EPOLLIN;
- 		spin_unlock_irq(&dmabuf->poll.lock);
- 
--		if (!(events & EPOLLOUT))
--			goto out;
+-	common->vif_info[0].is_ht = sta->ht_cap.ht_supported;
 -
--		for (i = 0; i < shared_count; ++i) {
--			struct dma_fence *fence = rcu_dereference(fobj->shared[i]);
--
--			if (!dma_fence_get_rcu(fence)) {
--				/*
--				 * fence refcount dropped to zero, this means
--				 * that fobj has been freed
--				 *
--				 * call dma_buf_poll_cb and force a recheck!
--				 */
--				events &= ~EPOLLOUT;
-+		if (events & EPOLLIN) {
-+			if (!dma_buf_poll_excl(resv, dcb))
-+				/* No callback queued, wake up any other waiters */
- 				dma_buf_poll_cb(NULL, &dcb->cb);
+-	if ((common->vif_info[0].is_ht) && (rate_bitmap >> 12)) {
+-		for (ii = 0; ii < ARRAY_SIZE(rsi_mcsrates); ii++) {
+-			if ((rate_bitmap >> 12) & BIT(ii)) {
+-				common->min_rate = rsi_mcsrates[ii];
+-				matched = true;
 -				break;
 -			}
--			if (!dma_fence_add_callback(fence, &dcb->cb,
--						    dma_buf_poll_cb)) {
--				dma_fence_put(fence);
--				events &= ~EPOLLOUT;
--				break;
--			}
--			dma_fence_put(fence);
-+			else
-+				events &= ~EPOLLIN;
- 		}
+-		}
+-	}
 -
--		/* No callback queued, wake up any additional waiters. */
--		if (i == shared_count)
--			dma_buf_poll_cb(NULL, &dcb->cb);
+-	if (!matched)
+-		common->min_rate = 0xffff;
+-}
+-
+ /**
+  * rsi_mac80211_sta_add() - This function notifies driver about a peer getting
+  *			    connected.
+@@ -1516,9 +1487,9 @@ static int rsi_mac80211_sta_add(struct ieee80211_hw *hw,
+ 
+ 	if ((vif->type == NL80211_IFTYPE_STATION) ||
+ 	    (vif->type == NL80211_IFTYPE_P2P_CLIENT)) {
+-		rsi_set_min_rate(hw, sta, common);
++		common->bitrate_mask[common->band] = sta->supp_rates[common->band];
++		common->vif_info[0].is_ht = sta->ht_cap.ht_supported;
+ 		if (sta->ht_cap.ht_supported) {
+-			common->vif_info[0].is_ht = true;
+ 			common->bitrate_mask[NL80211_BAND_2GHZ] =
+ 					sta->supp_rates[NL80211_BAND_2GHZ];
+ 			if ((sta->ht_cap.cap & IEEE80211_HT_CAP_SGI_20) ||
+@@ -1592,7 +1563,6 @@ static int rsi_mac80211_sta_remove(struct ieee80211_hw *hw,
+ 		bss->qos = sta->wme;
+ 		common->bitrate_mask[NL80211_BAND_2GHZ] = 0;
+ 		common->bitrate_mask[NL80211_BAND_5GHZ] = 0;
+-		common->min_rate = 0xffff;
+ 		common->vif_info[0].is_ht = false;
+ 		common->vif_info[0].sgi = false;
+ 		common->vif_info[0].seq_start = 0;
+diff --git a/drivers/net/wireless/rsi/rsi_91x_mgmt.c b/drivers/net/wireless/rsi/rsi_91x_mgmt.c
+index a25742a54598..0848f7a7e76c 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_mgmt.c
++++ b/drivers/net/wireless/rsi/rsi_91x_mgmt.c
+@@ -276,7 +276,7 @@ static void rsi_set_default_parameters(struct rsi_common *common)
+ 	common->channel_width = BW_20MHZ;
+ 	common->rts_threshold = IEEE80211_MAX_RTS_THRESHOLD;
+ 	common->channel = 1;
+-	common->min_rate = 0xffff;
++	memset(&common->rate_config, 0, sizeof(common->rate_config));
+ 	common->fsm_state = FSM_CARD_NOT_READY;
+ 	common->iface_down = true;
+ 	common->endpoint = EP_2GHZ_20MHZ;
+@@ -1314,7 +1314,7 @@ static int rsi_send_auto_rate_request(struct rsi_common *common,
+ 	u8 band = hw->conf.chandef.chan->band;
+ 	u8 num_supported_rates = 0;
+ 	u8 rate_table_offset, rate_offset = 0;
+-	u32 rate_bitmap;
++	u32 rate_bitmap, configured_rates;
+ 	u16 *selected_rates, min_rate;
+ 	bool is_ht = false, is_sgi = false;
+ 	u16 frame_len = sizeof(struct rsi_auto_rate);
+@@ -1364,6 +1364,10 @@ static int rsi_send_auto_rate_request(struct rsi_common *common,
+ 			is_sgi = true;
  	}
  
--out:
--	rcu_read_unlock();
-+	dma_resv_unlock(resv);
- 	return events;
- }
++	/* Limit to any rates administratively configured by cfg80211 */
++	configured_rates = common->rate_config[band].configured_mask ?: 0xffffffff;
++	rate_bitmap &= configured_rates;
++
+ 	if (band == NL80211_BAND_2GHZ) {
+ 		if ((rate_bitmap == 0) && (is_ht))
+ 			min_rate = RSI_RATE_MCS0;
+@@ -1389,10 +1393,13 @@ static int rsi_send_auto_rate_request(struct rsi_common *common,
+ 	num_supported_rates = jj;
  
-@@ -566,8 +554,8 @@ struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
- 	dmabuf->owner = exp_info->owner;
- 	spin_lock_init(&dmabuf->name_lock);
- 	init_waitqueue_head(&dmabuf->poll);
--	dmabuf->cb_excl.poll = dmabuf->cb_shared.poll = &dmabuf->poll;
--	dmabuf->cb_excl.active = dmabuf->cb_shared.active = 0;
-+	dmabuf->cb_in.poll = dmabuf->cb_out.poll = &dmabuf->poll;
-+	dmabuf->cb_in.active = dmabuf->cb_out.active = 0;
+ 	if (is_ht) {
+-		for (ii = 0; ii < ARRAY_SIZE(mcs); ii++)
+-			selected_rates[jj++] = mcs[ii];
+-		num_supported_rates += ARRAY_SIZE(mcs);
+-		rate_offset += ARRAY_SIZE(mcs);
++		for (ii = 0; ii < ARRAY_SIZE(mcs); ii++) {
++			if (configured_rates & BIT(ii + ARRAY_SIZE(rsi_rates))) {
++				selected_rates[jj++] = mcs[ii];
++				num_supported_rates++;
++				rate_offset++;
++			}
++		}
+ 	}
  
- 	if (!resv) {
- 		resv = (struct dma_resv *)&dmabuf[1];
-diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
-index 66470c37e471..02c2eb874da6 100644
---- a/include/linux/dma-buf.h
-+++ b/include/linux/dma-buf.h
-@@ -440,7 +440,7 @@ struct dma_buf {
- 		wait_queue_head_t *poll;
+ 	sort(selected_rates, jj, sizeof(u16), &rsi_compare, NULL);
+@@ -1482,7 +1489,7 @@ void rsi_inform_bss_status(struct rsi_common *common,
+ 					      qos_enable,
+ 					      aid, sta_id,
+ 					      vif);
+-		if (common->min_rate == 0xffff)
++		if (!common->rate_config[common->band].fixed_enabled)
+ 			rsi_send_auto_rate_request(common, sta, sta_id, vif);
+ 		if (opmode == RSI_OPMODE_STA &&
+ 		    !(assoc_cap & WLAN_CAPABILITY_PRIVACY) &&
+diff --git a/drivers/net/wireless/rsi/rsi_main.h b/drivers/net/wireless/rsi/rsi_main.h
+index 810485a3c85a..dcf8fb40698b 100644
+--- a/drivers/net/wireless/rsi/rsi_main.h
++++ b/drivers/net/wireless/rsi/rsi_main.h
+@@ -61,6 +61,7 @@ enum RSI_FSM_STATES {
+ extern u32 rsi_zone_enabled;
+ extern __printf(2, 3) void rsi_dbg(u32 zone, const char *fmt, ...);
  
- 		__poll_t active;
--	} cb_excl, cb_shared;
-+	} cb_in, cb_out;
- #ifdef CONFIG_DMABUF_SYSFS_STATS
- 	/**
- 	 * @sysfs_entry:
++#define RSI_MAX_BANDS			2
+ #define RSI_MAX_VIFS                    3
+ #define NUM_EDCA_QUEUES                 4
+ #define IEEE80211_ADDR_LEN              6
+@@ -230,6 +231,12 @@ struct rsi_9116_features {
+ 	u32 ps_options;
+ };
+ 
++struct rsi_rate_config {
++	u32 configured_mask;	/* configured by mac80211 bits 0-11=legacy 12+ mcs */
++	u16 fixed_hw_rate;
++	bool fixed_enabled;
++};
++
+ struct rsi_common {
+ 	struct rsi_hw *priv;
+ 	struct vif_priv vif_info[RSI_MAX_VIFS];
+@@ -255,8 +262,8 @@ struct rsi_common {
+ 	u8 channel_width;
+ 
+ 	u16 rts_threshold;
+-	u16 bitrate_mask[2];
+-	u32 fixedrate_mask[2];
++	u32 bitrate_mask[RSI_MAX_BANDS];
++	struct rsi_rate_config rate_config[RSI_MAX_BANDS];
+ 
+ 	u8 rf_reset;
+ 	struct transmit_q_stats tx_stats;
+@@ -277,7 +284,6 @@ struct rsi_common {
+ 	u8 mac_id;
+ 	u8 radio_id;
+ 	u16 rate_pwr[20];
+-	u16 min_rate;
+ 
+ 	/* WMM algo related */
+ 	u8 selected_qnum;
 
