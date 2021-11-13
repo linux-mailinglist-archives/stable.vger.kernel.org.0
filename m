@@ -2,104 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3575644F5A4
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 23:30:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32FBC44F5AA
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 23:52:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231158AbhKMWdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 17:33:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39496 "EHLO
+        id S231147AbhKMWzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 17:55:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229652AbhKMWdb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Nov 2021 17:33:31 -0500
-Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2039C061766
-        for <stable@vger.kernel.org>; Sat, 13 Nov 2021 14:30:38 -0800 (PST)
-Received: by mail-lj1-x22f.google.com with SMTP id v15so26384142ljc.0
-        for <stable@vger.kernel.org>; Sat, 13 Nov 2021 14:30:38 -0800 (PST)
+        with ESMTP id S231129AbhKMWzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Nov 2021 17:55:10 -0500
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23128C061766
+        for <stable@vger.kernel.org>; Sat, 13 Nov 2021 14:52:17 -0800 (PST)
+Received: by mail-pl1-x636.google.com with SMTP id v19so581624plo.7
+        for <stable@vger.kernel.org>; Sat, 13 Nov 2021 14:52:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=KoseWHC1X1eUmhKmXE//peQwxmYp0XripPbl2Zk3A1o=;
-        b=ZttEag4PiJoT7M2n55SzFHd6+kFaj2O65SGOuRUS/S2engzHvDjVOmZ4ZGXZBJj/ey
-         Tl2IJK+xPS5rs18tD0OWkexzTNbPUN5TcjGqMqruOy03R2/CJcoBQ8g0U0FMNBX5tGRx
-         78Ar7p7LqSWrTrH+ZcklWA2gj9yIPvVegK5UofS8FvkDtFp84h4arD4VmGph3z/6Neb/
-         B/L5cCGiGyHVdYJfl4g1mP/yifNVpLgqioNS6OnYu4KVrpsT5akq7o0byxB5IRET9dnr
-         ZeHXI3mo4Fccfg54MuUvWLhBGViPZQvNHDddCwyBI8Fxt8kPLTjZtrp2qkDjCpAtDvbU
-         rvhA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=sX7IO/A7fVmGoCh4iLkukBjo0E52sxIeZkbyepP63jo=;
+        b=rqWElWt6QR7U8J5lWUvJZ1Lipdm/M1Pw9vCP8NKUaEH4gTV4nvEPn11IP1Q2Z/4SxF
+         ziH/egaKkKPxO0qVC7kslUOe936r0Rg88+qp2WdoMQqLWi8/P6oX0zheA+hW2PQ9EhBp
+         T2/xcqJzwVxcCS4uSuLZE0vEBRBb8YqCy7P31tT5Th+fshgeREd3gIdVY3bfUier5kQf
+         dGT8GGVBoexPInZek2ClHFu6XnywZr8Zz3fGaTVyx3xzkqaWbDr4JPUGTPlhXmIZpbwT
+         Rokrjs1UMh/ddAcjtNqCG1FHURtejZHwVmmEF53tNLwQuHfbIRAcM8kwjLgHXNjn7BnV
+         pCsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=KoseWHC1X1eUmhKmXE//peQwxmYp0XripPbl2Zk3A1o=;
-        b=RgrrPH6+GBLWGXmLfSpQETKcHptsF/kAVV/7Q3J1Qxv/sgOCfkALka7/iuASV10hHi
-         +1zzTa/upbGg0d6zwUaJkuJQu40vfY3LWAONaHPrS5EC+b+FbRaJesRmgkl9NL3jWClG
-         QTlEHPPJZzZXpBRqsuvfJ1g9bxja4Cxmld/l4z2m7jAJaWr7EaGIk8qF5qSlFAA3/g7c
-         EG9OUvfAkdwsTEmqM1H8GHndeYSO2IIvSfGH7dt24oN3sNkIT8DS1vXxB189pEkitYGT
-         EePBRDBCC5oWK2vf9HmLKsmRvoeZ4cpg4Xtgz24r5cPDi1d8kyZqgVJ/nCw/bHsgWeXy
-         MHRw==
-X-Gm-Message-State: AOAM532FX8Kz4ZhyDJsrz2dmqxmtKpfMvkVf8UC+04ytse2FMQBTQdvZ
-        enmzbSowlLUDCCIrA83w6PBdZQOGtIRNLLv6Zgc=
-X-Google-Smtp-Source: ABdhPJzrraZXWmvTnY3kZKGI3c41h3syYRp38xGa9TKiTk4w0OE8bta1FJeHWua7BHIst6A0uVYlS4/Fbq6iTmqnm98=
-X-Received: by 2002:a05:651c:1211:: with SMTP id i17mr26010779lja.340.1636842636998;
- Sat, 13 Nov 2021 14:30:36 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=sX7IO/A7fVmGoCh4iLkukBjo0E52sxIeZkbyepP63jo=;
+        b=V47WrxVSfB4Yfkq+smevZ6TmtrJFiRyC4Suock4UvcKGpCvPUzxn4mLkXcxVMz2YJD
+         QCHZAuuCTpgfZP3yn7nXEKRFKmItM+NYOML2cj6G83iHCQuoQE1tdeOk2WTUNPKzeYm4
+         q6lX0dtnEpuKhMwHEzsI4xuFoSLDn+faXOP8TYQ3i5KAGE77XkO11y1jBoMQt1g8Wm7l
+         LNRkrczLtaFFxbNCVNf1arH6dfCLM3FlTJAELhGJ6KYMwe4uwGfJefJ5TQjyvSjtbzHv
+         EuPdaF+4ZwWzxMzM4L5xyp4sPzJiz2VfyF21fvZa4DdftvH7cV2F+cIRj5RvX4BZl8KE
+         M9ww==
+X-Gm-Message-State: AOAM531wIPg8tBtH2G0B0PbXN0bHgHFoYPDgw6jpp4ltheQouDOT8r6X
+        0xpOAtNQgmbb0iyeJYCETFETPFjVKK0ZI+67
+X-Google-Smtp-Source: ABdhPJyd7owxqxezWyQTzKhksJcJ3IGxD20b+qcBulhAB0GLaVIeGXiaTCboSDB6Zgqj5c6E3udacQ==
+X-Received: by 2002:a17:90b:1b4a:: with SMTP id nv10mr31445293pjb.87.1636843936472;
+        Sat, 13 Nov 2021 14:52:16 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t4sm10637648pfj.166.2021.11.13.14.52.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 13 Nov 2021 14:52:16 -0800 (PST)
+Message-ID: <619041a0.1c69fb81.95f7c.dbcf@mx.google.com>
+Date:   Sat, 13 Nov 2021 14:52:16 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:aa6:d8c3:0:b0:14b:428f:122b with HTTP; Sat, 13 Nov 2021
- 14:30:36 -0800 (PST)
-Reply-To: mstheresaheidi8@gmail.com
-From:   Mrs Theresa Heidi <noorsusan100@gmail.com>
-Date:   Sat, 13 Nov 2021 22:30:36 +0000
-Message-ID: <CAFR_+BPihTPZX+1Ww44V4GqKjDcJRus_DWrMzVmfi_Ook_uDFA@mail.gmail.com>
-Subject: URGENT MATTER HELP!
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.292-35-gf481b21305a4
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.4 baseline: 131 runs,
+ 1 regressions (v4.4.292-35-gf481b21305a4)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Beloved One,
+stable-rc/queue/4.4 baseline: 131 runs, 1 regressions (v4.4.292-35-gf481b21=
+305a4)
 
-CHARITY DONATION Please read carefully, I know it is true that this
-letter may come to you as a surprise. I came across your e-mail
-contact through a private search while in need of your assistance. I
-am writing this mail to you with heavy sorrow in my heart, I have
-chose to reach you through Internet because it still remains the
-fastest medium of communication.
+Regressions Summary
+-------------------
 
-My Name is Mrs. Theresa Heidi I am native France currently
-hospitalized in a private hospital here in Israel as a result of lungs
-cancer I am 62 years old and I was diagnosed of lungs cancer for about
-4 years ago, immediately after the death of my husband, who has left
-me everything he worked for. I'm with my laptop in a hospital here in
-where I have been undergoing treatment for cancer of the lungs. I have
-some funds inherited from my late husband, the sum of Two Million Five
-Hundred Thousand Dollars Only (USD$2,500,000,00).Now it's clear that
-I=E2=80=99m approaching the last-days of my life and I don't think I need t=
-his
-money anymore. My doctor made me to understand that I would not last
-for the period of one year due to Lungs cancer problem.
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-This money is still with the foreign bank and the management wrote me
-as the true owner to come forward to receive the money or rather issue
-a letter of authorization to somebody to receive it on my behalf since
-I can't come over because of my illness. Failure to act the bank may
-get fund confiscated for keeping it so long.
 
-I decided to contact you if you maybe willing and interested to help
-me withdraw this money from the foreign bank then use the funds for
-Charity works in helping the less privileged and also to fight against
-Covid-19 Pandemic in the society. I want you to handle these trust
-funds in good faith before anything happens to me. This is not a
-stolen money and there are no dangers involved is 100% risk free with
-full legal proof.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.292-35-gf481b21305a4/plan/baseline/
 
-I want you to take 45% of the total money for your personal used while
-55% of the money will go to charity work. I will appreciate your
-utmost trust and confidentiality in this matter to accomplish my heart
-desire, as I don't want anything that will jeopardize my last wish. I
-am very sorry if you received this letter in your spam, is due to
-recent connection error here in the country.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.292-35-gf481b21305a4
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f481b21305a43d5bef683e60cfa38262a8cee1d6 =
 
-Yours Beloved Sister.
-Mrs. Theresa Heidi
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/619008e4df5009575b3358fe
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-3=
+5-gf481b21305a4/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-3=
+5-gf481b21305a4/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619008e4df50095=
+75b335901
+        new failure (last pass: v4.4.292-35-g08732977a551)
+        2 lines
+
+    2021-11-13T18:49:52.608540  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/117
+    2021-11-13T18:49:52.617758  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-11-13T18:49:52.633308  [   19.207702] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
