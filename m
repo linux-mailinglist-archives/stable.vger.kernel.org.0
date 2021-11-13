@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DDD244F33C
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 14:08:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CD6544F33A
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 14:08:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235778AbhKMNLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 08:11:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56722 "EHLO mail.kernel.org"
+        id S231672AbhKMNL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 08:11:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231555AbhKMNLj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 08:11:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5905C60551;
-        Sat, 13 Nov 2021 13:08:46 +0000 (UTC)
+        id S231555AbhKMNL2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 08:11:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0467C60724;
+        Sat, 13 Nov 2021 13:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636808927;
-        bh=YOXIBdk30AOorPXLUS51JEV2c2m8mEyIVAhINIzMDHI=;
+        s=korg; t=1636808916;
+        bh=zDZsCiGWXs3NMx4c7fSEQ+8v2iaYGheDNkvdN47nUA4=;
         h=Subject:To:Cc:From:Date:From;
-        b=HtdrspSH6HmCp1IYtB+nXOSgX68yyN6IaMthRHEQEzgbB6tVngo3dxMUq3ehtsE/X
-         3i7g1OQ/LkxbodzztB9z368JRoAGWm/qsKxyHAkPZ1JidbYR4juxwZcabqEPnS4qqc
-         l8R7TfVtd+XcVQwlXEz71ZDhmIKWry5+ZgME+UkM=
-Subject: FAILED: patch "[PATCH] ALSA: mixer: fix deadlock in snd_mixer_oss_set_volume" failed to apply to 4.19-stable tree
+        b=ob1YVP6eo8XpZxdryX0wg0M1iZuJ+s/Hrf7j3AEmiMvaYCk53DR5TSeqFNQ1RShqg
+         uXK4wQPIiIDreiem0ajgMooSPgUAIx7ms+TQV6fTlPA3M93o/NhzxyKVCKngIkVw0e
+         PjPlODZbtC9H6J0gKmQjprlVqADxG5v6u9RUJeF0=
+Subject: FAILED: patch "[PATCH] ALSA: mixer: fix deadlock in snd_mixer_oss_set_volume" failed to apply to 5.4-stable tree
 To:     paskripkin@gmail.com, stable@vger.kernel.org, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 13 Nov 2021 14:08:33 +0100
-Message-ID: <1636808913102137@kroah.com>
+Message-ID: <16368089130215@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
