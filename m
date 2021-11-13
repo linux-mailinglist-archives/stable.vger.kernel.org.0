@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFAB844F391
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8520C44F392
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:15:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235866AbhKMOSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 09:18:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41688 "EHLO mail.kernel.org"
+        id S235882AbhKMOS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 09:18:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235743AbhKMOSZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 09:18:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8C656108E;
-        Sat, 13 Nov 2021 14:15:32 +0000 (UTC)
+        id S235743AbhKMOS2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 09:18:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4ECEF610F7;
+        Sat, 13 Nov 2021 14:15:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636812933;
-        bh=OQbgJw9P9YYlKU+iGgt/dhQbJ3wymS2QvWobiLS7Ncw=;
+        s=korg; t=1636812935;
+        bh=yewSZ4ni6RrnpuCUAv2PpIfzrg3lYZ2Ec9Z27kTlvPg=;
         h=Subject:To:Cc:From:Date:From;
-        b=DjK6mIR2NUyAuMcOcX42P46cneJSKiyt1AwSB4DiAHjWQBwFixmcvksuat5BnKH2v
-         mLovShEkxmSnk+Hrm/0lkrryLSWZLBGU74W4dHQlaI5P5eIyOG0vfWZWnFh3yBOKEE
-         g0ip0Rpg7gpN0JvvAdzfmsCQeflrzqCxtm1F+hEo=
-Subject: FAILED: patch "[PATCH] media: ir_toy: prevent device from hanging during transmit" failed to apply to 5.14-stable tree
+        b=S1Qfp6QutZv3eMaeBCjnMlY+eSFDc/9jv91r9oZM9BwhdgHPzfQH1xp5hdZXwZzze
+         QVSVKCttkk8F/iX+cIqTYMwRDzSPfLxFszHaWZ4GIKPWCWvef855kGMD1jWA3cU6KV
+         exub4W8DXw6YbQcZOPGEjMaBBHUaRPoO4mXrm5Eg=
+Subject: FAILED: patch "[PATCH] media: ir_toy: prevent device from hanging during transmit" failed to apply to 5.10-stable tree
 To:     sean@mess.org, mchehab+huawei@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 15:15:21 +0100
-Message-ID: <1636812921208188@kroah.com>
+Date:   Sat, 13 Nov 2021 15:15:22 +0100
+Message-ID: <163681292222141@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
