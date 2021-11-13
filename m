@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA0844F38E
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:14:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B1C844F38F
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:14:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235812AbhKMORa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 09:17:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41084 "EHLO mail.kernel.org"
+        id S235852AbhKMORc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 09:17:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235743AbhKMOR3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 09:17:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D124D60EC0;
-        Sat, 13 Nov 2021 14:14:36 +0000 (UTC)
+        id S235743AbhKMORc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 09:17:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 800286108E;
+        Sat, 13 Nov 2021 14:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636812877;
-        bh=7mBwQo34bTjiNSgcJt7VgwBQXjOFEj9rxkrTLYArDo0=;
+        s=korg; t=1636812880;
+        bh=miqmCarj1u2rbFpDBKUnQnFGzCsfI9tlwbJw/jMxhwI=;
         h=Subject:To:Cc:From:Date:From;
-        b=pR5FzS11EeVIkZu5zVKz2mSE2gmKKC0MbDijvilbOLESnvB3SuHMBwZA/lgtdCOBX
-         1267MajAx33yD6gZ96bfdNJ5QxjRe+7ZvhZKmRkTw4HZO5KZAmQgzbVYO/7a5bL0Sd
-         4AZXAzYDemm6U+mJtkK+cuLWnVS0zYFBv1/qW4ww=
-Subject: FAILED: patch "[PATCH] KVM: VMX: Unregister posted interrupt wakeup handler on" failed to apply to 5.4-stable tree
+        b=m40npEqXkiFWKkqIFKhnR2up3Dspn7Ykjaqsf4mNn1nPCHhrTKOmD6Ef+2VNNNls1
+         q6qw9jRuisE+tz7AGyAkxWa5IPKbRNZyhcga7VKYMO4R+9/3rzWgtgeBnh6O5HG6NN
+         dV9SgIJyYXMtw+tYNA/hUTGjUJUmkxXRWYz2oO0Y=
+Subject: FAILED: patch "[PATCH] KVM: VMX: Unregister posted interrupt wakeup handler on" failed to apply to 4.19-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 13 Nov 2021 15:14:22 +0100
-Message-ID: <1636812862224196@kroah.com>
+Message-ID: <1636812862153167@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
