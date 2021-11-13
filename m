@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9974A44F2CE
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 12:30:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 793B344F2D2
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 12:31:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233765AbhKMLd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 06:33:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49210 "EHLO mail.kernel.org"
+        id S235818AbhKMLeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 06:34:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235645AbhKMLd1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 06:33:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42407610A1;
-        Sat, 13 Nov 2021 11:30:35 +0000 (UTC)
+        id S235645AbhKMLeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 06:34:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79FDC610A1;
+        Sat, 13 Nov 2021 11:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636803035;
-        bh=LU0pCWbkatoLhbYEBQFhnSp3x3IV8wEQ2asSeVJO0vA=;
+        s=korg; t=1636803075;
+        bh=UXSrYq8q6ZgOnp7lUuz063Xgtc8nOHtWCSae7zY+tXQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=j5Uw8zURGqc+1Ic/eZutR+fsIUh1IT5w4jI2MWCZ8HvRNNFTE7lNRRACnndkC/g7u
-         Za6B344QRW19lmw3kzA21jIJFu4ZK8MF8JC9SYsOtB4UgOT8F72oZ5tOoQ9zhQJmd4
-         ZdCRBmEFqWx7HQk7PlBPOA8l/smF0oXC7pq2yApc=
-Subject: FAILED: patch "[PATCH] scsi: core: Avoid leaving shost->last_reset with stale value" failed to apply to 5.4-stable tree
-To:     emilne@redhat.com, martin.petersen@oracle.com
+        b=Yfmf8JoCzy1wre4qZV16G3GwCb0RZXNgjeWscWG8xjDs1Ig/kJeKCmfkdFTcwoom/
+         FQlxNn2o+dXPbEMRBt6lUzmvt22QPyS2ZYnNW3gckptq+bRYzYZ0iXpCbZwXePdNia
+         73V537GdHHAzjeEReLhmOzqV0AHYmomO/TdbcbFk=
+Subject: FAILED: patch "[PATCH] scsi: lpfc: Fix FCP I/O flush functionality for TMF routines" failed to apply to 5.4-stable tree
+To:     jsmart2021@gmail.com, justin.tee@broadcom.com,
+        martin.petersen@oracle.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 12:30:25 +0100
-Message-ID: <16368030258487@kroah.com>
+Date:   Sat, 13 Nov 2021 12:31:12 +0100
+Message-ID: <1636803072231135@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -45,151 +46,213 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5ae17501bc62a49b0b193dcce003f16375f16654 Mon Sep 17 00:00:00 2001
-From: "Ewan D. Milne" <emilne@redhat.com>
-Date: Fri, 29 Oct 2021 15:43:10 -0400
-Subject: [PATCH] scsi: core: Avoid leaving shost->last_reset with stale value
- if EH does not run
+From cd8a36a90babf958082b87bc6b4df5dd70901eba Mon Sep 17 00:00:00 2001
+From: James Smart <jsmart2021@gmail.com>
+Date: Fri, 10 Sep 2021 16:31:53 -0700
+Subject: [PATCH] scsi: lpfc: Fix FCP I/O flush functionality for TMF routines
 
-The changes to issue the abort from the scmd->abort_work instead of the EH
-thread introduced a problem if eh_deadline is used.  If aborting the
-command(s) is successful, and there are never any scmds added to the
-shost->eh_cmd_q, there is no code path which will reset the ->last_reset
-value back to zero.
+A prior patch inadvertently caused lpfc_sli_sum_iocb() to exclude counting
+of outstanding aborted I/Os and ABORT IOCBs.  Thus,
+lpfc_reset_flush_io_context() called from any TMF routine does not properly
+wait to flush all outstanding FCP IOCBs leading to a block layer crash on
+an invalid scsi_cmnd->request pointer.
 
-The effect of this is that after a successful abort with no EH thread
-activity, a subsequent timeout, perhaps a long time later, might
-immediately be considered past a user-set eh_deadline time, and the host
-will be reset with no attempt at recovery.
+  kernel BUG at ../block/blk-core.c:1489!
+  RIP: 0010:blk_requeue_request+0xaf/0xc0
+  ...
+  Call Trace:
+  <IRQ>
+  __scsi_queue_insert+0x90/0xe0 [scsi_mod]
+  blk_done_softirq+0x7e/0x90
+  __do_softirq+0xd2/0x280
+  irq_exit+0xd5/0xe0
+  do_IRQ+0x4c/0xd0
+  common_interrupt+0x87/0x87
+  </IRQ>
 
-Fix this by resetting ->last_reset back to zero in scmd_eh_abort_handler()
-if it is determined that the EH thread will not run to do this.
+Fix by separating out the LPFC_IO_FCP, LPFC_IO_ON_TXCMPLQ,
+LPFC_DRIVER_ABORTED, and CMD_ABORT_XRI_CN || CMD_CLOSE_XRI_CN checks into a
+new lpfc_sli_validate_fcp_iocb_for_abort() routine when determining to
+build an ABORT iocb.
 
-Thanks to Gopinath Marappan for investigating this problem.
+Restore lpfc_reset_flush_io_context() functionality by including counting
+of outstanding aborted IOCBs and ABORT IOCBs in lpfc_sli_sum_iocb().
 
-Link: https://lore.kernel.org/r/20211029194311.17504-2-emilne@redhat.com
-Fixes: e494f6a72839 ("[SCSI] improved eh timeout handler")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ewan D. Milne <emilne@redhat.com>
+Link: https://lore.kernel.org/r/20210910233159.115896-9-jsmart2021@gmail.com
+Fixes: e1364711359f ("scsi: lpfc: Fix illegal memory access on Abort IOCBs")
+Cc: <stable@vger.kernel.org> # v5.12+
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index 17aef936bc90..2cb7163e24cc 100644
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -387,6 +387,7 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
- 	shost->shost_state = SHOST_CREATED;
- 	INIT_LIST_HEAD(&shost->__devices);
- 	INIT_LIST_HEAD(&shost->__targets);
-+	INIT_LIST_HEAD(&shost->eh_abort_list);
- 	INIT_LIST_HEAD(&shost->eh_cmd_q);
- 	INIT_LIST_HEAD(&shost->starved_list);
- 	init_waitqueue_head(&shost->host_wait);
-diff --git a/drivers/scsi/scsi_error.c b/drivers/scsi/scsi_error.c
-index 3de03925550e..bdf782d9cb86 100644
---- a/drivers/scsi/scsi_error.c
-+++ b/drivers/scsi/scsi_error.c
-@@ -133,6 +133,23 @@ static bool scsi_eh_should_retry_cmd(struct scsi_cmnd *cmd)
- 	return true;
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 546c851938bc..e8f6ad484768 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -12485,15 +12485,54 @@ lpfc_sli_hba_iocb_abort(struct lpfc_hba *phba)
  }
  
-+static void scsi_eh_complete_abort(struct scsi_cmnd *scmd, struct Scsi_Host *shost)
+ /**
+- * lpfc_sli_validate_fcp_iocb - find commands associated with a vport or LUN
++ * lpfc_sli_validate_fcp_iocb_for_abort - filter iocbs appropriate for FCP aborts
++ * @iocbq: Pointer to iocb object.
++ * @vport: Pointer to driver virtual port object.
++ *
++ * This function acts as an iocb filter for functions which abort FCP iocbs.
++ *
++ * Return values
++ * -ENODEV, if a null iocb or vport ptr is encountered
++ * -EINVAL, if the iocb is not an FCP I/O, not on the TX cmpl queue, premarked as
++ *          driver already started the abort process, or is an abort iocb itself
++ * 0, passes criteria for aborting the FCP I/O iocb
++ **/
++static int
++lpfc_sli_validate_fcp_iocb_for_abort(struct lpfc_iocbq *iocbq,
++				     struct lpfc_vport *vport)
 +{
-+	unsigned long flags;
++	IOCB_t *icmd = NULL;
 +
-+	spin_lock_irqsave(shost->host_lock, flags);
-+	list_del_init(&scmd->eh_entry);
-+	/*
-+	 * If the abort succeeds, and there is no further
-+	 * EH action, clear the ->last_reset time.
++	/* No null ptr vports */
++	if (!iocbq || iocbq->vport != vport)
++		return -ENODEV;
++
++	/* iocb must be for FCP IO, already exists on the TX cmpl queue,
++	 * can't be premarked as driver aborted, nor be an ABORT iocb itself
 +	 */
-+	if (list_empty(&shost->eh_abort_list) &&
-+	    list_empty(&shost->eh_cmd_q))
-+		if (shost->eh_deadline != -1)
-+			shost->last_reset = 0;
-+	spin_unlock_irqrestore(shost->host_lock, flags);
++	icmd = &iocbq->iocb;
++	if (!(iocbq->iocb_flag & LPFC_IO_FCP) ||
++	    !(iocbq->iocb_flag & LPFC_IO_ON_TXCMPLQ) ||
++	    (iocbq->iocb_flag & LPFC_DRIVER_ABORTED) ||
++	    (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
++	     icmd->ulpCommand == CMD_CLOSE_XRI_CN))
++		return -EINVAL;
++
++	return 0;
 +}
 +
- /**
-  * scmd_eh_abort_handler - Handle command aborts
-  * @work:	command to be aborted.
-@@ -150,6 +167,7 @@ scmd_eh_abort_handler(struct work_struct *work)
- 		container_of(work, struct scsi_cmnd, abort_work.work);
- 	struct scsi_device *sdev = scmd->device;
- 	enum scsi_disposition rtn;
-+	unsigned long flags;
++/**
++ * lpfc_sli_validate_fcp_iocb - validate commands associated with a SCSI target
+  * @iocbq: Pointer to driver iocb object.
+  * @vport: Pointer to driver virtual port object.
+  * @tgt_id: SCSI ID of the target.
+  * @lun_id: LUN ID of the scsi device.
+  * @ctx_cmd: LPFC_CTX_LUN/LPFC_CTX_TGT/LPFC_CTX_HOST
+  *
+- * This function acts as an iocb filter for functions which abort or count
+- * all FCP iocbs pending on a lun/SCSI target/SCSI host. It will return
++ * This function acts as an iocb filter for validating a lun/SCSI target/SCSI
++ * host.
++ *
++ * It will return
+  * 0 if the filtering criteria is met for the given iocb and will return
+  * 1 if the filtering criteria is not met.
+  * If ctx_cmd == LPFC_CTX_LUN, the function returns 0 only if the
+@@ -12512,22 +12551,8 @@ lpfc_sli_validate_fcp_iocb(struct lpfc_iocbq *iocbq, struct lpfc_vport *vport,
+ 			   lpfc_ctx_cmd ctx_cmd)
+ {
+ 	struct lpfc_io_buf *lpfc_cmd;
+-	IOCB_t *icmd = NULL;
+ 	int rc = 1;
  
- 	if (scsi_host_eh_past_deadline(sdev->host)) {
- 		SCSI_LOG_ERROR_RECOVERY(3,
-@@ -173,12 +191,14 @@ scmd_eh_abort_handler(struct work_struct *work)
- 				SCSI_LOG_ERROR_RECOVERY(3,
- 					scmd_printk(KERN_WARNING, scmd,
- 						    "retry aborted command\n"));
-+				scsi_eh_complete_abort(scmd, sdev->host);
- 				scsi_queue_insert(scmd, SCSI_MLQUEUE_EH_RETRY);
- 				return;
- 			} else {
- 				SCSI_LOG_ERROR_RECOVERY(3,
- 					scmd_printk(KERN_WARNING, scmd,
- 						    "finish aborted command\n"));
-+				scsi_eh_complete_abort(scmd, sdev->host);
- 				scsi_finish_command(scmd);
- 				return;
- 			}
-@@ -191,6 +211,9 @@ scmd_eh_abort_handler(struct work_struct *work)
- 		}
+-	if (!iocbq || iocbq->vport != vport)
+-		return rc;
+-
+-	if (!(iocbq->iocb_flag & LPFC_IO_FCP) ||
+-	    !(iocbq->iocb_flag & LPFC_IO_ON_TXCMPLQ) ||
+-	      iocbq->iocb_flag & LPFC_DRIVER_ABORTED)
+-		return rc;
+-
+-	icmd = &iocbq->iocb;
+-	if (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
+-	    icmd->ulpCommand == CMD_CLOSE_XRI_CN)
+-		return rc;
+-
+ 	lpfc_cmd = container_of(iocbq, struct lpfc_io_buf, cur_iocbq);
+ 
+ 	if (lpfc_cmd->pCmd == NULL)
+@@ -12582,17 +12607,33 @@ lpfc_sli_sum_iocb(struct lpfc_vport *vport, uint16_t tgt_id, uint64_t lun_id,
+ {
+ 	struct lpfc_hba *phba = vport->phba;
+ 	struct lpfc_iocbq *iocbq;
++	IOCB_t *icmd = NULL;
+ 	int sum, i;
++	unsigned long iflags;
+ 
+-	spin_lock_irq(&phba->hbalock);
++	spin_lock_irqsave(&phba->hbalock, iflags);
+ 	for (i = 1, sum = 0; i <= phba->sli.last_iotag; i++) {
+ 		iocbq = phba->sli.iocbq_lookup[i];
+ 
+-		if (lpfc_sli_validate_fcp_iocb (iocbq, vport, tgt_id, lun_id,
+-						ctx_cmd) == 0)
++		if (!iocbq || iocbq->vport != vport)
++			continue;
++		if (!(iocbq->iocb_flag & LPFC_IO_FCP) ||
++		    !(iocbq->iocb_flag & LPFC_IO_ON_TXCMPLQ))
++			continue;
++
++		/* Include counting outstanding aborts */
++		icmd = &iocbq->iocb;
++		if (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
++		    icmd->ulpCommand == CMD_CLOSE_XRI_CN) {
++			sum++;
++			continue;
++		}
++
++		if (lpfc_sli_validate_fcp_iocb(iocbq, vport, tgt_id, lun_id,
++					       ctx_cmd) == 0)
+ 			sum++;
  	}
+-	spin_unlock_irq(&phba->hbalock);
++	spin_unlock_irqrestore(&phba->hbalock, iflags);
  
-+	spin_lock_irqsave(sdev->host->host_lock, flags);
-+	list_del_init(&scmd->eh_entry);
-+	spin_unlock_irqrestore(sdev->host->host_lock, flags);
- 	scsi_eh_scmd_add(scmd);
+ 	return sum;
  }
+@@ -12659,7 +12700,11 @@ lpfc_sli_abort_fcp_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+  *
+  * This function sends an abort command for every SCSI command
+  * associated with the given virtual port pending on the ring
+- * filtered by lpfc_sli_validate_fcp_iocb function.
++ * filtered by lpfc_sli_validate_fcp_iocb_for_abort and then
++ * lpfc_sli_validate_fcp_iocb function.  The ordering for validation before
++ * submitting abort iocbs must be lpfc_sli_validate_fcp_iocb_for_abort
++ * followed by lpfc_sli_validate_fcp_iocb.
++ *
+  * When abort_cmd == LPFC_CTX_LUN, the function sends abort only to the
+  * FCP iocbs associated with lun specified by tgt_id and lun_id
+  * parameters
+@@ -12691,6 +12736,9 @@ lpfc_sli_abort_iocb(struct lpfc_vport *vport, u16 tgt_id, u64 lun_id,
+ 	for (i = 1; i <= phba->sli.last_iotag; i++) {
+ 		iocbq = phba->sli.iocbq_lookup[i];
  
-@@ -221,6 +244,8 @@ scsi_abort_command(struct scsi_cmnd *scmd)
- 	spin_lock_irqsave(shost->host_lock, flags);
- 	if (shost->eh_deadline != -1 && !shost->last_reset)
- 		shost->last_reset = jiffies;
-+	BUG_ON(!list_empty(&scmd->eh_entry));
-+	list_add_tail(&scmd->eh_entry, &shost->eh_abort_list);
- 	spin_unlock_irqrestore(shost->host_lock, flags);
++		if (lpfc_sli_validate_fcp_iocb_for_abort(iocbq, vport))
++			continue;
++
+ 		if (lpfc_sli_validate_fcp_iocb(iocbq, vport, tgt_id, lun_id,
+ 					       abort_cmd) != 0)
+ 			continue;
+@@ -12723,7 +12771,11 @@ lpfc_sli_abort_iocb(struct lpfc_vport *vport, u16 tgt_id, u64 lun_id,
+  *
+  * This function sends an abort command for every SCSI command
+  * associated with the given virtual port pending on the ring
+- * filtered by lpfc_sli_validate_fcp_iocb function.
++ * filtered by lpfc_sli_validate_fcp_iocb_for_abort and then
++ * lpfc_sli_validate_fcp_iocb function.  The ordering for validation before
++ * submitting abort iocbs must be lpfc_sli_validate_fcp_iocb_for_abort
++ * followed by lpfc_sli_validate_fcp_iocb.
++ *
+  * When taskmgmt_cmd == LPFC_CTX_LUN, the function sends abort only to the
+  * FCP iocbs associated with lun specified by tgt_id and lun_id
+  * parameters
+@@ -12761,6 +12813,9 @@ lpfc_sli_abort_taskmgmt(struct lpfc_vport *vport, struct lpfc_sli_ring *pring,
+ 	for (i = 1; i <= phba->sli.last_iotag; i++) {
+ 		iocbq = phba->sli.iocbq_lookup[i];
  
- 	scmd->eh_eflags |= SCSI_EH_ABORT_SCHEDULED;
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index d0b7c6dc74f8..c851c05d6091 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1143,6 +1143,7 @@ void scsi_init_command(struct scsi_device *dev, struct scsi_cmnd *cmd)
- 	cmd->sense_buffer = buf;
- 	cmd->prot_sdb = prot;
- 	cmd->flags = flags;
-+	INIT_LIST_HEAD(&cmd->eh_entry);
- 	INIT_DELAYED_WORK(&cmd->abort_work, scmd_eh_abort_handler);
- 	cmd->jiffies_at_alloc = jiffies_at_alloc;
- 	cmd->retries = retries;
-diff --git a/include/scsi/scsi_cmnd.h b/include/scsi/scsi_cmnd.h
-index 7958a604f979..29ac40cf1aae 100644
---- a/include/scsi/scsi_cmnd.h
-+++ b/include/scsi/scsi_cmnd.h
-@@ -73,7 +73,7 @@ enum scsi_cmnd_submitter {
- struct scsi_cmnd {
- 	struct scsi_request req;
- 	struct scsi_device *device;
--	struct list_head eh_entry; /* entry for the host eh_cmd_q */
-+	struct list_head eh_entry; /* entry for the host eh_abort_list/eh_cmd_q */
- 	struct delayed_work abort_work;
- 
- 	struct rcu_head rcu;
-diff --git a/include/scsi/scsi_host.h b/include/scsi/scsi_host.h
-index ae715959f886..ebe059badba0 100644
---- a/include/scsi/scsi_host.h
-+++ b/include/scsi/scsi_host.h
-@@ -551,6 +551,7 @@ struct Scsi_Host {
- 
- 	struct mutex		scan_mutex;/* serialize scanning activity */
- 
-+	struct list_head	eh_abort_list;
- 	struct list_head	eh_cmd_q;
- 	struct task_struct    * ehandler;  /* Error recovery thread. */
- 	struct completion     * eh_action; /* Wait for specific actions on the
++		if (lpfc_sli_validate_fcp_iocb_for_abort(iocbq, vport))
++			continue;
++
+ 		if (lpfc_sli_validate_fcp_iocb(iocbq, vport, tgt_id, lun_id,
+ 					       cmd) != 0)
+ 			continue;
 
