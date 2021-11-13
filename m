@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 793B344F2D2
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 12:31:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C6ED44F2D3
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 12:31:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235818AbhKMLeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 06:34:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49418 "EHLO mail.kernel.org"
+        id S235645AbhKMLeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 06:34:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235645AbhKMLeH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 06:34:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79FDC610A1;
-        Sat, 13 Nov 2021 11:31:14 +0000 (UTC)
+        id S235040AbhKMLeQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 06:34:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63C7C610A1;
+        Sat, 13 Nov 2021 11:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636803075;
-        bh=UXSrYq8q6ZgOnp7lUuz063Xgtc8nOHtWCSae7zY+tXQ=;
+        s=korg; t=1636803084;
+        bh=Ja21uyxWOrEH/BBIxJHHxZRioepqStbfogp/BYoUgKY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Yfmf8JoCzy1wre4qZV16G3GwCb0RZXNgjeWscWG8xjDs1Ig/kJeKCmfkdFTcwoom/
-         FQlxNn2o+dXPbEMRBt6lUzmvt22QPyS2ZYnNW3gckptq+bRYzYZ0iXpCbZwXePdNia
-         73V537GdHHAzjeEReLhmOzqV0AHYmomO/TdbcbFk=
-Subject: FAILED: patch "[PATCH] scsi: lpfc: Fix FCP I/O flush functionality for TMF routines" failed to apply to 5.4-stable tree
+        b=p9pmQL5piRCCZKewdaZjf0EUra/eRc9m8Gl5H+DEkWfGY/e7Nqp8da+KmdfIe0QVq
+         VFJqA/zzdNJz277axF3RpKbqwbdb8i1k+qP9eNyYBA18tu/ap3kwtS3stNJ7jACCHE
+         aZr3jP4fMym3rEcpDYxYEmXRZen9DAqQMK1dMvOo=
+Subject: FAILED: patch "[PATCH] scsi: lpfc: Fix FCP I/O flush functionality for TMF routines" failed to apply to 5.10-stable tree
 To:     jsmart2021@gmail.com, justin.tee@broadcom.com,
         martin.petersen@oracle.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 12:31:12 +0100
-Message-ID: <1636803072231135@kroah.com>
+Date:   Sat, 13 Nov 2021 12:31:13 +0100
+Message-ID: <16368030736212@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
