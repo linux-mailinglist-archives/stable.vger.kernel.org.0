@@ -2,92 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9915C44F196
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 06:42:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFF3544F21F
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 09:15:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235477AbhKMFpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 00:45:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47210 "EHLO
+        id S232003AbhKMISC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 03:18:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234733AbhKMFpF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Nov 2021 00:45:05 -0500
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A86BC0613F5
-        for <stable@vger.kernel.org>; Fri, 12 Nov 2021 21:42:13 -0800 (PST)
-Received: by mail-pl1-x62d.google.com with SMTP id b13so10147258plg.2
-        for <stable@vger.kernel.org>; Fri, 12 Nov 2021 21:42:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=xaxNu9zU+SDGLsTpiDayCICwcc1h6ck38IHp1yHVh08=;
-        b=U5WzbMxWOF618/EmrlEmWclFWB5xi9vZmI6W5lqqrWcBDFf7n6aznDJouCuOBAZNDY
-         vBK/tyl/bE/d4otLrbnyQAboLxnzuV1X44b9dWU138ANg/7tcQzz/8Kz1JX0nr/JPzTT
-         uMOH1/69U9TjK6ug3mrNB1mwud3MXyguVGJ7HUnhQ/L3zvfW1bbGxfjnYmPJT/w8d6tV
-         Y8qJua3ydUObXUAAWBmlncShfc9db48fKMQjrOEh9b/c1X3+oNfQ+XdOgITnKr5ZAn65
-         /N55yIMILPaoayYAKHOb+VE4TQZUATFXR1++9eH7x5d3/GbfTRb4+24ds1eUdBr4MekS
-         svLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=xaxNu9zU+SDGLsTpiDayCICwcc1h6ck38IHp1yHVh08=;
-        b=LsLo/YT1L2s6uzQ0POoQx/n/cOz+x1Osv3FLRV6w+G4ugweTz2sqH9zCN3Red59EIf
-         BWOppIStUh6Z05gWU3xKj8k7g70DcbfoJ4hz3xdHrkLd0KvLJPMrmkmks+3yj2cCE/p4
-         yGKO/0vpBMnv4kbYP5tKYMPtkXzEt+h9bqHF7UUtrKAaihtQ5+d1kE+6B7kC6zgkyXSX
-         OXZYP3zvfQCAOb2DFCl3mnQ1a0vaQWqaLwv2quibGmN2aFgDmEBfpq2Muh7aoMQ8Ta3i
-         s7zWqLpwza4dnipsxQ4QSiE8tMqs1mxVqn4GbHyY34dShqBIRuV/hgN2LVLs0fL1RI/7
-         XjHw==
-X-Gm-Message-State: AOAM533N/aTIoYMZkAs3FjJy5xyHhD3Y+qOYy8lw5taMH3qs0v2ohw0j
-        cdEjPjbGYkJFhM9x2rtENSE+qA==
-X-Google-Smtp-Source: ABdhPJwmcIVJEMXdk+vSm2H3TQ2aTXI5rOJi8ZA5JGANEOALzp+ER60zCbfPOgzLzbxUZ/JJi3Hiwg==
-X-Received: by 2002:a17:90b:2309:: with SMTP id mt9mr43793508pjb.213.1636782132877;
-        Fri, 12 Nov 2021 21:42:12 -0800 (PST)
-Received: from [192.168.254.17] ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id y28sm8161156pfa.208.2021.11.12.21.42.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Nov 2021 21:42:12 -0800 (PST)
-Message-ID: <997876b6-39b4-64f0-648a-8b042b03a3a8@linaro.org>
-Date:   Fri, 12 Nov 2021 21:42:11 -0800
+        with ESMTP id S230095AbhKMISB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Nov 2021 03:18:01 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CED9EC061766
+        for <stable@vger.kernel.org>; Sat, 13 Nov 2021 00:15:09 -0800 (PST)
+Received: from ip4d173d4a.dynamic.kabel-deutschland.de ([77.23.61.74] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1mloBn-0005T2-1b; Sat, 13 Nov 2021 09:15:07 +0100
+Message-ID: <ec02e9bf-2c3b-c22b-ce94-d4a3e1fa102f@leemhuis.info>
+Date:   Sat, 13 Nov 2021 09:15:06 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.2.0
-Subject: Re: [PATCH] tipc: check for null after calling kmemdup
-Content-Language: en-US
-To:     Jakub Kicinski <kuba@kernel.org>, Jon Maloy <jmaloy@redhat.com>
-Cc:     Ying Xue <ying.xue@windriver.com>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        tipc-discussion@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dmitry Vyukov <dvyukov@google.com>
-References: <20211111205916.37899-1-tadeusz.struk@linaro.org>
- <0f144d68-37c8-1e4a-1516-a3a572f06f8f@redhat.com>
- <20211112201332.601b8646@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-In-Reply-To: <20211112201332.601b8646@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Language: en-BS
+To:     Mark Boddington <lkml@badpenguin.co.uk>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
+References: <dbadfe41-24bf-5811-cf38-74973df45214@badpenguin.co.uk>
+ <YYwDnbpES0rrnWBw@kroah.com>
+ <b266047e-5674-d1e6-de4b-59a90299f022@badpenguin.co.uk>
+ <797107e1-6595-f3ef-e7b2-5784667f73e7@badpenguin.co.uk>
+ <e0f6f173-95a6-3868-5cc1-44092acd9267@leemhuis.info>
+ <ab370b30-3d01-6f7e-4e56-dd7b61251e25@badpenguin.co.uk>
+From:   Thorsten Leemhuis <linux@leemhuis.info>
+Subject: Re: kernel 5.15.1: AMD RX 6700 XT - Fails to resume after screen
+ blank
+In-Reply-To: <ab370b30-3d01-6f7e-4e56-dd7b61251e25@badpenguin.co.uk>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;linux@leemhuis.info;1636791309;c1884b42;
+X-HE-SMSGID: 1mloBn-0005T2-1b
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/12/21 20:13, Jakub Kicinski wrote:
->>> @@ -597,6 +597,11 @@ static int tipc_aead_init(struct tipc_aead **aead, struct tipc_aead_key *ukey,
->>>    	tmp->cloned = NULL;
->>>    	tmp->authsize = TIPC_AES_GCM_TAG_SIZE;
->>>    	tmp->key = kmemdup(ukey, tipc_aead_key_size(ukey), GFP_KERNEL);
->>> +	if (!tmp->key) {
->>> +		free_percpu(tmp->tfm_entry);
->>> +		kfree_sensitive(tmp);
->>> +		return -ENOMEM;
->>> +	}
->> Acked-by: Jon Maloy<jmaloy@redhat.com>
-> Hm, shouldn't we free all the tfm entries here?
+On 12.11.21 18:24, Mark Boddington wrote:
+> On 12/11/2021 16:04, Thorsten Leemhuis wrote:
+> [...]
+>> On 11.11.21 00:11, Mark Boddington wrote:
+>>> And also
+>>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c?h=linux-5.15.y&id=f02abeb0779700c308e661a412451b38962b8a0b
+>>>
+>>>
+>>> Maybe if the function is called during resume() without being called
+>>> during init(), bad things happen???
+>> Have you tried to revert any of the patches you suspect to cause this
+>> and see if things improve? And BTW: did 5.15 (aka 5.15.0) work? Or was
+>> some process to resolve this made already somewhere else and I just
+>> missed it?
+>>
+>> Ciao, Thorsten (with his Linux kernel regression tracker hat on)
+>>
+>> #regzbot poke
+> 
+> I tried reverting both, but they didn't improve the situation.
+> 
+> I also had the deadlock happen on 5.15 yesterday so the last stabl> kernel I have used is 5.14.15. I can try the latest 5.14.x if that will
+> help?
 
-Right, I think we just need to call tipc_aead_free(&tmp->rcu);
-here and return an error.
+You can give it a shot, maybe the problem shows up there now. But I
+doubt it, as in situations like this the change that's causing the
+problem likely was introduced in mainline (v5.14..v5.15) and not in
+stable (v5.15..v5.15.1).
 
--- 
-Thanks,
-Tadeusz
+I'd suggest you do the following: install and run the latest 5.14.y
+release, just to be sure (and to get something installed running properly).
+
+In parallel check if someone reported such a problem already to the
+developers of the driver in question. This document explains how to find
+their mailing list or bug tracker archive to check:
+https://www.kernel.org/doc/html/latest/admin-guide/reporting-issues.html
+It also explains many other aspects around searching for existing
+reports and reporting Linux kernel issues that might be of help.
+
+If you don't find any existing reports, report your problem anew with
+the regression mailing list in CC (no need to CC me or the stable list).
+Maybe a developer then has a idea what might cause this and point you in
+some direction to confirm. But in the end in situations like this you'll
+likely need to bisect the problem using a git bisection (see reporting
+issues). So consider to do that before reporting, it's not as hard and
+time-consuming as many people think.
+
+Note: As a Linux kernel regression tracker I'm getting a lot of reports
+on my table and can only look briefly into them. Due to that I sometimes
+will get things wrong and thus might give bad advice. I hope that's not
+the case here. But if you think I got something wrong, don't hesitate to
+tell me about that. That's in both other interest to prevent you from
+going down the wrong rabbit hole.
+
+Ciao, Thorsten (carrying his Linux kernel regression tracker hat)
+
+P.S.: Feel free to ignore the following lines, they are for regzbot, my
+Linux kernel regression tracking bot:
+
+#regzbot introduced v5.14..v5.15
