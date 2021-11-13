@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C6F44F34F
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 14:17:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62E8544F350
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 14:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231555AbhKMNUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 08:20:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41712 "EHLO mail.kernel.org"
+        id S229867AbhKMNUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 08:20:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229867AbhKMNUb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 08:20:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81C5D60551;
-        Sat, 13 Nov 2021 13:17:38 +0000 (UTC)
+        id S231791AbhKMNUd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 08:20:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39E9360551;
+        Sat, 13 Nov 2021 13:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636809459;
-        bh=IpUNryb/iwXUxJH/Q5PxIbEcBWb7zviAkv57mPY+zE4=;
+        s=korg; t=1636809461;
+        bh=uipnR+RFaBbIhiBXuqQltOR3azupiJ07reSep5rZjI8=;
         h=Subject:To:Cc:From:Date:From;
-        b=rohSc61HTGB3BiRxMl6V73RwPpq1L8sNypVSM3anKxwwQuPbszc0Kdga8fuxPfEdX
-         NDEOm0QBNm1KeqYaYNC9Xg2txPRAsfSvxAeZ9nyScLvm2JZPH0RM+Fn3f6OlUPjvrM
-         L9+pvfsU2wjQf2uAUb2NGLmYbSznYHp/q+vnm6t4=
-Subject: FAILED: patch "[PATCH] x86/cpu: Fix migration safety with X86_BUG_NULL_SEL" failed to apply to 4.9-stable tree
+        b=aOkqxjdjyIYFjwASOXgfPBDoYtZE+D7tZCo+cz03//BhO7VH22GwRSQeLhCKl8lpu
+         faNF0RQocpDkZZe2F5MibgTNFhxa4VBNiZBS8yIABRVrUQGhM2xgOZxKzjiCQiAGRK
+         ETLnzYub259WkBfHnN6APxn6ayZao8hNnrHw2cHg=
+Subject: FAILED: patch "[PATCH] x86/cpu: Fix migration safety with X86_BUG_NULL_SEL" failed to apply to 4.14-stable tree
 To:     jane.malalane@citrix.com, bp@suse.de, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 14:17:28 +0100
-Message-ID: <163680944879178@kroah.com>
+Date:   Sat, 13 Nov 2021 14:17:29 +0100
+Message-ID: <1636809449228210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
