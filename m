@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 320E644F395
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:16:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C926744F396
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:16:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235884AbhKMOTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 09:19:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
+        id S235890AbhKMOTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 09:19:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235634AbhKMOTR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 09:19:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1793B61154;
-        Sat, 13 Nov 2021 14:16:24 +0000 (UTC)
+        id S235634AbhKMOTU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 09:19:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1BA461179;
+        Sat, 13 Nov 2021 14:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636812985;
-        bh=Ys5WM1UdkdAFHSL/b+85ql7EU+HSe+WH8xCpc3THVnM=;
+        s=korg; t=1636812988;
+        bh=YSJtbvgUwN7PJxswtOLRxlSHTD743ywKXSJ6PGT5KFo=;
         h=Subject:To:Cc:From:Date:From;
-        b=Hl8wl7DpL2ix3LOuvnVIkFppwgquXIqQt5ymA6sGKw6tsUudErqU2BQSOaMgnLi+d
-         A4fFOS4XSkcxDvnVKyAzUvTDvDb4vv0Vlv+/GgmjEyc1HUme9Zai2cSUL1lRv3mDu/
-         /vRmTgDmei6FdCco2IEIowD+3h9/lK+AkcYt0fZE=
-Subject: FAILED: patch "[PATCH] selinux: fix race condition when computing ocontext SIDs" failed to apply to 4.14-stable tree
+        b=UyMBua225ldfapGg28SWopSxWeeSFQaVLqH7JcRpwFsV1BRhHooewev3WCddNfGGI
+         CRND7+7sl00k2fTqnXyv5rdcb0l6qLl02mi7c/V0nuWKE0EDhbvmZDV8Ar97dsWt7l
+         wqJmPD3DbjgdOV4L1HJQnHMPEe/USH7OLOH70MB0=
+Subject: FAILED: patch "[PATCH] selinux: fix race condition when computing ocontext SIDs" failed to apply to 4.19-stable tree
 To:     omosnace@redhat.com, paul@paul-moore.com, sujithra@google.com,
         xinjie@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 15:16:18 +0100
-Message-ID: <1636812978113114@kroah.com>
+Date:   Sat, 13 Nov 2021 15:16:20 +0100
+Message-ID: <16368129804215@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
