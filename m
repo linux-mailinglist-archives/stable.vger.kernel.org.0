@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28B5144F383
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:02:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FAA844F384
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:02:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231791AbhKMOFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 09:05:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50996 "EHLO mail.kernel.org"
+        id S232430AbhKMOFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 09:05:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231672AbhKMOFc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 09:05:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE50E60F51;
-        Sat, 13 Nov 2021 14:02:39 +0000 (UTC)
+        id S231672AbhKMOFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 09:05:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69EF76112F;
+        Sat, 13 Nov 2021 14:02:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636812160;
-        bh=NoOklB7k4EjMXj+fIT9BNH86B9/xhjgU04CVQw3t+8Q=;
+        s=korg; t=1636812175;
+        bh=SxDU+WflSCBy/3OwT1/ipteBTTsRygCjaNfdTYlOC9E=;
         h=Subject:To:Cc:From:Date:From;
-        b=12fhdeJArRCAIrvt+lLTe9pUyNb0+JJL2ChAvB0DGTaCsxQeM6EORAjMRJyQVWgSq
-         BMR92j8R1N8eIoPhBycU1nQbjVOHURUIS1CYB2CQ9VoI6cRZt8krni63tO2l/hixKG
-         FeqG6Wke6vcsD6EwZ34IqkdpL80fFQ5jxCZv/BVk=
-Subject: FAILED: patch "[PATCH] btrfs: fix deadlock between chunk allocation and chunk btree" failed to apply to 5.15-stable tree
+        b=H2ouxlUmhZ/mFk+0nxONIL304o/LGqciDuAilkS9FqJitCPWuNdwDAYl+srevprKQ
+         gojvf6r5DR0aTufDkd7i9Of/TULkCklxYuL08NbY8+JeeYD9GBZHyCNEmk2RaMUpDT
+         IU8AFvvENEmHzDjmlCBVnF7ogcfSeNjxJHj9tgwI=
+Subject: FAILED: patch "[PATCH] btrfs: fix deadlock between chunk allocation and chunk btree" failed to apply to 5.14-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com,
         sunhao.th@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 15:02:37 +0100
-Message-ID: <163681215733199@kroah.com>
+Date:   Sat, 13 Nov 2021 15:02:53 +0100
+Message-ID: <163681217323116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
