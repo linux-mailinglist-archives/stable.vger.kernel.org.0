@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32FBC44F5AA
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 23:52:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D55144F5BF
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 00:47:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231147AbhKMWzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 17:55:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44132 "EHLO
+        id S230267AbhKMXuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 18:50:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231129AbhKMWzK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Nov 2021 17:55:10 -0500
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23128C061766
-        for <stable@vger.kernel.org>; Sat, 13 Nov 2021 14:52:17 -0800 (PST)
-Received: by mail-pl1-x636.google.com with SMTP id v19so581624plo.7
-        for <stable@vger.kernel.org>; Sat, 13 Nov 2021 14:52:17 -0800 (PST)
+        with ESMTP id S229988AbhKMXuk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Nov 2021 18:50:40 -0500
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B68C6C061766
+        for <stable@vger.kernel.org>; Sat, 13 Nov 2021 15:47:47 -0800 (PST)
+Received: by mail-pl1-x62b.google.com with SMTP id y7so11469244plp.0
+        for <stable@vger.kernel.org>; Sat, 13 Nov 2021 15:47:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=sX7IO/A7fVmGoCh4iLkukBjo0E52sxIeZkbyepP63jo=;
-        b=rqWElWt6QR7U8J5lWUvJZ1Lipdm/M1Pw9vCP8NKUaEH4gTV4nvEPn11IP1Q2Z/4SxF
-         ziH/egaKkKPxO0qVC7kslUOe936r0Rg88+qp2WdoMQqLWi8/P6oX0zheA+hW2PQ9EhBp
-         T2/xcqJzwVxcCS4uSuLZE0vEBRBb8YqCy7P31tT5Th+fshgeREd3gIdVY3bfUier5kQf
-         dGT8GGVBoexPInZek2ClHFu6XnywZr8Zz3fGaTVyx3xzkqaWbDr4JPUGTPlhXmIZpbwT
-         Rokrjs1UMh/ddAcjtNqCG1FHURtejZHwVmmEF53tNLwQuHfbIRAcM8kwjLgHXNjn7BnV
-         pCsg==
+        bh=WiBlNQcqta3pDvdgpyXYvjUyPKFYxFXkgaBUWimqmZw=;
+        b=GQALKKFpmLS290+oYgnu9Bm4EX3G3bAeyK3Z8AfK/z04KiU+Y8gPgLh7Vj1rrSepZF
+         38pzPG5d5DeEBdADgXtdOrfPKLkAqYOCvnmdNt8yLaeXtmEKQYDvPsNuo+SDbL6yVIVN
+         nPjtQzQ/ojHf3i891QGAU08QCfM0YWiK+fcsgAD3cRbZ0xxos5PXIiW9jyhNp7jKU/YG
+         IZms+yr2dJ4IwJNB9edYcVG3Fs9171gY332vsWp1ZyyT342GnFPbJ1p7dPJRnAB+dEGo
+         NZqCWE2sDkOLQPUpxvjhEoxoEP/7UA0NsfmCr3IxuW05Q+JoUo9NevdE9IvkspH5JKCa
+         XKMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=sX7IO/A7fVmGoCh4iLkukBjo0E52sxIeZkbyepP63jo=;
-        b=V47WrxVSfB4Yfkq+smevZ6TmtrJFiRyC4Suock4UvcKGpCvPUzxn4mLkXcxVMz2YJD
-         QCHZAuuCTpgfZP3yn7nXEKRFKmItM+NYOML2cj6G83iHCQuoQE1tdeOk2WTUNPKzeYm4
-         q6lX0dtnEpuKhMwHEzsI4xuFoSLDn+faXOP8TYQ3i5KAGE77XkO11y1jBoMQt1g8Wm7l
-         LNRkrczLtaFFxbNCVNf1arH6dfCLM3FlTJAELhGJ6KYMwe4uwGfJefJ5TQjyvSjtbzHv
-         EuPdaF+4ZwWzxMzM4L5xyp4sPzJiz2VfyF21fvZa4DdftvH7cV2F+cIRj5RvX4BZl8KE
-         M9ww==
-X-Gm-Message-State: AOAM531wIPg8tBtH2G0B0PbXN0bHgHFoYPDgw6jpp4ltheQouDOT8r6X
-        0xpOAtNQgmbb0iyeJYCETFETPFjVKK0ZI+67
-X-Google-Smtp-Source: ABdhPJyd7owxqxezWyQTzKhksJcJ3IGxD20b+qcBulhAB0GLaVIeGXiaTCboSDB6Zgqj5c6E3udacQ==
-X-Received: by 2002:a17:90b:1b4a:: with SMTP id nv10mr31445293pjb.87.1636843936472;
-        Sat, 13 Nov 2021 14:52:16 -0800 (PST)
+        bh=WiBlNQcqta3pDvdgpyXYvjUyPKFYxFXkgaBUWimqmZw=;
+        b=m26eRWqJwskeiLWzScwYDbbayNRF8SEZaZ8QXE4eOubjwq7nGvc42YO8h2GYMhmBw1
+         7HkbMI4xfznh3TmZpHqZZAbjNwcl2oTYUMecIdwYIw1RYB0jYEHWLgshdHAADVwSbpV0
+         LY5bqG1XzzVsnZILNzRHI9q2x4Cvf53DO5paKZNPw1/TqmSNcFS714DOEB3t7QwKW9LX
+         9uQlFXxF0U2Yr4lceck3wSkblSsL2mVQRrH0L7Rwyjq3CZ6eKE5IzzoEeL/QGIg2PHRd
+         e2SYUoCI98En1h7UPelWUY4jw8OmzkXTMOrSVq/owLUfxn764+wZVugvZIhnneEmFf96
+         9kcQ==
+X-Gm-Message-State: AOAM531hcwTUHtjSQ25PXhaZ21PvrpZ5oH3xwA7ziL8AOEbMqC9gve+O
+        vVhAsg2EdO16jNbrTMgs5Xgm0ogSwQJTxmb8
+X-Google-Smtp-Source: ABdhPJygSCU8j7HN379QdbBOq/WavIthLkPLuRgqLw9Fgp43Zz9RmW8pqU/czPjkKmN93vgj2nslCQ==
+X-Received: by 2002:a17:90b:17cc:: with SMTP id me12mr34861219pjb.141.1636847267210;
+        Sat, 13 Nov 2021 15:47:47 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t4sm10637648pfj.166.2021.11.13.14.52.16
+        by smtp.gmail.com with ESMTPSA id s6sm11367446pfu.137.2021.11.13.15.47.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Nov 2021 14:52:16 -0800 (PST)
-Message-ID: <619041a0.1c69fb81.95f7c.dbcf@mx.google.com>
-Date:   Sat, 13 Nov 2021 14:52:16 -0800 (PST)
+        Sat, 13 Nov 2021 15:47:46 -0800 (PST)
+Message-ID: <61904ea2.1c69fb81.6c8c6.f521@mx.google.com>
+Date:   Sat, 13 Nov 2021 15:47:46 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.4
+X-Kernelci-Branch: linux-4.4.y
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.292-35-gf481b21305a4
+X-Kernelci-Kernel: v4.4.292-36-g43195d0a7bf0
 X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.4 baseline: 131 runs,
- 1 regressions (v4.4.292-35-gf481b21305a4)
+Subject: stable-rc/linux-4.4.y baseline: 120 runs,
+ 1 regressions (v4.4.292-36-g43195d0a7bf0)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,30 +65,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 131 runs, 1 regressions (v4.4.292-35-gf481b21=
-305a4)
+stable-rc/linux-4.4.y baseline: 120 runs, 1 regressions (v4.4.292-36-g43195=
+d0a7bf0)
 
 Regressions Summary
 -------------------
 
-platform | arch | lab           | compiler | defconfig           | regressi=
+platform    | arch   | lab         | compiler | defconfig        | regressi=
 ons
----------+------+---------------+----------+---------------------+---------=
+------------+--------+-------------+----------+------------------+---------=
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+qemu_x86_64 | x86_64 | lab-broonie | gcc-10   | x86_64_defconfig | 1       =
    =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.292-35-gf481b21305a4/plan/baseline/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.292-36-g43195d0a7bf0/plan/baseline/
 
   Test:     baseline
   Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.292-35-gf481b21305a4
+  Branch:   linux-4.4.y
+  Describe: v4.4.292-36-g43195d0a7bf0
   URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
 able-rc.git
-  SHA:      f481b21305a43d5bef683e60cfa38262a8cee1d6 =
+  SHA:      43195d0a7bf01be6e7ccb304f06ab7bf43737f85 =
 
 
 
@@ -97,41 +97,32 @@ Test Regressions
 
 
 
-platform | arch | lab           | compiler | defconfig           | regressi=
+platform    | arch   | lab         | compiler | defconfig        | regressi=
 ons
----------+------+---------------+----------+---------------------+---------=
+------------+--------+-------------+----------+------------------+---------=
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+qemu_x86_64 | x86_64 | lab-broonie | gcc-10   | x86_64_defconfig | 1       =
    =
 
 
-  Details:     https://kernelci.org/test/plan/id/619008e4df5009575b3358fe
+  Details:     https://kernelci.org/test/plan/id/619013497937abfdcf33596f
 
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-3=
-5-gf481b21305a4/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-3=
-5-gf481b21305a4/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.html
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.292=
+-36-g43195d0a7bf0/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_=
+x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.292=
+-36-g43195d0a7bf0/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_=
+x86_64.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
 
 
 
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619008e4df50095=
-75b335901
-        new failure (last pass: v4.4.292-35-g08732977a551)
-        2 lines
-
-    2021-11-13T18:49:52.608540  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/117
-    2021-11-13T18:49:52.617758  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-11-13T18:49:52.633308  [   19.207702] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+  * baseline.login: https://kernelci.org/test/case/id/619013497937abfdcf335=
+970
+        new failure (last pass: v4.4.292) =
 
  =20
