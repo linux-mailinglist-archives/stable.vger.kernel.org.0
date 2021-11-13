@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B87E544F3B8
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:27:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0626A44F3B9
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231319AbhKMOa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 09:30:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
+        id S230027AbhKMOai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 09:30:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230001AbhKMOa2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 09:30:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE4E4604D1;
-        Sat, 13 Nov 2021 14:27:35 +0000 (UTC)
+        id S230001AbhKMOai (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 09:30:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01481604D1;
+        Sat, 13 Nov 2021 14:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636813656;
-        bh=a2M5dRT6hJCImdS9WpZ7ta98twVHkc0EgKADShARU5g=;
+        s=korg; t=1636813665;
+        bh=0Ym/ENy2RkA2UjAUsI56v07BtBQmrPLqCnYtRZtfIRU=;
         h=Subject:To:Cc:From:Date:From;
-        b=Z6VWbuRevPoHLOKVFEIzRPOHJTDh7JtVB2TGXuR5bph50BW8jsf3kf5UxE6J4ChTm
-         r4CY8NALeXaJGK/ixuf/Z/t0bI0ARg4ZKJ7omdX7Bxzy6ubX///lSW+cR8z+PtPrm3
-         m7kioFmKcdTwyY1zsySfvbT5QIeND0aiAbFmTTEg=
-Subject: FAILED: patch "[PATCH] rsi: fix rate mask set leading to P2P failure" failed to apply to 4.4-stable tree
+        b=DZdxJGS1ysLaRqMvbwwEJ67CqgpVwerNa/xliuGXQR+BKvZdQ2YFwaViID5iqapQG
+         E22CPbJN/4rbXnTmBMk/Rx+LRtn2aa8M6JKdfOvGtWyQYMXUbzpd6sjYbFHDbt56oo
+         pfG+O7BFe/sL9+cpG4/3ydHNRXkyGcKyfk8u0Sv0=
+Subject: FAILED: patch "[PATCH] rsi: fix rate mask set leading to P2P failure" failed to apply to 4.9-stable tree
 To:     martin.fuzzey@flowbird.group, kvalo@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 15:27:33 +0100
-Message-ID: <16368136539294@kroah.com>
+Date:   Sat, 13 Nov 2021 15:27:34 +0100
+Message-ID: <16368136542546@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
