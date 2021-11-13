@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0A1D44F3B1
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:24:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC6E244F3B0
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:24:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231452AbhKMO1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 09:27:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44364 "EHLO mail.kernel.org"
+        id S231319AbhKMO13 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 09:27:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230001AbhKMO1b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 09:27:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F21D560F14;
-        Sat, 13 Nov 2021 14:24:38 +0000 (UTC)
+        id S230001AbhKMO12 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 09:27:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1217D60F14;
+        Sat, 13 Nov 2021 14:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636813479;
-        bh=Qg5dhzD1JIIxSRtUvskWZylzSeV9HyEoyfRkU7Nuz/c=;
+        s=korg; t=1636813476;
+        bh=Mnki8agZpKoZvgsz9gMvTc6OW62vt9+elGm3CLQxjcc=;
         h=Subject:To:Cc:From:Date:From;
-        b=eyhmYJ+aRL/JOpt0NTuBfRiD5WFlUVIPHUSbpnnTk7EG8+CjfkB6YuR2csxgQ0tRz
-         dwSaE35s66YpCUBN9ZZrT4FNYGm035Gg7DlL2uYIjXnvgasboLImY3mqV2QXqPw3gy
-         in3fNemMJEoDaex7SHeGyVHh5v8UxDKOEyJB0+4A=
-Subject: FAILED: patch "[PATCH] PM: sleep: Do not let "syscore" devices runtime-suspend" failed to apply to 4.9-stable tree
+        b=dnf9LtrrYkPWbxi8EX0obFAwjWipRUi8gLxsk10JbFjiaybTzrZKA45qvmAOiFCFb
+         /mG41LP237rLYgqKkUv4kOyHbbLYMhEWsyOvGFEGFuHt/Y3sJdPfqJb5SoYYrLjgtG
+         ext1F42y24tES/EJv7nicxu9vLKukgxhkUzDP8jQ=
+Subject: FAILED: patch "[PATCH] PM: sleep: Do not let "syscore" devices runtime-suspend" failed to apply to 4.14-stable tree
 To:     rafael.j.wysocki@intel.com, stable@vger.kernel.org,
         ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 13 Nov 2021 15:24:26 +0100
-Message-ID: <163681346612889@kroah.com>
+Message-ID: <1636813466151164@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
