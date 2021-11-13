@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C7344F2CB
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 12:30:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A451344F2CC
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 12:30:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235634AbhKMLdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 06:33:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49112 "EHLO mail.kernel.org"
+        id S235758AbhKMLdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 06:33:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233765AbhKMLdT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 06:33:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F24D610A1;
-        Sat, 13 Nov 2021 11:30:26 +0000 (UTC)
+        id S235709AbhKMLdW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 06:33:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9A3D610CE;
+        Sat, 13 Nov 2021 11:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636803027;
-        bh=oTMvW3/4ZI6n6a4SDB0x66nTgnoQVgmaqQ5LPAtio40=;
+        s=korg; t=1636803030;
+        bh=GNz7HpNnSTZn6mV66Led/OIM9+oKmW7o9NLsYJdKRPg=;
         h=Subject:To:Cc:From:Date:From;
-        b=Q61ZDFl3ID6tr4t+aXi3PwUgKvJ4C3j13BA8jN0GAbFxND2lXzug2iOK+6a1TbMDN
-         J8pWj2JwcOzNTJxvN8r+P9orbdvMuWb0bXIyRoxf1lYDNumVGGQGn/WZAoI69qZ1mD
-         rUCq+kZZyF3mzCuTQMIhbWwh6hamVlK5df65o0xg=
-Subject: FAILED: patch "[PATCH] scsi: core: Avoid leaving shost->last_reset with stale value" failed to apply to 4.9-stable tree
+        b=G2ioRwK+rDEvkPU9auh9x6PPnStBedKX0x+CsFB0pOPqeiEK4TGjwTLzoOjdyuvZD
+         6klIUUs/Fh8jfMbSYr2vonFNgQlqMfb9zRrQRxz9mqn7bdhm3WMVZYtQHb3CAXt1gt
+         +VSzyr6RcsuMKBD4aShq53zMZ5UXrQxC14jmYt0c=
+Subject: FAILED: patch "[PATCH] scsi: core: Avoid leaving shost->last_reset with stale value" failed to apply to 4.14-stable tree
 To:     emilne@redhat.com, martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 12:30:22 +0100
-Message-ID: <163680302243107@kroah.com>
+Date:   Sat, 13 Nov 2021 12:30:23 +0100
+Message-ID: <1636803023142149@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
