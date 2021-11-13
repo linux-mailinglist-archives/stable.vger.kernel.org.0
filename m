@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0612744F33F
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 14:08:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9389344F341
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 14:12:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235824AbhKMNLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 08:11:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57694 "EHLO mail.kernel.org"
+        id S231672AbhKMNPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 08:15:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235795AbhKMNLs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 08:11:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86BA160F45;
-        Sat, 13 Nov 2021 13:08:55 +0000 (UTC)
+        id S231555AbhKMNPe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 08:15:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE34D60F46;
+        Sat, 13 Nov 2021 13:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636808936;
-        bh=jfInsB3LxWnpwmzkVROsmlXuh6bTFP6XAq4kQsEWfjA=;
+        s=korg; t=1636809162;
+        bh=u4tyKlURCoNfx+bS3814ulV6Al7tCpuow3XmIbIuVEc=;
         h=Subject:To:Cc:From:Date:From;
-        b=0bep33mJDTKAj1hphtCBV8V6f7GmO/XNT1eHdhw31hEOvp2sMGl6EnwX+hiRE15Gd
-         z7m05EtTBqSolgqfeKfqmVizwHvoMZ1VQGOVlrNfbC+KOWkyN6lNbV+375qWwqb1Z3
-         uLD62xihyfJG5vdlXPlgseAZjjCq+VmV4P6JZ4tU=
-Subject: FAILED: patch "[PATCH] ALSA: mixer: fix deadlock in snd_mixer_oss_set_volume" failed to apply to 4.4-stable tree
-To:     paskripkin@gmail.com, stable@vger.kernel.org, tiwai@suse.de
+        b=HNu80FpjtL9/K4ByOXttr9/VWo0tblREzdTFm0O2tPBksyYHjht99Fw2LCNvcMoXl
+         Y44joTTxvzhXgUhcZ0HN+H8ol2enYqJlQjKcinSskGMeYv/oyUG9iEtuUxNig2bxJq
+         VwRk7VfwG0n9CRnhwRiPXuuTrRcMcT/no8WezfcM=
+Subject: FAILED: patch "[PATCH] ext4: fix lazy initialization next schedule time computation" failed to apply to 4.4-stable tree
+To:     shaoyi@amazon.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 14:08:35 +0100
-Message-ID: <16368089153205@kroah.com>
+Date:   Sat, 13 Nov 2021 14:12:39 +0100
+Message-ID: <16368091597181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -45,33 +45,57 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3ab7992018455ac63c33e9b3eaa7264e293e40f4 Mon Sep 17 00:00:00 2001
-From: Pavel Skripkin <paskripkin@gmail.com>
-Date: Sun, 24 Oct 2021 17:03:15 +0300
-Subject: [PATCH] ALSA: mixer: fix deadlock in snd_mixer_oss_set_volume
+From 39fec6889d15a658c3a3ebb06fd69d3584ddffd3 Mon Sep 17 00:00:00 2001
+From: Shaoying Xu <shaoyi@amazon.com>
+Date: Thu, 2 Sep 2021 16:44:12 +0000
+Subject: [PATCH] ext4: fix lazy initialization next schedule time computation
+ in more granular unit
 
-In commit 411cef6adfb3 ("ALSA: mixer: oss: Fix racy access to slots")
-added mutex protection in snd_mixer_oss_set_volume(). Second
-mutex_lock() in same function looks like typo, fix it.
+Ext4 file system has default lazy inode table initialization setup once
+it is mounted. However, it has issue on computing the next schedule time
+that makes the timeout same amount in jiffies but different real time in
+secs if with various HZ values. Therefore, fix by measuring the current
+time in a more granular unit nanoseconds and make the next schedule time
+independent of the HZ value.
 
-Reported-by: syzbot+ace149a75a9a0a399ac7@syzkaller.appspotmail.com
-Fixes: 411cef6adfb3 ("ALSA: mixer: oss: Fix racy access to slots")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20211024140315.16704-1-paskripkin@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: bfff68738f1c ("ext4: add support for lazy inode table initialization")
+Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210902164412.9994-2-shaoyi@amazon.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 
-diff --git a/sound/core/oss/mixer_oss.c b/sound/core/oss/mixer_oss.c
-index d5ddc154a735..9620115cfdc0 100644
---- a/sound/core/oss/mixer_oss.c
-+++ b/sound/core/oss/mixer_oss.c
-@@ -313,7 +313,7 @@ static int snd_mixer_oss_set_volume(struct snd_mixer_oss_file *fmixer,
- 	pslot->volume[1] = right;
- 	result = (left & 0xff) | ((right & 0xff) << 8);
-  unlock:
--	mutex_lock(&mixer->reg_mutex);
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 88d5d274a868..8a67e5f3f576 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3263,9 +3263,9 @@ static int ext4_run_li_request(struct ext4_li_request *elr)
+ 	struct super_block *sb = elr->lr_super;
+ 	ext4_group_t ngroups = EXT4_SB(sb)->s_groups_count;
+ 	ext4_group_t group = elr->lr_next_group;
+-	unsigned long timeout = 0;
+ 	unsigned int prefetch_ios = 0;
+ 	int ret = 0;
++	u64 start_time;
  
+ 	if (elr->lr_mode == EXT4_LI_MODE_PREFETCH_BBITMAP) {
+ 		elr->lr_next_group = ext4_mb_prefetch(sb, group,
+@@ -3302,14 +3302,13 @@ static int ext4_run_li_request(struct ext4_li_request *elr)
+ 		ret = 1;
+ 
+ 	if (!ret) {
+-		timeout = jiffies;
++		start_time = ktime_get_real_ns();
+ 		ret = ext4_init_inode_table(sb, group,
+ 					    elr->lr_timeout ? 0 : 1);
+ 		trace_ext4_lazy_itable_init(sb, group);
+ 		if (elr->lr_timeout == 0) {
+-			timeout = (jiffies - timeout) *
+-				EXT4_SB(elr->lr_super)->s_li_wait_mult;
+-			elr->lr_timeout = timeout;
++			elr->lr_timeout = nsecs_to_jiffies((ktime_get_real_ns() - start_time) *
++				EXT4_SB(elr->lr_super)->s_li_wait_mult);
+ 		}
+ 		elr->lr_next_sched = jiffies + elr->lr_timeout;
+ 		elr->lr_next_group = group + 1;
 
