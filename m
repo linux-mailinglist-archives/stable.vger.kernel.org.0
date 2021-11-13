@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44CC144F3A1
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:20:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB84244F3A0
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:20:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235882AbhKMOXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 09:23:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42810 "EHLO mail.kernel.org"
+        id S231791AbhKMOX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 09:23:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231672AbhKMOXh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 09:23:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA6C9611AE;
-        Sat, 13 Nov 2021 14:20:44 +0000 (UTC)
+        id S231672AbhKMOX3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 09:23:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 920A8611AE;
+        Sat, 13 Nov 2021 14:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636813245;
-        bh=ffGbg377uXgku1Cgt3w/yx/Z+/BbW5UIp9xHYGUPQcY=;
+        s=korg; t=1636813237;
+        bh=Rvy+ay1lCFRPI8hk+PKMauqC5KCfmNkRYNoZmsgPjJU=;
         h=Subject:To:Cc:From:Date:From;
-        b=rU6HMh+0chGA2JfMZvtEbH2VbjectjIh8rqpuw8da9GK1+W5KRyzexYjzn7cDKcII
-         JfcvChUq7vRFXO4wOThUDdtuSXsY3MVXY476LX6WbmY3I15n9L3qLqNcqMZaZLZs/c
-         pxX3LOHDM0lczlYF5sQ2K+yDBYBUuZzzVm9k78gk=
-Subject: FAILED: patch "[PATCH] blk-cgroup: blk_cgroup_bio_start() should use irq-safe" failed to apply to 5.14-stable tree
+        b=wwvSfiCwgz8QdGer3cjVGgQhWO8D1pmuihEwg0CoY+C5mP2fRcv+Kg5X/tyTnadwC
+         nBGholoHSFQe10VQOZa16J/qBgTwV8lcgpZVLAY6Db8ZZ99Grd3w9y5X9sh1qstXzT
+         Ixr15BTqoLVl0XrZ98Vwfj4jNulsw8ksZDRkWJRk=
+Subject: FAILED: patch "[PATCH] blk-cgroup: blk_cgroup_bio_start() should use irq-safe" failed to apply to 5.15-stable tree
 To:     tj@kernel.org, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 13 Nov 2021 15:20:34 +0100
-Message-ID: <163681323494123@kroah.com>
+Message-ID: <1636813234180139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
