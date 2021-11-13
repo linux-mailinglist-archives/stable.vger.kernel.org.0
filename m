@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EFD544F3DD
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 16:22:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B68D944F3DF
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 16:22:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233999AbhKMPZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 10:25:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43168 "EHLO mail.kernel.org"
+        id S235896AbhKMPZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 10:25:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231791AbhKMPZH (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 10:25:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 035A060D43;
-        Sat, 13 Nov 2021 15:22:14 +0000 (UTC)
+        id S235894AbhKMPZT (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 10:25:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54C7660D43;
+        Sat, 13 Nov 2021 15:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636816935;
-        bh=VGRidK5fasWXwkAsi9DMevIR1Udcu8gaxDsTTnoJKNo=;
+        s=korg; t=1636816946;
+        bh=bCMDFyLk9uQtAOw/DrHYLHeEWGs1tS5+pMi6xbLy2so=;
         h=Subject:To:Cc:From:Date:From;
-        b=si5u75GXbpGCWBfEYWn80Pr6C6Ow4/eMOn/lJLN25n/AZGsgfGni4pioa/Tql45qz
-         lDJWtosbPc8QpVdoR9M+iB+a40PVPkobJ7EF2BDXpuQ2cCcQg3qje+2iayIVGVXSl1
-         eCn5ZKb0c+/rSFV4vkcLzl3JN497/4KphQhzcB/c=
-Subject: FAILED: patch "[PATCH] iio: core: check return value when calling dev_set_name()" failed to apply to 4.4-stable tree
+        b=YrYxYFpl3Anbm2LQsyay/QF1b+MfFwjBchl/ogGKJH1djmQYbvG1TmzqZuCkRNxeQ
+         Ew7mqn/n18qGCJmMnl7QT/Cv8/mPXA6Oe0YZUb/OPZ1mvHl2fZREJ0aHTGtzOLguDi
+         N7CdHi8FXJgJMshfyvFIVwCezJv5CAMQQrrNih5M=
+Subject: FAILED: patch "[PATCH] iio: core: check return value when calling dev_set_name()" failed to apply to 4.9-stable tree
 To:     yangyingliang@huawei.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, hulkci@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 16:22:12 +0100
-Message-ID: <1636816932114184@kroah.com>
+Date:   Sat, 13 Nov 2021 16:22:13 +0100
+Message-ID: <163681693322758@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
