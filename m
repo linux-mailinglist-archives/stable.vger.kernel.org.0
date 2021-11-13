@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50C6744F342
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 14:12:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9825F44F344
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 14:12:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231589AbhKMNPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 08:15:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50422 "EHLO mail.kernel.org"
+        id S234327AbhKMNPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 08:15:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231555AbhKMNPm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 08:15:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C030260F46;
-        Sat, 13 Nov 2021 13:12:49 +0000 (UTC)
+        id S231555AbhKMNPr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 08:15:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC46960551;
+        Sat, 13 Nov 2021 13:12:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636809170;
-        bh=+c22rjq0hOoTG8e5JsBvf9QwlmMa6qpSwLt/OexNODY=;
+        s=korg; t=1636809175;
+        bh=sULLein6L+nULCVH7Rrvw4jpg2rMYXDMrU6feNBmbh0=;
         h=Subject:To:Cc:From:Date:From;
-        b=TUG0i/7nkRwvgtTZJbXdM6uKnBD+892AS6GMEJI6cjxVgrMjQi3Lc4Gar+gdGQG1o
-         3t3woFbKTxcXpxN2di9a0djCLu0RlLOH276qrdH0OwUa7jlgH9RjQi+9jkgoyi67P5
-         nnpIQgYyiUF/BOo6sC7dw1pbUp/1wfcVSwex1ZpQ=
-Subject: FAILED: patch "[PATCH] ext4: fix lazy initialization next schedule time computation" failed to apply to 4.14-stable tree
+        b=oyFPvgP0dro2ETL+lSp47uCbydIuifRhRRCUAIezrIncvjPhB3uHfznqHFzmpTqlA
+         t/Zc3bHb7UHVyJ+BlZlmKmkuGk2/A7+yl9OPrpaSWfPIhl1Pi2zh2aM5oUVOOYlA0G
+         mYWr5aVfKicRuGr5Jls31240Cm5AbI7hE6Cmr+bk=
+Subject: FAILED: patch "[PATCH] ext4: fix lazy initialization next schedule time computation" failed to apply to 5.4-stable tree
 To:     shaoyi@amazon.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 14:12:40 +0100
-Message-ID: <16368091606333@kroah.com>
+Date:   Sat, 13 Nov 2021 14:12:41 +0100
+Message-ID: <163680916195196@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
