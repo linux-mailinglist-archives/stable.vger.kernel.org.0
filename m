@@ -2,101 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0E5944F59C
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 23:07:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3575644F5A4
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 23:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233071AbhKMWKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 17:10:10 -0500
-Received: from mout.gmx.net ([212.227.15.19]:36933 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231416AbhKMWKJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 17:10:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1636841235;
-        bh=ExFbZ5rar+b+dar4FNotrFLYrEbQbGRgAnAAcCvhm8I=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
-        b=fA42ZKaA7xG+Ln9iQfwUuzYHd4fQsDn+cYvyy3llF4s7t5t+csTNuUslyTdL88b/u
-         axKbu8Ensyl+0AFZjXthSgaOSAe87NuhaujpcusBWUPGBcT9zqRhRwpZulTkiRF3Kj
-         Icy8+WTJ2XgD1AomUifSr+ZmBr0jgxKRmxytCA98=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from ls3530 ([92.116.168.126]) by mail.gmx.net (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MqaxO-1mHJ470XoG-00md8y; Sat, 13
- Nov 2021 23:07:15 +0100
-Date:   Sat, 13 Nov 2021 23:06:43 +0100
-From:   Helge Deller <deller@gmx.de>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org
-Subject: [PATCH] parisc: Fix set_fixmap() on PA1.x CPUs
-Message-ID: <YZA28xGM65x4H33o@ls3530>
+        id S231158AbhKMWdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 17:33:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39496 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229652AbhKMWdb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Nov 2021 17:33:31 -0500
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2039C061766
+        for <stable@vger.kernel.org>; Sat, 13 Nov 2021 14:30:38 -0800 (PST)
+Received: by mail-lj1-x22f.google.com with SMTP id v15so26384142ljc.0
+        for <stable@vger.kernel.org>; Sat, 13 Nov 2021 14:30:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=KoseWHC1X1eUmhKmXE//peQwxmYp0XripPbl2Zk3A1o=;
+        b=ZttEag4PiJoT7M2n55SzFHd6+kFaj2O65SGOuRUS/S2engzHvDjVOmZ4ZGXZBJj/ey
+         Tl2IJK+xPS5rs18tD0OWkexzTNbPUN5TcjGqMqruOy03R2/CJcoBQ8g0U0FMNBX5tGRx
+         78Ar7p7LqSWrTrH+ZcklWA2gj9yIPvVegK5UofS8FvkDtFp84h4arD4VmGph3z/6Neb/
+         B/L5cCGiGyHVdYJfl4g1mP/yifNVpLgqioNS6OnYu4KVrpsT5akq7o0byxB5IRET9dnr
+         ZeHXI3mo4Fccfg54MuUvWLhBGViPZQvNHDddCwyBI8Fxt8kPLTjZtrp2qkDjCpAtDvbU
+         rvhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=KoseWHC1X1eUmhKmXE//peQwxmYp0XripPbl2Zk3A1o=;
+        b=RgrrPH6+GBLWGXmLfSpQETKcHptsF/kAVV/7Q3J1Qxv/sgOCfkALka7/iuASV10hHi
+         +1zzTa/upbGg0d6zwUaJkuJQu40vfY3LWAONaHPrS5EC+b+FbRaJesRmgkl9NL3jWClG
+         QTlEHPPJZzZXpBRqsuvfJ1g9bxja4Cxmld/l4z2m7jAJaWr7EaGIk8qF5qSlFAA3/g7c
+         EG9OUvfAkdwsTEmqM1H8GHndeYSO2IIvSfGH7dt24oN3sNkIT8DS1vXxB189pEkitYGT
+         EePBRDBCC5oWK2vf9HmLKsmRvoeZ4cpg4Xtgz24r5cPDi1d8kyZqgVJ/nCw/bHsgWeXy
+         MHRw==
+X-Gm-Message-State: AOAM532FX8Kz4ZhyDJsrz2dmqxmtKpfMvkVf8UC+04ytse2FMQBTQdvZ
+        enmzbSowlLUDCCIrA83w6PBdZQOGtIRNLLv6Zgc=
+X-Google-Smtp-Source: ABdhPJzrraZXWmvTnY3kZKGI3c41h3syYRp38xGa9TKiTk4w0OE8bta1FJeHWua7BHIst6A0uVYlS4/Fbq6iTmqnm98=
+X-Received: by 2002:a05:651c:1211:: with SMTP id i17mr26010779lja.340.1636842636998;
+ Sat, 13 Nov 2021 14:30:36 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Provags-ID: V03:K1:hWhnlOr3eug2OuAsOs8kEu/6EPUL/lldp++Z1jGY9ERDUolD230
- urwyZJbxxlC0XBkPw4gsB0ob7Oe4/Hb+f1/VW6ZA0kPLQYKj2Ge8Nt3Ta9U9RX2zoY8/jbL
- +xFRFBA+S42vuVtasHPDuuJhDYPXhf/QqWyGkupE0+u6ig5QqA09c32LWXwvhq3rSIWxrWn
- LOaC9dLIADBr/ZQuEHGKg==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:+1dGmOEWFEQ=:JQ+1RBzNLeIpdFeaEC1cdF
- itJop52Zz9HPo4k17h5tUq8N7tWQtwcVdMH7FU4dab+uNW3YP/K4sePYwB36G4xVIUVG+/me1
- 8j/zoL80p5gjEWlS6+L4WRb8v1zP74hByThzuTAPDZgXMZ12ctimmE5c/jYvqXb6twwhY+23L
- Xly7pfKYvTpF3c6sCCX9uxC1pLoSJ01wrQ/RIB06U+sXdIUs/5eQ33nSePZhWXcaDplhRLsyT
- c+fKToClR5GwtKvRC5V0Wr10gZMSAzgIKLzTOiApdKnydafGKaXW8hEPH/BbveKRGpW+LQu6j
- WVsZfX+Z0KCJr9xR2anw4A+R0TX3sfnLgpPT246yeJJbnmHnnd1AKWkJQQF0vV+j/CY9dhZaZ
- 1meuLWF2uW7JKk6Gy1qQmpgJOwr1Hexv5suXJOx/3SpfFWvPe/VVEU2jwsqM9Wul2SRqj9O30
- l9Cwls8QBcT2qUelg3T+zym2uA5aJ4sxnncOAukO5a2gXIvF7pyU322OXWUxEwuyhdQ00rMRl
- a0r9T1MrAp3D7J+wkQcfOL7TUVEkGvkS8our1+7q4h1BvmSdict1cMS/x0yOS1UVIElZzWz3x
- BR5cPDSM9+iW6sEFFXEjtzaiWMv3CyeL3/peRefd/HJ1IV0mBaQQFADGdvY856sauBKV2O3Sy
- pJRDBTDp5RWlnCc4CB6taQBWxLiXAMRcTTq31OsB7tneBv9/Ajw1FTQQXdrHoxXhfFQUrPGlg
- JRmjrZs+AaTI91rizAb7MQOxfs69chZgpqn5HZMA9kX2QVjqhk7h0STX2K0djlqF7iiMbL1UY
- wRhPCIJLxji5uL5dK/RQB4Czlg2LrmBB1Yy05PRT14DfX85TheTdZclM2J4jg2OTdn9Wd4hrG
- 9lvXqPBFp6WU/9dnMk/04LgsoGqknHDCmHhgFN08TfBZvuBFB91oXGryNcIQn+R03IO+HOeqp
- uDVe4bLU28S3R788POcRdJb1h5GTUpmfyklwKQSKwXZZQnJy8UV9/x5eF8+QeQAAhPGnKyvZw
- fHNVPlfXUWLMAYK1plc1rIYVQFqO3N468eUXxOmmz7A1MFiTpJx0ANWYvcFAJn28p8ovWOONs
- /fZ85i7zu1k59k=
+Received: by 2002:aa6:d8c3:0:b0:14b:428f:122b with HTTP; Sat, 13 Nov 2021
+ 14:30:36 -0800 (PST)
+Reply-To: mstheresaheidi8@gmail.com
+From:   Mrs Theresa Heidi <noorsusan100@gmail.com>
+Date:   Sat, 13 Nov 2021 22:30:36 +0000
+Message-ID: <CAFR_+BPihTPZX+1Ww44V4GqKjDcJRus_DWrMzVmfi_Ook_uDFA@mail.gmail.com>
+Subject: URGENT MATTER HELP!
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Upstream commit 6e866a462867b60841202e900f10936a0478608c failed to
-apply to kernel v5.2 up to v5.4.
-Below is the fixed backport patch.
-Please apply to v5.2 up to v5.4.
+Dear Beloved One,
 
-Thanks,
-Helge
+CHARITY DONATION Please read carefully, I know it is true that this
+letter may come to you as a surprise. I came across your e-mail
+contact through a private search while in need of your assistance. I
+am writing this mail to you with heavy sorrow in my heart, I have
+chose to reach you through Internet because it still remains the
+fastest medium of communication.
 
-=2D-------------------
-From: Helge Deller <deller@gmx.de>
-Date: Sun, 31 Oct 2021 21:58:12 +0100
-Subject: [PATCH] parisc: Fix set_fixmap() on PA1.x CPUs
+My Name is Mrs. Theresa Heidi I am native France currently
+hospitalized in a private hospital here in Israel as a result of lungs
+cancer I am 62 years old and I was diagnosed of lungs cancer for about
+4 years ago, immediately after the death of my husband, who has left
+me everything he worked for. I'm with my laptop in a hospital here in
+where I have been undergoing treatment for cancer of the lungs. I have
+some funds inherited from my late husband, the sum of Two Million Five
+Hundred Thousand Dollars Only (USD$2,500,000,00).Now it's clear that
+I=E2=80=99m approaching the last-days of my life and I don't think I need t=
+his
+money anymore. My doctor made me to understand that I would not last
+for the period of one year due to Lungs cancer problem.
 
-Upstream commit: 6e866a462867b60841202e900f10936a0478608c
+This money is still with the foreign bank and the management wrote me
+as the true owner to come forward to receive the money or rather issue
+a letter of authorization to somebody to receive it on my behalf since
+I can't come over because of my illness. Failure to act the bank may
+get fund confiscated for keeping it so long.
 
-Fix a kernel crash which happens on PA1.x CPUs while initializing the
-FTRACE/KPROBE breakpoints.  The PTE table entries for the fixmap area
-were not created correctly.
+I decided to contact you if you maybe willing and interested to help
+me withdraw this money from the foreign bank then use the funds for
+Charity works in helping the less privileged and also to fight against
+Covid-19 Pandemic in the society. I want you to handle these trust
+funds in good faith before anything happens to me. This is not a
+stolen money and there are no dangers involved is 100% risk free with
+full legal proof.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Fixes: ccfbc68d41c2 ("parisc: add set_fixmap()/clear_fixmap()")
-Cc: stable@vger.kernel.org # v5.2+
+I want you to take 45% of the total money for your personal used while
+55% of the money will go to charity work. I will appreciate your
+utmost trust and confidentiality in this matter to accomplish my heart
+desire, as I don't want anything that will jeopardize my last wish. I
+am very sorry if you received this letter in your spam, is due to
+recent connection error here in the country.
 
-diff --git a/arch/parisc/mm/fixmap.c b/arch/parisc/mm/fixmap.c
-index 474cd241c150..02e19a32e6c5 100644
-=2D-- a/arch/parisc/mm/fixmap.c
-+++ b/arch/parisc/mm/fixmap.c
-@@ -18,12 +18,9 @@ void notrace set_fixmap(enum fixed_addresses idx, phys_=
-addr_t phys)
- 	pte_t *pte;
-
- 	if (pmd_none(*pmd))
--		pmd =3D pmd_alloc(NULL, pgd, vaddr);
--
--	pte =3D pte_offset_kernel(pmd, vaddr);
--	if (pte_none(*pte))
- 		pte =3D pte_alloc_kernel(pmd, vaddr);
-
-+	pte =3D pte_offset_kernel(pmd, vaddr);
- 	set_pte_at(&init_mm, vaddr, pte, __mk_pte(phys, PAGE_KERNEL_RWX));
- 	flush_tlb_kernel_range(vaddr, vaddr + PAGE_SIZE);
- }
+Yours Beloved Sister.
+Mrs. Theresa Heidi
