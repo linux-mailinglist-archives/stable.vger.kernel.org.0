@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA02A44F336
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 14:07:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7861F44F335
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 14:07:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233872AbhKMNKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 08:10:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50690 "EHLO mail.kernel.org"
+        id S235634AbhKMNKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 08:10:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231555AbhKMNKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 08:10:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB0CA60F46;
-        Sat, 13 Nov 2021 13:07:46 +0000 (UTC)
+        id S234327AbhKMNKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 08:10:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AA9460551;
+        Sat, 13 Nov 2021 13:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636808867;
-        bh=yDf128NDVlIa+Ejbv3C1VjglodUKaq7xVbIsOF3aI8U=;
+        s=korg; t=1636808859;
+        bh=XvwkcrqtNUjP+6V7N4S5ryJi6eTyIZFdmrnnRhFUwyQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=h93jvjWqk8I0rgTAbbs1XJjs5fi7A/AKDCUUxzVQPp1i4KJ6nUIofLLaLB6nqj4cv
-         cZmJ2wqIQlwFZUOMUcFVZIhZ47n1x9YQ5OzWoHFrPe7IZuR89dU9cBAAbPvGQzSrzN
-         sj03RPLqTRoAN/W1a7iUTc58DXU9YP1kUjuJIOX8=
-Subject: FAILED: patch "[PATCH] ALSA: mixer: oss: Fix racy access to slots" failed to apply to 4.19-stable tree
+        b=zN/ThispN/Dl1WVxK7+3Imh0wOxtof8JNvhsBpo61dekzJp6vREkCefLSvDxc62K/
+         JE9brbnfZz6jxzjQKb3rSPc/PQ3c/Nl5MF7XsL7H8dgaNyS10T4KZkyZ2CrsutpvzC
+         OHTMp8D2sRSZAXx0Rq13SPePsF5tli7nqJErmmvg=
+Subject: FAILED: patch "[PATCH] ALSA: mixer: oss: Fix racy access to slots" failed to apply to 5.4-stable tree
 To:     tiwai@suse.de, perex@perex.cz, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 13 Nov 2021 14:07:36 +0100
-Message-ID: <163680885624242@kroah.com>
+Message-ID: <1636808856212159@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
