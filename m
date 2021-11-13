@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A88EC44F3B2
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:24:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9836644F3B5
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 15:26:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231791AbhKMO1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 09:27:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44408 "EHLO mail.kernel.org"
+        id S235812AbhKMO3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 09:29:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231672AbhKMO1e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 09:27:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C93460F46;
-        Sat, 13 Nov 2021 14:24:41 +0000 (UTC)
+        id S232965AbhKMO3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 09:29:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1ED360F14;
+        Sat, 13 Nov 2021 14:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636813482;
-        bh=hgKpwQGik/NP49mM2mMTOXcyZDElkRp+lv26AxDTDmY=;
+        s=korg; t=1636813573;
+        bh=mMLyGB/0Y9TWI8TLYvv9YTJFfRv/HrNsVaGIhFuMuXM=;
         h=Subject:To:Cc:From:Date:From;
-        b=SVRKywl+UXFlm1etTMXmAYJrmvXgiCRH1j1gYsmnYD2ftbPGcD9ZaArZ+0880MJbC
-         ViY1BUKKaMCmyCG/K5z/NhFc+FTJLrBfLtN1Zdn/hfsM6xBdMzriQradyXyNgD0Mrf
-         Eo5YUWNHarDNz8z1q61NhhD7SlLQ27P7izoL+4cM=
-Subject: FAILED: patch "[PATCH] PM: sleep: Do not let "syscore" devices runtime-suspend" failed to apply to 5.4-stable tree
-To:     rafael.j.wysocki@intel.com, stable@vger.kernel.org,
-        ulf.hansson@linaro.org
+        b=A5U9AkTps9ON6IQe43CYJ679oo9baj7FFVOcu4THdHY0cwkIftEk3Z6K1X4rA4N0U
+         DzpUIDJErrJxAwaWcBX8kgBzCNI2fLhYjokf8BEHhzkkjjkksJWODoqmWq3jsZRmFq
+         kcESJP1K5iSX00ftkXiXv/qlivdLpsQGR0pUpDiE=
+Subject: FAILED: patch "[PATCH] dma-buf: fix and rework dma_buf_poll v7" failed to apply to 5.14-stable tree
+To:     christian.koenig@amd.com, daniel.vetter@ffwll.ch,
+        mdaenzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 15:24:27 +0100
-Message-ID: <163681346720264@kroah.com>
+Date:   Sat, 13 Nov 2021 15:26:10 +0100
+Message-ID: <1636813570131206@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,64 +46,271 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 928265e3601cde78c7e0a3e518a93b27defed3b1 Mon Sep 17 00:00:00 2001
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Date: Fri, 22 Oct 2021 14:58:23 +0200
-Subject: [PATCH] PM: sleep: Do not let "syscore" devices runtime-suspend
- during system transitions
+From 6b51b02a3a0ac49dfe302818d0746a799545e4e9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Date: Tue, 15 Jun 2021 13:12:33 +0200
+Subject: [PATCH] dma-buf: fix and rework dma_buf_poll v7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-There is no reason to allow "syscore" devices to runtime-suspend
-during system-wide PM transitions, because they are subject to the
-same possible failure modes as any other devices in that respect.
+Daniel pointed me towards this function and there are multiple obvious problems
+in the implementation.
 
-Accordingly, change device_prepare() and device_complete() to call
-pm_runtime_get_noresume() and pm_runtime_put(), respectively, for
-"syscore" devices too.
+First of all the retry loop is not working as intended. In general the retry
+makes only sense if you grab the reference first and then check the sequence
+values.
 
-Fixes: 057d51a1268f ("Merge branch 'pm-sleep'")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Then we should always also wait for the exclusive fence.
 
-diff --git a/drivers/base/power/main.c b/drivers/base/power/main.c
-index cbea78e79f3d..fca6eab871fc 100644
---- a/drivers/base/power/main.c
-+++ b/drivers/base/power/main.c
-@@ -1051,7 +1051,7 @@ static void device_complete(struct device *dev, pm_message_t state)
- 	const char *info = NULL;
+It's also good practice to keep the reference around when installing callbacks
+to fences you don't own.
+
+And last the whole implementation was unnecessary complex and rather hard to
+understand which could lead to probably unexpected behavior of the IOCTL.
+
+Fix all this by reworking the implementation from scratch. Dropping the
+whole RCU approach and taking the lock instead.
+
+Only mildly tested and needs a thoughtful review of the code.
+
+Pushing through drm-misc-next to avoid merge conflicts and give the code
+another round of testing.
+
+v2: fix the reference counting as well
+v3: keep the excl fence handling as is for stable
+v4: back to testing all fences, drop RCU
+v5: handle in and out separately
+v6: add missing clear of events
+v7: change coding style as suggested by Michel, drop unused variables
+
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Tested-by: Michel Dänzer <mdaenzer@redhat.com>
+CC: stable@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20210720131110.88512-1-christian.koenig@amd.com
+
+diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+index 474de2d988ca..61e20ae7b08b 100644
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -74,7 +74,7 @@ static void dma_buf_release(struct dentry *dentry)
+ 	 * If you hit this BUG() it means someone dropped their ref to the
+ 	 * dma-buf while still having pending operation to the buffer.
+ 	 */
+-	BUG_ON(dmabuf->cb_shared.active || dmabuf->cb_excl.active);
++	BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
  
- 	if (dev->power.syscore)
--		return;
-+		goto out;
- 
- 	device_lock(dev);
- 
-@@ -1081,6 +1081,7 @@ static void device_complete(struct device *dev, pm_message_t state)
- 
- 	device_unlock(dev);
- 
-+out:
- 	pm_runtime_put(dev);
+ 	dma_buf_stats_teardown(dmabuf);
+ 	dmabuf->ops->release(dmabuf);
+@@ -206,16 +206,55 @@ static void dma_buf_poll_cb(struct dma_fence *fence, struct dma_fence_cb *cb)
+ 	wake_up_locked_poll(dcb->poll, dcb->active);
+ 	dcb->active = 0;
+ 	spin_unlock_irqrestore(&dcb->poll->lock, flags);
++	dma_fence_put(fence);
++}
++
++static bool dma_buf_poll_shared(struct dma_resv *resv,
++				struct dma_buf_poll_cb_t *dcb)
++{
++	struct dma_resv_list *fobj = dma_resv_shared_list(resv);
++	struct dma_fence *fence;
++	int i, r;
++
++	if (!fobj)
++		return false;
++
++	for (i = 0; i < fobj->shared_count; ++i) {
++		fence = rcu_dereference_protected(fobj->shared[i],
++						  dma_resv_held(resv));
++		dma_fence_get(fence);
++		r = dma_fence_add_callback(fence, &dcb->cb, dma_buf_poll_cb);
++		if (!r)
++			return true;
++		dma_fence_put(fence);
++	}
++
++	return false;
++}
++
++static bool dma_buf_poll_excl(struct dma_resv *resv,
++			      struct dma_buf_poll_cb_t *dcb)
++{
++	struct dma_fence *fence = dma_resv_excl_fence(resv);
++	int r;
++
++	if (!fence)
++		return false;
++
++	dma_fence_get(fence);
++	r = dma_fence_add_callback(fence, &dcb->cb, dma_buf_poll_cb);
++	if (!r)
++		return true;
++	dma_fence_put(fence);
++
++	return false;
  }
  
-@@ -1794,9 +1795,6 @@ static int device_prepare(struct device *dev, pm_message_t state)
- 	int (*callback)(struct device *) = NULL;
- 	int ret = 0;
+ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
+ {
+ 	struct dma_buf *dmabuf;
+ 	struct dma_resv *resv;
+-	struct dma_resv_list *fobj;
+-	struct dma_fence *fence_excl;
+ 	__poll_t events;
+-	unsigned shared_count, seq;
  
--	if (dev->power.syscore)
--		return 0;
+ 	dmabuf = file->private_data;
+ 	if (!dmabuf || !dmabuf->resv)
+@@ -229,101 +268,50 @@ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
+ 	if (!events)
+ 		return 0;
+ 
+-retry:
+-	seq = read_seqcount_begin(&resv->seq);
+-	rcu_read_lock();
 -
- 	/*
- 	 * If a device's parent goes into runtime suspend at the wrong time,
- 	 * it won't be possible to resume the device.  To prevent this we
-@@ -1805,6 +1803,9 @@ static int device_prepare(struct device *dev, pm_message_t state)
- 	 */
- 	pm_runtime_get_noresume(dev);
+-	fobj = rcu_dereference(resv->fence);
+-	if (fobj)
+-		shared_count = fobj->shared_count;
+-	else
+-		shared_count = 0;
+-	fence_excl = dma_resv_excl_fence(resv);
+-	if (read_seqcount_retry(&resv->seq, seq)) {
+-		rcu_read_unlock();
+-		goto retry;
+-	}
+-
+-	if (fence_excl && (!(events & EPOLLOUT) || shared_count == 0)) {
+-		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_excl;
+-		__poll_t pevents = EPOLLIN;
++	dma_resv_lock(resv, NULL);
  
-+	if (dev->power.syscore)
-+		return 0;
-+
- 	device_lock(dev);
+-		if (shared_count == 0)
+-			pevents |= EPOLLOUT;
++	if (events & EPOLLOUT) {
++		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_out;
  
- 	dev->power.wakeup_path = false;
++		/* Check that callback isn't busy */
+ 		spin_lock_irq(&dmabuf->poll.lock);
+-		if (dcb->active) {
+-			dcb->active |= pevents;
+-			events &= ~pevents;
+-		} else
+-			dcb->active = pevents;
++		if (dcb->active)
++			events &= ~EPOLLOUT;
++		else
++			dcb->active = EPOLLOUT;
+ 		spin_unlock_irq(&dmabuf->poll.lock);
+ 
+-		if (events & pevents) {
+-			if (!dma_fence_get_rcu(fence_excl)) {
+-				/* force a recheck */
+-				events &= ~pevents;
+-				dma_buf_poll_cb(NULL, &dcb->cb);
+-			} else if (!dma_fence_add_callback(fence_excl, &dcb->cb,
+-							   dma_buf_poll_cb)) {
+-				events &= ~pevents;
+-				dma_fence_put(fence_excl);
+-			} else {
+-				/*
+-				 * No callback queued, wake up any additional
+-				 * waiters.
+-				 */
+-				dma_fence_put(fence_excl);
++		if (events & EPOLLOUT) {
++			if (!dma_buf_poll_shared(resv, dcb) &&
++			    !dma_buf_poll_excl(resv, dcb))
++				/* No callback queued, wake up any other waiters */
+ 				dma_buf_poll_cb(NULL, &dcb->cb);
+-			}
++			else
++				events &= ~EPOLLOUT;
+ 		}
+ 	}
+ 
+-	if ((events & EPOLLOUT) && shared_count > 0) {
+-		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_shared;
+-		int i;
++	if (events & EPOLLIN) {
++		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_in;
+ 
+-		/* Only queue a new callback if no event has fired yet */
++		/* Check that callback isn't busy */
+ 		spin_lock_irq(&dmabuf->poll.lock);
+ 		if (dcb->active)
+-			events &= ~EPOLLOUT;
++			events &= ~EPOLLIN;
+ 		else
+-			dcb->active = EPOLLOUT;
++			dcb->active = EPOLLIN;
+ 		spin_unlock_irq(&dmabuf->poll.lock);
+ 
+-		if (!(events & EPOLLOUT))
+-			goto out;
+-
+-		for (i = 0; i < shared_count; ++i) {
+-			struct dma_fence *fence = rcu_dereference(fobj->shared[i]);
+-
+-			if (!dma_fence_get_rcu(fence)) {
+-				/*
+-				 * fence refcount dropped to zero, this means
+-				 * that fobj has been freed
+-				 *
+-				 * call dma_buf_poll_cb and force a recheck!
+-				 */
+-				events &= ~EPOLLOUT;
++		if (events & EPOLLIN) {
++			if (!dma_buf_poll_excl(resv, dcb))
++				/* No callback queued, wake up any other waiters */
+ 				dma_buf_poll_cb(NULL, &dcb->cb);
+-				break;
+-			}
+-			if (!dma_fence_add_callback(fence, &dcb->cb,
+-						    dma_buf_poll_cb)) {
+-				dma_fence_put(fence);
+-				events &= ~EPOLLOUT;
+-				break;
+-			}
+-			dma_fence_put(fence);
++			else
++				events &= ~EPOLLIN;
+ 		}
+-
+-		/* No callback queued, wake up any additional waiters. */
+-		if (i == shared_count)
+-			dma_buf_poll_cb(NULL, &dcb->cb);
+ 	}
+ 
+-out:
+-	rcu_read_unlock();
++	dma_resv_unlock(resv);
+ 	return events;
+ }
+ 
+@@ -566,8 +554,8 @@ struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
+ 	dmabuf->owner = exp_info->owner;
+ 	spin_lock_init(&dmabuf->name_lock);
+ 	init_waitqueue_head(&dmabuf->poll);
+-	dmabuf->cb_excl.poll = dmabuf->cb_shared.poll = &dmabuf->poll;
+-	dmabuf->cb_excl.active = dmabuf->cb_shared.active = 0;
++	dmabuf->cb_in.poll = dmabuf->cb_out.poll = &dmabuf->poll;
++	dmabuf->cb_in.active = dmabuf->cb_out.active = 0;
+ 
+ 	if (!resv) {
+ 		resv = (struct dma_resv *)&dmabuf[1];
+diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
+index 66470c37e471..02c2eb874da6 100644
+--- a/include/linux/dma-buf.h
++++ b/include/linux/dma-buf.h
+@@ -440,7 +440,7 @@ struct dma_buf {
+ 		wait_queue_head_t *poll;
+ 
+ 		__poll_t active;
+-	} cb_excl, cb_shared;
++	} cb_in, cb_out;
+ #ifdef CONFIG_DMABUF_SYSFS_STATS
+ 	/**
+ 	 * @sysfs_entry:
 
