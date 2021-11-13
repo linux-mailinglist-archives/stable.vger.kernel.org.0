@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E53B944F2C4
-	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 12:29:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1A8344F2C8
+	for <lists+stable@lfdr.de>; Sat, 13 Nov 2021 12:30:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232925AbhKMLco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Nov 2021 06:32:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48726 "EHLO mail.kernel.org"
+        id S235637AbhKMLcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Nov 2021 06:32:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232651AbhKMLcn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Nov 2021 06:32:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2AAE610A1;
-        Sat, 13 Nov 2021 11:29:50 +0000 (UTC)
+        id S235377AbhKMLcv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Nov 2021 06:32:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A9B7610A1;
+        Sat, 13 Nov 2021 11:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636802991;
-        bh=pHeBUWNebUqeYruCKfRLKGzisnqx/EQVpK5MyytRgrw=;
+        s=korg; t=1636802999;
+        bh=4t4C5M9a84MkDb+tGoXF7AaK6vfmBvpn5F+aRzl4JOY=;
         h=Subject:To:Cc:From:Date:From;
-        b=alj8lCL6g8sme9GmNjWF9ncKMqZHmnCXaJN/YjZnXCnw2sumQ2FvF8Bq72sFaVGhs
-         4DLruAEb5hlHMOyXh5CvkgNY0pXGEsIIufymt3/kwS0ehvZw5lXciH5zzLMATwFl+j
-         Qrdzj0eKwtzIzZvQYgVxSDjaTWjXZWG9mbLzqwoI=
-Subject: FAILED: patch "[PATCH] scsi: scsi_ioctl: Validate command size" failed to apply to 5.10-stable tree
+        b=OVSfjMjijHCs0/lSPzreKJq0bUtPMsZQgiVMFW/uyWeKUiMSn6rgabSS4K57plp+a
+         4WVyFjHHHuHS3gpggl6UxD956Zbjh61qVrQPSzunxD6gamQ7f48Pm5bdRZ7AI1NQ+c
+         5SURbYyxjhm4vx6UTZZik9cNgh10W/rkgEkkQZ3A=
+Subject: FAILED: patch "[PATCH] scsi: scsi_ioctl: Validate command size" failed to apply to 5.14-stable tree
 To:     tadeusz.struk@linaro.org, bvanassche@acm.org, hch@lst.de,
         jejb@linux.ibm.com, linux-kernel@vger.kernel.org,
         linux-scsi@vger.kernel.org, martin.petersen@oracle.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Nov 2021 12:29:48 +0100
-Message-ID: <1636802988108163@kroah.com>
+Date:   Sat, 13 Nov 2021 12:29:49 +0100
+Message-ID: <1636802989232252@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +37,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
