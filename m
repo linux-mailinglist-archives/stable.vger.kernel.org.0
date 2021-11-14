@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C66E144F7D9
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 13:26:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6289544F7DA
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 13:26:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234477AbhKNM3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 07:29:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44294 "EHLO mail.kernel.org"
+        id S233868AbhKNM30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 07:29:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230267AbhKNM3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 07:29:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B777F60F55;
-        Sun, 14 Nov 2021 12:26:09 +0000 (UTC)
+        id S230267AbhKNM30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 07:29:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11CBB610A8;
+        Sun, 14 Nov 2021 12:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636892770;
-        bh=7fw7nwAqwhryEp4IvLQjzUDuufLto6kkY3mWVRVSj0o=;
+        s=korg; t=1636892792;
+        bh=5Dgn73oO3PtOHOtv11prA7IxXACP5NUinaiOH/oPWis=;
         h=Subject:To:Cc:From:Date:From;
-        b=JcdTuTrlTb6b5sH1gaReeAd7JKbFBVS4f2V+oMcFSpia+wafAIJrG3kif36NB9NqG
-         24VAHVzSoMJPnoU11/6D0csLqGsLrDAYW+fcpcN+j2BUKSwwgE7lD2FYBeghmKPUgA
-         R3dLA21EUmfNfJBNz5/mSA8EwNQjFmh/uimdap9E=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Query current VMCS when determining if MSR bitmaps" failed to apply to 4.14-stable tree
+        b=pBAAWq578loBc0zrnnOel63TNRVkMXJ1KHwIZRqs49/Sb926hlbJXdsnjxyFLhMvR
+         9CSBAydIFq44ASJSZZo8hZo6H2ZlByh60xtEFm9oc7m7ia0X6RpLvLY+hXi/O1ZCBF
+         3GkurwtQiCAxR7AO36qqSaaOTNvFmfVTSBzlsiIM=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Query current VMCS when determining if MSR bitmaps" failed to apply to 4.19-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 13:26:07 +0100
-Message-ID: <1636892767250126@kroah.com>
+Date:   Sun, 14 Nov 2021 13:26:30 +0100
+Message-ID: <1636892790203163@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
