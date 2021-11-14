@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB86E44F863
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:14:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB5F44F864
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:14:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235827AbhKNOQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 09:16:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57748 "EHLO mail.kernel.org"
+        id S236135AbhKNORV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 09:17:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229725AbhKNOQe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 09:16:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83D92603E5;
-        Sun, 14 Nov 2021 14:13:32 +0000 (UTC)
+        id S233170AbhKNOQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 09:16:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A25061104;
+        Sun, 14 Nov 2021 14:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636899213;
-        bh=C3NWDhqldqXcYgIcx6c/726lUV41ekx3irTNevgGdhU=;
+        s=korg; t=1636899221;
+        bh=lEkwxJQd84P+nEwuShn1HH0F4FoBK+5I4lOoI3IYlU4=;
         h=Subject:To:Cc:From:Date:From;
-        b=geH+nNInt2Za37RYJ9ScJL5P10DA0nTSzgSkNpyp8fuWsaG7SfassMQ89PcwOSz99
-         shZrjtLWuiB0MLtfm0+/E2XiuIhElLHZWSPYFVWMVzdTvpgh6gayd6Oat6ncm31VnV
-         k1gtj9/wwUUENHRcohDsQBvvEKVvTpMO0vYkNxBA=
-Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix PCIe Max Payload Size setting" failed to apply to 5.10-stable tree
+        b=V7RL22PwCS763vTL3BZItGJeT6Nph8AzkBkFlskApXB6FJR5vcLqwqqsDpZCk90wV
+         AGxf1czKbmVtaZAXRAOXl7t6Jy9DVsHrrb9b3mSAeC9FGxStaYsVMA6UkRUu+WCSVO
+         ZWNAmWTutqy4KpOzr+W+jGxnz+rEoC4e9++Ayxic=
+Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix PCIe Max Payload Size setting" failed to apply to 5.14-stable tree
 To:     pali@kernel.org, kabel@kernel.org, lorenzo.pieralisi@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 15:13:30 +0100
-Message-ID: <163689921013859@kroah.com>
+Date:   Sun, 14 Nov 2021 15:13:31 +0100
+Message-ID: <163689921117325@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
