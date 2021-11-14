@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD98D44F83E
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 14:53:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8612844F83F
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 14:53:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229862AbhKNN4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 08:56:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41692 "EHLO mail.kernel.org"
+        id S229563AbhKNN4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 08:56:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229563AbhKNN4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 08:56:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FBA460F6B;
-        Sun, 14 Nov 2021 13:53:13 +0000 (UTC)
+        id S229725AbhKNN4P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 08:56:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16802610A8;
+        Sun, 14 Nov 2021 13:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636897994;
-        bh=yuoUgddr69omgTYts9ov8cfxSqAwJVHVfRAygCRfcK8=;
+        s=korg; t=1636898001;
+        bh=aLH/mrnNwLMiU796XsHoc9YUlo9yl2MHP1pdWIgXbfk=;
         h=Subject:To:Cc:From:Date:From;
-        b=Pc6BFPBE1NPWxgnBAHsfvrv7Kl8XvUxizqwToU2p1xDVTW/HXS32uwwE+ERvTCaZY
-         dO2gwERn5JRln9K+KKtDdhLtXApTQhfGUI6SeOUlZnJJp5pXZQNxXY2NIYPUSIlZ8s
-         1qtuIO8Em2fgzi3Dj5PnzlqcmI7fku89NUbNN2Fs=
-Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix support for bus mastering and PCI_COMMAND" failed to apply to 4.19-stable tree
+        b=eo+ILtRtA1I0TKXU1EVDd2oHS1NCY7FLXWYZSjYDFQMoL6ulEtvX9aoRmOJuxVMho
+         woIiYsa+BG9z1f3XaHaU9nq/KNU2nDz8hWe7v/ooBqt6fChpPR40G2+uWyVT/9uktd
+         +2+mLjOTaU9oRT9jnM3fVRRw0tEJRWPX6hRauXHY=
+Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix support for bus mastering and PCI_COMMAND" failed to apply to 5.4-stable tree
 To:     pali@kernel.org, kabel@kernel.org, lorenzo.pieralisi@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 14:53:10 +0100
-Message-ID: <163689799019031@kroah.com>
+Date:   Sun, 14 Nov 2021 14:53:11 +0100
+Message-ID: <1636897991163199@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
