@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 540D444F884
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:28:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E46E344F885
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:28:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229959AbhKNObb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 09:31:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60552 "EHLO mail.kernel.org"
+        id S229890AbhKNObg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 09:31:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229725AbhKNOb3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 09:31:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 022B260E8B;
-        Sun, 14 Nov 2021 14:28:34 +0000 (UTC)
+        id S229725AbhKNObf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 09:31:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8C8F60E8B;
+        Sun, 14 Nov 2021 14:28:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636900115;
-        bh=p/f2/hS+vNwOvo118kLRvFhZ2OOjF953djgBvqQaWEo=;
+        s=korg; t=1636900121;
+        bh=XwkJMjBDMsq1d4QDDrSlJv5dBx0yVoVAmrWLXG8HnIQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=eUU/f3R+L/PgkdN0taEo8nt7oZqCloOSmd4KHmSExFWH7+GuT2h6MOTct/Jf/SWg4
-         d6UdHPwNYt9V6wm89pczfeLc7rqLYtuL1NukQIxCgftsFNx+ONZZOiTTwhoWv0HtuW
-         6R08PTSBp8RHeARbZ9EDu6xa4G3KNeWmtO7YfmLE=
-Subject: FAILED: patch "[PATCH] component: do not leave master devres group open after bind" failed to apply to 4.4-stable tree
+        b=ZHSyvFRBdXTa5GuWGY7s/uAjq4246CTJcMexlwy5HgdSMmFsxMWQbk3/lkCnTfkio
+         CnlGDB+jJAKWQEHZsdInl2WfCwIY4paBy7VBzgdMs+UPnyFnN8IDnYFZs8aH24a+5l
+         SsrKKunt5ErDKHGlsH0EDrAA+QS/OPbhfu0s38ro=
+Subject: FAILED: patch "[PATCH] component: do not leave master devres group open after bind" failed to apply to 4.9-stable tree
 To:     kai.vehmanen@linux.intel.com, gregkh@linuxfoundation.org,
         imre.deak@intel.com, rmk+kernel@armlinux.org.uk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 15:28:32 +0100
-Message-ID: <16369001129692@kroah.com>
+Date:   Sun, 14 Nov 2021 15:28:34 +0100
+Message-ID: <163690011425187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
