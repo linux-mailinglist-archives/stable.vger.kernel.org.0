@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8612844F83F
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 14:53:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8D2344F840
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 14:53:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229563AbhKNN4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 08:56:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41744 "EHLO mail.kernel.org"
+        id S229725AbhKNN4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 08:56:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229725AbhKNN4P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 08:56:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16802610A8;
-        Sun, 14 Nov 2021 13:53:20 +0000 (UTC)
+        id S229959AbhKNN4Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 08:56:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AC8D6112E;
+        Sun, 14 Nov 2021 13:53:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636898001;
-        bh=aLH/mrnNwLMiU796XsHoc9YUlo9yl2MHP1pdWIgXbfk=;
+        s=korg; t=1636898010;
+        bh=4103TB1dFVpin/SFICawvble8M5OPlCG8+2EpURDqgo=;
         h=Subject:To:Cc:From:Date:From;
-        b=eo+ILtRtA1I0TKXU1EVDd2oHS1NCY7FLXWYZSjYDFQMoL6ulEtvX9aoRmOJuxVMho
-         woIiYsa+BG9z1f3XaHaU9nq/KNU2nDz8hWe7v/ooBqt6fChpPR40G2+uWyVT/9uktd
-         +2+mLjOTaU9oRT9jnM3fVRRw0tEJRWPX6hRauXHY=
-Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix support for bus mastering and PCI_COMMAND" failed to apply to 5.4-stable tree
+        b=sSeqtG3/MvBscnhLgL2NT8slawbEj6dGiYINlZYcdL+l8HF5GaWXIWtyxheStRBBn
+         otV58qshHDUgViDElSMqckk17+6Ec1Fc+y4slmUeYXfpeeIA/Ko9m01xfnEBh5wAjV
+         7wMmHOvqKPNWdJbDUbGfklRp3mGPfqs9tmwcLgPg=
+Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix support for PCI_BRIDGE_CTL_BUS_RESET on" failed to apply to 5.4-stable tree
 To:     pali@kernel.org, kabel@kernel.org, lorenzo.pieralisi@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 14:53:11 +0100
-Message-ID: <1636897991163199@kroah.com>
+Date:   Sun, 14 Nov 2021 14:53:28 +0100
+Message-ID: <1636898008226162@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,130 +45,76 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 771153fc884f566a89af2d30033b7f3bc6e24e84 Mon Sep 17 00:00:00 2001
+From bc4fac42e5f8460af09c0a7f2f1915be09e20c71 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Date: Thu, 28 Oct 2021 20:56:56 +0200
-Subject: [PATCH] PCI: aardvark: Fix support for bus mastering and PCI_COMMAND
- on emulated bridge
+Date: Thu, 28 Oct 2021 20:56:58 +0200
+Subject: [PATCH] PCI: aardvark: Fix support for PCI_BRIDGE_CTL_BUS_RESET on
+ emulated bridge
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From very vague, ambiguous and incomplete information from Marvell we
-deduced that the 32-bit Aardvark register at address 0x4
-(PCIE_CORE_CMD_STATUS_REG), which is not documented for Root Complex mode
-in the Functional Specification (only for Endpoint mode), controls two
-16-bit PCIe registers: Command Register and Status Registers of PCIe Root
-Port.
+Aardvark supports PCIe Hot Reset via PCIE_CORE_CTRL1_REG.
 
-This means that bit 2 controls bus mastering and forwarding of memory and
-I/O requests in the upstream direction. According to PCI specifications
-bits [0:2] of Command Register, this should be by default disabled on
-reset. So explicitly disable these bits at early setup of the Aardvark
-driver.
+Use it for implementing PCI_BRIDGE_CTL_BUS_RESET bit of PCI_BRIDGE_CONTROL
+register on emulated bridge.
 
-Remove code which unconditionally enables all 3 bits and let kernel code
-(via pci_set_master() function) to handle bus mastering of Root PCIe
-Bridge via emulated PCI_COMMAND on emulated bridge.
+With this, the function pci_reset_secondary_bus() starts working and can
+reset connected PCIe card. Custom userspace script [1] which uses setpci
+can trigger PCIe Hot Reset and reset the card manually.
 
-Link: https://lore.kernel.org/r/20211028185659.20329-5-kabel@kernel.org
+[1] https://alexforencich.com/wiki/en/pcie/hot-reset-linux
+
+Link: https://lore.kernel.org/r/20211028185659.20329-7-kabel@kernel.org
 Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org # b2a56469d550 ("PCI: aardvark: Add FIXME comment for PCIE_CORE_CMD_STATUS_REG access")
+Cc: stable@vger.kernel.org
 
 diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 389ebba1dd9b..d7db03da4d1c 100644
+index ddca45415c65..c3b725afa11f 100644
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -31,9 +31,6 @@
- /* PCIe core registers */
- #define PCIE_CORE_DEV_ID_REG					0x0
- #define PCIE_CORE_CMD_STATUS_REG				0x4
--#define     PCIE_CORE_CMD_IO_ACCESS_EN				BIT(0)
--#define     PCIE_CORE_CMD_MEM_ACCESS_EN				BIT(1)
--#define     PCIE_CORE_CMD_MEM_IO_REQ_EN				BIT(2)
- #define PCIE_CORE_DEV_REV_REG					0x8
- #define PCIE_CORE_PCIEXP_CAP					0xc0
- #define PCIE_CORE_ERR_CAPCTL_REG				0x118
-@@ -514,6 +511,11 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 	reg = (PCI_VENDOR_ID_MARVELL << 16) | PCI_VENDOR_ID_MARVELL;
- 	advk_writel(pcie, reg, VENDOR_ID_REG);
+@@ -773,6 +773,22 @@ advk_pci_bridge_emul_base_conf_read(struct pci_bridge_emul *bridge,
+ 		*value = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
+ 		return PCI_BRIDGE_EMUL_HANDLED;
  
-+	/* Disable Root Bridge I/O space, memory space and bus mastering */
-+	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
-+	reg &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
-+	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
-+
- 	/* Set Advanced Error Capabilities and Control PF0 register */
- 	reg = PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX |
- 		PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX_EN |
-@@ -612,19 +614,6 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 		advk_pcie_disable_ob_win(pcie, i);
- 
- 	advk_pcie_train_link(pcie);
--
--	/*
--	 * FIXME: The following register update is suspicious. This register is
--	 * applicable only when the PCI controller is configured for Endpoint
--	 * mode, not as a Root Complex. But apparently when this code is
--	 * removed, some cards stop working. This should be investigated and
--	 * a comment explaining this should be put here.
--	 */
--	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
--	reg |= PCIE_CORE_CMD_MEM_ACCESS_EN |
--		PCIE_CORE_CMD_IO_ACCESS_EN |
--		PCIE_CORE_CMD_MEM_IO_REQ_EN;
--	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
- }
- 
- static int advk_pcie_check_pio_status(struct advk_pcie *pcie, bool allow_crs, u32 *val)
-@@ -753,6 +742,37 @@ static int advk_pcie_wait_pio(struct advk_pcie *pcie)
- 	return -ETIMEDOUT;
- }
- 
-+static pci_bridge_emul_read_status_t
-+advk_pci_bridge_emul_base_conf_read(struct pci_bridge_emul *bridge,
-+				    int reg, u32 *value)
-+{
-+	struct advk_pcie *pcie = bridge->data;
-+
-+	switch (reg) {
-+	case PCI_COMMAND:
-+		*value = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
++	case PCI_INTERRUPT_LINE: {
++		/*
++		 * From the whole 32bit register we support reading from HW only
++		 * one bit: PCI_BRIDGE_CTL_BUS_RESET.
++		 * Other bits are retrieved only from emulated config buffer.
++		 */
++		__le32 *cfgspace = (__le32 *)&bridge->conf;
++		u32 val = le32_to_cpu(cfgspace[PCI_INTERRUPT_LINE / 4]);
++		if (advk_readl(pcie, PCIE_CORE_CTRL1_REG) & HOT_RESET_GEN)
++			val |= PCI_BRIDGE_CTL_BUS_RESET << 16;
++		else
++			val &= ~(PCI_BRIDGE_CTL_BUS_RESET << 16);
++		*value = val;
 +		return PCI_BRIDGE_EMUL_HANDLED;
-+
-+	default:
-+		return PCI_BRIDGE_EMUL_NOT_HANDLED;
 +	}
-+}
 +
-+static void
-+advk_pci_bridge_emul_base_conf_write(struct pci_bridge_emul *bridge,
-+				     int reg, u32 old, u32 new, u32 mask)
-+{
-+	struct advk_pcie *pcie = bridge->data;
-+
-+	switch (reg) {
-+	case PCI_COMMAND:
-+		advk_writel(pcie, new, PCIE_CORE_CMD_STATUS_REG);
+ 	default:
+ 		return PCI_BRIDGE_EMUL_NOT_HANDLED;
+ 	}
+@@ -789,6 +805,17 @@ advk_pci_bridge_emul_base_conf_write(struct pci_bridge_emul *bridge,
+ 		advk_writel(pcie, new, PCIE_CORE_CMD_STATUS_REG);
+ 		break;
+ 
++	case PCI_INTERRUPT_LINE:
++		if (mask & (PCI_BRIDGE_CTL_BUS_RESET << 16)) {
++			u32 val = advk_readl(pcie, PCIE_CORE_CTRL1_REG);
++			if (new & (PCI_BRIDGE_CTL_BUS_RESET << 16))
++				val |= HOT_RESET_GEN;
++			else
++				val &= ~HOT_RESET_GEN;
++			advk_writel(pcie, val, PCIE_CORE_CTRL1_REG);
++		}
 +		break;
 +
-+	default:
-+		break;
-+	}
-+}
- 
- static pci_bridge_emul_read_status_t
- advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
-@@ -854,6 +874,8 @@ advk_pci_bridge_emul_pcie_conf_write(struct pci_bridge_emul *bridge,
- }
- 
- static struct pci_bridge_emul_ops advk_pci_bridge_emul_ops = {
-+	.read_base = advk_pci_bridge_emul_base_conf_read,
-+	.write_base = advk_pci_bridge_emul_base_conf_write,
- 	.read_pcie = advk_pci_bridge_emul_pcie_conf_read,
- 	.write_pcie = advk_pci_bridge_emul_pcie_conf_write,
- };
+ 	default:
+ 		break;
+ 	}
 
