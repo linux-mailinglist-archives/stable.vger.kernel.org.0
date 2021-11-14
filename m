@@ -2,91 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3154F44F866
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:14:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 509D244F861
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229725AbhKNORb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 09:17:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57824 "EHLO mail.kernel.org"
+        id S234744AbhKNOQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 09:16:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233961AbhKNORQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 09:17:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAB0B60FD8;
-        Sun, 14 Nov 2021 14:13:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636899224;
-        bh=tEq5szr4KPJPuI34k3mT3IQCViXT5xZRcPPOsJhQC7M=;
-        h=Subject:To:Cc:From:Date:From;
-        b=kQEoVUSBNS0K6gz3E3aI6I25WXJM4dAmCQYxAUy6QVriZzD3lvLq0rmF/0T+LFg1G
-         E3tFNQmfKNqHaKGpIpPtaw7xoAO7829PjiNdPCIUTrosm0ItzEMAMj3+dH/Fe3oAmn
-         34R7deLRmR4Q2uMA6Rl6htNmYUBtapDBMZoAPCE0=
-Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix PCIe Max Payload Size setting" failed to apply to 5.15-stable tree
-To:     pali@kernel.org, kabel@kernel.org, lorenzo.pieralisi@arm.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 15:13:31 +0100
-Message-ID: <1636899211215194@kroah.com>
+        id S231831AbhKNOQe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 09:16:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F12D61167;
+        Sun, 14 Nov 2021 14:13:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1636899215;
+        bh=GshcvNMl7nHoyVvs6uuk+cER4EyiAezsBOCfQqcH6RM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HR1fLsgYhMx5dkhQLX3evgPr1XLzZ39upvlmCcy6ohosf21tg9KZpMh8/kwzEM3vC
+         MeuJHtLyvp5XipCQ8+GFXSdKb0uJwoFLS8jv0udPck1fo34eVXhz8LKwm4DCdx5P45
+         FjxqBzsrsibzmxXpQRS/xhbQSSAyKVqOTJfDy9r461Q7LJ5b3ES62qMUbCHDg5Aq6X
+         XmAmEmh4nrrgV7xi0MWA0wlZYzz+NODD0GdZuJudq3pqPdn9+/P9B3gXoXlkQpcP3x
+         nfOCMuLcbBUAcjlCxKA692IMRHFyBa0cJoAy4os2ZYDoOJnuDmp+GpYfhzAnS0Zivh
+         HVlrrlQmJttRg==
+Date:   Sun, 14 Nov 2021 09:13:33 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Joe Perches <joe@perches.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        wangzhitong <wangzhitong@uniontech.com>,
+        "David S . Miller" <davem@davemloft.net>, paul@paul-moore.com,
+        yoshfuji@linux-ipv6.org, dsahern@kernel.org, kuba@kernel.org,
+        netdev@vger.kernel.org, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 10/47] NET: IPV4: fix error "do not
+ initialise globals to 0"
+Message-ID: <YZEZjZfsfbN2IKpA@sashalap>
+References: <20211108175031.1190422-1-sashal@kernel.org>
+ <20211108175031.1190422-10-sashal@kernel.org>
+ <f527316e1ea4017af37857dd6d3eeecffc3bbce0.camel@perches.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <f527316e1ea4017af37857dd6d3eeecffc3bbce0.camel@perches.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Nov 08, 2021 at 05:49:04PM -0800, Joe Perches wrote:
+>On Mon, 2021-11-08 at 12:49 -0500, Sasha Levin wrote:
+>> From: wangzhitong <wangzhitong@uniontech.com>
+>>
+>> [ Upstream commit db9c8e2b1e246fc2dc20828932949437793146cc ]
+>>
+>> this patch fixes below Errors reported by checkpatch
+>>     ERROR: do not initialise globals to 0
+>>     +int cipso_v4_rbm_optfmt = 0;
+>>
+>> Signed-off-by: wangzhitong <wangzhitong@uniontech.com>
+>> Signed-off-by: David S. Miller <davem@davemloft.net>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>  net/ipv4/cipso_ipv4.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
+>> index e8b8dd1cb1576..75908722de47a 100644
+>> --- a/net/ipv4/cipso_ipv4.c
+>> +++ b/net/ipv4/cipso_ipv4.c
+>> @@ -87,7 +87,7 @@ struct cipso_v4_map_cache_entry {
+>>  static struct cipso_v4_map_cache_bkt *cipso_v4_cache;
+>>
+>>  /* Restricted bitmap (tag #1) flags */
+>> -int cipso_v4_rbm_optfmt = 0;
+>> +int cipso_v4_rbm_optfmt;
+>
+>I think this is a silly thing to backport unless it's required
+>for some other patch.
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+You're right - it's silly. I'll drop it.
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From a4e17d65dafdd3513042d8f00404c9b6068a825c Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Date: Tue, 5 Oct 2021 20:09:41 +0200
-Subject: [PATCH] PCI: aardvark: Fix PCIe Max Payload Size setting
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Change PCIe Max Payload Size setting in PCIe Device Control register to 512
-bytes to align with PCIe Link Initialization sequence as defined in Marvell
-Armada 3700 Functional Specification. According to the specification,
-maximal Max Payload Size supported by this device is 512 bytes.
-
-Without this kernel prints suspicious line:
-
-    pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 16384, max 512)
-
-With this change it changes to:
-
-    pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 512, max 512)
-
-Link: https://lore.kernel.org/r/20211005180952.6812-3-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org
-
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 596ebcfcc82d..884510630bae 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -488,8 +488,9 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
- 	reg &= ~PCI_EXP_DEVCTL_RELAX_EN;
- 	reg &= ~PCI_EXP_DEVCTL_NOSNOOP_EN;
-+	reg &= ~PCI_EXP_DEVCTL_PAYLOAD;
- 	reg &= ~PCI_EXP_DEVCTL_READRQ;
--	reg |= PCI_EXP_DEVCTL_PAYLOAD; /* Set max payload size */
-+	reg |= PCI_EXP_DEVCTL_PAYLOAD_512B;
- 	reg |= PCI_EXP_DEVCTL_READRQ_512B;
- 	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
- 
-
+-- 
+Thanks,
+Sasha
