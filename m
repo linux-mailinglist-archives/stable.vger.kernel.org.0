@@ -2,82 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E695744F856
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:04:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A91C344F85B
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:10:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236147AbhKNOHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 09:07:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52720 "EHLO mail.kernel.org"
+        id S229959AbhKNONg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 09:13:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236075AbhKNOGy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 09:06:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCE9660F41;
-        Sun, 14 Nov 2021 14:04:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636898641;
-        bh=245MT4XVirZg+94461vHVsulF9jwtDm/r94gUncM7b8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FCIIk0JJKGGxpANARLoXy7XEZIrLYtOyaIdbnMJRifN0kdTM+kIoQNMgKZ7JMNLBV
-         B14FR8Pc8L9p1CjdyEVsIV5r7tHUWM//9/ZHOqXuHu8jOp5/8JTS87WbCuE2qvH6Wl
-         5g4c1E/H4SYWGiMyQQgxgdDFkvbBPD6YUj3DhZq71OsqV043fDq+BcB9pAnWhR84/z
-         2PAC7ypIgy7zjBc4unOXwslNG2ASHVOomaNGwnrjyuP6aP1Wz9b2cXaU8eXgoyvvu3
-         Ny1KbqGJAwevRPZyq7O46XuEpX1XXcyqujY1e5oqs/L1iWTnFVyY7lwyYnDuM2rj6n
-         Qvcujz3CXHAuw==
-Date:   Sun, 14 Nov 2021 09:04:00 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Catalin Marinas <catalin.marinas@arm.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mark Brown <broonie@kernel.org>, Will Deacon <will@kernel.org>,
-        maz@kernel.org, Dave.Martin@arm.com, tanxiaofei@huawei.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH AUTOSEL 4.19 41/47] arm64/sve: Add stub for
- sve_max_virtualisable_vl()
-Message-ID: <YZEXUO2IN5pHFnPB@sashalap>
-References: <20211108175031.1190422-1-sashal@kernel.org>
- <20211108175031.1190422-41-sashal@kernel.org>
- <YYp1rOZMQaVmwo4x@arm.com>
+        id S229862AbhKNONd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 09:13:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27FD260F70;
+        Sun, 14 Nov 2021 14:10:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1636899038;
+        bh=q0HF1p/wEmHCFNccsME0fA7aMRn2HLDyqevLUSzX/7E=;
+        h=Subject:To:Cc:From:Date:From;
+        b=uC7BNiU2knz6t7POAtGz2ZP1NqwCnYm1gmBIPAKp67NoO6jf7cHzWqNF5yK12gJ97
+         BWWqagMyfn+eHo5jQ4lVXy0kk0CmcFvZmd4oAcriCCBweGTK7YyrhPD5fvQmhibBAc
+         nBtFMV5pfrlRDN/pU5rMmPBg6Y9RTv1g9ok0CHC0=
+Subject: FAILED: patch "[PATCH] PCI: pciehp: Ignore Link Down/Up caused by error-induced Hot" failed to apply to 5.4-stable tree
+To:     lukas@wunner.de, bhelgaas@google.com, kbusch@kernel.org,
+        stuart.w.hayes@gmail.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 14 Nov 2021 15:10:35 +0100
+Message-ID: <16368990352535@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <YYp1rOZMQaVmwo4x@arm.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 09, 2021 at 01:20:44PM +0000, Catalin Marinas wrote:
->On Mon, Nov 08, 2021 at 12:50:25PM -0500, Sasha Levin wrote:
->> From: Mark Brown <broonie@kernel.org>
->>
->> [ Upstream commit 49ed920408f85fb143020cf7d95612b6b12a84a2 ]
->>
->> Fixes build problems for configurations with KVM enabled but SVE disabled.
->>
->> Reported-by: Catalin Marinas <catalin.marinas@arm.com>
->> Signed-off-by: Mark Brown <broonie@kernel.org>
->> Link: https://lore.kernel.org/r/20211022141635.2360415-2-broonie@kernel.org
->> Signed-off-by: Will Deacon <will@kernel.org>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  arch/arm64/include/asm/fpsimd.h | 5 +++++
->>  1 file changed, 5 insertions(+)
->>
->> diff --git a/arch/arm64/include/asm/fpsimd.h b/arch/arm64/include/asm/fpsimd.h
->> index dd1ad3950ef5d..5bd799ea683b4 100644
->> --- a/arch/arm64/include/asm/fpsimd.h
->> +++ b/arch/arm64/include/asm/fpsimd.h
->> @@ -130,6 +130,11 @@ static inline void fpsimd_release_task(struct task_struct *task) { }
->>  static inline void sve_sync_to_fpsimd(struct task_struct *task) { }
->>  static inline void sve_sync_from_fpsimd_zeropad(struct task_struct *task) { }
->>
->> +static inline int sve_max_virtualisable_vl(void)
->> +{
->> +	return 0;
->> +}
->
->IIRC this fix was only needed for 5.16-rc1.
 
-I'll drop it, thanks!
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
--- 
-Thanks,
-Sasha
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From ea401499e943c307e6d44af6c2b4e068643e7884 Mon Sep 17 00:00:00 2001
+From: Lukas Wunner <lukas@wunner.de>
+Date: Sat, 31 Jul 2021 14:39:01 +0200
+Subject: [PATCH] PCI: pciehp: Ignore Link Down/Up caused by error-induced Hot
+ Reset
+
+Stuart Hayes reports that an error handled by DPC at a Root Port results
+in pciehp gratuitously bringing down a subordinate hotplug port:
+
+  RP -- UP -- DP -- UP -- DP (hotplug) -- EP
+
+pciehp brings the slot down because the Link to the Endpoint goes down.
+That is caused by a Hot Reset being propagated as a result of DPC.
+Per PCIe Base Spec 5.0, section 6.6.1 "Conventional Reset":
+
+  For a Switch, the following must cause a hot reset to be sent on all
+  Downstream Ports: [...]
+
+  * The Data Link Layer of the Upstream Port reporting DL_Down status.
+    In Switches that support Link speeds greater than 5.0 GT/s, the
+    Upstream Port must direct the LTSSM of each Downstream Port to the
+    Hot Reset state, but not hold the LTSSMs in that state. This permits
+    each Downstream Port to begin Link training immediately after its
+    hot reset completes. This behavior is recommended for all Switches.
+
+  * Receiving a hot reset on the Upstream Port.
+
+Once DPC recovers, pcie_do_recovery() walks down the hierarchy and
+invokes pcie_portdrv_slot_reset() to restore each port's config space.
+At that point, a hotplug interrupt is signaled per PCIe Base Spec r5.0,
+section 6.7.3.4 "Software Notification of Hot-Plug Events":
+
+  If the Port is enabled for edge-triggered interrupt signaling using
+  MSI or MSI-X, an interrupt message must be sent every time the logical
+  AND of the following conditions transitions from FALSE to TRUE: [...]
+
+  * The Hot-Plug Interrupt Enable bit in the Slot Control register is
+    set to 1b.
+
+  * At least one hot-plug event status bit in the Slot Status register
+    and its associated enable bit in the Slot Control register are both
+    set to 1b.
+
+Prevent pciehp from gratuitously bringing down the slot by clearing the
+error-induced Data Link Layer State Changed event before restoring
+config space.  Afterwards, check whether the link has unexpectedly
+failed to retrain and synthesize a DLLSC event if so.
+
+Allow each pcie_port_service_driver (one of them being pciehp) to define
+a slot_reset callback and re-use the existing pm_iter() function to
+iterate over the callbacks.
+
+Thereby, the Endpoint driver remains bound throughout error recovery and
+may restore the device to working state.
+
+Surprise removal during error recovery is detected through a Presence
+Detect Changed event.  The hotplug port is expected to not signal that
+event as a result of a Hot Reset.
+
+The issue isn't DPC-specific, it also occurs when an error is handled by
+AER through aer_root_reset().  So while the issue was noticed only now,
+it's been around since 2006 when AER support was first introduced.
+
+[bhelgaas: drop PCI_ERROR_RECOVERY Kconfig, split pm_iter() rename to
+preparatory patch]
+Link: https://lore.kernel.org/linux-pci/08c046b0-c9f2-3489-eeef-7e7aca435bb9@gmail.com/
+Fixes: 6c2b374d7485 ("PCI-Express AER implemetation: AER core and aerdriver")
+Link: https://lore.kernel.org/r/251f4edcc04c14f873ff1c967bc686169cd07d2d.1627638184.git.lukas@wunner.de
+Reported-by: Stuart Hayes <stuart.w.hayes@gmail.com>
+Tested-by: Stuart Hayes <stuart.w.hayes@gmail.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org # v2.6.19+: ba952824e6c1: PCI/portdrv: Report reset for frozen channel
+Cc: Keith Busch <kbusch@kernel.org>
+
+diff --git a/drivers/pci/hotplug/pciehp.h b/drivers/pci/hotplug/pciehp.h
+index 69fd401691be..918dccbc74b6 100644
+--- a/drivers/pci/hotplug/pciehp.h
++++ b/drivers/pci/hotplug/pciehp.h
+@@ -189,6 +189,8 @@ int pciehp_get_attention_status(struct hotplug_slot *hotplug_slot, u8 *status);
+ int pciehp_set_raw_indicator_status(struct hotplug_slot *h_slot, u8 status);
+ int pciehp_get_raw_indicator_status(struct hotplug_slot *h_slot, u8 *status);
+ 
++int pciehp_slot_reset(struct pcie_device *dev);
++
+ static inline const char *slot_name(struct controller *ctrl)
+ {
+ 	return hotplug_slot_name(&ctrl->hotplug_slot);
+diff --git a/drivers/pci/hotplug/pciehp_core.c b/drivers/pci/hotplug/pciehp_core.c
+index ad3393930ecb..f34114d45259 100644
+--- a/drivers/pci/hotplug/pciehp_core.c
++++ b/drivers/pci/hotplug/pciehp_core.c
+@@ -351,6 +351,8 @@ static struct pcie_port_service_driver hpdriver_portdrv = {
+ 	.runtime_suspend = pciehp_runtime_suspend,
+ 	.runtime_resume	= pciehp_runtime_resume,
+ #endif	/* PM */
++
++	.slot_reset	= pciehp_slot_reset,
+ };
+ 
+ int __init pcie_hp_init(void)
+diff --git a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
+index 3024d7e85e6a..83a0fa119cae 100644
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -862,6 +862,32 @@ void pcie_disable_interrupt(struct controller *ctrl)
+ 	pcie_write_cmd(ctrl, 0, mask);
+ }
+ 
++/**
++ * pciehp_slot_reset() - ignore link event caused by error-induced hot reset
++ * @dev: PCI Express port service device
++ *
++ * Called from pcie_portdrv_slot_reset() after AER or DPC initiated a reset
++ * further up in the hierarchy to recover from an error.  The reset was
++ * propagated down to this hotplug port.  Ignore the resulting link flap.
++ * If the link failed to retrain successfully, synthesize the ignored event.
++ * Surprise removal during reset is detected through Presence Detect Changed.
++ */
++int pciehp_slot_reset(struct pcie_device *dev)
++{
++	struct controller *ctrl = get_service_data(dev);
++
++	if (ctrl->state != ON_STATE)
++		return 0;
++
++	pcie_capability_write_word(dev->port, PCI_EXP_SLTSTA,
++				   PCI_EXP_SLTSTA_DLLSC);
++
++	if (!pciehp_check_link_active(ctrl))
++		pciehp_request(ctrl, PCI_EXP_SLTSTA_DLLSC);
++
++	return 0;
++}
++
+ /*
+  * pciehp has a 1:1 bus:slot relationship so we ultimately want a secondary
+  * bus reset of the bridge, but at the same time we want to ensure that it is
+diff --git a/drivers/pci/pcie/portdrv.h b/drivers/pci/pcie/portdrv.h
+index 6126ee4676a7..41fe1ffd5907 100644
+--- a/drivers/pci/pcie/portdrv.h
++++ b/drivers/pci/pcie/portdrv.h
+@@ -85,6 +85,8 @@ struct pcie_port_service_driver {
+ 	int (*runtime_suspend)(struct pcie_device *dev);
+ 	int (*runtime_resume)(struct pcie_device *dev);
+ 
++	int (*slot_reset)(struct pcie_device *dev);
++
+ 	/* Device driver may resume normal operations */
+ 	void (*error_resume)(struct pci_dev *dev);
+ 
+diff --git a/drivers/pci/pcie/portdrv_pci.c b/drivers/pci/pcie/portdrv_pci.c
+index c7ff1eea225a..1af74c3d9d5d 100644
+--- a/drivers/pci/pcie/portdrv_pci.c
++++ b/drivers/pci/pcie/portdrv_pci.c
+@@ -160,6 +160,9 @@ static pci_ers_result_t pcie_portdrv_error_detected(struct pci_dev *dev,
+ 
+ static pci_ers_result_t pcie_portdrv_slot_reset(struct pci_dev *dev)
+ {
++	size_t off = offsetof(struct pcie_port_service_driver, slot_reset);
++	device_for_each_child(&dev->dev, &off, pcie_port_device_iter);
++
+ 	pci_restore_state(dev);
+ 	pci_save_state(dev);
+ 	return PCI_ERS_RESULT_RECOVERED;
+
