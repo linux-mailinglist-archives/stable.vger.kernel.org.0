@@ -2,104 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BD0944F873
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:20:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A55144F87A
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:25:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229725AbhKNOXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 09:23:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59572 "EHLO mail.kernel.org"
+        id S229725AbhKNO2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 09:28:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229563AbhKNOXa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 09:23:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D4A46120E;
-        Sun, 14 Nov 2021 14:20:36 +0000 (UTC)
+        id S229563AbhKNO2n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 09:28:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7C5461027;
+        Sun, 14 Nov 2021 14:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636899636;
-        bh=ikvMSAvFzZN50tP7HnwxA1GvqWZW22ETiGEHb4exeV4=;
+        s=k20201202; t=1636899949;
+        bh=ZV2Hx3+pIL6mKU8se/mh5FSio88H9eOPjUCiqqBfNMY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kZG6LLEwvUpC/J1Mz1Ne7uVjOzrplqFgITgLQiRq/FPLIND+kZD1y7TBNkNOZKDjM
-         BB1K//al0I5WLGpEZf+7q1cW6ko+EN4eHD6GoC/j4F5WRivM+DFnkt2TLcysr4OUDN
-         sBhn0CUXeAVmZvKl8o8uyfJsIctWvDlZmV4UAPx8aRNmu1iLjcEGqARXaliVDk6NXH
-         HMJPcGEt3Xj0ZyfqjU1Lk970qoLlCONs1MgEKh/gZqUnT9njZPdFSjjLSfw5xnJmcP
-         f9IECMMvUxIJsdvShLhfXxu958yQL4UgNJJZZsqnocDKTsvZXNLawiS1akoGNe3der
-         q76QM2zmAu2oA==
-Received: by pali.im (Postfix)
-        id 162E69F5; Sun, 14 Nov 2021 15:20:34 +0100 (CET)
-Date:   Sun, 14 Nov 2021 15:20:33 +0100
-From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     kabel@kernel.org, lorenzo.pieralisi@arm.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] PCI: aardvark: Fix PCIe Max Payload Size
- setting" failed to apply to 5.15-stable tree
-Message-ID: <20211114142033.isnb6hszl6b5rozt@pali>
-References: <1636899211215194@kroah.com>
+        b=WEXnx6VbLq/G2BMMPxLRQ7erP972PFzRoh0VTTIJKNZMRst2e9JgagN4H/KGNaG1F
+         O9mxp+qs7h8l1cvr6dgs2wVo2R+uDexa4twqzLBQyg9lDdAIZZNmhyg2JOcy7NqIm2
+         +/TAd42dHuaga7bCxwMnOVWjZBTRpDQIGtW4Wh6OI/wNUg3dYxKmDe7BwPbTJxjUzN
+         PE84zJNVgFZpigvIy4Qvu7Gd7yUSaYfpWX5aPunG3QkGxYRp668Um3fDSycfg0YFFA
+         CHDy81cKJLPRZeg4CrXOBH+IIEaTljLV3Y5vd7sZ5eUj8ysfIs0L3bekdoe1yQ4xkp
+         TcoWd7YsZL+Dg==
+Date:   Sun, 14 Nov 2021 09:25:48 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        Charan Teja Reddy <charante@codeaurora.org>,
+        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+        sumit.semwal@linaro.org, linux-media@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org
+Subject: Re: AUTOSEL series truncated was -- Re: [PATCH AUTOSEL 5.15 001/146]
+ dma-buf: WARN on dmabuf release with pending attachments
+Message-ID: <YZEcbEY4HkvZYdOh@sashalap>
+References: <20211108174453.1187052-1-sashal@kernel.org>
+ <20211109075423.GA16766@amd>
+ <3957633e-9596-e329-c79b-b45e9993d139@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1636899211215194@kroah.com>
-User-Agent: NeoMutt/20180716
+In-Reply-To: <3957633e-9596-e329-c79b-b45e9993d139@infradead.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sunday 14 November 2021 15:13:31 gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 5.15-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
+On Tue, Nov 09, 2021 at 08:05:23AM -0800, Randy Dunlap wrote:
+>On 11/8/21 11:54 PM, Pavel Machek wrote:
+>>Hi!
+>>
+>>This series is truncated .. I only got first patches. Similary, 5.10
+>>series is truncated, [PATCH AUTOSEL 5.10 035/101] media: s5p-mfc: Add
+>>checking to s5p_mfc_probe... is last one I got.
+>>
+>>I got all the patches before that, so I believe it is not problem on
+>>my side, but I'd not mind someone confirming they are seeing the same
+>>problem...
+>
+>Yes, several of the patch series were incomplete for me also...
 
-Hello Greg! Following patch is needed for PCI_EXP_DEVCTL_PAYLOAD_512B macro:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=460275f124fb072dca218a6b43b6370eebbab20d
+Odd. I'll keep a closer look next time I send a series out to figure out
+what's going on.
 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From a4e17d65dafdd3513042d8f00404c9b6068a825c Mon Sep 17 00:00:00 2001
-> From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-> Date: Tue, 5 Oct 2021 20:09:41 +0200
-> Subject: [PATCH] PCI: aardvark: Fix PCIe Max Payload Size setting
-> MIME-Version: 1.0
-> Content-Type: text/plain; charset=UTF-8
-> Content-Transfer-Encoding: 8bit
-> 
-> Change PCIe Max Payload Size setting in PCIe Device Control register to 512
-> bytes to align with PCIe Link Initialization sequence as defined in Marvell
-> Armada 3700 Functional Specification. According to the specification,
-> maximal Max Payload Size supported by this device is 512 bytes.
-> 
-> Without this kernel prints suspicious line:
-> 
->     pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 16384, max 512)
-> 
-> With this change it changes to:
-> 
->     pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 512, max 512)
-> 
-> Link: https://lore.kernel.org/r/20211005180952.6812-3-kabel@kernel.org
-> Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-> Signed-off-by: Pali Rohár <pali@kernel.org>
-> Signed-off-by: Marek Behún <kabel@kernel.org>
-> Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-> Reviewed-by: Marek Behún <kabel@kernel.org>
-> Cc: stable@vger.kernel.org
-> 
-> diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-> index 596ebcfcc82d..884510630bae 100644
-> --- a/drivers/pci/controller/pci-aardvark.c
-> +++ b/drivers/pci/controller/pci-aardvark.c
-> @@ -488,8 +488,9 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
->  	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
->  	reg &= ~PCI_EXP_DEVCTL_RELAX_EN;
->  	reg &= ~PCI_EXP_DEVCTL_NOSNOOP_EN;
-> +	reg &= ~PCI_EXP_DEVCTL_PAYLOAD;
->  	reg &= ~PCI_EXP_DEVCTL_READRQ;
-> -	reg |= PCI_EXP_DEVCTL_PAYLOAD; /* Set max payload size */
-> +	reg |= PCI_EXP_DEVCTL_PAYLOAD_512B;
->  	reg |= PCI_EXP_DEVCTL_READRQ_512B;
->  	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
->  
-> 
+Thanks for the heads-up!
+
+-- 
+Thanks,
+Sasha
