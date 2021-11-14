@@ -2,91 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B964444F870
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:16:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BD0944F873
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:20:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235272AbhKNOTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 09:19:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58580 "EHLO mail.kernel.org"
+        id S229725AbhKNOXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 09:23:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234393AbhKNOTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 09:19:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6375360EE7;
-        Sun, 14 Nov 2021 14:16:14 +0000 (UTC)
+        id S229563AbhKNOXa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 09:23:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D4A46120E;
+        Sun, 14 Nov 2021 14:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636899374;
-        bh=yNa8nfA17W0IA0dH0cmt1uaH3DN4+9mcx2CuNZRUwKI=;
+        s=k20201202; t=1636899636;
+        bh=ikvMSAvFzZN50tP7HnwxA1GvqWZW22ETiGEHb4exeV4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EyCV+DBbQuAF3GeFCQDYKg9JxWDhPIZf/OkuAlCgQeO9fd8X9igtRfKzOvxlD9CqC
-         huhdOr9Hw7Nhv21f0+TkXRH+qlX9MoMhbjBfXhqDaVchSQjonk1MDdr4vRCu1WvwMK
-         1kR31ALEcXgf0wgO4n/ekREC5/T35nnm4EIN5pFupRwgFxfnlNCYoDbxx8lg3JkNmf
-         +7N98eZe1BAtcpT8bVLbJlKkHJOflTef+W6cO9N36LJ0Ui4uvblq8BQlGf2gPBbFI7
-         c3pgyCGI4y34mddOIspcVlg1vqMfgIt2EiOSMfbRpC6zt1vaV8cSYaZpeY4mpNF2lN
-         BnBFeOKjKx03w==
-Date:   Sun, 14 Nov 2021 09:16:13 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Paul Crowley <paulcrowley@google.com>, tytso@mit.edu,
-        jaegeuk@kernel.org, corbet@lwn.net, linux-fscrypt@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.10 021/101] fscrypt: allow 256-bit master keys
- with AES-256-XTS
-Message-ID: <YZEaLdsj7mA6WM8W@sashalap>
-References: <20211108174832.1189312-1-sashal@kernel.org>
- <20211108174832.1189312-21-sashal@kernel.org>
- <YYnTeBCwn6fd/kVU@gmail.com>
+        b=kZG6LLEwvUpC/J1Mz1Ne7uVjOzrplqFgITgLQiRq/FPLIND+kZD1y7TBNkNOZKDjM
+         BB1K//al0I5WLGpEZf+7q1cW6ko+EN4eHD6GoC/j4F5WRivM+DFnkt2TLcysr4OUDN
+         sBhn0CUXeAVmZvKl8o8uyfJsIctWvDlZmV4UAPx8aRNmu1iLjcEGqARXaliVDk6NXH
+         HMJPcGEt3Xj0ZyfqjU1Lk970qoLlCONs1MgEKh/gZqUnT9njZPdFSjjLSfw5xnJmcP
+         f9IECMMvUxIJsdvShLhfXxu958yQL4UgNJJZZsqnocDKTsvZXNLawiS1akoGNe3der
+         q76QM2zmAu2oA==
+Received: by pali.im (Postfix)
+        id 162E69F5; Sun, 14 Nov 2021 15:20:34 +0100 (CET)
+Date:   Sun, 14 Nov 2021 15:20:33 +0100
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     kabel@kernel.org, lorenzo.pieralisi@arm.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] PCI: aardvark: Fix PCIe Max Payload Size
+ setting" failed to apply to 5.15-stable tree
+Message-ID: <20211114142033.isnb6hszl6b5rozt@pali>
+References: <1636899211215194@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <YYnTeBCwn6fd/kVU@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1636899211215194@kroah.com>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 08, 2021 at 05:48:40PM -0800, Eric Biggers wrote:
->On Mon, Nov 08, 2021 at 12:47:11PM -0500, Sasha Levin wrote:
->> From: Eric Biggers <ebiggers@google.com>
->>
->> [ Upstream commit 7f595d6a6cdc336834552069a2e0a4f6d4756ddf ]
->>
->> fscrypt currently requires a 512-bit master key when AES-256-XTS is
->> used, since AES-256-XTS keys are 512-bit and fscrypt requires that the
->> master key be at least as long any key that will be derived from it.
->>
->> However, this is overly strict because AES-256-XTS doesn't actually have
->> a 512-bit security strength, but rather 256-bit.  The fact that XTS
->> takes twice the expected key size is a quirk of the XTS mode.  It is
->> sufficient to use 256 bits of entropy for AES-256-XTS, provided that it
->> is first properly expanded into a 512-bit key, which HKDF-SHA512 does.
->>
->> Therefore, relax the check of the master key size to use the security
->> strength of the derived key rather than the size of the derived key
->> (except for v1 encryption policies, which don't use HKDF).
->>
->> Besides making things more flexible for userspace, this is needed in
->> order for the use of a KDF which only takes a 256-bit key to be
->> introduced into the fscrypt key hierarchy.  This will happen with
->> hardware-wrapped keys support, as all known hardware which supports that
->> feature uses an SP800-108 KDF using AES-256-CMAC, so the wrapped keys
->> are wrapped 256-bit AES keys.  Moreover, there is interest in fscrypt
->> supporting the same type of AES-256-CMAC based KDF in software as an
->> alternative to HKDF-SHA512.  There is no security problem with such
->> features, so fix the key length check to work properly with them.
->>
->> Reviewed-by: Paul Crowley <paulcrowley@google.com>
->> Link: https://lore.kernel.org/r/20210921030303.5598-1-ebiggers@kernel.org
->> Signed-off-by: Eric Biggers <ebiggers@google.com>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->
->I don't expect any problem with backporting this, but I don't see how this
->follows the stable kernel rules (Documentation/process/stable-kernel-rules.rst).
->I don't see what distinguishes this patch from ones that don't get picked up by
->AUTOSEL; it seems pretty arbitrary to me.
+On Sunday 14 November 2021 15:13:31 gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 5.15-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
 
-It is, to some extent. My understanding was that this is a minor fix to
-make something that should have worked, work.
+Hello Greg! Following patch is needed for PCI_EXP_DEVCTL_PAYLOAD_512B macro:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=460275f124fb072dca218a6b43b6370eebbab20d
 
--- 
-Thanks,
-Sasha
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From a4e17d65dafdd3513042d8f00404c9b6068a825c Mon Sep 17 00:00:00 2001
+> From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+> Date: Tue, 5 Oct 2021 20:09:41 +0200
+> Subject: [PATCH] PCI: aardvark: Fix PCIe Max Payload Size setting
+> MIME-Version: 1.0
+> Content-Type: text/plain; charset=UTF-8
+> Content-Transfer-Encoding: 8bit
+> 
+> Change PCIe Max Payload Size setting in PCIe Device Control register to 512
+> bytes to align with PCIe Link Initialization sequence as defined in Marvell
+> Armada 3700 Functional Specification. According to the specification,
+> maximal Max Payload Size supported by this device is 512 bytes.
+> 
+> Without this kernel prints suspicious line:
+> 
+>     pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 16384, max 512)
+> 
+> With this change it changes to:
+> 
+>     pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 512, max 512)
+> 
+> Link: https://lore.kernel.org/r/20211005180952.6812-3-kabel@kernel.org
+> Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+> Signed-off-by: Pali Rohár <pali@kernel.org>
+> Signed-off-by: Marek Behún <kabel@kernel.org>
+> Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+> Reviewed-by: Marek Behún <kabel@kernel.org>
+> Cc: stable@vger.kernel.org
+> 
+> diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+> index 596ebcfcc82d..884510630bae 100644
+> --- a/drivers/pci/controller/pci-aardvark.c
+> +++ b/drivers/pci/controller/pci-aardvark.c
+> @@ -488,8 +488,9 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+>  	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
+>  	reg &= ~PCI_EXP_DEVCTL_RELAX_EN;
+>  	reg &= ~PCI_EXP_DEVCTL_NOSNOOP_EN;
+> +	reg &= ~PCI_EXP_DEVCTL_PAYLOAD;
+>  	reg &= ~PCI_EXP_DEVCTL_READRQ;
+> -	reg |= PCI_EXP_DEVCTL_PAYLOAD; /* Set max payload size */
+> +	reg |= PCI_EXP_DEVCTL_PAYLOAD_512B;
+>  	reg |= PCI_EXP_DEVCTL_READRQ_512B;
+>  	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
+>  
+> 
