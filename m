@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECC7444F7D3
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 13:21:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9315244F7D5
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 13:21:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229563AbhKNMYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 07:24:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41402 "EHLO mail.kernel.org"
+        id S233868AbhKNMYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 07:24:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230267AbhKNMYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 07:24:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5873F61056;
-        Sun, 14 Nov 2021 12:21:24 +0000 (UTC)
+        id S233170AbhKNMYa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 07:24:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2B3461077;
+        Sun, 14 Nov 2021 12:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636892484;
-        bh=eDf6kf65uXOluMGfKc6Md8tU0pg1mZa0PdwMOmSFwE4=;
+        s=korg; t=1636892496;
+        bh=M0PD0EY5vYp58Ot5mw+NhPNFi11Mtzf+4S8MdZtRpt0=;
         h=Subject:To:Cc:From:Date:From;
-        b=A6wNzH9XcD80ZZVw2lHpCB0KfyudOcXyxq8WdPvwSWcxNwC9jRu8PuMO1ttqZEMN2
-         sUz496d69nuV+c5il1EvBSl+DQ3Ue8wVtXGMu2oLa+Llr0IAKf2M0hElf3SD4MgzE6
-         DaTpCHw5HL0qMS79URz8q05X0c3YpWdiHnwv6Y9Y=
-Subject: FAILED: patch "[PATCH] can: j1939: j1939_tp_cmd_recv(): check the dst address of" failed to apply to 5.14-stable tree
+        b=Eopgg1uuWwe03UbwzLzX9o7VvU2pToWVGAbgvFuA37LzyvJHbsO/Btw7flJdSkAiQ
+         fgiKKdOQ1ZV3XEjphsmAGtta//utrGe69IKHcvbUYKHlbKKFCK1MfnDGE2bqPDSu2N
+         e5JIOZlkjFXsnCEVvzfg1T2E+CsrrePJ83gzWVs0=
+Subject: FAILED: patch "[PATCH] can: j1939: j1939_tp_cmd_recv(): check the dst address of" failed to apply to 5.4-stable tree
 To:     zhangchangzhong@huawei.com, mkl@pengutronix.de,
         o.rempel@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 13:21:22 +0100
-Message-ID: <16368924827684@kroah.com>
+Date:   Sun, 14 Nov 2021 13:21:23 +0100
+Message-ID: <163689248318243@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
