@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CA9944F881
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:28:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 784E544F883
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 15:28:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233073AbhKNOa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 09:30:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60418 "EHLO mail.kernel.org"
+        id S229563AbhKNObD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 09:31:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231173AbhKNOas (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 09:30:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F20760E8B;
-        Sun, 14 Nov 2021 14:27:53 +0000 (UTC)
+        id S231831AbhKNOay (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 09:30:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B187B61027;
+        Sun, 14 Nov 2021 14:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636900074;
-        bh=8opnzYEa/27+2txhcGhRlRHr+E/w1ZyNyIvv3D0HEaY=;
+        s=korg; t=1636900080;
+        bh=cuVO6j8l9scZC2MgxkTr+YWk/w/hge8KH4uOMNY3Bkg=;
         h=Subject:To:Cc:From:Date:From;
-        b=Zr+HLlIxebt7YYL3NHOerW94CSl0B4w+SiRycMRUPULTbt7JIXfJ1LGePx37aBsQ7
-         g9VmVPC2SpYH/cGp4BZJpoxRTlHxCqjAl8xjczG2cDiFKWH3dPjGBnkzFVRRjVdn1d
-         8F5acipDZX7pkR4cJwC06sj2iRC1PAxmSIdAovGQ=
-Subject: FAILED: patch "[PATCH] USB: chipidea: fix interrupt deadlock" failed to apply to 4.14-stable tree
+        b=pmyFeQX0WyYxQF7ri2bYISeprHAwCsc7kv3AvpvNlma+fJrO+xfDczs43RwUJYFYE
+         qndeSwHOcDBZfTb5oldA4aPMeLg/LnwNlHqSnnqL9lg+Z8QFeIWl+REUc05J2cYPwp
+         T72+oUmY9s+kHAWPS/xEO/zpAtF9ojW5XEiD+ecU=
+Subject: FAILED: patch "[PATCH] USB: chipidea: fix interrupt deadlock" failed to apply to 4.19-stable tree
 To:     johan@kernel.org, gregkh@linuxfoundation.org, peter.chen@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 15:27:44 +0100
-Message-ID: <16369000647972@kroah.com>
+Date:   Sun, 14 Nov 2021 15:27:45 +0100
+Message-ID: <163690006542246@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
