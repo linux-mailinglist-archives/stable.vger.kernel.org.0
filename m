@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71C3344F83C
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 14:50:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD98D44F83E
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 14:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229959AbhKNNxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 08:53:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41406 "EHLO mail.kernel.org"
+        id S229862AbhKNN4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 08:56:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229725AbhKNNxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 08:53:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 007A561077;
-        Sun, 14 Nov 2021 13:50:49 +0000 (UTC)
+        id S229563AbhKNN4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 08:56:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FBA460F6B;
+        Sun, 14 Nov 2021 13:53:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636897850;
-        bh=2MXXIuCkILO3NHukdVZepbdwlNOp6OXkYTfliNTTNjw=;
+        s=korg; t=1636897994;
+        bh=yuoUgddr69omgTYts9ov8cfxSqAwJVHVfRAygCRfcK8=;
         h=Subject:To:Cc:From:Date:From;
-        b=e8X97VLXw7zICQrnvP0fu3u9MK8xf04LsKUG7VBjFqtdIg/QvJVkFHTcmZ4AghwR0
-         1AebF4pEELwvS4D0ytKq+MU0CPfnL6lid4ITKCUYxU/PSd2sqBA7wopbmzd+uAQuZb
-         9/ZVrYU7jP+Vl7vi9BcKO7nI8GpVMrKx7Ni6c7dI=
-Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix checking for link up via LTSSM state" failed to apply to 4.19-stable tree
-To:     pali@kernel.org, kabel@kernel.org, lorenzo.pieralisi@arm.com,
-        repk@triplefau.lt
+        b=Pc6BFPBE1NPWxgnBAHsfvrv7Kl8XvUxizqwToU2p1xDVTW/HXS32uwwE+ERvTCaZY
+         dO2gwERn5JRln9K+KKtDdhLtXApTQhfGUI6SeOUlZnJJp5pXZQNxXY2NIYPUSIlZ8s
+         1qtuIO8Em2fgzi3Dj5PnzlqcmI7fku89NUbNN2Fs=
+Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix support for bus mastering and PCI_COMMAND" failed to apply to 4.19-stable tree
+To:     pali@kernel.org, kabel@kernel.org, lorenzo.pieralisi@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 14:50:40 +0100
-Message-ID: <1636897839254123@kroah.com>
+Date:   Sun, 14 Nov 2021 14:53:10 +0100
+Message-ID: <163689799019031@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,146 +45,130 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 661c399a651c11aaf83c45cbfe0b4a1fb7bc3179 Mon Sep 17 00:00:00 2001
+From 771153fc884f566a89af2d30033b7f3bc6e24e84 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Date: Tue, 5 Oct 2021 20:09:51 +0200
-Subject: [PATCH] PCI: aardvark: Fix checking for link up via LTSSM state
+Date: Thu, 28 Oct 2021 20:56:56 +0200
+Subject: [PATCH] PCI: aardvark: Fix support for bus mastering and PCI_COMMAND
+ on emulated bridge
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Current implementation of advk_pcie_link_up() is wrong as it marks also
-link disabled or hot reset states as link up.
+From very vague, ambiguous and incomplete information from Marvell we
+deduced that the 32-bit Aardvark register at address 0x4
+(PCIE_CORE_CMD_STATUS_REG), which is not documented for Root Complex mode
+in the Functional Specification (only for Endpoint mode), controls two
+16-bit PCIe registers: Command Register and Status Registers of PCIe Root
+Port.
 
-Fix it by marking link up only to those states which are defined in PCIe
-Base specification 3.0, Table 4-14: Link Status Mapped to the LTSSM.
+This means that bit 2 controls bus mastering and forwarding of memory and
+I/O requests in the upstream direction. According to PCI specifications
+bits [0:2] of Command Register, this should be by default disabled on
+reset. So explicitly disable these bits at early setup of the Aardvark
+driver.
 
-To simplify implementation, Define macros for every LTSSM state which
-aardvark hardware can return in CFG_REG register.
+Remove code which unconditionally enables all 3 bits and let kernel code
+(via pci_set_master() function) to handle bus mastering of Root PCIe
+Bridge via emulated PCI_COMMAND on emulated bridge.
 
-Fix also checking for link training according to the same Table 4-14.
-Define a new function advk_pcie_link_training() for this purpose.
-
-Link: https://lore.kernel.org/r/20211005180952.6812-13-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Link: https://lore.kernel.org/r/20211028185659.20329-5-kabel@kernel.org
+Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org
-Cc: Remi Pommarel <repk@triplefau.lt>
+Cc: stable@vger.kernel.org # b2a56469d550 ("PCI: aardvark: Add FIXME comment for PCIE_CORE_CMD_STATUS_REG access")
 
 diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 2c66cdbb8dd6..f831f7d197bd 100644
+index 389ebba1dd9b..d7db03da4d1c 100644
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -165,8 +165,50 @@
- #define CFG_REG					(LMI_BASE_ADDR + 0x0)
- #define     LTSSM_SHIFT				24
- #define     LTSSM_MASK				0x3f
--#define     LTSSM_L0				0x10
- #define     RC_BAR_CONFIG			0x300
-+
-+/* LTSSM values in CFG_REG */
-+enum {
-+	LTSSM_DETECT_QUIET			= 0x0,
-+	LTSSM_DETECT_ACTIVE			= 0x1,
-+	LTSSM_POLLING_ACTIVE			= 0x2,
-+	LTSSM_POLLING_COMPLIANCE		= 0x3,
-+	LTSSM_POLLING_CONFIGURATION		= 0x4,
-+	LTSSM_CONFIG_LINKWIDTH_START		= 0x5,
-+	LTSSM_CONFIG_LINKWIDTH_ACCEPT		= 0x6,
-+	LTSSM_CONFIG_LANENUM_ACCEPT		= 0x7,
-+	LTSSM_CONFIG_LANENUM_WAIT		= 0x8,
-+	LTSSM_CONFIG_COMPLETE			= 0x9,
-+	LTSSM_CONFIG_IDLE			= 0xa,
-+	LTSSM_RECOVERY_RCVR_LOCK		= 0xb,
-+	LTSSM_RECOVERY_SPEED			= 0xc,
-+	LTSSM_RECOVERY_RCVR_CFG			= 0xd,
-+	LTSSM_RECOVERY_IDLE			= 0xe,
-+	LTSSM_L0				= 0x10,
-+	LTSSM_RX_L0S_ENTRY			= 0x11,
-+	LTSSM_RX_L0S_IDLE			= 0x12,
-+	LTSSM_RX_L0S_FTS			= 0x13,
-+	LTSSM_TX_L0S_ENTRY			= 0x14,
-+	LTSSM_TX_L0S_IDLE			= 0x15,
-+	LTSSM_TX_L0S_FTS			= 0x16,
-+	LTSSM_L1_ENTRY				= 0x17,
-+	LTSSM_L1_IDLE				= 0x18,
-+	LTSSM_L2_IDLE				= 0x19,
-+	LTSSM_L2_TRANSMIT_WAKE			= 0x1a,
-+	LTSSM_DISABLED				= 0x20,
-+	LTSSM_LOOPBACK_ENTRY_MASTER		= 0x21,
-+	LTSSM_LOOPBACK_ACTIVE_MASTER		= 0x22,
-+	LTSSM_LOOPBACK_EXIT_MASTER		= 0x23,
-+	LTSSM_LOOPBACK_ENTRY_SLAVE		= 0x24,
-+	LTSSM_LOOPBACK_ACTIVE_SLAVE		= 0x25,
-+	LTSSM_LOOPBACK_EXIT_SLAVE		= 0x26,
-+	LTSSM_HOT_RESET				= 0x27,
-+	LTSSM_RECOVERY_EQUALIZATION_PHASE0	= 0x28,
-+	LTSSM_RECOVERY_EQUALIZATION_PHASE1	= 0x29,
-+	LTSSM_RECOVERY_EQUALIZATION_PHASE2	= 0x2a,
-+	LTSSM_RECOVERY_EQUALIZATION_PHASE3	= 0x2b,
-+};
-+
- #define VENDOR_ID_REG				(LMI_BASE_ADDR + 0x44)
+@@ -31,9 +31,6 @@
+ /* PCIe core registers */
+ #define PCIE_CORE_DEV_ID_REG					0x0
+ #define PCIE_CORE_CMD_STATUS_REG				0x4
+-#define     PCIE_CORE_CMD_IO_ACCESS_EN				BIT(0)
+-#define     PCIE_CORE_CMD_MEM_ACCESS_EN				BIT(1)
+-#define     PCIE_CORE_CMD_MEM_IO_REQ_EN				BIT(2)
+ #define PCIE_CORE_DEV_REV_REG					0x8
+ #define PCIE_CORE_PCIEXP_CAP					0xc0
+ #define PCIE_CORE_ERR_CAPCTL_REG				0x118
+@@ -514,6 +511,11 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 	reg = (PCI_VENDOR_ID_MARVELL << 16) | PCI_VENDOR_ID_MARVELL;
+ 	advk_writel(pcie, reg, VENDOR_ID_REG);
  
- /* PCIe core controller registers */
-@@ -258,13 +300,35 @@ static inline u32 advk_readl(struct advk_pcie *pcie, u64 reg)
- 	return readl(pcie->base + reg);
++	/* Disable Root Bridge I/O space, memory space and bus mastering */
++	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
++	reg &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
++	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
++
+ 	/* Set Advanced Error Capabilities and Control PF0 register */
+ 	reg = PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX |
+ 		PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX_EN |
+@@ -612,19 +614,6 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 		advk_pcie_disable_ob_win(pcie, i);
+ 
+ 	advk_pcie_train_link(pcie);
+-
+-	/*
+-	 * FIXME: The following register update is suspicious. This register is
+-	 * applicable only when the PCI controller is configured for Endpoint
+-	 * mode, not as a Root Complex. But apparently when this code is
+-	 * removed, some cards stop working. This should be investigated and
+-	 * a comment explaining this should be put here.
+-	 */
+-	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
+-	reg |= PCIE_CORE_CMD_MEM_ACCESS_EN |
+-		PCIE_CORE_CMD_IO_ACCESS_EN |
+-		PCIE_CORE_CMD_MEM_IO_REQ_EN;
+-	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
  }
  
--static int advk_pcie_link_up(struct advk_pcie *pcie)
-+static u8 advk_pcie_ltssm_state(struct advk_pcie *pcie)
- {
--	u32 val, ltssm_state;
-+	u32 val;
-+	u8 ltssm_state;
- 
- 	val = advk_readl(pcie, CFG_REG);
- 	ltssm_state = (val >> LTSSM_SHIFT) & LTSSM_MASK;
--	return ltssm_state >= LTSSM_L0;
-+	return ltssm_state;
-+}
-+
-+static inline bool advk_pcie_link_up(struct advk_pcie *pcie)
-+{
-+	/* check if LTSSM is in normal operation - some L* state */
-+	u8 ltssm_state = advk_pcie_ltssm_state(pcie);
-+	return ltssm_state >= LTSSM_L0 && ltssm_state < LTSSM_DISABLED;
-+}
-+
-+static inline bool advk_pcie_link_training(struct advk_pcie *pcie)
-+{
-+	/*
-+	 * According to PCIe Base specification 3.0, Table 4-14: Link
-+	 * Status Mapped to the LTSSM is Link Training mapped to LTSSM
-+	 * Configuration and Recovery states.
-+	 */
-+	u8 ltssm_state = advk_pcie_ltssm_state(pcie);
-+	return ((ltssm_state >= LTSSM_CONFIG_LINKWIDTH_START &&
-+		 ltssm_state < LTSSM_L0) ||
-+		(ltssm_state >= LTSSM_RECOVERY_EQUALIZATION_PHASE0 &&
-+		 ltssm_state <= LTSSM_RECOVERY_EQUALIZATION_PHASE3));
+ static int advk_pcie_check_pio_status(struct advk_pcie *pcie, bool allow_crs, u32 *val)
+@@ -753,6 +742,37 @@ static int advk_pcie_wait_pio(struct advk_pcie *pcie)
+ 	return -ETIMEDOUT;
  }
  
- static int advk_pcie_wait_for_link(struct advk_pcie *pcie)
-@@ -287,7 +351,7 @@ static void advk_pcie_wait_for_retrain(struct advk_pcie *pcie)
- 	size_t retries;
++static pci_bridge_emul_read_status_t
++advk_pci_bridge_emul_base_conf_read(struct pci_bridge_emul *bridge,
++				    int reg, u32 *value)
++{
++	struct advk_pcie *pcie = bridge->data;
++
++	switch (reg) {
++	case PCI_COMMAND:
++		*value = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
++		return PCI_BRIDGE_EMUL_HANDLED;
++
++	default:
++		return PCI_BRIDGE_EMUL_NOT_HANDLED;
++	}
++}
++
++static void
++advk_pci_bridge_emul_base_conf_write(struct pci_bridge_emul *bridge,
++				     int reg, u32 old, u32 new, u32 mask)
++{
++	struct advk_pcie *pcie = bridge->data;
++
++	switch (reg) {
++	case PCI_COMMAND:
++		advk_writel(pcie, new, PCIE_CORE_CMD_STATUS_REG);
++		break;
++
++	default:
++		break;
++	}
++}
  
- 	for (retries = 0; retries < RETRAIN_WAIT_MAX_RETRIES; ++retries) {
--		if (!advk_pcie_link_up(pcie))
-+		if (advk_pcie_link_training(pcie))
- 			break;
- 		udelay(RETRAIN_WAIT_USLEEP_US);
- 	}
-@@ -706,7 +770,7 @@ advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
- 		/* u32 contains both PCI_EXP_LNKCTL and PCI_EXP_LNKSTA */
- 		u32 val = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + reg) &
- 			~(PCI_EXP_LNKSTA_LT << 16);
--		if (!advk_pcie_link_up(pcie))
-+		if (advk_pcie_link_training(pcie))
- 			val |= (PCI_EXP_LNKSTA_LT << 16);
- 		*value = val;
- 		return PCI_BRIDGE_EMUL_HANDLED;
+ static pci_bridge_emul_read_status_t
+ advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
+@@ -854,6 +874,8 @@ advk_pci_bridge_emul_pcie_conf_write(struct pci_bridge_emul *bridge,
+ }
+ 
+ static struct pci_bridge_emul_ops advk_pci_bridge_emul_ops = {
++	.read_base = advk_pci_bridge_emul_base_conf_read,
++	.write_base = advk_pci_bridge_emul_base_conf_write,
+ 	.read_pcie = advk_pci_bridge_emul_pcie_conf_read,
+ 	.write_pcie = advk_pci_bridge_emul_pcie_conf_write,
+ };
 
