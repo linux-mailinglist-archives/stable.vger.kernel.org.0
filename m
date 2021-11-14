@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 820BA44F830
+	by mail.lfdr.de (Postfix) with ESMTP id 5558144F82F
 	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 14:47:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229725AbhKNNuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 08:50:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41024 "EHLO mail.kernel.org"
+        id S229959AbhKNNuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 08:50:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229959AbhKNNuO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S230490AbhKNNuO (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 14 Nov 2021 08:50:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A340460FC2;
-        Sun, 14 Nov 2021 13:47:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D86761077;
+        Sun, 14 Nov 2021 13:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636897638;
-        bh=dhwQTAi0zpeLSeq/96dUgojzeotG7S2usF+yiVgj+28=;
+        s=korg; t=1636897641;
+        bh=8Etef3LiWh1Bj4KWLMkWq1kUd3c5lZEaW0IJTHADMTs=;
         h=Subject:To:Cc:From:Date:From;
-        b=NKvOnlvbFEqoQbQhjltAeeMwFc9I6mn3dhqPmrtZiqdbxqhAY1Vj/rIG1nj8vLDwC
-         EWk8kZE1tStpLspSstVvk8HSxCsLXtanSGVLCZWTQ/K1mA09878Brv6AXU6o2tLl+L
-         mWKPLlBfpfD1WujOIJBbzPWe3aaijmcMRGVdsOck=
-Subject: FAILED: patch "[PATCH] PCI: pciehp: Ignore Link Down/Up caused by error-induced Hot" failed to apply to 4.14-stable tree
+        b=aSr5bAYwhUy3bBmJs1jSxn3gZFh4bQcTpuSdAfHggxNbuw5HcGxblt/pLUD4+vxae
+         mU94UCvKpZnnnyfb8HfEkKBwdUu9WuJUA/M5S0ZVMVT2yVWcGRxXlDQclw/mEYn3BI
+         xfquDoFeL4Pva3xmTMABNlZTOhw5zMOMGlDOGCPo=
+Subject: FAILED: patch "[PATCH] PCI: pciehp: Ignore Link Down/Up caused by error-induced Hot" failed to apply to 4.19-stable tree
 To:     lukas@wunner.de, bhelgaas@google.com, kbusch@kernel.org,
         stuart.w.hayes@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 14:47:12 +0100
-Message-ID: <1636897632128123@kroah.com>
+Date:   Sun, 14 Nov 2021 14:47:15 +0100
+Message-ID: <1636897635126250@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
