@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E142E44F7D0
+	by mail.lfdr.de (Postfix) with ESMTP id 9826E44F7CF
 	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 13:19:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229563AbhKNMWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 07:22:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40354 "EHLO mail.kernel.org"
+        id S235272AbhKNMWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 07:22:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234477AbhKNMVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S229563AbhKNMVr (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 14 Nov 2021 07:21:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7000360EBC;
-        Sun, 14 Nov 2021 12:18:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B7D761056;
+        Sun, 14 Nov 2021 12:18:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636892331;
-        bh=vgsDifJCjnyUhbMkl+zlRGJEQfy1bG8HuojRt3MSRBo=;
+        s=korg; t=1636892333;
+        bh=mWGoh2ELJTIgNW4Ypzns1Yu5MZAB/qkYLN4pkJ2Hdhw=;
         h=Subject:To:Cc:From:Date:From;
-        b=GsvwFN6uA14MwrEV86DSswnb1wHrHk5UxARQOD8AdiWTRxtm5jKH4p0DcK20ixrQP
-         Q76+Onj+Z/YHXL9eFjoHOCoJUe4T8l8VrPmmU0tZkPz/EUi6rUXFZ7NmO7jic3GPdp
-         E+Gt8VEeCDz9ORCkOi4bwZcJgK8jlWnyywYGZpT0=
-Subject: FAILED: patch "[PATCH] KVM: x86: Add helper to consolidate core logic of" failed to apply to 5.4-stable tree
+        b=1yvO/KOXOs6cd6xw9fCoh5l0sB1Rv4jI0NIgnJrlPbO+cZSeXj0Tzy8hQt0+sU8Zh
+         AUqnW/DGnSKnHzvkgxprdCcNLD6z/SdzUZBfB1EA2imTku0UhenWg7UZU8cWRf3inu
+         W8NAiMVckTaMXR0PZAmbVoaHJZ/btUG7nek6hUg0=
+Subject: FAILED: patch "[PATCH] KVM: x86: Add helper to consolidate core logic of" failed to apply to 5.10-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 13:18:40 +0100
-Message-ID: <16368923203224@kroah.com>
+Date:   Sun, 14 Nov 2021 13:18:41 +0100
+Message-ID: <163689232146110@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
