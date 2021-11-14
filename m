@@ -2,136 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8CC244FEE3
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 07:56:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A32DB44FF36
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 08:29:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230107AbhKOG67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 01:58:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36534 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229780AbhKOG65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 01:58:57 -0500
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8A36C061746
-        for <stable@vger.kernel.org>; Sun, 14 Nov 2021 22:56:02 -0800 (PST)
-Received: by mail-ed1-x533.google.com with SMTP id x15so67313704edv.1
-        for <stable@vger.kernel.org>; Sun, 14 Nov 2021 22:56:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=DnhRi/yEd8/77prJmECQX07Ui1HU8yjd7OJqe5An4dY=;
-        b=t9Se2sEFkosEsGaNqN9T9TCcZk0wJQhitNRtoH2HD7Q2i2sVGG1qJ3I3iazk8G1Zhx
-         DzzlyqGN/XFf0VbvwUIZ8tQVqAvpQjouQUkr2GU+QBikDZMFlGq9s2QzIBuEos8B/HqW
-         EFe9W+COyW+NeY2MoRs9g8EOuHeVF1/8XylW/KfsqFMGmGzUkuTFrdPg9AV1k2eIyVfb
-         OimAFbLeYeBb61FeElkDPneXjoWJhwx1tqGrhE7zBN0C1kvJiuzZELex0qiYQfhJgD6F
-         2MDLkJY7YLD5bffE4C5GkyEiDhaUGqp5Z6pAs7awOEro/Odbc7Jh6Mu9QkAykwWCICvg
-         6znA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=DnhRi/yEd8/77prJmECQX07Ui1HU8yjd7OJqe5An4dY=;
-        b=FBO4K1X8tFKj60/nZ3ys99oOHqnL4IXJ+i6s/ODG3CU0jJ+Me4BbOFPLBfDCAHk/+s
-         kEayXt5a3kR1/qCwP0R0h7TePMfsYlFz84EVggXnKWubiwmCGMJVUDgz5jw06zr6u0tX
-         Yi/lI0diDuJV34LS62dE5vtDCL7kA27bt3OuWxi9n3xLHovLvpHeX6+Q0KY0YlNjZ6DS
-         TDD3aG17xCgmcI7H3AkGJFFfDgh9Q5MaQwH6pTToHfhc4BVrNbBHc3+R+vRKF6m1x2UP
-         S57RL4IntbI1BJttHsp68ztQNGcgOcAWciondV348YwP7U58JMVIbFX70IwnALFgHA2F
-         nXNQ==
-X-Gm-Message-State: AOAM531K/fsKZD9ec/Cg5yEeBgWHGue6qmIyF3tY5e2F1HtMsxqbopey
-        Q01T/xoPU6zU4bk5xWrw/5MnnLOsFe8E/RLzoccbFg==
-X-Google-Smtp-Source: ABdhPJxlHl1kfno22u1uQK+1W5VimX8ZWFmx5vC5rSL362dcc7YkX1nxubWNXAqFsM73XZh/gTsf7e19SMdHhJVT6EU=
-X-Received: by 2002:a05:6402:26c2:: with SMTP id x2mr52235690edd.198.1636959361036;
- Sun, 14 Nov 2021 22:56:01 -0800 (PST)
+        id S230347AbhKOHc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 02:32:27 -0500
+Received: from penny.gigared.com.ar ([190.183.195.226]:50304 "EHLO
+        penny.gigared.com.ar" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229673AbhKOHc1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 02:32:27 -0500
+Received: from penny.gigared.com.ar (localhost.localdomain [127.0.0.1])
+        by penny.gigared.com.ar (Proxmox) with ESMTP id 5159847403;
+        Sun, 14 Nov 2021 18:25:36 -0300 (-03)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gigared.com.ar;
+         h=cc:content-description:content-transfer-encoding:content-type
+        :content-type:date:from:from:message-id:mime-version:reply-to
+        :reply-to:subject:subject:to:to; s=dkim1; bh=YCWD6euUotuknYIwyo/
+        1yybWNhUvp9eA5YFBnwIsAR0=; b=ClTyebBqMK9ivczfrQJgdo5ZCw8rDpy8xFH
+        xZErYsSVH4mscznbPaDdez7NOXo13641uUzPOucgdrzwrE4b2XmBRXY2X70EQl38
+        nwWDmFl9mEMlgf8LUJpN9V1GXarkjsDRdmTOlj7sKjdyupqM7SFABTT8gmFsaJxz
+        r8QKdX8OuYjDIvpeTJHeKtFAccA6TfKw6UIYWFGPVlUg4anEl598YzfOwKa125x/
+        LlAhjIBRE0j31Xz/i71a4I+1OOksDYtdteaBnWBDLkEifI+lmDqbf6Xlme4U6oTl
+        lDS+o3ji/VxTo8+XvUZQHGLHsSpd4cPysp5gDvZEntAv0qy66zg==
+Received: from mail.gigared.com.ar (mail.gigared.com.ar [190.7.31.233])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by penny.gigared.com.ar (Proxmox) with ESMTPS id 7F06949651;
+        Sun, 14 Nov 2021 18:17:15 -0300 (-03)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.gigared.com.ar (Postfix) with ESMTP id 80AD549E50E11;
+        Sun, 14 Nov 2021 18:17:14 -0300 (-03)
+Received: from mail.gigared.com.ar ([127.0.0.1])
+        by localhost (mail.gigared.com.ar [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id 1xo9SW48h-jF; Sun, 14 Nov 2021 18:17:14 -0300 (-03)
+Received: from mail.gigared.com.ar (localhost [127.0.0.1])
+        by mail.gigared.com.ar (Postfix) with ESMTPS id 1977249E50E34;
+        Sun, 14 Nov 2021 18:17:14 -0300 (-03)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.gigared.com.ar 1977249E50E34
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gigared.com.ar;
+        s=A65C87CE-340A-11E9-BBED-632450DDCFE9; t=1636924634;
+        bh=YCWD6euUotuknYIwyo/1yybWNhUvp9eA5YFBnwIsAR0=;
+        h=MIME-Version:To:From:Date:Message-Id;
+        b=A/NY9XwWWNS9e56d3xLw0p/E+xl+VE/kIz6S6vusGZIK8oMcPLnt/ys5xUuhdQPjM
+         6AvShBWBF9DGAogGQugF6Y1UsKV4YOaMXtnGTdYnzKDkXFCEZmRKLQifu8mUsm6MGO
+         d1oWUW5iBXLshqvCmTNmzZEHcMDAu3S7xES9Vz+Y=
+Received: from [10.5.0.2] (unknown [131.255.4.84])
+        by mail.gigared.com.ar (Postfix) with ESMTPSA id D3BF749E50E29;
+        Sun, 14 Nov 2021 18:17:05 -0300 (-03)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 15 Nov 2021 12:25:50 +0530
-Message-ID: <CA+G9fYsZ_Zks32WTNgKjQg2gwRuqS4E92ttH+okUCdnPFdaNTQ@mail.gmail.com>
-Subject: [stable-rc queue/5/15 ]: rk3568-evb1-v10.dts:10:10: fatal error:
- rk3568.dtsi: No such file or directory
-To:     Peter Geis <pgwipeout@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, lkft-triage@lists.linaro.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: Kredit
+To:     Recipients <ohramirez@gigared.com.ar>
+From:   ohramirez@gigared.com.ar
+Date:   Sun, 14 Nov 2021 13:16:55 -0800
+Reply-To: dubailoansltd@outlook.com
+Message-Id: <20211114211705.D3BF749E50E29@mail.gigared.com.ar>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Following build warnings/ errors noticed on Linux stable-rc queue/5.15 branch.
-with gcc-11 for arm64 architecture.
+Goedendag,
 
-arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi:464.3-52: Warning
-(pci_device_reg): /pcie@f8000000/pcie@0,0:reg: PCI reg address is not
-configuration space
-arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi:464.3-52: Warning
-(pci_device_reg): /pcie@f8000000/pcie@0,0:reg: PCI reg address is not
-configuration space
-arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi:464.3-52: Warning
-(pci_device_reg): /pcie@f8000000/pcie@0,0:reg: PCI reg address is not
-configuration space
-arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi:464.3-52: Warning
-(pci_device_reg): /pcie@f8000000/pcie@0,0:reg: PCI reg address is not
-configuration space
-arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dts:10:10: fatal error:
-rk3568.dtsi: No such file or directory
-   10 | #include rk3568.dtsi
-      |          ^~~~~~~~~~~~~
-compilation terminated.
-make[3]: *** [scripts/Makefile.lib:358:
-arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dtb] Error 1
+    Dit is Dubai Loans LTD die leningen verstrekt per postadvertentie. We b=
+ieden verschillende soorten leningen, projectleningen (korte en lange termi=
+jn lening, persoonlijke lening, BELEGGINGSlening BEDRIJFSLENING HYPOTHEEK l=
+ening enz.) met een rentepercentage van 3%. Onze leningen vari=EBren tussen=
+ 10.000,00 tot 50.000.000,00 Euro met een maximale looptijd van 15 jaar.
 
-The first bad commit:
---------
-arm64: dts: rockchip: move rk3568 dtsi to rk356x dtsi
-[ Upstream commit 4e50d2173b67115a5574f4f4ce64ec9c5d9c136e ]
+Wij zijn ge=EFnteresseerd in het financieren van grote projecten. De afloss=
+ingstermijn is 1-30 jaar + 6 maanden aflossingsvrije periode.
 
-In preparation for separating the rk3568 and rk3566 device trees, move
-the base rk3568 dtsi to rk356x dtsi.
-This will allow us to strip out the rk3568 specific nodes.
+INFORMATIE NODIG:
 
-Signed-off-by: Peter Geis <pgwipeout@gmail.com>
-Link: https://lore.kernel.org/r/20210710151034.32857-2-pgwipeout@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org
+* Jullie namen:
+* Leningbedrag nodig:
+* Looptijd:
+* Telefoonnummer:
+
+Bedankt voor uw begrip
 
 
+Youssef Salman
+Financieel adviseur, Dubai Loans LTD
+whatsapp: +971 527 421 865
+E-mail: info@dubailoansltd.com
 
-Build config:
-https://builds.tuxbuild.com/20wHY13986hVAE9j4Kwxq4C8JUX/config
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-meta data:
------------
-    git_describe: v5.15.2-851-g750602323c68
-    git_ref:
-    git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc-queues
-    git_sha: 750602323c68ab51f3b65c59efc4289a7e7c60f9
-    git_short_log: 750602323c68 (\thermal: int340x: fix build on
-32-bit targets\)
-    kernel_version: 5.15.2
-    target_arch: arm64
-    toolchain: gcc-11
-    kconfig: [
-        defconfig,
-        https://raw.githubusercontent.com/Linaro/meta-lkft/sumo/recipes-kernel/linux/files/lkft.config,
-        https://raw.githubusercontent.com/Linaro/meta-lkft/sumo/recipes-kernel/linux/files/lkft-crypto.config,
-        https://raw.githubusercontent.com/Linaro/meta-lkft/sumo/recipes-kernel/linux/files/distro-overrides.config,
-        https://raw.githubusercontent.com/Linaro/meta-lkft/sumo/recipes-kernel/linux/files/systemd.config,
-        https://raw.githubusercontent.com/Linaro/meta-lkft/sumo/recipes-kernel/linux/files/virtio.config,
-        CONFIG_ARM64_MODULE_PLTS=y,
-        CONFIG_SYN_COOKIES=y
-    ],
-
-steps to reproduce:
-tuxmake --runtime podman --target-arch arm64 --toolchain gcc-11
---kconfig defconfig \
- --kconfig-add https://builds.tuxbuild.com/20wHY13986hVAE9j4Kwxq4C8JUX/config
-
-https://builds.tuxbuild.com/20wHY13986hVAE9j4Kwxq4C8JUX/tuxmake_reproducer.sh
-
---
-Linaro LKFT
-https://lkft.linaro.org
