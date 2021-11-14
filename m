@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5696744F83B
-	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 14:50:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C3344F83C
+	for <lists+stable@lfdr.de>; Sun, 14 Nov 2021 14:50:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229862AbhKNNxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Nov 2021 08:53:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41368 "EHLO mail.kernel.org"
+        id S229959AbhKNNxs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Nov 2021 08:53:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229725AbhKNNxf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Nov 2021 08:53:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BCCB61077;
-        Sun, 14 Nov 2021 13:50:40 +0000 (UTC)
+        id S229725AbhKNNxo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Nov 2021 08:53:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 007A561077;
+        Sun, 14 Nov 2021 13:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636897841;
-        bh=XyE4yuvpKXcwqUhy0f28phlAqmKA7F3g7Hj7gZcOgVI=;
+        s=korg; t=1636897850;
+        bh=2MXXIuCkILO3NHukdVZepbdwlNOp6OXkYTfliNTTNjw=;
         h=Subject:To:Cc:From:Date:From;
-        b=YMkC5GE+C4yqMmB8a7sTsPbimspUvyskYqRIqaQAsJmXbROkrhc8MeYfvHTtMZmEd
-         1IganhICOGZtllnzS0mHCQnK0stEanD1ZvD1cquQCUNemhWlg82cCOzOBu/EYYRipT
-         XTj921gIQ9GDtok77Z2JpLoNJpDGVpEFOgCaWICI=
-Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix checking for link up via LTSSM state" failed to apply to 4.14-stable tree
+        b=e8X97VLXw7zICQrnvP0fu3u9MK8xf04LsKUG7VBjFqtdIg/QvJVkFHTcmZ4AghwR0
+         1AebF4pEELwvS4D0ytKq+MU0CPfnL6lid4ITKCUYxU/PSd2sqBA7wopbmzd+uAQuZb
+         9/ZVrYU7jP+Vl7vi9BcKO7nI8GpVMrKx7Ni6c7dI=
+Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix checking for link up via LTSSM state" failed to apply to 4.19-stable tree
 To:     pali@kernel.org, kabel@kernel.org, lorenzo.pieralisi@arm.com,
         repk@triplefau.lt
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Nov 2021 14:50:39 +0100
-Message-ID: <163689783914134@kroah.com>
+Date:   Sun, 14 Nov 2021 14:50:40 +0100
+Message-ID: <1636897839254123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
