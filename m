@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D128451405
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F90245117B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:06:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348885AbhKOUAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:00:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
+        id S243783AbhKOTJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:09:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344182AbhKOTYC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87D3863479;
-        Mon, 15 Nov 2021 18:53:15 +0000 (UTC)
+        id S237897AbhKOTFn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:05:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B96AB633E1;
+        Mon, 15 Nov 2021 18:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002396;
-        bh=5V6xog1Lo8blKk2tOsX51du8qQIOzPQWqnVhSLMV6c4=;
+        s=korg; t=1637000186;
+        bh=kT+YnfsjxFciu5opeqssVT8tP8KjIQg9Tu3kSaqZ9nQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ip77BQaoz/AwE5YVI9kMaI349nQf83Q/uHKAmAc8kgMV6Jvz3fAiF0DaL1HtPRlH0
-         arI2vy8dE9plGfwsrreq0iKEo6v0a4VbGELdAFMtU0+iPQYqtsx3cM+95xOHbrxBeP
-         XOYO2IA2QGIu1G970jfRe1cAkIBlK+M0jjYbL4ag=
+        b=0rIFaRzBd7Lt5H+RpRQEA27iLnz4FUbPTWutKbJFxu/W6j/kE5tIFbZyQbYWxKkoo
+         bnNt9/CVBbVrL1iv1pH8x3wIxTHYAQb1jrcEJV1jc2tAg8FtduIemXNZhYqyut5B7n
+         xpdkGAVvRzuUwzSjZPWkI3hhY3gqLmZQvlsjpEhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maxwell <jmaxwell37@gmail.com>,
-        Monir Zouaoui <Monir.Zouaoui@mail.schwarz>,
-        Simon Stier <simon.stier@mail.schwarz>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 523/917] tcp: dont free a FIN sk_buff in tcp_remove_empty_skb()
+Subject: [PATCH 5.14 535/849] ipmi: kcs_bmc: Fix a memory leak in the error handling path of kcs_bmc_serio_add_device()
 Date:   Mon, 15 Nov 2021 18:00:18 +0100
-Message-Id: <20211115165446.501294195@linuxfoundation.org>
+Message-Id: <20211115165438.364471052@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Maxwell <jmaxwell37@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit cf12e6f9124629b18a6182deefc0315f0a73a199 ]
+[ Upstream commit f281d010b87454e72475b668ad66e34961f744e0 ]
 
-v1: Implement a more general statement as recommended by Eric Dumazet. The
-sequence number will be advanced, so this check will fix the FIN case and
-other cases.
+In the unlikely event where 'devm_kzalloc()' fails and 'kzalloc()'
+succeeds, 'port' would be leaking.
 
-A customer reported sockets stuck in the CLOSING state. A Vmcore revealed that
-the write_queue was not empty as determined by tcp_write_queue_empty() but the
-sk_buff containing the FIN flag had been freed and the socket was zombied in
-that state. Corresponding pcaps show no FIN from the Linux kernel on the wire.
+Test each allocation separately to avoid the leak.
 
-Some instrumentation was added to the kernel and it was found that there is a
-timing window where tcp_sendmsg() can run after tcp_send_fin().
-
-tcp_sendmsg() will hit an error, for example:
-
-1269 ▹       if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))↩
-1270 ▹       ▹       goto do_error;↩
-
-tcp_remove_empty_skb() will then free the FIN sk_buff as "skb->len == 0". The
-TCP socket is now wedged in the FIN-WAIT-1 state because the FIN is never sent.
-
-If the other side sends a FIN packet the socket will transition to CLOSING and
-remain that way until the system is rebooted.
-
-Fix this by checking for the FIN flag in the sk_buff and don't free it if that
-is the case. Testing confirmed that fixed the issue.
-
-Fixes: fdfc5c8594c2 ("tcp: remove empty skb from write queue in error cases")
-Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
-Reported-by: Monir Zouaoui <Monir.Zouaoui@mail.schwarz>
-Reported-by: Simon Stier <simon.stier@mail.schwarz>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3a3d2f6a4c64 ("ipmi: kcs_bmc: Add serio adaptor")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Message-Id: <ecbfa15e94e64f4b878ecab1541ea46c74807670.1631048724.git.christophe.jaillet@wanadoo.fr>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/ipmi/kcs_bmc_serio.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index d13050b68045b..8affba5909bdf 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -952,7 +952,7 @@ int tcp_send_mss(struct sock *sk, int *size_goal, int flags)
-  */
- void tcp_remove_empty_skb(struct sock *sk, struct sk_buff *skb)
- {
--	if (skb && !skb->len) {
-+	if (skb && TCP_SKB_CB(skb)->seq == TCP_SKB_CB(skb)->end_seq) {
- 		tcp_unlink_write_queue(skb, sk);
- 		if (tcp_write_queue_empty(sk))
- 			tcp_chrono_stop(sk, TCP_CHRONO_BUSY);
+diff --git a/drivers/char/ipmi/kcs_bmc_serio.c b/drivers/char/ipmi/kcs_bmc_serio.c
+index 7948cabde50b4..7e2067628a6ce 100644
+--- a/drivers/char/ipmi/kcs_bmc_serio.c
++++ b/drivers/char/ipmi/kcs_bmc_serio.c
+@@ -73,10 +73,12 @@ static int kcs_bmc_serio_add_device(struct kcs_bmc_device *kcs_bmc)
+ 	struct serio *port;
+ 
+ 	priv = devm_kzalloc(kcs_bmc->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
+ 
+ 	/* Use kzalloc() as the allocation is cleaned up with kfree() via serio_unregister_port() */
+ 	port = kzalloc(sizeof(*port), GFP_KERNEL);
+-	if (!(priv && port))
++	if (!port)
+ 		return -ENOMEM;
+ 
+ 	port->id.type = SERIO_8042;
 -- 
 2.33.0
 
