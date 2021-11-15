@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 147FF4512C6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B7764512C5
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347361AbhKOTjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:39:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44636 "EHLO mail.kernel.org"
+        id S1347374AbhKOTjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245010AbhKOTSW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245012AbhKOTSW (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:18:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00C7E63438;
-        Mon, 15 Nov 2021 18:26:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4CF063433;
+        Mon, 15 Nov 2021 18:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000817;
-        bh=LTGJYa28MS1I9l3cpM5GMtheOIB178jPguO/fGWMZdY=;
+        s=korg; t=1637000823;
+        bh=sg1bUQBCpesztslWeZj8wedOnSZRGxGuQVRXlQ2WuSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YCfmq0FDluUNji3D/tJCi9fcGkyScAdapf2/TNFoaNzH1uSuL7aWFxF4dEt925Dx7
-         hBEx4gn5Gk3GLiFevTOP5qSJZJiLIImCmU69wp3Fw5gUD/6oxvpU9PfThf+KkIbJ6S
-         p8pCQhDIyJEJDLN98IuysgkcbshNJt52lLNht49o=
+        b=toGKckv5u4zFGEP0CPgYJpz5/6Auj+XOA0jWA6YJfUKDMi2lBYmz57GzrxHf4b0sG
+         cvY56FZWtvvoPgWQi/slGLBCKqp+Vc/XZVB8N2M1REWvwR7m+42GM2Ro4w7wX64Zfd
+         PbVAoN3GiaA1/5EdIc3JukWF5w+6Vko+cib2gAZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        syzbot+df709157a4ecaf192b03@syzkaller.appspotmail.com,
+        syzbot+533f389d4026d86a2a95@syzkaller.appspotmail.com,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>, Tejun Heo <tj@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 803/849] net, neigh: Enable state migration between NUD_PERMANENT and NTF_USE
-Date:   Mon, 15 Nov 2021 18:04:46 +0100
-Message-Id: <20211115165447.398027401@linuxfoundation.org>
+Subject: [PATCH 5.14 805/849] bpf, cgroup: Assign cgroup in cgroup_sk_alloc when called from interrupt
+Date:   Mon, 15 Nov 2021 18:04:48 +0100
+Message-Id: <20211115165447.467862917@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -43,159 +45,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 3dc20f4762c62d3b3f0940644881ed818aa7b2f5 ]
+[ Upstream commit 78cc316e9583067884eb8bd154301dc1e9ee945c ]
 
-Currently, it is not possible to migrate a neighbor entry between NUD_PERMANENT
-state and NTF_USE flag with a dynamic NUD state from a user space control plane.
-Similarly, it is not possible to add/remove NTF_EXT_LEARNED flag from an existing
-neighbor entry in combination with NTF_USE flag.
+If cgroup_sk_alloc() is called from interrupt context, then just assign the
+root cgroup to skcd->cgroup. Prior to commit 8520e224f547 ("bpf, cgroups:
+Fix cgroup v2 fallback on v1/v2 mixed mode") we would just return, and later
+on in sock_cgroup_ptr(), we were NULL-testing the cgroup in fast-path, and
+iff indeed NULL returning the root cgroup (v ?: &cgrp_dfl_root.cgrp). Rather
+than re-adding the NULL-test to the fast-path we can just assign it once from
+cgroup_sk_alloc() given v1/v2 handling has been simplified. The migration from
+NULL test with returning &cgrp_dfl_root.cgrp to assigning &cgrp_dfl_root.cgrp
+directly does /not/ change behavior for callers of sock_cgroup_ptr().
 
-This is due to the latter directly calling into neigh_event_send() without any
-meta data updates as happening in __neigh_update(). Thus, to enable this use
-case, extend the latter with a NEIGH_UPDATE_F_USE flag where we break the
-NUD_PERMANENT state in particular so that a latter neigh_event_send() is able
-to re-resolve a neighbor entry.
+syzkaller was able to trigger a splat in the legacy netrom code base, where
+the RX handler in nr_rx_frame() calls nr_make_new() which calls sk_alloc()
+and therefore cgroup_sk_alloc() with in_interrupt() condition. Thus the NULL
+skcd->cgroup, where it trips over on cgroup_sk_free() side given it expects
+a non-NULL object. There are a few other candidates aside from netrom which
+have similar pattern where in their accept-like implementation, they just call
+to sk_alloc() and thus cgroup_sk_alloc() instead of sk_clone_lock() with the
+corresponding cgroup_sk_clone() which then inherits the cgroup from the parent
+socket. None of them are related to core protocols where BPF cgroup programs
+are running from. However, in future, they should follow to implement a similar
+inheritance mechanism.
 
-Before fix, NUD_PERMANENT -> NUD_* & NTF_USE:
+Additionally, with a !CONFIG_CGROUP_NET_PRIO and !CONFIG_CGROUP_NET_CLASSID
+configuration, the same issue was exposed also prior to 8520e224f547 due to
+commit e876ecc67db8 ("cgroup: memcg: net: do not associate sock with unrelated
+cgroup") which added the early in_interrupt() return back then.
 
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
-  [...]
-
-As can be seen, despite the admin-triggered replace, the entry remains in the
-NUD_PERMANENT state.
-
-After fix, NUD_PERMANENT -> NUD_* & NTF_USE:
-
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a extern_learn REACHABLE
-  [...]
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a extern_learn STALE
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
-  [...]
-
-After the fix, the admin-triggered replace switches to a dynamic state from
-the NTF_USE flag which triggered a new neighbor resolution. Likewise, we can
-transition back from there, if needed, into NUD_PERMANENT.
-
-Similar before/after behavior can be observed for below transitions:
-
-Before fix, NTF_USE -> NTF_USE | NTF_EXT_LEARNED -> NTF_USE:
-
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
-  [...]
-
-After fix, NTF_USE -> NTF_USE | NTF_EXT_LEARNED -> NTF_USE:
-
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a extern_learn REACHABLE
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
-  [..]
-
+Fixes: 8520e224f547 ("bpf, cgroups: Fix cgroup v2 fallback on v1/v2 mixed mode")
+Fixes: e876ecc67db8 ("cgroup: memcg: net: do not associate sock with unrelated cgroup")
+Reported-by: syzbot+df709157a4ecaf192b03@syzkaller.appspotmail.com
+Reported-by: syzbot+533f389d4026d86a2a95@syzkaller.appspotmail.com
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Roopa Prabhu <roopa@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Tested-by: syzbot+df709157a4ecaf192b03@syzkaller.appspotmail.com
+Tested-by: syzbot+533f389d4026d86a2a95@syzkaller.appspotmail.com
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/bpf/20210927123921.21535-1-daniel@iogearbox.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/neighbour.h |  1 +
- net/core/neighbour.c    | 22 +++++++++++++---------
- 2 files changed, 14 insertions(+), 9 deletions(-)
+ kernel/cgroup/cgroup.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/neighbour.h b/include/net/neighbour.h
-index 990f9b1d17092..d5767e25509cc 100644
---- a/include/net/neighbour.h
-+++ b/include/net/neighbour.h
-@@ -253,6 +253,7 @@ static inline void *neighbour_priv(const struct neighbour *n)
- #define NEIGH_UPDATE_F_OVERRIDE			0x00000001
- #define NEIGH_UPDATE_F_WEAK_OVERRIDE		0x00000002
- #define NEIGH_UPDATE_F_OVERRIDE_ISROUTER	0x00000004
-+#define NEIGH_UPDATE_F_USE			0x10000000
- #define NEIGH_UPDATE_F_EXT_LEARNED		0x20000000
- #define NEIGH_UPDATE_F_ISROUTER			0x40000000
- #define NEIGH_UPDATE_F_ADMIN			0x80000000
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 077883f9f570b..704832723ab87 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -1221,7 +1221,7 @@ static void neigh_update_hhs(struct neighbour *neigh)
- 				lladdr instead of overriding it
- 				if it is different.
- 	NEIGH_UPDATE_F_ADMIN	means that the change is administrative.
--
-+	NEIGH_UPDATE_F_USE	means that the entry is user triggered.
- 	NEIGH_UPDATE_F_OVERRIDE_ISROUTER allows to override existing
- 				NTF_ROUTER flag.
- 	NEIGH_UPDATE_F_ISROUTER	indicates if the neighbour is known as
-@@ -1259,6 +1259,12 @@ static int __neigh_update(struct neighbour *neigh, const u8 *lladdr,
- 		goto out;
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 869a16f7684f1..bfbed4c99f166 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -6586,22 +6586,29 @@ int cgroup_parse_float(const char *input, unsigned dec_shift, s64 *v)
  
- 	ext_learn_change = neigh_update_ext_learned(neigh, flags, &notify);
-+	if (flags & NEIGH_UPDATE_F_USE) {
-+		new = old & ~NUD_PERMANENT;
-+		neigh->nud_state = new;
-+		err = 0;
+ void cgroup_sk_alloc(struct sock_cgroup_data *skcd)
+ {
+-	/* Don't associate the sock with unrelated interrupted task's cgroup. */
+-	if (in_interrupt())
+-		return;
++	struct cgroup *cgroup;
+ 
+ 	rcu_read_lock();
++	/* Don't associate the sock with unrelated interrupted task's cgroup. */
++	if (in_interrupt()) {
++		cgroup = &cgrp_dfl_root.cgrp;
++		cgroup_get(cgroup);
 +		goto out;
 +	}
++
+ 	while (true) {
+ 		struct css_set *cset;
  
- 	if (!(new & NUD_VALID)) {
- 		neigh_del_timer(neigh);
-@@ -1968,22 +1974,20 @@ static int neigh_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 
- 	if (protocol)
- 		neigh->protocol = protocol;
--
- 	if (ndm->ndm_flags & NTF_EXT_LEARNED)
- 		flags |= NEIGH_UPDATE_F_EXT_LEARNED;
--
- 	if (ndm->ndm_flags & NTF_ROUTER)
- 		flags |= NEIGH_UPDATE_F_ISROUTER;
-+	if (ndm->ndm_flags & NTF_USE)
-+		flags |= NEIGH_UPDATE_F_USE;
- 
--	if (ndm->ndm_flags & NTF_USE) {
-+	err = __neigh_update(neigh, lladdr, ndm->ndm_state, flags,
-+			     NETLINK_CB(skb).portid, extack);
-+	if (!err && ndm->ndm_flags & NTF_USE) {
- 		neigh_event_send(neigh, NULL);
- 		err = 0;
--	} else
--		err = __neigh_update(neigh, lladdr, ndm->ndm_state, flags,
--				     NETLINK_CB(skb).portid, extack);
--
-+	}
- 	neigh_release(neigh);
--
- out:
- 	return err;
+ 		cset = task_css_set(current);
+ 		if (likely(cgroup_tryget(cset->dfl_cgrp))) {
+-			skcd->cgroup = cset->dfl_cgrp;
+-			cgroup_bpf_get(cset->dfl_cgrp);
++			cgroup = cset->dfl_cgrp;
+ 			break;
+ 		}
+ 		cpu_relax();
+ 	}
++out:
++	skcd->cgroup = cgroup;
++	cgroup_bpf_get(cgroup);
+ 	rcu_read_unlock();
  }
+ 
 -- 
 2.33.0
 
