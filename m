@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E233D450F09
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:23:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22185450F0C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:23:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238070AbhKOSZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:25:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33234 "EHLO mail.kernel.org"
+        id S241384AbhKOSZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:25:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238816AbhKOSVY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:21:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4697463413;
-        Mon, 15 Nov 2021 17:52:55 +0000 (UTC)
+        id S241539AbhKOSWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:22:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88A3963414;
+        Mon, 15 Nov 2021 17:53:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998775;
-        bh=4WvWI2eX3UR0e5euSy6Ud6A3vKgp3X2yJGIdlnaRuyw=;
+        s=korg; t=1636998789;
+        bh=FzyUlUWB2ClNhaYI5im7P9AoIa7CyhYvfNz6wbi/a1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsPBNoC21CH+czPjnW+fCBPw1PtuQyusvpfdFD7+Wshl8cqsikbh/9QQ20vM3fiVF
-         pDH1exRlI+40zzNVE8O3D0gUupO7s2okdDrWqL3CuWptXxnPnF77q0ZKd7K1EBxxr0
-         dmOnTjg/irurMYpgv8/01i1ToXtj8Oo0bNKhgtXM=
+        b=JNUf7Yssud+1RjDbqQe2FXQylzA7NPlmM4q4m3u21DJ4Ag2yfKwOOEo27Jc4LeZPg
+         YYa5nrhIBeRB/F/T9imezC3aPucW1NpDMFFNXFF7T5HslmN3D1F3HrVryEWvIdgjAL
+         RPo73MnujTluSWbqBxInBq/6RlPSkdDSzDdBUw68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Wan Jiabing <wanjiabing@vivo.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 057/849] ASoC: soc-core: fix null-ptr-deref in snd_soc_del_component_unlocked()
-Date:   Mon, 15 Nov 2021 17:52:20 +0100
-Message-Id: <20211115165421.947849234@linuxfoundation.org>
+Subject: [PATCH 5.14 061/849] net: sparx5: Add of_node_put() before goto
+Date:   Mon, 15 Nov 2021 17:52:24 +0100
+Message-Id: <20211115165422.089078510@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,48 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Wan Jiabing <wanjiabing@vivo.com>
 
-[ Upstream commit c448b7aa3e66042fc0f849d9a0fb90d1af82e948 ]
+[ Upstream commit d9fd7e9fccfac466fb528a783f2fc76f2982604c ]
 
-'component' is allocated in snd_soc_register_component(), but component->list
-is not initalized, this may cause snd_soc_del_component_unlocked() deref null
-ptr in the error handing case.
+Fix following coccicheck warning:
+./drivers/net/ethernet/microchip/sparx5/s4parx5_main.c:723:1-33: WARNING: Function
+for_each_available_child_of_node should have of_node_put() before goto
 
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-RIP: 0010:__list_del_entry_valid+0x81/0xf0
-Call Trace:
- snd_soc_del_component_unlocked+0x69/0x1b0 [snd_soc_core]
- snd_soc_add_component.cold+0x54/0x6c [snd_soc_core]
- snd_soc_register_component+0x70/0x90 [snd_soc_core]
- devm_snd_soc_register_component+0x5e/0xd0 [snd_soc_core]
- tas2552_probe+0x265/0x320 [snd_soc_tas2552]
- ? tas2552_component_probe+0x1e0/0x1e0 [snd_soc_tas2552]
- i2c_device_probe+0xa31/0xbe0
+Early exits from for_each_available_child_of_node should decrement the
+node reference counter.
 
-Fix by adding INIT_LIST_HEAD() to snd_soc_component_initialize().
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211009065840.3196239-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 1 +
+ drivers/net/ethernet/microchip/sparx5/sparx5_main.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 583f2381cfc82..e926985bb2f87 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -2599,6 +2599,7 @@ int snd_soc_component_initialize(struct snd_soc_component *component,
- 	INIT_LIST_HEAD(&component->dai_list);
- 	INIT_LIST_HEAD(&component->dobj_list);
- 	INIT_LIST_HEAD(&component->card_list);
-+	INIT_LIST_HEAD(&component->list);
- 	mutex_init(&component->io_mutex);
- 
- 	component->name = fmt_single_name(dev, &component->id);
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_main.c b/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
+index f666133a15dea..6e9058265d43e 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
+@@ -743,6 +743,7 @@ static int mchp_sparx5_probe(struct platform_device *pdev)
+ 			err = dev_err_probe(sparx5->dev, PTR_ERR(serdes),
+ 					    "port %u: missing serdes\n",
+ 					    portno);
++			of_node_put(portnp);
+ 			goto cleanup_config;
+ 		}
+ 		config->portno = portno;
 -- 
 2.33.0
 
