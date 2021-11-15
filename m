@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B671A451131
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:59:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E63A450D85
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:56:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243698AbhKOTCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:02:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34350 "EHLO mail.kernel.org"
+        id S239165AbhKOR7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:59:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243493AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:59:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F89163497;
-        Mon, 15 Nov 2021 18:13:15 +0000 (UTC)
+        id S239292AbhKOR4g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:56:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 381EC60234;
+        Mon, 15 Nov 2021 17:34:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999996;
-        bh=PMCUqF9vurBqj+h+7PPkSXjzQ2/2zTs6z01L2iua1wQ=;
+        s=korg; t=1636997650;
+        bh=1wbu2UDNVvG4pGmKsS4xC+JaJVLy+awbAXuvYuBPrwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZxQV9lieifz9ulGkustgAFAOwJpp2iJtxFeHWzdez/zEhV8PUyA4Z9SxKrys64GLW
-         nx4zxrpY0vwHSCvrpMiwqpXGNPYVNqRUROmtPuGn7cRUcuqyA3FwXTrPTif3Ntc1ge
-         spHXcFp4AXQWfv2uBxOuPikI+tjnCwBfa4Occu1o=
+        b=kgW5pwLPj7gF5nKquhcEkEpDtp/dCzstq/UjpHZRjZS6IdxopF2rdzkP1zVRAzOr2
+         ycMad5ZfRhnTP7nLWOcubIBrXPnWHAiTN5cOch0qrMP4c7tsPQGPsNWR0YciPh3xJ0
+         D1uJo2NanHo+F6EriWXQnP9Y/qHBtUgrNRALG2AM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 467/849] mt76: mt7921: always wake device if necessary in debugfs
-Date:   Mon, 15 Nov 2021 17:59:10 +0100
-Message-Id: <20211115165436.084870172@linuxfoundation.org>
+Subject: [PATCH 5.10 226/575] mt76: mt7915: fix an off-by-one bound check
+Date:   Mon, 15 Nov 2021 17:59:11 +0100
+Message-Id: <20211115165351.534442531@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,61 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Ryder Lee <ryder.lee@mediatek.com>
 
-[ Upstream commit 569008744178b672ea3ad9047fa3098f1b73ca55 ]
+[ Upstream commit d45dac0732a287fc371a23f257cce04e65627947 ]
 
-Add missing device wakeup in debugfs code if we are accessing chip
-registers.
+The bounds check on datalen is off-by-one, so fix it.
 
-Fixes: 1d8efc741df8 ("mt76: mt7921: introduce Runtime PM support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-index 4c89c4ac8031a..30f3b3085c786 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-@@ -95,6 +95,8 @@ mt7921_tx_stats_show(struct seq_file *file, void *data)
- 	struct mt7921_dev *dev = file->private;
- 	int stat[8], i, n;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+index ea71409751519..7c2d09a64882e 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+@@ -830,7 +830,7 @@ static void mt7915_check_he_obss_narrow_bw_ru_iter(struct wiphy *wiphy,
  
-+	mt7921_mutex_acquire(dev);
-+
- 	mt7921_ampdu_stat_read_phy(&dev->phy, file);
+ 	elem = ieee80211_bss_get_elem(bss, WLAN_EID_EXT_CAPABILITY);
  
- 	/* Tx amsdu info */
-@@ -104,6 +106,8 @@ mt7921_tx_stats_show(struct seq_file *file, void *data)
- 		n += stat[i];
- 	}
- 
-+	mt7921_mutex_release(dev);
-+
- 	for (i = 0; i < ARRAY_SIZE(stat); i++) {
- 		seq_printf(file, "AMSDU pack count of %d MSDU in TXD: 0x%x ",
- 			   i + 1, stat[i]);
-@@ -124,6 +128,8 @@ mt7921_queues_acq(struct seq_file *s, void *data)
- 	struct mt7921_dev *dev = dev_get_drvdata(s->private);
- 	int i;
- 
-+	mt7921_mutex_acquire(dev);
-+
- 	for (i = 0; i < 16; i++) {
- 		int j, acs = i / 4, index = i % 4;
- 		u32 ctrl, val, qlen = 0;
-@@ -143,6 +149,8 @@ mt7921_queues_acq(struct seq_file *s, void *data)
- 		seq_printf(s, "AC%d%d: queued=%d\n", acs, index, qlen);
- 	}
- 
-+	mt7921_mutex_release(dev);
-+
- 	return 0;
- }
- 
+-	if (!elem || elem->datalen < 10 ||
++	if (!elem || elem->datalen <= 10 ||
+ 	    !(elem->data[10] &
+ 	      WLAN_EXT_CAPA10_OBSS_NARROW_BW_RU_TOLERANCE_SUPPORT))
+ 		data->tolerated = false;
 -- 
 2.33.0
 
