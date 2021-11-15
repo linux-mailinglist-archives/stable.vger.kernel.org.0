@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD1B34526CE
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B85345236D
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:23:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239167AbhKPCKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:10:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45588 "EHLO mail.kernel.org"
+        id S1349579AbhKPB0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:26:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239321AbhKOSAc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:00:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83E4D6333A;
-        Mon, 15 Nov 2021 17:36:17 +0000 (UTC)
+        id S237927AbhKOTAJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:00:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D41C861526;
+        Mon, 15 Nov 2021 18:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997778;
-        bh=QkbMNHLS6JZCxXMOvzeXAIPDQ+k5McXIovFYYhzs+ys=;
+        s=korg; t=1637000031;
+        bh=VMnqhBpvb6EqvxYoJOoOQ4x7BJAEhO06O94UOubTOkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cckKU1Xez5YcTbJVOhDP3IGfQ7OTFra67ivEXtBFhQyRrOwXdCb/uv4cZ2+jkVLxf
-         i5PXhqFCS3tDxUTqtmUDrVoMZL7a8skogNtkO77KJROVqOjF7iFQcHtbywuR7FE0SF
-         Gzgicd26mejyOAzYBkzJX2qRT1UUPZog2tNWVf0M=
+        b=nBRzVW4C+0QupMXWnYNU1aQfE1QjLM0I5svls+la/aDIjO3OyCyscCd2wOHVeVk1W
+         qHSa9+z4G6sVS/VRkBbDlIwhzy5HqTkmSbMPMCRCVOkigEWfzZUPXx1XkcWKn/RB02
+         6XM4sbtS2qsiuJKl/hbPiUrwVXiOXlr06h1Q3qpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
+        stable@vger.kernel.org, Jon Maxwell <jmaxwell37@gmail.com>,
+        Monir Zouaoui <Monir.Zouaoui@mail.schwarz>,
+        Simon Stier <simon.stier@mail.schwarz>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 271/575] net: net_namespace: Fix undefined member in key_remove_domain()
+Subject: [PATCH 5.14 513/849] tcp: dont free a FIN sk_buff in tcp_remove_empty_skb()
 Date:   Mon, 15 Nov 2021 17:59:56 +0100
-Message-Id: <20211115165353.138984103@linuxfoundation.org>
+Message-Id: <20211115165437.644228742@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yajun Deng <yajun.deng@linux.dev>
+From: Jon Maxwell <jmaxwell37@gmail.com>
 
-[ Upstream commit aed0826b0cf2e488900ab92193893e803d65c070 ]
+[ Upstream commit cf12e6f9124629b18a6182deefc0315f0a73a199 ]
 
-The key_domain member in struct net only exists if we define CONFIG_KEYS.
-So we should add the define when we used key_domain.
+v1: Implement a more general statement as recommended by Eric Dumazet. The
+sequence number will be advanced, so this check will fix the FIN case and
+other cases.
 
-Fixes: 9b242610514f ("keys: Network namespace domain tag")
-Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+A customer reported sockets stuck in the CLOSING state. A Vmcore revealed that
+the write_queue was not empty as determined by tcp_write_queue_empty() but the
+sk_buff containing the FIN flag had been freed and the socket was zombied in
+that state. Corresponding pcaps show no FIN from the Linux kernel on the wire.
+
+Some instrumentation was added to the kernel and it was found that there is a
+timing window where tcp_sendmsg() can run after tcp_send_fin().
+
+tcp_sendmsg() will hit an error, for example:
+
+1269 ▹       if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))↩
+1270 ▹       ▹       goto do_error;↩
+
+tcp_remove_empty_skb() will then free the FIN sk_buff as "skb->len == 0". The
+TCP socket is now wedged in the FIN-WAIT-1 state because the FIN is never sent.
+
+If the other side sends a FIN packet the socket will transition to CLOSING and
+remain that way until the system is rebooted.
+
+Fix this by checking for the FIN flag in the sk_buff and don't free it if that
+is the case. Testing confirmed that fixed the issue.
+
+Fixes: fdfc5c8594c2 ("tcp: remove empty skb from write queue in error cases")
+Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
+Reported-by: Monir Zouaoui <Monir.Zouaoui@mail.schwarz>
+Reported-by: Simon Stier <simon.stier@mail.schwarz>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/net_namespace.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv4/tcp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
-index 5c9d95f30be60..ac852db83de9f 100644
---- a/net/core/net_namespace.c
-+++ b/net/core/net_namespace.c
-@@ -486,7 +486,9 @@ struct net *copy_net_ns(unsigned long flags,
- 
- 	if (rv < 0) {
- put_userns:
-+#ifdef CONFIG_KEYS
- 		key_remove_domain(net->key_domain);
-+#endif
- 		put_user_ns(user_ns);
- 		net_drop_ns(net);
- dec_ucounts:
-@@ -618,7 +620,9 @@ static void cleanup_net(struct work_struct *work)
- 	list_for_each_entry_safe(net, tmp, &net_exit_list, exit_list) {
- 		list_del_init(&net->exit_list);
- 		dec_net_namespaces(net->ucounts);
-+#ifdef CONFIG_KEYS
- 		key_remove_domain(net->key_domain);
-+#endif
- 		put_user_ns(net->user_ns);
- 		net_drop_ns(net);
- 	}
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 9c38c22c92fbb..d681404c8bfb0 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -955,7 +955,7 @@ int tcp_send_mss(struct sock *sk, int *size_goal, int flags)
+  */
+ void tcp_remove_empty_skb(struct sock *sk, struct sk_buff *skb)
+ {
+-	if (skb && !skb->len) {
++	if (skb && TCP_SKB_CB(skb)->seq == TCP_SKB_CB(skb)->end_seq) {
+ 		tcp_unlink_write_queue(skb, sk);
+ 		if (tcp_write_queue_empty(sk))
+ 			tcp_chrono_stop(sk, TCP_CHRONO_BUSY);
 -- 
 2.33.0
 
