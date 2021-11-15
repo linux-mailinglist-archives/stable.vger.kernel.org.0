@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC236451EDA
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC5A7451ED6
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243598AbhKPAhm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:37:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
+        id S1347833AbhKPAhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:37:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344729AbhKOTZS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344736AbhKOTZS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C42A363278;
-        Mon, 15 Nov 2021 19:03:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93717636BE;
+        Mon, 15 Nov 2021 19:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002996;
-        bh=45ZJCceUUvUW6UIrrGAmsv1isRggW6JSEpTRfj4mi8c=;
+        s=korg; t=1637002999;
+        bh=3XvS00bxPtuxUw2sHKSI0zB0OvGbL+ui4qKlDOMODgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nxg3cQt2SH7B8LBfy2j62OJ8jmUMXz32ySRPrSeo6rd9u+gsMZYMfeSOAsFEgOKh/
-         bFN9xJMQ1vl/E/1zVQO/tAET8Wvq8+q43TRu1NhP6ZxkXTndzYeknYDKWwuxQhBiuG
-         NISilRQoIOntt0qOFNhlQx0zh33WRVbJ2CRe/paw=
+        b=QXhEz4JbOspCXmqVJvJjLx8vdjtIh4sK1iq66L5aL7t0RdWri4ZN7JBdltBqXFxHy
+         NoHweqqJ4UqceUw8A5PrtGRK6VAjIi1YLuNTwldV3L7+VE/1nzgeojRJzGQJqc4GgT
+         URWxoIuMlEtONY2cc/v1GNAwdHbK69P+xBFImF0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
+        stable@vger.kernel.org, Ziye Yang <ziye.yang@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 739/917] dmaengine: tegra210-adma: fix pm runtime unbalance
-Date:   Mon, 15 Nov 2021 18:03:54 +0100
-Message-Id: <20211115165453.971279813@linuxfoundation.org>
+Subject: [PATCH 5.15 740/917] dmanegine: idxd: fix resource free ordering on driver removal
+Date:   Mon, 15 Nov 2021 18:03:55 +0100
+Message-Id: <20211115165454.003607098@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,41 +40,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit c5a51fc89c0103c03b8a54cf12dac7d014b3a2bf ]
+[ Upstream commit 98da0106aac0d3c5d4a3c95d238f1ff88957bbfc ]
 
-The previous commit 059e969c2a7d ("dmaengine: tegra210-adma: Using
-pm_runtime_resume_and_get to replace open coding") forgets to replace
-the pm_runtime_get_sync in the tegra_adma_probe, but removes the
-pm_runtime_put_noidle.
+Fault triggers on ioread32() when pci driver unbind is envoked. The
+placement of idxd sub-driver removal causes the probing of the device mmio
+region after the mmio mapping being torn down. The driver needs the
+sub-drivers to be unbound but not release the idxd context until all
+shutdown activities has been done. Move the sub-driver unregistering up
+before the remove() calls shutdown(). But take a device ref on the
+idxd->conf_dev so that the memory does not get freed in ->release(). When
+all cleanup activities has been done, release the ref to allow the idxd
+memory to be freed.
 
-Fix this by continuing to replace pm_runtime_get_sync with
-pm_runtime_resume_and_get in tegra_adma_probe.
+[57159.542766] RIP: 0010:ioread32+0x27/0x60
+[57159.547097] Code: 00 66 90 48 81 ff ff ff 03 00 77 1e 48 81 ff 00 00 01 00 76 05 0f
+ b7 d7 ed c3 8b 15 03 50 41 01 b8 ff ff ff ff 85 d2 75 04 c3 <8b> 07 c3 55 83 ea 01 48
+ 89 fe 48 c7 c7 00 70 5f 82 48 89 e5 48 83
+[57159.566647] RSP: 0018:ffffc900011abb60 EFLAGS: 00010292
+[57159.572295] RAX: ffffc900011e0000 RBX: ffff888107d39800 RCX: 0000000000000000
+[57159.579842] RDX: 0000000000000000 RSI: ffffffff82b1e448 RDI: ffffc900011e0090
+[57159.587421] RBP: ffffc900011abb88 R08: 0000000000000000 R09: 0000000000000001
+[57159.594972] R10: 0000000000000001 R11: 0000000000000000 R12: ffff8881019840d0
+[57159.602533] R13: ffff8881097e9000 R14: ffffffffa08542a0 R15: 00000000000003a8
+[57159.610093] FS:  00007f991e0a8740(0000) GS:ffff888459900000(0000) knlGS:00000000000
+00000
+[57159.618614] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[57159.624814] CR2: ffffc900011e0090 CR3: 000000010862a002 CR4: 00000000003706e0
+[57159.632397] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[57159.639973] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[57159.647601] Call Trace:
+[57159.650502]  ? idxd_device_disable+0x41/0x110 [idxd]
+[57159.655948]  idxd_device_drv_remove+0x2b/0x80 [idxd]
+[57159.661374]  idxd_config_bus_remove+0x16/0x20
+[57159.666191]  __device_release_driver+0x163/0x240
+[57159.671320]  device_release_driver+0x2b/0x40
+[57159.676052]  bus_remove_device+0xf5/0x160
+[57159.680524]  device_del+0x19c/0x400
+[57159.684440]  device_unregister+0x18/0x60
+[57159.688792]  idxd_remove+0x140/0x1c0 [idxd]
+[57159.693406]  pci_device_remove+0x3e/0xb0
+[57159.697758]  __device_release_driver+0x163/0x240
+[57159.702788]  device_driver_detach+0x43/0xb0
+[57159.707424]  unbind_store+0x11e/0x130
+[57159.711537]  drv_attr_store+0x24/0x30
+[57159.715646]  sysfs_kf_write+0x4b/0x60
+[57159.719710]  kernfs_fop_write_iter+0x153/0x1e0
+[57159.724563]  new_sync_write+0x120/0x1b0
+[57159.728812]  vfs_write+0x23e/0x350
+[57159.732624]  ksys_write+0x70/0xf0
+[57159.736335]  __x64_sys_write+0x1a/0x20
+[57159.740492]  do_syscall_64+0x3b/0x90
+[57159.744465]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[57159.749908] RIP: 0033:0x7f991e19c387
+[57159.753898] Code: 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e
+ fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51
+ c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
+[57159.773564] RSP: 002b:00007ffc2ce2d6a8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+[57159.781550] RAX: ffffffffffffffda RBX: 000000000000000c RCX: 00007f991e19c387
+[57159.789133] RDX: 000000000000000c RSI: 000055ee2630e140 RDI: 0000000000000001
+[57159.796695] RBP: 000055ee2630e140 R08: 0000000000000000 R09: 00007f991e2324e0
+[57159.804246] R10: 00007f991e2323e0 R11: 0000000000000246 R12: 000000000000000c
+[57159.811800] R13: 00007f991e26f520 R14: 000000000000000c R15: 00007f991e26f700
+[57159.819373] Modules linked in: idxd bridge stp llc bnep sunrpc nls_iso8859_1 intel_
+rapl_msr intel_rapl_common x86_pkg_temp_thermal intel_powerclamp coretemp snd_hda_code
+c_realtek iTCO_wdt 8250_dw snd_hda_codec_generic kvm_intel ledtrig_audio iTCO_vendor_s
+upport snd_hda_intel snd_intel_dspcfg ppdev kvm snd_hda_codec intel_wmi_thunderbolt sn
+d_hwdep irqbypass iwlwifi btusb snd_hda_core rapl btrtl intel_cstate snd_seq btbcm snd
+_seq_device btintel snd_pcm cfg80211 bluetooth pcspkr psmouse input_leds snd_timer int
+el_lpss_pci mei_me intel_lpss snd ecdh_generic ecc mei ucsi_acpi i2c_i801 idma64 i2c_s
+mbus virt_dma soundcore typec_ucsi typec wmi parport_pc parport video mac_hid acpi_pad
+ sch_fq_codel drm ip_tables x_tables crct10dif_pclmul crc32_pclmul ghash_clmulni_intel
+ usbkbd hid_generic usbmouse aesni_intel usbhid crypto_simd cryptd e1000e hid serio_ra
+w ahci libahci pinctrl_sunrisepoint fuse msr autofs4 [last unloaded: idxd]
+[57159.904082] CR2: ffffc900011e0090
+[57159.907877] ---[ end trace b4e32f49ce9176a4 ]---
 
-Fixes: 059e969c2a7d ("dmaengine: tegra210-adma: Using pm_runtime_resume_and_get to replace open coding")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Link: https://lore.kernel.org/r/20211021030538.3465287-1-mudongliangabcd@gmail.com
+Fixes: 49c4959f04b5 ("dmaengine: idxd: fix sequence for pci driver remove() and shutdown()")
+Reported-by: Ziye Yang <ziye.yang@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/163225535868.4152687.9318737776682088722.stgit@djiang5-desk3.ch.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/tegra210-adma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/idxd/init.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
-index b1115a6d1935c..d1dff3a29db59 100644
---- a/drivers/dma/tegra210-adma.c
-+++ b/drivers/dma/tegra210-adma.c
-@@ -867,7 +867,7 @@ static int tegra_adma_probe(struct platform_device *pdev)
+diff --git a/drivers/dma/idxd/init.c b/drivers/dma/idxd/init.c
+index eb09bc591c316..7bf03f371ce19 100644
+--- a/drivers/dma/idxd/init.c
++++ b/drivers/dma/idxd/init.c
+@@ -797,11 +797,19 @@ static void idxd_remove(struct pci_dev *pdev)
+ 	int msixcnt = pci_msix_vec_count(pdev);
+ 	int i;
  
- 	pm_runtime_enable(&pdev->dev);
+-	dev_dbg(&pdev->dev, "%s called\n", __func__);
++	idxd_unregister_devices(idxd);
++	/*
++	 * When ->release() is called for the idxd->conf_dev, it frees all the memory related
++	 * to the idxd context. The driver still needs those bits in order to do the rest of
++	 * the cleanup. However, we do need to unbound the idxd sub-driver. So take a ref
++	 * on the device here to hold off the freeing while allowing the idxd sub-driver
++	 * to unbind.
++	 */
++	get_device(idxd_confdev(idxd));
++	device_unregister(idxd_confdev(idxd));
+ 	idxd_shutdown(pdev);
+ 	if (device_pasid_enabled(idxd))
+ 		idxd_disable_system_pasid(idxd);
+-	idxd_unregister_devices(idxd);
  
--	ret = pm_runtime_get_sync(&pdev->dev);
-+	ret = pm_runtime_resume_and_get(&pdev->dev);
- 	if (ret < 0)
- 		goto rpm_disable;
+ 	for (i = 0; i < msixcnt; i++) {
+ 		irq_entry = &idxd->irq_entries[i];
+@@ -815,7 +823,7 @@ static void idxd_remove(struct pci_dev *pdev)
+ 	pci_disable_device(pdev);
+ 	destroy_workqueue(idxd->wq);
+ 	perfmon_pmu_remove(idxd);
+-	device_unregister(idxd_confdev(idxd));
++	put_device(idxd_confdev(idxd));
+ }
  
+ static struct pci_driver idxd_pci_driver = {
 -- 
 2.33.0
 
