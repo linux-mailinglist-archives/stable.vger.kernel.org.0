@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBAD452671
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD4CE45266C
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245033AbhKPCFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:05:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45590 "EHLO mail.kernel.org"
+        id S238999AbhKPCFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:05:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239789AbhKOSEr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:04:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57C1D61ACE;
-        Mon, 15 Nov 2021 17:39:06 +0000 (UTC)
+        id S239806AbhKOSEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:04:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 379A4632E1;
+        Mon, 15 Nov 2021 17:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997946;
-        bh=g/kD0yaHE67se5xJVaKmCsSuiO3uaW1InzpfNVj8b0I=;
+        s=korg; t=1636997949;
+        bh=2xvxMc1YNouKD2Ue39r/MhuA0e4s91JtqNNxPrWHim8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXfnEygFyJtAeivRJjYBVMF0Gt1V0bbG5lUMqRd8JoNt/jOQ+SjIw3FiN5SxbF7nF
-         hFELUa4OsTRusllCfSRFPL7Nkfy7r1ggHUa09xU0dUNEL2ZHtnNtBdX1yyYLXRCQYV
-         Jkm8EwoCFtAXWcd/J+2LDQcjIzOlSqcUEyiZhT84=
+        b=tw3yQxshpDvWmVIGrEIpqkXrxZV6LifNhr+Hm7opDts/dka+pnzq9l72iN4iKtz15
+         HI+RghwZDbsQ1dL4XXtSCVDmwgDvPtBDYtfTxfqWr+7P4o32JPs30Q7nJJWSrGKGzN
+         9Rd5nrBUhVlrDaVpq9UI17+luxLcobR1AU0tPOgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 333/575] mt76: mt76x02: fix endianness warnings in mt76x02_mac.c
-Date:   Mon, 15 Nov 2021 18:00:58 +0100
-Message-Id: <20211115165355.311759678@linuxfoundation.org>
+Subject: [PATCH 5.10 334/575] mt76: mt7915: fix possible infinite loop release semaphore
+Date:   Mon, 15 Nov 2021 18:00:59 +0100
+Message-Id: <20211115165355.342288785@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -41,83 +41,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit c33edef520213feccebc22c9474c685b9fb60611 ]
+[ Upstream commit e500c9470e26be66eb2bc6de773ae9091149118a ]
 
-Fix the following sparse warning in mt76x02_mac_write_txwi and
-mt76x02_mac_tx_rate_val routines:
-drivers/net/wireless/mediatek/mt76/mt76x02_mac.c:237:19:
-	warning: restricted __le16 degrades to intege
-	warning: cast from restricted __le16
-drivers/net/wireless/mediatek/mt76/mt76x02_mac.c:383:28:
-	warning: incorrect type in assignment (different base types)
-	expected restricted __le16 [usertype] rate
-	got unsigned long
+Fix possible infinite loop in mt7915_load_patch if
+mt7915_mcu_patch_sem_ctrl always returns an error.
 
-Fixes: db9f11d3433f7 ("mt76: store wcid tx rate info in one u32 reduce locking")
+Fixes: e57b7901469fc ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
 Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76x02_mac.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c b/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c
-index da6d3f51f6d47..677082d8659a6 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c
-@@ -176,7 +176,7 @@ void mt76x02_mac_wcid_set_drop(struct mt76x02_dev *dev, u8 idx, bool drop)
- 		mt76_wr(dev, MT_WCID_DROP(idx), (val & ~bit) | (bit * drop));
- }
- 
--static __le16
-+static u16
- mt76x02_mac_tx_rate_val(struct mt76x02_dev *dev,
- 			const struct ieee80211_tx_rate *rate, u8 *nss_val)
- {
-@@ -222,14 +222,14 @@ mt76x02_mac_tx_rate_val(struct mt76x02_dev *dev,
- 		rateval |= MT_RXWI_RATE_SGI;
- 
- 	*nss_val = nss;
--	return cpu_to_le16(rateval);
-+	return rateval;
- }
- 
- void mt76x02_mac_wcid_set_rate(struct mt76x02_dev *dev, struct mt76_wcid *wcid,
- 			       const struct ieee80211_tx_rate *rate)
- {
- 	s8 max_txpwr_adj = mt76x02_tx_get_max_txpwr_adj(dev, rate);
--	__le16 rateval;
-+	u16 rateval;
- 	u32 tx_info;
- 	s8 nss;
- 
-@@ -342,7 +342,7 @@ void mt76x02_mac_write_txwi(struct mt76x02_dev *dev, struct mt76x02_txwi *txwi,
- 	struct ieee80211_key_conf *key = info->control.hw_key;
- 	u32 wcid_tx_info;
- 	u16 rate_ht_mask = FIELD_PREP(MT_RXWI_RATE_PHY, BIT(1) | BIT(2));
--	u16 txwi_flags = 0;
-+	u16 txwi_flags = 0, rateval;
- 	u8 nss;
- 	s8 txpwr_adj, max_txpwr_adj;
- 	u8 ccmp_pn[8], nstreams = dev->chainmask & 0xf;
-@@ -380,14 +380,15 @@ void mt76x02_mac_write_txwi(struct mt76x02_dev *dev, struct mt76x02_txwi *txwi,
- 
- 	if (wcid && (rate->idx < 0 || !rate->count)) {
- 		wcid_tx_info = wcid->tx_info;
--		txwi->rate = FIELD_GET(MT_WCID_TX_INFO_RATE, wcid_tx_info);
-+		rateval = FIELD_GET(MT_WCID_TX_INFO_RATE, wcid_tx_info);
- 		max_txpwr_adj = FIELD_GET(MT_WCID_TX_INFO_TXPWR_ADJ,
- 					  wcid_tx_info);
- 		nss = FIELD_GET(MT_WCID_TX_INFO_NSS, wcid_tx_info);
- 	} else {
--		txwi->rate = mt76x02_mac_tx_rate_val(dev, rate, &nss);
-+		rateval = mt76x02_mac_tx_rate_val(dev, rate, &nss);
- 		max_txpwr_adj = mt76x02_tx_get_max_txpwr_adj(dev, rate);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+index 7c2d09a64882e..c36c7b0e918a4 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+@@ -2648,7 +2648,7 @@ out:
+ 	default:
+ 		ret = -EAGAIN;
+ 		dev_err(dev->mt76.dev, "Failed to release patch semaphore\n");
+-		goto out;
++		break;
  	}
-+	txwi->rate = cpu_to_le16(rateval);
+ 	release_firmware(fw);
  
- 	txpwr_adj = mt76x02_tx_get_txpwr_adj(dev, dev->txpower_conf,
- 					     max_txpwr_adj);
 -- 
 2.33.0
 
