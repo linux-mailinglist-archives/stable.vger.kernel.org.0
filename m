@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D226145132A
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 728DB45132C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245188AbhKOTqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:46:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
+        id S1344545AbhKOTq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:46:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245384AbhKOTU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE72C63468;
-        Mon, 15 Nov 2021 18:33:40 +0000 (UTC)
+        id S245416AbhKOTUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A9AB61266;
+        Mon, 15 Nov 2021 18:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001221;
-        bh=DbZ0Cveu/LdiU1FYLC2gWZytgdmF3iJGUGKJLPNlJxE=;
+        s=korg; t=1637001250;
+        bh=vEfqelE15uM6vrSH/1lYFneAPcMXGqQTaP8XQMGn/Ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0VwaAFdJWiCKLpJLneFGxikTJaGanVwYQ/p/4dc5CoQ4qyxdA9x5geOt1U1tBze9B
-         uNWo97gcmHpdfgDjNnIEjKh6+0BDVVHv89xkFroBH9KzDzTLXkhlP3VYdNNga+ig8/
-         sTJo0KqT7Z7TaAUQtct6a6lyhrDRld2hvUF2uJHs=
+        b=TDM9Ilxp4fqWPurlO1isGgnV/iM+TeHkx07sMbwgeiXGr9ERfa2mJUjSBqlZXxkFr
+         wm4VhihGP7lI4vvCeUAmlY7hrbjbc0KfO5ZVgUdZPUxd2mLdcpLM6j0rguCHOq1alV
+         +esd5RxiccN4gwRqu4RvF+zAsiKwlD7D4lADuiRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.15 108/917] signal: Remove the bogus sigkill_pending in ptrace_stop
-Date:   Mon, 15 Nov 2021 17:53:23 +0100
-Message-Id: <20211115165432.419547557@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>,
+        Henrik Grimler <henrik@grimler.se>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCH 5.15 118/917] power: supply: max17042_battery: use VFSOC for capacity when no rsns
+Date:   Mon, 15 Nov 2021 17:53:33 +0100
+Message-Id: <20211115165432.749470632@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,78 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Henrik Grimler <henrik@grimler.se>
 
-commit 7d613f9f72ec8f90ddefcae038fdae5adb8404b3 upstream.
+commit 223a3b82834f036a62aa831f67cbf1f1d644c6e2 upstream.
 
-The existence of sigkill_pending is a little silly as it is
-functionally a duplicate of fatal_signal_pending that is used in
-exactly one place.
+On Galaxy S3 (i9300/i9305), which has the max17047 fuel gauge and no
+current sense resistor (rsns), the RepSOC register does not provide an
+accurate state of charge value. The reported value is wrong, and does
+not change over time. VFSOC however, which uses the voltage fuel gauge
+to determine the state of charge, always shows an accurate value.
 
-Checking for pending fatal signals and returning early in ptrace_stop
-is actively harmful.  It casues the ptrace_stop called by
-ptrace_signal to return early before setting current->exit_code.
-Later when ptrace_signal reads the signal number from
-current->exit_code is undefined, making it unpredictable what will
-happen.
+For devices without current sense, VFSOC is already used for the
+soc-alert (0x0003 is written to MiscCFG register), so with this change
+the source of the alert and the PROP_CAPACITY value match.
 
-Instead rely on the fact that schedule will not sleep if there is a
-pending signal that can awaken a task.
-
-Removing the explict sigkill_pending test fixes fixes ptrace_signal
-when ptrace_stop does not stop because current->exit_code is always
-set to to signr.
-
-Cc: stable@vger.kernel.org
-Fixes: 3d749b9e676b ("ptrace: simplify ptrace_stop()->sigkill_pending() path")
-Fixes: 1a669c2f16d4 ("Add arch_ptrace_stop")
-Link: https://lkml.kernel.org/r/87pmsyx29t.fsf@disp2133
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 359ab9f5b154 ("power_supply: Add MAX17042 Fuel Gauge Driver")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Suggested-by: Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>
+Signed-off-by: Henrik Grimler <henrik@grimler.se>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/signal.c |   18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+ drivers/power/supply/max17042_battery.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2169,15 +2169,6 @@ static inline bool may_ptrace_stop(void)
- 	return true;
- }
+--- a/drivers/power/supply/max17042_battery.c
++++ b/drivers/power/supply/max17042_battery.c
+@@ -313,7 +313,10 @@ static int max17042_get_property(struct
+ 		val->intval = data * 625 / 8;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+-		ret = regmap_read(map, MAX17042_RepSOC, &data);
++		if (chip->pdata->enable_current_sense)
++			ret = regmap_read(map, MAX17042_RepSOC, &data);
++		else
++			ret = regmap_read(map, MAX17042_VFSOC, &data);
+ 		if (ret < 0)
+ 			return ret;
  
--/*
-- * Return non-zero if there is a SIGKILL that should be waking us up.
-- * Called with the siglock held.
-- */
--static bool sigkill_pending(struct task_struct *tsk)
--{
--	return sigismember(&tsk->pending.signal, SIGKILL) ||
--	       sigismember(&tsk->signal->shared_pending.signal, SIGKILL);
--}
- 
- /*
-  * This must be called with current->sighand->siglock held.
-@@ -2204,17 +2195,16 @@ static void ptrace_stop(int exit_code, i
- 		 * calling arch_ptrace_stop, so we must release it now.
- 		 * To preserve proper semantics, we must do this before
- 		 * any signal bookkeeping like checking group_stop_count.
--		 * Meanwhile, a SIGKILL could come in before we retake the
--		 * siglock.  That must prevent us from sleeping in TASK_TRACED.
--		 * So after regaining the lock, we must check for SIGKILL.
- 		 */
- 		spin_unlock_irq(&current->sighand->siglock);
- 		arch_ptrace_stop(exit_code, info);
- 		spin_lock_irq(&current->sighand->siglock);
--		if (sigkill_pending(current))
--			return;
- 	}
- 
-+	/*
-+	 * schedule() will not sleep if there is a pending signal that
-+	 * can awaken the task.
-+	 */
- 	set_special_state(TASK_TRACED);
- 
- 	/*
 
 
