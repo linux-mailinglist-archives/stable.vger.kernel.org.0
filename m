@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E643451DD5
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:31:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9251451DDC
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237230AbhKPAeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:34:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
+        id S1344706AbhKPAeR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:34:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343896AbhKOTWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343912AbhKOTWY (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A1F3635FE;
-        Mon, 15 Nov 2021 18:48:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC567613A1;
+        Mon, 15 Nov 2021 18:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002111;
-        bh=/QjSk28O4u+gTWYdfcpjfbQgxGT5eXSLrqCvCEZ/rIg=;
+        s=korg; t=1637002127;
+        bh=onGaniJYr0S/i3zK0gSO2/EAbC6tUDA+BTiAKszsNaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w8E2M2DOesFunXizHC9wDYti0ERO94oGsLLn5LCbnM4hKn6OiJFbiN3AJPI9W8Ckk
-         7Gj1FzMO3OKmbHMz63f88P2QKJNriC8o1e4BGzaYIodxOHRpKvrBrZmn1KRhDSUXE4
-         bFUBpV8KR1N0hn619Q97MFYiY9/FbZhp5ZiD6mgE=
+        b=JZic7dO+hehOcxQLUXEtRgvGf4YEwqkRCDhqWeWVJ81GV0tskogNn+XWX+m8pZVa6
+         IOyuci8QbYqwdEcC1/0EMuAyLDxwR7lKmNkfISbCOEg1ozpLSwZjMjF8MVZ4a0huuc
+         CM+NPdU9GfdgtyA3ulxos99ds7qO4Jm8gRu4JHSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, liqiong <liqiong@nfschina.com>,
-        THOBY Simon <Simon.THOBY@viveris.fr>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 5.15 415/917] ima: fix deadlock when traversing "ima_default_rules".
-Date:   Mon, 15 Nov 2021 17:58:30 +0100
-Message-Id: <20211115165442.860364435@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 416/917] b43legacy: fix a lower bounds test
+Date:   Mon, 15 Nov 2021 17:58:31 +0100
+Message-Id: <20211115165442.900913790@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,141 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: liqiong <liqiong@nfschina.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit eb0782bbdfd0d7c4786216659277c3fd585afc0e ]
+[ Upstream commit c1c8380b0320ab757e60ed90efc8b1992a943256 ]
 
-The current IMA ruleset is identified by the variable "ima_rules"
-that default to "&ima_default_rules". When loading a custom policy
-for the first time, the variable is updated to "&ima_policy_rules"
-instead. That update isn't RCU-safe, and deadlocks are possible.
-Indeed, some functions like ima_match_policy() may loop indefinitely
-when traversing "ima_default_rules" with list_for_each_entry_rcu().
+The problem is that "channel" is an unsigned int, when it's less 5 the
+value of "channel - 5" is not a negative number as one would expect but
+is very high positive value instead.
 
-When iterating over the default ruleset back to head, if the list
-head is "ima_default_rules", and "ima_rules" have been updated to
-"&ima_policy_rules", the loop condition (&entry->list != ima_rules)
-stays always true, traversing won't terminate, causing a soft lockup
-and RCU stalls.
+This means that "start" becomes a very high positive value.  The result
+of that is that we never enter the "for (i = start; i <= end; i++) {"
+loop.  Instead of storing the result from b43legacy_radio_aci_detect()
+it just uses zero.
 
-Introduce a temporary value for "ima_rules" when iterating over
-the ruleset to avoid the deadlocks.
-
-Signed-off-by: liqiong <liqiong@nfschina.com>
-Reviewed-by: THOBY Simon <Simon.THOBY@viveris.fr>
-Fixes: 38d859f991f3 ("IMA: policy can now be updated multiple times")
-Reported-by: kernel test robot <lkp@intel.com> (Fix sparse: incompatible types in comparison expression.)
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx devices")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Michael Büsch <m@bues.ch>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211006073542.GD8404@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_policy.c | 27 ++++++++++++++++++---------
- 1 file changed, 18 insertions(+), 9 deletions(-)
+ drivers/net/wireless/broadcom/b43legacy/radio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 87b9b71cb8201..12e8adcd80a2a 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -228,7 +228,7 @@ static struct ima_rule_entry *arch_policy_entry __ro_after_init;
- static LIST_HEAD(ima_default_rules);
- static LIST_HEAD(ima_policy_rules);
- static LIST_HEAD(ima_temp_rules);
--static struct list_head *ima_rules = &ima_default_rules;
-+static struct list_head __rcu *ima_rules = (struct list_head __rcu *)(&ima_default_rules);
+diff --git a/drivers/net/wireless/broadcom/b43legacy/radio.c b/drivers/net/wireless/broadcom/b43legacy/radio.c
+index 06891b4f837b9..fdf78c10a05c2 100644
+--- a/drivers/net/wireless/broadcom/b43legacy/radio.c
++++ b/drivers/net/wireless/broadcom/b43legacy/radio.c
+@@ -283,7 +283,7 @@ u8 b43legacy_radio_aci_scan(struct b43legacy_wldev *dev)
+ 			    & 0x7FFF);
+ 	b43legacy_set_all_gains(dev, 3, 8, 1);
  
- static int ima_policy __initdata;
+-	start = (channel - 5 > 0) ? channel - 5 : 1;
++	start = (channel > 5) ? channel - 5 : 1;
+ 	end = (channel + 5 < 14) ? channel + 5 : 13;
  
-@@ -675,12 +675,14 @@ int ima_match_policy(struct user_namespace *mnt_userns, struct inode *inode,
- {
- 	struct ima_rule_entry *entry;
- 	int action = 0, actmask = flags | (flags << 1);
-+	struct list_head *ima_rules_tmp;
- 
- 	if (template_desc && !*template_desc)
- 		*template_desc = ima_template_desc_current();
- 
- 	rcu_read_lock();
--	list_for_each_entry_rcu(entry, ima_rules, list) {
-+	ima_rules_tmp = rcu_dereference(ima_rules);
-+	list_for_each_entry_rcu(entry, ima_rules_tmp, list) {
- 
- 		if (!(entry->action & actmask))
- 			continue;
-@@ -741,9 +743,11 @@ void ima_update_policy_flags(void)
- {
- 	struct ima_rule_entry *entry;
- 	int new_policy_flag = 0;
-+	struct list_head *ima_rules_tmp;
- 
- 	rcu_read_lock();
--	list_for_each_entry(entry, ima_rules, list) {
-+	ima_rules_tmp = rcu_dereference(ima_rules);
-+	list_for_each_entry_rcu(entry, ima_rules_tmp, list) {
- 		/*
- 		 * SETXATTR_CHECK rules do not implement a full policy check
- 		 * because rule checking would probably have an important
-@@ -968,10 +972,10 @@ void ima_update_policy(void)
- 
- 	list_splice_tail_init_rcu(&ima_temp_rules, policy, synchronize_rcu);
- 
--	if (ima_rules != policy) {
-+	if (ima_rules != (struct list_head __rcu *)policy) {
- 		ima_policy_flag = 0;
--		ima_rules = policy;
- 
-+		rcu_assign_pointer(ima_rules, policy);
- 		/*
- 		 * IMA architecture specific policy rules are specified
- 		 * as strings and converted to an array of ima_entry_rules
-@@ -1061,7 +1065,7 @@ static int ima_lsm_rule_init(struct ima_rule_entry *entry,
- 		pr_warn("rule for LSM \'%s\' is undefined\n",
- 			entry->lsm[lsm_rule].args_p);
- 
--		if (ima_rules == &ima_default_rules) {
-+		if (ima_rules == (struct list_head __rcu *)(&ima_default_rules)) {
- 			kfree(entry->lsm[lsm_rule].args_p);
- 			entry->lsm[lsm_rule].args_p = NULL;
- 			result = -EINVAL;
-@@ -1768,9 +1772,11 @@ void *ima_policy_start(struct seq_file *m, loff_t *pos)
- {
- 	loff_t l = *pos;
- 	struct ima_rule_entry *entry;
-+	struct list_head *ima_rules_tmp;
- 
- 	rcu_read_lock();
--	list_for_each_entry_rcu(entry, ima_rules, list) {
-+	ima_rules_tmp = rcu_dereference(ima_rules);
-+	list_for_each_entry_rcu(entry, ima_rules_tmp, list) {
- 		if (!l--) {
- 			rcu_read_unlock();
- 			return entry;
-@@ -1789,7 +1795,8 @@ void *ima_policy_next(struct seq_file *m, void *v, loff_t *pos)
- 	rcu_read_unlock();
- 	(*pos)++;
- 
--	return (&entry->list == ima_rules) ? NULL : entry;
-+	return (&entry->list == &ima_default_rules ||
-+		&entry->list == &ima_policy_rules) ? NULL : entry;
- }
- 
- void ima_policy_stop(struct seq_file *m, void *v)
-@@ -2014,6 +2021,7 @@ bool ima_appraise_signature(enum kernel_read_file_id id)
- 	struct ima_rule_entry *entry;
- 	bool found = false;
- 	enum ima_hooks func;
-+	struct list_head *ima_rules_tmp;
- 
- 	if (id >= READING_MAX_ID)
- 		return false;
-@@ -2021,7 +2029,8 @@ bool ima_appraise_signature(enum kernel_read_file_id id)
- 	func = read_idmap[id] ?: FILE_CHECK;
- 
- 	rcu_read_lock();
--	list_for_each_entry_rcu(entry, ima_rules, list) {
-+	ima_rules_tmp = rcu_dereference(ima_rules);
-+	list_for_each_entry_rcu(entry, ima_rules_tmp, list) {
- 		if (entry->action != APPRAISE)
- 			continue;
- 
+ 	for (i = start; i <= end; i++) {
 -- 
 2.33.0
 
