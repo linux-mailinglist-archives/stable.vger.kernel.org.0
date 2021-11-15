@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9301545252C
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:44:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8AB5452529
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:44:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241731AbhKPBpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:45:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60616 "EHLO mail.kernel.org"
+        id S1353048AbhKPBrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:47:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241089AbhKOSSR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:18:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93793633ED;
-        Mon, 15 Nov 2021 17:50:43 +0000 (UTC)
+        id S240848AbhKOSQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:16:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A766633FE;
+        Mon, 15 Nov 2021 17:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998644;
-        bh=MIvsRRW1Usi1s1CbWNCiDAJ1x17XL7Jh/BfF4kTqiL8=;
+        s=korg; t=1636998629;
+        bh=onHz6mkg1pW0j1NGiyStz+qOsokjE1K5p1KKWc/42pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VUJh1cbVDeIHPwDXZBiIbWaAUPYsssFlrgLR3zmELilqam0SMDVf16eZUXuOK09xj
-         vFk9wlZjM0HWxgawJyl69KbXiqIXSWSf2OhDz6yOBINdOIy4G+tgtM/iRyvNrD0a62
-         bChJGBHhegqYU9BtsHU3hoixauQ9X1Zut95MyTKM=
+        b=VFNFnEQ9LS9CPWlIv+GqBrTrM4VtnM2ai2M6cwM0v6NQkCJics/ZUekHwYuw3Fs6e
+         dl0nnrvsWiL/iV7p9PQRJlU46rnyih/727xThc8JSKW8SVVIUuSrt6A3ArLkX8jwqw
+         M8lTC8gX88US96hJUdWjpFmoY7HsL8gjzevWh4sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Xiaoming Ni <nixiaoming@huawei.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 570/575] powerpc/powernv/prd: Unregister OPAL_MSG_PRD2 notifier during module unload
-Date:   Mon, 15 Nov 2021 18:04:55 +0100
-Message-Id: <20211115165403.419766497@linuxfoundation.org>
+Subject: [PATCH 5.10 571/575] powerpc/85xx: fix timebase sync issue when CONFIG_HOTPLUG_CPU=n
+Date:   Mon, 15 Nov 2021 18:04:56 +0100
+Message-Id: <20211115165403.452029277@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -40,106 +39,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+From: Xiaoming Ni <nixiaoming@huawei.com>
 
-commit 52862ab33c5d97490f3fa345d6529829e6d6637b upstream.
+commit c45361abb9185b1e172bd75eff51ad5f601ccae4 upstream.
 
-Commit 587164cd, introduced new opal message type (OPAL_MSG_PRD2) and
-added opal notifier. But I missed to unregister the notifier during
-module unload path. This results in below call trace if you try to
-unload and load opal_prd module.
+When CONFIG_SMP=y, timebase synchronization is required when the second
+kernel is started.
 
-Also add new notifier_block for OPAL_MSG_PRD2 message.
+arch/powerpc/kernel/smp.c:
+  int __cpu_up(unsigned int cpu, struct task_struct *tidle)
+  {
+  	...
+  	if (smp_ops->give_timebase)
+  		smp_ops->give_timebase();
+  	...
+  }
 
-Sample calltrace (modprobe -r opal_prd; modprobe opal_prd)
-  BUG: Unable to handle kernel data access on read at 0xc0080000192200e0
-  Faulting instruction address: 0xc00000000018d1cc
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
-  CPU: 66 PID: 7446 Comm: modprobe Kdump: loaded Tainted: G            E     5.14.0prd #759
-  NIP:  c00000000018d1cc LR: c00000000018d2a8 CTR: c0000000000cde10
-  REGS: c0000003c4c0f0a0 TRAP: 0300   Tainted: G            E      (5.14.0prd)
-  MSR:  9000000002009033 <SF,HV,VEC,EE,ME,IR,DR,RI,LE>  CR: 24224824  XER: 20040000
-  CFAR: c00000000018d2a4 DAR: c0080000192200e0 DSISR: 40000000 IRQMASK: 1
-  ...
-  NIP notifier_chain_register+0x2c/0xc0
-  LR  atomic_notifier_chain_register+0x48/0x80
-  Call Trace:
-    0xc000000002090610 (unreliable)
-    atomic_notifier_chain_register+0x58/0x80
-    opal_message_notifier_register+0x7c/0x1e0
-    opal_prd_probe+0x84/0x150 [opal_prd]
-    platform_probe+0x78/0x130
-    really_probe+0x110/0x5d0
-    __driver_probe_device+0x17c/0x230
-    driver_probe_device+0x60/0x130
-    __driver_attach+0xfc/0x220
-    bus_for_each_dev+0xa8/0x130
-    driver_attach+0x34/0x50
-    bus_add_driver+0x1b0/0x300
-    driver_register+0x98/0x1a0
-    __platform_driver_register+0x38/0x50
-    opal_prd_driver_init+0x34/0x50 [opal_prd]
-    do_one_initcall+0x60/0x2d0
-    do_init_module+0x7c/0x320
-    load_module+0x3394/0x3650
-    __do_sys_finit_module+0xd4/0x160
-    system_call_exception+0x140/0x290
-    system_call_common+0xf4/0x258
+  void start_secondary(void *unused)
+  {
+  	...
+  	if (smp_ops->take_timebase)
+  		smp_ops->take_timebase();
+  	...
+  }
 
-Fixes: 587164cd593c ("powerpc/powernv: Add new opal message type")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+When CONFIG_HOTPLUG_CPU=n and CONFIG_KEXEC_CORE=n,
+ smp_85xx_ops.give_timebase is NULL,
+ smp_85xx_ops.take_timebase is NULL,
+As a result, the timebase is not synchronized.
+
+Timebase  synchronization does not depend on CONFIG_HOTPLUG_CPU.
+
+Fixes: 56f1ba280719 ("powerpc/mpc85xx: refactor the PM operations")
+Cc: stable@vger.kernel.org # v4.6+
+Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211028165716.41300-1-hegdevasant@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/20210929033646.39630-3-nixiaoming@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/powernv/opal-prd.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/85xx/Makefile         |    4 +++-
+ arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c |    4 ++++
+ arch/powerpc/platforms/85xx/smp.c            |   12 ++++++------
+ 3 files changed, 13 insertions(+), 7 deletions(-)
 
---- a/arch/powerpc/platforms/powernv/opal-prd.c
-+++ b/arch/powerpc/platforms/powernv/opal-prd.c
-@@ -372,6 +372,12 @@ static struct notifier_block opal_prd_ev
- 	.priority	= 0,
+--- a/arch/powerpc/platforms/85xx/Makefile
++++ b/arch/powerpc/platforms/85xx/Makefile
+@@ -3,7 +3,9 @@
+ # Makefile for the PowerPC 85xx linux kernel.
+ #
+ obj-$(CONFIG_SMP) += smp.o
+-obj-$(CONFIG_FSL_PMC)		  += mpc85xx_pm_ops.o
++ifneq ($(CONFIG_FSL_CORENET_RCPM),y)
++obj-$(CONFIG_SMP) += mpc85xx_pm_ops.o
++endif
+ 
+ obj-y += common.o
+ 
+--- a/arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c
++++ b/arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c
+@@ -17,6 +17,7 @@
+ 
+ static struct ccsr_guts __iomem *guts;
+ 
++#ifdef CONFIG_FSL_PMC
+ static void mpc85xx_irq_mask(int cpu)
+ {
+ 
+@@ -49,6 +50,7 @@ static void mpc85xx_cpu_up_prepare(int c
+ {
+ 
+ }
++#endif
+ 
+ static void mpc85xx_freeze_time_base(bool freeze)
+ {
+@@ -76,10 +78,12 @@ static const struct of_device_id mpc85xx
+ 
+ static const struct fsl_pm_ops mpc85xx_pm_ops = {
+ 	.freeze_time_base = mpc85xx_freeze_time_base,
++#ifdef CONFIG_FSL_PMC
+ 	.irq_mask = mpc85xx_irq_mask,
+ 	.irq_unmask = mpc85xx_irq_unmask,
+ 	.cpu_die = mpc85xx_cpu_die,
+ 	.cpu_up_prepare = mpc85xx_cpu_up_prepare,
++#endif
  };
  
-+static struct notifier_block opal_prd_event_nb2 = {
-+	.notifier_call	= opal_prd_msg_notifier,
-+	.next		= NULL,
-+	.priority	= 0,
-+};
-+
- static int opal_prd_probe(struct platform_device *pdev)
- {
- 	int rc;
-@@ -393,9 +399,10 @@ static int opal_prd_probe(struct platfor
- 		return rc;
- 	}
+ int __init mpc85xx_setup_pmc(void)
+--- a/arch/powerpc/platforms/85xx/smp.c
++++ b/arch/powerpc/platforms/85xx/smp.c
+@@ -40,7 +40,6 @@ struct epapr_spin_table {
+ 	u32	pir;
+ };
  
--	rc = opal_message_notifier_register(OPAL_MSG_PRD2, &opal_prd_event_nb);
-+	rc = opal_message_notifier_register(OPAL_MSG_PRD2, &opal_prd_event_nb2);
- 	if (rc) {
- 		pr_err("Couldn't register PRD2 event notifier\n");
-+		opal_message_notifier_unregister(OPAL_MSG_PRD, &opal_prd_event_nb);
- 		return rc;
- 	}
- 
-@@ -404,6 +411,8 @@ static int opal_prd_probe(struct platfor
- 		pr_err("failed to register miscdev\n");
- 		opal_message_notifier_unregister(OPAL_MSG_PRD,
- 				&opal_prd_event_nb);
-+		opal_message_notifier_unregister(OPAL_MSG_PRD2,
-+				&opal_prd_event_nb2);
- 		return rc;
- 	}
- 
-@@ -414,6 +423,7 @@ static int opal_prd_remove(struct platfo
- {
- 	misc_deregister(&opal_prd_dev);
- 	opal_message_notifier_unregister(OPAL_MSG_PRD, &opal_prd_event_nb);
-+	opal_message_notifier_unregister(OPAL_MSG_PRD2, &opal_prd_event_nb2);
- 	return 0;
+-#ifdef CONFIG_HOTPLUG_CPU
+ static u64 timebase;
+ static int tb_req;
+ static int tb_valid;
+@@ -112,6 +111,7 @@ static void mpc85xx_take_timebase(void)
+ 	local_irq_restore(flags);
  }
  
++#ifdef CONFIG_HOTPLUG_CPU
+ static void smp_85xx_cpu_offline_self(void)
+ {
+ 	unsigned int cpu = smp_processor_id();
+@@ -495,21 +495,21 @@ void __init mpc85xx_smp_init(void)
+ 		smp_85xx_ops.probe = NULL;
+ 	}
+ 
+-#ifdef CONFIG_HOTPLUG_CPU
+ #ifdef CONFIG_FSL_CORENET_RCPM
++	/* Assign a value to qoriq_pm_ops on PPC_E500MC */
+ 	fsl_rcpm_init();
+-#endif
+-
+-#ifdef CONFIG_FSL_PMC
++#else
++	/* Assign a value to qoriq_pm_ops on !PPC_E500MC */
+ 	mpc85xx_setup_pmc();
+ #endif
+ 	if (qoriq_pm_ops) {
+ 		smp_85xx_ops.give_timebase = mpc85xx_give_timebase;
+ 		smp_85xx_ops.take_timebase = mpc85xx_take_timebase;
++#ifdef CONFIG_HOTPLUG_CPU
+ 		smp_85xx_ops.cpu_offline_self = smp_85xx_cpu_offline_self;
+ 		smp_85xx_ops.cpu_die = qoriq_cpu_kill;
+-	}
+ #endif
++	}
+ 	smp_ops = &smp_85xx_ops;
+ 
+ #ifdef CONFIG_KEXEC_CORE
 
 
