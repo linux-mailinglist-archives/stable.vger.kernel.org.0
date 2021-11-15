@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1EAC451476
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 772154511DE
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:27:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349301AbhKOUGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:06:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
+        id S244539AbhKOTPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:15:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344415AbhKOTYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B3D963487;
-        Mon, 15 Nov 2021 18:57:22 +0000 (UTC)
+        id S244388AbhKOTOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:14:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D3C0634B6;
+        Mon, 15 Nov 2021 18:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002643;
-        bh=HY49olzyPNqCdwCu8ATKCYOu/MZkJTlc5ImAGco7tFQ=;
+        s=korg; t=1637000431;
+        bh=N7LUOq01zWU37ULwI9wO+7caatsylTJ0EFOwYwfj3uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JCdKeXgry5mAu7ypO53QysVTs4yEdAAgqnF4aTtJIyMbTfidg1DXOqLfh1i0p2kaQ
-         hQ2JdA8l5F0ARZHaj/T8Tfbk3qnWumJQowZMgwnADgINFX3RlaHxGmw3WMGwXsNNrq
-         4ZO11fW0P88NdxXv2Ku+ofENmaDGg9sEbvkbXlJ8=
+        b=rG6utlkPVFF8Y7Yc6QPoumvp5MFlYJcSsZSk0R6Q757zNNKPiEdclbR1TsnrN4tCe
+         ydZFeY1w82450Gi7AsxbylW7KFbkSHvt1GW3McXCxqMMtKsACYOyqq5Ypiv6Vr296z
+         bUbcHB1xQtPZDEDNpM+W3xeWOWJwfVWtl279JkJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Alexandru Ardelean <ardeleanalex@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Yixing Liu <liuyixing1@huawei.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 645/917] iio: buffer: Fix double-free in iio_buffers_alloc_sysfs_and_mask()
+Subject: [PATCH 5.14 657/849] RDMA/hns: Modify the value of MAX_LP_MSG_LEN to meet hardware compatibility
 Date:   Mon, 15 Nov 2021 18:02:20 +0100
-Message-Id: <20211115165450.725630884@linuxfoundation.org>
+Message-Id: <20211115165442.490098622@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Yixing Liu <liuyixing1@huawei.com>
 
-[ Upstream commit 09776d9374e635b1580b3736c19b95b788fbaa85 ]
+[ Upstream commit 0e60778efb072d47efc7100c4009b5bd97273b0b ]
 
-When __iio_buffer_alloc_sysfs_and_mask() failed, 'unwind_idx' should be
-set to 'i - 1' to prevent double-free when cleanup resources.
+The upper limit of MAX_LP_MSG_LEN on HIP08 is 64K, and the upper limit on
+HIP09 is 16K. Regardless of whether it is HIP08 or HIP09, only 16K will be
+used. In order to ensure compatibility, it is unified to 16K.
 
-BUG: KASAN: double-free or invalid-free in __iio_buffer_free_sysfs_and_mask+0x32/0xb0 [industrialio]
-Call Trace:
- kfree+0x117/0x4c0
- __iio_buffer_free_sysfs_and_mask+0x32/0xb0 [industrialio]
- iio_buffers_alloc_sysfs_and_mask+0x60d/0x1570 [industrialio]
- __iio_device_register+0x483/0x1a30 [industrialio]
- ina2xx_probe+0x625/0x980 [ina2xx_adc]
+Setting MAX_LP_MSG_LEN to 16K will not cause performance loss on HIP08.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: ee708e6baacd ("iio: buffer: introduce support for attaching more IIO buffers")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20211013094923.2473-2-andriy.shevchenko@linux.intel.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: fbed9d2be292 ("RDMA/hns: Fix configuration of ack_req_freq in QPC")
+Link: https://lore.kernel.org/r/20211029100537.27299-1-liangwenpeng@huawei.com
+Signed-off-by: Yixing Liu <liuyixing1@huawei.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/industrialio-buffer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
-index 7f4e3ceaafec6..2f98ba70e3d78 100644
---- a/drivers/iio/industrialio-buffer.c
-+++ b/drivers/iio/industrialio-buffer.c
-@@ -1624,7 +1624,7 @@ int iio_buffers_alloc_sysfs_and_mask(struct iio_dev *indio_dev)
- 		buffer = iio_dev_opaque->attached_buffers[i];
- 		ret = __iio_buffer_alloc_sysfs_and_mask(buffer, indio_dev, i);
- 		if (ret) {
--			unwind_idx = i;
-+			unwind_idx = i - 1;
- 			goto error_unwind_sysfs_and_mask;
- 		}
- 	}
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index a77732c218dcb..e2547e8b4d21c 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -4413,8 +4413,8 @@ static int modify_qp_init_to_rtr(struct ib_qp *ibqp,
+ 	mtu = ib_mtu_enum_to_int(ib_mtu);
+ 	if (WARN_ON(mtu <= 0))
+ 		return -EINVAL;
+-#define MAX_LP_MSG_LEN 65536
+-	/* MTU * (2 ^ LP_PKTN_INI) shouldn't be bigger than 64KB */
++#define MAX_LP_MSG_LEN 16384
++	/* MTU * (2 ^ LP_PKTN_INI) shouldn't be bigger than 16KB */
+ 	lp_pktn_ini = ilog2(MAX_LP_MSG_LEN / mtu);
+ 	if (WARN_ON(lp_pktn_ini >= 0xF))
+ 		return -EINVAL;
 -- 
 2.33.0
 
