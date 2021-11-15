@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CAE6450AB1
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C23E450D95
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:56:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236543AbhKORNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:13:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42942 "EHLO mail.kernel.org"
+        id S237328AbhKOR7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:59:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236565AbhKORMa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:12:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D345A6322A;
-        Mon, 15 Nov 2021 17:09:34 +0000 (UTC)
+        id S238558AbhKOR5n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:57:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE03D6332E;
+        Mon, 15 Nov 2021 17:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996175;
-        bh=RwPELUlSRrH8ihBiH8+BhS7PfY7lGPMdxADq8nR8pK0=;
+        s=korg; t=1636997700;
+        bh=i4HSOWNm6T1iBLSpeDPYv+YZBZRBzKZ+YvsnkS0WtB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qtTxebzqiSVwEzELAHxFYT6DK3zPXxCwXSaoUAVY9odAE0kg6Sev7iJDfM56OtzDi
-         PF6X9tZUJRhfnLoJwYH8StHtcD85eL7YO2+rxjAXFKtqxPb6sWHRew3QEzVB+W4Wis
-         4IPvb6Op0ZKpqXJCWJVegBgiIvRAqET5O2pzfFMw=
+        b=dZ/QoTWxQRzDz7bJZT57L5Z7AtSWOi2CQuBrnfJLFEiMCqLLYP2GYa/eA+Kop2RmR
+         Shq5NB36n6u3guhSrFM47HRjqTKeHYLc6ptdUizijIbNXrTBfI1HCK8wzBYoYQ3TeW
+         z+YRnpZPgRc5z4iy81bNK5HWOGrSemR6bjjbAgzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pawe=C5=82=20Anikiel?= <pan@semihalf.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 044/355] reset: socfpga: add empty driver allowing consumers to probe
+Subject: [PATCH 5.10 243/575] gfs2: Fix glock_hash_walk bugs
 Date:   Mon, 15 Nov 2021 17:59:28 +0100
-Message-Id: <20211115165314.975035619@linuxfoundation.org>
+Message-Id: <20211115165352.143750066@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paweł Anikiel <pan@semihalf.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 3ad60b4b3570937f3278509fe6797a5093ce53f8 ]
+[ Upstream commit 7427f3bb49d81525b7dd1d0f7c5f6bbc752e6f0e ]
 
-The early reset driver doesn't ever probe, which causes consuming
-devices to be unable to probe. Add an empty driver to set this device
-as available, allowing consumers to probe.
+So far, glock_hash_walk took a reference on each glock it iterated over, and it
+was the examiner's responsibility to drop those references.  Dropping the final
+reference to a glock can sleep and the examiners are called in a RCU critical
+section with spin locks held, so examiners that didn't need the extra reference
+had to drop it asynchronously via gfs2_glock_queue_put or similar.  This wasn't
+done correctly in thaw_glock which did call gfs2_glock_put, and not at all in
+dump_glock_func.
 
-Signed-off-by: Paweł Anikiel <pan@semihalf.com>
-Link: https://lore.kernel.org/r/20210920124141.1166544-4-pan@semihalf.com
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Change glock_hash_walk to not take glock references at all.  That way, the
+examiners that don't need them won't have to bother with slow asynchronous
+puts, and the examiners that do need references can take them themselves.
+
+Reported-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-socfpga.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ fs/gfs2/glock.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/reset/reset-socfpga.c b/drivers/reset/reset-socfpga.c
-index 96953992c2bb5..1c5236a69dc49 100644
---- a/drivers/reset/reset-socfpga.c
-+++ b/drivers/reset/reset-socfpga.c
-@@ -86,3 +86,29 @@ void __init socfpga_reset_init(void)
- 	for_each_matching_node(np, socfpga_early_reset_dt_ids)
- 		a10_reset_init(np);
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 533adcd480310..dd052101e2266 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -1885,10 +1885,10 @@ static void glock_hash_walk(glock_examiner examiner, const struct gfs2_sbd *sdp)
+ 	do {
+ 		rhashtable_walk_start(&iter);
+ 
+-		while ((gl = rhashtable_walk_next(&iter)) && !IS_ERR(gl))
+-			if (gl->gl_name.ln_sbd == sdp &&
+-			    lockref_get_not_dead(&gl->gl_lockref))
++		while ((gl = rhashtable_walk_next(&iter)) && !IS_ERR(gl)) {
++			if (gl->gl_name.ln_sbd == sdp)
+ 				examiner(gl);
++		}
+ 
+ 		rhashtable_walk_stop(&iter);
+ 	} while (cond_resched(), gl == ERR_PTR(-EAGAIN));
+@@ -1930,7 +1930,6 @@ static void flush_delete_work(struct gfs2_glock *gl)
+ 					   &gl->gl_delete, 0);
+ 		}
+ 	}
+-	gfs2_glock_queue_work(gl, 0);
  }
-+
-+/*
-+ * The early driver is problematic, because it doesn't register
-+ * itself as a driver. This causes certain device links to prevent
-+ * consumer devices from probing. The hacky solution is to register
-+ * an empty driver, whose only job is to attach itself to the reset
-+ * manager and call probe.
-+ */
-+static const struct of_device_id socfpga_reset_dt_ids[] = {
-+	{ .compatible = "altr,rst-mgr", },
-+	{ /* sentinel */ },
-+};
-+
-+static int reset_simple_probe(struct platform_device *pdev)
-+{
-+	return 0;
-+}
-+
-+static struct platform_driver reset_socfpga_driver = {
-+	.probe	= reset_simple_probe,
-+	.driver = {
-+		.name		= "socfpga-reset",
-+		.of_match_table	= socfpga_reset_dt_ids,
-+	},
-+};
-+builtin_platform_driver(reset_socfpga_driver);
+ 
+ void gfs2_flush_delete_work(struct gfs2_sbd *sdp)
+@@ -1947,10 +1946,10 @@ void gfs2_flush_delete_work(struct gfs2_sbd *sdp)
+ 
+ static void thaw_glock(struct gfs2_glock *gl)
+ {
+-	if (!test_and_clear_bit(GLF_FROZEN, &gl->gl_flags)) {
+-		gfs2_glock_put(gl);
++	if (!test_and_clear_bit(GLF_FROZEN, &gl->gl_flags))
++		return;
++	if (!lockref_get_not_dead(&gl->gl_lockref))
+ 		return;
+-	}
+ 	set_bit(GLF_REPLY_PENDING, &gl->gl_flags);
+ 	gfs2_glock_queue_work(gl, 0);
+ }
+@@ -1966,9 +1965,12 @@ static void clear_glock(struct gfs2_glock *gl)
+ 	gfs2_glock_remove_from_lru(gl);
+ 
+ 	spin_lock(&gl->gl_lockref.lock);
+-	if (gl->gl_state != LM_ST_UNLOCKED)
+-		handle_callback(gl, LM_ST_UNLOCKED, 0, false);
+-	__gfs2_glock_queue_work(gl, 0);
++	if (!__lockref_is_dead(&gl->gl_lockref)) {
++		gl->gl_lockref.count++;
++		if (gl->gl_state != LM_ST_UNLOCKED)
++			handle_callback(gl, LM_ST_UNLOCKED, 0, false);
++		__gfs2_glock_queue_work(gl, 0);
++	}
+ 	spin_unlock(&gl->gl_lockref.lock);
+ }
+ 
 -- 
 2.33.0
 
