@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C775450EA1
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:15:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83685450EA4
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:15:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240989AbhKOSQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:16:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49920 "EHLO mail.kernel.org"
+        id S240762AbhKOSRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:17:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240685AbhKOSLr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240693AbhKOSLr (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:11:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9FE7633C3;
-        Mon, 15 Nov 2021 17:47:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76D04633C4;
+        Mon, 15 Nov 2021 17:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998457;
-        bh=ZBMenJ5V07daEHWSVGsBoKeOb+heEv2q1Hmd4hREvkE=;
+        s=korg; t=1636998459;
+        bh=x8c3oIyx7mvFo0HRAFo9anyAyJ6HpuZ++qT4atRC9dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5Hj2yjzb9LiX7Ap0NBQWX1g6dG19+IiAE5XJv3at6JZg8Rjnxg/nrfJ6Xmxjkmh+
-         VY5wNjCFZwD2+cTQI8bxUgtl7i/unnoSADK7o83Iw0zzqLxTrd5Ngr/wjkpmyssCok
-         Sewdu8O97Cq8919oDWE1spK5SgzDYWD3pY8U4hR8=
+        b=QvmwpeH+IldYThlyzLiPs+6HQzTMvvMNeBHgsW3rY5xkvvNyjfzUxZuRDyBFcHlIw
+         gwc3W8mtmPIb3i9ffEFTWPWNeRS5Kb7m2Tgq43Rb+VeEh9jtgCkQIRasSxY7K13DdE
+         +dp+Noq5XiyVkuFW+58nVIs43f16sRvI+41/r6ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
+        stable@vger.kernel.org, Huang Guobin <huangguobin4@huawei.com>,
         Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 517/575] net: phy: fix duplex out of sync problem while changing settings
-Date:   Mon, 15 Nov 2021 18:04:02 +0100
-Message-Id: <20211115165401.563947987@linuxfoundation.org>
+Subject: [PATCH 5.10 518/575] bonding: Fix a use-after-free problem when bond_sysfs_slave_add() failed
+Date:   Mon, 15 Nov 2021 18:04:03 +0100
+Message-Id: <20211115165401.596328367@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -42,51 +41,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Huang Guobin <huangguobin4@huawei.com>
 
-[ Upstream commit a4db9055fdb9cf607775c66d39796caf6439ec92 ]
+[ Upstream commit b93c6a911a3fe926b00add28f3b932007827c4ca ]
 
-As reported by Zhang there's a small issue if in forced mode the duplex
-mode changes with the link staying up [0]. In this case the MAC isn't
-notified about the change.
+When I do fuzz test for bonding device interface, I got the following
+use-after-free Calltrace:
 
-The proposed patch relies on the phylib state machine and ignores the
-fact that there are drivers that uses phylib but not the phylib state
-machine. So let's don't change the behavior for such drivers and fix
-it w/o re-adding state PHY_FORCING for the case that phylib state
-machine is used.
+==================================================================
+BUG: KASAN: use-after-free in bond_enslave+0x1521/0x24f0
+Read of size 8 at addr ffff88825bc11c00 by task ifenslave/7365
 
-[0] https://lore.kernel.org/netdev/a5c26ffd-4ee4-a5e6-4103-873208ce0dc5@huawei.com/T/
+CPU: 5 PID: 7365 Comm: ifenslave Tainted: G            E     5.15.0-rc1+ #13
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
+Call Trace:
+ dump_stack_lvl+0x6c/0x8b
+ print_address_description.constprop.0+0x48/0x70
+ kasan_report.cold+0x82/0xdb
+ __asan_load8+0x69/0x90
+ bond_enslave+0x1521/0x24f0
+ bond_do_ioctl+0x3e0/0x450
+ dev_ifsioc+0x2ba/0x970
+ dev_ioctl+0x112/0x710
+ sock_do_ioctl+0x118/0x1b0
+ sock_ioctl+0x2e0/0x490
+ __x64_sys_ioctl+0x118/0x150
+ do_syscall_64+0x35/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f19159cf577
+Code: b3 66 90 48 8b 05 11 89 2c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 78
+RSP: 002b:00007ffeb3083c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00007ffeb3084bca RCX: 00007f19159cf577
+RDX: 00007ffeb3083ce0 RSI: 0000000000008990 RDI: 0000000000000003
+RBP: 00007ffeb3084bc4 R08: 0000000000000040 R09: 0000000000000000
+R10: 00007ffeb3084bc0 R11: 0000000000000246 R12: 00007ffeb3083ce0
+R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffeb3083cb0
 
-Fixes: 2bd229df5e2e ("net: phy: remove state PHY_FORCING")
-Reported-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Tested-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/7b8b9456-a93f-abbc-1dc5-a2c2542f932c@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Allocated by task 7365:
+ kasan_save_stack+0x23/0x50
+ __kasan_kmalloc+0x83/0xa0
+ kmem_cache_alloc_trace+0x22e/0x470
+ bond_enslave+0x2e1/0x24f0
+ bond_do_ioctl+0x3e0/0x450
+ dev_ifsioc+0x2ba/0x970
+ dev_ioctl+0x112/0x710
+ sock_do_ioctl+0x118/0x1b0
+ sock_ioctl+0x2e0/0x490
+ __x64_sys_ioctl+0x118/0x150
+ do_syscall_64+0x35/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Freed by task 7365:
+ kasan_save_stack+0x23/0x50
+ kasan_set_track+0x20/0x30
+ kasan_set_free_info+0x24/0x40
+ __kasan_slab_free+0xf2/0x130
+ kfree+0xd1/0x5c0
+ slave_kobj_release+0x61/0x90
+ kobject_put+0x102/0x180
+ bond_sysfs_slave_add+0x7a/0xa0
+ bond_enslave+0x11b6/0x24f0
+ bond_do_ioctl+0x3e0/0x450
+ dev_ifsioc+0x2ba/0x970
+ dev_ioctl+0x112/0x710
+ sock_do_ioctl+0x118/0x1b0
+ sock_ioctl+0x2e0/0x490
+ __x64_sys_ioctl+0x118/0x150
+ do_syscall_64+0x35/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Last potentially related work creation:
+ kasan_save_stack+0x23/0x50
+ kasan_record_aux_stack+0xb7/0xd0
+ insert_work+0x43/0x190
+ __queue_work+0x2e3/0x970
+ delayed_work_timer_fn+0x3e/0x50
+ call_timer_fn+0x148/0x470
+ run_timer_softirq+0x8a8/0xc50
+ __do_softirq+0x107/0x55f
+
+Second to last potentially related work creation:
+ kasan_save_stack+0x23/0x50
+ kasan_record_aux_stack+0xb7/0xd0
+ insert_work+0x43/0x190
+ __queue_work+0x2e3/0x970
+ __queue_delayed_work+0x130/0x180
+ queue_delayed_work_on+0xa7/0xb0
+ bond_enslave+0xe25/0x24f0
+ bond_do_ioctl+0x3e0/0x450
+ dev_ifsioc+0x2ba/0x970
+ dev_ioctl+0x112/0x710
+ sock_do_ioctl+0x118/0x1b0
+ sock_ioctl+0x2e0/0x490
+ __x64_sys_ioctl+0x118/0x150
+ do_syscall_64+0x35/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The buggy address belongs to the object at ffff88825bc11c00
+ which belongs to the cache kmalloc-1k of size 1024
+The buggy address is located 0 bytes inside of
+ 1024-byte region [ffff88825bc11c00, ffff88825bc12000)
+The buggy address belongs to the page:
+page:ffffea00096f0400 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x25bc10
+head:ffffea00096f0400 order:3 compound_mapcount:0 compound_pincount:0
+flags: 0x57ff00000010200(slab|head|node=1|zone=2|lastcpupid=0x7ff)
+raw: 057ff00000010200 ffffea0009a71c08 ffff888240001968 ffff88810004dbc0
+raw: 0000000000000000 00000000000a000a 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff88825bc11b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88825bc11b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88825bc11c00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                   ^
+ ffff88825bc11c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88825bc11d00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
+
+Put new_slave in bond_sysfs_slave_add() will cause use-after-free problems
+when new_slave is accessed in the subsequent error handling process. Since
+new_slave will be put in the subsequent error handling process, remove the
+unnecessary put to fix it.
+In addition, when sysfs_create_file() fails, if some files have been crea-
+ted successfully, we need to call sysfs_remove_file() to remove them.
+Since there are sysfs_create_files() & sysfs_remove_files() can be used,
+use these two functions instead.
+
+Fixes: 7afcaec49696 (bonding: use kobject_put instead of _del after kobject_add)
+Signed-off-by: Huang Guobin <huangguobin4@huawei.com>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/bonding/bond_sysfs_slave.c | 36 ++++++++------------------
+ 1 file changed, 11 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
-index 5ee7cde0c2e97..db7866b6f7525 100644
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -831,7 +831,12 @@ int phy_ethtool_ksettings_set(struct phy_device *phydev,
- 	phydev->mdix_ctrl = cmd->base.eth_tp_mdix_ctrl;
+diff --git a/drivers/net/bonding/bond_sysfs_slave.c b/drivers/net/bonding/bond_sysfs_slave.c
+index fd07561da0348..6a6cdd0bb2585 100644
+--- a/drivers/net/bonding/bond_sysfs_slave.c
++++ b/drivers/net/bonding/bond_sysfs_slave.c
+@@ -108,15 +108,15 @@ static ssize_t ad_partner_oper_port_state_show(struct slave *slave, char *buf)
+ }
+ static SLAVE_ATTR_RO(ad_partner_oper_port_state);
  
- 	/* Restart the PHY */
--	_phy_start_aneg(phydev);
-+	if (phy_is_started(phydev)) {
-+		phydev->state = PHY_UP;
-+		phy_trigger_machine(phydev);
-+	} else {
-+		_phy_start_aneg(phydev);
-+	}
+-static const struct slave_attribute *slave_attrs[] = {
+-	&slave_attr_state,
+-	&slave_attr_mii_status,
+-	&slave_attr_link_failure_count,
+-	&slave_attr_perm_hwaddr,
+-	&slave_attr_queue_id,
+-	&slave_attr_ad_aggregator_id,
+-	&slave_attr_ad_actor_oper_port_state,
+-	&slave_attr_ad_partner_oper_port_state,
++static const struct attribute *slave_attrs[] = {
++	&slave_attr_state.attr,
++	&slave_attr_mii_status.attr,
++	&slave_attr_link_failure_count.attr,
++	&slave_attr_perm_hwaddr.attr,
++	&slave_attr_queue_id.attr,
++	&slave_attr_ad_aggregator_id.attr,
++	&slave_attr_ad_actor_oper_port_state.attr,
++	&slave_attr_ad_partner_oper_port_state.attr,
+ 	NULL
+ };
  
- 	mutex_unlock(&phydev->lock);
- 	return 0;
+@@ -137,24 +137,10 @@ const struct sysfs_ops slave_sysfs_ops = {
+ 
+ int bond_sysfs_slave_add(struct slave *slave)
+ {
+-	const struct slave_attribute **a;
+-	int err;
+-
+-	for (a = slave_attrs; *a; ++a) {
+-		err = sysfs_create_file(&slave->kobj, &((*a)->attr));
+-		if (err) {
+-			kobject_put(&slave->kobj);
+-			return err;
+-		}
+-	}
+-
+-	return 0;
++	return sysfs_create_files(&slave->kobj, slave_attrs);
+ }
+ 
+ void bond_sysfs_slave_del(struct slave *slave)
+ {
+-	const struct slave_attribute **a;
+-
+-	for (a = slave_attrs; *a; ++a)
+-		sysfs_remove_file(&slave->kobj, &((*a)->attr));
++	sysfs_remove_files(&slave->kobj, slave_attrs);
+ }
 -- 
 2.33.0
 
