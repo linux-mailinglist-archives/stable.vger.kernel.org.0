@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5614450BD8
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:27:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62B34450E6B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237302AbhKORaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:30:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50944 "EHLO mail.kernel.org"
+        id S232533AbhKOSPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:15:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237996AbhKOR2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:28:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F007E6328D;
-        Mon, 15 Nov 2021 17:19:12 +0000 (UTC)
+        id S237079AbhKOSHh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEE686339E;
+        Mon, 15 Nov 2021 17:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996753;
-        bh=NphQaSKv/m2goQz1nJyHp7HGSwKXPYvverc5xzA8VEg=;
+        s=korg; t=1636998286;
+        bh=gqq9KKE0mgn3BJBjd3CNbKBSkZd21PDpbod6pCjr/CA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZuEqHWmiUsMcFOFAZktUwAMGJf3XVE96R+incvYZpRQ1sXnpIeH6hl8tYCk7CvDW
-         cHTGSki2nvv6K/Pp8g5+uG0EIz0ihU90MpiJaTEpRhPZu/7L9UCrlGWLBlEPoO+iL7
-         7Ety3XrLezz2bpglk6fvNryZcmK5zS0zk3JnWRzY=
+        b=qmrbNTRn8eB1DNdW2eVUV3ZwGE8osUw6yk5IjiQIr6G829k/SHePr84z/t87OXRtz
+         T5z56qmGEKsTHwxTGTCwkPHR2kDtAZRoEXUZUTdGQH5Jk+YwrZJ/6mHdPxviJyFxHO
+         wfD9l1H487gL3NcjHqzw7TcSfjxEGKR29hhOY20E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junji Wei <weijunji@bytedance.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 256/355] RDMA/rxe: Fix wrong port_cap_flags
+        stable@vger.kernel.org,
+        Sandeep Maheswaram <quic_c_sanm@quicinc.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 455/575] phy: qcom-snps: Correct the FSEL_MASK
 Date:   Mon, 15 Nov 2021 18:03:00 +0100
-Message-Id: <20211115165322.023905262@linuxfoundation.org>
+Message-Id: <20211115165359.484504759@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junji Wei <weijunji@bytedance.com>
+From: Sandeep Maheswaram <quic_c_sanm@quicinc.com>
 
-[ Upstream commit dcd3f985b20ffcc375f82ca0ca9f241c7025eb5e ]
+[ Upstream commit b475bf0ec40a2b13fb32ef62f5706576d5858460 ]
 
-The port->attr.port_cap_flags should be set to enum
-ib_port_capability_mask_bits in ib_mad.h, not
-RDMA_CORE_CAP_PROT_ROCE_UDP_ENCAP.
+The FSEL_MASK which selects the refclock is defined incorrectly.
+It should be [4:6] not [5:7]. Due to this incorrect definition, the BIT(7)
+in USB2_PHY_USB_PHY_HS_PHY_CTRL_COMMON0 is reset which keeps PHY analog
+blocks ON during suspend.
+Fix this issue by correctly defining the FSEL_MASK.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20210831083223.65797-1-weijunji@bytedance.com
-Signed-off-by: Junji Wei <weijunji@bytedance.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 51e8114f80d0 ("phy: qcom-snps: Add SNPS USB PHY driver for QCOM based SOCs")
+Signed-off-by: Sandeep Maheswaram <quic_c_sanm@quicinc.com>
+Link: https://lore.kernel.org/r/1635135575-5668-1-git-send-email-quic_c_sanm@quicinc.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_param.h | 2 +-
+ drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_param.h b/drivers/infiniband/sw/rxe/rxe_param.h
-index fe52073867006..8d3f6d93dfb8d 100644
---- a/drivers/infiniband/sw/rxe/rxe_param.h
-+++ b/drivers/infiniband/sw/rxe/rxe_param.h
-@@ -140,7 +140,7 @@ enum rxe_device_param {
- /* default/initial rxe port parameters */
- enum rxe_port_param {
- 	RXE_PORT_GID_TBL_LEN		= 1024,
--	RXE_PORT_PORT_CAP_FLAGS		= RDMA_CORE_CAP_PROT_ROCE_UDP_ENCAP,
-+	RXE_PORT_PORT_CAP_FLAGS		= IB_PORT_CM_SUP,
- 	RXE_PORT_MAX_MSG_SZ		= 0x800000,
- 	RXE_PORT_BAD_PKEY_CNTR		= 0,
- 	RXE_PORT_QKEY_VIOL_CNTR		= 0,
+diff --git a/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c b/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c
+index ae4bac024c7b1..7e61202aa234e 100644
+--- a/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c
++++ b/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c
+@@ -33,7 +33,7 @@
+ 
+ #define USB2_PHY_USB_PHY_HS_PHY_CTRL_COMMON0	(0x54)
+ #define RETENABLEN				BIT(3)
+-#define FSEL_MASK				GENMASK(7, 5)
++#define FSEL_MASK				GENMASK(6, 4)
+ #define FSEL_DEFAULT				(0x3 << 4)
+ 
+ #define USB2_PHY_USB_PHY_HS_PHY_CTRL_COMMON1	(0x58)
 -- 
 2.33.0
 
