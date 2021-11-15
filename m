@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 799B6450C7C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:36:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E6AD450EC8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238013AbhKORjC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:39:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52664 "EHLO mail.kernel.org"
+        id S241318AbhKOSTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:19:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238113AbhKORgG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:36:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 581B460EE9;
-        Mon, 15 Nov 2021 17:24:06 +0000 (UTC)
+        id S238945AbhKOSOg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:14:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C996F633DB;
+        Mon, 15 Nov 2021 17:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997046;
-        bh=uD1fB78HhVPIW6Ft/n8J06SJfAHrcJhtXKN5Z4rvx9E=;
+        s=korg; t=1636998568;
+        bh=fZyoex3Xh9SqjGK4bzXXvL+Yb+kn2e8dDp1t2zGQWag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Ib8MKmFItBSpwSgJgxcbezkZgjYs5ajurvqu9agc36RYbgUfvjvDbmNJDq7VK7SQ
-         nX88eKz4mDwOiYmXZN2dm/x1JoQdBaOsryZLUOwFPGFARyeiGlaDlC6478aCGw2VSH
-         fJEiCuxfSnU2DBSD31v/DanE0OzEnGKJ8p+xXfRc=
+        b=aN5HD01d9E2Mu5edhwMyDlwVlkLpCjLcixRN5+rf4PhpZdRSFxTKZ0JJJdPZID5ly
+         ll7p0elAs+cNbei08f1hxYVgSJcwIvTah0dF27e8atsqkgoLHPml1QTAaWvm16Y4L5
+         0wj1kWTIVaH1VCtIYEpus6seNqJqrdYEf81/mWjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.4 355/355] SUNRPC: Partial revert of commit 6f9f17287e78
-Date:   Mon, 15 Nov 2021 18:04:39 +0100
-Message-Id: <20211115165325.232105972@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Andersen <jackoalan@gmail.com>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.10 556/575] mfd: dln2: Add cell for initializing DLN2 ADC
+Date:   Mon, 15 Nov 2021 18:04:41 +0100
+Message-Id: <20211115165402.916963222@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,71 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Jack Andersen <jackoalan@gmail.com>
 
-commit ea7a1019d8baf8503ecd6e3ec8436dec283569e6 upstream.
+commit 313c84b5ae4104e48c661d5d706f9f4c425fd50f upstream.
 
-The premise of commit 6f9f17287e78 ("SUNRPC: Mitigate cond_resched() in
-xprt_transmit()") was that cond_resched() is expensive and unnecessary
-when there has been just a single send.
-The point of cond_resched() is to ensure that tasks that should pre-empt
-this one get a chance to do so when it is safe to do so. The code prior
-to commit 6f9f17287e78 failed to take into account that it was keeping a
-rpc_task pinned for longer than it needed to, and so rather than doing a
-full revert, let's just move the cond_resched.
+This patch extends the DLN2 driver; adding cell for adc_dln2 module.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+The original patch[1] fell through the cracks when the driver was added
+so ADC has never actually been usable. That patch did not have ACPI
+support which was added in v5.9, so the oldest supported version this
+current patch can be backported to is 5.10.
+
+[1] https://www.spinics.net/lists/linux-iio/msg33975.html
+
+Cc: <stable@vger.kernel.org> # 5.10+
+Signed-off-by: Jack Andersen <jackoalan@gmail.com>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20211018112541.25466-1-noralf@tronnes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/xprt.c |   28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ drivers/mfd/dln2.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1538,15 +1538,14 @@ xprt_transmit(struct rpc_task *task)
- {
- 	struct rpc_rqst *next, *req = task->tk_rqstp;
- 	struct rpc_xprt	*xprt = req->rq_xprt;
--	int counter, status;
-+	int status;
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -50,6 +50,7 @@ enum dln2_handle {
+ 	DLN2_HANDLE_GPIO,
+ 	DLN2_HANDLE_I2C,
+ 	DLN2_HANDLE_SPI,
++	DLN2_HANDLE_ADC,
+ 	DLN2_HANDLES
+ };
  
- 	spin_lock(&xprt->queue_lock);
--	counter = 0;
--	while (!list_empty(&xprt->xmit_queue)) {
--		if (++counter == 20)
-+	for (;;) {
-+		next = list_first_entry_or_null(&xprt->xmit_queue,
-+						struct rpc_rqst, rq_xmit);
-+		if (!next)
- 			break;
--		next = list_first_entry(&xprt->xmit_queue,
--				struct rpc_rqst, rq_xmit);
- 		xprt_pin_rqst(next);
- 		spin_unlock(&xprt->queue_lock);
- 		status = xprt_request_transmit(next, task);
-@@ -1554,13 +1553,16 @@ xprt_transmit(struct rpc_task *task)
- 			status = 0;
- 		spin_lock(&xprt->queue_lock);
- 		xprt_unpin_rqst(next);
--		if (status == 0) {
--			if (!xprt_request_data_received(task) ||
--			    test_bit(RPC_TASK_NEED_XMIT, &task->tk_runstate))
--				continue;
--		} else if (test_bit(RPC_TASK_NEED_XMIT, &task->tk_runstate))
--			task->tk_status = status;
--		break;
-+		if (status < 0) {
-+			if (test_bit(RPC_TASK_NEED_XMIT, &task->tk_runstate))
-+				task->tk_status = status;
-+			break;
-+		}
-+		/* Was @task transmitted, and has it received a reply? */
-+		if (xprt_request_data_received(task) &&
-+		    !test_bit(RPC_TASK_NEED_XMIT, &task->tk_runstate))
-+			break;
-+		cond_resched_lock(&xprt->queue_lock);
- 	}
- 	spin_unlock(&xprt->queue_lock);
- }
+@@ -653,6 +654,7 @@ enum {
+ 	DLN2_ACPI_MATCH_GPIO	= 0,
+ 	DLN2_ACPI_MATCH_I2C	= 1,
+ 	DLN2_ACPI_MATCH_SPI	= 2,
++	DLN2_ACPI_MATCH_ADC	= 3,
+ };
+ 
+ static struct dln2_platform_data dln2_pdata_gpio = {
+@@ -683,6 +685,16 @@ static struct mfd_cell_acpi_match dln2_a
+ 	.adr = DLN2_ACPI_MATCH_SPI,
+ };
+ 
++/* Only one ADC port supported */
++static struct dln2_platform_data dln2_pdata_adc = {
++	.handle = DLN2_HANDLE_ADC,
++	.port = 0,
++};
++
++static struct mfd_cell_acpi_match dln2_acpi_match_adc = {
++	.adr = DLN2_ACPI_MATCH_ADC,
++};
++
+ static const struct mfd_cell dln2_devs[] = {
+ 	{
+ 		.name = "dln2-gpio",
+@@ -702,6 +714,12 @@ static const struct mfd_cell dln2_devs[]
+ 		.platform_data = &dln2_pdata_spi,
+ 		.pdata_size = sizeof(struct dln2_platform_data),
+ 	},
++	{
++		.name = "dln2-adc",
++		.acpi_match = &dln2_acpi_match_adc,
++		.platform_data = &dln2_pdata_adc,
++		.pdata_size = sizeof(struct dln2_platform_data),
++	},
+ };
+ 
+ static void dln2_stop(struct dln2_dev *dln2)
 
 
