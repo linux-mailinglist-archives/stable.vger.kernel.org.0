@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4E2A452669
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8186D4522F3
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:15:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244232AbhKPCFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:05:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46084 "EHLO mail.kernel.org"
+        id S1378789AbhKPBRE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:17:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239955AbhKOSFL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DC5D632F6;
-        Mon, 15 Nov 2021 17:40:31 +0000 (UTC)
+        id S243381AbhKOTJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:09:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03C566340A;
+        Mon, 15 Nov 2021 18:18:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998031;
-        bh=QbymsJ380DTccmP3Hu4m1dPKrL/tg/oHfHWXNYeQZDc=;
+        s=korg; t=1637000286;
+        bh=q3k5bFoKqFHNCI+fFQWAy2ou5p19PYoWREQn28ru6dY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QeRyJgorhsDbkA7GaX7TKIIYmLX9UBIlH/DR8HgAKNj5LoGLvAbffkr2C2zhDsgB/
-         M/G2f3oP6RLCqJJo0ZgcBLPJy++U0kIaUH/95PzRmOIISiVCfuVzkjLHWSwM4RX6h9
-         +9XBExwdsYve7hnBfhErgaDttVnLZZoTfxmRrfuI=
+        b=PvcOMwlbWsv9X1YqlCUu0IWoHZ0cPIt+45ZH0LegawyEQy3EGYhht/6qMEiUhEa92
+         T5nIOTTZgiuzbMd4cFZC2L0myM++K8kcXN+oU4lz1mHaD7vanN6QiGl6sjVp05e0Ot
+         5VMOWCP8ptDdY/kuD2jgz2oy/UxscsdBt4bi+QmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Naina Mehta <nainmeht@codeaurora.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 329/575] mmc: mxs-mmc: disable regulator on error and in the remove function
-Date:   Mon, 15 Nov 2021 18:00:54 +0100
-Message-Id: <20211115165355.170079705@linuxfoundation.org>
+Subject: [PATCH 5.14 572/849] soc: qcom: llcc: Disable MMUHWT retention
+Date:   Mon, 15 Nov 2021 18:00:55 +0100
+Message-Id: <20211115165439.596813035@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Naina Mehta <nainmeht@codeaurora.org>
 
-[ Upstream commit ce5f6c2c9b0fcb4094f8e162cfd37fb4294204f7 ]
+[ Upstream commit 3a461009e195c3c17f6af73da310b886991309fd ]
 
-The 'reg_vmmc' regulator is enabled in the probe. It is never disabled.
-Neither in the error handling path of the probe nor in the remove
-function.
+Disable MMUHWT retention for SC7280 as done for other platforms
+to avoid more power burn.
 
-Register a devm_action to disable it when needed.
-
-Fixes: 4dc5a79f1350 ("mmc: mxs-mmc: enable regulator for mmc slot")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/4aadb3c97835f7b80f00819c3d549e6130384e67.1634365151.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: f6a07be63301 ("soc: qcom: llcc: Add configuration data for SC7280")
+Signed-off-by: Naina Mehta <nainmeht@codeaurora.org>
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210921055942.30600-1-saiprakash.ranjan@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mxs-mmc.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/soc/qcom/llcc-qcom.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/mxs-mmc.c b/drivers/mmc/host/mxs-mmc.c
-index 4fbbff03137c3..2ec3eb651d6b5 100644
---- a/drivers/mmc/host/mxs-mmc.c
-+++ b/drivers/mmc/host/mxs-mmc.c
-@@ -565,6 +565,11 @@ static const struct of_device_id mxs_mmc_dt_ids[] = {
- };
- MODULE_DEVICE_TABLE(of, mxs_mmc_dt_ids);
- 
-+static void mxs_mmc_regulator_disable(void *regulator)
-+{
-+	regulator_disable(regulator);
-+}
-+
- static int mxs_mmc_probe(struct platform_device *pdev)
- {
- 	const struct of_device_id *of_id =
-@@ -606,6 +611,11 @@ static int mxs_mmc_probe(struct platform_device *pdev)
- 				"Failed to enable vmmc regulator: %d\n", ret);
- 			goto out_mmc_free;
- 		}
-+
-+		ret = devm_add_action_or_reset(&pdev->dev, mxs_mmc_regulator_disable,
-+					       reg_vmmc);
-+		if (ret)
-+			goto out_mmc_free;
- 	}
- 
- 	ssp->clk = devm_clk_get(&pdev->dev, NULL);
+diff --git a/drivers/soc/qcom/llcc-qcom.c b/drivers/soc/qcom/llcc-qcom.c
+index 15a36dcab990e..e53109a5c3da9 100644
+--- a/drivers/soc/qcom/llcc-qcom.c
++++ b/drivers/soc/qcom/llcc-qcom.c
+@@ -115,7 +115,7 @@ static const struct llcc_slice_config sc7280_data[] =  {
+ 	{ LLCC_CMPT,     10, 768, 1, 1, 0x3f, 0x0, 0, 0, 0, 1, 0, 0},
+ 	{ LLCC_GPUHTW,   11, 256, 1, 1, 0x3f, 0x0, 0, 0, 0, 1, 0, 0},
+ 	{ LLCC_GPU,      12, 512, 1, 0, 0x3f, 0x0, 0, 0, 0, 1, 0, 0},
+-	{ LLCC_MMUHWT,   13, 256, 1, 1, 0x3f, 0x0, 0, 0, 0, 1, 1, 0},
++	{ LLCC_MMUHWT,   13, 256, 1, 1, 0x3f, 0x0, 0, 0, 0, 0, 1, 0},
+ 	{ LLCC_MDMPNG,   21, 768, 0, 1, 0x3f, 0x0, 0, 0, 0, 1, 0, 0},
+ 	{ LLCC_WLHW,     24, 256, 1, 1, 0x3f, 0x0, 0, 0, 0, 1, 0, 0},
+ 	{ LLCC_MODPE,    29, 64,  1, 1, 0x3f, 0x0, 0, 0, 0, 1, 0, 0},
 -- 
 2.33.0
 
