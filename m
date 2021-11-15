@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD05D4520AF
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 394994520B0
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343597AbhKPA4N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1343544AbhKPA4N (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 19:56:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343512AbhKOTVQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343515AbhKOTVQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 525E56359F;
-        Mon, 15 Nov 2021 18:41:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 842DC635A1;
+        Mon, 15 Nov 2021 18:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001673;
-        bh=erjptlGVqA1lIBoZchTvLDCAAjN1uZValxdJft8b+LM=;
+        s=korg; t=1637001677;
+        bh=GUBZCDcM+14HimVrjOfSaQj1OnzYDQvIihXlxTd5mmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6UuOQ9aTgyuAsL5Tp+ExpMPdHHt+rVbJDIiQG9pSJv3KCx/eayRU2zGJoycalu2h
-         9mDcq6FrSYb6NP/jnv06uQbJ+7hEa0XzE4AM+SwwTH+gfuSaOuuJrSSt3Oy8m6fjcR
-         BURzHqc4tLANBXJe7o6+pNtqVF7kj3Kd2w8xjz6s=
+        b=FDe+1piCwd2MtOhlYyYhkcIhkCnQ4mfK27cX5ux3ZWwnNEMpce4fbS7AvscfEc60h
+         v7YaT6YyrQhni0gazsji2TUOEfqXHpCXkau+gPB/v8+LWQLM7knzIdVyAFcjXucDt/
+         gV/h337DSwjRHtPOLJJFtT3U/LZ8ueXziViVptGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Israel Rukshin <israelr@nvidia.com>,
         Max Gurtovoy <mgurtovoy@nvidia.com>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 278/917] nvmet: fix use-after-free when a port is removed
-Date:   Mon, 15 Nov 2021 17:56:13 +0100
-Message-Id: <20211115165438.198595639@linuxfoundation.org>
+Subject: [PATCH 5.15 279/917] nvmet-rdma: fix use-after-free when a port is removed
+Date:   Mon, 15 Nov 2021 17:56:14 +0100
+Message-Id: <20211115165438.231284939@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,38 +42,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Israel Rukshin <israelr@nvidia.com>
 
-[ Upstream commit e3e19dcc4c416d65f99f13d55be2b787f8d0050e ]
+[ Upstream commit fcf73a804c7d6bbf0ea63531c6122aa363852e04 ]
 
-When a port is removed through configfs, any connected controllers
-are starting teardown flow asynchronously and can still send commands.
-This causes a use-after-free bug for any command that dereferences
-req->port (like in nvmet_parse_io_cmd).
-
-To fix this, wait for all the teardown scheduled works to complete
-(like release_work at rdma/tcp drivers). This ensures there are no
-active controllers when the port is eventually removed.
+When removing a port, all its controllers are being removed, but there
+are queues on the port that doesn't belong to any controller (during
+connection time). This causes a use-after-free bug for any command
+that dereferences req->port (like in nvmet_alloc_ctrl). Those queues
+should be destroyed before freeing the port via configfs. Destroy the
+remaining queues after the RDMA-CM was destroyed guarantees that no
+new queue will be created.
 
 Signed-off-by: Israel Rukshin <israelr@nvidia.com>
 Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/configfs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nvme/target/rdma.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/nvme/target/configfs.c b/drivers/nvme/target/configfs.c
-index be5d82421e3a4..496d775c67707 100644
---- a/drivers/nvme/target/configfs.c
-+++ b/drivers/nvme/target/configfs.c
-@@ -1553,6 +1553,8 @@ static void nvmet_port_release(struct config_item *item)
+diff --git a/drivers/nvme/target/rdma.c b/drivers/nvme/target/rdma.c
+index 891174ccd44bb..f1eedbf493d5b 100644
+--- a/drivers/nvme/target/rdma.c
++++ b/drivers/nvme/target/rdma.c
+@@ -1818,12 +1818,36 @@ restart:
+ 	mutex_unlock(&nvmet_rdma_queue_mutex);
+ }
+ 
++static void nvmet_rdma_destroy_port_queues(struct nvmet_rdma_port *port)
++{
++	struct nvmet_rdma_queue *queue, *tmp;
++	struct nvmet_port *nport = port->nport;
++
++	mutex_lock(&nvmet_rdma_queue_mutex);
++	list_for_each_entry_safe(queue, tmp, &nvmet_rdma_queue_list,
++				 queue_list) {
++		if (queue->port != nport)
++			continue;
++
++		list_del_init(&queue->queue_list);
++		__nvmet_rdma_queue_disconnect(queue);
++	}
++	mutex_unlock(&nvmet_rdma_queue_mutex);
++}
++
+ static void nvmet_rdma_disable_port(struct nvmet_rdma_port *port)
  {
- 	struct nvmet_port *port = to_nvmet_port(item);
+ 	struct rdma_cm_id *cm_id = xchg(&port->cm_id, NULL);
  
-+	/* Let inflight controllers teardown complete */
-+	flush_scheduled_work();
- 	list_del(&port->global_entry);
+ 	if (cm_id)
+ 		rdma_destroy_id(cm_id);
++
++	/*
++	 * Destroy the remaining queues, which are not belong to any
++	 * controller yet. Do it here after the RDMA-CM was destroyed
++	 * guarantees that no new queue will be created.
++	 */
++	nvmet_rdma_destroy_port_queues(port);
+ }
  
- 	kfree(port->ana_state);
+ static int nvmet_rdma_enable_port(struct nvmet_rdma_port *port)
 -- 
 2.33.0
 
