@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA891450E8D
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:13:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5B21450C09
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:31:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240876AbhKOSQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:16:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48394 "EHLO mail.kernel.org"
+        id S238032AbhKOReR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:34:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239397AbhKOSIf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:08:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE11F633AF;
-        Mon, 15 Nov 2021 17:46:13 +0000 (UTC)
+        id S237833AbhKORcf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:32:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F17EA632A9;
+        Mon, 15 Nov 2021 17:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998374;
-        bh=t3hcQGx1IuJ/hGgsUv2Dp3jFxWB8zNDGYv7ENhMxHNo=;
+        s=korg; t=1636996839;
+        bh=zbDx5/OyUL5DilpDRrRfNjXV+6u5bxWXE8W5nxyKIGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQr4EnJJ7rGf9n4dOR5CCuH4zAbULe6UMRHk7+o2DPeiwFHU9zeNZ0dIzZAy+7vMW
-         S7pTzJ+u+hSKrgyssHE5R9qG5sQDncwmynYv/cAqEF5iNXKPUCXzA1ncYKUIT1Awbj
-         K2d9mdpQg6g6UPya0O2CNDzxQhNAUNyDz8UV3s5w=
+        b=ETfHXqWc5IpdY+1Xx+E6BWRWDDT/pXAqWwlxmzp85yoSly3zAV14bjtTQDdq1EK+s
+         V1SK8Q5zzeNWlUGfvaMe4jPym9NWSOaT+oHl9V/+Mrtyng+BmC33vpSSxjeoFWZZjI
+         5YERgIot4bcd+VQFgM2hpc8cdZDTc2FgWmDBk3pU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <aglo@umich.edu>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 486/575] NFS: Fix an Oops in pnfs_mark_request_commit()
+Subject: [PATCH 5.4 287/355] mips: cm: Convert to bitfield API to fix out-of-bounds access
 Date:   Mon, 15 Nov 2021 18:03:31 +0100
-Message-Id: <20211115165400.513346889@linuxfoundation.org>
+Message-Id: <20211115165323.011025044@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +42,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit f0caea8882a7412a2ad4d8274f0280cdf849c9e2 ]
+[ Upstream commit 18b8f5b6fc53d097cadb94a93d8d6566ba88e389 ]
 
-Olga reports seeing the following Oops when doing O_DIRECT writes to a
-pNFS flexfiles server:
+mips_cm_error_report() extracts the cause and other cause from the error
+register using shifts.  This works fine for the former, as it is stored
+in the top bits, and the shift will thus remove all non-related bits.
+However, the latter is stored in the bottom bits, hence thus needs masking
+to get rid of non-related bits.  Without such masking, using it as an
+index into the cm2_causes[] array will lead to an out-of-bounds access,
+probably causing a crash.
 
-Oops: 0000 [#1] SMP PTI
-CPU: 1 PID: 234186 Comm: kworker/u8:1 Not tainted 5.15.0-rc4+ #4
-Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.13.0-2.module+el8.3.0+7353+9de0a3cc 04/01/2014
-Workqueue: nfsiod rpc_async_release [sunrpc]
-RIP: 0010:nfs_mark_request_commit+0x12/0x30 [nfs]
-Code: ff ff be 03 00 00 00 e8 ac 34 83 eb e9 29 ff ff
-ff e8 22 bc d7 eb 66 90 0f 1f 44 00 00 48 85 f6 74 16 48 8b 42 10 48
-8b 40 18 <48> 8b 40 18 48 85 c0 74 05 e9 70 fc 15 ec 48 89 d6 e9 68 ed
-ff ff
-RSP: 0018:ffffa82f0159fe00 EFLAGS: 00010286
-RAX: 0000000000000000 RBX: ffff8f3393141880 RCX: 0000000000000000
-RDX: ffffa82f0159fe08 RSI: ffff8f3381252500 RDI: ffff8f3393141880
-RBP: ffff8f33ac317c00 R08: 0000000000000000 R09: ffff8f3487724cb0
-R10: 0000000000000008 R11: 0000000000000001 R12: 0000000000000001
-R13: ffff8f3485bccee0 R14: ffff8f33ac317c10 R15: ffff8f33ac317cd8
-FS:  0000000000000000(0000) GS:ffff8f34fbc80000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000018 CR3: 0000000122120006 CR4: 0000000000770ee0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- nfs_direct_write_completion+0x13b/0x250 [nfs]
- rpc_free_task+0x39/0x60 [sunrpc]
- rpc_async_release+0x29/0x40 [sunrpc]
- process_one_work+0x1ce/0x370
- worker_thread+0x30/0x380
- ? process_one_work+0x370/0x370
- kthread+0x11a/0x140
- ? set_kthread_struct+0x40/0x40
- ret_from_fork+0x22/0x30
+Fix this by using FIELD_GET() instead.  Bite the bullet and convert all
+MIPS CM handling to the bitfield API, to improve readability and safety.
 
-Reported-by: Olga Kornievskaia <aglo@umich.edu>
-Fixes: 9c455a8c1e14 ("NFS/pNFS: Clean up pNFS commit operations")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 3885c2b463f6a236 ("MIPS: CM: Add support for reporting CM cache errors")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pnfs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/mips-cm.h | 12 ++++++------
+ arch/mips/kernel/mips-cm.c      | 21 ++++++++++-----------
+ 2 files changed, 16 insertions(+), 17 deletions(-)
 
-diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
-index 132a345e93731..0212fe32e63aa 100644
---- a/fs/nfs/pnfs.h
-+++ b/fs/nfs/pnfs.h
-@@ -515,7 +515,7 @@ pnfs_mark_request_commit(struct nfs_page *req, struct pnfs_layout_segment *lseg,
- {
- 	struct pnfs_ds_commit_info *fl_cinfo = cinfo->ds;
+diff --git a/arch/mips/include/asm/mips-cm.h b/arch/mips/include/asm/mips-cm.h
+index aeae2effa123d..23c67c0871b17 100644
+--- a/arch/mips/include/asm/mips-cm.h
++++ b/arch/mips/include/asm/mips-cm.h
+@@ -11,6 +11,7 @@
+ #ifndef __MIPS_ASM_MIPS_CM_H__
+ #define __MIPS_ASM_MIPS_CM_H__
  
--	if (!lseg || !fl_cinfo->ops->mark_request_commit)
-+	if (!lseg || !fl_cinfo->ops || !fl_cinfo->ops->mark_request_commit)
- 		return false;
- 	fl_cinfo->ops->mark_request_commit(req, lseg, cinfo, ds_commit_idx);
- 	return true;
++#include <linux/bitfield.h>
+ #include <linux/bitops.h>
+ #include <linux/errno.h>
+ 
+@@ -153,8 +154,8 @@ GCR_ACCESSOR_RO(32, 0x030, rev)
+ #define CM_GCR_REV_MINOR			GENMASK(7, 0)
+ 
+ #define CM_ENCODE_REV(major, minor) \
+-		(((major) << __ffs(CM_GCR_REV_MAJOR)) | \
+-		 ((minor) << __ffs(CM_GCR_REV_MINOR)))
++		(FIELD_PREP(CM_GCR_REV_MAJOR, major) | \
++		 FIELD_PREP(CM_GCR_REV_MINOR, minor))
+ 
+ #define CM_REV_CM2				CM_ENCODE_REV(6, 0)
+ #define CM_REV_CM2_5				CM_ENCODE_REV(7, 0)
+@@ -362,10 +363,10 @@ static inline int mips_cm_revision(void)
+ static inline unsigned int mips_cm_max_vp_width(void)
+ {
+ 	extern int smp_num_siblings;
+-	uint32_t cfg;
+ 
+ 	if (mips_cm_revision() >= CM_REV_CM3)
+-		return read_gcr_sys_config2() & CM_GCR_SYS_CONFIG2_MAXVPW;
++		return FIELD_GET(CM_GCR_SYS_CONFIG2_MAXVPW,
++				 read_gcr_sys_config2());
+ 
+ 	if (mips_cm_present()) {
+ 		/*
+@@ -373,8 +374,7 @@ static inline unsigned int mips_cm_max_vp_width(void)
+ 		 * number of VP(E)s, and if that ever changes then this will
+ 		 * need revisiting.
+ 		 */
+-		cfg = read_gcr_cl_config() & CM_GCR_Cx_CONFIG_PVPE;
+-		return (cfg >> __ffs(CM_GCR_Cx_CONFIG_PVPE)) + 1;
++		return FIELD_GET(CM_GCR_Cx_CONFIG_PVPE, read_gcr_cl_config()) + 1;
+ 	}
+ 
+ 	if (IS_ENABLED(CONFIG_SMP))
+diff --git a/arch/mips/kernel/mips-cm.c b/arch/mips/kernel/mips-cm.c
+index a9eab83d9148d..611ef512c0b81 100644
+--- a/arch/mips/kernel/mips-cm.c
++++ b/arch/mips/kernel/mips-cm.c
+@@ -179,8 +179,7 @@ static void mips_cm_probe_l2sync(void)
+ 	phys_addr_t addr;
+ 
+ 	/* L2-only sync was introduced with CM major revision 6 */
+-	major_rev = (read_gcr_rev() & CM_GCR_REV_MAJOR) >>
+-		__ffs(CM_GCR_REV_MAJOR);
++	major_rev = FIELD_GET(CM_GCR_REV_MAJOR, read_gcr_rev());
+ 	if (major_rev < 6)
+ 		return;
+ 
+@@ -263,13 +262,13 @@ void mips_cm_lock_other(unsigned int cluster, unsigned int core,
+ 	preempt_disable();
+ 
+ 	if (cm_rev >= CM_REV_CM3) {
+-		val = core << __ffs(CM3_GCR_Cx_OTHER_CORE);
+-		val |= vp << __ffs(CM3_GCR_Cx_OTHER_VP);
++		val = FIELD_PREP(CM3_GCR_Cx_OTHER_CORE, core) |
++		      FIELD_PREP(CM3_GCR_Cx_OTHER_VP, vp);
+ 
+ 		if (cm_rev >= CM_REV_CM3_5) {
+ 			val |= CM_GCR_Cx_OTHER_CLUSTER_EN;
+-			val |= cluster << __ffs(CM_GCR_Cx_OTHER_CLUSTER);
+-			val |= block << __ffs(CM_GCR_Cx_OTHER_BLOCK);
++			val |= FIELD_PREP(CM_GCR_Cx_OTHER_CLUSTER, cluster);
++			val |= FIELD_PREP(CM_GCR_Cx_OTHER_BLOCK, block);
+ 		} else {
+ 			WARN_ON(cluster != 0);
+ 			WARN_ON(block != CM_GCR_Cx_OTHER_BLOCK_LOCAL);
+@@ -299,7 +298,7 @@ void mips_cm_lock_other(unsigned int cluster, unsigned int core,
+ 		spin_lock_irqsave(&per_cpu(cm_core_lock, curr_core),
+ 				  per_cpu(cm_core_lock_flags, curr_core));
+ 
+-		val = core << __ffs(CM_GCR_Cx_OTHER_CORENUM);
++		val = FIELD_PREP(CM_GCR_Cx_OTHER_CORENUM, core);
+ 	}
+ 
+ 	write_gcr_cl_other(val);
+@@ -343,8 +342,8 @@ void mips_cm_error_report(void)
+ 	cm_other = read_gcr_error_mult();
+ 
+ 	if (revision < CM_REV_CM3) { /* CM2 */
+-		cause = cm_error >> __ffs(CM_GCR_ERROR_CAUSE_ERRTYPE);
+-		ocause = cm_other >> __ffs(CM_GCR_ERROR_MULT_ERR2ND);
++		cause = FIELD_GET(CM_GCR_ERROR_CAUSE_ERRTYPE, cm_error);
++		ocause = FIELD_GET(CM_GCR_ERROR_MULT_ERR2ND, cm_other);
+ 
+ 		if (!cause)
+ 			return;
+@@ -386,8 +385,8 @@ void mips_cm_error_report(void)
+ 		ulong core_id_bits, vp_id_bits, cmd_bits, cmd_group_bits;
+ 		ulong cm3_cca_bits, mcp_bits, cm3_tr_bits, sched_bit;
+ 
+-		cause = cm_error >> __ffs64(CM3_GCR_ERROR_CAUSE_ERRTYPE);
+-		ocause = cm_other >> __ffs(CM_GCR_ERROR_MULT_ERR2ND);
++		cause = FIELD_GET(CM3_GCR_ERROR_CAUSE_ERRTYPE, cm_error);
++		ocause = FIELD_GET(CM_GCR_ERROR_MULT_ERR2ND, cm_other);
+ 
+ 		if (!cause)
+ 			return;
 -- 
 2.33.0
 
