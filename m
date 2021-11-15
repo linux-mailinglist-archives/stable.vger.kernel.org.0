@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF922450F37
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:25:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28CF5450F40
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:26:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241163AbhKOS1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:27:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36924 "EHLO mail.kernel.org"
+        id S241192AbhKOS2J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:28:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241807AbhKOSZM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:25:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 429A863426;
-        Mon, 15 Nov 2021 17:55:45 +0000 (UTC)
+        id S241884AbhKOSZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:25:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4CE863428;
+        Mon, 15 Nov 2021 17:55:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998945;
-        bh=Lzpjg7S6FjEu8dwAMJAWRcYBXpTjuugH3pGUWpKOyYA=;
+        s=korg; t=1636998951;
+        bh=+vlmXETn4KzWYzIoABm278j6u+g5LO+u0OFh/n778Uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ODS020sYr8SwKsv3EGOOJ8JlaM92B2IA1XbsnRMhzVMy7hS3U22WXlA055Riro1P/
-         aFCcYNAlnIM8iSdJNyyd8AWmaCxXklkYv3nrq67M08vAnB7dKeM0vRK4sluwP4vQdK
-         o8UVv+lzOKizWn4hf6hj7T522xmeVQbp2r5sV0uk=
+        b=UUjnLDev0SmutPdD9FpMDVcXdGw/VqGHeyQF7jAeP9GyL7Ih7wiuFGvBrrc03r9jW
+         UET1xev2R39PC33P+WPn4WmpZvl5UHflRoQiuOgHXd+HqUFjSjE1ocjj3kW83bkHml
+         wj3YX+eQqC5Wfsk0QJjpGq98NbHjwY9qjqGEz9iE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 120/849] ifb: Depend on netfilter alternatively to tc
-Date:   Mon, 15 Nov 2021 17:53:23 +0100
-Message-Id: <20211115165424.147300019@linuxfoundation.org>
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.14 121/849] platform/surface: aggregator_registry: Add support for Surface Laptop Studio
+Date:   Mon, 15 Nov 2021 17:53:24 +0100
+Message-Id: <20211115165424.184796457@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,33 +39,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit 046178e726c2977d686ba5e07105d5a6685c830e upstream.
+commit 4f042e40199ce8bac6bc2b853e81744ee4ea759c upstream.
 
-IFB originally depended on NET_CLS_ACT for traffic redirection.
-But since v4.5, that may be achieved with NFT_FWD_NETDEV as well.
+Add support for the Surface Laptop Studio.
 
-Fixes: 39e6dea28adc ("netfilter: nf_tables: add forward expression to the netdev family")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v4.5+: bcfabee1afd9: netfilter: nft_fwd_netdev: allow to redirect to ifb via ingress
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In contrast to previous Surface Laptop models, this one has its HID
+devices attached to target ID 1 (instead of 2). It also has a couple
+more of them, including a new notifier for when the pen is stashed /
+taken out of its place, a "Sys Control" device, and two other
+unidentified HID devices with unknown usages.
+
+Battery and performance profile interfaces remain the same.
+
+Cc: stable@vger.kernel.org # 5.14+
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Link: https://lore.kernel.org/r/20211021130904.862610-2-luzmaximilian@gmail.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/surface/surface_aggregator_registry.c |   54 +++++++++++++++++
+ 1 file changed, 54 insertions(+)
 
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -150,7 +150,7 @@ config NET_FC
+--- a/drivers/platform/surface/surface_aggregator_registry.c
++++ b/drivers/platform/surface/surface_aggregator_registry.c
+@@ -77,6 +77,42 @@ static const struct software_node ssam_n
+ 	.parent = &ssam_node_root,
+ };
  
- config IFB
- 	tristate "Intermediate Functional Block support"
--	depends on NET_CLS_ACT
-+	depends on NET_ACT_MIRRED || NFT_FWD_NETDEV
- 	select NET_REDIRECT
- 	help
- 	  This is an intermediate driver that allows sharing of
++/* HID keyboard (TID1). */
++static const struct software_node ssam_node_hid_tid1_keyboard = {
++	.name = "ssam:01:15:01:01:00",
++	.parent = &ssam_node_root,
++};
++
++/* HID pen stash (TID1; pen taken / stashed away evens). */
++static const struct software_node ssam_node_hid_tid1_penstash = {
++	.name = "ssam:01:15:01:02:00",
++	.parent = &ssam_node_root,
++};
++
++/* HID touchpad (TID1). */
++static const struct software_node ssam_node_hid_tid1_touchpad = {
++	.name = "ssam:01:15:01:03:00",
++	.parent = &ssam_node_root,
++};
++
++/* HID device instance 6 (TID1, unknown HID device). */
++static const struct software_node ssam_node_hid_tid1_iid6 = {
++	.name = "ssam:01:15:01:06:00",
++	.parent = &ssam_node_root,
++};
++
++/* HID device instance 7 (TID1, unknown HID device). */
++static const struct software_node ssam_node_hid_tid1_iid7 = {
++	.name = "ssam:01:15:01:07:00",
++	.parent = &ssam_node_root,
++};
++
++/* HID system controls (TID1). */
++static const struct software_node ssam_node_hid_tid1_sysctrl = {
++	.name = "ssam:01:15:01:08:00",
++	.parent = &ssam_node_root,
++};
++
+ /* HID keyboard. */
+ static const struct software_node ssam_node_hid_main_keyboard = {
+ 	.name = "ssam:01:15:02:01:00",
+@@ -159,6 +195,21 @@ static const struct software_node *ssam_
+ 	NULL,
+ };
+ 
++/* Devices for Surface Laptop Studio. */
++static const struct software_node *ssam_node_group_sls[] = {
++	&ssam_node_root,
++	&ssam_node_bat_ac,
++	&ssam_node_bat_main,
++	&ssam_node_tmp_pprof,
++	&ssam_node_hid_tid1_keyboard,
++	&ssam_node_hid_tid1_penstash,
++	&ssam_node_hid_tid1_touchpad,
++	&ssam_node_hid_tid1_iid6,
++	&ssam_node_hid_tid1_iid7,
++	&ssam_node_hid_tid1_sysctrl,
++	NULL,
++};
++
+ /* Devices for Surface Laptop Go. */
+ static const struct software_node *ssam_node_group_slg1[] = {
+ 	&ssam_node_root,
+@@ -507,6 +558,9 @@ static const struct acpi_device_id ssam_
+ 	/* Surface Laptop Go 1 */
+ 	{ "MSHW0118", (unsigned long)ssam_node_group_slg1 },
+ 
++	/* Surface Laptop Studio */
++	{ "MSHW0123", (unsigned long)ssam_node_group_sls },
++
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(acpi, ssam_platform_hub_match);
 
 
