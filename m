@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6113D451359
+	by mail.lfdr.de (Postfix) with ESMTP id AA84845135A
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348171AbhKOTuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:50:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
+        id S1348177AbhKOTun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:50:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245680AbhKOTVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245679AbhKOTVA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C59F16357C;
-        Mon, 15 Nov 2021 18:39:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A86F63589;
+        Mon, 15 Nov 2021 18:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001553;
-        bh=W0ELrzJMxGLWNUf0TkqG30Vy8t8GwFJcoOZnhnjEX60=;
+        s=korg; t=1637001558;
+        bh=TvmCK6lQ2hlYhAva3GZM/grX/Nr5WqkWiEZe0gfSME4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vTg7hrYekc1GhfiJsz6MZyfGCPjFbtgGUuxyHBnCKSXPndcbuvy2kdalFXkgFnJp
-         /upX+Ty+RnnM4k3pzz+4DI2yztzTuAnG2K/gC9gR0ndKy9gHiQ12hpdG26pYjmQyoV
-         jwvRxyS0w3ICLruCmugXuQOjrx9kEXCCFP+Uz1SU=
+        b=rxzR3MYZw87nxi5ZTEo269NPXHY0lvzOHtrLFiCKdYvAO6BaFfbCD8DM/RlM988EA
+         MzJh0YVKu6RhQvwWmjtIaxD9prbGn7UMGUKVRnsZetYNpk8dCNlvNrX/XoiTXs5RVd
+         XYNg+ryeEHVMhmMKEM49diqM4O1YNPL8lncyMcvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Michael Wang <yun.wang@linux.alibaba.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 201/917] crypto: aesni - check walk.nbytes instead of err
-Date:   Mon, 15 Nov 2021 17:54:56 +0100
-Message-Id: <20211115165435.611033758@linuxfoundation.org>
+Subject: [PATCH 5.15 203/917] x86: Increase exception stack sizes
+Date:   Mon, 15 Nov 2021 17:54:58 +0100
+Message-Id: <20211115165435.674632109@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,41 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit a2d3cbc80d2527b435154ff0f89b56ef4b84370f ]
+[ Upstream commit 7fae4c24a2b84a66c7be399727aca11e7a888462 ]
 
-In the code for xts_crypt(), we check for the err value returned by
-skcipher_walk_virt() and return from the function if it is non zero.
-However, skcipher_walk_virt() can set walk.nbytes to 0, which would cause
-us to call kernel_fpu_begin(), and then skip the kernel_fpu_end() call.
+It turns out that a single page of stack is trivial to overflow with
+all the tracing gunk enabled. Raise the exception stacks to 2 pages,
+which is still half the interrupt stacks, which are at 4 pages.
 
-This patch checks for the walk.nbytes value instead, and returns if
-walk.nbytes is 0. This prevents us from calling kernel_fpu_begin() in
-the first place and also covers the case of having a non zero err value
-returned from skcipher_walk_virt().
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reported-by: Michael Wang <yun.wang@linux.alibaba.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/YUIO9Ye98S5Eb68w@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/crypto/aesni-intel_glue.c | 2 +-
+ arch/x86/include/asm/page_64_types.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/crypto/aesni-intel_glue.c b/arch/x86/crypto/aesni-intel_glue.c
-index 0fc961bef299c..e09f4672dd382 100644
---- a/arch/x86/crypto/aesni-intel_glue.c
-+++ b/arch/x86/crypto/aesni-intel_glue.c
-@@ -866,7 +866,7 @@ static int xts_crypt(struct skcipher_request *req, bool encrypt)
- 		req = &subreq;
+diff --git a/arch/x86/include/asm/page_64_types.h b/arch/x86/include/asm/page_64_types.h
+index a8d4ad8565681..e9e2c3ba59239 100644
+--- a/arch/x86/include/asm/page_64_types.h
++++ b/arch/x86/include/asm/page_64_types.h
+@@ -15,7 +15,7 @@
+ #define THREAD_SIZE_ORDER	(2 + KASAN_STACK_ORDER)
+ #define THREAD_SIZE  (PAGE_SIZE << THREAD_SIZE_ORDER)
  
- 		err = skcipher_walk_virt(&walk, req, false);
--		if (err)
-+		if (!walk.nbytes)
- 			return err;
- 	} else {
- 		tail = 0;
+-#define EXCEPTION_STACK_ORDER (0 + KASAN_STACK_ORDER)
++#define EXCEPTION_STACK_ORDER (1 + KASAN_STACK_ORDER)
+ #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
+ 
+ #define IRQ_STACK_ORDER (2 + KASAN_STACK_ORDER)
 -- 
 2.33.0
 
