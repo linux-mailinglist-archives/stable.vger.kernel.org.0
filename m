@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 185C3451389
+	by mail.lfdr.de (Postfix) with ESMTP id 61C9D45138A
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348379AbhKOTwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:52:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
+        id S1348393AbhKOTwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:52:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343635AbhKOTVc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343634AbhKOTVc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49C71635B9;
-        Mon, 15 Nov 2021 18:43:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 023F4635C5;
+        Mon, 15 Nov 2021 18:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001804;
-        bh=VD7Y+YYASiY5CD26HKei4DYez59qwv2bnxAwAi4+bTE=;
+        s=korg; t=1637001807;
+        bh=RT4c1amvKbIveG1AjmPg6G5GHIIEYCHdQS57BgVmXgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y0hPEFYiObgV6MKCfrDjYcJenM7YXJFj5io5phf5ypjDL5zgXI2U4b+lmgYIO9oS7
-         F+SrWj1pkVgO10Cs6QGoUhiwVSzNtVhz1LQHpOAOMk/zfJ1Edw02tjA/YJz332sQ7g
-         wtSQzYqmHgMt3dRg5T9X0dWowT5xg5srrBGL6UFw=
+        b=wsul6lSnggybkYcfiDkziRcDtEcyU1LHYFr7onPZHpVyxruqqhrdmvEC6K/zfGj5B
+         ZncCnTaZ2AIZt3ZZwMoMJt4Ux5JqewcUjFzDR09OL06IeQBHqTesZSh3biOAVLTGhg
+         BO0caHDMHUjaQrvZ70iF5/0Ng+YJZN5TKfY7H2oI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Neil Armstrong <narmstrong@baylibre.com>,
         Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 327/917] drm/bridge: it66121: Initialize {device,vendor}_ids
-Date:   Mon, 15 Nov 2021 17:57:02 +0100
-Message-Id: <20211115165439.842198753@linuxfoundation.org>
+Subject: [PATCH 5.15 328/917] drm/bridge: it66121: Wait for next bridge to be probed
+Date:   Mon, 15 Nov 2021 17:57:03 +0100
+Message-Id: <20211115165439.882262591@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,42 +43,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 3a5f3d61de657bc1c2b53b77d065c5526f982e10 ]
+[ Upstream commit 8b03e3fc79189b17d31a82f5e175698802a11e87 ]
 
-These two arrays are populated with data read from the I2C device
-through regmap_read(), and the data is then compared with hardcoded
-vendor/product ID values of supported chips.
+If run before the next bridge is initialized, of_drm_find_bridge() will
+give us a NULL pointer.
 
-However, the return value of regmap_read() was never checked. This is
-fine, as long as the two arrays are zero-initialized, so that we don't
-compare the vendor/product IDs against whatever garbage is left on the
-stack.
-
-Address this issue by zero-initializing these two arrays.
+If that's the case, return -EPROBE_DEFER; we may have more luck next
+time.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 Fixes: 988156dc2fc9 ("drm: bridge: add it66121 driver")
 Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
 Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210827163956.27517-1-paul@crapouillou.net
+Link: https://patchwork.freedesktop.org/patch/msgid/20210827163956.27517-2-paul@crapouillou.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ite-it66121.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/ite-it66121.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/gpu/drm/bridge/ite-it66121.c b/drivers/gpu/drm/bridge/ite-it66121.c
-index 2f2a09adb4bc8..b130d01147c6c 100644
+index b130d01147c6c..9dc41a7b91362 100644
 --- a/drivers/gpu/drm/bridge/ite-it66121.c
 +++ b/drivers/gpu/drm/bridge/ite-it66121.c
-@@ -889,7 +889,7 @@ unlock:
- static int it66121_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
--	u32 vendor_ids[2], device_ids[2], revision_id;
-+	u32 revision_id, vendor_ids[2] = { 0 }, device_ids[2] = { 0 };
- 	struct device_node *ep;
- 	int ret;
- 	struct it66121_ctx *ctx;
+@@ -924,6 +924,9 @@ static int it66121_probe(struct i2c_client *client,
+ 	ctx->next_bridge = of_drm_find_bridge(ep);
+ 	of_node_put(ep);
+ 
++	if (!ctx->next_bridge)
++		return -EPROBE_DEFER;
++
+ 	i2c_set_clientdata(client, ctx);
+ 	mutex_init(&ctx->lock);
+ 
 -- 
 2.33.0
 
