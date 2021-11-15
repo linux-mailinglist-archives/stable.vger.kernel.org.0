@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A3D4450E31
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 129E7450BF0
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:29:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240754AbhKOSNT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:13:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46088 "EHLO mail.kernel.org"
+        id S238004AbhKORcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:32:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240106AbhKOSFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C78C63287;
-        Mon, 15 Nov 2021 17:42:20 +0000 (UTC)
+        id S237976AbhKOR2a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:28:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4488F6326D;
+        Mon, 15 Nov 2021 17:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998141;
-        bh=B4mUOJkyn+FT1GJIRP6ekd7FphQyGfxTCK0xolSxVIA=;
+        s=korg; t=1636996731;
+        bh=EhuQGIfKx2K89QJ7yeJ7Nto+4H77n+aK0HPCrsRD5rE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WG6gPfDY+8GS0ydSLl7klkzHPjNMnSqfLPWRgly+T9UvXZpiDzEJDDjZ98gPXFe8V
-         to1wOvTJ0rZxw/Y0PjBeBijMGBOu29mPq99xVxdoqn+ik/2GElv0yj+4oxrCWE/RLQ
-         HdG7c0cnIjEKsX1eGJP7YoAB1HTKM8hDmPhNL7W8=
+        b=rkxgvJmw1eW/xDzmqUb564XYjiypcfPB6ot5WvEb60TVGp3VsympkyLCZRglYtos2
+         9g945VkYq3IfjDjqMI+VnB+wAotr6oRxoNui5hOY8mFsLgqA++JHS7JDycTSSgujr5
+         OhPyslm9si/9HS5HPFVHHVElEttsXxJTLoZJjISA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        stable@vger.kernel.org, Punit Agrawal <punitagrawal@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 403/575] JFS: fix memleak in jfs_mount
-Date:   Mon, 15 Nov 2021 18:02:08 +0100
-Message-Id: <20211115165357.699772933@linuxfoundation.org>
+Subject: [PATCH 5.4 205/355] kprobes: Do not use local variable when creating debugfs file
+Date:   Mon, 15 Nov 2021 18:02:09 +0100
+Message-Id: <20211115165320.394574008@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,156 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Punit Agrawal <punitagrawal@gmail.com>
 
-[ Upstream commit c48a14dca2cb57527dde6b960adbe69953935f10 ]
+[ Upstream commit 8f7262cd66699a4b02eb7549b35c81b2116aad95 ]
 
-In jfs_mount, when diMount(ipaimap2) fails, it goes to errout35. However,
-the following code does not free ipaimap2 allocated by diReadSpecial.
+debugfs_create_file() takes a pointer argument that can be used during
+file operation callbacks (accessible via i_private in the inode
+structure). An obvious requirement is for the pointer to refer to
+valid memory when used.
 
-Fix this by refactoring the error handling code of jfs_mount. To be
-specific, modify the lable name and free ipaimap2 when the above error
-ocurrs.
+When creating the debugfs file to dynamically enable / disable
+kprobes, a pointer to local variable is passed to
+debugfs_create_file(); which will go out of scope when the init
+function returns. The reason this hasn't triggered random memory
+corruption is because the pointer is not accessed during the debugfs
+file callbacks.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Since the enabled state is managed by the kprobes_all_disabled global
+variable, the local variable is not needed. Fix the incorrect (and
+unnecessary) usage of local variable during debugfs_file_create() by
+passing NULL instead.
+
+Link: https://lkml.kernel.org/r/163163031686.489837.4476867635937014973.stgit@devnote2
+
+Fixes: bf8f6e5b3e51 ("Kprobes: The ON/OFF knob thru debugfs")
+Signed-off-by: Punit Agrawal <punitagrawal@gmail.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_mount.c | 51 ++++++++++++++++++++--------------------------
- 1 file changed, 22 insertions(+), 29 deletions(-)
+ kernel/kprobes.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/jfs/jfs_mount.c b/fs/jfs/jfs_mount.c
-index 5d7d7170c03c0..aa4ff7bcaff23 100644
---- a/fs/jfs/jfs_mount.c
-+++ b/fs/jfs/jfs_mount.c
-@@ -81,14 +81,14 @@ int jfs_mount(struct super_block *sb)
- 	 * (initialize mount inode from the superblock)
- 	 */
- 	if ((rc = chkSuper(sb))) {
--		goto errout20;
-+		goto out;
- 	}
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index a7812c115e487..1668439b269d3 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2712,14 +2712,13 @@ static const struct file_operations fops_kp = {
+ static int __init debugfs_kprobe_init(void)
+ {
+ 	struct dentry *dir;
+-	unsigned int value = 1;
  
- 	ipaimap = diReadSpecial(sb, AGGREGATE_I, 0);
- 	if (ipaimap == NULL) {
- 		jfs_err("jfs_mount: Failed to read AGGREGATE_I");
- 		rc = -EIO;
--		goto errout20;
-+		goto out;
- 	}
- 	sbi->ipaimap = ipaimap;
+ 	dir = debugfs_create_dir("kprobes", NULL);
  
-@@ -99,7 +99,7 @@ int jfs_mount(struct super_block *sb)
- 	 */
- 	if ((rc = diMount(ipaimap))) {
- 		jfs_err("jfs_mount: diMount(ipaimap) failed w/rc = %d", rc);
--		goto errout21;
-+		goto err_ipaimap;
- 	}
+ 	debugfs_create_file("list", 0400, dir, NULL,
+ 			    &debugfs_kprobes_operations);
  
- 	/*
-@@ -108,7 +108,7 @@ int jfs_mount(struct super_block *sb)
- 	ipbmap = diReadSpecial(sb, BMAP_I, 0);
- 	if (ipbmap == NULL) {
- 		rc = -EIO;
--		goto errout22;
-+		goto err_umount_ipaimap;
- 	}
+-	debugfs_create_file("enabled", 0600, dir, &value, &fops_kp);
++	debugfs_create_file("enabled", 0600, dir, NULL, &fops_kp);
  
- 	jfs_info("jfs_mount: ipbmap:0x%p", ipbmap);
-@@ -120,7 +120,7 @@ int jfs_mount(struct super_block *sb)
- 	 */
- 	if ((rc = dbMount(ipbmap))) {
- 		jfs_err("jfs_mount: dbMount failed w/rc = %d", rc);
--		goto errout22;
-+		goto err_ipbmap;
- 	}
- 
- 	/*
-@@ -139,7 +139,7 @@ int jfs_mount(struct super_block *sb)
- 		if (!ipaimap2) {
- 			jfs_err("jfs_mount: Failed to read AGGREGATE_I");
- 			rc = -EIO;
--			goto errout35;
-+			goto err_umount_ipbmap;
- 		}
- 		sbi->ipaimap2 = ipaimap2;
- 
-@@ -151,7 +151,7 @@ int jfs_mount(struct super_block *sb)
- 		if ((rc = diMount(ipaimap2))) {
- 			jfs_err("jfs_mount: diMount(ipaimap2) failed, rc = %d",
- 				rc);
--			goto errout35;
-+			goto err_ipaimap2;
- 		}
- 	} else
- 		/* Secondary aggregate inode table is not valid */
-@@ -168,7 +168,7 @@ int jfs_mount(struct super_block *sb)
- 		jfs_err("jfs_mount: Failed to read FILESYSTEM_I");
- 		/* open fileset secondary inode allocation map */
- 		rc = -EIO;
--		goto errout40;
-+		goto err_umount_ipaimap2;
- 	}
- 	jfs_info("jfs_mount: ipimap:0x%p", ipimap);
- 
-@@ -178,41 +178,34 @@ int jfs_mount(struct super_block *sb)
- 	/* initialize fileset inode allocation map */
- 	if ((rc = diMount(ipimap))) {
- 		jfs_err("jfs_mount: diMount failed w/rc = %d", rc);
--		goto errout41;
-+		goto err_ipimap;
- 	}
- 
--	goto out;
-+	return rc;
- 
- 	/*
- 	 *	unwind on error
- 	 */
--      errout41:		/* close fileset inode allocation map inode */
-+err_ipimap:
-+	/* close fileset inode allocation map inode */
- 	diFreeSpecial(ipimap);
--
--      errout40:		/* fileset closed */
--
-+err_umount_ipaimap2:
- 	/* close secondary aggregate inode allocation map */
--	if (ipaimap2) {
-+	if (ipaimap2)
- 		diUnmount(ipaimap2, 1);
-+err_ipaimap2:
-+	/* close aggregate inodes */
-+	if (ipaimap2)
- 		diFreeSpecial(ipaimap2);
--	}
--
--      errout35:
--
--	/* close aggregate block allocation map */
-+err_umount_ipbmap:	/* close aggregate block allocation map */
- 	dbUnmount(ipbmap, 1);
-+err_ipbmap:		/* close aggregate inodes */
- 	diFreeSpecial(ipbmap);
--
--      errout22:		/* close aggregate inode allocation map */
--
-+err_umount_ipaimap:	/* close aggregate inode allocation map */
- 	diUnmount(ipaimap, 1);
--
--      errout21:		/* close aggregate inodes */
-+err_ipaimap:		/* close aggregate inodes */
- 	diFreeSpecial(ipaimap);
--      errout20:		/* aggregate closed */
--
--      out:
--
-+out:
- 	if (rc)
- 		jfs_err("Mount JFS Failure: %d", rc);
- 
+ 	debugfs_create_file("blacklist", 0400, dir, NULL,
+ 			    &debugfs_kprobe_blacklist_ops);
 -- 
 2.33.0
 
