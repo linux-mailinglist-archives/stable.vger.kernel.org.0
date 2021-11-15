@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94A884510A1
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:48:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15B4A450D05
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:45:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242668AbhKOSvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:51:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51692 "EHLO mail.kernel.org"
+        id S238696AbhKORrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:47:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242458AbhKOSs7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:48:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C9546329B;
-        Mon, 15 Nov 2021 18:08:27 +0000 (UTC)
+        id S238743AbhKORpS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:45:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1E466330C;
+        Mon, 15 Nov 2021 17:29:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999708;
-        bh=Y695iH+0jygos0itHvIOP2xaiEJKzjyF02IOCOG6U6w=;
+        s=korg; t=1636997359;
+        bh=eajIuobfbs5aY/C3Q8dSjCf3Ko6DnXwHvuvfvoHM2uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o0J4t4Uu2Iu7fjwHw4BSfrrKy0gSvgA62P0sAYBq5THeRi1uKOJBshK6wSpXpTyay
-         T2ghd8tI1fnhokUm0gCVoYHruOK3dGu+vhMADvuaVpljP7uu+PFW4WZ1GRV5QIsNvd
-         zt7ZD3nKoYvAXfJVxiic1w72h2DJ4nq65bm2Tryk=
+        b=XZ4tnqUN/jap32w0dYvd2W0N0gffZ3D6jXv3LkYk2iIvQb1q+ZsCRgQrHhRINuhBg
+         BIt8neNFCMsUSklgPNtVS7f4e5bOGy2gDnjrMLLhRPQSPGGiaLdHPk6NFsRkg17cjo
+         D5sP//xpdZz7ytrDEMi3tXWKjfAaOTsT0tjpJrlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 361/849] qed: Dont ignore devlink allocation failures
-Date:   Mon, 15 Nov 2021 17:57:24 +0100
-Message-Id: <20211115165432.451714988@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Maciej Rozycki <macro@orcam.me.uk>, linux-mips@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.10 120/575] signal/mips: Update (_save|_restore)_fp_context to fail with -EFAULT
+Date:   Mon, 15 Nov 2021 17:57:25 +0100
+Message-Id: <20211115165347.837820916@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,71 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit e6a54d6f221301347aaf9d83bb1f23129325c1c5 ]
+commit 95bf9d646c3c3f95cb0be7e703b371db8da5be68 upstream.
 
-devlink is a software interface that doesn't depend on any hardware
-capabilities. The failure in SW means memory issues, wrong parameters,
-programmer error e.t.c.
+When an instruction to save or restore a register from the stack fails
+in _save_fp_context or _restore_fp_context return with -EFAULT.  This
+change was made to r2300_fpu.S[1] but it looks like it got lost with
+the introduction of EX2[2].  This is also what the other implementation
+of _save_fp_context and _restore_fp_context in r4k_fpu.S does, and
+what is needed for the callers to be able to handle the error.
 
-Like any other such interface in the kernel, the returned status of
-devlink APIs should be checked and propagated further and not ignored.
+Furthermore calling do_exit(SIGSEGV) from bad_stack is wrong because
+it does not terminate the entire process it just terminates a single
+thread.
 
-Fixes: 755f982bb1ff ("qed/qede: make devlink survive recovery")
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As the changed code was the only caller of arch/mips/kernel/syscall.c:bad_stack
+remove the problematic and now unused helper function.
+
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Maciej Rozycki <macro@orcam.me.uk>
+Cc: linux-mips@vger.kernel.org
+[1] 35938a00ba86 ("MIPS: Fix ISA I FP sigcontext access violation handling")
+[2] f92722dc4545 ("MIPS: Correct MIPS I FP sigcontext layout")
+Cc: stable@vger.kernel.org
+Fixes: f92722dc4545 ("MIPS: Correct MIPS I FP sigcontext layout")
+Acked-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Link: https://lkml.kernel.org/r/20211020174406.17889-5-ebiederm@xmission.com
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_main.c | 12 +++++-------
- drivers/scsi/qedf/qedf_main.c                |  2 ++
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ arch/mips/kernel/r2300_fpu.S |    4 ++--
+ arch/mips/kernel/syscall.c   |    9 ---------
+ 2 files changed, 2 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qede/qede_main.c b/drivers/net/ethernet/qlogic/qede/qede_main.c
-index 1c7f9ed6f1c19..826780e5aa49a 100644
---- a/drivers/net/ethernet/qlogic/qede/qede_main.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
-@@ -1184,19 +1184,17 @@ static int __qede_probe(struct pci_dev *pdev, u32 dp_module, u8 dp_level,
- 		edev->devlink = qed_ops->common->devlink_register(cdev);
- 		if (IS_ERR(edev->devlink)) {
- 			DP_NOTICE(edev, "Cannot register devlink\n");
-+			rc = PTR_ERR(edev->devlink);
- 			edev->devlink = NULL;
--			/* Go on, we can live without devlink */
-+			goto err3;
- 		}
- 	} else {
- 		struct net_device *ndev = pci_get_drvdata(pdev);
-+		struct qed_devlink *qdl;
+--- a/arch/mips/kernel/r2300_fpu.S
++++ b/arch/mips/kernel/r2300_fpu.S
+@@ -29,8 +29,8 @@
+ #define EX2(a,b)						\
+ 9:	a,##b;							\
+ 	.section __ex_table,"a";				\
+-	PTR	9b,bad_stack;					\
+-	PTR	9b+4,bad_stack;					\
++	PTR	9b,fault;					\
++	PTR	9b+4,fault;					\
+ 	.previous
  
- 		edev = netdev_priv(ndev);
+ 	.set	mips1
+--- a/arch/mips/kernel/syscall.c
++++ b/arch/mips/kernel/syscall.c
+@@ -240,12 +240,3 @@ SYSCALL_DEFINE3(cachectl, char *, addr,
+ {
+ 	return -ENOSYS;
+ }
 -
--		if (edev->devlink) {
--			struct qed_devlink *qdl = devlink_priv(edev->devlink);
--
--			qdl->cdev = cdev;
--		}
-+		qdl = devlink_priv(edev->devlink);
-+		qdl->cdev = cdev;
- 		edev->cdev = cdev;
- 		memset(&edev->stats, 0, sizeof(edev->stats));
- 		memcpy(&edev->dev_info, &dev_info, sizeof(dev_info));
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index 42d0d941dba5c..94ee08fab46a5 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -3416,7 +3416,9 @@ retry_probe:
- 		qedf->devlink = qed_ops->common->devlink_register(qedf->cdev);
- 		if (IS_ERR(qedf->devlink)) {
- 			QEDF_ERR(&qedf->dbg_ctx, "Cannot register devlink\n");
-+			rc = PTR_ERR(qedf->devlink);
- 			qedf->devlink = NULL;
-+			goto err2;
- 		}
- 	}
- 
--- 
-2.33.0
-
+-/*
+- * If we ever come here the user sp is bad.  Zap the process right away.
+- * Due to the bad stack signaling wouldn't work.
+- */
+-asmlinkage void bad_stack(void)
+-{
+-	do_exit(SIGSEGV);
+-}
 
 
