@@ -2,33 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3607451FCF
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D46451FCC
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354190AbhKPApa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44640 "EHLO mail.kernel.org"
+        id S1355209AbhKPApY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343672AbhKOTVf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343674AbhKOTVf (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D67463375;
-        Mon, 15 Nov 2021 18:44:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFACF6337A;
+        Mon, 15 Nov 2021 18:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001850;
-        bh=AUfUu1R976nM7uLifRLjtzyw5KDOM91WzDlYtLRH0W8=;
+        s=korg; t=1637001852;
+        bh=MG1n0PIoIf2//P4DiYG7iIX9mfWlhZk/uvKmNjDGJIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iUORBAvRI9Fnhb3ac2HQpFXn7pw5HPj3ZGnaJksg1VmA5eqlwIZTeP8t6lnFOKz1G
-         BUchTGJ/+iJLSUq1MLYni80IsHkf/K+LWGSAR35SnUG1n3lzLK/pDlZs0yKoGjjZM1
-         ukxbbP8AbdveDP5Bi3KRJgBExdZwo/iUfw7TNIdE=
+        b=clYTYCxNpmApVrqIzbjq6dd8d3+tDtdfYoIRBsl3BPcma4IZr+TqM8QAg35hloCeu
+         0kvvEKpG5s7yzj7546nj0XoQ+PGAFVg8W+oeE+cK3FkEJiJpHNrUt5pgxiTGlBpUyb
+         28tPABVHvinCMD27R9bSrg31rp8h6ggM/HoEYbhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 310/917] x86/hyperv: Protect set_hv_tscchange_cb() against getting preempted
-Date:   Mon, 15 Nov 2021 17:56:45 +0100
-Message-Id: <20211115165439.264484177@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Hersen Wu <hersenxs.wu@amd.com>,
+        Anson Jacob <Anson.Jacob@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Agustin Gutierrez <agustin.gutierrez@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 311/917] drm/amd/display: dcn20_resource_construct reduce scope of FPU enabled
+Date:   Mon, 15 Nov 2021 17:56:46 +0100
+Message-Id: <20211115165439.294855367@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,70 +47,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Anson Jacob <Anson.Jacob@amd.com>
 
-[ Upstream commit 285f68afa8b20f752b0b7194d54980b5e0e27b75 ]
+[ Upstream commit bc39a69a2ac484e6575a958567c162ef56c9f278 ]
 
-The following issue is observed with CONFIG_DEBUG_PREEMPT when KVM loads:
+Limit when FPU is enabled to only functions that does FPU operations for
+dcn20_resource_construct, which gets called during driver
+initialization.
 
- KVM: vmx: using Hyper-V Enlightened VMCS
- BUG: using smp_processor_id() in preemptible [00000000] code: systemd-udevd/488
- caller is set_hv_tscchange_cb+0x16/0x80
- CPU: 1 PID: 488 Comm: systemd-udevd Not tainted 5.15.0-rc5+ #396
- Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.0 12/17/2019
- Call Trace:
-  dump_stack_lvl+0x6a/0x9a
-  check_preemption_disabled+0xde/0xe0
-  ? kvm_gen_update_masterclock+0xd0/0xd0 [kvm]
-  set_hv_tscchange_cb+0x16/0x80
-  kvm_arch_init+0x23f/0x290 [kvm]
-  kvm_init+0x30/0x310 [kvm]
-  vmx_init+0xaf/0x134 [kvm_intel]
-  ...
+Enabling FPU operation disables preemption.  Sleeping functions(mutex
+(un)lock, memory allocation using GFP_KERNEL, etc.) should not be called
+when preemption is disabled.
 
-set_hv_tscchange_cb() can get preempted in between acquiring
-smp_processor_id() and writing to HV_X64_MSR_REENLIGHTENMENT_CONTROL. This
-is not an issue by itself: HV_X64_MSR_REENLIGHTENMENT_CONTROL is a
-partition-wide MSR and it doesn't matter which particular CPU will be
-used to receive reenlightenment notifications. The only real problem can
-(in theory) be observed if the CPU whose id was acquired with
-smp_processor_id() goes offline before we manage to write to the MSR,
-the logic in hv_cpu_die() won't be able to reassign it correctly.
+Fixes the following case caught by enabling
+CONFIG_DEBUG_ATOMIC_SLEEP in kernel config
+[    1.338434] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:281
+[    1.347395] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 197, name: systemd-udevd
+[    1.356356] CPU: 7 PID: 197 Comm: systemd-udevd Not tainted 5.13.0+ #3
+[    1.356358] Hardware name: System manufacturer System Product Name/PRIME X570-PRO, BIOS 3405 02/01/2021
+[    1.356360] Call Trace:
+[    1.356361]  dump_stack+0x6b/0x86
+[    1.356366]  ___might_sleep.cold+0x87/0x98
+[    1.356370]  __might_sleep+0x4b/0x80
+[    1.356372]  mutex_lock+0x21/0x50
+[    1.356376]  smu_get_uclk_dpm_states+0x3f/0x80 [amdgpu]
+[    1.356538]  pp_nv_get_uclk_dpm_states+0x35/0x50 [amdgpu]
+[    1.356711]  init_soc_bounding_box+0xf9/0x210 [amdgpu]
+[    1.356892]  ? create_object+0x20d/0x340
+[    1.356897]  ? dcn20_resource_construct+0x46f/0xd30 [amdgpu]
+[    1.357077]  dcn20_resource_construct+0x4b1/0xd30 [amdgpu]
+...
 
-Reported-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Link: https://lore.kernel.org/r/20211012155005.1613352-1-vkuznets@redhat.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Tested on: 5700XT (NAVI10 0x1002:0x731F 0x1DA2:0xE410 0xC1)
+
+Cc: Christian König <christian.koenig@amd.com>
+Cc: Hersen Wu <hersenxs.wu@amd.com>
+Cc: Anson Jacob <Anson.Jacob@amd.com>
+Cc: Harry Wentland <harry.wentland@amd.com>
+
+Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Acked-by: Agustin Gutierrez <agustin.gutierrez@amd.com>
+Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/hyperv/hv_init.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ .../drm/amd/display/dc/dcn20/dcn20_resource.c    | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-index 708a2712a516d..179fc173104d7 100644
---- a/arch/x86/hyperv/hv_init.c
-+++ b/arch/x86/hyperv/hv_init.c
-@@ -139,7 +139,6 @@ void set_hv_tscchange_cb(void (*cb)(void))
- 	struct hv_reenlightenment_control re_ctrl = {
- 		.vector = HYPERV_REENLIGHTENMENT_VECTOR,
- 		.enabled = 1,
--		.target_vp = hv_vp_index[smp_processor_id()]
- 	};
- 	struct hv_tsc_emulation_control emu_ctrl = {.enabled = 1};
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+index e3e01b17c164e..f2f258e70f9da 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -3668,16 +3668,22 @@ static bool init_soc_bounding_box(struct dc *dc,
+ 			clock_limits_available = (status == PP_SMU_RESULT_OK);
+ 		}
  
-@@ -153,8 +152,12 @@ void set_hv_tscchange_cb(void (*cb)(void))
- 	/* Make sure callback is registered before we write to MSRs */
- 	wmb();
+-		if (clock_limits_available && uclk_states_available && num_states)
++		if (clock_limits_available && uclk_states_available && num_states) {
++			DC_FP_START();
+ 			dcn20_update_bounding_box(dc, loaded_bb, &max_clocks, uclk_states, num_states);
+-		else if (clock_limits_available)
++			DC_FP_END();
++		} else if (clock_limits_available) {
++			DC_FP_START();
+ 			dcn20_cap_soc_clocks(loaded_bb, max_clocks);
++			DC_FP_END();
++		}
+ 	}
  
-+	re_ctrl.target_vp = hv_vp_index[get_cpu()];
-+
- 	wrmsrl(HV_X64_MSR_REENLIGHTENMENT_CONTROL, *((u64 *)&re_ctrl));
- 	wrmsrl(HV_X64_MSR_TSC_EMULATION_CONTROL, *((u64 *)&emu_ctrl));
-+
-+	put_cpu();
+ 	loaded_ip->max_num_otg = pool->base.res_cap->num_timing_generator;
+ 	loaded_ip->max_num_dpp = pool->base.pipe_count;
++	DC_FP_START();
+ 	dcn20_patch_bounding_box(dc, loaded_bb);
+-
++	DC_FP_END();
+ 	return true;
  }
- EXPORT_SYMBOL_GPL(set_hv_tscchange_cb);
  
+@@ -3697,8 +3703,6 @@ static bool dcn20_resource_construct(
+ 	enum dml_project dml_project_version =
+ 			get_dml_project_version(ctx->asic_id.hw_internal_rev);
+ 
+-	DC_FP_START();
+-
+ 	ctx->dc_bios->regs = &bios_regs;
+ 	pool->base.funcs = &dcn20_res_pool_funcs;
+ 
+@@ -4047,12 +4051,10 @@ static bool dcn20_resource_construct(
+ 		pool->base.oem_device = NULL;
+ 	}
+ 
+-	DC_FP_END();
+ 	return true;
+ 
+ create_fail:
+ 
+-	DC_FP_END();
+ 	dcn20_resource_destruct(pool);
+ 
+ 	return false;
 -- 
 2.33.0
 
