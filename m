@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98F52451E67
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A7E9451E68
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241745AbhKPAf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:35:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S242654AbhKPAfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344862AbhKOTZh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344865AbhKOTZh (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7223D633EB;
-        Mon, 15 Nov 2021 19:05:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F17E3633F0;
+        Mon, 15 Nov 2021 19:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003151;
-        bh=kqC7wm5U/eyXb96o6R6unWTUlZ1GOF9YecKSLu0H5xA=;
+        s=korg; t=1637003153;
+        bh=muAIcByDL+6/H+q8zkMKg4uAmO9mDUkD0D2OKVw4uy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3NZ6hQFAy1EM+vCjovYe4ZUHla4ykkqvJUXjX6kFBKJ1C0JqiB/GLz8OhjQMfOiv
-         PExXTjntXsiup6RGCDjrfOFfzg6r+GNCPJo2DzBaPIbOJBqkCwXhkFm1AW3u8gTk7f
-         FvTNX0EAQE/sPpvF7lnguX1u3+4auZEyb6+nBeZ4=
+        b=vIQgG5kQo1L2CFEo6M2M1wj/kt938Npn0wR/7qu3RdxD3mAeVKy9XMVvR/GS+/HIe
+         /XIn6LeRFQRpkVt7DZqSID6wOKP+4Oug6bNk/ay6SeLXvSrYN8hN9wXltJnIio+YbE
+         1i1Bnjbv+TmTIhoIPnibvSpMuocJl6qPvSn/qiNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Halaney <ahalaney@redhat.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Florent Revest <revest@chromium.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 829/917] init: make unknown command line param message clearer
-Date:   Mon, 15 Nov 2021 18:05:24 +0100
-Message-Id: <20211115165457.161900345@linuxfoundation.org>
+Subject: [PATCH 5.15 830/917] seq_file: fix passing wrong private data
+Date:   Mon, 15 Nov 2021 18:05:25 +0100
+Message-Id: <20211115165457.194045489@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -44,51 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Halaney <ahalaney@redhat.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 8bc2b3dca7292347d8e715fb723c587134abe013 ]
+[ Upstream commit 10a6de19cad6efb9b49883513afb810dc265fca2 ]
 
-The prior message is confusing users, which is the exact opposite of the
-goal.  If the message is being seen, one of the following situations is
-happening:
+DEFINE_PROC_SHOW_ATTRIBUTE() is supposed to be used to define a series
+of functions and variables to register proc file easily. And the users
+can use proc_create_data() to pass their own private data and get it
+via seq->private in the callback. Unfortunately, the proc file system
+use PDE_DATA() to get private data instead of inode->i_private. So fix
+it. Fortunately, there only one user of it which does not pass any
+private data, so this bug does not break any in-tree codes.
 
- 1. the param is misspelled
- 2. the param is not valid due to the kernel configuration
- 3. the param is intended for init but isn't after the '--'
-    delineator on the command line
-
-To make that more clear to the user, explicitly mention "kernel command
-line" and also note that the params are still passed to user space to
-avoid causing any alarm over params intended for init.
-
-Link: https://lkml.kernel.org/r/20211013223502.96756-1-ahalaney@redhat.com
-Fixes: 86d1919a4fb0 ("init: print out unknown kernel parameters")
-Signed-off-by: Andrew Halaney <ahalaney@redhat.com>
-Suggested-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20211029032638.84884-1-songmuchun@bytedance.com
+Fixes: 97a32539b956 ("proc: convert everything to "struct proc_ops"")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Florent Revest <revest@chromium.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/seq_file.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/init/main.c b/init/main.c
-index 3c4054a955458..bcd132d4e7bdd 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -924,7 +924,9 @@ static void __init print_unknown_bootoptions(void)
- 	for (p = &envp_init[2]; *p; p++)
- 		end += sprintf(end, " %s", *p);
- 
--	pr_notice("Unknown command line parameters:%s\n", unknown_options);
-+	/* Start at unknown_options[1] to skip the initial space */
-+	pr_notice("Unknown kernel command line parameters \"%s\", will be passed to user space.\n",
-+		&unknown_options[1]);
- 	memblock_free_ptr(unknown_options, len);
- }
- 
+diff --git a/include/linux/seq_file.h b/include/linux/seq_file.h
+index dd99569595fd3..5733890df64f5 100644
+--- a/include/linux/seq_file.h
++++ b/include/linux/seq_file.h
+@@ -194,7 +194,7 @@ static const struct file_operations __name ## _fops = {			\
+ #define DEFINE_PROC_SHOW_ATTRIBUTE(__name)				\
+ static int __name ## _open(struct inode *inode, struct file *file)	\
+ {									\
+-	return single_open(file, __name ## _show, inode->i_private);	\
++	return single_open(file, __name ## _show, PDE_DATA(inode));	\
+ }									\
+ 									\
+ static const struct proc_ops __name ## _proc_ops = {			\
 -- 
 2.33.0
 
