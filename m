@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65EBA451FD9
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D610451FD3
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352423AbhKPApi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
+        id S1351810AbhKPApc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343829AbhKOTWJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:22:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D774635E8;
-        Mon, 15 Nov 2021 18:46:57 +0000 (UTC)
+        id S1343857AbhKOTWQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:22:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10227635F8;
+        Mon, 15 Nov 2021 18:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002017;
-        bh=1tHYTRTbKddxjQ+pjPqTvktsf/SwFTKOcCkXUaImFUQ=;
+        s=korg; t=1637002033;
+        bh=3KEeUKsD20rnqkOoxMDDnkcbzJPrL7qYaG1to0p+6+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c+hGcG4yUXXqdv10Uic1QNzSDHl1ZltRgYc4AyG1GwjhH17gYFOLnkfqbzYTZ+5rj
-         5q7M4MSHm79Z5aN8iYhOceLRhnJnYYu7tcptefKHLU8SIaCsBNXE6KkJP/eyXcqT7/
-         j2URwUDGp8xdcIuXqPuXe0xRUXhlCtiLg530kDTc=
+        b=Wl6+vd482+YNOsuYt/Dm9Yvo/7BMDwGumHfncP50bZQQ7Tlb80vY7uSfWGBrZT5tE
+         uJ5igvLzD/vcp7zVPZCZAu8XYQG+NoRnWAV0TaiCzafRsXDTCbwjnLh1ua3Dwduc01
+         c2BuORGxolFxhxORgV+FipgA1C21KhOZpQhmMl+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
         Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 380/917] media: ttusb-dec: avoid release of non-acquired mutex
-Date:   Mon, 15 Nov 2021 17:57:55 +0100
-Message-Id: <20211115165441.648934103@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+2cd8c5db4a85f0a04142@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 381/917] media: dvb-usb: fix ununit-value in az6027_rc_query
+Date:   Mon, 15 Nov 2021 17:57:56 +0100
+Message-Id: <20211115165441.681354159@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,67 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 36b9d695aa6fb8e9a312db21af41f90824d16ab4 ]
+[ Upstream commit afae4ef7d5ad913cab1316137854a36bea6268a5 ]
 
-ttusb_dec_send_command() invokes mutex_lock_interruptible() that can
-fail but then it releases the non-acquired mutex. The patch fixes that.
+Syzbot reported ununit-value bug in az6027_rc_query(). The problem was
+in missing state pointer initialization. Since this function does nothing
+we can simply initialize state to REMOTE_NO_KEY_PRESSED.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Reported-and-tested-by: syzbot+2cd8c5db4a85f0a04142@syzkaller.appspotmail.com
 
-Fixes: dba328bab4c6 ("media: ttusb-dec: cleanup an error handling logic")
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Fixes: 76f9a820c867 ("V4L/DVB: AZ6027: Initial import of the driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/ttusb-dec/ttusb_dec.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/media/usb/dvb-usb/az6027.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/usb/ttusb-dec/ttusb_dec.c b/drivers/media/usb/ttusb-dec/ttusb_dec.c
-index bfda46a36dc50..38822cedd93a9 100644
---- a/drivers/media/usb/ttusb-dec/ttusb_dec.c
-+++ b/drivers/media/usb/ttusb-dec/ttusb_dec.c
-@@ -327,7 +327,7 @@ static int ttusb_dec_send_command(struct ttusb_dec *dec, const u8 command,
- 	result = mutex_lock_interruptible(&dec->usb_mutex);
- 	if (result) {
- 		printk("%s: Failed to lock usb mutex.\n", __func__);
--		goto err;
-+		goto err_free;
- 	}
- 
- 	b[0] = 0xaa;
-@@ -349,7 +349,7 @@ static int ttusb_dec_send_command(struct ttusb_dec *dec, const u8 command,
- 	if (result) {
- 		printk("%s: command bulk message failed: error %d\n",
- 		       __func__, result);
--		goto err;
-+		goto err_mutex_unlock;
- 	}
- 
- 	result = usb_bulk_msg(dec->udev, dec->result_pipe, b,
-@@ -358,7 +358,7 @@ static int ttusb_dec_send_command(struct ttusb_dec *dec, const u8 command,
- 	if (result) {
- 		printk("%s: result bulk message failed: error %d\n",
- 		       __func__, result);
--		goto err;
-+		goto err_mutex_unlock;
- 	} else {
- 		if (debug) {
- 			printk(KERN_DEBUG "%s: result: %*ph\n",
-@@ -371,9 +371,9 @@ static int ttusb_dec_send_command(struct ttusb_dec *dec, const u8 command,
- 			memcpy(cmd_result, &b[4], b[3]);
- 	}
- 
--err:
-+err_mutex_unlock:
- 	mutex_unlock(&dec->usb_mutex);
--
-+err_free:
- 	kfree(b);
- 	return result;
+diff --git a/drivers/media/usb/dvb-usb/az6027.c b/drivers/media/usb/dvb-usb/az6027.c
+index 1c39b61cde29b..86788771175b7 100644
+--- a/drivers/media/usb/dvb-usb/az6027.c
++++ b/drivers/media/usb/dvb-usb/az6027.c
+@@ -391,6 +391,7 @@ static struct rc_map_table rc_map_az6027_table[] = {
+ /* remote control stuff (does not work with my box) */
+ static int az6027_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
+ {
++	*state = REMOTE_NO_KEY_PRESSED;
+ 	return 0;
  }
+ 
 -- 
 2.33.0
 
