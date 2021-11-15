@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D4B44525D7
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:57:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 491E04525DF
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:57:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345150AbhKPB7p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:59:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50070 "EHLO mail.kernel.org"
+        id S240523AbhKPB7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:59:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240241AbhKOSJQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:09:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DCFC632A0;
-        Mon, 15 Nov 2021 17:46:38 +0000 (UTC)
+        id S240433AbhKOSJn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:09:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D13B633AE;
+        Mon, 15 Nov 2021 17:46:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998398;
-        bh=XmzqHL0Z0tJSw6FXl0JzN3xJCCpGMGmK9Cp/EP+0nkA=;
+        s=korg; t=1636998401;
+        bh=KR3+Fl7Pstcu+h0z3QgDS9jHtpp2Nbp43keS4jBEWE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VqIatroVuls5Yi3kNYX/9INkLgwmX8trJ6phk0Zs1HcytdpOjJmanrD0Vd2KJdNBj
-         ASoFO1YhxUN480zvhzhvxawyE3YwiRIOmNq7IcCQMFM/Nryd1y4MJf6Qj/z+F+VsQ0
-         gHVoU/9BOmeoFwHl18vPlG9QbMhrLClsTNMX0VEY=
+        b=L7NGiqlfg7KpdP6GLLw+0HRihgWgdVNd6QGB50d0XTywm4/s/49M6vvVpXLR2XEG1
+         63yGycOZRWdBrg1pSsXEBWudgnd+0IXCb0ZTJda4HeLmSyqnuX17aGhJtLqOEQAoTR
+         fsOhh6A/IA/gSMn+pVlcf+VN9LhjMODB9H31ESOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 494/575] signal/sh: Use force_sig(SIGKILL) instead of do_group_exit(SIGKILL)
-Date:   Mon, 15 Nov 2021 18:03:39 +0100
-Message-Id: <20211115165400.773094958@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        linux-m68k@lists.linux-m68k.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 495/575] m68k: set a default value for MEMORY_RESERVE
+Date:   Mon, 15 Nov 2021 18:03:40 +0100
+Message-Id: <20211115165400.804139580@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -42,61 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit ce0ee4e6ac99606f3945f4d47775544edc3f7985 ]
+[ Upstream commit 1aaa557b2db95c9506ed0981bc34505c32d6b62b ]
 
-Today the sh code allocates memory the first time a process uses
-the fpu.  If that memory allocation fails, kill the affected task
-with force_sig(SIGKILL) rather than do_group_exit(SIGKILL).
+'make randconfig' can produce a .config file with
+"CONFIG_MEMORY_RESERVE=" (no value) since it has no default.
+When a subsequent 'make all' is done, kconfig restarts the config
+and prompts for a value for MEMORY_RESERVE. This breaks
+scripting/automation where there is no interactive user input.
 
-Calling do_group_exit from an exception handler can potentially lead
-to dead locks as do_group_exit is not designed to be called from
-interrupt context.  Instead use force_sig(SIGKILL) to kill the
-userspace process.  Sending signals in general and force_sig in
-particular has been tested from interrupt context so there should be
-no problems.
+Add a default value for MEMORY_RESERVE. (Any integer value will
+work here for kconfig.)
 
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Cc: linux-sh@vger.kernel.org
-Fixes: 0ea820cf9bf5 ("sh: Move over to dynamically allocated FPU context.")
-Link: https://lkml.kernel.org/r/20211020174406.17889-6-ebiederm@xmission.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Fixes a kconfig warning:
+
+.config:214:warning: symbol value '' invalid for MEMORY_RESERVE
+* Restart config...
+Memory reservation (MiB) (MEMORY_RESERVE) [] (NEW)
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2") # from beginning of git history
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Greg Ungerer <gerg@linux-m68k.org>
+Cc: linux-m68k@lists.linux-m68k.org
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/kernel/cpu/fpu.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/m68k/Kconfig.machine | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/sh/kernel/cpu/fpu.c b/arch/sh/kernel/cpu/fpu.c
-index ae354a2931e7e..fd6db0ab19288 100644
---- a/arch/sh/kernel/cpu/fpu.c
-+++ b/arch/sh/kernel/cpu/fpu.c
-@@ -62,18 +62,20 @@ void fpu_state_restore(struct pt_regs *regs)
- 	}
+diff --git a/arch/m68k/Kconfig.machine b/arch/m68k/Kconfig.machine
+index e161a4e1493b4..51a878803fb6d 100644
+--- a/arch/m68k/Kconfig.machine
++++ b/arch/m68k/Kconfig.machine
+@@ -191,6 +191,7 @@ config INIT_LCD
+ config MEMORY_RESERVE
+ 	int "Memory reservation (MiB)"
+ 	depends on (UCSIMM || UCDIMM)
++	default 0
+ 	help
+ 	  Reserve certain memory regions on 68x328 based boards.
  
- 	if (!tsk_used_math(tsk)) {
--		local_irq_enable();
-+		int ret;
- 		/*
- 		 * does a slab alloc which can sleep
- 		 */
--		if (init_fpu(tsk)) {
-+		local_irq_enable();
-+		ret = init_fpu(tsk);
-+		local_irq_disable();
-+		if (ret) {
- 			/*
- 			 * ran out of memory!
- 			 */
--			do_group_exit(SIGKILL);
-+			force_sig(SIGKILL);
- 			return;
- 		}
--		local_irq_disable();
- 	}
- 
- 	grab_fpu(regs);
 -- 
 2.33.0
 
