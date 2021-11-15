@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C5A445279B
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:24:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B26E452660
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243967AbhKPC1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:27:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44998 "EHLO mail.kernel.org"
+        id S239594AbhKPCFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:05:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237012AbhKORT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:19:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC76563245;
-        Mon, 15 Nov 2021 17:15:19 +0000 (UTC)
+        id S239964AbhKOSFL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 831E2632FA;
+        Mon, 15 Nov 2021 17:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996520;
-        bh=xVNybSjRMjabkMP7ytBXCizcFjmPeyolraqCAv9ppN8=;
+        s=korg; t=1636998045;
+        bh=EEMiPOzndL/S1qPHhnTcyAcR7hWG+jOyV35BS1YNh5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UusjWqbm/5av1IopAdT8uTSLKNvK5Q9hcWLE9blcGYOLi+Ks+de4dt/AxlWi1EQbS
-         u8GW17OoRPLDPmmGL0mfFWsTG6PNun1rWS3ct1uH63BmS/VD0MT4war2pIo48ZD/oy
-         Oh25DhslfXI81nLM2oV1G7DfQv8+q9MiZKYh5lto=
+        b=UU1Vy9v9aCjoqgKSzpF75Dl+z6fS4DnX/RK0Cgu3kBH9LhCDuqNvjsEYeKRZGb93E
+         ZkeE/rHw4mZLUKalNSru88I887ural3kN5tCBoJcfKcxX9uZwoWZ+mmvUJVDMONJ8y
+         jZyhZR8XiJycFh98pIjvZo0NTjJXEfE68DFKKHf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
-        Antonio Quartulli <a@unstable.cc>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 168/355] gre/sit: Dont generate link-local addr if addr_gen_mode is IN6_ADDR_GEN_MODE_NONE
-Date:   Mon, 15 Nov 2021 18:01:32 +0100
-Message-Id: <20211115165319.225193521@linuxfoundation.org>
+Subject: [PATCH 5.10 368/575] libertas_tf: Fix possible memory leak in probe and disconnect
+Date:   Mon, 15 Nov 2021 18:01:33 +0100
+Message-Id: <20211115165356.523420435@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Suryaputra <ssuryaextr@gmail.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 61e18ce7348bfefb5688a8bcd4b4d6b37c0f9b2a ]
+[ Upstream commit d549107305b4634c81223a853701c06bcf657bc3 ]
 
-When addr_gen_mode is set to IN6_ADDR_GEN_MODE_NONE, the link-local addr
-should not be generated. But it isn't the case for GRE (as well as GRE6)
-and SIT tunnels. Make it so that tunnels consider the addr_gen_mode,
-especially for IN6_ADDR_GEN_MODE_NONE.
+I got memory leak as follows when doing fault injection test:
 
-Do this in add_v4_addrs() to cover both GRE and SIT only if the addr
-scope is link.
+unreferenced object 0xffff88810a2ddc00 (size 512):
+  comm "kworker/6:1", pid 176, jiffies 4295009893 (age 757.220s)
+  hex dump (first 32 bytes):
+    00 50 05 18 81 88 ff ff 00 00 00 00 00 00 00 00  .P..............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
+    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
+    [<ffffffffa02a1530>] if_usb_probe+0x60/0x37c [libertas_tf_usb]
+    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
+    [<ffffffff82b59630>] really_probe+0x190/0x480
+    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
+    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
+    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
+    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
+    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
+    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
+    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
+    [<ffffffff82b52e49>] device_add+0x829/0x1300
+    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
+    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
+    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
 
-Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Acked-by: Antonio Quartulli <a@unstable.cc>
-Link: https://lore.kernel.org/r/20211020200618.467342-1-ssuryaextr@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+cardp is missing being freed in the error handling path of the probe
+and the path of the disconnect, which will cause memory leak.
+
+This patch adds the missing kfree().
+
+Fixes: c305a19a0d0a ("libertas_tf: usb specific functions")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211020120345.2016045-2-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrconf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/marvell/libertas_tf/if_usb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 366c3792b8604..d1f29a3eb70be 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -3111,6 +3111,9 @@ static void sit_add_v4_addrs(struct inet6_dev *idev)
- 	memcpy(&addr.s6_addr32[3], idev->dev->dev_addr, 4);
+diff --git a/drivers/net/wireless/marvell/libertas_tf/if_usb.c b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
+index a92916dc81a96..ecce8b56f8a28 100644
+--- a/drivers/net/wireless/marvell/libertas_tf/if_usb.c
++++ b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
+@@ -230,6 +230,7 @@ static int if_usb_probe(struct usb_interface *intf,
  
- 	if (idev->dev->flags&IFF_POINTOPOINT) {
-+		if (idev->cnf.addr_gen_mode == IN6_ADDR_GEN_MODE_NONE)
-+			return;
-+
- 		addr.s6_addr32[0] = htonl(0xfe800000);
- 		scope = IFA_LINK;
- 		plen = 64;
+ dealloc:
+ 	if_usb_free(cardp);
++	kfree(cardp);
+ error:
+ lbtf_deb_leave(LBTF_DEB_MAIN);
+ 	return -ENOMEM;
+@@ -254,6 +255,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
+ 
+ 	/* Unlink and free urb */
+ 	if_usb_free(cardp);
++	kfree(cardp);
+ 
+ 	usb_set_intfdata(intf, NULL);
+ 	usb_put_dev(interface_to_usbdev(intf));
 -- 
 2.33.0
 
