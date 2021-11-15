@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4779C451E01
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1C78451E00
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350915AbhKPAep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:34:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
+        id S1350849AbhKPAen (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:34:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344234AbhKOTYL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344238AbhKOTYL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:24:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ED0E6347D;
-        Mon, 15 Nov 2021 18:54:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E4146364F;
+        Mon, 15 Nov 2021 18:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002456;
-        bh=wWTWcgii0aHV3eSVRgcoS1F0PxZ4Awv/p5Mg9tj3z50=;
+        s=korg; t=1637002458;
+        bh=qxUr999i7qnJXWkfTK010TUMBBQMf/apU2AH8OvuQTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9zgdBPOw1WflVHiFPdafLGR/xzAy1LumSr/KGC7InSe7rJFvvyuQECsRuTNu0ag2
-         oVgLii1oKN1aEId295aFzNmmCdJLcm/jZCHXuXSReO86Lh6siz27+CBYx8QUNEnvnC
-         LuSIeYosQPDpnZ62/rl9Gi6ixxIt/DEk8Vuz6HUQ=
+        b=UjcNbrKUW1I03iXI03cK9eBy0hKTvJf3Tc8CrlsTnRPO1X5Va/6CueuANTLGY2njn
+         gQMAdBL7DZ4LtxrPkdK42BdI2ZlFU7bFHlNQ2Fv0VrxnjVu2xJC38/tQ9tgDOHaNUo
+         t57FWzQbnldUwafmQxnBY5TnIsmhtUtHwCADGApc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 574/917] scsi: qla2xxx: edif: Use link event to wake up app
-Date:   Mon, 15 Nov 2021 18:01:09 +0100
-Message-Id: <20211115165448.245930278@linuxfoundation.org>
+Subject: [PATCH 5.15 575/917] scsi: lpfc: Fix NVMe I/O failover to non-optimized path
+Date:   Mon, 15 Nov 2021 18:01:10 +0100
+Message-Id: <20211115165448.276191322@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,57 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 527d46e0b0147f2b32b78ba49c6a231835b24a41 ]
+[ Upstream commit b507357f79171fb4fb4e732ca43a1f30bc5aab1d ]
 
-Authentication application may be running and in the past tried to probe
-driver (app_start) but was unsuccessful. This could be due to the bsg layer
-not being ready to service the request. On a successful link up, driver
-will use the netlink Link Up event to notify the app to retry the app_start
-call.
+Currently, we hold off unregistering with NVMe transport layer until GID_FT
+or ADISC completes upon receipt of RSCN. In the ADISC discovery routine,
+for nodes not found in the GID_FT response, the nodes are unregistered from
+the SCSI transport but not UNREG_RPI'd. Meaning outstanding WQEs continue
+to be outstanding and were not failed back to the OS. If an NVMe device,
+this mean there wasn't initial termination of the I/Os so they could be
+issued on a different NVMe path.
 
-In another case, app does not poll for new NPIV host. This link up event
-would notify app of the presence of a new SCSI host.
+Fix by unregistering the RPI so that I/O is cancelled.
 
-Link: https://lore.kernel.org/r/20210908164622.19240-6-njavali@marvell.com
-Fixes: 4de067e5df12 ("scsi: qla2xxx: edif: Add N2N support for EDIF")
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Link: https://lore.kernel.org/r/20210910233159.115896-8-jsmart2021@gmail.com
+Fixes: 0614568361b0 ("scsi: lpfc: Delay unregistering from transport until GIDFT or ADISC completes")
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/scsi/lpfc/lpfc_els.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index 5fc7697f0af4c..7e64e4730b259 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -5335,15 +5335,14 @@ qla2x00_configure_loop(scsi_qla_host_t *vha)
- 			    "LOOP READY.\n");
- 			ha->flags.fw_init_done = 1;
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index 0a68e565147a7..666b0a1b558ac 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -6215,6 +6215,7 @@ lpfc_els_disc_adisc(struct lpfc_vport *vport)
+ 			 * from backend
+ 			 */
+ 			lpfc_nlp_unreg_node(vport, ndlp);
++			lpfc_unreg_rpi(vport, ndlp);
+ 			continue;
+ 		}
  
-+			/*
-+			 * use link up to wake up app to get ready for
-+			 * authentication.
-+			 */
- 			if (ha->flags.edif_enabled &&
--			    !(vha->e_dbell.db_flags & EDB_ACTIVE) &&
--			    N2N_TOPO(vha->hw)) {
--				/*
--				 * use port online to wake up app to get ready
--				 * for authentication
--				 */
--				qla2x00_post_aen_work(vha, FCH_EVT_PORT_ONLINE, 0);
--			}
-+			    !(vha->e_dbell.db_flags & EDB_ACTIVE))
-+				qla2x00_post_aen_work(vha, FCH_EVT_LINKUP,
-+						      ha->link_data_rate);
- 
- 			/*
- 			 * Process any ATIO queue entries that came in
 -- 
 2.33.0
 
