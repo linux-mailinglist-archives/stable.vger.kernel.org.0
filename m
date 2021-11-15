@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1FE94511B9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:11:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4D46451462
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244317AbhKOTNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:13:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42212 "EHLO mail.kernel.org"
+        id S1349176AbhKOUE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:04:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244152AbhKOTLH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:11:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34D8261101;
-        Mon, 15 Nov 2021 18:19:09 +0000 (UTC)
+        id S1344339AbhKOTYc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81BFA63665;
+        Mon, 15 Nov 2021 18:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000349;
-        bh=rrH7UNQZuVL/rSxp4XtzUsJ35UNuCKUETxXcj2WXres=;
+        s=korg; t=1637002566;
+        bh=rk5rpRFj1fLQeTIoA5iasSizulQBL7k5SqxUwypkusw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zHQsqWQjMDN5s39uPbNOFriuTIIXPzqOYWUjOvO/N9315twxz7VpZL4wv/hyVusZc
-         hdEOSKIu9G4R8TES9sYkmmo+cOXrz11/cBI7wr+nbDDk4/iUeAlvVl5rio5sykcg5h
-         ZwTLjGUfJ9zoJmuaT8zKbpBHGdfkF5Yz1kt9nuYY=
+        b=p34mCCxJxLPS/jQtJVwoPOwH+5T1GaMLuoQp1Ef+9X6XqQNyQyIF10p/z1dVX8QTy
+         6dkKF8Ibqf1mUEVMsU994UCXJypv/tPAPKXnUUU0Jy6Z2GetEIOnG6o8eVJi1j/5qZ
+         HFsIyC7I1FvjZeEVAhCapMXZ6JenIL+7eHdkzUBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 628/849] usb: dwc2: drd: fix dwc2_drd_role_sw_set when clock could be disabled
+Subject: [PATCH 5.15 616/917] soc/tegra: Fix an error handling path in tegra_powergate_power_up()
 Date:   Mon, 15 Nov 2021 18:01:51 +0100
-Message-Id: <20211115165441.506657838@linuxfoundation.org>
+Message-Id: <20211115165449.689261250@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,72 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 8d387f61b0240854e81450c261beb775065bad5d ]
+[ Upstream commit 986b5094708e508baa452a23ffe809870934a7df ]
 
-In case of USB_DR_MODE_PERIPHERAL, the OTG clock is disabled at the end of
-the probe (it is not the case if USB_DR_MODE_HOST or USB_DR_MODE_OTG).
-The clock is then enabled on udc_start.
-If dwc2_drd_role_sw_set is called before udc_start (it is the case if the
-usb cable is plugged at boot), GOTGCTL and GUSBCFG registers cannot be
-read/written, so session cannot be overridden.
-To avoid this case, check the ll_hw_enabled value and enable the clock if
-it is available, and disable it after the override.
+If an error occurs after a successful tegra_powergate_enable_clocks()
+call, it must be undone by a tegra_powergate_disable_clocks() call, as
+already done in the below and above error handling paths of this function.
 
-Fixes: 17f934024e84 ("usb: dwc2: override PHY input signals with usb role switch support")
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211005095305.66397-3-amelie.delaunay@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Update the 'goto' to branch at the correct place of the error handling
+path.
+
+Fixes: a38045121bf4 ("soc/tegra: pmc: Add generic PM domain support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/drd.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/soc/tegra/pmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/drd.c b/drivers/usb/dwc2/drd.c
-index 80eae88d76dda..99672360f34b0 100644
---- a/drivers/usb/dwc2/drd.c
-+++ b/drivers/usb/dwc2/drd.c
-@@ -7,6 +7,7 @@
-  * Author(s): Amelie Delaunay <amelie.delaunay@st.com>
-  */
+diff --git a/drivers/soc/tegra/pmc.c b/drivers/soc/tegra/pmc.c
+index 50091c4ec9481..a60e142ade344 100644
+--- a/drivers/soc/tegra/pmc.c
++++ b/drivers/soc/tegra/pmc.c
+@@ -782,7 +782,7 @@ static int tegra_powergate_power_up(struct tegra_powergate *pg,
  
-+#include <linux/clk.h>
- #include <linux/iopoll.h>
- #include <linux/platform_device.h>
- #include <linux/usb/role.h>
-@@ -86,6 +87,20 @@ static int dwc2_drd_role_sw_set(struct usb_role_switch *sw, enum usb_role role)
- 	}
- #endif
+ 	err = reset_control_deassert(pg->reset);
+ 	if (err)
+-		goto powergate_off;
++		goto disable_clks;
  
-+	/*
-+	 * In case of USB_DR_MODE_PERIPHERAL, clock is disabled at the end of
-+	 * the probe and enabled on udc_start.
-+	 * If role-switch set is called before the udc_start, we need to enable
-+	 * the clock to read/write GOTGCTL and GUSBCFG registers to override
-+	 * mode and sessions. It is the case if cable is plugged at boot.
-+	 */
-+	if (!hsotg->ll_hw_enabled && hsotg->clk) {
-+		int ret = clk_prepare_enable(hsotg->clk);
-+
-+		if (ret)
-+			return ret;
-+	}
-+
- 	spin_lock_irqsave(&hsotg->lock, flags);
+ 	usleep_range(10, 20);
  
- 	if (role == USB_ROLE_HOST) {
-@@ -110,6 +125,9 @@ static int dwc2_drd_role_sw_set(struct usb_role_switch *sw, enum usb_role role)
- 		/* This will raise a Connector ID Status Change Interrupt */
- 		dwc2_force_mode(hsotg, role == USB_ROLE_HOST);
- 
-+	if (!hsotg->ll_hw_enabled && hsotg->clk)
-+		clk_disable_unprepare(hsotg->clk);
-+
- 	dev_dbg(hsotg->dev, "%s-session valid\n",
- 		role == USB_ROLE_NONE ? "No" :
- 		role == USB_ROLE_HOST ? "A" : "B");
 -- 
 2.33.0
 
