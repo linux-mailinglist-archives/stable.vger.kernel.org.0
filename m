@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C9F450B3C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:18:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E93450B12
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:16:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236995AbhKORUs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:20:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51568 "EHLO mail.kernel.org"
+        id S236792AbhKORRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:17:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237314AbhKORTY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:19:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CC7C61C12;
-        Mon, 15 Nov 2021 17:14:02 +0000 (UTC)
+        id S236739AbhKORQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:16:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A45C63243;
+        Mon, 15 Nov 2021 17:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996443;
-        bh=klj0/978Lbw4ZgXo3I/xviTRcYm/4FyKHQlq1Y88t6I=;
+        s=korg; t=1636996347;
+        bh=f6a1tVmkG5TZheQjMR8Hq8iF7qHKrL4DlhxLH+nuMok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IvVFKkv0y7RMU+eaE2LIeo4djwoZbbGTHaX2CJK1jB7tjq0xavmcbFOpZj+mqd+JO
-         UvkAOKM/PeelnOWhkBF4QCbHiaIkkCn+kjry62fA2U84/pN5nHwHWDdHr4ss3DMaFo
-         xoGtakOnbouoRNfdhTcN+yNWnog4Hrq1jNeJm7jI=
+        b=rb7gYC7LDNOQYGvZRmsfyw1fdaERxLTT41/E5IgWnUZlmK+XJZbWF4bLmVHNsDyUW
+         JaxDDL5Yo1ueqYY6Pr29yznlcsboqvWTW2xpIRjBtkMJISQlh5Y9wlyjJMnM5UQmAD
+         LD5xCaFIeNQvWcKNZnhBPBU54cBbhg4DLRxuwGSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.4 098/355] PCI: pci-bridge-emul: Fix emulation of W1C bits
-Date:   Mon, 15 Nov 2021 18:00:22 +0100
-Message-Id: <20211115165316.972895179@linuxfoundation.org>
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.4 099/355] PCI: aardvark: Do not clear status bits of masked interrupts
+Date:   Mon, 15 Nov 2021 18:00:23 +0100
+Message-Id: <20211115165317.004520154@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -42,59 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Pali Rohár <pali@kernel.org>
 
-commit 7a41ae80bdcb17e14dd7d83239b8a0cf368f18be upstream.
+commit a7ca6d7fa3c02c032db5440ff392d96c04684c21 upstream.
 
-The pci_bridge_emul_conf_write() function correctly clears W1C bits in
-cfgspace cache, but it does not inform the underlying implementation
-about the clear request: the .write_op() method is given the value with
-these bits cleared.
+The PCIE_ISR1_REG says which interrupts are currently set / active,
+including those which are masked.
 
-This is wrong if the .write_op() needs to know which bits were requested
-to be cleared.
+The driver currently reads this register and looks if some unmasked
+interrupts are active, and if not, it clears status bits of _all_
+interrupts, including the masked ones.
 
-Fix the value to be passed into the .write_op() method to have requested
-W1C bits set, so that it can clear them.
+This is incorrect, since, for example, some drivers may poll these bits.
 
-Both pci-bridge-emul users (mvebu and aardvark) are compatible with this
-change.
+Remove this clearing, and also remove this early return statement
+completely, since it does not change functionality in any way.
 
-Link: https://lore.kernel.org/r/20211028185659.20329-2-kabel@kernel.org
-Fixes: 23a5fba4d941 ("PCI: Introduce PCI bridge emulated config space common logic")
+Link: https://lore.kernel.org/r/20211005180952.6812-7-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
 Cc: stable@vger.kernel.org
-Cc: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci-bridge-emul.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/pci/controller/pci-aardvark.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/drivers/pci/pci-bridge-emul.c
-+++ b/drivers/pci/pci-bridge-emul.c
-@@ -432,8 +432,21 @@ int pci_bridge_emul_conf_write(struct pc
- 	/* Clear the W1C bits */
- 	new &= ~((value << shift) & (behavior[reg / 4].w1c & mask));
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -1055,12 +1055,6 @@ static void advk_pcie_handle_int(struct
+ 	isr1_mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
+ 	isr1_status = isr1_val & ((~isr1_mask) & PCIE_ISR1_ALL_MASK);
  
-+	/* Save the new value with the cleared W1C bits into the cfgspace */
- 	cfgspace[reg / 4] = cpu_to_le32(new);
- 
-+	/*
-+	 * Clear the W1C bits not specified by the write mask, so that the
-+	 * write_op() does not clear them.
-+	 */
-+	new &= ~(behavior[reg / 4].w1c & ~mask);
-+
-+	/*
-+	 * Set the W1C bits specified by the write mask, so that write_op()
-+	 * knows about that they are to be cleared.
-+	 */
-+	new |= (value << shift) & (behavior[reg / 4].w1c & mask);
-+
- 	if (write_op)
- 		write_op(bridge, reg, old, new, mask);
- 
+-	if (!isr0_status && !isr1_status) {
+-		advk_writel(pcie, isr0_val, PCIE_ISR0_REG);
+-		advk_writel(pcie, isr1_val, PCIE_ISR1_REG);
+-		return;
+-	}
+-
+ 	/* Process MSI interrupts */
+ 	if (isr0_status & PCIE_ISR0_MSI_INT_PENDING)
+ 		advk_pcie_handle_msi(pcie);
 
 
