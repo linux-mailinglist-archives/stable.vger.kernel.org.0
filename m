@@ -2,210 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB994509A7
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 17:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 253EF4509CC
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 17:38:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230118AbhKOQeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 11:34:07 -0500
-Received: from esa4.hc3370-68.iphmx.com ([216.71.155.144]:43947 "EHLO
-        esa4.hc3370-68.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231862AbhKOQdv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 11:33:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=citrix.com; s=securemail; t=1636993853;
-  h=from:to:cc:subject:date:message-id:mime-version;
-  bh=znT3eu+X4j1qiwRmwQ6Ik3mx+G/++de1zkJpHLdYsmo=;
-  b=U02GA7YywG6sRQi5gcApYkV8p/mLTyJhIjTiTOK/M+9wUIDPxEJwcpo2
-   qgZ4J27qpSU+A+8FcqaV8RFkAtQ5olksZwXqVMy3KbETXRHz3rsrU7buZ
-   xVle1lf32g73dlRQbRCDk8uJNHiu9YxZeqCF81mRP2qXTf5OXMoLW3PxO
-   Y=;
-Authentication-Results: esa4.hc3370-68.iphmx.com; dkim=none (message not signed) header.i=none
-IronPort-SDR: MFaf394VHxfZu779/EjTc28kzJk3alao24nRo5lpLCtDOADYVbvg17R95H34v2UkaCdWYqPWXU
- BUN1yBfFbSkaJ6Ym0Tr4o1+o2CJcAjVLXqGBszTh/8g+jb8OySJuZvVNsg3bRzxF7Pmfwo5vQf
- oFgBNBgDR/WYE+GkwiUlIRbxaefc0QqEBA9wn8/O4xgcyoQ0BasXSXHpc/qUeEKtkHejWq+tbR
- VnaNM6jM8IdI8EFqB0STm7N9V7/Mc8XtuFr9nJEnHTgFSLHM4QauUmq+sJSDFMj7n5yLa+egBz
- rfz4PGbzsHfXKkEOvc2Gir02
-X-SBRS: 5.1
-X-MesageID: 59825623
-X-Ironport-Server: esa4.hc3370-68.iphmx.com
-X-Remote-IP: 162.221.156.83
-X-Policy: $RELAYED
-IronPort-Data: A9a23:giDmnqN5gT7qVgbvrR1kkMFynXyQoLVcMsEvi/4bfWQNrUp00T1Vz
- mtLCm6GPKqPMDShctx0YIu09x9VuJXRyYQxTQto+SlhQUwRpJueD7x1DKtR0wB+jCHnZBg6h
- ynLQoCYdKjYdpJYz/uUGuCJQUNUjMlkfZKhTr6bUsxNbVU8En540Es+w7dRbrNA2rBVPSvc4
- bsenOWHULOV82Yc3rU8sv/rRLtH5ZweiRtA1rAMTakjUGz2zhH5OKk3N6CpR0YUd6EPdgKMq
- 0Qv+5nilo/R109F5tpICd8XeGVSKlLZFVDmZna7x8FOK/WNz8A/+v9TCRYSVatYozOYm+1D+
- s5Ij5qLGBg4Iqnxnrw2dQYNRkmSPYUekFPGCX22sMjVxEzaaXr8hf5pCSnaP6VBpLwxWzsXs
- 6VFdnZdNXhvhMrvqF6/YstlgMllCcDvNYcWvHxIxjDFF/c2B5vERs0m4PcFjWdq254URp4yY
- eIAZSpxfAqHcSFUGU0dDosQp8G5t0DWJmgwRFW9+vNsvjm7IBZK+KPxOdDRd/SUSshP2EWVv
- GTL+yL+GB5yHNiezyeVt3GhnOnCmQvlV48IUr617PhnhBuU3GN7IBcOfUCmuvT/hkPWZj5EA
- xVKoGx09/F0rRH1CImmN/GlnJKalhgNX+diIfY/0ge2m7XF/wKkADAvaCEUPbTKq/QKbTAt0
- 1aImfbgCjpurKCZRBqhy1uEkd+hEXNLdDFfPEfoWSNAuoC++99r0nojW/46SPbt5uAZDw0c1
- NxjQMIWo7wIxfAG2Kyglbwsq2L9/8OZJuLZC+i+Y45E0u+bTNP9D2BLwQKChRqlEGp+ZgPe1
- EXoY+DEsIgz4WilzURhutklErCz/OqiOzbBm1NpFJRJ323zoCDyJNwOvW0geBsB3iM4ldnBO
- hW7VeR5vsA7AZdXRfUvP9LZ5zoCkMAM6ugJptiLN4ETM/CdhSeM/T10ZF744oweuBNErE3LA
- r/CKZzEJS9DUcxPlWPqL89Age5D7n1vngv7GMGkpylLJJLDPRZ5v59eawDQBg34hYvZyDjoH
- yF3a5HXlk4BCbKmOUE6M+c7dDg3EJTyPriuw+Q/SwJJClUO9LgJB6CDzLU/VZZimqgJxO7E8
- mvkAh1TyUblhG2BIgKPMygxZLTqVJd5jHQ6IS1zYgr4hyl9Od6ivPUFap86Xbg77+g/n/R6e
- OYIJpebCfNVRzWZpzlENcvhrJZvfQiAjB6VO3b3eyA2epNtHlSb+tLtcgb12jMJCy676Zk3r
- 7G6j1uJSpsfXQVySs3Rbav3nV+2uHEcnsN0XlfJfYYPKBm9rtAyJnWo3PEtIswKJRHS/Reg1
- l6bUUUCuO3Ag44p692V16qKmJikTrllFU1AEmiFsbvvbXvG/nCuyJNrWfqTeWyPT3v9/aiva
- LkHz/z4N/Fbzl9Gv5AlTuRuxKM6odDuu6Vb3kJvG3CSNwanDbZpI3+n28hTt/ISmu8F6FXuA
- k/fqMNHPbipOd/+FA9DLQUoWe2PyPUIl2SA9v8yOkj7uHd68bfvvZ++5PVQZPix9IdIDb4=
-IronPort-HdrOrdr: A9a23:0HKhMq5d1i5eBwOYlwPXwMDXdLJyesId70hD6qhwISY1TiX4rb
- HJoB11726WtN98Yh4dcLO7Sc69qBHnhPxICOAqVN/INmSLhILBFvAH0WKI+V3d8kPFmNK1rZ
- 0QFpRDNA==
-X-IronPort-AV: E=Sophos;i="5.87,236,1631592000"; 
-   d="scan'208";a="59825623"
-From:   Jane Malalane <jane.malalane@citrix.com>
-To:     LKML <linux-kernel@vger.kernel.org>
-CC:     <jane.malalane@citrix.com>, Borislav Petkov <bp@suse.de>,
-        <stable@vger.kernel.org>
-Subject: [PATCH for 4.19] x86/cpu: Fix migration safety with X86_BUG_NULL_SEL
-Date:   Mon, 15 Nov 2021 16:30:20 +0000
-Message-ID: <20211115163020.16672-1-jane.malalane@citrix.com>
-X-Mailer: git-send-email 2.11.0
+        id S230064AbhKOQlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 11:41:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57486 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229926AbhKOQlf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 11:41:35 -0500
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E36C061714
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 08:38:39 -0800 (PST)
+Received: by mail-pl1-x62d.google.com with SMTP id m24so4959202pls.10
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 08:38:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=bsLeGFpbN8CpN9RU3ZNnNmz55GEbtlwvn/02SxJ3yO0=;
+        b=Xw/4izBdFkl2ShsOYjlglP1hnKh94ohUtgg8bF97/cI+6H2PhbW9Bc6moSppzqcYOM
+         reTt0VVwL6Kaws24pQ5whqflI23gH66oHW5ic2n1A2nQJUepO47HhLL3ckTL+6VS1L1r
+         zBVl+skRL4UJbf7kld4UJgMTm66Ag4umvhjMGy8CAK560H2nDbr86UtTeD0rFpvJn7z4
+         9J0eTNl6l5rmHznMIo28f95zHS6XZPHOlYRaU7hQL4dMt/77bk+ziJQ7Cc6RCHwZfikM
+         p7kULy+mbvESuHcKSdCY1LMSpupdfPlUAUOsWUFLw5pWq4i/EETv7NwoipwqGtVGIOJ9
+         ZKYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=bsLeGFpbN8CpN9RU3ZNnNmz55GEbtlwvn/02SxJ3yO0=;
+        b=NYuEWw7Y5+iv/rleJ7+q5FDqBUAdoYYAQJ1yu7IEWS2sreQPt8qglaTSPk3tn3qqek
+         GE/80qMLSb1Cp2b9vuN9t9b3CbXYw7ULqzOQzgEvcare+CbVRjxsU92fTERyF7l+vJ3q
+         NYq4qN+8sui2Sdopg/W4AAQ2paQXPsMjTbBJ7ydr/tfiqnF373dQbGus/JXSybxYZOcd
+         rb934nbRY5sNqfAIAq7eDj+QR3l3psX/y8ohL28d839u2wxbPZe86PSx3mP94cYm5wgw
+         SnXplllShJhvsdlPqoiqSh77HokkXxhQhHokUFNqOpcDj3CL3+5mRJL04WDP7jR67u3I
+         wsDw==
+X-Gm-Message-State: AOAM531GT1Y2SKHGckj3ZH6sNc9Cmi69U0mGSWaNTfbCTq+Iuq5wPXD7
+        TzlRJttJkoCqrhbCloHrEY+OHg==
+X-Google-Smtp-Source: ABdhPJzBf7wcoCKV+XZ+8nE3LFOuitGqXpr5rZikvxP2qM33QNCA8eVQDO2cJXJ08GONxk+3/q9Chg==
+X-Received: by 2002:a17:90b:3a89:: with SMTP id om9mr48220230pjb.99.1636994319323;
+        Mon, 15 Nov 2021 08:38:39 -0800 (PST)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id b9sm5985006pfm.127.2021.11.15.08.38.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 15 Nov 2021 08:38:38 -0800 (PST)
+Message-ID: <dd53f11a-ae6f-79af-2ea2-8091d1c4f15e@linaro.org>
+Date:   Mon, 15 Nov 2021 08:38:38 -0800
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH] io_uring: prevent io_put_identity() from freeing a static
+ identity
+Content-Language: en-US
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+6055980d041c8ac23307@syzkaller.appspotmail.com
+References: <20211104012120.729261-1-tadeusz.struk@linaro.org>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+In-Reply-To: <20211104012120.729261-1-tadeusz.struk@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 415de44076640483648d6c0f6d645a9ee61328ad upstream.
+On 11/3/21 18:21, Tadeusz Struk wrote:
+> Note: this applies to 5.10 stable only. It doesn't trigger on anything
+> above 5.10 as the code there has been substantially reworked. This also
+> doesn't apply to any stable kernel below 5.10 afaict.
+> 
+> Syzbot found a bug: KASAN: invalid-free in io_dismantle_req
+> https://syzkaller.appspot.com/bug?id=123d9a852fc88ba573ffcb2dbcf4f9576c3b0559
+> 
+> The test submits bunch of io_uring writes and exits, which then triggers
+> uring_task_cancel() and io_put_identity(), which in some corner cases,
+> tries to free a static identity. This causes a panic as shown in the
+> trace below:
+> 
+>   BUG: KASAN: double-free or invalid-free in kfree+0xd5/0x310
+>   CPU: 0 PID: 4618 Comm: repro Not tainted 5.10.76-05281-g4944ec82ebb9-dirty #17
+>   Call Trace:
+>    dump_stack_lvl+0x1b2/0x21b
+>    print_address_description+0x8d/0x3b0
+>    kasan_report_invalid_free+0x58/0x130
+>    ____kasan_slab_free+0x14b/0x170
+>    __kasan_slab_free+0x11/0x20
+>    slab_free_freelist_hook+0xcc/0x1a0
+>    kfree+0xd5/0x310
+>    io_dismantle_req+0x9b0/0xd90
+>    io_do_iopoll+0x13a4/0x23e0
+>    io_iopoll_try_reap_events+0x116/0x290
+>    io_uring_cancel_task_requests+0x197d/0x1ee0
+>    io_uring_flush+0x170/0x6d0
+>    filp_close+0xb0/0x150
+>    put_files_struct+0x1d4/0x350
+>    exit_files+0x80/0xa0
+>    do_exit+0x6d9/0x2390
+>    do_group_exit+0x16a/0x2d0
+>    get_signal+0x133e/0x1f80
+>    arch_do_signal+0x7b/0x610
+>    exit_to_user_mode_prepare+0xaa/0xe0
+>    syscall_exit_to_user_mode+0x24/0x40
+>    do_syscall_64+0x3d/0x70
+>    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> 
+>   Allocated by task 4611:
+>    ____kasan_kmalloc+0xcd/0x100
+>    __kasan_kmalloc+0x9/0x10
+>    kmem_cache_alloc_trace+0x208/0x390
+>    io_uring_alloc_task_context+0x57/0x550
+>    io_uring_add_task_file+0x1f7/0x290
+>    io_uring_create+0x2195/0x3490
+>    __x64_sys_io_uring_setup+0x1bf/0x280
+>    do_syscall_64+0x31/0x70
+>    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> 
+>   The buggy address belongs to the object at ffff88810732b500
+>    which belongs to the cache kmalloc-192 of size 192
+>   The buggy address is located 88 bytes inside of
+>    192-byte region [ffff88810732b500, ffff88810732b5c0)
+>   Kernel panic - not syncing: panic_on_warn set ...
+> 
+> This issue bisected to this commit:
+> commit 186725a80c4e ("io_uring: fix skipping disabling sqo on exec")
+> 
+> Simple reverting the offending commit doesn't work as it hits some
+> other, related issues like:
+> 
+> /* sqo_dead check is for when this happens after cancellation */
+> WARN_ON_ONCE(ctx->sqo_task == current && !ctx->sqo_dead &&
+> 	     !xa_load(&tctx->xa, (unsigned long)file));
+> 
+>   ------------[ cut here ]------------
+>   WARNING: CPU: 1 PID: 5622 at fs/io_uring.c:8960 io_uring_flush+0x5bc/0x6d0
+>   Modules linked in:
+>   CPU: 1 PID: 5622 Comm: repro Not tainted 5.10.76-05281-g4944ec82ebb9-dirty #16
+>   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-6.fc35 04/01/2014
+>   RIP: 0010:io_uring_flush+0x5bc/0x6d0
+>   Call Trace:
+>   filp_close+0xb0/0x150
+>   put_files_struct+0x1d4/0x350
+>   reset_files_struct+0x88/0xa0
+>   bprm_execve+0x7f2/0x9f0
+>   do_execveat_common+0x46f/0x5d0
+>   __x64_sys_execve+0x92/0xb0
+>   do_syscall_64+0x31/0x70
+>   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> 
+> Changing __io_uring_task_cancel() to call io_disable_sqo_submit() directly,
+> as the comment suggests, only if __io_uring_files_cancel() is not executed
+> seems to fix the issue.
+> 
+> Cc: Jens Axboe <axboe@kernel.dk>
+> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> Cc: <io-uring@vger.kernel.org>
+> Cc: <linux-fsdevel@vger.kernel.org>
+> Cc: <linux-kernel@vger.kernel.org>
+> Cc: <stable@vger.kernel.org>
+> Reported-by: syzbot+6055980d041c8ac23307@syzkaller.appspotmail.com
+> Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+> ---
+>   fs/io_uring.c | 21 +++++++++++++++++----
+>   1 file changed, 17 insertions(+), 4 deletions(-)
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 0736487165da..fcf9ffe9b209 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -8882,20 +8882,18 @@ void __io_uring_task_cancel(void)
+>   	struct io_uring_task *tctx = current->io_uring;
+>   	DEFINE_WAIT(wait);
+>   	s64 inflight;
+> +	int canceled = 0;
+>   
+>   	/* make sure overflow events are dropped */
+>   	atomic_inc(&tctx->in_idle);
+>   
+> -	/* trigger io_disable_sqo_submit() */
+> -	if (tctx->sqpoll)
+> -		__io_uring_files_cancel(NULL);
+> -
+>   	do {
+>   		/* read completions before cancelations */
+>   		inflight = tctx_inflight(tctx);
+>   		if (!inflight)
+>   			break;
+>   		__io_uring_files_cancel(NULL);
+> +		canceled = 1;
+>   
+>   		prepare_to_wait(&tctx->wait, &wait, TASK_UNINTERRUPTIBLE);
+>   
+> @@ -8909,6 +8907,21 @@ void __io_uring_task_cancel(void)
+>   		finish_wait(&tctx->wait, &wait);
+>   	} while (1);
+>   
+> +	/*
+> +	 * trigger io_disable_sqo_submit()
+> +	 * if not already done by __io_uring_files_cancel()
+> +	 */
+> +	if (tctx->sqpoll && !canceled) {
+> +		struct file *file;
+> +		unsigned long index;
+> +
+> +		xa_for_each(&tctx->xa, index, file) {
+> +			struct io_ring_ctx *ctx = file->private_data;
+> +
+> +			io_disable_sqo_submit(ctx);
+> +		}
+> +	}
+> +
+>   	atomic_dec(&tctx->in_idle);
+>   
+>   	io_uring_remove_task_files(tctx);
+> 
 
-Currently, Linux probes for X86_BUG_NULL_SEL unconditionally which
-makes it unsafe to migrate in a virtualised environment as the
-properties across the migration pool might differ.
+Hi,
+Any comments on this one? It needs to be ACK'ed by the maintainer before
+it is applied to 5.10 stable.
 
-To be specific, the case which goes wrong is:
-
-1. Zen1 (or earlier) and Zen2 (or later) in a migration pool
-2. Linux boots on Zen2, probes and finds the absence of X86_BUG_NULL_SEL
-3. Linux is then migrated to Zen1
-
-Linux is now running on a X86_BUG_NULL_SEL-impacted CPU while believing
-that the bug is fixed.
-
-The only way to address the problem is to fully trust the "no longer
-affected" CPUID bit when virtualised, because in the above case it would
-be clear deliberately to indicate the fact "you might migrate to
-somewhere which has this behaviour".
-
-Zen3 adds the NullSelectorClearsBase CPUID bit to indicate that loading
-a NULL segment selector zeroes the base and limit fields, as well as
-just attributes. Zen2 also has this behaviour but doesn't have the NSCB
-bit.
-
- [ bp: Minor touchups. ]
-
-Signed-off-by: Jane Malalane <jane.malalane@citrix.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-CC: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20211021104744.24126-1-jane.malalane@citrix.com
----
-Backport to 4.19.  Drop Hygon modifications.
----
- arch/x86/kernel/cpu/amd.c    |  2 ++
- arch/x86/kernel/cpu/common.c | 44 +++++++++++++++++++++++++++++++++++++-------
- arch/x86/kernel/cpu/cpu.h    |  1 +
- 3 files changed, 40 insertions(+), 7 deletions(-)
-
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index de69090ca142..98c23126f751 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -993,6 +993,8 @@ static void init_amd(struct cpuinfo_x86 *c)
- 	if (cpu_has(c, X86_FEATURE_IRPERF) &&
- 	    !cpu_has_amd_erratum(c, amd_erratum_1054))
- 		msr_set_bit(MSR_K7_HWCR, MSR_K7_HWCR_IRPERF_EN_BIT);
-+
-+	check_null_seg_clears_base(c);
- }
- 
- #ifdef CONFIG_X86_32
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index 2058e8c0e61d..7e7400af7797 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1254,9 +1254,8 @@ void __init early_cpu_init(void)
- 	early_identify_cpu(&boot_cpu_data);
- }
- 
--static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
-+static bool detect_null_seg_behavior(void)
- {
--#ifdef CONFIG_X86_64
- 	/*
- 	 * Empirically, writing zero to a segment selector on AMD does
- 	 * not clear the base, whereas writing zero to a segment
-@@ -1277,10 +1276,43 @@ static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
- 	wrmsrl(MSR_FS_BASE, 1);
- 	loadsegment(fs, 0);
- 	rdmsrl(MSR_FS_BASE, tmp);
--	if (tmp != 0)
--		set_cpu_bug(c, X86_BUG_NULL_SEG);
- 	wrmsrl(MSR_FS_BASE, old_base);
--#endif
-+	return tmp == 0;
-+}
-+
-+void check_null_seg_clears_base(struct cpuinfo_x86 *c)
-+{
-+	/* BUG_NULL_SEG is only relevant with 64bit userspace */
-+	if (!IS_ENABLED(CONFIG_X86_64))
-+		return;
-+
-+	/* Zen3 CPUs advertise Null Selector Clears Base in CPUID. */
-+	if (c->extended_cpuid_level >= 0x80000021 &&
-+	    cpuid_eax(0x80000021) & BIT(6))
-+		return;
-+
-+	/*
-+	 * CPUID bit above wasn't set. If this kernel is still running
-+	 * as a HV guest, then the HV has decided not to advertize
-+	 * that CPUID bit for whatever reason.	For example, one
-+	 * member of the migration pool might be vulnerable.  Which
-+	 * means, the bug is present: set the BUG flag and return.
-+	 */
-+	if (cpu_has(c, X86_FEATURE_HYPERVISOR)) {
-+		set_cpu_bug(c, X86_BUG_NULL_SEG);
-+		return;
-+	}
-+
-+	/*
-+	 * Zen2 CPUs also have this behaviour, but no CPUID bit.
-+	 * 0x18 is the respective family for Hygon.
-+	 */
-+	if ((c->x86 == 0x17 || c->x86 == 0x18) &&
-+	    detect_null_seg_behavior())
-+		return;
-+
-+	/* All the remaining ones are affected */
-+	set_cpu_bug(c, X86_BUG_NULL_SEG);
- }
- 
- static void generic_identify(struct cpuinfo_x86 *c)
-@@ -1316,8 +1348,6 @@ static void generic_identify(struct cpuinfo_x86 *c)
- 
- 	get_model_name(c); /* Default name */
- 
--	detect_null_seg_behavior(c);
--
- 	/*
- 	 * ESPFIX is a strange bug.  All real CPUs have it.  Paravirt
- 	 * systems that run Linux at CPL > 0 may or may not have the
-diff --git a/arch/x86/kernel/cpu/cpu.h b/arch/x86/kernel/cpu/cpu.h
-index e89602d2aff5..4eb9bf68b122 100644
---- a/arch/x86/kernel/cpu/cpu.h
-+++ b/arch/x86/kernel/cpu/cpu.h
-@@ -76,6 +76,7 @@ extern int detect_extended_topology_early(struct cpuinfo_x86 *c);
- extern int detect_extended_topology(struct cpuinfo_x86 *c);
- extern int detect_ht_early(struct cpuinfo_x86 *c);
- extern void detect_ht(struct cpuinfo_x86 *c);
-+extern void check_null_seg_clears_base(struct cpuinfo_x86 *c);
- 
- unsigned int aperfmperf_get_khz(int cpu);
- 
 -- 
-2.11.0
-
+Thanks,
+Tadeusz
