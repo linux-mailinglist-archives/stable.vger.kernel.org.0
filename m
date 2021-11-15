@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D27CE451E95
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92A97451E99
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346112AbhKPAgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
+        id S1349288AbhKPAgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:36:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343865AbhKOTWQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343867AbhKOTWQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A1C56329B;
-        Mon, 15 Nov 2021 18:47:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 245506329D;
+        Mon, 15 Nov 2021 18:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002060;
-        bh=xoCXfp8qwgIbXTzbxs28Ab5pLsoHBOfDpX86G1SW70Y=;
+        s=korg; t=1637002062;
+        bh=vPMz/5VMfVrv/JhrgRAhUPgIPq+gfRu4moruOfVYe3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qxlnFvI1gr8k5qEghad/Oha7NBYlZIpwWZ9gjyIfa/7uS0XykcoiUPkVOwYSUNv+
-         Hkdj2Lt6E1grXPESJNW6jnoTdIBIqp8rA7qXlX1yjF/uoV2fZrGOkJmakigeOEfD9J
-         uqAuTEEWyZJ5q8lsahKfAldP6y+u39GM9qTkcY5w=
+        b=QPrxvQ5rcZeG0QMbunHhJgx+gU7nOvzbAEMDfgQZbRt09DnLatWtn4gyK1SiD+Y+t
+         9trpe6dyRDZZqUFJr3y3JZxLSBV/IkH+Y2ZyKii/hJ5CekRdDwRQf6rMC5UhliKvS3
+         nDoGpIv4Kyht9TNvmdVB/YPQBLVQUWbv+4O+rNH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 424/917] net, neigh: Fix NTF_EXT_LEARNED in combination with NTF_USE
-Date:   Mon, 15 Nov 2021 17:58:39 +0100
-Message-Id: <20211115165443.175820476@linuxfoundation.org>
+Subject: [PATCH 5.15 425/917] hwmon: Fix possible memleak in __hwmon_device_register()
+Date:   Mon, 15 Nov 2021 17:58:40 +0100
+Message-Id: <20211115165443.206688464@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,109 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e4400bbf5b15750e1b59bf4722d18d99be60c69f ]
+[ Upstream commit ada61aa0b1184a8fda1a89a340c7d6cc4e59aee5 ]
 
-The NTF_EXT_LEARNED neigh flag is usually propagated back to user space
-upon dump of the neighbor table. However, when used in combination with
-NTF_USE flag this is not the case despite exempting the entry from the
-garbage collector. This results in inconsistent state since entries are
-typically marked in neigh->flags with NTF_EXT_LEARNED, but here they are
-not. Fix it by propagating the creation flag to ___neigh_create().
+I got memory leak as follows when doing fault injection test:
 
-Before fix:
+unreferenced object 0xffff888102740438 (size 8):
+  comm "27", pid 859, jiffies 4295031351 (age 143.992s)
+  hex dump (first 8 bytes):
+    68 77 6d 6f 6e 30 00 00                          hwmon0..
+  backtrace:
+    [<00000000544b5996>] __kmalloc_track_caller+0x1a6/0x300
+    [<00000000df0d62b9>] kvasprintf+0xad/0x140
+    [<00000000d3d2a3da>] kvasprintf_const+0x62/0x190
+    [<000000005f8f0f29>] kobject_set_name_vargs+0x56/0x140
+    [<00000000b739e4b9>] dev_set_name+0xb0/0xe0
+    [<0000000095b69c25>] __hwmon_device_register+0xf19/0x1e50 [hwmon]
+    [<00000000a7e65b52>] hwmon_device_register_with_info+0xcb/0x110 [hwmon]
+    [<000000006f181e86>] devm_hwmon_device_register_with_info+0x85/0x100 [hwmon]
+    [<0000000081bdc567>] tmp421_probe+0x2d2/0x465 [tmp421]
+    [<00000000502cc3f8>] i2c_device_probe+0x4e1/0xbb0
+    [<00000000f90bda3b>] really_probe+0x285/0xc30
+    [<000000007eac7b77>] __driver_probe_device+0x35f/0x4f0
+    [<000000004953d43d>] driver_probe_device+0x4f/0x140
+    [<000000002ada2d41>] __device_attach_driver+0x24c/0x330
+    [<00000000b3977977>] bus_for_each_drv+0x15d/0x1e0
+    [<000000005bf2a8e3>] __device_attach+0x267/0x410
 
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
-  [...]
+When device_register() returns an error, the name allocated in
+dev_set_name() will be leaked, the put_device() should be used
+instead of calling hwmon_dev_release() to give up the device
+reference, then the name will be freed in kobject_cleanup().
 
-After fix:
-
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a extern_learn REACHABLE
-  [...]
-
-Fixes: 9ce33e46531d ("neighbour: support for NTF_EXT_LEARNED flag")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Roopa Prabhu <roopa@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: bab2243ce189 ("hwmon: Introduce hwmon_device_register_with_groups")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20211012112758.2681084-1-yangyingliang@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ drivers/hwmon/hwmon.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 2d5bc3a75faec..8457d5f97022b 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -379,7 +379,7 @@ EXPORT_SYMBOL(neigh_ifdown);
+diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
+index 8d3b1dae31df1..3501a3ead4ba6 100644
+--- a/drivers/hwmon/hwmon.c
++++ b/drivers/hwmon/hwmon.c
+@@ -796,8 +796,10 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
+ 	dev_set_drvdata(hdev, drvdata);
+ 	dev_set_name(hdev, HWMON_ID_FORMAT, id);
+ 	err = device_register(hdev);
+-	if (err)
+-		goto free_hwmon;
++	if (err) {
++		put_device(hdev);
++		goto ida_remove;
++	}
  
- static struct neighbour *neigh_alloc(struct neigh_table *tbl,
- 				     struct net_device *dev,
--				     bool exempt_from_gc)
-+				     u8 flags, bool exempt_from_gc)
- {
- 	struct neighbour *n = NULL;
- 	unsigned long now = jiffies;
-@@ -412,6 +412,7 @@ do_alloc:
- 	n->updated	  = n->used = now;
- 	n->nud_state	  = NUD_NONE;
- 	n->output	  = neigh_blackhole;
-+	n->flags	  = flags;
- 	seqlock_init(&n->hh.hh_lock);
- 	n->parms	  = neigh_parms_clone(&tbl->parms);
- 	timer_setup(&n->timer, neigh_timer_handler, 0);
-@@ -575,19 +576,18 @@ struct neighbour *neigh_lookup_nodev(struct neigh_table *tbl, struct net *net,
- }
- EXPORT_SYMBOL(neigh_lookup_nodev);
+ 	INIT_LIST_HEAD(&hwdev->tzdata);
  
--static struct neighbour *___neigh_create(struct neigh_table *tbl,
--					 const void *pkey,
--					 struct net_device *dev,
--					 bool exempt_from_gc, bool want_ref)
-+static struct neighbour *
-+___neigh_create(struct neigh_table *tbl, const void *pkey,
-+		struct net_device *dev, u8 flags,
-+		bool exempt_from_gc, bool want_ref)
- {
--	struct neighbour *n1, *rc, *n = neigh_alloc(tbl, dev, exempt_from_gc);
--	u32 hash_val;
--	unsigned int key_len = tbl->key_len;
--	int error;
-+	u32 hash_val, key_len = tbl->key_len;
-+	struct neighbour *n1, *rc, *n;
- 	struct neigh_hash_table *nht;
-+	int error;
- 
-+	n = neigh_alloc(tbl, dev, flags, exempt_from_gc);
- 	trace_neigh_create(tbl, dev, pkey, n, exempt_from_gc);
--
- 	if (!n) {
- 		rc = ERR_PTR(-ENOBUFS);
- 		goto out;
-@@ -674,7 +674,7 @@ out_neigh_release:
- struct neighbour *__neigh_create(struct neigh_table *tbl, const void *pkey,
- 				 struct net_device *dev, bool want_ref)
- {
--	return ___neigh_create(tbl, pkey, dev, false, want_ref);
-+	return ___neigh_create(tbl, pkey, dev, 0, false, want_ref);
- }
- EXPORT_SYMBOL(__neigh_create);
- 
-@@ -1942,7 +1942,9 @@ static int neigh_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 
- 		exempt_from_gc = ndm->ndm_state & NUD_PERMANENT ||
- 				 ndm->ndm_flags & NTF_EXT_LEARNED;
--		neigh = ___neigh_create(tbl, dst, dev, exempt_from_gc, true);
-+		neigh = ___neigh_create(tbl, dst, dev,
-+					ndm->ndm_flags & NTF_EXT_LEARNED,
-+					exempt_from_gc, true);
- 		if (IS_ERR(neigh)) {
- 			err = PTR_ERR(neigh);
- 			goto out;
 -- 
 2.33.0
 
