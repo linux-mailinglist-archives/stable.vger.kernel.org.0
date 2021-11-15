@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF888450AA7
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:09:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ED94450D63
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:54:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236562AbhKORMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:12:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37988 "EHLO mail.kernel.org"
+        id S238951AbhKOR4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:56:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236542AbhKORMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:12:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F412061C12;
-        Mon, 15 Nov 2021 17:09:07 +0000 (UTC)
+        id S239155AbhKORyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:54:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C07AC63325;
+        Mon, 15 Nov 2021 17:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996148;
-        bh=6nwjgzIpKhZtoJ1axzSQVlY5f6523MeBGpki1XRCxEg=;
+        s=korg; t=1636997607;
+        bh=753irU6cRhY3kJQbeKGcHWtB6o98fnXHj6Eu4MLKNgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NIPGq2Nnr9re4h6vN5FY43M/5ftKdw7Nc7fmcXS2DTtaEUSA1fU6VwqA3mcMDEbKo
-         ua5B8slKMgW3IDSj9YnPZjdGyw90FiBZCOagtWP3kXuRaWaMifQvVStCshvQnJhSpx
-         7i6L8F1zz8o8tGUi+ed9Hh0VL2TyGh4NzwkfHzOA=
+        b=B74Z69Ugx++jXOeaAsLmgih4L8hAf0ojZCDd/Y+qWQy1o5ZMf9WSdZVVXZYi94q12
+         7VwW9WUEze2iW1EMx3JEfho59UbUvo3Bk8mWCqlswnBNPlLM+fArzffOBjSslNqv6m
+         22202k+JKCMk2yEL9D1MuE/2cDFtAcwi8vaCTq20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.4 009/355] libata: fix read log timeout value
-Date:   Mon, 15 Nov 2021 17:58:53 +0100
-Message-Id: <20211115165313.855964130@linuxfoundation.org>
+        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 209/575] net-sysfs: try not to restart the syscall if it will fail eventually
+Date:   Mon, 15 Nov 2021 17:58:54 +0100
+Message-Id: <20211115165350.936826535@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,88 +41,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-commit 68dbbe7d5b4fde736d104cbbc9a2fce875562012 upstream.
+[ Upstream commit 146e5e733310379f51924111068f08a3af0db830 ]
 
-Some ATA drives are very slow to respond to READ_LOG_EXT and
-READ_LOG_DMA_EXT commands issued from ata_dev_configure() when the
-device is revalidated right after resuming a system or inserting the
-ATA adapter driver (e.g. ahci). The default 5s timeout
-(ATA_EH_CMD_DFL_TIMEOUT) used for these commands is too short, causing
-errors during the device configuration. Ex:
+Due to deadlocks in the networking subsystem spotted 12 years ago[1],
+a workaround was put in place[2] to avoid taking the rtnl lock when it
+was not available and restarting the syscall (back to VFS, letting
+userspace spin). The following construction is found a lot in the net
+sysfs and sysctl code:
 
-...
-ata9: SATA max UDMA/133 abar m524288@0x9d200000 port 0x9d200400 irq 209
-ata9: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
-ata9.00: ATA-9: XXX  XXXXXXXXXXXXXXX, XXXXXXXX, max UDMA/133
-ata9.00: qc timeout (cmd 0x2f)
-ata9.00: Read log page 0x00 failed, Emask 0x4
-ata9.00: Read log page 0x00 failed, Emask 0x40
-ata9.00: NCQ Send/Recv Log not supported
-ata9.00: Read log page 0x08 failed, Emask 0x40
-ata9.00: 27344764928 sectors, multi 16: LBA48 NCQ (depth 32), AA
-ata9.00: Read log page 0x00 failed, Emask 0x40
-ata9.00: ATA Identify Device Log not supported
-ata9.00: failed to set xfermode (err_mask=0x40)
-ata9: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
-ata9.00: configured for UDMA/133
-...
+  if (!rtnl_trylock())
+          return restart_syscall();
 
-The timeout error causes a soft reset of the drive link, followed in
-most cases by a successful revalidation as that give enough time to the
-drive to become fully ready to quickly process the read log commands.
-However, in some cases, this also fails resulting in the device being
-dropped.
+This can be problematic when multiple userspace threads use such
+interfaces in a short period, making them to spin a lot. This happens
+for example when adding and moving virtual interfaces: userspace
+programs listening on events, such as systemd-udevd and NetworkManager,
+do trigger actions reading files in sysfs. It gets worse when a lot of
+virtual interfaces are created concurrently, say when creating
+containers at boot time.
 
-Fix this by using adding the ata_eh_revalidate_timeouts entries for the
-READ_LOG_EXT and READ_LOG_DMA_EXT commands. This defines a timeout
-increased to 15s, retriable one time.
+Returning early without hitting the above pattern when the syscall will
+fail eventually does make things better. While it is not a fix for the
+issue, it does ease things.
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: stable@vger.kernel.org
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[1] https://lore.kernel.org/netdev/49A4D5D5.5090602@trash.net/
+    https://lore.kernel.org/netdev/m14oyhis31.fsf@fess.ebiederm.org/
+    and https://lore.kernel.org/netdev/20090226084924.16cb3e08@nehalam/
+[2] Rightfully, those deadlocks are *hard* to solve.
+
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Reviewed-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-eh.c |    8 ++++++++
- include/linux/libata.h  |    2 +-
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ net/core/net-sysfs.c | 55 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 55 insertions(+)
 
---- a/drivers/ata/libata-eh.c
-+++ b/drivers/ata/libata-eh.c
-@@ -97,6 +97,12 @@ static const unsigned long ata_eh_identi
- 	ULONG_MAX,
- };
- 
-+static const unsigned long ata_eh_revalidate_timeouts[] = {
-+	15000,	/* Some drives are slow to read log pages when waking-up */
-+	15000,  /* combined time till here is enough even for media access */
-+	ULONG_MAX,
-+};
+diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
+index cc5f760c78250..af59123601055 100644
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -175,6 +175,14 @@ static int change_carrier(struct net_device *dev, unsigned long new_carrier)
+ static ssize_t carrier_store(struct device *dev, struct device_attribute *attr,
+ 			     const char *buf, size_t len)
+ {
++	struct net_device *netdev = to_net_dev(dev);
 +
- static const unsigned long ata_eh_flush_timeouts[] = {
- 	15000,	/* be generous with flush */
- 	15000,  /* ditto */
-@@ -133,6 +139,8 @@ static const struct ata_eh_cmd_timeout_e
- ata_eh_cmd_timeout_table[ATA_EH_CMD_TIMEOUT_TABLE_SIZE] = {
- 	{ .commands = CMDS(ATA_CMD_ID_ATA, ATA_CMD_ID_ATAPI),
- 	  .timeouts = ata_eh_identify_timeouts, },
-+	{ .commands = CMDS(ATA_CMD_READ_LOG_EXT, ATA_CMD_READ_LOG_DMA_EXT),
-+	  .timeouts = ata_eh_revalidate_timeouts, },
- 	{ .commands = CMDS(ATA_CMD_READ_NATIVE_MAX, ATA_CMD_READ_NATIVE_MAX_EXT),
- 	  .timeouts = ata_eh_other_timeouts, },
- 	{ .commands = CMDS(ATA_CMD_SET_MAX, ATA_CMD_SET_MAX_EXT),
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -391,7 +391,7 @@ enum {
- 	/* This should match the actual table size of
- 	 * ata_eh_cmd_timeout_table in libata-eh.c.
- 	 */
--	ATA_EH_CMD_TIMEOUT_TABLE_SIZE = 6,
-+	ATA_EH_CMD_TIMEOUT_TABLE_SIZE = 7,
++	/* The check is also done in change_carrier; this helps returning early
++	 * without hitting the trylock/restart in netdev_store.
++	 */
++	if (!netdev->netdev_ops->ndo_change_carrier)
++		return -EOPNOTSUPP;
++
+ 	return netdev_store(dev, attr, buf, len, change_carrier);
+ }
  
- 	/* Horkage types. May be set by libata or controller on drives
- 	   (some horkage may be drive/controller pair dependent */
+@@ -196,6 +204,12 @@ static ssize_t speed_show(struct device *dev,
+ 	struct net_device *netdev = to_net_dev(dev);
+ 	int ret = -EINVAL;
+ 
++	/* The check is also done in __ethtool_get_link_ksettings; this helps
++	 * returning early without hitting the trylock/restart below.
++	 */
++	if (!netdev->ethtool_ops->get_link_ksettings)
++		return ret;
++
+ 	if (!rtnl_trylock())
+ 		return restart_syscall();
+ 
+@@ -216,6 +230,12 @@ static ssize_t duplex_show(struct device *dev,
+ 	struct net_device *netdev = to_net_dev(dev);
+ 	int ret = -EINVAL;
+ 
++	/* The check is also done in __ethtool_get_link_ksettings; this helps
++	 * returning early without hitting the trylock/restart below.
++	 */
++	if (!netdev->ethtool_ops->get_link_ksettings)
++		return ret;
++
+ 	if (!rtnl_trylock())
+ 		return restart_syscall();
+ 
+@@ -468,6 +488,14 @@ static ssize_t proto_down_store(struct device *dev,
+ 				struct device_attribute *attr,
+ 				const char *buf, size_t len)
+ {
++	struct net_device *netdev = to_net_dev(dev);
++
++	/* The check is also done in change_proto_down; this helps returning
++	 * early without hitting the trylock/restart in netdev_store.
++	 */
++	if (!netdev->netdev_ops->ndo_change_proto_down)
++		return -EOPNOTSUPP;
++
+ 	return netdev_store(dev, attr, buf, len, change_proto_down);
+ }
+ NETDEVICE_SHOW_RW(proto_down, fmt_dec);
+@@ -478,6 +506,12 @@ static ssize_t phys_port_id_show(struct device *dev,
+ 	struct net_device *netdev = to_net_dev(dev);
+ 	ssize_t ret = -EINVAL;
+ 
++	/* The check is also done in dev_get_phys_port_id; this helps returning
++	 * early without hitting the trylock/restart below.
++	 */
++	if (!netdev->netdev_ops->ndo_get_phys_port_id)
++		return -EOPNOTSUPP;
++
+ 	if (!rtnl_trylock())
+ 		return restart_syscall();
+ 
+@@ -500,6 +534,13 @@ static ssize_t phys_port_name_show(struct device *dev,
+ 	struct net_device *netdev = to_net_dev(dev);
+ 	ssize_t ret = -EINVAL;
+ 
++	/* The checks are also done in dev_get_phys_port_name; this helps
++	 * returning early without hitting the trylock/restart below.
++	 */
++	if (!netdev->netdev_ops->ndo_get_phys_port_name &&
++	    !netdev->netdev_ops->ndo_get_devlink_port)
++		return -EOPNOTSUPP;
++
+ 	if (!rtnl_trylock())
+ 		return restart_syscall();
+ 
+@@ -522,6 +563,14 @@ static ssize_t phys_switch_id_show(struct device *dev,
+ 	struct net_device *netdev = to_net_dev(dev);
+ 	ssize_t ret = -EINVAL;
+ 
++	/* The checks are also done in dev_get_phys_port_name; this helps
++	 * returning early without hitting the trylock/restart below. This works
++	 * because recurse is false when calling dev_get_port_parent_id.
++	 */
++	if (!netdev->netdev_ops->ndo_get_port_parent_id &&
++	    !netdev->netdev_ops->ndo_get_devlink_port)
++		return -EOPNOTSUPP;
++
+ 	if (!rtnl_trylock())
+ 		return restart_syscall();
+ 
+@@ -1179,6 +1228,12 @@ static ssize_t tx_maxrate_store(struct netdev_queue *queue,
+ 	if (!capable(CAP_NET_ADMIN))
+ 		return -EPERM;
+ 
++	/* The check is also done later; this helps returning early without
++	 * hitting the trylock/restart below.
++	 */
++	if (!dev->netdev_ops->ndo_set_tx_maxrate)
++		return -EOPNOTSUPP;
++
+ 	err = kstrtou32(buf, 10, &rate);
+ 	if (err < 0)
+ 		return err;
+-- 
+2.33.0
+
 
 
