@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFA58451465
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B99945118F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:07:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349189AbhKOUFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:05:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
+        id S240458AbhKOTJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:09:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233958AbhKOTYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 441AB63652;
-        Mon, 15 Nov 2021 18:54:23 +0000 (UTC)
+        id S242771AbhKOTHn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:07:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0EDF633F1;
+        Mon, 15 Nov 2021 18:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002463;
-        bh=QVKINXmrRUNL2kCZSzDa/1tJUfbLIXRiXlW8W4NucIw=;
+        s=korg; t=1637000240;
+        bh=L7nGRl8Ao5vJnSrp8kUNjFoHPyJXhHYQo8OdTc2ADVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IdMQeXi4gwOzVAoZkT4mJv68Dx/nSmH5ndZmg+xfgoRpRUntQhZE+Ucst2ZXuCZ0u
-         1wF2/MWKb940UT0FKnUQnfgyvb1IcvyLi78ZA7mCON+X0qrlzUqYv8q7Zum0cVg3/r
-         Tobxo3+vQgSrRSEd5zIXxAhix3HWr8EiQzbzdaCw=
+        b=SxwOQxBHlRJD2CJa2lgcCo/V6nNgoy6/0Cu997NRV0Zuh0PyLaOwf8ImO2qIpM80g
+         QESm6pux13fXM4PBE1flqJl1Pd9652C7HjNEiIBITxB5N1OusXArabvCg3AwLScSX6
+         MRIXaoY9ioDgWHg0qxlnE+FVZs6MnZVNMVlwVPHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jackie Liu <liuyun01@kylinos.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Saravana Kannan <saravanak@google.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 576/917] ARM: s3c: irq-s3c24xx: Fix return value check for s3c24xx_init_intc()
+Subject: [PATCH 5.14 588/849] driver core: Fix possible memory leak in device_link_add()
 Date:   Mon, 15 Nov 2021 18:01:11 +0100
-Message-Id: <20211115165448.307804641@linuxfoundation.org>
+Message-Id: <20211115165440.138192828@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 2aa717473ce96c93ae43a5dc8c23cedc8ce7dd9f ]
+[ Upstream commit df0a18149474c7e6b21f6367fbc6bc8d0f192444 ]
 
-The s3c24xx_init_intc() returns an error pointer upon failure, not NULL.
-let's add an error pointer check in s3c24xx_handle_irq.
+I got memory leak as follows:
 
-s3c_intc[0] is not NULL or ERR, we can simplify the code.
+unreferenced object 0xffff88801f0b2200 (size 64):
+  comm "i2c-lis2hh12-21", pid 5455, jiffies 4294944606 (age 15.224s)
+  hex dump (first 32 bytes):
+    72 65 67 75 6c 61 74 6f 72 3a 72 65 67 75 6c 61  regulator:regula
+    74 6f 72 2e 30 2d 2d 69 32 63 3a 31 2d 30 30 31  tor.0--i2c:1-001
+  backtrace:
+    [<00000000bf5b0c3b>] __kmalloc_track_caller+0x19f/0x3a0
+    [<0000000050da42d9>] kvasprintf+0xb5/0x150
+    [<000000004bbbed13>] kvasprintf_const+0x60/0x190
+    [<00000000cdac7480>] kobject_set_name_vargs+0x56/0x150
+    [<00000000bf83f8e8>] dev_set_name+0xc0/0x100
+    [<00000000cc1cf7e3>] device_link_add+0x6b4/0x17c0
+    [<000000009db9faed>] _regulator_get+0x297/0x680
+    [<00000000845e7f2b>] _devm_regulator_get+0x5b/0xe0
+    [<000000003958ee25>] st_sensors_power_enable+0x71/0x1b0 [st_sensors]
+    [<000000005f450f52>] st_accel_i2c_probe+0xd9/0x150 [st_accel_i2c]
+    [<00000000b5f2ab33>] i2c_device_probe+0x4d8/0xbe0
+    [<0000000070fb977b>] really_probe+0x299/0xc30
+    [<0000000088e226ce>] __driver_probe_device+0x357/0x500
+    [<00000000c21dda32>] driver_probe_device+0x4e/0x140
+    [<000000004e650441>] __device_attach_driver+0x257/0x340
+    [<00000000cf1891b8>] bus_for_each_drv+0x166/0x1e0
 
-Fixes: 1f629b7a3ced ("ARM: S3C24XX: transform irq handling into a declarative form")
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-Link: https://lore.kernel.org/r/20210901123557.1043953-1-liu.yun@linux.dev
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+When device_register() returns an error, the name allocated in dev_set_name()
+will be leaked, the put_device() should be used instead of kfree() to give up
+the device reference, then the name will be freed in kobject_cleanup() and the
+references of consumer and supplier will be decreased in device_link_release_fn().
+
+Fixes: 287905e68dd2 ("driver core: Expose device link details in sysfs")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Saravana Kannan <saravanak@google.com>
+Reviewed-by: Rafael J. Wysocki <rafael@kernel.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210930085714.2057460-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-s3c/irq-s3c24xx.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/base/core.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/arm/mach-s3c/irq-s3c24xx.c b/arch/arm/mach-s3c/irq-s3c24xx.c
-index 3edc5f614eefc..c1c2f041ad3b1 100644
---- a/arch/arm/mach-s3c/irq-s3c24xx.c
-+++ b/arch/arm/mach-s3c/irq-s3c24xx.c
-@@ -361,11 +361,25 @@ static inline int s3c24xx_handle_intc(struct s3c_irq_intc *intc,
- static asmlinkage void __exception_irq_entry s3c24xx_handle_irq(struct pt_regs *regs)
- {
- 	do {
--		if (likely(s3c_intc[0]))
--			if (s3c24xx_handle_intc(s3c_intc[0], regs, 0))
--				continue;
-+		/*
-+		 * For platform based machines, neither ERR nor NULL can happen here.
-+		 * The s3c24xx_handle_irq() will be set as IRQ handler iff this succeeds:
-+		 *
-+		 *    s3c_intc[0] = s3c24xx_init_intc()
-+		 *
-+		 * If this fails, the next calls to s3c24xx_init_intc() won't be executed.
-+		 *
-+		 * For DT machine, s3c_init_intc_of() could set the IRQ handler without
-+		 * setting s3c_intc[0] only if it was called with num_ctrl=0. There is no
-+		 * such code path, so again the s3c_intc[0] will have a valid pointer if
-+		 * set_handle_irq() is called.
-+		 *
-+		 * Therefore in s3c24xx_handle_irq(), the s3c_intc[0] is always something.
-+		 */
-+		if (s3c24xx_handle_intc(s3c_intc[0], regs, 0))
-+			continue;
- 
--		if (s3c_intc[2])
-+		if (!IS_ERR_OR_NULL(s3c_intc[2]))
- 			if (s3c24xx_handle_intc(s3c_intc[2], regs, 64))
- 				continue;
- 
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index f150ebebb3068..7033d0c33a026 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -809,9 +809,7 @@ struct device_link *device_link_add(struct device *consumer,
+ 		     dev_bus_name(supplier), dev_name(supplier),
+ 		     dev_bus_name(consumer), dev_name(consumer));
+ 	if (device_register(&link->link_dev)) {
+-		put_device(consumer);
+-		put_device(supplier);
+-		kfree(link);
++		put_device(&link->link_dev);
+ 		link = NULL;
+ 		goto out;
+ 	}
 -- 
 2.33.0
 
