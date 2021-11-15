@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3345D450C31
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05DDB450BEB
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:28:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238368AbhKORf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:35:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48494 "EHLO mail.kernel.org"
+        id S232302AbhKORbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:31:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237919AbhKORav (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:30:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BEE1632A7;
-        Mon, 15 Nov 2021 17:20:31 +0000 (UTC)
+        id S237987AbhKOR2d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:28:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DDE16326E;
+        Mon, 15 Nov 2021 17:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996831;
-        bh=eDZxpCt1WOpDYq0bZPxu9Xpki+yZvGVuHpbJc+APXJM=;
+        s=korg; t=1636996734;
+        bh=WUOszUa6abMStEzb5VLy1TxoqPiX+++P2jKUYPXEycQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Boq6gpz8RaXydlR/ksjimLM+f84Jmx3AbIhS8NQ2K9D82vlPlZxItDLMfP0p0+Yc
-         02PzrnFgNZ9v4r5TlKbxnKuEw29Mu6n4ZlDoteZKPAfS/33KHEUYggEYCsIYuTSEUP
-         cd2CgitQ+qNhOzwis2pnFlLRmGRSa7ZI+l7i4T+8=
+        b=lpcmalveO3EfouaSSFurHk4DeErKssiTQJQklkd+hYK69lkLaBUo1wmXdNoBrga2X
+         aTzpnV2oDwVaOR5befZKMpnjrCSY7nsNncdJjLVO8dXPnPvrt4fSUnFaoGnWIAKhPn
+         vYsr1cFi5N/j23bNZyCqsQYsQ02bjOCPe95Y5Hck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 240/355] s390/gmap: dont unconditionally call pte_unmap_unlock() in __gmap_zap()
-Date:   Mon, 15 Nov 2021 18:02:44 +0100
-Message-Id: <20211115165321.509115561@linuxfoundation.org>
+Subject: [PATCH 5.4 241/355] irq: mips: avoid nested irq_enter()
+Date:   Mon, 15 Nov 2021 18:02:45 +0100
+Message-Id: <20211115165321.541216738@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -42,45 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit b159f94c86b43cf7e73e654bc527255b1f4eafc4 ]
+[ Upstream commit c65b52d02f6c1a06ddb20cba175ad49eccd6410d ]
 
-... otherwise we will try unlocking a spinlock that was never locked via a
-garbage pointer.
+As bcm6345_l1_irq_handle() is a chained irqchip handler, it will be
+invoked within the context of the root irqchip handler, which must have
+entered IRQ context already.
 
-At the time we reach this code path, we usually successfully looked up
-a PGSTE already; however, evil user space could have manipulated the VMA
-layout in the meantime and triggered removal of the page table.
+When bcm6345_l1_irq_handle() calls arch/mips's do_IRQ() , this will nest
+another call to irq_enter(), and the resulting nested increment to
+`rcu_data.dynticks_nmi_nesting` will cause rcu_is_cpu_rrupt_from_idle()
+to fail to identify wakeups from idle, resulting in failure to preempt,
+and RCU stalls.
 
-Fixes: 1e133ab296f3 ("s390/mm: split arch/s390/mm/pgtable.c")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210909162248.14969-3-david@redhat.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Chained irqchip handlers must invoke IRQ handlers by way of thee core
+irqchip code, i.e. generic_handle_irq() or generic_handle_domain_irq()
+and should not call do_IRQ(), which is intended only for root irqchip
+handlers.
+
+Fix bcm6345_l1_irq_handle() by calling generic_handle_irq() directly.
+
+Fixes: c7c42ec2baa1de7a ("irqchips/bmips: Add bcm6345-l1 interrupt controller")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/gmap.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-bcm6345-l1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 4fa7a562c6fc1..5e5a4e1f0e6cf 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -684,9 +684,10 @@ void __gmap_zap(struct gmap *gmap, unsigned long gaddr)
- 		vmaddr |= gaddr & ~PMD_MASK;
- 		/* Get pointer to the page table entry */
- 		ptep = get_locked_pte(gmap->mm, vmaddr, &ptl);
--		if (likely(ptep))
-+		if (likely(ptep)) {
- 			ptep_zap_unused(gmap->mm, vmaddr, ptep, 0);
--		pte_unmap_unlock(ptep, ptl);
-+			pte_unmap_unlock(ptep, ptl);
-+		}
- 	}
- }
- EXPORT_SYMBOL_GPL(__gmap_zap);
+diff --git a/drivers/irqchip/irq-bcm6345-l1.c b/drivers/irqchip/irq-bcm6345-l1.c
+index e3483789f4df3..1bd0621c4ce2a 100644
+--- a/drivers/irqchip/irq-bcm6345-l1.c
++++ b/drivers/irqchip/irq-bcm6345-l1.c
+@@ -140,7 +140,7 @@ static void bcm6345_l1_irq_handle(struct irq_desc *desc)
+ 		for_each_set_bit(hwirq, &pending, IRQS_PER_WORD) {
+ 			irq = irq_linear_revmap(intc->domain, base + hwirq);
+ 			if (irq)
+-				do_IRQ(irq);
++				generic_handle_irq(irq);
+ 			else
+ 				spurious_interrupt();
+ 		}
 -- 
 2.33.0
 
