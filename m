@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E25045277B
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:23:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C34745277F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:23:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245583AbhKPCZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:25:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53148 "EHLO mail.kernel.org"
+        id S1344626AbhKPCZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:25:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236801AbhKORYg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:24:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1733863279;
-        Mon, 15 Nov 2021 17:16:09 +0000 (UTC)
+        id S232422AbhKORYc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:24:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F02F661B73;
+        Mon, 15 Nov 2021 17:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996570;
-        bh=e0AixVREsKewyZWLJurhFn+CQrBq5HryW4idAq/VIao=;
+        s=korg; t=1636996629;
+        bh=hU45eMtVtBdhqQK2aJ+WCctiySCd3LtO72ZX80TT+KU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tSLdj78rbOoAy1BsMcd/89a9LWPYyWH72VMjhxh9F46CMpws4VyXj3KuBzgRDDOoz
-         KA0dcGNft/32lwHDpOU8yRtoZI85SPwpGnkqJL2S1W2844l9IK+Jso5uzC29s2Q7zB
-         SL/kPA56VeeocNNJYn04FXHe1EGRXsTh9ERhBjAI=
+        b=ZYN8iG7dcIb+S6/o9zBM0pT4yiwaxWXy+VEy8qcsVIVWSFTTnCqPEv1xDtPjJneZa
+         UOv+HkVd0qqVBpBLbrzTr3jCyuRi51ZU6PxbZkeHZJi2CH4SzXoLlPmUwV0K69ZqaZ
+         eVyWIQY//7t7q6UtjA4Fn/iCEDzmQ3VP/6AlQrWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 171/355] vrf: run conntrack only in context of lower/physdev for locally generated packets
-Date:   Mon, 15 Nov 2021 18:01:35 +0100
-Message-Id: <20211115165319.321649118@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 176/355] parisc: fix warning in flush_tlb_all
+Date:   Mon, 15 Nov 2021 18:01:40 +0100
+Message-Id: <20211115165319.479587755@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -41,138 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Sven Schnelle <svens@stackframe.org>
 
-[ Upstream commit 8c9c296adfae9ea05f655d69e9f6e13daa86fb4a ]
+[ Upstream commit 1030d681319b43869e0d5b568b9d0226652d1a6f ]
 
-The VRF driver invokes netfilter for output+postrouting hooks so that users
-can create rules that check for 'oif $vrf' rather than lower device name.
+I've got the following splat after enabling preemption:
 
-This is a problem when NAT rules are configured.
+[    3.724721] BUG: using __this_cpu_add() in preemptible [00000000] code: swapper/0/1
+[    3.734630] caller is __this_cpu_preempt_check+0x38/0x50
+[    3.740635] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc4-64bit+ #324
+[    3.744605] Hardware name: 9000/785/C8000
+[    3.744605] Backtrace:
+[    3.744605]  [<00000000401d9d58>] show_stack+0x74/0xb0
+[    3.744605]  [<0000000040c27bd4>] dump_stack_lvl+0x10c/0x188
+[    3.744605]  [<0000000040c27c84>] dump_stack+0x34/0x48
+[    3.744605]  [<0000000040c33438>] check_preemption_disabled+0x178/0x1b0
+[    3.744605]  [<0000000040c334f8>] __this_cpu_preempt_check+0x38/0x50
+[    3.744605]  [<00000000401d632c>] flush_tlb_all+0x58/0x2e0
+[    3.744605]  [<00000000401075c0>] 0x401075c0
+[    3.744605]  [<000000004010b8fc>] 0x4010b8fc
+[    3.744605]  [<00000000401080fc>] 0x401080fc
+[    3.744605]  [<00000000401d5224>] do_one_initcall+0x128/0x378
+[    3.744605]  [<0000000040102de8>] 0x40102de8
+[    3.744605]  [<0000000040c33864>] kernel_init+0x60/0x3a8
+[    3.744605]  [<00000000401d1020>] ret_from_kernel_thread+0x20/0x28
+[    3.744605]
 
-To avoid any conntrack involvement in round 1, tag skbs as 'untracked'
-to prevent conntrack from picking them up.
+Fix this by moving the __inc_irq_stat() into the locked section.
 
-This gets cleared before the packet gets handed to the ip stack so
-conntrack will be active on the second iteration.
-
-One remaining issue is that a rule like
-
-  output ... oif $vrfname notrack
-
-won't propagate to the second round because we can't tell
-'notrack set via ruleset' and 'notrack set by vrf driver' apart.
-However, this isn't a regression: the 'notrack' removal happens
-instead of unconditional nf_reset_ct().
-I'd also like to avoid leaking more vrf specific conditionals into the
-netfilter infra.
-
-For ingress, conntrack has already been done before the packet makes it
-to the vrf driver, with this patch egress does connection tracking with
-lower/physical device as well.
-
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Acked-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vrf.c | 28 ++++++++++++++++++++++++----
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ arch/parisc/mm/init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
-index f08ed52d51f3f..f436b8c130611 100644
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -33,6 +33,7 @@
- #include <net/l3mdev.h>
- #include <net/fib_rules.h>
- #include <net/netns/generic.h>
-+#include <net/netfilter/nf_conntrack.h>
- 
- #define DRV_NAME	"vrf"
- #define DRV_VERSION	"1.0"
-@@ -147,12 +148,26 @@ static int vrf_local_xmit(struct sk_buff *skb, struct net_device *dev,
- 	return NETDEV_TX_OK;
- }
- 
-+static void vrf_nf_set_untracked(struct sk_buff *skb)
-+{
-+	if (skb_get_nfct(skb) == 0)
-+		nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
-+}
-+
-+static void vrf_nf_reset_ct(struct sk_buff *skb)
-+{
-+	if (skb_get_nfct(skb) == IP_CT_UNTRACKED)
-+		nf_reset_ct(skb);
-+}
-+
- #if IS_ENABLED(CONFIG_IPV6)
- static int vrf_ip6_local_out(struct net *net, struct sock *sk,
- 			     struct sk_buff *skb)
+diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
+index 3e54484797f62..d769d61cde7ca 100644
+--- a/arch/parisc/mm/init.c
++++ b/arch/parisc/mm/init.c
+@@ -892,9 +892,9 @@ void flush_tlb_all(void)
  {
- 	int err;
+ 	int do_recycle;
  
-+	vrf_nf_reset_ct(skb);
-+
- 	err = nf_hook(NFPROTO_IPV6, NF_INET_LOCAL_OUT, net,
- 		      sk, skb, NULL, skb_dst(skb)->dev, dst_output);
- 
-@@ -232,6 +247,8 @@ static int vrf_ip_local_out(struct net *net, struct sock *sk,
+-	__inc_irq_stat(irq_tlb_count);
+ 	do_recycle = 0;
+ 	spin_lock(&sid_lock);
++	__inc_irq_stat(irq_tlb_count);
+ 	if (dirty_space_ids > RECYCLE_THRESHOLD) {
+ 	    BUG_ON(recycle_inuse);  /* FIXME: Use a semaphore/wait queue here */
+ 	    get_dirty_sids(&recycle_ndirty,recycle_dirty_array);
+@@ -913,8 +913,8 @@ void flush_tlb_all(void)
+ #else
+ void flush_tlb_all(void)
  {
- 	int err;
- 
-+	vrf_nf_reset_ct(skb);
-+
- 	err = nf_hook(NFPROTO_IPV4, NF_INET_LOCAL_OUT, net, sk,
- 		      skb, NULL, skb_dst(skb)->dev, dst_output);
- 	if (likely(err == 1))
-@@ -351,8 +368,7 @@ static void vrf_finish_direct(struct sk_buff *skb)
- 		skb_pull(skb, ETH_HLEN);
- 	}
- 
--	/* reset skb device */
--	nf_reset_ct(skb);
-+	vrf_nf_reset_ct(skb);
- }
- 
- #if IS_ENABLED(CONFIG_IPV6)
-@@ -366,7 +382,7 @@ static int vrf_finish_output6(struct net *net, struct sock *sk,
- 	struct neighbour *neigh;
- 	int ret;
- 
--	nf_reset_ct(skb);
-+	vrf_nf_reset_ct(skb);
- 
- 	skb->protocol = htons(ETH_P_IPV6);
- 	skb->dev = dev;
-@@ -477,6 +493,8 @@ static struct sk_buff *vrf_ip6_out_direct(struct net_device *vrf_dev,
- 
- 	skb->dev = vrf_dev;
- 
-+	vrf_nf_set_untracked(skb);
-+
- 	err = nf_hook(NFPROTO_IPV6, NF_INET_LOCAL_OUT, net, sk,
- 		      skb, NULL, vrf_dev, vrf_ip6_out_direct_finish);
- 
-@@ -584,7 +602,7 @@ static int vrf_finish_output(struct net *net, struct sock *sk, struct sk_buff *s
- 	bool is_v6gw = false;
- 	int ret = -EINVAL;
- 
--	nf_reset_ct(skb);
-+	vrf_nf_reset_ct(skb);
- 
- 	/* Be paranoid, rather than too clever. */
- 	if (unlikely(skb_headroom(skb) < hh_len && dev->header_ops)) {
-@@ -712,6 +730,8 @@ static struct sk_buff *vrf_ip_out_direct(struct net_device *vrf_dev,
- 
- 	skb->dev = vrf_dev;
- 
-+	vrf_nf_set_untracked(skb);
-+
- 	err = nf_hook(NFPROTO_IPV4, NF_INET_LOCAL_OUT, net, sk,
- 		      skb, NULL, vrf_dev, vrf_ip_out_direct_finish);
- 
+-	__inc_irq_stat(irq_tlb_count);
+ 	spin_lock(&sid_lock);
++	__inc_irq_stat(irq_tlb_count);
+ 	flush_tlb_all_local(NULL);
+ 	recycle_sids();
+ 	spin_unlock(&sid_lock);
 -- 
 2.33.0
 
