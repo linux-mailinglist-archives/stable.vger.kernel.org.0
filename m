@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A440450DF6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD956450B06
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239794AbhKOSJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:09:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46092 "EHLO mail.kernel.org"
+        id S236854AbhKORRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:17:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239727AbhKOSEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:04:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0119860041;
-        Mon, 15 Nov 2021 17:38:46 +0000 (UTC)
+        id S236945AbhKORPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:15:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3228D6320D;
+        Mon, 15 Nov 2021 17:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997927;
-        bh=qY4g+sqgot4zYGqIvTAUH5BISaLkp78546tl0KseqrY=;
+        s=korg; t=1636996317;
+        bh=kpx8rkNDinqxrdQn4Qy+YrxlZaWHxuyuVVigrYcb508=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqYEw3Y8n7Gd8VCmYDzycNAjL3xXTZtdqQQ8YJMXaAeiFwW7bO3KNIWl5RYDovya2
-         0SjG6fYPwNlRC5oURs84rb2cUTzwbxWcMGQhmKPKCdz0IVK84tSTOlJS+xaGNz/Pqe
-         l8zGHpoCJzuGtze97D/InnuJTT+xPwN3hCRxWbLw=
+        b=LaeXp2SSBCeNJlVFjavrhlqZjLQe6m9DuiEKmM0ikmuifRyASxkFYqgTLl2kKAV00
+         nRLJe2Vb9PGaCfvYrXqNN9vUjQnysTRcMNy1aySSpjdY6quKRJjXb2hai39q80iMn6
+         FKCnl+vnygxG8Au9TYPVPCFY/c6DoGoK3geh7AFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Houlong Wei <houlong.wei@mediatek.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 293/575] media: mtk-vpu: Fix a resource leak in the error handling path of mtk_vpu_probe()
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 5.4 094/355] serial: core: Fix initializing and restoring termios speed
 Date:   Mon, 15 Nov 2021 18:00:18 +0100
-Message-Id: <20211115165353.914624062@linuxfoundation.org>
+Message-Id: <20211115165316.841485448@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +39,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 2143ad413c05c7be24c3a92760e367b7f6aaac92 ]
+commit 027b57170bf8bb6999a28e4a5f3d78bf1db0f90c upstream.
 
-A successful 'clk_prepare()' call should be balanced by a corresponding
-'clk_unprepare()' call in the error handling path of the probe, as already
-done in the remove function.
+Since commit edc6afc54968 ("tty: switch to ktermios and new framework")
+termios speed is no longer stored only in c_cflag member but also in new
+additional c_ispeed and c_ospeed members. If BOTHER flag is set in c_cflag
+then termios speed is stored only in these new members.
 
-Update the error handling path accordingly.
+Therefore to correctly restore termios speed it is required to store also
+ispeed and ospeed members, not only cflag member.
 
-Fixes: 3003a180ef6b ("[media] VPU: mediatek: support Mediatek VPU")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Houlong Wei <houlong.wei@mediatek.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In case only cflag member with BOTHER flag is restored then functions
+tty_termios_baud_rate() and tty_termios_input_baud_rate() returns baudrate
+stored in c_ospeed / c_ispeed member, which is zero as it was not restored
+too. If reported baudrate is invalid (e.g. zero) then serial core functions
+report fallback baudrate value 9600. So it means that in this case original
+baudrate is lost and kernel changes it to value 9600.
+
+Simple reproducer of this issue is to boot kernel with following command
+line argument: "console=ttyXXX,86400" (where ttyXXX is the device name).
+For speed 86400 there is no Bnnn constant and therefore kernel has to
+represent this speed via BOTHER c_cflag. Which means that speed is stored
+only in c_ospeed and c_ispeed members, not in c_cflag anymore.
+
+If bootloader correctly configures serial device to speed 86400 then kernel
+prints boot log to early console at speed speed 86400 without any issue.
+But after kernel starts initializing real console device ttyXXX then speed
+is changed to fallback value 9600 because information about speed was lost.
+
+This patch fixes above issue by storing and restoring also ispeed and
+ospeed members, which are required for BOTHER flag.
+
+Fixes: edc6afc54968 ("[PATCH] tty: switch to ktermios and new framework")
+Cc: stable@vger.kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20211002130900.9518-1-pali@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/mtk-vpu/mtk_vpu.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/tty/serial/serial_core.c |   16 ++++++++++++++--
+ include/linux/console.h          |    2 ++
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/mtk-vpu/mtk_vpu.c b/drivers/media/platform/mtk-vpu/mtk_vpu.c
-index 36cb9b6131f7e..c62eb212cca92 100644
---- a/drivers/media/platform/mtk-vpu/mtk_vpu.c
-+++ b/drivers/media/platform/mtk-vpu/mtk_vpu.c
-@@ -820,7 +820,8 @@ static int mtk_vpu_probe(struct platform_device *pdev)
- 	vpu->wdt.wq = create_singlethread_workqueue("vpu_wdt");
- 	if (!vpu->wdt.wq) {
- 		dev_err(dev, "initialize wdt workqueue failed\n");
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto clk_unprepare;
- 	}
- 	INIT_WORK(&vpu->wdt.ws, vpu_wdt_reset_func);
- 	mutex_init(&vpu->vpu_mutex);
-@@ -914,6 +915,8 @@ disable_vpu_clk:
- 	vpu_clock_disable(vpu);
- workqueue_destroy:
- 	destroy_workqueue(vpu->wdt.wq);
-+clk_unprepare:
-+	clk_unprepare(vpu->clk);
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -220,7 +220,11 @@ static int uart_port_startup(struct tty_
+ 	if (retval == 0) {
+ 		if (uart_console(uport) && uport->cons->cflag) {
+ 			tty->termios.c_cflag = uport->cons->cflag;
++			tty->termios.c_ispeed = uport->cons->ispeed;
++			tty->termios.c_ospeed = uport->cons->ospeed;
+ 			uport->cons->cflag = 0;
++			uport->cons->ispeed = 0;
++			uport->cons->ospeed = 0;
+ 		}
+ 		/*
+ 		 * Initialise the hardware port settings.
+@@ -288,8 +292,11 @@ static void uart_shutdown(struct tty_str
+ 		/*
+ 		 * Turn off DTR and RTS early.
+ 		 */
+-		if (uport && uart_console(uport) && tty)
++		if (uport && uart_console(uport) && tty) {
+ 			uport->cons->cflag = tty->termios.c_cflag;
++			uport->cons->ispeed = tty->termios.c_ispeed;
++			uport->cons->ospeed = tty->termios.c_ospeed;
++		}
  
- 	return ret;
+ 		if (!tty || C_HUPCL(tty))
+ 			uart_port_dtr_rts(uport, 0);
+@@ -2110,8 +2117,11 @@ uart_set_options(struct uart_port *port,
+ 	 * Allow the setting of the UART parameters with a NULL console
+ 	 * too:
+ 	 */
+-	if (co)
++	if (co) {
+ 		co->cflag = termios.c_cflag;
++		co->ispeed = termios.c_ispeed;
++		co->ospeed = termios.c_ospeed;
++	}
+ 
+ 	return 0;
  }
--- 
-2.33.0
-
+@@ -2245,6 +2255,8 @@ int uart_resume_port(struct uart_driver
+ 		 */
+ 		memset(&termios, 0, sizeof(struct ktermios));
+ 		termios.c_cflag = uport->cons->cflag;
++		termios.c_ispeed = uport->cons->ispeed;
++		termios.c_ospeed = uport->cons->ospeed;
+ 
+ 		/*
+ 		 * If that's unset, use the tty termios setting.
+--- a/include/linux/console.h
++++ b/include/linux/console.h
+@@ -153,6 +153,8 @@ struct console {
+ 	short	flags;
+ 	short	index;
+ 	int	cflag;
++	uint	ispeed;
++	uint	ospeed;
+ 	void	*data;
+ 	struct	 console *next;
+ };
 
 
