@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF3EC450BFC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:30:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4E7E450E4B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238105AbhKORcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:32:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46732 "EHLO mail.kernel.org"
+        id S240900AbhKOSOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:14:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237845AbhKORai (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:30:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DC42632A2;
-        Mon, 15 Nov 2021 17:20:16 +0000 (UTC)
+        id S240265AbhKOSH3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F9AA61163;
+        Mon, 15 Nov 2021 17:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996817;
-        bh=dpxewmT5pk4FwYZe9fyRipV9kjdTl3EByzhX9SovOLo=;
+        s=korg; t=1636998253;
+        bh=awqd3cUO2RXIryXAhBYLzQ2HsddUQyQmN0vjZkZCyYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBlek0QSFTMXM/XrH8aq6OE5mZJcbDYJJJ5AcN5bY40A8KEndHO1dKMbZCd29qQ9J
-         upYVw6cPMbn/Wd2y/+Gx1Jv7JTsKirNV4L512G8H/v3jWHabpGXa2KN+ag7FBRBudd
-         wUBSOuGQnLVnop5l7cDHOyyKFWF04c1XC62hUXuQ=
+        b=1Xz9CULGqMIKEpxjblg6uFWBG1tSpAa4AxTLwLYS5/53t28MTqFncP1XFe1xemy1O
+         BMegIi4ZFKksC5Ju+41EaQFnY2Z321l3rN+gku823OAQuAtE3WoSBzzJUdl3rD6EHB
+         EpsR1L0rFwmkD0n4SShye+IEfx7BLW0oOt47GtZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Hongwu Su <hongwus@codeaurora.org>,
+        Bean Huo <beanhuo@micron.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 245/355] libertas_tf: Fix possible memory leak in probe and disconnect
+Subject: [PATCH 5.10 444/575] scsi: ufs: Refactor ufshcd_setup_clocks() to remove skip_ref_clk
 Date:   Mon, 15 Nov 2021 18:02:49 +0100
-Message-Id: <20211115165321.668124783@linuxfoundation.org>
+Message-Id: <20211115165359.110911266@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +43,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit d549107305b4634c81223a853701c06bcf657bc3 ]
+[ Upstream commit 81309c247a4dcd597cbda5254fd0afdd61b93f14 ]
 
-I got memory leak as follows when doing fault injection test:
+Remove the param skip_ref_clk from __ufshcd_setup_clocks(), but keep a flag
+in struct ufs_clk_info to tell whether a clock can be disabled or not while
+the link is active.
 
-unreferenced object 0xffff88810a2ddc00 (size 512):
-  comm "kworker/6:1", pid 176, jiffies 4295009893 (age 757.220s)
-  hex dump (first 32 bytes):
-    00 50 05 18 81 88 ff ff 00 00 00 00 00 00 00 00  .P..............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
-    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
-    [<ffffffffa02a1530>] if_usb_probe+0x60/0x37c [libertas_tf_usb]
-    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
-    [<ffffffff82b59630>] really_probe+0x190/0x480
-    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
-    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
-    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
-    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
-    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
-    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
-    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
-    [<ffffffff82b52e49>] device_add+0x829/0x1300
-    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
-    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
-    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
-
-cardp is missing being freed in the error handling path of the probe
-and the path of the disconnect, which will cause memory leak.
-
-This patch adds the missing kfree().
-
-Fixes: c305a19a0d0a ("libertas_tf: usb specific functions")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211020120345.2016045-2-wanghai38@huawei.com
+Link: https://lore.kernel.org/r/1606356063-38380-2-git-send-email-cang@codeaurora.org
+Reviewed-by: Hongwu Su <hongwus@codeaurora.org>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas_tf/if_usb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/ufs/ufshcd-pltfrm.c |  2 ++
+ drivers/scsi/ufs/ufshcd.c        | 29 +++++++++--------------------
+ drivers/scsi/ufs/ufshcd.h        |  3 +++
+ 3 files changed, 14 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas_tf/if_usb.c b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-index bedc092150884..b30bcb28503ae 100644
---- a/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-+++ b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-@@ -230,6 +230,7 @@ static int if_usb_probe(struct usb_interface *intf,
+diff --git a/drivers/scsi/ufs/ufshcd-pltfrm.c b/drivers/scsi/ufs/ufshcd-pltfrm.c
+index 24927cf485b47..68ce209577eca 100644
+--- a/drivers/scsi/ufs/ufshcd-pltfrm.c
++++ b/drivers/scsi/ufs/ufshcd-pltfrm.c
+@@ -92,6 +92,8 @@ static int ufshcd_parse_clock_info(struct ufs_hba *hba)
+ 		clki->min_freq = clkfreq[i];
+ 		clki->max_freq = clkfreq[i+1];
+ 		clki->name = kstrdup(name, GFP_KERNEL);
++		if (!strcmp(name, "ref_clk"))
++			clki->keep_link_active = true;
+ 		dev_dbg(dev, "%s: min %u max %u name %s\n", "freq-table-hz",
+ 				clki->min_freq, clki->max_freq, clki->name);
+ 		list_add_tail(&clki->list, &hba->clk_list_head);
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 3139d9df6f320..930f35863cbb5 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -221,8 +221,6 @@ static int ufshcd_eh_host_reset_handler(struct scsi_cmnd *cmd);
+ static int ufshcd_clear_tm_cmd(struct ufs_hba *hba, int tag);
+ static void ufshcd_hba_exit(struct ufs_hba *hba);
+ static int ufshcd_probe_hba(struct ufs_hba *hba, bool async);
+-static int __ufshcd_setup_clocks(struct ufs_hba *hba, bool on,
+-				 bool skip_ref_clk);
+ static int ufshcd_setup_clocks(struct ufs_hba *hba, bool on);
+ static int ufshcd_uic_hibern8_enter(struct ufs_hba *hba);
+ static inline void ufshcd_add_delay_before_dme_cmd(struct ufs_hba *hba);
+@@ -1714,11 +1712,7 @@ static void ufshcd_gate_work(struct work_struct *work)
  
- dealloc:
- 	if_usb_free(cardp);
-+	kfree(cardp);
- error:
- lbtf_deb_leave(LBTF_DEB_MAIN);
- 	return -ENOMEM;
-@@ -254,6 +255,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
+ 	ufshcd_disable_irq(hba);
  
- 	/* Unlink and free urb */
- 	if_usb_free(cardp);
-+	kfree(cardp);
+-	if (!ufshcd_is_link_active(hba))
+-		ufshcd_setup_clocks(hba, false);
+-	else
+-		/* If link is active, device ref_clk can't be switched off */
+-		__ufshcd_setup_clocks(hba, false, true);
++	ufshcd_setup_clocks(hba, false);
  
- 	usb_set_intfdata(intf, NULL);
- 	usb_put_dev(interface_to_usbdev(intf));
+ 	/*
+ 	 * In case you are here to cancel this work the gating state
+@@ -8055,8 +8049,7 @@ static int ufshcd_init_hba_vreg(struct ufs_hba *hba)
+ 	return 0;
+ }
+ 
+-static int __ufshcd_setup_clocks(struct ufs_hba *hba, bool on,
+-					bool skip_ref_clk)
++static int ufshcd_setup_clocks(struct ufs_hba *hba, bool on)
+ {
+ 	int ret = 0;
+ 	struct ufs_clk_info *clki;
+@@ -8074,7 +8067,12 @@ static int __ufshcd_setup_clocks(struct ufs_hba *hba, bool on,
+ 
+ 	list_for_each_entry(clki, head, list) {
+ 		if (!IS_ERR_OR_NULL(clki->clk)) {
+-			if (skip_ref_clk && !strcmp(clki->name, "ref_clk"))
++			/*
++			 * Don't disable clocks which are needed
++			 * to keep the link active.
++			 */
++			if (ufshcd_is_link_active(hba) &&
++			    clki->keep_link_active)
+ 				continue;
+ 
+ 			clk_state_changed = on ^ clki->enabled;
+@@ -8119,11 +8117,6 @@ out:
+ 	return ret;
+ }
+ 
+-static int ufshcd_setup_clocks(struct ufs_hba *hba, bool on)
+-{
+-	return  __ufshcd_setup_clocks(hba, on, false);
+-}
+-
+ static int ufshcd_init_clocks(struct ufs_hba *hba)
+ {
+ 	int ret = 0;
+@@ -8642,11 +8635,7 @@ disable_clks:
+ 	 */
+ 	ufshcd_disable_irq(hba);
+ 
+-	if (!ufshcd_is_link_active(hba))
+-		ufshcd_setup_clocks(hba, false);
+-	else
+-		/* If link is active, device ref_clk can't be switched off */
+-		__ufshcd_setup_clocks(hba, false, true);
++	ufshcd_setup_clocks(hba, false);
+ 
+ 	if (ufshcd_is_clkgating_allowed(hba)) {
+ 		hba->clk_gating.state = CLKS_OFF;
+diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
+index 812aa348751eb..1ba9c786feb6d 100644
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -229,6 +229,8 @@ struct ufs_dev_cmd {
+  * @max_freq: maximum frequency supported by the clock
+  * @min_freq: min frequency that can be used for clock scaling
+  * @curr_freq: indicates the current frequency that it is set to
++ * @keep_link_active: indicates that the clk should not be disabled if
++		      link is active
+  * @enabled: variable to check against multiple enable/disable
+  */
+ struct ufs_clk_info {
+@@ -238,6 +240,7 @@ struct ufs_clk_info {
+ 	u32 max_freq;
+ 	u32 min_freq;
+ 	u32 curr_freq;
++	bool keep_link_active;
+ 	bool enabled;
+ };
+ 
 -- 
 2.33.0
 
