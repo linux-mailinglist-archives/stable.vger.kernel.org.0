@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05ABE4523E6
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:32:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3907C452157
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242645AbhKPBfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:35:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42400 "EHLO mail.kernel.org"
+        id S1348006AbhKPBD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:03:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242043AbhKOSdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:33:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91ACE6333A;
-        Mon, 15 Nov 2021 17:59:40 +0000 (UTC)
+        id S245588AbhKOTUs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C888C63567;
+        Mon, 15 Nov 2021 18:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999181;
-        bh=nh9Z0Ma/GeSOiyN4gCPuyXcL+6L+iRvKderhLl6dEaE=;
+        s=korg; t=1637001447;
+        bh=5TaTadUUlRIm99JBWT3Hg8pPrx4O+pzJ82CGst/LFJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l0wf/CBVeOIX8C0VzbpuM+MLfY+jAPeKHPtBkwthBzVAVaT5rmPrMGGXe88Fqsb9T
-         papDFDyFgT7AGr3xkPI09gE9cyE7VxG7xyCMHzNsyP92HGNkEmWUspFPMBe3MUGdIN
-         IbIms5uOyrz8NNY1A8orCH9Hv+afX3uzFzyUNUoA=
+        b=VGSStZHmWnCQymKOa84Hkl02h84+geLrtDZ+G2RrzxAOQmVqKVMk5q1SCZSHjQTBh
+         8KzVv9lE1M43xAKH+FygZXGSZpxGIn9+087meDSMNAD71LhY+8TL4FAmr8QBlvgEB1
+         oYOMCqCSQkV8nhIHLRlDZEJvlk6zPAppPSuR+Dac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Subject: [PATCH 5.14 204/849] component: do not leave master devres group open after bind
-Date:   Mon, 15 Nov 2021 17:54:47 +0100
-Message-Id: <20211115165427.104510220@linuxfoundation.org>
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 193/917] MIPS: lantiq: dma: add small delay after reset
+Date:   Mon, 15 Nov 2021 17:54:48 +0100
+Message-Id: <20211115165435.334605518@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,95 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-commit c87761db2100677a69be551365105125d872af5b upstream.
+[ Upstream commit c12aa581f6d5e80c3c3675ab26a52c2b3b62f76e ]
 
-In current code, the devres group for aggregate master is left open
-after call to component_master_add_*(). This leads to problems when the
-master does further managed allocations on its own. When any
-participating driver calls component_del(), this leads to immediate
-release of resources.
+Reading the DMA registers immediately after the reset causes
+Data Bus Error. Adding a small delay fixes this issue.
 
-This came up when investigating a page fault occurring with i915 DRM
-driver unbind with 5.15-rc1 kernel. The following sequence occurs:
-
- i915_pci_remove()
-   -> intel_display_driver_unregister()
-     -> i915_audio_component_cleanup()
-       -> component_del()
-         -> component.c:take_down_master()
-           -> hdac_component_master_unbind() [via master->ops->unbind()]
-           -> devres_release_group(master->parent, NULL)
-
-With older kernels this has not caused issues, but with audio driver
-moving to use managed interfaces for more of its allocations, this no
-longer works. Devres log shows following to occur:
-
-component_master_add_with_match()
-[  126.886032] snd_hda_intel 0000:00:1f.3: DEVRES ADD 00000000323ccdc5 devm_component_match_release (24 bytes)
-[  126.886045] snd_hda_intel 0000:00:1f.3: DEVRES ADD 00000000865cdb29 grp< (0 bytes)
-[  126.886049] snd_hda_intel 0000:00:1f.3: DEVRES ADD 000000001b480725 grp< (0 bytes)
-
-audio driver completes its PCI probe()
-[  126.892238] snd_hda_intel 0000:00:1f.3: DEVRES ADD 000000001b480725 pcim_iomap_release (48 bytes)
-
-component_del() called() at DRM/i915 unbind()
-[  137.579422] i915 0000:00:02.0: DEVRES REL 00000000ef44c293 grp< (0 bytes)
-[  137.579445] snd_hda_intel 0000:00:1f.3: DEVRES REL 00000000865cdb29 grp< (0 bytes)
-[  137.579458] snd_hda_intel 0000:00:1f.3: DEVRES REL 000000001b480725 pcim_iomap_release (48 bytes)
-
-So the "devres_release_group(master->parent, NULL)" ends up freeing the
-pcim_iomap allocation. Upon next runtime resume, the audio driver will
-cause a page fault as the iomap alloc was released without the driver
-knowing about it.
-
-Fix this issue by using the "struct master" pointer as identifier for
-the devres group, and by closing the devres group after
-the master->ops->bind() call is done. This allows devres allocations
-done by the driver acting as master to be isolated from the binding state
-of the aggregate driver. This modifies the logic originally introduced in
-commit 9e1ccb4a7700 ("drivers/base: fix devres handling for master device")
-
-Fixes: 9e1ccb4a7700 ("drivers/base: fix devres handling for master device")
-Cc: stable@vger.kernel.org
-Acked-by: Imre Deak <imre.deak@intel.com>
-Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-BugLink: https://gitlab.freedesktop.org/drm/intel/-/issues/4136
-Link: https://lore.kernel.org/r/20211013161345.3755341-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/component.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/mips/lantiq/xway/dma.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/base/component.c
-+++ b/drivers/base/component.c
-@@ -246,7 +246,7 @@ static int try_to_bring_up_master(struct
- 		return 0;
- 	}
+diff --git a/arch/mips/lantiq/xway/dma.c b/arch/mips/lantiq/xway/dma.c
+index 63dccb2ed08b2..2784715933d13 100644
+--- a/arch/mips/lantiq/xway/dma.c
++++ b/arch/mips/lantiq/xway/dma.c
+@@ -11,6 +11,7 @@
+ #include <linux/export.h>
+ #include <linux/spinlock.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/of.h>
  
--	if (!devres_open_group(master->parent, NULL, GFP_KERNEL))
-+	if (!devres_open_group(master->parent, master, GFP_KERNEL))
- 		return -ENOMEM;
+@@ -222,6 +223,8 @@ ltq_dma_init(struct platform_device *pdev)
+ 	clk_enable(clk);
+ 	ltq_dma_w32_mask(0, DMA_RESET, LTQ_DMA_CTRL);
  
- 	/* Found all components */
-@@ -258,6 +258,7 @@ static int try_to_bring_up_master(struct
- 		return ret;
- 	}
++	usleep_range(1, 10);
++
+ 	/* disable all interrupts */
+ 	ltq_dma_w32(0, LTQ_DMA_IRNEN);
  
-+	devres_close_group(master->parent, NULL);
- 	master->bound = true;
- 	return 1;
- }
-@@ -282,7 +283,7 @@ static void take_down_master(struct mast
- {
- 	if (master->bound) {
- 		master->ops->unbind(master->parent);
--		devres_release_group(master->parent, NULL);
-+		devres_release_group(master->parent, master);
- 		master->bound = false;
- 	}
- }
+-- 
+2.33.0
+
 
 
