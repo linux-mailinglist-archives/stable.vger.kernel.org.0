@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3962245264F
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:01:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E7F45239D
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346856AbhKPCEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:04:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46104 "EHLO mail.kernel.org"
+        id S1351499AbhKPB1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:27:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239937AbhKOSFF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD644632EF;
-        Mon, 15 Nov 2021 17:40:13 +0000 (UTC)
+        id S244022AbhKOTIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:08:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B655633FC;
+        Mon, 15 Nov 2021 18:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998014;
-        bh=c0Vl1iW08QAKhWfF0DMPi0A5aI4dq+Ixb5x8kC6zQ0A=;
+        s=korg; t=1637000267;
+        bh=MWEt8njDj2KMAbvYCho8AJeqLwWCgG28hhha+AQLu2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3nuBaqYuV+0mCxi3D7R4YxG2TZqfrgOD5fxKOwggWIhjURDaMSUQuZYVUb4kD1zn
-         Q9zbcn9nRTpB+fcXHV+GiBh+RdFzy54IZMWwgE9uNaxGcZtA+KZ6pDxIrEAVF0J0WW
-         oOe1pkD49A1WDJHphMHd19zXUkWo90vOCNbTwHQs=
+        b=CMAMUGUeGNRE6x/QLzhh4TgkbTzav9v5LcMYWMIE1LR54A9OFmzF7GC7/9WI94LLN
+         vxlXSgZWBo3fOqHwSJ8UWI9tRF0qHlmZwmp+3o3FyneJfrK/lFZkpFHkIrMlawqE8b
+         I3lmCX4quyx1/zD828x64TcNCvwlZrFK7cIgpu24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 355/575] KVM: s390: pv: avoid double free of sida page
+Subject: [PATCH 5.14 597/849] powerpc: fix unbalanced node refcount in check_kvm_guest()
 Date:   Mon, 15 Nov 2021 18:01:20 +0100
-Message-Id: <20211115165356.083550828@linuxfoundation.org>
+Message-Id: <20211115165440.443327274@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit d4074324b07a94a1fca476d452dfbb3a4e7bf656 ]
+[ Upstream commit 56537faf8821e361d739fc5ff58c9c40f54a1d4c ]
 
-If kvm_s390_pv_destroy_cpu is called more than once, we risk calling
-free_page on a random page, since the sidad field is aliased with the
-gbea, which is not guaranteed to be zero.
+When check_kvm_guest() succeeds in looking up a /hypervisor OF node, it
+returns without performing a matching put for the lookup, leaving the
+node's reference count elevated.
 
-This can happen, for example, if userspace calls the KVM_PV_DISABLE
-IOCTL, and it fails, and then userspace calls the same IOCTL again.
-This scenario is only possible if KVM has some serious bug or if the
-hardware is broken.
+Add the necessary call to of_node_put(), rearranging the code slightly to
+avoid repetition or goto.
 
-The solution is to simply return successfully immediately if the vCPU
-was already non secure.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Fixes: 19e1227768863a1469797c13ef8fea1af7beac2c ("KVM: S390: protvirt: Introduce instruction data area bounce buffer")
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-Id: <20210920132502.36111-3-imbrenda@linux.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: 107c55005fbd ("powerpc/pseries: Add KVM guest doorbell restrictions")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210928124550.132020-1-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/pv.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ arch/powerpc/kernel/firmware.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index f5847f9dec7c9..74265304dd9cd 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -16,18 +16,17 @@
+diff --git a/arch/powerpc/kernel/firmware.c b/arch/powerpc/kernel/firmware.c
+index c7022c41cc314..20328f72f9f2b 100644
+--- a/arch/powerpc/kernel/firmware.c
++++ b/arch/powerpc/kernel/firmware.c
+@@ -31,11 +31,10 @@ int __init check_kvm_guest(void)
+ 	if (!hyper_node)
+ 		return 0;
  
- int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
- {
--	int cc = 0;
-+	int cc;
+-	if (!of_device_is_compatible(hyper_node, "linux,kvm"))
+-		return 0;
+-
+-	static_branch_enable(&kvm_guest);
++	if (of_device_is_compatible(hyper_node, "linux,kvm"))
++		static_branch_enable(&kvm_guest);
  
--	if (kvm_s390_pv_cpu_get_handle(vcpu)) {
--		cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
--				   UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
-+	if (!kvm_s390_pv_cpu_get_handle(vcpu))
-+		return 0;
-+
-+	cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu), UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
-+
-+	KVM_UV_EVENT(vcpu->kvm, 3, "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
-+		     vcpu->vcpu_id, *rc, *rrc);
-+	WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x", *rc, *rrc);
- 
--		KVM_UV_EVENT(vcpu->kvm, 3,
--			     "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
--			     vcpu->vcpu_id, *rc, *rrc);
--		WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x",
--			  *rc, *rrc);
--	}
- 	/* Intended memory leak for something that should never happen. */
- 	if (!cc)
- 		free_pages(vcpu->arch.pv.stor_base,
++	of_node_put(hyper_node);
+ 	return 0;
+ }
+ core_initcall(check_kvm_guest); // before kvm_guest_init()
 -- 
 2.33.0
 
