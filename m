@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 462844505AD
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:38:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 942D24505B0
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:38:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231645AbhKONlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 08:41:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50778 "EHLO mail.kernel.org"
+        id S231846AbhKONlk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 08:41:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231926AbhKONki (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 08:40:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2CC561A82;
-        Mon, 15 Nov 2021 13:37:42 +0000 (UTC)
+        id S231995AbhKONkw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 08:40:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8697660EB9;
+        Mon, 15 Nov 2021 13:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636983463;
-        bh=Q4NkNLyBDqAPm8o3+0fYJ2De6Z8wAf7tUlY8lAwUQHU=;
+        s=korg; t=1636983477;
+        bh=QKc9l3yInW8JNAjr/QVjDSrha/2a60m+pilvgpBT7+E=;
         h=Subject:To:Cc:From:Date:From;
-        b=2H5qeHoh/0oSB6LseJTfewCdZtxHJDrk2nDCdpLT7UMGs2F8Tl0NE9O+Dfk/SeDnM
-         GELkATn/NHzK/8iY44t/JqCTc38MHt+Xj7RU8Gtg6+6ThCAqwsRGrlaettt5qXqMTQ
-         9zXTxmkirnWSLuN/egyEbl7fn5KPf+EL64b+YW7k=
-Subject: FAILED: patch "[PATCH] erofs: fix unsafe pagevec reuse of hooked pclusters" failed to apply to 4.19-stable tree
+        b=Bx8lLdR2m+O8Od1W9tpM2CHXEwFPA0CcOnDw9v26+1jmvy3l3IUFsiM4ZbS68NFoY
+         /6L/DN7vVH4NdQHyzDyagn/weeHTy5BM2koJHq86nLnFsYu4hKTpu5LYPIXTvw/URr
+         1KhaxRMk6RFhSeT7m8CAT75Pz+Ftra/Hgf1WK8yU=
+Subject: FAILED: patch "[PATCH] erofs: fix unsafe pagevec reuse of hooked pclusters" failed to apply to 5.4-stable tree
 To:     hsiangkao@linux.alibaba.com, chao@kernel.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Nov 2021 14:37:40 +0100
-Message-ID: <1636983460149191@kroah.com>
+Date:   Mon, 15 Nov 2021 14:37:41 +0100
+Message-ID: <163698346111096@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
