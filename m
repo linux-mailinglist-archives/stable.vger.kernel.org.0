@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60750452507
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 942ED45250D
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358071AbhKPBq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:46:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33236 "EHLO mail.kernel.org"
+        id S1345446AbhKPBqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:46:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241585AbhKOSX1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241584AbhKOSX1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:23:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FD68632AD;
-        Mon, 15 Nov 2021 17:53:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE89D617E3;
+        Mon, 15 Nov 2021 17:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998824;
-        bh=KgNYs70AqdvifhnDfLu/6gP4SPOTkLTRF+1SM1Y2Zpc=;
+        s=korg; t=1636998827;
+        bh=z+19KzzCPaZVSNg9zTbnACtrJ9VvhMrCVmjr8r+Gw3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eOM71l/0oMO4WuqUh1lWKemf68MK3+pPuyY0dUQBQbR61st4PBY5UouMkju1i3mCw
-         GbUUiTDGwopT2Lnse1KAXawI2mupbcPYmW/wIR3eukdksTZ/bv+C5Yk2rFjpowYElh
-         wIA03qR9N7gBagk7w68kvd0OqWuPNqYKTETM21Do=
+        b=YnUG7Fp4eyyDiCSgPdUGOXxpFIl/xqhlf4WVTgnF2EDWRqXbCxSgbwnFAxzco9H/A
+         IvL+6QT2vIoKL3ya02MlUMkT3f8irMGbUhSeDGKB6g4wDfiQire82ZDf6ejQccjWKZ
+         rg1VB7WxNbsXH+FiKYUInaTu9pNu+0omQkWgVDxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bryant Mairs <bryant@mai.rs>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 076/849] drm: panel-orientation-quirks: Add quirk for Aya Neo 2021
-Date:   Mon, 15 Nov 2021 17:52:39 +0100
-Message-Id: <20211115165422.628816975@linuxfoundation.org>
+Subject: [PATCH 5.14 077/849] fcnal-test: kill hanging ping/nettest binaries on cleanup
+Date:   Mon, 15 Nov 2021 17:52:40 +0100
+Message-Id: <20211115165422.658885311@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,37 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryant Mairs <bryant@mai.rs>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit def0c3697287f6e85d5ac68b21302966c95474f9 ]
+[ Upstream commit 1f83b835a3eaa5ae4bd825fb07182698bfc243ba ]
 
-Fixes screen orientation for the Aya Neo 2021 handheld gaming console.
+On my box I see a bunch of ping/nettest processes hanging
+around after fcntal-test.sh is done.
 
-Signed-off-by: Bryant Mairs <bryant@mai.rs>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211019142433.4295-1-bryant@mai.rs
+Clean those up before netns deletion.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Acked-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20211021140247.29691-1-fw@strlen.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/testing/selftests/net/fcnal-test.sh | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index f6bdec7fa9253..30c17a76f49ae 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -134,6 +134,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T103HAF"),
- 		},
- 		.driver_data = (void *)&lcd800x1280_rightside_up,
-+	}, {	/* AYA NEO 2021 */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "AYADEVICE"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "AYA NEO 2021"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_rightside_up,
- 	}, {	/* GPD MicroPC (generic strings, also match on bios date) */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
+diff --git a/tools/testing/selftests/net/fcnal-test.sh b/tools/testing/selftests/net/fcnal-test.sh
+index a8ad92850e630..8acc4f2a20071 100755
+--- a/tools/testing/selftests/net/fcnal-test.sh
++++ b/tools/testing/selftests/net/fcnal-test.sh
+@@ -436,10 +436,13 @@ cleanup()
+ 		ip -netns ${NSA} link set dev ${NSA_DEV} down
+ 		ip -netns ${NSA} link del dev ${NSA_DEV}
+ 
++		ip netns pids ${NSA} | xargs kill 2>/dev/null
+ 		ip netns del ${NSA}
+ 	fi
+ 
++	ip netns pids ${NSB} | xargs kill 2>/dev/null
+ 	ip netns del ${NSB}
++	ip netns pids ${NSC} | xargs kill 2>/dev/null
+ 	ip netns del ${NSC} >/dev/null 2>&1
+ }
+ 
 -- 
 2.33.0
 
