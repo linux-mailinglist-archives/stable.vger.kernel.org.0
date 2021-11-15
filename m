@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 492384510B6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:50:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C44A7450D4A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:51:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242574AbhKOSxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:53:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54308 "EHLO mail.kernel.org"
+        id S236814AbhKORyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:54:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240279AbhKOSuT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:50:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 435B2633A7;
-        Mon, 15 Nov 2021 18:08:41 +0000 (UTC)
+        id S238928AbhKORul (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:50:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E35E763278;
+        Mon, 15 Nov 2021 17:31:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999721;
-        bh=1b1DCiBnuzfdBPAF32D2UpkHdSRFO5JOBtELVSsR/CE=;
+        s=korg; t=1636997463;
+        bh=df5ftTc1kOnB9Lvk09wLWgPU5nPyWmkp52Wrb8UU44U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K29W1PwiQQyWPGYpmZSDUI3SDZyTkEXNrvSBirvQaSQ/MCvt/bkQxbMEQDnAtQPbZ
-         yb5FRHlUWK0VBOCCQdlfiAKjnK1N1GBgMb05C5YRHUvHSXZuZwcSGU50xwZojeS3T0
-         eVkqNLsjdTIr9dKcsRkdxTfihmSse37hbA4ToT9w=
+        b=kpHl/y+QLWK4y3hMHQa5V3bMjocFMPR0CBCmuZqkwHkj7HkTJWqcjSra+L9txo2vR
+         qdnGdUoVlDacX7C3SJgVzgZUMdWTjo1EnUge36dOkZCgzL+i3egIiQ5NkYpO1vV3UT
+         b0U+bFM92BqyYLYC+fsgxCAv7oKJbA2enaK47MmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anel Orazgaliyeva <anelkz@amazon.de>,
-        Aman Priyadarshi <apeureka@amazon.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 400/849] cpuidle: Fix kobject memory leaks in error paths
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 158/575] serial: 8250: fix racy uartclk update
 Date:   Mon, 15 Nov 2021 17:58:03 +0100
-Message-Id: <20211115165433.788385212@linuxfoundation.org>
+Message-Id: <20211115165349.164243918@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anel Orazgaliyeva <anelkz@amazon.de>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit e5f5a66c9aa9c331da5527c2e3fd9394e7091e01 ]
+commit 211cde4f5817dc88ef7f8f2fa286e57fbf14c8ee upstream.
 
-Commit c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
-fixes the cleanup of kobjects; however, it removes kfree() calls
-altogether, leading to memory leaks.
+Commit 868f3ee6e452 ("serial: 8250: Add 8250 port clock update method")
+added a hack to support SoCs where the UART reference clock can
+change behind the back of the driver but failed to add the proper
+locking.
 
-Fix those and also defer the initialization of dev->kobj_dev until
-after the error check, so that we do not end up with a dangling
-pointer.
+First, make sure to take a reference to the tty struct to avoid
+dereferencing a NULL pointer if the clock change races with a hangup.
 
-Fixes: c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
-Signed-off-by: Anel Orazgaliyeva <anelkz@amazon.de>
-Suggested-by: Aman Priyadarshi <apeureka@amazon.de>
-[ rjw: Subject edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Second, the termios semaphore must be held during the update to prevent
+a racing termios change.
+
+Fixes: 868f3ee6e452 ("serial: 8250: Add 8250 port clock update method")
+Fixes: c8dff3aa8241 ("serial: 8250: Skip uninitialized TTY port baud rate update")
+Cc: stable@vger.kernel.org      # 5.9
+Cc: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Tested-by: Serge Semin <fancer.lancer@gmail.com>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211015111422.1027-2-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpuidle/sysfs.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_port.c |   21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
-index 53ec9585ccd44..469e18547d06c 100644
---- a/drivers/cpuidle/sysfs.c
-+++ b/drivers/cpuidle/sysfs.c
-@@ -488,6 +488,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
- 					   &kdev->kobj, "state%d", i);
- 		if (ret) {
- 			kobject_put(&kobj->kobj);
-+			kfree(kobj);
- 			goto error_state;
- 		}
- 		cpuidle_add_s2idle_attr_group(kobj);
-@@ -619,6 +620,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
- 				   &kdev->kobj, "driver");
- 	if (ret) {
- 		kobject_put(&kdrv->kobj);
-+		kfree(kdrv);
- 		return ret;
- 	}
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2675,21 +2675,32 @@ static unsigned int serial8250_get_baud_
+ void serial8250_update_uartclk(struct uart_port *port, unsigned int uartclk)
+ {
+ 	struct uart_8250_port *up = up_to_u8250p(port);
++	struct tty_port *tport = &port->state->port;
+ 	unsigned int baud, quot, frac = 0;
+ 	struct ktermios *termios;
++	struct tty_struct *tty;
+ 	unsigned long flags;
  
-@@ -705,7 +707,6 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 	if (!kdev)
- 		return -ENOMEM;
- 	kdev->dev = dev;
--	dev->kobj_dev = kdev;
+-	mutex_lock(&port->state->port.mutex);
++	tty = tty_port_tty_get(tport);
++	if (!tty) {
++		mutex_lock(&tport->mutex);
++		port->uartclk = uartclk;
++		mutex_unlock(&tport->mutex);
++		return;
++	}
++
++	down_write(&tty->termios_rwsem);
++	mutex_lock(&tport->mutex);
  
- 	init_completion(&kdev->kobj_unregister);
+ 	if (port->uartclk == uartclk)
+ 		goto out_lock;
  
-@@ -713,9 +714,11 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 				   "cpuidle");
- 	if (error) {
- 		kobject_put(&kdev->kobj);
-+		kfree(kdev);
- 		return error;
- 	}
+ 	port->uartclk = uartclk;
  
-+	dev->kobj_dev = kdev;
- 	kobject_uevent(&kdev->kobj, KOBJ_ADD);
+-	if (!tty_port_initialized(&port->state->port))
++	if (!tty_port_initialized(tport))
+ 		goto out_lock;
  
- 	return 0;
--- 
-2.33.0
-
+-	termios = &port->state->port.tty->termios;
++	termios = &tty->termios;
+ 
+ 	baud = serial8250_get_baud_rate(port, termios, NULL);
+ 	quot = serial8250_get_divisor(port, baud, &frac);
+@@ -2706,7 +2717,9 @@ void serial8250_update_uartclk(struct ua
+ 	serial8250_rpm_put(up);
+ 
+ out_lock:
+-	mutex_unlock(&port->state->port.mutex);
++	mutex_unlock(&tport->mutex);
++	up_write(&tty->termios_rwsem);
++	tty_kref_put(tty);
+ }
+ EXPORT_SYMBOL_GPL(serial8250_update_uartclk);
+ 
 
 
