@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2121B452412
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99E3F452430
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355834AbhKPBf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:35:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46050 "EHLO mail.kernel.org"
+        id S243793AbhKPBgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:36:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242566AbhKOSiq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:38:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0792E632E5;
-        Mon, 15 Nov 2021 18:03:34 +0000 (UTC)
+        id S242420AbhKOSkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:40:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD90763290;
+        Mon, 15 Nov 2021 18:04:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999415;
-        bh=8GwS4AjwiiTZMorK0iz3ID6+BH3cgVcnS/xU0obfKNM=;
+        s=korg; t=1636999476;
+        bh=BQRMNvmJRzCvnlsMGT/ELfWssZ1bdxZhEXVknYcY8RM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jhTQ58skQtZ0LOmjH0YqzbmtwCZG5GA5rHad6JZK7mTUp5culz4bOckH+L6abkx1p
-         TY+c+m03oyeuL/4q8HFrCBzLPPVoj5Naajhe0+UdQMfMStroktmNnxAWeDnQxx6pjQ
-         qag+igv/Hcd5DD8ZwP0GErb9DBFgVWtISmis96+0=
+        b=Ic5aL0Cdu9UxTjOCspJgtUqAGLs5g2uOW62WCLf5CdqGz3Pea/YPHgkkjPxvnCe+r
+         QwEzOW7q+6HrD7UlpWx2IpMvkEGmYn6YbncegEQ9F8MfNPAykOtPPA2k0+7sgpoCN8
+         jkdgTy+v+h3Fl1X/CCvG0v85ggEL1tJm3b3/jSxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 281/849] thermal/drivers/tsens: Add timeout to get_temp_tsens_valid
-Date:   Mon, 15 Nov 2021 17:56:04 +0100
-Message-Id: <20211115165429.781604287@linuxfoundation.org>
+        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 283/849] floppy: fix calling platform_device_unregister() on invalid drives
+Date:   Mon, 15 Nov 2021 17:56:06 +0100
+Message-Id: <20211115165429.847869037@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,68 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ansuel Smith <ansuelsmth@gmail.com>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit d012f9189fda0f3a1b303780ba0bbc7298d0d349 ]
+[ Upstream commit 662167e59d2f3c15a44a88088fc6c1a67c8a3650 ]
 
-The function can loop and lock the system if for whatever reason the bit
-for the target sensor is NEVER valid. This is the case if a sensor is
-disabled by the factory and the valid bit is never reported as actually
-valid. Add a timeout check and exit if a timeout occurs. As this is
-a very rare condition, handle the timeout only if the first read fails.
-While at it also rework the function to improve readability and convert
-to poll_timeout generic macro.
+platform_device_unregister() should only be called when
+a respective platform_device_register() is called. However
+the floppy driver currently allows failures when registring
+a drive and a bail out could easily cause an invalid call
+to platform_device_unregister() where it was not intended.
 
-Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211007172859.583-1-ansuelsmth@gmail.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fix this by adding a bool to keep track of when the platform
+device was registered for a drive.
+
+This does not fix any known panic / bug. This issue was found
+through code inspection while preparing the driver to use the
+up and coming support for device_add_disk() error handling.
+>From what I can tell from code inspection, chances of this
+ever happening should be insanely small, perhaps OOM.
+
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/20210927220302.1073499-5-mcgrof@kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/qcom/tsens.c | 29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
+ drivers/block/floppy.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/thermal/qcom/tsens.c b/drivers/thermal/qcom/tsens.c
-index b1162e566a707..99a8d9f3e03ca 100644
---- a/drivers/thermal/qcom/tsens.c
-+++ b/drivers/thermal/qcom/tsens.c
-@@ -603,22 +603,21 @@ int get_temp_tsens_valid(const struct tsens_sensor *s, int *temp)
- 	int ret;
+diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
+index 9538146e520e0..3592a6277d0bb 100644
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -4478,6 +4478,7 @@ static const struct blk_mq_ops floppy_mq_ops = {
+ };
  
- 	/* VER_0 doesn't have VALID bit */
--	if (tsens_version(priv) >= VER_0_1) {
--		ret = regmap_field_read(priv->rf[valid_idx], &valid);
--		if (ret)
--			return ret;
--		while (!valid) {
--			/* Valid bit is 0 for 6 AHB clock cycles.
--			 * At 19.2MHz, 1 AHB clock is ~60ns.
--			 * We should enter this loop very, very rarely.
--			 */
--			ndelay(400);
--			ret = regmap_field_read(priv->rf[valid_idx], &valid);
--			if (ret)
--				return ret;
--		}
--	}
-+	if (tsens_version(priv) == VER_0)
-+		goto get_temp;
+ static struct platform_device floppy_device[N_DRIVE];
++static bool registered[N_DRIVE];
+ 
+ static bool floppy_available(int drive)
+ {
+@@ -4693,6 +4694,8 @@ static int __init do_floppy_init(void)
+ 		if (err)
+ 			goto out_remove_drives;
+ 
++		registered[drive] = true;
 +
-+	/* Valid bit is 0 for 6 AHB clock cycles.
-+	 * At 19.2MHz, 1 AHB clock is ~60ns.
-+	 * We should enter this loop very, very rarely.
-+	 * Wait 1 us since it's the min of poll_timeout macro.
-+	 * Old value was 400 ns.
-+	 */
-+	ret = regmap_field_read_poll_timeout(priv->rf[valid_idx], valid,
-+					     valid, 1, 20 * USEC_PER_MSEC);
-+	if (ret)
-+		return ret;
- 
-+get_temp:
- 	/* Valid bit is set, OK to read the temperature */
- 	*temp = tsens_hw_to_mC(s, temp_idx);
- 
+ 		device_add_disk(&floppy_device[drive].dev, disks[drive][0],
+ 				NULL);
+ 	}
+@@ -4703,7 +4706,8 @@ out_remove_drives:
+ 	while (drive--) {
+ 		if (floppy_available(drive)) {
+ 			del_gendisk(disks[drive][0]);
+-			platform_device_unregister(&floppy_device[drive]);
++			if (registered[drive])
++				platform_device_unregister(&floppy_device[drive]);
+ 		}
+ 	}
+ out_release_dma:
+@@ -4946,7 +4950,8 @@ static void __exit floppy_module_exit(void)
+ 				if (disks[drive][i])
+ 					del_gendisk(disks[drive][i]);
+ 			}
+-			platform_device_unregister(&floppy_device[drive]);
++			if (registered[drive])
++				platform_device_unregister(&floppy_device[drive]);
+ 		}
+ 		for (i = 0; i < ARRAY_SIZE(floppy_type); i++) {
+ 			if (disks[drive][i])
 -- 
 2.33.0
 
