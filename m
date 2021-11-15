@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC07B450D78
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:56:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4D1A450AA0
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:09:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238810AbhKOR6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:58:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40730 "EHLO mail.kernel.org"
+        id S231966AbhKORMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:12:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239296AbhKOR4g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:56:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 557766332B;
-        Mon, 15 Nov 2021 17:34:07 +0000 (UTC)
+        id S233591AbhKORLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:11:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7182161B5E;
+        Mon, 15 Nov 2021 17:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997647;
-        bh=yTWAraj79EHTt+qaQSyQJHr/JDXkNyPXxNkoglfPhcI=;
+        s=korg; t=1636996130;
+        bh=hRiw76Vjf/3IcC1zg20Y22ubrq6RFAen+cj0Smn3by8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QKZJ5BTmLMNqYUL9tzTUtYTZ9VbxbOse3zyHXBLC0S+SamMTZimHHYtcX1o9xM9Pt
-         vEfmwHuY9rzuU2h+vVXMbuoEMONMFu+bOWdSa8SOalteOxBBG/0l7GSmGwY3FPubxl
-         +gcmycSlApSs9w0wLRMRP3FDeI4LrmXucqK5z3mo=
+        b=q+bRanWcjF4uZWF8uepN3clzX6tVo+Pw++rvhycgUdQWU0VYgG/jTlxSy8PNlLxvD
+         ZXZfFVLCIV7i0OGveIWTzcNQZLwazQLmJM+ElmenG7iUOAqxeNSaeKDAAFXfUBW9qC
+         YhgXNcmK1nwXxIeRHYjcNIGXZlhayhmPla8G2rKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalesh Singh <kaleshsingh@google.com>,
-        kernel test robot <lkp@intel.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 225/575] tracing/cfi: Fix cmp_entries_* functions signature mismatch
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 026/355] ALSA: 6fire: fix control and bulk message timeouts
 Date:   Mon, 15 Nov 2021 17:59:10 +0100
-Message-Id: <20211115165351.493637431@linuxfoundation.org>
+Message-Id: <20211115165314.393303446@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,134 +39,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kalesh Singh <kaleshsingh@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 7ce1bb83a14019f8c396d57ec704d19478747716 ]
+commit 9b371c6cc37f954360989eec41c2ddc5a6b83917 upstream.
 
-If CONFIG_CFI_CLANG=y, attempting to read an event histogram will cause
-the kernel to panic due to failed CFI check.
+USB control and bulk message timeouts are specified in milliseconds and
+should specifically not vary with CONFIG_HZ.
 
-    1. echo 'hist:keys=common_pid' >> events/sched/sched_switch/trigger
-    2. cat events/sched/sched_switch/hist
-    3. kernel panics on attempting to read hist
-
-This happens because the sort() function expects a generic
-int (*)(const void *, const void *) pointer for the compare function.
-To prevent this CFI failure, change tracing map cmp_entries_* function
-signatures to match this.
-
-Also, fix the build error reported by the kernel test robot [1].
-
-[1] https://lore.kernel.org/r/202110141140.zzi4dRh4-lkp@intel.com/
-
-Link: https://lkml.kernel.org/r/20211014045217.3265162-1-kaleshsingh@google.com
-
-Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c6d43ba816d1 ("ALSA: usb/6fire - Driver for TerraTec DMX 6Fire USB")
+Cc: stable@vger.kernel.org      # 2.6.39
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211025121142.6531-2-johan@kernel.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/tracing_map.c | 40 ++++++++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 17 deletions(-)
+ sound/usb/6fire/comm.c     |    2 +-
+ sound/usb/6fire/firmware.c |    6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/trace/tracing_map.c b/kernel/trace/tracing_map.c
-index 4b50fc0cb12c7..d63e51dde0d24 100644
---- a/kernel/trace/tracing_map.c
-+++ b/kernel/trace/tracing_map.c
-@@ -834,29 +834,35 @@ int tracing_map_init(struct tracing_map *map)
- 	return err;
- }
+--- a/sound/usb/6fire/comm.c
++++ b/sound/usb/6fire/comm.c
+@@ -95,7 +95,7 @@ static int usb6fire_comm_send_buffer(u8
+ 	int actual_len;
  
--static int cmp_entries_dup(const struct tracing_map_sort_entry **a,
--			   const struct tracing_map_sort_entry **b)
-+static int cmp_entries_dup(const void *A, const void *B)
+ 	ret = usb_interrupt_msg(dev, usb_sndintpipe(dev, COMM_EP),
+-			buffer, buffer[1] + 2, &actual_len, HZ);
++			buffer, buffer[1] + 2, &actual_len, 1000);
+ 	if (ret < 0)
+ 		return ret;
+ 	else if (actual_len != buffer[1] + 2)
+--- a/sound/usb/6fire/firmware.c
++++ b/sound/usb/6fire/firmware.c
+@@ -162,7 +162,7 @@ static int usb6fire_fw_ezusb_write(struc
+ 
+ 	ret = usb_control_msg(device, usb_sndctrlpipe(device, 0), type,
+ 			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-			value, 0, data, len, HZ);
++			value, 0, data, len, 1000);
+ 	if (ret < 0)
+ 		return ret;
+ 	else if (ret != len)
+@@ -175,7 +175,7 @@ static int usb6fire_fw_ezusb_read(struct
  {
-+	const struct tracing_map_sort_entry *a, *b;
- 	int ret = 0;
+ 	int ret = usb_control_msg(device, usb_rcvctrlpipe(device, 0), type,
+ 			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE, value,
+-			0, data, len, HZ);
++			0, data, len, 1000);
+ 	if (ret < 0)
+ 		return ret;
+ 	else if (ret != len)
+@@ -190,7 +190,7 @@ static int usb6fire_fw_fpga_write(struct
+ 	int ret;
  
--	if (memcmp((*a)->key, (*b)->key, (*a)->elt->map->key_size))
-+	a = *(const struct tracing_map_sort_entry **)A;
-+	b = *(const struct tracing_map_sort_entry **)B;
-+
-+	if (memcmp(a->key, b->key, a->elt->map->key_size))
- 		ret = 1;
- 
- 	return ret;
- }
- 
--static int cmp_entries_sum(const struct tracing_map_sort_entry **a,
--			   const struct tracing_map_sort_entry **b)
-+static int cmp_entries_sum(const void *A, const void *B)
- {
- 	const struct tracing_map_elt *elt_a, *elt_b;
-+	const struct tracing_map_sort_entry *a, *b;
- 	struct tracing_map_sort_key *sort_key;
- 	struct tracing_map_field *field;
- 	tracing_map_cmp_fn_t cmp_fn;
- 	void *val_a, *val_b;
- 	int ret = 0;
- 
--	elt_a = (*a)->elt;
--	elt_b = (*b)->elt;
-+	a = *(const struct tracing_map_sort_entry **)A;
-+	b = *(const struct tracing_map_sort_entry **)B;
-+
-+	elt_a = a->elt;
-+	elt_b = b->elt;
- 
- 	sort_key = &elt_a->map->sort_key;
- 
-@@ -873,18 +879,21 @@ static int cmp_entries_sum(const struct tracing_map_sort_entry **a,
- 	return ret;
- }
- 
--static int cmp_entries_key(const struct tracing_map_sort_entry **a,
--			   const struct tracing_map_sort_entry **b)
-+static int cmp_entries_key(const void *A, const void *B)
- {
- 	const struct tracing_map_elt *elt_a, *elt_b;
-+	const struct tracing_map_sort_entry *a, *b;
- 	struct tracing_map_sort_key *sort_key;
- 	struct tracing_map_field *field;
- 	tracing_map_cmp_fn_t cmp_fn;
- 	void *val_a, *val_b;
- 	int ret = 0;
- 
--	elt_a = (*a)->elt;
--	elt_b = (*b)->elt;
-+	a = *(const struct tracing_map_sort_entry **)A;
-+	b = *(const struct tracing_map_sort_entry **)B;
-+
-+	elt_a = a->elt;
-+	elt_b = b->elt;
- 
- 	sort_key = &elt_a->map->sort_key;
- 
-@@ -989,10 +998,8 @@ static void sort_secondary(struct tracing_map *map,
- 			   struct tracing_map_sort_key *primary_key,
- 			   struct tracing_map_sort_key *secondary_key)
- {
--	int (*primary_fn)(const struct tracing_map_sort_entry **,
--			  const struct tracing_map_sort_entry **);
--	int (*secondary_fn)(const struct tracing_map_sort_entry **,
--			    const struct tracing_map_sort_entry **);
-+	int (*primary_fn)(const void *, const void *);
-+	int (*secondary_fn)(const void *, const void *);
- 	unsigned i, start = 0, n_sub = 1;
- 
- 	if (is_key(map, primary_key->field_idx))
-@@ -1061,8 +1068,7 @@ int tracing_map_sort_entries(struct tracing_map *map,
- 			     unsigned int n_sort_keys,
- 			     struct tracing_map_sort_entry ***sort_entries)
- {
--	int (*cmp_entries_fn)(const struct tracing_map_sort_entry **,
--			      const struct tracing_map_sort_entry **);
-+	int (*cmp_entries_fn)(const void *, const void *);
- 	struct tracing_map_sort_entry *sort_entry, **entries;
- 	int i, n_entries, ret;
- 
--- 
-2.33.0
-
+ 	ret = usb_bulk_msg(device, usb_sndbulkpipe(device, FPGA_EP), data, len,
+-			&actual_len, HZ);
++			&actual_len, 1000);
+ 	if (ret < 0)
+ 		return ret;
+ 	else if (actual_len != len)
 
 
