@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58BE34511CE
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:12:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF0F4514D3
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:13:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232805AbhKOTPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:15:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42638 "EHLO mail.kernel.org"
+        id S1346104AbhKOUNb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:13:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244303AbhKOTNH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:13:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 764DA6340C;
-        Mon, 15 Nov 2021 18:20:11 +0000 (UTC)
+        id S1345091AbhKOT0T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:26:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 313006124B;
+        Mon, 15 Nov 2021 19:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000412;
-        bh=nV0pbrdkHPY5eKY+aHXvF0B3I4WxIca4P2TKnrr5/HY=;
+        s=korg; t=1637003412;
+        bh=SEH46agP6ZMS85HjcoMU4AlhgQX8KdSJvWw7MBgZVyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jiKwU9NQdkvLojkNWc8cwoiqVFSF1C4oNGNMq/O5N0nlwWq02NregoctfChconuII
-         brgiX9TX7OSVDgGw0N0aNfih99M5fw5hmT5kewJxbcPHxjo6OsZj355aQXJmwZO8ok
-         HgTctpMpuA+0cTSaQr2M94i/2i4j0rKbRjNu2jOM=
+        b=UWx7dXbq5muyN/hlq91Gx+FwoycbGZxfg/4T2AfL1krY65gnfRzzkkDRSOcHwjnYG
+         vBd7MVS5YYEqInjhyHdrjDMsutgiQsq35pC53Lr2Ej//ZbEj1ItEgGso7u5CWNcemM
+         igDRfyTV+Z4IZIVvp6xU5t373HQvrlPB/ITPpzpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bixuan Cui <cuibixuan@linux.alibaba.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 651/849] powerpc/44x/fsp2: add missing of_node_put
-Date:   Mon, 15 Nov 2021 18:02:14 +0100
-Message-Id: <20211115165442.292347503@linuxfoundation.org>
+Subject: [PATCH 5.4 213/355] crypto: qat - detect PFVF collision after ACK
+Date:   Mon, 15 Nov 2021 18:02:17 +0100
+Message-Id: <20211115165320.655792348@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@linux.alibaba.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 290fe8aa69ef5c51c778c0bb33f8ef0181c769f5 ]
+[ Upstream commit 9b768e8a3909ac1ab39ed44a3933716da7761a6f ]
 
-Early exits from for_each_compatible_node() should decrement the
-node reference counter.  Reported by Coccinelle:
+Detect a PFVF collision between the local and the remote function by
+checking if the message on the PFVF CSR has been overwritten.
+This is done after the remote function confirms that the message has
+been received, by clearing the interrupt bit, or the maximum number of
+attempts (ADF_IOV_MSG_ACK_MAX_RETRY) to check the CSR has been exceeded.
 
-./arch/powerpc/platforms/44x/fsp2.c:206:1-25: WARNING: Function
-"for_each_compatible_node" should have of_node_put() before return
-around line 218.
-
-Fixes: 7813043e1bbc ("powerpc/44x/fsp2: Add irq error handlers")
-Signed-off-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1635406102-88719-1-git-send-email-cuibixuan@linux.alibaba.com
+Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Co-developed-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/44x/fsp2.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/powerpc/platforms/44x/fsp2.c b/arch/powerpc/platforms/44x/fsp2.c
-index b299e43f5ef94..823397c802def 100644
---- a/arch/powerpc/platforms/44x/fsp2.c
-+++ b/arch/powerpc/platforms/44x/fsp2.c
-@@ -208,6 +208,7 @@ static void node_irq_request(const char *compat, irq_handler_t errirq_handler)
- 		if (irq == NO_IRQ) {
- 			pr_err("device tree node %pOFn is missing a interrupt",
- 			      np);
-+			of_node_put(np);
- 			return;
- 		}
+diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+index c64481160b711..72fd2bbbe704e 100644
+--- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
++++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+@@ -195,6 +195,13 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
+ 		val = ADF_CSR_RD(pmisc_bar_addr, pf2vf_offset);
+ 	} while ((val & int_bit) && (count++ < ADF_IOV_MSG_ACK_MAX_RETRY));
  
-@@ -215,6 +216,7 @@ static void node_irq_request(const char *compat, irq_handler_t errirq_handler)
- 		if (rc) {
- 			pr_err("fsp_of_probe: request_irq failed: np=%pOF rc=%d",
- 			      np, rc);
-+			of_node_put(np);
- 			return;
- 		}
- 	}
++	if (val != msg) {
++		dev_dbg(&GET_DEV(accel_dev),
++			"Collision - PFVF CSR overwritten by remote function\n");
++		ret = -EIO;
++		goto out;
++	}
++
+ 	if (val & int_bit) {
+ 		dev_dbg(&GET_DEV(accel_dev), "ACK not received from remote\n");
+ 		val &= ~int_bit;
 -- 
 2.33.0
 
