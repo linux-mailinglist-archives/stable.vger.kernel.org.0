@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A123450BA5
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:23:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82F44450B6A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:21:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236264AbhKOR03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:26:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50934 "EHLO mail.kernel.org"
+        id S237439AbhKORY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:24:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237866AbhKORYb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:24:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D394D63276;
-        Mon, 15 Nov 2021 17:15:51 +0000 (UTC)
+        id S237432AbhKORV0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:21:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6852963274;
+        Mon, 15 Nov 2021 17:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996552;
-        bh=Pvhv/B3YxwT9Sn822dIfQ2iAzGukX1ZVgpjMVqL7SCI=;
+        s=korg; t=1636996554;
+        bh=cEGt+sVEagdCK+aCvHbgs6njTuxAEVnO4PgOynNRAEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8f/funAJa1SObdLbjduroHozYtBomJMFX+PsqSORZxPLK/uQLj1GXi1mFulbOwz5
-         qpnx3CMOeZBJR/dsvRdg82xf81oCfN1AKQaAtLVkrGJiSWtYwDv1AjbCICHkiVtucz
-         5CSukPQMm5dFn6sPlC9JnE9FvEEoVi/586U6GfKg=
+        b=R8MTfnecxx6eJiApRSMJgW3b+XES93kZX+csJCUjmwZk/VWPlEhKkFXOZ08sFnDjJ
+         6g16mB0dgQfVoB9+PFpEJQrLdqnrEf0CXyPztbbLyYmFafcGO/MApH6I7P40AzEr3v
+         YILnZhAGapFB1e+ZsBjaPEIHuhMDg3aZnivcda98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Neeraj Upadhyay <neeraju@codeaurora.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 182/355] Bluetooth: fix init and cleanup of sco_conn.timeout_work
-Date:   Mon, 15 Nov 2021 18:01:46 +0100
-Message-Id: <20211115165319.667399815@linuxfoundation.org>
+Subject: [PATCH 5.4 183/355] rcu: Fix existing exp request check in sync_sched_exp_online_cleanup()
+Date:   Mon, 15 Nov 2021 18:01:47 +0100
+Message-Id: <20211115165319.697720565@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -41,64 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Neeraj Upadhyay <neeraju@codeaurora.org>
 
-[ Upstream commit 49d8a5606428ca0962d09050a5af81461ff90fbb ]
+[ Upstream commit f0b2b2df5423fb369ac762c77900bc7765496d58 ]
 
-Before freeing struct sco_conn, all delayed timeout work should be
-cancelled. Otherwise, sco_sock_timeout could potentially use the
-sco_conn after it has been freed.
+The sync_sched_exp_online_cleanup() checks to see if RCU needs
+an expedited quiescent state from the incoming CPU, sending it
+an IPI if so. Before sending IPI, it checks whether expedited
+qs need has been already requested for the incoming CPU, by
+checking rcu_data.cpu_no_qs.b.exp for the current cpu, on which
+sync_sched_exp_online_cleanup() is running. This works for the
+case where incoming CPU is same as self. However, for the case
+where incoming CPU is different from self, expedited request
+won't get marked, which can potentially delay reporting of
+expedited quiescent state for the incoming CPU.
 
-Additionally, sco_conn.timeout_work should be initialized when the
-connection is allocated, not when the channel is added. This is
-because an sco_conn can create channels with multiple sockets over its
-lifetime, which happens if sockets are released but the connection
-isn't deleted.
-
-Fixes: ba316be1b6a0 ("Bluetooth: schedule SCO timeouts with delayed_work")
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: e015a3411220 ("rcu: Avoid self-IPI in sync_sched_exp_online_cleanup()")
+Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ kernel/rcu/tree_exp.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index cc5a1d2545679..2c616c1c62958 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -133,6 +133,7 @@ static struct sco_conn *sco_conn_add(struct hci_conn *hcon)
- 		return NULL;
- 
- 	spin_lock_init(&conn->lock);
-+	INIT_DELAYED_WORK(&conn->timeout_work, sco_sock_timeout);
- 
- 	hcon->sco_data = conn;
- 	conn->hcon = hcon;
-@@ -196,11 +197,11 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
- 		sco_chan_del(sk, err);
- 		bh_unlock_sock(sk);
- 		sock_put(sk);
--
--		/* Ensure no more work items will run before freeing conn. */
--		cancel_delayed_work_sync(&conn->timeout_work);
+diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
+index df90d4d7ad2e2..4c4d7683a4e5b 100644
+--- a/kernel/rcu/tree_exp.h
++++ b/kernel/rcu/tree_exp.h
+@@ -738,7 +738,7 @@ static void sync_sched_exp_online_cleanup(int cpu)
+ 	my_cpu = get_cpu();
+ 	/* Quiescent state either not needed or already requested, leave. */
+ 	if (!(READ_ONCE(rnp->expmask) & rdp->grpmask) ||
+-	    __this_cpu_read(rcu_data.cpu_no_qs.b.exp)) {
++	    rdp->cpu_no_qs.b.exp) {
+ 		put_cpu();
+ 		return;
  	}
- 
-+	/* Ensure no more work items will run before freeing conn. */
-+	cancel_delayed_work_sync(&conn->timeout_work);
-+
- 	hcon->sco_data = NULL;
- 	kfree(conn);
- }
-@@ -213,8 +214,6 @@ static void __sco_chan_add(struct sco_conn *conn, struct sock *sk,
- 	sco_pi(sk)->conn = conn;
- 	conn->sk = sk;
- 
--	INIT_DELAYED_WORK(&conn->timeout_work, sco_sock_timeout);
--
- 	if (parent)
- 		bt_accept_enqueue(parent, sk, true);
- }
 -- 
 2.33.0
 
