@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 327A7450C85
+	by mail.lfdr.de (Postfix) with ESMTP id 22382450C84
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:36:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238096AbhKORjI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:39:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50930 "EHLO mail.kernel.org"
+        id S238387AbhKORjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:39:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231823AbhKORfp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:35:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8792960EE2;
-        Mon, 15 Nov 2021 17:23:57 +0000 (UTC)
+        id S238115AbhKORgG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:36:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66CF060EB4;
+        Mon, 15 Nov 2021 17:24:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997038;
-        bh=NDMH4gM+fIQJYitdbYABCV9UrpDXlyrfAf6Au5wSHFI=;
+        s=korg; t=1636997041;
+        bh=MIvsRRW1Usi1s1CbWNCiDAJ1x17XL7Jh/BfF4kTqiL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bM473KDo2IRF6HBI+HALTJVvCqKibZM78sADAJSnOAY5V7YWqPzBkiQCQqAsf8jLf
-         3XUXbuFv8z+BvaMLUdX+aElUq4B/I2rOthGsAS0cAgW0Pe2lEginyqlFNIkkn7CKRh
-         uF7XpylCBkH9SicM431yfzfIgXaSNmGzLnX4dXBU=
+        b=o+zpkwgl1HIC3fKAGUFezVxNFBL1kC0jOj/SNi/DbRxrbtGJ8QPeK6aRrawHEOdQT
+         HwqaD5+RhlAGkxLhojOxWhmnxVXpl7ul4b7zo357u/iL9nQDOzyQDCMFZsfxF/slKP
+         pGZzIh6rULbjr7WTkG9A15lDZewanGNDhrXQST9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        bfu@redhat.com, Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 352/355] s390/cio: make ccw_device_dma_* more robust
-Date:   Mon, 15 Nov 2021 18:04:36 +0100
-Message-Id: <20211115165325.134311761@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 353/355] powerpc/powernv/prd: Unregister OPAL_MSG_PRD2 notifier during module unload
+Date:   Mon, 15 Nov 2021 18:04:37 +0100
+Message-Id: <20211115165325.166882156@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -41,81 +40,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
 
-commit ad9a14517263a16af040598c7920c09ca9670a31 upstream.
+commit 52862ab33c5d97490f3fa345d6529829e6d6637b upstream.
 
-Since commit 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
-classic notifiers") we were supposed to make sure that
-virtio_ccw_release_dev() completes before the ccw device and the
-attached dma pool are torn down, but unfortunately we did not.  Before
-that commit it used to be OK to delay cleaning up the memory allocated
-by virtio-ccw indefinitely (which isn't really intuitive for guys used
-to destruction happens in reverse construction order), but now we
-trigger a BUG_ON if the genpool is destroyed before all memory allocated
-from it is deallocated. Which brings down the guest. We can observe this
-problem, when unregister_virtio_device() does not give up the last
-reference to the virtio_device (e.g. because a virtio-scsi attached scsi
-disk got removed without previously unmounting its previously mounted
-partition).
+Commit 587164cd, introduced new opal message type (OPAL_MSG_PRD2) and
+added opal notifier. But I missed to unregister the notifier during
+module unload path. This results in below call trace if you try to
+unload and load opal_prd module.
 
-To make sure that the genpool is only destroyed after all the necessary
-freeing is done let us take a reference on the ccw device on each
-ccw_device_dma_zalloc() and give it up on each ccw_device_dma_free().
+Also add new notifier_block for OPAL_MSG_PRD2 message.
 
-Actually there are multiple approaches to fixing the problem at hand
-that can work. The upside of this one is that it is the safest one while
-remaining simple. We don't crash the guest even if the driver does not
-pair allocations and frees. The downside is the reference counting
-overhead, that the reference counting for ccw devices becomes more
-complex, in a sense that we need to pair the calls to the aforementioned
-functions for it to be correct, and that if we happen to leak, we leak
-more than necessary (the whole ccw device instead of just the genpool).
+Sample calltrace (modprobe -r opal_prd; modprobe opal_prd)
+  BUG: Unable to handle kernel data access on read at 0xc0080000192200e0
+  Faulting instruction address: 0xc00000000018d1cc
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
+  CPU: 66 PID: 7446 Comm: modprobe Kdump: loaded Tainted: G            E     5.14.0prd #759
+  NIP:  c00000000018d1cc LR: c00000000018d2a8 CTR: c0000000000cde10
+  REGS: c0000003c4c0f0a0 TRAP: 0300   Tainted: G            E      (5.14.0prd)
+  MSR:  9000000002009033 <SF,HV,VEC,EE,ME,IR,DR,RI,LE>  CR: 24224824  XER: 20040000
+  CFAR: c00000000018d2a4 DAR: c0080000192200e0 DSISR: 40000000 IRQMASK: 1
+  ...
+  NIP notifier_chain_register+0x2c/0xc0
+  LR  atomic_notifier_chain_register+0x48/0x80
+  Call Trace:
+    0xc000000002090610 (unreliable)
+    atomic_notifier_chain_register+0x58/0x80
+    opal_message_notifier_register+0x7c/0x1e0
+    opal_prd_probe+0x84/0x150 [opal_prd]
+    platform_probe+0x78/0x130
+    really_probe+0x110/0x5d0
+    __driver_probe_device+0x17c/0x230
+    driver_probe_device+0x60/0x130
+    __driver_attach+0xfc/0x220
+    bus_for_each_dev+0xa8/0x130
+    driver_attach+0x34/0x50
+    bus_add_driver+0x1b0/0x300
+    driver_register+0x98/0x1a0
+    __platform_driver_register+0x38/0x50
+    opal_prd_driver_init+0x34/0x50 [opal_prd]
+    do_one_initcall+0x60/0x2d0
+    do_init_module+0x7c/0x320
+    load_module+0x3394/0x3650
+    __do_sys_finit_module+0xd4/0x160
+    system_call_exception+0x140/0x290
+    system_call_common+0xf4/0x258
 
-Some alternatives to this approach are taking a reference in
-virtio_ccw_online() and giving it up in virtio_ccw_release_dev() or
-making sure virtio_ccw_release_dev() completes its work before
-virtio_ccw_remove() returns. The downside of these approaches is that
-these are less safe against programming errors.
-
-Cc: <stable@vger.kernel.org> # v5.3
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and classic notifiers")
-Reported-by: bfu@redhat.com
-Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 587164cd593c ("powerpc/powernv: Add new opal message type")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211028165716.41300-1-hegdevasant@linux.vnet.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/cio/device_ops.c |   12 +++++++++++-
+ arch/powerpc/platforms/powernv/opal-prd.c |   12 +++++++++++-
  1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -717,13 +717,23 @@ EXPORT_SYMBOL_GPL(ccw_device_get_schid);
-  */
- void *ccw_device_dma_zalloc(struct ccw_device *cdev, size_t size)
- {
--	return cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
-+	void *addr;
-+
-+	if (!get_device(&cdev->dev))
-+		return NULL;
-+	addr = cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
-+	if (IS_ERR_OR_NULL(addr))
-+		put_device(&cdev->dev);
-+	return addr;
- }
- EXPORT_SYMBOL(ccw_device_dma_zalloc);
+--- a/arch/powerpc/platforms/powernv/opal-prd.c
++++ b/arch/powerpc/platforms/powernv/opal-prd.c
+@@ -372,6 +372,12 @@ static struct notifier_block opal_prd_ev
+ 	.priority	= 0,
+ };
  
- void ccw_device_dma_free(struct ccw_device *cdev, void *cpu_addr, size_t size)
++static struct notifier_block opal_prd_event_nb2 = {
++	.notifier_call	= opal_prd_msg_notifier,
++	.next		= NULL,
++	.priority	= 0,
++};
++
+ static int opal_prd_probe(struct platform_device *pdev)
  {
-+	if (!cpu_addr)
-+		return;
- 	cio_gp_dma_free(cdev->private->dma_pool, cpu_addr, size);
-+	put_device(&cdev->dev);
+ 	int rc;
+@@ -393,9 +399,10 @@ static int opal_prd_probe(struct platfor
+ 		return rc;
+ 	}
+ 
+-	rc = opal_message_notifier_register(OPAL_MSG_PRD2, &opal_prd_event_nb);
++	rc = opal_message_notifier_register(OPAL_MSG_PRD2, &opal_prd_event_nb2);
+ 	if (rc) {
+ 		pr_err("Couldn't register PRD2 event notifier\n");
++		opal_message_notifier_unregister(OPAL_MSG_PRD, &opal_prd_event_nb);
+ 		return rc;
+ 	}
+ 
+@@ -404,6 +411,8 @@ static int opal_prd_probe(struct platfor
+ 		pr_err("failed to register miscdev\n");
+ 		opal_message_notifier_unregister(OPAL_MSG_PRD,
+ 				&opal_prd_event_nb);
++		opal_message_notifier_unregister(OPAL_MSG_PRD2,
++				&opal_prd_event_nb2);
+ 		return rc;
+ 	}
+ 
+@@ -414,6 +423,7 @@ static int opal_prd_remove(struct platfo
+ {
+ 	misc_deregister(&opal_prd_dev);
+ 	opal_message_notifier_unregister(OPAL_MSG_PRD, &opal_prd_event_nb);
++	opal_message_notifier_unregister(OPAL_MSG_PRD2, &opal_prd_event_nb2);
+ 	return 0;
  }
- EXPORT_SYMBOL(ccw_device_dma_free);
  
 
 
