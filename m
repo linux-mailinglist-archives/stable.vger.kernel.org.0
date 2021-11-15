@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF1F451FE0
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 059D6451FDC
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352680AbhKPApk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
+        id S1354991AbhKPApj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343824AbhKOTWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343826AbhKOTWJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEB09635F0;
-        Mon, 15 Nov 2021 18:46:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8355F635F1;
+        Mon, 15 Nov 2021 18:46:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002012;
-        bh=iOg6rDXcrbOcMu0ZcCONLba+4S+eIoi6U5YzDem7mMw=;
+        s=korg; t=1637002015;
+        bh=PzEUd0t1C2mtRwyKJhg2re0zJ/0SLCVCQwZJawrxHN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DyzR8dTtUWfreGirATM3ieTH8L9QuTRibtSsIeh1hZh16uL0jPxH+OXSr2KcaW9Gs
-         iM5BkX11KtiKY8Fvd2JBBny3zUbZn+euJo43AMp7c9kRHOgtrPH/FBhwUaEhd/u1Pv
-         hV+aZkihctnnv1uj4ETdNU01aK0rryW9ZnAabuFE=
+        b=he6O2vCUTATgIUclWRbDSzUxmqoSWrgi0jkguGC25Ik8vs2zR173yZvnQv/F0ZwqJ
+         V/QBY4JmKs3bq2lL3q+BGL9oeX/PSt0nDZJl2sgVBiPCJyZpyGwWTorqPqXGqGcd+P
+         tInzCV2xmwwVUbaYBR385It16nL6iviqjwr5Mh20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 405/917] EDAC/amd64: Handle three rank interleaving mode
-Date:   Mon, 15 Nov 2021 17:58:20 +0100
-Message-Id: <20211115165442.519599449@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 406/917] rcu: Always inline rcu_dynticks_task*_{enter,exit}()
+Date:   Mon, 15 Nov 2021 17:58:21 +0100
+Message-Id: <20211115165442.558885324@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,92 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 9f4873fb6af7966de8fcbd95c36b61351c1c4b1f ]
+[ Upstream commit 7663ad9a5dbcc27f3090e6bfd192c7e59222709f ]
 
-AMD Rome systems and later support interleaving between three identical
-ranks within a channel.
+RCU managed to grow a few noinstr violations:
 
-Check for this mode by counting the number of enabled chip selects and
-comparing their masks. If there are exactly three enabled chip selects
-and their masks are identical, then three rank interleaving is enabled.
+  vmlinux.o: warning: objtool: rcu_dynticks_eqs_enter()+0x0: call to rcu_dynticks_task_trace_enter() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: rcu_dynticks_eqs_exit()+0xe: call to rcu_dynticks_task_trace_exit() leaves .noinstr.text section
 
-The size of a rank is determined from its mask value. However, three
-rank interleaving doesn't follow the method of swapping an interleave
-bit with the most significant bit. Rather, the interleave bit is flipped
-and the most significant bit remains the same. There is only a single
-interleave bit in this case.
+Fix them by adding __always_inline to the relevant trivial functions.
 
-Account for this when determining the chip select size by keeping the
-most significant bit at its original value and ignoring any zero bits.
-This will return a full bitmask in [MSB:1].
+Also replace the noinstr with __always_inline for the existing
+rcu_dynticks_task_*() functions since noinstr would force noinline
+them, even when empty, which seems silly.
 
-Fixes: e53a3b267fb0 ("EDAC/amd64: Find Chip Select memory size using Address Mask")
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20211005154419.2060504-1-yazen.ghannam@amd.com
+Fixes: 7d0c9c50c5a1 ("rcu-tasks: Avoid IPIing userspace/idle tasks if kernel is so built")
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/amd64_edac.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ kernel/rcu/tree_plugin.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
-index 99b06a3e8fb12..4fce75013674f 100644
---- a/drivers/edac/amd64_edac.c
-+++ b/drivers/edac/amd64_edac.c
-@@ -1065,12 +1065,14 @@ static void debug_dump_dramcfg_low(struct amd64_pvt *pvt, u32 dclr, int chan)
- #define CS_ODD_PRIMARY		BIT(1)
- #define CS_EVEN_SECONDARY	BIT(2)
- #define CS_ODD_SECONDARY	BIT(3)
-+#define CS_3R_INTERLEAVE	BIT(4)
- 
- #define CS_EVEN			(CS_EVEN_PRIMARY | CS_EVEN_SECONDARY)
- #define CS_ODD			(CS_ODD_PRIMARY | CS_ODD_SECONDARY)
- 
- static int f17_get_cs_mode(int dimm, u8 ctrl, struct amd64_pvt *pvt)
- {
-+	u8 base, count = 0;
- 	int cs_mode = 0;
- 
- 	if (csrow_enabled(2 * dimm, ctrl, pvt))
-@@ -1083,6 +1085,20 @@ static int f17_get_cs_mode(int dimm, u8 ctrl, struct amd64_pvt *pvt)
- 	if (csrow_sec_enabled(2 * dimm + 1, ctrl, pvt))
- 		cs_mode |= CS_ODD_SECONDARY;
- 
-+	/*
-+	 * 3 Rank inteleaving support.
-+	 * There should be only three bases enabled and their two masks should
-+	 * be equal.
-+	 */
-+	for_each_chip_select(base, ctrl, pvt)
-+		count += csrow_enabled(base, ctrl, pvt);
-+
-+	if (count == 3 &&
-+	    pvt->csels[ctrl].csmasks[0] == pvt->csels[ctrl].csmasks[1]) {
-+		edac_dbg(1, "3R interleaving in use.\n");
-+		cs_mode |= CS_3R_INTERLEAVE;
-+	}
-+
- 	return cs_mode;
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index d070059163d70..0d21a5cdc7247 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -1480,7 +1480,7 @@ static void rcu_bind_gp_kthread(void)
  }
  
-@@ -1891,10 +1907,14 @@ static int f17_addr_mask_to_cs_size(struct amd64_pvt *pvt, u8 umc,
- 	 *
- 	 * The MSB is the number of bits in the full mask because BIT[0] is
- 	 * always 0.
-+	 *
-+	 * In the special 3 Rank interleaving case, a single bit is flipped
-+	 * without swapping with the most significant bit. This can be handled
-+	 * by keeping the MSB where it is and ignoring the single zero bit.
- 	 */
- 	msb = fls(addr_mask_orig) - 1;
- 	weight = hweight_long(addr_mask_orig);
--	num_zero_bits = msb - weight;
-+	num_zero_bits = msb - weight - !!(cs_mode & CS_3R_INTERLEAVE);
+ /* Record the current task on dyntick-idle entry. */
+-static void noinstr rcu_dynticks_task_enter(void)
++static __always_inline void rcu_dynticks_task_enter(void)
+ {
+ #if defined(CONFIG_TASKS_RCU) && defined(CONFIG_NO_HZ_FULL)
+ 	WRITE_ONCE(current->rcu_tasks_idle_cpu, smp_processor_id());
+@@ -1488,7 +1488,7 @@ static void noinstr rcu_dynticks_task_enter(void)
+ }
  
- 	/* Take the number of zero bits off from the top of the mask. */
- 	addr_mask_deinterleaved = GENMASK_ULL(msb - num_zero_bits, 1);
+ /* Record no current task on dyntick-idle exit. */
+-static void noinstr rcu_dynticks_task_exit(void)
++static __always_inline void rcu_dynticks_task_exit(void)
+ {
+ #if defined(CONFIG_TASKS_RCU) && defined(CONFIG_NO_HZ_FULL)
+ 	WRITE_ONCE(current->rcu_tasks_idle_cpu, -1);
+@@ -1496,7 +1496,7 @@ static void noinstr rcu_dynticks_task_exit(void)
+ }
+ 
+ /* Turn on heavyweight RCU tasks trace readers on idle/user entry. */
+-static void rcu_dynticks_task_trace_enter(void)
++static __always_inline void rcu_dynticks_task_trace_enter(void)
+ {
+ #ifdef CONFIG_TASKS_TRACE_RCU
+ 	if (IS_ENABLED(CONFIG_TASKS_TRACE_RCU_READ_MB))
+@@ -1505,7 +1505,7 @@ static void rcu_dynticks_task_trace_enter(void)
+ }
+ 
+ /* Turn off heavyweight RCU tasks trace readers on idle/user exit. */
+-static void rcu_dynticks_task_trace_exit(void)
++static __always_inline void rcu_dynticks_task_trace_exit(void)
+ {
+ #ifdef CONFIG_TASKS_TRACE_RCU
+ 	if (IS_ENABLED(CONFIG_TASKS_TRACE_RCU_READ_MB))
 -- 
 2.33.0
 
