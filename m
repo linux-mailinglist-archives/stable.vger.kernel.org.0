@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BDB8450AF5
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:13:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7535450DD1
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237040AbhKORQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:16:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59810 "EHLO mail.kernel.org"
+        id S239609AbhKOSH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:07:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231336AbhKOROy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:14:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 061A661BF4;
-        Mon, 15 Nov 2021 17:11:27 +0000 (UTC)
+        id S239545AbhKOSBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:01:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 896176334D;
+        Mon, 15 Nov 2021 17:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996287;
-        bh=RvhLvZ/ApkAe4kgJ3nlQ6+LY5y0knpUdvM3VTNWyh6I=;
+        s=korg; t=1636997815;
+        bh=smzL/0WohvzhaRRKxwUNT9IJSFgBYfCQejHPZ4BW+Hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Df9kAnvSTzVqyHA6kosEtrkd29UIfdEJtFmkzVWf1a7hARITqZdN8IBAEdE4T4ZEK
-         JW0PFWVgKaMBUmceWbT/40y7B4LG6VNnZ4HR7zT8anEtdUWddJCtbgBzgmU/Ganz9F
-         Yzp4D+qm7YXp1eGZnUh9fpMfifH95pVOT3WgZzgo=
+        b=whOTAwQe1QLcu4UxSHKmct2PjngV6rGhq+yUkK7av8LGLsJ1ORUPTgr2Kd9GLedIF
+         2dbO89P/WXEChYg0IWa5eplR08kHAQDWw8eRTGRsBdyXwxUmF9aN7f8iwg/STaUhS7
+         z6s5iwrcWlYmHnuoov0+UiLnVCzs9YT22t4VUtSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
-        Angus Ainslie <angus@akkea.ca>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
         Kalle Valo <kvalo@codeaurora.org>,
-        Karun Eagalapati <karun256@gmail.com>,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Martin Kepplinger <martink@posteo.de>,
-        Prameela Rani Garnepudi <prameela.j04cs@gmail.com>,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Siva Rebbagondla <siva8118@gmail.com>, netdev@vger.kernel.org
-Subject: [PATCH 5.4 084/355] rsi: Fix module dev_oper_mode parameter description
-Date:   Mon, 15 Nov 2021 18:00:08 +0100
-Message-Id: <20211115165316.523393006@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 284/575] ath10k: sdio: Add missing BH locking around napi_schdule()
+Date:   Mon, 15 Nov 2021 18:00:09 +0100
+Message-Id: <20211115165353.599752296@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,95 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Fabio Estevam <festevam@denx.de>
 
-commit 31f97cf9f0c31143a2a6fcc89c4a1286ce20157e upstream.
+[ Upstream commit 019edd01d174ce4bb2e517dd332922514d176601 ]
 
-The module parameters are missing dev_oper_mode 12, BT classic alone,
-add it. Moreover, the parameters encode newlines, which ends up being
-printed malformed e.g. by modinfo, so fix that too.
+On a i.MX-based board with a QCA9377 Wifi chip, the following errors
+are seen after launching the 'hostapd' application:
 
-However, the module parameter string is duplicated in both USB and SDIO
-modules and the dev_oper_mode mode enumeration in those module parameters
-is a duplicate of macros used by the driver. Furthermore, the enumeration
-is confusing.
+hostapd /etc/wifi.conf
+Configuration file: /etc/wifi.conf
+wlan0: interface state UNINITIALIZED->COUNTRY_UPDATE
+NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
+Using interface wlan0 with hwaddr 00:1f:7b:31:04:a0 and ssid "thessid"
+IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready
+wlan0: interface state COUNTRY_UPDATE->ENABLED
+wlan0: AP-ENABLED
+NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
+NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
+NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
+NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
+...
 
-So, deduplicate the module parameter string and use __stringify() to
-encode the correct mode enumeration values into the module parameter
-string. Finally, replace 'Wi-Fi' with 'Wi-Fi alone' and 'BT' with
-'BT classic alone' to clarify what those modes really mean.
+Fix this problem by adding the BH locking around napi-schedule(),
+in the same way it was done in commit e63052a5dd3c ("mlx5e: add
+add missing BH locking around napi_schdule()").
 
-Fixes: 898b255339310 ("rsi: add module parameter operating mode")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
-Cc: Angus Ainslie <angus@akkea.ca>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Karun Eagalapati <karun256@gmail.com>
-Cc: Martin Fuzzey <martin.fuzzey@flowbird.group>
-Cc: Martin Kepplinger <martink@posteo.de>
-Cc: Prameela Rani Garnepudi <prameela.j04cs@gmail.com>
-Cc: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Cc: Siva Rebbagondla <siva8118@gmail.com>
-Cc: netdev@vger.kernel.org
-Cc: <stable@vger.kernel.org> # 4.17+
+Its commit log provides the following explanation:
+
+"It's not correct to call napi_schedule() in pure process
+context. Because we use __raise_softirq_irqoff() we require
+callers to be in a context which will eventually lead to
+softirq handling (hardirq, bh disabled, etc.).
+
+With code as is users will see:
+
+NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
+"
+
+Fixes: cfee8793a74d ("ath10k: enable napi on RX path for sdio")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210916144245.10181-1-marex@denx.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210824144339.2796122-1-festevam@denx.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_sdio.c |    5 +----
- drivers/net/wireless/rsi/rsi_91x_usb.c  |    5 +----
- drivers/net/wireless/rsi/rsi_hal.h      |   11 +++++++++++
- 3 files changed, 13 insertions(+), 8 deletions(-)
+ drivers/net/wireless/ath/ath10k/sdio.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/rsi/rsi_91x_sdio.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-@@ -24,10 +24,7 @@
- /* Default operating mode is wlan STA + BT */
- static u16 dev_oper_mode = DEV_OPMODE_STA_BT_DUAL;
- module_param(dev_oper_mode, ushort, 0444);
--MODULE_PARM_DESC(dev_oper_mode,
--		 "1[Wi-Fi], 4[BT], 8[BT LE], 5[Wi-Fi STA + BT classic]\n"
--		 "9[Wi-Fi STA + BT LE], 13[Wi-Fi STA + BT classic + BT LE]\n"
--		 "6[AP + BT classic], 14[AP + BT classic + BT LE]");
-+MODULE_PARM_DESC(dev_oper_mode, DEV_OPMODE_PARAM_DESC);
+diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
+index 81ddaafb6721c..0fe639710a8bb 100644
+--- a/drivers/net/wireless/ath/ath10k/sdio.c
++++ b/drivers/net/wireless/ath/ath10k/sdio.c
+@@ -1363,8 +1363,11 @@ static void ath10k_rx_indication_async_work(struct work_struct *work)
+ 		ep->ep_ops.ep_rx_complete(ar, skb);
+ 	}
  
- /**
-  * rsi_sdio_set_cmd52_arg() - This function prepares cmd 52 read/write arg.
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -25,10 +25,7 @@
- /* Default operating mode is wlan STA + BT */
- static u16 dev_oper_mode = DEV_OPMODE_STA_BT_DUAL;
- module_param(dev_oper_mode, ushort, 0444);
--MODULE_PARM_DESC(dev_oper_mode,
--		 "1[Wi-Fi], 4[BT], 8[BT LE], 5[Wi-Fi STA + BT classic]\n"
--		 "9[Wi-Fi STA + BT LE], 13[Wi-Fi STA + BT classic + BT LE]\n"
--		 "6[AP + BT classic], 14[AP + BT classic + BT LE]");
-+MODULE_PARM_DESC(dev_oper_mode, DEV_OPMODE_PARAM_DESC);
+-	if (test_bit(ATH10K_FLAG_CORE_REGISTERED, &ar->dev_flags))
++	if (test_bit(ATH10K_FLAG_CORE_REGISTERED, &ar->dev_flags)) {
++		local_bh_disable();
+ 		napi_schedule(&ar->napi);
++		local_bh_enable();
++	}
+ }
  
- static int rsi_rx_urb_submit(struct rsi_hw *adapter, u8 ep_num, gfp_t flags);
- 
---- a/drivers/net/wireless/rsi/rsi_hal.h
-+++ b/drivers/net/wireless/rsi/rsi_hal.h
-@@ -28,6 +28,17 @@
- #define DEV_OPMODE_AP_BT		6
- #define DEV_OPMODE_AP_BT_DUAL		14
- 
-+#define DEV_OPMODE_PARAM_DESC		\
-+	__stringify(DEV_OPMODE_WIFI_ALONE)	"[Wi-Fi alone], "	\
-+	__stringify(DEV_OPMODE_BT_ALONE)	"[BT classic alone], "	\
-+	__stringify(DEV_OPMODE_BT_LE_ALONE)	"[BT LE alone], "	\
-+	__stringify(DEV_OPMODE_BT_DUAL)		"[BT classic + BT LE alone], " \
-+	__stringify(DEV_OPMODE_STA_BT)		"[Wi-Fi STA + BT classic], " \
-+	__stringify(DEV_OPMODE_STA_BT_LE)	"[Wi-Fi STA + BT LE], "	\
-+	__stringify(DEV_OPMODE_STA_BT_DUAL)	"[Wi-Fi STA + BT classic + BT LE], " \
-+	__stringify(DEV_OPMODE_AP_BT)		"[Wi-Fi AP + BT classic], "	\
-+	__stringify(DEV_OPMODE_AP_BT_DUAL)	"[Wi-Fi AP + BT classic + BT LE]"
-+
- #define FLASH_WRITE_CHUNK_SIZE		(4 * 1024)
- #define FLASH_SECTOR_SIZE		(4 * 1024)
- 
+ static int ath10k_sdio_read_rtc_state(struct ath10k_sdio *ar_sdio, unsigned char *state)
+-- 
+2.33.0
+
 
 
