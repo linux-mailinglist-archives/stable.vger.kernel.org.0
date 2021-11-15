@@ -2,73 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E2E1452572
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:49:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 201824522A0
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:13:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239607AbhKPBv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:51:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49492 "EHLO
+        id S245709AbhKPBPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:15:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240615AbhKOSQB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 13:16:01 -0500
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64B86C034019
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 09:39:55 -0800 (PST)
-Received: by mail-yb1-xb4a.google.com with SMTP id v7-20020a25ab87000000b005c2130838beso27958674ybi.0
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 09:39:55 -0800 (PST)
+        with ESMTP id S240884AbhKOTMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 14:12:10 -0500
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 020E5C0431AB
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 10:00:56 -0800 (PST)
+Received: by mail-ed1-x529.google.com with SMTP id z10so49203921edc.11
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 10:00:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=g8n3dntLdVor/bCGUEahQ0hpXTWGo9L1uMnZI0pRNmw=;
-        b=b4UiZIE2IKFJ/TQXUJPvWTT2u+0GyenaJBmDTr/JRIJaTZw4Mphygxi+AAJ05/Zvc4
-         3Ih6X9J9jDdFrdtK4MMNS7USolcWjLOmbDZfxW+38KAO2Pf4nKYDTPbECwjtkOA4tBVA
-         /m2IhEXu2vlmAODL91Tr/0cZwMmD8mRRhXU6KQsZn0wdXRus3LN2GLY+ronOA6mLh3TO
-         +AywSm25OOW+v4wPk1WWIvwjIVl7w3YwDwfUBPDUnpEt0fUpRLNF6wIkpLCt3D6s334o
-         hwgrJ6Gu0SLXD6lNFo3QEVySDnoap+YaDUeTtZMiv0bL6iGOFNi0Sv4xoMHXZZxVrA1G
-         Ayhw==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=QLyoo22P0xia39fScctyITZrnCx0/YeMWxTRLOMeqOg=;
+        b=vuolPHGwseJYpPxJzPOmJPADIZqTPSQtp8Xzn/+oyIPjeoG+HVQrek7UDkJwsqlT/4
+         zow6CvpEJFHqKnhCntzZZOE3nS40kYbaR0BmAUlh2BX4cFyZmDxRaJ9ADBACfkM+bLmo
+         FzlLItJsInYGntQ7UEeXqX74Jw3Gvw/bhKieMY1CwQe/OwdATTNwAj0y9LBDx2zW+pp6
+         ukyjHHH4tXqhHF0FajIDdnGPUdd4p0CdMycCh5OGUlVkJACjqfztw35VWYSuo458ZzAt
+         c4bGaIFKJuMmIbkzGq4TqYezYx+6UPhXg/NOqSBJuLZsSG0w23DDizCdyg/bTT10SIAh
+         7HMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=g8n3dntLdVor/bCGUEahQ0hpXTWGo9L1uMnZI0pRNmw=;
-        b=DNYOj3SrH9f5wTTF2tg5UDIJkvSrm0/xgGksyc66DOLI0O5MOEdBDCo7gWPyLyAQ+9
-         SCTj9HAyu26I50bdFTIg8vdwNGvPHc87nyhgYCMjE7WYOIpqSksw70twR6eWXWuIWNch
-         e1U1he0feWCAPTNA21OA7jBlMQzoQep4X/xklE76SxC8R76IehLPvPe0I6pNqE/a/s4Z
-         qIjuqpUqnYDxFKQLB/gO+z23dTI2/kJuiYy2UXXCO2/FJ505XPYIIJqxprPMIwUK5Qkt
-         2NGVW+kFJ+LzoH3tstc8miO0j8M5FGZ2yhmpGLwkNwniu7Du669t5dfCwjo3R2UbAsWn
-         nu2g==
-X-Gm-Message-State: AOAM532uBusZv7gKxY4gaKjUrPu7VkAhr8E+WepXRlFoN7evxc1NdnRO
-        8Z3Do69Ic3046etm8iWez91pzJST7SmiVKmbm6bWrNncGpsZTVG8Kuc5g9EpWVKDnEXFReE5X88
-        jzxaxRQjbgmJsYO3TnwCdfZg0QaikqkqF9OMIARKo/2dvJeom0p+jKJGXcc6Xt8Iu
-X-Google-Smtp-Source: ABdhPJzGmNcB85YZZUc9hopOicjmkKWG6Y5gfSclL87IiWkfWGa+5Qq3L9uYEyzdjqMzySsVqS4/zFei6+sI
-X-Received: from gthelen2.svl.corp.google.com ([2620:15c:2cd:202:9bec:4456:32fe:aeb8])
- (user=gthelen job=sendgmr) by 2002:a25:69c1:: with SMTP id
- e184mr686445ybc.235.1636997994642; Mon, 15 Nov 2021 09:39:54 -0800 (PST)
-Date:   Mon, 15 Nov 2021 09:39:53 -0800
-Message-Id: <xr9335nxwc5y.fsf@gthelen2.svl.corp.google.com>
-Mime-Version: 1.0
-Subject: STABLE REQUEST: perf/core: Avoid put_page() when GUP fails
-From:   Greg Thelen <gthelen@google.com>
-To:     stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Kan Liang <kan.liang@intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=QLyoo22P0xia39fScctyITZrnCx0/YeMWxTRLOMeqOg=;
+        b=QpUSnKJ2z9bJ7HofVtMAernm2Lsc5dmjbjZ6e2qg3WC0/sCkhi1mVw6RRvZfFDTrE3
+         3U8YxPS2XS9fcbHnLPo5PR4qtIyMpwd53wXkkPLAwKtZEyR1jkAy5iUZx/wjhFJKNjUM
+         OfcGvAUrXo2ZlQFR+pUnypiTialnpUVP3bam7w+9jo+zJ49FTr7ZzPnaOJywQ3s5kZe6
+         okXpqbhmxk+/QAwXK3Q9EDJH0UFAOOQQq+bfOxwzxo7uL4KeWIpjUH182Im3ozn/UmPM
+         LpfeHFd8UNBwxFRCkrvz90K9HgaK4EiXO3pvqZkxISxJeFM+OE3Tc4Mr+TurecMV+Wom
+         3kjw==
+X-Gm-Message-State: AOAM5320uW1aEum8ZPlabcvAIr9q0nyjGjZXB3XJ8ek1EWHEnv4b65+c
+        8yGyXGtMnK7ixDp5Smqp/0ktdWTFaOFSqbYpOwqgiA==
+X-Google-Smtp-Source: ABdhPJwXCk1h3D4p4OMrc6claSgZzbUW6IyzicewPNx5Q9zsT3CFoHe1lB2pV8uM9bVi3g9hCTSsPQWS81r6dNyBuoQ=
+X-Received: by 2002:a05:6402:4412:: with SMTP id y18mr766255eda.103.1636999254435;
+ Mon, 15 Nov 2021 10:00:54 -0800 (PST)
+MIME-Version: 1.0
+References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 15 Nov 2021 23:30:41 +0530
+Message-ID: <CA+G9fYvxhzL9KUxZcRzMxnbGPK5GKTCtb5kWM3JB09D+-KhVug@mail.gmail.com>
+Subject: Re: [PATCH 5.4 000/355] 5.4.160-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch titled ("perf/core: Avoid put_page() when GUP fails") has been
-merged into linus/master as commit
-4716023a8f6a0f4a28047f14dd7ebdc319606b84.
+On Mon, 15 Nov 2021 at 22:39, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.160 release.
+> There are 355 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 17 Nov 2021 16:52:23 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.160-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-The patch fixes an issue present in all v4.14+ kernels that can cause
-page reference count underflow, which can lead to unintentional page
-sharing.
 
-The patch did not have cc: stable footer, so I'm manually requesting
--stable inclusion into v4.14+.
+Perf build broken due to following errors.
 
-There are some trivial conflicts in older kernels. I'd be happy to
-review/test, if that's useful.
+> Andrii Nakryiko <andrii@kernel.org>
+>     libbpf: Fix BTF data layout checks and allow empty BTF
+
+
+In file included from btf.c:17:
+btf.c: In function 'btf_parse_hdr':
+btf.c:104:62: error: 'struct btf' has no member named 'raw_size'; did
+you mean 'data_size'?
+  104 |                 pr_debug("Invalid BTF total size:%u\n", btf->raw_size);
+      |                                                              ^~~~~~~~
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Build log:
+https://builds.tuxbuild.com/20xsgAxLwf4E60xl2dTdXnNS8FZ/
+
+--
+Linaro LKFT
+https://lkft.linaro.org
