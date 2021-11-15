@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E988D45013E
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBD045013C
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 10:24:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237323AbhKOJ1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 04:27:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38322 "EHLO mail.kernel.org"
+        id S237018AbhKOJ1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 04:27:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237349AbhKOJ1D (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237611AbhKOJ1D (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 04:27:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E25961BFE;
-        Mon, 15 Nov 2021 09:24:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 081C463211;
+        Mon, 15 Nov 2021 09:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636968242;
-        bh=edXI53IUDlrw/mgDN23d5wIxBkNlwmaX2mzMcHToDSk=;
+        s=korg; t=1636968248;
+        bh=5a1yfWliqHyroChYn0d1Kl9ZhWMorOiL7YXR3oZikKQ=;
         h=Subject:To:From:Date:From;
-        b=U6nuneZ0qLIglqAgcCd4EXBtFAAmuShgCT7wgxweefyu/x+oQ5gvPANPAnD5sev+i
-         qf/Jtt/sD6vIQBGzHjuFkTBvsvSH2s/nquakj5RN72I4DxAqPogT9815nXwMxDbW2J
-         +RGFJxEeQGAkGyEfIvAf1+MmVPn7dut6pbXXzGts=
-Subject: patch "staging: r8188eu: use GFP_ATOMIC under spinlock" added to staging-linus
-To:     straube.linux@gmail.com, gregkh@linuxfoundation.org,
+        b=A5IYIOwzAX8r44gwQNC9wgfsFSGLpA5/rHM+Ej8MnoLMTKYWFanb50C1j5FlogaCU
+         tFYlxwnHt1AzAFJ4JJkdKOEcfyRUEUltUUh79QGO+qAC+W5UbOmCVSw6zmma4egWa6
+         8Gq91defNkasTYnrrtaUd/4NNQJN8ojkcCS+7q1k=
+Subject: patch "staging: r8188eu: Use kzalloc() with GFP_ATOMIC in atomic context" added to staging-linus
+To:     fmdefrancesco@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 15 Nov 2021 10:23:50 +0100
-Message-ID: <163696823043193@kroah.com>
+Message-ID: <163696823065139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: r8188eu: use GFP_ATOMIC under spinlock
+    staging: r8188eu: Use kzalloc() with GFP_ATOMIC in atomic context
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,43 +51,56 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 4a293eaf92a510ff688dc7b3f0815221f99c9d1b Mon Sep 17 00:00:00 2001
-From: Michael Straube <straube.linux@gmail.com>
-Date: Mon, 8 Nov 2021 11:55:37 +0100
-Subject: staging: r8188eu: use GFP_ATOMIC under spinlock
+From c15a059f85de49c542e6ec2464967dd2b2aa18f6 Mon Sep 17 00:00:00 2001
+From: "Fabio M. De Francesco" <fmdefrancesco@gmail.com>
+Date: Mon, 1 Nov 2021 20:18:47 +0100
+Subject: staging: r8188eu: Use kzalloc() with GFP_ATOMIC in atomic context
 
-In function rtw_report_sec_ie() kzalloc() is called under a spinlock,
-so the allocation have to be atomic.
+Use the GFP_ATOMIC flag of kzalloc() with two memory allocation in
+report_del_sta_event(). This function is called while holding spinlocks,
+therefore it is not allowed to sleep. With the GFP_ATOMIC type flag, the
+allocation is high priority and must not sleep.
 
-Call tree:
+This issue is detected by Smatch which emits the following warning:
+"drivers/staging/r8188eu/core/rtw_mlme_ext.c:6848 report_del_sta_event()
+warn: sleeping in atomic context".
 
--> rtw_select_and_join_from_scanned_queue() <- takes a spinlock
-   -> rtw_joinbss_cmd()
-      -> rtw_restruct_sec_ie()
-         -> rtw_report_sec_ie()
+After the change, the post-commit hook output the following message:
+"CHECK: Prefer kzalloc(sizeof(*pcmd_obj)...) over
+kzalloc(sizeof(struct cmd_obj)...)".
 
-Fixes: 2b42bd58b321 ("staging: r8188eu: introduce new os_dep dir for RTL8188eu driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Michael Straube <straube.linux@gmail.com>
-Link: https://lore.kernel.org/r/20211108105537.31655-1-straube.linux@gmail.com
+According to the above "CHECK", use the preferred style in the first
+kzalloc().
+
+Fixes: 79f712ea994d ("staging: r8188eu: Remove wrappers for kalloc() and kzalloc()")
+Fixes: 15865124feed ("staging: r8188eu: introduce new core dir for RTL8188eu driver")
+Signed-off-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Link: https://lore.kernel.org/r/20211101191847.6749-1-fmdefrancesco@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable <stable@vger.kernel.org>
 ---
- drivers/staging/r8188eu/os_dep/mlme_linux.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/r8188eu/core/rtw_mlme_ext.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/r8188eu/os_dep/mlme_linux.c b/drivers/staging/r8188eu/os_dep/mlme_linux.c
-index a9b6ffdbf31a..f7ce724ebf87 100644
---- a/drivers/staging/r8188eu/os_dep/mlme_linux.c
-+++ b/drivers/staging/r8188eu/os_dep/mlme_linux.c
-@@ -112,7 +112,7 @@ void rtw_report_sec_ie(struct adapter *adapter, u8 authmode, u8 *sec_ie)
+diff --git a/drivers/staging/r8188eu/core/rtw_mlme_ext.c b/drivers/staging/r8188eu/core/rtw_mlme_ext.c
+index 5b60e6df5f87..b4820ad2cee7 100644
+--- a/drivers/staging/r8188eu/core/rtw_mlme_ext.c
++++ b/drivers/staging/r8188eu/core/rtw_mlme_ext.c
+@@ -6847,12 +6847,12 @@ void report_del_sta_event(struct adapter *padapter, unsigned char *MacAddr, unsi
+ 	struct mlme_ext_priv		*pmlmeext = &padapter->mlmeextpriv;
+ 	struct cmd_priv *pcmdpriv = &padapter->cmdpriv;
  
- 	buff = NULL;
- 	if (authmode == _WPA_IE_ID_) {
--		buff = kzalloc(IW_CUSTOM_MAX, GFP_KERNEL);
-+		buff = kzalloc(IW_CUSTOM_MAX, GFP_ATOMIC);
- 		if (!buff)
- 			return;
- 		p = buff;
+-	pcmd_obj = kzalloc(sizeof(struct cmd_obj), GFP_KERNEL);
++	pcmd_obj = kzalloc(sizeof(*pcmd_obj), GFP_ATOMIC);
+ 	if (!pcmd_obj)
+ 		return;
+ 
+ 	cmdsz = (sizeof(struct stadel_event) + sizeof(struct C2HEvent_Header));
+-	pevtcmd = kzalloc(cmdsz, GFP_KERNEL);
++	pevtcmd = kzalloc(cmdsz, GFP_ATOMIC);
+ 	if (!pevtcmd) {
+ 		kfree(pcmd_obj);
+ 		return;
 -- 
 2.33.1
 
