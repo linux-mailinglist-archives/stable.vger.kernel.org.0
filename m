@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 293A34524CF
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:42:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC194524D0
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:42:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241011AbhKPBpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:45:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55222 "EHLO mail.kernel.org"
+        id S241112AbhKPBpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:45:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240908AbhKOSQq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:16:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21A81633E7;
-        Mon, 15 Nov 2021 17:50:31 +0000 (UTC)
+        id S240912AbhKOSRy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:17:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5473633E8;
+        Mon, 15 Nov 2021 17:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998632;
-        bh=tTkmPGvre6KuCN/MWnqfnf3ZivUkaVIdo8deJz/Rq+U=;
+        s=korg; t=1636998635;
+        bh=tYRKOmY9Hl6jFOJh1r8I8A6x+142enJlUAvQxfqcGtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zM0X/q8gQLKnYfcwuDNByKS0PI+H+W+lcVsf6rbT11j/W56VHb/lMGrFG1p7cxBdI
-         8mL54FyYOlT2NMDSEcdDWw7iVR687yNXyuMumka6VqFUo9EyJ/m6v4MTGMdmyQwSWZ
-         sGR9v/+CZRwipb5K81hLx0eMr+wnFOCjB3fEoYpU=
+        b=qxLDZg4+LQvFtpVzThXe/Pirxk+UNtk6736FoBnVCys+2q91g4YLa9bUejtN127tF
+         h7pjuhVXSZRcLMyy4yxzSolCwWZyslGj51CusQXd7kMHUqv0sEDTr9gn6oLT3iBJ8N
+         DR7HBxBfoax8Wo1e6QcLjg5CePXpGfgU9xzCrvxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Roman Stratiienko <r.stratiienko@gmail.com>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Chen-Yu Tsai <wens@csie.org>, Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 5.10 572/575] drm/sun4i: Fix macros in sun8i_csc.h
-Date:   Mon, 15 Nov 2021 18:04:57 +0100
-Message-Id: <20211115165403.491087705@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.10 573/575] PCI: Add PCI_EXP_DEVCTL_PAYLOAD_* macros
+Date:   Mon, 15 Nov 2021 18:04:58 +0100
+Message-Id: <20211115165403.523210316@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -41,50 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit c302c98da646409d657a473da202f10f417f3ff1 upstream.
+commit 460275f124fb072dca218a6b43b6370eebbab20d upstream.
 
-Macros SUN8I_CSC_CTRL() and SUN8I_CSC_COEFF() don't follow usual
-recommendation of having arguments enclosed in parenthesis. While that
-didn't change anything for quite sometime, it actually become important
-after CSC code rework with commit ea067aee45a8 ("drm/sun4i: de2/de3:
-Remove redundant CSC matrices").
+Define a macro PCI_EXP_DEVCTL_PAYLOAD_* for every possible Max Payload
+Size in linux/pci_regs.h, in the same style as PCI_EXP_DEVCTL_READRQ_*.
 
-Without this fix, colours are completely off for supported YVU formats
-on SoCs with DE2 (A64, H3, R40, etc.).
-
-Fix the issue by enclosing macro arguments in parenthesis.
-
-Cc: stable@vger.kernel.org # 5.12+
-Fixes: 883029390550 ("drm/sun4i: Add DE2 CSC library")
-Reported-by: Roman Stratiienko <r.stratiienko@gmail.com>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210831184819.93670-1-jernej.skrabec@gmail.com
+Link: https://lore.kernel.org/r/20211005180952.6812-2-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/sun4i/sun8i_csc.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/uapi/linux/pci_regs.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/sun4i/sun8i_csc.h b/drivers/gpu/drm/sun4i/sun8i_csc.h
-index a55a38ad849c..022cafa6c06c 100644
---- a/drivers/gpu/drm/sun4i/sun8i_csc.h
-+++ b/drivers/gpu/drm/sun4i/sun8i_csc.h
-@@ -16,8 +16,8 @@ struct sun8i_mixer;
- #define CCSC10_OFFSET 0xA0000
- #define CCSC11_OFFSET 0xF0000
- 
--#define SUN8I_CSC_CTRL(base)		(base + 0x0)
--#define SUN8I_CSC_COEFF(base, i)	(base + 0x10 + 4 * i)
-+#define SUN8I_CSC_CTRL(base)		((base) + 0x0)
-+#define SUN8I_CSC_COEFF(base, i)	((base) + 0x10 + 4 * (i))
- 
- #define SUN8I_CSC_CTRL_EN		BIT(0)
- 
--- 
-2.33.1
-
+--- a/include/uapi/linux/pci_regs.h
++++ b/include/uapi/linux/pci_regs.h
+@@ -504,6 +504,12 @@
+ #define  PCI_EXP_DEVCTL_URRE	0x0008	/* Unsupported Request Reporting En. */
+ #define  PCI_EXP_DEVCTL_RELAX_EN 0x0010 /* Enable relaxed ordering */
+ #define  PCI_EXP_DEVCTL_PAYLOAD	0x00e0	/* Max_Payload_Size */
++#define  PCI_EXP_DEVCTL_PAYLOAD_128B 0x0000 /* 128 Bytes */
++#define  PCI_EXP_DEVCTL_PAYLOAD_256B 0x0020 /* 256 Bytes */
++#define  PCI_EXP_DEVCTL_PAYLOAD_512B 0x0040 /* 512 Bytes */
++#define  PCI_EXP_DEVCTL_PAYLOAD_1024B 0x0060 /* 1024 Bytes */
++#define  PCI_EXP_DEVCTL_PAYLOAD_2048B 0x0080 /* 2048 Bytes */
++#define  PCI_EXP_DEVCTL_PAYLOAD_4096B 0x00a0 /* 4096 Bytes */
+ #define  PCI_EXP_DEVCTL_EXT_TAG	0x0100	/* Extended Tag Field Enable */
+ #define  PCI_EXP_DEVCTL_PHANTOM	0x0200	/* Phantom Functions Enable */
+ #define  PCI_EXP_DEVCTL_AUX_PME	0x0400	/* Auxiliary Power PM Enable */
 
 
