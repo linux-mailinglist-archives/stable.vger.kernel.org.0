@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0158450E22
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5470C450B8F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239998AbhKOSLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:11:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48896 "EHLO mail.kernel.org"
+        id S237462AbhKORZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:25:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240053AbhKOSFc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B70FB6337D;
-        Mon, 15 Nov 2021 17:41:47 +0000 (UTC)
+        id S237785AbhKORYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:24:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E395A61BFE;
+        Mon, 15 Nov 2021 17:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998108;
-        bh=4xT4TesnqM+zVauc1n3krawXbmGARRH9F0Jx4p+K7bQ=;
+        s=korg; t=1636996576;
+        bh=Ql7rMOURfqEFQwRGZpukoiwanEQEEIsGUX6ZWDEIsos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wAGsMBhRoQkYLRxGnDDUaRrxR1cX0veOf0j5B7Qp+Ed4kTnsEhQ8HaFfXkjMEWGqG
-         h03Svy6yTIFIhViAj/XQ7BK540XR1KLz14prEAxLAUkbrFiBm8BSTqv83bZ/DgoIn0
-         BND7Tap5FvSl1AhUQlPC6e1Q886ErjFvgRlZEQ0Q=
+        b=SIdLT0meDTCf3nhCG15PYklcNgJ2HiqXMK8B0iVi3qKC3BWcQJl9+T5zXh7GmspyH
+         LKwvi8kE4Y4q0c9kz0JfIgrGu7dGsGmBxdP1Mx5eOh3E57j4OI6erxh6y7GSdoFTQ5
+         6Y0LP1rmZJMYIi5UXzI+Nogn56M5vQiU4i3FcHoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 389/575] ARM: dts: BCM5301X: Fix memory nodes names
+Subject: [PATCH 5.4 190/355] crypto: caam - disable pkc for non-E SoCs
 Date:   Mon, 15 Nov 2021 18:01:54 +0100
-Message-Id: <20211115165357.220526086@linuxfoundation.org>
+Message-Id: <20211115165319.916565873@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,183 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit c5e1df3276d7a500678da9453be31a66ad115150 ]
+[ Upstream commit f20311cc9c58052e0b215013046cbf390937910c ]
 
-Thix fixes:
-arch/arm/boot/dts/bcm4708-netgear-r6250.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
-arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
-arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 402653184]]}
-arch/arm/boot/dts/bcm4709-linksys-ea9200.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
-arch/arm/boot/dts/bcm4709-netgear-r7000.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
-arch/arm/boot/dts/bcm4709-netgear-r8000.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
-arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728]]}
-arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 402653184]]}
-arch/arm/boot/dts/bcm53016-meraki-mr32.dt.yaml: /: memory: False schema does not allow {'reg': [[0, 134217728]], 'device_type': ['memory']}
-arch/arm/boot/dts/bcm94708.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728]]}
-arch/arm/boot/dts/bcm94709.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728]]}
+On newer CAAM versions, not all accelerators are disabled if the SoC is
+a non-E variant. While the driver checks most of the modules for
+availability, there is one - PKHA - which sticks out. On non-E variants
+it is still reported as available, that is the number of instances is
+non-zero, but it has limited functionality. In particular it doesn't
+support encryption and decryption, but just signing and verifying. This
+is indicated by a bit in the PKHA_MISC field. Take this bit into account
+if we are checking for availability.
 
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+This will the following error:
+[    8.167817] caam_jr 8020000.jr: 20000b0f: CCB: desc idx 11: : Invalid CHA selected.
+
+Tested on an NXP LS1028A (non-E) SoC.
+
+Fixes: d239b10d4ceb ("crypto: caam - add register map changes cf. Era 10")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm4708-netgear-r6250.dts       | 2 +-
- arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts       | 2 +-
- arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts | 2 +-
- arch/arm/boot/dts/bcm4709-linksys-ea9200.dts      | 2 +-
- arch/arm/boot/dts/bcm4709-netgear-r7000.dts       | 2 +-
- arch/arm/boot/dts/bcm4709-netgear-r8000.dts       | 2 +-
- arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts | 2 +-
- arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts     | 2 +-
- arch/arm/boot/dts/bcm53016-meraki-mr32.dts        | 2 +-
- arch/arm/boot/dts/bcm94708.dts                    | 2 +-
- arch/arm/boot/dts/bcm94709.dts                    | 2 +-
- 11 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/crypto/caam/caampkc.c | 19 +++++++++++++++----
+ drivers/crypto/caam/regs.h    |  3 +++
+ 2 files changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm4708-netgear-r6250.dts b/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
-index 61c7b137607e5..7900aac4f35a9 100644
---- a/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
-+++ b/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
-@@ -20,7 +20,7 @@
- 		bootargs = "console=ttyS0,115200 earlycon";
- 	};
+diff --git a/drivers/crypto/caam/caampkc.c b/drivers/crypto/caam/caampkc.c
+index 83f96d4f86e03..30e3f41ed8721 100644
+--- a/drivers/crypto/caam/caampkc.c
++++ b/drivers/crypto/caam/caampkc.c
+@@ -1087,16 +1087,27 @@ static struct caam_akcipher_alg caam_rsa = {
+ int caam_pkc_init(struct device *ctrldev)
+ {
+ 	struct caam_drv_private *priv = dev_get_drvdata(ctrldev);
+-	u32 pk_inst;
++	u32 pk_inst, pkha;
+ 	int err;
+ 	init_done = false;
  
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>,
- 		      <0x88000000 0x08000000>;
-diff --git a/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts b/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
-index 6c6bb7b17d27a..7546c8d07bcd7 100644
---- a/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
-+++ b/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
-@@ -19,7 +19,7 @@
- 		bootargs = "console=ttyS0,115200";
- 	};
+ 	/* Determine public key hardware accelerator presence. */
+-	if (priv->era < 10)
++	if (priv->era < 10) {
+ 		pk_inst = (rd_reg32(&priv->ctrl->perfmon.cha_num_ls) &
+ 			   CHA_ID_LS_PK_MASK) >> CHA_ID_LS_PK_SHIFT;
+-	else
+-		pk_inst = rd_reg32(&priv->ctrl->vreg.pkha) & CHA_VER_NUM_MASK;
++	} else {
++		pkha = rd_reg32(&priv->ctrl->vreg.pkha);
++		pk_inst = pkha & CHA_VER_NUM_MASK;
++
++		/*
++		 * Newer CAAMs support partially disabled functionality. If this is the
++		 * case, the number is non-zero, but this bit is set to indicate that
++		 * no encryption or decryption is supported. Only signing and verifying
++		 * is supported.
++		 */
++		if (pkha & CHA_VER_MISC_PKHA_NO_CRYPT)
++			pk_inst = 0;
++	}
  
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>,
- 		      <0x88000000 0x08000000>;
-diff --git a/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts b/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
-index d29e7f80ea6aa..beae9eab9cb8c 100644
---- a/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
-+++ b/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
-@@ -19,7 +19,7 @@
- 		bootargs = "console=ttyS0,115200";
- 	};
+ 	/* Do not register algorithms if PKHA is not present. */
+ 	if (!pk_inst)
+diff --git a/drivers/crypto/caam/regs.h b/drivers/crypto/caam/regs.h
+index 05127b70527d7..43975f01465d2 100644
+--- a/drivers/crypto/caam/regs.h
++++ b/drivers/crypto/caam/regs.h
+@@ -317,6 +317,9 @@ struct version_regs {
+ /* CHA Miscellaneous Information - AESA_MISC specific */
+ #define CHA_VER_MISC_AES_GCM	BIT(1 + CHA_VER_MISC_SHIFT)
  
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>,
- 		      <0x88000000 0x18000000>;
-diff --git a/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts b/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
-index 38fbefdf2e4e4..ee94455a7236d 100644
---- a/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
-+++ b/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
-@@ -16,7 +16,7 @@
- 		bootargs = "console=ttyS0,115200";
- 	};
- 
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>,
- 		      <0x88000000 0x08000000>;
-diff --git a/arch/arm/boot/dts/bcm4709-netgear-r7000.dts b/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
-index 7989a53597d4f..56d309dbc6b0d 100644
---- a/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
-+++ b/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
-@@ -19,7 +19,7 @@
- 		bootargs = "console=ttyS0,115200";
- 	};
- 
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>,
- 		      <0x88000000 0x08000000>;
-diff --git a/arch/arm/boot/dts/bcm4709-netgear-r8000.dts b/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
-index 87b655be674c5..184e3039aa864 100644
---- a/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
-+++ b/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
-@@ -30,7 +30,7 @@
- 		bootargs = "console=ttyS0,115200";
- 	};
- 
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>,
- 		      <0x88000000 0x08000000>;
-diff --git a/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts b/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts
-index f806be5da7237..c2a266a439d05 100644
---- a/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts
-+++ b/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts
-@@ -15,7 +15,7 @@
- 		bootargs = "console=ttyS0,115200 earlycon";
- 	};
- 
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>;
- 	};
-diff --git a/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts b/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
-index 2666195b6ffeb..3d415d874bd39 100644
---- a/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
-+++ b/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
-@@ -16,7 +16,7 @@
- 		bootargs = "earlycon";
- 	};
- 
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>,
- 		      <0x88000000 0x18000000>;
-diff --git a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
-index 3b978dc8997a4..612d61852bfb9 100644
---- a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
-+++ b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
-@@ -20,7 +20,7 @@
- 		bootargs = " console=ttyS0,115200n8 earlycon";
- 	};
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;
- 		device_type = "memory";
- 	};
-diff --git a/arch/arm/boot/dts/bcm94708.dts b/arch/arm/boot/dts/bcm94708.dts
-index 3d13e46c69494..d9eb2040b9631 100644
---- a/arch/arm/boot/dts/bcm94708.dts
-+++ b/arch/arm/boot/dts/bcm94708.dts
-@@ -38,7 +38,7 @@
- 	model = "NorthStar SVK (BCM94708)";
- 	compatible = "brcm,bcm94708", "brcm,bcm4708";
- 
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>;
- 	};
-diff --git a/arch/arm/boot/dts/bcm94709.dts b/arch/arm/boot/dts/bcm94709.dts
-index 5017b7b259cbe..618c812eef73e 100644
---- a/arch/arm/boot/dts/bcm94709.dts
-+++ b/arch/arm/boot/dts/bcm94709.dts
-@@ -38,7 +38,7 @@
- 	model = "NorthStar SVK (BCM94709)";
- 	compatible = "brcm,bcm94709", "brcm,bcm4709", "brcm,bcm4708";
- 
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>;
- 	};
++/* CHA Miscellaneous Information - PKHA_MISC specific */
++#define CHA_VER_MISC_PKHA_NO_CRYPT	BIT(7 + CHA_VER_MISC_SHIFT)
++
+ /*
+  * caam_perfmon - Performance Monitor/Secure Memory Status/
+  *                CAAM Global Status/Component Version IDs
 -- 
 2.33.0
 
