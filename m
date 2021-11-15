@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AD1E451045
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:42:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4529451054
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:43:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236957AbhKOSpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:45:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50438 "EHLO mail.kernel.org"
+        id S242809AbhKOSqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:46:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242324AbhKOSmy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242316AbhKOSmy (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:42:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 984276330F;
-        Mon, 15 Nov 2021 18:05:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5977463315;
+        Mon, 15 Nov 2021 18:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999531;
-        bh=OiufC8pL7TWcuNUxGFH+t+ZqQE871C5D3yXEOIwBva0=;
+        s=korg; t=1636999533;
+        bh=DJMPfQoXRoiOyA+t3rEzE0WALsCFOn3cFVcNeqwd9pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXpgl/CJul+b4ZuBVOtKuILa/fgx2nwI7xqDlx/Mg6lXaM/1J6fMNrtRvtqT1qwGA
-         97cxoq5DIHp+3P6zmZzuwCov311gg/5dI6bB/beYZrIY49I7dmiM1kX6zkOF62epL5
-         2XWL5pvxttpFIRpSgvPLNWEqPHm16FVFCCFUEkTA=
+        b=Cn4qv7u2oHYB1sIO5PeZBkdIbNiC9MsIWtFSeasyesKYATeHWaJx6AUFB4uEUGXmi
+         9huiiDeb3YQY9s4LsfaDYXYt9LBxvSZmthYe/muPohVAxLSc7x9dCMz0SbMdKniFgQ
+         aLZF2sSwM+tbK7n/T54fwdiBKfNZp1H97ufUq/Ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        Chao Yu <chao@kernel.org>,
-        syzbot+d8aaffc3719597e8cfb4@syzkaller.appspotmail.com,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 332/849] erofs: dont trigger WARN() when decompression fails
-Date:   Mon, 15 Nov 2021 17:56:55 +0100
-Message-Id: <20211115165431.474272159@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 333/849] parisc/unwind: fix unwinder when CONFIG_64BIT is enabled
+Date:   Mon, 15 Nov 2021 17:56:56 +0100
+Message-Id: <20211115165431.505924988@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,40 +39,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Sven Schnelle <svens@stackframe.org>
 
-[ Upstream commit a0961f351d82d43ab0b845304caa235dfe249ae9 ]
+[ Upstream commit 8e0ba125c2bf1030af3267058019ba86da96863f ]
 
-syzbot reported a WARNING [1] due to corrupted compressed data.
+With 64 bit kernels unwind_special() is not working because
+it compares the pc to the address of the function descriptor.
+Add a helper function that compares pc with the dereferenced
+address. This fixes all of the backtraces on my c8000. Without
+this changes, a lot of backtraces are missing in kdb or the
+show-all-tasks command from /proc/sysrq-trigger.
 
-As Dmitry said, "If this is not a kernel bug, then the code should
-not use WARN. WARN if for kernel bugs and is recognized as such by
-all testing systems and humans."
-
-[1] https://lore.kernel.org/r/000000000000b3586105cf0ff45e@google.com
-
-Link: https://lore.kernel.org/r/20211025074311.130395-1-hsiangkao@linux.alibaba.com
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Reported-by: syzbot+d8aaffc3719597e8cfb4@syzkaller.appspotmail.com
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/decompressor.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/parisc/kernel/unwind.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index a5bc4b1b7813e..ad3f31380e6b2 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -233,7 +233,6 @@ static int z_erofs_lz4_decompress(struct z_erofs_decompress_req *rq, u8 *out)
- 		erofs_err(rq->sb, "failed to decompress %d in[%u, %u] out[%u]",
- 			  ret, rq->inputsize, inputmargin, rq->outputsize);
+diff --git a/arch/parisc/kernel/unwind.c b/arch/parisc/kernel/unwind.c
+index 87ae476d1c4f5..86a57fb0e6fae 100644
+--- a/arch/parisc/kernel/unwind.c
++++ b/arch/parisc/kernel/unwind.c
+@@ -21,6 +21,8 @@
+ #include <asm/ptrace.h>
  
--		WARN_ON(1);
- 		print_hex_dump(KERN_DEBUG, "[ in]: ", DUMP_PREFIX_OFFSET,
- 			       16, 1, src + inputmargin, rq->inputsize, true);
- 		print_hex_dump(KERN_DEBUG, "[out]: ", DUMP_PREFIX_OFFSET,
+ #include <asm/unwind.h>
++#include <asm/switch_to.h>
++#include <asm/sections.h>
+ 
+ /* #define DEBUG 1 */
+ #ifdef DEBUG
+@@ -203,6 +205,11 @@ int __init unwind_init(void)
+ 	return 0;
+ }
+ 
++static bool pc_is_kernel_fn(unsigned long pc, void *fn)
++{
++	return (unsigned long)dereference_kernel_function_descriptor(fn) == pc;
++}
++
+ static int unwind_special(struct unwind_frame_info *info, unsigned long pc, int frame_size)
+ {
+ 	/*
+@@ -221,7 +228,7 @@ static int unwind_special(struct unwind_frame_info *info, unsigned long pc, int
+ 	extern void * const _call_on_stack;
+ #endif /* CONFIG_IRQSTACKS */
+ 
+-	if (pc == (unsigned long) &handle_interruption) {
++	if (pc_is_kernel_fn(pc, handle_interruption)) {
+ 		struct pt_regs *regs = (struct pt_regs *)(info->sp - frame_size - PT_SZ_ALGN);
+ 		dbg("Unwinding through handle_interruption()\n");
+ 		info->prev_sp = regs->gr[30];
+@@ -229,13 +236,13 @@ static int unwind_special(struct unwind_frame_info *info, unsigned long pc, int
+ 		return 1;
+ 	}
+ 
+-	if (pc == (unsigned long) &ret_from_kernel_thread ||
+-	    pc == (unsigned long) &syscall_exit) {
++	if (pc_is_kernel_fn(pc, ret_from_kernel_thread) ||
++	    pc_is_kernel_fn(pc, syscall_exit)) {
+ 		info->prev_sp = info->prev_ip = 0;
+ 		return 1;
+ 	}
+ 
+-	if (pc == (unsigned long) &intr_return) {
++	if (pc_is_kernel_fn(pc, intr_return)) {
+ 		struct pt_regs *regs;
+ 
+ 		dbg("Found intr_return()\n");
+@@ -246,20 +253,20 @@ static int unwind_special(struct unwind_frame_info *info, unsigned long pc, int
+ 		return 1;
+ 	}
+ 
+-	if (pc == (unsigned long) &_switch_to_ret) {
++	if (pc_is_kernel_fn(pc, _switch_to) ||
++	    pc_is_kernel_fn(pc, _switch_to_ret)) {
+ 		info->prev_sp = info->sp - CALLEE_SAVE_FRAME_SIZE;
+ 		info->prev_ip = *(unsigned long *)(info->prev_sp - RP_OFFSET);
+ 		return 1;
+ 	}
+ 
+ #ifdef CONFIG_IRQSTACKS
+-	if (pc == (unsigned long) &_call_on_stack) {
++	if (pc_is_kernel_fn(pc, _call_on_stack)) {
+ 		info->prev_sp = *(unsigned long *)(info->sp - FRAME_SIZE - REG_SZ);
+ 		info->prev_ip = *(unsigned long *)(info->sp - FRAME_SIZE - RP_OFFSET);
+ 		return 1;
+ 	}
+ #endif
+-
+ 	return 0;
+ }
+ 
 -- 
 2.33.0
 
