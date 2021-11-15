@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3387451EC4
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32328451ED1
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349078AbhKPAh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:37:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
+        id S1344618AbhKPAhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:37:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344825AbhKOTZe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80ADB636D4;
-        Mon, 15 Nov 2021 19:05:04 +0000 (UTC)
+        id S1344748AbhKOTZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04853632A9;
+        Mon, 15 Nov 2021 19:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003105;
-        bh=K4ne8YE2c/7j1spFSp9l1T/d44YzHGl6QRftd2lQY5o=;
+        s=korg; t=1637003023;
+        bh=ORiyPWfiQPLdZajcyTNdcJZPD0M4p35nO11U7shybb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JGpCE2ZwUXsf2ynf1R4JQKXMYFk2Pyh/gDKac42mdBxUuuPnjJkGURrWpm7atNpPq
-         /hc3mVtrwn6lkeS6VU5RvDUQYOQxOAZUM7sRFcJIemf7RoaPuZA90FPzx1iJGn4XAm
-         mUt8JOXm/gUn19Yz0s47O8dNGmznW5xaZgmU66B4=
+        b=ntes9KcmsA627TIb8Ka933DN2anAVIJeNOh/BDQpvayLE9iiJ3+KY8YvBy/adwl6L
+         PDo2bdfIu60UZz+duuIzszbPYZSpaQucj0+0Vhp5rVkL7ZdGv97IeTSM2ofX0SyZX3
+         zvkUHvFty+R3lbJ5o9dst2pZEVlw2YLY9K6QQ9Ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Daejun Park <daejun7.park@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 780/917] scsi: ufs: ufshpb: Use proper power management API
-Date:   Mon, 15 Nov 2021 18:04:35 +0100
-Message-Id: <20211115165455.394125962@linuxfoundation.org>
+Subject: [PATCH 5.15 783/917] selftests: net: properly support IPv6 in GSO GRE test
+Date:   Mon, 15 Nov 2021 18:04:38 +0100
+Message-Id: <20211115165455.506576348@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,57 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daejun Park <daejun7.park@samsung.com>
+From: Andrea Righi <andrea.righi@canonical.com>
 
-[ Upstream commit 351b3a849ac7d92449dc75c43db8a857b38387ea ]
+[ Upstream commit a985442fdecb59504e3a2f1cfdd3c53af017ea5b ]
 
-In ufshpb, pm_runtime_{get,put}_sync() are used to avoid unwanted runtime
-suspend during query requests. Whereas commit b294ff3e3449 ("scsi: ufs:
-core: Enable power management for wlun") modified the driver core to use
-ufshcd_rpm_{get,put}_sync() APIs.
+Explicitly pass -6 to netcat when the test is using IPv6 to prevent
+failures.
 
-Switch to these APIs in HPB module as well.
+Also make sure to pass "-N" to netcat to close the socket after EOF on
+the client side, otherwise we would always hit the timeout and the test
+would fail.
 
-Link: https://lore.kernel.org/r/20210902003534epcms2p1937a0f0eeb48a441cb69f5ef13ff8430@epcms2p1
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Daejun Park <daejun7.park@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Without this fix applied:
+
+ TEST: GREv6/v4 - copy file w/ TSO                                   [FAIL]
+ TEST: GREv6/v4 - copy file w/ GSO                                   [FAIL]
+ TEST: GREv6/v6 - copy file w/ TSO                                   [FAIL]
+ TEST: GREv6/v6 - copy file w/ GSO                                   [FAIL]
+
+With this fix applied:
+
+ TEST: GREv6/v4 - copy file w/ TSO                                   [ OK ]
+ TEST: GREv6/v4 - copy file w/ GSO                                   [ OK ]
+ TEST: GREv6/v6 - copy file w/ TSO                                   [ OK ]
+ TEST: GREv6/v6 - copy file w/ GSO                                   [ OK ]
+
+Fixes: 025efa0a82df ("selftests: add simple GSO GRE test")
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshpb.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/testing/selftests/net/gre_gso.sh | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshpb.c b/drivers/scsi/ufs/ufshpb.c
-index 026a133149dce..46cdfb0dfca94 100644
---- a/drivers/scsi/ufs/ufshpb.c
-+++ b/drivers/scsi/ufs/ufshpb.c
-@@ -2371,11 +2371,11 @@ static int ufshpb_get_lu_info(struct ufs_hba *hba, int lun,
+diff --git a/tools/testing/selftests/net/gre_gso.sh b/tools/testing/selftests/net/gre_gso.sh
+index facbb0c804439..fdeb44d621eb9 100755
+--- a/tools/testing/selftests/net/gre_gso.sh
++++ b/tools/testing/selftests/net/gre_gso.sh
+@@ -116,17 +116,18 @@ gre_gst_test_checks()
+ {
+ 	local name=$1
+ 	local addr=$2
++	local proto=$3
  
- 	ufshcd_map_desc_id_to_length(hba, QUERY_DESC_IDN_UNIT, &size);
+-	$NS_EXEC nc -kl $port >/dev/null &
++	$NS_EXEC nc $proto -kl $port >/dev/null &
+ 	PID=$!
+ 	while ! $NS_EXEC ss -ltn | grep -q $port; do ((i++)); sleep 0.01; done
  
--	pm_runtime_get_sync(hba->dev);
-+	ufshcd_rpm_get_sync(hba);
- 	ret = ufshcd_query_descriptor_retry(hba, UPIU_QUERY_OPCODE_READ_DESC,
- 					    QUERY_DESC_IDN_UNIT, lun, 0,
- 					    desc_buf, &size);
--	pm_runtime_put_sync(hba->dev);
-+	ufshcd_rpm_put_sync(hba);
+-	cat $TMPFILE | timeout 1 nc $addr $port
++	cat $TMPFILE | timeout 1 nc $proto -N $addr $port
+ 	log_test $? 0 "$name - copy file w/ TSO"
  
- 	if (ret) {
- 		dev_err(hba->dev,
-@@ -2598,10 +2598,10 @@ void ufshpb_get_dev_info(struct ufs_hba *hba, u8 *desc_buf)
- 	if (version == HPB_SUPPORT_LEGACY_VERSION)
- 		hpb_dev_info->is_legacy = true;
+ 	ethtool -K veth0 tso off
  
--	pm_runtime_get_sync(hba->dev);
-+	ufshcd_rpm_get_sync(hba);
- 	ret = ufshcd_query_attr_retry(hba, UPIU_QUERY_OPCODE_READ_ATTR,
- 		QUERY_ATTR_IDN_MAX_HPB_SINGLE_CMD, 0, 0, &max_hpb_single_cmd);
--	pm_runtime_put_sync(hba->dev);
-+	ufshcd_rpm_put_sync(hba);
+-	cat $TMPFILE | timeout 1 nc $addr $port
++	cat $TMPFILE | timeout 1 nc $proto -N $addr $port
+ 	log_test $? 0 "$name - copy file w/ GSO"
  
- 	if (ret)
- 		dev_err(hba->dev, "%s: idn: read max size of single hpb cmd query request failed",
+ 	ethtool -K veth0 tso on
+@@ -155,7 +156,7 @@ gre6_gso_test()
+ 	sleep 2
+ 
+ 	gre_gst_test_checks GREv6/v4 172.16.2.2
+-	gre_gst_test_checks GREv6/v6 2001:db8:1::2
++	gre_gst_test_checks GREv6/v6 2001:db8:1::2 -6
+ 
+ 	cleanup
+ }
 -- 
 2.33.0
 
