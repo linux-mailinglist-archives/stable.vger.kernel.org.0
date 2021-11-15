@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0AE45121B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:27:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA999451221
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:27:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236737AbhKOTaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:30:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42216 "EHLO mail.kernel.org"
+        id S238781AbhKOTaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:30:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244422AbhKOTOI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244423AbhKOTOI (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:14:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B433634BC;
-        Mon, 15 Nov 2021 18:20:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02031634B7;
+        Mon, 15 Nov 2021 18:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000459;
-        bh=0Ej4UbWk6peK3aC+a/dKZsgiKiOBR4mnJyor30xZXbA=;
+        s=korg; t=1637000462;
+        bh=MmKejlUk1h1XpRkaHo0b7s+0uOcH78Ok4wRnpFwKOvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlpDtE0BXOXAt4e1tTKtHAaqUHDqk23y1BV8fbAgJ0FGrBTHaZaO1U53yxLNpkEYu
-         wExCIZWvCAEYrkqWupmHhjCDI+yjyphGdWtnhnRHQi/oLlTzd/86bO8oEk9ZhuBjXe
-         julkoQZQ7VjnnjnXu0wAprlOZteOUpBZAJ780DqQ=
+        b=qP/idTKpZyYgUkW/tb1P9WqDdtw5TOXD1aXtBH7EcNUQ/v7/FRpj5FzJ9Cz+qdigf
+         vJKqDjqGlEWt8mSzZWFaHmuuiD3aghObXC8FCaCbAWtpgyA+JfQAlHPOJzUVywH6SR
+         fr4YZ6RWT7z+vqkK78W9eyaB2K/CW1Et6lgnr1KQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
-        Anton Vasilyev <vasilyev@ispras.ru>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 666/849] mtd: rawnand: intel: Fix potential buffer overflow in probe
-Date:   Mon, 15 Nov 2021 18:02:29 +0100
-Message-Id: <20211115165442.796698253@linuxfoundation.org>
+Subject: [PATCH 5.14 667/849] nfsd: dont alloc under spinlock in rpc_parse_scope_id
+Date:   Mon, 15 Nov 2021 18:02:30 +0100
+Message-Id: <20211115165442.828923162@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,49 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 46a0dc10fb32bec3e765e51bf71fbc070dc77ca3 ]
+[ Upstream commit 9b6e27d01adcec58e046c624874f8a124e8b07ec ]
 
-ebu_nand_probe() read the value of u32 variable "cs" from the device
-firmware description and used it as the index for array ebu_host->cs
-that can contain MAX_CS (2) elements at most. That could result in
-a buffer overflow and various bad consequences later.
+Dan Carpenter says:
 
-Fix the potential buffer overflow by restricting values of "cs" with
-MAX_CS in probe.
+  The patch d20c11d86d8f: "nfsd: Protect session creation and client
+  confirm using client_lock" from Jul 30, 2014, leads to the following
+  Smatch static checker warning:
 
-Found by Linux Driver Verification project (linuxtesting.org).
+        net/sunrpc/addr.c:178 rpc_parse_scope_id()
+        warn: sleeping in atomic context
 
-Fixes: 0b1039f016e8 ("mtd: rawnand: Add NAND controller support on Intel LGM SoC")
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Co-developed-by: Anton Vasilyev <vasilyev@ispras.ru>
-Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210903082653.16441-1-novikov@ispras.ru
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: d20c11d86d8f ("nfsd: Protect session creation and client...")
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/intel-nand-controller.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/sunrpc/addr.c | 40 ++++++++++++++++++----------------------
+ 1 file changed, 18 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/intel-nand-controller.c b/drivers/mtd/nand/raw/intel-nand-controller.c
-index 29e8a546dcd60..e8476cd5147fe 100644
---- a/drivers/mtd/nand/raw/intel-nand-controller.c
-+++ b/drivers/mtd/nand/raw/intel-nand-controller.c
-@@ -609,6 +609,11 @@ static int ebu_nand_probe(struct platform_device *pdev)
- 		dev_err(dev, "failed to get chip select: %d\n", ret);
- 		return ret;
- 	}
-+	if (cs >= MAX_CS) {
-+		dev_err(dev, "got invalid chip select: %d\n", cs);
-+		return -EINVAL;
-+	}
-+
- 	ebu_host->cs_num = cs;
+diff --git a/net/sunrpc/addr.c b/net/sunrpc/addr.c
+index 6e4dbd577a39f..d435bffc61999 100644
+--- a/net/sunrpc/addr.c
++++ b/net/sunrpc/addr.c
+@@ -162,8 +162,10 @@ static int rpc_parse_scope_id(struct net *net, const char *buf,
+ 			      const size_t buflen, const char *delim,
+ 			      struct sockaddr_in6 *sin6)
+ {
+-	char *p;
++	char p[IPV6_SCOPE_ID_LEN + 1];
+ 	size_t len;
++	u32 scope_id = 0;
++	struct net_device *dev;
  
- 	resname = devm_kasprintf(dev, GFP_KERNEL, "nand_cs%d", cs);
+ 	if ((buf + buflen) == delim)
+ 		return 1;
+@@ -175,29 +177,23 @@ static int rpc_parse_scope_id(struct net *net, const char *buf,
+ 		return 0;
+ 
+ 	len = (buf + buflen) - delim - 1;
+-	p = kmemdup_nul(delim + 1, len, GFP_KERNEL);
+-	if (p) {
+-		u32 scope_id = 0;
+-		struct net_device *dev;
+-
+-		dev = dev_get_by_name(net, p);
+-		if (dev != NULL) {
+-			scope_id = dev->ifindex;
+-			dev_put(dev);
+-		} else {
+-			if (kstrtou32(p, 10, &scope_id) != 0) {
+-				kfree(p);
+-				return 0;
+-			}
+-		}
+-
+-		kfree(p);
+-
+-		sin6->sin6_scope_id = scope_id;
+-		return 1;
++	if (len > IPV6_SCOPE_ID_LEN)
++		return 0;
++
++	memcpy(p, delim + 1, len);
++	p[len] = 0;
++
++	dev = dev_get_by_name(net, p);
++	if (dev != NULL) {
++		scope_id = dev->ifindex;
++		dev_put(dev);
++	} else {
++		if (kstrtou32(p, 10, &scope_id) != 0)
++			return 0;
+ 	}
+ 
+-	return 0;
++	sin6->sin6_scope_id = scope_id;
++	return 1;
+ }
+ 
+ static size_t rpc_pton6(struct net *net, const char *buf, const size_t buflen,
 -- 
 2.33.0
 
