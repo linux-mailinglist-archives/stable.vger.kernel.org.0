@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B29EF450AD5
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:12:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF8E3450D80
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:56:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236206AbhKORPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:15:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54728 "EHLO mail.kernel.org"
+        id S239461AbhKOR7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:59:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236844AbhKORNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:13:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BC5863237;
-        Mon, 15 Nov 2021 17:10:29 +0000 (UTC)
+        id S238449AbhKOR4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:56:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0385260EE2;
+        Mon, 15 Nov 2021 17:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996229;
-        bh=zh/hEah7YPED7qJko3DfIUvMvtMcOm9HD6oPTNJyQ+c=;
+        s=korg; t=1636997661;
+        bh=LSvG8DlQDC1WcMi0mQit/6v2SIEAzgl8LQVoHaePabo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1k0jNTcGoEw7Lt60dr+Fpnot/8XzlHmaN17VKPDX48g8PaPuZo4WdI1HsTLJOvSII
-         o4uuJnSowpZlesOSe+Qx9Mjj693jGpMmM8GWFsCYdfMmrFVnnltJwLMGLUGvBJoXKx
-         5aDItXUYH3GuliFEdCSRpo2cuwANH1cg4966QD8c=
+        b=W0jK4mQ8VlpF7PPIUgSmuT5VwfTKBIW0PRY7R79uZb3LTlN9BwVjlbsVL/mS1eBB8
+         Htx6DVno0mUlMiOVYWPfZJQA80C1OEosAKjtMybUelC7WiVipsndvKqbEMapZtXQ0p
+         so5UH3hn5E3JiXGgYaMKSs17e23btH/E8Q1Lndxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 031/355] ALSA: timer: Unconditionally unlink slave instances, too
+        stable@vger.kernel.org, Israel Rukshin <israelr@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 230/575] nvmet: fix use-after-free when a port is removed
 Date:   Mon, 15 Nov 2021 17:59:15 +0100
-Message-Id: <20211115165314.555166080@linuxfoundation.org>
+Message-Id: <20211115165351.680136376@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,55 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Israel Rukshin <israelr@nvidia.com>
 
-commit ffdd98277f0a1d15a67a74ae09bee713df4c0dbc upstream.
+[ Upstream commit e3e19dcc4c416d65f99f13d55be2b787f8d0050e ]
 
-Like the previous fix (commit c0317c0e8709 "ALSA: timer: Fix
-use-after-free problem"), we have to unlink slave timer instances
-immediately at snd_timer_stop(), too.  Otherwise it may leave a stale
-entry in the list if the slave instance is freed before actually
-running.
+When a port is removed through configfs, any connected controllers
+are starting teardown flow asynchronously and can still send commands.
+This causes a use-after-free bug for any command that dereferences
+req->port (like in nvmet_parse_io_cmd).
 
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211105091517.21733-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix this, wait for all the teardown scheduled works to complete
+(like release_work at rdma/tcp drivers). This ensures there are no
+active controllers when the port is eventually removed.
+
+Signed-off-by: Israel Rukshin <israelr@nvidia.com>
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/timer.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/nvme/target/configfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/core/timer.c
-+++ b/sound/core/timer.c
-@@ -636,23 +636,22 @@ static int snd_timer_stop1(struct snd_ti
- static int snd_timer_stop_slave(struct snd_timer_instance *timeri, bool stop)
+diff --git a/drivers/nvme/target/configfs.c b/drivers/nvme/target/configfs.c
+index 37e1d7784e175..9aed5cc710960 100644
+--- a/drivers/nvme/target/configfs.c
++++ b/drivers/nvme/target/configfs.c
+@@ -1462,6 +1462,8 @@ static void nvmet_port_release(struct config_item *item)
  {
- 	unsigned long flags;
-+	bool running;
+ 	struct nvmet_port *port = to_nvmet_port(item);
  
- 	spin_lock_irqsave(&slave_active_lock, flags);
--	if (!(timeri->flags & SNDRV_TIMER_IFLG_RUNNING)) {
--		spin_unlock_irqrestore(&slave_active_lock, flags);
--		return -EBUSY;
--	}
-+	running = timeri->flags & SNDRV_TIMER_IFLG_RUNNING;
- 	timeri->flags &= ~SNDRV_TIMER_IFLG_RUNNING;
- 	if (timeri->timer) {
- 		spin_lock(&timeri->timer->lock);
- 		list_del_init(&timeri->ack_list);
- 		list_del_init(&timeri->active_list);
--		snd_timer_notify1(timeri, stop ? SNDRV_TIMER_EVENT_STOP :
--				  SNDRV_TIMER_EVENT_PAUSE);
-+		if (running)
-+			snd_timer_notify1(timeri, stop ? SNDRV_TIMER_EVENT_STOP :
-+					  SNDRV_TIMER_EVENT_PAUSE);
- 		spin_unlock(&timeri->timer->lock);
- 	}
- 	spin_unlock_irqrestore(&slave_active_lock, flags);
--	return 0;
-+	return running ? 0 : -EBUSY;
- }
++	/* Let inflight controllers teardown complete */
++	flush_scheduled_work();
+ 	list_del(&port->global_entry);
  
- /*
+ 	kfree(port->ana_state);
+-- 
+2.33.0
+
 
 
