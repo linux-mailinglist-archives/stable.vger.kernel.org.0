@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DD9B4520A5
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14A0945209E
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349112AbhKPAz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:55:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
+        id S1345153AbhKPAzx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:55:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343499AbhKOTVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343500AbhKOTVN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 893FD63599;
-        Mon, 15 Nov 2021 18:40:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F4036359A;
+        Mon, 15 Nov 2021 18:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001658;
-        bh=2KsCdy46GOl1H7sN1S6wO20LLFY/Q6iyRChgBeGPtx8=;
+        s=korg; t=1637001660;
+        bh=JfiPDyhmrqTYhgVXyzzXfoesRZvsrR53ySIMjPrByOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0oKhCFUPii1/N5pBcRM5DTYV/fiXPRFzAMkKEkWeHPYySMwCGuUWFCiCpgbsZsAB
-         nIf6UIpIjjk1iJTllRZ00IsuhYS9J6OSnVA9Vooctbcs7XzOD2yFdiFO7bFRGFwR5V
-         Dqh0ixPXVb5abikGRS5f+5MkyYDiObdvlLMU0wXU=
+        b=H8m1djFoNS0jinqeX+xCSwYxzpeQGm0P/8n8U7uM5C91xTtR4epnO2Az/uFhcYKVW
+         DdkGDPN5jlQDOSakFU8AcJCsutpO2ZcprxbLsUOpFovfUG4vRzphDrhBwMzKT0W+c7
+         OK52dNyzGJzbFzkcyxt5CO+ctXJAcDxqbW8K89uA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Reik Keutterling <spielkind@gmail.com>,
+        stable@vger.kernel.org,
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 239/917] ACPICA: Avoid evaluating methods too early during system resume
-Date:   Mon, 15 Nov 2021 17:55:34 +0100
-Message-Id: <20211115165436.902036965@linuxfoundation.org>
+Subject: [PATCH 5.15 240/917] cpufreq: Make policy min/max hard requirements
+Date:   Mon, 15 Nov 2021 17:55:35 +0100
+Message-Id: <20211115165436.932147530@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,128 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-[ Upstream commit d3c4b6f64ad356c0d9ddbcf73fa471e6a841cc5c ]
+[ Upstream commit 15171769069408789a72f9aa9a52cc931b839b56 ]
 
-ACPICA commit 0762982923f95eb652cf7ded27356b247c9774de
+When applying the policy min/max limits, the requested frequency is
+simply clamped to not be out of range. It means, however, if one of the
+boundaries isn't an available frequency, the frequency resolution can
+return a value out of those limits, depending on the relation used.
 
-During wakeup from system-wide sleep states, acpi_get_sleep_type_data()
-is called and it tries to get memory from the slab allocator in order
-to evaluate a control method, but if KFENCE is enabled in the kernel,
-the memory allocation attempt causes an IRQ work to be queued and a
-self-IPI to be sent to the CPU running the code which requires the
-memory controller to be ready, so if that happens too early in the
-wakeup path, it doesn't work.
+e.g. freq{0,1,2} being available frequencies.
 
-Prevent that from taking place by calling acpi_get_sleep_type_data()
-for S0 upfront, when preparing to enter a given sleep state, and
-saving the data obtained by it for later use during system wakeup.
+          freq0  policy->min  freq1  policy->max   freq2
+            |        |          |        |           |
+          17kHz     18kHz     19kHz     20kHz      21kHz
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214271
-Reported-by: Reik Keutterling <spielkind@gmail.com>
-Tested-by: Reik Keutterling <spielkind@gmail.com>
+     __resolve_freq(21kHz, CPUFREQ_RELATION_L) -> 21kHz (out of bounds)
+     __resolve_freq(17kHz, CPUFREQ_RELATION_H) -> 17kHz (out of bounds)
+
+If, during the policy init, we resolve the requested min/max to existing
+frequencies, we ensure that any CPUFREQ_RELATION_* would resolve to a
+frequency which is inside the policy min/max range.
+
+Making the policy limits rigid helps to introduce the inefficient
+frequencies support. Resolving an inefficient frequency to an efficient
+one should not transgress policy->max (which can be set for thermal
+reason) and having a value we can trust simplify this comparison.
+
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/acglobal.h  |  2 ++
- drivers/acpi/acpica/hwesleep.c  |  8 ++------
- drivers/acpi/acpica/hwsleep.c   | 11 ++++-------
- drivers/acpi/acpica/hwxfsleep.c |  7 +++++++
- 4 files changed, 15 insertions(+), 13 deletions(-)
+ drivers/cpufreq/cpufreq.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/acpi/acpica/acglobal.h b/drivers/acpi/acpica/acglobal.h
-index d41b810e367c4..4366d36ef1198 100644
---- a/drivers/acpi/acpica/acglobal.h
-+++ b/drivers/acpi/acpica/acglobal.h
-@@ -226,6 +226,8 @@ extern struct acpi_bit_register_info
-     acpi_gbl_bit_register_info[ACPI_NUM_BITREG];
- ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a);
- ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b);
-+ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a_s0);
-+ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b_s0);
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 5782b15a8caad..284e940084c61 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -2523,8 +2523,15 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
+ 	if (ret)
+ 		return ret;
  
- /*****************************************************************************
-  *
-diff --git a/drivers/acpi/acpica/hwesleep.c b/drivers/acpi/acpica/hwesleep.c
-index 803402aefaeb6..808fdf54aeebf 100644
---- a/drivers/acpi/acpica/hwesleep.c
-+++ b/drivers/acpi/acpica/hwesleep.c
-@@ -147,17 +147,13 @@ acpi_status acpi_hw_extended_sleep(u8 sleep_state)
++	/*
++	 * Resolve policy min/max to available frequencies. It ensures
++	 * no frequency resolution will neither overshoot the requested maximum
++	 * nor undershoot the requested minimum.
++	 */
+ 	policy->min = new_data.min;
+ 	policy->max = new_data.max;
++	policy->min = __resolve_freq(policy, policy->min, CPUFREQ_RELATION_L);
++	policy->max = __resolve_freq(policy, policy->max, CPUFREQ_RELATION_H);
+ 	trace_cpu_frequency_limits(policy);
  
- acpi_status acpi_hw_extended_wake_prep(u8 sleep_state)
- {
--	acpi_status status;
- 	u8 sleep_type_value;
- 
- 	ACPI_FUNCTION_TRACE(hw_extended_wake_prep);
- 
--	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
--					  &acpi_gbl_sleep_type_a,
--					  &acpi_gbl_sleep_type_b);
--	if (ACPI_SUCCESS(status)) {
-+	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
- 		sleep_type_value =
--		    ((acpi_gbl_sleep_type_a << ACPI_X_SLEEP_TYPE_POSITION) &
-+		    ((acpi_gbl_sleep_type_a_s0 << ACPI_X_SLEEP_TYPE_POSITION) &
- 		     ACPI_X_SLEEP_TYPE_MASK);
- 
- 		(void)acpi_write((u64)(sleep_type_value | ACPI_X_SLEEP_ENABLE),
-diff --git a/drivers/acpi/acpica/hwsleep.c b/drivers/acpi/acpica/hwsleep.c
-index 14baa13bf8482..34a3825f25d37 100644
---- a/drivers/acpi/acpica/hwsleep.c
-+++ b/drivers/acpi/acpica/hwsleep.c
-@@ -179,7 +179,7 @@ acpi_status acpi_hw_legacy_sleep(u8 sleep_state)
- 
- acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
- {
--	acpi_status status;
-+	acpi_status status = AE_OK;
- 	struct acpi_bit_register_info *sleep_type_reg_info;
- 	struct acpi_bit_register_info *sleep_enable_reg_info;
- 	u32 pm1a_control;
-@@ -192,10 +192,7 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
- 	 * This is unclear from the ACPI Spec, but it is required
- 	 * by some machines.
- 	 */
--	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
--					  &acpi_gbl_sleep_type_a,
--					  &acpi_gbl_sleep_type_b);
--	if (ACPI_SUCCESS(status)) {
-+	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
- 		sleep_type_reg_info =
- 		    acpi_hw_get_bit_register_info(ACPI_BITREG_SLEEP_TYPE);
- 		sleep_enable_reg_info =
-@@ -216,9 +213,9 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
- 
- 			/* Insert the SLP_TYP bits */
- 
--			pm1a_control |= (acpi_gbl_sleep_type_a <<
-+			pm1a_control |= (acpi_gbl_sleep_type_a_s0 <<
- 					 sleep_type_reg_info->bit_position);
--			pm1b_control |= (acpi_gbl_sleep_type_b <<
-+			pm1b_control |= (acpi_gbl_sleep_type_b_s0 <<
- 					 sleep_type_reg_info->bit_position);
- 
- 			/* Write the control registers and ignore any errors */
-diff --git a/drivers/acpi/acpica/hwxfsleep.c b/drivers/acpi/acpica/hwxfsleep.c
-index 89b12afed564e..e4cde23a29061 100644
---- a/drivers/acpi/acpica/hwxfsleep.c
-+++ b/drivers/acpi/acpica/hwxfsleep.c
-@@ -217,6 +217,13 @@ acpi_status acpi_enter_sleep_state_prep(u8 sleep_state)
- 		return_ACPI_STATUS(status);
- 	}
- 
-+	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
-+					  &acpi_gbl_sleep_type_a_s0,
-+					  &acpi_gbl_sleep_type_b_s0);
-+	if (ACPI_FAILURE(status)) {
-+		acpi_gbl_sleep_type_a_s0 = ACPI_SLEEP_TYPE_INVALID;
-+	}
-+
- 	/* Execute the _PTS method (Prepare To Sleep) */
- 
- 	arg_list.count = 1;
+ 	policy->cached_target_freq = UINT_MAX;
 -- 
 2.33.0
 
