@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0789B4525D2
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:56:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5877F4522E9
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343782AbhKPB7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:59:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49950 "EHLO mail.kernel.org"
+        id S1378719AbhKPBQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:16:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240448AbhKOSJq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:09:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 484E0633B7;
-        Mon, 15 Nov 2021 17:46:57 +0000 (UTC)
+        id S244825AbhKOTRh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:17:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4C5B6342A;
+        Mon, 15 Nov 2021 18:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998417;
-        bh=MmKejlUk1h1XpRkaHo0b7s+0uOcH78Ok4wRnpFwKOvs=;
+        s=korg; t=1637000663;
+        bh=N4ZyP3L5TpWv0yj17CMafrVGWKVNUt93httFnJ8oYck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nIBs0qRCsebLjPpeSyjAGdIHns3isJ/7JUKXS+mxgfnnw2gEmMpxaMK0dlRjSsp//
-         o24tOOyJqh48jX29PrFISEQFXj/VJFcNlRsB6S790V3LMm5/rmf480oLSxbz7yvQXo
-         C9xK9WImmOeAVfYUBlt9hB09z+x/FH1/7Yh7bJTw=
+        b=V7M99edqgKE7Ni7DNZXY9aTlQFnay2tZqhFx3dBtJ6QYyJOkFJFvJsPTbTufYPy6a
+         ySK/YP65ayHkibbbkPVY5mXyat92IOTuq7vNDW2mLfhxmXfMl1XxfNcK265H4TXdEk
+         A3ITu9AcoaokzEwI4LPERA9lLC1K+ePexAcop9gY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 469/575] nfsd: dont alloc under spinlock in rpc_parse_scope_id
+Subject: [PATCH 5.14 711/849] scsi: qla2xxx: Fix gnl list corruption
 Date:   Mon, 15 Nov 2021 18:03:14 +0100
-Message-Id: <20211115165359.943624527@linuxfoundation.org>
+Message-Id: <20211115165444.302145081@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,88 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 9b6e27d01adcec58e046c624874f8a124e8b07ec ]
+[ Upstream commit c98c5daaa24b583cba1369b7d167f93c6ae7299c ]
 
-Dan Carpenter says:
+Current code does list element deletion and addition in and out of lock
+protection. This patch moves deletion behind lock.
 
-  The patch d20c11d86d8f: "nfsd: Protect session creation and client
-  confirm using client_lock" from Jul 30, 2014, leads to the following
-  Smatch static checker warning:
+list_add double add: new=ffff9130b5eb89f8, prev=ffff9130b5eb89f8,
+    next=ffff9130c6a715f0.
+ ------------[ cut here ]------------
+ kernel BUG at lib/list_debug.c:31!
+ invalid opcode: 0000 [#1] SMP PTI
+ CPU: 1 PID: 182395 Comm: kworker/1:37 Kdump: loaded Tainted: G W  OE
+ --------- -  - 4.18.0-193.el8.x86_64 #1
+ Hardware name: HP ProLiant DL160 Gen8, BIOS J03 02/10/2014
+ Workqueue: qla2xxx_wq qla2x00_iocb_work_fn [qla2xxx]
+ RIP: 0010:__list_add_valid+0x41/0x50
+ Code: 85 94 00 00 00 48 39 c7 74 0b 48 39 d7 74 06 b8 01 00 00 00 c3 48 89 f2
+ 4c 89 c1 48 89 fe 48 c7 c7 60 83 ad 97 e8 4d bd ce ff <0f> 0b 0f 1f 00 66 2e
+ 0f 1f 84 00 00 00 00 00 48 8b 07 48 8b 57 08
+ RSP: 0018:ffffaba306f47d68 EFLAGS: 00010046
+ RAX: 0000000000000058 RBX: ffff9130b5eb8800 RCX: 0000000000000006
+ RDX: 0000000000000000 RSI: 0000000000000096 RDI: ffff9130b7456a00
+ RBP: ffff9130c6a70a58 R08: 000000000008d7be R09: 0000000000000001
+ R10: 0000000000000000 R11: 0000000000000001 R12: ffff9130c6a715f0
+ R13: ffff9130b5eb8824 R14: ffff9130b5eb89f8 R15: ffff9130b5eb89f8
+ FS:  0000000000000000(0000) GS:ffff9130b7440000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007efcaaef11a0 CR3: 000000005200a002 CR4: 00000000000606e0
+ Call Trace:
+  qla24xx_async_gnl+0x113/0x3c0 [qla2xxx]
+  ? qla2x00_iocb_work_fn+0x53/0x80 [qla2xxx]
+  ? process_one_work+0x1a7/0x3b0
+  ? worker_thread+0x30/0x390
+  ? create_worker+0x1a0/0x1a0
+  ? kthread+0x112/0x130
 
-        net/sunrpc/addr.c:178 rpc_parse_scope_id()
-        warn: sleeping in atomic context
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: d20c11d86d8f ("nfsd: Protect session creation and client...")
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Link: https://lore.kernel.org/r/20211026115412.27691-3-njavali@marvell.com
+Fixes: 726b85487067 ("qla2xxx: Add framework for async fabric discovery")
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/addr.c | 40 ++++++++++++++++++----------------------
- 1 file changed, 18 insertions(+), 22 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/sunrpc/addr.c b/net/sunrpc/addr.c
-index 6e4dbd577a39f..d435bffc61999 100644
---- a/net/sunrpc/addr.c
-+++ b/net/sunrpc/addr.c
-@@ -162,8 +162,10 @@ static int rpc_parse_scope_id(struct net *net, const char *buf,
- 			      const size_t buflen, const char *delim,
- 			      struct sockaddr_in6 *sin6)
- {
--	char *p;
-+	char p[IPV6_SCOPE_ID_LEN + 1];
- 	size_t len;
-+	u32 scope_id = 0;
-+	struct net_device *dev;
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index 70b507d177f14..5ed7cc3fb2884 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -981,8 +981,6 @@ static void qla24xx_async_gnl_sp_done(srb_t *sp, int res)
+ 	    sp->name, res, sp->u.iocb_cmd.u.mbx.in_mb[1],
+ 	    sp->u.iocb_cmd.u.mbx.in_mb[2]);
  
- 	if ((buf + buflen) == delim)
- 		return 1;
-@@ -175,29 +177,23 @@ static int rpc_parse_scope_id(struct net *net, const char *buf,
- 		return 0;
+-	if (res == QLA_FUNCTION_TIMEOUT)
+-		return;
  
- 	len = (buf + buflen) - delim - 1;
--	p = kmemdup_nul(delim + 1, len, GFP_KERNEL);
--	if (p) {
--		u32 scope_id = 0;
--		struct net_device *dev;
--
--		dev = dev_get_by_name(net, p);
--		if (dev != NULL) {
--			scope_id = dev->ifindex;
--			dev_put(dev);
--		} else {
--			if (kstrtou32(p, 10, &scope_id) != 0) {
--				kfree(p);
--				return 0;
--			}
--		}
--
--		kfree(p);
--
--		sin6->sin6_scope_id = scope_id;
--		return 1;
-+	if (len > IPV6_SCOPE_ID_LEN)
-+		return 0;
-+
-+	memcpy(p, delim + 1, len);
-+	p[len] = 0;
-+
-+	dev = dev_get_by_name(net, p);
-+	if (dev != NULL) {
-+		scope_id = dev->ifindex;
-+		dev_put(dev);
-+	} else {
-+		if (kstrtou32(p, 10, &scope_id) != 0)
-+			return 0;
- 	}
+ 	sp->fcport->flags &= ~(FCF_ASYNC_SENT|FCF_ASYNC_ACTIVE);
+ 	memset(&ea, 0, sizeof(ea));
+@@ -1020,8 +1018,8 @@ static void qla24xx_async_gnl_sp_done(srb_t *sp, int res)
+ 	spin_unlock_irqrestore(&vha->hw->tgt.sess_lock, flags);
  
--	return 0;
-+	sin6->sin6_scope_id = scope_id;
-+	return 1;
- }
- 
- static size_t rpc_pton6(struct net *net, const char *buf, const size_t buflen,
+ 	list_for_each_entry_safe(fcport, tf, &h, gnl_entry) {
+-		list_del_init(&fcport->gnl_entry);
+ 		spin_lock_irqsave(&vha->hw->tgt.sess_lock, flags);
++		list_del_init(&fcport->gnl_entry);
+ 		fcport->flags &= ~(FCF_ASYNC_SENT | FCF_ASYNC_ACTIVE);
+ 		spin_unlock_irqrestore(&vha->hw->tgt.sess_lock, flags);
+ 		ea.fcport = fcport;
 -- 
 2.33.0
 
