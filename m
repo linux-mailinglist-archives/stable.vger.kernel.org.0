@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD9D4513FC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66BA345116A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:05:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348818AbhKOUAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:00:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
+        id S243702AbhKOTHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:07:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344158AbhKOTXn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96121632A5;
-        Mon, 15 Nov 2021 18:52:54 +0000 (UTC)
+        id S243886AbhKOTEg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:04:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A787C632AE;
+        Mon, 15 Nov 2021 18:15:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002375;
-        bh=26/YeTE97UOJ2PxTmcl8ka76U3or3foLfK8H16RiVvg=;
+        s=korg; t=1637000150;
+        bh=EvSXTu1vphkyQ+YKSs94SRYGn86hQWjVrD6x7mQyOqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0UIHqW6Hr1lr0pCwbm5yPSJbK/e6nwJtuVk+OXd1SbuxV+uEAZ0PJuAceoaUSHNEy
-         uLYK1u7wZiGRNaxPIJA/1qKa2ujNtzn+7F5NQscRkm2Rgerz1lDBfX5qfTLwlL9YXr
-         bZU1Z6Lfwb8mK4oTWHPTnHisSYgUYlwe27OlLtbo=
+        b=gd2KWMTmQfqLo4a/nxC5avZJ5/eOuC4hocQUynKo3m54lIkr8GAzOolQjjj4cKbxQ
+         7LbLAP+KoQ+2WUksD3+yGyMlerPJ3OSeJb0ijDqzVispbKNqGba7jnyXlBHwFkb7KT
+         YjGcfnLHXxtbCSBZ+2QUROlHJaEPvI4aI7q0ynus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 542/917] sctp: allow IP fragmentation when PLPMTUD enters Error state
-Date:   Mon, 15 Nov 2021 18:00:37 +0100
-Message-Id: <20211115165447.135423716@linuxfoundation.org>
+Subject: [PATCH 5.14 555/849] clk: mvebu: ap-cpu-clk: Fix a memory leak in error handling paths
+Date:   Mon, 15 Nov 2021 18:00:38 +0100
+Message-Id: <20211115165439.034705642@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,90 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 40171248bb8934537fec8fbaf718e57c8add187c ]
+[ Upstream commit af9617b419f77cf0b99702a7b2b0519da0d27715 ]
 
-Currently when PLPMTUD enters Error state, transport pathmtu will be set
-to MIN_PLPMTU(512) while probe is continuing with BASE_PLPMTU(1200). It
-will cause pathmtu to stay in a very small value, even if the real pmtu
-is some value like 1000.
+If we exit the for_each_of_cpu_node loop early, the reference on the
+current node must be decremented, otherwise there is a leak.
 
-RFC8899 doesn't clearly say how to set the value in Error state. But one
-possibility could be keep using BASE_PLPMTU for the real pmtu, but allow
-to do IP fragmentation when it's in Error state.
-
-As it says in rfc8899#section-5.4:
-
-   Some paths could be unable to sustain packets of the BASE_PLPMTU
-   size.  The Error State could be implemented to provide robustness to
-   such paths.  This allows fallback to a smaller than desired PLPMTU
-   rather than suffer connectivity failure.  This could utilize methods
-   such as endpoint IP fragmentation to enable the PL sender to
-   communicate using packets smaller than the BASE_PLPMTU.
-
-This patch is to set pmtu to BASE_PLPMTU instead of MIN_PLPMTU for Error
-state in sctp_transport_pl_send/toobig(), and set packet ipfragok for
-non-probe packets when it's in Error state.
-
-Fixes: 1dc68c194571 ("sctp: do state transition when PROBE_COUNT == MAX_PROBES on HB send path")
-Reported-by: Ying Xu <yinxu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f756e362d938 ("clk: mvebu: add CPU clock driver for Armada 7K/8K")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/545df946044fc1fc05a4217cdf0054be7a79e49e.1619161112.git.christophe.jaillet@wanadoo.fr
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/output.c    | 13 ++++++++-----
- net/sctp/transport.c |  4 ++--
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ drivers/clk/mvebu/ap-cpu-clk.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/net/sctp/output.c b/net/sctp/output.c
-index 4dfb5ea82b05b..cdfdbd353c678 100644
---- a/net/sctp/output.c
-+++ b/net/sctp/output.c
-@@ -581,13 +581,16 @@ int sctp_packet_transmit(struct sctp_packet *packet, gfp_t gfp)
- 	chunk = list_entry(packet->chunk_list.next, struct sctp_chunk, list);
- 	sk = chunk->skb->sk;
+diff --git a/drivers/clk/mvebu/ap-cpu-clk.c b/drivers/clk/mvebu/ap-cpu-clk.c
+index 08ba59ec3fb17..71bdd7c3ff034 100644
+--- a/drivers/clk/mvebu/ap-cpu-clk.c
++++ b/drivers/clk/mvebu/ap-cpu-clk.c
+@@ -256,12 +256,15 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
+ 		int cpu, err;
  
--	/* check gso */
- 	if (packet->size > tp->pathmtu && !packet->ipfragok && !chunk->pmtu_probe) {
--		if (!sk_can_gso(sk)) {
--			pr_err_once("Trying to GSO but underlying device doesn't support it.");
--			goto out;
-+		if (tp->pl.state == SCTP_PL_ERROR) { /* do IP fragmentation if in Error state */
-+			packet->ipfragok = 1;
-+		} else {
-+			if (!sk_can_gso(sk)) { /* check gso */
-+				pr_err_once("Trying to GSO but underlying device doesn't support it.");
-+				goto out;
-+			}
-+			gso = 1;
+ 		err = of_property_read_u32(dn, "reg", &cpu);
+-		if (WARN_ON(err))
++		if (WARN_ON(err)) {
++			of_node_put(dn);
+ 			return err;
++		}
+ 
+ 		/* If cpu2 or cpu3 is enabled */
+ 		if (cpu & APN806_CLUSTER_NUM_MASK) {
+ 			nclusters = 2;
++			of_node_put(dn);
+ 			break;
  		}
--		gso = 1;
+ 	}
+@@ -288,8 +291,10 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
+ 		int cpu, err;
+ 
+ 		err = of_property_read_u32(dn, "reg", &cpu);
+-		if (WARN_ON(err))
++		if (WARN_ON(err)) {
++			of_node_put(dn);
+ 			return err;
++		}
+ 
+ 		cluster_index = cpu & APN806_CLUSTER_NUM_MASK;
+ 		cluster_index >>= APN806_CLUSTER_NUM_OFFSET;
+@@ -301,6 +306,7 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
+ 		parent = of_clk_get(np, cluster_index);
+ 		if (IS_ERR(parent)) {
+ 			dev_err(dev, "Could not get the clock parent\n");
++			of_node_put(dn);
+ 			return -EINVAL;
+ 		}
+ 		parent_name =  __clk_get_name(parent);
+@@ -319,8 +325,10 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
+ 		init.parent_names = &parent_name;
+ 
+ 		ret = devm_clk_hw_register(dev, &ap_cpu_clk[cluster_index].hw);
+-		if (ret)
++		if (ret) {
++			of_node_put(dn);
+ 			return ret;
++		}
+ 		ap_cpu_data->hws[cluster_index] = &ap_cpu_clk[cluster_index].hw;
  	}
  
- 	/* alloc head skb */
-diff --git a/net/sctp/transport.c b/net/sctp/transport.c
-index a3d3ca6dd63dd..1f2dfad768d52 100644
---- a/net/sctp/transport.c
-+++ b/net/sctp/transport.c
-@@ -269,7 +269,7 @@ bool sctp_transport_pl_send(struct sctp_transport *t)
- 		if (t->pl.probe_size == SCTP_BASE_PLPMTU) { /* BASE_PLPMTU Confirmation Failed */
- 			t->pl.state = SCTP_PL_ERROR; /* Base -> Error */
- 
--			t->pl.pmtu = SCTP_MIN_PLPMTU;
-+			t->pl.pmtu = SCTP_BASE_PLPMTU;
- 			t->pathmtu = t->pl.pmtu + sctp_transport_pl_hlen(t);
- 			sctp_assoc_sync_pmtu(t->asoc);
- 		}
-@@ -366,7 +366,7 @@ static bool sctp_transport_pl_toobig(struct sctp_transport *t, u32 pmtu)
- 		if (pmtu >= SCTP_MIN_PLPMTU && pmtu < SCTP_BASE_PLPMTU) {
- 			t->pl.state = SCTP_PL_ERROR; /* Base -> Error */
- 
--			t->pl.pmtu = SCTP_MIN_PLPMTU;
-+			t->pl.pmtu = SCTP_BASE_PLPMTU;
- 			t->pathmtu = t->pl.pmtu + sctp_transport_pl_hlen(t);
- 		}
- 	} else if (t->pl.state == SCTP_PL_SEARCH) {
 -- 
 2.33.0
 
