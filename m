@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B933452440
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:34:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C5B4452446
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:34:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343810AbhKPBgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:36:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50450 "EHLO mail.kernel.org"
+        id S1352031AbhKPBg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:36:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242853AbhKOSq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242855AbhKOSq4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:46:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D12D6338F;
-        Mon, 15 Nov 2021 18:07:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFAE463391;
+        Mon, 15 Nov 2021 18:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999648;
-        bh=jDpWWNLYwrE6qn3YFGFn3WLQE9+cO7dx1d6VZzxUcZk=;
+        s=korg; t=1636999651;
+        bh=aFwVWyObgqDnVTp1yQd/rsY+wDdJUy/Sircfosmh8CU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oV87d0DedT6zFtWN2Vq0SgNVN5Y+M5cmu2LlhAwyKg7sfYUMpHZxOc6Tj1iv7kItg
-         uMPMP0Z5kCaG5ugwIweWrbVF7zyg5nszCQ4/Qh64e0LxpoMbnLRlPpJSReJSnn7yiH
-         i9NoOg7io9ragWt26cjlkgBlJSTuMDOMhuF4KRFo=
+        b=PW0uNznmzd8izB+HJ6gehDTZ/N3hO2JBV+Tqz5hOREi2N+WXg8PK2i99OlXqPqFTI
+         AKw9OlQ6BCZdFePAqAUUZoBGakuZT9/WhWT/wGASvQu59uu7/QCYnfl/TD9wJP9GUM
+         rtmJmpJRLBniYqReT9+E0mRuhywj7MgXK6SffA9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 373/849] ath10k: sdio: Add missing BH locking around napi_schdule()
-Date:   Mon, 15 Nov 2021 17:57:36 +0100
-Message-Id: <20211115165432.848866294@linuxfoundation.org>
+Subject: [PATCH 5.14 374/849] drm/ttm: stop calling tt_swapin in vm_access
+Date:   Mon, 15 Nov 2021 17:57:37 +0100
+Message-Id: <20211115165432.885130649@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,69 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Matthew Auld <matthew.auld@intel.com>
 
-[ Upstream commit 019edd01d174ce4bb2e517dd332922514d176601 ]
+[ Upstream commit f5d28856b89baab4232a9f841e565763fcebcdf9 ]
 
-On a i.MX-based board with a QCA9377 Wifi chip, the following errors
-are seen after launching the 'hostapd' application:
+In commit:
 
-hostapd /etc/wifi.conf
-Configuration file: /etc/wifi.conf
-wlan0: interface state UNINITIALIZED->COUNTRY_UPDATE
-NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
-Using interface wlan0 with hwaddr 00:1f:7b:31:04:a0 and ssid "thessid"
-IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready
-wlan0: interface state COUNTRY_UPDATE->ENABLED
-wlan0: AP-ENABLED
-NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
-NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
-NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
-NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
-...
+commit 09ac4fcb3f255e9225967c75f5893325c116cdbe
+Author: Felix Kuehling <Felix.Kuehling@amd.com>
+Date:   Thu Jul 13 17:01:16 2017 -0400
 
-Fix this problem by adding the BH locking around napi-schedule(),
-in the same way it was done in commit e63052a5dd3c ("mlx5e: add
-add missing BH locking around napi_schdule()").
+    drm/ttm: Implement vm_operations_struct.access v2
 
-Its commit log provides the following explanation:
+we added the vm_access hook, where we also directly call tt_swapin for
+some reason. If something is swapped-out then the ttm_tt must also be
+unpopulated, and since access_kmap should also call tt_populate, if
+needed, then swapping-in will already be handled there.
 
-"It's not correct to call napi_schedule() in pure process
-context. Because we use __raise_softirq_irqoff() we require
-callers to be in a context which will eventually lead to
-softirq handling (hardirq, bh disabled, etc.).
+If anything, calling tt_swapin directly here would likely always fail
+since the tt->pages won't yet be populated, or worse since the tt->pages
+array is never actually cleared in unpopulate this might lead to a nasty
+uaf.
 
-With code as is users will see:
-
-NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!
-"
-
-Fixes: cfee8793a74d ("ath10k: enable napi on RX path for sdio")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210824144339.2796122-1-festevam@denx.de
+Fixes: 09ac4fcb3f25 ("drm/ttm: Implement vm_operations_struct.access v2")
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Cc: Christian König <christian.koenig@amd.com>
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210927114114.152310-1-matthew.auld@intel.com
+Signed-off-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/sdio.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/ttm/ttm_bo_vm.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
-index b746052737e0b..eb705214f3f0a 100644
---- a/drivers/net/wireless/ath/ath10k/sdio.c
-+++ b/drivers/net/wireless/ath/ath10k/sdio.c
-@@ -1363,8 +1363,11 @@ static void ath10k_rx_indication_async_work(struct work_struct *work)
- 		ep->ep_ops.ep_rx_complete(ar, skb);
- 	}
+diff --git a/drivers/gpu/drm/ttm/ttm_bo_vm.c b/drivers/gpu/drm/ttm/ttm_bo_vm.c
+index f56be5bc0861e..5b9b7fd01a692 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo_vm.c
++++ b/drivers/gpu/drm/ttm/ttm_bo_vm.c
+@@ -519,11 +519,6 @@ int ttm_bo_vm_access(struct vm_area_struct *vma, unsigned long addr,
  
--	if (test_bit(ATH10K_FLAG_CORE_REGISTERED, &ar->dev_flags))
-+	if (test_bit(ATH10K_FLAG_CORE_REGISTERED, &ar->dev_flags)) {
-+		local_bh_disable();
- 		napi_schedule(&ar->napi);
-+		local_bh_enable();
-+	}
- }
- 
- static int ath10k_sdio_read_rtc_state(struct ath10k_sdio *ar_sdio, unsigned char *state)
+ 	switch (bo->resource->mem_type) {
+ 	case TTM_PL_SYSTEM:
+-		if (unlikely(bo->ttm->page_flags & TTM_PAGE_FLAG_SWAPPED)) {
+-			ret = ttm_tt_swapin(bo->ttm);
+-			if (unlikely(ret != 0))
+-				return ret;
+-		}
+ 		fallthrough;
+ 	case TTM_PL_TT:
+ 		ret = ttm_bo_vm_access_kmap(bo, offset, buf, len, write);
 -- 
 2.33.0
 
