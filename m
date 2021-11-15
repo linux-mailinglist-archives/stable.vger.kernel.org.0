@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAADC450DDF
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25A36450AFA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237803AbhKOSIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:08:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45994 "EHLO mail.kernel.org"
+        id S232422AbhKORQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:16:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239703AbhKOSEj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:04:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EC2B63357;
-        Mon, 15 Nov 2021 17:38:19 +0000 (UTC)
+        id S236819AbhKORO7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:14:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A52761BE5;
+        Mon, 15 Nov 2021 17:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997899;
-        bh=gD3+HAWWK3Exj2raDuQKo/ezmVkTpoloVcH1o6EKHJw=;
+        s=korg; t=1636996303;
+        bh=lBs+HZbKEHzuBDHl54AKoseW1ciC+arOT7XrgYwq0PA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=euH3z9rXCOyvHUTI1gdsXPcOHROumLClBV6cZoKMJ0QUafyfZxdAf+e0TYcfFMR0h
-         n/xzDmsDsYHfmIrVk34r6ySxjc7I2h2vQ1DoDsP4RwInU0qpdH2NyjgmwkX7uL8jnz
-         fHGKv9B1Wqso4nGG549zNXvyY83FigAsOnsTJj90=
+        b=lGBXzH+S18231P18CNDArTZJ3gckPBtPDkWCyA6ZJ2a/zDPjbirSD/KFabsMkVNY9
+         X69800nOHdDPittzgm+1/+Gj0eYq7b0+xbgg91Vq94sMxcH/Bsyp56noFafHQukRM7
+         GeD33GwSpqqxUa2B8N35q5tEqla0cJesRkkE8D8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+a6969ef522a36d3344c9@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 288/575] media: em28xx: add missing em28xx_close_extension
-Date:   Mon, 15 Nov 2021 18:00:13 +0100
-Message-Id: <20211115165353.746352385@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 090/355] KVM: nVMX: Query current VMCS when determining if MSR bitmaps are in use
+Date:   Mon, 15 Nov 2021 18:00:14 +0100
+Message-Id: <20211115165316.714161050@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 2c98b8a3458df03abdc6945bbef67ef91d181938 ]
+commit 7dfbc624eb5726367900c8d86deff50836240361 upstream.
 
-If em28xx dev has ->dev_next pointer, we need to delete ->dev_next list
-node from em28xx_extension_devlist on disconnect to avoid UAF bugs and
-corrupted list bugs, since driver frees this pointer on disconnect.
+Check the current VMCS controls to determine if an MSR write will be
+intercepted due to MSR bitmaps being disabled.  In the nested VMX case,
+KVM will disable MSR bitmaps in vmcs02 if they're disabled in vmcs12 or
+if KVM can't map L1's bitmaps for whatever reason.
 
-Reported-and-tested-by: syzbot+a6969ef522a36d3344c9@syzkaller.appspotmail.com
+Note, the bad behavior is relatively benign in the current code base as
+KVM sets all bits in vmcs02's MSR bitmap by default, clears bits if and
+only if L0 KVM also disables interception of an MSR, and only uses the
+buggy helper for MSR_IA32_SPEC_CTRL.  Because KVM explicitly tests WRMSR
+before disabling interception of MSR_IA32_SPEC_CTRL, the flawed check
+will only result in KVM reading MSR_IA32_SPEC_CTRL from hardware when it
+isn't strictly necessary.
 
-Fixes: 1a23f81b7dc3 ("V4L/DVB (9979): em28xx: move usb probe code to a proper place")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tag the fix for stable in case a future fix wants to use
+msr_write_intercepted(), in which case a buggy implementation in older
+kernels could prove subtly problematic.
+
+Fixes: d28b387fb74d ("KVM/VMX: Allow direct access to MSR_IA32_SPEC_CTRL")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211109013047.2041518-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/em28xx/em28xx-cards.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/kvm/vmx/vmx.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
-index 5144888ae36f7..cf45cc566cbe2 100644
---- a/drivers/media/usb/em28xx/em28xx-cards.c
-+++ b/drivers/media/usb/em28xx/em28xx-cards.c
-@@ -4089,8 +4089,11 @@ static void em28xx_usb_disconnect(struct usb_interface *intf)
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -785,15 +785,15 @@ void update_exception_bitmap(struct kvm_
+ /*
+  * Check if MSR is intercepted for currently loaded MSR bitmap.
+  */
+-static bool msr_write_intercepted(struct kvm_vcpu *vcpu, u32 msr)
++static bool msr_write_intercepted(struct vcpu_vmx *vmx, u32 msr)
+ {
+ 	unsigned long *msr_bitmap;
+ 	int f = sizeof(unsigned long);
  
- 	em28xx_close_extension(dev);
+-	if (!cpu_has_vmx_msr_bitmap())
++	if (!(exec_controls_get(vmx) & CPU_BASED_USE_MSR_BITMAPS))
+ 		return true;
  
--	if (dev->dev_next)
-+	if (dev->dev_next) {
-+		em28xx_close_extension(dev->dev_next);
- 		em28xx_release_resources(dev->dev_next);
-+	}
-+
- 	em28xx_release_resources(dev);
+-	msr_bitmap = to_vmx(vcpu)->loaded_vmcs->msr_bitmap;
++	msr_bitmap = vmx->loaded_vmcs->msr_bitmap;
  
- 	if (dev->dev_next) {
--- 
-2.33.0
-
+ 	if (msr <= 0x1fff) {
+ 		return !!test_bit(msr, msr_bitmap + 0x800 / f);
+@@ -6579,7 +6579,7 @@ static void vmx_vcpu_run(struct kvm_vcpu
+ 	 * If the L02 MSR bitmap does not intercept the MSR, then we need to
+ 	 * save it.
+ 	 */
+-	if (unlikely(!msr_write_intercepted(vcpu, MSR_IA32_SPEC_CTRL)))
++	if (unlikely(!msr_write_intercepted(vmx, MSR_IA32_SPEC_CTRL)))
+ 		vmx->spec_ctrl = native_read_msr(MSR_IA32_SPEC_CTRL);
+ 
+ 	x86_spec_ctrl_restore_host(vmx->spec_ctrl, 0);
 
 
