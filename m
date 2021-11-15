@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 210CE451E98
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D65C451E9B
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344517AbhKPAgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S1348125AbhKPAgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:36:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343866AbhKOTWQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343868AbhKOTWQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64CEA6339B;
-        Mon, 15 Nov 2021 18:47:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E27E36339C;
+        Mon, 15 Nov 2021 18:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002054;
-        bh=UhlNf4CH0dSD3Om8M5ocjpWTeoVul0JUsZScdScVNuY=;
+        s=korg; t=1637002057;
+        bh=pn7LAgUSQ82DjVMjRhYDaKSUCMPvDjOGIseLSGYmEIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zk8ahBdQA1TdE0NWR3QfLd95ss4I3nZQnEGM8jLK6YVMoU6iI5sOrLBC8uaX4XynI
-         MNQeyBZm5ZwqfNbRVGp4eJu2JfRa9G6bQHOcORJg4akZVQhsHuI2v74nDi/KzhYBiw
-         XVV6UiCv58B/GCSQXVWcAse/G4tIrz/LtQ0vLGiU=
+        b=ZD39N3n2wbnOMGxCZFUn/9MKc8nSb9wA/b0qiULR72AuroOpxnj+ZuIzcaZM546FS
+         39KMb5CpZP9VIR7juIuPk07/ARpNmmvyn3xdbrTkhKgeKZJrnvIRdGeCAxwir86TS1
+         oQENPt03o6htM6VmMtI5RTtKHh/JBYPYusP9GkxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 422/917] memstick: avoid out-of-range warning
-Date:   Mon, 15 Nov 2021 17:58:37 +0100
-Message-Id: <20211115165443.108444733@linuxfoundation.org>
+Subject: [PATCH 5.15 423/917] memstick: jmb38x_ms: use appropriate free function in jmb38x_ms_alloc_host()
+Date:   Mon, 15 Nov 2021 17:58:38 +0100
+Message-Id: <20211115165443.143258988@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,42 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4853396f03c3019eccf5cd113e464231e9ddf0b3 ]
+[ Upstream commit beae4a6258e64af609ad5995cc6b6056eb0d898e ]
 
-clang-14 complains about a sanity check that always passes when the
-page size is 64KB or larger:
+The "msh" pointer is device managed, meaning that memstick_alloc_host()
+calls device_initialize() on it.  That means that it can't be free
+using kfree() but must instead be freed with memstick_free_host().
+Otherwise it leads to a tiny memory leak of device resources.
 
-drivers/memstick/core/ms_block.c:1739:21: error: result of comparison of constant 65536 with expression of type 'unsigned short' is always false [-Werror,-Wtautological-constant-out-of-range-compare]
-        if (msb->page_size > PAGE_SIZE) {
-            ~~~~~~~~~~~~~~ ^ ~~~~~~~~~
-
-This is fine, it will still work on all architectures, so just shut
-up that warning with a cast.
-
-Fixes: 0ab30494bc4f ("memstick: add support for legacy memorysticks")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210927094520.696665-1-arnd@kernel.org
+Fixes: 60fdd931d577 ("memstick: add support for JMicron jmb38x MemoryStick host controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20211011123912.GD15188@kili
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/core/ms_block.c | 2 +-
+ drivers/memstick/host/jmb38x_ms.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
-index acf36676e388d..487e4cc2951e0 100644
---- a/drivers/memstick/core/ms_block.c
-+++ b/drivers/memstick/core/ms_block.c
-@@ -1736,7 +1736,7 @@ static int msb_init_card(struct memstick_dev *card)
- 	msb->pages_in_block = boot_block->attr.block_size * 2;
- 	msb->block_size = msb->page_size * msb->pages_in_block;
+diff --git a/drivers/memstick/host/jmb38x_ms.c b/drivers/memstick/host/jmb38x_ms.c
+index f9a93b0565e15..435d4c058b20e 100644
+--- a/drivers/memstick/host/jmb38x_ms.c
++++ b/drivers/memstick/host/jmb38x_ms.c
+@@ -882,7 +882,7 @@ static struct memstick_host *jmb38x_ms_alloc_host(struct jmb38x_ms *jm, int cnt)
  
--	if (msb->page_size > PAGE_SIZE) {
-+	if ((size_t)msb->page_size > PAGE_SIZE) {
- 		/* this isn't supported by linux at all, anyway*/
- 		dbg("device page %d size isn't supported", msb->page_size);
- 		return -EINVAL;
+ 	iounmap(host->addr);
+ err_out_free:
+-	kfree(msh);
++	memstick_free_host(msh);
+ 	return NULL;
+ }
+ 
 -- 
 2.33.0
 
