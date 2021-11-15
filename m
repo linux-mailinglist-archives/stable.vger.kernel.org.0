@@ -2,38 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79124450C4C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:34:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCEC8450EA5
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:15:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236796AbhKORhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:37:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48494 "EHLO mail.kernel.org"
+        id S240742AbhKOSQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:16:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238250AbhKORdy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:33:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFB2F6325E;
-        Mon, 15 Nov 2021 17:22:18 +0000 (UTC)
+        id S240695AbhKOSLr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:11:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEB9063317;
+        Mon, 15 Nov 2021 17:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996939;
-        bh=rCtr6bpO4O8OVea8WTdmqgIsgLofSsTjC1wjW8B5/+I=;
+        s=korg; t=1636998476;
+        bh=QeOx66bLaohTdP8iS3no5arKK1EF+YLTTkG3AQMRpUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qv2qo8XBRbwWZyTL/eCUH78E9DNiGoHa7cbqZ9p0WLZitPOPJVuOEZvFAXRtOrhMT
-         02i/h9BHqsEV8udaAUKKfF+elTGmIjIq4d4sBh6+wpy049NVmU3f+AdZ+XzEKrTmWc
-         Wusu36nkARBsbxhmKfZcls4rKWAJBwioZufdAhoQ=
+        b=0Jb2HN69OhqmKTu7S6RducJLBtUirHxHsVXOD+qgMG71LqRpE+awp1PiHnhE5bQXa
+         td3fp6odRlsECRtYzvyrBL1hlGN5nJXLzTTlaaxP5A3FH2hpzecsFFrb5p/4jfMvdS
+         RtkVcZty+lX5gXCTqSzUUMv26b4iQBLlI+HM4CEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@redhat.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 324/355] nfc: pn533: Fix double free when pn533_fill_fragment_skbs() fails
+Subject: [PATCH 5.10 523/575] perf bpf: Add missing free to bpf_event__print_bpf_prog_info()
 Date:   Mon, 15 Nov 2021 18:04:08 +0100
-Message-Id: <20211115165324.213523830@linuxfoundation.org>
+Message-Id: <20211115165401.758780025@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengfeng Ye <cyeaa@connect.ust.hk>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit 9fec40f850658e00a14a7dd9e06f7fbc7e59cc4a ]
+[ Upstream commit 88c42f4d6cb249eb68524282f8d4cc32f9059984 ]
 
-skb is already freed by dev_kfree_skb in pn533_fill_fragment_skbs,
-but follow error handler branch when pn533_fill_fragment_skbs()
-fails, skb is freed again, results in double free issue. Fix this
-by not free skb in error path of pn533_fill_fragment_skbs.
+If btf__new() is called then there needs to be a corresponding btf__free().
 
-Fixes: 963a82e07d4e ("NFC: pn533: Split large Tx frames in chunks")
-Fixes: 93ad42020c2d ("NFC: pn533: Target mode Tx fragmentation support")
-Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f8dfeae009effc0b ("perf bpf: Show more BPF program info in print_bpf_prog_info()")
+Signed-off-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20211106053733.3580931-2-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/pn533/pn533.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/perf/util/bpf-event.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/pn533/pn533.c b/drivers/nfc/pn533/pn533.c
-index 3ea38ce86cc9f..807b7b37d9dce 100644
---- a/drivers/nfc/pn533/pn533.c
-+++ b/drivers/nfc/pn533/pn533.c
-@@ -2072,7 +2072,7 @@ static int pn533_fill_fragment_skbs(struct pn533 *dev, struct sk_buff *skb)
- 		frag = pn533_alloc_skb(dev, frag_size);
- 		if (!frag) {
- 			skb_queue_purge(&dev->fragment_skb);
--			break;
-+			return -ENOMEM;
- 		}
+diff --git a/tools/perf/util/bpf-event.c b/tools/perf/util/bpf-event.c
+index 3742511a08d15..c8101575dbf45 100644
+--- a/tools/perf/util/bpf-event.c
++++ b/tools/perf/util/bpf-event.c
+@@ -557,7 +557,7 @@ void bpf_event__print_bpf_prog_info(struct bpf_prog_info *info,
+ 		synthesize_bpf_prog_name(name, KSYM_NAME_LEN, info, btf, 0);
+ 		fprintf(fp, "# bpf_prog_info %u: %s addr 0x%llx size %u\n",
+ 			info->id, name, prog_addrs[0], prog_lens[0]);
+-		return;
++		goto out;
+ 	}
  
- 		if (!dev->tgt_mode) {
-@@ -2143,7 +2143,7 @@ static int pn533_transceive(struct nfc_dev *nfc_dev,
- 		/* jumbo frame ? */
- 		if (skb->len > PN533_CMD_DATAEXCH_DATA_MAXLEN) {
- 			rc = pn533_fill_fragment_skbs(dev, skb);
--			if (rc <= 0)
-+			if (rc < 0)
- 				goto error;
- 
- 			skb = skb_dequeue(&dev->fragment_skb);
-@@ -2215,7 +2215,7 @@ static int pn533_tm_send(struct nfc_dev *nfc_dev, struct sk_buff *skb)
- 	/* let's split in multiple chunks if size's too big */
- 	if (skb->len > PN533_CMD_DATAEXCH_DATA_MAXLEN) {
- 		rc = pn533_fill_fragment_skbs(dev, skb);
--		if (rc <= 0)
-+		if (rc < 0)
- 			goto error;
- 
- 		/* get the first skb */
+ 	fprintf(fp, "# bpf_prog_info %u:\n", info->id);
+@@ -567,4 +567,6 @@ void bpf_event__print_bpf_prog_info(struct bpf_prog_info *info,
+ 		fprintf(fp, "# \tsub_prog %u: %s addr 0x%llx size %u\n",
+ 			i, name, prog_addrs[i], prog_lens[i]);
+ 	}
++out:
++	btf__free(btf);
+ }
 -- 
 2.33.0
 
