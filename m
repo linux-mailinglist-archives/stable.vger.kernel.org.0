@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FCDF4522D9
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA9B74522E2
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244510AbhKPBQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:16:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42638 "EHLO mail.kernel.org"
+        id S1350339AbhKPBQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:16:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244555AbhKOTPd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:15:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBA0861AA9;
-        Mon, 15 Nov 2021 18:21:59 +0000 (UTC)
+        id S244658AbhKOTRJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:17:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DCF26327E;
+        Mon, 15 Nov 2021 18:22:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000520;
-        bh=auBu0jp0iJM/luzw/iW2euL71+yda9g79kLhEQn1A9c=;
+        s=korg; t=1637000562;
+        bh=Wv15d2xuFD70EIFcG4CXUFbdIJo4ytqHF/AfRsbW0R8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qcP+kwyW7IHGg90by3UJQqlPsGiLfgdW5DwhSYsy40eZBqxFt0YKAsQhDOY6hEdkW
-         7XmKI+fMdtG1/v37qORD8PwJHmhUvfSwcjLCLOKBDRu4aQGzCUVcPwlU9qPTFSSs9Q
-         F5yd/7QWNDfmlr7ppIZVLD07WwidA758wSogM54Y=
+        b=joVz7FdNbVG6s7Sxd7jTESUVZdolCa72Y8z5w8eaRa9TflRioxEvwSMtMF6Ifr+Uh
+         CZ8mtIEoUm9ZuESdZ8yjAWhZ87KBBW5oul3yO/Q7rgnKYMj4CWkJTJOw6lv6sxpLDR
+         /XeBracskSYyBiig+JGMPg/b0PC9B9hYr63NKBvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 691/849] mtd: core: dont remove debugfs directory if device is in use
-Date:   Mon, 15 Nov 2021 18:02:54 +0100
-Message-Id: <20211115165443.635297882@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 705/849] dmaengine: dmaengine_desc_callback_valid(): Check for `callback_result`
+Date:   Mon, 15 Nov 2021 18:03:08 +0100
+Message-Id: <20211115165444.105740413@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,46 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zev Weiss <zev@bewilderbeest.net>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit c13de2386c78e890d4ae6f01a85eefd0b293fb08 ]
+[ Upstream commit e7e1e880b114ca640a2f280b0d5d38aed98f98c6 ]
 
-Previously, if del_mtd_device() failed with -EBUSY due to a non-zero
-usecount, a subsequent call to attempt the deletion again would try to
-remove a debugfs directory that had already been removed and panic.
-With this change the second call can instead proceed safely.
+Before the `callback_result` callback was introduced drivers coded their
+invocation to the callback in a similar way to:
 
-Fixes: e8e3edb95ce6 ("mtd: create per-device and module-scope debugfs entries")
-Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20211014203953.5424-1-zev@bewilderbeest.net
+	if (cb->callback) {
+		spin_unlock(&dma->lock);
+		cb->callback(cb->callback_param);
+		spin_lock(&dma->lock);
+	}
+
+With the introduction of `callback_result` two helpers where introduced to
+transparently handle both types of callbacks. And drivers where updated to
+look like this:
+
+	if (dmaengine_desc_callback_valid(cb)) {
+		spin_unlock(&dma->lock);
+		dmaengine_desc_callback_invoke(cb, ...);
+		spin_lock(&dma->lock);
+	}
+
+dmaengine_desc_callback_invoke() correctly handles both `callback_result`
+and `callback`. But we forgot to update the dmaengine_desc_callback_valid()
+function to check for `callback_result`. As a result DMA descriptors that
+use the `callback_result` rather than `callback` don't have their callback
+invoked by drivers that follow the pattern above.
+
+Fix this by checking for both `callback` and `callback_result` in
+dmaengine_desc_callback_valid().
+
+Fixes: f067025bc676 ("dmaengine: add support to provide error result from a DMA transation")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/20211023134101.28042-1-lars@metafoo.de
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdcore.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/dma/dmaengine.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
-index c8fd7f758938b..1532291989471 100644
---- a/drivers/mtd/mtdcore.c
-+++ b/drivers/mtd/mtdcore.c
-@@ -724,8 +724,6 @@ int del_mtd_device(struct mtd_info *mtd)
+diff --git a/drivers/dma/dmaengine.h b/drivers/dma/dmaengine.h
+index 1bfbd64b13717..53f16d3f00294 100644
+--- a/drivers/dma/dmaengine.h
++++ b/drivers/dma/dmaengine.h
+@@ -176,7 +176,7 @@ dmaengine_desc_get_callback_invoke(struct dma_async_tx_descriptor *tx,
+ static inline bool
+ dmaengine_desc_callback_valid(struct dmaengine_desc_callback *cb)
+ {
+-	return (cb->callback) ? true : false;
++	return cb->callback || cb->callback_result;
+ }
  
- 	mutex_lock(&mtd_table_mutex);
- 
--	debugfs_remove_recursive(mtd->dbg.dfs_dir);
--
- 	if (idr_find(&mtd_idr, mtd->index) != mtd) {
- 		ret = -ENODEV;
- 		goto out_error;
-@@ -741,6 +739,8 @@ int del_mtd_device(struct mtd_info *mtd)
- 		       mtd->index, mtd->name, mtd->usecount);
- 		ret = -EBUSY;
- 	} else {
-+		debugfs_remove_recursive(mtd->dbg.dfs_dir);
-+
- 		/* Try to remove the NVMEM provider */
- 		if (mtd->nvmem)
- 			nvmem_unregister(mtd->nvmem);
+ struct dma_chan *dma_get_slave_channel(struct dma_chan *chan);
 -- 
 2.33.0
 
