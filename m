@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3758D450AF8
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DC4B450DD6
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231993AbhKORQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:16:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46816 "EHLO mail.kernel.org"
+        id S239204AbhKOSIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:08:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236910AbhKORO7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:14:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CA6D63252;
-        Mon, 15 Nov 2021 17:11:34 +0000 (UTC)
+        id S239245AbhKOSCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:02:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 214BF632DA;
+        Mon, 15 Nov 2021 17:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996295;
-        bh=FvTzF9DjUkBZjUTMZVXzAJbL0QtGY3f3UU4HluLDkV8=;
+        s=korg; t=1636997837;
+        bh=eG9j6xrVgPLLX3Z+sb3gZLBMmYe4uiFbhuijqRHNX3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IOb4FLgezELxHlViQDnO4uoN7DDXSbJCuCSLfIDOs1Q6SaqdJsxE3T4yZiVPhYRHV
-         7L2xpO5ODedf9C4FjT3TwoHSaKKj1FbmIc0ZH51d5kTwTayToR23vLaha065l48Bjl
-         tnaIlw7BJRz19OiVOI4XkiDifeNXGzGZHlCbhcTo=
+        b=QHw/6Gq9G5eZBbSFwQm3gpa85X/xSazJMxLbIAr4I7MaccDSme0ld389PsevIHat9
+         mObFvgOGdxt9yknPxF64jRfAHjqHxHrULMiWUR6w/mxsHoLuWy+o/GuJuTlmdUP3Ic
+         OMo5zsosAU3bOxIkZ/QpLYHJJMZvY/a2wrwOB4pg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Maciej Rozycki <macro@orcam.me.uk>, linux-mips@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.4 087/355] signal/mips: Update (_save|_restore)_fp_context to fail with -EFAULT
+        Sudarshan Rajagopalan <quic_sudaraja@quicinc.com>,
+        Chris Goldsworthy <quic_cgoldswo@quicinc.com>,
+        David Hildenbrand <david@redhat.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Georgi Djakov <quic_c_gdjako@quicinc.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 286/575] arm64: mm: update max_pfn after memory hotplug
 Date:   Mon, 15 Nov 2021 18:00:11 +0100
-Message-Id: <20211115165316.617906069@linuxfoundation.org>
+Message-Id: <20211115165353.674982441@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Sudarshan Rajagopalan <quic_sudaraja@quicinc.com>
 
-commit 95bf9d646c3c3f95cb0be7e703b371db8da5be68 upstream.
+[ Upstream commit 8fac67ca236b961b573355e203dbaf62a706a2e5 ]
 
-When an instruction to save or restore a register from the stack fails
-in _save_fp_context or _restore_fp_context return with -EFAULT.  This
-change was made to r2300_fpu.S[1] but it looks like it got lost with
-the introduction of EX2[2].  This is also what the other implementation
-of _save_fp_context and _restore_fp_context in r4k_fpu.S does, and
-what is needed for the callers to be able to handle the error.
+After new memory blocks have been hotplugged, max_pfn and max_low_pfn
+needs updating to reflect on new PFNs being hot added to system.
+Without this patch, debug-related functions that use max_pfn such as
+get_max_dump_pfn() or read_page_owner() will not work with any page in
+memory that is hot-added after boot.
 
-Furthermore calling do_exit(SIGSEGV) from bad_stack is wrong because
-it does not terminate the entire process it just terminates a single
-thread.
-
-As the changed code was the only caller of arch/mips/kernel/syscall.c:bad_stack
-remove the problematic and now unused helper function.
-
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Maciej Rozycki <macro@orcam.me.uk>
-Cc: linux-mips@vger.kernel.org
-[1] 35938a00ba86 ("MIPS: Fix ISA I FP sigcontext access violation handling")
-[2] f92722dc4545 ("MIPS: Correct MIPS I FP sigcontext layout")
-Cc: stable@vger.kernel.org
-Fixes: f92722dc4545 ("MIPS: Correct MIPS I FP sigcontext layout")
-Acked-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Link: https://lkml.kernel.org/r/20211020174406.17889-5-ebiederm@xmission.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4ab215061554 ("arm64: Add memory hotplug support")
+Signed-off-by: Sudarshan Rajagopalan <quic_sudaraja@quicinc.com>
+Signed-off-by: Chris Goldsworthy <quic_cgoldswo@quicinc.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Georgi Djakov <quic_c_gdjako@quicinc.com>
+Tested-by: Georgi Djakov <quic_c_gdjako@quicinc.com>
+Link: https://lore.kernel.org/r/a51a27ee7be66024b5ce626310d673f24107bcb8.1632853776.git.quic_cgoldswo@quicinc.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/r2300_fpu.S |    4 ++--
- arch/mips/kernel/syscall.c   |    9 ---------
- 2 files changed, 2 insertions(+), 11 deletions(-)
+ arch/arm64/mm/mmu.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/mips/kernel/r2300_fpu.S
-+++ b/arch/mips/kernel/r2300_fpu.S
-@@ -29,8 +29,8 @@
- #define EX2(a,b)						\
- 9:	a,##b;							\
- 	.section __ex_table,"a";				\
--	PTR	9b,bad_stack;					\
--	PTR	9b+4,bad_stack;					\
-+	PTR	9b,fault;					\
-+	PTR	9b+4,fault;					\
- 	.previous
- 
- 	.set	mips1
---- a/arch/mips/kernel/syscall.c
-+++ b/arch/mips/kernel/syscall.c
-@@ -239,12 +239,3 @@ SYSCALL_DEFINE3(cachectl, char *, addr,
- {
- 	return -ENOSYS;
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 58dc93e566179..2601a514d8c4a 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -1492,6 +1492,11 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ 	if (ret)
+ 		__remove_pgd_mapping(swapper_pg_dir,
+ 				     __phys_to_virt(start), size);
++	else {
++		max_pfn = PFN_UP(start + size);
++		max_low_pfn = max_pfn;
++	}
++
+ 	return ret;
  }
--
--/*
-- * If we ever come here the user sp is bad.  Zap the process right away.
-- * Due to the bad stack signaling wouldn't work.
-- */
--asmlinkage void bad_stack(void)
--{
--	do_exit(SIGSEGV);
--}
+ 
+-- 
+2.33.0
+
 
 
