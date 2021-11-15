@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60C89450FF7
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:36:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E75BA450CA6
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:38:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239453AbhKOSjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:39:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44046 "EHLO mail.kernel.org"
+        id S237737AbhKORln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:41:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242275AbhKOShD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:37:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBF73632DC;
-        Mon, 15 Nov 2021 18:03:09 +0000 (UTC)
+        id S237999AbhKORiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:38:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 738A86325D;
+        Mon, 15 Nov 2021 17:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999390;
-        bh=g9YqIBsJqPHUuvpLJDbPcXidbZmOm3hbsrEoiwDQWSs=;
+        s=korg; t=1636997136;
+        bh=jLFX0eDyIwnzNbZMbtXRiQ5ed4Syi1ciB3mQ+tUcd/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SOlWEnE8uWsnOhjW/7Fo2imwXQC9H7FJTxDhgXuR1mxP8O8zNwpwf7up8Uk2qOoVH
-         QS92R/ol9mEaf4mgbLPKAZAaqt4iZ3InqmLGuB6omN97jjHvdKbs4a7fMaZ5lEtgAg
-         xQxlreWIN3us837Zl/LJvbSiDuanuvYjf4hg4jlk=
+        b=BO5HC9n1q/mIJX17Y0zw4YQ0zzBkKoPS4QnA95BvPwK+fsa8O+tkVtwfB4DKmVjvM
+         nz4rA5h8wuW2y8rHgKbLGxIVach58beTOcwGNUQUcbDcoC7GXyl3eck8fhCZL4eyQD
+         rIKA3Sguu4+CFoMUP6yp4m43C+f/LISr+HxJguyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 278/849] leaking_addresses: Always print a trailing newline
-Date:   Mon, 15 Nov 2021 17:56:01 +0100
-Message-Id: <20211115165429.647687545@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Ormes <skryking@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 037/575] ALSA: usb-audio: Line6 HX-Stomp XL USB_ID for 48k-fixed quirk
+Date:   Mon, 15 Nov 2021 17:56:02 +0100
+Message-Id: <20211115165344.914580227@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jason Ormes <skryking@gmail.com>
 
-[ Upstream commit cf2a85efdade117e2169d6e26641016cbbf03ef0 ]
+commit 8f27b689066113a3e579d4df171c980c54368c4e upstream.
 
-For files that lack trailing newlines and match a leaking address (e.g.
-wchan[1]), the leaking_addresses.pl report would run together with the
-next line, making things look corrupted.
+Adding the Line6 HX-Stomp XL USB_ID as it needs this fixed frequency
+quirk as well.
 
-Unconditionally remove the newline on input, and write it back out on
-output.
+The device is basically just the HX-Stomp with some more buttons on
+the face.  I've done some recording with it after adding it, and it
+seems to function properly with this fix.  The Midi features appear to
+be working as well.
 
-[1] https://lore.kernel.org/all/20210103142726.GC30643@xsang-OptiPlex-9020/
+[ a coding style fix and patch reformat by tiwai ]
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20211008111626.151570317@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jason Ormes <skryking@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211030200405.1358678-1-skryking@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/leaking_addresses.pl | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/usb/format.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/scripts/leaking_addresses.pl b/scripts/leaking_addresses.pl
-index b2d8b8aa2d99e..8f636a23bc3f2 100755
---- a/scripts/leaking_addresses.pl
-+++ b/scripts/leaking_addresses.pl
-@@ -455,8 +455,9 @@ sub parse_file
- 
- 	open my $fh, "<", $file or return;
- 	while ( <$fh> ) {
-+		chomp;
- 		if (may_leak_address($_)) {
--			print $file . ': ' . $_;
-+			printf("$file: $_\n");
- 		}
- 	}
- 	close $fh;
--- 
-2.33.0
-
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -410,6 +410,7 @@ static int line6_parse_audio_format_rate
+ 	case USB_ID(0x0e41, 0x4242): /* Line6 Helix Rack */
+ 	case USB_ID(0x0e41, 0x4244): /* Line6 Helix LT */
+ 	case USB_ID(0x0e41, 0x4246): /* Line6 HX-Stomp */
++	case USB_ID(0x0e41, 0x4253): /* Line6 HX-Stomp XL */
+ 	case USB_ID(0x0e41, 0x4247): /* Line6 Pod Go */
+ 	case USB_ID(0x0e41, 0x4248): /* Line6 Helix >= fw 2.82 */
+ 	case USB_ID(0x0e41, 0x4249): /* Line6 Helix Rack >= fw 2.82 */
 
 
