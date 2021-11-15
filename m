@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14375451E54
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68192451E65
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349340AbhKPAfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:35:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45222 "EHLO mail.kernel.org"
+        id S244062AbhKPAfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344840AbhKOTZf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 123DA633E6;
-        Mon, 15 Nov 2021 19:05:33 +0000 (UTC)
+        id S1344864AbhKOTZh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9ADF633E8;
+        Mon, 15 Nov 2021 19:05:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003134;
-        bh=hZMqbuEkTV2L2h/MJZsIev2gnpU305xQkp+zOhLpI3w=;
+        s=korg; t=1637003142;
+        bh=Cf6z/Ij3iuscSZD3q8tQBFiZJ4Qvzg0vi+xJHVZWXsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ozRaEKGCoV9khg8WJ5xGWCfzASfNaYnrM86/rDa2bHdGEQzPVO9Ct7WbfXS7oIoKq
-         Y80lOx9Fi8+W+r/3COSUhXbzf1KpfMbgQSxVC3K8wc1vvjjoO8BQmdsMO7uIKb3PMj
-         1HBiSeTkHBpG4tncoP1a15az48kCLaPuwcGh6g/M=
+        b=hntzXPtOxGA26s2PL/xpY/7v6fpOd2+knJACk/9IuRBjp7gfjy7J3M45dJM1E4gTu
+         XQzgIWDTFbEEDNh5M/KDMYkTg24wzCjH4S4V+l/BD0CJlxqvKu5T+mRwjUznk5qruu
+         gQOlbpoDwEHHTT9Dc0Ss7EQNOPJrcImprhn54mbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jussi Maki <joamaki@gmail.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 824/917] bpf, sockmap: sk_skb data_end access incorrect when src_reg = dst_reg
-Date:   Mon, 15 Nov 2021 18:05:19 +0100
-Message-Id: <20211115165457.000005305@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 826/917] dmaengine: stm32-dma: avoid 64-bit division in stm32_dma_get_max_width
+Date:   Mon, 15 Nov 2021 18:05:21 +0100
+Message-Id: <20211115165457.065564669@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,123 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jussi Maki <joamaki@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit b2c4618162ec615a15883a804cce7e27afecfa58 ]
+[ Upstream commit 2498363310e9b5e5de0e104709adc35c9f3ff7d9 ]
 
-The current conversion of skb->data_end reads like this:
+Using the % operator on a 64-bit variable is expensive and can
+cause a link failure:
 
-  ; data_end = (void*)(long)skb->data_end;
-   559: (79) r1 = *(u64 *)(r2 +200)   ; r1  = skb->data
-   560: (61) r11 = *(u32 *)(r2 +112)  ; r11 = skb->len
-   561: (0f) r1 += r11
-   562: (61) r11 = *(u32 *)(r2 +116)
-   563: (1f) r1 -= r11
+arm-linux-gnueabi-ld: drivers/dma/stm32-dma.o: in function `stm32_dma_get_max_width':
+stm32-dma.c:(.text+0x170): undefined reference to `__aeabi_uldivmod'
+arm-linux-gnueabi-ld: drivers/dma/stm32-dma.o: in function `stm32_dma_set_xfer_param':
+stm32-dma.c:(.text+0x1cd4): undefined reference to `__aeabi_uldivmod'
 
-But similar to the case in 84f44df664e9 ("bpf: sock_ops sk access may stomp
-registers when dst_reg = src_reg"), the code will read an incorrect skb->len
-when src == dst. In this case we end up generating this xlated code:
+As we know that we just want to check the alignment in
+stm32_dma_get_max_width(), there is no need for a full division, and
+using a simple mask is a faster replacement.
 
-  ; data_end = (void*)(long)skb->data_end;
-   559: (79) r1 = *(u64 *)(r1 +200)   ; r1  = skb->data
-   560: (61) r11 = *(u32 *)(r1 +112)  ; r11 = (skb->data)->len
-   561: (0f) r1 += r11
-   562: (61) r11 = *(u32 *)(r1 +116)
-   563: (1f) r1 -= r11
+Same in stm32_dma_set_xfer_param(), change this to only allow burst
+transfers if the address is a multiple of the length.
+stm32_dma_get_best_burst just after will take buf_len into account to fix
+burst in case of misalignment.
 
-... where line 560 is the reading 4B of (skb->data + 112) instead of the
-intended skb->len Here the skb pointer in r1 gets set to skb->data and the
-later deref for skb->len ends up following skb->data instead of skb.
-
-This fixes the issue similarly to the patch mentioned above by creating an
-additional temporary variable and using to store the register when dst_reg =
-src_reg. We name the variable bpf_temp_reg and place it in the cb context for
-sk_skb. Then we restore from the temp to ensure nothing is lost.
-
-Fixes: 16137b09a66f2 ("bpf: Compute data_end dynamically with JIT code")
-Signed-off-by: Jussi Maki <joamaki@gmail.com>
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20211103204736.248403-6-john.fastabend@gmail.com
+Fixes: b20fd5fa310c ("dmaengine: stm32-dma: fix stm32_dma_get_max_width")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/20211103153312.41483-1-amelie.delaunay@foss.st.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/strparser.h |  4 ++++
- net/core/filter.c       | 36 ++++++++++++++++++++++++++++++------
- 2 files changed, 34 insertions(+), 6 deletions(-)
+ drivers/dma/stm32-dma.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/strparser.h b/include/net/strparser.h
-index bec1439bd3be6..732b7097d78e4 100644
---- a/include/net/strparser.h
-+++ b/include/net/strparser.h
-@@ -66,6 +66,10 @@ struct sk_skb_cb {
- #define SK_SKB_CB_PRIV_LEN 20
- 	unsigned char data[SK_SKB_CB_PRIV_LEN];
- 	struct _strp_msg strp;
-+	/* temp_reg is a temporary register used for bpf_convert_data_end_access
-+	 * when dst_reg == src_reg.
-+	 */
-+	u64 temp_reg;
- };
+diff --git a/drivers/dma/stm32-dma.c b/drivers/dma/stm32-dma.c
+index c276a39aa7930..7dfc743ac4338 100644
+--- a/drivers/dma/stm32-dma.c
++++ b/drivers/dma/stm32-dma.c
+@@ -280,7 +280,7 @@ static enum dma_slave_buswidth stm32_dma_get_max_width(u32 buf_len,
+ 	       max_width > DMA_SLAVE_BUSWIDTH_1_BYTE)
+ 		max_width = max_width >> 1;
  
- static inline struct strp_msg *strp_msg(struct sk_buff *skb)
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 23a9bf92b5bb9..f4a63af45f008 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -9735,22 +9735,46 @@ static u32 sock_ops_convert_ctx_access(enum bpf_access_type type,
- static struct bpf_insn *bpf_convert_data_end_access(const struct bpf_insn *si,
- 						    struct bpf_insn *insn)
- {
--	/* si->dst_reg = skb->data */
-+	int reg;
-+	int temp_reg_off = offsetof(struct sk_buff, cb) +
-+			   offsetof(struct sk_skb_cb, temp_reg);
-+
-+	if (si->src_reg == si->dst_reg) {
-+		/* We need an extra register, choose and save a register. */
-+		reg = BPF_REG_9;
-+		if (si->src_reg == reg || si->dst_reg == reg)
-+			reg--;
-+		if (si->src_reg == reg || si->dst_reg == reg)
-+			reg--;
-+		*insn++ = BPF_STX_MEM(BPF_DW, si->src_reg, reg, temp_reg_off);
-+	} else {
-+		reg = si->dst_reg;
-+	}
-+
-+	/* reg = skb->data */
- 	*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, data),
--			      si->dst_reg, si->src_reg,
-+			      reg, si->src_reg,
- 			      offsetof(struct sk_buff, data));
- 	/* AX = skb->len */
- 	*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, len),
- 			      BPF_REG_AX, si->src_reg,
- 			      offsetof(struct sk_buff, len));
--	/* si->dst_reg = skb->data + skb->len */
--	*insn++ = BPF_ALU64_REG(BPF_ADD, si->dst_reg, BPF_REG_AX);
-+	/* reg = skb->data + skb->len */
-+	*insn++ = BPF_ALU64_REG(BPF_ADD, reg, BPF_REG_AX);
- 	/* AX = skb->data_len */
- 	*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, data_len),
- 			      BPF_REG_AX, si->src_reg,
- 			      offsetof(struct sk_buff, data_len));
--	/* si->dst_reg = skb->data + skb->len - skb->data_len */
--	*insn++ = BPF_ALU64_REG(BPF_SUB, si->dst_reg, BPF_REG_AX);
-+
-+	/* reg = skb->data + skb->len - skb->data_len */
-+	*insn++ = BPF_ALU64_REG(BPF_SUB, reg, BPF_REG_AX);
-+
-+	if (si->src_reg == si->dst_reg) {
-+		/* Restore the saved register */
-+		*insn++ = BPF_MOV64_REG(BPF_REG_AX, si->src_reg);
-+		*insn++ = BPF_MOV64_REG(si->dst_reg, reg);
-+		*insn++ = BPF_LDX_MEM(BPF_DW, reg, BPF_REG_AX, temp_reg_off);
-+	}
+-	if (buf_addr % max_width)
++	if (buf_addr & (max_width - 1))
+ 		max_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
  
- 	return insn;
- }
+ 	return max_width;
+@@ -756,7 +756,7 @@ static int stm32_dma_set_xfer_param(struct stm32_dma_chan *chan,
+ 		 * Set memory burst size - burst not possible if address is not aligned on
+ 		 * the address boundary equal to the size of the transfer
+ 		 */
+-		if (buf_addr % buf_len)
++		if (buf_addr & (buf_len - 1))
+ 			src_maxburst = 1;
+ 		else
+ 			src_maxburst = STM32_DMA_MAX_BURST;
+@@ -812,7 +812,7 @@ static int stm32_dma_set_xfer_param(struct stm32_dma_chan *chan,
+ 		 * Set memory burst size - burst not possible if address is not aligned on
+ 		 * the address boundary equal to the size of the transfer
+ 		 */
+-		if (buf_addr % buf_len)
++		if (buf_addr & (buf_len - 1))
+ 			dst_maxburst = 1;
+ 		else
+ 			dst_maxburst = STM32_DMA_MAX_BURST;
 -- 
 2.33.0
 
