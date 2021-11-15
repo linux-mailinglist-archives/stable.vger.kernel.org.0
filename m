@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC106451363
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71EC245136A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348216AbhKOTu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:50:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
+        id S1348236AbhKOTvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:51:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245699AbhKOTVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4653A63580;
-        Mon, 15 Nov 2021 18:39:31 +0000 (UTC)
+        id S1343497AbhKOTVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CEA4F63598;
+        Mon, 15 Nov 2021 18:40:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001571;
-        bh=PtzGnVFi+P8cgAOzSLEudaOBZxkg2CXSyrbIpExCZgs=;
+        s=korg; t=1637001655;
+        bh=Cu5SbkgA8mRMRR5SkXbp1OyW9/djEIm8PF7BDqDg95E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ekalPPZY4ksH2hf1gNI3pjAhWuy7rkt8wih4P0Dfuis20ripg10/sTtGBwG/4U2T4
-         6j43MJ/vh7QnD4+37SwNwvuEwg+1A+Qu6bHxZzLTq0kBOpqDmQwZg6hH6/OfR/0/ea
-         shTHhMSLmy7QKwyrQXCgN+sZen+8mUJgk7Q6NhuY=
+        b=nUDbOE5qFct+2rg44D1u0Nkjw9GgYUSRqSa2of+hth6/k0WZ2Rh3qvWyNFQ10B56L
+         Pen+3RurJCOVPv5adZGB7RpR0lfGRHE6mz0zYQuck9TgoR6efqswhkOtvUWiWdDAGR
+         Cj8DgwmWquN6q3fGDe7hAFX+PYynt9ox0UND0X1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Li Zhijian <lizhijian@cn.fujitsu.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Chris Hyser <chris.hyser@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 234/917] brcmfmac: Add DMI nvram filename quirk for Cyberbook T116 tablet
-Date:   Mon, 15 Nov 2021 17:55:29 +0100
-Message-Id: <20211115165436.713249961@linuxfoundation.org>
+Subject: [PATCH 5.15 238/917] kselftests/sched: cleanup the child processes
+Date:   Mon, 15 Nov 2021 17:55:33 +0100
+Message-Id: <20211115165436.870831581@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,48 +42,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Li Zhijian <lizhijian@cn.fujitsu.com>
 
-[ Upstream commit 49c3eb3036e6359c5c20fe76c611a2c0e0d4710e ]
+[ Upstream commit 1c36432b278cecf1499f21fae19836e614954309 ]
 
-The Cyberbook T116 tablet contains quite generic names in the sys_vendor
-and product_name DMI strings, without this patch brcmfmac will try to load:
-"brcmfmac43455-sdio.Default string-Default string.txt" as nvram file which
-is way too generic.
+Previously, 'make -C sched run_tests' will block forever when it occurs
+something wrong where the *selftests framework* is waiting for its child
+processes to exit.
 
-The nvram file shipped on the factory Android image contains the exact
-same settings as those used on the AcePC T8 mini PC, so point the new
-DMI nvram filename quirk to the acepc-t8 nvram file.
+[root@iaas-rpma sched]# ./cs_prctl_test
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210928160633.96928-1-hdegoede@redhat.com
+ ## Create a thread/process/process group hiearchy
+Not a core sched system
+tid=74985, / tgid=74985 / pgid=74985: ffffffffffffffff
+Not a core sched system
+    tid=74986, / tgid=74986 / pgid=74985: ffffffffffffffff
+Not a core sched system
+        tid=74988, / tgid=74986 / pgid=74985: ffffffffffffffff
+Not a core sched system
+        tid=74989, / tgid=74986 / pgid=74985: ffffffffffffffff
+Not a core sched system
+        tid=74990, / tgid=74986 / pgid=74985: ffffffffffffffff
+Not a core sched system
+    tid=74987, / tgid=74987 / pgid=74985: ffffffffffffffff
+Not a core sched system
+        tid=74991, / tgid=74987 / pgid=74985: ffffffffffffffff
+Not a core sched system
+        tid=74992, / tgid=74987 / pgid=74985: ffffffffffffffff
+Not a core sched system
+        tid=74993, / tgid=74987 / pgid=74985: ffffffffffffffff
+
+Not a core sched system
+(268) FAILED: get_cs_cookie(0) == 0
+
+ ## Set a cookie on entire process group
+-1 = prctl(62, 1, 0, 2, 0)
+core_sched create failed -- PGID: Invalid argument
+(cs_prctl_test.c:272) -
+[root@iaas-rpma sched]# ps
+    PID TTY          TIME CMD
+   4605 pts/2    00:00:00 bash
+  74986 pts/2    00:00:00 cs_prctl_test
+  74987 pts/2    00:00:00 cs_prctl_test
+  74999 pts/2    00:00:00 ps
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Chris Hyser <chris.hyser@oracle.com>
+Link: https://lore.kernel.org/r/20210902024333.75983-1-lizhijian@cn.fujitsu.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ tools/testing/selftests/sched/cs_prctl_test.c | 28 ++++++++++++-------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c
-index 6d5188b78f2de..0af452dca7664 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/dmi.c
-@@ -75,6 +75,16 @@ static const struct dmi_system_id dmi_platform_data[] = {
- 		},
- 		.driver_data = (void *)&acepc_t8_data,
- 	},
-+	{
-+		/* Cyberbook T116 rugged tablet */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Default string"),
-+			DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "20170531"),
-+		},
-+		/* The factory image nvram file is identical to the ACEPC T8 one */
-+		.driver_data = (void *)&acepc_t8_data,
-+	},
- 	{
- 		/* Match for the GPDwin which unfortunately uses somewhat
- 		 * generic dmi strings, which is why we test for 4 strings.
+diff --git a/tools/testing/selftests/sched/cs_prctl_test.c b/tools/testing/selftests/sched/cs_prctl_test.c
+index 7db9cf822dc75..8109b17dc764c 100644
+--- a/tools/testing/selftests/sched/cs_prctl_test.c
++++ b/tools/testing/selftests/sched/cs_prctl_test.c
+@@ -62,6 +62,17 @@ enum pid_type {PIDTYPE_PID = 0, PIDTYPE_TGID, PIDTYPE_PGID};
+ 
+ const int THREAD_CLONE_FLAGS = CLONE_THREAD | CLONE_SIGHAND | CLONE_FS | CLONE_VM | CLONE_FILES;
+ 
++struct child_args {
++	int num_threads;
++	int pfd[2];
++	int cpid;
++	int thr_tids[MAX_THREADS];
++};
++
++static struct child_args procs[MAX_PROCESSES];
++static int num_processes = 2;
++static int need_cleanup = 0;
++
+ static int _prctl(int option, unsigned long arg2, unsigned long arg3, unsigned long arg4,
+ 		  unsigned long arg5)
+ {
+@@ -78,8 +89,14 @@ static int _prctl(int option, unsigned long arg2, unsigned long arg3, unsigned l
+ #define handle_error(msg) __handle_error(__FILE__, __LINE__, msg)
+ static void __handle_error(char *fn, int ln, char *msg)
+ {
++	int pidx;
+ 	printf("(%s:%d) - ", fn, ln);
+ 	perror(msg);
++	if (need_cleanup) {
++		for (pidx = 0; pidx < num_processes; ++pidx)
++			kill(procs[pidx].cpid, 15);
++		need_cleanup = 0;
++	}
+ 	exit(EXIT_FAILURE);
+ }
+ 
+@@ -106,13 +123,6 @@ static unsigned long get_cs_cookie(int pid)
+ 	return cookie;
+ }
+ 
+-struct child_args {
+-	int num_threads;
+-	int pfd[2];
+-	int cpid;
+-	int thr_tids[MAX_THREADS];
+-};
+-
+ static int child_func_thread(void __attribute__((unused))*arg)
+ {
+ 	while (1)
+@@ -212,10 +222,7 @@ void _validate(int line, int val, char *msg)
+ 
+ int main(int argc, char *argv[])
+ {
+-	struct child_args procs[MAX_PROCESSES];
+-
+ 	int keypress = 0;
+-	int num_processes = 2;
+ 	int num_threads = 3;
+ 	int delay = 0;
+ 	int res = 0;
+@@ -262,6 +269,7 @@ int main(int argc, char *argv[])
+ 
+ 	printf("\n## Create a thread/process/process group hiearchy\n");
+ 	create_processes(num_processes, num_threads, procs);
++	need_cleanup = 1;
+ 	disp_processes(num_processes, procs);
+ 	validate(get_cs_cookie(0) == 0);
+ 
 -- 
 2.33.0
 
