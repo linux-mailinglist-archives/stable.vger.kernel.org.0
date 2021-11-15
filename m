@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78FA3450BDF
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:28:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D85B450E62
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237951AbhKORay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:30:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50868 "EHLO mail.kernel.org"
+        id S240260AbhKOSOs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:14:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238001AbhKOR2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:28:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AEE4763290;
-        Mon, 15 Nov 2021 17:19:18 +0000 (UTC)
+        id S238555AbhKOSHi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFFEB63314;
+        Mon, 15 Nov 2021 17:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996759;
-        bh=Xc+C6RMrFdCkw73NMWJZhOfv2KdCdFr4HRvhdW/MJHU=;
+        s=korg; t=1636998297;
+        bh=HAE1uLHAMNhtS2u1iqMWBioxpDilE97TU/dWJWCFxF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/BhnOq7w7V0aKVCRPWjhYDGQVs7GuGqFgErI52gJEVsGaXroqO+5EJGP+x8LMIoS
-         T02pLPKn1okybHZ4WJrF6muIQjfNsUEecJmpOM7NCrQy+JP/PRtzDKcPKe8E5cI64t
-         cwb53wf2uUrdtrcYvH3M6Z92cB2/CD9uZT1b7zds=
+        b=rF/nhxnWTKS7xMFx+vksTJSt2yDDN+FT0IFzDV6D5rge0wHqc7Ve/o0AGt0n4lZKx
+         bSCFrBb38ibmOp9uAM2SqFyPoy73l6H1hXU8vAVEP/5TUVrjQkPxU8p+jNLPjj6CjV
+         fa2D8a7kgrNXJL8xQB2j1eQhYAas2D8uVgY9j8FQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jackie Liu <liuyun01@kylinos.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 258/355] ARM: s3c: irq-s3c24xx: Fix return value check for s3c24xx_init_intc()
-Date:   Mon, 15 Nov 2021 18:03:02 +0100
-Message-Id: <20211115165322.085948637@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andrej Shadura <andrew.shadura@collabora.co.uk>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 458/575] HID: u2fzero: clarify error check and length calculations
+Date:   Mon, 15 Nov 2021 18:03:03 +0100
+Message-Id: <20211115165359.580198405@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Andrej Shadura <andrew.shadura@collabora.co.uk>
 
-[ Upstream commit 2aa717473ce96c93ae43a5dc8c23cedc8ce7dd9f ]
+[ Upstream commit b7abf78b7a6c4a29a6e0ba0bb883fe44a2f3d693 ]
 
-The s3c24xx_init_intc() returns an error pointer upon failure, not NULL.
-let's add an error pointer check in s3c24xx_handle_irq.
+The previous commit fixed handling of incomplete packets but broke error
+handling: offsetof returns an unsigned value (size_t), but when compared
+against the signed return value, the return value is interpreted as if
+it were unsigned, so negative return values are never less than the
+offset.
 
-s3c_intc[0] is not NULL or ERR, we can simplify the code.
+To make the code easier to read, calculate the minimal packet length
+once and separately, and assign it to a signed int variable to eliminate
+unsigned math and the need for type casts. It then becomes immediately
+obvious how the actual data length is calculated and why the return
+value cannot be less than the minimal length.
 
-Fixes: 1f629b7a3ced ("ARM: S3C24XX: transform irq handling into a declarative form")
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-Link: https://lore.kernel.org/r/20210901123557.1043953-1-liu.yun@linux.dev
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Fixes: 22d65765f211 ("HID: u2fzero: ignore incomplete packets without data")
+Fixes: 42337b9d4d95 ("HID: add driver for U2F Zero built-in LED and RNG")
+Signed-off-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-s3c24xx.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/hid/hid-u2fzero.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/irqchip/irq-s3c24xx.c b/drivers/irqchip/irq-s3c24xx.c
-index d2031fecc3861..5e97ae54782d6 100644
---- a/drivers/irqchip/irq-s3c24xx.c
-+++ b/drivers/irqchip/irq-s3c24xx.c
-@@ -359,11 +359,25 @@ static inline int s3c24xx_handle_intc(struct s3c_irq_intc *intc,
- asmlinkage void __exception_irq_entry s3c24xx_handle_irq(struct pt_regs *regs)
- {
- 	do {
--		if (likely(s3c_intc[0]))
--			if (s3c24xx_handle_intc(s3c_intc[0], regs, 0))
--				continue;
-+		/*
-+		 * For platform based machines, neither ERR nor NULL can happen here.
-+		 * The s3c24xx_handle_irq() will be set as IRQ handler iff this succeeds:
-+		 *
-+		 *    s3c_intc[0] = s3c24xx_init_intc()
-+		 *
-+		 * If this fails, the next calls to s3c24xx_init_intc() won't be executed.
-+		 *
-+		 * For DT machine, s3c_init_intc_of() could set the IRQ handler without
-+		 * setting s3c_intc[0] only if it was called with num_ctrl=0. There is no
-+		 * such code path, so again the s3c_intc[0] will have a valid pointer if
-+		 * set_handle_irq() is called.
-+		 *
-+		 * Therefore in s3c24xx_handle_irq(), the s3c_intc[0] is always something.
-+		 */
-+		if (s3c24xx_handle_intc(s3c_intc[0], regs, 0))
-+			continue;
+diff --git a/drivers/hid/hid-u2fzero.c b/drivers/hid/hid-u2fzero.c
+index d70cd3d7f583b..94f78ffb76d04 100644
+--- a/drivers/hid/hid-u2fzero.c
++++ b/drivers/hid/hid-u2fzero.c
+@@ -191,6 +191,8 @@ static int u2fzero_rng_read(struct hwrng *rng, void *data,
+ 	struct u2f_hid_msg resp;
+ 	int ret;
+ 	size_t actual_length;
++	/* valid packets must have a correct header */
++	int min_length = offsetof(struct u2f_hid_msg, init.data);
  
--		if (s3c_intc[2])
-+		if (!IS_ERR_OR_NULL(s3c_intc[2]))
- 			if (s3c24xx_handle_intc(s3c_intc[2], regs, 64))
- 				continue;
+ 	if (!dev->present) {
+ 		hid_dbg(dev->hdev, "device not present");
+@@ -200,12 +202,12 @@ static int u2fzero_rng_read(struct hwrng *rng, void *data,
+ 	ret = u2fzero_recv(dev, &req, &resp);
+ 
+ 	/* ignore errors or packets without data */
+-	if (ret < offsetof(struct u2f_hid_msg, init.data))
++	if (ret < min_length)
+ 		return 0;
+ 
+ 	/* only take the minimum amount of data it is safe to take */
+-	actual_length = min3((size_t)ret - offsetof(struct u2f_hid_msg,
+-		init.data), U2F_HID_MSG_LEN(resp), max);
++	actual_length = min3((size_t)ret - min_length,
++		U2F_HID_MSG_LEN(resp), max);
+ 
+ 	memcpy(data, resp.init.data, actual_length);
  
 -- 
 2.33.0
