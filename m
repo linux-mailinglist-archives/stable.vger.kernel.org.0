@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 995264512BF
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E472A451489
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347294AbhKOTjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:39:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
+        id S1348779AbhKOUKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:10:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244993AbhKOTST (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F98E634ED;
-        Mon, 15 Nov 2021 18:26:32 +0000 (UTC)
+        id S1344747AbhKOTZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B59C6337E;
+        Mon, 15 Nov 2021 19:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000793;
-        bh=LaQolLDedjbJxwFaGCEB1MFbUiWd9BvrhNJyA7IpoqU=;
+        s=korg; t=1637003020;
+        bh=5cOqaQJbyHoiQgMKotHX0NfJlS6GVCCR+o5CC1fa/9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f1YwriWspp4XsMU9baKqqNcwisCHoShkBaEA5BbWE5R9k9Obgt77lGp4+XrCmN+Cw
-         1dOnDJ7UKH5XO6OYbPV5PnQo9YesdIbp+7ay6+tkxbQYi/M76Lzxvzv7RfnubErQ2j
-         PcDIrKEcfxVvhrtl8ASHPu7OJ8G2onzLDA7H61Jo=
+        b=ff3cwmm2q7uM7fVPXBZk+aQ29xfs/pGWUmlmVFtXn7CmO8y+/Bqy8OGVqw7f8v6c1
+         ikK75V98dwIjizPCBuj2zQzNTm97xDyhYn/i7gG9xxEa8BjM6jDDBS2YvAxeJQ+A8W
+         I38tt/l4asPcRxmc83XA0S0XmqO0bVPgTakm9Lxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rhys Hiltner <rhys@justin.tv>,
-        Michael Pratt <mpratt@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.14 794/849] posix-cpu-timers: Clear task::posix_cputimers_work in copy_process()
+        stable@vger.kernel.org, Daejun Park <daejun7.park@samsung.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 782/917] scsi: ufs: ufshpb: Properly handle max-single-cmd
 Date:   Mon, 15 Nov 2021 18:04:37 +0100
-Message-Id: <20211115165447.102265576@linuxfoundation.org>
+Message-Id: <20211115165455.473946243@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,111 +41,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Pratt <mpratt@google.com>
+From: Avri Altman <avri.altman@wdc.com>
 
-commit ca7752caeaa70bd31d1714af566c9809688544af upstream.
+[ Upstream commit 9ec5128a8b5631d652ed06b37e0166f337802f90 ]
 
-copy_process currently copies task_struct.posix_cputimers_work as-is. If a
-timer interrupt arrives while handling clone and before dup_task_struct
-completes then the child task will have:
+The spec recommends that for transfer length larger than the max-single-cmd
+attribute (bMAX_DATA_SIZE_FOR_HPB_SINGLE_CMD) it is possible to couple
+pre-requests with the HPB-READ command.  Being a recommendation, using
+pre-requests can be perceived merely as a means of optimization.  A common
+practice was to send pre-requests for chunks within some interval, and
+leave the READ10 untouched if larger.
 
-1. posix_cputimers_work.scheduled = true
-2. posix_cputimers_work.work queued.
+Now that the pre-request flows have been removed, all the commands are
+single commands.  Properly handle this attribute and do not send HPB-READ
+for transfer lengths larger than max-single-cmd.
 
-copy_process clears task_struct.task_works, so (2) will have no effect and
-posix_cpu_timers_work will never run (not to mention it doesn't make sense
-for two tasks to share a common linked list).
+[mkp: resolve conflict]
 
-Since posix_cpu_timers_work never runs, posix_cputimers_work.scheduled is
-never cleared. Since scheduled is set, future timer interrupts will skip
-scheduling work, with the ultimate result that the task will never receive
-timer expirations.
-
-Together, the complete flow is:
-
-1. Task 1 calls clone(), enters kernel.
-2. Timer interrupt fires, schedules task work on Task 1.
-   2a. task_struct.posix_cputimers_work.scheduled = true
-   2b. task_struct.posix_cputimers_work.work added to
-       task_struct.task_works.
-3. dup_task_struct() copies Task 1 to Task 2.
-4. copy_process() clears task_struct.task_works for Task 2.
-5. Future timer interrupts on Task 2 see
-   task_struct.posix_cputimers_work.scheduled = true and skip scheduling
-   work.
-
-Fix this by explicitly clearing contents of task_struct.posix_cputimers_work
-in copy_process(). This was never meant to be shared or inherited across
-tasks in the first place.
-
-Fixes: 1fb497dd0030 ("posix-cpu-timers: Provide mechanisms to defer timer handling to task_work")
-Reported-by: Rhys Hiltner <rhys@justin.tv>
-Signed-off-by: Michael Pratt <mpratt@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211101210615.716522-1-mpratt@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 09d9e4d04187 ("scsi: ufs: ufshpb: Remove HPB2.0 flows")
+Link: https://lore.kernel.org/r/20211031123654.17719-1-avri.altman@wdc.com
+Reviewed-by: Daejun Park <daejun7.park@samsung.com>
+Signed-off-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/posix-timers.h   |    2 ++
- kernel/fork.c                  |    1 +
- kernel/time/posix-cpu-timers.c |   19 +++++++++++++++++--
- 3 files changed, 20 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufshpb.c | 24 +++++++++++++-----------
+ drivers/scsi/ufs/ufshpb.h |  1 -
+ 2 files changed, 13 insertions(+), 12 deletions(-)
 
---- a/include/linux/posix-timers.h
-+++ b/include/linux/posix-timers.h
-@@ -177,8 +177,10 @@ static inline void posix_cputimers_group
- #endif
+diff --git a/drivers/scsi/ufs/ufshpb.c b/drivers/scsi/ufs/ufshpb.c
+index 3b1a90b1d82ac..a86d0cc50de21 100644
+--- a/drivers/scsi/ufs/ufshpb.c
++++ b/drivers/scsi/ufs/ufshpb.c
+@@ -394,8 +394,6 @@ int ufshpb_prep(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ 	if (!ufshpb_is_supported_chunk(hpb, transfer_len))
+ 		return 0;
  
- #ifdef CONFIG_POSIX_CPU_TIMERS_TASK_WORK
-+void clear_posix_cputimers_work(struct task_struct *p);
- void posix_cputimers_init_work(void);
- #else
-+static inline void clear_posix_cputimers_work(struct task_struct *p) { }
- static inline void posix_cputimers_init_work(void) { }
- #endif
+-	WARN_ON_ONCE(transfer_len > HPB_MULTI_CHUNK_HIGH);
+-
+ 	if (hpb->is_hcm) {
+ 		/*
+ 		 * in host control mode, reads are the main source for
+@@ -1572,7 +1570,7 @@ static void ufshpb_lu_parameter_init(struct ufs_hba *hba,
+ 	if (ufshpb_is_legacy(hba))
+ 		hpb->pre_req_max_tr_len = HPB_LEGACY_CHUNK_HIGH;
+ 	else
+-		hpb->pre_req_max_tr_len = HPB_MULTI_CHUNK_HIGH;
++		hpb->pre_req_max_tr_len = hpb_dev_info->max_hpb_single_cmd;
  
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2206,6 +2206,7 @@ static __latent_entropy struct task_stru
- 	p->pdeath_signal = 0;
- 	INIT_LIST_HEAD(&p->thread_group);
- 	p->task_works = NULL;
-+	clear_posix_cputimers_work(p);
- 
- #ifdef CONFIG_KRETPROBES
- 	p->kretprobe_instances.first = NULL;
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -1101,13 +1101,28 @@ static void posix_cpu_timers_work(struct
- }
- 
- /*
-+ * Clear existing posix CPU timers task work.
-+ */
-+void clear_posix_cputimers_work(struct task_struct *p)
-+{
-+	/*
-+	 * A copied work entry from the old task is not meaningful, clear it.
-+	 * N.B. init_task_work will not do this.
-+	 */
-+	memset(&p->posix_cputimers_work.work, 0,
-+	       sizeof(p->posix_cputimers_work.work));
-+	init_task_work(&p->posix_cputimers_work.work,
-+		       posix_cpu_timers_work);
-+	p->posix_cputimers_work.scheduled = false;
-+}
-+
-+/*
-  * Initialize posix CPU timers task work in init task. Out of line to
-  * keep the callback static and to avoid header recursion hell.
-  */
- void __init posix_cputimers_init_work(void)
+ 	hpb->lu_pinned_start = hpb_lu_info->pinned_start;
+ 	hpb->lu_pinned_end = hpb_lu_info->num_pinned ?
+@@ -2582,7 +2580,7 @@ void ufshpb_get_dev_info(struct ufs_hba *hba, u8 *desc_buf)
  {
--	init_task_work(&current->posix_cputimers_work.work,
--		       posix_cpu_timers_work);
-+	clear_posix_cputimers_work(current);
+ 	struct ufshpb_dev_info *hpb_dev_info = &hba->ufshpb_dev;
+ 	int version, ret;
+-	u32 max_hpb_single_cmd = HPB_MULTI_CHUNK_LOW;
++	int max_single_cmd;
+ 
+ 	hpb_dev_info->control_mode = desc_buf[DEVICE_DESC_PARAM_HPB_CONTROL];
+ 
+@@ -2598,18 +2596,22 @@ void ufshpb_get_dev_info(struct ufs_hba *hba, u8 *desc_buf)
+ 	if (version == HPB_SUPPORT_LEGACY_VERSION)
+ 		hpb_dev_info->is_legacy = true;
+ 
+-	ret = ufshcd_query_attr_retry(hba, UPIU_QUERY_OPCODE_READ_ATTR,
+-		QUERY_ATTR_IDN_MAX_HPB_SINGLE_CMD, 0, 0, &max_hpb_single_cmd);
+-	if (ret)
+-		dev_err(hba->dev, "%s: idn: read max size of single hpb cmd query request failed",
+-			__func__);
+-	hpb_dev_info->max_hpb_single_cmd = max_hpb_single_cmd;
+-
+ 	/*
+ 	 * Get the number of user logical unit to check whether all
+ 	 * scsi_device finish initialization
+ 	 */
+ 	hpb_dev_info->num_lu = desc_buf[DEVICE_DESC_PARAM_NUM_LU];
++
++	if (hpb_dev_info->is_legacy)
++		return;
++
++	ret = ufshcd_query_attr_retry(hba, UPIU_QUERY_OPCODE_READ_ATTR,
++		QUERY_ATTR_IDN_MAX_HPB_SINGLE_CMD, 0, 0, &max_single_cmd);
++
++	if (ret)
++		hpb_dev_info->max_hpb_single_cmd = HPB_LEGACY_CHUNK_HIGH;
++	else
++		hpb_dev_info->max_hpb_single_cmd = min(max_single_cmd + 1, HPB_MULTI_CHUNK_HIGH);
  }
  
- /*
+ void ufshpb_init(struct ufs_hba *hba)
+diff --git a/drivers/scsi/ufs/ufshpb.h b/drivers/scsi/ufs/ufshpb.h
+index f15d8fdbce2ef..b475dbd789883 100644
+--- a/drivers/scsi/ufs/ufshpb.h
++++ b/drivers/scsi/ufs/ufshpb.h
+@@ -31,7 +31,6 @@
+ 
+ /* hpb support chunk size */
+ #define HPB_LEGACY_CHUNK_HIGH			1
+-#define HPB_MULTI_CHUNK_LOW			7
+ #define HPB_MULTI_CHUNK_HIGH			255
+ 
+ /* hpb vender defined opcode */
+-- 
+2.33.0
+
 
 
