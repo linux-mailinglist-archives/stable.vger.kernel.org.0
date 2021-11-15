@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93A21451342
+	by mail.lfdr.de (Postfix) with ESMTP id 4A7D7451341
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347965AbhKOTt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:49:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
+        id S1347960AbhKOTtR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:49:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245506AbhKOTUk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDF8B63268;
-        Mon, 15 Nov 2021 18:36:10 +0000 (UTC)
+        id S245509AbhKOTUl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61F3963265;
+        Mon, 15 Nov 2021 18:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001371;
-        bh=Lvd5JfHFBPMAaNcT0VnsoZt2DRbytrOPPgGE/eR5nk8=;
+        s=korg; t=1637001374;
+        bh=f+k4pf/lIk9rBI5b9QTxE6NgaYlPDGRU6VXqapoxdQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XWWRK5cpAbU1KJFxgNkUWsaQZ7A6saDbuOvStPj717Xu1uAZv3dB9ra83z4QP/omF
-         IpKX4uX6OxXGZmXOlMM7eMIfVLMwwv3z9El+ardjXT5QZMOTh2rQeT+yHnx6iPfeKc
-         vpCxQuuQkoMDn8pX7l+CMHUj4Ja1PfkzlHEhoR5c=
+        b=cGkTnRUm7DqVHu6f0DHTLNi0JpMj9G9qN3f3OJZjpJOKFoAGEs95JcXa0i+EugWto
+         lOVuquOtPFY8yZLGInd3C8hTWYwQQADWt7qwzfKIgSU137RDT+gLaRf6vJ+D4Ts3dP
+         UCRhy8b45Ey+QfGO+PttN2tzz4DziD9klYCj4PoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 131/917] iio: adc: tsc2046: fix scan interval warning
-Date:   Mon, 15 Nov 2021 17:53:46 +0100
-Message-Id: <20211115165433.203576440@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaoming Ni <nixiaoming@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 132/917] powerpc/85xx: Fix oops when mpc85xx_smp_guts_ids node cannot be found
+Date:   Mon, 15 Nov 2021 17:53:47 +0100
+Message-Id: <20211115165433.242864417@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,32 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Xiaoming Ni <nixiaoming@huawei.com>
 
-commit 69b31fd7a61784692db6433c05d46915b1b1a680 upstream.
+commit 3c2172c1c47b4079c29f0e6637d764a99355ebcd upstream.
 
-Sync if statement with the actual warning.
+When the field described in mpc85xx_smp_guts_ids[] is not configured in
+dtb, the mpc85xx_setup_pmc() does not assign a value to the "guts"
+variable. As a result, the oops is triggered when
+mpc85xx_freeze_time_base() is executed.
 
-Fixes: 9504db5765e8 ("iio: adc: tsc2046: fix a warning message in tsc2046_adc_update_scan_mode()")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20211007093007.1466-2-o.rempel@pengutronix.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 56f1ba280719 ("powerpc/mpc85xx: refactor the PM operations")
+Cc: stable@vger.kernel.org # v4.6+
+Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210929033646.39630-2-nixiaoming@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ti-tsc2046.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/iio/adc/ti-tsc2046.c
-+++ b/drivers/iio/adc/ti-tsc2046.c
-@@ -398,7 +398,7 @@ static int tsc2046_adc_update_scan_mode(
- 	priv->xfer.len = size;
- 	priv->time_per_scan_us = size * 8 * priv->time_per_bit_ns / NSEC_PER_USEC;
+--- a/arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c
++++ b/arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c
+@@ -94,9 +94,8 @@ int __init mpc85xx_setup_pmc(void)
+ 			pr_err("Could not map guts node address\n");
+ 			return -ENOMEM;
+ 		}
++		qoriq_pm_ops = &mpc85xx_pm_ops;
+ 	}
  
--	if (priv->scan_interval_us > priv->time_per_scan_us)
-+	if (priv->scan_interval_us < priv->time_per_scan_us)
- 		dev_warn(&priv->spi->dev, "The scan interval (%d) is less then calculated scan time (%d)\n",
- 			 priv->scan_interval_us, priv->time_per_scan_us);
- 
+-	qoriq_pm_ops = &mpc85xx_pm_ops;
+-
+ 	return 0;
+ }
 
 
