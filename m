@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28CF5450F40
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:26:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 784C4450F3E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:25:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241192AbhKOS2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:28:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35522 "EHLO mail.kernel.org"
+        id S241208AbhKOS2F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:28:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241884AbhKOSZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241889AbhKOSZk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:25:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4CE863428;
-        Mon, 15 Nov 2021 17:55:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4A076342A;
+        Mon, 15 Nov 2021 17:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998951;
-        bh=+vlmXETn4KzWYzIoABm278j6u+g5LO+u0OFh/n778Uo=;
+        s=korg; t=1636998954;
+        bh=85i5/CtCbdDbEoZ2C8eeuIruaYrkv5rpVAakvtNBd4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUjnLDev0SmutPdD9FpMDVcXdGw/VqGHeyQF7jAeP9GyL7Ih7wiuFGvBrrc03r9jW
-         UET1xev2R39PC33P+WPn4WmpZvl5UHflRoQiuOgHXd+HqUFjSjE1ocjj3kW83bkHml
-         wj3YX+eQqC5Wfsk0QJjpGq98NbHjwY9qjqGEz9iE=
+        b=Os7nxA6gjZHvhmhOL4EsnkZt67bRVSNglRAfDLA3R8HnWFj2bDf4sQnrRQs8w9H75
+         fndfcHfsoM/TB0Ljzk5phDBpj30lE7AHciem2iNEAm2XnrXOjB5VEZB1ofpklz/wjP
+         j6q7IeNkjzR2xhUllSatLjLi7Jj+F/BnsEmNXHy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.14 121/849] platform/surface: aggregator_registry: Add support for Surface Laptop Studio
-Date:   Mon, 15 Nov 2021 17:53:24 +0100
-Message-Id: <20211115165424.184796457@linuxfoundation.org>
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>
+Subject: [PATCH 5.14 122/849] mt76: mt7615: fix skb use-after-free on mac reset
+Date:   Mon, 15 Nov 2021 17:53:25 +0100
+Message-Id: <20211115165424.223965198@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,106 +38,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 4f042e40199ce8bac6bc2b853e81744ee4ea759c upstream.
+commit b5cd1fd6043bbb7c5810067b5f93f3016bfd8a6f upstream.
 
-Add support for the Surface Laptop Studio.
+When clearing all existing pending tx slots, mt76_tx_complete_skb needs to
+be used to free the skbs, to ensure that they are cleared from the status
+list as well.
 
-In contrast to previous Surface Laptop models, this one has its HID
-devices attached to target ID 1 (instead of 2). It also has a couple
-more of them, including a new notifier for when the pen is stashed /
-taken out of its place, a "Sys Control" device, and two other
-unidentified HID devices with unknown usages.
-
-Battery and performance profile interfaces remain the same.
-
-Cc: stable@vger.kernel.org # 5.14+
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Link: https://lore.kernel.org/r/20211021130904.862610-2-luzmaximilian@gmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/surface/surface_aggregator_registry.c |   54 +++++++++++++++++
- 1 file changed, 54 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt7615/mac.c |   45 ++++++++++++------------
+ 1 file changed, 23 insertions(+), 22 deletions(-)
 
---- a/drivers/platform/surface/surface_aggregator_registry.c
-+++ b/drivers/platform/surface/surface_aggregator_registry.c
-@@ -77,6 +77,42 @@ static const struct software_node ssam_n
- 	.parent = &ssam_node_root,
- };
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+@@ -1494,32 +1494,41 @@ out:
+ }
  
-+/* HID keyboard (TID1). */
-+static const struct software_node ssam_node_hid_tid1_keyboard = {
-+	.name = "ssam:01:15:01:01:00",
-+	.parent = &ssam_node_root,
-+};
-+
-+/* HID pen stash (TID1; pen taken / stashed away evens). */
-+static const struct software_node ssam_node_hid_tid1_penstash = {
-+	.name = "ssam:01:15:01:02:00",
-+	.parent = &ssam_node_root,
-+};
-+
-+/* HID touchpad (TID1). */
-+static const struct software_node ssam_node_hid_tid1_touchpad = {
-+	.name = "ssam:01:15:01:03:00",
-+	.parent = &ssam_node_root,
-+};
-+
-+/* HID device instance 6 (TID1, unknown HID device). */
-+static const struct software_node ssam_node_hid_tid1_iid6 = {
-+	.name = "ssam:01:15:01:06:00",
-+	.parent = &ssam_node_root,
-+};
-+
-+/* HID device instance 7 (TID1, unknown HID device). */
-+static const struct software_node ssam_node_hid_tid1_iid7 = {
-+	.name = "ssam:01:15:01:07:00",
-+	.parent = &ssam_node_root,
-+};
-+
-+/* HID system controls (TID1). */
-+static const struct software_node ssam_node_hid_tid1_sysctrl = {
-+	.name = "ssam:01:15:01:08:00",
-+	.parent = &ssam_node_root,
-+};
-+
- /* HID keyboard. */
- static const struct software_node ssam_node_hid_main_keyboard = {
- 	.name = "ssam:01:15:02:01:00",
-@@ -159,6 +195,21 @@ static const struct software_node *ssam_
- 	NULL,
- };
+ static void
+-mt7615_mac_tx_free_token(struct mt7615_dev *dev, u16 token)
++mt7615_txwi_free(struct mt7615_dev *dev, struct mt76_txwi_cache *txwi)
+ {
+ 	struct mt76_dev *mdev = &dev->mt76;
+-	struct mt76_txwi_cache *txwi;
+ 	__le32 *txwi_data;
+ 	u32 val;
+ 	u8 wcid;
  
-+/* Devices for Surface Laptop Studio. */
-+static const struct software_node *ssam_node_group_sls[] = {
-+	&ssam_node_root,
-+	&ssam_node_bat_ac,
-+	&ssam_node_bat_main,
-+	&ssam_node_tmp_pprof,
-+	&ssam_node_hid_tid1_keyboard,
-+	&ssam_node_hid_tid1_penstash,
-+	&ssam_node_hid_tid1_touchpad,
-+	&ssam_node_hid_tid1_iid6,
-+	&ssam_node_hid_tid1_iid7,
-+	&ssam_node_hid_tid1_sysctrl,
-+	NULL,
-+};
-+
- /* Devices for Surface Laptop Go. */
- static const struct software_node *ssam_node_group_slg1[] = {
- 	&ssam_node_root,
-@@ -507,6 +558,9 @@ static const struct acpi_device_id ssam_
- 	/* Surface Laptop Go 1 */
- 	{ "MSHW0118", (unsigned long)ssam_node_group_slg1 },
+-	trace_mac_tx_free(dev, token);
+-	txwi = mt76_token_put(mdev, token);
+-	if (!txwi)
+-		return;
++	mt7615_txp_skb_unmap(mdev, txwi);
++	if (!txwi->skb)
++		goto out;
  
-+	/* Surface Laptop Studio */
-+	{ "MSHW0123", (unsigned long)ssam_node_group_sls },
+ 	txwi_data = (__le32 *)mt76_get_txwi_ptr(mdev, txwi);
+ 	val = le32_to_cpu(txwi_data[1]);
+ 	wcid = FIELD_GET(MT_TXD1_WLAN_IDX, val);
++	mt76_tx_complete_skb(mdev, wcid, txwi->skb);
+ 
+-	mt7615_txp_skb_unmap(mdev, txwi);
+-	if (txwi->skb) {
+-		mt76_tx_complete_skb(mdev, wcid, txwi->skb);
+-		txwi->skb = NULL;
+-	}
+-
++out:
++	txwi->skb = NULL;
+ 	mt76_put_txwi(mdev, txwi);
+ }
+ 
++static void
++mt7615_mac_tx_free_token(struct mt7615_dev *dev, u16 token)
++{
++	struct mt76_dev *mdev = &dev->mt76;
++	struct mt76_txwi_cache *txwi;
 +
- 	{ },
- };
- MODULE_DEVICE_TABLE(acpi, ssam_platform_hub_match);
++	trace_mac_tx_free(dev, token);
++	txwi = mt76_token_put(mdev, token);
++	if (!txwi)
++		return;
++
++	mt7615_txwi_free(dev, txwi);
++}
++
+ static void mt7615_mac_tx_free(struct mt7615_dev *dev, struct sk_buff *skb)
+ {
+ 	struct mt7615_tx_free *free = (struct mt7615_tx_free *)skb->data;
+@@ -2026,16 +2035,8 @@ void mt7615_tx_token_put(struct mt7615_d
+ 	int id;
+ 
+ 	spin_lock_bh(&dev->mt76.token_lock);
+-	idr_for_each_entry(&dev->mt76.token, txwi, id) {
+-		mt7615_txp_skb_unmap(&dev->mt76, txwi);
+-		if (txwi->skb) {
+-			struct ieee80211_hw *hw;
+-
+-			hw = mt76_tx_status_get_hw(&dev->mt76, txwi->skb);
+-			ieee80211_free_txskb(hw, txwi->skb);
+-		}
+-		mt76_put_txwi(&dev->mt76, txwi);
+-	}
++	idr_for_each_entry(&dev->mt76.token, txwi, id)
++		mt7615_txwi_free(dev, txwi);
+ 	spin_unlock_bh(&dev->mt76.token_lock);
+ 	idr_destroy(&dev->mt76.token);
+ }
 
 
