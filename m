@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 124B94505BE
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:41:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7DED4505D2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:43:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236464AbhKONnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 08:43:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51488 "EHLO mail.kernel.org"
+        id S234939AbhKONqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 08:46:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236152AbhKONm0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 08:42:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2CD363222;
-        Mon, 15 Nov 2021 13:39:06 +0000 (UTC)
+        id S231833AbhKONmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 08:42:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 424516322A;
+        Mon, 15 Nov 2021 13:39:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636983547;
-        bh=iDWnkpeUug4wbdlt4vb3MTKjDjyrXcnyGWXNpz2lkbc=;
+        s=korg; t=1636983544;
+        bh=+nzGqJjtCHiG4tHhl4vCQQ7KhI89Vvcs4vIdqk3J5VU=;
         h=Subject:To:Cc:From:Date:From;
-        b=2VdDPcCOYByoKpzMmgYHJZrU7hNTy9+Pv/Dboy3/0TYnG8+mrrAPJH+Y58kFRWxKS
-         rpwvVZkPcaiDz832XXMLeHsRzvxKHGy8XrYQLoFNVLhvKYcoS222Gy4F5CJXTAWHIM
-         JjfPfLms/d0fxaI4XnZjxi69/bXpERSrbPbbWWlo=
-Subject: FAILED: patch "[PATCH] block: Hold invalidate_lock in BLKZEROOUT ioctl" failed to apply to 4.19-stable tree
+        b=eMl3pg1SrPdYD02gRijx93t7Wzy/+rL/lMeES+YfO9ycfvioVmXnM+sM/+3jrsowp
+         F4ZtXlKOBwga+hxS0f1MM/bJHYCu1iRaiSj8u1LQsxCv2Go0IUh1NudgWIei6JYURr
+         IXZghJWFpofKXTbStc9iXOh5+ycBL+9SBCRvJpx0=
+Subject: FAILED: patch "[PATCH] block: Hold invalidate_lock in BLKZEROOUT ioctl" failed to apply to 5.4-stable tree
 To:     shinichiro.kawasaki@wdc.com, axboe@kernel.dk, jack@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 15 Nov 2021 14:38:49 +0100
-Message-ID: <1636983529246232@kroah.com>
+Message-ID: <16369835292598@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
