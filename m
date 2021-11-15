@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEBE24522BE
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 814F64522D0
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354533AbhKPBP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:15:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42964 "EHLO mail.kernel.org"
+        id S1378646AbhKPBQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:16:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244386AbhKOTOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:14:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BA29634B8;
-        Mon, 15 Nov 2021 18:20:25 +0000 (UTC)
+        id S244469AbhKOTPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:15:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABD5F634C6;
+        Mon, 15 Nov 2021 18:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000426;
-        bh=Kb315VE26z33mFaA9+Vy/v4kc7EakvMWO1nTpfHe6EI=;
+        s=korg; t=1637000478;
+        bh=gqq9KKE0mgn3BJBjd3CNbKBSkZd21PDpbod6pCjr/CA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MSNuqknolz87A1g6CE/AzHXPqa9IVdFEd7zXiqjbcXjVx/dyi9uW8X8MrVeOP+q4z
-         xGqal6xKnqGsD4i2+8HTtmYkG1Bp1amUSTRosoTwH70zKcWKgPM+SXuPFY9Gt7Te9z
-         ThOqBAFPAXWvEkAwO+frKE+ltyAN3pScdc8zGL4o=
+        b=Pj4E3174VL7XxsogIzyg35i7TuXQCI/F8HPe5kd5FFYiLJY18Ja8QwiHxyLeigQql
+         FGt7z7UEdeSan3Rxh2AOX2tp9hBRSZj9h96uq+ON1k3LI8JPuiesX4BWM7hBC2HM65
+         MgckKdjyuuVStdm+OG7dC7xzUTOEoT0WDRg2/kOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 638/849] ASoC: topology: Fix stub for snd_soc_tplg_component_remove()
-Date:   Mon, 15 Nov 2021 18:02:01 +0100
-Message-Id: <20211115165441.854898481@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sandeep Maheswaram <quic_c_sanm@quicinc.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 641/849] phy: qcom-snps: Correct the FSEL_MASK
+Date:   Mon, 15 Nov 2021 18:02:04 +0100
+Message-Id: <20211115165441.968531035@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,38 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Sandeep Maheswaram <quic_c_sanm@quicinc.com>
 
-[ Upstream commit 1198ff12cbdd5f42c032cba1d96ebc7af8024cf9 ]
+[ Upstream commit b475bf0ec40a2b13fb32ef62f5706576d5858460 ]
 
-When removing the index argument from snd_soc_topology_component_remove()
-commit a5b8f71c5477f (ASoC: topology: Remove multistep topology loading)
-forgot to update the stub for !SND_SOC_TOPOLOGY use, causing build failures
-for anything that tries to make use of it.
+The FSEL_MASK which selects the refclock is defined incorrectly.
+It should be [4:6] not [5:7]. Due to this incorrect definition, the BIT(7)
+in USB2_PHY_USB_PHY_HS_PHY_CTRL_COMMON0 is reset which keeps PHY analog
+blocks ON during suspend.
+Fix this issue by correctly defining the FSEL_MASK.
 
-Fixes: a5b8f71c5477f (ASoC: topology: Remove multistep topology loading)
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20211025154844.2342120-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 51e8114f80d0 ("phy: qcom-snps: Add SNPS USB PHY driver for QCOM based SOCs")
+Signed-off-by: Sandeep Maheswaram <quic_c_sanm@quicinc.com>
+Link: https://lore.kernel.org/r/1635135575-5668-1-git-send-email-quic_c_sanm@quicinc.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/soc-topology.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/sound/soc-topology.h b/include/sound/soc-topology.h
-index 4afd667e124c2..3e8a85e1e8094 100644
---- a/include/sound/soc-topology.h
-+++ b/include/sound/soc-topology.h
-@@ -188,8 +188,7 @@ int snd_soc_tplg_widget_bind_event(struct snd_soc_dapm_widget *w,
+diff --git a/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c b/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c
+index ae4bac024c7b1..7e61202aa234e 100644
+--- a/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c
++++ b/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c
+@@ -33,7 +33,7 @@
  
- #else
+ #define USB2_PHY_USB_PHY_HS_PHY_CTRL_COMMON0	(0x54)
+ #define RETENABLEN				BIT(3)
+-#define FSEL_MASK				GENMASK(7, 5)
++#define FSEL_MASK				GENMASK(6, 4)
+ #define FSEL_DEFAULT				(0x3 << 4)
  
--static inline int snd_soc_tplg_component_remove(struct snd_soc_component *comp,
--						u32 index)
-+static inline int snd_soc_tplg_component_remove(struct snd_soc_component *comp)
- {
- 	return 0;
- }
+ #define USB2_PHY_USB_PHY_HS_PHY_CTRL_COMMON1	(0x58)
 -- 
 2.33.0
 
