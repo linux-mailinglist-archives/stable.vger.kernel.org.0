@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F7DD452236
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:08:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41CF945223C
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:08:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345437AbhKPBKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:10:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
+        id S245450AbhKPBK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:10:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245093AbhKOTTS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:19:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31D5563506;
-        Mon, 15 Nov 2021 18:28:12 +0000 (UTC)
+        id S245097AbhKOTTV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:19:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25F2363508;
+        Mon, 15 Nov 2021 18:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000892;
-        bh=XLKvNwIltg/eHupHe5wWDz9tnnRepo+d+LVHb8CH5c0=;
+        s=korg; t=1637000897;
+        bh=F1WlPKWKa8S/bcBmeHJOylgssOFozf1zb8YNMJe6clw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aeDfTcbUGQQdQOqdb/V1B22tj0dtXOMOa4Wf/iosxUa32GUnXpmtybGCb62FmuxEW
-         G1kG+NtgPNvOqwtBxsO1S8j1BfYzRJAGLnMa6YI7N+Yzf6cBTORLeFM2QRK0+f+brY
-         lPLBKmu2H0gDiZSQdj/3klpxqyUMoB5vZhaOhNHA=
+        b=Aw4skX0n3/61eIFzmlIWGqijr+t2z9h2SPLjXoC/yMlNp2K0jAg0A90j+gynmdluz
+         b1LKCGwDxyGfao9+dXErduE2uxnYIpiqfVxvvYqcUMU2PY61mGFpcLtFgW9wNnalUM
+         Dm2t6YyvoX14PwfZilbk3vgOjNRCA94VtyDBix9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.14 833/849] mtd: rawnand: plat_nand: Keep the driver compatible with on-die ECC engines
-Date:   Mon, 15 Nov 2021 18:05:16 +0100
-Message-Id: <20211115165448.409669143@linuxfoundation.org>
+Subject: [PATCH 5.14 834/849] mtd: rawnand: au1550nd: Keep the driver compatible with on-die ECC engines
+Date:   Mon, 15 Nov 2021 18:05:17 +0100
+Message-Id: <20211115165448.442458343@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 325fd539fc84f0aaa0ceb9d7d3b8718582473dc5 upstream.
+commit 7e3cdba176ba59eaf4d463d273da0718e3626140 upstream.
 
 Following the introduction of the generic ECC engine infrastructure, it
 was necessary to reorganize the code and move the ECC configuration in
@@ -67,20 +67,20 @@ nand_scan(). During the initialization step, the core will consider this
 entry as the default engine for this driver. This value may of course
 be overloaded by the user if the usual DT properties are provided.
 
-Fixes: 612e048e6aab ("mtd: rawnand: plat_nand: Move the ECC initialization to ->attach_chip()")
+Fixes: dbffc8ccdf3a ("mtd: rawnand: au1550: Move the ECC initialization to ->attach_chip()")
 Cc: stable@vger.kernel.org
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210928222258.199726-8-miquel.raynal@bootlin.com
+Link: https://lore.kernel.org/linux-mtd/20210928222258.199726-3-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/plat_nand.c |   12 +++++++++---
+ drivers/mtd/nand/raw/au1550nd.c |   12 +++++++++---
  1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/mtd/nand/raw/plat_nand.c
-+++ b/drivers/mtd/nand/raw/plat_nand.c
-@@ -21,9 +21,8 @@ struct plat_nand_data {
+--- a/drivers/mtd/nand/raw/au1550nd.c
++++ b/drivers/mtd/nand/raw/au1550nd.c
+@@ -239,9 +239,8 @@ static int au1550nd_exec_op(struct nand_
  
- static int plat_nand_attach_chip(struct nand_chip *chip)
+ static int au1550nd_attach_chip(struct nand_chip *chip)
  {
 -	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 -
@@ -90,19 +90,19 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
  
  	return 0;
-@@ -94,6 +93,13 @@ static int plat_nand_probe(struct platfo
- 			goto out;
- 	}
+@@ -310,6 +309,13 @@ static int au1550nd_probe(struct platfor
+ 	if (pd->devwidth)
+ 		this->options |= NAND_BUSWIDTH_16;
  
 +	/*
 +	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
 +	 * Set ->engine_type before registering the NAND devices in order to
 +	 * provide a driver specific default value.
 +	 */
-+	data->chip.ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
++	this->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 +
- 	/* Scan to find existence of the device */
- 	err = nand_scan(&data->chip, pdata->chip.nr_chips);
- 	if (err)
+ 	ret = nand_scan(this, 1);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "NAND scan failed with %d\n", ret);
 
 
