@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B139445127A
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB4A1451289
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346669AbhKOTgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:36:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
+        id S1346813AbhKOTg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:36:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244758AbhKOTR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:17:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA64A6332A;
-        Mon, 15 Nov 2021 18:23:34 +0000 (UTC)
+        id S244806AbhKOTRh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:17:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F4C363420;
+        Mon, 15 Nov 2021 18:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000615;
-        bh=ryhugm6YOSgDg7V3f8kVg1/oyRfP583n+gJijgEa7Ws=;
+        s=korg; t=1637000645;
+        bh=mTun3r825H2P8/Dt23+jOVGzjeI0Tn4Sx9dVdqrB2/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gb8je9zMsX3tcQJ35lai0Zq40/5eUTzmp7/UjD3Zf3shfyA2j+1EHfsNG8u/zq9/n
-         xfM/NphOkoNS5X4hdPiR25czqcfXSHfj2Aqe8Bp+YBHONkgINsBaGiZLzxyG1QQSk1
-         UgR8KkFJ4yQuM5XAv4Ta2QHKZqo6coh3O97+61cY=
+        b=lyPa8S85GnMshvfpS/Vu0IdAq+wauZFknNsd5ltkClOqw+wEi4O8I91owoBFe7WZT
+         SWtHlSaT1Md8Ha9vVJFf+W+NMME5UbqDwrrdHeyuLn425qF51cUvb46tD9/lz7ClAi
+         vualMDBjc11tolVfAfkMRQT1worBzJqzN2kB7BfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jackie Liu <liuyun01@kylinos.cn>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Roman Bolshakov <r.bolshakov@yadro.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Dmitry Bogdanov <d.bogdanov@yadro.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 709/849] ar7: fix kernel builds for compiler test
-Date:   Mon, 15 Nov 2021 18:03:12 +0100
-Message-Id: <20211115165444.239361430@linuxfoundation.org>
+Subject: [PATCH 5.14 710/849] scsi: target: core: Remove from tmr_list during LUN unlink
+Date:   Mon, 15 Nov 2021 18:03:13 +0100
+Message-Id: <20211115165444.271408356@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,44 +42,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Dmitry Bogdanov <d.bogdanov@yadro.com>
 
-[ Upstream commit 28b7ee33a2122569ac065cad578bf23f50cc65c3 ]
+[ Upstream commit 12b6fcd0ea7f3cb7c3b34668fc678779924123ae ]
 
-TI AR7 Watchdog Timer is only build for 32bit.
+Currently TMF commands are removed from de_device.dev_tmf_list at the very
+end of se_cmd lifecycle. However, se_lun unlinks from se_cmd upon a command
+status (response) being queued in transport layer. This means that LUN and
+backend device can be deleted in the meantime and a panic will occur:
 
-Avoid error like:
-In file included from drivers/watchdog/ar7_wdt.c:29:
-./arch/mips/include/asm/mach-ar7/ar7.h: In function ‘ar7_is_titan’:
-./arch/mips/include/asm/mach-ar7/ar7.h:111:24: error: implicit declaration of function ‘KSEG1ADDR’; did you mean ‘CKSEG1ADDR’? [-Werror=implicit-function-declaration]
-  111 |  return (readl((void *)KSEG1ADDR(AR7_REGS_GPIO + 0x24)) & 0xffff) ==
-      |                        ^~~~~~~~~
-      |                        CKSEG1ADDR
+target_tmr_work()
+	cmd->se_tfo->queue_tm_rsp(cmd); // send abort_rsp to a wire
+	transport_lun_remove_cmd(cmd) // unlink se_cmd from se_lun
+- // - // - // -
+<<<--- lun remove
+<<<--- core backend device remove
+- // - // - // -
+qlt_handle_abts_completion()
+  tfo->free_mcmd()
+    transport_generic_free_cmd()
+      target_put_sess_cmd()
+        core_tmr_release_req() {
+          if (dev) { // backend device, can not be null
+            spin_lock_irqsave(&dev->se_tmr_lock, flags); //<<<--- CRASH
 
-Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210907024904.4127611-1-liu.yun@linux.dev
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Call Trace:
+NIP [c000000000e1683c] _raw_spin_lock_irqsave+0x2c/0xc0
+LR [c00800000e433338] core_tmr_release_req+0x40/0xa0 [target_core_mod]
+Call Trace:
+(unreliable)
+0x0
+target_put_sess_cmd+0x2a0/0x370 [target_core_mod]
+transport_generic_free_cmd+0x6c/0x1b0 [target_core_mod]
+tcm_qla2xxx_complete_mcmd+0x28/0x50 [tcm_qla2xxx]
+process_one_work+0x2c4/0x5c0
+worker_thread+0x88/0x690
+
+For the iSCSI protocol this is easily reproduced:
+
+ - Send some SCSI sommand
+
+ - Send Abort of that command over iSCSI
+
+ - Remove LUN on target
+
+ - Send next iSCSI command to acknowledge the Abort_Response
+
+ - Target panics
+
+There is no need to keep the command in tmr_list until response completion,
+so move the removal from tmr_list from the response completion to the
+response queueing when the LUN is unlinked.  Move the removal from state
+list too as it is a subject to the same race condition.
+
+Link: https://lore.kernel.org/r/20211018135753.15297-1-d.bogdanov@yadro.com
+Fixes: c66ac9db8d4a ("[SCSI] target: Add LIO target core v4.0.0-rc6")
+Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/target/target_core_tmr.c       | 17 +--------------
+ drivers/target/target_core_transport.c | 30 ++++++++++++++++++++------
+ 2 files changed, 24 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 71cf3f503f16b..c7be7dd56cde8 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1690,7 +1690,7 @@ config SIBYTE_WDOG
+diff --git a/drivers/target/target_core_tmr.c b/drivers/target/target_core_tmr.c
+index e7fcbc09f9dbc..bac111456fa1d 100644
+--- a/drivers/target/target_core_tmr.c
++++ b/drivers/target/target_core_tmr.c
+@@ -50,15 +50,6 @@ EXPORT_SYMBOL(core_tmr_alloc_req);
  
- config AR7_WDT
- 	tristate "TI AR7 Watchdog Timer"
--	depends on AR7 || (MIPS && COMPILE_TEST)
-+	depends on AR7 || (MIPS && 32BIT && COMPILE_TEST)
- 	help
- 	  Hardware driver for the TI AR7 Watchdog Timer.
+ void core_tmr_release_req(struct se_tmr_req *tmr)
+ {
+-	struct se_device *dev = tmr->tmr_dev;
+-	unsigned long flags;
+-
+-	if (dev) {
+-		spin_lock_irqsave(&dev->se_tmr_lock, flags);
+-		list_del_init(&tmr->tmr_list);
+-		spin_unlock_irqrestore(&dev->se_tmr_lock, flags);
+-	}
+-
+ 	kfree(tmr);
+ }
  
+@@ -156,13 +147,6 @@ void core_tmr_abort_task(
+ 			se_cmd->state_active = false;
+ 			spin_unlock_irqrestore(&dev->queues[i].lock, flags);
+ 
+-			/*
+-			 * Ensure that this ABORT request is visible to the LU
+-			 * RESET code.
+-			 */
+-			if (!tmr->tmr_dev)
+-				WARN_ON_ONCE(transport_lookup_tmr_lun(tmr->task_cmd) < 0);
+-
+ 			if (dev->transport->tmr_notify)
+ 				dev->transport->tmr_notify(dev, TMR_ABORT_TASK,
+ 							   &aborted_list);
+@@ -234,6 +218,7 @@ static void core_tmr_drain_tmr_list(
+ 		}
+ 
+ 		list_move_tail(&tmr_p->tmr_list, &drain_tmr_list);
++		tmr_p->tmr_dev = NULL;
+ 	}
+ 	spin_unlock_irqrestore(&dev->se_tmr_lock, flags);
+ 
+diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
+index 26ceabe34de55..4b41fbc54fa5e 100644
+--- a/drivers/target/target_core_transport.c
++++ b/drivers/target/target_core_transport.c
+@@ -676,6 +676,21 @@ static void target_remove_from_state_list(struct se_cmd *cmd)
+ 	spin_unlock_irqrestore(&dev->queues[cmd->cpuid].lock, flags);
+ }
+ 
++static void target_remove_from_tmr_list(struct se_cmd *cmd)
++{
++	struct se_device *dev = NULL;
++	unsigned long flags;
++
++	if (cmd->se_cmd_flags & SCF_SCSI_TMR_CDB)
++		dev = cmd->se_tmr_req->tmr_dev;
++
++	if (dev) {
++		spin_lock_irqsave(&dev->se_tmr_lock, flags);
++		if (cmd->se_tmr_req->tmr_dev)
++			list_del_init(&cmd->se_tmr_req->tmr_list);
++		spin_unlock_irqrestore(&dev->se_tmr_lock, flags);
++	}
++}
+ /*
+  * This function is called by the target core after the target core has
+  * finished processing a SCSI command or SCSI TMF. Both the regular command
+@@ -687,13 +702,6 @@ static int transport_cmd_check_stop_to_fabric(struct se_cmd *cmd)
+ {
+ 	unsigned long flags;
+ 
+-	target_remove_from_state_list(cmd);
+-
+-	/*
+-	 * Clear struct se_cmd->se_lun before the handoff to FE.
+-	 */
+-	cmd->se_lun = NULL;
+-
+ 	spin_lock_irqsave(&cmd->t_state_lock, flags);
+ 	/*
+ 	 * Determine if frontend context caller is requesting the stopping of
+@@ -728,8 +736,16 @@ static void transport_lun_remove_cmd(struct se_cmd *cmd)
+ 	if (!lun)
+ 		return;
+ 
++	target_remove_from_state_list(cmd);
++	target_remove_from_tmr_list(cmd);
++
+ 	if (cmpxchg(&cmd->lun_ref_active, true, false))
+ 		percpu_ref_put(&lun->lun_ref);
++
++	/*
++	 * Clear struct se_cmd->se_lun before the handoff to FE.
++	 */
++	cmd->se_lun = NULL;
+ }
+ 
+ static void target_complete_failure_work(struct work_struct *work)
 -- 
 2.33.0
 
