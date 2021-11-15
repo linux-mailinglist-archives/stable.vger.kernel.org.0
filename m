@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDF5245149F
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:08:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82BE44514B8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:10:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345546AbhKOULJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:11:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
+        id S1345802AbhKOUM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:12:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344861AbhKOTZh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08BD7633EA;
-        Mon, 15 Nov 2021 19:05:38 +0000 (UTC)
+        id S1344895AbhKOTZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C62D636E5;
+        Mon, 15 Nov 2021 19:06:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003139;
-        bh=f8gty+WLiHutbHNkQOaSNnv+f+jGd0BikuIYN65v1LQ=;
+        s=korg; t=1637003170;
+        bh=cWvzVNsktRUox9YTiKYpl1Lsa4+dDdZmXjJJWHEKNME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hhASbQLu/ek8LqjaVBNjKuLe/OpxwYNK3psnjEHmI0lEfYWPLEezVhIZoLGczdima
-         kCuoTT2782JLH9dVKnv9VwnfBum+xwk4p3hz6XN01pe7NcJdRq7JawSE/bpMmNdNuP
-         FR/UaO/m+Pk9NmIJSnsWix+KFcFXUwL8y2MGelGE=
+        b=N1m56xiWzNRvsBbZkMXw4xF8/prmZTQmL3c6qLphL6AL3G3LbebkZ9gHWEN4cxl71
+         135ulgcpcTqnWVrvOgOAdKJznatz4l5eG5QnY0kQFshJUpSSKtr9MKKslECbwXxx9R
+         Sgh+5FiRZXt0Yk+7Lb13vFFhpB279DQ3jWH/w8b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Acked-by: Jani Nikula" <jani.nikula@intel.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
         Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 808/917] drm: fb_helper: improve CONFIG_FB dependency
-Date:   Mon, 15 Nov 2021 18:05:03 +0100
-Message-Id: <20211115165456.391822721@linuxfoundation.org>
+Subject: [PATCH 5.15 809/917] Revert "drm/imx: Annotate dma-fence critical section in commit path"
+Date:   Mon, 15 Nov 2021 18:05:04 +0100
+Message-Id: <20211115165456.429996451@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,48 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 9d6366e743f37d36ef69347924ead7bcc596076e ]
+[ Upstream commit 14d9a37c952588930d7226953359fea3ab956d39 ]
 
-My previous patch correctly addressed the possible link failure, but as
-Jani points out, the dependency is now stricter than it needs to be.
+This reverts commit f4b34faa08428d813fc3629f882c503487f94a12.
 
-Change it again, to allow DRM_FBDEV_EMULATION to be used when
-DRM_KMS_HELPER and FB are both loadable modules and DRM is linked into
-the kernel.
+Since commit f4b34faa0842 ("drm/imx: Annotate dma-fence critical section in
+commit path") the following possible circular dependency is detected:
 
-As a side-effect, the option is now only visible when at least one DRM
-driver makes use of DRM_KMS_HELPER. This is better, because the option
-has no effect otherwise.
+[    5.001811] ======================================================
+[    5.001817] WARNING: possible circular locking dependency detected
+[    5.001824] 5.14.9-01225-g45da36cc6fcc-dirty #1 Tainted: G        W
+[    5.001833] ------------------------------------------------------
+[    5.001838] kworker/u8:0/7 is trying to acquire lock:
+[    5.001848] c1752080 (regulator_list_mutex){+.+.}-{3:3}, at: regulator_lock_dependent+0x40/0x294
+[    5.001903]
+[    5.001903] but task is already holding lock:
+[    5.001909] c176df78 (dma_fence_map){++++}-{0:0}, at: imx_drm_atomic_commit_tail+0x10/0x160
+[    5.001957]
+[    5.001957] which lock already depends on the new lock.
+...
 
-Fixes: 606b102876e3 ("drm: fb_helper: fix CONFIG_FB dependency")
-Suggested-by: Acked-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Revert it for now.
+
+Tested on a imx6q-sabresd.
+
+Fixes: f4b34faa0842 ("drm/imx: Annotate dma-fence critical section in commit path")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211029120307.1407047-1-arnd@kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20211104001112.4035691-1-festevam@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/Kconfig | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/imx/imx-drm-core.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-index 9199f53861cac..6ae4269118af3 100644
---- a/drivers/gpu/drm/Kconfig
-+++ b/drivers/gpu/drm/Kconfig
-@@ -102,9 +102,8 @@ config DRM_DEBUG_DP_MST_TOPOLOGY_REFS
+diff --git a/drivers/gpu/drm/imx/imx-drm-core.c b/drivers/gpu/drm/imx/imx-drm-core.c
+index 9558e9e1b431b..cb685fe2039b4 100644
+--- a/drivers/gpu/drm/imx/imx-drm-core.c
++++ b/drivers/gpu/drm/imx/imx-drm-core.c
+@@ -81,7 +81,6 @@ static void imx_drm_atomic_commit_tail(struct drm_atomic_state *state)
+ 	struct drm_plane_state *old_plane_state, *new_plane_state;
+ 	bool plane_disabling = false;
+ 	int i;
+-	bool fence_cookie = dma_fence_begin_signalling();
  
- config DRM_FBDEV_EMULATION
- 	bool "Enable legacy fbdev support for your modesetting driver"
--	depends on DRM
--	depends on FB=y || FB=DRM
--	select DRM_KMS_HELPER
-+	depends on DRM_KMS_HELPER
-+	depends on FB=y || FB=DRM_KMS_HELPER
- 	select FB_CFB_FILLRECT
- 	select FB_CFB_COPYAREA
- 	select FB_CFB_IMAGEBLIT
+ 	drm_atomic_helper_commit_modeset_disables(dev, state);
+ 
+@@ -112,7 +111,6 @@ static void imx_drm_atomic_commit_tail(struct drm_atomic_state *state)
+ 	}
+ 
+ 	drm_atomic_helper_commit_hw_done(state);
+-	dma_fence_end_signalling(fence_cookie);
+ }
+ 
+ static const struct drm_mode_config_helper_funcs imx_drm_mode_config_helpers = {
 -- 
 2.33.0
 
