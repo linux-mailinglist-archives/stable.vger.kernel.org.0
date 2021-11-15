@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51D0F450EE3
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EE26450EE5
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:18:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232503AbhKOSVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:21:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56274 "EHLO mail.kernel.org"
+        id S237888AbhKOSVU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:21:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241129AbhKOSSa (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241130AbhKOSSa (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:18:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6171763248;
-        Mon, 15 Nov 2021 17:51:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1F3A633F4;
+        Mon, 15 Nov 2021 17:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998665;
-        bh=UPTlsE2EtP9BIi1WNtKkwz98aVsA67KuNWxttsQgWPI=;
+        s=korg; t=1636998667;
+        bh=tMShxtJVAtxPL6k7DwggB9SbQYjZfAmOySRFLhJ0XzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eUaVClvR08dGB564QN3i2oO1jINWnObCRYLSVKhN0yWBjIXhNYhQQx2XWO1lkvvQV
-         q9jxihou8TgdFBRG0CE2DsfKvXavnvCbWhX4Vs6mBrTP+NVkJd8HF5C2+S5NanCqDH
-         7HjWAnfL/QBv5YA5+4CIZwgewZP8j53iywr0SlJQ=
+        b=rrfkQagF5tAvcbnTPqV3dknEjM2OXokl1kznLNZWEP760qGH2JDQ1df8tgx+JluKe
+         dbZhmG/zXRwVAmmF4wU5BBsjt1C4v8DaZ1gun47R7keroMgA9Fpjc8pP1eRxQHAOyg
+         M2CBKzkL38MbxtLVCmEspfBZbd/s+L2KImW28oPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Derong Liu <derong.liu@mediatek.com>,
+        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
+        Jaehoon Chung <jh80.chung@samsung.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.14 016/849] mmc: mtk-sd: Add wait dma stop done flow
-Date:   Mon, 15 Nov 2021 17:51:39 +0100
-Message-Id: <20211115165420.550787394@linuxfoundation.org>
+Subject: [PATCH 5.14 017/849] mmc: dw_mmc: Dont wait for DRTO on Write RSP error
+Date:   Mon, 15 Nov 2021 17:51:40 +0100
+Message-Id: <20211115165420.585133303@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,54 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Derong Liu <derong.liu@mediatek.com>
+From: Christian Löhle <CLoehle@hyperstone.com>
 
-commit 43e5fee317f4b0a48992b8b07935b1a3ac20ce84 upstream.
+commit 43592c8736e84025d7a45e61a46c3fa40536a364 upstream.
 
-We found this issue on a 5G platform, during CMDQ error handling, if DMA
-status is active when it call msdc_reset_hw(), it means mmc host hw reset
-and DMA transfer will be parallel, mmc host may access sram region
-unexpectedly. According to the programming guide of mtk-sd host, it needs
-to wait for dma stop done after set dma stop.
+Only wait for DRTO on reads, otherwise the driver hangs.
 
-This change should be applied to all SoCs.
+The driver prevents sending CMD12 on response errors like CRCs. According
+to the comment this is because some cards have problems with this during
+the UHS tuning sequence. Unfortunately this workaround currently also
+applies for any command with data. On reads this will set the drto timer,
+which then triggers after a while. On writes this will not set any timer
+and the tasklet will not be scheduled again.
 
-Signed-off-by: Derong Liu <derong.liu@mediatek.com>
+I cannot test for the UHS workarounds need, but even if so, it should at
+most apply to reads. I have observed many hangs when CMD25 response
+contained a CRC error. This patch fixes this without touching the actual
+UHS tuning workaround.
+
+Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
+Reviewed-by: Jaehoon Chung <jh80.chung@samsung.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210827071537.1034-1-derong.liu@mediatek.com
+Link: https://lore.kernel.org/r/af8f8b8674ba4fcc9a781019e4aeb72c@hyperstone.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/mtk-sd.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mmc/host/dw_mmc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -8,6 +8,7 @@
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/dma-mapping.h>
-+#include <linux/iopoll.h>
- #include <linux/ioport.h>
- #include <linux/irq.h>
- #include <linux/of_address.h>
-@@ -2330,6 +2331,7 @@ static void msdc_cqe_enable(struct mmc_h
- static void msdc_cqe_disable(struct mmc_host *mmc, bool recovery)
- {
- 	struct msdc_host *host = mmc_priv(mmc);
-+	unsigned int val = 0;
- 
- 	/* disable cmdq irq */
- 	sdr_clr_bits(host->base + MSDC_INTEN, MSDC_INT_CMDQ);
-@@ -2339,6 +2341,9 @@ static void msdc_cqe_disable(struct mmc_
- 	if (recovery) {
- 		sdr_set_field(host->base + MSDC_DMA_CTRL,
- 			      MSDC_DMA_CTRL_STOP, 1);
-+		if (WARN_ON(readl_poll_timeout(host->base + MSDC_DMA_CFG, val,
-+			!(val & MSDC_DMA_CFG_STS), 1, 3000)))
-+			return;
- 		msdc_reset_hw(host);
- 	}
- }
+--- a/drivers/mmc/host/dw_mmc.c
++++ b/drivers/mmc/host/dw_mmc.c
+@@ -2014,7 +2014,8 @@ static void dw_mci_tasklet_func(struct t
+ 				 * delayed. Allowing the transfer to take place
+ 				 * avoids races and keeps things simple.
+ 				 */
+-				if (err != -ETIMEDOUT) {
++				if (err != -ETIMEDOUT &&
++				    host->dir_status == DW_MCI_RECV_STATUS) {
+ 					state = STATE_SENDING_DATA;
+ 					continue;
+ 				}
 
 
