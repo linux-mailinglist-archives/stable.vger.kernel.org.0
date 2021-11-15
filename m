@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5CDE451E69
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC27D451EC2
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345103AbhKPAf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:35:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S1355331AbhKPAhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:37:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344875AbhKOTZi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24205633EE;
-        Mon, 15 Nov 2021 19:05:58 +0000 (UTC)
+        id S1344876AbhKOTZj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD922636DA;
+        Mon, 15 Nov 2021 19:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003158;
-        bh=Anahu57UVRbHPfBatxwAVanp6zGzGg91igYa5IY1BA8=;
+        s=korg; t=1637003161;
+        bh=15HXLQbDJoZL5+VAeLIUIrK2GNHxn5/nNzrrF2r7ZYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=soxLYGyTYcPfFubw5/FsXo7u66EXQPI0EmSwpriDxzhmw6bTUZtHSwCmSIqz2w7tK
-         JUl+6H4vJMY64kuGFTaG8ArNN2x3nBjzNGC59Soe6Ll870WjGjk8Y5CwXtYtSf0SaN
-         7AUm2DDu3TmscepLJezpmKqh3yS1e1v/9dMHH6OA=
+        b=B33bmwpdvTnkSzq6ZQd2jVd3kkSwJHlm9ozlL4FkoEbaNWEFmwySSDlhE0atP8fsf
+         GeVob+aoiQ4CrKIcsfgbNCjjWwcQ3UWPkCFcO39XhNHXJrxb7+QF1RVYvQSnSl9cPe
+         dgJsCkI/9ED6wuzOwCXSi/FnodRuK9Awbnqz43JY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Vedang Patel <vedang.patel@intel.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 832/917] net: dsa: mv88e6xxx: Dont support >1G speeds on 6191X on ports other than 10
-Date:   Mon, 15 Nov 2021 18:05:27 +0100
-Message-Id: <20211115165457.257164507@linuxfoundation.org>
+Subject: [PATCH 5.15 833/917] net/sched: sch_taprio: fix undefined behavior in ktime_mono_to_any
+Date:   Mon, 15 Nov 2021 18:05:28 +0100
+Message-Id: <20211115165457.297057759@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,40 +43,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit dc2fc9f03c5c410d8f01c2206b3d529f80b13733 ]
+[ Upstream commit 6dc25401cba4d428328eade8ceae717633fdd702 ]
 
-Model 88E6191X only supports >1G speeds on port 10. Port 0 and 9 are
-only 1G.
+1) if q->tk_offset == TK_OFFS_MAX, then get_tcp_tstamp() calls
+   ktime_mono_to_any() with out-of-bound value.
 
-Fixes: de776d0d316f ("net: dsa: mv88e6xxx: add support for mv88e6393x family")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Cc: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20211104171747.10509-1-kabel@kernel.org
+2) if q->tk_offset is changed in taprio_parse_clockid(),
+   taprio_get_time() might also call ktime_mono_to_any()
+   with out-of-bound value as sysbot found:
+
+UBSAN: array-index-out-of-bounds in kernel/time/timekeeping.c:908:27
+index 3 is out of range for type 'ktime_t *[3]'
+CPU: 1 PID: 25668 Comm: kworker/u4:0 Not tainted 5.15.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: bat_events batadv_iv_send_outstanding_bat_ogm_packet
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:151
+ __ubsan_handle_out_of_bounds.cold+0x62/0x6c lib/ubsan.c:291
+ ktime_mono_to_any+0x1d4/0x1e0 kernel/time/timekeeping.c:908
+ get_tcp_tstamp net/sched/sch_taprio.c:322 [inline]
+ get_packet_txtime net/sched/sch_taprio.c:353 [inline]
+ taprio_enqueue_one+0x5b0/0x1460 net/sched/sch_taprio.c:420
+ taprio_enqueue+0x3b1/0x730 net/sched/sch_taprio.c:485
+ dev_qdisc_enqueue+0x40/0x300 net/core/dev.c:3785
+ __dev_xmit_skb net/core/dev.c:3869 [inline]
+ __dev_queue_xmit+0x1f6e/0x3630 net/core/dev.c:4194
+ batadv_send_skb_packet+0x4a9/0x5f0 net/batman-adv/send.c:108
+ batadv_iv_ogm_send_to_if net/batman-adv/bat_iv_ogm.c:393 [inline]
+ batadv_iv_ogm_emit net/batman-adv/bat_iv_ogm.c:421 [inline]
+ batadv_iv_send_outstanding_bat_ogm_packet+0x6d7/0x8e0 net/batman-adv/bat_iv_ogm.c:1701
+ process_one_work+0x9b2/0x1690 kernel/workqueue.c:2298
+ worker_thread+0x658/0x11f0 kernel/workqueue.c:2445
+ kthread+0x405/0x4f0 kernel/kthread.c:327
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
+
+Fixes: 7ede7b03484b ("taprio: make clock reference conversions easier")
+Fixes: 54002066100b ("taprio: Adjust timestamps for TCP packets")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Vedang Patel <vedang.patel@intel.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Link: https://lore.kernel.org/r/20211108180815.1822479-1-eric.dumazet@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/sched/sch_taprio.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 8dadcae93c9b5..be8589fa86a15 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -640,7 +640,10 @@ static void mv88e6393x_phylink_validate(struct mv88e6xxx_chip *chip, int port,
- 					unsigned long *mask,
- 					struct phylink_link_state *state)
+diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
+index b9fd18d986464..a66398fb2d6d0 100644
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -95,18 +95,22 @@ static ktime_t sched_base_time(const struct sched_gate_list *sched)
+ 	return ns_to_ktime(sched->base_time);
+ }
+ 
+-static ktime_t taprio_get_time(struct taprio_sched *q)
++static ktime_t taprio_mono_to_any(const struct taprio_sched *q, ktime_t mono)
  {
--	if (port == 0 || port == 9 || port == 10) {
-+	bool is_6191x =
-+		chip->info->prod_num == MV88E6XXX_PORT_SWITCH_ID_PROD_6191X;
-+
-+	if (((port == 0 || port == 9) && !is_6191x) || port == 10) {
- 		phylink_set(mask, 10000baseT_Full);
- 		phylink_set(mask, 10000baseKR_Full);
- 		phylink_set(mask, 10000baseCR_Full);
+-	ktime_t mono = ktime_get();
++	/* This pairs with WRITE_ONCE() in taprio_parse_clockid() */
++	enum tk_offsets tk_offset = READ_ONCE(q->tk_offset);
+ 
+-	switch (q->tk_offset) {
++	switch (tk_offset) {
+ 	case TK_OFFS_MAX:
+ 		return mono;
+ 	default:
+-		return ktime_mono_to_any(mono, q->tk_offset);
++		return ktime_mono_to_any(mono, tk_offset);
+ 	}
++}
+ 
+-	return KTIME_MAX;
++static ktime_t taprio_get_time(const struct taprio_sched *q)
++{
++	return taprio_mono_to_any(q, ktime_get());
+ }
+ 
+ static void taprio_free_sched_cb(struct rcu_head *head)
+@@ -319,7 +323,7 @@ static ktime_t get_tcp_tstamp(struct taprio_sched *q, struct sk_buff *skb)
+ 		return 0;
+ 	}
+ 
+-	return ktime_mono_to_any(skb->skb_mstamp_ns, q->tk_offset);
++	return taprio_mono_to_any(q, skb->skb_mstamp_ns);
+ }
+ 
+ /* There are a few scenarios where we will have to modify the txtime from
+@@ -1352,6 +1356,7 @@ static int taprio_parse_clockid(struct Qdisc *sch, struct nlattr **tb,
+ 		}
+ 	} else if (tb[TCA_TAPRIO_ATTR_SCHED_CLOCKID]) {
+ 		int clockid = nla_get_s32(tb[TCA_TAPRIO_ATTR_SCHED_CLOCKID]);
++		enum tk_offsets tk_offset;
+ 
+ 		/* We only support static clockids and we don't allow
+ 		 * for it to be modified after the first init.
+@@ -1366,22 +1371,24 @@ static int taprio_parse_clockid(struct Qdisc *sch, struct nlattr **tb,
+ 
+ 		switch (clockid) {
+ 		case CLOCK_REALTIME:
+-			q->tk_offset = TK_OFFS_REAL;
++			tk_offset = TK_OFFS_REAL;
+ 			break;
+ 		case CLOCK_MONOTONIC:
+-			q->tk_offset = TK_OFFS_MAX;
++			tk_offset = TK_OFFS_MAX;
+ 			break;
+ 		case CLOCK_BOOTTIME:
+-			q->tk_offset = TK_OFFS_BOOT;
++			tk_offset = TK_OFFS_BOOT;
+ 			break;
+ 		case CLOCK_TAI:
+-			q->tk_offset = TK_OFFS_TAI;
++			tk_offset = TK_OFFS_TAI;
+ 			break;
+ 		default:
+ 			NL_SET_ERR_MSG(extack, "Invalid 'clockid'");
+ 			err = -EINVAL;
+ 			goto out;
+ 		}
++		/* This pairs with READ_ONCE() in taprio_mono_to_any */
++		WRITE_ONCE(q->tk_offset, tk_offset);
+ 
+ 		q->clockid = clockid;
+ 	} else {
 -- 
 2.33.0
 
