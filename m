@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3C64510A0
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:48:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A59D450CFF
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:44:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242967AbhKOSva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:51:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54760 "EHLO mail.kernel.org"
+        id S238820AbhKORrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:47:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242624AbhKOSs7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:48:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F52E6329D;
-        Mon, 15 Nov 2021 18:08:24 +0000 (UTC)
+        id S238744AbhKORpS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:45:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 051E963308;
+        Mon, 15 Nov 2021 17:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999705;
-        bh=f/8THE4RcO4/2/29D7zCxbuC67bwsTjjV+F5IOSAYxk=;
+        s=korg; t=1636997356;
+        bh=EcvoKhvrmotvy3b0w9KomGZJ+2S0Ok239HWkVccS8V4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2CPSSRXpkOFeMQJ6TbuGKPT78CJIXLXjhqJek4MAWe0TiliopRX0Ue8h1QuIwRO4N
-         Wyp81ZOmQlIaGu6xfphAUkfRe8RFWZcCOAO+BYvu7ajMWsCsTJT+S5q5orcVcIoNRi
-         CT+tzJAWOrd4M0vReJy7IHWKAwLeW6d4i6pOHycc=
+        b=VRocF8qyIE01cO/QR5tC68gNVldCFC7lL/CB+XWyQrydAASRzbyNK9dzrd1cZUIox
+         ebcxiSyPGX6QeczV8JA5ysD19i4XzeM8tGbLUUBVNE7zlTtSZ7oH9aEhZjN/isKuqw
+         HoQ6Vd7QU7QK/nrlkjEWjQIeDr2QZwZw2q9oi4R4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Edwin Peer <edwin.peer@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 360/849] bnxt_en: Check devlink allocation and registration status
-Date:   Mon, 15 Nov 2021 17:57:23 +0100
-Message-Id: <20211115165432.413908522@linuxfoundation.org>
+        stable@vger.kernel.org, Duc Nguyen <duc.nguyen.ub@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH 5.10 119/575] memory: renesas-rpc-if: Correct QSPI data transfer in Manual mode
+Date:   Mon, 15 Nov 2021 17:57:24 +0100
+Message-Id: <20211115165347.797410062@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,136 +41,273 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit e624c70e1131e145bd0510b8a700b5e2d112e377 ]
+commit fff53a551db50f5edecaa0b29a64056ab8d2bbca upstream.
 
-devlink is a software interface that doesn't depend on any hardware
-capabilities. The failure in SW means memory issues, wrong parameters,
-programmer error e.t.c.
+This patch fixes 2 problems:
+[1] The output warning logs and data loss when performing
+mount/umount then remount the device with jffs2 format.
+[2] The access width of SMWDR[0:1]/SMRDR[0:1] register is wrong.
 
-Like any other such interface in the kernel, the returned status of
-devlink APIs should be checked and propagated further and not ignored.
+This is the sample warning logs when performing mount/umount then
+remount the device with jffs2 format:
+jffs2: jffs2_scan_inode_node(): CRC failed on node at 0x031c51d4:
+Read 0x00034e00, calculated 0xadb272a7
 
-Fixes: 4ab0c6a8ffd7 ("bnxt_en: add support to enable VF-representors")
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The reason for issue [1] is that the writing data seems to
+get messed up.
+Data is only completed when the number of bytes is divisible by 4.
+If you only have 3 bytes of data left to write, 1 garbage byte
+is inserted after the end of the write stream.
+If you only have 2 bytes of data left to write, 2 bytes of '00'
+are added into the write stream.
+If you only have 1 byte of data left to write, 2 bytes of '00'
+are added into the write stream. 1 garbage byte is inserted after
+the end of the write stream.
+
+To solve problem [1], data must be written continuously in serial
+and the write stream ends when data is out.
+
+Following HW manual 62.2.15, access to SMWDR0 register should be
+in the same size as the transfer size specified in the SPIDE[3:0]
+bits in the manual mode enable setting register (SMENR).
+Be sure to access from address 0.
+
+So, in 16-bit transfer (SPIDE[3:0]=b'1100), SMWDR0 should be
+accessed by 16-bit width.
+Similar to SMWDR1, SMDDR0/1 registers.
+In current code, SMWDR0 register is accessed by regmap_write()
+that only set up to do 32-bit width.
+
+To solve problem [2], data must be written 16-bit or 8-bit when
+transferring 1-byte or 2-byte.
+
+Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Duc Nguyen <duc.nguyen.ub@renesas.com>
+[wsa: refactored to use regmap only via reg_read/reg_write]
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Link: https://lore.kernel.org/r/20210922091007.5516-1-wsa+renesas@sang-engineering.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c         |  5 ++++-
- drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c | 13 ++++++-------
- drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h | 13 -------------
- 3 files changed, 10 insertions(+), 21 deletions(-)
+ drivers/memory/renesas-rpc-if.c |  113 +++++++++++++++++++++++++++-------------
+ include/memory/renesas-rpc-if.h |    1 
+ 2 files changed, 79 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index f20b57b8cd70e..6bbf99e9273d5 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -13359,7 +13359,9 @@ static int bnxt_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+--- a/drivers/memory/renesas-rpc-if.c
++++ b/drivers/memory/renesas-rpc-if.c
+@@ -161,10 +161,62 @@ static const struct regmap_access_table
+ 	.n_yes_ranges	= ARRAY_SIZE(rpcif_volatile_ranges),
+ };
+ 
++
++/*
++ * Custom accessor functions to ensure SMRDR0 and SMWDR0 are always accessed
++ * with proper width. Requires SMENR_SPIDE to be correctly set before!
++ */
++static int rpcif_reg_read(void *context, unsigned int reg, unsigned int *val)
++{
++	struct rpcif *rpc = context;
++
++	if (reg == RPCIF_SMRDR0 || reg == RPCIF_SMWDR0) {
++		u32 spide = readl(rpc->base + RPCIF_SMENR) & RPCIF_SMENR_SPIDE(0xF);
++
++		if (spide == 0x8) {
++			*val = readb(rpc->base + reg);
++			return 0;
++		} else if (spide == 0xC) {
++			*val = readw(rpc->base + reg);
++			return 0;
++		} else if (spide != 0xF) {
++			return -EILSEQ;
++		}
++	}
++
++	*val = readl(rpc->base + reg);
++	return 0;
++
++}
++
++static int rpcif_reg_write(void *context, unsigned int reg, unsigned int val)
++{
++	struct rpcif *rpc = context;
++
++	if (reg == RPCIF_SMRDR0 || reg == RPCIF_SMWDR0) {
++		u32 spide = readl(rpc->base + RPCIF_SMENR) & RPCIF_SMENR_SPIDE(0xF);
++
++		if (spide == 0x8) {
++			writeb(val, rpc->base + reg);
++			return 0;
++		} else if (spide == 0xC) {
++			writew(val, rpc->base + reg);
++			return 0;
++		} else if (spide != 0xF) {
++			return -EILSEQ;
++		}
++	}
++
++	writel(val, rpc->base + reg);
++	return 0;
++}
++
+ static const struct regmap_config rpcif_regmap_config = {
+ 	.reg_bits	= 32,
+ 	.val_bits	= 32,
+ 	.reg_stride	= 4,
++	.reg_read	= rpcif_reg_read,
++	.reg_write	= rpcif_reg_write,
+ 	.fast_io	= true,
+ 	.max_register	= RPCIF_PHYINT,
+ 	.volatile_table	= &rpcif_volatile_table,
+@@ -174,17 +226,15 @@ int rpcif_sw_init(struct rpcif *rpc, str
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct resource *res;
+-	void __iomem *base;
+ 
+ 	rpc->dev = dev;
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "regs");
+-	base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(base))
+-		return PTR_ERR(base);
++	rpc->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(rpc->base))
++		return PTR_ERR(rpc->base);
+ 
+-	rpc->regmap = devm_regmap_init_mmio(&pdev->dev, base,
+-					    &rpcif_regmap_config);
++	rpc->regmap = devm_regmap_init(&pdev->dev, NULL, rpc, &rpcif_regmap_config);
+ 	if (IS_ERR(rpc->regmap)) {
+ 		dev_err(&pdev->dev,
+ 			"failed to init regmap for rpcif, error %ld\n",
+@@ -367,20 +417,16 @@ void rpcif_prepare(struct rpcif *rpc, co
+ 			nbytes = op->data.nbytes;
+ 		rpc->xferlen = nbytes;
+ 
+-		rpc->enable |= RPCIF_SMENR_SPIDE(rpcif_bits_set(rpc, nbytes)) |
+-			RPCIF_SMENR_SPIDB(rpcif_bit_size(op->data.buswidth));
++		rpc->enable |= RPCIF_SMENR_SPIDB(rpcif_bit_size(op->data.buswidth));
  	}
- 
- 	bnxt_inv_fw_health_reg(bp);
--	bnxt_dl_register(bp);
-+	rc = bnxt_dl_register(bp);
-+	if (rc)
-+		goto init_err_dl;
- 
- 	rc = register_netdev(dev);
- 	if (rc)
-@@ -13379,6 +13381,7 @@ static int bnxt_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- init_err_cleanup:
- 	bnxt_dl_unregister(bp);
-+init_err_dl:
- 	bnxt_shutdown_tc(bp);
- 	bnxt_clear_int_mode(bp);
- 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-index bb228619ec641..56ee46fae0ac6 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
-@@ -133,7 +133,7 @@ void bnxt_dl_fw_reporters_create(struct bnxt *bp)
- {
- 	struct bnxt_fw_health *health = bp->fw_health;
- 
--	if (!bp->dl || !health)
-+	if (!health)
- 		return;
- 
- 	if (!(bp->fw_cap & BNXT_FW_CAP_HOT_RESET) || health->fw_reset_reporter)
-@@ -187,7 +187,7 @@ void bnxt_dl_fw_reporters_destroy(struct bnxt *bp, bool all)
- {
- 	struct bnxt_fw_health *health = bp->fw_health;
- 
--	if (!bp->dl || !health)
-+	if (!health)
- 		return;
- 
- 	if ((all || !(bp->fw_cap & BNXT_FW_CAP_HOT_RESET)) &&
-@@ -744,6 +744,7 @@ static void bnxt_dl_params_unregister(struct bnxt *bp)
- int bnxt_dl_register(struct bnxt *bp)
- {
- 	struct devlink_port_attrs attrs = {};
-+	struct bnxt_dl *bp_dl;
- 	struct devlink *dl;
- 	int rc;
- 
-@@ -756,7 +757,9 @@ int bnxt_dl_register(struct bnxt *bp)
- 		return -ENOMEM;
- 	}
- 
--	bnxt_link_bp_to_dl(bp, dl);
-+	bp->dl = dl;
-+	bp_dl = devlink_priv(dl);
-+	bp_dl->bp = bp;
- 
- 	/* Add switchdev eswitch mode setting, if SRIOV supported */
- 	if (pci_find_ext_capability(bp->pdev, PCI_EXT_CAP_ID_SRIOV) &&
-@@ -794,7 +797,6 @@ err_dl_port_unreg:
- err_dl_unreg:
- 	devlink_unregister(dl);
- err_dl_free:
--	bnxt_link_bp_to_dl(bp, NULL);
- 	devlink_free(dl);
- 	return rc;
  }
-@@ -803,9 +805,6 @@ void bnxt_dl_unregister(struct bnxt *bp)
+ EXPORT_SYMBOL(rpcif_prepare);
+ 
+ int rpcif_manual_xfer(struct rpcif *rpc)
  {
- 	struct devlink *dl = bp->dl;
+-	u32 smenr, smcr, pos = 0, max = 4;
++	u32 smenr, smcr, pos = 0, max = rpc->bus_size == 2 ? 8 : 4;
+ 	int ret = 0;
  
--	if (!dl)
--		return;
+-	if (rpc->bus_size == 2)
+-		max = 8;
 -
- 	if (BNXT_PF(bp)) {
- 		bnxt_dl_params_unregister(bp);
- 		devlink_port_unregister(&bp->dl_port);
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h
-index d22cab5d6856a..365f1e50f5959 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h
-@@ -20,19 +20,6 @@ static inline struct bnxt *bnxt_get_bp_from_dl(struct devlink *dl)
- 	return ((struct bnxt_dl *)devlink_priv(dl))->bp;
- }
+ 	pm_runtime_get_sync(rpc->dev);
  
--/* To clear devlink pointer from bp, pass NULL dl */
--static inline void bnxt_link_bp_to_dl(struct bnxt *bp, struct devlink *dl)
--{
--	bp->dl = dl;
--
--	/* add a back pointer in dl to bp */
--	if (dl) {
--		struct bnxt_dl *bp_dl = devlink_priv(dl);
--
--		bp_dl->bp = bp;
--	}
--}
--
- #define NVM_OFF_MSIX_VEC_PER_PF_MAX	108
- #define NVM_OFF_MSIX_VEC_PER_PF_MIN	114
- #define NVM_OFF_IGNORE_ARI		164
--- 
-2.33.0
-
+ 	regmap_update_bits(rpc->regmap, RPCIF_PHYCNT,
+@@ -391,37 +437,36 @@ int rpcif_manual_xfer(struct rpcif *rpc)
+ 	regmap_write(rpc->regmap, RPCIF_SMOPR, rpc->option);
+ 	regmap_write(rpc->regmap, RPCIF_SMDMCR, rpc->dummy);
+ 	regmap_write(rpc->regmap, RPCIF_SMDRENR, rpc->ddr);
++	regmap_write(rpc->regmap, RPCIF_SMADR, rpc->smadr);
+ 	smenr = rpc->enable;
+ 
+ 	switch (rpc->dir) {
+ 	case RPCIF_DATA_OUT:
+ 		while (pos < rpc->xferlen) {
+-			u32 nbytes = rpc->xferlen - pos;
+-			u32 data[2];
++			u32 bytes_left = rpc->xferlen - pos;
++			u32 nbytes, data[2];
+ 
+ 			smcr = rpc->smcr | RPCIF_SMCR_SPIE;
+-			if (nbytes > max) {
+-				nbytes = max;
++
++			/* nbytes may only be 1, 2, 4, or 8 */
++			nbytes = bytes_left >= max ? max : (1 << ilog2(bytes_left));
++			if (bytes_left > nbytes)
+ 				smcr |= RPCIF_SMCR_SSLKP;
+-			}
++
++			smenr |= RPCIF_SMENR_SPIDE(rpcif_bits_set(rpc, nbytes));
++			regmap_write(rpc->regmap, RPCIF_SMENR, smenr);
+ 
+ 			memcpy(data, rpc->buffer + pos, nbytes);
+-			if (nbytes > 4) {
++			if (nbytes == 8) {
+ 				regmap_write(rpc->regmap, RPCIF_SMWDR1,
+ 					     data[0]);
+ 				regmap_write(rpc->regmap, RPCIF_SMWDR0,
+ 					     data[1]);
+-			} else if (nbytes > 2) {
++			} else {
+ 				regmap_write(rpc->regmap, RPCIF_SMWDR0,
+ 					     data[0]);
+-			} else	{
+-				regmap_write(rpc->regmap, RPCIF_SMWDR0,
+-					     data[0] << 16);
+ 			}
+ 
+-			regmap_write(rpc->regmap, RPCIF_SMADR,
+-				     rpc->smadr + pos);
+-			regmap_write(rpc->regmap, RPCIF_SMENR, smenr);
+ 			regmap_write(rpc->regmap, RPCIF_SMCR, smcr);
+ 			ret = wait_msg_xfer_end(rpc);
+ 			if (ret)
+@@ -461,14 +506,16 @@ int rpcif_manual_xfer(struct rpcif *rpc)
+ 			break;
+ 		}
+ 		while (pos < rpc->xferlen) {
+-			u32 nbytes = rpc->xferlen - pos;
+-			u32 data[2];
++			u32 bytes_left = rpc->xferlen - pos;
++			u32 nbytes, data[2];
+ 
+-			if (nbytes > max)
+-				nbytes = max;
++			/* nbytes may only be 1, 2, 4, or 8 */
++			nbytes = bytes_left >= max ? max : (1 << ilog2(bytes_left));
+ 
+ 			regmap_write(rpc->regmap, RPCIF_SMADR,
+ 				     rpc->smadr + pos);
++			smenr &= ~RPCIF_SMENR_SPIDE(0xF);
++			smenr |= RPCIF_SMENR_SPIDE(rpcif_bits_set(rpc, nbytes));
+ 			regmap_write(rpc->regmap, RPCIF_SMENR, smenr);
+ 			regmap_write(rpc->regmap, RPCIF_SMCR,
+ 				     rpc->smcr | RPCIF_SMCR_SPIE);
+@@ -476,18 +523,14 @@ int rpcif_manual_xfer(struct rpcif *rpc)
+ 			if (ret)
+ 				goto err_out;
+ 
+-			if (nbytes > 4) {
++			if (nbytes == 8) {
+ 				regmap_read(rpc->regmap, RPCIF_SMRDR1,
+ 					    &data[0]);
+ 				regmap_read(rpc->regmap, RPCIF_SMRDR0,
+ 					    &data[1]);
+-			} else if (nbytes > 2) {
+-				regmap_read(rpc->regmap, RPCIF_SMRDR0,
+-					    &data[0]);
+-			} else	{
++			} else {
+ 				regmap_read(rpc->regmap, RPCIF_SMRDR0,
+ 					    &data[0]);
+-				data[0] >>= 16;
+ 			}
+ 			memcpy(rpc->buffer + pos, data, nbytes);
+ 
+--- a/include/memory/renesas-rpc-if.h
++++ b/include/memory/renesas-rpc-if.h
+@@ -58,6 +58,7 @@ struct	rpcif_op {
+ 
+ struct	rpcif {
+ 	struct device *dev;
++	void __iomem *base;
+ 	void __iomem *dirmap;
+ 	struct regmap *regmap;
+ 	struct reset_control *rstc;
 
 
