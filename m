@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 316C9450DDA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7818450AFC
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240384AbhKOSIh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:08:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
+        id S236390AbhKORQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:16:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239579AbhKOSDU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:03:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0A7563347;
-        Mon, 15 Nov 2021 17:37:47 +0000 (UTC)
+        id S236855AbhKORO7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:14:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 988FE63253;
+        Mon, 15 Nov 2021 17:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997868;
-        bh=wzfks4W1c6gQCOK1Fdo5BssSFDsbB1hAIfcAgl/geGI=;
+        s=korg; t=1636996301;
+        bh=ae12yPE0FGuOl5/OdtdlkIjDReYRtkavE6qsNLUd/9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aa1tMWIVcvDx39lbub7FcVGIqzX71mjYkP9lvYAjaEXdStm/GzpuRYSeTy8vhg4kB
-         RFxM/uEjQLSHAGGiKbAutfty0z+QYerhxzaJcZyAT2mb045YfGwSU8bzB2JhvKqA9h
-         xRKz36SmioYZBql4Esxw9jKE1LTFMqI+1nMI1f0g=
+        b=RGMXei1DvpGgkF2/mBCR1wwNL0Qzy1JZOIbG+Cyk6+2Ikju50e+ha3AjVflI5mbdZ
+         GhdsvKgSwU/TTlY07lOcJsYXMGcrgcnH/wXKgtj05uXiPfFBmVhmaZbwetAoGel2AZ
+         ITScQmQQB+3VBDdM6DKxQB7JsoJh0Pj2od97lmJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 287/575] drm/amdgpu: fix warning for overflow check
-Date:   Mon, 15 Nov 2021 18:00:12 +0100
-Message-Id: <20211115165353.707618871@linuxfoundation.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>,
+        Henrik Grimler <henrik@grimler.se>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCH 5.4 089/355] power: supply: max17042_battery: use VFSOC for capacity when no rsns
+Date:   Mon, 15 Nov 2021 18:00:13 +0100
+Message-Id: <20211115165316.681773641@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,59 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Henrik Grimler <henrik@grimler.se>
 
-[ Upstream commit 335aea75b0d95518951cad7c4c676e6f1c02c150 ]
+commit 223a3b82834f036a62aa831f67cbf1f1d644c6e2 upstream.
 
-The overflow check in amdgpu_bo_list_create() causes a warning with
-clang-14 on 64-bit architectures, since the limit can never be
-exceeded.
+On Galaxy S3 (i9300/i9305), which has the max17047 fuel gauge and no
+current sense resistor (rsns), the RepSOC register does not provide an
+accurate state of charge value. The reported value is wrong, and does
+not change over time. VFSOC however, which uses the voltage fuel gauge
+to determine the state of charge, always shows an accurate value.
 
-drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c:74:18: error: result of comparison of constant 256204778801521549 with expression of type 'unsigned int' is always false [-Werror,-Wtautological-constant-out-of-range-compare]
-        if (num_entries > (SIZE_MAX - sizeof(struct amdgpu_bo_list))
-            ~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For devices without current sense, VFSOC is already used for the
+soc-alert (0x0003 is written to MiscCFG register), so with this change
+the source of the alert and the PROP_CAPACITY value match.
 
-The check remains useful for 32-bit architectures, so just avoid the
-warning by using size_t as the type for the count.
-
-Fixes: 920990cb080a ("drm/amdgpu: allocate the bo_list array after the list")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 359ab9f5b154 ("power_supply: Add MAX17042 Fuel Gauge Driver")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Suggested-by: Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>
+Signed-off-by: Henrik Grimler <henrik@grimler.se>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c | 2 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/power/supply/max17042_battery.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-index 15c45b2a39835..714178f1b6c6e 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-@@ -61,7 +61,7 @@ static void amdgpu_bo_list_free(struct kref *ref)
+--- a/drivers/power/supply/max17042_battery.c
++++ b/drivers/power/supply/max17042_battery.c
+@@ -312,7 +312,10 @@ static int max17042_get_property(struct
+ 		val->intval = data * 625 / 8;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+-		ret = regmap_read(map, MAX17042_RepSOC, &data);
++		if (chip->pdata->enable_current_sense)
++			ret = regmap_read(map, MAX17042_RepSOC, &data);
++		else
++			ret = regmap_read(map, MAX17042_VFSOC, &data);
+ 		if (ret < 0)
+ 			return ret;
  
- int amdgpu_bo_list_create(struct amdgpu_device *adev, struct drm_file *filp,
- 			  struct drm_amdgpu_bo_list_entry *info,
--			  unsigned num_entries, struct amdgpu_bo_list **result)
-+			  size_t num_entries, struct amdgpu_bo_list **result)
- {
- 	unsigned last_entry = 0, first_userptr = num_entries;
- 	struct amdgpu_bo_list_entry *array;
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
-index a130e766cbdbe..529d52a204cf4 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
-@@ -60,7 +60,7 @@ int amdgpu_bo_create_list_entry_array(struct drm_amdgpu_bo_list_in *in,
- int amdgpu_bo_list_create(struct amdgpu_device *adev,
- 				 struct drm_file *filp,
- 				 struct drm_amdgpu_bo_list_entry *info,
--				 unsigned num_entries,
-+				 size_t num_entries,
- 				 struct amdgpu_bo_list **list);
- 
- static inline struct amdgpu_bo_list_entry *
--- 
-2.33.0
-
 
 
