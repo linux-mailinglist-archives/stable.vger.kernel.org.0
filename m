@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 295884511A2
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:10:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A79664511A9
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:10:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241996AbhKOTMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:12:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39126 "EHLO mail.kernel.org"
+        id S243537AbhKOTM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:12:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244127AbhKOTKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244125AbhKOTKZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:10:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FF4860E75;
-        Mon, 15 Nov 2021 18:18:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DFE460EE4;
+        Mon, 15 Nov 2021 18:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000331;
-        bh=NewOX6p9U7y1vzv/hqnyCIclbc9xLMmMqtkeHr/JZJA=;
+        s=korg; t=1637000333;
+        bh=kdebkL3yJWAURCXWKPh9zP1gx264ri6FnPV749kAbf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rJYr644tUz6XorTDx2VhylI6DWcBiUEjozAMH6UegkqCZPhFs05byXRwtQntqaC9t
-         aTWctE4xJLKuusVyl6pMZLuCSQKU4fHCci+1CS6obTVBG30GdRY80srtLDNzkavi5z
-         dhJo34lBZqzjWYmXESRz0PI257wLgSQMcbWBscZI=
+        b=XqmzEA6XWR54iMUf6u4QB5Qa1WSfpo8xUqzP59DL4k0BthFByVmcA4frY2570vBwS
+         ZO5ZTIb/Wc6mZ5OaoxjfkFb1fmXeJZs4HPnd5058W/72P8tLPOu4selL3h07L9dwGw
+         TRk2mNJE6FVqpNUfUHLA9APxNu1Xj/U6p7BpVp8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Amelie Delaunay <amelie.delaunay@st.com>,
-        linux-usb@vger.kernel.org,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 621/849] usb: typec: STUSB160X should select REGMAP_I2C
-Date:   Mon, 15 Nov 2021 18:01:44 +0100
-Message-Id: <20211115165441.266986963@linuxfoundation.org>
+Subject: [PATCH 5.14 622/849] iio: adis: do not disabe IRQs in adis_init()
+Date:   Mon, 15 Nov 2021 18:01:45 +0100
+Message-Id: <20211115165441.305949620@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -44,48 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Nuno Sá <nuno.sa@analog.com>
 
-[ Upstream commit 8ef1e58783b9f55daa4a865c7801dc75cbeb8260 ]
+[ Upstream commit b600bd7eb333554518b4dd36b882b2ae58a5149e ]
 
-REGMAP_I2C is not a user visible kconfig symbol so driver configs
-should not "depend on" it. They should depend on I2C and then
-select REGMAP_I2C.
+With commit ecb010d441088 ("iio: imu: adis: Refactor adis_initial_startup")
+we are doing a HW or SW reset to the device which means that we'll get
+the default state of the data ready pin (which is enabled). Hence there's
+no point in disabling the IRQ in the init function. Moreover, this
+function is intended to initialize internal data structures and not
+really do anything on the device.
 
-If this worked, it was only because some other driver had set/enabled
-REGMAP_I2C.
+As a result of this, some devices were left with the data ready pin enabled
+after probe which was not the desired behavior. Thus, we move the call to
+'adis_enable_irq()' to the initial startup function where it makes more
+sense for it to be.
 
-Fixes: da0cb6310094 ("usb: typec: add support for STUSB160x Type-C controller family")
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: Amelie Delaunay <amelie.delaunay@st.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
-Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20211015013609.7300-1-rdunlap@infradead.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note that for devices that cannot mask/unmask the pin, it makes no sense
+to call the function at this point since the IRQ should not have been
+yet requested. This will be improved in a follow up change.
+
+Fixes: ecb010d441088 ("iio: imu: adis: Refactor adis_initial_startup")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210903141423.517028-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/imu/adis.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/typec/Kconfig b/drivers/usb/typec/Kconfig
-index a0418f23b4aae..ab480f38523aa 100644
---- a/drivers/usb/typec/Kconfig
-+++ b/drivers/usb/typec/Kconfig
-@@ -65,9 +65,9 @@ config TYPEC_HD3SS3220
+diff --git a/drivers/iio/imu/adis.c b/drivers/iio/imu/adis.c
+index b9a06ca29beec..d4e692b187cda 100644
+--- a/drivers/iio/imu/adis.c
++++ b/drivers/iio/imu/adis.c
+@@ -430,6 +430,8 @@ int __adis_initial_startup(struct adis *adis)
+ 	if (ret)
+ 		return ret;
  
- config TYPEC_STUSB160X
- 	tristate "STMicroelectronics STUSB160x Type-C controller driver"
--	depends on I2C
--	depends on REGMAP_I2C
- 	depends on USB_ROLE_SWITCH || !USB_ROLE_SWITCH
-+	depends on I2C
-+	select REGMAP_I2C
- 	help
- 	  Say Y or M here if your system has STMicroelectronics STUSB160x
- 	  Type-C port controller.
++	adis_enable_irq(adis, false);
++
+ 	if (!adis->data->prod_id_reg)
+ 		return 0;
+ 
+@@ -526,7 +528,7 @@ int adis_init(struct adis *adis, struct iio_dev *indio_dev,
+ 		adis->current_page = 0;
+ 	}
+ 
+-	return adis_enable_irq(adis, false);
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(adis_init);
+ 
 -- 
 2.33.0
 
