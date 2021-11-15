@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E60E245247C
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:36:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5E7645247D
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:36:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353848AbhKPBjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:39:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
+        id S1351960AbhKPBjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:39:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241320AbhKOSb0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241831AbhKOSb0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:31:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44C53632D2;
-        Mon, 15 Nov 2021 17:58:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B347632D3;
+        Mon, 15 Nov 2021 17:58:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999120;
-        bh=cNGNPRZo9efANS2M+9NmsUSmfBuu1DU1RRBAgezUS+Q=;
+        s=korg; t=1636999123;
+        bh=H4UdQsdKJfCSJcdUiBMAqHk4UcOMJiONTCMuI4jtRXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OZMENFXvZBPRt3RaNFqSbvrINfQOw05XsGhMiqlOrEyvQg0FtBNu4u3dR9b5OVilD
-         mdeUZZX/3xi1gMA00BtXy9avCzihFR1X9I72wxHwdp5nzUpQEbwfD27CqbaJj9PILv
-         eKEAzd6oT4s8/12EpfZ2ueKq44cDpWEr99oEeqj4=
+        b=WExDRVBWmTuxDCKF2eUINFUvMCSrn8/LppcS9CPxLJJQWHCGL02m8tSEMd5NWsx73
+         n6fJHPPim9Lr2cBOPVemhYjQE/a3a7AyBl+3Lr3e2aoqTOicsE2HqxuF6xqgaCU2u8
+         j6TwDqmIzl5XuunXfg2Mvd0rnsYahtTjZ9S7RXas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Shyam Prasad N <sprasad@microsoft.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.14 184/849] cifs: To match file servers, make sure the server hostname matches
-Date:   Mon, 15 Nov 2021 17:54:27 +0100
-Message-Id: <20211115165426.400782546@linuxfoundation.org>
+Subject: [PATCH 5.14 185/849] cifs: set a minimum of 120s for next dns resolution
+Date:   Mon, 15 Nov 2021 17:54:28 +0100
+Message-Id: <20211115165426.439164758@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,126 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-commit 7be3248f313930ff3d3436d4e9ddbe9fccc1f541 upstream.
+commit 4ac0536f8874a903a72bddc57eb88db774261e3a upstream.
 
-We generally rely on a bunch of factors to differentiate between servers.
-For example, IP address, port etc.
+With commit 506c1da44fee ("cifs: use the expiry output of dns_query to
+schedule next resolution") and after triggering the first reconnect,
+the next async dns resolution of tcp server's hostname would be
+scheduled based on dns_resolver's key expiry default, which happens to
+default to 5s on most systems that use key.dns_resolver for upcall.
 
-For certain server types (like Azure), it is important to make sure
-that the server hostname matches too, even if the both hostnames currently
-resolve to the same IP address.
+As per key.dns_resolver.conf(5):
 
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+       default_ttl=<number>
+              The  number  of  seconds  to  set  as the expiration on a cached
+              record.  This will be overridden if the program manages  to  re-
+              trieve  TTL  information along with the addresses (if, for exam-
+              ple, it accesses the DNS directly).  The default is  5  seconds.
+              The value must be in the range 1 to INT_MAX.
+
+Make the next async dns resolution no shorter than 120s as we do not
+want to be upcalling too often.
+
 Cc: stable@vger.kernel.org
+Fixes: 506c1da44fee ("cifs: use the expiry output of dns_query to schedule next resolution")
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/connect.c    |   19 +++++++++++--------
- fs/cifs/fs_context.c |    8 ++++++++
- fs/cifs/fs_context.h |    1 +
- 3 files changed, 20 insertions(+), 8 deletions(-)
+ fs/cifs/cifsglob.h |    3 ++-
+ fs/cifs/connect.c  |    2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -75,7 +75,8 @@
+ #define SMB_ECHO_INTERVAL_MAX 600
+ #define SMB_ECHO_INTERVAL_DEFAULT 60
+ 
+-/* dns resolution interval in seconds */
++/* dns resolution intervals in seconds */
++#define SMB_DNS_RESOLVE_INTERVAL_MIN     120
+ #define SMB_DNS_RESOLVE_INTERVAL_DEFAULT 600
+ 
+ /* maximum number of PDUs in one compound */
 --- a/fs/cifs/connect.c
 +++ b/fs/cifs/connect.c
-@@ -795,7 +795,6 @@ static void clean_demultiplex_info(struc
- 		 */
+@@ -116,7 +116,7 @@ static int reconn_set_ipaddr_from_hostna
+ 			 * To make sure we don't use the cached entry, retry 1s
+ 			 * after expiry.
+ 			 */
+-			ttl = (expiry - now + 1);
++			ttl = max_t(unsigned long, expiry - now, SMB_DNS_RESOLVE_INTERVAL_MIN) + 1;
  	}
+ 	rc = !rc ? -1 : 0;
  
--	kfree(server->hostname);
- 	kfree(server);
- 
- 	length = atomic_dec_return(&tcpSesAllocCount);
-@@ -1236,6 +1235,9 @@ static int match_server(struct TCP_Serve
- 	if (!net_eq(cifs_net_ns(server), current->nsproxy->net_ns))
- 		return 0;
- 
-+	if (strcasecmp(server->hostname, ctx->server_hostname))
-+		return 0;
-+
- 	if (!match_address(server, addr,
- 			   (struct sockaddr *)&ctx->srcaddr))
- 		return 0;
-@@ -1337,6 +1339,7 @@ cifs_put_tcp_session(struct TCP_Server_I
- 	kfree(server->session_key.response);
- 	server->session_key.response = NULL;
- 	server->session_key.len = 0;
-+	kfree(server->hostname);
- 
- 	task = xchg(&server->tsk, NULL);
- 	if (task)
-@@ -1362,14 +1365,15 @@ cifs_get_tcp_session(struct smb3_fs_cont
- 		goto out_err;
- 	}
- 
-+	tcp_ses->hostname = kstrdup(ctx->server_hostname, GFP_KERNEL);
-+	if (!tcp_ses->hostname) {
-+		rc = -ENOMEM;
-+		goto out_err;
-+	}
-+
- 	tcp_ses->ops = ctx->ops;
- 	tcp_ses->vals = ctx->vals;
- 	cifs_set_net_ns(tcp_ses, get_net(current->nsproxy->net_ns));
--	tcp_ses->hostname = extract_hostname(ctx->UNC);
--	if (IS_ERR(tcp_ses->hostname)) {
--		rc = PTR_ERR(tcp_ses->hostname);
--		goto out_err_crypto_release;
--	}
- 
- 	tcp_ses->conn_id = atomic_inc_return(&tcpSesNextId);
- 	tcp_ses->noblockcnt = ctx->rootfs;
-@@ -1498,8 +1502,7 @@ out_err_crypto_release:
- 
- out_err:
- 	if (tcp_ses) {
--		if (!IS_ERR(tcp_ses->hostname))
--			kfree(tcp_ses->hostname);
-+		kfree(tcp_ses->hostname);
- 		if (tcp_ses->ssocket)
- 			sock_release(tcp_ses->ssocket);
- 		kfree(tcp_ses);
---- a/fs/cifs/fs_context.c
-+++ b/fs/cifs/fs_context.c
-@@ -332,6 +332,7 @@ smb3_fs_context_dup(struct smb3_fs_conte
- 	DUP_CTX_STR(mount_options);
- 	DUP_CTX_STR(username);
- 	DUP_CTX_STR(password);
-+	DUP_CTX_STR(server_hostname);
- 	DUP_CTX_STR(UNC);
- 	DUP_CTX_STR(source);
- 	DUP_CTX_STR(domainname);
-@@ -470,6 +471,11 @@ smb3_parse_devname(const char *devname,
- 	if (!pos)
- 		return -EINVAL;
- 
-+	/* record the server hostname */
-+	ctx->server_hostname = kstrndup(devname + 2, pos - devname - 2, GFP_KERNEL);
-+	if (!ctx->server_hostname)
-+		return -ENOMEM;
-+
- 	/* skip past delimiter */
- 	++pos;
- 
-@@ -1510,6 +1516,8 @@ smb3_cleanup_fs_context_contents(struct
- 	ctx->username = NULL;
- 	kfree_sensitive(ctx->password);
- 	ctx->password = NULL;
-+	kfree(ctx->server_hostname);
-+	ctx->server_hostname = NULL;
- 	kfree(ctx->UNC);
- 	ctx->UNC = NULL;
- 	kfree(ctx->source);
---- a/fs/cifs/fs_context.h
-+++ b/fs/cifs/fs_context.h
-@@ -169,6 +169,7 @@ struct smb3_fs_context {
- 	char *password;
- 	char *domainname;
- 	char *source;
-+	char *server_hostname;
- 	char *UNC;
- 	char *nodename;
- 	char *iocharset;  /* local code page for mapping to and from Unicode */
 
 
