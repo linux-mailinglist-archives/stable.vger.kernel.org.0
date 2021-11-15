@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6A4145134B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E1B1451347
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348032AbhKOTtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:49:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
+        id S1348021AbhKOTtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:49:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245548AbhKOTUp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245552AbhKOTUp (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:20:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF1366355C;
-        Mon, 15 Nov 2021 18:36:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E0EF6355D;
+        Mon, 15 Nov 2021 18:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001407;
-        bh=nBv/xfv/xuSoJjvPd3OH1NykJuQ9dAT3+mIZp0bVV5E=;
+        s=korg; t=1637001409;
+        bh=nh9Z0Ma/GeSOiyN4gCPuyXcL+6L+iRvKderhLl6dEaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lB7irE5ifecoERF9DxiBlPzUoJbKounYOqB6xWD5G3qzaAzHWakPfyErSWI8TblRM
-         9D3GgJYum5UbColAeF+hsZ69mNMErsL8yTenCoU33N5tScaOUr/NWDwazCqtL0MqDL
-         /iU4r9bOty+a+WPuv8g9rRo8JkywxTjDveH1GUQw=
+        b=Gd6rZmKndMQN/DgK4K1BTwsV6Tu00WuqO7IuACbhMps8HycvkUFadOFUhQs6alucP
+         j50M247xvr0a4b7C39BXhSOj3qlzQ306o7A91rcabLCItSKA0O8LRINydqoCcKSz2b
+         nU42OWTVEYsfHrf9PMXKsXHwl8Adv9iptNx6+UP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.15 180/917] power: supply: max17042_battery: Clear status bits in interrupt handler
-Date:   Mon, 15 Nov 2021 17:54:35 +0100
-Message-Id: <20211115165434.890921048@linuxfoundation.org>
+        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Subject: [PATCH 5.15 181/917] component: do not leave master devres group open after bind
+Date:   Mon, 15 Nov 2021 17:54:36 +0100
+Message-Id: <20211115165434.922623896@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,38 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-commit 0cf48167b87e388fa1268c9fe6d2443ae7f43d8a upstream.
+commit c87761db2100677a69be551365105125d872af5b upstream.
 
-The gauge requires us to clear the status bits manually for some alerts
-to be properly dismissed. Previously the IRQ was configured to react only
-on falling edge, which wasn't technically correct (the ALRT line is active
-low), but it had a happy side-effect of preventing interrupt storms
-on uncleared alerts from happening.
+In current code, the devres group for aggregate master is left open
+after call to component_master_add_*(). This leads to problems when the
+master does further managed allocations on its own. When any
+participating driver calls component_del(), this leads to immediate
+release of resources.
 
-Fixes: 7fbf6b731bca ("power: supply: max17042: Do not enforce (incorrect) interrupt trigger type")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+This came up when investigating a page fault occurring with i915 DRM
+driver unbind with 5.15-rc1 kernel. The following sequence occurs:
+
+ i915_pci_remove()
+   -> intel_display_driver_unregister()
+     -> i915_audio_component_cleanup()
+       -> component_del()
+         -> component.c:take_down_master()
+           -> hdac_component_master_unbind() [via master->ops->unbind()]
+           -> devres_release_group(master->parent, NULL)
+
+With older kernels this has not caused issues, but with audio driver
+moving to use managed interfaces for more of its allocations, this no
+longer works. Devres log shows following to occur:
+
+component_master_add_with_match()
+[  126.886032] snd_hda_intel 0000:00:1f.3: DEVRES ADD 00000000323ccdc5 devm_component_match_release (24 bytes)
+[  126.886045] snd_hda_intel 0000:00:1f.3: DEVRES ADD 00000000865cdb29 grp< (0 bytes)
+[  126.886049] snd_hda_intel 0000:00:1f.3: DEVRES ADD 000000001b480725 grp< (0 bytes)
+
+audio driver completes its PCI probe()
+[  126.892238] snd_hda_intel 0000:00:1f.3: DEVRES ADD 000000001b480725 pcim_iomap_release (48 bytes)
+
+component_del() called() at DRM/i915 unbind()
+[  137.579422] i915 0000:00:02.0: DEVRES REL 00000000ef44c293 grp< (0 bytes)
+[  137.579445] snd_hda_intel 0000:00:1f.3: DEVRES REL 00000000865cdb29 grp< (0 bytes)
+[  137.579458] snd_hda_intel 0000:00:1f.3: DEVRES REL 000000001b480725 pcim_iomap_release (48 bytes)
+
+So the "devres_release_group(master->parent, NULL)" ends up freeing the
+pcim_iomap allocation. Upon next runtime resume, the audio driver will
+cause a page fault as the iomap alloc was released without the driver
+knowing about it.
+
+Fix this issue by using the "struct master" pointer as identifier for
+the devres group, and by closing the devres group after
+the master->ops->bind() call is done. This allows devres allocations
+done by the driver acting as master to be isolated from the binding state
+of the aggregate driver. This modifies the logic originally introduced in
+commit 9e1ccb4a7700 ("drivers/base: fix devres handling for master device")
+
+Fixes: 9e1ccb4a7700 ("drivers/base: fix devres handling for master device")
+Cc: stable@vger.kernel.org
+Acked-by: Imre Deak <imre.deak@intel.com>
+Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+BugLink: https://gitlab.freedesktop.org/drm/intel/-/issues/4136
+Link: https://lore.kernel.org/r/20211013161345.3755341-1-kai.vehmanen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/supply/max17042_battery.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/base/component.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -880,6 +880,10 @@ static irqreturn_t max17042_thread_handl
- 		max17042_set_soc_threshold(chip, 1);
+--- a/drivers/base/component.c
++++ b/drivers/base/component.c
+@@ -246,7 +246,7 @@ static int try_to_bring_up_master(struct
+ 		return 0;
  	}
  
-+	/* we implicitly handle all alerts via power_supply_changed */
-+	regmap_clear_bits(chip->regmap, MAX17042_STATUS,
-+			  0xFFFF & ~(STATUS_POR_BIT | STATUS_BST_BIT));
-+
- 	power_supply_changed(chip->battery);
- 	return IRQ_HANDLED;
+-	if (!devres_open_group(master->parent, NULL, GFP_KERNEL))
++	if (!devres_open_group(master->parent, master, GFP_KERNEL))
+ 		return -ENOMEM;
+ 
+ 	/* Found all components */
+@@ -258,6 +258,7 @@ static int try_to_bring_up_master(struct
+ 		return ret;
+ 	}
+ 
++	devres_close_group(master->parent, NULL);
+ 	master->bound = true;
+ 	return 1;
+ }
+@@ -282,7 +283,7 @@ static void take_down_master(struct mast
+ {
+ 	if (master->bound) {
+ 		master->ops->unbind(master->parent);
+-		devres_release_group(master->parent, NULL);
++		devres_release_group(master->parent, master);
+ 		master->bound = false;
+ 	}
  }
 
 
