@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74EB8450AF6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:13:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 316C9450DDA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236902AbhKORQO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:16:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47250 "EHLO mail.kernel.org"
+        id S240384AbhKOSIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:08:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236911AbhKORO7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:14:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C062363238;
-        Mon, 15 Nov 2021 17:11:37 +0000 (UTC)
+        id S239579AbhKOSDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:03:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0A7563347;
+        Mon, 15 Nov 2021 17:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996298;
-        bh=oGJLf83O6OzUpdaQ1v2eWXUAolQuONopokAhlzDmSQA=;
+        s=korg; t=1636997868;
+        bh=wzfks4W1c6gQCOK1Fdo5BssSFDsbB1hAIfcAgl/geGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vSodtPDbMGIgbNowZxRa1/W4qV2P2AhGWYdjN5xDAFjstNPsoUYEbgefiDlEo/J0F
-         e8YM3abk/pe8cGwllUzuHuubdqV7IheR/3OSoU79Lx82ceWqZVzdtoqrB+UmwulR6V
-         IQ3Ng+UTlIY10CuwhYU5uhEl6kV0qWWcAwf0kFws=
+        b=aa1tMWIVcvDx39lbub7FcVGIqzX71mjYkP9lvYAjaEXdStm/GzpuRYSeTy8vhg4kB
+         RFxM/uEjQLSHAGGiKbAutfty0z+QYerhxzaJcZyAT2mb045YfGwSU8bzB2JhvKqA9h
+         xRKz36SmioYZBql4Esxw9jKE1LTFMqI+1nMI1f0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.4 088/355] power: supply: max17042_battery: Prevent int underflow in set_soc_threshold
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 287/575] drm/amdgpu: fix warning for overflow check
 Date:   Mon, 15 Nov 2021 18:00:12 +0100
-Message-Id: <20211115165316.649551756@linuxfoundation.org>
+Message-Id: <20211115165353.707618871@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit e660dbb68c6b3f7b9eb8b9775846a44f9798b719 upstream.
+[ Upstream commit 335aea75b0d95518951cad7c4c676e6f1c02c150 ]
 
-max17042_set_soc_threshold gets called with offset set to 1, which means
-that minimum threshold value would underflow once SOC got down to 0,
-causing invalid alerts from the gauge.
+The overflow check in amdgpu_bo_list_create() causes a warning with
+clang-14 on 64-bit architectures, since the limit can never be
+exceeded.
 
-Fixes: e5f3872d2044 ("max17042: Add support for signalling change in SOC")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c:74:18: error: result of comparison of constant 256204778801521549 with expression of type 'unsigned int' is always false [-Werror,-Wtautological-constant-out-of-range-compare]
+        if (num_entries > (SIZE_MAX - sizeof(struct amdgpu_bo_list))
+            ~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The check remains useful for 32-bit architectures, so just avoid the
+warning by using size_t as the type for the count.
+
+Fixes: 920990cb080a ("drm/amdgpu: allocate the bo_list array after the list")
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/max17042_battery.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c | 2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -834,7 +834,8 @@ static void max17042_set_soc_threshold(s
- 	regmap_read(map, MAX17042_RepSOC, &soc);
- 	soc >>= 8;
- 	soc_tr = (soc + off) << 8;
--	soc_tr |= (soc - off);
-+	if (off < soc)
-+		soc_tr |= soc - off;
- 	regmap_write(map, MAX17042_SALRT_Th, soc_tr);
- }
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
+index 15c45b2a39835..714178f1b6c6e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
+@@ -61,7 +61,7 @@ static void amdgpu_bo_list_free(struct kref *ref)
  
+ int amdgpu_bo_list_create(struct amdgpu_device *adev, struct drm_file *filp,
+ 			  struct drm_amdgpu_bo_list_entry *info,
+-			  unsigned num_entries, struct amdgpu_bo_list **result)
++			  size_t num_entries, struct amdgpu_bo_list **result)
+ {
+ 	unsigned last_entry = 0, first_userptr = num_entries;
+ 	struct amdgpu_bo_list_entry *array;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
+index a130e766cbdbe..529d52a204cf4 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
+@@ -60,7 +60,7 @@ int amdgpu_bo_create_list_entry_array(struct drm_amdgpu_bo_list_in *in,
+ int amdgpu_bo_list_create(struct amdgpu_device *adev,
+ 				 struct drm_file *filp,
+ 				 struct drm_amdgpu_bo_list_entry *info,
+-				 unsigned num_entries,
++				 size_t num_entries,
+ 				 struct amdgpu_bo_list **list);
+ 
+ static inline struct amdgpu_bo_list_entry *
+-- 
+2.33.0
+
 
 
