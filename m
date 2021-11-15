@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3219445127F
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F383451282
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346725AbhKOTgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:36:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44640 "EHLO mail.kernel.org"
+        id S1346760AbhKOTgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:36:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244726AbhKOTRT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244728AbhKOTRT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:17:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85E43632C9;
-        Mon, 15 Nov 2021 18:23:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E91B96108D;
+        Mon, 15 Nov 2021 18:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000600;
-        bh=KZ51aFIuzywb7/grdl9Zcnf9MqAlkUEytIqHnCzyb2s=;
+        s=korg; t=1637000602;
+        bh=c/jpbdtY4rrPtEz/JZ/lUDJYscs4qspt8O2ustMnsto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lxWvVc4wphtfN7ToTS5Q5C5UWPCefmHLZkf49jAi68W2kIdA66gbOjG3OD+Rzqubg
-         I7FKYgH2YFX4hAaL49igIbspKWPf2cB1JwhbvESwP2RHvdnwnOLPBMEV20DWkuh0aj
-         NzuywHRSKf7bGJGsRkbfRpVdY73M0raVKiI3Knjw=
+        b=oqJS90QbCCFGqQ8YIuLObK5bRYvXjYhWS6ODhFWeILtHsf7dNRS5oECAwurbD7uFz
+         p5Su+EcaLrIOXU7ilKddZcDh0QS8QyJFJqws49ShOINYLuVwcdnT9R7ZdWPwJ/U+4h
+         SfSn4RHkOVSIGaW+3TTyC3EQLWPprPIH84vBkxn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>,
+        Stafford Horne <shorne@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 721/849] ethtool: fix ethtool msg len calculation for pause stats
-Date:   Mon, 15 Nov 2021 18:03:24 +0100
-Message-Id: <20211115165444.647717195@linuxfoundation.org>
+Subject: [PATCH 5.14 722/849] openrisc: fix SMP tlb flush NULL pointer dereference
+Date:   Mon, 15 Nov 2021 18:03:25 +0100
+Message-Id: <20211115165444.679466961@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,72 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Stafford Horne <shorne@gmail.com>
 
-[ Upstream commit 1aabe578dd86e9f2867c4db4fba9a15f4ba1825d ]
+[ Upstream commit 27dff9a9c247d4e38d82c2e7234914cfe8499294 ]
 
-ETHTOOL_A_PAUSE_STAT_MAX is the MAX attribute id,
-so we need to subtract non-stats and add one to
-get a count (IOW -2+1 == -1).
+Throughout the OpenRISC kernel port VMA is passed as NULL when flushing
+kernel tlb entries.  Somehow this was missed when I was testing
+c28b27416da9 ("openrisc: Implement proper SMP tlb flushing") and now the
+SMP kernel fails to completely boot.
 
-Otherwise we'll see:
+In OpenRISC VMA is used only to determine which cores need to have their
+TLB entries flushed.
 
-  ethnl cmd 21: calculated reply length 40, but consumed 52
+This patch updates the logic to flush tlbs on all cores when the VMA is
+passed as NULL.  Also, we update places VMA is passed as NULL to use
+flush_tlb_kernel_range instead.  Now, the only place VMA is passed as
+NULL is in the implementation of flush_tlb_kernel_range.
 
-Fixes: 9a27a33027f2 ("ethtool: add standard pause stats")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c28b27416da9 ("openrisc: Implement proper SMP tlb flushing")
+Reported-by: Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ethtool_netlink.h      | 3 +++
- include/uapi/linux/ethtool_netlink.h | 4 +++-
- net/ethtool/pause.c                  | 3 +--
- 3 files changed, 7 insertions(+), 3 deletions(-)
+ arch/openrisc/kernel/dma.c | 4 ++--
+ arch/openrisc/kernel/smp.c | 6 ++++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/ethtool_netlink.h b/include/linux/ethtool_netlink.h
-index 1e7bf78cb3829..aba348d58ff61 100644
---- a/include/linux/ethtool_netlink.h
-+++ b/include/linux/ethtool_netlink.h
-@@ -10,6 +10,9 @@
- #define __ETHTOOL_LINK_MODE_MASK_NWORDS \
- 	DIV_ROUND_UP(__ETHTOOL_LINK_MODE_MASK_NBITS, 32)
+diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
+index 1b16d97e7da7f..a82b2caaa560d 100644
+--- a/arch/openrisc/kernel/dma.c
++++ b/arch/openrisc/kernel/dma.c
+@@ -33,7 +33,7 @@ page_set_nocache(pte_t *pte, unsigned long addr,
+ 	 * Flush the page out of the TLB so that the new page flags get
+ 	 * picked up next time there's an access
+ 	 */
+-	flush_tlb_page(NULL, addr);
++	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
  
-+#define ETHTOOL_PAUSE_STAT_CNT	(__ETHTOOL_A_PAUSE_STAT_CNT -		\
-+				 ETHTOOL_A_PAUSE_STAT_TX_FRAMES)
-+
- enum ethtool_multicast_groups {
- 	ETHNL_MCGRP_MONITOR,
- };
-diff --git a/include/uapi/linux/ethtool_netlink.h b/include/uapi/linux/ethtool_netlink.h
-index b3b93710eff70..010edbb7382d4 100644
---- a/include/uapi/linux/ethtool_netlink.h
-+++ b/include/uapi/linux/ethtool_netlink.h
-@@ -405,7 +405,9 @@ enum {
- 	ETHTOOL_A_PAUSE_STAT_TX_FRAMES,
- 	ETHTOOL_A_PAUSE_STAT_RX_FRAMES,
+ 	/* Flush page out of dcache */
+ 	for (cl = __pa(addr); cl < __pa(next); cl += cpuinfo->dcache_block_size)
+@@ -56,7 +56,7 @@ page_clear_nocache(pte_t *pte, unsigned long addr,
+ 	 * Flush the page out of the TLB so that the new page flags get
+ 	 * picked up next time there's an access
+ 	 */
+-	flush_tlb_page(NULL, addr);
++	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
  
--	/* add new constants above here */
-+	/* add new constants above here
-+	 * adjust ETHTOOL_PAUSE_STAT_CNT if adding non-stats!
-+	 */
- 	__ETHTOOL_A_PAUSE_STAT_CNT,
- 	ETHTOOL_A_PAUSE_STAT_MAX = (__ETHTOOL_A_PAUSE_STAT_CNT - 1)
- };
-diff --git a/net/ethtool/pause.c b/net/ethtool/pause.c
-index 9009f412151e7..ee1e5806bc93a 100644
---- a/net/ethtool/pause.c
-+++ b/net/ethtool/pause.c
-@@ -56,8 +56,7 @@ static int pause_reply_size(const struct ethnl_req_info *req_base,
- 
- 	if (req_base->flags & ETHTOOL_FLAG_STATS)
- 		n += nla_total_size(0) +	/* _PAUSE_STATS */
--			nla_total_size_64bit(sizeof(u64)) *
--				(ETHTOOL_A_PAUSE_STAT_MAX - 2);
-+		     nla_total_size_64bit(sizeof(u64)) * ETHTOOL_PAUSE_STAT_CNT;
- 	return n;
+ 	return 0;
+ }
+diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
+index 415e209732a3d..ba78766cf00b5 100644
+--- a/arch/openrisc/kernel/smp.c
++++ b/arch/openrisc/kernel/smp.c
+@@ -272,7 +272,7 @@ static inline void ipi_flush_tlb_range(void *info)
+ 	local_flush_tlb_range(NULL, fd->addr1, fd->addr2);
  }
  
+-static void smp_flush_tlb_range(struct cpumask *cmask, unsigned long start,
++static void smp_flush_tlb_range(const struct cpumask *cmask, unsigned long start,
+ 				unsigned long end)
+ {
+ 	unsigned int cpuid;
+@@ -320,7 +320,9 @@ void flush_tlb_page(struct vm_area_struct *vma, unsigned long uaddr)
+ void flush_tlb_range(struct vm_area_struct *vma,
+ 		     unsigned long start, unsigned long end)
+ {
+-	smp_flush_tlb_range(mm_cpumask(vma->vm_mm), start, end);
++	const struct cpumask *cmask = vma ? mm_cpumask(vma->vm_mm)
++					  : cpu_online_mask;
++	smp_flush_tlb_range(cmask, start, end);
+ }
+ 
+ /* Instruction cache invalidate - performed on each cpu */
 -- 
 2.33.0
 
