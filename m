@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A9404512C2
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81B1C4512C7
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347314AbhKOTjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:39:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
+        id S1347383AbhKOTjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233450AbhKOTSU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B59FD63431;
-        Mon, 15 Nov 2021 18:26:42 +0000 (UTC)
+        id S245017AbhKOTSW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B88A63440;
+        Mon, 15 Nov 2021 18:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000803;
-        bh=vdQSLyWNZ0dMnML0vPpc4MPvy/5VGubBpttfIx7IRRo=;
+        s=korg; t=1637000830;
+        bh=2IKh2kELf8xDjR4aRQxgvElJJZNbN7hsf/njF7JpBzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RtWC++WIk3RkSGuDDb8vuVEZ0+p7ms1mkLCCCFNBB58fJziKBK9P1JNCIfWNo1SPg
-         YpMe42Z8kBgRLxkEWJl+SG1CfnG0npVAtT4g9HJ/2YR85TT30lKDusqPvuTvrbiNEj
-         eJPXpFpODy30Q5GeyrVjdCBqey8rKVteLjubZBOA=
+        b=CTzIregVGE3uu667bthdGSA7RxkKcWVZpt4MjJde6HsO4E47ezic8BN+Urb9cqYqA
+         W0JT00pb+g+m+pWt7/rEdc8N6w2+19x8b52yOa8Z98SNbgFI4yHEOCa9mScIdQgmlp
+         MaAtYrkTX8p/DDA4+DaFVrATgqL93E/wOsbi0vv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 780/849] net: marvell: mvpp2: Fix wrong SerDes reconfiguration order
-Date:   Mon, 15 Nov 2021 18:04:23 +0100
-Message-Id: <20211115165446.637011379@linuxfoundation.org>
+Subject: [PATCH 5.14 781/849] vsock: prevent unnecessary refcnt inc for nonblocking connect
+Date:   Mon, 15 Nov 2021 18:04:24 +0100
+Message-Id: <20211115165446.668517959@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,194 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
 
-[ Upstream commit bb7bbb6e36474933540c24ae1f1ad651b843981f ]
+[ Upstream commit c7cd82b90599fa10915f41e3dd9098a77d0aa7b6 ]
 
-Commit bfe301ebbc94 ("net: mvpp2: convert to use
-mac_prepare()/mac_finish()") introduced a bug wherein it leaves the MAC
-RESET register asserted after mac_finish(), due to wrong order of
-function calls.
+Currently vosck_connect() increments sock refcount for nonblocking
+socket each time it's called, which can lead to memory leak if
+it's called multiple times because connect timeout function decrements
+sock refcount only once.
 
-Before it was:
-  .mac_config()
-    mvpp22_mode_reconfigure()
-      assert reset
-    mvpp2_xlg_config()
-      deassert reset
+Fixes it by making vsock_connect() return -EALREADY immediately when
+sock state is already SS_CONNECTING.
 
-Now it is:
-  .mac_prepare()
-  .mac_config()
-    mvpp2_xlg_config()
-      deassert reset
-  .mac_finish()
-    mvpp2_xlg_config()
-      assert reset
-
-Obviously this is wrong.
-
-This bug is triggered when phylink tries to change the PHY interface
-mode from a GMAC mode (sgmii, 1000base-x, 2500base-x) to XLG mode
-(10gbase-r, xaui). The XLG mode does not work since reset is left
-asserted. Only after
-  ifconfig down && ifconfig up
-is called will the XLG mode work.
-
-Move the call to mvpp22_mode_reconfigure() to .mac_prepare()
-implementation. Since some of the subsequent functions need to know
-whether the interface is being changed, we unfortunately also need to
-pass around the new interface mode before setting port->phy_interface.
-
-Fixes: bfe301ebbc94 ("net: mvpp2: convert to use mac_prepare()/mac_finish()")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 38 ++++++++++---------
- 1 file changed, 20 insertions(+), 18 deletions(-)
+ net/vmw_vsock/af_vsock.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index 3229bafa2a2c7..3e673e40e878e 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -1605,7 +1605,7 @@ static void mvpp22_gop_fca_set_periodic_timer(struct mvpp2_port *port)
- 	mvpp22_gop_fca_enable_periodic(port, true);
- }
- 
--static int mvpp22_gop_init(struct mvpp2_port *port)
-+static int mvpp22_gop_init(struct mvpp2_port *port, phy_interface_t interface)
- {
- 	struct mvpp2 *priv = port->priv;
- 	u32 val;
-@@ -1613,7 +1613,7 @@ static int mvpp22_gop_init(struct mvpp2_port *port)
- 	if (!priv->sysctrl_base)
- 		return 0;
- 
--	switch (port->phy_interface) {
-+	switch (interface) {
- 	case PHY_INTERFACE_MODE_RGMII:
- 	case PHY_INTERFACE_MODE_RGMII_ID:
- 	case PHY_INTERFACE_MODE_RGMII_RXID:
-@@ -1743,15 +1743,15 @@ static void mvpp22_gop_setup_irq(struct mvpp2_port *port)
-  * lanes by the physical layer. This is why configurations like
-  * "PPv2 (2500BaseX) - COMPHY (2500SGMII)" are valid.
-  */
--static int mvpp22_comphy_init(struct mvpp2_port *port)
-+static int mvpp22_comphy_init(struct mvpp2_port *port,
-+			      phy_interface_t interface)
- {
- 	int ret;
- 
- 	if (!port->comphy)
- 		return 0;
- 
--	ret = phy_set_mode_ext(port->comphy, PHY_MODE_ETHERNET,
--			       port->phy_interface);
-+	ret = phy_set_mode_ext(port->comphy, PHY_MODE_ETHERNET, interface);
- 	if (ret)
- 		return ret;
- 
-@@ -2172,7 +2172,8 @@ static void mvpp22_pcs_reset_assert(struct mvpp2_port *port)
- 	writel(val & ~MVPP22_XPCS_CFG0_RESET_DIS, xpcs + MVPP22_XPCS_CFG0);
- }
- 
--static void mvpp22_pcs_reset_deassert(struct mvpp2_port *port)
-+static void mvpp22_pcs_reset_deassert(struct mvpp2_port *port,
-+				      phy_interface_t interface)
- {
- 	struct mvpp2 *priv = port->priv;
- 	void __iomem *mpcs, *xpcs;
-@@ -2184,7 +2185,7 @@ static void mvpp22_pcs_reset_deassert(struct mvpp2_port *port)
- 	mpcs = priv->iface_base + MVPP22_MPCS_BASE(port->gop_id);
- 	xpcs = priv->iface_base + MVPP22_XPCS_BASE(port->gop_id);
- 
--	switch (port->phy_interface) {
-+	switch (interface) {
- 	case PHY_INTERFACE_MODE_10GBASER:
- 		val = readl(mpcs + MVPP22_MPCS_CLK_RESET);
- 		val |= MAC_CLK_RESET_MAC | MAC_CLK_RESET_SD_RX |
-@@ -4529,7 +4530,8 @@ static int mvpp2_poll(struct napi_struct *napi, int budget)
- 	return rx_done;
- }
- 
--static void mvpp22_mode_reconfigure(struct mvpp2_port *port)
-+static void mvpp22_mode_reconfigure(struct mvpp2_port *port,
-+				    phy_interface_t interface)
- {
- 	u32 ctrl3;
- 
-@@ -4540,18 +4542,18 @@ static void mvpp22_mode_reconfigure(struct mvpp2_port *port)
- 	mvpp22_pcs_reset_assert(port);
- 
- 	/* comphy reconfiguration */
--	mvpp22_comphy_init(port);
-+	mvpp22_comphy_init(port, interface);
- 
- 	/* gop reconfiguration */
--	mvpp22_gop_init(port);
-+	mvpp22_gop_init(port, interface);
- 
--	mvpp22_pcs_reset_deassert(port);
-+	mvpp22_pcs_reset_deassert(port, interface);
- 
- 	if (mvpp2_port_supports_xlg(port)) {
- 		ctrl3 = readl(port->base + MVPP22_XLG_CTRL3_REG);
- 		ctrl3 &= ~MVPP22_XLG_CTRL3_MACMODESELECT_MASK;
- 
--		if (mvpp2_is_xlg(port->phy_interface))
-+		if (mvpp2_is_xlg(interface))
- 			ctrl3 |= MVPP22_XLG_CTRL3_MACMODESELECT_10G;
- 		else
- 			ctrl3 |= MVPP22_XLG_CTRL3_MACMODESELECT_GMAC;
-@@ -4559,7 +4561,7 @@ static void mvpp22_mode_reconfigure(struct mvpp2_port *port)
- 		writel(ctrl3, port->base + MVPP22_XLG_CTRL3_REG);
- 	}
- 
--	if (mvpp2_port_supports_xlg(port) && mvpp2_is_xlg(port->phy_interface))
-+	if (mvpp2_port_supports_xlg(port) && mvpp2_is_xlg(interface))
- 		mvpp2_xlg_max_rx_size_set(port);
- 	else
- 		mvpp2_gmac_max_rx_size_set(port);
-@@ -4579,7 +4581,7 @@ static void mvpp2_start_dev(struct mvpp2_port *port)
- 	mvpp2_interrupts_enable(port);
- 
- 	if (port->priv->hw_version >= MVPP22)
--		mvpp22_mode_reconfigure(port);
-+		mvpp22_mode_reconfigure(port, port->phy_interface);
- 
- 	if (port->phylink) {
- 		phylink_start(port->phylink);
-@@ -6462,6 +6464,9 @@ static int mvpp2__mac_prepare(struct phylink_config *config, unsigned int mode,
- 			mvpp22_gop_mask_irq(port);
- 
- 			phy_power_off(port->comphy);
-+
-+			/* Reconfigure the serdes lanes */
-+			mvpp22_mode_reconfigure(port, interface);
- 		}
- 	}
- 
-@@ -6516,9 +6521,6 @@ static int mvpp2_mac_finish(struct phylink_config *config, unsigned int mode,
- 	    port->phy_interface != interface) {
- 		port->phy_interface = interface;
- 
--		/* Reconfigure the serdes lanes */
--		mvpp22_mode_reconfigure(port);
--
- 		/* Unmask interrupts */
- 		mvpp22_gop_unmask_irq(port);
- 	}
-@@ -6945,7 +6947,7 @@ static int mvpp2_port_probe(struct platform_device *pdev,
- 	 * driver does this, we can remove this code.
- 	 */
- 	if (port->comphy) {
--		err = mvpp22_comphy_init(port);
-+		err = mvpp22_comphy_init(port, port->phy_interface);
- 		if (err == 0)
- 			phy_power_off(port->comphy);
- 	}
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 3e02cc3b24f8a..bcc42a901c752 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1322,6 +1322,8 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
+ 		 * non-blocking call.
+ 		 */
+ 		err = -EALREADY;
++		if (flags & O_NONBLOCK)
++			goto out;
+ 		break;
+ 	default:
+ 		if ((sk->sk_state == TCP_LISTEN) ||
 -- 
 2.33.0
 
