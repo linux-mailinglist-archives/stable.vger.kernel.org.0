@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04EE54512AC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E85E451487
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347171AbhKOTiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:38:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
+        id S1348657AbhKOUJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:09:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244944AbhKOTSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E92C9634E0;
-        Mon, 15 Nov 2021 18:25:56 +0000 (UTC)
+        id S1344696AbhKOTZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F09B636B0;
+        Mon, 15 Nov 2021 19:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000757;
-        bh=4Zeh1rVycmPCKNTzIDyx3nPsvoujAcCJaricuIB1udE=;
+        s=korg; t=1637002946;
+        bh=pT2ajsULfsdye7XuKTQj46xN0wZdW7+qo527mZrLPMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QznvXELtiOW+o3K5wmQvr9q7714WA3hB/s3XuG4CK78Bb4++935ATgHnqF+MjJUAz
-         sXxvUqhWAgGPPmuEE/zTe6O7o9YIfQHkvF8x2aQLdst/KmdLMxvlc+4AtAqmE23adg
-         Pwz8k8T5YNktJXe8DFQ2s/El1/9PRl3mkNaCLG70=
+        b=uO/BrAA3DqyqjKyx6dsSbUHbl3XfytpRDXaGjmr3+IJp3K2zkHNWJJPISMGjzwEwA
+         aJRXPWwkpFfsqO+Fw7BHoWJCT/FUEir7kOJf7Nv1M0SLUgLfKBGlHdETzAy9izLLAi
+         Ukjl8TnH7Jg6UCdG+JX6Zix7DjhuWY4/0MWbtb+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Benc <jbenc@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 748/849] selftests/bpf/xdp_redirect_multi: Put the logs to tmp folder
-Date:   Mon, 15 Nov 2021 18:03:51 +0100
-Message-Id: <20211115165445.558559386@linuxfoundation.org>
+Subject: [PATCH 5.15 737/917] netfilter: nfnetlink_queue: fix OOB when mac header was cleared
+Date:   Mon, 15 Nov 2021 18:03:52 +0100
+Message-Id: <20211115165453.907789104@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,135 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 8b4ac13abe7d82da0e0d22a9ba2e27301559a93e ]
+[ Upstream commit 5648b5e1169ff1d6d6a46c35c0b5fbebd2a5cbb2 ]
 
-The xdp_redirect_multi test logs are created in selftest folder and not cleaned
-after test. Let's creat a tmp dir and remove the logs after testing.
+On 64bit platforms the MAC header is set to 0xffff on allocation and
+also when a helper like skb_unset_mac_header() is called.
 
-Fixes: d23292476297 ("selftests/bpf: Add xdp_redirect_multi test")
-Suggested-by: Jiri Benc <jbenc@redhat.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20211027033553.962413-2-liuhangbin@gmail.com
+dev_parse_header may call skb_mac_header() which assumes valid mac offset:
+
+ BUG: KASAN: use-after-free in eth_header_parse+0x75/0x90
+ Read of size 6 at addr ffff8881075a5c05 by task nf-queue/1364
+ Call Trace:
+  memcpy+0x20/0x60
+  eth_header_parse+0x75/0x90
+  __nfqnl_enqueue_packet+0x1a61/0x3380
+  __nf_queue+0x597/0x1300
+  nf_queue+0xf/0x40
+  nf_hook_slow+0xed/0x190
+  nf_hook+0x184/0x440
+  ip_output+0x1c0/0x2a0
+  nf_reinject+0x26f/0x700
+  nfqnl_recv_verdict+0xa16/0x18b0
+  nfnetlink_rcv_msg+0x506/0xe70
+
+The existing code only works if the skb has a mac header.
+
+Fixes: 2c38de4c1f8da7 ("netfilter: fix looped (broad|multi)cast's MAC handling")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/test_xdp_redirect_multi.sh  | 35 ++++++++++---------
- 1 file changed, 18 insertions(+), 17 deletions(-)
+ net/netfilter/nfnetlink_queue.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh b/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh
-index 1538373157e3c..b20b96ba72ef0 100755
---- a/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh
-+++ b/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh
-@@ -31,6 +31,7 @@ IFACES=""
- DRV_MODE="xdpgeneric xdpdrv xdpegress"
- PASS=0
- FAIL=0
-+LOG_DIR=$(mktemp -d)
+diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
+index 4c3fbaaeb1030..4acc4b8e9fe5a 100644
+--- a/net/netfilter/nfnetlink_queue.c
++++ b/net/netfilter/nfnetlink_queue.c
+@@ -560,7 +560,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 		goto nla_put_failure;
  
- test_pass()
- {
-@@ -100,17 +101,17 @@ do_egress_tests()
- 	local mode=$1
+ 	if (indev && entskb->dev &&
+-	    entskb->mac_header != entskb->network_header) {
++	    skb_mac_header_was_set(entskb)) {
+ 		struct nfqnl_msg_packet_hw phw;
+ 		int len;
  
- 	# mac test
--	ip netns exec ns2 tcpdump -e -i veth0 -nn -l -e &> mac_ns1-2_${mode}.log &
--	ip netns exec ns3 tcpdump -e -i veth0 -nn -l -e &> mac_ns1-3_${mode}.log &
-+	ip netns exec ns2 tcpdump -e -i veth0 -nn -l -e &> ${LOG_DIR}/mac_ns1-2_${mode}.log &
-+	ip netns exec ns3 tcpdump -e -i veth0 -nn -l -e &> ${LOG_DIR}/mac_ns1-3_${mode}.log &
- 	sleep 0.5
- 	ip netns exec ns1 ping 192.0.2.254 -i 0.1 -c 4 &> /dev/null
- 	sleep 0.5
- 	pkill -9 tcpdump
- 
- 	# mac check
--	grep -q "${veth_mac[2]} > ff:ff:ff:ff:ff:ff" mac_ns1-2_${mode}.log && \
-+	grep -q "${veth_mac[2]} > ff:ff:ff:ff:ff:ff" ${LOG_DIR}/mac_ns1-2_${mode}.log && \
- 	       test_pass "$mode mac ns1-2" || test_fail "$mode mac ns1-2"
--	grep -q "${veth_mac[3]} > ff:ff:ff:ff:ff:ff" mac_ns1-3_${mode}.log && \
-+	grep -q "${veth_mac[3]} > ff:ff:ff:ff:ff:ff" ${LOG_DIR}/mac_ns1-3_${mode}.log && \
- 		test_pass "$mode mac ns1-3" || test_fail "$mode mac ns1-3"
- }
- 
-@@ -121,9 +122,9 @@ do_ping_tests()
- 	# ping6 test: echo request should be redirect back to itself, not others
- 	ip netns exec ns1 ip neigh add 2001:db8::2 dev veth0 lladdr 00:00:00:00:00:02
- 
--	ip netns exec ns1 tcpdump -i veth0 -nn -l -e &> ns1-1_${mode}.log &
--	ip netns exec ns2 tcpdump -i veth0 -nn -l -e &> ns1-2_${mode}.log &
--	ip netns exec ns3 tcpdump -i veth0 -nn -l -e &> ns1-3_${mode}.log &
-+	ip netns exec ns1 tcpdump -i veth0 -nn -l -e &> ${LOG_DIR}/ns1-1_${mode}.log &
-+	ip netns exec ns2 tcpdump -i veth0 -nn -l -e &> ${LOG_DIR}/ns1-2_${mode}.log &
-+	ip netns exec ns3 tcpdump -i veth0 -nn -l -e &> ${LOG_DIR}/ns1-3_${mode}.log &
- 	sleep 0.5
- 	# ARP test
- 	ip netns exec ns1 ping 192.0.2.254 -i 0.1 -c 4 &> /dev/null
-@@ -135,32 +136,32 @@ do_ping_tests()
- 	pkill -9 tcpdump
- 
- 	# All netns should receive the redirect arp requests
--	[ $(grep -c "who-has 192.0.2.254" ns1-1_${mode}.log) -gt 4 ] && \
-+	[ $(grep -c "who-has 192.0.2.254" ${LOG_DIR}/ns1-1_${mode}.log) -gt 4 ] && \
- 		test_pass "$mode arp(F_BROADCAST) ns1-1" || \
- 		test_fail "$mode arp(F_BROADCAST) ns1-1"
--	[ $(grep -c "who-has 192.0.2.254" ns1-2_${mode}.log) -le 4 ] && \
-+	[ $(grep -c "who-has 192.0.2.254" ${LOG_DIR}/ns1-2_${mode}.log) -le 4 ] && \
- 		test_pass "$mode arp(F_BROADCAST) ns1-2" || \
- 		test_fail "$mode arp(F_BROADCAST) ns1-2"
--	[ $(grep -c "who-has 192.0.2.254" ns1-3_${mode}.log) -le 4 ] && \
-+	[ $(grep -c "who-has 192.0.2.254" ${LOG_DIR}/ns1-3_${mode}.log) -le 4 ] && \
- 		test_pass "$mode arp(F_BROADCAST) ns1-3" || \
- 		test_fail "$mode arp(F_BROADCAST) ns1-3"
- 
- 	# ns1 should not receive the redirect echo request, others should
--	[ $(grep -c "ICMP echo request" ns1-1_${mode}.log) -eq 4 ] && \
-+	[ $(grep -c "ICMP echo request" ${LOG_DIR}/ns1-1_${mode}.log) -eq 4 ] && \
- 		test_pass "$mode IPv4 (F_BROADCAST|F_EXCLUDE_INGRESS) ns1-1" || \
- 		test_fail "$mode IPv4 (F_BROADCAST|F_EXCLUDE_INGRESS) ns1-1"
--	[ $(grep -c "ICMP echo request" ns1-2_${mode}.log) -eq 4 ] && \
-+	[ $(grep -c "ICMP echo request" ${LOG_DIR}/ns1-2_${mode}.log) -eq 4 ] && \
- 		test_pass "$mode IPv4 (F_BROADCAST|F_EXCLUDE_INGRESS) ns1-2" || \
- 		test_fail "$mode IPv4 (F_BROADCAST|F_EXCLUDE_INGRESS) ns1-2"
--	[ $(grep -c "ICMP echo request" ns1-3_${mode}.log) -eq 4 ] && \
-+	[ $(grep -c "ICMP echo request" ${LOG_DIR}/ns1-3_${mode}.log) -eq 4 ] && \
- 		test_pass "$mode IPv4 (F_BROADCAST|F_EXCLUDE_INGRESS) ns1-3" || \
- 		test_fail "$mode IPv4 (F_BROADCAST|F_EXCLUDE_INGRESS) ns1-3"
- 
- 	# ns1 should receive the echo request, ns2 should not
--	[ $(grep -c "ICMP6, echo request" ns1-1_${mode}.log) -eq 4 ] && \
-+	[ $(grep -c "ICMP6, echo request" ${LOG_DIR}/ns1-1_${mode}.log) -eq 4 ] && \
- 		test_pass "$mode IPv6 (no flags) ns1-1" || \
- 		test_fail "$mode IPv6 (no flags) ns1-1"
--	[ $(grep -c "ICMP6, echo request" ns1-2_${mode}.log) -eq 0 ] && \
-+	[ $(grep -c "ICMP6, echo request" ${LOG_DIR}/ns1-2_${mode}.log) -eq 0 ] && \
- 		test_pass "$mode IPv6 (no flags) ns1-2" || \
- 		test_fail "$mode IPv6 (no flags) ns1-2"
- }
-@@ -176,7 +177,7 @@ do_tests()
- 		xdpgeneric) drv_p="-S";;
- 	esac
- 
--	./xdp_redirect_multi $drv_p $IFACES &> xdp_redirect_${mode}.log &
-+	./xdp_redirect_multi $drv_p $IFACES &> ${LOG_DIR}/xdp_redirect_${mode}.log &
- 	xdp_pid=$!
- 	sleep 1
- 
-@@ -192,13 +193,13 @@ do_tests()
- trap clean_up 0 2 3 6 9
- 
- check_env
--rm -f xdp_redirect_*.log ns*.log mac_ns*.log
- 
- for mode in ${DRV_MODE}; do
- 	setup_ns $mode
- 	do_tests $mode
- 	clean_up
- done
-+rm -rf ${LOG_DIR}
- 
- echo "Summary: PASS $PASS, FAIL $FAIL"
- [ $FAIL -eq 0 ] && exit 0 || exit 1
 -- 
 2.33.0
 
