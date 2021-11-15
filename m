@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37B97451DF9
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88115451F46
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348717AbhKPAei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:34:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
+        id S1355835AbhKPAim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:38:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344073AbhKOTXN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A17A563474;
-        Mon, 15 Nov 2021 18:51:27 +0000 (UTC)
+        id S1344208AbhKOTYH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0227E61BA9;
+        Mon, 15 Nov 2021 18:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002288;
-        bh=2WhaDHv3BCEmsf/+7NmZzHA9kpCK+l+WLSa/KzrTWiY=;
+        s=korg; t=1637002429;
+        bh=C9kJ6GWlo/roEIsnh50MarW2fDWfuLopZfLR7c4rbAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q6G5B2i65qoJsEq+SauQ8bJ1qMoPCou5ZMr8kWo5++0EEcV9C+N4CPbZRnIwvMYDQ
-         v6lS35cxDSnNbjh7TQkI7/9mdBEmFmWDxFPK0xOGoZTRcfELB0WVBNN8/B1nm/278z
-         2ltKg9SmMvSrb5qHImYSXlv16BYLHJ1mGDH+4DBk=
+        b=HdSQsggRWGooz2BVbz3PzzQLrNKCD2Xr4vzuKrhuqahG2NGBGIoFkAXJ7WlfoUrnS
+         yaHaj9H4vM751HS+YCwl+cf5iZ2uxcmYc7dTIfpcljvdB5/H97ksauarHObfaiXsAg
+         zMoDc+6bH9X+UFv0sdxCYuhM6lpjtlUYZIIunDhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
+        stable@vger.kernel.org, Hao Wu <hao.wu@rubrik.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 509/917] s390/mm: fix VMA and page table handling code in storage key handling functions
-Date:   Mon, 15 Nov 2021 18:00:04 +0100
-Message-Id: <20211115165446.022539392@linuxfoundation.org>
+Subject: [PATCH 5.15 520/917] tpm: fix Atmel TPM crash caused by too frequent queries
+Date:   Mon, 15 Nov 2021 18:00:15 +0100
+Message-Id: <20211115165446.402115781@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,167 +40,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Hao Wu <hao.wu@rubrik.com>
 
-[ Upstream commit 949f5c1244ee6c36d2e81c588d1200eaa83a3df6 ]
+[ Upstream commit 79ca6f74dae067681a779fd573c2eb59649989bc ]
 
-There are multiple things broken about our storage key handling
-functions:
+The Atmel TPM 1.2 chips crash with error
+`tpm_try_transmit: send(): error -62` since kernel 4.14.
+It is observed from the kernel log after running `tpm_sealdata -z`.
+The error thrown from the command is as follows
+```
+$ tpm_sealdata -z
+Tspi_Key_LoadKey failed: 0x00001087 - layer=tddl,
+code=0087 (135), I/O error
+```
 
-1. We should not walk/touch page tables outside of VMA boundaries when
-   holding only the mmap sem in read mode. Evil user space can modify the
-   VMA layout just before this function runs and e.g., trigger races with
-   page table removal code since commit dd2283f2605e ("mm: mmap: zap pages
-   with read mmap_sem in munmap"). gfn_to_hva() will only translate using
-   KVM memory regions, but won't validate the VMA.
+The issue was reproduced with the following Atmel TPM chip:
+```
+$ tpm_version
+T0  TPM 1.2 Version Info:
+  Chip Version:        1.2.66.1
+  Spec Level:          2
+  Errata Revision:     3
+  TPM Vendor ID:       ATML
+  TPM Version:         01010000
+  Manufacturer Info:   41544d4c
+```
 
-2. We should not allocate page tables outside of VMA boundaries: if
-   evil user space decides to map hugetlbfs to these ranges, bad things
-   will happen because we suddenly have PTE or PMD page tables where we
-   shouldn't have them.
+The root cause of the issue is due to the TPM calls to msleep()
+were replaced with usleep_range() [1], which reduces
+the actual timeout. Via experiments, it is observed that
+the original msleep(5) actually sleeps for 15ms.
+Because of a known timeout issue in Atmel TPM 1.2 chip,
+the shorter timeout than 15ms can cause the error described above.
 
-3. We don't handle large PUDs that might suddenly appeared inside our page
-   table hierarchy.
+A few further changes in kernel 4.16 [2] and 4.18 [3, 4] further
+reduced the timeout to less than 1ms. With experiments,
+the problematic timeout in the latest kernel is the one
+for `wait_for_tpm_stat`.
 
-Don't manually allocate page tables, properly validate that we have VMA and
-bail out on pud_large().
+To fix it, the patch reverts the timeout of `wait_for_tpm_stat`
+to 15ms for all Atmel TPM 1.2 chips, but leave it untouched
+for Ateml TPM 2.0 chip, and chips from other vendors.
+As explained above, the chosen 15ms timeout is
+the actual timeout before this issue introduced,
+thus the old value is used here.
+Particularly, TPM_ATML_TIMEOUT_WAIT_STAT_MIN is set to 14700us,
+TPM_ATML_TIMEOUT_WAIT_STAT_MIN is set to 15000us according to
+the existing TPM_TIMEOUT_RANGE_US (300us).
+The fixed has been tested in the system with the affected Atmel chip
+with no issues observed after boot up.
 
-All callers of page table handling functions, except
-get_guest_storage_key(), call fixup_user_fault() in case they
-receive an -EFAULT and retry; this will allocate the necessary page tables
-if required.
+[1] 9f3fc7bcddcb tpm: replace msleep() with usleep_range() in TPM
+1.2/2.0 generic drivers
+[2] cf151a9a44d5 tpm: reduce tpm polling delay in tpm_tis_core
+[3] 59f5a6b07f64 tpm: reduce poll sleep time in tpm_transmit()
+[4] 424eaf910c32 tpm: reduce polling time to usecs for even finer
+granularity
 
-To keep get_guest_storage_key() working as expected and not requiring
-kvm_s390_get_skeys() to call fixup_user_fault() distinguish between
-"there is simply no page table or huge page yet and the key is assumed
-to be 0" and "this is a fault to be reported".
-
-Although commit 637ff9efe5ea ("s390/mm: Add huge pmd storage key handling")
-introduced most of the affected code, it was actually already broken
-before when using get_locked_pte() without any VMA checks.
-
-Note: Ever since commit 637ff9efe5ea ("s390/mm: Add huge pmd storage key
-handling") we can no longer set a guest storage key (for example from
-QEMU during VM live migration) without actually resolving a fault.
-Although we would have created most page tables, we would choke on the
-!pmd_present(), requiring a call to fixup_user_fault(). I would
-have thought that this is problematic in combination with postcopy life
-migration ... but nobody noticed and this patch doesn't change the
-situation. So maybe it's just fine.
-
-Fixes: 9fcf93b5de06 ("KVM: S390: Create helper function get_guest_storage_key")
-Fixes: 24d5dd0208ed ("s390/kvm: Provide function for setting the guest storage key")
-Fixes: a7e19ab55ffd ("KVM: s390: handle missing storage-key facility")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210909162248.14969-5-david@redhat.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: 9f3fc7bcddcb ("tpm: replace msleep() with usleep_range() in TPM 1.2/2.0 generic drivers")
+Link: https://patchwork.kernel.org/project/linux-integrity/patch/20200926223150.109645-1-hao.wu@rubrik.com/
+Signed-off-by: Hao Wu <hao.wu@rubrik.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/pgtable.c | 57 +++++++++++++++++++++++++++++-------------
- 1 file changed, 39 insertions(+), 18 deletions(-)
+ drivers/char/tpm/tpm_tis_core.c | 26 ++++++++++++++++++--------
+ drivers/char/tpm/tpm_tis_core.h |  4 ++++
+ include/linux/tpm.h             |  1 +
+ 3 files changed, 23 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 2717a406edeb3..6ad634a27d5b9 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -429,22 +429,36 @@ static inline pmd_t pmdp_flush_lazy(struct mm_struct *mm,
- }
- 
- #ifdef CONFIG_PGSTE
--static pmd_t *pmd_alloc_map(struct mm_struct *mm, unsigned long addr)
-+static int pmd_lookup(struct mm_struct *mm, unsigned long addr, pmd_t **pmdp)
+diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+index 69579efb247b3..b2659a4c40168 100644
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -48,6 +48,7 @@ static int wait_for_tpm_stat(struct tpm_chip *chip, u8 mask,
+ 		unsigned long timeout, wait_queue_head_t *queue,
+ 		bool check_cancel)
  {
-+	struct vm_area_struct *vma;
- 	pgd_t *pgd;
- 	p4d_t *p4d;
- 	pud_t *pud;
--	pmd_t *pmd;
++	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
+ 	unsigned long stop;
+ 	long rc;
+ 	u8 status;
+@@ -80,8 +81,8 @@ again:
+ 		}
+ 	} else {
+ 		do {
+-			usleep_range(TPM_TIMEOUT_USECS_MIN,
+-				     TPM_TIMEOUT_USECS_MAX);
++			usleep_range(priv->timeout_min,
++				     priv->timeout_max);
+ 			status = chip->ops->status(chip);
+ 			if ((status & mask) == mask)
+ 				return 0;
+@@ -945,7 +946,22 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+ 	chip->timeout_b = msecs_to_jiffies(TIS_TIMEOUT_B_MAX);
+ 	chip->timeout_c = msecs_to_jiffies(TIS_TIMEOUT_C_MAX);
+ 	chip->timeout_d = msecs_to_jiffies(TIS_TIMEOUT_D_MAX);
++	priv->timeout_min = TPM_TIMEOUT_USECS_MIN;
++	priv->timeout_max = TPM_TIMEOUT_USECS_MAX;
+ 	priv->phy_ops = phy_ops;
 +
-+	/* We need a valid VMA, otherwise this is clearly a fault. */
-+	vma = vma_lookup(mm, addr);
-+	if (!vma)
-+		return -EFAULT;
- 
- 	pgd = pgd_offset(mm, addr);
--	p4d = p4d_alloc(mm, pgd, addr);
--	if (!p4d)
--		return NULL;
--	pud = pud_alloc(mm, p4d, addr);
--	if (!pud)
--		return NULL;
--	pmd = pmd_alloc(mm, pud, addr);
--	return pmd;
-+	if (!pgd_present(*pgd))
-+		return -ENOENT;
++	rc = tpm_tis_read32(priv, TPM_DID_VID(0), &vendor);
++	if (rc < 0)
++		goto out_err;
 +
-+	p4d = p4d_offset(pgd, addr);
-+	if (!p4d_present(*p4d))
-+		return -ENOENT;
++	priv->manufacturer_id = vendor;
 +
-+	pud = pud_offset(p4d, addr);
-+	if (!pud_present(*pud))
-+		return -ENOENT;
-+
-+	/* Large PUDs are not supported yet. */
-+	if (pud_large(*pud))
-+		return -EFAULT;
-+
-+	*pmdp = pmd_offset(pud, addr);
-+	return 0;
- }
- #endif
- 
-@@ -778,8 +792,7 @@ int set_guest_storage_key(struct mm_struct *mm, unsigned long addr,
- 	pmd_t *pmdp;
- 	pte_t *ptep;
- 
--	pmdp = pmd_alloc_map(mm, addr);
--	if (unlikely(!pmdp))
-+	if (pmd_lookup(mm, addr, &pmdp))
- 		return -EFAULT;
- 
- 	ptl = pmd_lock(mm, pmdp);
-@@ -881,8 +894,7 @@ int reset_guest_reference_bit(struct mm_struct *mm, unsigned long addr)
- 	pte_t *ptep;
- 	int cc = 0;
- 
--	pmdp = pmd_alloc_map(mm, addr);
--	if (unlikely(!pmdp))
-+	if (pmd_lookup(mm, addr, &pmdp))
- 		return -EFAULT;
- 
- 	ptl = pmd_lock(mm, pmdp);
-@@ -935,15 +947,24 @@ int get_guest_storage_key(struct mm_struct *mm, unsigned long addr,
- 	pmd_t *pmdp;
- 	pte_t *ptep;
- 
--	pmdp = pmd_alloc_map(mm, addr);
--	if (unlikely(!pmdp))
-+	/*
-+	 * If we don't have a PTE table and if there is no huge page mapped,
-+	 * the storage key is 0.
-+	 */
-+	*key = 0;
-+
-+	switch (pmd_lookup(mm, addr, &pmdp)) {
-+	case -ENOENT:
-+		return 0;
-+	case 0:
-+		break;
-+	default:
- 		return -EFAULT;
++	if (priv->manufacturer_id == TPM_VID_ATML &&
++		!(chip->flags & TPM_CHIP_FLAG_TPM2)) {
++		priv->timeout_min = TIS_TIMEOUT_MIN_ATML;
++		priv->timeout_max = TIS_TIMEOUT_MAX_ATML;
 +	}
++
+ 	dev_set_drvdata(&chip->dev, priv);
  
- 	ptl = pmd_lock(mm, pmdp);
- 	if (!pmd_present(*pmdp)) {
--		/* Not yet mapped memory has a zero key */
- 		spin_unlock(ptl);
--		*key = 0;
- 		return 0;
- 	}
+ 	if (is_bsw()) {
+@@ -988,12 +1004,6 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+ 	if (rc)
+ 		goto out_err;
  
+-	rc = tpm_tis_read32(priv, TPM_DID_VID(0), &vendor);
+-	if (rc < 0)
+-		goto out_err;
+-
+-	priv->manufacturer_id = vendor;
+-
+ 	rc = tpm_tis_read8(priv, TPM_RID(0), &rid);
+ 	if (rc < 0)
+ 		goto out_err;
+diff --git a/drivers/char/tpm/tpm_tis_core.h b/drivers/char/tpm/tpm_tis_core.h
+index b2a3c6c72882d..3be24f221e32a 100644
+--- a/drivers/char/tpm/tpm_tis_core.h
++++ b/drivers/char/tpm/tpm_tis_core.h
+@@ -54,6 +54,8 @@ enum tis_defaults {
+ 	TIS_MEM_LEN = 0x5000,
+ 	TIS_SHORT_TIMEOUT = 750,	/* ms */
+ 	TIS_LONG_TIMEOUT = 2000,	/* 2 sec */
++	TIS_TIMEOUT_MIN_ATML = 14700,	/* usecs */
++	TIS_TIMEOUT_MAX_ATML = 15000,	/* usecs */
+ };
+ 
+ /* Some timeout values are needed before it is known whether the chip is
+@@ -98,6 +100,8 @@ struct tpm_tis_data {
+ 	wait_queue_head_t read_queue;
+ 	const struct tpm_tis_phy_ops *phy_ops;
+ 	unsigned short rng_quality;
++	unsigned int timeout_min; /* usecs */
++	unsigned int timeout_max; /* usecs */
+ };
+ 
+ struct tpm_tis_phy_ops {
+diff --git a/include/linux/tpm.h b/include/linux/tpm.h
+index aa11fe323c56b..12d827734686d 100644
+--- a/include/linux/tpm.h
++++ b/include/linux/tpm.h
+@@ -269,6 +269,7 @@ enum tpm2_cc_attrs {
+ #define TPM_VID_INTEL    0x8086
+ #define TPM_VID_WINBOND  0x1050
+ #define TPM_VID_STM      0x104A
++#define TPM_VID_ATML     0x1114
+ 
+ enum tpm_chip_flags {
+ 	TPM_CHIP_FLAG_TPM2		= BIT(1),
 -- 
 2.33.0
 
