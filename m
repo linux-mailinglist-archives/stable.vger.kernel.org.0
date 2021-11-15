@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC27D451EC2
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4303D451EBF
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355331AbhKPAhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:37:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
+        id S1355279AbhKPAhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:37:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344876AbhKOTZj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD922636DA;
-        Mon, 15 Nov 2021 19:06:00 +0000 (UTC)
+        id S1344891AbhKOTZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 109F3636E4;
+        Mon, 15 Nov 2021 19:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003161;
-        bh=15HXLQbDJoZL5+VAeLIUIrK2GNHxn5/nNzrrF2r7ZYc=;
+        s=korg; t=1637003172;
+        bh=hrmQyVoN56FYms+DoXsQSCLBLvU9kwLcw3hriJgLS8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B33bmwpdvTnkSzq6ZQd2jVd3kkSwJHlm9ozlL4FkoEbaNWEFmwySSDlhE0atP8fsf
-         GeVob+aoiQ4CrKIcsfgbNCjjWwcQ3UWPkCFcO39XhNHXJrxb7+QF1RVYvQSnSl9cPe
-         dgJsCkI/9ED6wuzOwCXSi/FnodRuK9Awbnqz43JY=
+        b=pwUbN71KQEdCbfiSRBEyseOV87DDF+Kpp4cwZxn6oH1Tt2n6+YPcdHBEq3WrJIFQq
+         F3LFcMVf+3gS3FPkGggYj+25PSkuY6HAIMCorfdFdVLoXTrOjG7jdqve812LnSPx3t
+         V+XHC1H+puNBwqAKtwIMeenquaN4ef5jV5+pWcM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Vedang Patel <vedang.patel@intel.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 833/917] net/sched: sch_taprio: fix undefined behavior in ktime_mono_to_any
-Date:   Mon, 15 Nov 2021 18:05:28 +0100
-Message-Id: <20211115165457.297057759@linuxfoundation.org>
+Subject: [PATCH 5.15 836/917] net: hns3: fix kernel crash when unload VF while it is being reset
+Date:   Mon, 15 Nov 2021 18:05:31 +0100
+Message-Id: <20211115165457.391196334@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,136 +41,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Yufeng Mo <moyufeng@huawei.com>
 
-[ Upstream commit 6dc25401cba4d428328eade8ceae717633fdd702 ]
+[ Upstream commit e140c7983e3054be0652bf914f4454f16c5520b0 ]
 
-1) if q->tk_offset == TK_OFFS_MAX, then get_tcp_tstamp() calls
-   ktime_mono_to_any() with out-of-bound value.
+When fully configure VLANs for a VF, then unload the VF while
+triggering a reset to PF, will cause a kernel crash because the
+irq is already uninit.
 
-2) if q->tk_offset is changed in taprio_parse_clockid(),
-   taprio_get_time() might also call ktime_mono_to_any()
-   with out-of-bound value as sysbot found:
+[ 293.177579] ------------[ cut here ]------------
+[ 293.183502] kernel BUG at drivers/pci/msi.c:352!
+[ 293.189547] Internal error: Oops - BUG: 0 [#1] SMP
+......
+[ 293.390124] Workqueue: hclgevf hclgevf_service_task [hclgevf]
+[ 293.402627] pstate: 80c00009 (Nzcv daif +PAN +UAO)
+[ 293.414324] pc : free_msi_irqs+0x19c/0x1b8
+[ 293.425429] lr : free_msi_irqs+0x18c/0x1b8
+[ 293.436545] sp : ffff00002716fbb0
+[ 293.446950] x29: ffff00002716fbb0 x28: 0000000000000000
+[ 293.459519] x27: 0000000000000000 x26: ffff45b91ea16b00
+[ 293.472183] x25: 0000000000000000 x24: ffffa587b08f4700
+[ 293.484717] x23: ffffc591ac30e000 x22: ffffa587b08f8428
+[ 293.497190] x21: ffffc591ac30e300 x20: 0000000000000000
+[ 293.509594] x19: ffffa58a062a8300 x18: 0000000000000000
+[ 293.521949] x17: 0000000000000000 x16: ffff45b91dcc3f48
+[ 293.534013] x15: 0000000000000000 x14: 0000000000000000
+[ 293.545883] x13: 0000000000000040 x12: 0000000000000228
+[ 293.557508] x11: 0000000000000020 x10: 0000000000000040
+[ 293.568889] x9 : ffff45b91ea1e190 x8 : ffffc591802d0000
+[ 293.580123] x7 : ffffc591802d0148 x6 : 0000000000000120
+[ 293.591190] x5 : ffffc591802d0000 x4 : 0000000000000000
+[ 293.602015] x3 : 0000000000000000 x2 : 0000000000000000
+[ 293.612624] x1 : 00000000000004a4 x0 : ffffa58a1e0c6b80
+[ 293.623028] Call trace:
+[ 293.630340] free_msi_irqs+0x19c/0x1b8
+[ 293.638849] pci_disable_msix+0x118/0x140
+[ 293.647452] pci_free_irq_vectors+0x20/0x38
+[ 293.656081] hclgevf_uninit_msi+0x44/0x58 [hclgevf]
+[ 293.665309] hclgevf_reset_rebuild+0x1ac/0x2e0 [hclgevf]
+[ 293.674866] hclgevf_reset+0x358/0x400 [hclgevf]
+[ 293.683545] hclgevf_reset_service_task+0xd0/0x1b0 [hclgevf]
+[ 293.693325] hclgevf_service_task+0x4c/0x2e8 [hclgevf]
+[ 293.702307] process_one_work+0x1b0/0x448
+[ 293.710034] worker_thread+0x54/0x468
+[ 293.717331] kthread+0x134/0x138
+[ 293.724114] ret_from_fork+0x10/0x18
+[ 293.731324] Code: f940b000 b4ffff00 a903e7b8 f90017b6 (d4210000)
 
-UBSAN: array-index-out-of-bounds in kernel/time/timekeeping.c:908:27
-index 3 is out of range for type 'ktime_t *[3]'
-CPU: 1 PID: 25668 Comm: kworker/u4:0 Not tainted 5.15.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: bat_events batadv_iv_send_outstanding_bat_ogm_packet
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:151
- __ubsan_handle_out_of_bounds.cold+0x62/0x6c lib/ubsan.c:291
- ktime_mono_to_any+0x1d4/0x1e0 kernel/time/timekeeping.c:908
- get_tcp_tstamp net/sched/sch_taprio.c:322 [inline]
- get_packet_txtime net/sched/sch_taprio.c:353 [inline]
- taprio_enqueue_one+0x5b0/0x1460 net/sched/sch_taprio.c:420
- taprio_enqueue+0x3b1/0x730 net/sched/sch_taprio.c:485
- dev_qdisc_enqueue+0x40/0x300 net/core/dev.c:3785
- __dev_xmit_skb net/core/dev.c:3869 [inline]
- __dev_queue_xmit+0x1f6e/0x3630 net/core/dev.c:4194
- batadv_send_skb_packet+0x4a9/0x5f0 net/batman-adv/send.c:108
- batadv_iv_ogm_send_to_if net/batman-adv/bat_iv_ogm.c:393 [inline]
- batadv_iv_ogm_emit net/batman-adv/bat_iv_ogm.c:421 [inline]
- batadv_iv_send_outstanding_bat_ogm_packet+0x6d7/0x8e0 net/batman-adv/bat_iv_ogm.c:1701
- process_one_work+0x9b2/0x1690 kernel/workqueue.c:2298
- worker_thread+0x658/0x11f0 kernel/workqueue.c:2445
- kthread+0x405/0x4f0 kernel/kthread.c:327
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
+This patch fixes the problem by waiting for the VF reset done
+while unloading the VF.
 
-Fixes: 7ede7b03484b ("taprio: make clock reference conversions easier")
-Fixes: 54002066100b ("taprio: Adjust timestamps for TCP packets")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Vedang Patel <vedang.patel@intel.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Link: https://lore.kernel.org/r/20211108180815.1822479-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: e2cb1dec9779 ("net: hns3: Add HNS3 VF HCL(Hardware Compatibility Layer) Support")
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c | 27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 5 +++++
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h | 2 ++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index b9fd18d986464..a66398fb2d6d0 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -95,18 +95,22 @@ static ktime_t sched_base_time(const struct sched_gate_list *sched)
- 	return ns_to_ktime(sched->base_time);
- }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 4cf34f1693544..3b8bde58613a8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -3010,7 +3010,10 @@ static void hclgevf_uninit_client_instance(struct hnae3_client *client,
  
--static ktime_t taprio_get_time(struct taprio_sched *q)
-+static ktime_t taprio_mono_to_any(const struct taprio_sched *q, ktime_t mono)
- {
--	ktime_t mono = ktime_get();
-+	/* This pairs with WRITE_ONCE() in taprio_parse_clockid() */
-+	enum tk_offsets tk_offset = READ_ONCE(q->tk_offset);
+ 	/* un-init roce, if it exists */
+ 	if (hdev->roce_client) {
++		while (test_bit(HCLGEVF_STATE_RST_HANDLING, &hdev->state))
++			msleep(HCLGEVF_WAIT_RESET_DONE);
+ 		clear_bit(HCLGEVF_STATE_ROCE_REGISTERED, &hdev->state);
++
+ 		hdev->roce_client->ops->uninit_instance(&hdev->roce, 0);
+ 		hdev->roce_client = NULL;
+ 		hdev->roce.client = NULL;
+@@ -3019,6 +3022,8 @@ static void hclgevf_uninit_client_instance(struct hnae3_client *client,
+ 	/* un-init nic/unic, if this was not called by roce client */
+ 	if (client->ops->uninit_instance && hdev->nic_client &&
+ 	    client->type != HNAE3_CLIENT_ROCE) {
++		while (test_bit(HCLGEVF_STATE_RST_HANDLING, &hdev->state))
++			msleep(HCLGEVF_WAIT_RESET_DONE);
+ 		clear_bit(HCLGEVF_STATE_NIC_REGISTERED, &hdev->state);
  
--	switch (q->tk_offset) {
-+	switch (tk_offset) {
- 	case TK_OFFS_MAX:
- 		return mono;
- 	default:
--		return ktime_mono_to_any(mono, q->tk_offset);
-+		return ktime_mono_to_any(mono, tk_offset);
- 	}
-+}
+ 		client->ops->uninit_instance(&hdev->nic, 0);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
+index 4bd922b475012..f6f736c0091c0 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
+@@ -109,6 +109,8 @@
+ #define HCLGEVF_VF_RST_ING		0x07008
+ #define HCLGEVF_VF_RST_ING_BIT		BIT(16)
  
--	return KTIME_MAX;
-+static ktime_t taprio_get_time(const struct taprio_sched *q)
-+{
-+	return taprio_mono_to_any(q, ktime_get());
- }
- 
- static void taprio_free_sched_cb(struct rcu_head *head)
-@@ -319,7 +323,7 @@ static ktime_t get_tcp_tstamp(struct taprio_sched *q, struct sk_buff *skb)
- 		return 0;
- 	}
- 
--	return ktime_mono_to_any(skb->skb_mstamp_ns, q->tk_offset);
-+	return taprio_mono_to_any(q, skb->skb_mstamp_ns);
- }
- 
- /* There are a few scenarios where we will have to modify the txtime from
-@@ -1352,6 +1356,7 @@ static int taprio_parse_clockid(struct Qdisc *sch, struct nlattr **tb,
- 		}
- 	} else if (tb[TCA_TAPRIO_ATTR_SCHED_CLOCKID]) {
- 		int clockid = nla_get_s32(tb[TCA_TAPRIO_ATTR_SCHED_CLOCKID]);
-+		enum tk_offsets tk_offset;
- 
- 		/* We only support static clockids and we don't allow
- 		 * for it to be modified after the first init.
-@@ -1366,22 +1371,24 @@ static int taprio_parse_clockid(struct Qdisc *sch, struct nlattr **tb,
- 
- 		switch (clockid) {
- 		case CLOCK_REALTIME:
--			q->tk_offset = TK_OFFS_REAL;
-+			tk_offset = TK_OFFS_REAL;
- 			break;
- 		case CLOCK_MONOTONIC:
--			q->tk_offset = TK_OFFS_MAX;
-+			tk_offset = TK_OFFS_MAX;
- 			break;
- 		case CLOCK_BOOTTIME:
--			q->tk_offset = TK_OFFS_BOOT;
-+			tk_offset = TK_OFFS_BOOT;
- 			break;
- 		case CLOCK_TAI:
--			q->tk_offset = TK_OFFS_TAI;
-+			tk_offset = TK_OFFS_TAI;
- 			break;
- 		default:
- 			NL_SET_ERR_MSG(extack, "Invalid 'clockid'");
- 			err = -EINVAL;
- 			goto out;
- 		}
-+		/* This pairs with READ_ONCE() in taprio_mono_to_any */
-+		WRITE_ONCE(q->tk_offset, tk_offset);
- 
- 		q->clockid = clockid;
- 	} else {
++#define HCLGEVF_WAIT_RESET_DONE		100
++
+ #define HCLGEVF_RSS_IND_TBL_SIZE		512
+ #define HCLGEVF_RSS_SET_BITMAP_MSK	0xffff
+ #define HCLGEVF_RSS_KEY_SIZE		40
 -- 
 2.33.0
 
