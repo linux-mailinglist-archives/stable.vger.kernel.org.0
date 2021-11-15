@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59A75452502
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9B44521F3
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358040AbhKPBq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:46:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33160 "EHLO mail.kernel.org"
+        id S1376943AbhKPBHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:07:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241577AbhKOSXI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:23:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F12BF6341C;
-        Mon, 15 Nov 2021 17:53:35 +0000 (UTC)
+        id S245278AbhKOTT5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:19:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C2D163527;
+        Mon, 15 Nov 2021 18:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998816;
-        bh=F880+iEbR+zNKaZ6pTyqPPr9ls9mOyEHiJBWwCnwtgA=;
+        s=korg; t=1637001099;
+        bh=2JYBnu26lh+xnfocP3ExYnaUlwXlPUeVfjs51btJ/Zw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVe7obyuaSIkTPJaO4hMgFDVlcN+0F5fVFy+rdfzNOixqSbAE2SF55+rNkXLV33bW
-         EVsdAuTjfBS52ptEfZCeG3wS80fwd3jphEbwDGh27KU6nMgfkxzXo9IouvTPGluDM4
-         BWVqCQm9l5VSGAcIOtuQkJI87FM7w37Zv1PXuo8c=
+        b=C+THYWJ1YUrQ5/ALFrtqWWXRDpysad6XxgMzdEhIMoZk5wrdshEA0DMq+nKZd8mlO
+         IFqADsqhIMC1PfnaQuncT+ExtsHh703GrKro8fl7K7nosfuJDCzdTD/EY57ASJePgC
+         aM1+CMyW3Spxc0qz5OiG/SmgOl1xjBW3AfPImXDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9988f17cf72a1045a189@syzkaller.appspotmail.com,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.14 039/849] ALSA: mixer: oss: Fix racy access to slots
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.15 027/917] media: rkvdec: Do not override sizeimage for output format
 Date:   Mon, 15 Nov 2021 17:52:02 +0100
-Message-Id: <20211115165421.327785365@linuxfoundation.org>
+Message-Id: <20211115165429.648773143@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,177 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-commit 411cef6adfb38a5bb6bd9af3941b28198e7fb680 upstream.
+commit 298d8e8f7bcf023aceb60232d59b983255fec0df upstream.
 
-The OSS mixer can reassign the mapping slots dynamically via proc
-file.  Although the addition and deletion of those slots are protected
-by mixer->reg_mutex, the access to slots aren't, hence this may cause
-UAF when the slots in use are deleted concurrently.
+The rkvdec H.264 decoder currently overrides sizeimage for the output
+format. This causes issues when userspace requires and requests a larger
+buffer, but ends up with one of insufficient size.
 
-This patch applies the mixer->reg_mutex in all appropriate code paths
-(i.e. the ioctl functions) that may access slots.
+Instead, only provide a default size if none was requested. This fixes
+the video_decode_accelerator_tests from Chromium failing on the first
+frame due to insufficient buffer space. It also aligns the behavior
+of the rkvdec driver with the Hantro and Cedrus drivers.
 
-Reported-by: syzbot+9988f17cf72a1045a189@syzkaller.appspotmail.com
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Fixes: cd33c830448b ("media: rkvdec: Add the rkvdec driver")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/00000000000036adc005ceca9175@google.com
-Link: https://lore.kernel.org/r/20211020164846.922-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/oss/mixer_oss.c |   44 +++++++++++++++++++++++++++++++++-----------
- 1 file changed, 33 insertions(+), 11 deletions(-)
+ drivers/staging/media/rkvdec/rkvdec-h264.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/sound/core/oss/mixer_oss.c
-+++ b/sound/core/oss/mixer_oss.c
-@@ -130,11 +130,13 @@ static int snd_mixer_oss_devmask(struct
+--- a/drivers/staging/media/rkvdec/rkvdec-h264.c
++++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
+@@ -1015,8 +1015,9 @@ static int rkvdec_h264_adjust_fmt(struct
+ 	struct v4l2_pix_format_mplane *fmt = &f->fmt.pix_mp;
  
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	for (chn = 0; chn < 31; chn++) {
- 		pslot = &mixer->slots[chn];
- 		if (pslot->put_volume || pslot->put_recsrc)
- 			result |= 1 << chn;
- 	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
+ 	fmt->num_planes = 1;
+-	fmt->plane_fmt[0].sizeimage = fmt->width * fmt->height *
+-				      RKVDEC_H264_MAX_DEPTH_IN_BYTES;
++	if (!fmt->plane_fmt[0].sizeimage)
++		fmt->plane_fmt[0].sizeimage = fmt->width * fmt->height *
++					      RKVDEC_H264_MAX_DEPTH_IN_BYTES;
+ 	return 0;
  }
  
-@@ -146,11 +148,13 @@ static int snd_mixer_oss_stereodevs(stru
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	for (chn = 0; chn < 31; chn++) {
- 		pslot = &mixer->slots[chn];
- 		if (pslot->put_volume && pslot->stereo)
- 			result |= 1 << chn;
- 	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
-@@ -161,6 +165,7 @@ static int snd_mixer_oss_recmask(struct
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	if (mixer->put_recsrc && mixer->get_recsrc) {	/* exclusive */
- 		result = mixer->mask_recsrc;
- 	} else {
-@@ -172,6 +177,7 @@ static int snd_mixer_oss_recmask(struct
- 				result |= 1 << chn;
- 		}
- 	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
-@@ -182,12 +188,12 @@ static int snd_mixer_oss_get_recsrc(stru
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	if (mixer->put_recsrc && mixer->get_recsrc) {	/* exclusive */
--		int err;
- 		unsigned int index;
--		err = mixer->get_recsrc(fmixer, &index);
--		if (err < 0)
--			return err;
-+		result = mixer->get_recsrc(fmixer, &index);
-+		if (result < 0)
-+			goto unlock;
- 		result = 1 << index;
- 	} else {
- 		struct snd_mixer_oss_slot *pslot;
-@@ -202,7 +208,10 @@ static int snd_mixer_oss_get_recsrc(stru
- 			}
- 		}
- 	}
--	return mixer->oss_recsrc = result;
-+	mixer->oss_recsrc = result;
-+ unlock:
-+	mutex_unlock(&mixer->reg_mutex);
-+	return result;
- }
- 
- static int snd_mixer_oss_set_recsrc(struct snd_mixer_oss_file *fmixer, int recsrc)
-@@ -215,6 +224,7 @@ static int snd_mixer_oss_set_recsrc(stru
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	if (mixer->get_recsrc && mixer->put_recsrc) {	/* exclusive input */
- 		if (recsrc & ~mixer->oss_recsrc)
- 			recsrc &= ~mixer->oss_recsrc;
-@@ -240,6 +250,7 @@ static int snd_mixer_oss_set_recsrc(stru
- 			}
- 		}
- 	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
-@@ -251,6 +262,7 @@ static int snd_mixer_oss_get_volume(stru
- 
- 	if (mixer == NULL || slot > 30)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	pslot = &mixer->slots[slot];
- 	left = pslot->volume[0];
- 	right = pslot->volume[1];
-@@ -258,15 +270,21 @@ static int snd_mixer_oss_get_volume(stru
- 		result = pslot->get_volume(fmixer, pslot, &left, &right);
- 	if (!pslot->stereo)
- 		right = left;
--	if (snd_BUG_ON(left < 0 || left > 100))
--		return -EIO;
--	if (snd_BUG_ON(right < 0 || right > 100))
--		return -EIO;
-+	if (snd_BUG_ON(left < 0 || left > 100)) {
-+		result = -EIO;
-+		goto unlock;
-+	}
-+	if (snd_BUG_ON(right < 0 || right > 100)) {
-+		result = -EIO;
-+		goto unlock;
-+	}
- 	if (result >= 0) {
- 		pslot->volume[0] = left;
- 		pslot->volume[1] = right;
- 	 	result = (left & 0xff) | ((right & 0xff) << 8);
- 	}
-+ unlock:
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
-@@ -279,6 +297,7 @@ static int snd_mixer_oss_set_volume(stru
- 
- 	if (mixer == NULL || slot > 30)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	pslot = &mixer->slots[slot];
- 	if (left > 100)
- 		left = 100;
-@@ -289,10 +308,13 @@ static int snd_mixer_oss_set_volume(stru
- 	if (pslot->put_volume)
- 		result = pslot->put_volume(fmixer, pslot, left, right);
- 	if (result < 0)
--		return result;
-+		goto unlock;
- 	pslot->volume[0] = left;
- 	pslot->volume[1] = right;
-- 	return (left & 0xff) | ((right & 0xff) << 8);
-+	result = (left & 0xff) | ((right & 0xff) << 8);
-+ unlock:
-+	mutex_lock(&mixer->reg_mutex);
-+	return result;
- }
- 
- static int snd_mixer_oss_ioctl1(struct snd_mixer_oss_file *fmixer, unsigned int cmd, unsigned long arg)
 
 
