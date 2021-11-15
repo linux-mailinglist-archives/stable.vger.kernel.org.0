@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C723450FA9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:32:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A258B450FC4
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:33:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241162AbhKOSfj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:35:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42056 "EHLO mail.kernel.org"
+        id S241606AbhKOSgO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:36:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242041AbhKOSdN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242045AbhKOSdN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:33:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F041A6345B;
-        Mon, 15 Nov 2021 17:59:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77FAA63462;
+        Mon, 15 Nov 2021 17:59:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999197;
-        bh=ivERZluPG4683IGei38/S2cmxwj+794NDxDNI6OomYU=;
+        s=korg; t=1636999199;
+        bh=WUsHo/fgChsNbElzKrqrNKdFhPDwZSfP2o/2HV834NQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPsIrLGHl3FLXUVeSDTgYNcyAKB96Qu33pu2ZhBw/fxCHQ6YI+c7Wp0bsQFuL9MAb
-         s0hRl3nDhEIx2/TObR+kXdV/zHIhq75I4nck+dr5jfkedHF6baNCzVgun1lfXWsCWE
-         MSlnYVMW0WSlegeJdIMtTbBDci5BfOmnXunUBPUo=
+        b=qclvrmRuCglvEeyQavlnd+sWiKjmgyj8uOKaVP39h2kbXHp7LUGsgEyZzTRydymwg
+         W8ZIDEa+XLw1bG9kRg16ZBi9gtKnipu6ymGzGkI+VY8n0Cu67QznbgEusDGpBra9aw
+         m14gY2UsSouHOaWasBdc9zz6z1VMfKSOiX4csvfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.14 179/849] PCI: aardvark: Fix support for PCI_BRIDGE_CTL_BUS_RESET on emulated bridge
-Date:   Mon, 15 Nov 2021 17:54:22 +0100
-Message-Id: <20211115165426.230664521@linuxfoundation.org>
+Subject: [PATCH 5.14 180/849] PCI: aardvark: Set PCI Bridge Class Code to PCI Bridge
+Date:   Mon, 15 Nov 2021 17:54:23 +0100
+Message-Id: <20211115165426.259823933@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -43,20 +43,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit bc4fac42e5f8460af09c0a7f2f1915be09e20c71 upstream.
+commit 84e1b4045dc887b78bdc87d92927093dc3a465aa upstream.
 
-Aardvark supports PCIe Hot Reset via PCIE_CORE_CTRL1_REG.
+Aardvark controller has something like config space of a Root Port
+available at offset 0x0 of internal registers - these registers are used
+for implementation of the emulated bridge.
 
-Use it for implementing PCI_BRIDGE_CTL_BUS_RESET bit of PCI_BRIDGE_CONTROL
-register on emulated bridge.
+The default value of Class Code of this bridge corresponds to a RAID Mass
+storage controller, though. (This is probably intended for when the
+controller is used as Endpoint.)
 
-With this, the function pci_reset_secondary_bus() starts working and can
-reset connected PCIe card. Custom userspace script [1] which uses setpci
-can trigger PCIe Hot Reset and reset the card manually.
+Change the Class Code to correspond to a PCI Bridge.
 
-[1] https://alexforencich.com/wiki/en/pcie/hot-reset-linux
+Add comment explaining this change.
 
-Link: https://lore.kernel.org/r/20211028185659.20329-7-kabel@kernel.org
+Link: https://lore.kernel.org/r/20211028185659.20329-6-kabel@kernel.org
 Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
@@ -64,51 +65,37 @@ Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/pci/controller/pci-aardvark.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -793,6 +793,22 @@ advk_pci_bridge_emul_base_conf_read(stru
- 		*value = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
- 		return PCI_BRIDGE_EMUL_HANDLED;
+@@ -560,6 +560,26 @@ static void advk_pcie_setup_hw(struct ad
+ 	reg = (PCI_VENDOR_ID_MARVELL << 16) | PCI_VENDOR_ID_MARVELL;
+ 	advk_writel(pcie, reg, VENDOR_ID_REG);
  
-+	case PCI_INTERRUPT_LINE: {
-+		/*
-+		 * From the whole 32bit register we support reading from HW only
-+		 * one bit: PCI_BRIDGE_CTL_BUS_RESET.
-+		 * Other bits are retrieved only from emulated config buffer.
-+		 */
-+		__le32 *cfgspace = (__le32 *)&bridge->conf;
-+		u32 val = le32_to_cpu(cfgspace[PCI_INTERRUPT_LINE / 4]);
-+		if (advk_readl(pcie, PCIE_CORE_CTRL1_REG) & HOT_RESET_GEN)
-+			val |= PCI_BRIDGE_CTL_BUS_RESET << 16;
-+		else
-+			val &= ~(PCI_BRIDGE_CTL_BUS_RESET << 16);
-+		*value = val;
-+		return PCI_BRIDGE_EMUL_HANDLED;
-+	}
++	/*
++	 * Change Class Code of PCI Bridge device to PCI Bridge (0x600400),
++	 * because the default value is Mass storage controller (0x010400).
++	 *
++	 * Note that this Aardvark PCI Bridge does not have compliant Type 1
++	 * Configuration Space and it even cannot be accessed via Aardvark's
++	 * PCI config space access method. Something like config space is
++	 * available in internal Aardvark registers starting at offset 0x0
++	 * and is reported as Type 0. In range 0x10 - 0x34 it has totally
++	 * different registers.
++	 *
++	 * Therefore driver uses emulation of PCI Bridge which emulates
++	 * access to configuration space via internal Aardvark registers or
++	 * emulated configuration buffer.
++	 */
++	reg = advk_readl(pcie, PCIE_CORE_DEV_REV_REG);
++	reg &= ~0xffffff00;
++	reg |= (PCI_CLASS_BRIDGE_PCI << 8) << 8;
++	advk_writel(pcie, reg, PCIE_CORE_DEV_REV_REG);
 +
- 	default:
- 		return PCI_BRIDGE_EMUL_NOT_HANDLED;
- 	}
-@@ -809,6 +825,17 @@ advk_pci_bridge_emul_base_conf_write(str
- 		advk_writel(pcie, new, PCIE_CORE_CMD_STATUS_REG);
- 		break;
- 
-+	case PCI_INTERRUPT_LINE:
-+		if (mask & (PCI_BRIDGE_CTL_BUS_RESET << 16)) {
-+			u32 val = advk_readl(pcie, PCIE_CORE_CTRL1_REG);
-+			if (new & (PCI_BRIDGE_CTL_BUS_RESET << 16))
-+				val |= HOT_RESET_GEN;
-+			else
-+				val &= ~HOT_RESET_GEN;
-+			advk_writel(pcie, val, PCIE_CORE_CTRL1_REG);
-+		}
-+		break;
-+
- 	default:
- 		break;
- 	}
+ 	/* Disable Root Bridge I/O space, memory space and bus mastering */
+ 	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
+ 	reg &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 
 
