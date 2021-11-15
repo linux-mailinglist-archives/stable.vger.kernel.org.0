@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C791B4521C4
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BEB452518
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352489AbhKPBGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:06:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
+        id S1344404AbhKPBqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:46:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245409AbhKOTUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DAC961104;
-        Mon, 15 Nov 2021 18:34:03 +0000 (UTC)
+        id S241137AbhKOSZr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:25:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDFAC6342F;
+        Mon, 15 Nov 2021 17:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001244;
-        bh=MJEqHK6HqMPcivDSNlbWsDQZ2QEeUHS3TSn0z9Dy7Co=;
+        s=korg; t=1636998970;
+        bh=+y278zBEDQ1fqVOLstLpNxijn85+NAhFtAVSAsQdi2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D06A9MEhw/L2DdyVNmN2TgP7mIX3TxOa/NSgT2PtNPObFEvqEYes7jsX4m5ksxd4M
-         CoszkSVIJlsVF2avSqhMQ4AhyfbWOAa744ZeRgxA6ew4c1gd9sKBxqA+iHfyv9z55k
-         0gVZpwWicTzTQg4kz7QOV1Ef+U7Eskqcn9/O+Kyo=
+        b=EvsVzqMV5N65M24CmsP7MuY1vlFroFPfaui/LV5ssW55uPMDwXs7x4r13m/vygjFz
+         NFxhRykP7qdrnlySBBcD1QzuEPlFQvoX2SvyPz/7PSIkZDA4fWOqXegvUWMT4gMqmq
+         66GovDUVRIrMbxAf3cbTEWqVtBY09Rm+rO6HUzDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugene Syromiatnikov <esyr@redhat.com>,
-        Jeremy Kerr <jk@codeconstruct.com.au>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 116/917] mctp: handle the struct sockaddr_mctp padding fields
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.14 128/849] PM: sleep: Do not let "syscore" devices runtime-suspend during system transitions
 Date:   Mon, 15 Nov 2021 17:53:31 +0100
-Message-Id: <20211115165432.683691015@linuxfoundation.org>
+Message-Id: <20211115165424.431545269@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Syromiatnikov <esyr@redhat.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 1e4b50f06d970d8da3474d2a0354450416710bda upstream.
+commit 928265e3601cde78c7e0a3e518a93b27defed3b1 upstream.
 
-In order to have the padding fields actually usable in the future,
-there have to be checks that user space doesn't supply non-zero garbage
-there.  It is also worth setting these padding fields to zero, unless
-it is known that they have been already zeroed.
+There is no reason to allow "syscore" devices to runtime-suspend
+during system-wide PM transitions, because they are subject to the
+same possible failure modes as any other devices in that respect.
 
-Cc: stable@vger.kernel.org # v5.15
-Fixes: 5a20dd46b8b84593 ("mctp: Be explicit about struct sockaddr_mctp padding")
-Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
-Acked-by: Jeremy Kerr <jk@codeconstruct.com.au>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Accordingly, change device_prepare() and device_complete() to call
+pm_runtime_get_noresume() and pm_runtime_put(), respectively, for
+"syscore" devices too.
+
+Fixes: 057d51a1268f ("Merge branch 'pm-sleep'")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mctp/af_mctp.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/base/power/main.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/net/mctp/af_mctp.c
-+++ b/net/mctp/af_mctp.c
-@@ -30,6 +30,12 @@ static int mctp_release(struct socket *s
- 	return 0;
+--- a/drivers/base/power/main.c
++++ b/drivers/base/power/main.c
+@@ -1051,7 +1051,7 @@ static void device_complete(struct devic
+ 	const char *info = NULL;
+ 
+ 	if (dev->power.syscore)
+-		return;
++		goto out;
+ 
+ 	device_lock(dev);
+ 
+@@ -1081,6 +1081,7 @@ static void device_complete(struct devic
+ 
+ 	device_unlock(dev);
+ 
++out:
+ 	pm_runtime_put(dev);
  }
  
-+/* Generic sockaddr checks, padding checks only so far */
-+static bool mctp_sockaddr_is_ok(const struct sockaddr_mctp *addr)
-+{
-+	return !addr->__smctp_pad0 && !addr->__smctp_pad1;
-+}
+@@ -1794,9 +1795,6 @@ static int device_prepare(struct device
+ 	int (*callback)(struct device *) = NULL;
+ 	int ret = 0;
+ 
+-	if (dev->power.syscore)
+-		return 0;
+-
+ 	/*
+ 	 * If a device's parent goes into runtime suspend at the wrong time,
+ 	 * it won't be possible to resume the device.  To prevent this we
+@@ -1805,6 +1803,9 @@ static int device_prepare(struct device
+ 	 */
+ 	pm_runtime_get_noresume(dev);
+ 
++	if (dev->power.syscore)
++		return 0;
 +
- static int mctp_bind(struct socket *sock, struct sockaddr *addr, int addrlen)
- {
- 	struct sock *sk = sock->sk;
-@@ -49,6 +55,9 @@ static int mctp_bind(struct socket *sock
- 	/* it's a valid sockaddr for MCTP, cast and do protocol checks */
- 	smctp = (struct sockaddr_mctp *)addr;
+ 	device_lock(dev);
  
-+	if (!mctp_sockaddr_is_ok(smctp))
-+		return -EINVAL;
-+
- 	lock_sock(sk);
- 
- 	/* TODO: allow rebind */
-@@ -83,6 +92,8 @@ static int mctp_sendmsg(struct socket *s
- 			return -EINVAL;
- 		if (addr->smctp_family != AF_MCTP)
- 			return -EINVAL;
-+		if (!mctp_sockaddr_is_ok(addr))
-+			return -EINVAL;
- 		if (addr->smctp_tag & ~(MCTP_TAG_MASK | MCTP_TAG_OWNER))
- 			return -EINVAL;
- 
-@@ -172,11 +183,13 @@ static int mctp_recvmsg(struct socket *s
- 
- 		addr = msg->msg_name;
- 		addr->smctp_family = AF_MCTP;
-+		addr->__smctp_pad0 = 0;
- 		addr->smctp_network = cb->net;
- 		addr->smctp_addr.s_addr = hdr->src;
- 		addr->smctp_type = type;
- 		addr->smctp_tag = hdr->flags_seq_tag &
- 					(MCTP_HDR_TAG_MASK | MCTP_HDR_FLAG_TO);
-+		addr->__smctp_pad1 = 0;
- 		msg->msg_namelen = sizeof(*addr);
- 	}
- 
+ 	dev->power.wakeup_path = false;
 
 
