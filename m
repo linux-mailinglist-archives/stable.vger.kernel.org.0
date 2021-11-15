@@ -2,232 +2,708 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFF0145032E
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 12:08:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A49C7450333
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 12:09:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231265AbhKOLLD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 06:11:03 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18526 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237731AbhKOLJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 06:09:59 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AFATZAN023870;
-        Mon, 15 Nov 2021 11:06:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=5WVTLPsYaSjoTDXxjFEKRx7htfVF7ZLLRODLAUs7pM0=;
- b=s3JS+2fy+a2eDn2dTHUVdbzYC2WlQ03yoJoRu9Bqt7PceLo30g4Mzz/iU9TaNhMegwID
- 2h14+nODlDAnBazx91NwsJSCQgyeoPdLI0fLkosW/GLB0XY3CXc4T3YRkrnvhrTrpG3P
- 2r2zv3pmTNiKievNMe688mZvV9+ohiH2mZX3vfEfD/+85OLYCTo63EfJFkUj18PiWbC2
- p2rDrKbv2smpTMj4xZ5Z7fbJ5Y/ZTKlUSu4t07CKl4SmKpCpt0f842pxDy5whPzGEpvc
- 00AM/1sDyq5yLePxw3p9mAaycf1L1fzql7fnPJisiKkm9nHgweQI26Pq0ZFbDpA3DUJo vQ== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cbnujrq85-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 15 Nov 2021 11:06:46 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AFB32b8002677;
-        Mon, 15 Nov 2021 11:06:43 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 3ca4mjcn4j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 15 Nov 2021 11:06:43 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AFB6fb765143194
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 15 Nov 2021 11:06:41 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5E06CA406F;
-        Mon, 15 Nov 2021 11:06:41 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 360D5A4080;
-        Mon, 15 Nov 2021 11:06:40 +0000 (GMT)
-Received: from naverao1-tp.ibm.com (unknown [9.43.37.229])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 15 Nov 2021 11:06:39 +0000 (GMT)
-From:   "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
-To:     <stable@vger.kernel.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.10 4/4] powerpc/bpf: Emit stf barrier instruction sequences for BPF_NOSPEC
-Date:   Mon, 15 Nov 2021 16:36:30 +0530
-Message-Id: <652222f2afd7dd5876a87e079c1c4b2530c3572c.1636963563.git.naveen.n.rao@linux.vnet.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <cover.1636963563.git.naveen.n.rao@linux.vnet.ibm.com>
-References: <cover.1636963563.git.naveen.n.rao@linux.vnet.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: mKasWCFQ4ed7omwz2U_LSFul1SjO5B8o
-X-Proofpoint-GUID: mKasWCFQ4ed7omwz2U_LSFul1SjO5B8o
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S231300AbhKOLMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 06:12:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40768 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237692AbhKOLLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 06:11:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4AE76140A;
+        Mon, 15 Nov 2021 11:08:33 +0000 (UTC)
+Date:   Mon, 15 Nov 2021 12:08:30 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Eryu Guan <guan@eryu.me>, Christoph Hellwig <hch@lst.de>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        linux-fsdevel@vger.kernel.org,
+        Seth Forshee <seth.forshee@digitalocean.com>,
+        stable@vger.kernel.org, Eryu Guan <guaneryu@gmail.com>,
+        fstests@vger.kernel.org
+Subject: Re: [PATCH 2/2] generic: test circular mappings
+Message-ID: <20211115110830.rjovyme34ur7mszk@wittgenstein>
+References: <20211109145713.1868404-1-brauner@kernel.org>
+ <20211109145713.1868404-2-brauner@kernel.org>
+ <YZEVb/7sTwScTsQ0@desktop>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-15_10,2021-11-12_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
- adultscore=0 impostorscore=0 lowpriorityscore=0 priorityscore=1501
- bulkscore=0 malwarescore=0 suspectscore=0 mlxscore=0 clxscore=1015
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111150061
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <YZEVb/7sTwScTsQ0@desktop>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-upstream commit b7540d62509453263604a155bf2d5f0ed450cba2
+On Sun, Nov 14, 2021 at 09:55:59PM +0800, Eryu Guan wrote:
+> On Tue, Nov 09, 2021 at 03:57:13PM +0100, Christian Brauner wrote:
+> > From: Christian Brauner <christian.brauner@ubuntu.com>
+> > 
+> > This test makes sure that setattr behaves correctly on idmapped mounts
+> > that make use of circular mappings. Such mappings may e.g. be used to
+> > allow two users to share home directories through the same idmapped
+> > mount. The tests are explained in detail in code comments.
+> > 
+> > Cc: Seth Forshee <seth.forshee@digitalocean.com>
+> > Cc: Eryu Guan <guaneryu@gmail.com>
+> > Cc: Christoph Hellwig <hch@lst.de>
+> > Cc: fstests@vger.kernel.org
+> > CC: linux-fsdevel@vger.kernel.org
+> > Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+> 
+> Is this test known to fail with v5.15-rc7 kernel? I hit the following
+> failure:
+> 
+> +idmapped-mounts.c: 13585: setattr_fix - Operation not permitted - failure: change ownership
+> +idmapped-mounts.c: 13898: run_test - Success - failure: test that setattr works correctly
 
-Emit similar instruction sequences to commit a048a07d7f4535
-("powerpc/64s: Add support for a store forwarding barrier at kernel
-entry/exit") when encountering BPF_NOSPEC.
+Yep, that's expected to fail. This is a regression test. The associated
+fix is patch 1/2 in the series. I'm just waiting for Christoph to give
+the vfs part an ack before sending it to Linus later this week.
 
-Mitigations are enabled depending on what the firmware advertises. In
-particular, we do not gate these mitigations based on current settings,
-just like in x86. Due to this, we don't need to take any action if
-mitigations are enabled or disabled at runtime.
+> 
+> If the bug has been fixed, it'd be better to document the commit that
+> fixed the issue in both commit log and test description.
 
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/956570cbc191cd41f8274bed48ee757a86dac62a.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
-[adjust macros to account for commits 1c9debbc2eb539 and ef909ba954145e.
-adjust security feature checks to account for commit 84ed26fd00c514]
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
----
- arch/powerpc/net/bpf_jit64.h      |  8 ++---
- arch/powerpc/net/bpf_jit_comp64.c | 56 ++++++++++++++++++++++++++++---
- 2 files changed, 56 insertions(+), 8 deletions(-)
+Once the fix is merged I'll include it.
 
-diff --git a/arch/powerpc/net/bpf_jit64.h b/arch/powerpc/net/bpf_jit64.h
-index 2e33c6673ff957..4d164e865b392e 100644
---- a/arch/powerpc/net/bpf_jit64.h
-+++ b/arch/powerpc/net/bpf_jit64.h
-@@ -16,18 +16,18 @@
-  * with our redzone usage.
-  *
-  *		[	prev sp		] <-------------
-- *		[   nv gpr save area	] 6*8		|
-+ *		[   nv gpr save area	] 5*8		|
-  *		[    tail_call_cnt	] 8		|
-- *		[    local_tmp_var	] 8		|
-+ *		[    local_tmp_var	] 16		|
-  * fp (r31) -->	[   ebpf stack space	] upto 512	|
-  *		[     frame header	] 32/112	|
-  * sp (r1) --->	[    stack pointer	] --------------
-  */
- 
- /* for gpr non volatile registers BPG_REG_6 to 10 */
--#define BPF_PPC_STACK_SAVE	(6*8)
-+#define BPF_PPC_STACK_SAVE	(5*8)
- /* for bpf JIT code internal usage */
--#define BPF_PPC_STACK_LOCALS	16
-+#define BPF_PPC_STACK_LOCALS	24
- /* stack frame excluding BPF stack, ensure this is quadword aligned */
- #define BPF_PPC_STACKFRAME	(STACK_FRAME_MIN_SIZE + \
- 				 BPF_PPC_STACK_LOCALS + BPF_PPC_STACK_SAVE)
-diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
-index 803d95af275534..8936090acb5796 100644
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -15,6 +15,7 @@
- #include <linux/if_vlan.h>
- #include <asm/kprobes.h>
- #include <linux/bpf.h>
-+#include <asm/security_features.h>
- 
- #include "bpf_jit64.h"
- 
-@@ -56,9 +57,9 @@ static inline bool bpf_has_stack_frame(struct codegen_context *ctx)
-  *		[	prev sp		] <-------------
-  *		[	  ...       	] 		|
-  * sp (r1) --->	[    stack pointer	] --------------
-- *		[   nv gpr save area	] 6*8
-+ *		[   nv gpr save area	] 5*8
-  *		[    tail_call_cnt	] 8
-- *		[    local_tmp_var	] 8
-+ *		[    local_tmp_var	] 16
-  *		[   unused red zone	] 208 bytes protected
-  */
- static int bpf_jit_stack_local(struct codegen_context *ctx)
-@@ -66,12 +67,12 @@ static int bpf_jit_stack_local(struct codegen_context *ctx)
- 	if (bpf_has_stack_frame(ctx))
- 		return STACK_FRAME_MIN_SIZE + ctx->stack_size;
- 	else
--		return -(BPF_PPC_STACK_SAVE + 16);
-+		return -(BPF_PPC_STACK_SAVE + 24);
- }
- 
- static int bpf_jit_stack_tailcallcnt(struct codegen_context *ctx)
- {
--	return bpf_jit_stack_local(ctx) + 8;
-+	return bpf_jit_stack_local(ctx) + 16;
- }
- 
- static int bpf_jit_stack_offsetof(struct codegen_context *ctx, int reg)
-@@ -290,11 +291,34 @@ static int bpf_jit_emit_tail_call(u32 *image, struct codegen_context *ctx, u32 o
- 	return 0;
- }
- 
-+/*
-+ * We spill into the redzone always, even if the bpf program has its own stackframe.
-+ * Offsets hardcoded based on BPF_PPC_STACK_SAVE -- see bpf_jit_stack_local()
-+ */
-+void bpf_stf_barrier(void);
-+
-+asm (
-+"		.global bpf_stf_barrier		;"
-+"	bpf_stf_barrier:			;"
-+"		std	21,-64(1)		;"
-+"		std	22,-56(1)		;"
-+"		sync				;"
-+"		ld	21,-64(1)		;"
-+"		ld	22,-56(1)		;"
-+"		ori	31,31,0			;"
-+"		.rept 14			;"
-+"		b	1f			;"
-+"	1:					;"
-+"		.endr				;"
-+"		blr				;"
-+);
-+
- /* Assemble the body code between the prologue & epilogue */
- static int bpf_jit_build_body(struct bpf_prog *fp, u32 *image,
- 			      struct codegen_context *ctx,
- 			      u32 *addrs, bool extra_pass)
- {
-+	enum stf_barrier_type stf_barrier = stf_barrier_type_get();
- 	const struct bpf_insn *insn = fp->insnsi;
- 	int flen = fp->len;
- 	int i, ret;
-@@ -665,6 +689,30 @@ static int bpf_jit_build_body(struct bpf_prog *fp, u32 *image,
- 		 * BPF_ST NOSPEC (speculation barrier)
- 		 */
- 		case BPF_ST | BPF_NOSPEC:
-+			if (!security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) ||
-+					(!security_ftr_enabled(SEC_FTR_L1D_FLUSH_PR) &&
-+					 (!security_ftr_enabled(SEC_FTR_L1D_FLUSH_HV) || !cpu_has_feature(CPU_FTR_HVMODE))))
-+				break;
-+
-+			switch (stf_barrier) {
-+			case STF_BARRIER_EIEIO:
-+				EMIT(0x7c0006ac | 0x02000000);
-+				break;
-+			case STF_BARRIER_SYNC_ORI:
-+				EMIT(PPC_INST_SYNC);
-+				EMIT(PPC_RAW_LD(b2p[TMP_REG_1], 13, 0));
-+				EMIT(PPC_RAW_ORI(31, 31, 0));
-+				break;
-+			case STF_BARRIER_FALLBACK:
-+				EMIT(PPC_INST_MFLR | ___PPC_RT(b2p[TMP_REG_1]));
-+				PPC_LI64(12, dereference_kernel_function_descriptor(bpf_stf_barrier));
-+				EMIT(PPC_RAW_MTCTR(12));
-+				EMIT(PPC_INST_BCTR | 0x1);
-+				EMIT(PPC_RAW_MTLR(b2p[TMP_REG_1]));
-+				break;
-+			case STF_BARRIER_NONE:
-+				break;
-+			}
- 			break;
- 
- 		/*
--- 
-2.33.1
+> 
+> And is there a "1/2" patch? I only see this "2/2" in mailing list.
 
+Yeah, there is but it is the vfs fix. It can be retrieved via b4.
+
+> 
+> > ---
+> >  src/idmapped-mounts/idmapped-mounts.c | 434 +++++++++++++++++++++++++-
+> >  src/idmapped-mounts/utils.c           |  43 ++-
+> >  tests/generic/651                     |  27 ++
+> >  tests/generic/651.out                 |   2 +
+> >  4 files changed, 503 insertions(+), 3 deletions(-)
+> >  create mode 100755 tests/generic/651
+> >  create mode 100644 tests/generic/651.out
+> > 
+> > diff --git a/src/idmapped-mounts/idmapped-mounts.c b/src/idmapped-mounts/idmapped-mounts.c
+> > index 83b7c89a..b803d171 100644
+> > --- a/src/idmapped-mounts/idmapped-mounts.c
+> > +++ b/src/idmapped-mounts/idmapped-mounts.c
+> > @@ -14,6 +14,7 @@
+> >  #include <linux/limits.h>
+> >  #include <linux/types.h>
+> >  #include <pthread.h>
+> > +#include <pwd.h>
+> >  #include <sched.h>
+> >  #include <stdbool.h>
+> >  #include <sys/fsuid.h>
+> > @@ -409,6 +410,23 @@ static inline bool switch_fsids(uid_t fsuid, gid_t fsgid)
+> >  	return true;
+> >  }
+> >  
+> > +static inline bool switch_resids(uid_t uid, gid_t gid)
+> > +{
+> > +	if (setresgid(gid, gid, gid))
+> > +		return log_errno(false, "failure: setregid");
+> > +
+> > +	if (setresuid(uid, uid, uid))
+> > +		return log_errno(false, "failure: setresuid");
+> > +
+> > +	if (setfsgid(-1) != gid)
+> > +		return log_errno(false, "failure: setfsgid(-1)");
+> > +
+> > +	if (setfsuid(-1) != uid)
+> > +		return log_errno(false, "failure: setfsuid(-1)");
+> > +
+> > +	return true;
+> > +}
+> > +
+> >  static inline bool switch_userns(int fd, uid_t uid, gid_t gid, bool drop_caps)
+> >  {
+> >  	if (setns(fd, CLONE_NEWUSER))
+> > @@ -636,6 +654,11 @@ __attribute__((unused)) static int print_r(int fd, const char *path)
+> >  
+> >  	return ret;
+> >  }
+> > +#else
+> > +__attribute__((unused)) static int print_r(int fd, const char *path)
+> > +{
+> > +	return 0;
+> > +}
+> >  #endif
+> >  
+> >  /* fd_to_fd - transfer data from one fd to another */
+> > @@ -13325,6 +13348,401 @@ out:
+> >  	return fret;
+> >  }
+> >  
+> > +#define USER1 "fsgqa"
+> > +#define USER2 "fsgqa2"
+> > +
+> > +/**
+> > + * lookup_ids - lookup uid and gid for a username
+> > + * @name: [in]  name of the user
+> > + * @uid:  [out] pointer to the user-ID
+> > + * @gid:  [out] pointer to the group-ID
+> > + *
+> > + * Lookup the uid and gid of a user.
+> > + *
+> > + * Return: On success, true is returned.
+> > + *         On error, false is returned.
+> > + */
+> > +static bool lookup_ids(const char *name, uid_t *uid, gid_t *gid)
+> > +{
+> > +	bool bret = false;
+> > +	struct passwd *pwentp = NULL;
+> > +	struct passwd pwent;
+> > +	char *buf;
+> > +	ssize_t bufsize;
+> > +	int ret;
+> > +
+> > +	bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
+> > +	if (bufsize < 0)
+> > +		bufsize = 1024;
+> > +
+> > +	buf = malloc(bufsize);
+> > +	if (!buf)
+> > +		return bret;
+> > +
+> > +	ret = getpwnam_r(name, &pwent, buf, bufsize, &pwentp);
+> > +	if (!ret && pwentp) {
+> > +		*uid = pwent.pw_uid;
+> > +		*gid = pwent.pw_gid;
+> > +		bret = true;
+> > +	}
+> > +
+> > +	free(buf);
+> > +	return bret;
+> > +}
+> > +
+> > +/**
+> > + * setattr_fix - test that setattr works correctly
+> > + *
+> > + * Test that ->setattr() works correctly for idmapped mounts with circular
+> > + * idmappings such as:
+> > + *
+> > + * b:1000:1001:1
+> > + * b:1001:1000:1
+> > + *
+> > + * Assume a directory /source with two files:
+> > + *
+> > + * /source/file1 | 1000:1000
+> > + * /source/file2 | 1001:1001
+> > + *
+> > + * and we create an idmapped mount of /source at /target with an idmapped of:
+> > + *
+> > + * mnt_userns:        1000:1001:1
+> > + *                    1001:1000:1
+> > + *
+> > + * In the idmapped mount file1 will be owned by uid 1001 and file2 by uid 1000:
+> > + *
+> > + * /target/file1 | 1001:1001
+> > + * /target/file2 | 1000:1000
+> > + *
+> > + * Because in essence the idmapped mount switches ownership for {g,u}id 1000
+> > + * and {g,u}id 1001.
+> > + *
+> > + * 1. A user with fs{g,u}id 1000 must be allowed to setattr /target/file2 from
+> > + *    {g,u}id 1000 in the idmapped mount to {g,u}id 1000.
+> > + * 2. A user with fs{g,u}id 1001 must be allowed to setattr /target/file1 from
+> > + *    {g,u}id 1001 in the idmapped mount to {g,u}id 1001.
+> > + * 3. A user with fs{g,u}id 1000 must fail to setattr /target/file1 from
+> > + *    {g,u}id 1001 in the idmapped mount to {g,u}id 1000.
+> > + *    This must fail with EPERM. The caller's fs{g,u}id doesn't match the
+> > + *    {g,u}id of the file.
+> > + * 4. A user with fs{g,u}id 1001 must fail to setattr /target/file2 from
+> > + *    {g,u}id 1000 in the idmapped mount to {g,u}id 1000.
+> > + *    This must fail with EPERM. The caller's fs{g,u}id doesn't match the
+> > + *    {g,u}id of the file.
+> > + * 5. Both, a user with fs{g,u}id 1000 and a user with fs{g,u}id 1001, must
+> > + *    fail to setattr /target/file1 owned by {g,u}id 1001 in the idmapped mount
+> > + *    and /target/file2 owned by {g,u}id 1000 in the idmapped mount to any
+> > + *    {g,u}id apart from {g,u}id 1000 or 1001 with EINVAL.
+> > + *    Only {g,u}id 1000 and 1001 have a mapping in the idmapped mount. Other
+> > + *    {g,u}id are unmapped.
+> > + */
+> > +static int setattr_fix(void)
+> > +{
+> > +	int fret = -1;
+> > +	int open_tree_fd = -EBADF;
+> > +	struct mount_attr attr = {
+> > +		.attr_set	= MOUNT_ATTR_IDMAP,
+> > +		.userns_fd	= -EBADF,
+> > +	};
+> > +	int ret;
+> > +	uid_t user1_uid, user2_uid;
+> > +	gid_t user1_gid, user2_gid;
+> > +	pid_t pid;
+> > +	struct list idmap;
+> > +	struct list *it_cur, *it_next;
+> > +
+> > +	if (!caps_supported())
+> > +		return 0;
+> > +
+> > +	list_init(&idmap);
+> > +
+> > +	if (!lookup_ids(USER1, &user1_uid, &user1_gid)) {
+> > +		log_stderr("failure: lookup_user");
+> > +		goto out;
+> > +	}
+> > +
+> > +	if (!lookup_ids(USER2, &user2_uid, &user2_gid)) {
+> > +		log_stderr("failure: lookup_user");
+> > +		goto out;
+> > +	}
+> > +
+> > +	log_debug("Found " USER1 " with uid(%d) and gid(%d) and " USER2 " with uid(%d) and gid(%d)",
+> > +		  user1_uid, user1_gid, user2_uid, user2_gid);
+> > +
+> > +	if (mkdirat(t_dir1_fd, DIR1, 0777)) {
+> > +		log_stderr("failure: mkdirat");
+> > +		goto out;
+> > +	}
+> > +
+> > +	if (mknodat(t_dir1_fd, DIR1 "/" FILE1, S_IFREG | 0644, 0)) {
+> > +		log_stderr("failure: mknodat");
+> > +		goto out;
+> > +	}
+> > +
+> > +	if (chown_r(t_mnt_fd, T_DIR1, user1_uid, user1_gid)) {
+> > +		log_stderr("failure: chown_r");
+> > +		goto out;
+> > +	}
+> > +
+> > +	if (mknodat(t_dir1_fd, DIR1 "/" FILE2, S_IFREG | 0644, 0)) {
+> > +		log_stderr("failure: mknodat");
+> > +		goto out;
+> > +	}
+> > +
+> > +	if (fchownat(t_dir1_fd, DIR1 "/" FILE2, user2_uid, user2_gid, AT_SYMLINK_NOFOLLOW)) {
+> > +		log_stderr("failure: fchownat");
+> > +		goto out;
+> > +	}
+> > +
+> > +	print_r(t_mnt_fd, T_DIR1);
+> > +
+> > +	/* u:1000:1001:1 */
+> > +	ret = add_map_entry(&idmap, user1_uid, user2_uid, 1, ID_TYPE_UID);
+> > +	if (ret) {
+> > +		log_stderr("failure: add_map_entry");
+> > +		goto out;
+> > +	}
+> > +
+> > +	/* u:1001:1000:1 */
+> > +	ret = add_map_entry(&idmap, user2_uid, user1_uid, 1, ID_TYPE_UID);
+> > +	if (ret) {
+> > +		log_stderr("failure: add_map_entry");
+> > +		goto out;
+> > +	}
+> > +
+> > +	/* g:1000:1001:1 */
+> > +	ret = add_map_entry(&idmap, user1_gid, user2_gid, 1, ID_TYPE_GID);
+> > +	if (ret) {
+> > +		log_stderr("failure: add_map_entry");
+> > +		goto out;
+> > +	}
+> > +
+> > +	/* g:1001:1000:1 */
+> > +	ret = add_map_entry(&idmap, user2_gid, user1_gid, 1, ID_TYPE_GID);
+> > +	if (ret) {
+> > +		log_stderr("failure: add_map_entry");
+> > +		goto out;
+> > +	}
+> > +
+> > +	attr.userns_fd = get_userns_fd_from_idmap(&idmap);
+> > +	if (attr.userns_fd < 0) {
+> > +		log_stderr("failure: get_userns_fd");
+> > +		goto out;
+> > +	}
+> > +
+> > +	open_tree_fd = sys_open_tree(t_dir1_fd, DIR1,
+> > +				     AT_NO_AUTOMOUNT |
+> > +				     AT_SYMLINK_NOFOLLOW |
+> > +				     OPEN_TREE_CLOEXEC |
+> > +				     OPEN_TREE_CLONE |
+> > +				     AT_RECURSIVE);
+> > +	if (open_tree_fd < 0) {
+> > +		log_stderr("failure: sys_open_tree");
+> > +		goto out;
+> > +	}
+> > +
+> > +	if (sys_mount_setattr(open_tree_fd, "", AT_EMPTY_PATH, &attr, sizeof(attr))) {
+> > +		log_stderr("failure: sys_mount_setattr");
+> > +		goto out;
+> > +	}
+> > +
+> > +	print_r(open_tree_fd, "");
+> > +
+> > +	pid = fork();
+> > +	if (pid < 0) {
+> > +		log_stderr("failure: fork");
+> > +		goto out;
+> > +	}
+> > +	if (pid == 0) {
+> > +		/* switch to {g,u}id 1001 */
+> > +		if (!switch_resids(user2_uid, user2_gid))
+> > +			die("failure: switch_resids");
+> > +
+> > +		/* drop all capabilities */
+> > +		if (!caps_down())
+> > +			die("failure: caps_down");
+> > +
+> > +		/*
+> > +		 * The {g,u}id 0 is not mapped in this idmapped mount so this
+> > +		 * needs to fail with EINVAL.
+> > +		 */
+> > +		if (!fchownat(open_tree_fd, FILE1, 0, 0, AT_SYMLINK_NOFOLLOW))
+> > +			die("failure: change ownership");
+> > +		if (errno != EINVAL)
+> > +			die("failure: errno");
+> > +
+> > +		/*
+> > +		 * A user with fs{g,u}id 1001 must be allowed to change
+> > +		 * ownership of /target/file1 owned by {g,u}id 1001 in this
+> > +		 * idmapped mount to {g,u}id 1001.
+> > +		 */
+> > +		if (fchownat(open_tree_fd, FILE1, user2_uid, user2_gid,
+> > +			     AT_SYMLINK_NOFOLLOW))
+> > +			die("failure: change ownership");
+> > +
+> > +		/* Verify that the ownership is still {g,u}id 1001. */
+> > +		if (!expected_uid_gid(open_tree_fd, FILE1, AT_SYMLINK_NOFOLLOW,
+> > +				      user2_uid, user2_gid))
+> > +			die("failure: check ownership");
+> > +
+> > +		/*
+> > +		 * A user with fs{g,u}id 1001 must not be allowed to change
+> > +		 * ownership of /target/file1 owned by {g,u}id 1001 in this
+> > +		 * idmapped mount to {g,u}id 1000.
+> > +		 */
+> > +		if (!fchownat(open_tree_fd, FILE1, user1_uid, user1_gid,
+> > +			      AT_SYMLINK_NOFOLLOW))
+> > +			die("failure: change ownership");
+> > +		if (errno != EPERM)
+> > +			die("failure: errno");
+> > +
+> > +		/* Verify that the ownership is still {g,u}id 1001. */
+> > +		if (!expected_uid_gid(open_tree_fd, FILE1, AT_SYMLINK_NOFOLLOW,
+> > +				      user2_uid, user2_gid))
+> > +			die("failure: check ownership");
+> > +
+> > +		/*
+> > +		 * A user with fs{g,u}id 1001 must not be allowed to change
+> > +		 * ownership of /target/file2 owned by {g,u}id 1000 in this
+> > +		 * idmapped mount to {g,u}id 1000.
+> > +		 */
+> > +		if (!fchownat(open_tree_fd, FILE2, user1_uid, user1_gid,
+> > +			      AT_SYMLINK_NOFOLLOW))
+> > +			die("failure: change ownership");
+> > +		if (errno != EPERM)
+> > +			die("failure: errno");
+> > +
+> > +		/* Verify that the ownership is still {g,u}id 1000. */
+> > +		if (!expected_uid_gid(open_tree_fd, FILE2, AT_SYMLINK_NOFOLLOW,
+> > +				      user1_uid, user1_gid))
+> > +			die("failure: check ownership");
+> > +
+> > +		/*
+> > +		 * A user with fs{g,u}id 1001 must not be allowed to change
+> > +		 * ownership of /target/file2 owned by {g,u}id 1000 in this
+> > +		 * idmapped mount to {g,u}id 1001.
+> > +		 */
+> > +		if (!fchownat(open_tree_fd, FILE2, user2_uid, user2_gid,
+> > +			      AT_SYMLINK_NOFOLLOW))
+> > +			die("failure: change ownership");
+> > +		if (errno != EPERM)
+> > +			die("failure: errno");
+> > +
+> > +		/* Verify that the ownership is still {g,u}id 1000. */
+> > +		if (!expected_uid_gid(open_tree_fd, FILE2, AT_SYMLINK_NOFOLLOW,
+> > +				      user1_uid, user1_gid))
+> > +			die("failure: check ownership");
+> > +
+> > +		exit(EXIT_SUCCESS);
+> > +	}
+> > +	if (wait_for_pid(pid))
+> > +		goto out;
+> > +
+> > +	pid = fork();
+> > +	if (pid < 0) {
+> > +		log_stderr("failure: fork");
+> > +		goto out;
+> > +	}
+> > +	if (pid == 0) {
+> > +		/* switch to {g,u}id 1000 */
+> > +		if (!switch_resids(user1_uid, user1_gid))
+> > +			die("failure: switch_resids");
+> > +
+> > +		/* drop all capabilities */
+> > +		if (!caps_down())
+> > +			die("failure: caps_down");
+> > +
+> > +		/*
+> > +		 * The {g,u}id 0 is not mapped in this idmapped mount so this
+> > +		 * needs to fail with EINVAL.
+> > +		 */
+> > +		if (!fchownat(open_tree_fd, FILE1, 0, 0, AT_SYMLINK_NOFOLLOW))
+> > +			die("failure: change ownership");
+> > +		if (errno != EINVAL)
+> > +			die("failure: errno");
+> > +
+> > +		/*
+> > +		 * A user with fs{g,u}id 1000 must be allowed to change
+> > +		 * ownership of /target/file2 owned by {g,u}id 1000 in this
+> > +		 * idmapped mount to {g,u}id 1000.
+> > +		 */
+> > +		if (fchownat(open_tree_fd, FILE2, user1_uid, user1_gid,
+> > +			     AT_SYMLINK_NOFOLLOW))
+> > +			die("failure: change ownership");
+> > +
+> > +		/* Verify that the ownership is still {g,u}id 1000. */
+> > +		if (!expected_uid_gid(open_tree_fd, FILE2, AT_SYMLINK_NOFOLLOW,
+> > +				      user1_uid, user1_gid))
+> > +			die("failure: check ownership");
+> > +
+> > +		/*
+> > +		 * A user with fs{g,u}id 1000 must not be allowed to change
+> > +		 * ownership of /target/file2 owned by {g,u}id 1000 in this
+> > +		 * idmapped mount to {g,u}id 1001.
+> > +		 */
+> > +		if (!fchownat(open_tree_fd, FILE2, user2_uid, user2_gid,
+> > +			      AT_SYMLINK_NOFOLLOW))
+> > +			die("failure: change ownership");
+> > +		if (errno != EPERM)
+> > +			die("failure: errno");
+> > +
+> > +		/* Verify that the ownership is still {g,u}id 1000. */
+> > +		if (!expected_uid_gid(open_tree_fd, FILE2, AT_SYMLINK_NOFOLLOW,
+> > +				      user1_uid, user1_gid))
+> > +			die("failure: check ownership");
+> > +
+> > +		/*
+> > +		 * A user with fs{g,u}id 1000 must not be allowed to change
+> > +		 * ownership of /target/file1 owned by {g,u}id 1001 in this
+> > +		 * idmapped mount to {g,u}id 1000.
+> > +		 */
+> > +		if (!fchownat(open_tree_fd, FILE1, user1_uid, user1_gid,
+> > +			     AT_SYMLINK_NOFOLLOW))
+> > +			die("failure: change ownership");
+> > +		if (errno != EPERM)
+> > +			die("failure: errno");
+> > +
+> > +		/* Verify that the ownership is still {g,u}id 1001. */
+> > +		if (!expected_uid_gid(open_tree_fd, FILE1, AT_SYMLINK_NOFOLLOW,
+> > +				      user2_uid, user2_gid))
+> > +			die("failure: check ownership");
+> > +
+> > +		/*
+> > +		 * A user with fs{g,u}id 1000 must not be allowed to change
+> > +		 * ownership of /target/file1 owned by {g,u}id 1001 in this
+> > +		 * idmapped mount to {g,u}id 1001.
+> > +		 */
+> > +		if (!fchownat(open_tree_fd, FILE1, user2_uid, user2_gid,
+> > +			      AT_SYMLINK_NOFOLLOW))
+> > +			die("failure: change ownership");
+> > +		if (errno != EPERM)
+> > +			die("failure: errno");
+> > +
+> > +		/* Verify that the ownership is still {g,u}id 1001. */
+> > +		if (!expected_uid_gid(open_tree_fd, FILE1, AT_SYMLINK_NOFOLLOW,
+> > +				      user2_uid, user2_gid))
+> > +			die("failure: check ownership");
+> > +
+> > +		exit(EXIT_SUCCESS);
+> > +	}
+> > +	if (wait_for_pid(pid))
+> > +		goto out;
+> > +
+> > +	fret = 0;
+> > +	log_debug("Ran test");
+> > +out:
+> > +	safe_close(attr.userns_fd);
+> > +	safe_close(open_tree_fd);
+> > +
+> > +	list_for_each_safe(it_cur, &idmap, it_next) {
+> > +		list_del(it_cur);
+> > +		free(it_cur->elem);
+> > +		free(it_cur);
+> > +	}
+> > +
+> > +	return fret;
+> > +}
+> > +
+> >  static void usage(void)
+> >  {
+> >  	fprintf(stderr, "Description:\n");
+> > @@ -13342,6 +13760,7 @@ static void usage(void)
+> >  	fprintf(stderr, "--test-fscaps-regression     Run fscap regression tests\n");
+> >  	fprintf(stderr, "--test-nested-userns         Run nested userns idmapped mount testsuite\n");
+> >  	fprintf(stderr, "--test-btrfs                 Run btrfs specific idmapped mount testsuite\n");
+> > +	fprintf(stderr, "--test-setattr-fix           Run setattr regression tests\n");
+> >  
+> >  	_exit(EXIT_SUCCESS);
+> >  }
+> > @@ -13358,6 +13777,7 @@ static const struct option longopts[] = {
+> >  	{"test-fscaps-regression",	no_argument,		0,	'g'},
+> >  	{"test-nested-userns",		no_argument,		0,	'n'},
+> >  	{"test-btrfs",			no_argument,		0,	'b'},
+> > +	{"test-setattr-fix",		no_argument,		0,	'i'},
+> >  	{NULL,				0,			0,	  0},
+> >  };
+> >  
+> > @@ -13449,6 +13869,10 @@ struct t_idmapped_mounts t_btrfs[] = {
+> >  	{ btrfs_subvolume_lookup_user,					"test unprivileged subvolume lookup",								},
+> >  };
+> >  
+> > +struct t_idmapped_mounts t_setattr_fix[] = {
+> > +	{ setattr_fix,							"test that setattr works correctly",								},
+> > +};
+> > +
+> >  static bool run_test(struct t_idmapped_mounts suite[], size_t suite_size)
+> >  {
+> >  	int i;
+> > @@ -13487,7 +13911,8 @@ int main(int argc, char *argv[])
+> >  	int fret, ret;
+> >  	int index = 0;
+> >  	bool supported = false, test_btrfs = false, test_core = false,
+> > -	     test_fscaps_regression = false, test_nested_userns = false;
+> > +	     test_fscaps_regression = false, test_nested_userns = false,
+> > +	     test_setattr_fix = false;
+> >  
+> >  	while ((ret = getopt_long_only(argc, argv, "", longopts, &index)) != -1) {
+> >  		switch (ret) {
+> > @@ -13521,6 +13946,9 @@ int main(int argc, char *argv[])
+> >  		case 'e':
+> >  			t_device_scratch = optarg;
+> >  			break;
+> > +		case 'i':
+> > +			test_setattr_fix = true;
+> > +			break;
+> >  		case 'h':
+> >  			/* fallthrough */
+> >  		default:
+> > @@ -13609,6 +14037,10 @@ int main(int argc, char *argv[])
+> >  	if (test_btrfs && !run_test(t_btrfs, ARRAY_SIZE(t_btrfs)))
+> >  		goto out;
+> >  
+> > +	if (test_setattr_fix &&
+> > +	    !run_test(t_setattr_fix, ARRAY_SIZE(t_setattr_fix)))
+> > +		goto out;
+> > +
+> >  	fret = EXIT_SUCCESS;
+> >  
+> >  out:
+> > diff --git a/src/idmapped-mounts/utils.c b/src/idmapped-mounts/utils.c
+> > index c2afa8dc..faf06fcd 100644
+> > --- a/src/idmapped-mounts/utils.c
+> > +++ b/src/idmapped-mounts/utils.c
+> > @@ -183,6 +183,43 @@ static int map_ids_from_idmap(struct list *idmap, pid_t pid)
+> >  	return 0;
+> >  }
+> >  
+> > +#ifdef DEBUG_TRACE
+> > +static void __print_idmaps(pid_t pid, bool gid)
+> > +{
+> > +	char path_mapping[STRLITERALLEN("/proc/") + INTTYPE_TO_STRLEN(pid_t) +
+> > +			  STRLITERALLEN("/_id_map") + 1];
+> > +	char *line = NULL;
+> > +	size_t len = 0;
+> > +	int ret;
+> > +	FILE *f;
+> > +
+> > +	ret = snprintf(path_mapping, sizeof(path_mapping), "/proc/%d/%cid_map",
+> > +		       pid, gid ? 'g' : 'u');
+> > +	if (ret < 0 || (size_t)ret >= sizeof(path_mapping))
+> > +		return;
+> > +
+> > +	f = fopen(path_mapping, "r");
+> > +	if (!f)
+> > +		return;
+> > +
+> > +	while ((ret = getline(&line, &len, f)) > 0)
+> > +		fprintf(stderr, "%s", line);
+> > +
+> > +	fclose(f);
+> > +	free(line);
+> > +}
+> > +
+> > +static void print_idmaps(pid_t pid)
+> > +{
+> > +	__print_idmaps(pid, false);
+> > +	__print_idmaps(pid, true);
+> > +}
+> > +#else
+> > +static void print_idmaps(pid_t pid)
+> > +{
+> > +}
+> > +#endif
+> > +
+> >  int get_userns_fd_from_idmap(struct list *idmap)
+> >  {
+> >  	int ret;
+> > @@ -199,10 +236,12 @@ int get_userns_fd_from_idmap(struct list *idmap)
+> >  		return ret;
+> >  
+> >  	ret = snprintf(path_ns, sizeof(path_ns), "/proc/%d/ns/user", pid);
+> > -	if (ret < 0 || (size_t)ret >= sizeof(path_ns))
+> > +	if (ret < 0 || (size_t)ret >= sizeof(path_ns)) {
+> >  		ret = -EIO;
+> > -	else
+> > +	} else {
+> >  		ret = open(path_ns, O_RDONLY | O_CLOEXEC | O_NOCTTY);
+> > +		print_idmaps(pid);
+> > +	}
+> >  
+> >  	(void)kill(pid, SIGKILL);
+> >  	(void)wait_for_pid(pid);
+> > diff --git a/tests/generic/651 b/tests/generic/651
+> > new file mode 100755
+> > index 00000000..49b288d0
+> > --- /dev/null
+> > +++ b/tests/generic/651
+> > @@ -0,0 +1,27 @@
+> > +#! /bin/bash
+> > +# SPDX-License-Identifier: GPL-2.0
+> > +# Copyright (c) 2021 Christian Brauner.  All Rights Reserved.
+> > +#
+> > +# FS QA Test 651
+> > +#
+> > +# Test that setattr works correctly.
+> > +#
+> > +. ./common/preamble
+> > +_begin_fstest auto attr cap idmapped mount perms
+> > +
+> > +# Import common functions.
+> > +. ./common/filter
+> > +
+> > +# real QA test starts here
+> > +
+> > +_supported_fs generic
+> > +_require_idmapped_mounts
+> > +_require_test
+> 
+> This test also requires user 'fsgqa' and 'fsgqa2'
+> 
+> _require_user fsgqa
+> _require_user fsgqa2
+> 
+> Thanks,
+> Eryu
+> 
+> > +
+> > +echo "Silence is golden"
+> > +
+> > +$here/src/idmapped-mounts/idmapped-mounts --test-setattr-fix \
+> > +	--device "$TEST_DEV" --mount "$TEST_DIR" --fstype "$FSTYP"
+> > +
+> > +status=$?
+> > +exit
+> > diff --git a/tests/generic/651.out b/tests/generic/651.out
+> > new file mode 100644
+> > index 00000000..51d73665
+> > --- /dev/null
+> > +++ b/tests/generic/651.out
+> > @@ -0,0 +1,2 @@
+> > +QA output created by 651
+> > +Silence is golden
+> > 
+> > base-commit: bae1d15f6421cbe99b3e2e134c39d50248e7c261
+> > -- 
+> > 2.30.2
+> 
