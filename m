@@ -2,90 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB8A6451D61
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:26:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0949245196A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 00:17:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348533AbhKPA3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:29:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53276 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346558AbhKOTed (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:34:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F299260184;
-        Mon, 15 Nov 2021 19:31:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637004678;
-        bh=/5EFFGdANEQuECDTL8tXYsI+5VlfFp0wPsn+etL4mt8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GTfUJFO+Km6M3nMLM0Q6pu4UUwMDf90PsdZfHB7eEX8//eSp38IcshkynffZOQ/dY
-         yrnm1q62f6FbGqnE/i3hQvsoiFkU/pEmw1Ae1Q+VB2LwMiNEL3CZxgyxxhcabkKbt5
-         rJO+G8EVxMkBrxdq99EYk6XmVNu9zxYM8gm1OsQs=
-Date:   Mon, 15 Nov 2021 20:31:15 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Alistair Delva <adelva@google.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Serge Hallyn <serge@hallyn.com>, Jens Axboe <axboe@kernel.dk>,
-        Paul Moore <paul@paul-moore.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        "Cc: Android Kernel" <kernel-team@android.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: [PATCH] block: Check ADMIN before NICE for IOPRIO_CLASS_RT
-Message-ID: <YZK1gy9ARwoSxVrO@kroah.com>
-References: <20211115173850.3598768-1-adelva@google.com>
- <CAFqZXNvVHv8Oje-WV6MWMF96kpR6epTsbc-jv-JF+YJw=55i1w@mail.gmail.com>
+        id S1346723AbhKOXTk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 18:19:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36220 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350129AbhKOVam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 16:30:42 -0500
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906DCC02C322;
+        Mon, 15 Nov 2021 13:15:31 -0800 (PST)
+Received: by mail-pl1-x633.google.com with SMTP id y7so15655399plp.0;
+        Mon, 15 Nov 2021 13:15:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=xHNx600LacDDvdaPgToGQdsVvGhdyIzYhehFyyrMX6Q=;
+        b=qZ34WRjn7XiYl6fhNEnFTnE+rB+hkm08jxb86pMdjIFxbsu5t+J8SE0qtnOiM5hztX
+         bKfFOe+J3NPxf7qpMUl1HGIDmMPb4UrdYPWXxugC/JvPwABoKr8ggYHnA4Xl3YUn5QXC
+         /m7vbQbiNizX0SLjzX+qui1HOl+NO7d/OleLVmGK5A3SVVUPJmEhDVihYQfE1U7oG0dA
+         YasMrdhTEEHNgYncm4QIRwWE0lW8O6G+2a7caNwNL8ZxZG//qgm5P7Eq11kh8dy5kI2h
+         zLBO90xK5GjEZjc/hAC9hAgD70Y1DcJ2EdWRDmh0eW4xx2L4SpO4md4sl376VPr/mBc2
+         t5dw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=xHNx600LacDDvdaPgToGQdsVvGhdyIzYhehFyyrMX6Q=;
+        b=DmKY1gGrhrRaLsqJxnGCzDgZWlH5mmMqBWeCUsCyc46rrqnxo/ZNPVD/aVMEnwfJn0
+         vnZwh6K2ZdqwOEKgDWET3TnMmm2nDc1DFNi4efDZZaGT7W6jMUHdBPmXsjhnmspyIXyO
+         S3s16kuBRypkkrwX2jqCU9d9CDwGuEayDRMtkoT1KjpRUsOGlOFIbdBHYR7JyHU+H70E
+         0A0n/2tHI/fq1zkCMFZhFBLccjPt+Hip3/ZahR5Kij9UKTnCnogYRAQqiJzeOndfivYK
+         4+NCv1nxZMfSyGrMYe7SipGuyRaF5ztKjpepq9Oxmat/tZ5EvojKW5VbfAqokXB5dYZc
+         gpxw==
+X-Gm-Message-State: AOAM531gkfW9gO+TW9adp5kqBURP/AqF/zVuUBlWDTYKOiP/Tyi5cwIt
+        jK582oxkuKPeEentW4pPj1qHMyzraeU=
+X-Google-Smtp-Source: ABdhPJzdQPNsx4eUXdWuRNDkDU3Xv2eXnXr7Dl74EDFbePrbJjVElqMtHHVIbmkHwGHe+falNL1ddQ==
+X-Received: by 2002:a17:902:c412:b0:141:f710:2a94 with SMTP id k18-20020a170902c41200b00141f7102a94mr39004528plk.1.1637010931030;
+        Mon, 15 Nov 2021 13:15:31 -0800 (PST)
+Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
+        by smtp.gmail.com with ESMTPSA id b21sm16229592pff.179.2021.11.15.13.15.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Nov 2021 13:15:30 -0800 (PST)
+Date:   Tue, 16 Nov 2021 06:15:28 +0900
+From:   Stafford Horne <shorne@gmail.com>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ilia Sergachev <silia@ethz.ch>,
+        Karol Gugala <kgugala@antmicro.com>,
+        Mateusz Holenko <mholenko@antmicro.com>,
+        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Filip Kokosinski <fkokosinski@antmicro.com>
+Subject: Re: [PATCH 1/3] serial: liteuart: fix compile testing
+Message-ID: <YZLN8LXHl9FURgsU@antec>
+References: <20211115133745.11445-1-johan@kernel.org>
+ <20211115133745.11445-2-johan@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAFqZXNvVHv8Oje-WV6MWMF96kpR6epTsbc-jv-JF+YJw=55i1w@mail.gmail.com>
+In-Reply-To: <20211115133745.11445-2-johan@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 15, 2021 at 08:04:05PM +0100, Ondrej Mosnacek wrote:
-> On Mon, Nov 15, 2021 at 7:14 PM Alistair Delva <adelva@google.com> wrote:
-> > Booting to Android userspace on 5.14 or newer triggers the following
-> > SELinux denial:
-> >
-> > avc: denied { sys_nice } for comm="init" capability=23
-> >      scontext=u:r:init:s0 tcontext=u:r:init:s0 tclass=capability
-> >      permissive=0
-> >
-> > Init is PID 0 running as root, so it already has CAP_SYS_ADMIN. For
-> > better compatibility with older SEPolicy, check ADMIN before NICE.
+On Mon, Nov 15, 2021 at 02:37:43PM +0100, Johan Hovold wrote:
+> Allow the liteuart driver to be compile tested by fixing the broken
+> Kconfig dependencies.
 > 
-> But with this patch you in turn punish the new/better policies that
-> try to avoid giving domains CAP_SYS_ADMIN unless necessary (using only
-> the more granular capabilities wherever possible), which may now get a
-> bogus sys_admin denial. IMHO the order is better as it is, as it
-> motivates the "good" policy writing behavior - i.e. spelling out the
-> capability permissions more explicitly and avoiding CAP_SYS_ADMIN.
+> Fixes: 1da81e5562fa ("drivers/tty/serial: add LiteUART driver")
+> Cc: stable@vger.kernel.org	# 5.11
+> Cc: Filip Kokosinski <fkokosinski@antmicro.com>
+> Cc: Mateusz Holenko <mholenko@antmicro.com>
+> Cc: Stafford Horne <shorne@gmail.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+
+Reviewed-by: Stafford Horne <shorne@gmail.com>
+
+> ---
+>  drivers/tty/serial/Kconfig | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> IOW, if you domain does CAP_SYS_NICE things, and you didn't explicitly
-> grant it that (and instead rely on the CAP_SYS_ADMIN fallback), then
-> the denial correctly flags it as an issue in your policy and
-> encourages you to add that sys_nice permission to the domain. Then
-> when one beautiful hypothetical day the CAP_SYS_ADMIN fallback is
-> removed, your policy will be ready for that and things will keep
-> working.
+> diff --git a/drivers/tty/serial/Kconfig b/drivers/tty/serial/Kconfig
+> index 6ff94cfcd9db..67de892e0947 100644
+> --- a/drivers/tty/serial/Kconfig
+> +++ b/drivers/tty/serial/Kconfig
+> @@ -1531,9 +1531,9 @@ config SERIAL_MILBEAUT_USIO_CONSOLE
+>  
+>  config SERIAL_LITEUART
+>  	tristate "LiteUART serial port support"
+> +	depends on LITEX || COMPILE_TEST
+>  	depends on HAS_IOMEM
+> -	depends on OF || COMPILE_TEST
+> -	depends on LITEX
+> +	depends on OF
+>  	select SERIAL_CORE
+>  	help
+>  	  This driver is for the FPGA-based LiteUART serial controller from LiteX
+> -- 
+> 2.32.0
 > 
-> Feel free to carry that patch downstream if patching the kernel is
-> easier for you than fixing the policy, but for the upstream kernel
-> this is just a step in the wrong direction.
-
-So you want to "punish" existing systems by throwing up a warning where
-there used to not be one?  That is not nice, you need to handle
-upgrading kernels without breaking or causing problems like this.
-
-Yes, SELinux has done this in the past, with many different things, but
-that does not mean that it _should_ do this.  Please realize that you do
-not want to punish people from upgrading their kernel to a newer
-version.  If you do so, they will never upgrade.
-
-thanks,
-
-greg k-h
