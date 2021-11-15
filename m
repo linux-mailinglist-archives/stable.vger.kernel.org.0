@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B804451372
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B1DD451377
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348254AbhKOTv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:51:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
+        id S1348276AbhKOTvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:51:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343555AbhKOTVU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0ED763303;
-        Mon, 15 Nov 2021 18:42:00 +0000 (UTC)
+        id S1343573AbhKOTVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D25C635AB;
+        Mon, 15 Nov 2021 18:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001721;
-        bh=y9u3wjDecn0UMZeTJ/mTMhXWXNhAfydm0emgSMtnXwk=;
+        s=korg; t=1637001744;
+        bh=mOONycflu+VS0Ar0mrpT/OKUKC+8xV1n2UjWlD+vp20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DviseFiP2df0yV9teRpwASSW6RBp18kS7tUzzHuHRsZyt72kc7SbL+wMB+ZTOM0kn
-         FtIZjxsmJp79ZevxlKweqnmD/taHdlykNxZEpuv15Iekp3Ghzv91kBA8bh27KxZuC2
-         SnB44lFnE6E9BDs+eAfMrjbr+rvkBjZihqGOgLAI=
+        b=BYra21ojzZYwP408TgLEBu+me6RUStdjF9xo0j4BM2axriTBy4Pnjo0MkXYTkK1e4
+         U4P3bin2nyWaBkAwEvSOHIxLIbcJMT+ok1UiGnjaUjailWLEnth4T1SaYn9yidpMm6
+         9OzmLPrRzhYBIxRq7uSpSr9pyHtFpvGwtcj9TGUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 295/917] ARM: 9136/1: ARMv7-M uses BE-8, not BE-32
-Date:   Mon, 15 Nov 2021 17:56:30 +0100
-Message-Id: <20211115165438.769574512@linuxfoundation.org>
+Subject: [PATCH 5.15 303/917] btrfs: do not take the uuid_mutex in btrfs_rm_device
+Date:   Mon, 15 Nov 2021 17:56:38 +0100
+Message-Id: <20211115165439.032514747@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,45 +41,235 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 345dac33f58894a56d17b92a41be10e16585ceff ]
+[ Upstream commit 8ef9dc0f14ba6124c62547a4fdc59b163d8b864e ]
 
-When configuring the kernel for big-endian, we set either BE-8 or BE-32
-based on the CPU architecture level. Until linux-4.4, we did not have
-any ARMv7-M platform allowing big-endian builds, but now i.MX/Vybrid
-is in that category, adn we get a build error because of this:
+We got the following lockdep splat while running fstests (specifically
+btrfs/003 and btrfs/020 in a row) with the new rc.  This was uncovered
+by 87579e9b7d8d ("loop: use worker per cgroup instead of kworker") which
+converted loop to using workqueues, which comes with lockdep
+annotations that don't exist with kworkers.  The lockdep splat is as
+follows:
 
-arch/arm/kernel/module-plts.c: In function 'get_module_plt':
-arch/arm/kernel/module-plts.c:60:46: error: implicit declaration of function '__opcode_to_mem_thumb32' [-Werror=implicit-function-declaration]
+  WARNING: possible circular locking dependency detected
+  5.14.0-rc2-custom+ #34 Not tainted
+  ------------------------------------------------------
+  losetup/156417 is trying to acquire lock:
+  ffff9c7645b02d38 ((wq_completion)loop0){+.+.}-{0:0}, at: flush_workqueue+0x84/0x600
 
-This comes down to picking the wrong default, ARMv7-M uses BE8
-like ARMv7-A does. Changing the default gets the kernel to compile
-and presumably works.
+  but task is already holding lock:
+  ffff9c7647395468 (&lo->lo_mutex){+.+.}-{3:3}, at: __loop_clr_fd+0x41/0x650 [loop]
 
-https://lore.kernel.org/all/1455804123-2526139-2-git-send-email-arnd@arndb.de/
+  which lock already depends on the new lock.
 
-Tested-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+  the existing dependency chain (in reverse order) is:
+
+  -> #5 (&lo->lo_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0xba/0x7c0
+	 lo_open+0x28/0x60 [loop]
+	 blkdev_get_whole+0x28/0xf0
+	 blkdev_get_by_dev.part.0+0x168/0x3c0
+	 blkdev_open+0xd2/0xe0
+	 do_dentry_open+0x163/0x3a0
+	 path_openat+0x74d/0xa40
+	 do_filp_open+0x9c/0x140
+	 do_sys_openat2+0xb1/0x170
+	 __x64_sys_openat+0x54/0x90
+	 do_syscall_64+0x3b/0x90
+	 entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+  -> #4 (&disk->open_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0xba/0x7c0
+	 blkdev_get_by_dev.part.0+0xd1/0x3c0
+	 blkdev_get_by_path+0xc0/0xd0
+	 btrfs_scan_one_device+0x52/0x1f0 [btrfs]
+	 btrfs_control_ioctl+0xac/0x170 [btrfs]
+	 __x64_sys_ioctl+0x83/0xb0
+	 do_syscall_64+0x3b/0x90
+	 entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+  -> #3 (uuid_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0xba/0x7c0
+	 btrfs_rm_device+0x48/0x6a0 [btrfs]
+	 btrfs_ioctl+0x2d1c/0x3110 [btrfs]
+	 __x64_sys_ioctl+0x83/0xb0
+	 do_syscall_64+0x3b/0x90
+	 entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+  -> #2 (sb_writers#11){.+.+}-{0:0}:
+	 lo_write_bvec+0x112/0x290 [loop]
+	 loop_process_work+0x25f/0xcb0 [loop]
+	 process_one_work+0x28f/0x5d0
+	 worker_thread+0x55/0x3c0
+	 kthread+0x140/0x170
+	 ret_from_fork+0x22/0x30
+
+  -> #1 ((work_completion)(&lo->rootcg_work)){+.+.}-{0:0}:
+	 process_one_work+0x266/0x5d0
+	 worker_thread+0x55/0x3c0
+	 kthread+0x140/0x170
+	 ret_from_fork+0x22/0x30
+
+  -> #0 ((wq_completion)loop0){+.+.}-{0:0}:
+	 __lock_acquire+0x1130/0x1dc0
+	 lock_acquire+0xf5/0x320
+	 flush_workqueue+0xae/0x600
+	 drain_workqueue+0xa0/0x110
+	 destroy_workqueue+0x36/0x250
+	 __loop_clr_fd+0x9a/0x650 [loop]
+	 lo_ioctl+0x29d/0x780 [loop]
+	 block_ioctl+0x3f/0x50
+	 __x64_sys_ioctl+0x83/0xb0
+	 do_syscall_64+0x3b/0x90
+	 entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+  other info that might help us debug this:
+  Chain exists of:
+    (wq_completion)loop0 --> &disk->open_mutex --> &lo->lo_mutex
+   Possible unsafe locking scenario:
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(&lo->lo_mutex);
+				 lock(&disk->open_mutex);
+				 lock(&lo->lo_mutex);
+    lock((wq_completion)loop0);
+
+   *** DEADLOCK ***
+  1 lock held by losetup/156417:
+   #0: ffff9c7647395468 (&lo->lo_mutex){+.+.}-{3:3}, at: __loop_clr_fd+0x41/0x650 [loop]
+
+  stack backtrace:
+  CPU: 8 PID: 156417 Comm: losetup Not tainted 5.14.0-rc2-custom+ #34
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  Call Trace:
+   dump_stack_lvl+0x57/0x72
+   check_noncircular+0x10a/0x120
+   __lock_acquire+0x1130/0x1dc0
+   lock_acquire+0xf5/0x320
+   ? flush_workqueue+0x84/0x600
+   flush_workqueue+0xae/0x600
+   ? flush_workqueue+0x84/0x600
+   drain_workqueue+0xa0/0x110
+   destroy_workqueue+0x36/0x250
+   __loop_clr_fd+0x9a/0x650 [loop]
+   lo_ioctl+0x29d/0x780 [loop]
+   ? __lock_acquire+0x3a0/0x1dc0
+   ? update_dl_rq_load_avg+0x152/0x360
+   ? lock_is_held_type+0xa5/0x120
+   ? find_held_lock.constprop.0+0x2b/0x80
+   block_ioctl+0x3f/0x50
+   __x64_sys_ioctl+0x83/0xb0
+   do_syscall_64+0x3b/0x90
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  RIP: 0033:0x7f645884de6b
+
+Usually the uuid_mutex exists to protect the fs_devices that map
+together all of the devices that match a specific uuid.  In rm_device
+we're messing with the uuid of a device, so it makes sense to protect
+that here.
+
+However in doing that it pulls in a whole host of lockdep dependencies,
+as we call mnt_may_write() on the sb before we grab the uuid_mutex, thus
+we end up with the dependency chain under the uuid_mutex being added
+under the normal sb write dependency chain, which causes problems with
+loop devices.
+
+We don't need the uuid mutex here however.  If we call
+btrfs_scan_one_device() before we scratch the super block we will find
+the fs_devices and not find the device itself and return EBUSY because
+the fs_devices is open.  If we call it after the scratch happens it will
+not appear to be a valid btrfs file system.
+
+We do not need to worry about other fs_devices modifying operations here
+because we're protected by the exclusive operations locking.
+
+So drop the uuid_mutex here in order to fix the lockdep splat.
+
+A more detailed explanation from the discussion:
+
+We are worried about rm and scan racing with each other, before this
+change we'll zero the device out under the UUID mutex so when scan does
+run it'll make sure that it can go through the whole device scan thing
+without rm messing with us.
+
+We aren't worried if the scratch happens first, because the result is we
+don't think this is a btrfs device and we bail out.
+
+The only case we are concerned with is we scratch _after_ scan is able
+to read the superblock and gets a seemingly valid super block, so lets
+consider this case.
+
+Scan will call device_list_add() with the device we're removing.  We'll
+call find_fsid_with_metadata_uuid() and get our fs_devices for this
+UUID.  At this point we lock the fs_devices->device_list_mutex.  This is
+what protects us in this case, but we have two cases here.
+
+1. We aren't to the device removal part of the RM.  We found our device,
+   and device name matches our path, we go down and we set total_devices
+   to our super number of devices, which doesn't affect anything because
+   we haven't done the remove yet.
+
+2. We are past the device removal part, which is protected by the
+   device_list_mutex.  Scan doesn't find the device, it goes down and
+   does the
+
+   if (fs_devices->opened)
+	   return -EBUSY;
+
+   check and we bail out.
+
+Nothing about this situation is ideal, but the lockdep splat is real,
+and the fix is safe, tho admittedly a bit scary looking.
+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ copy more from the discussion ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/volumes.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/mm/Kconfig b/arch/arm/mm/Kconfig
-index 8355c38958942..82aa990c4180c 100644
---- a/arch/arm/mm/Kconfig
-+++ b/arch/arm/mm/Kconfig
-@@ -750,7 +750,7 @@ config CPU_BIG_ENDIAN
- config CPU_ENDIAN_BE8
- 	bool
- 	depends on CPU_BIG_ENDIAN
--	default CPU_V6 || CPU_V6K || CPU_V7
-+	default CPU_V6 || CPU_V6K || CPU_V7 || CPU_V7M
- 	help
- 	  Support for the BE-8 (big-endian) mode on ARMv6 and ARMv7 processors.
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 56252cc5c5f7b..6afebc5b10c84 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -2083,8 +2083,11 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
+ 	u64 num_devices;
+ 	int ret = 0;
  
+-	mutex_lock(&uuid_mutex);
+-
++	/*
++	 * The device list in fs_devices is accessed without locks (neither
++	 * uuid_mutex nor device_list_mutex) as it won't change on a mounted
++	 * filesystem and another device rm cannot run.
++	 */
+ 	num_devices = btrfs_num_devices(fs_info);
+ 
+ 	ret = btrfs_check_raid_min_devices(fs_info, num_devices - 1);
+@@ -2128,11 +2131,9 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
+ 		mutex_unlock(&fs_info->chunk_mutex);
+ 	}
+ 
+-	mutex_unlock(&uuid_mutex);
+ 	ret = btrfs_shrink_device(device, 0);
+ 	if (!ret)
+ 		btrfs_reada_remove_dev(device);
+-	mutex_lock(&uuid_mutex);
+ 	if (ret)
+ 		goto error_undo;
+ 
+@@ -2219,7 +2220,6 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
+ 	}
+ 
+ out:
+-	mutex_unlock(&uuid_mutex);
+ 	return ret;
+ 
+ error_undo:
 -- 
 2.33.0
 
