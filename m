@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5975E4520E1
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 862914520D9
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:54:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359323AbhKPA46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:56:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
+        id S1359042AbhKPA4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:56:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245669AbhKOTVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245681AbhKOTVA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CFEA61A4E;
-        Mon, 15 Nov 2021 18:38:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6382263573;
+        Mon, 15 Nov 2021 18:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001534;
-        bh=qT2SY6fv46Gn9/Bc1mnjMQbsZb5EuuRuEpMBD50gTC8=;
+        s=korg; t=1637001555;
+        bh=7Z7rbzuRBNK1LCrIaA6pLspwcPKRQVybE9E+2dbLt/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJ3dIz8qOpqIHz7CVFLCCpITQzeXVJB0YGMEGBAZOt6YbbJ02aWj9Mt9FRBvrNW3+
-         9QfC9SFj9PqiRTqrGhxuCnbPeZOagjZALmveWuEhEVVwjO+SBkGQMsKBl2mxEpR6Tf
-         c+BKhjJXXwF0ngY3NET7+L0nkwsqtQELU7XZkUEA=
+        b=RMLtByHzXbAzWQKpY8IulC8F6iNQ36NfKVw5riRuAMiUpfZZF0jhZ8AaYxJdZoV3b
+         XpJv482Fl4mem3dPUwiJgzPG/q51im8vltLoyvMbQoWT4EQ6DywxLWHWlT7j/GT6b8
+         Hyv251ebs9F7VjKImdi5ZHNCWVe1+bFtBZ7JqzL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ritesh Singh <ritesi@codeaurora.org>,
-        Seevalamuthu Mariappan <seevalam@codeaurora.org>,
-        Jouni Malinen <jouni@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Michael Wang <yun.wang@linux.alibaba.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 200/917] ath11k: Align bss_chan_info structure with firmware
-Date:   Mon, 15 Nov 2021 17:54:55 +0100
-Message-Id: <20211115165435.579273880@linuxfoundation.org>
+Subject: [PATCH 5.15 202/917] x86/mm/64: Improve stack overflow warnings
+Date:   Mon, 15 Nov 2021 17:54:57 +0100
+Message-Id: <20211115165435.643213636@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,71 +40,287 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seevalamuthu Mariappan <seevalam@codeaurora.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit feab5bb8f1d4621025dceae7eef62d5f92de34ac ]
+[ Upstream commit 44b979fa302cab91bdd2cc982823e5c13202cd4e ]
 
-pdev_id in structure 'wmi_pdev_bss_chan_info_event' is wrongly placed
-at the beginning. This causes invalid values in survey dump. Hence, align
-the structure with the firmware.
+Current code has an explicit check for hitting the task stack guard;
+but overflowing any of the other stacks will get you a non-descript
+general #DF warning.
 
-Note: The firmware releases follow this order since the feature was
-implemented. Also, it is not changing across the branches including
-QCA6390.
+Improve matters by using get_stack_info_noinstr() to detetrmine if and
+which stack guard page got hit, enabling a better stack warning.
 
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.1.0.1-01228-QCAHKSWPL_SILICONZ-1
+In specific, Michael Wang reported what turned out to be an NMI
+exception stack overflow, which is now clearly reported as such:
 
-Signed-off-by: Ritesh Singh <ritesi@codeaurora.org>
-Signed-off-by: Seevalamuthu Mariappan <seevalam@codeaurora.org>
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210720214922.118078-3-jouni@codeaurora.org
+  [] BUG: NMI stack guard page was hit at 0000000085fd977b (stack is 000000003a55b09e..00000000d8cce1a5)
+
+Reported-by: Michael Wang <yun.wang@linux.alibaba.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Michael Wang <yun.wang@linux.alibaba.com>
+Link: https://lkml.kernel.org/r/YUTE/NuqnaWbST8n@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/wmi.c | 1 +
- drivers/net/wireless/ath/ath11k/wmi.h | 3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/irq_stack.h  | 37 +++++++++++++++++++++----------
+ arch/x86/include/asm/stacktrace.h | 10 +++++++++
+ arch/x86/include/asm/traps.h      |  6 ++---
+ arch/x86/kernel/dumpstack_64.c    |  6 +++++
+ arch/x86/kernel/traps.c           | 25 +++++++++++----------
+ arch/x86/mm/fault.c               | 20 ++++++++---------
+ 6 files changed, 67 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
-index 6c253eae9d069..27c060dd3fb47 100644
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -1339,6 +1339,7 @@ int ath11k_wmi_pdev_bss_chan_info_request(struct ath11k *ar,
- 				     WMI_TAG_PDEV_BSS_CHAN_INFO_REQUEST) |
- 			  FIELD_PREP(WMI_TLV_LEN, sizeof(*cmd) - TLV_HDR_SIZE);
- 	cmd->req_type = type;
-+	cmd->pdev_id = ar->pdev->pdev_id;
+diff --git a/arch/x86/include/asm/irq_stack.h b/arch/x86/include/asm/irq_stack.h
+index 562854c608082..8d55bd11848cb 100644
+--- a/arch/x86/include/asm/irq_stack.h
++++ b/arch/x86/include/asm/irq_stack.h
+@@ -77,11 +77,11 @@
+  *     Function calls can clobber anything except the callee-saved
+  *     registers. Tell the compiler.
+  */
+-#define call_on_irqstack(func, asm_call, argconstr...)			\
++#define call_on_stack(stack, func, asm_call, argconstr...)		\
+ {									\
+ 	register void *tos asm("r11");					\
+ 									\
+-	tos = ((void *)__this_cpu_read(hardirq_stack_ptr));		\
++	tos = ((void *)(stack));					\
+ 									\
+ 	asm_inline volatile(						\
+ 	"movq	%%rsp, (%[tos])				\n"		\
+@@ -98,6 +98,25 @@
+ 	);								\
+ }
  
- 	ath11k_dbg(ar->ab, ATH11K_DBG_WMI,
- 		   "WMI bss chan info req type %d\n", type);
-diff --git a/drivers/net/wireless/ath/ath11k/wmi.h b/drivers/net/wireless/ath/ath11k/wmi.h
-index d35c47e0b19d4..0b7d337b36930 100644
---- a/drivers/net/wireless/ath/ath11k/wmi.h
-+++ b/drivers/net/wireless/ath/ath11k/wmi.h
-@@ -2960,6 +2960,7 @@ struct wmi_pdev_bss_chan_info_req_cmd {
- 	u32 tlv_header;
- 	/* ref wmi_bss_chan_info_req_type */
- 	u32 req_type;
-+	u32 pdev_id;
- } __packed;
++#define ASM_CALL_ARG0							\
++	"call %P[__func]				\n"
++
++#define ASM_CALL_ARG1							\
++	"movq	%[arg1], %%rdi				\n"		\
++	ASM_CALL_ARG0
++
++#define ASM_CALL_ARG2							\
++	"movq	%[arg2], %%rsi				\n"		\
++	ASM_CALL_ARG1
++
++#define ASM_CALL_ARG3							\
++	"movq	%[arg3], %%rdx				\n"		\
++	ASM_CALL_ARG2
++
++#define call_on_irqstack(func, asm_call, argconstr...)			\
++	call_on_stack(__this_cpu_read(hardirq_stack_ptr),		\
++		      func, asm_call, argconstr)
++
+ /* Macros to assert type correctness for run_*_on_irqstack macros */
+ #define assert_function_type(func, proto)				\
+ 	static_assert(__builtin_types_compatible_p(typeof(&func), proto))
+@@ -147,8 +166,7 @@
+  */
+ #define ASM_CALL_SYSVEC							\
+ 	"call irq_enter_rcu				\n"		\
+-	"movq	%[arg1], %%rdi				\n"		\
+-	"call %P[__func]				\n"		\
++	ASM_CALL_ARG1							\
+ 	"call irq_exit_rcu				\n"
  
- struct wmi_ap_ps_peer_cmd {
-@@ -4056,7 +4057,6 @@ struct wmi_vdev_stopped_event {
- } __packed;
+ #define SYSVEC_CONSTRAINTS	, [arg1] "r" (regs)
+@@ -168,12 +186,10 @@
+  */
+ #define ASM_CALL_IRQ							\
+ 	"call irq_enter_rcu				\n"		\
+-	"movq	%[arg1], %%rdi				\n"		\
+-	"movl	%[arg2], %%esi				\n"		\
+-	"call %P[__func]				\n"		\
++	ASM_CALL_ARG2							\
+ 	"call irq_exit_rcu				\n"
  
- struct wmi_pdev_bss_chan_info_event {
--	u32 pdev_id;
- 	u32 freq;	/* Units in MHz */
- 	u32 noise_floor;	/* units are dBm */
- 	/* rx clear - how often the channel was unused */
-@@ -4074,6 +4074,7 @@ struct wmi_pdev_bss_chan_info_event {
- 	/*rx_cycle cnt for my bss in 64bits format */
- 	u32 rx_bss_cycle_count_low;
- 	u32 rx_bss_cycle_count_high;
-+	u32 pdev_id;
- } __packed;
+-#define IRQ_CONSTRAINTS	, [arg1] "r" (regs), [arg2] "r" (vector)
++#define IRQ_CONSTRAINTS	, [arg1] "r" (regs), [arg2] "r" ((unsigned long)vector)
  
- #define WMI_VDEV_INSTALL_KEY_COMPL_STATUS_SUCCESS 0
+ #define run_irq_on_irqstack_cond(func, regs, vector)			\
+ {									\
+@@ -185,9 +201,6 @@
+ 			      IRQ_CONSTRAINTS, regs, vector);		\
+ }
+ 
+-#define ASM_CALL_SOFTIRQ						\
+-	"call %P[__func]				\n"
+-
+ /*
+  * Macro to invoke __do_softirq on the irq stack. This is only called from
+  * task context when bottom halves are about to be reenabled and soft
+@@ -197,7 +210,7 @@
+ #define do_softirq_own_stack()						\
+ {									\
+ 	__this_cpu_write(hardirq_stack_inuse, true);			\
+-	call_on_irqstack(__do_softirq, ASM_CALL_SOFTIRQ);		\
++	call_on_irqstack(__do_softirq, ASM_CALL_ARG0);			\
+ 	__this_cpu_write(hardirq_stack_inuse, false);			\
+ }
+ 
+diff --git a/arch/x86/include/asm/stacktrace.h b/arch/x86/include/asm/stacktrace.h
+index f248eb2ac2d4a..3881b5333eb81 100644
+--- a/arch/x86/include/asm/stacktrace.h
++++ b/arch/x86/include/asm/stacktrace.h
+@@ -38,6 +38,16 @@ int get_stack_info(unsigned long *stack, struct task_struct *task,
+ bool get_stack_info_noinstr(unsigned long *stack, struct task_struct *task,
+ 			    struct stack_info *info);
+ 
++static __always_inline
++bool get_stack_guard_info(unsigned long *stack, struct stack_info *info)
++{
++	/* make sure it's not in the stack proper */
++	if (get_stack_info_noinstr(stack, current, info))
++		return false;
++	/* but if it is in the page below it, we hit a guard */
++	return get_stack_info_noinstr((void *)stack + PAGE_SIZE, current, info);
++}
++
+ const char *stack_type_name(enum stack_type type);
+ 
+ static inline bool on_stack(struct stack_info *info, void *addr, size_t len)
+diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
+index 7f7200021bd13..6221be7cafc3b 100644
+--- a/arch/x86/include/asm/traps.h
++++ b/arch/x86/include/asm/traps.h
+@@ -40,9 +40,9 @@ void math_emulate(struct math_emu_info *);
+ bool fault_in_kernel_space(unsigned long address);
+ 
+ #ifdef CONFIG_VMAP_STACK
+-void __noreturn handle_stack_overflow(const char *message,
+-				      struct pt_regs *regs,
+-				      unsigned long fault_address);
++void __noreturn handle_stack_overflow(struct pt_regs *regs,
++				      unsigned long fault_address,
++				      struct stack_info *info);
+ #endif
+ 
+ #endif /* _ASM_X86_TRAPS_H */
+diff --git a/arch/x86/kernel/dumpstack_64.c b/arch/x86/kernel/dumpstack_64.c
+index 5601b95944fae..6c5defd6569a3 100644
+--- a/arch/x86/kernel/dumpstack_64.c
++++ b/arch/x86/kernel/dumpstack_64.c
+@@ -32,9 +32,15 @@ const char *stack_type_name(enum stack_type type)
+ {
+ 	BUILD_BUG_ON(N_EXCEPTION_STACKS != 6);
+ 
++	if (type == STACK_TYPE_TASK)
++		return "TASK";
++
+ 	if (type == STACK_TYPE_IRQ)
+ 		return "IRQ";
+ 
++	if (type == STACK_TYPE_SOFTIRQ)
++		return "SOFTIRQ";
++
+ 	if (type == STACK_TYPE_ENTRY) {
+ 		/*
+ 		 * On 64-bit, we have a generic entry stack that we
+diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
+index f3f3034b06f34..cc6de3a01293c 100644
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -313,17 +313,19 @@ out:
+ }
+ 
+ #ifdef CONFIG_VMAP_STACK
+-__visible void __noreturn handle_stack_overflow(const char *message,
+-						struct pt_regs *regs,
+-						unsigned long fault_address)
++__visible void __noreturn handle_stack_overflow(struct pt_regs *regs,
++						unsigned long fault_address,
++						struct stack_info *info)
+ {
+-	printk(KERN_EMERG "BUG: stack guard page was hit at %p (stack is %p..%p)\n",
+-		 (void *)fault_address, current->stack,
+-		 (char *)current->stack + THREAD_SIZE - 1);
+-	die(message, regs, 0);
++	const char *name = stack_type_name(info->type);
++
++	printk(KERN_EMERG "BUG: %s stack guard page was hit at %p (stack is %p..%p)\n",
++	       name, (void *)fault_address, info->begin, info->end);
++
++	die("stack guard page", regs, 0);
+ 
+ 	/* Be absolutely certain we don't return. */
+-	panic("%s", message);
++	panic("%s stack guard hit", name);
+ }
+ #endif
+ 
+@@ -353,6 +355,7 @@ DEFINE_IDTENTRY_DF(exc_double_fault)
+ 
+ #ifdef CONFIG_VMAP_STACK
+ 	unsigned long address = read_cr2();
++	struct stack_info info;
+ #endif
+ 
+ #ifdef CONFIG_X86_ESPFIX64
+@@ -455,10 +458,8 @@ DEFINE_IDTENTRY_DF(exc_double_fault)
+ 	 * stack even if the actual trigger for the double fault was
+ 	 * something else.
+ 	 */
+-	if ((unsigned long)task_stack_page(tsk) - 1 - address < PAGE_SIZE) {
+-		handle_stack_overflow("kernel stack overflow (double-fault)",
+-				      regs, address);
+-	}
++	if (get_stack_guard_info((void *)address, &info))
++		handle_stack_overflow(regs, address, &info);
+ #endif
+ 
+ 	pr_emerg("PANIC: double fault, error_code: 0x%lx\n", error_code);
+diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+index 84a2c8c4af735..4bfed53e210ec 100644
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -32,6 +32,7 @@
+ #include <asm/pgtable_areas.h>		/* VMALLOC_START, ...		*/
+ #include <asm/kvm_para.h>		/* kvm_handle_async_pf		*/
+ #include <asm/vdso.h>			/* fixup_vdso_exception()	*/
++#include <asm/irq_stack.h>
+ 
+ #define CREATE_TRACE_POINTS
+ #include <asm/trace/exceptions.h>
+@@ -631,6 +632,9 @@ static noinline void
+ page_fault_oops(struct pt_regs *regs, unsigned long error_code,
+ 		unsigned long address)
+ {
++#ifdef CONFIG_VMAP_STACK
++	struct stack_info info;
++#endif
+ 	unsigned long flags;
+ 	int sig;
+ 
+@@ -649,9 +653,7 @@ page_fault_oops(struct pt_regs *regs, unsigned long error_code,
+ 	 * that we're in vmalloc space to avoid this.
+ 	 */
+ 	if (is_vmalloc_addr((void *)address) &&
+-	    (((unsigned long)current->stack - 1 - address < PAGE_SIZE) ||
+-	     address - ((unsigned long)current->stack + THREAD_SIZE) < PAGE_SIZE)) {
+-		unsigned long stack = __this_cpu_ist_top_va(DF) - sizeof(void *);
++	    get_stack_guard_info((void *)address, &info)) {
+ 		/*
+ 		 * We're likely to be running with very little stack space
+ 		 * left.  It's plausible that we'd hit this condition but
+@@ -662,13 +664,11 @@ page_fault_oops(struct pt_regs *regs, unsigned long error_code,
+ 		 * and then double-fault, though, because we're likely to
+ 		 * break the console driver and lose most of the stack dump.
+ 		 */
+-		asm volatile ("movq %[stack], %%rsp\n\t"
+-			      "call handle_stack_overflow\n\t"
+-			      "1: jmp 1b"
+-			      : ASM_CALL_CONSTRAINT
+-			      : "D" ("kernel stack overflow (page fault)"),
+-				"S" (regs), "d" (address),
+-				[stack] "rm" (stack));
++		call_on_stack(__this_cpu_ist_top_va(DF) - sizeof(void*),
++			      handle_stack_overflow,
++			      ASM_CALL_ARG3,
++			      , [arg1] "r" (regs), [arg2] "r" (address), [arg3] "r" (&info));
++
+ 		unreachable();
+ 	}
+ #endif
 -- 
 2.33.0
 
