@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3486450A8B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:08:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D849450D61
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:54:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbhKORLG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:11:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36342 "EHLO mail.kernel.org"
+        id S239324AbhKOR4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:56:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231876AbhKORLB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:11:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF07D61B5E;
-        Mon, 15 Nov 2021 17:08:04 +0000 (UTC)
+        id S239154AbhKORyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:54:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B478D632AD;
+        Mon, 15 Nov 2021 17:33:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996085;
-        bh=DLDHUZZ3tuw70mh2/ZO/nUh3g/mXXSW7HcsplqejYZI=;
+        s=korg; t=1636997613;
+        bh=DddDNs9JomrnzsILPma6S7pZ2ahl2dOz1P588eIjD4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5HYF9r2Rfn6Us9vlOhTsiK3XJcyH04BR5mU4S9KW2ARvm2KCKwn/GApsdI8S892z
-         wFG/mHuesVVNJnt/38dtcki+Vt1wOxaSSBB2zSSZmLcgVBHxw4Y+4Vkaiq84G5bPzX
-         cEStBuBq5z5KuP9ij00RhBz+IhqVh0axDbF+fubw=
+        b=rOpdF756k7DT9eU6Xs1MV49xYP89q3vbeNiO6iefs01xJ1sxdvmSvwgsGahCr5VEm
+         wGnE5OrNyGt97WhnMTkIQTZrgNPDyWCDGe5mlI8qPD/x3e6HBZmhUzoGho8QJoTiZD
+         hegLNopNUjIqaZ+PawCR47ObuMJjpG+1N7EGl6d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 011/355] scsi: qla2xxx: Fix kernel crash when accessing port_speed sysfs file
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 210/575] tracefs: Have tracefs directories not set OTH permission bits by default
 Date:   Mon, 15 Nov 2021 17:58:55 +0100
-Message-Id: <20211115165313.919390626@linuxfoundation.org>
+Message-Id: <20211115165350.976783364@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,105 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 3ef68d4f0c9e7cb589ae8b70f07d77f528105331 upstream.
+[ Upstream commit 49d67e445742bbcb03106b735b2ab39f6e5c56bc ]
 
-Kernel crashes when accessing port_speed sysfs file.  The issue happens on
-a CNA when the local array was accessed beyond bounds. Fix this by changing
-the lookup.
+The tracefs file system is by default mounted such that only root user can
+access it. But there are legitimate reasons to create a group and allow
+those added to the group to have access to tracing. By changing the
+permissions of the tracefs mount point to allow access, it will allow
+group access to the tracefs directory.
 
-BUG: unable to handle kernel paging request at 0000000000004000
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP PTI
-CPU: 15 PID: 455213 Comm: sosreport Kdump: loaded Not tainted
-4.18.0-305.7.1.el8_4.x86_64 #1
-RIP: 0010:string_nocheck+0x12/0x70
-Code: 00 00 4c 89 e2 be 20 00 00 00 48 89 ef e8 86 9a 00 00 4c 01
-e3 eb 81 90 49 89 f2 48 89 ce 48 89 f8 48 c1 fe 30 66 85 f6 74 4f <44> 0f b6 0a
-45 84 c9 74 46 83 ee 01 41 b8 01 00 00 00 48 8d 7c 37
-RSP: 0018:ffffb5141c1afcf0 EFLAGS: 00010286
-RAX: ffff8bf4009f8000 RBX: ffff8bf4009f9000 RCX: ffff0a00ffffff04
-RDX: 0000000000004000 RSI: ffffffffffffffff RDI: ffff8bf4009f8000
-RBP: 0000000000004000 R08: 0000000000000001 R09: ffffb5141c1afb84
-R10: ffff8bf4009f9000 R11: ffffb5141c1afce6 R12: ffff0a00ffffff04
-R13: ffffffffc08e21aa R14: 0000000000001000 R15: ffffffffc08e21aa
-FS:  00007fc4ebfff700(0000) GS:ffff8c717f7c0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000004000 CR3: 000000edfdee6006 CR4: 00000000001706e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-  string+0x40/0x50
-  vsnprintf+0x33c/0x520
-  scnprintf+0x4d/0x90
-  qla2x00_port_speed_show+0xb5/0x100 [qla2xxx]
-  dev_attr_show+0x1c/0x40
-  sysfs_kf_seq_show+0x9b/0x100
-  seq_read+0x153/0x410
-  vfs_read+0x91/0x140
-  ksys_read+0x4f/0xb0
-  do_syscall_64+0x5b/0x1a0
-  entry_SYSCALL_64_after_hwframe+0x65/0xca
+There should not be any real reason to allow all access to the tracefs
+directory as it contains sensitive information. Have the default
+permission of directories being created not have any OTH (other) bits set,
+such that an admin that wants to give permission to a group has to first
+disable all OTH bits in the file system.
 
-Link: https://lore.kernel.org/r/20210908164622.19240-7-njavali@marvell.com
-Fixes: 4910b524ac9e ("scsi: qla2xxx: Add support for setting port speed")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20210818153038.664127804@goodmis.org
+
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c |   24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ fs/tracefs/inode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -1759,6 +1759,18 @@ qla2x00_port_speed_store(struct device *
- 	return strlen(buf);
- }
+diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
+index 0ee8c6dfb0364..bf58ae6f984fe 100644
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -430,7 +430,8 @@ static struct dentry *__create_dir(const char *name, struct dentry *parent,
+ 	if (unlikely(!inode))
+ 		return failed_creating(dentry);
  
-+static const struct {
-+	u16 rate;
-+	char *str;
-+} port_speed_str[] = {
-+	{ PORT_SPEED_4GB, "4" },
-+	{ PORT_SPEED_8GB, "8" },
-+	{ PORT_SPEED_16GB, "16" },
-+	{ PORT_SPEED_32GB, "32" },
-+	{ PORT_SPEED_64GB, "64" },
-+	{ PORT_SPEED_10GB, "10" },
-+};
-+
- static ssize_t
- qla2x00_port_speed_show(struct device *dev, struct device_attribute *attr,
-     char *buf)
-@@ -1766,7 +1778,8 @@ qla2x00_port_speed_show(struct device *d
- 	struct scsi_qla_host *vha = shost_priv(dev_to_shost(dev));
- 	struct qla_hw_data *ha = vha->hw;
- 	ssize_t rval;
--	char *spd[7] = {"0", "0", "0", "4", "8", "16", "32"};
-+	u16 i;
-+	char *speed = "Unknown";
+-	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO;
++	/* Do not set bits for OTH */
++	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
+ 	inode->i_op = ops;
+ 	inode->i_fop = &simple_dir_operations;
  
- 	rval = qla2x00_get_data_rate(vha);
- 	if (rval != QLA_SUCCESS) {
-@@ -1775,7 +1788,14 @@ qla2x00_port_speed_show(struct device *d
- 		return -EINVAL;
- 	}
- 
--	return scnprintf(buf, PAGE_SIZE, "%s\n", spd[ha->link_data_rate]);
-+	for (i = 0; i < ARRAY_SIZE(port_speed_str); i++) {
-+		if (port_speed_str[i].rate != ha->link_data_rate)
-+			continue;
-+		speed = port_speed_str[i].str;
-+		break;
-+	}
-+
-+	return scnprintf(buf, PAGE_SIZE, "%s\n", speed);
- }
- 
- /* ----- */
+-- 
+2.33.0
+
 
 
