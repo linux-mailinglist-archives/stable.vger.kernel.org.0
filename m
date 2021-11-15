@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33FCA451161
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0BC34513FE
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243642AbhKOTGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:06:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34354 "EHLO mail.kernel.org"
+        id S1348836AbhKOUAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:00:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243745AbhKOTDs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:03:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA27860F22;
-        Mon, 15 Nov 2021 18:15:27 +0000 (UTC)
+        id S1344139AbhKOTXa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91B1A63632;
+        Mon, 15 Nov 2021 18:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000128;
-        bh=jYeWl/vJ+e6RQt4+ew4OW7u4BmhC7Y3Kq8dRPmM91r8=;
+        s=korg; t=1637002359;
+        bh=uxvzO8vI/1MfTOotckhQtRIIqL3NLbfdDjS0M6patC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cYXIPSNxze/CtR33XjDo0nfLXlNQJjdBcpxZZ8wqg+P1T6RpoNTYAPGsyH8U+0N9y
-         hWEcbTZlYR6q1YNiYOFIThxMTnzasmc05eauU+7fgA5jZzISBdCFVdLKnaApzoOQpJ
-         P4XJ5YjjWC+YDu9ARZsEDVZsmWYnqlaN/zZtVABM=
+        b=I9dcySwjAiFIDLHNdkJbGLVyWVQFd0PV2Cy5xugjD1N/cMEMe/L5hBjy7Pc+/m7KE
+         ETrm9W7y5TwRChGLN6YzPoAEOjaDZcRfU77Wkar387OnLXzW0pqvrBz9fNO7tZ7jMF
+         FB4sLhLzBftw6bWh4Wvh+Y1BBzCYMka8XVmrzR2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 548/849] bpf: Fix propagation of signed bounds from 64-bit min/max into 32-bit.
-Date:   Mon, 15 Nov 2021 18:00:31 +0100
-Message-Id: <20211115165438.798605722@linuxfoundation.org>
+        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 537/917] wcn36xx: Channel list update before hardware scan
+Date:   Mon, 15 Nov 2021 18:00:32 +0100
+Message-Id: <20211115165446.968510152@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,210 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexei Starovoitov <ast@kernel.org>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-[ Upstream commit 388e2c0b978339dee9b0a81a2e546f8979e021e2 ]
+[ Upstream commit d707f812bb0513ea0030d0c9fe2a456bae5a4583 ]
 
-Similar to unsigned bounds propagation fix signed bounds.
-The 'Fixes' tag is a hint. There is no security bug here.
-The verifier was too conservative.
+The channel scan list must be updated before triggering a hardware scan
+so that firmware takes into account the regulatory info for each single
+channel such as active/passive config, power, DFS, etc... Without this
+the firmware uses its own internal default channel configuration, which
+is not aligned with mac80211 regulatory rules, and misses several
+channels (e.g. 144).
 
-Fixes: 3f50f132d840 ("bpf: Verifier, do explicit ALU32 bounds tracking")
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20211101222153.78759-2-alexei.starovoitov@gmail.com
+Fixes: 2f3bef4b247e ("wcn36xx: Add hardware scan offload support")
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1635175328-25642-1-git-send-email-loic.poulain@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/wcn36xx/hal.h  | 32 ++++++++++
+ drivers/net/wireless/ath/wcn36xx/main.c |  1 +
+ drivers/net/wireless/ath/wcn36xx/smd.c  | 82 +++++++++++++++++++++++++
+ drivers/net/wireless/ath/wcn36xx/smd.h  |  1 +
+ 4 files changed, 116 insertions(+)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index b9fb079559a6d..4dd9cedfc453d 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -1397,7 +1397,7 @@ static void __reg_combine_32_into_64(struct bpf_reg_state *reg)
+diff --git a/drivers/net/wireless/ath/wcn36xx/hal.h b/drivers/net/wireless/ath/wcn36xx/hal.h
+index 455143c4164ee..de3bca043c2b3 100644
+--- a/drivers/net/wireless/ath/wcn36xx/hal.h
++++ b/drivers/net/wireless/ath/wcn36xx/hal.h
+@@ -359,6 +359,8 @@ enum wcn36xx_hal_host_msg_type {
+ 	WCN36XX_HAL_START_SCAN_OFFLOAD_RSP = 205,
+ 	WCN36XX_HAL_STOP_SCAN_OFFLOAD_REQ = 206,
+ 	WCN36XX_HAL_STOP_SCAN_OFFLOAD_RSP = 207,
++	WCN36XX_HAL_UPDATE_CHANNEL_LIST_REQ = 208,
++	WCN36XX_HAL_UPDATE_CHANNEL_LIST_RSP = 209,
+ 	WCN36XX_HAL_SCAN_OFFLOAD_IND = 210,
  
- static bool __reg64_bound_s32(s64 a)
- {
--	return a > S32_MIN && a < S32_MAX;
-+	return a >= S32_MIN && a <= S32_MAX;
+ 	WCN36XX_HAL_AVOID_FREQ_RANGE_IND = 233,
+@@ -1353,6 +1355,36 @@ struct wcn36xx_hal_stop_scan_offload_rsp_msg {
+ 	u32 status;
+ } __packed;
+ 
++#define WCN36XX_HAL_CHAN_REG1_MIN_PWR_MASK  0x000000ff
++#define WCN36XX_HAL_CHAN_REG1_MAX_PWR_MASK  0x0000ff00
++#define WCN36XX_HAL_CHAN_REG1_REG_PWR_MASK  0x00ff0000
++#define WCN36XX_HAL_CHAN_REG1_CLASS_ID_MASK 0xff000000
++#define WCN36XX_HAL_CHAN_REG2_ANT_GAIN_MASK 0x000000ff
++#define WCN36XX_HAL_CHAN_INFO_FLAG_PASSIVE  BIT(7)
++#define WCN36XX_HAL_CHAN_INFO_FLAG_DFS      BIT(10)
++#define WCN36XX_HAL_CHAN_INFO_FLAG_HT       BIT(11)
++#define WCN36XX_HAL_CHAN_INFO_FLAG_VHT      BIT(12)
++#define WCN36XX_HAL_CHAN_INFO_PHY_11A       0
++#define WCN36XX_HAL_CHAN_INFO_PHY_11BG      1
++#define WCN36XX_HAL_DEFAULT_ANT_GAIN        6
++#define WCN36XX_HAL_DEFAULT_MIN_POWER       6
++
++struct wcn36xx_hal_channel_param {
++	u32 mhz;
++	u32 band_center_freq1;
++	u32 band_center_freq2;
++	u32 channel_info;
++	u32 reg_info_1;
++	u32 reg_info_2;
++} __packed;
++
++struct wcn36xx_hal_update_channel_list_req_msg {
++	struct wcn36xx_hal_msg_header header;
++
++	u8 num_channel;
++	struct wcn36xx_hal_channel_param channels[80];
++} __packed;
++
+ enum wcn36xx_hal_rate_index {
+ 	HW_RATE_INDEX_1MBPS	= 0x82,
+ 	HW_RATE_INDEX_2MBPS	= 0x84,
+diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
+index 5974b01f2fd92..5d82aca370a72 100644
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -671,6 +671,7 @@ static int wcn36xx_hw_scan(struct ieee80211_hw *hw,
+ 
+ 	mutex_unlock(&wcn->scan_lock);
+ 
++	wcn36xx_smd_update_channel_list(wcn, &hw_req->req);
+ 	return wcn36xx_smd_start_hw_scan(wcn, vif, &hw_req->req);
  }
  
- static bool __reg64_bound_u32(u64 a)
+diff --git a/drivers/net/wireless/ath/wcn36xx/smd.c b/drivers/net/wireless/ath/wcn36xx/smd.c
+index f6bea896abe85..70bffe3d87a12 100644
+--- a/drivers/net/wireless/ath/wcn36xx/smd.c
++++ b/drivers/net/wireless/ath/wcn36xx/smd.c
+@@ -16,6 +16,7 @@
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
++#include <linux/bitfield.h>
+ #include <linux/etherdevice.h>
+ #include <linux/firmware.h>
+ #include <linux/bitops.h>
+@@ -927,6 +928,86 @@ out:
+ 	return ret;
+ }
+ 
++int wcn36xx_smd_update_channel_list(struct wcn36xx *wcn, struct cfg80211_scan_request *req)
++{
++	struct wcn36xx_hal_update_channel_list_req_msg *msg_body;
++	int ret, i;
++
++	msg_body = kzalloc(sizeof(*msg_body), GFP_KERNEL);
++	if (!msg_body)
++		return -ENOMEM;
++
++	INIT_HAL_MSG((*msg_body), WCN36XX_HAL_UPDATE_CHANNEL_LIST_REQ);
++
++	msg_body->num_channel = min_t(u8, req->n_channels, sizeof(msg_body->channels));
++	for (i = 0; i < msg_body->num_channel; i++) {
++		struct wcn36xx_hal_channel_param *param = &msg_body->channels[i];
++		u32 min_power = WCN36XX_HAL_DEFAULT_MIN_POWER;
++		u32 ant_gain = WCN36XX_HAL_DEFAULT_ANT_GAIN;
++
++		param->mhz = req->channels[i]->center_freq;
++		param->band_center_freq1 = req->channels[i]->center_freq;
++		param->band_center_freq2 = 0;
++
++		if (req->channels[i]->flags & IEEE80211_CHAN_NO_IR)
++			param->channel_info |= WCN36XX_HAL_CHAN_INFO_FLAG_PASSIVE;
++
++		if (req->channels[i]->flags & IEEE80211_CHAN_RADAR)
++			param->channel_info |= WCN36XX_HAL_CHAN_INFO_FLAG_DFS;
++
++		if (req->channels[i]->band == NL80211_BAND_5GHZ) {
++			param->channel_info |= WCN36XX_HAL_CHAN_INFO_FLAG_HT;
++			param->channel_info |= WCN36XX_HAL_CHAN_INFO_FLAG_VHT;
++			param->channel_info |= WCN36XX_HAL_CHAN_INFO_PHY_11A;
++		} else {
++			param->channel_info |= WCN36XX_HAL_CHAN_INFO_PHY_11BG;
++		}
++
++		if (min_power > req->channels[i]->max_power)
++			min_power = req->channels[i]->max_power;
++
++		if (req->channels[i]->max_antenna_gain)
++			ant_gain = req->channels[i]->max_antenna_gain;
++
++		u32p_replace_bits(&param->reg_info_1, min_power,
++				  WCN36XX_HAL_CHAN_REG1_MIN_PWR_MASK);
++		u32p_replace_bits(&param->reg_info_1, req->channels[i]->max_power,
++				  WCN36XX_HAL_CHAN_REG1_MAX_PWR_MASK);
++		u32p_replace_bits(&param->reg_info_1, req->channels[i]->max_reg_power,
++				  WCN36XX_HAL_CHAN_REG1_REG_PWR_MASK);
++		u32p_replace_bits(&param->reg_info_1, 0,
++				  WCN36XX_HAL_CHAN_REG1_CLASS_ID_MASK);
++		u32p_replace_bits(&param->reg_info_2, ant_gain,
++				  WCN36XX_HAL_CHAN_REG2_ANT_GAIN_MASK);
++
++		wcn36xx_dbg(WCN36XX_DBG_HAL,
++			    "%s: freq=%u, channel_info=%08x, reg_info1=%08x, reg_info2=%08x\n",
++			    __func__, param->mhz, param->channel_info, param->reg_info_1,
++			    param->reg_info_2);
++	}
++
++	mutex_lock(&wcn->hal_mutex);
++
++	PREPARE_HAL_BUF(wcn->hal_buf, (*msg_body));
++
++	ret = wcn36xx_smd_send_and_wait(wcn, msg_body->header.len);
++	if (ret) {
++		wcn36xx_err("Sending hal_update_channel_list failed\n");
++		goto out;
++	}
++
++	ret = wcn36xx_smd_rsp_status_check(wcn->hal_buf, wcn->hal_rsp_len);
++	if (ret) {
++		wcn36xx_err("hal_update_channel_list response failed err=%d\n", ret);
++		goto out;
++	}
++
++out:
++	kfree(msg_body);
++	mutex_unlock(&wcn->hal_mutex);
++	return ret;
++}
++
+ static int wcn36xx_smd_switch_channel_rsp(void *buf, size_t len)
+ {
+ 	struct wcn36xx_hal_switch_channel_rsp_msg *rsp;
+@@ -3082,6 +3163,7 @@ int wcn36xx_smd_rsp_process(struct rpmsg_device *rpdev,
+ 	case WCN36XX_HAL_GTK_OFFLOAD_RSP:
+ 	case WCN36XX_HAL_GTK_OFFLOAD_GETINFO_RSP:
+ 	case WCN36XX_HAL_HOST_RESUME_RSP:
++	case WCN36XX_HAL_UPDATE_CHANNEL_LIST_RSP:
+ 		memcpy(wcn->hal_buf, buf, len);
+ 		wcn->hal_rsp_len = len;
+ 		complete(&wcn->hal_rsp_compl);
+diff --git a/drivers/net/wireless/ath/wcn36xx/smd.h b/drivers/net/wireless/ath/wcn36xx/smd.h
+index d8bded03945d4..d3774568d885e 100644
+--- a/drivers/net/wireless/ath/wcn36xx/smd.h
++++ b/drivers/net/wireless/ath/wcn36xx/smd.h
+@@ -70,6 +70,7 @@ int wcn36xx_smd_update_scan_params(struct wcn36xx *wcn, u8 *channels, size_t cha
+ int wcn36xx_smd_start_hw_scan(struct wcn36xx *wcn, struct ieee80211_vif *vif,
+ 			      struct cfg80211_scan_request *req);
+ int wcn36xx_smd_stop_hw_scan(struct wcn36xx *wcn);
++int wcn36xx_smd_update_channel_list(struct wcn36xx *wcn, struct cfg80211_scan_request *req);
+ int wcn36xx_smd_add_sta_self(struct wcn36xx *wcn, struct ieee80211_vif *vif);
+ int wcn36xx_smd_delete_sta_self(struct wcn36xx *wcn, u8 *addr);
+ int wcn36xx_smd_delete_sta(struct wcn36xx *wcn, u8 sta_index);
 -- 
 2.33.0
 
