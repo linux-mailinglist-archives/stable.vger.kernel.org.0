@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05DDB450BEB
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:28:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02233450E7E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:13:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbhKORbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:31:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50942 "EHLO mail.kernel.org"
+        id S240602AbhKOSP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:15:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237987AbhKOR2d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:28:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DDE16326E;
-        Mon, 15 Nov 2021 17:18:54 +0000 (UTC)
+        id S240254AbhKOSH2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B182E63260;
+        Mon, 15 Nov 2021 17:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996734;
-        bh=WUOszUa6abMStEzb5VLy1TxoqPiX+++P2jKUYPXEycQ=;
+        s=korg; t=1636998242;
+        bh=RHZhCKqopg0/kn8Ha4aSCuMewYbiJVQjlJ6xHIGv4iA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lpcmalveO3EfouaSSFurHk4DeErKssiTQJQklkd+hYK69lkLaBUo1wmXdNoBrga2X
-         aTzpnV2oDwVaOR5befZKMpnjrCSY7nsNncdJjLVO8dXPnPvrt4fSUnFaoGnWIAKhPn
-         vYsr1cFi5N/j23bNZyCqsQYsQ02bjOCPe95Y5Hck=
+        b=KGC/8EV2//Z7eNJWJxfUD01LJ/dhasKzVy8al2ddwjzlZZjQC9XyYZf4XMO9mEowu
+         1vvnMkPW3/L2Kllm25pt25zfSMWhul3/1vvC/dcvDi/326KhXIpLUvgnGiJn+nlTTr
+         yCya7XaxCqqEEQoqyVzeRR+iv945gNYBgvspGwiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        linux-arm-msm@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 241/355] irq: mips: avoid nested irq_enter()
+Subject: [PATCH 5.10 440/575] soc: qcom: rpmhpd: Provide some missing struct member descriptions
 Date:   Mon, 15 Nov 2021 18:02:45 +0100
-Message-Id: <20211115165321.541216738@linuxfoundation.org>
+Message-Id: <20211115165358.980948642@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit c65b52d02f6c1a06ddb20cba175ad49eccd6410d ]
+[ Upstream commit 5d16af6a921f5a4e7038671be5478cba4b7cfe81 ]
 
-As bcm6345_l1_irq_handle() is a chained irqchip handler, it will be
-invoked within the context of the root irqchip handler, which must have
-entered IRQ context already.
+Fixes the following W=1 kernel build warning(s):
 
-When bcm6345_l1_irq_handle() calls arch/mips's do_IRQ() , this will nest
-another call to irq_enter(), and the resulting nested increment to
-`rcu_data.dynticks_nmi_nesting` will cause rcu_is_cpu_rrupt_from_idle()
-to fail to identify wakeups from idle, resulting in failure to preempt,
-and RCU stalls.
+ drivers/soc/qcom/rpmhpd.c:52: warning: Function parameter or member 'parent' not described in 'rpmhpd'
+ drivers/soc/qcom/rpmhpd.c:52: warning: Function parameter or member 'corner' not described in 'rpmhpd'
+ drivers/soc/qcom/rpmhpd.c:52: warning: Function parameter or member 'active_corner' not described in 'rpmhpd'
 
-Chained irqchip handlers must invoke IRQ handlers by way of thee core
-irqchip code, i.e. generic_handle_irq() or generic_handle_domain_irq()
-and should not call do_IRQ(), which is intended only for root irqchip
-handlers.
-
-Fix bcm6345_l1_irq_handle() by calling generic_handle_irq() directly.
-
-Fixes: c7c42ec2baa1de7a ("irqchips/bmips: Add bcm6345-l1 interrupt controller")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andy Gross <agross@kernel.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: linux-arm-msm@vger.kernel.org
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20201103152838.1290217-22-lee.jones@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-bcm6345-l1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/qcom/rpmhpd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/irqchip/irq-bcm6345-l1.c b/drivers/irqchip/irq-bcm6345-l1.c
-index e3483789f4df3..1bd0621c4ce2a 100644
---- a/drivers/irqchip/irq-bcm6345-l1.c
-+++ b/drivers/irqchip/irq-bcm6345-l1.c
-@@ -140,7 +140,7 @@ static void bcm6345_l1_irq_handle(struct irq_desc *desc)
- 		for_each_set_bit(hwirq, &pending, IRQS_PER_WORD) {
- 			irq = irq_linear_revmap(intc->domain, base + hwirq);
- 			if (irq)
--				do_IRQ(irq);
-+				generic_handle_irq(irq);
- 			else
- 				spurious_interrupt();
- 		}
+diff --git a/drivers/soc/qcom/rpmhpd.c b/drivers/soc/qcom/rpmhpd.c
+index c8b584d0c8fb4..e7cb40144f9b1 100644
+--- a/drivers/soc/qcom/rpmhpd.c
++++ b/drivers/soc/qcom/rpmhpd.c
+@@ -24,9 +24,12 @@
+  * struct rpmhpd - top level RPMh power domain resource data structure
+  * @dev:		rpmh power domain controller device
+  * @pd:			generic_pm_domain corrresponding to the power domain
++ * @parent:		generic_pm_domain corrresponding to the parent's power domain
+  * @peer:		A peer power domain in case Active only Voting is
+  *			supported
+  * @active_only:	True if it represents an Active only peer
++ * @corner:		current corner
++ * @active_corner:	current active corner
+  * @level:		An array of level (vlvl) to corner (hlvl) mappings
+  *			derived from cmd-db
+  * @level_count:	Number of levels supported by the power domain. max
 -- 
 2.33.0
 
