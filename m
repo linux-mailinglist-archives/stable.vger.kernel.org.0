@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80FEC450C95
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:37:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08A0F450FF3
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:36:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238126AbhKORkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:40:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57846 "EHLO mail.kernel.org"
+        id S238547AbhKOSjO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:39:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237927AbhKORiE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:38:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DBE2632DA;
-        Mon, 15 Nov 2021 17:25:13 +0000 (UTC)
+        id S242418AbhKOSgr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:36:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6676663265;
+        Mon, 15 Nov 2021 18:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997114;
-        bh=MiBkU6WJJa83DEySVBix5yLDPtxIQ/MaGn6qcDzuykU=;
+        s=korg; t=1636999370;
+        bh=bdA4od0Cb7Y4wqt3UMfuRDsBN8i3eU/RJvKox2WQC+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BJMJTPOsFqxn0xAAyuYtO+Y8RY/vj5pzfh4YgKTqUaOYZEc7htiisEG1RuIbmqMGX
-         UdaT4wagiAENOdub78aUScgmWqrqaRkXSSYHCtwc0588i+3IFZOk6ZmmcNIMRvy21S
-         BHyenHNvu0Z7hc2hjLcxKKaQ4Cxs38rduY7wfML8=
+        b=KWCO0fPD+hRq3GgLlHrLfie95aFPu8vUtTejFDDJPcAetZIuBItebvRf6lNdHn9SY
+         V1GB9EQvjdnG1SUhvVRNd7zkdb5vc5vMm4nb29Gip2Mb3Nyiewkf6+FD0P/l2Yll9I
+         ci1v538NOyYhxmumg8K+WJVtMdsS9irakSihrGFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Soller <jeremy@system76.com>,
-        Tim Crawford <tcrawford@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 030/575] ALSA: hda/realtek: Headset fixup for Clevo NH77HJQ
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 272/849] iov_iter: Fix iov_iter_get_pages{,_alloc} page fault return value
 Date:   Mon, 15 Nov 2021 17:55:55 +0100
-Message-Id: <20211115165344.659128944@linuxfoundation.org>
+Message-Id: <20211115165429.450395212@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Soller <jeremy@system76.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 1278cc5ac2f96bab50dd55c8c05e0a6a77ce323e upstream.
+[ Upstream commit 814a66741b9ffb5e1ba119e368b178edb0b7322d ]
 
-On Clevo NH77HJ, NH77HP, and their 15" variants, there is a headset
-microphone input attached to 0x19 that does not have a jack detect. In
-order to get it working, the pin configuration needs to be set
-correctly, and a new ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE fixup is
-applied. This is similar to the existing System76 quirk for ALC293, but
-for ALC256.
+Both iov_iter_get_pages and iov_iter_get_pages_alloc return the number
+of bytes of the iovec they could get the pages for.  When they cannot
+get any pages, they're supposed to return 0, but when the start of the
+iovec isn't page aligned, the calculation goes wrong and they return a
+negative value.  Fix both functions.
 
-Signed-off-by: Jeremy Soller <jeremy@system76.com>
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211102172104.10610-1-tcrawford@system76.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In addition, change iov_iter_get_pages_alloc to return NULL in that case
+to prevent resource leaks.
+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ lib/iov_iter.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6645,6 +6645,7 @@ enum {
- 	ALC287_FIXUP_YOGA7_14ITL_SPEAKERS,
- 	ALC287_FIXUP_13S_GEN2_SPEAKERS,
- 	ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS,
-+	ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE,
- };
- 
- static const struct hda_fixup alc269_fixups[] = {
-@@ -8346,6 +8347,15 @@ static const struct hda_fixup alc269_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc245_fixup_hp_gpio_led,
- 	},
-+	[ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x19, 0x03a11120 }, /* use as headset mic, without its own jack detect */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8642,11 +8652,15 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1558, 0x40a1, "Clevo NL40GU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x40c1, "Clevo NL40[CZ]U", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x40d1, "Clevo NL41DU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x5015, "Clevo NH5[58]H[HJK]Q", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x5017, "Clevo NH7[79]H[HJK]Q", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50a3, "Clevo NJ51GU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50b3, "Clevo NK50S[BEZ]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50b6, "Clevo NK50S5", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50b8, "Clevo NK50SZ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50d5, "Clevo NP50D5", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x50e1, "Clevo NH5[58]HPQ", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x50e2, "Clevo NH7[79]HPQ", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50f0, "Clevo NH50A[CDF]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50f2, "Clevo NH50E[PR]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50f3, "Clevo NH58DPQ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+diff --git a/lib/iov_iter.c b/lib/iov_iter.c
+index e23123ae3a137..25dfc48536d72 100644
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -1484,7 +1484,7 @@ ssize_t iov_iter_get_pages(struct iov_iter *i,
+ 		res = get_user_pages_fast(addr, n,
+ 				iov_iter_rw(i) != WRITE ?  FOLL_WRITE : 0,
+ 				pages);
+-		if (unlikely(res < 0))
++		if (unlikely(res <= 0))
+ 			return res;
+ 		return (res == n ? len : res * PAGE_SIZE) - *start;
+ 	}
+@@ -1608,8 +1608,9 @@ ssize_t iov_iter_get_pages_alloc(struct iov_iter *i,
+ 			return -ENOMEM;
+ 		res = get_user_pages_fast(addr, n,
+ 				iov_iter_rw(i) != WRITE ?  FOLL_WRITE : 0, p);
+-		if (unlikely(res < 0)) {
++		if (unlikely(res <= 0)) {
+ 			kvfree(p);
++			*pages = NULL;
+ 			return res;
+ 		}
+ 		*pages = p;
+-- 
+2.33.0
+
 
 
