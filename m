@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA9D450B0B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:14:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8208245111A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237133AbhKORR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:17:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52500 "EHLO mail.kernel.org"
+        id S243392AbhKOTBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:01:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237001AbhKORP6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:15:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4299C61B73;
-        Mon, 15 Nov 2021 17:12:10 +0000 (UTC)
+        id S243487AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:59:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC62661AF0;
+        Mon, 15 Nov 2021 18:13:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996330;
-        bh=9s+rSDvOy7U06gwzWgfNajdvN6FhbtNsak6QIH8Ju9I=;
+        s=korg; t=1637000018;
+        bh=FUUzhV0aQZHF45SsL1ZUN80Nlr/CDWDn2vwQsaJOprA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zy9TL2W/F6i1RrXqJd//38z8D0RUq0788fHeQq0j4S2p3+EpsTWqttWHgUyEZkJCL
-         UmKqAXQrlFEewmaoFlfgmt90SV8759B6DlpdML7e0DOWvKXFxahSXcCEQZ2qYIxTOy
-         AOTd4P6RKEGwLbvH6W4mK4peUNfzN5zLYY1sASJE=
+        b=txSQUiLHLMPauq79XP83qM40+deBMJKNZBbzNgC0Lo3Cx2koho3l2AlbKaZoVFyLd
+         ZdP2dkWfNKseSJkhHH/fDvn5ueIFSYuozsZdijrqZcz3TO6ry8KHWsJ9bQjsYFwLDG
+         p8VR/ZjsalLu0pqGYO451WL52EuYjqqdCi0uaMaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Rob Herring <robh@kernel.org>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 067/355] regulator: dt-bindings: samsung,s5m8767: correct s5m8767,pmic-buck-default-dvs-idx property
+        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
+        linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 508/849] block: ataflop: more blk-mq refactoring fixes
 Date:   Mon, 15 Nov 2021 17:59:51 +0100
-Message-Id: <20211115165315.973860771@linuxfoundation.org>
+Message-Id: <20211115165437.471352298@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,218 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Michael Schmitz <schmitzmic@gmail.com>
 
-commit a7fda04bc9b6ad9da8e19c9e6e3b1dab773d068a upstream.
+[ Upstream commit d28e4dff085c5a87025c9a0a85fb798bd8e9ca17 ]
 
-The driver was always parsing "s5m8767,pmic-buck-default-dvs-idx", not
-"s5m8767,pmic-buck234-default-dvs-idx".
+As it turns out, my earlier patch in commit 86d46fdaa12a (block:
+ataflop: fix breakage introduced at blk-mq refactoring) was
+incomplete. This patch fixes any remaining issues found during
+more testing and code review.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 26aec009f6b6 ("regulator: add device tree support for s5m8767")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Message-Id: <20211008113723.134648-3-krzysztof.kozlowski@canonical.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Requests exceeding 4 k are handled in 4k segments but
+__blk_mq_end_request() is never called on these (still
+sectors outstanding on the request). With redo_fd_request()
+removed, there is no provision to kick off processing of the
+next segment, causing requests exceeding 4k to hang. (By
+setting /sys/block/fd0/queue/max_sectors_k <= 4 as workaround,
+this behaviour can be avoided).
+
+Instead of reintroducing redo_fd_request(), requeue the remainder
+of the request by calling blk_mq_requeue_request() on incomplete
+requests (i.e. when blk_update_request() still returns true), and
+rely on the block layer to queue the residual as new request.
+
+Both error handling and formatting needs to release the
+ST-DMA lock, so call finish_fdc() on these (this was previously
+handled by redo_fd_request()). finish_fdc() may be called
+legitimately without the ST-DMA lock held - make sure we only
+release the lock if we actually held it. In a similar way,
+early exit due to errors in ataflop_queue_rq() must release
+the lock.
+
+After minor errors, fd_error sets up to recalibrate the drive
+but never re-runs the current operation (another task handled by
+redo_fd_request() before). Call do_fd_action() to get the next
+steps (seek, retry read/write) underway.
+
+Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
+Fixes: 6ec3938cff95f (ataflop: convert to blk-mq)
+CC: linux-block@vger.kernel.org
+Link: https://lore.kernel.org/r/20211024002013.9332-1-schmitzmic@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/ataflop.c | 45 +++++++++++++++++++++++++++++++++++------
+ 1 file changed, 39 insertions(+), 6 deletions(-)
 
---- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-+++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-@@ -39,7 +39,7 @@ Optional properties of the main device n
+diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
+index bbb64331cf8f4..4947e41f89b7d 100644
+--- a/drivers/block/ataflop.c
++++ b/drivers/block/ataflop.c
+@@ -456,10 +456,20 @@ static DEFINE_TIMER(fd_timer, check_change);
+ 	
+ static void fd_end_request_cur(blk_status_t err)
+ {
++	DPRINT(("fd_end_request_cur(), bytes %d of %d\n",
++		blk_rq_cur_bytes(fd_request),
++		blk_rq_bytes(fd_request)));
++
+ 	if (!blk_update_request(fd_request, err,
+ 				blk_rq_cur_bytes(fd_request))) {
++		DPRINT(("calling __blk_mq_end_request()\n"));
+ 		__blk_mq_end_request(fd_request, err);
+ 		fd_request = NULL;
++	} else {
++		/* requeue rest of request */
++		DPRINT(("calling blk_mq_requeue_request()\n"));
++		blk_mq_requeue_request(fd_request, true);
++		fd_request = NULL;
+ 	}
+ }
  
- Additional properties required if either of the optional properties are used:
+@@ -697,12 +707,21 @@ static void fd_error( void )
+ 	if (fd_request->error_count >= MAX_ERRORS) {
+ 		printk(KERN_ERR "fd%d: too many errors.\n", SelectedDrive );
+ 		fd_end_request_cur(BLK_STS_IOERR);
++		finish_fdc();
++		return;
+ 	}
+ 	else if (fd_request->error_count == RECALIBRATE_ERRORS) {
+ 		printk(KERN_WARNING "fd%d: recalibrating\n", SelectedDrive );
+ 		if (SelectedDrive != -1)
+ 			SUD.track = -1;
+ 	}
++	/* need to re-run request to recalibrate */
++	atari_disable_irq( IRQ_MFP_FDC );
++
++	setup_req_params( SelectedDrive );
++	do_fd_action( SelectedDrive );
++
++	atari_enable_irq( IRQ_MFP_FDC );
+ }
  
-- - s5m8767,pmic-buck234-default-dvs-idx: Default voltage setting selected from
-+ - s5m8767,pmic-buck-default-dvs-idx: Default voltage setting selected from
-    the possible 8 options selectable by the dvs gpios. The value of this
-    property should be between 0 and 7. If not specified or if out of range, the
-    default value of this property is set to 0.
+ 
+@@ -729,8 +748,10 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
+ 	if (type) {
+ 		type--;
+ 		if (type >= NUM_DISK_MINORS ||
+-		    minor2disktype[type].drive_types > DriveType)
++		    minor2disktype[type].drive_types > DriveType) {
++			finish_fdc();
+ 			return -EINVAL;
++		}
+ 	}
+ 
+ 	q = unit[drive].disk[type]->queue;
+@@ -748,6 +769,7 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
+ 	}
+ 
+ 	if (!UDT || desc->track >= UDT->blocks/UDT->spt/2 || desc->head >= 2) {
++		finish_fdc();
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+@@ -788,6 +810,7 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
+ 
+ 	wait_for_completion(&format_wait);
+ 
++	finish_fdc();
+ 	ret = FormatError ? -EIO : 0;
+ out:
+ 	blk_mq_unquiesce_queue(q);
+@@ -822,6 +845,7 @@ static void do_fd_action( int drive )
+ 		    else {
+ 			/* all sectors finished */
+ 			fd_end_request_cur(BLK_STS_OK);
++			finish_fdc();
+ 			return;
+ 		    }
+ 		}
+@@ -1225,8 +1249,8 @@ static void fd_rwsec_done1(int status)
+ 	}
+ 	else {
+ 		/* all sectors finished */
+-		finish_fdc();
+ 		fd_end_request_cur(BLK_STS_OK);
++		finish_fdc();
+ 	}
+ 	return;
+   
+@@ -1348,7 +1372,7 @@ static void fd_times_out(struct timer_list *unused)
+ 
+ static void finish_fdc( void )
+ {
+-	if (!NeedSeek) {
++	if (!NeedSeek || !stdma_is_locked_by(floppy_irq)) {
+ 		finish_fdc_done( 0 );
+ 	}
+ 	else {
+@@ -1383,7 +1407,8 @@ static void finish_fdc_done( int dummy )
+ 	start_motor_off_timer();
+ 
+ 	local_irq_save(flags);
+-	stdma_release();
++	if (stdma_is_locked_by(floppy_irq))
++		stdma_release();
+ 	local_irq_restore(flags);
+ 
+ 	DPRINT(("finish_fdc() finished\n"));
+@@ -1480,7 +1505,9 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	int drive = floppy - unit;
+ 	int type = floppy->type;
+ 
+-	DPRINT(("Queue request: drive %d type %d last %d\n", drive, type, bd->last));
++	DPRINT(("Queue request: drive %d type %d sectors %d of %d last %d\n",
++		drive, type, blk_rq_cur_sectors(bd->rq),
++		blk_rq_sectors(bd->rq), bd->last));
+ 
+ 	spin_lock_irq(&ataflop_lock);
+ 	if (fd_request) {
+@@ -1502,6 +1529,7 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 		/* drive not connected */
+ 		printk(KERN_ERR "Unknown Device: fd%d\n", drive );
+ 		fd_end_request_cur(BLK_STS_IOERR);
++		stdma_release();
+ 		goto out;
+ 	}
+ 		
+@@ -1518,11 +1546,13 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 		if (--type >= NUM_DISK_MINORS) {
+ 			printk(KERN_WARNING "fd%d: invalid disk format", drive );
+ 			fd_end_request_cur(BLK_STS_IOERR);
++			stdma_release();
+ 			goto out;
+ 		}
+ 		if (minor2disktype[type].drive_types > DriveType)  {
+ 			printk(KERN_WARNING "fd%d: unsupported disk format", drive );
+ 			fd_end_request_cur(BLK_STS_IOERR);
++			stdma_release();
+ 			goto out;
+ 		}
+ 		type = minor2disktype[type].index;
+@@ -1623,6 +1653,7 @@ static int fd_locked_ioctl(struct block_device *bdev, fmode_t mode,
+ 		/* what if type > 0 here? Overwrite specified entry ? */
+ 		if (type) {
+ 		        /* refuse to re-set a predefined type for now */
++			finish_fdc();
+ 			return -EINVAL;
+ 		}
+ 
+@@ -1690,8 +1721,10 @@ static int fd_locked_ioctl(struct block_device *bdev, fmode_t mode,
+ 
+ 		/* sanity check */
+ 		if (setprm.track != dtp->blocks/dtp->spt/2 ||
+-		    setprm.head != 2)
++		    setprm.head != 2) {
++			finish_fdc();
+ 			return -EINVAL;
++		}
+ 
+ 		UDT = dtp;
+ 		set_capacity(disk, UDT->blocks);
+-- 
+2.33.0
+
 
 
