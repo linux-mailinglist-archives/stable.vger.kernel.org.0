@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1BBF450DC8
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:04:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ED40450AED
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239870AbhKOSHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:07:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
+        id S232098AbhKORQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:16:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239543AbhKOSBT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:01:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13DD563349;
-        Mon, 15 Nov 2021 17:36:45 +0000 (UTC)
+        id S236814AbhKOROx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:14:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFFA163251;
+        Mon, 15 Nov 2021 17:11:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997806;
-        bh=9+lUQniHAAywrW77hocU9ltMPxQVAbh3iCnAv3SaDK4=;
+        s=korg; t=1636996282;
+        bh=r0LGiRnDZpsEmQpGpk932AmsmzSV1AM7R+XdtkUqyU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2DKeLzSWR3kml0B6BaaBX1StJlIfSl9NHeZSdE7lRdPFffqZEYyanWlqFCevS9DU
-         j8Hd+M9Wfb/WaL5UswxCv3mzok1pugCdGM+2W8GPEuETn0263g74w1PQH+hI2aIHRA
-         5SuisMfwW2+u1/b29Ff2cF4qBi4PX978BMMF2ON0=
+        b=1ykZzd98O1UV2dTkDoHgAQH9jnJPEFRQTjqg3A60UFemclolcyoHkFyODcpMEPLPP
+         FZap0/LBndrZ5Q/LN+8Z7n7qC3g7Vr5oXxWfMZrzoNc1sl+bMF4ubkDcpS+1blQ0E2
+         YYZQBmHmLQvRy1HXP/890k69ZLir8+0TnHMiZbcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>,
-        Jouni Malinen <jouni@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 281/575] ath11k: fix packet drops due to incorrect 6 GHz freq value in rx status
+        Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 082/355] rsi: fix key enabled check causing unwanted encryption for vap_id > 0
 Date:   Mon, 15 Nov 2021 18:00:06 +0100
-Message-Id: <20211115165353.498364994@linuxfoundation.org>
+Message-Id: <20211115165316.453383099@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,84 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-[ Upstream commit 9d6ae1f5cf733c0e8d7f904c501fd015c4b9f0f4 ]
+commit 99ac6018821253ec67f466086afb63fc18ea48e2 upstream.
 
-Frequency in rx status is being filled incorrectly in the 6 GHz band as
-channel number received is invalid in this case which is causing packet
-drops. So fix that.
+My previous patch checked if encryption should be enabled by directly
+checking info->control.hw_key (like the downstream driver).
+However that missed that the control and driver_info members of
+struct ieee80211_tx_info are union fields.
 
-Fixes: 5dcf42f8b79d ("ath11k: Use freq instead of channel number in rx path")
-Signed-off-by: Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Due to this when rsi_core_xmit() updates fields in "tx_params"
+(driver_info) it can overwrite the control.hw_key, causing the result
+of the later test to be incorrect.
+
+With the current structure layout the first byte of control.hw_key is
+overlayed with the vap_id so, since we only test if control.hw_key is
+NULL / non NULL, a non zero vap_id will incorrectly enable encryption.
+
+In basic STA and AP modes the vap_id is always zero so it works but in
+P2P client mode a second VIF is created causing vap_id to be non zero
+and hence encryption to be enabled before keys have been set.
+
+Fix this by extracting the key presence flag to a new field in the driver
+private tx_params structure and populating it first.
+
+Fixes: 314538041b56 ("rsi: fix AP mode with WPA failure due to encrypted EAPOL")
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+CC: stable@vger.kernel.org
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210722102054.43419-2-jouni@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/1630337206-12410-3-git-send-email-martin.fuzzey@flowbird.group
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath11k/dp_rx.c |  9 ++++++---
- drivers/net/wireless/ath/ath11k/wmi.c   | 10 +++++++---
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ drivers/net/wireless/rsi/rsi_91x_core.c |    2 ++
+ drivers/net/wireless/rsi/rsi_91x_hal.c  |    2 +-
+ drivers/net/wireless/rsi/rsi_main.h     |    1 +
+ 3 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
-index 7d6fd8155bb22..2e77dca6b1ad6 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -2303,8 +2303,10 @@ static void ath11k_dp_rx_h_ppdu(struct ath11k *ar, struct hal_rx_desc *rx_desc,
- 	channel_num = ath11k_dp_rx_h_msdu_start_freq(rx_desc);
- 	center_freq = ath11k_dp_rx_h_msdu_start_freq(rx_desc) >> 16;
+--- a/drivers/net/wireless/rsi/rsi_91x_core.c
++++ b/drivers/net/wireless/rsi/rsi_91x_core.c
+@@ -400,6 +400,8 @@ void rsi_core_xmit(struct rsi_common *co
  
--	if (center_freq >= 5935 && center_freq <= 7105) {
-+	if (center_freq >= ATH11K_MIN_6G_FREQ &&
-+	    center_freq <= ATH11K_MAX_6G_FREQ) {
- 		rx_status->band = NL80211_BAND_6GHZ;
-+		rx_status->freq = center_freq;
- 	} else if (channel_num >= 1 && channel_num <= 14) {
- 		rx_status->band = NL80211_BAND_2GHZ;
- 	} else if (channel_num >= 36 && channel_num <= 173) {
-@@ -2322,8 +2324,9 @@ static void ath11k_dp_rx_h_ppdu(struct ath11k *ar, struct hal_rx_desc *rx_desc,
- 				rx_desc, sizeof(struct hal_rx_desc));
- 	}
+ 	info = IEEE80211_SKB_CB(skb);
+ 	tx_params = (struct skb_info *)info->driver_data;
++	/* info->driver_data and info->control part of union so make copy */
++	tx_params->have_key = !!info->control.hw_key;
+ 	wh = (struct ieee80211_hdr *)&skb->data[0];
+ 	tx_params->sta_id = 0;
  
--	rx_status->freq = ieee80211_channel_to_frequency(channel_num,
--							 rx_status->band);
-+	if (rx_status->band != NL80211_BAND_6GHZ)
-+		rx_status->freq = ieee80211_channel_to_frequency(channel_num,
-+								 rx_status->band);
+--- a/drivers/net/wireless/rsi/rsi_91x_hal.c
++++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
+@@ -203,7 +203,7 @@ int rsi_prepare_data_desc(struct rsi_com
+ 		wh->frame_control |= cpu_to_le16(RSI_SET_PS_ENABLE);
  
- 	ath11k_dp_rx_h_rate(ar, rx_desc, rx_status);
- }
-diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
-index e17419c8dde0d..74ebe8e7d1d81 100644
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -5668,8 +5668,10 @@ static void ath11k_mgmt_rx_event(struct ath11k_base *ab, struct sk_buff *skb)
- 	if (rx_ev.status & WMI_RX_STATUS_ERR_MIC)
- 		status->flag |= RX_FLAG_MMIC_ERROR;
+ 	if ((!(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)) &&
+-	    info->control.hw_key) {
++	    tx_params->have_key) {
+ 		if (rsi_is_cipher_wep(common))
+ 			ieee80211_size += 4;
+ 		else
+--- a/drivers/net/wireless/rsi/rsi_main.h
++++ b/drivers/net/wireless/rsi/rsi_main.h
+@@ -139,6 +139,7 @@ struct skb_info {
+ 	u8 internal_hdr_size;
+ 	struct ieee80211_vif *vif;
+ 	u8 vap_id;
++	bool have_key;
+ };
  
--	if (rx_ev.chan_freq >= ATH11K_MIN_6G_FREQ) {
-+	if (rx_ev.chan_freq >= ATH11K_MIN_6G_FREQ &&
-+	    rx_ev.chan_freq <= ATH11K_MAX_6G_FREQ) {
- 		status->band = NL80211_BAND_6GHZ;
-+		status->freq = rx_ev.chan_freq;
- 	} else if (rx_ev.channel >= 1 && rx_ev.channel <= 14) {
- 		status->band = NL80211_BAND_2GHZ;
- 	} else if (rx_ev.channel >= 36 && rx_ev.channel <= ATH11K_MAX_5G_CHAN) {
-@@ -5690,8 +5692,10 @@ static void ath11k_mgmt_rx_event(struct ath11k_base *ab, struct sk_buff *skb)
- 
- 	sband = &ar->mac.sbands[status->band];
- 
--	status->freq = ieee80211_channel_to_frequency(rx_ev.channel,
--						      status->band);
-+	if (status->band != NL80211_BAND_6GHZ)
-+		status->freq = ieee80211_channel_to_frequency(rx_ev.channel,
-+							      status->band);
-+
- 	status->signal = rx_ev.snr + ATH11K_DEFAULT_NOISE_FLOOR;
- 	status->rate_idx = ath11k_mac_bitrate_to_idx(sband, rx_ev.rate / 100);
- 
--- 
-2.33.0
-
+ enum edca_queue {
 
 
