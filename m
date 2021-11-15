@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 616E045128E
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC8D7451295
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346832AbhKOTgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:36:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
+        id S1346935AbhKOThw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:37:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244822AbhKOTRh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244826AbhKOTRh (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:17:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F1F563424;
-        Mon, 15 Nov 2021 18:24:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2710563425;
+        Mon, 15 Nov 2021 18:24:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000653;
-        bh=r+C2PG7f6c6qNCUTfCibo+oL0MlT9iChHKRs1/e7DhU=;
+        s=korg; t=1637000655;
+        bh=x8c3oIyx7mvFo0HRAFo9anyAyJ6HpuZ++qT4atRC9dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FuD+amVVnKXgX8s50eWfEs2NcSBlV+evpKUgBxFujL++rDPV7L78By0A4MKYjfXIE
-         4WJKi5h0fWuAKhdNQtWSugBMy7Vj60FsQnRSTX+eabrfkiUnv+iy+FhmgP8fJdHBAZ
-         yQz1hZKZ9XKea+yO2MEYLaaeT+zLwK0M0Pg3AHQo=
+        b=tHByau3FOEX4dibSH2+sAcoyrmFYfHt5Ugrv2MSade1chPUE+sDaJQQtGI3Sk2h/J
+         92go0xq6q59qBxnemR8mTFZFr0ZRb6zdOEWrMWBM+1Z9vgMa8hZoQ+orNyVoeurqHA
+         utEO/3FlEWi7cNBHPeFHhCE6r+zxU+zKx5PnL0GA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.helllstrom@linux.intel.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Huang Guobin <huangguobin4@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 739/849] drm/ttm: remove ttm_bo_vm_insert_huge()
-Date:   Mon, 15 Nov 2021 18:03:42 +0100
-Message-Id: <20211115165445.247071645@linuxfoundation.org>
+Subject: [PATCH 5.14 740/849] bonding: Fix a use-after-free problem when bond_sysfs_slave_add() failed
+Date:   Mon, 15 Nov 2021 18:03:43 +0100
+Message-Id: <20211115165445.286012098@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -43,360 +41,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Huang Guobin <huangguobin4@huawei.com>
 
-[ Upstream commit 0d979509539ed1df883a30d442177ca7be609565 ]
+[ Upstream commit b93c6a911a3fe926b00add28f3b932007827c4ca ]
 
-The huge page functionality in TTM does not work safely because PUD and
-PMD entries do not have a special bit.
+When I do fuzz test for bonding device interface, I got the following
+use-after-free Calltrace:
 
-get_user_pages_fast() considers any page that passed pmd_huge() as
-usable:
+==================================================================
+BUG: KASAN: use-after-free in bond_enslave+0x1521/0x24f0
+Read of size 8 at addr ffff88825bc11c00 by task ifenslave/7365
 
-	if (unlikely(pmd_trans_huge(pmd) || pmd_huge(pmd) ||
-		     pmd_devmap(pmd))) {
+CPU: 5 PID: 7365 Comm: ifenslave Tainted: G            E     5.15.0-rc1+ #13
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
+Call Trace:
+ dump_stack_lvl+0x6c/0x8b
+ print_address_description.constprop.0+0x48/0x70
+ kasan_report.cold+0x82/0xdb
+ __asan_load8+0x69/0x90
+ bond_enslave+0x1521/0x24f0
+ bond_do_ioctl+0x3e0/0x450
+ dev_ifsioc+0x2ba/0x970
+ dev_ioctl+0x112/0x710
+ sock_do_ioctl+0x118/0x1b0
+ sock_ioctl+0x2e0/0x490
+ __x64_sys_ioctl+0x118/0x150
+ do_syscall_64+0x35/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f19159cf577
+Code: b3 66 90 48 8b 05 11 89 2c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 78
+RSP: 002b:00007ffeb3083c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00007ffeb3084bca RCX: 00007f19159cf577
+RDX: 00007ffeb3083ce0 RSI: 0000000000008990 RDI: 0000000000000003
+RBP: 00007ffeb3084bc4 R08: 0000000000000040 R09: 0000000000000000
+R10: 00007ffeb3084bc0 R11: 0000000000000246 R12: 00007ffeb3083ce0
+R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffeb3083cb0
 
-And vmf_insert_pfn_pmd_prot() unconditionally sets
+Allocated by task 7365:
+ kasan_save_stack+0x23/0x50
+ __kasan_kmalloc+0x83/0xa0
+ kmem_cache_alloc_trace+0x22e/0x470
+ bond_enslave+0x2e1/0x24f0
+ bond_do_ioctl+0x3e0/0x450
+ dev_ifsioc+0x2ba/0x970
+ dev_ioctl+0x112/0x710
+ sock_do_ioctl+0x118/0x1b0
+ sock_ioctl+0x2e0/0x490
+ __x64_sys_ioctl+0x118/0x150
+ do_syscall_64+0x35/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-	entry = pmd_mkhuge(pfn_t_pmd(pfn, prot));
+Freed by task 7365:
+ kasan_save_stack+0x23/0x50
+ kasan_set_track+0x20/0x30
+ kasan_set_free_info+0x24/0x40
+ __kasan_slab_free+0xf2/0x130
+ kfree+0xd1/0x5c0
+ slave_kobj_release+0x61/0x90
+ kobject_put+0x102/0x180
+ bond_sysfs_slave_add+0x7a/0xa0
+ bond_enslave+0x11b6/0x24f0
+ bond_do_ioctl+0x3e0/0x450
+ dev_ifsioc+0x2ba/0x970
+ dev_ioctl+0x112/0x710
+ sock_do_ioctl+0x118/0x1b0
+ sock_ioctl+0x2e0/0x490
+ __x64_sys_ioctl+0x118/0x150
+ do_syscall_64+0x35/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-eg on x86 the page will be _PAGE_PRESENT | PAGE_PSE.
+Last potentially related work creation:
+ kasan_save_stack+0x23/0x50
+ kasan_record_aux_stack+0xb7/0xd0
+ insert_work+0x43/0x190
+ __queue_work+0x2e3/0x970
+ delayed_work_timer_fn+0x3e/0x50
+ call_timer_fn+0x148/0x470
+ run_timer_softirq+0x8a8/0xc50
+ __do_softirq+0x107/0x55f
 
-As such gup_huge_pmd() will try to deref a struct page:
+Second to last potentially related work creation:
+ kasan_save_stack+0x23/0x50
+ kasan_record_aux_stack+0xb7/0xd0
+ insert_work+0x43/0x190
+ __queue_work+0x2e3/0x970
+ __queue_delayed_work+0x130/0x180
+ queue_delayed_work_on+0xa7/0xb0
+ bond_enslave+0xe25/0x24f0
+ bond_do_ioctl+0x3e0/0x450
+ dev_ifsioc+0x2ba/0x970
+ dev_ioctl+0x112/0x710
+ sock_do_ioctl+0x118/0x1b0
+ sock_ioctl+0x2e0/0x490
+ __x64_sys_ioctl+0x118/0x150
+ do_syscall_64+0x35/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-	head = try_grab_compound_head(pmd_page(orig), refs, flags);
+The buggy address belongs to the object at ffff88825bc11c00
+ which belongs to the cache kmalloc-1k of size 1024
+The buggy address is located 0 bytes inside of
+ 1024-byte region [ffff88825bc11c00, ffff88825bc12000)
+The buggy address belongs to the page:
+page:ffffea00096f0400 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x25bc10
+head:ffffea00096f0400 order:3 compound_mapcount:0 compound_pincount:0
+flags: 0x57ff00000010200(slab|head|node=1|zone=2|lastcpupid=0x7ff)
+raw: 057ff00000010200 ffffea0009a71c08 ffff888240001968 ffff88810004dbc0
+raw: 0000000000000000 00000000000a000a 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
 
-and thus crash.
+Memory state around the buggy address:
+ ffff88825bc11b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88825bc11b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88825bc11c00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                   ^
+ ffff88825bc11c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88825bc11d00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
 
-Thomas further notices that the drivers are not expecting the struct page
-to be used by anything - in particular the refcount incr above will cause
-them to malfunction.
+Put new_slave in bond_sysfs_slave_add() will cause use-after-free problems
+when new_slave is accessed in the subsequent error handling process. Since
+new_slave will be put in the subsequent error handling process, remove the
+unnecessary put to fix it.
+In addition, when sysfs_create_file() fails, if some files have been crea-
+ted successfully, we need to call sysfs_remove_file() to remove them.
+Since there are sysfs_create_files() & sysfs_remove_files() can be used,
+use these two functions instead.
 
-Thus everything about this is not able to fully work correctly considering
-GUP_fast. Delete it entirely. It can return someday along with a proper
-PMD/PUD_SPECIAL bit in the page table itself to gate GUP_fast.
-
-Fixes: 314b6580adc5 ("drm/ttm, drm/vmwgfx: Support huge TTM pagefaults")
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Thomas Hellström <thomas.helllstrom@linux.intel.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-[danvet: Update subject per Thomas' &Christian's review]
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/0-v2-a44694790652+4ac-ttm_pmd_jgg@nvidia.com
+Fixes: 7afcaec49696 (bonding: use kobject_put instead of _del after kobject_add)
+Signed-off-by: Huang Guobin <huangguobin4@huawei.com>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c    |  2 +-
- drivers/gpu/drm/nouveau/nouveau_gem.c      |  2 +-
- drivers/gpu/drm/radeon/radeon_gem.c        |  2 +-
- drivers/gpu/drm/ttm/ttm_bo_vm.c            | 94 +---------------------
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.h        |  4 -
- drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c | 72 +----------------
- drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c   |  3 -
- include/drm/ttm/ttm_bo_api.h               |  3 +-
- 8 files changed, 7 insertions(+), 175 deletions(-)
+ drivers/net/bonding/bond_sysfs_slave.c | 36 ++++++++------------------
+ 1 file changed, 11 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-index 9a67746c10edd..b14ff19231b91 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-@@ -61,7 +61,7 @@ static vm_fault_t amdgpu_gem_fault(struct vm_fault *vmf)
- 		}
- 
- 		 ret = ttm_bo_vm_fault_reserved(vmf, vmf->vma->vm_page_prot,
--						TTM_BO_VM_NUM_PREFAULT, 1);
-+						TTM_BO_VM_NUM_PREFAULT);
- 
- 		 drm_dev_exit(idx);
- 	} else {
-diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.c b/drivers/gpu/drm/nouveau/nouveau_gem.c
-index 8c2ecc2827232..c89d5964148fd 100644
---- a/drivers/gpu/drm/nouveau/nouveau_gem.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_gem.c
-@@ -56,7 +56,7 @@ static vm_fault_t nouveau_ttm_fault(struct vm_fault *vmf)
- 
- 	nouveau_bo_del_io_reserve_lru(bo);
- 	prot = vm_get_page_prot(vma->vm_flags);
--	ret = ttm_bo_vm_fault_reserved(vmf, prot, TTM_BO_VM_NUM_PREFAULT, 1);
-+	ret = ttm_bo_vm_fault_reserved(vmf, prot, TTM_BO_VM_NUM_PREFAULT);
- 	nouveau_bo_add_io_reserve_lru(bo);
- 	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
- 		return ret;
-diff --git a/drivers/gpu/drm/radeon/radeon_gem.c b/drivers/gpu/drm/radeon/radeon_gem.c
-index 458f92a708879..a36a4f2c76b09 100644
---- a/drivers/gpu/drm/radeon/radeon_gem.c
-+++ b/drivers/gpu/drm/radeon/radeon_gem.c
-@@ -61,7 +61,7 @@ static vm_fault_t radeon_gem_fault(struct vm_fault *vmf)
- 		goto unlock_resv;
- 
- 	ret = ttm_bo_vm_fault_reserved(vmf, vmf->vma->vm_page_prot,
--				       TTM_BO_VM_NUM_PREFAULT, 1);
-+				       TTM_BO_VM_NUM_PREFAULT);
- 	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
- 		goto unlock_mclk;
- 
-diff --git a/drivers/gpu/drm/ttm/ttm_bo_vm.c b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-index 5b9b7fd01a692..4a655ab23c89d 100644
---- a/drivers/gpu/drm/ttm/ttm_bo_vm.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-@@ -171,89 +171,6 @@ vm_fault_t ttm_bo_vm_reserve(struct ttm_buffer_object *bo,
+diff --git a/drivers/net/bonding/bond_sysfs_slave.c b/drivers/net/bonding/bond_sysfs_slave.c
+index fd07561da0348..6a6cdd0bb2585 100644
+--- a/drivers/net/bonding/bond_sysfs_slave.c
++++ b/drivers/net/bonding/bond_sysfs_slave.c
+@@ -108,15 +108,15 @@ static ssize_t ad_partner_oper_port_state_show(struct slave *slave, char *buf)
  }
- EXPORT_SYMBOL(ttm_bo_vm_reserve);
+ static SLAVE_ATTR_RO(ad_partner_oper_port_state);
  
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--/**
-- * ttm_bo_vm_insert_huge - Insert a pfn for PUD or PMD faults
-- * @vmf: Fault data
-- * @bo: The buffer object
-- * @page_offset: Page offset from bo start
-- * @fault_page_size: The size of the fault in pages.
-- * @pgprot: The page protections.
-- * Does additional checking whether it's possible to insert a PUD or PMD
-- * pfn and performs the insertion.
-- *
-- * Return: VM_FAULT_NOPAGE on successful insertion, VM_FAULT_FALLBACK if
-- * a huge fault was not possible, or on insertion error.
-- */
--static vm_fault_t ttm_bo_vm_insert_huge(struct vm_fault *vmf,
--					struct ttm_buffer_object *bo,
--					pgoff_t page_offset,
--					pgoff_t fault_page_size,
--					pgprot_t pgprot)
--{
--	pgoff_t i;
--	vm_fault_t ret;
--	unsigned long pfn;
--	pfn_t pfnt;
--	struct ttm_tt *ttm = bo->ttm;
--	bool write = vmf->flags & FAULT_FLAG_WRITE;
--
--	/* Fault should not cross bo boundary. */
--	page_offset &= ~(fault_page_size - 1);
--	if (page_offset + fault_page_size > bo->resource->num_pages)
--		goto out_fallback;
--
--	if (bo->resource->bus.is_iomem)
--		pfn = ttm_bo_io_mem_pfn(bo, page_offset);
--	else
--		pfn = page_to_pfn(ttm->pages[page_offset]);
--
--	/* pfn must be fault_page_size aligned. */
--	if ((pfn & (fault_page_size - 1)) != 0)
--		goto out_fallback;
--
--	/* Check that memory is contiguous. */
--	if (!bo->resource->bus.is_iomem) {
--		for (i = 1; i < fault_page_size; ++i) {
--			if (page_to_pfn(ttm->pages[page_offset + i]) != pfn + i)
--				goto out_fallback;
--		}
--	} else if (bo->bdev->funcs->io_mem_pfn) {
--		for (i = 1; i < fault_page_size; ++i) {
--			if (ttm_bo_io_mem_pfn(bo, page_offset + i) != pfn + i)
--				goto out_fallback;
--		}
--	}
--
--	pfnt = __pfn_to_pfn_t(pfn, PFN_DEV);
--	if (fault_page_size == (HPAGE_PMD_SIZE >> PAGE_SHIFT))
--		ret = vmf_insert_pfn_pmd_prot(vmf, pfnt, pgprot, write);
--#ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
--	else if (fault_page_size == (HPAGE_PUD_SIZE >> PAGE_SHIFT))
--		ret = vmf_insert_pfn_pud_prot(vmf, pfnt, pgprot, write);
--#endif
--	else
--		WARN_ON_ONCE(ret = VM_FAULT_FALLBACK);
--
--	if (ret != VM_FAULT_NOPAGE)
--		goto out_fallback;
--
--	return VM_FAULT_NOPAGE;
--out_fallback:
--	count_vm_event(THP_FAULT_FALLBACK);
--	return VM_FAULT_FALLBACK;
--}
--#else
--static vm_fault_t ttm_bo_vm_insert_huge(struct vm_fault *vmf,
--					struct ttm_buffer_object *bo,
--					pgoff_t page_offset,
--					pgoff_t fault_page_size,
--					pgprot_t pgprot)
--{
--	return VM_FAULT_FALLBACK;
--}
--#endif
--
- /**
-  * ttm_bo_vm_fault_reserved - TTM fault helper
-  * @vmf: The struct vm_fault given as argument to the fault callback
-@@ -261,7 +178,6 @@ static vm_fault_t ttm_bo_vm_insert_huge(struct vm_fault *vmf,
-  * @num_prefault: Maximum number of prefault pages. The caller may want to
-  * specify this based on madvice settings and the size of the GPU object
-  * backed by the memory.
-- * @fault_page_size: The size of the fault in pages.
-  *
-  * This function inserts one or more page table entries pointing to the
-  * memory backing the buffer object, and then returns a return code
-@@ -275,8 +191,7 @@ static vm_fault_t ttm_bo_vm_insert_huge(struct vm_fault *vmf,
-  */
- vm_fault_t ttm_bo_vm_fault_reserved(struct vm_fault *vmf,
- 				    pgprot_t prot,
--				    pgoff_t num_prefault,
--				    pgoff_t fault_page_size)
-+				    pgoff_t num_prefault)
+-static const struct slave_attribute *slave_attrs[] = {
+-	&slave_attr_state,
+-	&slave_attr_mii_status,
+-	&slave_attr_link_failure_count,
+-	&slave_attr_perm_hwaddr,
+-	&slave_attr_queue_id,
+-	&slave_attr_ad_aggregator_id,
+-	&slave_attr_ad_actor_oper_port_state,
+-	&slave_attr_ad_partner_oper_port_state,
++static const struct attribute *slave_attrs[] = {
++	&slave_attr_state.attr,
++	&slave_attr_mii_status.attr,
++	&slave_attr_link_failure_count.attr,
++	&slave_attr_perm_hwaddr.attr,
++	&slave_attr_queue_id.attr,
++	&slave_attr_ad_aggregator_id.attr,
++	&slave_attr_ad_actor_oper_port_state.attr,
++	&slave_attr_ad_partner_oper_port_state.attr,
+ 	NULL
+ };
+ 
+@@ -137,24 +137,10 @@ const struct sysfs_ops slave_sysfs_ops = {
+ 
+ int bond_sysfs_slave_add(struct slave *slave)
  {
- 	struct vm_area_struct *vma = vmf->vma;
- 	struct ttm_buffer_object *bo = vma->vm_private_data;
-@@ -327,11 +242,6 @@ vm_fault_t ttm_bo_vm_fault_reserved(struct vm_fault *vmf,
- 		prot = pgprot_decrypted(prot);
- 	}
- 
--	/* We don't prefault on huge faults. Yet. */
--	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) && fault_page_size != 1)
--		return ttm_bo_vm_insert_huge(vmf, bo, page_offset,
--					     fault_page_size, prot);
+-	const struct slave_attribute **a;
+-	int err;
 -
- 	/*
- 	 * Speculatively prefault a number of pages. Only error on
- 	 * first page.
-@@ -429,7 +339,7 @@ vm_fault_t ttm_bo_vm_fault(struct vm_fault *vmf)
- 
- 	prot = vma->vm_page_prot;
- 	if (drm_dev_enter(ddev, &idx)) {
--		ret = ttm_bo_vm_fault_reserved(vmf, prot, TTM_BO_VM_NUM_PREFAULT, 1);
-+		ret = ttm_bo_vm_fault_reserved(vmf, prot, TTM_BO_VM_NUM_PREFAULT);
- 		drm_dev_exit(idx);
- 	} else {
- 		ret = ttm_bo_vm_dummy_page(vmf, prot);
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-index 5652d982b1ce6..c87d74f0afc52 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-@@ -1526,10 +1526,6 @@ void vmw_bo_dirty_unmap(struct vmw_buffer_object *vbo,
- 			pgoff_t start, pgoff_t end);
- vm_fault_t vmw_bo_vm_fault(struct vm_fault *vmf);
- vm_fault_t vmw_bo_vm_mkwrite(struct vm_fault *vmf);
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--vm_fault_t vmw_bo_vm_huge_fault(struct vm_fault *vmf,
--				enum page_entry_size pe_size);
--#endif
- 
- /* Transparent hugepage support - vmwgfx_thp.c */
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c b/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
-index e5a9a5cbd01a7..922317d1acc8a 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
-@@ -477,7 +477,7 @@ vm_fault_t vmw_bo_vm_fault(struct vm_fault *vmf)
- 	else
- 		prot = vm_get_page_prot(vma->vm_flags);
- 
--	ret = ttm_bo_vm_fault_reserved(vmf, prot, num_prefault, 1);
-+	ret = ttm_bo_vm_fault_reserved(vmf, prot, num_prefault);
- 	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
- 		return ret;
- 
-@@ -486,73 +486,3 @@ out_unlock:
- 
- 	return ret;
- }
--
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--vm_fault_t vmw_bo_vm_huge_fault(struct vm_fault *vmf,
--				enum page_entry_size pe_size)
--{
--	struct vm_area_struct *vma = vmf->vma;
--	struct ttm_buffer_object *bo = (struct ttm_buffer_object *)
--	    vma->vm_private_data;
--	struct vmw_buffer_object *vbo =
--		container_of(bo, struct vmw_buffer_object, base);
--	pgprot_t prot;
--	vm_fault_t ret;
--	pgoff_t fault_page_size;
--	bool write = vmf->flags & FAULT_FLAG_WRITE;
--
--	switch (pe_size) {
--	case PE_SIZE_PMD:
--		fault_page_size = HPAGE_PMD_SIZE >> PAGE_SHIFT;
--		break;
--#ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
--	case PE_SIZE_PUD:
--		fault_page_size = HPAGE_PUD_SIZE >> PAGE_SHIFT;
--		break;
--#endif
--	default:
--		WARN_ON_ONCE(1);
--		return VM_FAULT_FALLBACK;
--	}
--
--	/* Always do write dirty-tracking and COW on PTE level. */
--	if (write && (READ_ONCE(vbo->dirty) || is_cow_mapping(vma->vm_flags)))
--		return VM_FAULT_FALLBACK;
--
--	ret = ttm_bo_vm_reserve(bo, vmf);
--	if (ret)
--		return ret;
--
--	if (vbo->dirty) {
--		pgoff_t allowed_prefault;
--		unsigned long page_offset;
--
--		page_offset = vmf->pgoff -
--			drm_vma_node_start(&bo->base.vma_node);
--		if (page_offset >= bo->resource->num_pages ||
--		    vmw_resources_clean(vbo, page_offset,
--					page_offset + PAGE_SIZE,
--					&allowed_prefault)) {
--			ret = VM_FAULT_SIGBUS;
--			goto out_unlock;
+-	for (a = slave_attrs; *a; ++a) {
+-		err = sysfs_create_file(&slave->kobj, &((*a)->attr));
+-		if (err) {
+-			kobject_put(&slave->kobj);
+-			return err;
 -		}
--
--		/*
--		 * Write protect, so we get a new fault on write, and can
--		 * split.
--		 */
--		prot = vm_get_page_prot(vma->vm_flags & ~VM_SHARED);
--	} else {
--		prot = vm_get_page_prot(vma->vm_flags);
 -	}
 -
--	ret = ttm_bo_vm_fault_reserved(vmf, prot, 1, fault_page_size);
--	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
--		return ret;
+-	return 0;
++	return sysfs_create_files(&slave->kobj, slave_attrs);
+ }
+ 
+ void bond_sysfs_slave_del(struct slave *slave)
+ {
+-	const struct slave_attribute **a;
 -
--out_unlock:
--	dma_resv_unlock(bo->base.resv);
--
--	return ret;
--}
--#endif
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c b/drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c
-index e6b1f98ec99f0..0a4c340252ec4 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c
-@@ -61,9 +61,6 @@ int vmw_mmap(struct file *filp, struct vm_area_struct *vma)
- 		.fault = vmw_bo_vm_fault,
- 		.open = ttm_bo_vm_open,
- 		.close = ttm_bo_vm_close,
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--		.huge_fault = vmw_bo_vm_huge_fault,
--#endif
- 	};
- 	struct drm_file *file_priv = filp->private_data;
- 	struct vmw_private *dev_priv = vmw_priv(file_priv->minor->dev);
-diff --git a/include/drm/ttm/ttm_bo_api.h b/include/drm/ttm/ttm_bo_api.h
-index f681bbdbc6982..36f7eb9d06639 100644
---- a/include/drm/ttm/ttm_bo_api.h
-+++ b/include/drm/ttm/ttm_bo_api.h
-@@ -594,8 +594,7 @@ vm_fault_t ttm_bo_vm_reserve(struct ttm_buffer_object *bo,
- 
- vm_fault_t ttm_bo_vm_fault_reserved(struct vm_fault *vmf,
- 				    pgprot_t prot,
--				    pgoff_t num_prefault,
--				    pgoff_t fault_page_size);
-+				    pgoff_t num_prefault);
- 
- vm_fault_t ttm_bo_vm_fault(struct vm_fault *vmf);
- 
+-	for (a = slave_attrs; *a; ++a)
+-		sysfs_remove_file(&slave->kobj, &((*a)->attr));
++	sysfs_remove_files(&slave->kobj, slave_attrs);
+ }
 -- 
 2.33.0
 
