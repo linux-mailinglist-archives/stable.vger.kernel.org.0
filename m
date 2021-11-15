@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BFA4452667
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 097CA45238E
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239578AbhKPCFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:05:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46092 "EHLO mail.kernel.org"
+        id S1349133AbhKPB1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:27:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239957AbhKOSFL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADF1E632F7;
-        Mon, 15 Nov 2021 17:40:33 +0000 (UTC)
+        id S243892AbhKOTEg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:04:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F760633DE;
+        Mon, 15 Nov 2021 18:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998034;
-        bh=S3W5NHkQXj3dRhLGoU/6+k2aHHP8cpn7cCp6/032EbM=;
+        s=korg; t=1637000175;
+        bh=+7gUFY/JsKMUy689ZPiaF4dEV58+TeCt9SGME78mxlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2sTjCEUo1nrUZfgCAWlxFFm4VyMPENbYDSSzFyc+jmf8+J8Xf4IWoKjZ82U14ZfMM
-         /O0+5vzQPopOKHB2uyKUSXgIzlRZh1KB3ksGD9ftehMl71vQ8qOI6m0GI0nOyvZDcc
-         EufdHyG9A6LvU62pd79hSAKnOEz6MoUvFi9TUpT4=
+        b=w8XpV5DIuGySmzgJVggtfniPo2zk8vtQefbvNngJiTWbCClEYnlSBZZd07o44n5wu
+         RPykDXFESpLPk3fiirYbGqOXN39yHfu5JmcHn4RqqsfvnqBWpTYBGZgA1PFtWjg72L
+         wL+O4urVBZxN8OWQ4b4GwCQpRIGwxtWr70djaA+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 320/575] hwmon: Fix possible memleak in __hwmon_device_register()
-Date:   Mon, 15 Nov 2021 18:00:45 +0100
-Message-Id: <20211115165354.867332057@linuxfoundation.org>
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Aswath Govindraju <a-govindraju@ti.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 563/849] arm64: dts: ti: k3-j721e-main: Fix "bus-range" upto 256 bus number for PCIe
+Date:   Mon, 15 Nov 2021 18:00:46 +0100
+Message-Id: <20211115165439.297344744@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit ada61aa0b1184a8fda1a89a340c7d6cc4e59aee5 ]
+[ Upstream commit 5f46633565b1c1e1840a927676065d72b442dac4 ]
 
-I got memory leak as follows when doing fault injection test:
+commit 4e5833884f66 ("arm64: dts: ti: k3-j721e-main: Add PCIe device
+tree nodes") restricted PCIe bus numbers from 0 to 15 (due to SMMU
+restriction in J721E). However since SMMU is not enabled, allow the full
+supported bus numbers from 0 to 255.
 
-unreferenced object 0xffff888102740438 (size 8):
-  comm "27", pid 859, jiffies 4295031351 (age 143.992s)
-  hex dump (first 8 bytes):
-    68 77 6d 6f 6e 30 00 00                          hwmon0..
-  backtrace:
-    [<00000000544b5996>] __kmalloc_track_caller+0x1a6/0x300
-    [<00000000df0d62b9>] kvasprintf+0xad/0x140
-    [<00000000d3d2a3da>] kvasprintf_const+0x62/0x190
-    [<000000005f8f0f29>] kobject_set_name_vargs+0x56/0x140
-    [<00000000b739e4b9>] dev_set_name+0xb0/0xe0
-    [<0000000095b69c25>] __hwmon_device_register+0xf19/0x1e50 [hwmon]
-    [<00000000a7e65b52>] hwmon_device_register_with_info+0xcb/0x110 [hwmon]
-    [<000000006f181e86>] devm_hwmon_device_register_with_info+0x85/0x100 [hwmon]
-    [<0000000081bdc567>] tmp421_probe+0x2d2/0x465 [tmp421]
-    [<00000000502cc3f8>] i2c_device_probe+0x4e1/0xbb0
-    [<00000000f90bda3b>] really_probe+0x285/0xc30
-    [<000000007eac7b77>] __driver_probe_device+0x35f/0x4f0
-    [<000000004953d43d>] driver_probe_device+0x4f/0x140
-    [<000000002ada2d41>] __device_attach_driver+0x24c/0x330
-    [<00000000b3977977>] bus_for_each_drv+0x15d/0x1e0
-    [<000000005bf2a8e3>] __device_attach+0x267/0x410
-
-When device_register() returns an error, the name allocated in
-dev_set_name() will be leaked, the put_device() should be used
-instead of calling hwmon_dev_release() to give up the device
-reference, then the name will be freed in kobject_cleanup().
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: bab2243ce189 ("hwmon: Introduce hwmon_device_register_with_groups")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211012112758.2681084-1-yangyingliang@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 4e5833884f66 ("arm64: dts: ti: k3-j721e-main: Add PCIe device tree nodes")
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20210915055358.19997-3-kishon@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/hwmon.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/ti/k3-j721e-main.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
-index 6c684058bfdfc..e5a83f7492677 100644
---- a/drivers/hwmon/hwmon.c
-+++ b/drivers/hwmon/hwmon.c
-@@ -760,8 +760,10 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
- 	dev_set_drvdata(hdev, drvdata);
- 	dev_set_name(hdev, HWMON_ID_FORMAT, id);
- 	err = device_register(hdev);
--	if (err)
--		goto free_hwmon;
-+	if (err) {
-+		put_device(hdev);
-+		goto ida_remove;
-+	}
- 
- 	INIT_LIST_HEAD(&hwdev->tzdata);
- 
+diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
+index 43be5d23130b4..08c8d1b47dcd9 100644
+--- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
+@@ -610,7 +610,7 @@
+ 		clock-names = "fck";
+ 		#address-cells = <3>;
+ 		#size-cells = <2>;
+-		bus-range = <0x0 0xf>;
++		bus-range = <0x0 0xff>;
+ 		vendor-id = <0x104c>;
+ 		device-id = <0xb00d>;
+ 		msi-map = <0x0 &gic_its 0x0 0x10000>;
+@@ -658,7 +658,7 @@
+ 		clock-names = "fck";
+ 		#address-cells = <3>;
+ 		#size-cells = <2>;
+-		bus-range = <0x0 0xf>;
++		bus-range = <0x0 0xff>;
+ 		vendor-id = <0x104c>;
+ 		device-id = <0xb00d>;
+ 		msi-map = <0x0 &gic_its 0x10000 0x10000>;
+@@ -706,7 +706,7 @@
+ 		clock-names = "fck";
+ 		#address-cells = <3>;
+ 		#size-cells = <2>;
+-		bus-range = <0x0 0xf>;
++		bus-range = <0x0 0xff>;
+ 		vendor-id = <0x104c>;
+ 		device-id = <0xb00d>;
+ 		msi-map = <0x0 &gic_its 0x20000 0x10000>;
+@@ -754,7 +754,7 @@
+ 		clock-names = "fck";
+ 		#address-cells = <3>;
+ 		#size-cells = <2>;
+-		bus-range = <0x0 0xf>;
++		bus-range = <0x0 0xff>;
+ 		vendor-id = <0x104c>;
+ 		device-id = <0xb00d>;
+ 		msi-map = <0x0 &gic_its 0x30000 0x10000>;
 -- 
 2.33.0
 
