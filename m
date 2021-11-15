@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ECD04526DD
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:08:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 202E645236C
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:23:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238936AbhKPCLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:11:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39650 "EHLO mail.kernel.org"
+        id S243850AbhKPB01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:26:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239327AbhKOR4v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:56:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28D00611CC;
-        Mon, 15 Nov 2021 17:34:28 +0000 (UTC)
+        id S243357AbhKOS5E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:57:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2293F633C9;
+        Mon, 15 Nov 2021 18:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997669;
-        bh=5NAPymXcoKo5Xj4P5WU6r/dp61wjKGk6HHJgtZ0jb/I=;
+        s=korg; t=1636999926;
+        bh=30zaXgkWn6LMf8F82UXUSME9HHe90ZQ+tE5KmINAcbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Scku2CI0QYzY6As+Ul+FbZJHVCztJugCAjoUgmKWYmFn1JB2pyJqcTr46A2Dduhha
-         xDfHFe66/aiDdKJIVN7cJK3rT9zG0mTjr2SHVIAe7QnQYvvYFsVDsd2+KUpGJkAgRg
-         Qq22r8maoZSUcnGk5CfuArbpCiDIjvIwRQIOrhhc=
+        b=xWSh/vh48fe6ai1dQw8FDYc62Bu4Zn0D00NX6wvjhAuK1VK1VntJMAIuNB9Q3wlD1
+         eBXGNkFX6cKOZ0Fadq9V5Ak/APY5i9RGgm4fOe0mIjqeG2xS3GNW1nLbSzxQ8Rq0KA
+         wonTXGdGXsO7ZTo2ekB3vSIoPBZalkaeU4AoyQvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 233/575] nvme: drop scan_lock and always kick requeue list when removing namespaces
+        stable@vger.kernel.org, Shayne Chen <shayne.chen@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 475/849] mt76: mt7915: fix muar_idx in mt7915_mcu_alloc_sta_req()
 Date:   Mon, 15 Nov 2021 17:59:18 +0100
-Message-Id: <20211115165351.790698037@linuxfoundation.org>
+Message-Id: <20211115165436.346295001@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Shayne Chen <shayne.chen@mediatek.com>
 
-[ Upstream commit 2b81a5f015199f3d585ce710190a9e87714d3c1e ]
+[ Upstream commit 161cc13912d3c3e8857001988dfba39be842454a ]
 
-When reading the partition table on initial scan hits an I/O error the
-I/O will hang with the scan_mutex held:
+For broadcast/multicast wcid, the muar_idx should be 0xe.
 
-[<0>] do_read_cache_page+0x49b/0x790
-[<0>] read_part_sector+0x39/0xe0
-[<0>] read_lba+0xf9/0x1d0
-[<0>] efi_partition+0xf1/0x7f0
-[<0>] bdev_disk_changed+0x1ee/0x550
-[<0>] blkdev_get_whole+0x81/0x90
-[<0>] blkdev_get_by_dev+0x128/0x2e0
-[<0>] device_add_disk+0x377/0x3c0
-[<0>] nvme_mpath_set_live+0x130/0x1b0 [nvme_core]
-[<0>] nvme_mpath_add_disk+0x150/0x160 [nvme_core]
-[<0>] nvme_alloc_ns+0x417/0x950 [nvme_core]
-[<0>] nvme_validate_or_alloc_ns+0xe9/0x1e0 [nvme_core]
-[<0>] nvme_scan_work+0x168/0x310 [nvme_core]
-[<0>] process_one_work+0x231/0x420
-
-and trying to delete the controller will deadlock as it tries to grab
-the scan mutex:
-
-[<0>] nvme_mpath_clear_ctrl_paths+0x25/0x80 [nvme_core]
-[<0>] nvme_remove_namespaces+0x31/0xf0 [nvme_core]
-[<0>] nvme_do_delete_ctrl+0x4b/0x80 [nvme_core]
-
-As we're now properly ordering the namespace list there is no need to
-hold the scan_mutex in nvme_mpath_clear_ctrl_paths() anymore.
-And we always need to kick the requeue list as the path will be marked
-as unusable and I/O will be requeued _without_ a current path.
-
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: e57b7901469f ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
+Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 46a1e24ba6f47..18a756444d5a9 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -135,13 +135,12 @@ void nvme_mpath_clear_ctrl_paths(struct nvme_ctrl *ctrl)
- {
- 	struct nvme_ns *ns;
- 
--	mutex_lock(&ctrl->scan_lock);
- 	down_read(&ctrl->namespaces_rwsem);
--	list_for_each_entry(ns, &ctrl->namespaces, list)
--		if (nvme_mpath_clear_current_path(ns))
--			kblockd_schedule_work(&ns->head->requeue_work);
-+	list_for_each_entry(ns, &ctrl->namespaces, list) {
-+		nvme_mpath_clear_current_path(ns);
-+		kblockd_schedule_work(&ns->head->requeue_work);
-+	}
- 	up_read(&ctrl->namespaces_rwsem);
--	mutex_unlock(&ctrl->scan_lock);
- }
- 
- static bool nvme_path_is_disabled(struct nvme_ns *ns)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+index 6dfe3716a63a5..ba36d3caec8e1 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+@@ -721,7 +721,7 @@ mt7915_mcu_alloc_sta_req(struct mt7915_dev *dev, struct mt7915_vif *mvif,
+ 		.bss_idx = mvif->idx,
+ 		.wlan_idx_lo = msta ? to_wcid_lo(msta->wcid.idx) : 0,
+ 		.wlan_idx_hi = msta ? to_wcid_hi(msta->wcid.idx) : 0,
+-		.muar_idx = msta ? mvif->omac_idx : 0,
++		.muar_idx = msta && msta->wcid.sta ? mvif->omac_idx : 0xe,
+ 		.is_tlv_append = 1,
+ 	};
+ 	struct sk_buff *skb;
 -- 
 2.33.0
 
