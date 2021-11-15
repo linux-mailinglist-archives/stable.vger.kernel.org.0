@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C04E451FAF
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F5FA451FB3
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353979AbhKPApB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
+        id S1345348AbhKPApD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343754AbhKOTV5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343755AbhKOTV5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E799C6330A;
-        Mon, 15 Nov 2021 18:45:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80A0F6338A;
+        Mon, 15 Nov 2021 18:45:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001939;
-        bh=JzwriQVvemp7ypNplEGhU5P4IiR48IVPj1WVd7jWvHM=;
+        s=korg; t=1637001942;
+        bh=FIZJSShMnLhsU2S+oXsXXs9BlVFZqsBTgCjm40aVtPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CYcSVuVXZUHhLKSpX1LETzcdU3Svlco8OnpmYyS3CYpCNyXsvj/C1ieQrUfhqnknA
-         KyPwl1R8tD/ZfMvJ23oMZ03yehlXRbNUtnkFXlZkMT6C4NUHU5m680CvlvFWtHV/f0
-         htjKStCwD9yzhheSNGXJ1hj8m7QJSdKd/h7W/XUo=
+        b=2IUSwbIXmW018RM86cbTXy/6qS4a//6GAF72qt4o3+OjRm3sVRbhXsLg3CqTZXudn
+         4bXlpn52Ru4HiUVctNB6cXayukyNU1OPAgRgWH8QCRTuwJnABaBNhC1yZWmEi0hDib
+         ykq4/SYPi/eTib25+sWpSOme/hFSot/ynkOHQk24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 345/917] cgroup: Make rebind_subsystems() disable v2 controllers all at once
-Date:   Mon, 15 Nov 2021 17:57:20 +0100
-Message-Id: <20211115165440.451312289@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Benjamin Li <benl@squareup.com>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 346/917] wcn36xx: Fix Antenna Diversity Switching
+Date:   Mon, 15 Nov 2021 17:57:21 +0100
+Message-Id: <20211115165440.482939874@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,118 +43,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit 7ee285395b211cad474b2b989db52666e0430daf ]
+[ Upstream commit 701668d3bfa03dabc5095fc383d5315544ee5b31 ]
 
-It was found that the following warning was displayed when remounting
-controllers from cgroup v2 to v1:
+We have been tracking a strange bug with Antenna Diversity Switching (ADS)
+on wcn3680b for a while.
 
-[ 8042.997778] WARNING: CPU: 88 PID: 80682 at kernel/cgroup/cgroup.c:3130 cgroup_apply_control_disable+0x158/0x190
-   :
-[ 8043.091109] RIP: 0010:cgroup_apply_control_disable+0x158/0x190
-[ 8043.096946] Code: ff f6 45 54 01 74 39 48 8d 7d 10 48 c7 c6 e0 46 5a a4 e8 7b 67 33 00 e9 41 ff ff ff 49 8b 84 24 e8 01 00 00 0f b7 40 08 eb 95 <0f> 0b e9 5f ff ff ff 48 83 c4 08 5b 5d 41 5c 41 5d 41 5e 41 5f c3
-[ 8043.115692] RSP: 0018:ffffba8a47c23d28 EFLAGS: 00010202
-[ 8043.120916] RAX: 0000000000000036 RBX: ffffffffa624ce40 RCX: 000000000000181a
-[ 8043.128047] RDX: ffffffffa63c43e0 RSI: ffffffffa63c43e0 RDI: ffff9d7284ee1000
-[ 8043.135180] RBP: ffff9d72874c5800 R08: ffffffffa624b090 R09: 0000000000000004
-[ 8043.142314] R10: ffffffffa624b080 R11: 0000000000002000 R12: ffff9d7284ee1000
-[ 8043.149447] R13: ffff9d7284ee1000 R14: ffffffffa624ce70 R15: ffffffffa6269e20
-[ 8043.156576] FS:  00007f7747cff740(0000) GS:ffff9d7a5fc00000(0000) knlGS:0000000000000000
-[ 8043.164663] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 8043.170409] CR2: 00007f7747e96680 CR3: 0000000887d60001 CR4: 00000000007706e0
-[ 8043.177539] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 8043.184673] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ 8043.191804] PKRU: 55555554
-[ 8043.194517] Call Trace:
-[ 8043.196970]  rebind_subsystems+0x18c/0x470
-[ 8043.201070]  cgroup_setup_root+0x16c/0x2f0
-[ 8043.205177]  cgroup1_root_to_use+0x204/0x2a0
-[ 8043.209456]  cgroup1_get_tree+0x3e/0x120
-[ 8043.213384]  vfs_get_tree+0x22/0xb0
-[ 8043.216883]  do_new_mount+0x176/0x2d0
-[ 8043.220550]  __x64_sys_mount+0x103/0x140
-[ 8043.224474]  do_syscall_64+0x38/0x90
-[ 8043.228063]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ADS is configured like this:
+   A. Via a firmware configuration table baked into the NV area.
+       1. Defines if ADS is enabled.
+       2. Defines which GPIOs are connected to which antenna enable pin.
+       3. Defines which antenna/GPIO is primary and which is secondary.
 
-It was caused by the fact that rebind_subsystem() disables
-controllers to be rebound one by one. If more than one disabled
-controllers are originally from the default hierarchy, it means that
-cgroup_apply_control_disable() will be called multiple times for the
-same default hierarchy. A controller may be killed by css_kill() in
-the first round. In the second round, the killed controller may not be
-completely dead yet leading to the warning.
+   B. WCN36XX_CFG_VAL(ANTENNA_DIVERSITY, N)
+      N is a bitmask of available antenna.
 
-To avoid this problem, we collect all the ssid's of controllers that
-needed to be disabled from the default hierarchy and then disable them
-in one go instead of one by one.
+      Setting N to 3 indicates a bitmask of enabled antenna (1 | 2).
 
-Fixes: 334c3679ec4b ("cgroup: reimplement rebind_subsystems() using cgroup_apply_control() and friends")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+      Obviously then we can set N to 1 or N to 2 to fix to a particular
+      antenna and disable antenna diversity.
+
+   C. WCN36XX_CFG_VAL(ASD_PROBE_INTERVAL, XX)
+      XX is the number of beacons between each antenna RSSI check.
+      Setting this value to 50 means, every 50 received beacons, run the
+      ADS algorithm.
+
+   D. WCN36XX_CFG_VAL(ASD_TRIGGER_THRESHOLD, YY)
+      YY is a two's complement integer which specifies the RSSI decibel
+      threshold below which ADS will run.
+      We default to -60db here, meaning a measured RSSI <= -60db will
+      trigger an ADS probe.
+
+   E. WCN36XX_CFG_VAL(ASD_RTT_RSSI_HYST_THRESHOLD, Z)
+      Z is a hysteresis value, indicating a delta which the RSSI must
+      exceed for the antenna switch to be valid.
+
+      For example if HYST_THRESHOLD == 3 AntennaId1-RSSI == -60db and
+      AntennaId-2-RSSI == -58db then firmware will not switch antenna.
+      The threshold needs to be -57db or better to satisfy the criteria.
+
+   F. A firmware feature bit also exists ANTENNA_DIVERSITY_SELECTION.
+      This feature bit is used by the firmware to report if
+      ANTENNA_DIVERSITY_SELECTION is supported. The host is not required to
+      toggle this bit to enable or disable ADS.
+
+ADS works like this:
+
+    A. Every XX beacons the firmware switches to or remains on the primary
+       antenna.
+
+    B. The firmware then sends a Request-To-Send (RTS) packet to the AP.
+
+    C. The firmware waits for a Clear-To-Send (CTS) response from the AP.
+
+    D. The firmware then notes the received RSSI on the CTS packet.
+
+    E. The firmware then repeats steps A-D on the secondary antenna.
+
+    F. Subsequently if the RSSI on the measured antenna is better than
+       ASD_TRIGGER_THRESHOLD + the active antenna's RSSI then the
+       measured antenna becomes the active antenna.
+
+    G. If RSSI rises past ASD_TRIGGER_THRESHOLD then ADS doesn't run at
+       all even if there is a substantially better RSSI on the alternative
+       antenna.
+
+What we have been observing is that the RTS packet is being sent but the
+MAC address is a byte-swapped version of the target MAC. The ADS/RTS MAC is
+corrupted only when the link is encrypted, if the AP is open the RTS MAC is
+correct. Similarly if we configure the firmware to an RTS/CTS sequence for
+regular data - the transmitted RTS MAC is correctly formatted.
+
+Internally the wcn36xx firmware uses the indexes in the SMD commands to
+populate and extract data from specific entries in an STA lookup table. The
+AP's MAC appears a number of times in different indexes within this lookup
+table, so the MAC address extracted for the data-transmit RTS and the MAC
+address extracted for the ADS/RTS packet are not the same STA table index.
+
+Our analysis indicates the relevant firmware STA table index is
+"bssSelfStaIdx".
+
+There is an STA populate function responsible for formatting the MAC
+address of the bssSelfStaIdx including byte-swapping the MAC address.
+
+Its clear then that the required STA populate command did not run for
+bssSelfStaIdx.
+
+So taking a look at the sequence of SMD commands sent to the firmware we
+see the following downstream when moving from an unencrypted to encrypted
+BSS setup.
+
+- WLAN_HAL_CONFIG_BSS_REQ
+- WLAN_HAL_CONFIG_STA_REQ
+- WLAN_HAL_SET_STAKEY_REQ
+
+Upstream in wcn36xx we have
+
+- WLAN_HAL_CONFIG_BSS_REQ
+- WLAN_HAL_SET_STAKEY_REQ
+
+The solution then is to add the missing WLAN_HAL_CONFIG_STA_REQ between
+WLAN_HAL_CONFIG_BSS_REQ and WLAN_HAL_SET_STAKEY_REQ.
+
+No surprise WLAN_HAL_CONFIG_STA_REQ is the routine responsible for
+populating the STA lookup table in the firmware and once done the MAC sent
+by the ADS routine is in the correct byte-order.
+
+This bug is apparent with ADS but it is also the case that any other
+firmware routine that depends on the "bssSelfStaIdx" would retrieve
+malformed data on an encrypted link.
+
+Fixes: 3e977c5c523d ("wcn36xx: Define wcn3680 specific firmware parameters")
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Tested-by: Benjamin Li <benl@squareup.com>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210909144428.2564650-2-bryan.odonoghue@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup.c | 31 +++++++++++++++++++++++++++----
- 1 file changed, 27 insertions(+), 4 deletions(-)
+ drivers/net/wireless/ath/wcn36xx/main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index ea08f01d0111a..d6ea872b23aad 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -1740,6 +1740,7 @@ int rebind_subsystems(struct cgroup_root *dst_root, u16 ss_mask)
- 	struct cgroup *dcgrp = &dst_root->cgrp;
- 	struct cgroup_subsys *ss;
- 	int ssid, i, ret;
-+	u16 dfl_disable_ss_mask = 0;
+diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
+index 28d6251ad77a6..5974b01f2fd92 100644
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -571,12 +571,14 @@ static int wcn36xx_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
+ 		if (IEEE80211_KEY_FLAG_PAIRWISE & key_conf->flags) {
+ 			sta_priv->is_data_encrypted = true;
+ 			/* Reconfigure bss with encrypt_type */
+-			if (NL80211_IFTYPE_STATION == vif->type)
++			if (NL80211_IFTYPE_STATION == vif->type) {
+ 				wcn36xx_smd_config_bss(wcn,
+ 						       vif,
+ 						       sta,
+ 						       sta->addr,
+ 						       true);
++				wcn36xx_smd_config_sta(wcn, vif, sta);
++			}
  
- 	lockdep_assert_held(&cgroup_mutex);
- 
-@@ -1756,8 +1757,28 @@ int rebind_subsystems(struct cgroup_root *dst_root, u16 ss_mask)
- 		/* can't move between two non-dummy roots either */
- 		if (ss->root != &cgrp_dfl_root && dst_root != &cgrp_dfl_root)
- 			return -EBUSY;
-+
-+		/*
-+		 * Collect ssid's that need to be disabled from default
-+		 * hierarchy.
-+		 */
-+		if (ss->root == &cgrp_dfl_root)
-+			dfl_disable_ss_mask |= 1 << ssid;
-+
- 	} while_each_subsys_mask();
- 
-+	if (dfl_disable_ss_mask) {
-+		struct cgroup *scgrp = &cgrp_dfl_root.cgrp;
-+
-+		/*
-+		 * Controllers from default hierarchy that need to be rebound
-+		 * are all disabled together in one go.
-+		 */
-+		cgrp_dfl_root.subsys_mask &= ~dfl_disable_ss_mask;
-+		WARN_ON(cgroup_apply_control(scgrp));
-+		cgroup_finalize_control(scgrp, 0);
-+	}
-+
- 	do_each_subsys_mask(ss, ssid, ss_mask) {
- 		struct cgroup_root *src_root = ss->root;
- 		struct cgroup *scgrp = &src_root->cgrp;
-@@ -1766,10 +1787,12 @@ int rebind_subsystems(struct cgroup_root *dst_root, u16 ss_mask)
- 
- 		WARN_ON(!css || cgroup_css(dcgrp, ss));
- 
--		/* disable from the source */
--		src_root->subsys_mask &= ~(1 << ssid);
--		WARN_ON(cgroup_apply_control(scgrp));
--		cgroup_finalize_control(scgrp, 0);
-+		if (src_root != &cgrp_dfl_root) {
-+			/* disable from the source */
-+			src_root->subsys_mask &= ~(1 << ssid);
-+			WARN_ON(cgroup_apply_control(scgrp));
-+			cgroup_finalize_control(scgrp, 0);
-+		}
- 
- 		/* rebind */
- 		RCU_INIT_POINTER(scgrp->subsys[ssid], NULL);
+ 			wcn36xx_smd_set_stakey(wcn,
+ 				vif_priv->encrypt_type,
 -- 
 2.33.0
 
