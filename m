@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DF85451E0A
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D901451E0E
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352297AbhKPAey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:34:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45396 "EHLO mail.kernel.org"
+        id S1354321AbhKPAfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344496AbhKOTYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F347D6044F;
-        Mon, 15 Nov 2021 18:58:47 +0000 (UTC)
+        id S233400AbhKOTYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C248163321;
+        Mon, 15 Nov 2021 18:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002728;
-        bh=p/bBHOzMnYHbXloJE5bVdMu+tYIQkFKk6pqC4oMgdXc=;
+        s=korg; t=1637002745;
+        bh=zBCsemRnDpXLZ1NcLFO8pi2JteQM58ljLbuSkvFBjc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOggkLCM/gYJrZ/xYOeV0O7Y7yLIAcrmey8+c1b0EZqMfVsxRc0ECFJ2uYP81oMVN
-         SRmevGvv8Xrq3KTATdsrFJCxvHV9kcuJzLIF9vC8btL2EHZnJGf9z28dkjJyYC8fJT
-         oY4+cN/n441pw2TUz66ll+YJ/QqJro4E5luXaVcA=
+        b=GGyq9yEbK0bfAd80LaogF0qUZltxGE0EchkgVVFIuieO7XSfmbEhfn7bl3X20RJ9B
+         T4eh6wqw0bQvBYkWkGUZRoZh1mYBabRGDezVJb2ZvWgjSIIHJLTP0HpDAULy82MVV/
+         T2DCjOU045qecfSPCIE/kGEqEloPIbbkb3A7Bmp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 676/917] powerpc/nohash: Fix __ptep_set_access_flags() and ptep_set_wrprotect()
-Date:   Mon, 15 Nov 2021 18:02:51 +0100
-Message-Id: <20211115165451.812322052@linuxfoundation.org>
+Subject: [PATCH 5.15 682/917] powerpc: Dont provide __kernel_map_pages() without ARCH_SUPPORTS_DEBUG_PAGEALLOC
+Date:   Mon, 15 Nov 2021 18:02:57 +0100
+Message-Id: <20211115165452.020672914@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,116 +43,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit b1b93cb7e794e914787bf7d9936b57a149cdee4f ]
+[ Upstream commit f8c0e36b48e32b14bb83332d24e0646acd31d9e9 ]
 
-Commit 26973fa5ac0e ("powerpc/mm: use pte helpers in generic code")
-changed those two functions to use pte helpers to determine which
-bits to clear and which bits to set.
+When ARCH_SUPPORTS_DEBUG_PAGEALLOC is not selected, the user can
+still select CONFIG_DEBUG_PAGEALLOC in which case __kernel_map_pages()
+is provided by mm/page_poison.c
 
-This change was based on the assumption that bits to be set/cleared
-are always the same and can be determined by applying the pte
-manipulation helpers on __pte(0).
+So only define __kernel_map_pages() when both
+CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC and CONFIG_DEBUG_PAGEALLOC
+are defined.
 
-But on platforms like book3e, the bits depend on whether the page
-is a user page or not.
-
-For the time being it more or less works because of _PAGE_EXEC being
-used for user pages only and exec right being set at all time on
-kernel page. But following patch will clean that and output of
-pte_mkexec() will depend on the page being a user or kernel page.
-
-Instead of trying to make an even more complicated helper where bits
-would become dependent on the final pte value, come back to a more
-static situation like before commit 26973fa5ac0e ("powerpc/mm: use
-pte helpers in generic code"), by introducing an 8xx specific
-version of __ptep_set_access_flags() and ptep_set_wrprotect().
-
-Fixes: 26973fa5ac0e ("powerpc/mm: use pte helpers in generic code")
+Fixes: 68b44f94d637 ("powerpc/booke: Disable STRICT_KERNEL_RWX, DEBUG_PAGEALLOC and KFENCE")
+Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/922bdab3a220781bae2360ff3dd5adb7fe4d34f1.1635226743.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/971b69739ff4746252e711a9845210465c023a9e.1635425947.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/nohash/32/pgtable.h | 17 +++++++--------
- arch/powerpc/include/asm/nohash/32/pte-8xx.h | 22 ++++++++++++++++++++
- 2 files changed, 30 insertions(+), 9 deletions(-)
+ arch/powerpc/mm/pgtable_32.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/nohash/32/pgtable.h b/arch/powerpc/include/asm/nohash/32/pgtable.h
-index f06ae00f2a65e..ac0a5ff48c3ad 100644
---- a/arch/powerpc/include/asm/nohash/32/pgtable.h
-+++ b/arch/powerpc/include/asm/nohash/32/pgtable.h
-@@ -306,30 +306,29 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned long addr,
+diff --git a/arch/powerpc/mm/pgtable_32.c b/arch/powerpc/mm/pgtable_32.c
+index dcf5ecca19d99..fde1ed445ca46 100644
+--- a/arch/powerpc/mm/pgtable_32.c
++++ b/arch/powerpc/mm/pgtable_32.c
+@@ -173,7 +173,7 @@ void mark_rodata_ro(void)
  }
+ #endif
  
- #define __HAVE_ARCH_PTEP_SET_WRPROTECT
-+#ifndef ptep_set_wrprotect
- static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr,
- 				      pte_t *ptep)
+-#ifdef CONFIG_DEBUG_PAGEALLOC
++#if defined(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) && defined(CONFIG_DEBUG_PAGEALLOC)
+ void __kernel_map_pages(struct page *page, int numpages, int enable)
  {
--	unsigned long clr = ~pte_val(pte_wrprotect(__pte(~0)));
--	unsigned long set = pte_val(pte_wrprotect(__pte(0)));
--
--	pte_update(mm, addr, ptep, clr, set, 0);
-+	pte_update(mm, addr, ptep, _PAGE_RW, 0, 0);
- }
-+#endif
- 
-+#ifndef __ptep_set_access_flags
- static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
- 					   pte_t *ptep, pte_t entry,
- 					   unsigned long address,
- 					   int psize)
- {
--	pte_t pte_set = pte_mkyoung(pte_mkdirty(pte_mkwrite(pte_mkexec(__pte(0)))));
--	pte_t pte_clr = pte_mkyoung(pte_mkdirty(pte_mkwrite(pte_mkexec(__pte(~0)))));
--	unsigned long set = pte_val(entry) & pte_val(pte_set);
--	unsigned long clr = ~pte_val(entry) & ~pte_val(pte_clr);
-+	unsigned long set = pte_val(entry) &
-+			    (_PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_RW | _PAGE_EXEC);
- 	int huge = psize > mmu_virtual_psize ? 1 : 0;
- 
--	pte_update(vma->vm_mm, address, ptep, clr, set, huge);
-+	pte_update(vma->vm_mm, address, ptep, 0, set, huge);
- 
- 	flush_tlb_page(vma, address);
- }
-+#endif
- 
- static inline int pte_young(pte_t pte)
- {
-diff --git a/arch/powerpc/include/asm/nohash/32/pte-8xx.h b/arch/powerpc/include/asm/nohash/32/pte-8xx.h
-index fcc48d590d888..1a89ebdc3acc9 100644
---- a/arch/powerpc/include/asm/nohash/32/pte-8xx.h
-+++ b/arch/powerpc/include/asm/nohash/32/pte-8xx.h
-@@ -136,6 +136,28 @@ static inline pte_t pte_mkhuge(pte_t pte)
- 
- #define pte_mkhuge pte_mkhuge
- 
-+static inline pte_basic_t pte_update(struct mm_struct *mm, unsigned long addr, pte_t *p,
-+				     unsigned long clr, unsigned long set, int huge);
-+
-+static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
-+{
-+	pte_update(mm, addr, ptep, 0, _PAGE_RO, 0);
-+}
-+#define ptep_set_wrprotect ptep_set_wrprotect
-+
-+static inline void __ptep_set_access_flags(struct vm_area_struct *vma, pte_t *ptep,
-+					   pte_t entry, unsigned long address, int psize)
-+{
-+	unsigned long set = pte_val(entry) & (_PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_EXEC);
-+	unsigned long clr = ~pte_val(entry) & _PAGE_RO;
-+	int huge = psize > mmu_virtual_psize ? 1 : 0;
-+
-+	pte_update(vma->vm_mm, address, ptep, clr, set, huge);
-+
-+	flush_tlb_page(vma, address);
-+}
-+#define __ptep_set_access_flags __ptep_set_access_flags
-+
- static inline unsigned long pgd_leaf_size(pgd_t pgd)
- {
- 	if (pgd_val(pgd) & _PMD_PAGE_8M)
+ 	unsigned long addr = (unsigned long)page_address(page);
 -- 
 2.33.0
 
