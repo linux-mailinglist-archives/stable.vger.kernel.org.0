@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F52450D1E
+	by mail.lfdr.de (Postfix) with ESMTP id EE1EC450D1F
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:48:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238672AbhKORtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238693AbhKORtk (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 12:49:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58622 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238782AbhKORrT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:47:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A63CD6329D;
-        Mon, 15 Nov 2021 17:29:51 +0000 (UTC)
+        id S238827AbhKORrl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:47:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58305632A1;
+        Mon, 15 Nov 2021 17:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997392;
-        bh=gIg7L0vyyfGOdkO1gelxEDRJBuTlogJYLKmHmw3WCNE=;
+        s=korg; t=1636997394;
+        bh=A2mwK9iV+z664mgYuUqmGvLtNDWzgkTZjqZYMokNOlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FwTo/woQgL+s+B2Gc1ZFIMa1ekmBcHqz0Ee085+qaT4LHr6J/K5Nm0f/IWo0jdYJL
-         2phMYdVDWjGY6zdL7EO8A+iMe0D/AT+xWESj3H3DKa3hdmYovx3jlvFCSwMpJqobN1
-         bnUzYmVsy8T/8idizxABhjq/LnHr9YgAcK+ZQfSE=
+        b=YvDkG322wgy8tn7+hu8eOg6dTb1pUHHNRTPcZhLK0+4Ohkz9j3IjxjZGLm7TOSSyT
+         T6KJH8D8AIiMZUsOD/cR6n1W8GjFtwF04VigJKXgY3ciDpG7WZJQ8JHdeY+kdn9V2Z
+         OZRfLL61f3/+ek/qMTUUoPXmEJ4vUpIevzt3IkZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 131/575] ring-buffer: Protect ring_buffer_reset() from reentrancy
-Date:   Mon, 15 Nov 2021 17:57:36 +0100
-Message-Id: <20211115165348.244054876@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 5.10 132/575] serial: core: Fix initializing and restoring termios speed
+Date:   Mon, 15 Nov 2021 17:57:37 +0100
+Message-Id: <20211115165348.275559033@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -40,50 +39,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Pali Rohár <pali@kernel.org>
 
-commit 51d157946666382e779f94c39891e8e9a020da78 upstream.
+commit 027b57170bf8bb6999a28e4a5f3d78bf1db0f90c upstream.
 
-The resetting of the entire ring buffer use to simply go through and reset
-each individual CPU buffer that had its own protection and synchronization.
-But this was very slow, due to performing a synchronization for each CPU.
-The code was reshuffled to do one disabling of all CPU buffers, followed
-by a single RCU synchronization, and then the resetting of each of the CPU
-buffers. But unfortunately, the mutex that prevented multiple occurrences
-of resetting the buffer was not moved to the upper function, and there is
-nothing to protect from it.
+Since commit edc6afc54968 ("tty: switch to ktermios and new framework")
+termios speed is no longer stored only in c_cflag member but also in new
+additional c_ispeed and c_ospeed members. If BOTHER flag is set in c_cflag
+then termios speed is stored only in these new members.
 
-Take the ring buffer mutex around the global reset.
+Therefore to correctly restore termios speed it is required to store also
+ispeed and ospeed members, not only cflag member.
 
+In case only cflag member with BOTHER flag is restored then functions
+tty_termios_baud_rate() and tty_termios_input_baud_rate() returns baudrate
+stored in c_ospeed / c_ispeed member, which is zero as it was not restored
+too. If reported baudrate is invalid (e.g. zero) then serial core functions
+report fallback baudrate value 9600. So it means that in this case original
+baudrate is lost and kernel changes it to value 9600.
+
+Simple reproducer of this issue is to boot kernel with following command
+line argument: "console=ttyXXX,86400" (where ttyXXX is the device name).
+For speed 86400 there is no Bnnn constant and therefore kernel has to
+represent this speed via BOTHER c_cflag. Which means that speed is stored
+only in c_ospeed and c_ispeed members, not in c_cflag anymore.
+
+If bootloader correctly configures serial device to speed 86400 then kernel
+prints boot log to early console at speed speed 86400 without any issue.
+But after kernel starts initializing real console device ttyXXX then speed
+is changed to fallback value 9600 because information about speed was lost.
+
+This patch fixes above issue by storing and restoring also ispeed and
+ospeed members, which are required for BOTHER flag.
+
+Fixes: edc6afc54968 ("[PATCH] tty: switch to ktermios and new framework")
 Cc: stable@vger.kernel.org
-Fixes: b23d7a5f4a07a ("ring-buffer: speed up buffer resets by avoiding synchronize_rcu for each CPU")
-Reported-by: "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20211002130900.9518-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/tty/serial/serial_core.c |   16 ++++++++++++++--
+ include/linux/console.h          |    2 ++
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -5000,6 +5000,9 @@ void ring_buffer_reset(struct trace_buff
- 	struct ring_buffer_per_cpu *cpu_buffer;
- 	int cpu;
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -222,7 +222,11 @@ static int uart_port_startup(struct tty_
+ 	if (retval == 0) {
+ 		if (uart_console(uport) && uport->cons->cflag) {
+ 			tty->termios.c_cflag = uport->cons->cflag;
++			tty->termios.c_ispeed = uport->cons->ispeed;
++			tty->termios.c_ospeed = uport->cons->ospeed;
+ 			uport->cons->cflag = 0;
++			uport->cons->ispeed = 0;
++			uport->cons->ospeed = 0;
+ 		}
+ 		/*
+ 		 * Initialise the hardware port settings.
+@@ -290,8 +294,11 @@ static void uart_shutdown(struct tty_str
+ 		/*
+ 		 * Turn off DTR and RTS early.
+ 		 */
+-		if (uport && uart_console(uport) && tty)
++		if (uport && uart_console(uport) && tty) {
+ 			uport->cons->cflag = tty->termios.c_cflag;
++			uport->cons->ispeed = tty->termios.c_ispeed;
++			uport->cons->ospeed = tty->termios.c_ospeed;
++		}
  
-+	/* prevent another thread from changing buffer sizes */
-+	mutex_lock(&buffer->mutex);
-+
- 	for_each_buffer_cpu(buffer, cpu) {
- 		cpu_buffer = buffer->buffers[cpu];
+ 		if (!tty || C_HUPCL(tty))
+ 			uart_port_dtr_rts(uport, 0);
+@@ -2123,8 +2130,11 @@ uart_set_options(struct uart_port *port,
+ 	 * Allow the setting of the UART parameters with a NULL console
+ 	 * too:
+ 	 */
+-	if (co)
++	if (co) {
+ 		co->cflag = termios.c_cflag;
++		co->ispeed = termios.c_ispeed;
++		co->ospeed = termios.c_ospeed;
++	}
  
-@@ -5018,6 +5021,8 @@ void ring_buffer_reset(struct trace_buff
- 		atomic_dec(&cpu_buffer->record_disabled);
- 		atomic_dec(&cpu_buffer->resize_disabled);
- 	}
-+
-+	mutex_unlock(&buffer->mutex);
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(ring_buffer_reset);
+@@ -2258,6 +2268,8 @@ int uart_resume_port(struct uart_driver
+ 		 */
+ 		memset(&termios, 0, sizeof(struct ktermios));
+ 		termios.c_cflag = uport->cons->cflag;
++		termios.c_ispeed = uport->cons->ispeed;
++		termios.c_ospeed = uport->cons->ospeed;
  
+ 		/*
+ 		 * If that's unset, use the tty termios setting.
+--- a/include/linux/console.h
++++ b/include/linux/console.h
+@@ -150,6 +150,8 @@ struct console {
+ 	short	flags;
+ 	short	index;
+ 	int	cflag;
++	uint	ispeed;
++	uint	ospeed;
+ 	void	*data;
+ 	struct	 console *next;
+ };
 
 
