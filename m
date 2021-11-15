@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28C944526B5
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:07:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C16784526B9
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:07:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236554AbhKPCKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:10:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
+        id S1346429AbhKPCKL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:10:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238950AbhKOR4w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:56:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF0DD632C9;
-        Mon, 15 Nov 2021 17:34:31 +0000 (UTC)
+        id S239131AbhKOR5e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:57:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D9C460EB4;
+        Mon, 15 Nov 2021 17:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997672;
-        bh=LySrOVxPSx3SDNO7VMhsnJW8RXUm9lURBPs/9l6na+A=;
+        s=korg; t=1636997680;
+        bh=20uB+79fYR4hOOUMGFIhnwApFAW0J6rBVImb+Ip4T7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBKBr5mcwjGnRAt+XxG1ozJ9ucIA1TNZV+u92Oozh3EM2EAFXnklx/UkpzPeXY3QX
-         5eB7XsRQHO7KNQRkOfl9xY7p7ug3xlgxU+NSAXi+88gVP2jmMdtyCYxzsv9SYwARv9
-         zOsgXXBZGfNRWOD+58tL781APp7sxDUqfjYjskdo=
+        b=KQIDp2Th6uKVXkk/4K1d7mMNBA0zOrZohJpz3TXPxn2LWkv0XVUrA3okeP0BLEj0c
+         SioN1yuBUGbMPkfjpvcFK8LRtsGK8mD4LRThrph1FHz9tr9okr2Jt2Oxl1HX1nV5yK
+         nB0UErNNfjTFeNBquOLtM4dyusqnrP+cC6/fd1xE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 234/575] PM: hibernate: Get block device exclusively in swsusp_check()
-Date:   Mon, 15 Nov 2021 17:59:19 +0100
-Message-Id: <20211115165351.829539152@linuxfoundation.org>
+Subject: [PATCH 5.10 236/575] selftests/bpf: Fix perf_buffer test on system with offline cpus
+Date:   Mon, 15 Nov 2021 17:59:21 +0100
+Message-Id: <20211115165351.895493766@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -40,98 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Jiri Olsa <jolsa@redhat.com>
 
-[ Upstream commit 39fbef4b0f77f9c89c8f014749ca533643a37c9f ]
+[ Upstream commit d4121376ac7a9c81a696d7558789b2f29ef3574e ]
 
-The following kernel crash can be triggered:
+The perf_buffer fails on system with offline cpus:
 
-[   89.266592] ------------[ cut here ]------------
-[   89.267427] kernel BUG at fs/buffer.c:3020!
-[   89.268264] invalid opcode: 0000 [#1] SMP KASAN PTI
-[   89.269116] CPU: 7 PID: 1750 Comm: kmmpd-loop0 Not tainted 5.10.0-862.14.0.6.x86_64-08610-gc932cda3cef4-dirty #20
-[   89.273169] RIP: 0010:submit_bh_wbc.isra.0+0x538/0x6d0
-[   89.277157] RSP: 0018:ffff888105ddfd08 EFLAGS: 00010246
-[   89.278093] RAX: 0000000000000005 RBX: ffff888124231498 RCX: ffffffffb2772612
-[   89.279332] RDX: 1ffff11024846293 RSI: 0000000000000008 RDI: ffff888124231498
-[   89.280591] RBP: ffff8881248cc000 R08: 0000000000000001 R09: ffffed1024846294
-[   89.281851] R10: ffff88812423149f R11: ffffed1024846293 R12: 0000000000003800
-[   89.283095] R13: 0000000000000001 R14: 0000000000000000 R15: ffff8881161f7000
-[   89.284342] FS:  0000000000000000(0000) GS:ffff88839b5c0000(0000) knlGS:0000000000000000
-[   89.285711] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   89.286701] CR2: 00007f166ebc01a0 CR3: 0000000435c0e000 CR4: 00000000000006e0
-[   89.287919] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   89.289138] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   89.290368] Call Trace:
-[   89.290842]  write_mmp_block+0x2ca/0x510
-[   89.292218]  kmmpd+0x433/0x9a0
-[   89.294902]  kthread+0x2dd/0x3e0
-[   89.296268]  ret_from_fork+0x22/0x30
-[   89.296906] Modules linked in:
+  # test_progs -t perf_buffer
+  test_perf_buffer:PASS:nr_cpus 0 nsec
+  test_perf_buffer:PASS:nr_on_cpus 0 nsec
+  test_perf_buffer:PASS:skel_load 0 nsec
+  test_perf_buffer:PASS:attach_kprobe 0 nsec
+  test_perf_buffer:PASS:perf_buf__new 0 nsec
+  test_perf_buffer:PASS:epoll_fd 0 nsec
+  skipping offline CPU #24
+  skipping offline CPU #25
+  skipping offline CPU #26
+  skipping offline CPU #27
+  skipping offline CPU #28
+  skipping offline CPU #29
+  skipping offline CPU #30
+  skipping offline CPU #31
+  test_perf_buffer:PASS:perf_buffer__poll 0 nsec
+  test_perf_buffer:PASS:seen_cpu_cnt 0 nsec
+  test_perf_buffer:FAIL:buf_cnt got 24, expected 32
+  Summary: 0/0 PASSED, 0 SKIPPED, 1 FAILED
 
-by running the following commands:
+Changing the test to check online cpus instead of possible.
 
- 1. mkfs.ext4 -O mmp  /dev/sda -b 1024
- 2. mount /dev/sda /home/test
- 3. echo "/dev/sda" > /sys/power/resume
-
-That happens because swsusp_check() calls set_blocksize() on the
-target partition which confuses the file system:
-
-       Thread1                       Thread2
-mount /dev/sda /home/test
-get s_mmp_bh  --> has mapped flag
-start kmmpd thread
-				echo "/dev/sda" > /sys/power/resume
-				  resume_store
-				    software_resume
-				      swsusp_check
-				        set_blocksize
-					  truncate_inode_pages_range
-					    truncate_cleanup_page
-					      block_invalidatepage
-					        discard_buffer --> clean mapped flag
-write_mmp_block
-  submit_bh
-    submit_bh_wbc
-      BUG_ON(!buffer_mapped(bh))
-
-To address this issue, modify swsusp_check() to open the target block
-device with exclusive access.
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20211021114132.8196-2-jolsa@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/swap.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/perf_buffer.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/power/swap.c b/kernel/power/swap.c
-index 72e33054a2e1b..c9126606fa6f4 100644
---- a/kernel/power/swap.c
-+++ b/kernel/power/swap.c
-@@ -1521,9 +1521,10 @@ end:
- int swsusp_check(void)
- {
- 	int error;
-+	void *holder;
+diff --git a/tools/testing/selftests/bpf/prog_tests/perf_buffer.c b/tools/testing/selftests/bpf/prog_tests/perf_buffer.c
+index ca9f0895ec84e..8d75475408f57 100644
+--- a/tools/testing/selftests/bpf/prog_tests/perf_buffer.c
++++ b/tools/testing/selftests/bpf/prog_tests/perf_buffer.c
+@@ -107,8 +107,8 @@ void test_perf_buffer(void)
+ 		  "expect %d, seen %d\n", nr_on_cpus, CPU_COUNT(&cpu_seen)))
+ 		goto out_free_pb;
  
- 	hib_resume_bdev = blkdev_get_by_dev(swsusp_resume_device,
--					    FMODE_READ, NULL);
-+					    FMODE_READ | FMODE_EXCL, &holder);
- 	if (!IS_ERR(hib_resume_bdev)) {
- 		set_blocksize(hib_resume_bdev, PAGE_SIZE);
- 		clear_page(swsusp_header);
-@@ -1545,7 +1546,7 @@ int swsusp_check(void)
+-	if (CHECK(perf_buffer__buffer_cnt(pb) != nr_cpus, "buf_cnt",
+-		  "got %zu, expected %d\n", perf_buffer__buffer_cnt(pb), nr_cpus))
++	if (CHECK(perf_buffer__buffer_cnt(pb) != nr_on_cpus, "buf_cnt",
++		  "got %zu, expected %d\n", perf_buffer__buffer_cnt(pb), nr_on_cpus))
+ 		goto out_close;
  
- put:
- 		if (error)
--			blkdev_put(hib_resume_bdev, FMODE_READ);
-+			blkdev_put(hib_resume_bdev, FMODE_READ | FMODE_EXCL);
- 		else
- 			pr_debug("Image signature found, resuming\n");
- 	} else {
+ 	for (i = 0; i < nr_cpus; i++) {
 -- 
 2.33.0
 
