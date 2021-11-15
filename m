@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0768451E44
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C37451E46
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349593AbhKPAfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:35:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
+        id S244124AbhKPAfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344780AbhKOTZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344777AbhKOTZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A720632BD;
-        Mon, 15 Nov 2021 19:04:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA951632BE;
+        Mon, 15 Nov 2021 19:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003048;
-        bh=NC+wzlybJex9g/OS/RAGvYLTo3qb8dDyOL7roQ1BsOU=;
+        s=korg; t=1637003051;
+        bh=N8ee0XOXqihG7E2GhDwzLczK4FwO2CDOqhdxBHaGB7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVcLim0Ttz/A2prG9+q5aUOet+DIkwR516SC/GyfXWt+Vg7A5mxLDDu29z7Rr3d9j
-         +w6jPrOsuQ0Ra+XlynP9JTxHTPFTv7w5Nv0tklvaTHZB7Pj15VGC9UZi+S//YjF4BY
-         zFFe82yIV3LKqdtQhD/b2HQoenst4qfGs/FQeKAw=
+        b=Avo9s0QPmYMwwm+kxg5fl3YLtMQ+0PzYg4tlpHNkHx9lYwlDMZIhjgrRuWwsBxAUG
+         r9xtj17Jd1L94bWBopjvjWK0gpzrsdul8E39gTN8Mf2vNNHNj/mZeje+pmbHFQNrYm
+         2AOmg3PmbJzJLPPOHLSvT4GrQnxHOENCvcOW25Qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <julia.lawall@inria.fr>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 791/917] cpufreq: intel_pstate: Clear HWP desired on suspend/shutdown and offline
-Date:   Mon, 15 Nov 2021 18:04:46 +0100
-Message-Id: <20211115165455.783621784@linuxfoundation.org>
+Subject: [PATCH 5.15 792/917] net: phy: fix duplex out of sync problem while changing settings
+Date:   Mon, 15 Nov 2021 18:04:47 +0100
+Message-Id: <20211115165455.817289911@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,91 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit dbea75fe18f60e364de6d994fc938a24ba249d81 ]
+[ Upstream commit a4db9055fdb9cf607775c66d39796caf6439ec92 ]
 
-Commit a365ab6b9dfb ("cpufreq: intel_pstate: Implement the
-->adjust_perf() callback") caused intel_pstate to use nonzero HWP
-desired values in certain usage scenarios, but it did not prevent
-them from being leaked into the confugirations in which HWP desired
-is expected to be 0.
+As reported by Zhang there's a small issue if in forced mode the duplex
+mode changes with the link staying up [0]. In this case the MAC isn't
+notified about the change.
 
-The failing scenarios are switching the driver from the passive
-mode to the active mode and starting a new kernel via kexec() while
-intel_pstate is running in the passive mode.
+The proposed patch relies on the phylib state machine and ignores the
+fact that there are drivers that uses phylib but not the phylib state
+machine. So let's don't change the behavior for such drivers and fix
+it w/o re-adding state PHY_FORCING for the case that phylib state
+machine is used.
 
-To address this issue, ensure that HWP desired will be cleared on
-offline and suspend/shutdown.
+[0] https://lore.kernel.org/netdev/a5c26ffd-4ee4-a5e6-4103-873208ce0dc5@huawei.com/T/
 
-Fixes: a365ab6b9dfb ("cpufreq: intel_pstate: Implement the ->adjust_perf() callback")
-Reported-by: Julia Lawall <julia.lawall@inria.fr>
-Tested-by: Julia Lawall <julia.lawall@inria.fr>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 2bd229df5e2e ("net: phy: remove state PHY_FORCING")
+Reported-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Tested-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/7b8b9456-a93f-abbc-1dc5-a2c2542f932c@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 32 ++++++++++++++++++++++++++++++--
- 1 file changed, 30 insertions(+), 2 deletions(-)
+ drivers/net/phy/phy.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index fc7a429f22d33..dafa631582bac 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -999,9 +999,16 @@ static void intel_pstate_hwp_offline(struct cpudata *cpu)
- 		 */
- 		value &= ~GENMASK_ULL(31, 24);
- 		value |= HWP_ENERGY_PERF_PREFERENCE(cpu->epp_cached);
--		WRITE_ONCE(cpu->hwp_req_cached, value);
- 	}
+diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
+index a3bfb156c83d7..beb2b66da1324 100644
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -815,7 +815,12 @@ int phy_ethtool_ksettings_set(struct phy_device *phydev,
+ 	phydev->mdix_ctrl = cmd->base.eth_tp_mdix_ctrl;
  
-+	/*
-+	 * Clear the desired perf field in the cached HWP request value to
-+	 * prevent nonzero desired values from being leaked into the active
-+	 * mode.
-+	 */
-+	value &= ~HWP_DESIRED_PERF(~0L);
-+	WRITE_ONCE(cpu->hwp_req_cached, value);
-+
- 	value &= ~GENMASK_ULL(31, 0);
- 	min_perf = HWP_LOWEST_PERF(READ_ONCE(cpu->hwp_cap_cached));
- 
-@@ -2903,6 +2910,27 @@ static int intel_cpufreq_cpu_exit(struct cpufreq_policy *policy)
- 	return intel_pstate_cpu_exit(policy);
- }
- 
-+static int intel_cpufreq_suspend(struct cpufreq_policy *policy)
-+{
-+	intel_pstate_suspend(policy);
-+
-+	if (hwp_active) {
-+		struct cpudata *cpu = all_cpu_data[policy->cpu];
-+		u64 value = READ_ONCE(cpu->hwp_req_cached);
-+
-+		/*
-+		 * Clear the desired perf field in MSR_HWP_REQUEST in case
-+		 * intel_cpufreq_adjust_perf() is in use and the last value
-+		 * written by it may not be suitable.
-+		 */
-+		value &= ~HWP_DESIRED_PERF(~0L);
-+		wrmsrl_on_cpu(cpu->cpu, MSR_HWP_REQUEST, value);
-+		WRITE_ONCE(cpu->hwp_req_cached, value);
+ 	/* Restart the PHY */
+-	_phy_start_aneg(phydev);
++	if (phy_is_started(phydev)) {
++		phydev->state = PHY_UP;
++		phy_trigger_machine(phydev);
++	} else {
++		_phy_start_aneg(phydev);
 +	}
-+
-+	return 0;
-+}
-+
- static struct cpufreq_driver intel_cpufreq = {
- 	.flags		= CPUFREQ_CONST_LOOPS,
- 	.verify		= intel_cpufreq_verify_policy,
-@@ -2912,7 +2940,7 @@ static struct cpufreq_driver intel_cpufreq = {
- 	.exit		= intel_cpufreq_cpu_exit,
- 	.offline	= intel_cpufreq_cpu_offline,
- 	.online		= intel_pstate_cpu_online,
--	.suspend	= intel_pstate_suspend,
-+	.suspend	= intel_cpufreq_suspend,
- 	.resume		= intel_pstate_resume,
- 	.update_limits	= intel_pstate_update_limits,
- 	.name		= "intel_cpufreq",
+ 
+ 	mutex_unlock(&phydev->lock);
+ 	return 0;
 -- 
 2.33.0
 
