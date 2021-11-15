@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3B24450B36
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:17:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE4EE450E0F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236477AbhKORUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:20:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44996 "EHLO mail.kernel.org"
+        id S239885AbhKOSKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:10:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237341AbhKORTZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:19:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B09E63259;
-        Mon, 15 Nov 2021 17:14:22 +0000 (UTC)
+        id S239857AbhKOSEz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:04:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EA2B632E8;
+        Mon, 15 Nov 2021 17:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996462;
-        bh=9nz0x7iTpe50Pw2n8ju7MYMoLXnaSly4sFR4aWZPcHY=;
+        s=korg; t=1636997992;
+        bh=ZfZszfZ5gIxuRi1U+YaRtY6zHkYNWB6hFWtOfjz6I4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rcZheccdn73T5FCWOfz03orQECAzHaOmrv4SF2JF/xPsF+k6DO5EZbHCbLxije0Vj
-         tzUa1XKkJi5Hv4h3wDEcdl0Qu36+04OEisIg0dcRDcmmbql93J6C3K9hZQUcOwjcUf
-         sfEnPgjP0r1z3dw96JmqVEIiLJnBwyDznAkNi9PU=
+        b=cIZDaN+R+PB3XHS+GrIkunJhsb2IGGf1y4zkIb9Pbc7wsTtsBwDGn5mmuEmBcjTrQ
+         EOdxCFQzvT0MXsY9N34TNSBxX1hrUdkfjHKkhasFVyFtoUQb/I/yq5dqIBmuai2tca
+         EdEJPyLKpCtnjsITtDXle9vdL5iWFSUPcGX7dAOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Tuo Li <islituo@gmail.com>, Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Ricardo Koller <ricarkol@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 149/355] ath: dfs_pattern_detector: Fix possible null-pointer dereference in channel_detector_create()
+Subject: [PATCH 5.10 348/575] KVM: selftests: Fix nested SVM tests when built with clang
 Date:   Mon, 15 Nov 2021 18:01:13 +0100
-Message-Id: <20211115165318.615608825@linuxfoundation.org>
+Message-Id: <20211115165355.832374383@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit 4b6012a7830b813799a7faf40daa02a837e0fd5b ]
+[ Upstream commit ed290e1c20da19fa100a3e0f421aa31b65984960 ]
 
-kzalloc() is used to allocate memory for cd->detectors, and if it fails,
-channel_detector_exit() behind the label fail will be called:
-  channel_detector_exit(dpd, cd);
+Though gcc conveniently compiles a simple memset to "rep stos," clang
+prefers to call the libc version of memset. If a test is dynamically
+linked, the libc memset isn't available in L1 (nor is the PLT or the
+GOT, for that matter). Even if the test is statically linked, the libc
+memset may choose to use some CPU features, like AVX, which may not be
+enabled in L1. Note that __builtin_memset doesn't solve the problem,
+because (a) the compiler is free to call memset anyway, and (b)
+__builtin_memset may also choose to use features like AVX, which may
+not be available in L1.
 
-In channel_detector_exit(), cd->detectors is dereferenced through:
-  struct pri_detector *de = cd->detectors[i];
+To avoid a myriad of problems, use an explicit "rep stos" to clear the
+VMCB in generic_svm_setup(), which is called both from L0 and L1.
 
-To fix this possible null-pointer dereference, check cd->detectors before
-the for loop to dereference cd->detectors.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210805153854.154066-1-islituo@gmail.com
+Reported-by: Ricardo Koller <ricarkol@google.com>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Fixes: 20ba262f8631a ("selftests: KVM: AMD Nested test infrastructure")
+Message-Id: <20210930003649.4026553-1-jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/dfs_pattern_detector.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ tools/testing/selftests/kvm/lib/x86_64/svm.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/dfs_pattern_detector.c b/drivers/net/wireless/ath/dfs_pattern_detector.c
-index a274eb0d19688..a0ad6e48a35b4 100644
---- a/drivers/net/wireless/ath/dfs_pattern_detector.c
-+++ b/drivers/net/wireless/ath/dfs_pattern_detector.c
-@@ -182,10 +182,12 @@ static void channel_detector_exit(struct dfs_pattern_detector *dpd,
- 	if (cd == NULL)
- 		return;
- 	list_del(&cd->head);
--	for (i = 0; i < dpd->num_radar_types; i++) {
--		struct pri_detector *de = cd->detectors[i];
--		if (de != NULL)
--			de->exit(de);
-+	if (cd->detectors) {
-+		for (i = 0; i < dpd->num_radar_types; i++) {
-+			struct pri_detector *de = cd->detectors[i];
-+			if (de != NULL)
-+				de->exit(de);
-+		}
- 	}
- 	kfree(cd->detectors);
- 	kfree(cd);
+diff --git a/tools/testing/selftests/kvm/lib/x86_64/svm.c b/tools/testing/selftests/kvm/lib/x86_64/svm.c
+index 827fe6028dd42..a58507a7b5d6d 100644
+--- a/tools/testing/selftests/kvm/lib/x86_64/svm.c
++++ b/tools/testing/selftests/kvm/lib/x86_64/svm.c
+@@ -57,6 +57,18 @@ static void vmcb_set_seg(struct vmcb_seg *seg, u16 selector,
+ 	seg->base = base;
+ }
+ 
++/*
++ * Avoid using memset to clear the vmcb, since libc may not be
++ * available in L1 (and, even if it is, features that libc memset may
++ * want to use, like AVX, may not be enabled).
++ */
++static void clear_vmcb(struct vmcb *vmcb)
++{
++	int n = sizeof(*vmcb) / sizeof(u32);
++
++	asm volatile ("rep stosl" : "+c"(n), "+D"(vmcb) : "a"(0) : "memory");
++}
++
+ void generic_svm_setup(struct svm_test_data *svm, void *guest_rip, void *guest_rsp)
+ {
+ 	struct vmcb *vmcb = svm->vmcb;
+@@ -73,7 +85,7 @@ void generic_svm_setup(struct svm_test_data *svm, void *guest_rip, void *guest_r
+ 	wrmsr(MSR_EFER, efer | EFER_SVME);
+ 	wrmsr(MSR_VM_HSAVE_PA, svm->save_area_gpa);
+ 
+-	memset(vmcb, 0, sizeof(*vmcb));
++	clear_vmcb(vmcb);
+ 	asm volatile ("vmsave %0\n\t" : : "a" (vmcb_gpa) : "memory");
+ 	vmcb_set_seg(&save->es, get_es(), 0, -1U, data_seg_attr);
+ 	vmcb_set_seg(&save->cs, get_cs(), 0, -1U, code_seg_attr);
 -- 
 2.33.0
 
