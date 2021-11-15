@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE26450EE5
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:18:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C985450EDA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:18:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237888AbhKOSVU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:21:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56272 "EHLO mail.kernel.org"
+        id S241264AbhKOSUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:20:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241130AbhKOSSa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:18:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1F3A633F4;
-        Mon, 15 Nov 2021 17:51:06 +0000 (UTC)
+        id S241132AbhKOSSb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:18:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2048633F5;
+        Mon, 15 Nov 2021 17:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998667;
-        bh=tMShxtJVAtxPL6k7DwggB9SbQYjZfAmOySRFLhJ0XzY=;
+        s=korg; t=1636998670;
+        bh=T8792LNMu9u6y7rSh7ujI8jt+KPWQDLW9UiOdtr3NNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rrfkQagF5tAvcbnTPqV3dknEjM2OXokl1kznLNZWEP760qGH2JDQ1df8tgx+JluKe
-         dbZhmG/zXRwVAmmF4wU5BBsjt1C4v8DaZ1gun47R7keroMgA9Fpjc8pP1eRxQHAOyg
-         M2CBKzkL38MbxtLVCmEspfBZbd/s+L2KImW28oPo=
+        b=sZUqVz/Lrb3SmPygd6QYRA4N9/5GPlWvgqoO/3MCdxYbVy9G+ouWfXHR0tWQ98dM9
+         Tr2unvLtpNbJYBsEe0S3AzkBPUORmRFbp3FVA6pBytr37+NNgbIOjib6Ei69BWgqdK
+         CNBna4INLLQ4WkBb6pIKBXc4Ux0Wqwp+96WbBf08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
-        Jaehoon Chung <jh80.chung@samsung.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.14 017/849] mmc: dw_mmc: Dont wait for DRTO on Write RSP error
-Date:   Mon, 15 Nov 2021 17:51:40 +0100
-Message-Id: <20211115165420.585133303@linuxfoundation.org>
+        stable@vger.kernel.org, Ganapathi Kamath <hgkamath@hotmail.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Namjae Jeon <linkinjeon@kernel.org>
+Subject: [PATCH 5.14 018/849] exfat: fix incorrect loading of i_blocks for large files
+Date:   Mon, 15 Nov 2021 17:51:41 +0100
+Message-Id: <20211115165420.616736290@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,45 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Löhle <CLoehle@hyperstone.com>
+From: Sungjong Seo <sj1557.seo@samsung.com>
 
-commit 43592c8736e84025d7a45e61a46c3fa40536a364 upstream.
+commit 0c336d6e33f4bedc443404c89f43c91c8bd9ee11 upstream.
 
-Only wait for DRTO on reads, otherwise the driver hangs.
+When calculating i_blocks, there was a mistake that was masked with a
+32-bit variable. So i_blocks for files larger than 4 GiB had incorrect
+values. Mask with a 64-bit variable instead of 32-bit one.
 
-The driver prevents sending CMD12 on response errors like CRCs. According
-to the comment this is because some cards have problems with this during
-the UHS tuning sequence. Unfortunately this workaround currently also
-applies for any command with data. On reads this will set the drto timer,
-which then triggers after a while. On writes this will not set any timer
-and the tasklet will not be scheduled again.
-
-I cannot test for the UHS workarounds need, but even if so, it should at
-most apply to reads. I have observed many hangs when CMD25 response
-contained a CRC error. This patch fixes this without touching the actual
-UHS tuning workaround.
-
-Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
-Reviewed-by: Jaehoon Chung <jh80.chung@samsung.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/af8f8b8674ba4fcc9a781019e4aeb72c@hyperstone.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 5f2aa075070c ("exfat: add inode operations")
+Cc: stable@vger.kernel.org # v5.7+
+Reported-by: Ganapathi Kamath <hgkamath@hotmail.com>
+Signed-off-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/dw_mmc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/exfat/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/host/dw_mmc.c
-+++ b/drivers/mmc/host/dw_mmc.c
-@@ -2014,7 +2014,8 @@ static void dw_mci_tasklet_func(struct t
- 				 * delayed. Allowing the transfer to take place
- 				 * avoids races and keeps things simple.
- 				 */
--				if (err != -ETIMEDOUT) {
-+				if (err != -ETIMEDOUT &&
-+				    host->dir_status == DW_MCI_RECV_STATUS) {
- 					state = STATE_SENDING_DATA;
- 					continue;
- 				}
+--- a/fs/exfat/inode.c
++++ b/fs/exfat/inode.c
+@@ -604,7 +604,7 @@ static int exfat_fill_inode(struct inode
+ 	exfat_save_attr(inode, info->attr);
+ 
+ 	inode->i_blocks = ((i_size_read(inode) + (sbi->cluster_size - 1)) &
+-		~(sbi->cluster_size - 1)) >> inode->i_blkbits;
++		~((loff_t)sbi->cluster_size - 1)) >> inode->i_blkbits;
+ 	inode->i_mtime = info->mtime;
+ 	inode->i_ctime = info->mtime;
+ 	ei->i_crtime = info->crtime;
 
 
