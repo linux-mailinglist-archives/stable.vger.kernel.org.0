@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66E33451491
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E09E4512B8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242718AbhKOUKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:10:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45386 "EHLO mail.kernel.org"
+        id S1347079AbhKOTiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:38:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344703AbhKOTZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FEE56336D;
-        Mon, 15 Nov 2021 19:02:36 +0000 (UTC)
+        id S244917AbhKOTSO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 540496342F;
+        Mon, 15 Nov 2021 18:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002957;
-        bh=Z2Bkfk7ldib36KvCzZmd63iuvwRrE+by1EVfv5cMvNM=;
+        s=korg; t=1637000733;
+        bh=muAIcByDL+6/H+q8zkMKg4uAmO9mDUkD0D2OKVw4uy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pv3VST6wxH13Wp8mFqMD0J2q9iBJp9wCu+16yn1k4icASLZJiaorlmbntPq08PC4N
-         faJ/kQL3vyJ9gPpXYhKqMltuV0d41k1IrwQ+34qf5wFbX73ji/KtDHTSem7Tf53rW6
-         PY6R64GILn6+UOB/y34wsQAKUUyYpsja1beLXHM8=
+        b=gZbA4KHpbuxg2lNR/iHj602qbblo70AMGUTVhvVv3x364KFbEplaWVMRBxgTL1qC3
+         Per1oCsNZloU1gLhJ2T4aIo7GTnhTsedCeRF4/ljsl6O76Hh1wLwDeb6VL3nrvRfMf
+         D+xXDrryoE8d+CAGZqMG7Eb65QIJqxf5DK8LGVfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sander Vanheule <sander@svanheule.net>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Florent Revest <revest@chromium.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 758/917] gpio: realtek-otto: fix GPIO line IRQ offset
-Date:   Mon, 15 Nov 2021 18:04:13 +0100
-Message-Id: <20211115165454.616882314@linuxfoundation.org>
+Subject: [PATCH 5.14 771/849] seq_file: fix passing wrong private data
+Date:   Mon, 15 Nov 2021 18:04:14 +0100
+Message-Id: <20211115165446.339917849@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sander Vanheule <sander@svanheule.net>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 585a07079909ba9061ddd88214c36653e1aef71a ]
+[ Upstream commit 10a6de19cad6efb9b49883513afb810dc265fca2 ]
 
-The irqchip uses one domain for all GPIO lines, so the line offset
-should be determined w.r.t. the first line of the first port, not the
-first line of the triggered port.
+DEFINE_PROC_SHOW_ATTRIBUTE() is supposed to be used to define a series
+of functions and variables to register proc file easily. And the users
+can use proc_create_data() to pass their own private data and get it
+via seq->private in the callback. Unfortunately, the proc file system
+use PDE_DATA() to get private data instead of inode->i_private. So fix
+it. Fortunately, there only one user of it which does not pass any
+private data, so this bug does not break any in-tree codes.
 
-Fixes: 0d82fb1127fb ("gpio: Add Realtek Otto GPIO support")
-Signed-off-by: Sander Vanheule <sander@svanheule.net>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Link: https://lkml.kernel.org/r/20211029032638.84884-1-songmuchun@bytedance.com
+Fixes: 97a32539b956 ("proc: convert everything to "struct proc_ops"")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Florent Revest <revest@chromium.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-realtek-otto.c | 2 +-
+ include/linux/seq_file.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-realtek-otto.c b/drivers/gpio/gpio-realtek-otto.c
-index eeeb39bc171dc..bd75401b549d1 100644
---- a/drivers/gpio/gpio-realtek-otto.c
-+++ b/drivers/gpio/gpio-realtek-otto.c
-@@ -205,7 +205,7 @@ static void realtek_gpio_irq_handler(struct irq_desc *desc)
- 		status = realtek_gpio_read_isr(ctrl, lines_done / 8);
- 		port_pin_count = min(gc->ngpio - lines_done, 8U);
- 		for_each_set_bit(offset, &status, port_pin_count)
--			generic_handle_domain_irq(gc->irq.domain, offset);
-+			generic_handle_domain_irq(gc->irq.domain, offset + lines_done);
- 	}
- 
- 	chained_irq_exit(irq_chip, desc);
+diff --git a/include/linux/seq_file.h b/include/linux/seq_file.h
+index dd99569595fd3..5733890df64f5 100644
+--- a/include/linux/seq_file.h
++++ b/include/linux/seq_file.h
+@@ -194,7 +194,7 @@ static const struct file_operations __name ## _fops = {			\
+ #define DEFINE_PROC_SHOW_ATTRIBUTE(__name)				\
+ static int __name ## _open(struct inode *inode, struct file *file)	\
+ {									\
+-	return single_open(file, __name ## _show, inode->i_private);	\
++	return single_open(file, __name ## _show, PDE_DATA(inode));	\
+ }									\
+ 									\
+ static const struct proc_ops __name ## _proc_ops = {			\
 -- 
 2.33.0
 
