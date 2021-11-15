@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D913450FD9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:34:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23FF8450FA8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:32:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242464AbhKOShB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:37:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42400 "EHLO mail.kernel.org"
+        id S238705AbhKOSff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:35:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242356AbhKOSfM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:35:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A53D61C14;
-        Mon, 15 Nov 2021 18:01:53 +0000 (UTC)
+        id S242049AbhKOSdN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:33:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35C9F63461;
+        Mon, 15 Nov 2021 18:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999313;
-        bh=h/Qv0gdg233kt+NKGH31/IuhY5AlguPK5AGf8Iou0SY=;
+        s=korg; t=1636999211;
+        bh=uV6izsrE9C2hoMbs7TvmWhBvrq4cb9kTBqrL5NKqgMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXA8prWlatt0tYNRGEBv4rhgAlaKVXTEp1sWzkrlg5AuYGJ0nNo6/HmfbC0JQ8T18
-         U1nqWLfq/16LZ30dabMqRj9VLBQVXMH2TobZvf01RSrzFzdBFXalDCujLYuKm2RXv2
-         opbJCDoT99b6Y0Lmw+KAj9gTYtAGnUz8TocZsx4M=
+        b=cwLLLJ4v7VjrHrtPurEQdJCurFEdAL5qdW2rSdNcEbSANrm353En0kzxiyuxr1hKb
+         0UFyelWecHhijR6l4gdPQWKVhnPGApWCTdrO8V/bY2ZSb0g6VLmU0IDoqGyqTXQT7Q
+         A+yY1yEaZuSIYDtIFoX3O/HulCWLW5jEtSGMqzq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Simon Ser <contact@emersion.fr>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 208/849] drm: panel-orientation-quirks: Add quirk for the Samsung Galaxy Book 10.6
-Date:   Mon, 15 Nov 2021 17:54:51 +0100
-Message-Id: <20211115165427.248114165@linuxfoundation.org>
+Subject: [PATCH 5.14 209/849] Bluetooth: sco: Fix lock_sock() blockage by memcpy_from_msg()
+Date:   Mon, 15 Nov 2021 17:54:52 +0100
+Message-Id: <20211115165427.281084978@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,51 +40,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 88fa1fde918951c175ae5ea0f31efc4bb1736ab9 ]
+[ Upstream commit 99c23da0eed4fd20cae8243f2b51e10e66aa0951 ]
 
-The Samsung Galaxy Book 10.6 uses a panel which has been mounted
-90 degrees rotated. Add a quirk for this.
+The sco_send_frame() also takes lock_sock() during memcpy_from_msg()
+call that may be endlessly blocked by a task with userfaultd
+technique, and this will result in a hung task watchdog trigger.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Simon Ser <contact@emersion.fr>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210530110428.12994-4-hdegoede@redhat.com
+Just like the similar fix for hci_sock_sendmsg() in commit
+92c685dc5de0 ("Bluetooth: reorganize functions..."), this patch moves
+the  memcpy_from_msg() out of lock_sock() for addressing the hang.
+
+This should be the last piece for fixing CVE-2021-3640 after a few
+already queued fixes.
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ net/bluetooth/sco.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index cf4db2cdebbbd..926094b83e2f4 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -109,6 +109,12 @@ static const struct drm_dmi_panel_orientation_data lcd1200x1920_rightside_up = {
- 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
- };
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index 110cfd6aa2b77..2766faf95c534 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -281,7 +281,8 @@ static int sco_connect(struct hci_dev *hdev, struct sock *sk)
+ 	return err;
+ }
  
-+static const struct drm_dmi_panel_orientation_data lcd1280x1920_rightside_up = {
-+	.width = 1280,
-+	.height = 1920,
-+	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
-+};
+-static int sco_send_frame(struct sock *sk, struct msghdr *msg, int len)
++static int sco_send_frame(struct sock *sk, void *buf, int len,
++			  unsigned int msg_flags)
+ {
+ 	struct sco_conn *conn = sco_pi(sk)->conn;
+ 	struct sk_buff *skb;
+@@ -293,15 +294,11 @@ static int sco_send_frame(struct sock *sk, struct msghdr *msg, int len)
+ 
+ 	BT_DBG("sk %p len %d", sk, len);
+ 
+-	skb = bt_skb_send_alloc(sk, len, msg->msg_flags & MSG_DONTWAIT, &err);
++	skb = bt_skb_send_alloc(sk, len, msg_flags & MSG_DONTWAIT, &err);
+ 	if (!skb)
+ 		return err;
+ 
+-	if (memcpy_from_msg(skb_put(skb, len), msg, len)) {
+-		kfree_skb(skb);
+-		return -EFAULT;
+-	}
+-
++	memcpy(skb_put(skb, len), buf, len);
+ 	hci_send_sco(conn->hcon, skb);
+ 
+ 	return len;
+@@ -726,6 +723,7 @@ static int sco_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 			    size_t len)
+ {
+ 	struct sock *sk = sock->sk;
++	void *buf;
+ 	int err;
+ 
+ 	BT_DBG("sock %p, sk %p", sock, sk);
+@@ -737,14 +735,24 @@ static int sco_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 	if (msg->msg_flags & MSG_OOB)
+ 		return -EOPNOTSUPP;
+ 
++	buf = kmalloc(len, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
 +
- static const struct dmi_system_id orientation_data[] = {
- 	{	/* Acer One 10 (S1003) */
- 		.matches = {
-@@ -249,6 +255,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Default string"),
- 		},
- 		.driver_data = (void *)&onegx1_pro,
-+	}, {	/* Samsung GalaxyBook 10.6 */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Galaxy Book 10.6"),
-+		},
-+		.driver_data = (void *)&lcd1280x1920_rightside_up,
- 	}, {	/* VIOS LTH17 */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "VIOS"),
++	if (memcpy_from_msg(buf, msg, len)) {
++		kfree(buf);
++		return -EFAULT;
++	}
++
+ 	lock_sock(sk);
+ 
+ 	if (sk->sk_state == BT_CONNECTED)
+-		err = sco_send_frame(sk, msg, len);
++		err = sco_send_frame(sk, buf, len, msg->msg_flags);
+ 	else
+ 		err = -ENOTCONN;
+ 
+ 	release_sock(sk);
++	kfree(buf);
+ 	return err;
+ }
+ 
 -- 
 2.33.0
 
