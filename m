@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF8D345144D
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 295884511A2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:10:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344223AbhKOUCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:02:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
+        id S241996AbhKOTMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:12:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344312AbhKOTYZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 655976347E;
-        Mon, 15 Nov 2021 18:55:45 +0000 (UTC)
+        id S244127AbhKOTKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:10:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FF4860E75;
+        Mon, 15 Nov 2021 18:18:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002545;
-        bh=cFwoqF+/WZPK7/VXvGS71fWsm8jzRVFzBdtXQ3/3Pk4=;
+        s=korg; t=1637000331;
+        bh=NewOX6p9U7y1vzv/hqnyCIclbc9xLMmMqtkeHr/JZJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTb7RfGC2PmJJhgM5DOyhgD0g9IYSyLhLZ/pqGwCDsVthHJBTJDqhSw3/TEv1OjWk
-         hlTfIJu5P2PRMaq//QQTjGlM87O8WJ/tUMrIveqR2XuqoACZlgdUhUOnGYJhalbwrg
-         VR4Ae5Cpn/CLof+YMW9O3dWBqJdzqYYsgazdWzWU=
+        b=rJYr644tUz6XorTDx2VhylI6DWcBiUEjozAMH6UegkqCZPhFs05byXRwtQntqaC9t
+         aTWctE4xJLKuusVyl6pMZLuCSQKU4fHCci+1CS6obTVBG30GdRY80srtLDNzkavi5z
+         dhJo34lBZqzjWYmXESRz0PI257wLgSQMcbWBscZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Bart Van Assche <bvanassche@google.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Amelie Delaunay <amelie.delaunay@st.com>,
+        linux-usb@vger.kernel.org,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 609/917] scsi: ufs: core: Stop clearing UNIT ATTENTIONS
+Subject: [PATCH 5.14 621/849] usb: typec: STUSB160X should select REGMAP_I2C
 Date:   Mon, 15 Nov 2021 18:01:44 +0100
-Message-Id: <20211115165449.447476284@linuxfoundation.org>
+Message-Id: <20211115165441.266986963@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,344 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@google.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit edc0596cc04bf0ac3a69c66e994d3ff8b650ff71 ]
+[ Upstream commit 8ef1e58783b9f55daa4a865c7801dc75cbeb8260 ]
 
-Commit aa53f580e67b ("scsi: ufs: Minor adjustments to error handling")
-introduced a ufshcd_clear_ua_wluns() call in
-ufshcd_err_handling_unprepare(). As explained in detail by Adrian Hunter,
-this can trigger a deadlock. Avoid that deadlock by removing the code that
-clears the unit attention. This is safe because the only software that
-relies on clearing unit attentions is the Android Trusty software and
-because support for handling unit attentions has been added in the Trusty
-software.
+REGMAP_I2C is not a user visible kconfig symbol so driver configs
+should not "depend on" it. They should depend on I2C and then
+select REGMAP_I2C.
 
-See also https://lore.kernel.org/linux-scsi/20210930124224.114031-2-adrian.hunter@intel.com/
+If this worked, it was only because some other driver had set/enabled
+REGMAP_I2C.
 
-Note that "scsi: ufs: Retry START_STOP on UNIT_ATTENTION" is a prerequisite
-for this commit.
-
-Link: https://lore.kernel.org/r/20211001182015.1347587-3-jaegeuk@kernel.org
-Fixes: aa53f580e67b ("scsi: ufs: Minor adjustments to error handling")
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Bart Van Assche <bvanassche@google.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: da0cb6310094 ("usb: typec: add support for STUSB160x Type-C controller family")
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org
+Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20211015013609.7300-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 184 +-------------------------------------
- drivers/scsi/ufs/ufshcd.h |  14 ---
- 2 files changed, 1 insertion(+), 197 deletions(-)
+ drivers/usb/typec/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index b02feb3ab7b56..20705cec83c55 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -222,7 +222,6 @@ static int ufshcd_reset_and_restore(struct ufs_hba *hba);
- static int ufshcd_eh_host_reset_handler(struct scsi_cmnd *cmd);
- static int ufshcd_clear_tm_cmd(struct ufs_hba *hba, int tag);
- static void ufshcd_hba_exit(struct ufs_hba *hba);
--static int ufshcd_clear_ua_wluns(struct ufs_hba *hba);
- static int ufshcd_probe_hba(struct ufs_hba *hba, bool init_dev_params);
- static int ufshcd_setup_clocks(struct ufs_hba *hba, bool on);
- static int ufshcd_uic_hibern8_enter(struct ufs_hba *hba);
-@@ -4073,8 +4072,6 @@ int ufshcd_link_recovery(struct ufs_hba *hba)
- 	if (ret)
- 		dev_err(hba->dev, "%s: link recovery failed, err %d",
- 			__func__, ret);
--	else
--		ufshcd_clear_ua_wluns(hba);
+diff --git a/drivers/usb/typec/Kconfig b/drivers/usb/typec/Kconfig
+index a0418f23b4aae..ab480f38523aa 100644
+--- a/drivers/usb/typec/Kconfig
++++ b/drivers/usb/typec/Kconfig
+@@ -65,9 +65,9 @@ config TYPEC_HD3SS3220
  
- 	return ret;
- }
-@@ -5959,7 +5956,6 @@ static void ufshcd_err_handling_unprepare(struct ufs_hba *hba)
- 	ufshcd_release(hba);
- 	if (ufshcd_is_clkscaling_supported(hba))
- 		ufshcd_clk_scaling_suspend(hba, false);
--	ufshcd_clear_ua_wluns(hba);
- 	ufshcd_rpm_put(hba);
- }
- 
-@@ -7875,8 +7871,6 @@ static int ufshcd_add_lus(struct ufs_hba *hba)
- 	if (ret)
- 		goto out;
- 
--	ufshcd_clear_ua_wluns(hba);
--
- 	/* Initialize devfreq after UFS device is detected */
- 	if (ufshcd_is_clkscaling_supported(hba)) {
- 		memcpy(&hba->clk_scaling.saved_pwr_info.info,
-@@ -7902,116 +7896,6 @@ out:
- 	return ret;
- }
- 
--static void ufshcd_request_sense_done(struct request *rq, blk_status_t error)
--{
--	if (error != BLK_STS_OK)
--		pr_err("%s: REQUEST SENSE failed (%d)\n", __func__, error);
--	kfree(rq->end_io_data);
--	blk_put_request(rq);
--}
--
--static int
--ufshcd_request_sense_async(struct ufs_hba *hba, struct scsi_device *sdev)
--{
--	/*
--	 * Some UFS devices clear unit attention condition only if the sense
--	 * size used (UFS_SENSE_SIZE in this case) is non-zero.
--	 */
--	static const u8 cmd[6] = {REQUEST_SENSE, 0, 0, 0, UFS_SENSE_SIZE, 0};
--	struct scsi_request *rq;
--	struct request *req;
--	char *buffer;
--	int ret;
--
--	buffer = kzalloc(UFS_SENSE_SIZE, GFP_KERNEL);
--	if (!buffer)
--		return -ENOMEM;
--
--	req = blk_get_request(sdev->request_queue, REQ_OP_DRV_IN,
--			      /*flags=*/BLK_MQ_REQ_PM);
--	if (IS_ERR(req)) {
--		ret = PTR_ERR(req);
--		goto out_free;
--	}
--
--	ret = blk_rq_map_kern(sdev->request_queue, req,
--			      buffer, UFS_SENSE_SIZE, GFP_NOIO);
--	if (ret)
--		goto out_put;
--
--	rq = scsi_req(req);
--	rq->cmd_len = ARRAY_SIZE(cmd);
--	memcpy(rq->cmd, cmd, rq->cmd_len);
--	rq->retries = 3;
--	req->timeout = 1 * HZ;
--	req->rq_flags |= RQF_PM | RQF_QUIET;
--	req->end_io_data = buffer;
--
--	blk_execute_rq_nowait(/*bd_disk=*/NULL, req, /*at_head=*/true,
--			      ufshcd_request_sense_done);
--	return 0;
--
--out_put:
--	blk_put_request(req);
--out_free:
--	kfree(buffer);
--	return ret;
--}
--
--static int ufshcd_clear_ua_wlun(struct ufs_hba *hba, u8 wlun)
--{
--	struct scsi_device *sdp;
--	unsigned long flags;
--	int ret = 0;
--
--	spin_lock_irqsave(hba->host->host_lock, flags);
--	if (wlun == UFS_UPIU_UFS_DEVICE_WLUN)
--		sdp = hba->sdev_ufs_device;
--	else if (wlun == UFS_UPIU_RPMB_WLUN)
--		sdp = hba->sdev_rpmb;
--	else
--		BUG();
--	if (sdp) {
--		ret = scsi_device_get(sdp);
--		if (!ret && !scsi_device_online(sdp)) {
--			ret = -ENODEV;
--			scsi_device_put(sdp);
--		}
--	} else {
--		ret = -ENODEV;
--	}
--	spin_unlock_irqrestore(hba->host->host_lock, flags);
--	if (ret)
--		goto out_err;
--
--	ret = ufshcd_request_sense_async(hba, sdp);
--	scsi_device_put(sdp);
--out_err:
--	if (ret)
--		dev_err(hba->dev, "%s: UAC clear LU=%x ret = %d\n",
--				__func__, wlun, ret);
--	return ret;
--}
--
--static int ufshcd_clear_ua_wluns(struct ufs_hba *hba)
--{
--	int ret = 0;
--
--	if (!hba->wlun_dev_clr_ua)
--		goto out;
--
--	ret = ufshcd_clear_ua_wlun(hba, UFS_UPIU_UFS_DEVICE_WLUN);
--	if (!ret)
--		ret = ufshcd_clear_ua_wlun(hba, UFS_UPIU_RPMB_WLUN);
--	if (!ret)
--		hba->wlun_dev_clr_ua = false;
--out:
--	if (ret)
--		dev_err(hba->dev, "%s: Failed to clear UAC WLUNS ret = %d\n",
--				__func__, ret);
--	return ret;
--}
--
- /**
-  * ufshcd_probe_hba - probe hba to detect device and initialize it
-  * @hba: per-adapter instance
-@@ -8062,8 +7946,6 @@ static int ufshcd_probe_hba(struct ufs_hba *hba, bool init_dev_params)
- 	/* UFS device is also active now */
- 	ufshcd_set_ufs_dev_active(hba);
- 	ufshcd_force_reset_auto_bkops(hba);
--	hba->wlun_dev_clr_ua = true;
--	hba->wlun_rpmb_clr_ua = true;
- 
- 	/* Gear up to HS gear if supported */
- 	if (hba->max_pwr_info.is_valid) {
-@@ -8625,8 +8507,6 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
- 	 * handling context.
- 	 */
- 	hba->host->eh_noresume = 1;
--	if (hba->wlun_dev_clr_ua)
--		ufshcd_clear_ua_wlun(hba, UFS_UPIU_UFS_DEVICE_WLUN);
- 
- 	cmd[4] = pwr_mode << 4;
- 
-@@ -9699,10 +9579,6 @@ void ufshcd_resume_complete(struct device *dev)
- 		ufshcd_rpm_put(hba);
- 		hba->complete_put = false;
- 	}
--	if (hba->rpmb_complete_put) {
--		ufshcd_rpmb_rpm_put(hba);
--		hba->rpmb_complete_put = false;
--	}
- }
- EXPORT_SYMBOL_GPL(ufshcd_resume_complete);
- 
-@@ -9725,10 +9601,6 @@ int ufshcd_suspend_prepare(struct device *dev)
- 		}
- 		hba->complete_put = true;
- 	}
--	if (hba->sdev_rpmb) {
--		ufshcd_rpmb_rpm_get_sync(hba);
--		hba->rpmb_complete_put = true;
--	}
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(ufshcd_suspend_prepare);
-@@ -9797,49 +9669,6 @@ static struct scsi_driver ufs_dev_wlun_template = {
- 	},
- };
- 
--static int ufshcd_rpmb_probe(struct device *dev)
--{
--	return is_rpmb_wlun(to_scsi_device(dev)) ? 0 : -ENODEV;
--}
--
--static inline int ufshcd_clear_rpmb_uac(struct ufs_hba *hba)
--{
--	int ret = 0;
--
--	if (!hba->wlun_rpmb_clr_ua)
--		return 0;
--	ret = ufshcd_clear_ua_wlun(hba, UFS_UPIU_RPMB_WLUN);
--	if (!ret)
--		hba->wlun_rpmb_clr_ua = 0;
--	return ret;
--}
--
--#ifdef CONFIG_PM
--static int ufshcd_rpmb_resume(struct device *dev)
--{
--	struct ufs_hba *hba = wlun_dev_to_hba(dev);
--
--	if (hba->sdev_rpmb)
--		ufshcd_clear_rpmb_uac(hba);
--	return 0;
--}
--#endif
--
--static const struct dev_pm_ops ufs_rpmb_pm_ops = {
--	SET_RUNTIME_PM_OPS(NULL, ufshcd_rpmb_resume, NULL)
--	SET_SYSTEM_SLEEP_PM_OPS(NULL, ufshcd_rpmb_resume)
--};
--
--/* ufs_rpmb_wlun_template - Describes UFS RPMB WLUN. Used only to send UAC. */
--static struct scsi_driver ufs_rpmb_wlun_template = {
--	.gendrv = {
--		.name = "ufs_rpmb_wlun",
--		.owner = THIS_MODULE,
--		.probe = ufshcd_rpmb_probe,
--		.pm = &ufs_rpmb_pm_ops,
--	},
--};
--
- static int __init ufshcd_core_init(void)
- {
- 	int ret;
-@@ -9848,24 +9677,13 @@ static int __init ufshcd_core_init(void)
- 
- 	ret = scsi_register_driver(&ufs_dev_wlun_template.gendrv);
- 	if (ret)
--		goto debugfs_exit;
--
--	ret = scsi_register_driver(&ufs_rpmb_wlun_template.gendrv);
--	if (ret)
--		goto unregister;
--
--	return ret;
--unregister:
--	scsi_unregister_driver(&ufs_dev_wlun_template.gendrv);
--debugfs_exit:
--	ufs_debugfs_exit();
-+		ufs_debugfs_exit();
- 	return ret;
- }
- 
- static void __exit ufshcd_core_exit(void)
- {
- 	ufs_debugfs_exit();
--	scsi_unregister_driver(&ufs_rpmb_wlun_template.gendrv);
- 	scsi_unregister_driver(&ufs_dev_wlun_template.gendrv);
- }
- 
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index 41f6e06f91856..07ada6676c3b4 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -871,9 +871,6 @@ struct ufs_hba {
- 	struct ufs_vreg_info vreg_info;
- 	struct list_head clk_list_head;
- 
--	bool wlun_dev_clr_ua;
--	bool wlun_rpmb_clr_ua;
--
- 	/* Number of requests aborts */
- 	int req_abort_count;
- 
-@@ -920,7 +917,6 @@ struct ufs_hba {
- #endif
- 	u32 luns_avail;
- 	bool complete_put;
--	bool rpmb_complete_put;
- };
- 
- /* Returns true if clocks can be gated. Otherwise false */
-@@ -1393,14 +1389,4 @@ static inline int ufshcd_rpm_put(struct ufs_hba *hba)
- 	return pm_runtime_put(&hba->sdev_ufs_device->sdev_gendev);
- }
- 
--static inline int ufshcd_rpmb_rpm_get_sync(struct ufs_hba *hba)
--{
--	return pm_runtime_get_sync(&hba->sdev_rpmb->sdev_gendev);
--}
--
--static inline int ufshcd_rpmb_rpm_put(struct ufs_hba *hba)
--{
--	return pm_runtime_put(&hba->sdev_rpmb->sdev_gendev);
--}
--
- #endif /* End of Header */
+ config TYPEC_STUSB160X
+ 	tristate "STMicroelectronics STUSB160x Type-C controller driver"
+-	depends on I2C
+-	depends on REGMAP_I2C
+ 	depends on USB_ROLE_SWITCH || !USB_ROLE_SWITCH
++	depends on I2C
++	select REGMAP_I2C
+ 	help
+ 	  Say Y or M here if your system has STMicroelectronics STUSB160x
+ 	  Type-C port controller.
 -- 
 2.33.0
 
