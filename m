@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C68B3451255
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C52745125A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243951AbhKOTel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:34:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42932 "EHLO mail.kernel.org"
+        id S1346603AbhKOTff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:35:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244628AbhKOTRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244621AbhKOTRF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:17:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E18D61B4C;
-        Mon, 15 Nov 2021 18:22:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6595861B48;
+        Mon, 15 Nov 2021 18:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000544;
-        bh=9/vGCjDKh0FtxxuDvYqCS9oR8L1aHwnLR2f8pWJbRPQ=;
+        s=korg; t=1637000547;
+        bh=3QZfEHTy8x3dW9yDMXvdUiQZmoEHmzkyzYm70Df/AJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l9eI9gEHi4r20D58TvJKj1BuPMJWGVL2hwq58hPYOHfe2H69xykBVsov5OxR27isw
-         FeOkXUn8/Ib8u5admElNR37W+ONzRUZUj95ViNEYl2HYMM8qmUpCfqhNCeB8KmgBXw
-         R/ki4XBWacKRJTUEM0hpc6eyKAF7fhdNMnJWIfB4=
+        b=c+xSQF7g2BFdPpgNX8a/O6TSWM+FztuWwFZUPCAdPZ3GhnKm0aNCeDML3HenJJMol
+         6JlAWbrPH1ePTnJ5SSqY7wvbXt0bhYqTQzG1beAtXy8Br6gj+jIltXeTDIywc19283
+         ssn+jN1TXMcB4DXtJG2RQ5K/xcftR5vYXORDZo8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Gladkov <legion@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Miguel Ojeda <ojeda@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 699/849] Fix user namespace leak
-Date:   Mon, 15 Nov 2021 18:03:02 +0100
-Message-Id: <20211115165443.898684373@linuxfoundation.org>
+Subject: [PATCH 5.14 700/849] auxdisplay: img-ascii-lcd: Fix lock-up when displaying empty string
+Date:   Mon, 15 Nov 2021 18:03:03 +0100
+Message-Id: <20211115165443.933180395@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,31 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Gladkov <legion@kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit d5f458a979650e5ed37212f6134e4ee2b28cb6ed ]
+[ Upstream commit afcb5a811ff3ab3969f09666535eb6018a160358 ]
 
-Fixes: 61ca2c4afd9d ("NFS: Only reference user namespace from nfs4idmap struct instead of cred")
-Signed-off-by: Alexey Gladkov <legion@kernel.org>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+While writing an empty string to a device attribute is a no-op, and thus
+does not need explicit safeguards, the user can still write a single
+newline to an attribute file:
+
+    echo > .../message
+
+If that happens, img_ascii_lcd_display() trims the newline, yielding an
+empty string, and causing an infinite loop in img_ascii_lcd_scroll().
+
+Fix this by adding a check for empty strings.  Clear the display in case
+one is encountered.
+
+Fixes: 0cad855fbd083ee5 ("auxdisplay: img-ascii-lcd: driver for simple ASCII LCD displays")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4idmap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/auxdisplay/img-ascii-lcd.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/fs/nfs/nfs4idmap.c b/fs/nfs/nfs4idmap.c
-index 8d8aba305ecca..f331866dd4182 100644
---- a/fs/nfs/nfs4idmap.c
-+++ b/fs/nfs/nfs4idmap.c
-@@ -487,7 +487,7 @@ nfs_idmap_new(struct nfs_client *clp)
- err_destroy_pipe:
- 	rpc_destroy_pipe_data(idmap->idmap_pipe);
- err:
--	get_user_ns(idmap->user_ns);
-+	put_user_ns(idmap->user_ns);
- 	kfree(idmap);
- 	return error;
- }
+diff --git a/drivers/auxdisplay/img-ascii-lcd.c b/drivers/auxdisplay/img-ascii-lcd.c
+index 1cce409ce5cac..e33ce0151cdfd 100644
+--- a/drivers/auxdisplay/img-ascii-lcd.c
++++ b/drivers/auxdisplay/img-ascii-lcd.c
+@@ -280,6 +280,16 @@ static int img_ascii_lcd_display(struct img_ascii_lcd_ctx *ctx,
+ 	if (msg[count - 1] == '\n')
+ 		count--;
+ 
++	if (!count) {
++		/* clear the LCD */
++		devm_kfree(&ctx->pdev->dev, ctx->message);
++		ctx->message = NULL;
++		ctx->message_len = 0;
++		memset(ctx->curr, ' ', ctx->cfg->num_chars);
++		ctx->cfg->update(ctx);
++		return 0;
++	}
++
+ 	new_msg = devm_kmalloc(&ctx->pdev->dev, count + 1, GFP_KERNEL);
+ 	if (!new_msg)
+ 		return -ENOMEM;
 -- 
 2.33.0
 
