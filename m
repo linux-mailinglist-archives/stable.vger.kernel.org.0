@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C81654522C7
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91B374522A9
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:13:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345050AbhKPBQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:16:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42972 "EHLO mail.kernel.org"
+        id S1350167AbhKPBPi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:15:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244484AbhKOTPE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:15:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ACD0634C4;
-        Mon, 15 Nov 2021 18:21:31 +0000 (UTC)
+        id S244262AbhKOTMQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:12:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 608FD63400;
+        Mon, 15 Nov 2021 18:19:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000492;
-        bh=5bmvECC17iSR0Z9caSKy4rBKe1GXvidiJN2BIbSz7yU=;
+        s=korg; t=1637000394;
+        bh=vAwMGHO+K2kNv+dRoRSP0A9wrzpTrEvkYe+haWOfJys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iI/I1qGnGrdZw1AXLH7WbpezKZsNLVV90sd23v1y6e41stsqyJxUCFuPG1x/YCaFt
-         BW0jjT61XlmJG8s6OsMVrHl4fP9QiVIpE7x7bHfe0NP+QL4y5Kq+R3dmGV79R+Gyj8
-         +PizPQQDj9RqkecoXKnH/SSLc7VxtBw8I26NcWZ0=
+        b=DtOKXKemUirMHWDcLXQrRg9t1AUtVCRRNDckHzNN5C4gEMoiJaSZ8AZcAg56cGoU/
+         mEoFE9eUJsM1yEwBTlR0O7wIaQTiAx5eMIoEyTbm4qNkq7pGzt5v5r4Xgy0kVxrl21
+         bX4XtzqBe4puByLMqa0/udMLT9+6zjUAKqh7dgNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Thara Gopinath <thara.gopinath@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Rahul Tanwar <rtanwar@maxlinear.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 636/849] arm64: dts: qcom: sdm845: Fix Qualcomm crypto engine bus clock
-Date:   Mon, 15 Nov 2021 18:01:59 +0100
-Message-Id: <20211115165441.787016492@linuxfoundation.org>
+Subject: [PATCH 5.14 637/849] pinctrl: equilibrium: Fix function addition in multiple groups
+Date:   Mon, 15 Nov 2021 18:02:00 +0100
+Message-Id: <20211115165441.817519524@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,35 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+From: Rahul Tanwar <rtanwar@maxlinear.com>
 
-[ Upstream commit d5240f8e23641c70bc70892d7999398b081ccb7e ]
+[ Upstream commit 53b3947ddb7f309d1f611f8dc9bfd6ea9d699907 ]
 
-The change corrects the described bus clock of the QCE.
+Ignore the same function with multiple groups.
+Fix a typo in error print.
 
-Fixes: 3e482859f1ef ("dts: qcom: sdm845: Add dt entries to support crypto engine.")
-Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Reviewed-by: Thara Gopinath <thara.gopinath@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211011095534.1580406-1-vladimir.zapolskiy@linaro.org
+Fixes: 1948d5c51dba ("pinctrl: Add pinmux & GPIO controller driver for a new SoC")
+Signed-off-by: Rahul Tanwar <rtanwar@maxlinear.com>
+Link: https://lore.kernel.org/r/20211020093815.20870-1-rtanwar@maxlinear.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-equilibrium.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
-index 2ec4be930fd6f..4cca597a36eb6 100644
---- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
-@@ -2331,7 +2331,7 @@
- 			compatible = "qcom,crypto-v5.4";
- 			reg = <0 0x01dfa000 0 0x6000>;
- 			clocks = <&gcc GCC_CE1_AHB_CLK>,
--				 <&gcc GCC_CE1_AHB_CLK>,
-+				 <&gcc GCC_CE1_AXI_CLK>,
- 				 <&rpmhcc RPMH_CE_CLK>;
- 			clock-names = "iface", "bus", "core";
- 			dmas = <&cryptobam 6>, <&cryptobam 7>;
+diff --git a/drivers/pinctrl/pinctrl-equilibrium.c b/drivers/pinctrl/pinctrl-equilibrium.c
+index 38cc20fa9d5af..44e6973b2ea93 100644
+--- a/drivers/pinctrl/pinctrl-equilibrium.c
++++ b/drivers/pinctrl/pinctrl-equilibrium.c
+@@ -675,6 +675,11 @@ static int eqbr_build_functions(struct eqbr_pinctrl_drv_data *drvdata)
+ 		return ret;
+ 
+ 	for (i = 0; i < nr_funcs; i++) {
++
++		/* Ignore the same function with multiple groups */
++		if (funcs[i].name == NULL)
++			continue;
++
+ 		ret = pinmux_generic_add_function(drvdata->pctl_dev,
+ 						  funcs[i].name,
+ 						  funcs[i].groups,
+@@ -815,7 +820,7 @@ static int pinctrl_reg(struct eqbr_pinctrl_drv_data *drvdata)
+ 
+ 	ret = eqbr_build_functions(drvdata);
+ 	if (ret) {
+-		dev_err(dev, "Failed to build groups\n");
++		dev_err(dev, "Failed to build functions\n");
+ 		return ret;
+ 	}
+ 
 -- 
 2.33.0
 
