@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C66645141E
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AB854511E1
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:27:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349311AbhKOUGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:06:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45222 "EHLO mail.kernel.org"
+        id S243757AbhKOTPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:15:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344427AbhKOTYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C158963491;
-        Mon, 15 Nov 2021 18:57:36 +0000 (UTC)
+        id S244393AbhKOTOE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:14:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A682563410;
+        Mon, 15 Nov 2021 18:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002657;
-        bh=LRl468M4MZZiIM/cUvq7vGAThhER+auvJ6nEzPrl5os=;
+        s=korg; t=1637000443;
+        bh=O9q4rF7vZ/ggW0xuQrNhCBRkusau20MAP68fVLOK6u0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZsytaYo/AklM/g3Czex0jyQlAaoO+ukoUEpn+2ce4g7dd/zwQAMSkPhsZIf+NMwf4
-         0lEStYATD6LgyKMo3hrTLudorHINcDwx124IwXYKsmxC292jcv9sr/wZtqlHXrpDnu
-         a++OQ9uSy/jP4OXUcbfdluUemc+DMtQtNskHxOBA=
+        b=YdVedfUbSqt1UjZqLwp7W4WmceC+T0KeyjJcHazS5wOqrBdchycjka+0LSnWwGm5w
+         tUJhsn3BvC7WXrWehQUyaAdhiTO4oEZqSeK7VpuaxjEBpmxCuKfEOvpMd++4beCQ2b
+         0EgP3W60rqsiU/1jBNoc6jkTF9dBK+wAnrMvXL0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 649/917] scsi: ufs: ufshcd-pltfrm: Fix memory leak due to probe defer
+Subject: [PATCH 5.14 661/849] mips: cm: Convert to bitfield API to fix out-of-bounds access
 Date:   Mon, 15 Nov 2021 18:02:24 +0100
-Message-Id: <20211115165450.873727338@linuxfoundation.org>
+Message-Id: <20211115165442.625226924@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,83 +42,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit b6ca770ae7f2c560a29bbd02c4e3d734fafaf804 ]
+[ Upstream commit 18b8f5b6fc53d097cadb94a93d8d6566ba88e389 ]
 
-UFS drivers that probe defer will end up leaking memory allocated for clk
-and regulator names via kstrdup() because the structure that is holding
-this memory is allocated via devm_* variants which will be freed during
-probe defer but the names are never freed.
+mips_cm_error_report() extracts the cause and other cause from the error
+register using shifts.  This works fine for the former, as it is stored
+in the top bits, and the shift will thus remove all non-related bits.
+However, the latter is stored in the bottom bits, hence thus needs masking
+to get rid of non-related bits.  Without such masking, using it as an
+index into the cm2_causes[] array will lead to an out-of-bounds access,
+probably causing a crash.
 
-Use same devm_* variant of kstrdup to free the memory allocated to name
-when driver probe defers.
+Fix this by using FIELD_GET() instead.  Bite the bullet and convert all
+MIPS CM handling to the bitfield API, to improve readability and safety.
 
-Kmemleak found around 11 leaks on Qualcomm Dragon Board RB5:
-
-unreferenced object 0xffff66f243fb2c00 (size 128):
-  comm "kworker/u16:0", pid 7, jiffies 4294893319 (age 94.848s)
-  hex dump (first 32 bytes):
-    63 6f 72 65 5f 63 6c 6b 00 76 69 72 74 75 61 6c  core_clk.virtual
-    2f 77 6f 72 6b 71 75 65 75 65 2f 73 63 73 69 5f  /workqueue/scsi_
-  backtrace:
-    [<000000006f788cd1>] slab_post_alloc_hook+0x88/0x410
-    [<00000000cfd1372b>] __kmalloc_track_caller+0x138/0x230
-    [<00000000a92ab17b>] kstrdup+0xb0/0x110
-    [<0000000037263ab6>] ufshcd_pltfrm_init+0x1a8/0x500
-    [<00000000a20a5caa>] ufs_qcom_probe+0x20/0x58
-    [<00000000a5e43067>] platform_probe+0x6c/0x118
-    [<00000000ef686e3f>] really_probe+0xc4/0x330
-    [<000000005b18792c>] __driver_probe_device+0x88/0x118
-    [<00000000a5d295e8>] driver_probe_device+0x44/0x158
-    [<000000007e83f58d>] __device_attach_driver+0xb4/0x128
-    [<000000004bfa4470>] bus_for_each_drv+0x68/0xd0
-    [<00000000b89a83bc>] __device_attach+0xec/0x170
-    [<00000000ada2beea>] device_initial_probe+0x14/0x20
-    [<0000000079921612>] bus_probe_device+0x9c/0xa8
-    [<00000000d268bf7c>] deferred_probe_work_func+0x90/0xd0
-    [<000000009ef64bfa>] process_one_work+0x29c/0x788
-unreferenced object 0xffff66f243fb2c80 (size 128):
-  comm "kworker/u16:0", pid 7, jiffies 4294893319 (age 94.848s)
-  hex dump (first 32 bytes):
-    62 75 73 5f 61 67 67 72 5f 63 6c 6b 00 00 00 00  bus_aggr_clk....
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-
-With this patch no memory leaks are reported.
-
-Link: https://lore.kernel.org/r/20210914092214.6468-1-srinivas.kandagatla@linaro.org
-Fixes: aa4976130934 ("ufs: Add regulator enable support")
-Fixes: c6e79dacd86f ("ufs: Add clock initialization support")
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 3885c2b463f6a236 ("MIPS: CM: Add support for reporting CM cache errors")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd-pltfrm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/include/asm/mips-cm.h | 12 ++++++------
+ arch/mips/kernel/mips-cm.c      | 21 ++++++++++-----------
+ 2 files changed, 16 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd-pltfrm.c b/drivers/scsi/ufs/ufshcd-pltfrm.c
-index 8859c13f4e091..eaeae83b999fd 100644
---- a/drivers/scsi/ufs/ufshcd-pltfrm.c
-+++ b/drivers/scsi/ufs/ufshcd-pltfrm.c
-@@ -91,7 +91,7 @@ static int ufshcd_parse_clock_info(struct ufs_hba *hba)
+diff --git a/arch/mips/include/asm/mips-cm.h b/arch/mips/include/asm/mips-cm.h
+index aeae2effa123d..23c67c0871b17 100644
+--- a/arch/mips/include/asm/mips-cm.h
++++ b/arch/mips/include/asm/mips-cm.h
+@@ -11,6 +11,7 @@
+ #ifndef __MIPS_ASM_MIPS_CM_H__
+ #define __MIPS_ASM_MIPS_CM_H__
  
- 		clki->min_freq = clkfreq[i];
- 		clki->max_freq = clkfreq[i+1];
--		clki->name = kstrdup(name, GFP_KERNEL);
-+		clki->name = devm_kstrdup(dev, name, GFP_KERNEL);
- 		if (!strcmp(name, "ref_clk"))
- 			clki->keep_link_active = true;
- 		dev_dbg(dev, "%s: min %u max %u name %s\n", "freq-table-hz",
-@@ -126,7 +126,7 @@ static int ufshcd_populate_vreg(struct device *dev, const char *name,
- 	if (!vreg)
- 		return -ENOMEM;
++#include <linux/bitfield.h>
+ #include <linux/bitops.h>
+ #include <linux/errno.h>
  
--	vreg->name = kstrdup(name, GFP_KERNEL);
-+	vreg->name = devm_kstrdup(dev, name, GFP_KERNEL);
+@@ -153,8 +154,8 @@ GCR_ACCESSOR_RO(32, 0x030, rev)
+ #define CM_GCR_REV_MINOR			GENMASK(7, 0)
  
- 	snprintf(prop_name, MAX_PROP_SIZE, "%s-max-microamp", name);
- 	if (of_property_read_u32(np, prop_name, &vreg->max_uA)) {
+ #define CM_ENCODE_REV(major, minor) \
+-		(((major) << __ffs(CM_GCR_REV_MAJOR)) | \
+-		 ((minor) << __ffs(CM_GCR_REV_MINOR)))
++		(FIELD_PREP(CM_GCR_REV_MAJOR, major) | \
++		 FIELD_PREP(CM_GCR_REV_MINOR, minor))
+ 
+ #define CM_REV_CM2				CM_ENCODE_REV(6, 0)
+ #define CM_REV_CM2_5				CM_ENCODE_REV(7, 0)
+@@ -362,10 +363,10 @@ static inline int mips_cm_revision(void)
+ static inline unsigned int mips_cm_max_vp_width(void)
+ {
+ 	extern int smp_num_siblings;
+-	uint32_t cfg;
+ 
+ 	if (mips_cm_revision() >= CM_REV_CM3)
+-		return read_gcr_sys_config2() & CM_GCR_SYS_CONFIG2_MAXVPW;
++		return FIELD_GET(CM_GCR_SYS_CONFIG2_MAXVPW,
++				 read_gcr_sys_config2());
+ 
+ 	if (mips_cm_present()) {
+ 		/*
+@@ -373,8 +374,7 @@ static inline unsigned int mips_cm_max_vp_width(void)
+ 		 * number of VP(E)s, and if that ever changes then this will
+ 		 * need revisiting.
+ 		 */
+-		cfg = read_gcr_cl_config() & CM_GCR_Cx_CONFIG_PVPE;
+-		return (cfg >> __ffs(CM_GCR_Cx_CONFIG_PVPE)) + 1;
++		return FIELD_GET(CM_GCR_Cx_CONFIG_PVPE, read_gcr_cl_config()) + 1;
+ 	}
+ 
+ 	if (IS_ENABLED(CONFIG_SMP))
+diff --git a/arch/mips/kernel/mips-cm.c b/arch/mips/kernel/mips-cm.c
+index 90f1c3df1f0e4..b4f7d950c8468 100644
+--- a/arch/mips/kernel/mips-cm.c
++++ b/arch/mips/kernel/mips-cm.c
+@@ -221,8 +221,7 @@ static void mips_cm_probe_l2sync(void)
+ 	phys_addr_t addr;
+ 
+ 	/* L2-only sync was introduced with CM major revision 6 */
+-	major_rev = (read_gcr_rev() & CM_GCR_REV_MAJOR) >>
+-		__ffs(CM_GCR_REV_MAJOR);
++	major_rev = FIELD_GET(CM_GCR_REV_MAJOR, read_gcr_rev());
+ 	if (major_rev < 6)
+ 		return;
+ 
+@@ -306,13 +305,13 @@ void mips_cm_lock_other(unsigned int cluster, unsigned int core,
+ 	preempt_disable();
+ 
+ 	if (cm_rev >= CM_REV_CM3) {
+-		val = core << __ffs(CM3_GCR_Cx_OTHER_CORE);
+-		val |= vp << __ffs(CM3_GCR_Cx_OTHER_VP);
++		val = FIELD_PREP(CM3_GCR_Cx_OTHER_CORE, core) |
++		      FIELD_PREP(CM3_GCR_Cx_OTHER_VP, vp);
+ 
+ 		if (cm_rev >= CM_REV_CM3_5) {
+ 			val |= CM_GCR_Cx_OTHER_CLUSTER_EN;
+-			val |= cluster << __ffs(CM_GCR_Cx_OTHER_CLUSTER);
+-			val |= block << __ffs(CM_GCR_Cx_OTHER_BLOCK);
++			val |= FIELD_PREP(CM_GCR_Cx_OTHER_CLUSTER, cluster);
++			val |= FIELD_PREP(CM_GCR_Cx_OTHER_BLOCK, block);
+ 		} else {
+ 			WARN_ON(cluster != 0);
+ 			WARN_ON(block != CM_GCR_Cx_OTHER_BLOCK_LOCAL);
+@@ -342,7 +341,7 @@ void mips_cm_lock_other(unsigned int cluster, unsigned int core,
+ 		spin_lock_irqsave(&per_cpu(cm_core_lock, curr_core),
+ 				  per_cpu(cm_core_lock_flags, curr_core));
+ 
+-		val = core << __ffs(CM_GCR_Cx_OTHER_CORENUM);
++		val = FIELD_PREP(CM_GCR_Cx_OTHER_CORENUM, core);
+ 	}
+ 
+ 	write_gcr_cl_other(val);
+@@ -386,8 +385,8 @@ void mips_cm_error_report(void)
+ 	cm_other = read_gcr_error_mult();
+ 
+ 	if (revision < CM_REV_CM3) { /* CM2 */
+-		cause = cm_error >> __ffs(CM_GCR_ERROR_CAUSE_ERRTYPE);
+-		ocause = cm_other >> __ffs(CM_GCR_ERROR_MULT_ERR2ND);
++		cause = FIELD_GET(CM_GCR_ERROR_CAUSE_ERRTYPE, cm_error);
++		ocause = FIELD_GET(CM_GCR_ERROR_MULT_ERR2ND, cm_other);
+ 
+ 		if (!cause)
+ 			return;
+@@ -445,8 +444,8 @@ void mips_cm_error_report(void)
+ 		ulong core_id_bits, vp_id_bits, cmd_bits, cmd_group_bits;
+ 		ulong cm3_cca_bits, mcp_bits, cm3_tr_bits, sched_bit;
+ 
+-		cause = cm_error >> __ffs64(CM3_GCR_ERROR_CAUSE_ERRTYPE);
+-		ocause = cm_other >> __ffs(CM_GCR_ERROR_MULT_ERR2ND);
++		cause = FIELD_GET(CM3_GCR_ERROR_CAUSE_ERRTYPE, cm_error);
++		ocause = FIELD_GET(CM_GCR_ERROR_MULT_ERR2ND, cm_other);
+ 
+ 		if (!cause)
+ 			return;
 -- 
 2.33.0
 
