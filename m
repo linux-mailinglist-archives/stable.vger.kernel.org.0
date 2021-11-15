@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9379A4522DA
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75FDF4522DF
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344732AbhKPBQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:16:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
+        id S1378655AbhKPBQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:16:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244631AbhKOTRF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:17:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 891B261AAD;
-        Mon, 15 Nov 2021 18:22:02 +0000 (UTC)
+        id S244661AbhKOTRJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:17:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BBB860EE2;
+        Mon, 15 Nov 2021 18:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000523;
-        bh=/q7KUzS8hthsAiub6qyUJTKBTxR/B0zL+JHTcbM3P3A=;
+        s=korg; t=1637000568;
+        bh=UXXQVHeHtyJP2cKEqWskxuA237ekK3ZYRAQatTnXhXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=valMgTSY6XmDOxdsPmWBpEfhEH8zaLbyleGApq5LT7CfoVp/hbhUxl+qzhG5t5mtv
-         fz3QxnpOUNmBtdD8SzDV3rvww9NtpW89c8n6xn/cfcTMSABl0fLu6M8UQXRS7Qb3Rc
-         Lm2km4VbsBj59Gr5tT18Il1FlEzlIEwXn6PpvOYo=
+        b=qlzsmhV7dyfUaimKrar6rcnc5nvNq/WopyZ9pYU4lUSGuUf5Z79jNiCJcUU9UIX6N
+         FNxAvVXTBmU0scE0GnwBFDPYy4J0C4rl1es1eEKGO58NSQ3Ok2avwu5irtmjX3ONDg
+         TxXlKA1Hwdcm111H55eXBT2DodFNja4F7c6aqItE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kewei Xu <kewei.xu@mediatek.com>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Qii Wang <qii.wang@mediatek.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 674/849] i2c: mediatek: fixing the incorrect register offset
-Date:   Mon, 15 Nov 2021 18:02:37 +0100
-Message-Id: <20211115165443.080082411@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 676/849] NFS: Dont set NFS_INO_DATA_INVAL_DEFER and NFS_INO_INVALID_DATA
+Date:   Mon, 15 Nov 2021 18:02:39 +0100
+Message-Id: <20211115165443.143026632@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,37 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kewei Xu <kewei.xu@mediatek.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit b8228aea5a19d5111a7bf44f7de6749d1f5d487a ]
+[ Upstream commit 488796ec1e39fb9194cc8175f770823d40fbf0ed ]
 
-The reason for the modification here is that the previous
-offset information is incorrect, OFFSET_DEBUGSTAT = 0xE4 is
-the correct value.
+NFS_INO_DATA_INVAL_DEFER and NFS_INO_INVALID_DATA should be considered
+mutually exclusive.
 
-Fixes: 25708278f810 ("i2c: mediatek: Add i2c support for MediaTek MT8183")
-Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Qii Wang <qii.wang@mediatek.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 1c341b777501 ("NFS: Add deferred cache invalidation for close-to-open consistency violations")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Tested-by: Benjamin Coddington <bcodding@redhat.com>
+Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/inode.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 7d4b3eb7077ad..72acda59eb399 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -195,7 +195,7 @@ static const u16 mt_i2c_regs_v2[] = {
- 	[OFFSET_CLOCK_DIV] = 0x48,
- 	[OFFSET_SOFTRESET] = 0x50,
- 	[OFFSET_SCL_MIS_COMP_POINT] = 0x90,
--	[OFFSET_DEBUGSTAT] = 0xe0,
-+	[OFFSET_DEBUGSTAT] = 0xe4,
- 	[OFFSET_DEBUGCTRL] = 0xe8,
- 	[OFFSET_FIFO_STAT] = 0xf4,
- 	[OFFSET_FIFO_THRESH] = 0xf8,
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index 6ea1bde33cb62..f9d3ad3acf114 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -210,10 +210,15 @@ void nfs_set_cache_invalid(struct inode *inode, unsigned long flags)
+ 		flags &= ~NFS_INO_INVALID_XATTR;
+ 	if (flags & NFS_INO_INVALID_DATA)
+ 		nfs_fscache_invalidate(inode);
+-	if (inode->i_mapping->nrpages == 0)
+-		flags &= ~(NFS_INO_INVALID_DATA|NFS_INO_DATA_INVAL_DEFER);
+ 	flags &= ~(NFS_INO_REVAL_PAGECACHE | NFS_INO_REVAL_FORCED);
++
+ 	nfsi->cache_validity |= flags;
++
++	if (inode->i_mapping->nrpages == 0)
++		nfsi->cache_validity &= ~(NFS_INO_INVALID_DATA |
++					  NFS_INO_DATA_INVAL_DEFER);
++	else if (nfsi->cache_validity & NFS_INO_INVALID_DATA)
++		nfsi->cache_validity &= ~NFS_INO_DATA_INVAL_DEFER;
+ }
+ EXPORT_SYMBOL_GPL(nfs_set_cache_invalid);
+ 
 -- 
 2.33.0
 
