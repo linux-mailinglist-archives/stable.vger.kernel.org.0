@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 886A8451FA8
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C54EA451F9F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:41:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346726AbhKPAow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:44:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
+        id S236379AbhKPAor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:44:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343725AbhKOTVl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343730AbhKOTVl (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7A6B635D9;
-        Mon, 15 Nov 2021 18:45:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 846DF635D3;
+        Mon, 15 Nov 2021 18:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001910;
-        bh=V7pG7luS5Dn5jZqSoVh10Xv6MOneDPOPyqFVscC7crM=;
+        s=korg; t=1637001913;
+        bh=zbbVDabIKGVZ9+LPzrzvUTvMHhXE7JD8nifuWSKT9As=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PRooVwBROjJpIqNwM4qpjKgg6qX0CqLLNDiFSvZ9SdQhjTdCdVuAvYspbKX8wiPgw
-         zQ95lF2yOlbJIEUAjgxn+QCMdo/erJLhRBk2S7wzvn8ONeVck8bodjnuGNH5LLTDhU
-         7sN5YYtrLhmakiJxoJhABPA4PNgEEzUGyB46KYDc=
+        b=iUhcI9nZdz+svBJl7n8LEBfzoFNOr2+UzxGuyBzNSkx6ESrK77/v9DU61feFRJUOV
+         Tu9eAlA+xEG/VKnZgWzHKKD82Bpaph5tgm/VVYsZeMOAWhu5jdaOhNNW2k+towmhdp
+         p8qFGlX8J5IliIOMkhqVXy3xmA852q+cbzCLhVUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sriram R <srirrama@codeaurora.org>,
+        stable@vger.kernel.org,
+        Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>,
         Jouni Malinen <jouni@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 367/917] ath11k: Avoid race during regd updates
-Date:   Mon, 15 Nov 2021 17:57:42 +0100
-Message-Id: <20211115165441.205997401@linuxfoundation.org>
+Subject: [PATCH 5.15 368/917] ath11k: fix packet drops due to incorrect 6 GHz freq value in rx status
+Date:   Mon, 15 Nov 2021 17:57:43 +0100
+Message-Id: <20211115165441.238685927@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,155 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sriram R <srirrama@codeaurora.org>
+From: Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>
 
-[ Upstream commit 1db2b0d0a39102238fcbf9092cefa65a710642e9 ]
+[ Upstream commit 9d6ae1f5cf733c0e8d7f904c501fd015c4b9f0f4 ]
 
-Whenever ath11k is bootup with a user country already set, cfg80211
-notifies this country info to ath11k soon after registration, where the
-notification is sent to the firmware for fetching the rules of this user
-country input.
+Frequency in rx status is being filled incorrectly in the 6 GHz band as
+channel number received is invalid in this case which is causing packet
+drops. So fix that.
 
-Multiple race conditions could be seen in this scenario where a new
-request is either lost as pointed in [1] or a new regd overwrites the
-default regd provided by the firmware during bootup. Note that, the
-default regd is used for intersection purpose and hence it should not be
-overwritten.
-
-The main reason as pointed by [1] is the usage of ATH11K_FLAG_REGISTERED
-flag which is updated after completion of core registration, whereas the
-reg notification from cfg80211 and wmi events for the corresponding
-request can happen much before that. Since the ATH11K_FLAG_REGISTERED is
-currently used to determine if the event containing reg rules belong to
-default regd or for user request, there is a possibility of the default
-regd getting overwritten.
-
-Since the default reg rules will be received only once per pdev on
-firmware load, the above flag based check can be replaced with a check
-to see if default_regd is already set, so that we can now always update
-the new_regd. Also if the new_regd is set, this will be always used to
-update the reg rules for the registered phy.
-
-[1] https://patchwork.kernel.org/project/linux-wireless/patch/1829665.1PRlr7bOQj@ripper/
-
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.4.0.1-01460-QCAHKSWPL_SILICONZ-1
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-
-Signed-off-by: Sriram R <srirrama@codeaurora.org>
+Fixes: 5dcf42f8b79d ("ath11k: Use freq instead of channel number in rx path")
+Signed-off-by: Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>
 Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210721212029.142388-4-jouni@codeaurora.org
+Link: https://lore.kernel.org/r/20210722102054.43419-2-jouni@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c |  2 +-
- drivers/net/wireless/ath/ath11k/reg.c | 11 ++++++-----
- drivers/net/wireless/ath/ath11k/reg.h |  2 +-
- drivers/net/wireless/ath/ath11k/wmi.c | 16 ++++++----------
- 4 files changed, 14 insertions(+), 17 deletions(-)
+ drivers/net/wireless/ath/ath11k/dp_rx.c |  9 ++++++---
+ drivers/net/wireless/ath/ath11k/wmi.c   | 10 +++++++---
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index e9b3689331ec2..89a64ebd620f3 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -6590,7 +6590,7 @@ static int __ath11k_mac_register(struct ath11k *ar)
- 		ar->hw->wiphy->interface_modes &= ~BIT(NL80211_IFTYPE_MONITOR);
+diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
+index af0a600ea067c..0ae6bebff801d 100644
+--- a/drivers/net/wireless/ath/ath11k/dp_rx.c
++++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
+@@ -2337,8 +2337,10 @@ static void ath11k_dp_rx_h_ppdu(struct ath11k *ar, struct hal_rx_desc *rx_desc,
+ 	channel_num = meta_data;
+ 	center_freq = meta_data >> 16;
  
- 	/* Apply the regd received during initialization */
--	ret = ath11k_regd_update(ar, true);
-+	ret = ath11k_regd_update(ar);
- 	if (ret) {
- 		ath11k_err(ar->ab, "ath11k regd update failed: %d\n", ret);
- 		goto err_unregister_hw;
-diff --git a/drivers/net/wireless/ath/ath11k/reg.c b/drivers/net/wireless/ath/ath11k/reg.c
-index e1a1df169034b..92c59009a8ac2 100644
---- a/drivers/net/wireless/ath/ath11k/reg.c
-+++ b/drivers/net/wireless/ath/ath11k/reg.c
-@@ -198,7 +198,7 @@ static void ath11k_copy_regd(struct ieee80211_regdomain *regd_orig,
- 		       sizeof(struct ieee80211_reg_rule));
- }
- 
--int ath11k_regd_update(struct ath11k *ar, bool init)
-+int ath11k_regd_update(struct ath11k *ar)
- {
- 	struct ieee80211_regdomain *regd, *regd_copy = NULL;
- 	int ret, regd_len, pdev_id;
-@@ -209,7 +209,10 @@ int ath11k_regd_update(struct ath11k *ar, bool init)
- 
- 	spin_lock_bh(&ab->base_lock);
- 
--	if (init) {
-+	/* Prefer the latest regd update over default if it's available */
-+	if (ab->new_regd[pdev_id]) {
-+		regd = ab->new_regd[pdev_id];
-+	} else {
- 		/* Apply the regd received during init through
- 		 * WMI_REG_CHAN_LIST_CC event. In case of failure to
- 		 * receive the regd, initialize with a default world
-@@ -222,8 +225,6 @@ int ath11k_regd_update(struct ath11k *ar, bool init)
- 				    "failed to receive default regd during init\n");
- 			regd = (struct ieee80211_regdomain *)&ath11k_world_regd;
- 		}
--	} else {
--		regd = ab->new_regd[pdev_id];
+-	if (center_freq >= 5935 && center_freq <= 7105) {
++	if (center_freq >= ATH11K_MIN_6G_FREQ &&
++	    center_freq <= ATH11K_MAX_6G_FREQ) {
+ 		rx_status->band = NL80211_BAND_6GHZ;
++		rx_status->freq = center_freq;
+ 	} else if (channel_num >= 1 && channel_num <= 14) {
+ 		rx_status->band = NL80211_BAND_2GHZ;
+ 	} else if (channel_num >= 36 && channel_num <= 173) {
+@@ -2356,8 +2358,9 @@ static void ath11k_dp_rx_h_ppdu(struct ath11k *ar, struct hal_rx_desc *rx_desc,
+ 				rx_desc, sizeof(struct hal_rx_desc));
  	}
  
- 	if (!regd) {
-@@ -683,7 +684,7 @@ void ath11k_regd_update_work(struct work_struct *work)
- 					 regd_update_work);
- 	int ret;
+-	rx_status->freq = ieee80211_channel_to_frequency(channel_num,
+-							 rx_status->band);
++	if (rx_status->band != NL80211_BAND_6GHZ)
++		rx_status->freq = ieee80211_channel_to_frequency(channel_num,
++								 rx_status->band);
  
--	ret = ath11k_regd_update(ar, false);
-+	ret = ath11k_regd_update(ar);
- 	if (ret) {
- 		/* Firmware has already moved to the new regd. We need
- 		 * to maintain channel consistency across FW, Host driver
-diff --git a/drivers/net/wireless/ath/ath11k/reg.h b/drivers/net/wireless/ath/ath11k/reg.h
-index 65d56d44796f6..5fb9dc03a74e8 100644
---- a/drivers/net/wireless/ath/ath11k/reg.h
-+++ b/drivers/net/wireless/ath/ath11k/reg.h
-@@ -31,6 +31,6 @@ void ath11k_regd_update_work(struct work_struct *work);
- struct ieee80211_regdomain *
- ath11k_reg_build_regd(struct ath11k_base *ab,
- 		      struct cur_regulatory_info *reg_info, bool intersect);
--int ath11k_regd_update(struct ath11k *ar, bool init);
-+int ath11k_regd_update(struct ath11k *ar);
- int ath11k_reg_update_chan_list(struct ath11k *ar);
- #endif
+ 	ath11k_dp_rx_h_rate(ar, rx_desc, rx_status);
+ }
 diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
-index 72da1283f2ccb..a53eef8e2631c 100644
+index a53eef8e2631c..99c0b81e496bf 100644
 --- a/drivers/net/wireless/ath/ath11k/wmi.c
 +++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -5841,10 +5841,10 @@ static int ath11k_reg_chan_list_event(struct ath11k_base *ab, struct sk_buff *sk
- 	}
+@@ -6127,8 +6127,10 @@ static void ath11k_mgmt_rx_event(struct ath11k_base *ab, struct sk_buff *skb)
+ 	if (rx_ev.status & WMI_RX_STATUS_ERR_MIC)
+ 		status->flag |= RX_FLAG_MMIC_ERROR;
  
- 	spin_lock(&ab->base_lock);
--	if (test_bit(ATH11K_FLAG_REGISTERED, &ab->dev_flags)) {
--		/* Once mac is registered, ar is valid and all CC events from
--		 * fw is considered to be received due to user requests
--		 * currently.
-+	if (ab->default_regd[pdev_idx]) {
-+		/* The initial rules from FW after WMI Init is to build
-+		 * the default regd. From then on, any rules updated for
-+		 * the pdev could be due to user reg changes.
- 		 * Free previously built regd before assigning the newly
- 		 * generated regd to ar. NULL pointer handling will be
- 		 * taken care by kfree itself.
-@@ -5854,13 +5854,9 @@ static int ath11k_reg_chan_list_event(struct ath11k_base *ab, struct sk_buff *sk
- 		ab->new_regd[pdev_idx] = regd;
- 		ieee80211_queue_work(ar->hw, &ar->regd_update_work);
- 	} else {
--		/* Multiple events for the same *ar is not expected. But we
--		 * can still clear any previously stored default_regd if we
--		 * are receiving this event for the same radio by mistake.
--		 * NULL pointer handling will be taken care by kfree itself.
-+		/* This regd would be applied during mac registration and is
-+		 * held constant throughout for regd intersection purpose
- 		 */
--		kfree(ab->default_regd[pdev_idx]);
--		/* This regd would be applied during mac registration */
- 		ab->default_regd[pdev_idx] = regd;
- 	}
- 	ab->dfs_region = reg_info->dfs_region;
+-	if (rx_ev.chan_freq >= ATH11K_MIN_6G_FREQ) {
++	if (rx_ev.chan_freq >= ATH11K_MIN_6G_FREQ &&
++	    rx_ev.chan_freq <= ATH11K_MAX_6G_FREQ) {
+ 		status->band = NL80211_BAND_6GHZ;
++		status->freq = rx_ev.chan_freq;
+ 	} else if (rx_ev.channel >= 1 && rx_ev.channel <= 14) {
+ 		status->band = NL80211_BAND_2GHZ;
+ 	} else if (rx_ev.channel >= 36 && rx_ev.channel <= ATH11K_MAX_5G_CHAN) {
+@@ -6149,8 +6151,10 @@ static void ath11k_mgmt_rx_event(struct ath11k_base *ab, struct sk_buff *skb)
+ 
+ 	sband = &ar->mac.sbands[status->band];
+ 
+-	status->freq = ieee80211_channel_to_frequency(rx_ev.channel,
+-						      status->band);
++	if (status->band != NL80211_BAND_6GHZ)
++		status->freq = ieee80211_channel_to_frequency(rx_ev.channel,
++							      status->band);
++
+ 	status->signal = rx_ev.snr + ATH11K_DEFAULT_NOISE_FLOOR;
+ 	status->rate_idx = ath11k_mac_bitrate_to_idx(sband, rx_ev.rate / 100);
+ 
 -- 
 2.33.0
 
