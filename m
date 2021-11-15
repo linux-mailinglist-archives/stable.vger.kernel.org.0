@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEACF450CED
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:44:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F133A451060
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:44:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238479AbhKORrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:47:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58628 "EHLO mail.kernel.org"
+        id S242877AbhKOSrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:47:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238636AbhKORnQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:43:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5BDD632FC;
-        Mon, 15 Nov 2021 17:28:26 +0000 (UTC)
+        id S242371AbhKOSof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:44:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEC546336F;
+        Mon, 15 Nov 2021 18:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997307;
-        bh=Evu+K9Wkb9pU6sX9ikL1VUHN234Qn9kIHg2N8HqSdVQ=;
+        s=korg; t=1636999561;
+        bh=kgmBzZi3GvPr3hxk+l+cBnuFj4r5v0Lk6/AZWmY4MAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GGd+vwu8gw/vm0ZbEWfXdujGNKpyfju/91PdthxxhanST0sSEaiSk7bCSbUkRIHyl
-         bWi99kDwQRWeHNWwHGcJW4hVZkIIR1BJ7SYAtjbZhM2IQkNWZ63JvZWDu5Vk0AOUX6
-         RLIF6Qlu08eMIX7ESnwRLG2IyfSClHgOXWkK8CWg=
+        b=J4LOMvR8IYnPcnAsj8Rp9zSWupKf9SxKg8HuDlxfLq3G7YpiBsMG21zGARB/vhMLh
+         ieKLQwOu3/3zGjdh9vxro9lPAfIYNEI+fPNvJOST44tpNg2T6Ue6i76r5B25by6txd
+         Xx/6QiEvXKftABnE9RYWrx72s7irq36B6tnKLnpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.10 100/575] rtl8187: fix control-message timeouts
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 342/849] libbpf: Dont crash on object files with no symbol tables
 Date:   Mon, 15 Nov 2021 17:57:05 +0100
-Message-Id: <20211115165347.114112593@linuxfoundation.org>
+Message-Id: <20211115165431.805972041@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,87 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-commit 2e9be536a213e838daed6ba42024dd68954ac061 upstream.
+[ Upstream commit 03e601f48b2da6fb44d0f7b86957a8f6bacfb347 ]
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+If libbpf encounters an ELF file that has been stripped of its symbol
+table, it will crash in bpf_object__add_programs() when trying to
+dereference the obj->efile.symbols pointer.
 
-Fixes: 605bebe23bf6 ("[PATCH] Add rtl8187 wireless driver")
-Cc: stable@vger.kernel.org      # 2.6.23
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211025120522.6045-4-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by erroring out of bpf_object__elf_collect() if it is not able
+able to find the symbol table.
+
+v2:
+  - Move check into bpf_object__elf_collect() and add nice error message
+
+Fixes: 6245947c1b3c ("libbpf: Allow gaps in BPF program sections to support overriden weak functions")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210901114812.204720-1-toke@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ tools/lib/bpf/libbpf.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c
-+++ b/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c
-@@ -28,7 +28,7 @@ u8 rtl818x_ioread8_idx(struct rtl8187_pr
- 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits8, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits8, sizeof(val), 500);
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index f1bc09e606cd1..994266b565c1a 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -2990,6 +2990,12 @@ static int bpf_object__elf_collect(struct bpf_object *obj)
+ 		}
+ 	}
  
- 	val = priv->io_dmabuf->bits8;
- 	mutex_unlock(&priv->io_mutex);
-@@ -45,7 +45,7 @@ u16 rtl818x_ioread16_idx(struct rtl8187_
- 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits16, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits16, sizeof(val), 500);
- 
- 	val = priv->io_dmabuf->bits16;
- 	mutex_unlock(&priv->io_mutex);
-@@ -62,7 +62,7 @@ u32 rtl818x_ioread32_idx(struct rtl8187_
- 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits32, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits32, sizeof(val), 500);
- 
- 	val = priv->io_dmabuf->bits32;
- 	mutex_unlock(&priv->io_mutex);
-@@ -79,7 +79,7 @@ void rtl818x_iowrite8_idx(struct rtl8187
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits8, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits8, sizeof(val), 500);
- 
- 	mutex_unlock(&priv->io_mutex);
- }
-@@ -93,7 +93,7 @@ void rtl818x_iowrite16_idx(struct rtl818
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits16, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits16, sizeof(val), 500);
- 
- 	mutex_unlock(&priv->io_mutex);
- }
-@@ -107,7 +107,7 @@ void rtl818x_iowrite32_idx(struct rtl818
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits32, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits32, sizeof(val), 500);
- 
- 	mutex_unlock(&priv->io_mutex);
- }
-@@ -183,7 +183,7 @@ static void rtl8225_write_8051(struct ie
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			addr, 0x8225, &priv->io_dmabuf->bits16, sizeof(data),
--			HZ / 2);
-+			500);
- 
- 	mutex_unlock(&priv->io_mutex);
- 
++	if (!obj->efile.symbols) {
++		pr_warn("elf: couldn't find symbol table in %s, stripped object file?\n",
++			obj->path);
++		return -ENOENT;
++	}
++
+ 	scn = NULL;
+ 	while ((scn = elf_nextscn(elf, scn)) != NULL) {
+ 		idx++;
+-- 
+2.33.0
+
 
 
