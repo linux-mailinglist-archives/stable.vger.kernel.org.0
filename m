@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64905450ED9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67A98450EE6
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:18:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237612AbhKOSUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:20:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60608 "EHLO mail.kernel.org"
+        id S237866AbhKOSVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:21:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241087AbhKOSSR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:18:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EBF263236;
-        Mon, 15 Nov 2021 17:50:48 +0000 (UTC)
+        id S241120AbhKOSS3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:18:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9654B633F1;
+        Mon, 15 Nov 2021 17:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998648;
-        bh=1tBgXqd3AWsljtYHl6lckRgLf7xYsmE+Qrd1DrzwNgE=;
+        s=korg; t=1636998657;
+        bh=LluAd/Pe+7uhq2V/i6PcC3oKufA6n/JyoIfU3o3FZrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vXavwz+35Mt5IschnSrgULe3Je44+j0G6Gn/ResWD8j/OJ9TgNxNmFANsGGYGxklb
-         DHTRq67EtnllatFzVLwMbbsP/SLc4XeflwtnoNwp3GFaIHuY9oVFEWJZP1AQbV0LSo
-         niAHdfjr65qSs4UIf6/QQPJB0WhBPrWgrGhh6mEw=
+        b=pYneKoa7CC2PYQxmXb9d8Tnpgewg+OgjGoNlLoTE/OpJt/uraxE3UWoRVWQ3UY25o
+         VsYtJLUBkGSVWA0+1C3VQhZ0DuXV1qZizRIxRxPxsvMd5L7z1eYlbz5uIZHLnrzBsS
+         x4qTutCT9Q3fz90mtL+SpK6hVOx/8tm3MNNoWifw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        David Jeffery <djeffery@redhat.com>,
+        Laurence Oberman <loberman@redhat.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.14 010/849] scsi: lpfc: Dont release final kref on Fport node while ABTS outstanding
-Date:   Mon, 15 Nov 2021 17:51:33 +0100
-Message-Id: <20211115165420.339019519@linuxfoundation.org>
+Subject: [PATCH 5.14 013/849] scsi: qla2xxx: Fix use after free in eh_abort path
+Date:   Mon, 15 Nov 2021 17:51:36 +0100
+Message-Id: <20211115165420.449946498@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,120 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit 982fc3965d1350d3332e04046b0e101006184ba9 upstream.
+commit 3d33b303d4f3b74a71bede5639ebba3cfd2a2b4d upstream.
 
-In a rarely executed path, FLOGI failure, there is a refcounting error.  If
-FLOGI completed with an error, typically a timeout, the initial completion
-handler would remove the job reference. However, the job completion isn't
-the actual end of the job/exchange as the timeout usually initiates an
-ABTS, and upon that ABTS completion, a final completion is sent. The driver
-removes the reference again in the final completion. Thus the imbalance.
+In eh_abort path driver prematurely exits the call to upper layer. Check
+whether command is aborted / completed by firmware before exiting the call.
 
-In the buggy cases, if there was a link bounce while the delayed response
-is outstanding, the fport node may be referenced again but there was no
-additional reference as it is already present. The delayed completion then
-occurs and removes the last reference freeing the node and causing issues
-in the link up processed that is using the node.
+9 [ffff8b1ebf803c00] page_fault at ffffffffb0389778
+  [exception RIP: qla2x00_status_entry+0x48d]
+  RIP: ffffffffc04fa62d  RSP: ffff8b1ebf803cb0  RFLAGS: 00010082
+  RAX: 00000000ffffffff  RBX: 00000000000e0000  RCX: 0000000000000000
+  RDX: 0000000000000000  RSI: 00000000000013d8  RDI: fffff3253db78440
+  RBP: ffff8b1ebf803dd0   R8: ffff8b1ebcd9b0c0   R9: 0000000000000000
+  R10: ffff8b1e38a30808  R11: 0000000000001000  R12: 00000000000003e9
+  R13: 0000000000000000  R14: ffff8b1ebcd9d740  R15: 0000000000000028
+  ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+10 [ffff8b1ebf803cb0] enqueue_entity at ffffffffafce708f
+11 [ffff8b1ebf803d00] enqueue_task_fair at ffffffffafce7b88
+12 [ffff8b1ebf803dd8] qla24xx_process_response_queue at ffffffffc04fc9a6
+[qla2xxx]
+13 [ffff8b1ebf803e78] qla24xx_msix_rsp_q at ffffffffc04ff01b [qla2xxx]
+14 [ffff8b1ebf803eb0] __handle_irq_event_percpu at ffffffffafd50714
 
-Fix this scenario by removing the snippet that removed the reference in the
-initial FLOGI completion. The bad snippet was poorly trying to identify the
-FLOGI as OK to do so by realizing the node was not registered with either
-SCSI or NVMe transport.
-
-Link: https://lore.kernel.org/r/20210910233159.115896-3-jsmart2021@gmail.com
-Fixes: 618e2ee146d4 ("scsi: lpfc: Fix FLOGI failure due to accessing a freed node")
-Cc: <stable@vger.kernel.org> # v5.13+
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
+Link: https://lore.kernel.org/r/20210908164622.19240-10-njavali@marvell.com
+Fixes: f45bca8c5052 ("scsi: qla2xxx: Fix double scsi_done for abort path")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Co-developed-by: David Jeffery <djeffery@redhat.com>
+Signed-off-by: David Jeffery <djeffery@redhat.com>
+Co-developed-by: Laurence Oberman <loberman@redhat.com>
+Signed-off-by: Laurence Oberman <loberman@redhat.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c     |   11 +++++------
- drivers/scsi/lpfc/lpfc_hbadisc.c |   10 ++++++----
- drivers/scsi/lpfc/lpfc_nvme.c    |    5 +++--
- 3 files changed, 14 insertions(+), 12 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -1056,9 +1056,10 @@ stop_rr_fcf_flogi:
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -1237,6 +1237,7 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
+ 	uint32_t ratov_j;
+ 	struct qla_qpair *qpair;
+ 	unsigned long flags;
++	int fast_fail_status = SUCCESS;
  
- 		lpfc_printf_vlog(vport, KERN_WARNING, LOG_TRACE_EVENT,
- 				 "0150 FLOGI failure Status:x%x/x%x "
--				 "xri x%x TMO:x%x\n",
-+				 "xri x%x TMO:x%x refcnt %d\n",
- 				 irsp->ulpStatus, irsp->un.ulpWord[4],
--				 cmdiocb->sli4_xritag, irsp->ulpTimeout);
-+				 cmdiocb->sli4_xritag, irsp->ulpTimeout,
-+				 kref_read(&ndlp->kref));
+ 	if (qla2x00_isp_reg_stat(ha)) {
+ 		ql_log(ql_log_info, vha, 0x8042,
+@@ -1245,9 +1246,10 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
+ 		return FAILED;
+ 	}
  
- 		/* If this is not a loop open failure, bail out */
- 		if (!(irsp->ulpStatus == IOSTAT_LOCAL_REJECT &&
-@@ -1119,12 +1120,12 @@ stop_rr_fcf_flogi:
- 	/* FLOGI completes successfully */
- 	lpfc_printf_vlog(vport, KERN_INFO, LOG_ELS,
- 			 "0101 FLOGI completes successfully, I/O tag:x%x, "
--			 "xri x%x Data: x%x x%x x%x x%x x%x x%x x%x\n",
-+			 "xri x%x Data: x%x x%x x%x x%x x%x x%x x%x %d\n",
- 			 cmdiocb->iotag, cmdiocb->sli4_xritag,
- 			 irsp->un.ulpWord[4], sp->cmn.e_d_tov,
- 			 sp->cmn.w2.r_a_tov, sp->cmn.edtovResolution,
- 			 vport->port_state, vport->fc_flag,
--			 sp->cmn.priority_tagging);
-+			 sp->cmn.priority_tagging, kref_read(&ndlp->kref));
++	/* Save any FAST_IO_FAIL value to return later if abort succeeds */
+ 	ret = fc_block_scsi_eh(cmd);
+ 	if (ret != 0)
+-		return ret;
++		fast_fail_status = ret;
  
- 	if (sp->cmn.priority_tagging)
- 		vport->vmid_flag |= LPFC_VMID_ISSUE_QFPA;
-@@ -1202,8 +1203,6 @@ flogifail:
- 	phba->fcf.fcf_flag &= ~FCF_DISCOVERY;
- 	spin_unlock_irq(&phba->hbalock);
+ 	sp = scsi_cmd_priv(cmd);
+ 	qpair = sp->qpair;
+@@ -1255,7 +1257,7 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
+ 	vha->cmd_timeout_cnt++;
  
--	if (!(ndlp->fc4_xpt_flags & (SCSI_XPT_REGD | NVME_XPT_REGD)))
--		lpfc_nlp_put(ndlp);
- 	if (!lpfc_error_lost_link(irsp)) {
- 		/* FLOGI failed, so just use loop map to make discovery list */
- 		lpfc_disc_list_loopmap(vport);
---- a/drivers/scsi/lpfc/lpfc_hbadisc.c
-+++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
-@@ -4429,8 +4429,9 @@ lpfc_register_remote_port(struct lpfc_vp
- 		fc_remote_port_rolechg(rport, rport_ids.roles);
+ 	if ((sp->fcport && sp->fcport->deleted) || !qpair)
+-		return SUCCESS;
++		return fast_fail_status != SUCCESS ? fast_fail_status : FAILED;
  
- 	lpfc_printf_vlog(ndlp->vport, KERN_INFO, LOG_NODE,
--			 "3183 %s rport x%px DID x%x, role x%x\n",
--			 __func__, rport, rport->port_id, rport->roles);
-+			 "3183 %s rport x%px DID x%x, role x%x refcnt %d\n",
-+			 __func__, rport, rport->port_id, rport->roles,
-+			 kref_read(&ndlp->kref));
- 
- 	if ((rport->scsi_target_id != -1) &&
- 	    (rport->scsi_target_id < LPFC_MAX_TARGET)) {
-@@ -4455,8 +4456,9 @@ lpfc_unregister_remote_port(struct lpfc_
- 
- 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NODE,
- 			 "3184 rport unregister x%06x, rport x%px "
--			 "xptflg x%x\n",
--			 ndlp->nlp_DID, rport, ndlp->fc4_xpt_flags);
-+			 "xptflg x%x refcnt %d\n",
-+			 ndlp->nlp_DID, rport, ndlp->fc4_xpt_flags,
-+			 kref_read(&ndlp->kref));
- 
- 	fc_remote_port_delete(rport);
- 	lpfc_nlp_put(ndlp);
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -209,8 +209,9 @@ lpfc_nvme_remoteport_delete(struct nvme_
- 	 * calling state machine to remove the node.
- 	 */
- 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC,
--			"6146 remoteport delete of remoteport x%px\n",
--			remoteport);
-+			 "6146 remoteport delete of remoteport x%px, ndlp x%px "
-+			 "DID x%x xflags x%x\n",
-+			 remoteport, ndlp, ndlp->nlp_DID, ndlp->fc4_xpt_flags);
- 	spin_lock_irq(&ndlp->lock);
- 
- 	/* The register rebind might have occurred before the delete
+ 	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
+ 	sp->comp = &comp;
+@@ -1290,7 +1292,7 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
+ 			    __func__, ha->r_a_tov/10);
+ 			ret = FAILED;
+ 		} else {
+-			ret = SUCCESS;
++			ret = fast_fail_status;
+ 		}
+ 		break;
+ 	default:
 
 
