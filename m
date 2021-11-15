@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDCA6450E2B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C7BA450B5B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:21:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240322AbhKOSNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:13:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46098 "EHLO mail.kernel.org"
+        id S237497AbhKORWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:22:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240091AbhKOSFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 830E763385;
-        Mon, 15 Nov 2021 17:42:04 +0000 (UTC)
+        id S236972AbhKORTw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:19:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D7CC63269;
+        Mon, 15 Nov 2021 17:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998124;
-        bh=5ZRyhR1sQ/XjuYxHdwM/gQ4abtkBchC2RBxuua8zseA=;
+        s=korg; t=1636996508;
+        bh=/Gt6WPXGR6lzrUDLaTPJs1+B6XAtLFlY29SST/2kDbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hieZAhzHra7Hw4VEi1CtiK3OL6z2pscgatbIf/SBmFc8ziFHz6VHskbmPr4EKvFaN
-         L0ZOVc8XftbRj4BoAAfCZwUjpgPLNI/RReVNVT8dR3sJPd/0b7wIZHQIKVplXCzc4x
-         bk+AKGtzb9N1g1++wl81tLNkJbIT4pIdRcOWvIww=
+        b=xJMX1WIKWDCGHQwsMrpCptHZopacJqJuj9k53LGjxZVOJ+DP2A5fFEdUq2rX7Mzg9
+         PckW5R0BX5iJ5ytl00rVjeCk/vE6DyTQUklyhe/UOhb1DYFaBuqD6/MRtt9On8sALX
+         pSmiV0xDqCOLXtYjvIX7DyljdN9EoR9JpCc6uiJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 363/575] libbpf: Fix endianness detection in BPF_CORE_READ_BITFIELD_PROBED()
+Subject: [PATCH 5.4 164/355] selftests: kvm: fix mismatched fclose() after popen()
 Date:   Mon, 15 Nov 2021 18:01:28 +0100
-Message-Id: <20211115165356.359557579@linuxfoundation.org>
+Message-Id: <20211115165319.089880682@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 45f2bebc8079788f62f22d9e8b2819afb1789d7b ]
+[ Upstream commit c3867ab5924b7a9a0b4a117902a08669d8be7c21 ]
 
-__BYTE_ORDER is supposed to be defined by a libc, and __BYTE_ORDER__ -
-by a compiler. bpf_core_read.h checks __BYTE_ORDER == __LITTLE_ENDIAN,
-which is true if neither are defined, leading to incorrect behavior on
-big-endian hosts if libc headers are not included, which is often the
-case.
+get_warnings_count() does fclose() using File * returned from popen().
+Fix it to call pclose() as it should.
 
-Fixes: ee26dade0e3b ("libbpf: Add support for relocatable bitfields")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20211026010831.748682-2-iii@linux.ibm.com
+tools/testing/selftests/kvm/x86_64/mmio_warning_test
+x86_64/mmio_warning_test.c: In function ‘get_warnings_count’:
+x86_64/mmio_warning_test.c:87:9: warning: ‘fclose’ called on pointer returned from a mismatched allocation function [-Wmismatched-dealloc]
+   87 |         fclose(f);
+      |         ^~~~~~~~~
+x86_64/mmio_warning_test.c:84:13: note: returned from ‘popen’
+   84 |         f = popen("dmesg | grep \"WARNING:\" | wc -l", "r");
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/bpf_core_read.h | 2 +-
+ tools/testing/selftests/kvm/x86_64/mmio_warning_test.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/bpf_core_read.h b/tools/lib/bpf/bpf_core_read.h
-index 4538ed762a209..f05cfc082915d 100644
---- a/tools/lib/bpf/bpf_core_read.h
-+++ b/tools/lib/bpf/bpf_core_read.h
-@@ -40,7 +40,7 @@ enum bpf_enum_value_kind {
- #define __CORE_RELO(src, field, info)					      \
- 	__builtin_preserve_field_info((src)->field, BPF_FIELD_##info)
+diff --git a/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c b/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
+index 2cbc09aad7f64..92419b66b0578 100644
+--- a/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
++++ b/tools/testing/selftests/kvm/x86_64/mmio_warning_test.c
+@@ -84,7 +84,7 @@ int get_warnings_count(void)
+ 	f = popen("dmesg | grep \"WARNING:\" | wc -l", "r");
+ 	if (fscanf(f, "%d", &warnings) < 1)
+ 		warnings = 0;
+-	fclose(f);
++	pclose(f);
  
--#if __BYTE_ORDER == __LITTLE_ENDIAN
-+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
- #define __CORE_BITFIELD_PROBE_READ(dst, src, fld)			      \
- 	bpf_probe_read_kernel(						      \
- 			(void *)dst,				      \
+ 	return warnings;
+ }
 -- 
 2.33.0
 
