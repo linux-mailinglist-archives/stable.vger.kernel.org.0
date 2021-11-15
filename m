@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 542D9450BD3
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:27:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0158450E22
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237817AbhKORaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:30:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53206 "EHLO mail.kernel.org"
+        id S239998AbhKOSLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:11:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237907AbhKOR1W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:27:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 102B963256;
-        Mon, 15 Nov 2021 17:16:12 +0000 (UTC)
+        id S240053AbhKOSFc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B70FB6337D;
+        Mon, 15 Nov 2021 17:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996573;
-        bh=ZFd09WJz7JVvVLZbfnvkUfsxEAo7eQt2ciN87SbPpRo=;
+        s=korg; t=1636998108;
+        bh=4xT4TesnqM+zVauc1n3krawXbmGARRH9F0Jx4p+K7bQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMXp3XCJnW0k0mnhuGIJ/TMtCFhP5nBiV5RGHvP9tgPkNTwrQQR/PdsdQt/yXqGCV
-         O9UBZDEBiy6+YyViwdYERc/WdJjK+GQZ/Xa1Cg5pqONTQYtUpW6N6ShW2b7bBmJsxr
-         Sa9KMNFz7qXIjUED3Mf4Sor2z7D0byu3sfwFCSRQ=
+        b=wAGsMBhRoQkYLRxGnDDUaRrxR1cX0veOf0j5B7Qp+Ed4kTnsEhQ8HaFfXkjMEWGqG
+         h03Svy6yTIFIhViAj/XQ7BK540XR1KLz14prEAxLAUkbrFiBm8BSTqv83bZ/DgoIn0
+         BND7Tap5FvSl1AhUQlPC6e1Q886ErjFvgRlZEQ0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 189/355] Bluetooth: btmtkuart: fix a memleak in mtk_hci_wmt_sync
-Date:   Mon, 15 Nov 2021 18:01:53 +0100
-Message-Id: <20211115165319.885214277@linuxfoundation.org>
+Subject: [PATCH 5.10 389/575] ARM: dts: BCM5301X: Fix memory nodes names
+Date:   Mon, 15 Nov 2021 18:01:54 +0100
+Message-Id: <20211115165357.220526086@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +41,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 3e5f2d90c28f9454e421108554707620bc23269d ]
+[ Upstream commit c5e1df3276d7a500678da9453be31a66ad115150 ]
 
-bdev->evt_skb will get freed in the normal path and one error path
-of mtk_hci_wmt_sync, while the other error paths do not free it,
-which may cause a memleak. This bug is suggested by a static analysis
-tool, please advise.
+Thix fixes:
+arch/arm/boot/dts/bcm4708-netgear-r6250.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
+arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
+arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 402653184]]}
+arch/arm/boot/dts/bcm4709-linksys-ea9200.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
+arch/arm/boot/dts/bcm4709-netgear-r7000.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
+arch/arm/boot/dts/bcm4709-netgear-r8000.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
+arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728]]}
+arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 402653184]]}
+arch/arm/boot/dts/bcm53016-meraki-mr32.dt.yaml: /: memory: False schema does not allow {'reg': [[0, 134217728]], 'device_type': ['memory']}
+arch/arm/boot/dts/bcm94708.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728]]}
+arch/arm/boot/dts/bcm94709.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728]]}
 
-Fixes: e0b67035a90b ("Bluetooth: mediatek: update the common setup between MT7622 and other devices")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btmtkuart.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/bcm4708-netgear-r6250.dts       | 2 +-
+ arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts       | 2 +-
+ arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts | 2 +-
+ arch/arm/boot/dts/bcm4709-linksys-ea9200.dts      | 2 +-
+ arch/arm/boot/dts/bcm4709-netgear-r7000.dts       | 2 +-
+ arch/arm/boot/dts/bcm4709-netgear-r8000.dts       | 2 +-
+ arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts | 2 +-
+ arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts     | 2 +-
+ arch/arm/boot/dts/bcm53016-meraki-mr32.dts        | 2 +-
+ arch/arm/boot/dts/bcm94708.dts                    | 2 +-
+ arch/arm/boot/dts/bcm94709.dts                    | 2 +-
+ 11 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/bluetooth/btmtkuart.c b/drivers/bluetooth/btmtkuart.c
-index 8a81fbca5c9d8..2beb2321825e3 100644
---- a/drivers/bluetooth/btmtkuart.c
-+++ b/drivers/bluetooth/btmtkuart.c
-@@ -158,8 +158,10 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	int err;
+diff --git a/arch/arm/boot/dts/bcm4708-netgear-r6250.dts b/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
+index 61c7b137607e5..7900aac4f35a9 100644
+--- a/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
++++ b/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
+@@ -20,7 +20,7 @@
+ 		bootargs = "console=ttyS0,115200 earlycon";
+ 	};
  
- 	hlen = sizeof(*hdr) + wmt_params->dlen;
--	if (hlen > 255)
--		return -EINVAL;
-+	if (hlen > 255) {
-+		err = -EINVAL;
-+		goto err_free_skb;
-+	}
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x08000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts b/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
+index 6c6bb7b17d27a..7546c8d07bcd7 100644
+--- a/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
++++ b/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
+@@ -19,7 +19,7 @@
+ 		bootargs = "console=ttyS0,115200";
+ 	};
  
- 	hdr = (struct mtk_wmt_hdr *)&wc;
- 	hdr->dir = 1;
-@@ -173,7 +175,7 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	err = __hci_cmd_send(hdev, 0xfc6f, hlen, &wc);
- 	if (err < 0) {
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return err;
-+		goto err_free_skb;
- 	}
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x08000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts b/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
+index d29e7f80ea6aa..beae9eab9cb8c 100644
+--- a/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
++++ b/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
+@@ -19,7 +19,7 @@
+ 		bootargs = "console=ttyS0,115200";
+ 	};
  
- 	/* The vendor specific WMT commands are all answered by a vendor
-@@ -190,13 +192,14 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	if (err == -EINTR) {
- 		bt_dev_err(hdev, "Execution of wmt command interrupted");
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return err;
-+		goto err_free_skb;
- 	}
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x18000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts b/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
+index 38fbefdf2e4e4..ee94455a7236d 100644
+--- a/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
++++ b/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
+@@ -16,7 +16,7 @@
+ 		bootargs = "console=ttyS0,115200";
+ 	};
  
- 	if (err) {
- 		bt_dev_err(hdev, "Execution of wmt command timed out");
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return -ETIMEDOUT;
-+		err = -ETIMEDOUT;
-+		goto err_free_skb;
- 	}
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x08000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-netgear-r7000.dts b/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
+index 7989a53597d4f..56d309dbc6b0d 100644
+--- a/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
++++ b/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
+@@ -19,7 +19,7 @@
+ 		bootargs = "console=ttyS0,115200";
+ 	};
  
- 	/* Parse and handle the return WMT event */
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x08000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-netgear-r8000.dts b/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
+index 87b655be674c5..184e3039aa864 100644
+--- a/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
++++ b/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
+@@ -30,7 +30,7 @@
+ 		bootargs = "console=ttyS0,115200";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x08000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts b/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts
+index f806be5da7237..c2a266a439d05 100644
+--- a/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts
++++ b/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts
+@@ -15,7 +15,7 @@
+ 		bootargs = "console=ttyS0,115200 earlycon";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>;
+ 	};
+diff --git a/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts b/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
+index 2666195b6ffeb..3d415d874bd39 100644
+--- a/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
++++ b/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
+@@ -16,7 +16,7 @@
+ 		bootargs = "earlycon";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x18000000>;
+diff --git a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
+index 3b978dc8997a4..612d61852bfb9 100644
+--- a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
++++ b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
+@@ -20,7 +20,7 @@
+ 		bootargs = " console=ttyS0,115200n8 earlycon";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;
+ 		device_type = "memory";
+ 	};
+diff --git a/arch/arm/boot/dts/bcm94708.dts b/arch/arm/boot/dts/bcm94708.dts
+index 3d13e46c69494..d9eb2040b9631 100644
+--- a/arch/arm/boot/dts/bcm94708.dts
++++ b/arch/arm/boot/dts/bcm94708.dts
+@@ -38,7 +38,7 @@
+ 	model = "NorthStar SVK (BCM94708)";
+ 	compatible = "brcm,bcm94708", "brcm,bcm4708";
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>;
+ 	};
+diff --git a/arch/arm/boot/dts/bcm94709.dts b/arch/arm/boot/dts/bcm94709.dts
+index 5017b7b259cbe..618c812eef73e 100644
+--- a/arch/arm/boot/dts/bcm94709.dts
++++ b/arch/arm/boot/dts/bcm94709.dts
+@@ -38,7 +38,7 @@
+ 	model = "NorthStar SVK (BCM94709)";
+ 	compatible = "brcm,bcm94709", "brcm,bcm4709", "brcm,bcm4708";
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>;
+ 	};
 -- 
 2.33.0
 
