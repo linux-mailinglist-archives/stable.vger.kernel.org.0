@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33611452443
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:34:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA94E452447
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:34:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242417AbhKPBgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:36:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50442 "EHLO mail.kernel.org"
+        id S1353630AbhKPBg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:36:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242854AbhKOSq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242850AbhKOSq4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:46:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63F7A63389;
-        Mon, 15 Nov 2021 18:07:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E32963299;
+        Mon, 15 Nov 2021 18:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999634;
-        bh=z6C7wPivW00O2JB1Y9dop/xbipMwmgJw+TeRVQEJMVI=;
+        s=korg; t=1636999639;
+        bh=iQIVpcBQUKIHQ54/jpt22OymvLl8/TaNdV7JqdhVksU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=veg1XGJhtQ22iquLaWBw5f76xRspDPc11/lcVA2vWLUjxdbq0LLOC3xhhhcDFFy9L
-         uXkoN6CWEs+JYnTHKCNFD0Ka5RbxqCm5OmdtxoGYpH6umYE5VCxCOf0Oq+RYaMRaye
-         E8fwCXw1415oa3lldqCmKgLQKI3QrFnr7uuCZAZs=
+        b=Y4h5tOvRE9zexw8EFWi6TLgZntGIzkiSK1VBjBDEYHvoesvlYiSoDLGdAZFCQjS9l
+         bxLRRg1AbT5ZeovQAPHORoAZT82ZXpi5JAfJ0A4k4AZAM4/MAQReyJzzZS3KNWjeq9
+         MbBW8jcwvy1lExl2DVrkAPeBV1MgQIcQ7usTMPAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>,
-        Jouni Malinen <jouni@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 369/849] ath11k: fix packet drops due to incorrect 6 GHz freq value in rx status
-Date:   Mon, 15 Nov 2021 17:57:32 +0100
-Message-Id: <20211115165432.717180202@linuxfoundation.org>
+Subject: [PATCH 5.14 371/849] gve: DQO: avoid unused variable warnings
+Date:   Mon, 15 Nov 2021 17:57:34 +0100
+Message-Id: <20211115165432.787198263@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,82 +40,308 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 9d6ae1f5cf733c0e8d7f904c501fd015c4b9f0f4 ]
+[ Upstream commit 1e0083bd0777e4a418a6710d9ee04b979cdbe5cc ]
 
-Frequency in rx status is being filled incorrectly in the 6 GHz band as
-channel number received is invalid in this case which is causing packet
-drops. So fix that.
+The use of dma_unmap_addr()/dma_unmap_len() in the driver causes
+multiple warnings when these macros are defined as empty, e.g.
+in an ARCH=i386 allmodconfig build:
 
-Fixes: 5dcf42f8b79d ("ath11k: Use freq instead of channel number in rx path")
-Signed-off-by: Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210722102054.43419-2-jouni@codeaurora.org
+drivers/net/ethernet/google/gve/gve_tx_dqo.c: In function 'gve_tx_add_skb_no_copy_dqo':
+drivers/net/ethernet/google/gve/gve_tx_dqo.c:494:40: error: unused variable 'buf' [-Werror=unused-variable]
+  494 |                 struct gve_tx_dma_buf *buf =
+
+This is not how the NEED_DMA_MAP_STATE macros are meant to work,
+as they rely on never using local variables or a temporary structure
+like gve_tx_dma_buf.
+
+Remote the gve_tx_dma_buf definition and open-code the contents
+in all places to avoid the warning. This causes some rather long
+lines but otherwise ends up making the driver slightly smaller.
+
+Fixes: a57e5de476be ("gve: DQO: Add TX path")
+Link: https://lore.kernel.org/netdev/20210723231957.1113800-1-bcf@google.com/
+Link: https://lore.kernel.org/netdev/20210721151100.2042139-1-arnd@kernel.org/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/dp_rx.c |  9 ++++++---
- drivers/net/wireless/ath/ath11k/wmi.c   | 10 +++++++---
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/google/gve/gve.h        | 13 ++-
+ drivers/net/ethernet/google/gve/gve_tx.c     | 23 +++---
+ drivers/net/ethernet/google/gve/gve_tx_dqo.c | 84 +++++++++-----------
+ 3 files changed, 54 insertions(+), 66 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
-index d4f7304a35ec1..9e225f322a24d 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -2342,8 +2342,10 @@ static void ath11k_dp_rx_h_ppdu(struct ath11k *ar, struct hal_rx_desc *rx_desc,
- 	channel_num = meta_data;
- 	center_freq = meta_data >> 16;
+diff --git a/drivers/net/ethernet/google/gve/gve.h b/drivers/net/ethernet/google/gve/gve.h
+index 92dc18a4bcc41..2f93ed4705905 100644
+--- a/drivers/net/ethernet/google/gve/gve.h
++++ b/drivers/net/ethernet/google/gve/gve.h
+@@ -224,11 +224,6 @@ struct gve_tx_iovec {
+ 	u32 iov_padding; /* padding associated with this segment */
+ };
  
--	if (center_freq >= 5935 && center_freq <= 7105) {
-+	if (center_freq >= ATH11K_MIN_6G_FREQ &&
-+	    center_freq <= ATH11K_MAX_6G_FREQ) {
- 		rx_status->band = NL80211_BAND_6GHZ;
-+		rx_status->freq = center_freq;
- 	} else if (channel_num >= 1 && channel_num <= 14) {
- 		rx_status->band = NL80211_BAND_2GHZ;
- 	} else if (channel_num >= 36 && channel_num <= 173) {
-@@ -2361,8 +2363,9 @@ static void ath11k_dp_rx_h_ppdu(struct ath11k *ar, struct hal_rx_desc *rx_desc,
- 				rx_desc, sizeof(struct hal_rx_desc));
+-struct gve_tx_dma_buf {
+-	DEFINE_DMA_UNMAP_ADDR(dma);
+-	DEFINE_DMA_UNMAP_LEN(len);
+-};
+-
+ /* Tracks the memory in the fifo occupied by the skb. Mapped 1:1 to a desc
+  * ring entry but only used for a pkt_desc not a seg_desc
+  */
+@@ -236,7 +231,10 @@ struct gve_tx_buffer_state {
+ 	struct sk_buff *skb; /* skb for this pkt */
+ 	union {
+ 		struct gve_tx_iovec iov[GVE_TX_MAX_IOVEC]; /* segments of this pkt */
+-		struct gve_tx_dma_buf buf;
++		struct {
++			DEFINE_DMA_UNMAP_ADDR(dma);
++			DEFINE_DMA_UNMAP_LEN(len);
++		};
+ 	};
+ };
+ 
+@@ -280,7 +278,8 @@ struct gve_tx_pending_packet_dqo {
+ 	 * All others correspond to `skb`'s frags and should be unmapped with
+ 	 * `dma_unmap_page`.
+ 	 */
+-	struct gve_tx_dma_buf bufs[MAX_SKB_FRAGS + 1];
++	DEFINE_DMA_UNMAP_ADDR(dma[MAX_SKB_FRAGS + 1]);
++	DEFINE_DMA_UNMAP_LEN(len[MAX_SKB_FRAGS + 1]);
+ 	u16 num_bufs;
+ 
+ 	/* Linked list index to next element in the list, or -1 if none */
+diff --git a/drivers/net/ethernet/google/gve/gve_tx.c b/drivers/net/ethernet/google/gve/gve_tx.c
+index 665ac795a1adf..9922ce46a6351 100644
+--- a/drivers/net/ethernet/google/gve/gve_tx.c
++++ b/drivers/net/ethernet/google/gve/gve_tx.c
+@@ -303,15 +303,15 @@ static inline int gve_skb_fifo_bytes_required(struct gve_tx_ring *tx,
+ static void gve_tx_unmap_buf(struct device *dev, struct gve_tx_buffer_state *info)
+ {
+ 	if (info->skb) {
+-		dma_unmap_single(dev, dma_unmap_addr(&info->buf, dma),
+-				 dma_unmap_len(&info->buf, len),
++		dma_unmap_single(dev, dma_unmap_addr(info, dma),
++				 dma_unmap_len(info, len),
+ 				 DMA_TO_DEVICE);
+-		dma_unmap_len_set(&info->buf, len, 0);
++		dma_unmap_len_set(info, len, 0);
+ 	} else {
+-		dma_unmap_page(dev, dma_unmap_addr(&info->buf, dma),
+-			       dma_unmap_len(&info->buf, len),
++		dma_unmap_page(dev, dma_unmap_addr(info, dma),
++			       dma_unmap_len(info, len),
+ 			       DMA_TO_DEVICE);
+-		dma_unmap_len_set(&info->buf, len, 0);
++		dma_unmap_len_set(info, len, 0);
+ 	}
+ }
+ 
+@@ -491,7 +491,6 @@ static int gve_tx_add_skb_no_copy(struct gve_priv *priv, struct gve_tx_ring *tx,
+ 	struct gve_tx_buffer_state *info;
+ 	bool is_gso = skb_is_gso(skb);
+ 	u32 idx = tx->req & tx->mask;
+-	struct gve_tx_dma_buf *buf;
+ 	u64 addr;
+ 	u32 len;
+ 	int i;
+@@ -515,9 +514,8 @@ static int gve_tx_add_skb_no_copy(struct gve_priv *priv, struct gve_tx_ring *tx,
+ 		tx->dma_mapping_error++;
+ 		goto drop;
+ 	}
+-	buf = &info->buf;
+-	dma_unmap_len_set(buf, len, len);
+-	dma_unmap_addr_set(buf, dma, addr);
++	dma_unmap_len_set(info, len, len);
++	dma_unmap_addr_set(info, dma, addr);
+ 
+ 	payload_nfrags = shinfo->nr_frags;
+ 	if (hlen < len) {
+@@ -549,10 +547,9 @@ static int gve_tx_add_skb_no_copy(struct gve_priv *priv, struct gve_tx_ring *tx,
+ 			tx->dma_mapping_error++;
+ 			goto unmap_drop;
+ 		}
+-		buf = &tx->info[idx].buf;
+ 		tx->info[idx].skb = NULL;
+-		dma_unmap_len_set(buf, len, len);
+-		dma_unmap_addr_set(buf, dma, addr);
++		dma_unmap_len_set(&tx->info[idx], len, len);
++		dma_unmap_addr_set(&tx->info[idx], dma, addr);
+ 
+ 		gve_tx_fill_seg_desc(seg_desc, skb, is_gso, len, addr);
+ 	}
+diff --git a/drivers/net/ethernet/google/gve/gve_tx_dqo.c b/drivers/net/ethernet/google/gve/gve_tx_dqo.c
+index 05ddb6a75c38f..ec394d9916681 100644
+--- a/drivers/net/ethernet/google/gve/gve_tx_dqo.c
++++ b/drivers/net/ethernet/google/gve/gve_tx_dqo.c
+@@ -85,18 +85,16 @@ static void gve_tx_clean_pending_packets(struct gve_tx_ring *tx)
+ 		int j;
+ 
+ 		for (j = 0; j < cur_state->num_bufs; j++) {
+-			struct gve_tx_dma_buf *buf = &cur_state->bufs[j];
+-
+ 			if (j == 0) {
+ 				dma_unmap_single(tx->dev,
+-						 dma_unmap_addr(buf, dma),
+-						 dma_unmap_len(buf, len),
+-						 DMA_TO_DEVICE);
++					dma_unmap_addr(cur_state, dma[j]),
++					dma_unmap_len(cur_state, len[j]),
++					DMA_TO_DEVICE);
+ 			} else {
+ 				dma_unmap_page(tx->dev,
+-					       dma_unmap_addr(buf, dma),
+-					       dma_unmap_len(buf, len),
+-					       DMA_TO_DEVICE);
++					dma_unmap_addr(cur_state, dma[j]),
++					dma_unmap_len(cur_state, len[j]),
++					DMA_TO_DEVICE);
+ 			}
+ 		}
+ 		if (cur_state->skb) {
+@@ -457,15 +455,15 @@ static int gve_tx_add_skb_no_copy_dqo(struct gve_tx_ring *tx,
+ 	const bool is_gso = skb_is_gso(skb);
+ 	u32 desc_idx = tx->dqo_tx.tail;
+ 
+-	struct gve_tx_pending_packet_dqo *pending_packet;
++	struct gve_tx_pending_packet_dqo *pkt;
+ 	struct gve_tx_metadata_dqo metadata;
+ 	s16 completion_tag;
+ 	int i;
+ 
+-	pending_packet = gve_alloc_pending_packet(tx);
+-	pending_packet->skb = skb;
+-	pending_packet->num_bufs = 0;
+-	completion_tag = pending_packet - tx->dqo.pending_packets;
++	pkt = gve_alloc_pending_packet(tx);
++	pkt->skb = skb;
++	pkt->num_bufs = 0;
++	completion_tag = pkt - tx->dqo.pending_packets;
+ 
+ 	gve_extract_tx_metadata_dqo(skb, &metadata);
+ 	if (is_gso) {
+@@ -493,8 +491,6 @@ static int gve_tx_add_skb_no_copy_dqo(struct gve_tx_ring *tx,
+ 
+ 	/* Map the linear portion of skb */
+ 	{
+-		struct gve_tx_dma_buf *buf =
+-			&pending_packet->bufs[pending_packet->num_bufs];
+ 		u32 len = skb_headlen(skb);
+ 		dma_addr_t addr;
+ 
+@@ -502,9 +498,9 @@ static int gve_tx_add_skb_no_copy_dqo(struct gve_tx_ring *tx,
+ 		if (unlikely(dma_mapping_error(tx->dev, addr)))
+ 			goto err;
+ 
+-		dma_unmap_len_set(buf, len, len);
+-		dma_unmap_addr_set(buf, dma, addr);
+-		++pending_packet->num_bufs;
++		dma_unmap_len_set(pkt, len[pkt->num_bufs], len);
++		dma_unmap_addr_set(pkt, dma[pkt->num_bufs], addr);
++		++pkt->num_bufs;
+ 
+ 		gve_tx_fill_pkt_desc_dqo(tx, &desc_idx, skb, len, addr,
+ 					 completion_tag,
+@@ -512,8 +508,6 @@ static int gve_tx_add_skb_no_copy_dqo(struct gve_tx_ring *tx,
  	}
  
--	rx_status->freq = ieee80211_channel_to_frequency(channel_num,
--							 rx_status->band);
-+	if (rx_status->band != NL80211_BAND_6GHZ)
-+		rx_status->freq = ieee80211_channel_to_frequency(channel_num,
-+								 rx_status->band);
+ 	for (i = 0; i < shinfo->nr_frags; i++) {
+-		struct gve_tx_dma_buf *buf =
+-			&pending_packet->bufs[pending_packet->num_bufs];
+ 		const skb_frag_t *frag = &shinfo->frags[i];
+ 		bool is_eop = i == (shinfo->nr_frags - 1);
+ 		u32 len = skb_frag_size(frag);
+@@ -523,9 +517,9 @@ static int gve_tx_add_skb_no_copy_dqo(struct gve_tx_ring *tx,
+ 		if (unlikely(dma_mapping_error(tx->dev, addr)))
+ 			goto err;
  
- 	ath11k_dp_rx_h_rate(ar, rx_desc, rx_status);
+-		dma_unmap_len_set(buf, len, len);
+-		dma_unmap_addr_set(buf, dma, addr);
+-		++pending_packet->num_bufs;
++		dma_unmap_len_set(pkt, len[pkt->num_bufs], len);
++		dma_unmap_addr_set(pkt, dma[pkt->num_bufs], addr);
++		++pkt->num_bufs;
+ 
+ 		gve_tx_fill_pkt_desc_dqo(tx, &desc_idx, skb, len, addr,
+ 					 completion_tag, is_eop, is_gso);
+@@ -552,22 +546,23 @@ static int gve_tx_add_skb_no_copy_dqo(struct gve_tx_ring *tx,
+ 	return 0;
+ 
+ err:
+-	for (i = 0; i < pending_packet->num_bufs; i++) {
+-		struct gve_tx_dma_buf *buf = &pending_packet->bufs[i];
+-
++	for (i = 0; i < pkt->num_bufs; i++) {
+ 		if (i == 0) {
+-			dma_unmap_single(tx->dev, dma_unmap_addr(buf, dma),
+-					 dma_unmap_len(buf, len),
++			dma_unmap_single(tx->dev,
++					 dma_unmap_addr(pkt, dma[i]),
++					 dma_unmap_len(pkt, len[i]),
+ 					 DMA_TO_DEVICE);
+ 		} else {
+-			dma_unmap_page(tx->dev, dma_unmap_addr(buf, dma),
+-				       dma_unmap_len(buf, len), DMA_TO_DEVICE);
++			dma_unmap_page(tx->dev,
++				       dma_unmap_addr(pkt, dma[i]),
++				       dma_unmap_len(pkt, len[i]),
++				       DMA_TO_DEVICE);
+ 		}
+ 	}
+ 
+-	pending_packet->skb = NULL;
+-	pending_packet->num_bufs = 0;
+-	gve_free_pending_packet(tx, pending_packet);
++	pkt->skb = NULL;
++	pkt->num_bufs = 0;
++	gve_free_pending_packet(tx, pkt);
+ 
+ 	return -1;
  }
-diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
-index a53eef8e2631c..99c0b81e496bf 100644
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -6127,8 +6127,10 @@ static void ath11k_mgmt_rx_event(struct ath11k_base *ab, struct sk_buff *skb)
- 	if (rx_ev.status & WMI_RX_STATUS_ERR_MIC)
- 		status->flag |= RX_FLAG_MMIC_ERROR;
+@@ -725,12 +720,12 @@ static void add_to_list(struct gve_tx_ring *tx, struct gve_index_list *list,
  
--	if (rx_ev.chan_freq >= ATH11K_MIN_6G_FREQ) {
-+	if (rx_ev.chan_freq >= ATH11K_MIN_6G_FREQ &&
-+	    rx_ev.chan_freq <= ATH11K_MAX_6G_FREQ) {
- 		status->band = NL80211_BAND_6GHZ;
-+		status->freq = rx_ev.chan_freq;
- 	} else if (rx_ev.channel >= 1 && rx_ev.channel <= 14) {
- 		status->band = NL80211_BAND_2GHZ;
- 	} else if (rx_ev.channel >= 36 && rx_ev.channel <= ATH11K_MAX_5G_CHAN) {
-@@ -6149,8 +6151,10 @@ static void ath11k_mgmt_rx_event(struct ath11k_base *ab, struct sk_buff *skb)
+ static void remove_from_list(struct gve_tx_ring *tx,
+ 			     struct gve_index_list *list,
+-			     struct gve_tx_pending_packet_dqo *pending_packet)
++			     struct gve_tx_pending_packet_dqo *pkt)
+ {
+ 	s16 prev_index, next_index;
  
- 	sband = &ar->mac.sbands[status->band];
+-	prev_index = pending_packet->prev;
+-	next_index = pending_packet->next;
++	prev_index = pkt->prev;
++	next_index = pkt->next;
  
--	status->freq = ieee80211_channel_to_frequency(rx_ev.channel,
--						      status->band);
-+	if (status->band != NL80211_BAND_6GHZ)
-+		status->freq = ieee80211_channel_to_frequency(rx_ev.channel,
-+							      status->band);
-+
- 	status->signal = rx_ev.snr + ATH11K_DEFAULT_NOISE_FLOOR;
- 	status->rate_idx = ath11k_mac_bitrate_to_idx(sband, rx_ev.rate / 100);
+ 	if (prev_index == -1) {
+ 		/* Node is head */
+@@ -747,21 +742,18 @@ static void remove_from_list(struct gve_tx_ring *tx,
+ }
  
+ static void gve_unmap_packet(struct device *dev,
+-			     struct gve_tx_pending_packet_dqo *pending_packet)
++			     struct gve_tx_pending_packet_dqo *pkt)
+ {
+-	struct gve_tx_dma_buf *buf;
+ 	int i;
+ 
+ 	/* SKB linear portion is guaranteed to be mapped */
+-	buf = &pending_packet->bufs[0];
+-	dma_unmap_single(dev, dma_unmap_addr(buf, dma),
+-			 dma_unmap_len(buf, len), DMA_TO_DEVICE);
+-	for (i = 1; i < pending_packet->num_bufs; i++) {
+-		buf = &pending_packet->bufs[i];
+-		dma_unmap_page(dev, dma_unmap_addr(buf, dma),
+-			       dma_unmap_len(buf, len), DMA_TO_DEVICE);
++	dma_unmap_single(dev, dma_unmap_addr(pkt, dma[0]),
++			 dma_unmap_len(pkt, len[0]), DMA_TO_DEVICE);
++	for (i = 1; i < pkt->num_bufs; i++) {
++		dma_unmap_page(dev, dma_unmap_addr(pkt, dma[i]),
++			       dma_unmap_len(pkt, len[i]), DMA_TO_DEVICE);
+ 	}
+-	pending_packet->num_bufs = 0;
++	pkt->num_bufs = 0;
+ }
+ 
+ /* Completion types and expected behavior:
 -- 
 2.33.0
 
