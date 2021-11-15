@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69EA4451FE8
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:43:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C04E451FAF
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356198AbhKPApq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
+        id S1353979AbhKPApB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343733AbhKOTVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E91A63294;
-        Mon, 15 Nov 2021 18:45:20 +0000 (UTC)
+        id S1343754AbhKOTV5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E799C6330A;
+        Mon, 15 Nov 2021 18:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001920;
-        bh=kn6pcuTRLYUc38gZARayQOKqf/nabe3968N8ojS4hE4=;
+        s=korg; t=1637001939;
+        bh=JzwriQVvemp7ypNplEGhU5P4IiR48IVPj1WVd7jWvHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKpF78xaq1WzxG3ZxX5QU0xODnhFs2GJJ2pDKTQetEGUVkFiWuYE/0OsiyCNzEUn+
-         r9XTYb3f+PIRrdGZUVffCwHpPuLpJKs+1bECyO/5c+ptG+OH4sKCV0Ez23WICBoFtK
-         qgS65MxNhvqcwBJBERBJemm/OcshrCHmxL4Sl24w=
+        b=CYcSVuVXZUHhLKSpX1LETzcdU3Svlco8OnpmYyS3CYpCNyXsvj/C1ieQrUfhqnknA
+         KyPwl1R8tD/ZfMvJ23oMZ03yehlXRbNUtnkFXlZkMT6C4NUHU5m680CvlvFWtHV/f0
+         htjKStCwD9yzhheSNGXJ1hj8m7QJSdKd/h7W/XUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yoshitaka Ikeda <ikeda@nskint.co.jp>,
-        Pratyush Yadav <p.yadav@ti.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 344/917] spi: Fixed division by zero warning
-Date:   Mon, 15 Nov 2021 17:57:19 +0100
-Message-Id: <20211115165440.410904383@linuxfoundation.org>
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 345/917] cgroup: Make rebind_subsystems() disable v2 controllers all at once
+Date:   Mon, 15 Nov 2021 17:57:20 +0100
+Message-Id: <20211115165440.451312289@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,80 +39,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshitaka Ikeda <ikeda@nskint.co.jp>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit 09134c5322df9f105d9ed324051872d5d0e162aa ]
+[ Upstream commit 7ee285395b211cad474b2b989db52666e0430daf ]
 
-The reason for dividing by zero is because the dummy bus width is zero,
-but if the dummy n bytes is zero, it indicates that there is no data transfer,
-so there is no need for calculation.
+It was found that the following warning was displayed when remounting
+controllers from cgroup v2 to v1:
 
-Fixes: 7512eaf54190 ("spi: cadence-quadspi: Fix dummy cycle calculation when buswidth > 1")
-Signed-off-by: Yoshitaka Ikeda <ikeda@nskint.co.jp>
-Acked-by: Pratyush Yadav <p.yadav@ti.com>
-Link: https://lore.kernel.org/r/OSZPR01MB70049C8F56ED8902852DF97B8BD49@OSZPR01MB7004.jpnprd01.prod.outlook.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[ 8042.997778] WARNING: CPU: 88 PID: 80682 at kernel/cgroup/cgroup.c:3130 cgroup_apply_control_disable+0x158/0x190
+   :
+[ 8043.091109] RIP: 0010:cgroup_apply_control_disable+0x158/0x190
+[ 8043.096946] Code: ff f6 45 54 01 74 39 48 8d 7d 10 48 c7 c6 e0 46 5a a4 e8 7b 67 33 00 e9 41 ff ff ff 49 8b 84 24 e8 01 00 00 0f b7 40 08 eb 95 <0f> 0b e9 5f ff ff ff 48 83 c4 08 5b 5d 41 5c 41 5d 41 5e 41 5f c3
+[ 8043.115692] RSP: 0018:ffffba8a47c23d28 EFLAGS: 00010202
+[ 8043.120916] RAX: 0000000000000036 RBX: ffffffffa624ce40 RCX: 000000000000181a
+[ 8043.128047] RDX: ffffffffa63c43e0 RSI: ffffffffa63c43e0 RDI: ffff9d7284ee1000
+[ 8043.135180] RBP: ffff9d72874c5800 R08: ffffffffa624b090 R09: 0000000000000004
+[ 8043.142314] R10: ffffffffa624b080 R11: 0000000000002000 R12: ffff9d7284ee1000
+[ 8043.149447] R13: ffff9d7284ee1000 R14: ffffffffa624ce70 R15: ffffffffa6269e20
+[ 8043.156576] FS:  00007f7747cff740(0000) GS:ffff9d7a5fc00000(0000) knlGS:0000000000000000
+[ 8043.164663] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 8043.170409] CR2: 00007f7747e96680 CR3: 0000000887d60001 CR4: 00000000007706e0
+[ 8043.177539] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 8043.184673] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 8043.191804] PKRU: 55555554
+[ 8043.194517] Call Trace:
+[ 8043.196970]  rebind_subsystems+0x18c/0x470
+[ 8043.201070]  cgroup_setup_root+0x16c/0x2f0
+[ 8043.205177]  cgroup1_root_to_use+0x204/0x2a0
+[ 8043.209456]  cgroup1_get_tree+0x3e/0x120
+[ 8043.213384]  vfs_get_tree+0x22/0xb0
+[ 8043.216883]  do_new_mount+0x176/0x2d0
+[ 8043.220550]  __x64_sys_mount+0x103/0x140
+[ 8043.224474]  do_syscall_64+0x38/0x90
+[ 8043.228063]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+It was caused by the fact that rebind_subsystem() disables
+controllers to be rebound one by one. If more than one disabled
+controllers are originally from the default hierarchy, it means that
+cgroup_apply_control_disable() will be called multiple times for the
+same default hierarchy. A controller may be killed by css_kill() in
+the first round. In the second round, the killed controller may not be
+completely dead yet leading to the warning.
+
+To avoid this problem, we collect all the ssid's of controllers that
+needed to be disabled from the default hierarchy and then disable them
+in one go instead of one by one.
+
+Fixes: 334c3679ec4b ("cgroup: reimplement rebind_subsystems() using cgroup_apply_control() and friends")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/atmel-quadspi.c  | 2 +-
- drivers/spi/spi-bcm-qspi.c   | 3 ++-
- drivers/spi/spi-mtk-nor.c    | 2 +-
- drivers/spi/spi-stm32-qspi.c | 2 +-
- 4 files changed, 5 insertions(+), 4 deletions(-)
+ kernel/cgroup/cgroup.c | 31 +++++++++++++++++++++++++++----
+ 1 file changed, 27 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/atmel-quadspi.c b/drivers/spi/atmel-quadspi.c
-index 95d4fa32c2995..92d9610df1fd8 100644
---- a/drivers/spi/atmel-quadspi.c
-+++ b/drivers/spi/atmel-quadspi.c
-@@ -310,7 +310,7 @@ static int atmel_qspi_set_cfg(struct atmel_qspi *aq,
- 		return mode;
- 	ifr |= atmel_qspi_modes[mode].config;
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index ea08f01d0111a..d6ea872b23aad 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -1740,6 +1740,7 @@ int rebind_subsystems(struct cgroup_root *dst_root, u16 ss_mask)
+ 	struct cgroup *dcgrp = &dst_root->cgrp;
+ 	struct cgroup_subsys *ss;
+ 	int ssid, i, ret;
++	u16 dfl_disable_ss_mask = 0;
  
--	if (op->dummy.buswidth && op->dummy.nbytes)
-+	if (op->dummy.nbytes)
- 		dummy_cycles = op->dummy.nbytes * 8 / op->dummy.buswidth;
+ 	lockdep_assert_held(&cgroup_mutex);
  
- 	/*
-diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
-index ea1865c08fc22..151e154284bde 100644
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -395,7 +395,8 @@ static int bcm_qspi_bspi_set_flex_mode(struct bcm_qspi *qspi,
- 	if (addrlen == BSPI_ADDRLEN_4BYTES)
- 		bpp = BSPI_BPP_ADDR_SELECT_MASK;
+@@ -1756,8 +1757,28 @@ int rebind_subsystems(struct cgroup_root *dst_root, u16 ss_mask)
+ 		/* can't move between two non-dummy roots either */
+ 		if (ss->root != &cgrp_dfl_root && dst_root != &cgrp_dfl_root)
+ 			return -EBUSY;
++
++		/*
++		 * Collect ssid's that need to be disabled from default
++		 * hierarchy.
++		 */
++		if (ss->root == &cgrp_dfl_root)
++			dfl_disable_ss_mask |= 1 << ssid;
++
+ 	} while_each_subsys_mask();
  
--	bpp |= (op->dummy.nbytes * 8) / op->dummy.buswidth;
-+	if (op->dummy.nbytes)
-+		bpp |= (op->dummy.nbytes * 8) / op->dummy.buswidth;
++	if (dfl_disable_ss_mask) {
++		struct cgroup *scgrp = &cgrp_dfl_root.cgrp;
++
++		/*
++		 * Controllers from default hierarchy that need to be rebound
++		 * are all disabled together in one go.
++		 */
++		cgrp_dfl_root.subsys_mask &= ~dfl_disable_ss_mask;
++		WARN_ON(cgroup_apply_control(scgrp));
++		cgroup_finalize_control(scgrp, 0);
++	}
++
+ 	do_each_subsys_mask(ss, ssid, ss_mask) {
+ 		struct cgroup_root *src_root = ss->root;
+ 		struct cgroup *scgrp = &src_root->cgrp;
+@@ -1766,10 +1787,12 @@ int rebind_subsystems(struct cgroup_root *dst_root, u16 ss_mask)
  
- 	switch (width) {
- 	case SPI_NBITS_SINGLE:
-diff --git a/drivers/spi/spi-mtk-nor.c b/drivers/spi/spi-mtk-nor.c
-index 41e7b341d2616..5c93730615f8d 100644
---- a/drivers/spi/spi-mtk-nor.c
-+++ b/drivers/spi/spi-mtk-nor.c
-@@ -160,7 +160,7 @@ static bool mtk_nor_match_read(const struct spi_mem_op *op)
- {
- 	int dummy = 0;
+ 		WARN_ON(!css || cgroup_css(dcgrp, ss));
  
--	if (op->dummy.buswidth)
-+	if (op->dummy.nbytes)
- 		dummy = op->dummy.nbytes * BITS_PER_BYTE / op->dummy.buswidth;
+-		/* disable from the source */
+-		src_root->subsys_mask &= ~(1 << ssid);
+-		WARN_ON(cgroup_apply_control(scgrp));
+-		cgroup_finalize_control(scgrp, 0);
++		if (src_root != &cgrp_dfl_root) {
++			/* disable from the source */
++			src_root->subsys_mask &= ~(1 << ssid);
++			WARN_ON(cgroup_apply_control(scgrp));
++			cgroup_finalize_control(scgrp, 0);
++		}
  
- 	if ((op->data.buswidth == 2) || (op->data.buswidth == 4)) {
-diff --git a/drivers/spi/spi-stm32-qspi.c b/drivers/spi/spi-stm32-qspi.c
-index 27f35aa2d746d..514337c86d2c3 100644
---- a/drivers/spi/spi-stm32-qspi.c
-+++ b/drivers/spi/spi-stm32-qspi.c
-@@ -397,7 +397,7 @@ static int stm32_qspi_send(struct spi_mem *mem, const struct spi_mem_op *op)
- 		ccr |= FIELD_PREP(CCR_ADSIZE_MASK, op->addr.nbytes - 1);
- 	}
- 
--	if (op->dummy.buswidth && op->dummy.nbytes)
-+	if (op->dummy.nbytes)
- 		ccr |= FIELD_PREP(CCR_DCYC_MASK,
- 				  op->dummy.nbytes * 8 / op->dummy.buswidth);
- 
+ 		/* rebind */
+ 		RCU_INIT_POINTER(scgrp->subsys[ssid], NULL);
 -- 
 2.33.0
 
