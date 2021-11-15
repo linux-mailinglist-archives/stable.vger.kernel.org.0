@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C5EA4513AA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B79F4513AD
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348598AbhKOTyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:54:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1348606AbhKOTyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:54:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343796AbhKOTWD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:22:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67E46635E5;
-        Mon, 15 Nov 2021 18:46:25 +0000 (UTC)
+        id S233464AbhKOTWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:22:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24925635EF;
+        Mon, 15 Nov 2021 18:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001985;
-        bh=0oNsBUU3kljeFYbE87L3PM2wv2F72C/ERb29oBTfUTI=;
+        s=korg; t=1637002009;
+        bh=VtYf4l5+U5cuDlxkGU8QcXdHIFxr3Cd/T9k8AacZ7so=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Es+FfB9TT9mWgE2sL04UQTwXW5bYVkP0Pe5VlQl1MDUCNl6BV4ghjyfMumhkxbHqN
-         oOXuk0qH2WMolQtNYnZGLO+30Vc4Tv4eVkRTc2EnCKg3yR6CRHfuEW0WPC5Vb44pyc
-         Olg2jSUpOGonkvskYwQcEBZzzSnAWOKZxyV8vXG0=
+        b=IRVl6BiM46sKCbYEgpACgg+dEs5ry9lvl3J4YzMQpT2iE/dr/GAZ1sK/OMoW6DZF8
+         aGhELgttvrFdMzmXGm1lh2mBaOKvy8ZTwsgpxU0AIMfncUWnaw9i8FbyaYFN4CdPfX
+         l2bfNGjh98ZZkicN+FqzAqZFtaxxErug5cKnybd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Punit Agrawal <punitagrawal@gmail.com>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Borislav Petkov <bp@suse.de>,
         Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 396/917] kprobes: Do not use local variable when creating debugfs file
-Date:   Mon, 15 Nov 2021 17:58:11 +0100
-Message-Id: <20211115165442.204682891@linuxfoundation.org>
+Subject: [PATCH 5.15 404/917] x86/insn: Use get_unaligned() instead of memcpy()
+Date:   Mon, 15 Nov 2021 17:58:19 +0100
+Message-Id: <20211115165442.487074059@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,58 +43,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Punit Agrawal <punitagrawal@gmail.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 8f7262cd66699a4b02eb7549b35c81b2116aad95 ]
+[ Upstream commit f96b4675839b66168f5a07bf964dde6c2f1c4885 ]
 
-debugfs_create_file() takes a pointer argument that can be used during
-file operation callbacks (accessible via i_private in the inode
-structure). An obvious requirement is for the pointer to refer to
-valid memory when used.
+Use get_unaligned() instead of memcpy() to access potentially unaligned
+memory, which, when accessed through a pointer, leads to undefined
+behavior. get_unaligned() describes much better what is happening there
+anyway even if memcpy() does the job.
 
-When creating the debugfs file to dynamically enable / disable
-kprobes, a pointer to local variable is passed to
-debugfs_create_file(); which will go out of scope when the init
-function returns. The reason this hasn't triggered random memory
-corruption is because the pointer is not accessed during the debugfs
-file callbacks.
+In addition, since perf tool builds with -Werror, it would fire with:
 
-Since the enabled state is managed by the kprobes_all_disabled global
-variable, the local variable is not needed. Fix the incorrect (and
-unnecessary) usage of local variable during debugfs_file_create() by
-passing NULL instead.
+  util/intel-pt-decoder/../../../arch/x86/lib/insn.c: In function '__insn_get_emulate_prefix':
+  tools/include/../include/asm-generic/unaligned.h:10:15: error: packed attribute is unnecessary [-Werror=packed]
+     10 |  const struct { type x; } __packed *__pptr = (typeof(__pptr))(ptr); \
 
-Link: https://lkml.kernel.org/r/163163031686.489837.4476867635937014973.stgit@devnote2
+because -Werror=packed would complain if the packed attribute would have
+no effect on the layout of the structure.
 
-Fixes: bf8f6e5b3e51 ("Kprobes: The ON/OFF knob thru debugfs")
-Signed-off-by: Punit Agrawal <punitagrawal@gmail.com>
+In this case, that is intentional so disable the warning only for that
+compilation unit.
+
+That part is Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+
+No functional changes.
+
+Fixes: 5ba1071f7554 ("x86/insn, tools/x86: Fix undefined behavior due to potential unaligned accesses")
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Tested-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Link: https://lkml.kernel.org/r/YVSsIkj9Z29TyUjE@zn.tnic
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kprobes.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/lib/insn.c                    |  5 +++--
+ tools/arch/x86/lib/insn.c              |  5 +++--
+ tools/include/asm-generic/unaligned.h  | 23 +++++++++++++++++++++++
+ tools/perf/util/intel-pt-decoder/Build |  2 ++
+ 4 files changed, 31 insertions(+), 4 deletions(-)
+ create mode 100644 tools/include/asm-generic/unaligned.h
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 790a573bbe00c..1cf8bca1ea861 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2809,13 +2809,12 @@ static const struct file_operations fops_kp = {
- static int __init debugfs_kprobe_init(void)
- {
- 	struct dentry *dir;
--	unsigned int value = 1;
+diff --git a/arch/x86/lib/insn.c b/arch/x86/lib/insn.c
+index c565def611e24..55e371cc69fd5 100644
+--- a/arch/x86/lib/insn.c
++++ b/arch/x86/lib/insn.c
+@@ -13,6 +13,7 @@
+ #endif
+ #include <asm/inat.h> /*__ignore_sync_check__ */
+ #include <asm/insn.h> /* __ignore_sync_check__ */
++#include <asm/unaligned.h> /* __ignore_sync_check__ */
  
- 	dir = debugfs_create_dir("kprobes", NULL);
+ #include <linux/errno.h>
+ #include <linux/kconfig.h>
+@@ -37,10 +38,10 @@
+ 	((insn)->next_byte + sizeof(t) + n <= (insn)->end_kaddr)
  
- 	debugfs_create_file("list", 0400, dir, NULL, &kprobes_fops);
+ #define __get_next(t, insn)	\
+-	({ t r; memcpy(&r, insn->next_byte, sizeof(t)); insn->next_byte += sizeof(t); leXX_to_cpu(t, r); })
++	({ t r = get_unaligned((t *)(insn)->next_byte); (insn)->next_byte += sizeof(t); leXX_to_cpu(t, r); })
  
--	debugfs_create_file("enabled", 0600, dir, &value, &fops_kp);
-+	debugfs_create_file("enabled", 0600, dir, NULL, &fops_kp);
+ #define __peek_nbyte_next(t, insn, n)	\
+-	({ t r; memcpy(&r, (insn)->next_byte + n, sizeof(t)); leXX_to_cpu(t, r); })
++	({ t r = get_unaligned((t *)(insn)->next_byte + n); leXX_to_cpu(t, r); })
  
- 	debugfs_create_file("blacklist", 0400, dir, NULL,
- 			    &kprobe_blacklist_fops);
+ #define get_next(t, insn)	\
+ 	({ if (unlikely(!validate_next(t, insn, 0))) goto err_out; __get_next(t, insn); })
+diff --git a/tools/arch/x86/lib/insn.c b/tools/arch/x86/lib/insn.c
+index 797699462cd8e..8fd63a067308a 100644
+--- a/tools/arch/x86/lib/insn.c
++++ b/tools/arch/x86/lib/insn.c
+@@ -13,6 +13,7 @@
+ #endif
+ #include "../include/asm/inat.h" /* __ignore_sync_check__ */
+ #include "../include/asm/insn.h" /* __ignore_sync_check__ */
++#include "../include/asm-generic/unaligned.h" /* __ignore_sync_check__ */
+ 
+ #include <linux/errno.h>
+ #include <linux/kconfig.h>
+@@ -37,10 +38,10 @@
+ 	((insn)->next_byte + sizeof(t) + n <= (insn)->end_kaddr)
+ 
+ #define __get_next(t, insn)	\
+-	({ t r; memcpy(&r, insn->next_byte, sizeof(t)); insn->next_byte += sizeof(t); leXX_to_cpu(t, r); })
++	({ t r = get_unaligned((t *)(insn)->next_byte); (insn)->next_byte += sizeof(t); leXX_to_cpu(t, r); })
+ 
+ #define __peek_nbyte_next(t, insn, n)	\
+-	({ t r; memcpy(&r, (insn)->next_byte + n, sizeof(t)); leXX_to_cpu(t, r); })
++	({ t r = get_unaligned((t *)(insn)->next_byte + n); leXX_to_cpu(t, r); })
+ 
+ #define get_next(t, insn)	\
+ 	({ if (unlikely(!validate_next(t, insn, 0))) goto err_out; __get_next(t, insn); })
+diff --git a/tools/include/asm-generic/unaligned.h b/tools/include/asm-generic/unaligned.h
+new file mode 100644
+index 0000000000000..47387c607035e
+--- /dev/null
++++ b/tools/include/asm-generic/unaligned.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * Copied from the kernel sources to tools/perf/:
++ */
++
++#ifndef __TOOLS_LINUX_ASM_GENERIC_UNALIGNED_H
++#define __TOOLS_LINUX_ASM_GENERIC_UNALIGNED_H
++
++#define __get_unaligned_t(type, ptr) ({						\
++	const struct { type x; } __packed *__pptr = (typeof(__pptr))(ptr);	\
++	__pptr->x;								\
++})
++
++#define __put_unaligned_t(type, val, ptr) do {					\
++	struct { type x; } __packed *__pptr = (typeof(__pptr))(ptr);		\
++	__pptr->x = (val);							\
++} while (0)
++
++#define get_unaligned(ptr)	__get_unaligned_t(typeof(*(ptr)), (ptr))
++#define put_unaligned(val, ptr) __put_unaligned_t(typeof(*(ptr)), (val), (ptr))
++
++#endif /* __TOOLS_LINUX_ASM_GENERIC_UNALIGNED_H */
++
+diff --git a/tools/perf/util/intel-pt-decoder/Build b/tools/perf/util/intel-pt-decoder/Build
+index bc629359826fb..b41c2e9c6f887 100644
+--- a/tools/perf/util/intel-pt-decoder/Build
++++ b/tools/perf/util/intel-pt-decoder/Build
+@@ -18,3 +18,5 @@ CFLAGS_intel-pt-insn-decoder.o += -I$(OUTPUT)util/intel-pt-decoder
+ ifeq ($(CC_NO_CLANG), 1)
+   CFLAGS_intel-pt-insn-decoder.o += -Wno-override-init
+ endif
++
++CFLAGS_intel-pt-insn-decoder.o += -Wno-packed
 -- 
 2.33.0
 
