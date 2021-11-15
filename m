@@ -2,48 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB1D3451292
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F33451293
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346919AbhKOThU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:37:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44634 "EHLO mail.kernel.org"
+        id S1346929AbhKOThi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:37:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244890AbhKOTSL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CE786332C;
-        Mon, 15 Nov 2021 18:24:56 +0000 (UTC)
+        id S244889AbhKOTSK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AF6960EB4;
+        Mon, 15 Nov 2021 18:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000697;
-        bh=GWtHFQckl+yFlyGQ1kdPONnP5sWG9iA+kUgmhWRoimc=;
+        s=korg; t=1637000699;
+        bh=Hw4ioX8VStx2ymBPiv3NQlNyTTnqyXkxgYUBC6NSLPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V29K0XlvuaU2agk4ECI3IDbTR4ImyahnXpE46sUfEags2d4kea2x67hFb+HKTQHmF
-         YmaZqmKCsH6tcAvf6BQu986wednUbZ5hEF3k2h1r7TBCskh2JxXykW6QPeSs4DAWm3
-         VAHcGLKpLiLdZ+dxYWtyVavQGOo+RwW60Ka2Wlpc=
+        b=oGonXRBOO/xn0APYy4G9U7/43DSUSwaBWb3X3zpKZaAMgcSIw+5DMwzSJv4gB3YBT
+         +AAo5noCMkuNY1Ht7UBKVnPkIoxiW3Uf2CuiU+Ih/V4JEkmiollwup7JD5Z6KNrkNM
+         td9BXbquVkiVXkeBUQOnnuRtYpjOdY4Yx+cFi4Oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@redhat.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 758/849] perf bpf: Add missing free to bpf_event__print_bpf_prog_info()
-Date:   Mon, 15 Nov 2021 18:04:01 +0100
-Message-Id: <20211115165445.893796427@linuxfoundation.org>
+Subject: [PATCH 5.14 759/849] llc: fix out-of-bound array index in llc_sk_dev_hash()
+Date:   Mon, 15 Nov 2021 18:04:02 +0100
+Message-Id: <20211115165445.927101517@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -55,58 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 88c42f4d6cb249eb68524282f8d4cc32f9059984 ]
+[ Upstream commit 8ac9dfd58b138f7e82098a4e0a0d46858b12215b ]
 
-If btf__new() is called then there needs to be a corresponding btf__free().
+Both ifindex and LLC_SK_DEV_HASH_ENTRIES are signed.
 
-Fixes: f8dfeae009effc0b ("perf bpf: Show more BPF program info in print_bpf_prog_info()")
-Signed-off-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: bpf@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20211106053733.3580931-2-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+This means that (ifindex % LLC_SK_DEV_HASH_ENTRIES) is negative
+if @ifindex is negative.
+
+We could simply make LLC_SK_DEV_HASH_ENTRIES unsigned.
+
+In this patch I chose to use hash_32() to get more entropy
+from @ifindex, like llc_sk_laddr_hashfn().
+
+UBSAN: array-index-out-of-bounds in ./include/net/llc.h:75:26
+index -43 is out of range for type 'hlist_head [64]'
+CPU: 1 PID: 20999 Comm: syz-executor.3 Not tainted 5.15.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:151
+ __ubsan_handle_out_of_bounds.cold+0x62/0x6c lib/ubsan.c:291
+ llc_sk_dev_hash include/net/llc.h:75 [inline]
+ llc_sap_add_socket+0x49c/0x520 net/llc/llc_conn.c:697
+ llc_ui_bind+0x680/0xd70 net/llc/af_llc.c:404
+ __sys_bind+0x1e9/0x250 net/socket.c:1693
+ __do_sys_bind net/socket.c:1704 [inline]
+ __se_sys_bind net/socket.c:1702 [inline]
+ __x64_sys_bind+0x6f/0xb0 net/socket.c:1702
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7fa503407ae9
+
+Fixes: 6d2e3ea28446 ("llc: use a device based hash table to speed up multicast delivery")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/bpf-event.c | 4 +++-
+ include/net/llc.h | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/bpf-event.c b/tools/perf/util/bpf-event.c
-index 17a9844e4fbf8..53d6c6f449c9c 100644
---- a/tools/perf/util/bpf-event.c
-+++ b/tools/perf/util/bpf-event.c
-@@ -564,7 +564,7 @@ void bpf_event__print_bpf_prog_info(struct bpf_prog_info *info,
- 		synthesize_bpf_prog_name(name, KSYM_NAME_LEN, info, btf, 0);
- 		fprintf(fp, "# bpf_prog_info %u: %s addr 0x%llx size %u\n",
- 			info->id, name, prog_addrs[0], prog_lens[0]);
--		return;
-+		goto out;
- 	}
- 
- 	fprintf(fp, "# bpf_prog_info %u:\n", info->id);
-@@ -574,4 +574,6 @@ void bpf_event__print_bpf_prog_info(struct bpf_prog_info *info,
- 		fprintf(fp, "# \tsub_prog %u: %s addr 0x%llx size %u\n",
- 			i, name, prog_addrs[i], prog_lens[i]);
- 	}
-+out:
-+	btf__free(btf);
+diff --git a/include/net/llc.h b/include/net/llc.h
+index df282d9b40170..9c10b121b49b0 100644
+--- a/include/net/llc.h
++++ b/include/net/llc.h
+@@ -72,7 +72,9 @@ struct llc_sap {
+ static inline
+ struct hlist_head *llc_sk_dev_hash(struct llc_sap *sap, int ifindex)
+ {
+-	return &sap->sk_dev_hash[ifindex % LLC_SK_DEV_HASH_ENTRIES];
++	u32 bucket = hash_32(ifindex, LLC_SK_DEV_HASH_BITS);
++
++	return &sap->sk_dev_hash[bucket];
  }
+ 
+ static inline
 -- 
 2.33.0
 
