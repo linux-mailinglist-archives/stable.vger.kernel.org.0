@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08278450EAB
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A11BB450C3E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:33:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239782AbhKOSRy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:17:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53200 "EHLO mail.kernel.org"
+        id S237879AbhKORf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:35:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240715AbhKOSNB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:13:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EF6463320;
-        Mon, 15 Nov 2021 17:48:09 +0000 (UTC)
+        id S237784AbhKOReR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:34:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68960632B6;
+        Mon, 15 Nov 2021 17:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998490;
-        bh=TJ7mWoHFJkTL/qs9QSCVJTdC6xcRMVOrHXHwCWwr3Ms=;
+        s=korg; t=1636996955;
+        bh=ieLN3nUBKVEQFiSnaay2xUyGJ+TwBCHGttvHlfouNjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SuzS9qhGjBKM3XURYC7uYt7wcZXaepIcWvPeibEYKZD6eE1cEyuJ3yu/oRNbjl+Yy
-         lt+H7h9MIC/FkBpjtaZ7inTaNXB0fAyTcs6femqNzMvQd99yi8RHFJIzZb+V6mXJEm
-         2nBhL3LJf5RK3mIDnqR8Z8ewmIWh6fPIfFbwB29c=
+        b=tgdAHC7yKtrFYJru3IxvJRdtDPLj3X0bxbzA4JmryTH9JrJVTbQYh2B/T+QfFF+mt
+         BcWSxTS9fGRvsDCuNY1J76+XM4HcDwq35s3Z0ylIz+gGMDQU5e3Y+4iAxzAMMz5gPv
+         rjuHQBtlyh7FIOspXJPiM20a5EMlRvSKukUr0Hh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jussi Maki <joamaki@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        stable@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 528/575] bpf: sockmap, strparser, and tls are reusing qdisc_skb_cb and colliding
-Date:   Mon, 15 Nov 2021 18:04:13 +0100
-Message-Id: <20211115165401.934840585@linuxfoundation.org>
+Subject: [PATCH 5.4 330/355] net/smc: fix sk_refcnt underflow on linkdown and fallback
+Date:   Mon, 15 Nov 2021 18:04:14 +0100
+Message-Id: <20211115165324.411943977@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,141 +42,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Dust Li <dust.li@linux.alibaba.com>
 
-[ Upstream commit e0dc3b93bd7bcff8c3813d1df43e0908499c7cf0 ]
+[ Upstream commit e5d5aadcf3cd59949316df49c27cb21788d7efe4 ]
 
-Strparser is reusing the qdisc_skb_cb struct to stash the skb message handling
-progress, e.g. offset and length of the skb. First this is poorly named and
-inherits a struct from qdisc that doesn't reflect the actual usage of cb[] at
-this layer.
+We got the following WARNING when running ab/nginx
+test with RDMA link flapping (up-down-up).
+The reason is when smc_sock fallback and at linkdown
+happens simultaneously, we may got the following situation:
 
-But, more importantly strparser is using the following to access its metadata.
+__smc_lgr_terminate()
+ --> smc_conn_kill()
+    --> smc_close_active_abort()
+           smc_sock->sk_state = SMC_CLOSED
+           sock_put(smc_sock)
 
-  (struct _strp_msg *)((void *)skb->cb + offsetof(struct qdisc_skb_cb, data))
+smc_sock was set to SMC_CLOSED and sock_put() been called
+when terminate the link group. But later application call
+close() on the socket, then we got:
 
-Where _strp_msg is defined as:
+__smc_release():
+    if (smc_sock->fallback)
+        smc_sock->sk_state = SMC_CLOSED
+        sock_put(smc_sock)
 
-  struct _strp_msg {
-        struct strp_msg            strp;                 /*     0     8 */
-        int                        accum_len;            /*     8     4 */
+Again we set the smc_sock to CLOSED through it's already
+in CLOSED state, and double put the refcnt, so the following
+warning happens:
 
-        /* size: 12, cachelines: 1, members: 2 */
-        /* last cacheline: 12 bytes */
-  };
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 5 PID: 860 at lib/refcount.c:28 refcount_warn_saturate+0x8d/0xf0
+Modules linked in:
+CPU: 5 PID: 860 Comm: nginx Not tainted 5.10.46+ #403
+Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 8c24b4c 04/01/2014
+RIP: 0010:refcount_warn_saturate+0x8d/0xf0
+Code: 05 5c 1e b5 01 01 e8 52 25 bc ff 0f 0b c3 80 3d 4f 1e b5 01 00 75 ad 48
 
-So we use 12 bytes of ->data[] in struct. However in BPF code running parser
-and verdict the user has read capabilities into the data[] array as well. Its
-not too problematic, but we should not be exposing internal state to BPF
-program. If its really needed then we can use the probe_read() APIs which allow
-reading kernel memory. And I don't believe cb[] layer poses any API breakage by
-moving this around because programs can't depend on cb[] across layers.
+RSP: 0018:ffffc90000527e50 EFLAGS: 00010286
+RAX: 0000000000000026 RBX: ffff8881300df2c0 RCX: 0000000000000027
+RDX: 0000000000000000 RSI: ffff88813bd58040 RDI: ffff88813bd58048
+RBP: 0000000000000000 R08: 0000000000000003 R09: 0000000000000001
+R10: ffff8881300df2c0 R11: ffffc90000527c78 R12: ffff8881300df340
+R13: ffff8881300df930 R14: ffff88810b3dad80 R15: ffff8881300df4f8
+FS:  00007f739de8fb80(0000) GS:ffff88813bd40000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000a01b008 CR3: 0000000111b64003 CR4: 00000000003706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ smc_release+0x353/0x3f0
+ __sock_release+0x3d/0xb0
+ sock_close+0x11/0x20
+ __fput+0x93/0x230
+ task_work_run+0x65/0xa0
+ exit_to_user_mode_prepare+0xf9/0x100
+ syscall_exit_to_user_mode+0x27/0x190
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-In order to fix another issue with a ctx rewrite we need to stash a temp
-variable somewhere. To make this work cleanly this patch builds a cb struct
-for sk_skb types called sk_skb_cb struct. Then we can use this consistently
-in the strparser, sockmap space. Additionally we can start allowing ->cb[]
-write access after this.
+This patch adds check in __smc_release() to make
+sure we won't do an extra sock_put() and set the
+socket to CLOSED when its already in CLOSED state.
 
-Fixes: 604326b41a6fb ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Jussi Maki <joamaki@gmail.com>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20211103204736.248403-5-john.fastabend@gmail.com
+Fixes: 51f1de79ad8e (net/smc: replace sock_put worker by socket refcounting)
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/strparser.h   | 16 +++++++++++++++-
- net/core/filter.c         | 21 +++++++++++++++++++++
- net/strparser/strparser.c | 10 +---------
- 3 files changed, 37 insertions(+), 10 deletions(-)
+ net/smc/af_smc.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/include/net/strparser.h b/include/net/strparser.h
-index 1d20b98493a10..bec1439bd3be6 100644
---- a/include/net/strparser.h
-+++ b/include/net/strparser.h
-@@ -54,10 +54,24 @@ struct strp_msg {
- 	int offset;
- };
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 2b3c13a0b2e5b..6b0f09c5b195f 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -139,14 +139,18 @@ static int __smc_release(struct smc_sock *smc)
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 		sk->sk_shutdown |= SHUTDOWN_MASK;
+ 	} else {
+-		if (sk->sk_state != SMC_LISTEN && sk->sk_state != SMC_INIT)
+-			sock_put(sk); /* passive closing */
+-		if (sk->sk_state == SMC_LISTEN) {
+-			/* wake up clcsock accept */
+-			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
++		if (sk->sk_state != SMC_CLOSED) {
++			if (sk->sk_state != SMC_LISTEN &&
++			    sk->sk_state != SMC_INIT)
++				sock_put(sk); /* passive closing */
++			if (sk->sk_state == SMC_LISTEN) {
++				/* wake up clcsock accept */
++				rc = kernel_sock_shutdown(smc->clcsock,
++							  SHUT_RDWR);
++			}
++			sk->sk_state = SMC_CLOSED;
++			sk->sk_state_change(sk);
+ 		}
+-		sk->sk_state = SMC_CLOSED;
+-		sk->sk_state_change(sk);
+ 		smc_restore_fallback_changes(smc);
+ 	}
  
-+struct _strp_msg {
-+	/* Internal cb structure. struct strp_msg must be first for passing
-+	 * to upper layer.
-+	 */
-+	struct strp_msg strp;
-+	int accum_len;
-+};
-+
-+struct sk_skb_cb {
-+#define SK_SKB_CB_PRIV_LEN 20
-+	unsigned char data[SK_SKB_CB_PRIV_LEN];
-+	struct _strp_msg strp;
-+};
-+
- static inline struct strp_msg *strp_msg(struct sk_buff *skb)
- {
- 	return (struct strp_msg *)((void *)skb->cb +
--		offsetof(struct qdisc_skb_cb, data));
-+		offsetof(struct sk_skb_cb, strp));
- }
- 
- /* Structure for an attached lower socket */
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 7ea752af7894d..abd58dce49bbc 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -9493,6 +9493,27 @@ static u32 sk_skb_convert_ctx_access(enum bpf_access_type type,
- 		*insn++ = BPF_LDX_MEM(BPF_SIZEOF(void *), si->dst_reg,
- 				      si->src_reg, off);
- 		break;
-+	case offsetof(struct __sk_buff, cb[0]) ...
-+	     offsetofend(struct __sk_buff, cb[4]) - 1:
-+		BUILD_BUG_ON(sizeof_field(struct sk_skb_cb, data) < 20);
-+		BUILD_BUG_ON((offsetof(struct sk_buff, cb) +
-+			      offsetof(struct sk_skb_cb, data)) %
-+			     sizeof(__u64));
-+
-+		prog->cb_access = 1;
-+		off  = si->off;
-+		off -= offsetof(struct __sk_buff, cb[0]);
-+		off += offsetof(struct sk_buff, cb);
-+		off += offsetof(struct sk_skb_cb, data);
-+		if (type == BPF_WRITE)
-+			*insn++ = BPF_STX_MEM(BPF_SIZE(si->code), si->dst_reg,
-+					      si->src_reg, off);
-+		else
-+			*insn++ = BPF_LDX_MEM(BPF_SIZE(si->code), si->dst_reg,
-+					      si->src_reg, off);
-+		break;
-+
-+
- 	default:
- 		return bpf_convert_ctx_access(type, si, insn_buf, prog,
- 					      target_size);
-diff --git a/net/strparser/strparser.c b/net/strparser/strparser.c
-index b3815c1e8f2ea..cd9954c4ad808 100644
---- a/net/strparser/strparser.c
-+++ b/net/strparser/strparser.c
-@@ -27,18 +27,10 @@
- 
- static struct workqueue_struct *strp_wq;
- 
--struct _strp_msg {
--	/* Internal cb structure. struct strp_msg must be first for passing
--	 * to upper layer.
--	 */
--	struct strp_msg strp;
--	int accum_len;
--};
--
- static inline struct _strp_msg *_strp_msg(struct sk_buff *skb)
- {
- 	return (struct _strp_msg *)((void *)skb->cb +
--		offsetof(struct qdisc_skb_cb, data));
-+		offsetof(struct sk_skb_cb, strp));
- }
- 
- /* Lower lock held */
 -- 
 2.33.0
 
