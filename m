@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AAA7450BDA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:28:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD9A1450E6C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237923AbhKORau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:30:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53146 "EHLO mail.kernel.org"
+        id S239718AbhKOSPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:15:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237997AbhKOR2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:28:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 122F66328C;
-        Mon, 15 Nov 2021 17:19:09 +0000 (UTC)
+        id S240315AbhKOSHe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AA456339C;
+        Mon, 15 Nov 2021 17:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996750;
-        bh=MCK+helM+tXIFzv91X9QgVNeSScYxIean0TJr+jCQn4=;
+        s=korg; t=1636998283;
+        bh=jkFTcjtBw+PC9lAlj7hyaiOrMJggtUV8lZ4n6EdMMBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uMhK0WGVrjE2RKgg15NvuDDhvlKW30oURBVT7A+k9UhKiMfyamJHUCBO3FmB+3MKS
-         5AY6XXhqWBITF0XP2fATkbU//C1AhCmhiYR7sW3q+bAQJ8kEce7RnwwmoNqSscjr0M
-         qc2+2kMf/J2hO38llYwCw0GDNeuE0l3G23VL/E6E=
+        b=UbQDOSFCuzTdb/Wdhx+bvxZncLtXz2cXdwNN1l/wzalHORT/C9CRUkxd7Sb1C91UE
+         RrZUbvFGJjbw2+jr4rG9AWdnOSJuAKgL+yQTAnOt+F/6pX9m+GdPA0sb5TjKltAgxd
+         SdkMyCVuJgxMEnp7iGH39biyoEiJK8cX/xncYOvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vaishnavi Bhat <vaish123@in.ibm.com>,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 255/355] ibmvnic: Process crqs after enabling interrupts
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 454/575] phy: ti: gmii-sel: check of_get_address() for failure
 Date:   Mon, 15 Nov 2021 18:02:59 +0100
-Message-Id: <20211115165321.992350844@linuxfoundation.org>
+Message-Id: <20211115165359.452859255@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 6e20d00158f31f7631d68b86996b7e951c4451c8 ]
+[ Upstream commit 8d55027f4e2c04146a75fb63371ab96ccc887f2c ]
 
-Soon after registering a CRQ it is possible that we get a fail over or
-maybe a CRQ_INIT from the VIOS while interrupts were disabled.
+Smatch complains that if of_get_address() returns NULL, then "size"
+isn't initialized.  Also it would lead to an Oops.
 
-Look for any such CRQs after enabling interrupts.
-
-Otherwise we can intermittently fail to bring up ibmvnic adapters during
-boot, specially in kexec/kdump kernels.
-
-Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
-Reported-by: Vaishnavi Bhat <vaish123@in.ibm.com>
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Reviewed-by: Dany Madden <drt@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7f78322cdd67 ("phy: ti: gmii-sel: retrieve ports number and base offset from dt")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Link: https://lore.kernel.org/r/20210914110038.GB11657@kili
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/phy/ti/phy-gmii-sel.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 059eaa13e2c6d..9adfc0a7ab823 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -4934,6 +4934,9 @@ static int init_crq_queue(struct ibmvnic_adapter *adapter)
- 	crq->cur = 0;
- 	spin_lock_init(&crq->lock);
+diff --git a/drivers/phy/ti/phy-gmii-sel.c b/drivers/phy/ti/phy-gmii-sel.c
+index 5fd2e8a08bfcf..d0ab69750c6b4 100644
+--- a/drivers/phy/ti/phy-gmii-sel.c
++++ b/drivers/phy/ti/phy-gmii-sel.c
+@@ -320,6 +320,8 @@ static int phy_gmii_sel_init_ports(struct phy_gmii_sel_priv *priv)
+ 		u64 size;
  
-+	/* process any CRQs that were queued before we enabled interrupts */
-+	tasklet_schedule(&adapter->tasklet);
-+
- 	return retrc;
- 
- req_irq_failed:
+ 		offset = of_get_address(dev->of_node, 0, &size, NULL);
++		if (!offset)
++			return -EINVAL;
+ 		priv->num_ports = size / sizeof(u32);
+ 		if (!priv->num_ports)
+ 			return -EINVAL;
 -- 
 2.33.0
 
