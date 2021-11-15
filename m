@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F35BF451FB5
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4FFA451FE6
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:43:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349637AbhKPApE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
+        id S1352990AbhKPApp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343758AbhKOTV5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82F2B63386;
-        Mon, 15 Nov 2021 18:45:46 +0000 (UTC)
+        id S1343786AbhKOTWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:22:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3787B635DE;
+        Mon, 15 Nov 2021 18:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001947;
-        bh=OJJ5GzrfKJmexoT8xEDq12/BHY7rNLMU/1N9X08Zcis=;
+        s=korg; t=1637001949;
+        bh=JbIkvEQQAaeuyQ1y3zqzOlKEAH91icsHi42giDD27w4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cB46JzQIwy0Xa4RCZxl36c35un3MKfjeHNK5fqdMCTuFWYm6uFMBZwyIFTS7+5Owj
-         q91k9NYR7Ty9qiZdt+hLRg+305GJQecenyCZzkjGn2bks+J0XT0iKOZE/Dl8uW+Cx6
-         Uvnx8kdLytmCwxP8MvkwJ++stEQqBpLWgxhr4rOw=
+        b=Cd/ZkxN/2vXH/m3PGxodahsuHswRtd1VcelElH/qf/WxwjmOx8JH3zwUQ7rNDXG+8
+         2d6ZrBTWKDzug/2W1k1IUVG6hAl0xY7yOu4R3cFjcKmZBuM5Au/DJl7vLjFffMGkEw
+         vG8qLOtdgwGHUgPKftVW2dFtvTd2bRdrhQ/l/114=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 348/917] Bluetooth: btmtkuart: fix a memleak in mtk_hci_wmt_sync
-Date:   Mon, 15 Nov 2021 17:57:23 +0100
-Message-Id: <20211115165440.551180457@linuxfoundation.org>
+Subject: [PATCH 5.15 349/917] drm/amdgpu: Fix crash on device remove/driver unload
+Date:   Mon, 15 Nov 2021 17:57:24 +0100
+Message-Id: <20211115165440.582413556@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,66 +41,380 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
 
-[ Upstream commit 3e5f2d90c28f9454e421108554707620bc23269d ]
+[ Upstream commit d82e2c249c8ffaec20fa618611ea2ab4dcfd4d01 ]
 
-bdev->evt_skb will get freed in the normal path and one error path
-of mtk_hci_wmt_sync, while the other error paths do not free it,
-which may cause a memleak. This bug is suggested by a static analysis
-tool, please advise.
+Crash:
+BUG: unable to handle page fault for address: 00000000000010e1
+RIP: 0010:vega10_power_gate_vce+0x26/0x50 [amdgpu]
+Call Trace:
+pp_set_powergating_by_smu+0x16a/0x2b0 [amdgpu]
+amdgpu_dpm_set_powergating_by_smu+0x92/0xf0 [amdgpu]
+amdgpu_dpm_enable_vce+0x2e/0xc0 [amdgpu]
+vce_v4_0_hw_fini+0x95/0xa0 [amdgpu]
+amdgpu_device_fini_hw+0x232/0x30d [amdgpu]
+amdgpu_driver_unload_kms+0x5c/0x80 [amdgpu]
+amdgpu_pci_remove+0x27/0x40 [amdgpu]
+pci_device_remove+0x3e/0xb0
+device_release_driver_internal+0x103/0x1d0
+device_release_driver+0x12/0x20
+pci_stop_bus_device+0x79/0xa0
+pci_stop_and_remove_bus_device_locked+0x1b/0x30
+remove_store+0x7b/0x90
+dev_attr_store+0x17/0x30
+sysfs_kf_write+0x4b/0x60
+kernfs_fop_write_iter+0x151/0x1e0
 
-Fixes: e0b67035a90b ("Bluetooth: mediatek: update the common setup between MT7622 and other devices")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Why:
+VCE/UVD had dependency on SMC block for their suspend but
+SMC block is the first to do HW fini due to some constraints
+
+How:
+Since the original patch was dealing with suspend issues
+move the SMC block dependency back into suspend hooks as
+was done in V1 of the original patches.
+Keep flushing idle work both in suspend and HW fini seuqnces
+since it's essential in both cases.
+
+Fixes: 859e4659273f1d ("drm/amdgpu: add missing cleanups for more ASICs on UVD/VCE suspend")
+Fixes: bf756fb833cbe8 ("drm/amdgpu: add missing cleanups for Polaris12 UVD/VCE on suspend")
+Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btmtkuart.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/uvd_v3_1.c | 24 ++++++++-------
+ drivers/gpu/drm/amd/amdgpu/uvd_v4_2.c | 24 ++++++++-------
+ drivers/gpu/drm/amd/amdgpu/uvd_v5_0.c | 24 ++++++++-------
+ drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c | 32 ++++++++++---------
+ drivers/gpu/drm/amd/amdgpu/vce_v2_0.c | 19 +++++++-----
+ drivers/gpu/drm/amd/amdgpu/vce_v3_0.c | 28 +++++++++--------
+ drivers/gpu/drm/amd/amdgpu/vce_v4_0.c | 44 ++++++++++++++-------------
+ 7 files changed, 105 insertions(+), 90 deletions(-)
 
-diff --git a/drivers/bluetooth/btmtkuart.c b/drivers/bluetooth/btmtkuart.c
-index e9d91d7c0db48..9ba22b13b4fa0 100644
---- a/drivers/bluetooth/btmtkuart.c
-+++ b/drivers/bluetooth/btmtkuart.c
-@@ -158,8 +158,10 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	int err;
+diff --git a/drivers/gpu/drm/amd/amdgpu/uvd_v3_1.c b/drivers/gpu/drm/amd/amdgpu/uvd_v3_1.c
+index 7232241e3bfb2..0fef925b66024 100644
+--- a/drivers/gpu/drm/amd/amdgpu/uvd_v3_1.c
++++ b/drivers/gpu/drm/amd/amdgpu/uvd_v3_1.c
+@@ -698,6 +698,19 @@ static int uvd_v3_1_hw_fini(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
  
- 	hlen = sizeof(*hdr) + wmt_params->dlen;
--	if (hlen > 255)
--		return -EINVAL;
-+	if (hlen > 255) {
-+		err = -EINVAL;
-+		goto err_free_skb;
++	cancel_delayed_work_sync(&adev->uvd.idle_work);
++
++	if (RREG32(mmUVD_STATUS) != 0)
++		uvd_v3_1_stop(adev);
++
++	return 0;
++}
++
++static int uvd_v3_1_suspend(void *handle)
++{
++	int r;
++	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
++
+ 	/*
+ 	 * Proper cleanups before halting the HW engine:
+ 	 *   - cancel the delayed idle work
+@@ -722,17 +735,6 @@ static int uvd_v3_1_hw_fini(void *handle)
+ 						       AMD_CG_STATE_GATE);
+ 	}
+ 
+-	if (RREG32(mmUVD_STATUS) != 0)
+-		uvd_v3_1_stop(adev);
+-
+-	return 0;
+-}
+-
+-static int uvd_v3_1_suspend(void *handle)
+-{
+-	int r;
+-	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-
+ 	r = uvd_v3_1_hw_fini(adev);
+ 	if (r)
+ 		return r;
+diff --git a/drivers/gpu/drm/amd/amdgpu/uvd_v4_2.c b/drivers/gpu/drm/amd/amdgpu/uvd_v4_2.c
+index 52d6de969f462..c108b83817951 100644
+--- a/drivers/gpu/drm/amd/amdgpu/uvd_v4_2.c
++++ b/drivers/gpu/drm/amd/amdgpu/uvd_v4_2.c
+@@ -212,6 +212,19 @@ static int uvd_v4_2_hw_fini(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 
++	cancel_delayed_work_sync(&adev->uvd.idle_work);
++
++	if (RREG32(mmUVD_STATUS) != 0)
++		uvd_v4_2_stop(adev);
++
++	return 0;
++}
++
++static int uvd_v4_2_suspend(void *handle)
++{
++	int r;
++	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
++
+ 	/*
+ 	 * Proper cleanups before halting the HW engine:
+ 	 *   - cancel the delayed idle work
+@@ -236,17 +249,6 @@ static int uvd_v4_2_hw_fini(void *handle)
+ 						       AMD_CG_STATE_GATE);
+ 	}
+ 
+-	if (RREG32(mmUVD_STATUS) != 0)
+-		uvd_v4_2_stop(adev);
+-
+-	return 0;
+-}
+-
+-static int uvd_v4_2_suspend(void *handle)
+-{
+-	int r;
+-	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-
+ 	r = uvd_v4_2_hw_fini(adev);
+ 	if (r)
+ 		return r;
+diff --git a/drivers/gpu/drm/amd/amdgpu/uvd_v5_0.c b/drivers/gpu/drm/amd/amdgpu/uvd_v5_0.c
+index db6d06758e4d4..563493d1f8306 100644
+--- a/drivers/gpu/drm/amd/amdgpu/uvd_v5_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/uvd_v5_0.c
+@@ -210,6 +210,19 @@ static int uvd_v5_0_hw_fini(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 
++	cancel_delayed_work_sync(&adev->uvd.idle_work);
++
++	if (RREG32(mmUVD_STATUS) != 0)
++		uvd_v5_0_stop(adev);
++
++	return 0;
++}
++
++static int uvd_v5_0_suspend(void *handle)
++{
++	int r;
++	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
++
+ 	/*
+ 	 * Proper cleanups before halting the HW engine:
+ 	 *   - cancel the delayed idle work
+@@ -234,17 +247,6 @@ static int uvd_v5_0_hw_fini(void *handle)
+ 						       AMD_CG_STATE_GATE);
+ 	}
+ 
+-	if (RREG32(mmUVD_STATUS) != 0)
+-		uvd_v5_0_stop(adev);
+-
+-	return 0;
+-}
+-
+-static int uvd_v5_0_suspend(void *handle)
+-{
+-	int r;
+-	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-
+ 	r = uvd_v5_0_hw_fini(adev);
+ 	if (r)
+ 		return r;
+diff --git a/drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c b/drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c
+index b6e82d75561f6..1fd9ca21a091b 100644
+--- a/drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c
+@@ -606,6 +606,23 @@ static int uvd_v7_0_hw_fini(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 
++	cancel_delayed_work_sync(&adev->uvd.idle_work);
++
++	if (!amdgpu_sriov_vf(adev))
++		uvd_v7_0_stop(adev);
++	else {
++		/* full access mode, so don't touch any UVD register */
++		DRM_DEBUG("For SRIOV client, shouldn't do anything.\n");
 +	}
- 
- 	hdr = (struct mtk_wmt_hdr *)&wc;
- 	hdr->dir = 1;
-@@ -173,7 +175,7 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	err = __hci_cmd_send(hdev, 0xfc6f, hlen, &wc);
- 	if (err < 0) {
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return err;
-+		goto err_free_skb;
++
++	return 0;
++}
++
++static int uvd_v7_0_suspend(void *handle)
++{
++	int r;
++	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
++
+ 	/*
+ 	 * Proper cleanups before halting the HW engine:
+ 	 *   - cancel the delayed idle work
+@@ -630,21 +647,6 @@ static int uvd_v7_0_hw_fini(void *handle)
+ 						       AMD_CG_STATE_GATE);
  	}
  
- 	/* The vendor specific WMT commands are all answered by a vendor
-@@ -190,13 +192,14 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	if (err == -EINTR) {
- 		bt_dev_err(hdev, "Execution of wmt command interrupted");
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return err;
-+		goto err_free_skb;
+-	if (!amdgpu_sriov_vf(adev))
+-		uvd_v7_0_stop(adev);
+-	else {
+-		/* full access mode, so don't touch any UVD register */
+-		DRM_DEBUG("For SRIOV client, shouldn't do anything.\n");
+-	}
+-
+-	return 0;
+-}
+-
+-static int uvd_v7_0_suspend(void *handle)
+-{
+-	int r;
+-	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-
+ 	r = uvd_v7_0_hw_fini(adev);
+ 	if (r)
+ 		return r;
+diff --git a/drivers/gpu/drm/amd/amdgpu/vce_v2_0.c b/drivers/gpu/drm/amd/amdgpu/vce_v2_0.c
+index b70c17f0c52e8..98952fd387e73 100644
+--- a/drivers/gpu/drm/amd/amdgpu/vce_v2_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/vce_v2_0.c
+@@ -479,6 +479,17 @@ static int vce_v2_0_hw_fini(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 
++	cancel_delayed_work_sync(&adev->vce.idle_work);
++
++	return 0;
++}
++
++static int vce_v2_0_suspend(void *handle)
++{
++	int r;
++	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
++
++
+ 	/*
+ 	 * Proper cleanups before halting the HW engine:
+ 	 *   - cancel the delayed idle work
+@@ -502,14 +513,6 @@ static int vce_v2_0_hw_fini(void *handle)
+ 						       AMD_CG_STATE_GATE);
  	}
  
- 	if (err) {
- 		bt_dev_err(hdev, "Execution of wmt command timed out");
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return -ETIMEDOUT;
-+		err = -ETIMEDOUT;
-+		goto err_free_skb;
+-	return 0;
+-}
+-
+-static int vce_v2_0_suspend(void *handle)
+-{
+-	int r;
+-	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-
+ 	r = vce_v2_0_hw_fini(adev);
+ 	if (r)
+ 		return r;
+diff --git a/drivers/gpu/drm/amd/amdgpu/vce_v3_0.c b/drivers/gpu/drm/amd/amdgpu/vce_v3_0.c
+index 9de66893ccd6d..8fb5df7181e09 100644
+--- a/drivers/gpu/drm/amd/amdgpu/vce_v3_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/vce_v3_0.c
+@@ -490,6 +490,21 @@ static int vce_v3_0_hw_fini(void *handle)
+ 	int r;
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 
++	cancel_delayed_work_sync(&adev->vce.idle_work);
++
++	r = vce_v3_0_wait_for_idle(handle);
++	if (r)
++		return r;
++
++	vce_v3_0_stop(adev);
++	return vce_v3_0_set_clockgating_state(adev, AMD_CG_STATE_GATE);
++}
++
++static int vce_v3_0_suspend(void *handle)
++{
++	int r;
++	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
++
+ 	/*
+ 	 * Proper cleanups before halting the HW engine:
+ 	 *   - cancel the delayed idle work
+@@ -513,19 +528,6 @@ static int vce_v3_0_hw_fini(void *handle)
+ 						       AMD_CG_STATE_GATE);
  	}
  
- 	/* Parse and handle the return WMT event */
+-	r = vce_v3_0_wait_for_idle(handle);
+-	if (r)
+-		return r;
+-
+-	vce_v3_0_stop(adev);
+-	return vce_v3_0_set_clockgating_state(adev, AMD_CG_STATE_GATE);
+-}
+-
+-static int vce_v3_0_suspend(void *handle)
+-{
+-	int r;
+-	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-
+ 	r = vce_v3_0_hw_fini(adev);
+ 	if (r)
+ 		return r;
+diff --git a/drivers/gpu/drm/amd/amdgpu/vce_v4_0.c b/drivers/gpu/drm/amd/amdgpu/vce_v4_0.c
+index fec902b800c28..70b8c88d30513 100644
+--- a/drivers/gpu/drm/amd/amdgpu/vce_v4_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/vce_v4_0.c
+@@ -542,29 +542,8 @@ static int vce_v4_0_hw_fini(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 
+-	/*
+-	 * Proper cleanups before halting the HW engine:
+-	 *   - cancel the delayed idle work
+-	 *   - enable powergating
+-	 *   - enable clockgating
+-	 *   - disable dpm
+-	 *
+-	 * TODO: to align with the VCN implementation, move the
+-	 * jobs for clockgating/powergating/dpm setting to
+-	 * ->set_powergating_state().
+-	 */
+ 	cancel_delayed_work_sync(&adev->vce.idle_work);
+ 
+-	if (adev->pm.dpm_enabled) {
+-		amdgpu_dpm_enable_vce(adev, false);
+-	} else {
+-		amdgpu_asic_set_vce_clocks(adev, 0, 0);
+-		amdgpu_device_ip_set_powergating_state(adev, AMD_IP_BLOCK_TYPE_VCE,
+-						       AMD_PG_STATE_GATE);
+-		amdgpu_device_ip_set_clockgating_state(adev, AMD_IP_BLOCK_TYPE_VCE,
+-						       AMD_CG_STATE_GATE);
+-	}
+-
+ 	if (!amdgpu_sriov_vf(adev)) {
+ 		/* vce_v4_0_wait_for_idle(handle); */
+ 		vce_v4_0_stop(adev);
+@@ -594,6 +573,29 @@ static int vce_v4_0_suspend(void *handle)
+ 		drm_dev_exit(idx);
+ 	}
+ 
++	/*
++	 * Proper cleanups before halting the HW engine:
++	 *   - cancel the delayed idle work
++	 *   - enable powergating
++	 *   - enable clockgating
++	 *   - disable dpm
++	 *
++	 * TODO: to align with the VCN implementation, move the
++	 * jobs for clockgating/powergating/dpm setting to
++	 * ->set_powergating_state().
++	 */
++	cancel_delayed_work_sync(&adev->vce.idle_work);
++
++	if (adev->pm.dpm_enabled) {
++		amdgpu_dpm_enable_vce(adev, false);
++	} else {
++		amdgpu_asic_set_vce_clocks(adev, 0, 0);
++		amdgpu_device_ip_set_powergating_state(adev, AMD_IP_BLOCK_TYPE_VCE,
++						       AMD_PG_STATE_GATE);
++		amdgpu_device_ip_set_clockgating_state(adev, AMD_IP_BLOCK_TYPE_VCE,
++						       AMD_CG_STATE_GATE);
++	}
++
+ 	r = vce_v4_0_hw_fini(adev);
+ 	if (r)
+ 		return r;
 -- 
 2.33.0
 
