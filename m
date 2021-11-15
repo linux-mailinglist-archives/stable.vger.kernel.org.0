@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7F19451396
+	by mail.lfdr.de (Postfix) with ESMTP id 1141C451394
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348466AbhKOTxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:53:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1348458AbhKOTxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:53:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343653AbhKOTVd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343656AbhKOTVd (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F33A6332D;
-        Mon, 15 Nov 2021 18:43:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A71B663316;
+        Mon, 15 Nov 2021 18:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001839;
-        bh=jDcNUAY7sQTIAgMdiaSRc9e9qxP7r73jQJtoHfkXLLE=;
+        s=korg; t=1637001842;
+        bh=eF3/QmgcPn7aRdWZs01+PigrocKT3mCZencTM3OuFsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KlO6Mao4LE50eTYVZgjCSxaU3/nhnW3OPcfbTO3g3O9gJcq9M64rLGZIP2/O634r4
-         tO4o+/PAuoKOqdysTsrHsIk9EfqDlwnevpe4gfoJU1NjTy3UfmwiplbMZshzMQ5ndb
-         fkeGujUDETu5BfAcdmmf7hgggzFFeOM/zLmkGYfc=
+        b=YuHvcPhBQ9VpLr/tN2PtwMRDLf55017yrPt1/1AdBSWNJlLuKU2JQ8fnr08L56hv5
+         RWEazwoqEJSnmCD4IkIlwHTRmPhEj+v3bFv9cdP7CMQ4KEQTlm8nprSHiecma78LkV
+         xvf66u6FOOa7d7/0qAoCvW9nu76DHgKW4AewqUYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuntao Liu <liuyuntao10@huawei.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Waiman Long <longman@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 339/917] virtio-gpu: fix possible memory allocation failure
-Date:   Mon, 15 Nov 2021 17:57:14 +0100
-Message-Id: <20211115165440.243439247@linuxfoundation.org>
+Subject: [PATCH 5.15 340/917] lockdep: Let lock_is_held_type() detect recursive read as read
+Date:   Mon, 15 Nov 2021 17:57:15 +0100
+Message-Id: <20211115165440.277101836@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,53 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: liuyuntao <liuyuntao10@huawei.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 5bd4f20de8acad37dbb3154feb34dbc36d506c02 ]
+[ Upstream commit 2507003a1d10917c9158077bf6030719d02c941e ]
 
-When kmem_cache_zalloc in virtio_gpu_get_vbuf fails, it will return
-an error code. But none of its callers checks this error code, and
-a core dump will take place.
+lock_is_held_type(, 1) detects acquired read locks. It only recognized
+locks acquired with lock_acquire_shared(). Read locks acquired with
+lock_acquire_shared_recursive() are not recognized because a `2' is
+stored as the read value.
 
-Considering many of its callers can't handle such error, I add
-a __GFP_NOFAIL flag when calling kmem_cache_zalloc to make sure
-it won't fail, and delete those unused error handlings.
+Rework the check to additionally recognise lock's read value one and two
+as a read held lock.
 
-Fixes: dc5698e80cf724 ("Add virtio gpu driver.")
-Signed-off-by: Yuntao Liu <liuyuntao10@huawei.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210828104321.3410312-1-liuyuntao10@huawei.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Fixes: e918188611f07 ("locking: More accurate annotations for read_lock()")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Boqun Feng <boqun.feng@gmail.com>
+Acked-by: Waiman Long <longman@redhat.com>
+Link: https://lkml.kernel.org/r/20210903084001.lblecrvz4esl4mrr@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ kernel/locking/lockdep.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 2e71e91278b45..93a41d018dca6 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -91,9 +91,7 @@ virtio_gpu_get_vbuf(struct virtio_gpu_device *vgdev,
- {
- 	struct virtio_gpu_vbuffer *vbuf;
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 8a509672a4cc9..d624231eab2bb 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -5366,7 +5366,7 @@ int __lock_is_held(const struct lockdep_map *lock, int read)
+ 		struct held_lock *hlock = curr->held_locks + i;
  
--	vbuf = kmem_cache_zalloc(vgdev->vbufs, GFP_KERNEL);
--	if (!vbuf)
--		return ERR_PTR(-ENOMEM);
-+	vbuf = kmem_cache_zalloc(vgdev->vbufs, GFP_KERNEL | __GFP_NOFAIL);
+ 		if (match_held_lock(hlock, lock)) {
+-			if (read == -1 || hlock->read == read)
++			if (read == -1 || !!hlock->read == read)
+ 				return LOCK_STATE_HELD;
  
- 	BUG_ON(size > MAX_INLINE_CMD_SIZE ||
- 	       size < sizeof(struct virtio_gpu_ctrl_hdr));
-@@ -147,10 +145,6 @@ static void *virtio_gpu_alloc_cmd_resp(struct virtio_gpu_device *vgdev,
- 
- 	vbuf = virtio_gpu_get_vbuf(vgdev, cmd_size,
- 				   resp_size, resp_buf, cb);
--	if (IS_ERR(vbuf)) {
--		*vbuffer_p = NULL;
--		return ERR_CAST(vbuf);
--	}
- 	*vbuffer_p = vbuf;
- 	return (struct virtio_gpu_command *)vbuf->buf;
- }
+ 			return LOCK_STATE_NOT_HELD;
 -- 
 2.33.0
 
