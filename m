@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C502450A97
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:08:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 948EB451129
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:59:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236219AbhKORLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:11:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
+        id S243609AbhKOTBn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:01:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232388AbhKORLb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:11:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FF1D61452;
-        Mon, 15 Nov 2021 17:08:34 +0000 (UTC)
+        id S243376AbhKOS5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:57:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCC5063487;
+        Mon, 15 Nov 2021 18:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996115;
-        bh=3QXAGlUF16oJFwHivLne9jOvQorUO1pYB5gbr543SFs=;
+        s=korg; t=1636999969;
+        bh=bUJhkn8O66m8xRPJtc8JMligjM41Q4ed+tc24hFcbz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Py4MWFP9nijgh7XjnHefMFj9ggt4W6QC+pw46lsMUnISmSmlUAkwmLUBX1eNLzYcK
-         fESB/XFQo9StbmC+roLuKOUi1fOGZvABiTaq7X38jXf5xpQvbCd30d8QXpw+p6Dg08
-         dMxMXZ0rrSaivv5kWO1bEwfZu/P/DkAMu1OOktCU=
+        b=chZNrcobXQ6tSBg4Az+kdMzp/gfejNfiwCqtq/iOEgi1gklSb+r2kmLp3mOFfYoTC
+         7A9lez4u2imRxnhaEDWI3xBsQdKMER3N8oPc3VpLWEaR3qQ4i8i+oVamCglhbqP6hu
+         W5dfUWKsk+2y0dPQv3DeykWFJMaW1R3icmoWm30U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 021/355] ALSA: hda/realtek: Add quirk for Clevo PC70HS
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Leon Yen <Leon.Yen@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 462/849] mt76: connac: fix GTK rekey offload failure on WPA mixed mode
 Date:   Mon, 15 Nov 2021 17:59:05 +0100
-Message-Id: <20211115165314.236400642@linuxfoundation.org>
+Message-Id: <20211115165435.918430369@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Crawford <tcrawford@system76.com>
+From: Leon Yen <Leon.Yen@mediatek.com>
 
-commit dbfe83507cf4ea66ce4efee2ac14c5ad420e31d3 upstream.
+[ Upstream commit 781f62960c635cfed55a8f8c0f909bdaf8268257 ]
 
-Apply the PB51ED PCI quirk to the Clevo PC70HS. Fixes audio output from
-the internal speakers.
+Update the proper firmware programming sequence to fix GTK rekey
+offload failure on WPA mixed mode.
 
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211101162134.5336-1-tcrawford@system76.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In the mt76_connac_mcu_key_iter,
+gtk_tlv->proto should be only set up on pairwise key
+and gtk_tlk->group_cipher should be only set up on the group key.
+
+Otherwise, those parameters required by firmware would be set
+incorrectly to cause GTK rekey offload failure on WPA mixed mode
+and then disconnection follows.
+
+Fixes: b47e21e75c80 ("mt76: mt7615: add gtk rekey offload support")
+Co-developed-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Leon Yen <Leon.Yen@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ .../net/wireless/mediatek/mt76/mt76_connac_mcu.c  | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2541,6 +2541,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x67f1, "Clevo PC70H[PRS]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170SM", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x7715, "Clevo X170KM-G", ALC1220_FIXUP_CLEVO_PB51ED),
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+index 5c3a81e5f559d..f57f047fce99c 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+@@ -1929,19 +1929,22 @@ mt76_connac_mcu_key_iter(struct ieee80211_hw *hw,
+ 	    key->cipher != WLAN_CIPHER_SUITE_TKIP)
+ 		return;
+ 
+-	if (key->cipher == WLAN_CIPHER_SUITE_TKIP) {
+-		gtk_tlv->proto = cpu_to_le32(NL80211_WPA_VERSION_1);
++	if (key->cipher == WLAN_CIPHER_SUITE_TKIP)
+ 		cipher = BIT(3);
+-	} else {
+-		gtk_tlv->proto = cpu_to_le32(NL80211_WPA_VERSION_2);
++	else
+ 		cipher = BIT(4);
+-	}
+ 
+ 	/* we are assuming here to have a single pairwise key */
+ 	if (key->flags & IEEE80211_KEY_FLAG_PAIRWISE) {
++		if (key->cipher == WLAN_CIPHER_SUITE_TKIP)
++			gtk_tlv->proto = cpu_to_le32(NL80211_WPA_VERSION_1);
++		else
++			gtk_tlv->proto = cpu_to_le32(NL80211_WPA_VERSION_2);
++
+ 		gtk_tlv->pairwise_cipher = cpu_to_le32(cipher);
+-		gtk_tlv->group_cipher = cpu_to_le32(cipher);
+ 		gtk_tlv->keyid = key->keyidx;
++	} else {
++		gtk_tlv->group_cipher = cpu_to_le32(cipher);
+ 	}
+ }
+ 
+-- 
+2.33.0
+
 
 
