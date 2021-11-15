@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75252452418
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C6DB452735
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:17:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354049AbhKPBgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:36:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46046 "EHLO mail.kernel.org"
+        id S237133AbhKPCUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:20:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242564AbhKOSiq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:38:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73203632E0;
-        Mon, 15 Nov 2021 18:03:21 +0000 (UTC)
+        id S238413AbhKORiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:38:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15442611AF;
+        Mon, 15 Nov 2021 17:25:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999402;
-        bh=CaENJ6ArXgaoAx/3ZZd9sL+dCs/vCIBBdf053UZN8DU=;
+        s=korg; t=1636997150;
+        bh=j3xRPbqgnoDOzDG61OKYkXTEmxwbmQWNWybf1ke2lAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FcM0dHuI+odKP9W9Yks+G5+jydWVydjJUT1uExMDMST/L+6URuMh9fprhi8HBWDP+
-         Re2VLXhfCU8iaJ8l2aPpKCQGOX9qnrodAMnmh/n+KSO7cIOMz7g4RuTvm7UZ0FPtFy
-         DNtKG21wufLYHWZqpg4d0C/8BHgsl82YWQpGAl9A=
+        b=QF3jPqmzbfDK6pbsNDdmnq8KNFIxwxcKzs9+Nx2gUYUx0xkWInivJ8ikvrZu2X+SH
+         BgbZS/c9pim3CtUCXacG+2KBhX8rB0fdhsFl/0H46jbGDnEiqyfp9gppe8Rmqftz+n
+         HfBqLx3Xq8RLozIX4l33BLppAi0A+3TOOs1vkBTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+4d3749e9612c2cfab956@syzkaller.appspotmail.com,
-        Rajat Asthana <rajatasthana4@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 251/849] media: mceusb: return without resubmitting URB in case of -EPROTO error.
-Date:   Mon, 15 Nov 2021 17:55:34 +0100
-Message-Id: <20211115165428.700852059@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 010/575] ocfs2: fix data corruption on truncate
+Date:   Mon, 15 Nov 2021 17:55:35 +0100
+Message-Id: <20211115165343.964444414@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajat Asthana <rajatasthana4@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 476db72e521983ecb847e4013b263072bb1110fc ]
+commit 839b63860eb3835da165642923120d305925561d upstream.
 
-Syzkaller reported a warning called "rcu detected stall in dummy_timer".
+Patch series "ocfs2: Truncate data corruption fix".
 
-The error seems to be an error in mceusb_dev_recv(). In the case of
--EPROTO error, the routine immediately resubmits the URB. Instead it
-should return without resubmitting URB.
+As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
+corruption after conversion from inline format") didn't fix all the data
+corruption issues the customer started observing after 6dbf7bb55598
+("fs: Don't invalidate page buffers in block_write_full_page()") This
+time I have tracked them down to two bugs in ocfs2 truncation code.
 
-Reported-by: syzbot+4d3749e9612c2cfab956@syzkaller.appspotmail.com
-Signed-off-by: Rajat Asthana <rajatasthana4@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+One bug (truncating page cache before clearing tail cluster and setting
+i_size) could cause data corruption even before 6dbf7bb55598, but before
+that commit it needed a race with page fault, after 6dbf7bb55598 it
+started to be pretty deterministic.
+
+Another bug (zeroing pages beyond old i_size) used to be harmless
+inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598
+in combination with the first bug it resulted in deterministic data
+corruption.
+
+Although fixing only the first problem is needed to stop data
+corruption, I've fixed both issues to make the code more robust.
+
+This patch (of 2):
+
+ocfs2_truncate_file() did unmap invalidate page cache pages before
+zeroing partial tail cluster and setting i_size.  Thus some pages could
+be left (and likely have left if the cluster zeroing happened) in the
+page cache beyond i_size after truncate finished letting user possibly
+see stale data once the file was extended again.  Also the tail cluster
+zeroing was not guaranteed to finish before truncate finished causing
+possible stale data exposure.  The problem started to be particularly
+easy to hit after commit 6dbf7bb55598 "fs: Don't invalidate page buffers
+in block_write_full_page()" stopped invalidation of pages beyond i_size
+from page writeback path.
+
+Fix these problems by unmapping and invalidating pages in the page cache
+after the i_size is reduced and tail cluster is zeroed out.
+
+Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
+Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
+Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/rc/mceusb.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ocfs2/file.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/rc/mceusb.c b/drivers/media/rc/mceusb.c
-index 5642595a057ec..8870c4e6c5f44 100644
---- a/drivers/media/rc/mceusb.c
-+++ b/drivers/media/rc/mceusb.c
-@@ -1386,6 +1386,7 @@ static void mceusb_dev_recv(struct urb *urb)
- 	case -ECONNRESET:
- 	case -ENOENT:
- 	case -EILSEQ:
-+	case -EPROTO:
- 	case -ESHUTDOWN:
- 		usb_unlink_urb(urb);
- 		return;
--- 
-2.33.0
-
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -478,10 +478,11 @@ int ocfs2_truncate_file(struct inode *in
+ 	 * greater than page size, so we have to truncate them
+ 	 * anyway.
+ 	 */
+-	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
+-	truncate_inode_pages(inode->i_mapping, new_i_size);
+ 
+ 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
++		unmap_mapping_range(inode->i_mapping,
++				    new_i_size + PAGE_SIZE - 1, 0, 1);
++		truncate_inode_pages(inode->i_mapping, new_i_size);
+ 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
+ 					       i_size_read(inode), 1);
+ 		if (status)
+@@ -500,6 +501,9 @@ int ocfs2_truncate_file(struct inode *in
+ 		goto bail_unlock_sem;
+ 	}
+ 
++	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
++	truncate_inode_pages(inode->i_mapping, new_i_size);
++
+ 	status = ocfs2_commit_truncate(osb, inode, di_bh);
+ 	if (status < 0) {
+ 		mlog_errno(status);
 
 
