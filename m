@@ -2,171 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DBC1450E3C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71613450D37
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:50:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240795AbhKOSNq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:13:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49946 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240195AbhKOSHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9105763391;
-        Mon, 15 Nov 2021 17:43:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1636998203;
-        bh=qsUhvVvpqWj1FRinCia/INKCoMJlAtmLf1nO6HzJFew=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5n5CF6dcZi+4wgZJI7fP6rHHEpCjMVzmE7PXhUerDWZDTQCehXC/0JBGTtdu6LWU
-         QU/b717d/za+tmN3/v9TU885Rfn4NBBuv8oIxU71QSSFnHVJIzr410xAQoDftyweAe
-         +18nDzAW1GB76p5YkPa3PNOe3dBeGJEH/uq/SYO3azGSHp20e9x3Y+eILnHYO/ms8I
-         hyqxVYQ5F7HBYrMN3IRis8NjfgYXPB3n5sFfdBkGeKDbSC5mLDBbnXdP0GDs4jaq6z
-         8V31kZ/stnWyBC7JXd/Bg9vS7AVMOwfMZrpi+suCjGwHUt50DT9NXcoJlOoMtN16wU
-         pzA/moknL++Aw==
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Brian Cain <bcain@codeaurora.org>
-Cc:     linux-hexagon@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-        Nathan Chancellor <nathan@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2 2/3] hexagon: Clean up timer-regs.h
-Date:   Mon, 15 Nov 2021 10:42:50 -0700
-Message-Id: <20211115174250.1994179-3-nathan@kernel.org>
-X-Mailer: git-send-email 2.34.0.rc0
-In-Reply-To: <20211115174250.1994179-1-nathan@kernel.org>
-References: <20211115174250.1994179-1-nathan@kernel.org>
+        id S238939AbhKORxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:53:02 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:59059 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238941AbhKORuv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 12:50:51 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1636998475;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=YGf+XUfSwydKiiv0hT0cmfPV/U4WfCIrm4XgycOeKw8=;
+        b=AZT9yyq8TRN5ZUMu2lCon8Kka3GtVHopbCe1wnLDR/Ojl2yW098fv3r+hUrGDLdAMaUCWr
+        irHnr9s7wqKZxoQBqzVDEfCxmPunPl6OFPIjFHSOuWoyyvVoyHv7annWu6H7/0ODKfOHVC
+        AHb1kYd71Sl09ghe5PWqKIMsERqX+Fk=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-316-pJ-1R3D4NQ-OowetoXCCHA-1; Mon, 15 Nov 2021 12:47:54 -0500
+X-MC-Unique: pJ-1R3D4NQ-OowetoXCCHA-1
+Received: by mail-wr1-f71.google.com with SMTP id q5-20020a5d5745000000b00178abb72486so3837791wrw.9
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 09:47:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=YGf+XUfSwydKiiv0hT0cmfPV/U4WfCIrm4XgycOeKw8=;
+        b=LRmTXDpKGajmCvdy6oIn3sqqxhl72NIzcIjmpTMkDUnaGDvwLiKEX/lsn2DPRoNXrq
+         gPvgneowD67lEQmPXkIyu4h9kSQnrmHU/xpJiC4dSXL0HIksomo49762xEcblfWtYWbA
+         nJ2W8XgFDFOC++VEY9zU7+YOpuBVse+n6etZ0F8i2CYMMffp31ChV4GCul0km0vzX8+f
+         lbJ4o4eIYQ9iWJTBDb/kXU7nb4x/gQV90ZzsBevEkmzqbbClkrX69k1g6Rhk8vquB6ev
+         th/EI97H3WtPXA+BlrlmBCpCUF0lygNPeZIn+dlI+5qavHUVM2BDI/amhWzkEStXpCZw
+         /Sag==
+X-Gm-Message-State: AOAM530p5sCgD7Quw3mTbpT+AUMteSdm9IpaIHnxBFl1A+mUSKj8Qf+0
+        J15tRfOdGnnberM/sAjOo58IT7AS9GJMwjuJ/DizDfoy1j/VO3DjqmNBAIkQfafFxeHPABVhtfI
+        FtcRAjL+NMQaKl+vbjrS2uGI+v6jo6mQI
+X-Received: by 2002:a05:600c:1ca0:: with SMTP id k32mr371675wms.74.1636998473161;
+        Mon, 15 Nov 2021 09:47:53 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzqKzOEnvwu+fh1qgttyP6hSbaWqXIBdsUkNrLY9BsgCe2smG8I38SVxWF2PmLje6pNL9tmSfjVvcdJ16iCWZI=
+X-Received: by 2002:a05:600c:1ca0:: with SMTP id k32mr371664wms.74.1636998473021;
+ Mon, 15 Nov 2021 09:47:53 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20211115165313.549179499@linuxfoundation.org> <20211115165315.847107930@linuxfoundation.org>
+In-Reply-To: <20211115165315.847107930@linuxfoundation.org>
+From:   Andreas Gruenbacher <agruenba@redhat.com>
+Date:   Mon, 15 Nov 2021 18:47:41 +0100
+Message-ID: <CAHc6FU7a+gTDCZMCE6gOH1EDUW5SghPbQbsbeVtdg4tV1VdGxg@mail.gmail.com>
+Subject: Re: [PATCH 5.4 063/355] powerpc/kvm: Fix kvm_use_magic_page
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When building allmodconfig, there is a warning about TIMER_ENABLE being
-redefined:
+Greg,
 
- drivers/clocksource/timer-oxnas-rps.c:39:9: error: 'TIMER_ENABLE' macro redefined [-Werror,-Wmacro-redefined]
- #define TIMER_ENABLE            BIT(7)
-         ^
- ./arch/hexagon/include/asm/timer-regs.h:13:9: note: previous definition is here
- #define TIMER_ENABLE            0
-         ^
- 1 error generated.
+On Mon, Nov 15, 2021 at 6:10 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+> From: Andreas Gruenbacher <agruenba@redhat.com>
+>
+> commit 0c8eb2884a42d992c7726539328b7d3568f22143 upstream.
+>
+> When switching from __get_user to fault_in_pages_readable, commit
+> 9f9eae5ce717 broke kvm_use_magic_page: like __get_user,
+> fault_in_pages_readable returns 0 on success.
 
-The values in this header are only used in one file each, if they are
-used at all. Remove the header and sink all of the constants into their
-respective files.
+I've not heard back from the maintainers about this patch so far, so
+it would probably be safer to leave it out of stable for now.
 
-TCX0_CLK_RATE is only used in arch/hexagon/include/asm/timex.h
+Thanks,
+Andreas
 
-TIMER_ENABLE, RTOS_TIMER_INT, RTOS_TIMER_REGS_ADDR are only used in
-arch/hexagon/kernel/time.c.
-
-SLEEP_CLK_RATE and TIMER_CLR_ON_MATCH have both been unused since the
-file's introduction in commit 71e4a47f32f4 ("Hexagon: Add time and timer
-functions").
-
-TIMER_ENABLE is redefined as BIT(0) so the shift is moved into the
-definition, rather than its use.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Brian Cain <bcain@codeaurora.org>
----
- arch/hexagon/include/asm/timer-regs.h | 26 --------------------------
- arch/hexagon/include/asm/timex.h      |  3 +--
- arch/hexagon/kernel/time.c            | 12 ++++++++++--
- 3 files changed, 11 insertions(+), 30 deletions(-)
- delete mode 100644 arch/hexagon/include/asm/timer-regs.h
-
-diff --git a/arch/hexagon/include/asm/timer-regs.h b/arch/hexagon/include/asm/timer-regs.h
-deleted file mode 100644
-index ee6c61423a05..000000000000
---- a/arch/hexagon/include/asm/timer-regs.h
-+++ /dev/null
-@@ -1,26 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
--/*
-- * Timer support for Hexagon
-- *
-- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
-- */
--
--#ifndef _ASM_TIMER_REGS_H
--#define _ASM_TIMER_REGS_H
--
--/*  This stuff should go into a platform specific file  */
--#define TCX0_CLK_RATE		19200
--#define TIMER_ENABLE		0
--#define TIMER_CLR_ON_MATCH	1
--
--/*
-- * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
-- * release 1.1, and then it's "adjustable" and probably not defaulted.
-- */
--#define RTOS_TIMER_INT		3
--#ifdef CONFIG_HEXAGON_COMET
--#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
--#endif
--#define SLEEP_CLK_RATE		32000
--
--#endif
-diff --git a/arch/hexagon/include/asm/timex.h b/arch/hexagon/include/asm/timex.h
-index 8d4ec76fceb4..dfe69e118b2b 100644
---- a/arch/hexagon/include/asm/timex.h
-+++ b/arch/hexagon/include/asm/timex.h
-@@ -7,11 +7,10 @@
- #define _ASM_TIMEX_H
- 
- #include <asm-generic/timex.h>
--#include <asm/timer-regs.h>
- #include <asm/hexagon_vm.h>
- 
- /* Using TCX0 as our clock.  CLOCK_TICK_RATE scheduled to be removed. */
--#define CLOCK_TICK_RATE              TCX0_CLK_RATE
-+#define CLOCK_TICK_RATE              19200
- 
- #define ARCH_HAS_READ_CURRENT_TIMER
- 
-diff --git a/arch/hexagon/kernel/time.c b/arch/hexagon/kernel/time.c
-index feffe527ac92..febc95714d75 100644
---- a/arch/hexagon/kernel/time.c
-+++ b/arch/hexagon/kernel/time.c
-@@ -17,9 +17,10 @@
- #include <linux/of_irq.h>
- #include <linux/module.h>
- 
--#include <asm/timer-regs.h>
- #include <asm/hexagon_vm.h>
- 
-+#define TIMER_ENABLE		BIT(0)
-+
- /*
-  * For the clocksource we need:
-  *	pcycle frequency (600MHz)
-@@ -33,6 +34,13 @@ cycles_t	pcycle_freq_mhz;
- cycles_t	thread_freq_mhz;
- cycles_t	sleep_clk_freq;
- 
-+/*
-+ * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
-+ * release 1.1, and then it's "adjustable" and probably not defaulted.
-+ */
-+#define RTOS_TIMER_INT		3
-+#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
-+
- static struct resource rtos_timer_resources[] = {
- 	{
- 		.start	= RTOS_TIMER_REGS_ADDR,
-@@ -80,7 +88,7 @@ static int set_next_event(unsigned long delta, struct clock_event_device *evt)
- 	iowrite32(0, &rtos_timer->clear);
- 
- 	iowrite32(delta, &rtos_timer->match);
--	iowrite32(1 << TIMER_ENABLE, &rtos_timer->enable);
-+	iowrite32(TIMER_ENABLE, &rtos_timer->enable);
- 	return 0;
- }
- 
--- 
-2.34.0.rc0
+> Fixes: 9f9eae5ce717 ("powerpc/kvm: Prefer fault_in_pages_readable function")
+> Cc: stable@vger.kernel.org # v4.18+
+> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  arch/powerpc/kernel/kvm.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> --- a/arch/powerpc/kernel/kvm.c
+> +++ b/arch/powerpc/kernel/kvm.c
+> @@ -669,7 +669,7 @@ static void __init kvm_use_magic_page(vo
+>         on_each_cpu(kvm_map_magic_page, &features, 1);
+>
+>         /* Quick self-test to see if the mapping works */
+> -       if (!fault_in_pages_readable((const char *)KVM_MAGIC_PAGE, sizeof(u32))) {
+> +       if (fault_in_pages_readable((const char *)KVM_MAGIC_PAGE, sizeof(u32))) {
+>                 kvm_patching_worked = false;
+>                 return;
+>         }
+>
+>
 
