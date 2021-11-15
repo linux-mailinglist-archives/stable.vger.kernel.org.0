@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 818F7451D88
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:28:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BBD6451F1A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345679AbhKOT3C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:29:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42976 "EHLO mail.kernel.org"
+        id S1355601AbhKPAif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:38:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244391AbhKOTOE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:14:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25B8D6340D;
-        Mon, 15 Nov 2021 18:20:37 +0000 (UTC)
+        id S1344437AbhKOTYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86CA363492;
+        Mon, 15 Nov 2021 18:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000437;
-        bh=UIU8fn2r++JvQ/HB870lAGI4pAU7rADe1TVFedbvmdQ=;
+        s=korg; t=1637002660;
+        bh=UU1P0n2MZuxrGUHrRfKy5j7rup4560+xJAJEEg7ZDPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X4eogyrclX+LG8ADhRdm0Zd5ooQ84WPrAdKvl4tIhuds57fHmEK5cZJeF01cq7psJ
-         QPEfLHHRE2QfHILO98NM7W4Ee8DvCoZYG1eH2N/FbvPSfeq4ZrGF7tdnRlNHPec5dp
-         UpBP/i322z7XXL8IxP8ItsWW0rxSnVnuNzkz/KdQ=
+        b=yjlTFvbC42Ha9vocZTmcVZ3UbLMr1RjFWzEmUUYrEwgbtOsc6IhCM3+cSSmgNcifz
+         hQLeIrmmxG1ZMg3j3OPLSXgf0MouBrOvVsidxvPATGzuY62vSBkMvr6YLAUvuCb53c
+         phhljLsKpCf7mo5gN2eIB9El5z8hHFCO45KxWI+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 659/849] serial: cpm_uart: Protect udbg definitions by CONFIG_SERIAL_CPM_CONSOLE
-Date:   Mon, 15 Nov 2021 18:02:22 +0100
-Message-Id: <20211115165442.553570780@linuxfoundation.org>
+Subject: [PATCH 5.15 650/917] scsi: lpfc: Wait for successful restart of SLI3 adapter during host sg_reset
+Date:   Mon, 15 Nov 2021 18:02:25 +0100
+Message-Id: <20211115165450.906426342@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,52 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit d142585bceb3218ad432ed0fcd5be9d6e3cd9052 ]
+[ Upstream commit d305c253af693e69a36cedec880aca6d0c6d789d ]
 
-If CONFIG_CONSOLE_POLL=y, and CONFIG_SERIAL_CPM=m (hence
-CONFIG_SERIAL_CPM_CONSOLE=n):
+A prior patch introduced HBA_NEEDS_CFG_PORT flag logic, but in
+lpfc_sli_brdrestart_s3() code path, right after HBA_NEEDS_CFG_PORT is set,
+the phba->hba_flag is cleared in lpfc_sli_brdreset().
 
-    drivers/tty/serial/cpm_uart/cpm_uart_core.c:1109:12: warning: ‘udbg_cpm_getc’ defined but not used [-Wunused-function]
-     1109 | static int udbg_cpm_getc(void)
-	  |            ^~~~~~~~~~~~~
-    drivers/tty/serial/cpm_uart/cpm_uart_core.c:1095:13: warning: ‘udbg_cpm_putc’ defined but not used [-Wunused-function]
-     1095 | static void udbg_cpm_putc(char c)
-	  |             ^~~~~~~~~~~~~
+Fix by calling lpfc_sli_chipset_init() to wait for successful restart of
+the HBA in lpfc_host_reset_handler() after lpfc_sli_brdrestart().
 
-Fix this by making the udbg definitions depend on
-CONFIG_SERIAL_CPM_CONSOLE, in addition to CONFIG_CONSOLE_POLL.
+lpfc_sli_chipset_init() sets the HBA_NEEDS_CFG_PORT flag so that the
+lpfc_sli_hba_setup() routine from lpfc_online() will execute
+lpfc_sli_config_port() initialization step when the brdrestart is
+successful.
 
-Fixes: a60526097f42eb98 ("tty: serial: cpm_uart: Add udbg support for enabling xmon")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20211027075326.3270785-1-geert@linux-m68k.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20211020211417.88754-3-jsmart2021@gmail.com
+Fixes: d2f2547efd39 ("scsi: lpfc: Fix auto sli_mode and its effect on CONFIG_PORT for SLI3")
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/cpm_uart/cpm_uart_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/lpfc/lpfc_scsi.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/tty/serial/cpm_uart/cpm_uart_core.c b/drivers/tty/serial/cpm_uart/cpm_uart_core.c
-index c719aa2b18328..d6d3db9c3b1f8 100644
---- a/drivers/tty/serial/cpm_uart/cpm_uart_core.c
-+++ b/drivers/tty/serial/cpm_uart/cpm_uart_core.c
-@@ -1090,6 +1090,7 @@ static void cpm_put_poll_char(struct uart_port *port,
- 	cpm_uart_early_write(pinfo, ch, 1, false);
- }
+diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
+index befdf864c43bd..364c8a9b99095 100644
+--- a/drivers/scsi/lpfc/lpfc_scsi.c
++++ b/drivers/scsi/lpfc/lpfc_scsi.c
+@@ -6628,6 +6628,13 @@ lpfc_host_reset_handler(struct scsi_cmnd *cmnd)
+ 	if (rc)
+ 		goto error;
  
-+#ifdef CONFIG_SERIAL_CPM_CONSOLE
- static struct uart_port *udbg_port;
- 
- static void udbg_cpm_putc(char c)
-@@ -1114,6 +1115,7 @@ static int udbg_cpm_getc(void)
- 		cpu_relax();
- 	return c;
- }
-+#endif /* CONFIG_SERIAL_CPM_CONSOLE */
- 
- #endif /* CONFIG_CONSOLE_POLL */
- 
++	/* Wait for successful restart of adapter */
++	if (phba->sli_rev < LPFC_SLI_REV4) {
++		rc = lpfc_sli_chipset_init(phba);
++		if (rc)
++			goto error;
++	}
++
+ 	rc = lpfc_online(phba);
+ 	if (rc)
+ 		goto error;
 -- 
 2.33.0
 
