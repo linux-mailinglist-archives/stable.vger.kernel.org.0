@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB17B450EC6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB95450ED4
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241288AbhKOSTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:19:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56274 "EHLO mail.kernel.org"
+        id S232494AbhKOSUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:20:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236886AbhKOSO2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:14:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D1B9633DA;
-        Mon, 15 Nov 2021 17:49:22 +0000 (UTC)
+        id S240668AbhKOSQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:16:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 954E7610A8;
+        Mon, 15 Nov 2021 17:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998562;
-        bh=L7ujTYBPMOdLe+QuDcZjYvZoMacDX/w9lHgGM0wIHjQ=;
+        s=korg; t=1636998593;
+        bh=4SU+M9U1OCRiVdcWoAiCQcy6gGx7KwNB0uJU271r/hM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lc7npR0mKoz4Z8t12bZjeeoRptMamqlkBmt2/+rM/gJkpqXF0bAWgllDoh4ptF+aO
-         XAttpcHiwJVWjaA2F6fjdMOP/t3fMq9uOfRQwNyq3yVKfMgslNut7V7uy4EO02IkAJ
-         iTLaytr0/cxt7/aKh4XmiIq3GW2oJxf3j5qTmHlI=
+        b=V96tmNU4oktU/a2VpVW1np5ZTQofuSPBCezb86ZZTcpEAb0xc8st8ktXz2OJfNwR/
+         9YAnU8izoGUaJLyFfAO4pHvEjGIJDk2YcdLRJKde20LqFSKjTvvr+iD5uqdk8VG7yy
+         9zkmufikw4vAEGKvQG+g1mr/ZTHROV9FxJ0EobrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manoj Malviya <manojmalviya@chelsio.com>,
-        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 537/575] cxgb4: fix eeprom len when diagnostics not implemented
-Date:   Mon, 15 Nov 2021 18:04:22 +0100
-Message-Id: <20211115165402.246926654@linuxfoundation.org>
+Subject: [PATCH 5.10 538/575] selftests/net: udpgso_bench_rx: fix port argument
+Date:   Mon, 15 Nov 2021 18:04:23 +0100
+Message-Id: <20211115165402.287225993@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -41,59 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 4ca110bf8d9b31a60f8f8ff6706ea147d38ad97c ]
+[ Upstream commit d336509cb9d03970911878bb77f0497f64fda061 ]
 
-Ensure diagnostics monitoring support is implemented for the SFF 8472
-compliant port module and set the correct length for ethtool port
-module eeprom read.
+The below commit added optional support for passing a bind address.
+It configures the sockaddr bind arguments before parsing options and
+reconfigures on options -b and -4.
 
-Fixes: f56ec6766dcf ("cxgb4: Add support for ethtool i2c dump")
-Signed-off-by: Manoj Malviya <manojmalviya@chelsio.com>
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+This broke support for passing port (-p) on its own.
+
+Configure sockaddr after parsing all arguments.
+
+Fixes: 3327a9c46352 ("selftests: add functionals test for UDP GRO")
+Reported-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c | 7 +++++--
- drivers/net/ethernet/chelsio/cxgb4/t4_hw.h         | 2 ++
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ tools/testing/selftests/net/udpgso_bench_rx.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
-index 83ed10ac86606..7080cb6c83e4a 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ethtool.c
-@@ -2011,12 +2011,15 @@ static int cxgb4_get_module_info(struct net_device *dev,
- 		if (ret)
- 			return ret;
+diff --git a/tools/testing/selftests/net/udpgso_bench_rx.c b/tools/testing/selftests/net/udpgso_bench_rx.c
+index 76a24052f4b47..6a193425c367f 100644
+--- a/tools/testing/selftests/net/udpgso_bench_rx.c
++++ b/tools/testing/selftests/net/udpgso_bench_rx.c
+@@ -293,19 +293,17 @@ static void usage(const char *filepath)
  
--		if (!sff8472_comp || (sff_diag_type & 4)) {
-+		if (!sff8472_comp || (sff_diag_type & SFP_DIAG_ADDRMODE)) {
- 			modinfo->type = ETH_MODULE_SFF_8079;
- 			modinfo->eeprom_len = ETH_MODULE_SFF_8079_LEN;
- 		} else {
- 			modinfo->type = ETH_MODULE_SFF_8472;
--			modinfo->eeprom_len = ETH_MODULE_SFF_8472_LEN;
-+			if (sff_diag_type & SFP_DIAG_IMPLEMENTED)
-+				modinfo->eeprom_len = ETH_MODULE_SFF_8472_LEN;
-+			else
-+				modinfo->eeprom_len = ETH_MODULE_SFF_8472_LEN / 2;
+ static void parse_opts(int argc, char **argv)
+ {
++	const char *bind_addr = NULL;
+ 	int c;
+ 
+-	/* bind to any by default */
+-	setup_sockaddr(PF_INET6, "::", &cfg_bind_addr);
+ 	while ((c = getopt(argc, argv, "4b:C:Gl:n:p:rR:S:tv")) != -1) {
+ 		switch (c) {
+ 		case '4':
+ 			cfg_family = PF_INET;
+ 			cfg_alen = sizeof(struct sockaddr_in);
+-			setup_sockaddr(PF_INET, "0.0.0.0", &cfg_bind_addr);
+ 			break;
+ 		case 'b':
+-			setup_sockaddr(cfg_family, optarg, &cfg_bind_addr);
++			bind_addr = optarg;
+ 			break;
+ 		case 'C':
+ 			cfg_connect_timeout_ms = strtoul(optarg, NULL, 0);
+@@ -341,6 +339,11 @@ static void parse_opts(int argc, char **argv)
  		}
- 		break;
+ 	}
  
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.h b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.h
-index 002fc62ea7262..63bc956d20376 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.h
-@@ -293,6 +293,8 @@ enum {
- #define I2C_PAGE_SIZE		0x100
- #define SFP_DIAG_TYPE_ADDR	0x5c
- #define SFP_DIAG_TYPE_LEN	0x1
-+#define SFP_DIAG_ADDRMODE	BIT(2)
-+#define SFP_DIAG_IMPLEMENTED	BIT(6)
- #define SFF_8472_COMP_ADDR	0x5e
- #define SFF_8472_COMP_LEN	0x1
- #define SFF_REV_ADDR		0x1
++	if (!bind_addr)
++		bind_addr = cfg_family == PF_INET6 ? "::" : "0.0.0.0";
++
++	setup_sockaddr(cfg_family, bind_addr, &cfg_bind_addr);
++
+ 	if (optind != argc)
+ 		usage(argv[0]);
+ 
 -- 
 2.33.0
 
