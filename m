@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D48C450ACA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4BC1450AC2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231977AbhKOROq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:14:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47706 "EHLO mail.kernel.org"
+        id S230385AbhKORO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:14:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236791AbhKORMr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:12:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65BED61BF9;
-        Mon, 15 Nov 2021 17:09:51 +0000 (UTC)
+        id S236801AbhKORMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:12:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06563610CA;
+        Mon, 15 Nov 2021 17:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996191;
-        bh=TDhxsyRUCBk/oFt2N3KLseCZVZ8NY9ReJr1yWJRh2DQ=;
+        s=korg; t=1636996194;
+        bh=3rBenrKGA1vZkSQxN3qSD0YIj+nBJk83g3kn5UoYaec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zd3acu9EEPXQ/DnTVxv1Tz/18MJebCdaa1H0Eq73qwl+t/wk8sSVimeR+u6bGWzbc
-         Zj0ZLyvmhiirDm5mftdCb1+anopDniBV+vl4XY4ANIAaQ4/FgdkMZAJ5raRdM30j8L
-         UC8OizjIMdZN8i83sB4xzTv5fze4vB5TlA9T3fJ8=
+        b=o3m57slIqbvUlP9frDjVI+F7jryYZx0bVgPXauNRenwr4keekYtFO2VEE2xe3NGWM
+         sgnCGVgExB4xdjNbsJxuXa8M9PTkQQOqDhrCb3SvO+hUoJLmQIDKXlYFWhNSwR+P6R
+         ohCG/fNBX4kc00OzEsiHyfq9XJu1ZYgZnJZaN1JA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Jin <joe.jin@oracle.com>,
-        Dongli Zhang <dongli.zhang@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 049/355] xen/netfront: stop tx queues during live migration
-Date:   Mon, 15 Nov 2021 17:59:33 +0100
-Message-Id: <20211115165315.135810649@linuxfoundation.org>
+        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        John Meneghini <jmeneghi@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 050/355] nvmet-tcp: fix a memory leak when releasing a queue
+Date:   Mon, 15 Nov 2021 17:59:34 +0100
+Message-Id: <20211115165315.167486124@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -41,65 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit 042b2046d0f05cf8124c26ff65dbb6148a4404fb ]
+[ Upstream commit 926245c7d22271307606c88b1fbb2539a8550e94 ]
 
-The tx queues are not stopped during the live migration. As a result, the
-ndo_start_xmit() may access netfront_info->queues which is freed by
-talk_to_netback()->xennet_destroy_queues().
+page_frag_free() won't completely release the memory
+allocated for the commands, the cache page must be explicitly
+freed by calling __page_frag_cache_drain().
 
-This patch is to netif_device_detach() at the beginning of xen-netfront
-resuming, and netif_device_attach() at the end of resuming.
+This bug can be easily reproduced by repeatedly
+executing the following command on the initiator:
 
-     CPU A                                CPU B
+$echo 1 > /sys/devices/virtual/nvme-fabrics/ctl/nvme0/reset_controller
 
- talk_to_netback()
- -> if (info->queues)
-        xennet_destroy_queues(info);
-    to free netfront_info->queues
-
-                                        xennet_start_xmit()
-                                        to access netfront_info->queues
-
-  -> err = xennet_create_queues(info, &num_queues);
-
-The idea is borrowed from virtio-net.
-
-Cc: Joe Jin <joe.jin@oracle.com>
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: John Meneghini <jmeneghi@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netfront.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/nvme/target/tcp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index 88280057e0321..7d389c2cc9026 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -1439,6 +1439,10 @@ static int netfront_resume(struct xenbus_device *dev)
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index 2f4e512bd449f..1328ee373e596 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -1343,6 +1343,7 @@ static void nvmet_tcp_uninit_data_in_cmds(struct nvmet_tcp_queue *queue)
  
- 	dev_dbg(&dev->dev, "%s\n", dev->nodename);
+ static void nvmet_tcp_release_queue_work(struct work_struct *w)
+ {
++	struct page *page;
+ 	struct nvmet_tcp_queue *queue =
+ 		container_of(w, struct nvmet_tcp_queue, release_work);
  
-+	netif_tx_lock_bh(info->netdev);
-+	netif_device_detach(info->netdev);
-+	netif_tx_unlock_bh(info->netdev);
-+
- 	xennet_disconnect_backend(info);
- 	return 0;
+@@ -1362,6 +1363,8 @@ static void nvmet_tcp_release_queue_work(struct work_struct *w)
+ 		nvmet_tcp_free_crypto(queue);
+ 	ida_simple_remove(&nvmet_tcp_queue_ida, queue->idx);
+ 
++	page = virt_to_head_page(queue->pf_cache.va);
++	__page_frag_cache_drain(page, queue->pf_cache.pagecnt_bias);
+ 	kfree(queue);
  }
-@@ -1987,6 +1991,10 @@ static int xennet_connect(struct net_device *dev)
- 	 * domain a kick because we've probably just requeued some
- 	 * packets.
- 	 */
-+	netif_tx_lock_bh(np->netdev);
-+	netif_device_attach(np->netdev);
-+	netif_tx_unlock_bh(np->netdev);
-+
- 	netif_carrier_on(np->netdev);
- 	for (j = 0; j < num_queues; ++j) {
- 		queue = &np->queues[j];
+ 
 -- 
 2.33.0
 
