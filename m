@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF077452782
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:23:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2568452394
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347692AbhKPC0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:26:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48808 "EHLO mail.kernel.org"
+        id S1348870AbhKPB1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:27:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237403AbhKORVC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:21:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D2B463273;
-        Mon, 15 Nov 2021 17:15:35 +0000 (UTC)
+        id S243863AbhKOTIK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:08:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC812633F8;
+        Mon, 15 Nov 2021 18:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996535;
-        bh=VvToyQXhIWHB2zX3ONQWR/dV79wqlMjMpfhVXCobCNw=;
+        s=korg; t=1637000245;
+        bh=Zw90p/ZsdLRxko2E62WUIDtJM/Fhg1ws1f5Ep9Yi2X4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZpnCPPERL2bCmsUqG3Ow/Pv8p8tWb7CF0BFc4aDqbhgDftFV/+x2f1iTHfTuH2Qe
-         ypQ/MFfbuHVTsGL51VrVbpRhG2QvNR4Njxni4K2KaSjKTnk1AblXvTbMGXgPmwYYhy
-         UxOkhq5mXUEHBfYskMt9S5maggbY1Sicx0AmTGUQ=
+        b=rKlv7E/RRimslc9gdEgOEAr/8Q9Fki0d5794HvmCjxNsW5NvSltI3h+ZcPdDKE4MI
+         oPG10fo4J/tb6ONca59vLuyVdiumAARS0RAfEI58M+/kkF5VECIil7UMZc9IyN7jXB
+         LyRPBgl/ueCTpKU3MwZZpN4FgexgfT1v2s8c8a14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Reik Keutterling <spielkind@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 143/355] ACPICA: Avoid evaluating methods too early during system resume
-Date:   Mon, 15 Nov 2021 18:01:07 +0100
-Message-Id: <20211115165318.416666733@linuxfoundation.org>
+Subject: [PATCH 5.14 590/849] ASoC: SOF: topology: do not power down primary core during topology removal
+Date:   Mon, 15 Nov 2021 18:01:13 +0100
+Message-Id: <20211115165440.210662341@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,128 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
 
-[ Upstream commit d3c4b6f64ad356c0d9ddbcf73fa471e6a841cc5c ]
+[ Upstream commit ec626334eaffe101df9ed79e161eba95124e64ad ]
 
-ACPICA commit 0762982923f95eb652cf7ded27356b247c9774de
+When removing the topology components, do not power down
+the primary core. Doing so will result in an IPC timeout
+when the SOF PCI device runtime suspends.
 
-During wakeup from system-wide sleep states, acpi_get_sleep_type_data()
-is called and it tries to get memory from the slab allocator in order
-to evaluate a control method, but if KFENCE is enabled in the kernel,
-the memory allocation attempt causes an IRQ work to be queued and a
-self-IPI to be sent to the CPU running the code which requires the
-memory controller to be ready, so if that happens too early in the
-wakeup path, it doesn't work.
+Fixes: 0dcdf84289fb ("ASoC: SOF: add a "core" parameter to widget loading functions")
 
-Prevent that from taking place by calling acpi_get_sleep_type_data()
-for S0 upfront, when preparing to enter a given sleep state, and
-saving the data obtained by it for later use during system wakeup.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214271
-Reported-by: Reik Keutterling <spielkind@gmail.com>
-Tested-by: Reik Keutterling <spielkind@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20211006104041.27183-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/acglobal.h  |  2 ++
- drivers/acpi/acpica/hwesleep.c  |  8 ++------
- drivers/acpi/acpica/hwsleep.c   | 11 ++++-------
- drivers/acpi/acpica/hwxfsleep.c |  7 +++++++
- 4 files changed, 15 insertions(+), 13 deletions(-)
+ sound/soc/sof/topology.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/acpi/acpica/acglobal.h b/drivers/acpi/acpica/acglobal.h
-index fd3beea934213..42c4bfd796f42 100644
---- a/drivers/acpi/acpica/acglobal.h
-+++ b/drivers/acpi/acpica/acglobal.h
-@@ -220,6 +220,8 @@ extern struct acpi_bit_register_info
-     acpi_gbl_bit_register_info[ACPI_NUM_BITREG];
- ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a);
- ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b);
-+ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a_s0);
-+ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b_s0);
+diff --git a/sound/soc/sof/topology.c b/sound/soc/sof/topology.c
+index cc9585bfa4e9f..1bb2dcf37ffe9 100644
+--- a/sound/soc/sof/topology.c
++++ b/sound/soc/sof/topology.c
+@@ -2598,6 +2598,15 @@ static int sof_widget_unload(struct snd_soc_component *scomp,
  
- /*****************************************************************************
-  *
-diff --git a/drivers/acpi/acpica/hwesleep.c b/drivers/acpi/acpica/hwesleep.c
-index dee3affaca491..aa502ae3b6b31 100644
---- a/drivers/acpi/acpica/hwesleep.c
-+++ b/drivers/acpi/acpica/hwesleep.c
-@@ -147,17 +147,13 @@ acpi_status acpi_hw_extended_sleep(u8 sleep_state)
- 
- acpi_status acpi_hw_extended_wake_prep(u8 sleep_state)
- {
--	acpi_status status;
- 	u8 sleep_type_value;
- 
- 	ACPI_FUNCTION_TRACE(hw_extended_wake_prep);
- 
--	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
--					  &acpi_gbl_sleep_type_a,
--					  &acpi_gbl_sleep_type_b);
--	if (ACPI_SUCCESS(status)) {
-+	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
- 		sleep_type_value =
--		    ((acpi_gbl_sleep_type_a << ACPI_X_SLEEP_TYPE_POSITION) &
-+		    ((acpi_gbl_sleep_type_a_s0 << ACPI_X_SLEEP_TYPE_POSITION) &
- 		     ACPI_X_SLEEP_TYPE_MASK);
- 
- 		(void)acpi_write((u64)(sleep_type_value | ACPI_X_SLEEP_ENABLE),
-diff --git a/drivers/acpi/acpica/hwsleep.c b/drivers/acpi/acpica/hwsleep.c
-index b62db8ec446fa..5f7d63badbe9d 100644
---- a/drivers/acpi/acpica/hwsleep.c
-+++ b/drivers/acpi/acpica/hwsleep.c
-@@ -179,7 +179,7 @@ acpi_status acpi_hw_legacy_sleep(u8 sleep_state)
- 
- acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
- {
--	acpi_status status;
-+	acpi_status status = AE_OK;
- 	struct acpi_bit_register_info *sleep_type_reg_info;
- 	struct acpi_bit_register_info *sleep_enable_reg_info;
- 	u32 pm1a_control;
-@@ -192,10 +192,7 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
- 	 * This is unclear from the ACPI Spec, but it is required
- 	 * by some machines.
- 	 */
--	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
--					  &acpi_gbl_sleep_type_a,
--					  &acpi_gbl_sleep_type_b);
--	if (ACPI_SUCCESS(status)) {
-+	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
- 		sleep_type_reg_info =
- 		    acpi_hw_get_bit_register_info(ACPI_BITREG_SLEEP_TYPE);
- 		sleep_enable_reg_info =
-@@ -216,9 +213,9 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
- 
- 			/* Insert the SLP_TYP bits */
- 
--			pm1a_control |= (acpi_gbl_sleep_type_a <<
-+			pm1a_control |= (acpi_gbl_sleep_type_a_s0 <<
- 					 sleep_type_reg_info->bit_position);
--			pm1b_control |= (acpi_gbl_sleep_type_b <<
-+			pm1b_control |= (acpi_gbl_sleep_type_b_s0 <<
- 					 sleep_type_reg_info->bit_position);
- 
- 			/* Write the control registers and ignore any errors */
-diff --git a/drivers/acpi/acpica/hwxfsleep.c b/drivers/acpi/acpica/hwxfsleep.c
-index abbf9702aa7f2..79731efbe8fe2 100644
---- a/drivers/acpi/acpica/hwxfsleep.c
-+++ b/drivers/acpi/acpica/hwxfsleep.c
-@@ -214,6 +214,13 @@ acpi_status acpi_enter_sleep_state_prep(u8 sleep_state)
- 		return_ACPI_STATUS(status);
- 	}
- 
-+	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
-+					  &acpi_gbl_sleep_type_a_s0,
-+					  &acpi_gbl_sleep_type_b_s0);
-+	if (ACPI_FAILURE(status)) {
-+		acpi_gbl_sleep_type_a_s0 = ACPI_SLEEP_TYPE_INVALID;
-+	}
+ 		/* power down the pipeline schedule core */
+ 		pipeline = swidget->private;
 +
- 	/* Execute the _PTS method (Prepare To Sleep) */
- 
- 	arg_list.count = 1;
++		/*
++		 * Runtime PM should still function normally if topology loading fails and
++		 * it's components are unloaded. Do not power down the primary core so that the
++		 * CTX_SAVE IPC can succeed during runtime suspend.
++		 */
++		if (pipeline->core == SOF_DSP_PRIMARY_CORE)
++			break;
++
+ 		ret = snd_sof_dsp_core_power_down(sdev, 1 << pipeline->core);
+ 		if (ret < 0)
+ 			dev_err(scomp->dev, "error: powering down pipeline schedule core %d\n",
 -- 
 2.33.0
 
