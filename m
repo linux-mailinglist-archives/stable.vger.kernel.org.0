@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAF7450E12
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AF06450B51
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:18:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240582AbhKOSKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:10:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45588 "EHLO mail.kernel.org"
+        id S236556AbhKORVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:21:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239910AbhKOSFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C670563361;
-        Mon, 15 Nov 2021 17:39:59 +0000 (UTC)
+        id S237385AbhKORTd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:19:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AE2E6120F;
+        Mon, 15 Nov 2021 17:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998000;
-        bh=iUdkhfdd1xc6U1Hu5gPcAe89mY+o3j29EB/wCq5QYsE=;
+        s=korg; t=1636996470;
+        bh=g9YqIBsJqPHUuvpLJDbPcXidbZmOm3hbsrEoiwDQWSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Os5l3lxKZsRKnRRy/4kVHxi+VqzWP3HRnuKeNzKV3+InMTI1iLUKD8xpFUHQBokJO
-         Wl05CIH+ujqzasUUlRA+Hp2Pz6WziZ6P39vaxDNz1KH3ZvJxyBw7OqwEFyHSKJSw53
-         9sTQ6Jt8Iap490oagE1Lmgg2z727knp4/W9zUGrE=
+        b=qXHt2q8RuH836l/Id/sX8E69vvBZ+cw39SditNiuvUfVn2tUmh3Z9u8PONJmuhz91
+         6KbuWdCBqivj1eMotYW0qJvCy4alePJFPdQfIhueaGTYX9RlNFWBexOtXYEmYKXt/g
+         sEvPryFRR1Bmxz+1PNTV+SXxUIA1n4bXpVHRr5XU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 350/575] libbpf: Fix BTF data layout checks and allow empty BTF
-Date:   Mon, 15 Nov 2021 18:01:15 +0100
-Message-Id: <20211115165355.896772695@linuxfoundation.org>
+Subject: [PATCH 5.4 152/355] leaking_addresses: Always print a trailing newline
+Date:   Mon, 15 Nov 2021 18:01:16 +0100
+Message-Id: <20211115165318.709230583@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit d8123624506cd62730c9cd9c7672c698e462703d ]
+[ Upstream commit cf2a85efdade117e2169d6e26641016cbbf03ef0 ]
 
-Make data section layout checks stricter, disallowing overlap of types and
-strings data.
+For files that lack trailing newlines and match a leaking address (e.g.
+wchan[1]), the leaking_addresses.pl report would run together with the
+next line, making things look corrupted.
 
-Additionally, allow BTFs with no type data. There is nothing inherently wrong
-with having BTF with no types (put potentially with some strings). This could
-be a situation with kernel module BTFs, if module doesn't introduce any new
-type information.
+Unconditionally remove the newline on input, and write it back out on
+output.
 
-Also fix invalid offset alignment check for btf->hdr->type_off.
+[1] https://lore.kernel.org/all/20210103142726.GC30643@xsang-OptiPlex-9020/
 
-Fixes: 8a138aed4a80 ("bpf: btf: Add BTF support to libbpf")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20201105043402.2530976-8-andrii@kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20211008111626.151570317@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ scripts/leaking_addresses.pl | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
-index 231b07203e3d2..987c1515b828b 100644
---- a/tools/lib/bpf/btf.c
-+++ b/tools/lib/bpf/btf.c
-@@ -215,22 +215,18 @@ static int btf_parse_hdr(struct btf *btf)
- 		return -EINVAL;
- 	}
+diff --git a/scripts/leaking_addresses.pl b/scripts/leaking_addresses.pl
+index b2d8b8aa2d99e..8f636a23bc3f2 100755
+--- a/scripts/leaking_addresses.pl
++++ b/scripts/leaking_addresses.pl
+@@ -455,8 +455,9 @@ sub parse_file
  
--	if (meta_left < hdr->type_off) {
--		pr_debug("Invalid BTF type section offset:%u\n", hdr->type_off);
-+	if (meta_left < hdr->str_off + hdr->str_len) {
-+		pr_debug("Invalid BTF total size:%u\n", btf->raw_size);
- 		return -EINVAL;
+ 	open my $fh, "<", $file or return;
+ 	while ( <$fh> ) {
++		chomp;
+ 		if (may_leak_address($_)) {
+-			print $file . ': ' . $_;
++			printf("$file: $_\n");
+ 		}
  	}
- 
--	if (meta_left < hdr->str_off) {
--		pr_debug("Invalid BTF string section offset:%u\n", hdr->str_off);
-+	if (hdr->type_off + hdr->type_len > hdr->str_off) {
-+		pr_debug("Invalid BTF data sections layout: type data at %u + %u, strings data at %u + %u\n",
-+			 hdr->type_off, hdr->type_len, hdr->str_off, hdr->str_len);
- 		return -EINVAL;
- 	}
- 
--	if (hdr->type_off >= hdr->str_off) {
--		pr_debug("BTF type section offset >= string section offset. No type?\n");
--		return -EINVAL;
--	}
--
--	if (hdr->type_off & 0x02) {
-+	if (hdr->type_off % 4) {
- 		pr_debug("BTF type section is not aligned to 4 bytes\n");
- 		return -EINVAL;
- 	}
+ 	close $fh;
 -- 
 2.33.0
 
