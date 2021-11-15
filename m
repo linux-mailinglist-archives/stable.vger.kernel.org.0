@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC59F451114
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A808A450AC6
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243388AbhKOTA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:00:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59672 "EHLO mail.kernel.org"
+        id S236407AbhKOROk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:14:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243485AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:59:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B484611F0;
-        Mon, 15 Nov 2021 18:13:24 +0000 (UTC)
+        id S236728AbhKORND (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:13:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4702961C15;
+        Mon, 15 Nov 2021 17:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000005;
-        bh=g/bilKBDC6h29mvOMbtjEL+7rCtNxHcGMr1IWUxpL+Y=;
+        s=korg; t=1636996207;
+        bh=bjZkxvjvyGh6iemq/lJDpSd7qA9FMvOg4aq8y7HDrHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mSnEUWf5hbLtUCIWGQuhpMk0E1KQVFyC7X0uGIwMQLkA7X8pU/sMSPqrwld/S2JAO
-         vmd6PGftBEs75S26OPH3TtG4c+N1nA4r0CrPOIWKSSEP+RztB/CLQyUm7CkcXuAtfo
-         rf379E1eqHRD4yhnoJ4sWideUBiwNzwacOCieGjM=
+        b=ot5LaBU1iEz2GWAr7+j7fPEoZrsXIo0tK6ElDDBR9vEL5Oau3Y04QlVrScoZRtKJd
+         BZlVDlvCXfhXeFWuPKzIXSuaNN2sHjm4ub9+EPTfJ1+unt9W43/LitwAPpE0r9e76n
+         W2l6P57AZ8Z2g95Du5oWMzl6aSlPztQAhNOBkzUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Vereshchagin <evvers@ya.ru>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 495/849] libbpf: Fix BTF header parsing checks
-Date:   Mon, 15 Nov 2021 17:59:38 +0100
-Message-Id: <20211115165437.032830792@linuxfoundation.org>
+        stable@vger.kernel.org, Amit Engel <amit.engel@dell.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 055/355] nvmet-tcp: fix header digest verification
+Date:   Mon, 15 Nov 2021 17:59:39 +0100
+Message-Id: <20211115165315.323417909@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Amit Engel <amit.engel@dell.com>
 
-[ Upstream commit c825f5fee19caf301d9821cd79abaa734322de26 ]
+[ Upstream commit 86aeda32b887cdaeb0f4b7bfc9971e36377181c7 ]
 
-Original code assumed fixed and correct BTF header length. That's not
-always the case, though, so fix this bug with a proper additional check.
-And use actual header length instead of sizeof(struct btf_header) in
-sanity checks.
+Pass the correct length to nvmet_tcp_verify_hdgst, which is the pdu
+header length.  This fixes a wrong behaviour where header digest
+verification passes although the digest is wrong.
 
-Fixes: 8a138aed4a80 ("bpf: btf: Add BTF support to libbpf")
-Reported-by: Evgeny Vereshchagin <evvers@ya.ru>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20211023003157.726961-2-andrii@kernel.org
+Signed-off-by: Amit Engel <amit.engel@dell.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/nvme/target/tcp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
-index 3e3ecac43ea9b..7ab9f702e72ac 100644
---- a/tools/lib/bpf/btf.c
-+++ b/tools/lib/bpf/btf.c
-@@ -231,13 +231,19 @@ static int btf_parse_hdr(struct btf *btf)
- 		}
- 		btf_bswap_hdr(hdr);
- 	} else if (hdr->magic != BTF_MAGIC) {
--		pr_debug("Invalid BTF magic:%x\n", hdr->magic);
-+		pr_debug("Invalid BTF magic: %x\n", hdr->magic);
- 		return -EINVAL;
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index 1328ee373e596..6b3d1ba7db7ee 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -1020,7 +1020,7 @@ recv:
  	}
  
--	meta_left = btf->raw_size - sizeof(*hdr);
-+	if (btf->raw_size < hdr->hdr_len) {
-+		pr_debug("BTF header len %u larger than data size %u\n",
-+			 hdr->hdr_len, btf->raw_size);
-+		return -EINVAL;
-+	}
-+
-+	meta_left = btf->raw_size - hdr->hdr_len;
- 	if (meta_left < (long long)hdr->str_off + hdr->str_len) {
--		pr_debug("Invalid BTF total size:%u\n", btf->raw_size);
-+		pr_debug("Invalid BTF total size: %u\n", btf->raw_size);
- 		return -EINVAL;
+ 	if (queue->hdr_digest &&
+-	    nvmet_tcp_verify_hdgst(queue, &queue->pdu, queue->offset)) {
++	    nvmet_tcp_verify_hdgst(queue, &queue->pdu, hdr->hlen)) {
+ 		nvmet_tcp_fatal_error(queue); /* fatal */
+ 		return -EPROTO;
  	}
- 
 -- 
 2.33.0
 
