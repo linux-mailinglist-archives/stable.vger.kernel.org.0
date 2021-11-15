@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AD1F452710
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:12:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 659F945244D
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:34:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239021AbhKPCPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:15:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36300 "EHLO mail.kernel.org"
+        id S1356602AbhKPBhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:37:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238911AbhKORwo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:52:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7008E63275;
-        Mon, 15 Nov 2021 17:32:25 +0000 (UTC)
+        id S242644AbhKOStV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:49:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3CFC633A3;
+        Mon, 15 Nov 2021 18:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997546;
-        bh=CnUNJre81Q6KKStugokck4+w68B+gGs5y1jYCINTFNw=;
+        s=korg; t=1636999713;
+        bh=NTg9cQtG4kfNe46SWAHG8MtfUOY+kMIkNM0xb09yldo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cQljeC5HDnNKkLwrgExlk1bKaUkeSvmLAYp3jryfQVNiYGSxuhZWfdMepZKeXUXFU
-         Yrwc1L1lY5x7q2Equxh/YVCvVL4F/Uy5fGh8SMCDfJ8cDQBoX4ENCWifP3y666lSdm
-         mg6WcQ3hVzg3OrTcUzWfc8EgyvKOjworyTIlDoiU=
+        b=D1vI/U02r6bDGiFI4fL6n/Ovl2aucHxbloODj9PTqV1zgIoVnO8R0+vyLSUOLn4Rg
+         PEOUpMVYc2H3kdrtv8JvoYby6j+AIpQrYkFbpNEH0AFTN5/3FSNamN9zskPOYa6JFI
+         hb85EJHTB7qJmy/SvHJvz/HGIGVsEHfYjQq+atf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.10 145/575] PCI: aardvark: Fix return value of MSI domain .alloc() method
-Date:   Mon, 15 Nov 2021 17:57:50 +0100
-Message-Id: <20211115165348.713930563@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Lad Prabhakar <prabhakar.csengg@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 389/849] media: i2c: ths8200 needs V4L2_ASYNC
+Date:   Mon, 15 Nov 2021 17:57:52 +0100
+Message-Id: <20211115165433.415222825@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit e4313be1599d397625c14fb7826996813622decf upstream.
+[ Upstream commit e4625044d656f3c33ece0cc9da22577bc10ca5d3 ]
 
-MSI domain callback .alloc() (implemented by advk_msi_irq_domain_alloc()
-function) should return zero on success, since non-zero value indicates
-failure.
+Fix the build errors reported by the kernel test robot by
+selecting V4L2_ASYNC:
 
-When the driver was converted to generic MSI API in commit f21a8b1b6837
-("PCI: aardvark: Move to MSI handling using generic MSI support"), it
-was converted so that it returns hwirq number.
+mips-linux-ld: drivers/media/i2c/ths8200.o: in function `ths8200_remove':
+ths8200.c:(.text+0x1ec): undefined reference to `v4l2_async_unregister_subdev'
+mips-linux-ld: drivers/media/i2c/ths8200.o: in function `ths8200_probe':
+ths8200.c:(.text+0x404): undefined reference to `v4l2_async_register_subdev'
 
-Fix this.
-
-Link: https://lore.kernel.org/r/20211028185659.20329-3-kabel@kernel.org
-Fixes: f21a8b1b6837 ("PCI: aardvark: Move to MSI handling using generic MSI support")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ed29f89497006 ("media: i2c: ths8200: support asynchronous probing")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
+Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1180,7 +1180,7 @@ static int advk_msi_irq_domain_alloc(str
- 				    domain->host_data, handle_simple_irq,
- 				    NULL, NULL);
+diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
+index 588f8eb959844..bde7fb021564a 100644
+--- a/drivers/media/i2c/Kconfig
++++ b/drivers/media/i2c/Kconfig
+@@ -597,6 +597,7 @@ config VIDEO_AK881X
+ config VIDEO_THS8200
+ 	tristate "Texas Instruments THS8200 video encoder"
+ 	depends on VIDEO_V4L2 && I2C
++	select V4L2_ASYNC
+ 	help
+ 	  Support for the Texas Instruments THS8200 video encoder.
  
--	return hwirq;
-+	return 0;
- }
- 
- static void advk_msi_irq_domain_free(struct irq_domain *domain,
+-- 
+2.33.0
+
 
 
