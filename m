@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC8D7451295
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1DB645147B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346935AbhKOThw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:37:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
+        id S242789AbhKOUH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:07:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244826AbhKOTRh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:17:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2710563425;
-        Mon, 15 Nov 2021 18:24:15 +0000 (UTC)
+        id S1344626AbhKOTZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BC78636A2;
+        Mon, 15 Nov 2021 19:01:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000655;
-        bh=x8c3oIyx7mvFo0HRAFo9anyAyJ6HpuZ++qT4atRC9dg=;
+        s=korg; t=1637002875;
+        bh=FKlO0WFpV/3WFUcwrYhZ+n896Sq5BcDCmjRTKsualEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tHByau3FOEX4dibSH2+sAcoyrmFYfHt5Ugrv2MSade1chPUE+sDaJQQtGI3Sk2h/J
-         92go0xq6q59qBxnemR8mTFZFr0ZRb6zdOEWrMWBM+1Z9vgMa8hZoQ+orNyVoeurqHA
-         utEO/3FlEWi7cNBHPeFHhCE6r+zxU+zKx5PnL0GA=
+        b=rPHGqik5XdYSAsF1OZh0MiWJ3UV8pKBaKKDu+ui494d6qF4mKThnuwq2A15jLSndN
+         6k//Zs20ySmzrJvSp/1GEJxKiTKu3OcoiU43HZNIEy41afX0NM1TCGfy61X1xVxxUz
+         jpsLT2WbOkkgUVapphLL/AqzaeGt0UCActJo6IX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Guobin <huangguobin4@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 740/849] bonding: Fix a use-after-free problem when bond_sysfs_slave_add() failed
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 728/917] dmaengine: at_xdmac: fix AT_XDMAC_CC_PERID() macro
 Date:   Mon, 15 Nov 2021 18:03:43 +0100
-Message-Id: <20211115165445.286012098@linuxfoundation.org>
+Message-Id: <20211115165453.604289609@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,197 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Guobin <huangguobin4@huawei.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit b93c6a911a3fe926b00add28f3b932007827c4ca ]
+[ Upstream commit 320c88a3104dc955f928a1eecebd551ff89530c0 ]
 
-When I do fuzz test for bonding device interface, I got the following
-use-after-free Calltrace:
+AT_XDMAC_CC_PERID() should be used to setup bits 24..30 of XDMAC_CC
+register. Using it without parenthesis around 0x7f & (i) will lead to
+setting all the time zero for bits 24..30 of XDMAC_CC as the << operator
+has higher precedence over bitwise &. Thus, add paranthesis around
+0x7f & (i).
 
-==================================================================
-BUG: KASAN: use-after-free in bond_enslave+0x1521/0x24f0
-Read of size 8 at addr ffff88825bc11c00 by task ifenslave/7365
-
-CPU: 5 PID: 7365 Comm: ifenslave Tainted: G            E     5.15.0-rc1+ #13
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
-Call Trace:
- dump_stack_lvl+0x6c/0x8b
- print_address_description.constprop.0+0x48/0x70
- kasan_report.cold+0x82/0xdb
- __asan_load8+0x69/0x90
- bond_enslave+0x1521/0x24f0
- bond_do_ioctl+0x3e0/0x450
- dev_ifsioc+0x2ba/0x970
- dev_ioctl+0x112/0x710
- sock_do_ioctl+0x118/0x1b0
- sock_ioctl+0x2e0/0x490
- __x64_sys_ioctl+0x118/0x150
- do_syscall_64+0x35/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f19159cf577
-Code: b3 66 90 48 8b 05 11 89 2c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 78
-RSP: 002b:00007ffeb3083c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007ffeb3084bca RCX: 00007f19159cf577
-RDX: 00007ffeb3083ce0 RSI: 0000000000008990 RDI: 0000000000000003
-RBP: 00007ffeb3084bc4 R08: 0000000000000040 R09: 0000000000000000
-R10: 00007ffeb3084bc0 R11: 0000000000000246 R12: 00007ffeb3083ce0
-R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffeb3083cb0
-
-Allocated by task 7365:
- kasan_save_stack+0x23/0x50
- __kasan_kmalloc+0x83/0xa0
- kmem_cache_alloc_trace+0x22e/0x470
- bond_enslave+0x2e1/0x24f0
- bond_do_ioctl+0x3e0/0x450
- dev_ifsioc+0x2ba/0x970
- dev_ioctl+0x112/0x710
- sock_do_ioctl+0x118/0x1b0
- sock_ioctl+0x2e0/0x490
- __x64_sys_ioctl+0x118/0x150
- do_syscall_64+0x35/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Freed by task 7365:
- kasan_save_stack+0x23/0x50
- kasan_set_track+0x20/0x30
- kasan_set_free_info+0x24/0x40
- __kasan_slab_free+0xf2/0x130
- kfree+0xd1/0x5c0
- slave_kobj_release+0x61/0x90
- kobject_put+0x102/0x180
- bond_sysfs_slave_add+0x7a/0xa0
- bond_enslave+0x11b6/0x24f0
- bond_do_ioctl+0x3e0/0x450
- dev_ifsioc+0x2ba/0x970
- dev_ioctl+0x112/0x710
- sock_do_ioctl+0x118/0x1b0
- sock_ioctl+0x2e0/0x490
- __x64_sys_ioctl+0x118/0x150
- do_syscall_64+0x35/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Last potentially related work creation:
- kasan_save_stack+0x23/0x50
- kasan_record_aux_stack+0xb7/0xd0
- insert_work+0x43/0x190
- __queue_work+0x2e3/0x970
- delayed_work_timer_fn+0x3e/0x50
- call_timer_fn+0x148/0x470
- run_timer_softirq+0x8a8/0xc50
- __do_softirq+0x107/0x55f
-
-Second to last potentially related work creation:
- kasan_save_stack+0x23/0x50
- kasan_record_aux_stack+0xb7/0xd0
- insert_work+0x43/0x190
- __queue_work+0x2e3/0x970
- __queue_delayed_work+0x130/0x180
- queue_delayed_work_on+0xa7/0xb0
- bond_enslave+0xe25/0x24f0
- bond_do_ioctl+0x3e0/0x450
- dev_ifsioc+0x2ba/0x970
- dev_ioctl+0x112/0x710
- sock_do_ioctl+0x118/0x1b0
- sock_ioctl+0x2e0/0x490
- __x64_sys_ioctl+0x118/0x150
- do_syscall_64+0x35/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The buggy address belongs to the object at ffff88825bc11c00
- which belongs to the cache kmalloc-1k of size 1024
-The buggy address is located 0 bytes inside of
- 1024-byte region [ffff88825bc11c00, ffff88825bc12000)
-The buggy address belongs to the page:
-page:ffffea00096f0400 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x25bc10
-head:ffffea00096f0400 order:3 compound_mapcount:0 compound_pincount:0
-flags: 0x57ff00000010200(slab|head|node=1|zone=2|lastcpupid=0x7ff)
-raw: 057ff00000010200 ffffea0009a71c08 ffff888240001968 ffff88810004dbc0
-raw: 0000000000000000 00000000000a000a 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff88825bc11b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff88825bc11b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff88825bc11c00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                   ^
- ffff88825bc11c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88825bc11d00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-Put new_slave in bond_sysfs_slave_add() will cause use-after-free problems
-when new_slave is accessed in the subsequent error handling process. Since
-new_slave will be put in the subsequent error handling process, remove the
-unnecessary put to fix it.
-In addition, when sysfs_create_file() fails, if some files have been crea-
-ted successfully, we need to call sysfs_remove_file() to remove them.
-Since there are sysfs_create_files() & sysfs_remove_files() can be used,
-use these two functions instead.
-
-Fixes: 7afcaec49696 (bonding: use kobject_put instead of _del after kobject_add)
-Signed-off-by: Huang Guobin <huangguobin4@huawei.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 15a03850ab8f ("dmaengine: at_xdmac: fix macro typo")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20211007111230.2331837-3-claudiu.beznea@microchip.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_sysfs_slave.c | 36 ++++++++------------------
- 1 file changed, 11 insertions(+), 25 deletions(-)
+ drivers/dma/at_xdmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/bonding/bond_sysfs_slave.c b/drivers/net/bonding/bond_sysfs_slave.c
-index fd07561da0348..6a6cdd0bb2585 100644
---- a/drivers/net/bonding/bond_sysfs_slave.c
-+++ b/drivers/net/bonding/bond_sysfs_slave.c
-@@ -108,15 +108,15 @@ static ssize_t ad_partner_oper_port_state_show(struct slave *slave, char *buf)
- }
- static SLAVE_ATTR_RO(ad_partner_oper_port_state);
- 
--static const struct slave_attribute *slave_attrs[] = {
--	&slave_attr_state,
--	&slave_attr_mii_status,
--	&slave_attr_link_failure_count,
--	&slave_attr_perm_hwaddr,
--	&slave_attr_queue_id,
--	&slave_attr_ad_aggregator_id,
--	&slave_attr_ad_actor_oper_port_state,
--	&slave_attr_ad_partner_oper_port_state,
-+static const struct attribute *slave_attrs[] = {
-+	&slave_attr_state.attr,
-+	&slave_attr_mii_status.attr,
-+	&slave_attr_link_failure_count.attr,
-+	&slave_attr_perm_hwaddr.attr,
-+	&slave_attr_queue_id.attr,
-+	&slave_attr_ad_aggregator_id.attr,
-+	&slave_attr_ad_actor_oper_port_state.attr,
-+	&slave_attr_ad_partner_oper_port_state.attr,
- 	NULL
- };
- 
-@@ -137,24 +137,10 @@ const struct sysfs_ops slave_sysfs_ops = {
- 
- int bond_sysfs_slave_add(struct slave *slave)
- {
--	const struct slave_attribute **a;
--	int err;
--
--	for (a = slave_attrs; *a; ++a) {
--		err = sysfs_create_file(&slave->kobj, &((*a)->attr));
--		if (err) {
--			kobject_put(&slave->kobj);
--			return err;
--		}
--	}
--
--	return 0;
-+	return sysfs_create_files(&slave->kobj, slave_attrs);
- }
- 
- void bond_sysfs_slave_del(struct slave *slave)
- {
--	const struct slave_attribute **a;
--
--	for (a = slave_attrs; *a; ++a)
--		sysfs_remove_file(&slave->kobj, &((*a)->attr));
-+	sysfs_remove_files(&slave->kobj, slave_attrs);
- }
+diff --git a/drivers/dma/at_xdmac.c b/drivers/dma/at_xdmac.c
+index c66ad5706cb5a..e18abbd56fb51 100644
+--- a/drivers/dma/at_xdmac.c
++++ b/drivers/dma/at_xdmac.c
+@@ -155,7 +155,7 @@
+ #define		AT_XDMAC_CC_WRIP	(0x1 << 23)	/* Write in Progress (read only) */
+ #define			AT_XDMAC_CC_WRIP_DONE		(0x0 << 23)
+ #define			AT_XDMAC_CC_WRIP_IN_PROGRESS	(0x1 << 23)
+-#define		AT_XDMAC_CC_PERID(i)	(0x7f & (i) << 24)	/* Channel Peripheral Identifier */
++#define		AT_XDMAC_CC_PERID(i)	((0x7f & (i)) << 24)	/* Channel Peripheral Identifier */
+ #define AT_XDMAC_CDS_MSP	0x2C	/* Channel Data Stride Memory Set Pattern */
+ #define AT_XDMAC_CSUS		0x30	/* Channel Source Microblock Stride */
+ #define AT_XDMAC_CDUS		0x34	/* Channel Destination Microblock Stride */
 -- 
 2.33.0
 
