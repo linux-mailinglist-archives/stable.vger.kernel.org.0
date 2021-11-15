@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE1BD451172
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:06:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E468F4513F4
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238012AbhKOTH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:07:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38344 "EHLO mail.kernel.org"
+        id S1348792AbhKOT75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:59:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240754AbhKOTFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:05:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D976D633E4;
-        Mon, 15 Nov 2021 18:16:22 +0000 (UTC)
+        id S1344148AbhKOTXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F0DD63639;
+        Mon, 15 Nov 2021 18:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000183;
-        bh=2IH9MM1rZ3/aSVmZLZllG7RS/eIZYJrMnnBQ5yJFil0=;
+        s=korg; t=1637002366;
+        bh=qQjTWBBKkkXc5wVQqANwUpgKMvtUSX+JFcNiZiipAMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMENmhv3f1RrYnMdm5H+PR1e28PGyhr4fIkTYo6M8udt0kJEzqjGMYZUuQyxHH676
-         cILox3LkcWZFGveZZM9ea/k6WsyYuEBYf/JRTDwpTXIXNGl505wg353BRwxAjUlf8N
-         afNDVc+6zxRQCfj6UTpaZ3xBVHqQ1QFo5c/UPEIE=
+        b=EAUWNBiuBoHfkmV64b2h0+8UvoonRyE9WDQQjQiy/5WiFOxdlEclL/kK0e4XEBBCT
+         s3+is2s0EyUvWCsR8/uFl1IDvt2C80d/9Mbkj1bcFaYKe3NOnPcBcTAsUag6dv5TPR
+         82Ups8Gvx0kLCSAbOXeSYvfmYRaPasb/A1dI51bk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 534/849] net: amd-xgbe: Toggle PLL settings during rate change
+Subject: [PATCH 5.15 522/917] libbpf: Fix endianness detection in BPF_CORE_READ_BITFIELD_PROBED()
 Date:   Mon, 15 Nov 2021 18:00:17 +0100
-Message-Id: <20211115165438.332161718@linuxfoundation.org>
+Message-Id: <20211115165446.464988910@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,108 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit daf182d360e509a494db18666799f4e85d83dda0 ]
+[ Upstream commit 45f2bebc8079788f62f22d9e8b2819afb1789d7b ]
 
-For each rate change command submission, the FW has to do a phy
-power off sequence internally. For this to happen correctly, the
-PLL re-initialization control setting has to be turned off before
-sending mailbox commands and re-enabled once the command submission
-is complete.
+__BYTE_ORDER is supposed to be defined by a libc, and __BYTE_ORDER__ -
+by a compiler. bpf_core_read.h checks __BYTE_ORDER == __LITTLE_ENDIAN,
+which is true if neither are defined, leading to incorrect behavior on
+big-endian hosts if libc headers are not included, which is often the
+case.
 
-Without the PLL control setting, the link up takes longer time in a
-fixed phy configuration.
-
-Fixes: 47f164deab22 ("amd-xgbe: Add PCI device support")
-Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ee26dade0e3b ("libbpf: Add support for relocatable bitfields")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20211026010831.748682-2-iii@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-common.h |  8 ++++++++
- drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 20 +++++++++++++++++++-
- 2 files changed, 27 insertions(+), 1 deletion(-)
+ tools/lib/bpf/bpf_core_read.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-common.h b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-index b2cd3bdba9f89..533b8519ec352 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-@@ -1331,6 +1331,10 @@
- #define MDIO_VEND2_PMA_CDR_CONTROL	0x8056
- #endif
+diff --git a/tools/lib/bpf/bpf_core_read.h b/tools/lib/bpf/bpf_core_read.h
+index 09ebe3db5f2f8..e4aa9996a5501 100644
+--- a/tools/lib/bpf/bpf_core_read.h
++++ b/tools/lib/bpf/bpf_core_read.h
+@@ -40,7 +40,7 @@ enum bpf_enum_value_kind {
+ #define __CORE_RELO(src, field, info)					      \
+ 	__builtin_preserve_field_info((src)->field, BPF_FIELD_##info)
  
-+#ifndef MDIO_VEND2_PMA_MISC_CTRL0
-+#define MDIO_VEND2_PMA_MISC_CTRL0	0x8090
-+#endif
-+
- #ifndef MDIO_CTRL1_SPEED1G
- #define MDIO_CTRL1_SPEED1G		(MDIO_CTRL1_SPEED10G & ~BMCR_SPEED100)
- #endif
-@@ -1389,6 +1393,10 @@
- #define XGBE_PMA_RX_RST_0_RESET_ON	0x10
- #define XGBE_PMA_RX_RST_0_RESET_OFF	0x00
- 
-+#define XGBE_PMA_PLL_CTRL_MASK		BIT(15)
-+#define XGBE_PMA_PLL_CTRL_ENABLE	BIT(15)
-+#define XGBE_PMA_PLL_CTRL_DISABLE	0x0000
-+
- /* Bit setting and getting macros
-  *  The get macro will extract the current bit field value from within
-  *  the variable
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-index 18e48b3bc402b..213769054391c 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-@@ -1977,12 +1977,26 @@ static void xgbe_phy_rx_reset(struct xgbe_prv_data *pdata)
- 	}
- }
- 
-+static void xgbe_phy_pll_ctrl(struct xgbe_prv_data *pdata, bool enable)
-+{
-+	XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_VEND2_PMA_MISC_CTRL0,
-+			 XGBE_PMA_PLL_CTRL_MASK,
-+			 enable ? XGBE_PMA_PLL_CTRL_ENABLE
-+				: XGBE_PMA_PLL_CTRL_DISABLE);
-+
-+	/* Wait for command to complete */
-+	usleep_range(100, 200);
-+}
-+
- static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 					unsigned int cmd, unsigned int sub_cmd)
- {
- 	unsigned int s0 = 0;
- 	unsigned int wait;
- 
-+	/* Disable PLL re-initialization during FW command processing */
-+	xgbe_phy_pll_ctrl(pdata, false);
-+
- 	/* Log if a previous command did not complete */
- 	if (XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS)) {
- 		netif_dbg(pdata, link, pdata->netdev,
-@@ -2003,7 +2017,7 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 	wait = XGBE_RATECHANGE_COUNT;
- 	while (wait--) {
- 		if (!XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS))
--			return;
-+			goto reenable_pll;
- 
- 		usleep_range(1000, 2000);
- 	}
-@@ -2013,6 +2027,10 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 
- 	/* Reset on error */
- 	xgbe_phy_rx_reset(pdata);
-+
-+reenable_pll:
-+	/* Enable PLL re-initialization */
-+	xgbe_phy_pll_ctrl(pdata, true);
- }
- 
- static void xgbe_phy_rrc(struct xgbe_prv_data *pdata)
+-#if __BYTE_ORDER == __LITTLE_ENDIAN
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+ #define __CORE_BITFIELD_PROBE_READ(dst, src, fld)			      \
+ 	bpf_probe_read_kernel(						      \
+ 			(void *)dst,				      \
 -- 
 2.33.0
 
