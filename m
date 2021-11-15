@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FDCD45103F
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:42:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18628450CD3
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:41:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242141AbhKOSpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:45:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47398 "EHLO mail.kernel.org"
+        id S237124AbhKORoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:44:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237940AbhKOSmq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:42:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62B84632F9;
-        Mon, 15 Nov 2021 18:05:09 +0000 (UTC)
+        id S236881AbhKORly (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:41:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78E45632F4;
+        Mon, 15 Nov 2021 17:27:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999510;
-        bh=XdHzq69UVsgqR64Yin1bH2sBYmYAy/ceHyhnLzd7Ng8=;
+        s=korg; t=1636997255;
+        bh=kIdQFU/9pUAtED/7qGstZ536P5/Xac8fklidjgrnPfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WrFa0mcdydFuuH7wqabZrHoJ7NH8W5/pFemcUT/4mT9Qrk589asBlur/Gmw+j4zfz
-         kfV9SrBiR7k0VzlTi3HO8nJCsnlNC8iQpEIUxeIVvFiaLeMy3bGJwodKf3y4X/oaVR
-         ZYSvkPP1JKzQjG7UHQop1hmym6Ptq81EwItkStG8=
+        b=MM7yzhoWIz23JTJKVtQ7JvvMv/bgM9L3TjmFDOCleiKk6R8dOCXYfrWG4c1n5KAw8
+         YeYJ65TtR9PCOn7PHVRBQR6k2Tui9eYa7mfEzW5ZCBBOcaAVEupO6mYBFxGFaRLArg
+         B3lVKFprnaQlInxCy7fMPhoKtqkhoneZB6zoKISw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
-        Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
-        Tim Gardner <tim.gardner@canonical.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 280/849] drm/msm: prevent NULL dereference in msm_gpu_crashstate_capture()
+        stable@vger.kernel.org, Alexander Tsoy <alexander@tsoy.me>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 038/575] ALSA: usb-audio: Add registration quirk for JBL Quantum 400
 Date:   Mon, 15 Nov 2021 17:56:03 +0100
-Message-Id: <20211115165429.743976506@linuxfoundation.org>
+Message-Id: <20211115165344.946704343@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Gardner <tim.gardner@canonical.com>
+From: Alexander Tsoy <alexander@tsoy.me>
 
-[ Upstream commit b220c154832c5cd0df34cbcbcc19d7135c16e823 ]
+commit 763d92ed5dece7d439fc28a88b2d2728d525ffd9 upstream.
 
-Coverity complains of a possible NULL dereference:
+Add another device ID for JBL Quantum 400. It requires the same quirk as
+other JBL Quantum devices.
 
-CID 120718 (#1 of 1): Dereference null return value (NULL_RETURNS)
-23. dereference: Dereferencing a pointer that might be NULL state->bos when
-    calling msm_gpu_crashstate_get_bo. [show details]
-301                        msm_gpu_crashstate_get_bo(state, submit->bos[i].obj,
-302                                submit->bos[i].iova, submit->bos[i].flags);
-
-Fix this by employing the same state->bos NULL check as is used in the next
-for loop.
-
-Cc: Rob Clark <robdclark@gmail.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: linux-arm-msm@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: freedreno@lists.freedesktop.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210929162554.14295-1-tim.gardner@canonical.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211030174308.1011825-1-alexander@tsoy.me
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_gpu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/msm_gpu.c b/drivers/gpu/drm/msm/msm_gpu.c
-index 0ebf7bc6ad097..8236989828ba3 100644
---- a/drivers/gpu/drm/msm/msm_gpu.c
-+++ b/drivers/gpu/drm/msm/msm_gpu.c
-@@ -404,7 +404,7 @@ static void msm_gpu_crashstate_capture(struct msm_gpu *gpu,
- 		state->bos = kcalloc(nr,
- 			sizeof(struct msm_gpu_state_bo), GFP_KERNEL);
- 
--		for (i = 0; i < submit->nr_bos; i++) {
-+		for (i = 0; state->bos && i < submit->nr_bos; i++) {
- 			if (should_dump(submit, i)) {
- 				msm_gpu_crashstate_get_bo(state, submit->bos[i].obj,
- 					submit->bos[i].iova, submit->bos[i].flags);
--- 
-2.33.0
-
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1897,6 +1897,7 @@ static const struct registration_quirk r
+ 	REG_QUIRK_ENTRY(0x0951, 0x16ea, 2),	/* Kingston HyperX Cloud Flight S */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x1f46, 2),	/* JBL Quantum 600 */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x1f47, 2),	/* JBL Quantum 800 */
++	REG_QUIRK_ENTRY(0x0ecb, 0x1f4c, 2),	/* JBL Quantum 400 */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x2039, 2),	/* JBL Quantum 400 */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x203c, 2),	/* JBL Quantum 600 */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x203e, 2),	/* JBL Quantum 800 */
 
 
