@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 962AF45111D
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4807D450ADC
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:12:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242614AbhKOTBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:01:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59666 "EHLO mail.kernel.org"
+        id S236746AbhKORPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:15:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243483AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:59:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D941460EB2;
-        Mon, 15 Nov 2021 18:13:10 +0000 (UTC)
+        id S236264AbhKORLm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:11:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1987610CA;
+        Mon, 15 Nov 2021 17:08:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999991;
-        bh=Qeyx0YVCwR6rX9/M5y0c+7zqXyGyt5uNMJFJMWFWJmY=;
+        s=korg; t=1636996127;
+        bh=BfVzLQkqCwR/4NhX7T4+boHwbywNIMuU4cR+EW/pDGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HMZ1icBZj7fvisgmqM/mB0TRWq+j2+zkTR2BtU4bbDwBNHKl39SNLD7OpjHlY/E5/
-         KdIpIv8rqEmBk+Qe7rI0CNUoEZsLPuv7wjChDJb1ov1wLY/iq1Kh2LD3hzthUZUeQe
-         eGayep6Cg6vcLLTHqKSElcwcMt1FO8ukLwz2tJb4=
+        b=DrYxCm5TC/viR/AsH4fIRP71x5XySGxhgh+zsXzycxgi0QclSZnL4pmL/4/6cyBwo
+         MvOGpOw4hmSqd9x4WI02oFF0Kn2o4JGM0r/7Bo+LFzwI5T9cva8KKEDFgE3yIpoSP/
+         b9iT/pQLYwQmDi2hlBt6OXq7LGo6O3oBd4xIGfJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joshua Emele <jemele@chromium.org>,
-        YN Chen <YN.Chen@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 465/849] mt76: mt7921: fix firmware usage of RA info using legacy rates
-Date:   Mon, 15 Nov 2021 17:59:08 +0100
-Message-Id: <20211115165436.013376567@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 025/355] ALSA: ua101: fix division by zero at probe
+Date:   Mon, 15 Nov 2021 17:59:09 +0100
+Message-Id: <20211115165314.360437526@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 99b8e195994d9d77de3bfe0cb403c44a57c2cf79 ]
+commit 55f261b73a7e1cb254577c3536cef8f415de220a upstream.
 
-According to the firmware usage, OFDM rates should fill out bit 6 - 13
-while CCK rates should fill out bit 0 - 3 in legacy field of RA info to
-make the rate adaption runs propertly. Otherwise, a unicast frame might be
-picking up the unsupported rate to send out.
+Add the missing endpoint max-packet sanity check to probe() to avoid
+division by zero in alloc_stream_buffers() in case a malicious device
+has broken descriptors (or when doing descriptor fuzz testing).
 
-Fixes: 1c099ab44727 ("mt76: mt7921: add MCU support")
-Reported-by: Joshua Emele <jemele@chromium.org>
-Co-developed-by: YN Chen <YN.Chen@mediatek.com>
-Signed-off-by: YN Chen <YN.Chen@mediatek.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that USB core will reject URBs submitted for endpoints with zero
+wMaxPacketSize but that drivers doing packet-size calculations still
+need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
+endpoint descriptors with maxpacket=0")).
+
+Fixes: 63978ab3e3e9 ("sound: add Edirol UA-101 support")
+Cc: stable@vger.kernel.org      # 2.6.34
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211026095401.26522-1-johan@kernel.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 11 ++++++++++-
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h |  2 ++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ sound/usb/misc/ua101.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-index f57f047fce99c..98d233e24afcc 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-@@ -719,6 +719,7 @@ void mt76_connac_mcu_sta_tlv(struct mt76_phy *mphy, struct sk_buff *skb,
- 	struct sta_rec_state *state;
- 	struct sta_rec_phy *phy;
- 	struct tlv *tlv;
-+	u16 supp_rates;
+--- a/sound/usb/misc/ua101.c
++++ b/sound/usb/misc/ua101.c
+@@ -1020,7 +1020,7 @@ static int detect_usb_format(struct ua10
+ 		fmt_playback->bSubframeSize * ua->playback.channels;
  
- 	/* starec ht */
- 	if (sta->ht_cap.ht_supported) {
-@@ -767,7 +768,15 @@ void mt76_connac_mcu_sta_tlv(struct mt76_phy *mphy, struct sk_buff *skb,
+ 	epd = &ua->intf[INTF_CAPTURE]->altsetting[1].endpoint[0].desc;
+-	if (!usb_endpoint_is_isoc_in(epd)) {
++	if (!usb_endpoint_is_isoc_in(epd) || usb_endpoint_maxp(epd) == 0) {
+ 		dev_err(&ua->dev->dev, "invalid capture endpoint\n");
+ 		return -ENXIO;
+ 	}
+@@ -1028,7 +1028,7 @@ static int detect_usb_format(struct ua10
+ 	ua->capture.max_packet_bytes = usb_endpoint_maxp(epd);
  
- 	tlv = mt76_connac_mcu_add_tlv(skb, STA_REC_RA, sizeof(*ra_info));
- 	ra_info = (struct sta_rec_ra_info *)tlv;
--	ra_info->legacy = cpu_to_le16((u16)sta->supp_rates[band]);
-+
-+	supp_rates = sta->supp_rates[band];
-+	if (band == NL80211_BAND_2GHZ)
-+		supp_rates = FIELD_PREP(RA_LEGACY_OFDM, supp_rates >> 4) |
-+			     FIELD_PREP(RA_LEGACY_CCK, supp_rates & 0xf);
-+	else
-+		supp_rates = FIELD_PREP(RA_LEGACY_OFDM, supp_rates);
-+
-+	ra_info->legacy = cpu_to_le16(supp_rates);
- 
- 	if (sta->ht_cap.ht_supported)
- 		memcpy(ra_info->rx_mcs_bitmask, sta->ht_cap.mcs.rx_mask,
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-index 4bcd728ff97c5..77d4435e4581e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-@@ -124,6 +124,8 @@ struct sta_rec_state {
- 	u8 rsv[1];
- } __packed;
- 
-+#define RA_LEGACY_OFDM GENMASK(13, 6)
-+#define RA_LEGACY_CCK  GENMASK(3, 0)
- #define HT_MCS_MASK_NUM 10
- struct sta_rec_ra_info {
- 	__le16 tag;
--- 
-2.33.0
-
+ 	epd = &ua->intf[INTF_PLAYBACK]->altsetting[1].endpoint[0].desc;
+-	if (!usb_endpoint_is_isoc_out(epd)) {
++	if (!usb_endpoint_is_isoc_out(epd) || usb_endpoint_maxp(epd) == 0) {
+ 		dev_err(&ua->dev->dev, "invalid playback endpoint\n");
+ 		return -ENXIO;
+ 	}
 
 
