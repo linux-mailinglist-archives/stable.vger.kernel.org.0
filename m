@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C850450138
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 10:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E57E45013F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 10:24:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237352AbhKOJ1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 04:27:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
+        id S230383AbhKOJ1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 04:27:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237617AbhKOJ1D (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237383AbhKOJ1D (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 04:27:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F96B61AD1;
-        Mon, 15 Nov 2021 09:23:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2669163215;
+        Mon, 15 Nov 2021 09:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636968239;
-        bh=VNha/UbAr4R1ud+syvWRZAExpgZPnulGmprqIsKhF5Y=;
+        s=korg; t=1636968245;
+        bh=2lg2JptMLNqWWB2g53wc+wVav8qAFFffRwcb19WMr+U=;
         h=Subject:To:From:Date:From;
-        b=vujuBSDH0wFnmgH9QXYlj2IZHVmuyfeF/mJvFWkUm487ECOP+WkClll8ZSHQyJz96
-         wxvf/R3P5SexhvrI+J69XDUvvIQMh5UYX//7GbdagiyIM8xyn2tO+YAhYTMK4WVA2s
-         jCX+LVJws9pBFREH2h+mNSz4zK0RsFrsipxBz+x0=
-Subject: patch "staging/fbtft: Fix backlight" added to staging-linus
-To:     noralf@tronnes.org, gregkh@linuxfoundation.org, sam@ravnborg.org,
+        b=teJqSnS7RFgmuETRUXtGhMS9UNEuqZHYoscicQlPqC73cZZLn651+nuug5Fdzw+V4
+         zzuzDDLe/1e8NwZoDNPMZ8XTRpvlkdfDzlnVCrIDJ+1eh0XjgSuMCn4KInS+xkk07y
+         jiuf2cBrQS+jpucl+OFSutXjl8l3uqpfO25BwCXY=
+Subject: patch "staging: r8188eu: fix a memory leak in rtw_wx_read32()" added to staging-linus
+To:     dan.carpenter@oracle.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Nov 2021 10:23:49 +0100
-Message-ID: <163696822915105@kroah.com>
+Date:   Mon, 15 Nov 2021 10:23:50 +0100
+Message-ID: <163696823047119@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging/fbtft: Fix backlight
+    staging: r8188eu: fix a memory leak in rtw_wx_read32()
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,100 +51,53 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 7865dd24934ad580d1bcde8f63c39f324211a23b Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Date: Fri, 5 Nov 2021 21:43:58 +0100
-Subject: staging/fbtft: Fix backlight
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From be4ea8f383551b9dae11b8dfff1f38b3b5436e9a Mon Sep 17 00:00:00 2001
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Date: Tue, 9 Nov 2021 14:49:36 +0300
+Subject: staging: r8188eu: fix a memory leak in rtw_wx_read32()
 
-Commit b4a1ed0cd18b ("fbdev: make FB_BACKLIGHT a tristate") forgot to
-update fbtft breaking its backlight support when FB_BACKLIGHT is a module.
+Free "ptmp" before returning -EINVAL.
 
-Since FB_TFT selects FB_BACKLIGHT there's no need for this conditional
-so just remove it and we're good.
-
-Fixes: b4a1ed0cd18b ("fbdev: make FB_BACKLIGHT a tristate")
-Cc: <stable@vger.kernel.org>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Link: https://lore.kernel.org/r/20211105204358.2991-1-noralf@tronnes.org
+Fixes: 2b42bd58b321 ("staging: r8188eu: introduce new os_dep dir for RTL8188eu driver")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20211109114935.GC16587@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/fbtft/fb_ssd1351.c | 4 ----
- drivers/staging/fbtft/fbtft-core.c | 9 +--------
- 2 files changed, 1 insertion(+), 12 deletions(-)
+ drivers/staging/r8188eu/os_dep/ioctl_linux.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/fbtft/fb_ssd1351.c b/drivers/staging/fbtft/fb_ssd1351.c
-index cf263a58a148..6fd549a424d5 100644
---- a/drivers/staging/fbtft/fb_ssd1351.c
-+++ b/drivers/staging/fbtft/fb_ssd1351.c
-@@ -187,7 +187,6 @@ static struct fbtft_display display = {
- 	},
- };
+diff --git a/drivers/staging/r8188eu/os_dep/ioctl_linux.c b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
+index 52d42e576443..9404355726d0 100644
+--- a/drivers/staging/r8188eu/os_dep/ioctl_linux.c
++++ b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
+@@ -1980,6 +1980,7 @@ static int rtw_wx_read32(struct net_device *dev,
+ 	u32 data32;
+ 	u32 bytes;
+ 	u8 *ptmp;
++	int ret;
  
--#ifdef CONFIG_FB_BACKLIGHT
- static int update_onboard_backlight(struct backlight_device *bd)
- {
- 	struct fbtft_par *par = bl_get_data(bd);
-@@ -231,9 +230,6 @@ static void register_onboard_backlight(struct fbtft_par *par)
- 	if (!par->fbtftops.unregister_backlight)
- 		par->fbtftops.unregister_backlight = fbtft_unregister_backlight;
- }
--#else
--static void register_onboard_backlight(struct fbtft_par *par) { };
--#endif
- 
- FBTFT_REGISTER_DRIVER(DRVNAME, "solomon,ssd1351", &display);
- 
-diff --git a/drivers/staging/fbtft/fbtft-core.c b/drivers/staging/fbtft/fbtft-core.c
-index ecb5f75f6dd5..f2684d2d6851 100644
---- a/drivers/staging/fbtft/fbtft-core.c
-+++ b/drivers/staging/fbtft/fbtft-core.c
-@@ -128,7 +128,6 @@ static int fbtft_request_gpios(struct fbtft_par *par)
- 	return 0;
- }
- 
--#ifdef CONFIG_FB_BACKLIGHT
- static int fbtft_backlight_update_status(struct backlight_device *bd)
- {
- 	struct fbtft_par *par = bl_get_data(bd);
-@@ -161,6 +160,7 @@ void fbtft_unregister_backlight(struct fbtft_par *par)
- 		par->info->bl_dev = NULL;
+ 	padapter = (struct adapter *)rtw_netdev_priv(dev);
+ 	p = &wrqu->data;
+@@ -2007,12 +2008,17 @@ static int rtw_wx_read32(struct net_device *dev,
+ 		break;
+ 	default:
+ 		DBG_88E(KERN_INFO "%s: usage> read [bytes],[address(hex)]\n", __func__);
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_free_ptmp;
  	}
- }
-+EXPORT_SYMBOL(fbtft_unregister_backlight);
+ 	DBG_88E(KERN_INFO "%s: addr = 0x%08X data =%s\n", __func__, addr, extra);
  
- static const struct backlight_ops fbtft_bl_ops = {
- 	.get_brightness	= fbtft_backlight_get_brightness,
-@@ -198,12 +198,7 @@ void fbtft_register_backlight(struct fbtft_par *par)
- 	if (!par->fbtftops.unregister_backlight)
- 		par->fbtftops.unregister_backlight = fbtft_unregister_backlight;
- }
--#else
--void fbtft_register_backlight(struct fbtft_par *par) { };
--void fbtft_unregister_backlight(struct fbtft_par *par) { };
--#endif
- EXPORT_SYMBOL(fbtft_register_backlight);
--EXPORT_SYMBOL(fbtft_unregister_backlight);
- 
- static void fbtft_set_addr_win(struct fbtft_par *par, int xs, int ys, int xe,
- 			       int ye)
-@@ -853,13 +848,11 @@ int fbtft_register_framebuffer(struct fb_info *fb_info)
- 		 fb_info->fix.smem_len >> 10, text1,
- 		 HZ / fb_info->fbdefio->delay, text2);
- 
--#ifdef CONFIG_FB_BACKLIGHT
- 	/* Turn on backlight if available */
- 	if (fb_info->bl_dev) {
- 		fb_info->bl_dev->props.power = FB_BLANK_UNBLANK;
- 		fb_info->bl_dev->ops->update_status(fb_info->bl_dev);
- 	}
--#endif
- 
+ 	kfree(ptmp);
  	return 0;
++
++err_free_ptmp:
++	kfree(ptmp);
++	return ret;
+ }
  
+ static int rtw_wx_write32(struct net_device *dev,
 -- 
 2.33.1
 
