@@ -2,40 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AB83451037
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:42:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D05C545103C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:42:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236659AbhKOSok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:44:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50354 "EHLO mail.kernel.org"
+        id S242683AbhKOSo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:44:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241888AbhKOSms (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241860AbhKOSms (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:42:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E575163253;
-        Mon, 15 Nov 2021 18:05:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9851632B1;
+        Mon, 15 Nov 2021 18:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999517;
-        bh=4TzZT2sz6OyCWRz+OOmLPeidSFBBeRJxtSv4e2DJcLE=;
+        s=korg; t=1636999520;
+        bh=lpkMv/eNHWRFmJnGhEYaeuMfRWDXze1aNzpiXmhpC2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ebchULBt6Uj5JmhUZuz3na6xdqExEdqlkEZ1MHCVtC7kC0SRYuAr5PMlfAV6T9WLr
-         Qj9C3TXdBNucdKDXssLvuQT2jjmtFm8fyzUnI6UY6LV4OVMe9s4f0Pqs947wCzu25m
-         Jgwcz7OeQGw8pKxDfMFUjS+4RAGrc97c4sZmSgVE=
+        b=PbDGSE0J5yqTEQVFoXJ6oHoo9Yd0Gfa2lXrc3CNfSU7B6V8/TCAOfO2U8g2Vm+u9B
+         +oqZDar8oFLRl+mbrXTtzYarzkTR51NFwXzdcwmgLejyWBZThBs+MuY1LbeTF1C6Yv
+         tY4bkvCT2zAN+k+bbMQ9FZQ3HjktkaXBdr2ufxnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Anson Jacob <Anson.Jacob@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Agustin Gutierrez <agustin.gutierrez@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 327/849] drm/amd/display: dcn20_resource_construct reduce scope of FPU enabled
-Date:   Mon, 15 Nov 2021 17:56:50 +0100
-Message-Id: <20211115165431.306822744@linuxfoundation.org>
+Subject: [PATCH 5.14 328/849] selftests/core: fix conflicting types compile error for close_range()
+Date:   Mon, 15 Nov 2021 17:56:51 +0100
+Message-Id: <20211115165431.339632236@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -47,106 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Jacob <Anson.Jacob@amd.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit bc39a69a2ac484e6575a958567c162ef56c9f278 ]
+[ Upstream commit f35dcaa0a8a29188ed61083d153df1454cf89d08 ]
 
-Limit when FPU is enabled to only functions that does FPU operations for
-dcn20_resource_construct, which gets called during driver
-initialization.
+close_range() test type conflicts with close_range() library call in
+x86_64-linux-gnu/bits/unistd_ext.h. Fix it by changing the name to
+core_close_range().
 
-Enabling FPU operation disables preemption.  Sleeping functions(mutex
-(un)lock, memory allocation using GFP_KERNEL, etc.) should not be called
-when preemption is disabled.
+gcc -g -I../../../../usr/include/    close_range_test.c  -o ../tools/testing/selftests/core/close_range_test
+In file included from close_range_test.c:16:
+close_range_test.c:57:6: error: conflicting types for ‘close_range’; have ‘void(struct __test_metadata *)’
+   57 | TEST(close_range)
+      |      ^~~~~~~~~~~
+../kselftest_harness.h:181:21: note: in definition of macro ‘__TEST_IMPL’
+  181 |         static void test_name(struct __test_metadata *_metadata); \
+      |                     ^~~~~~~~~
+close_range_test.c:57:1: note: in expansion of macro ‘TEST’
+   57 | TEST(close_range)
+      | ^~~~
+In file included from /usr/include/unistd.h:1204,
+                 from close_range_test.c:13:
+/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:56:12: note: previous declaration of ‘close_range’ with type ‘int(unsigned int,  unsigned int,  int)’
+   56 | extern int close_range (unsigned int __fd, unsigned int __max_fd,
+      |            ^~~~~~~~~~~
 
-Fixes the following case caught by enabling
-CONFIG_DEBUG_ATOMIC_SLEEP in kernel config
-[    1.338434] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:281
-[    1.347395] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 197, name: systemd-udevd
-[    1.356356] CPU: 7 PID: 197 Comm: systemd-udevd Not tainted 5.13.0+ #3
-[    1.356358] Hardware name: System manufacturer System Product Name/PRIME X570-PRO, BIOS 3405 02/01/2021
-[    1.356360] Call Trace:
-[    1.356361]  dump_stack+0x6b/0x86
-[    1.356366]  ___might_sleep.cold+0x87/0x98
-[    1.356370]  __might_sleep+0x4b/0x80
-[    1.356372]  mutex_lock+0x21/0x50
-[    1.356376]  smu_get_uclk_dpm_states+0x3f/0x80 [amdgpu]
-[    1.356538]  pp_nv_get_uclk_dpm_states+0x35/0x50 [amdgpu]
-[    1.356711]  init_soc_bounding_box+0xf9/0x210 [amdgpu]
-[    1.356892]  ? create_object+0x20d/0x340
-[    1.356897]  ? dcn20_resource_construct+0x46f/0xd30 [amdgpu]
-[    1.357077]  dcn20_resource_construct+0x4b1/0xd30 [amdgpu]
-...
-
-Tested on: 5700XT (NAVI10 0x1002:0x731F 0x1DA2:0xE410 0xC1)
-
-Cc: Christian König <christian.koenig@amd.com>
-Cc: Hersen Wu <hersenxs.wu@amd.com>
-Cc: Anson Jacob <Anson.Jacob@amd.com>
-Cc: Harry Wentland <harry.wentland@amd.com>
-
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Acked-by: Agustin Gutierrez <agustin.gutierrez@amd.com>
-Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/dc/dcn20/dcn20_resource.c    | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ tools/testing/selftests/core/close_range_test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-index c78933a9d31c1..2c1d3d9b7cc14 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-@@ -3701,16 +3701,22 @@ static bool init_soc_bounding_box(struct dc *dc,
- 			clock_limits_available = (status == PP_SMU_RESULT_OK);
- 		}
+diff --git a/tools/testing/selftests/core/close_range_test.c b/tools/testing/selftests/core/close_range_test.c
+index 73eb29c916d1b..aa7d13d91963f 100644
+--- a/tools/testing/selftests/core/close_range_test.c
++++ b/tools/testing/selftests/core/close_range_test.c
+@@ -54,7 +54,7 @@ static inline int sys_close_range(unsigned int fd, unsigned int max_fd,
+ #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+ #endif
  
--		if (clock_limits_available && uclk_states_available && num_states)
-+		if (clock_limits_available && uclk_states_available && num_states) {
-+			DC_FP_START();
- 			dcn20_update_bounding_box(dc, loaded_bb, &max_clocks, uclk_states, num_states);
--		else if (clock_limits_available)
-+			DC_FP_END();
-+		} else if (clock_limits_available) {
-+			DC_FP_START();
- 			dcn20_cap_soc_clocks(loaded_bb, max_clocks);
-+			DC_FP_END();
-+		}
- 	}
- 
- 	loaded_ip->max_num_otg = pool->base.res_cap->num_timing_generator;
- 	loaded_ip->max_num_dpp = pool->base.pipe_count;
-+	DC_FP_START();
- 	dcn20_patch_bounding_box(dc, loaded_bb);
--
-+	DC_FP_END();
- 	return true;
- }
- 
-@@ -3730,8 +3736,6 @@ static bool dcn20_resource_construct(
- 	enum dml_project dml_project_version =
- 			get_dml_project_version(ctx->asic_id.hw_internal_rev);
- 
--	DC_FP_START();
--
- 	ctx->dc_bios->regs = &bios_regs;
- 	pool->base.funcs = &dcn20_res_pool_funcs;
- 
-@@ -4080,12 +4084,10 @@ static bool dcn20_resource_construct(
- 		pool->base.oem_device = NULL;
- 	}
- 
--	DC_FP_END();
- 	return true;
- 
- create_fail:
- 
--	DC_FP_END();
- 	dcn20_resource_destruct(pool);
- 
- 	return false;
+-TEST(close_range)
++TEST(core_close_range)
+ {
+ 	int i, ret;
+ 	int open_fds[101];
 -- 
 2.33.0
 
