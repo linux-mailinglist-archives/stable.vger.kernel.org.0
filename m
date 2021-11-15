@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6E8F4520B3
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0BF94520BA
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245759AbhKPA4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:56:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
+        id S1358784AbhKPA4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:56:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343513AbhKOTVQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDDB36359C;
-        Mon, 15 Nov 2021 18:41:10 +0000 (UTC)
+        id S1343540AbhKOTVS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11E4A635AD;
+        Mon, 15 Nov 2021 18:41:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001671;
-        bh=/df6E/pzX0/vPDpg042wquEswSft4/w11//V6dS6SPY=;
+        s=korg; t=1637001700;
+        bh=aA7zCIUHOIkNJvWKO3490jiM+is53Y1ocJJDwBGLFgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VDaiyDUWBHrDsDoUzLZFJxn5xygBPddtkbuNirhXpx9NxQI80P/1rcNV5H6cgaCri
-         wUc5azNpPHsLi+/w6VR76kuvG/a0ORldMcuSUj8KKgh8CyQv4koUB0gZ5VV/hZ0ylP
-         ptCW/oYhyISGqpB8E2RIYkxubLC25gmRTqZwmxHs=
+        b=mBbaI/BjwhMo442da9ppwNxR2+jbLcNYoVwKJNRnr9OsLKQaKjTY7Psda30yjN09P
+         6tifQ1qgMErWE7KsZAh5zvTI2NYdJtSbSgeZFNEMXWC2vJ6LzD9cbT3JZhNizELV8K
+         Hl6cU8LNNO4LA/sNiieasOAnMykEfvWHDQBAVTJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lasse Collin <lasse.collin@tukaani.org>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 269/917] lib/xz: Validate the value before assigning it to an enum variable
-Date:   Mon, 15 Nov 2021 17:56:04 +0100
-Message-Id: <20211115165437.897870180@linuxfoundation.org>
+        stable@vger.kernel.org, Mengen Sun <mengensun@tencent.com>,
+        Menglong Dong <imagedong@tencent.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 270/917] workqueue: make sysfs of unbound kworker cpumask more clever
+Date:   Mon, 15 Nov 2021 17:56:05 +0100
+Message-Id: <20211115165437.931344761@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,49 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lasse Collin <lasse.collin@tukaani.org>
+From: Menglong Dong <imagedong@tencent.com>
 
-[ Upstream commit 4f8d7abaa413c34da9d751289849dbfb7c977d05 ]
+[ Upstream commit d25302e46592c97d29f70ccb1be558df31a9a360 ]
 
-This might matter, for example, if the underlying type of enum xz_check
-was a signed char. In such a case the validation wouldn't have caught an
-unsupported header. I don't know if this problem can occur in the kernel
-on any arch but it's still good to fix it because some people might copy
-the XZ code to their own projects from Linux instead of the upstream
-XZ Embedded repository.
+Some unfriendly component, such as dpdk, write the same mask to
+unbound kworker cpumask again and again. Every time it write to
+this interface some work is queue to cpu, even though the mask
+is same with the original mask.
 
-This change may increase the code size by a few bytes. An alternative
-would have been to use an unsigned int instead of enum xz_check but
-using an enumeration looks cleaner.
+So, fix it by return success and do nothing if the cpumask is
+equal with the old one.
 
-Link: https://lore.kernel.org/r/20211010213145.17462-3-xiang@kernel.org
-Signed-off-by: Lasse Collin <lasse.collin@tukaani.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Mengen Sun <mengensun@tencent.com>
+Signed-off-by: Menglong Dong <imagedong@tencent.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/xz/xz_dec_stream.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/workqueue.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/lib/xz/xz_dec_stream.c b/lib/xz/xz_dec_stream.c
-index fea86deaaa01d..683570b93a8c4 100644
---- a/lib/xz/xz_dec_stream.c
-+++ b/lib/xz/xz_dec_stream.c
-@@ -402,12 +402,12 @@ static enum xz_ret dec_stream_header(struct xz_dec *s)
- 	 * we will accept other check types too, but then the check won't
- 	 * be verified and a warning (XZ_UNSUPPORTED_CHECK) will be given.
- 	 */
-+	if (s->temp.buf[HEADER_MAGIC_SIZE + 1] > XZ_CHECK_MAX)
-+		return XZ_OPTIONS_ERROR;
-+
- 	s->check_type = s->temp.buf[HEADER_MAGIC_SIZE + 1];
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index 1b3eb1e9531f4..76988f39ed5ac 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -5384,9 +5384,6 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
+ 	int ret = -EINVAL;
+ 	cpumask_var_t saved_cpumask;
  
- #ifdef XZ_DEC_ANY_CHECK
--	if (s->check_type > XZ_CHECK_MAX)
--		return XZ_OPTIONS_ERROR;
+-	if (!zalloc_cpumask_var(&saved_cpumask, GFP_KERNEL))
+-		return -ENOMEM;
 -
- 	if (s->check_type > XZ_CHECK_CRC32)
- 		return XZ_UNSUPPORTED_CHECK;
- #else
+ 	/*
+ 	 * Not excluding isolated cpus on purpose.
+ 	 * If the user wishes to include them, we allow that.
+@@ -5394,6 +5391,15 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
+ 	cpumask_and(cpumask, cpumask, cpu_possible_mask);
+ 	if (!cpumask_empty(cpumask)) {
+ 		apply_wqattrs_lock();
++		if (cpumask_equal(cpumask, wq_unbound_cpumask)) {
++			ret = 0;
++			goto out_unlock;
++		}
++
++		if (!zalloc_cpumask_var(&saved_cpumask, GFP_KERNEL)) {
++			ret = -ENOMEM;
++			goto out_unlock;
++		}
+ 
+ 		/* save the old wq_unbound_cpumask. */
+ 		cpumask_copy(saved_cpumask, wq_unbound_cpumask);
+@@ -5406,10 +5412,11 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
+ 		if (ret < 0)
+ 			cpumask_copy(wq_unbound_cpumask, saved_cpumask);
+ 
++		free_cpumask_var(saved_cpumask);
++out_unlock:
+ 		apply_wqattrs_unlock();
+ 	}
+ 
+-	free_cpumask_var(saved_cpumask);
+ 	return ret;
+ }
+ 
 -- 
 2.33.0
 
