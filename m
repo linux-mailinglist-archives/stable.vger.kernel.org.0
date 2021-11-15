@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E90154512A4
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 704EC4512D2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347128AbhKOTii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:38:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1347475AbhKOTj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244939AbhKOTSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDC70634DE;
-        Mon, 15 Nov 2021 18:25:51 +0000 (UTC)
+        id S245061AbhKOTTH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:19:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45060634FD;
+        Mon, 15 Nov 2021 18:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000752;
-        bh=uko3wy88vVatPWmLmQkYOdSbG58/6mNzIlJKw6MY2eU=;
+        s=korg; t=1637000863;
+        bh=o2vNYiXQqL0DzCXCOJyEVsB4e/WMcKZ77Rb17LF1dX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXeZxUQyKOziE5IODzzNRC31qWNSo2K85tkMiJAf4KVawkhrhg1qK55yKnCKHq2uo
-         FqDOvMwsYqgdyr3Rv+2reHtT5gaFQmNW47XLvCmsWQ0b1ZgrqzM6ZZNbjrDqMMPn8b
-         O56X4vPQ5ExicrAD4jT5MplQU5Dr3aE7eFGgf+bg=
+        b=Xyt89mIA+eDpYT2iQCjWWIpABYgWN7gMhzZoTayLD+3K81XhGM8IogwRW/unshyA5
+         CL/yEW0iqZw3Vjw0fyhilvesRck9N5qUddwOcPZrxB29Velj27WJzNphMZydasIJ+J
+         p1jL+Cx/2DcNQgyCP8WkMJhpjlzuu1IexRYHUr7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 777/849] net: hns3: allow configure ETS bandwidth of all TCs
-Date:   Mon, 15 Nov 2021 18:04:20 +0100
-Message-Id: <20211115165446.528863409@linuxfoundation.org>
+Subject: [PATCH 5.14 778/849] net: stmmac: allow a tc-taprio base-time of zero
+Date:   Mon, 15 Nov 2021 18:04:21 +0100
+Message-Id: <20211115165446.559851352@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,63 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 688db0c7a4a69ddc8b8143a1cac01eb20082a3aa ]
+[ Upstream commit f64ab8e4f368f48afb08ae91928e103d17b235e9 ]
 
-Currently, driver only allow configuring ETS bandwidth of TCs according
-to the max TC number queried from firmware. However, the hardware actually
-supports 8 TCs and users may need to configure ETS bandwidth of all TCs,
-so remove the restriction.
+Commit fe28c53ed71d ("net: stmmac: fix taprio configuration when
+base_time is in the past") allowed some base time values in the past,
+but apparently not all, the base-time value of 0 (Jan 1st 1970) is still
+explicitly denied by the driver.
 
-Fixes: 330baff5423b ("net: hns3: add ETS TC weight setting in SSU module")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Remove the bogus check.
+
+Fixes: b60189e0392f ("net: stmmac: Integrate EST with TAPRIO scheduler API")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Kurt Kanzenbach <kurt@linutronix.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c | 2 +-
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c  | 9 +--------
- 2 files changed, 2 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-index 64cc019cb67ca..f517cc334ebed 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-@@ -125,7 +125,7 @@ static int hclge_ets_validate(struct hclge_dev *hdev, struct ieee_ets *ets,
- 	if (ret)
- 		return ret;
- 
--	for (i = 0; i < hdev->tc_max; i++) {
-+	for (i = 0; i < HNAE3_MAX_TC; i++) {
- 		switch (ets->tc_tsa[i]) {
- 		case IEEE_8021QAZ_TSA_STRICT:
- 			if (hdev->tm_info.tc_info[i].tc_sch_mode !=
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-index 5ff2c98a55427..e948b6558de59 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-@@ -1123,7 +1123,6 @@ static int hclge_tm_pri_tc_base_dwrr_cfg(struct hclge_dev *hdev)
- 
- static int hclge_tm_ets_tc_dwrr_cfg(struct hclge_dev *hdev)
- {
--#define DEFAULT_TC_WEIGHT	1
- #define DEFAULT_TC_OFFSET	14
- 
- 	struct hclge_ets_tc_weight_cmd *ets_weight;
-@@ -1136,13 +1135,7 @@ static int hclge_tm_ets_tc_dwrr_cfg(struct hclge_dev *hdev)
- 	for (i = 0; i < HNAE3_MAX_TC; i++) {
- 		struct hclge_pg_info *pg_info;
- 
--		ets_weight->tc_weight[i] = DEFAULT_TC_WEIGHT;
--
--		if (!(hdev->hw_tc_map & BIT(i)))
--			continue;
--
--		pg_info =
--			&hdev->tm_info.pg_info[hdev->tm_info.tc_info[i].pgid];
-+		pg_info = &hdev->tm_info.pg_info[hdev->tm_info.tc_info[i].pgid];
- 		ets_weight->tc_weight[i] = pg_info->tc_dwrr[i];
- 	}
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
+index 8160087ee92f2..1c4ea0b1b845b 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
+@@ -786,8 +786,6 @@ static int tc_setup_taprio(struct stmmac_priv *priv,
+ 		goto disable;
+ 	if (qopt->num_entries >= dep)
+ 		return -EINVAL;
+-	if (!qopt->base_time)
+-		return -ERANGE;
+ 	if (!qopt->cycle_time)
+ 		return -ERANGE;
  
 -- 
 2.33.0
