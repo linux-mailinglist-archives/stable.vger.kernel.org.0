@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 181DC450D6B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:54:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BD5D450A8F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238631AbhKOR5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:57:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
+        id S232381AbhKORLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:11:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239235AbhKOR4B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:56:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BEF463329;
-        Mon, 15 Nov 2021 17:33:43 +0000 (UTC)
+        id S232425AbhKORLL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:11:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E13061452;
+        Mon, 15 Nov 2021 17:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997623;
-        bh=r5aRhNSwkqy0DGgrFIo4D4wyRlFHC3vlayN/tYCI0S0=;
+        s=korg; t=1636996096;
+        bh=jhoe7c1eN62SxG3PeYQcb28iPTdAV4g9WevXUqpaico=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKp5v78tq3GdMBLBFePdr199M1t3/fn1wr3lEzW0aqntu+vjasrCaV7lHIjp/NjKk
-         fNZizLkGwcg1AeDPC40hQRyFApj7QAbt1/tvPUfAWYyvlgwsuHxEawnso9YpkTk3+H
-         FZzKxVXjvv4xpWfRB3URRlVcUwvdlduyQrYSB02Y=
+        b=jVyPBDdAPXB7FPjINV1RNqDriE7X514R8PvRowBUDFNI3YalKAsjkp4l3qAKSWD76
+         a5QBjv/htmBLhePeB6JYSDOuvbrvRA7ALTNglNNjXj+zc6yZFWXj9QhlbZlriAJ7JT
+         eyBUVKF3eS4BFzFtaiayM4Qb+xFrKXphWyJRsOEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 214/575] ACPI: battery: Accept charges over the design capacity as full
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.4 015/355] tpm: Check for integer overflow in tpm2_map_response_body()
 Date:   Mon, 15 Nov 2021 17:58:59 +0100
-Message-Id: <20211115165351.119170886@linuxfoundation.org>
+Message-Id: <20211115165314.044647919@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: André Almeida <andrealmeid@collabora.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 2835f327bd1240508db2c89fe94a056faa53c49a ]
+commit a0bcce2b2a169e10eb265c8f0ebdd5ae4c875670 upstream.
 
-Some buggy firmware and/or brand new batteries can support a charge that's
-slightly over the reported design capacity. In such cases, the kernel will
-report to userspace that the charging state of the battery is "Unknown",
-when in reality the battery charge is "Full", at least from the design
-capacity point of view. Make the fallback condition accepts capacities
-over the designed capacity so userspace knows that is full.
+The "4 * be32_to_cpu(data->count)" multiplication can potentially
+overflow which would lead to memory corruption.  Add a check for that.
 
-Signed-off-by: André Almeida <andrealmeid@collabora.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 745b361e989a ("tpm: infrastructure for TPM spaces")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/battery.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/tpm/tpm2-space.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index 08ee1c7b12e00..e04352c1dc2ce 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -174,7 +174,7 @@ static int acpi_battery_is_charged(struct acpi_battery *battery)
- 		return 1;
+--- a/drivers/char/tpm/tpm2-space.c
++++ b/drivers/char/tpm/tpm2-space.c
+@@ -455,6 +455,9 @@ static int tpm2_map_response_body(struct
+ 	if (be32_to_cpu(data->capability) != TPM2_CAP_HANDLES)
+ 		return 0;
  
- 	/* fallback to using design values for broken batteries */
--	if (battery->design_capacity == battery->capacity_now)
-+	if (battery->design_capacity <= battery->capacity_now)
- 		return 1;
++	if (be32_to_cpu(data->count) > (UINT_MAX - TPM_HEADER_SIZE - 9) / 4)
++		return -EFAULT;
++
+ 	if (len != TPM_HEADER_SIZE + 9 + 4 * be32_to_cpu(data->count))
+ 		return -EFAULT;
  
- 	/* we don't do any sort of metric based on percentages */
--- 
-2.33.0
-
 
 
