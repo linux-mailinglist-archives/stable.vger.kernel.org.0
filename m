@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88544451EA9
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7F5F451E84
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355211AbhKPAg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
+        id S241722AbhKPAgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:36:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345020AbhKOT0C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:26:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE3DC611BF;
-        Mon, 15 Nov 2021 19:08:50 +0000 (UTC)
+        id S1345029AbhKOT0D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:26:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E95426321A;
+        Mon, 15 Nov 2021 19:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003331;
-        bh=2Y/3c1mKFvc/CDhSWBJlEVjLiKAs0ao0JGyOFhRv0jg=;
+        s=korg; t=1637003336;
+        bh=oEkI2Wa5wF/SWR9GZEyjl3lg0Os27ZFKxK9CYW/cfu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i3pQBujKDagAgn4tiFtyYjaLjxoaDeeYIgtF5XYMuIaQLYhaYdQoFIVA8qwwmw3z6
-         ILMcg5MxEmylBBLvEOvl3W8U1Aevn/3ePoc9wcaPkXGq4sRBRdjeENu0mf5yEBRvgr
-         2iVmg/1WYytkZ2uafQxAH6VMOSi8Kb/ws/QquGEM=
+        b=SJ8OjuAyX21kbGbl82L0VpEl37kKVe4kxffHnEDyw15g2SkrkbHrykOR0gF9FmnWz
+         ny+AAU72JjkTKmqrcCepiXb2klAxb4LhtzzRyuOkJDATmry3ovSWWFLe20+70aPmS1
+         9v/QT8qSQUzBt5vVHZdoBMK1tO6SWDCKzxMW4J2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.15 896/917] mtd: rawnand: fsmc: Fix use of SM ORDER
-Date:   Mon, 15 Nov 2021 18:06:31 +0100
-Message-Id: <20211115165459.433129043@linuxfoundation.org>
+Subject: [PATCH 5.15 897/917] mtd: rawnand: ams-delta: Keep the driver compatible with on-die ECC engines
+Date:   Mon, 15 Nov 2021 18:06:32 +0100
+Message-Id: <20211115165459.465717798@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,40 +40,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 9be1446ece291a1f08164bd056bed3d698681f8b upstream.
+commit d707bb74daae07879e0fc1b4b960f8f2d0a5fe5d upstream.
 
-The introduction of the generic ECC engine API lead to a number of
-changes in various drivers which broke some of them. Here is a typical
-example: I expected the SM_ORDER option to be handled by the Hamming ECC
-engine internals. Problem: the fsmc driver does not instantiate (yet) a
-real ECC engine object so we had to use a 'bare' ECC helper instead of
-the shiny rawnand functions. However, when not intializing this engine
-properly and using the bare helpers, we do not get the SM ORDER feature
-handled automatically. It looks like this was lost in the process so
-let's ensure we use the right SM ORDER now.
+Following the introduction of the generic ECC engine infrastructure, it
+was necessary to reorganize the code and move the ECC configuration in
+the ->attach_chip() hook. Failing to do that properly lead to a first
+series of fixes supposed to stabilize the situation. Unfortunately, this
+only fixed the use of software ECC engines, preventing any other kind of
+engine to be used, including on-die ones.
 
-Fixes: ad9ffdce4539 ("mtd: rawnand: fsmc: Fix external use of SW Hamming ECC helper")
+It is now time to (finally) fix the situation by ensuring that we still
+provide a default (eg. software ECC) but will still support different
+ECC engines such as on-die ECC engines if properly described in the
+device tree.
+
+There are no changes needed on the core side in order to do this, but we
+just need to leverage the logic there which allows:
+1- a subsystem default (set to Host engines in the raw NAND world)
+2- a driver specific default (here set to software ECC engines)
+3- any type of engine requested by the user (ie. described in the DT)
+
+As the raw NAND subsystem has not yet been fully converted to the ECC
+engine infrastructure, in order to provide a default ECC engine for this
+driver we need to set chip->ecc.engine_type *before* calling
+nand_scan(). During the initialization step, the core will consider this
+entry as the default engine for this driver. This value may of course
+be overloaded by the user if the usual DT properties are provided.
+
+Fixes: 59d93473323a ("mtd: rawnand: ams-delta: Move the ECC initialization to ->attach_chip()")
 Cc: stable@vger.kernel.org
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210928221507.199198-2-miquel.raynal@bootlin.com
+Link: https://lore.kernel.org/linux-mtd/20210928222258.199726-2-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/fsmc_nand.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/ams-delta.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/mtd/nand/raw/fsmc_nand.c
-+++ b/drivers/mtd/nand/raw/fsmc_nand.c
-@@ -438,8 +438,10 @@ static int fsmc_correct_ecc1(struct nand
- 			     unsigned char *read_ecc,
- 			     unsigned char *calc_ecc)
- {
-+	bool sm_order = chip->ecc.options & NAND_ECC_SOFT_HAMMING_SM_ORDER;
-+
- 	return ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
--				      chip->ecc.size, false);
-+				      chip->ecc.size, sm_order);
- }
+--- a/drivers/mtd/nand/raw/ams-delta.c
++++ b/drivers/mtd/nand/raw/ams-delta.c
+@@ -217,9 +217,8 @@ static int gpio_nand_setup_interface(str
  
- /* Count the number of 0's in buff upto a max of max_bits */
+ static int gpio_nand_attach_chip(struct nand_chip *chip)
+ {
+-	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+-
+-	if (chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
++	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT &&
++	    chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
+ 		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+ 
+ 	return 0;
+@@ -370,6 +369,13 @@ static int gpio_nand_probe(struct platfo
+ 	/* Release write protection */
+ 	gpiod_set_value(priv->gpiod_nwp, 0);
+ 
++	/*
++	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
++	 * Set ->engine_type before registering the NAND devices in order to
++	 * provide a driver specific default value.
++	 */
++	this->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
++
+ 	/* Scan to find existence of the device */
+ 	err = nand_scan(this, 1);
+ 	if (err)
 
 
