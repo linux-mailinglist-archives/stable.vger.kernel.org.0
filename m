@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E41B8452183
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:02:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 492AD45249E
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:37:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244396AbhKPBFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:05:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1356525AbhKPBk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:40:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245530AbhKOTUm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59B876326A;
-        Mon, 15 Nov 2021 18:36:18 +0000 (UTC)
+        id S241374AbhKOS1q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:27:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 136B363432;
+        Mon, 15 Nov 2021 17:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001379;
-        bh=NbQj6pqpOI1E9osxI37Pu//IRGmen8eUGenlQSectMI=;
+        s=korg; t=1636999018;
+        bh=sF8fHi2Yg07ypCz0lBor9KwD8I+9TbF5mnw5PXmD5pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=taFffh+h662yr9/MJwsjjijM91/2Nm+olpA6bgnuxU1xWTXsrTk0TwzSr/mrBf20B
-         N9BaSetFM5c24A/B6y0DFbiLZfdl6In0HWqx0qQQvmmTEfJo9gpvxpzaAp3auUc21p
-         FsrSJ4daMz6BI0P8uzAyhMznKQK6OyxywY+sjkzM=
+        b=bGVEFk/zHA33m/j9iBvU/Z/Y03hNjeqFBExgGQ7ibF/2eQsdr8wgjgqib4mBB9gg3
+         1ZK/NMR+LKV+p5YPyin7PPJtVxIvN/ttBjibOLLcSPA8RxomIu9L1OE6qNCCw5DaYb
+         0OCIKNS9wsWctFR+Y2fQhQye7JafzukDkARCRPz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 134/917] ring-buffer: Protect ring_buffer_reset() from reentrancy
-Date:   Mon, 15 Nov 2021 17:53:49 +0100
-Message-Id: <20211115165433.317177945@linuxfoundation.org>
+        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
+        Li Yang <leoyang.li@nxp.com>
+Subject: [PATCH 5.14 147/849] soc: fsl: dpio: replace smp_processor_id with raw_smp_processor_id
+Date:   Mon, 15 Nov 2021 17:53:50 +0100
+Message-Id: <20211115165425.108037786@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Meng Li <Meng.Li@windriver.com>
 
-commit 51d157946666382e779f94c39891e8e9a020da78 upstream.
+commit e775eb9fc2a4107f03222fa48bc95c2c82427e64 upstream.
 
-The resetting of the entire ring buffer use to simply go through and reset
-each individual CPU buffer that had its own protection and synchronization.
-But this was very slow, due to performing a synchronization for each CPU.
-The code was reshuffled to do one disabling of all CPU buffers, followed
-by a single RCU synchronization, and then the resetting of each of the CPU
-buffers. But unfortunately, the mutex that prevented multiple occurrences
-of resetting the buffer was not moved to the upper function, and there is
-nothing to protect from it.
+When enable debug kernel configs,there will be calltrace as below:
 
-Take the ring buffer mutex around the global reset.
+BUG: using smp_processor_id() in preemptible [00000000] code: swapper/0/1
+caller is debug_smp_processor_id+0x20/0x30
+CPU: 6 PID: 1 Comm: swapper/0 Not tainted 5.10.63-yocto-standard #1
+Hardware name: NXP Layerscape LX2160ARDB (DT)
+Call trace:
+ dump_backtrace+0x0/0x1a0
+ show_stack+0x24/0x30
+ dump_stack+0xf0/0x13c
+ check_preemption_disabled+0x100/0x110
+ debug_smp_processor_id+0x20/0x30
+ dpaa2_io_query_fq_count+0xdc/0x154
+ dpaa2_eth_stop+0x144/0x314
+ __dev_close_many+0xdc/0x160
+ __dev_change_flags+0xe8/0x220
+ dev_change_flags+0x30/0x70
+ ic_close_devs+0x50/0x78
+ ip_auto_config+0xed0/0xf10
+ do_one_initcall+0xac/0x460
+ kernel_init_freeable+0x30c/0x378
+ kernel_init+0x20/0x128
+ ret_from_fork+0x10/0x38
 
+Based on comment in the context, it doesn't matter whether
+preemption is disable or not. So, replace smp_processor_id()
+with raw_smp_processor_id() to avoid above call trace.
+
+Fixes: c89105c9b390 ("staging: fsl-mc: Move DPIO from staging to drivers/soc/fsl")
 Cc: stable@vger.kernel.org
-Fixes: b23d7a5f4a07a ("ring-buffer: speed up buffer resets by avoiding synchronize_rcu for each CPU")
-Reported-by: "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Meng Li <Meng.Li@windriver.com>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/soc/fsl/dpio/dpio-service.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -5233,6 +5233,9 @@ void ring_buffer_reset(struct trace_buff
- 	struct ring_buffer_per_cpu *cpu_buffer;
- 	int cpu;
+--- a/drivers/soc/fsl/dpio/dpio-service.c
++++ b/drivers/soc/fsl/dpio/dpio-service.c
+@@ -59,7 +59,7 @@ static inline struct dpaa2_io *service_s
+ 	 * potentially being migrated away.
+ 	 */
+ 	if (cpu < 0)
+-		cpu = smp_processor_id();
++		cpu = raw_smp_processor_id();
  
-+	/* prevent another thread from changing buffer sizes */
-+	mutex_lock(&buffer->mutex);
-+
- 	for_each_buffer_cpu(buffer, cpu) {
- 		cpu_buffer = buffer->buffers[cpu];
- 
-@@ -5251,6 +5254,8 @@ void ring_buffer_reset(struct trace_buff
- 		atomic_dec(&cpu_buffer->record_disabled);
- 		atomic_dec(&cpu_buffer->resize_disabled);
- 	}
-+
-+	mutex_unlock(&buffer->mutex);
- }
- EXPORT_SYMBOL_GPL(ring_buffer_reset);
- 
+ 	/* If a specific cpu was requested, pick it up immediately */
+ 	return dpio_by_cpu[cpu];
 
 
