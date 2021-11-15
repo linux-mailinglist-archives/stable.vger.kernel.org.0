@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C088452619
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:59:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15CA84522B1
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:13:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351613AbhKPCBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:01:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46108 "EHLO mail.kernel.org"
+        id S244695AbhKPBPq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:15:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240103AbhKOSFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75BAF63288;
-        Mon, 15 Nov 2021 17:42:23 +0000 (UTC)
+        id S243009AbhKOTMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:12:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6D5563408;
+        Mon, 15 Nov 2021 18:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998144;
-        bh=6hqe4las+xeuhA2tw/XqutEZeljfxbMC4LKMwLNzt0o=;
+        s=korg; t=1637000400;
+        bh=HAE1uLHAMNhtS2u1iqMWBioxpDilE97TU/dWJWCFxF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJc/vGnweUA4wcWmhaeBHmcFHZTF1kepRKBxC+0RqKA2yCWUIWUjR8b4LHosruFyI
-         s6QRv7pTbXc8Xvvi8JlQhhKQNjGLHk4QACwfqHHN/qmJUCqhvPoDmRu72ribuqgs56
-         zCo3UQbx0MVr/QzjyDDBqi/34nz7C/WcZnA4yj7I=
+        b=r7EQ0WsgsC2/6SoWgXfBT/mzpQbEXAhf1wfAvYttI6hBVFCNvie1CrknMyaVjNRcY
+         yMeIH7LtwnglXyshZL0RAOEnEjT1UzGGHN9Uz9DsO3U90iEj7L6aMJ486JaZs8cLJ6
+         uPkue/OUNAhlTOn3OhSYUPGzNo0dJ1WaWScQPqp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Vincent Knecht <vincent.knecht@mailoo.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 404/575] arm64: dts: qcom: msm8916: Fix Secondary MI2S bit clock
-Date:   Mon, 15 Nov 2021 18:02:09 +0100
-Message-Id: <20211115165357.738595469@linuxfoundation.org>
+        Andrej Shadura <andrew.shadura@collabora.co.uk>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 647/849] HID: u2fzero: clarify error check and length calculations
+Date:   Mon, 15 Nov 2021 18:02:10 +0100
+Message-Id: <20211115165442.157409714@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Andrej Shadura <andrew.shadura@collabora.co.uk>
 
-[ Upstream commit 8199a0b31e76d158ac14841e7119890461f8c595 ]
+[ Upstream commit b7abf78b7a6c4a29a6e0ba0bb883fe44a2f3d693 ]
 
-At the moment, playing audio on Secondary MI2S will just end up getting
-stuck, without actually playing any audio. This happens because the wrong
-bit clock is configured when playing audio on Secondary MI2S.
+The previous commit fixed handling of incomplete packets but broke error
+handling: offsetof returns an unsigned value (size_t), but when compared
+against the signed return value, the return value is interpreted as if
+it were unsigned, so negative return values are never less than the
+offset.
 
-The PRI_I2S_CLK (better name: SPKR_I2S_CLK) is used by the SPKR audio mux
-block that provides both Primary and Secondary MI2S.
+To make the code easier to read, calculate the minimal packet length
+once and separately, and assign it to a signed int variable to eliminate
+unsigned math and the need for type casts. It then becomes immediately
+obvious how the actual data length is calculated and why the return
+value cannot be less than the minimal length.
 
-The SEC_I2S_CLK (better name: MIC_I2S_CLK) is used by the MIC audio mux
-block that provides Tertiary MI2S. Quaternary MI2S is also part of the
-MIC audio mux but has its own clock (AUX_I2S_CLK).
-
-This means that (quite confusingly) the SEC_I2S_CLK is not actually
-used for Secondary MI2S as the name would suggest. Secondary MI2S
-needs to have the same clock as Primary MI2S configured.
-
-Fix the clock list for the lpass node in the device tree and add
-a comment to clarify this confusing naming. With these changes,
-audio can be played correctly on Secondary MI2S.
-
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Fixes: 3761a3618f55 ("arm64: dts: qcom: add lpass node")
-Tested-by: Vincent Knecht <vincent.knecht@mailoo.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20210816181810.2242-1-stephan@gerhold.net
+Fixes: 22d65765f211 ("HID: u2fzero: ignore incomplete packets without data")
+Fixes: 42337b9d4d95 ("HID: add driver for U2F Zero built-in LED and RNG")
+Signed-off-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916.dtsi | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/hid/hid-u2fzero.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index 0e34ed48b9fae..b1ffc056eea0b 100644
---- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -1322,11 +1322,17 @@
- 		lpass: audio-controller@7708000 {
- 			status = "disabled";
- 			compatible = "qcom,lpass-cpu-apq8016";
-+
-+			/*
-+			 * Note: Unlike the name would suggest, the SEC_I2S_CLK
-+			 * is actually only used by Tertiary MI2S while
-+			 * Primary/Secondary MI2S both use the PRI_I2S_CLK.
-+			 */
- 			clocks = <&gcc GCC_ULTAUDIO_AHBFABRIC_IXFABRIC_CLK>,
- 				 <&gcc GCC_ULTAUDIO_PCNOC_MPORT_CLK>,
- 				 <&gcc GCC_ULTAUDIO_PCNOC_SWAY_CLK>,
- 				 <&gcc GCC_ULTAUDIO_LPAIF_PRI_I2S_CLK>,
--				 <&gcc GCC_ULTAUDIO_LPAIF_SEC_I2S_CLK>,
-+				 <&gcc GCC_ULTAUDIO_LPAIF_PRI_I2S_CLK>,
- 				 <&gcc GCC_ULTAUDIO_LPAIF_SEC_I2S_CLK>,
- 				 <&gcc GCC_ULTAUDIO_LPAIF_AUX_I2S_CLK>;
+diff --git a/drivers/hid/hid-u2fzero.c b/drivers/hid/hid-u2fzero.c
+index d70cd3d7f583b..94f78ffb76d04 100644
+--- a/drivers/hid/hid-u2fzero.c
++++ b/drivers/hid/hid-u2fzero.c
+@@ -191,6 +191,8 @@ static int u2fzero_rng_read(struct hwrng *rng, void *data,
+ 	struct u2f_hid_msg resp;
+ 	int ret;
+ 	size_t actual_length;
++	/* valid packets must have a correct header */
++	int min_length = offsetof(struct u2f_hid_msg, init.data);
+ 
+ 	if (!dev->present) {
+ 		hid_dbg(dev->hdev, "device not present");
+@@ -200,12 +202,12 @@ static int u2fzero_rng_read(struct hwrng *rng, void *data,
+ 	ret = u2fzero_recv(dev, &req, &resp);
+ 
+ 	/* ignore errors or packets without data */
+-	if (ret < offsetof(struct u2f_hid_msg, init.data))
++	if (ret < min_length)
+ 		return 0;
+ 
+ 	/* only take the minimum amount of data it is safe to take */
+-	actual_length = min3((size_t)ret - offsetof(struct u2f_hid_msg,
+-		init.data), U2F_HID_MSG_LEN(resp), max);
++	actual_length = min3((size_t)ret - min_length,
++		U2F_HID_MSG_LEN(resp), max);
+ 
+ 	memcpy(data, resp.init.data, actual_length);
  
 -- 
 2.33.0
