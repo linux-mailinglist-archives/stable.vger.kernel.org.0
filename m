@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8FD6451381
+	by mail.lfdr.de (Postfix) with ESMTP id 3A77045137F
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348306AbhKOTvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:51:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
+        id S1348311AbhKOTwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:52:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343615AbhKOTV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B917C63359;
-        Mon, 15 Nov 2021 18:43:13 +0000 (UTC)
+        id S1343641AbhKOTVc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E679E63371;
+        Mon, 15 Nov 2021 18:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001794;
-        bh=qW0+ciLKICxRFTUUvwKGjn0YuLe3wzG3Ivp3GXnSLoo=;
+        s=korg; t=1637001823;
+        bh=1k0gv9Wcor99mfqtxXAZwav4mIHUEoA90z9MjLacn/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUG15dTXrQh3SGpAh4ztTBDy0wgs8EcnsfpqnFASHkvy1mZx+aQLzgitiYK09UyxL
-         sTv9C8dpQjTM3Rj61EdK7K9rArt0l0W/xrDchvwjQryFwedasdgpKEKR/uc7kXDENW
-         tbA3fyhJeCjQNUPoDHLoqomonriFDe+fhET236EQ=
+        b=Eij+Ioq62rn74RZzTchwstf7WZJzAvcuJXF/aIDxsnZEpv4xmMhSfFTSUPyAR/O9q
+         SieNDdcOzI2k1wrlZpTQfikez6AXdwDB2lkNkhzyoG1i3H/VRWMY6HlfrCV5Q4RIXL
+         wlrIrdYcLGB3KdlrLjP4NKuld1ZWNhY9cDgmJs6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
+        stable@vger.kernel.org,
         Bryan ODonoghue <bryan.odonoghue@linaro.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 306/917] wcn36xx: Fix packet drop on resume
-Date:   Mon, 15 Nov 2021 17:56:41 +0100
-Message-Id: <20211115165439.136835165@linuxfoundation.org>
+Subject: [PATCH 5.15 307/917] Revert "wcn36xx: Enable firmware link monitoring"
+Date:   Mon, 15 Nov 2021 17:56:42 +0100
+Message-Id: <20211115165439.168472317@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,59 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit df0697801d8aa2eebfe7f0b7388879639f8fe7cc ]
+[ Upstream commit 43ea9bd84f27d06482cc823d9749cc9dd2993bc8 ]
 
-If the system is resumed because of an incoming packet, the wcn36xx RX
-interrupts is fired before actual resuming of the wireless/mac80211
-stack, causing any received packets to be simply dropped. E.g. a ping
-request causes a system resume, but is dropped and so never forwarded
-to the IP stack.
+Firmware link offload monitoring can be made to work in 3/4 cases by
+switching on firmware feature bit WLANACTIVE_OFFLOAD
 
-This change fixes that, disabling DMA interrupts on suspend to no pass
-packets until mac80211 is resumed and ready to handle them.
+- Secure power-save on
+- Secure power-save off
+- Open power-save on
 
-Note that it's not incompatible with RX irq wake.
+However, with an open AP if we switch off power-saving - thus never
+entering Beacon Mode Power Save - BMPS, firmware never forwards loss
+of beacon upwards.
 
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+We had hoped that WLANACTIVE_OFFLOAD and some fixes for sequence numbers
+would unblock this but, it hasn't and further investigation is required.
+
+Its possible to have a complete set of Secure power-save on/off and Open
+power-save on/off provided we use Linux' link monitoring mechanism.
+
+While we debug the Open AP failure we need to fix upstream.
+
+This reverts commit c973fdad79f6eaf247d48b5fc77733e989eb01e1.
+
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1635150496-19290-1-git-send-email-loic.poulain@linaro.org
+Link: https://lore.kernel.org/r/20211025093037.3966022-2-bryan.odonoghue@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wcn36xx/main.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/net/wireless/ath/wcn36xx/main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
-index bd1c83aeea606..39d86e3031bd7 100644
+index 39d86e3031bd7..28d6251ad77a6 100644
 --- a/drivers/net/wireless/ath/wcn36xx/main.c
 +++ b/drivers/net/wireless/ath/wcn36xx/main.c
-@@ -1115,6 +1115,13 @@ static int wcn36xx_suspend(struct ieee80211_hw *hw, struct cfg80211_wowlan *wow)
- 			goto out;
- 		ret = wcn36xx_smd_wlan_host_suspend_ind(wcn);
- 	}
-+
-+	/* Disable IRQ, we don't want to handle any packet before mac80211 is
-+	 * resumed and ready to receive packets.
-+	 */
-+	disable_irq(wcn->tx_irq);
-+	disable_irq(wcn->rx_irq);
-+
- out:
- 	mutex_unlock(&wcn->conf_mutex);
- 	return ret;
-@@ -1137,6 +1144,10 @@ static int wcn36xx_resume(struct ieee80211_hw *hw)
- 		wcn36xx_smd_ipv6_ns_offload(wcn, vif, false);
- 		wcn36xx_smd_arp_offload(wcn, vif, false);
- 	}
-+
-+	enable_irq(wcn->tx_irq);
-+	enable_irq(wcn->rx_irq);
-+
- 	mutex_unlock(&wcn->conf_mutex);
+@@ -1341,7 +1341,6 @@ static int wcn36xx_init_ieee80211(struct wcn36xx *wcn)
+ 	ieee80211_hw_set(wcn->hw, HAS_RATE_CONTROL);
+ 	ieee80211_hw_set(wcn->hw, SINGLE_SCAN_ON_ALL_BANDS);
+ 	ieee80211_hw_set(wcn->hw, REPORTS_TX_ACK_STATUS);
+-	ieee80211_hw_set(wcn->hw, CONNECTION_MONITOR);
  
- 	return 0;
+ 	wcn->hw->wiphy->interface_modes = BIT(NL80211_IFTYPE_STATION) |
+ 		BIT(NL80211_IFTYPE_AP) |
 -- 
 2.33.0
 
