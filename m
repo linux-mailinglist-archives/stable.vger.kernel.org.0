@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41B71452244
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:08:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1DA7452243
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:08:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345381AbhKPBKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1345382AbhKPBKg (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 20:10:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245143AbhKOTTc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245139AbhKOTTc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:19:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0086961A88;
-        Mon, 15 Nov 2021 18:29:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E14B61B2A;
+        Mon, 15 Nov 2021 18:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000948;
-        bh=KqPV+5idkf2+NjD6Q1uow3wjLkwmEutaUPHgxT3W8Fw=;
+        s=korg; t=1637000953;
+        bh=1AzvUSBQZa7Ht1KP2fo2mVxv+n6FnHdFQnfDkLnaqnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AM+a4nbOI2oCxO/cXx6o063vml5fLD1KDTuJDtwS6as3t/ip4ss/Xg1gI5AofGyRA
-         WO7HcNzzt/q8jGcN281t+S8AR6+kN/9rJNx41+kYVe+EpuLWk5kYGpHIjHIuDcIRJ/
-         Rfwjsw478TQUWmvHxKHoBAVk94wzgfal2bRJftBA=
+        b=IlvtJtxPgnqN7QenM/wE4eX3vZKe1560+pU4v3h2tXSOwE3F6+YoH7mLE0ihcXJ3I
+         qAKBbIHqUy3W1MTRM8+P6gKGul4LUaUQddlw/XNX9Fjp4Zsej+kqqBsaSXSShKc7fy
+         7NPZY0Bp3gQEr2WpETkmZrT4qefHlKwgaM1O1VTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        bfu@redhat.com, Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.14 821/849] s390/cio: make ccw_device_dma_* more robust
-Date:   Mon, 15 Nov 2021 18:05:04 +0100
-Message-Id: <20211115165448.007934832@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Peng Fan <peng.fan@nxp.com>
+Subject: [PATCH 5.14 823/849] remoteproc: Fix the wrong default value of is_iomem
+Date:   Mon, 15 Nov 2021 18:05:06 +0100
+Message-Id: <20211115165448.078437424@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,81 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Dong Aisheng <aisheng.dong@nxp.com>
 
-commit ad9a14517263a16af040598c7920c09ca9670a31 upstream.
+commit 970675f61bf5761d7e5326f6e4df995ecdba5e11 upstream.
 
-Since commit 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
-classic notifiers") we were supposed to make sure that
-virtio_ccw_release_dev() completes before the ccw device and the
-attached dma pool are torn down, but unfortunately we did not.  Before
-that commit it used to be OK to delay cleaning up the memory allocated
-by virtio-ccw indefinitely (which isn't really intuitive for guys used
-to destruction happens in reverse construction order), but now we
-trigger a BUG_ON if the genpool is destroyed before all memory allocated
-from it is deallocated. Which brings down the guest. We can observe this
-problem, when unregister_virtio_device() does not give up the last
-reference to the virtio_device (e.g. because a virtio-scsi attached scsi
-disk got removed without previously unmounting its previously mounted
-partition).
+Currently the is_iomem is a random value in the stack which may
+be default to true even on those platforms that not use iomem to
+store firmware.
 
-To make sure that the genpool is only destroyed after all the necessary
-freeing is done let us take a reference on the ccw device on each
-ccw_device_dma_zalloc() and give it up on each ccw_device_dma_free().
-
-Actually there are multiple approaches to fixing the problem at hand
-that can work. The upside of this one is that it is the safest one while
-remaining simple. We don't crash the guest even if the driver does not
-pair allocations and frees. The downside is the reference counting
-overhead, that the reference counting for ccw devices becomes more
-complex, in a sense that we need to pair the calls to the aforementioned
-functions for it to be correct, and that if we happen to leak, we leak
-more than necessary (the whole ccw device instead of just the genpool).
-
-Some alternatives to this approach are taking a reference in
-virtio_ccw_online() and giving it up in virtio_ccw_release_dev() or
-making sure virtio_ccw_release_dev() completes its work before
-virtio_ccw_remove() returns. The downside of these approaches is that
-these are less safe against programming errors.
-
-Cc: <stable@vger.kernel.org> # v5.3
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and classic notifiers")
-Reported-by: bfu@redhat.com
-Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: 40df0a91b2a5 ("remoteproc: add is_iomem to da_to_va")
+Reviewed-and-tested-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210910090621.3073540-3-peng.fan@oss.nxp.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/cio/device_ops.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/remoteproc/remoteproc_coredump.c   |    2 +-
+ drivers/remoteproc/remoteproc_elf_loader.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -825,13 +825,23 @@ EXPORT_SYMBOL_GPL(ccw_device_get_chid);
-  */
- void *ccw_device_dma_zalloc(struct ccw_device *cdev, size_t size)
+--- a/drivers/remoteproc/remoteproc_coredump.c
++++ b/drivers/remoteproc/remoteproc_coredump.c
+@@ -152,8 +152,8 @@ static void rproc_copy_segment(struct rp
+ 			       struct rproc_dump_segment *segment,
+ 			       size_t offset, size_t size)
  {
--	return cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
-+	void *addr;
-+
-+	if (!get_device(&cdev->dev))
-+		return NULL;
-+	addr = cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
-+	if (IS_ERR_OR_NULL(addr))
-+		put_device(&cdev->dev);
-+	return addr;
- }
- EXPORT_SYMBOL(ccw_device_dma_zalloc);
++	bool is_iomem = false;
+ 	void *ptr;
+-	bool is_iomem;
  
- void ccw_device_dma_free(struct ccw_device *cdev, void *cpu_addr, size_t size)
- {
-+	if (!cpu_addr)
-+		return;
- 	cio_gp_dma_free(cdev->private->dma_pool, cpu_addr, size);
-+	put_device(&cdev->dev);
- }
- EXPORT_SYMBOL(ccw_device_dma_free);
+ 	if (segment->dump) {
+ 		segment->dump(rproc, segment, dest, offset, size);
+--- a/drivers/remoteproc/remoteproc_elf_loader.c
++++ b/drivers/remoteproc/remoteproc_elf_loader.c
+@@ -178,8 +178,8 @@ int rproc_elf_load_segments(struct rproc
+ 		u64 filesz = elf_phdr_get_p_filesz(class, phdr);
+ 		u64 offset = elf_phdr_get_p_offset(class, phdr);
+ 		u32 type = elf_phdr_get_p_type(class, phdr);
++		bool is_iomem = false;
+ 		void *ptr;
+-		bool is_iomem;
  
+ 		if (type != PT_LOAD)
+ 			continue;
 
 
