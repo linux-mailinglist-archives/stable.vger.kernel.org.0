@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66AE045123C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:31:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A72B451431
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346345AbhKOTdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:33:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42978 "EHLO mail.kernel.org"
+        id S1349336AbhKOUHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:07:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244390AbhKOTOE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:14:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E7F163407;
-        Mon, 15 Nov 2021 18:20:34 +0000 (UTC)
+        id S1344422AbhKOTYk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCD996348B;
+        Mon, 15 Nov 2021 18:57:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000434;
-        bh=Fh3BaZ0DrrSuADIrk2Dg1oQnjILv2qUDrUG5Qt9acAY=;
+        s=korg; t=1637002646;
+        bh=NewOX6p9U7y1vzv/hqnyCIclbc9xLMmMqtkeHr/JZJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xts3k0wLvU2icgOdoco6JOptAxlK69kPCz1bboVZq3JROeq8qFrmf8gbiwBWN1Y2V
-         cKXgFHW0ql7A70KJ/GvoFWRrEIB1to0Hahyk3xZfnIJjDFUsY+YSCS40Eb9H9LDooI
-         i4WVxvW4LRSChE0OVmZxWEG/pZLv/CZMKXN4IWZI=
+        b=Oc2uYRCwfGbyV8IGPLpXXuIn74MECTkCrbDbG4Kk1xhWRA6vxpLiNLNaoqhJbNV+C
+         uSoHEtD8gkZsl7qXhABNBYfGTyrbE8+ZFZAaJ0iasarDLME+yo10ZdZH43sR9CvVE2
+         ImWyOxlUiTi3SxutK85QpWqGipAaBisY5MXRjpA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Amelie Delaunay <amelie.delaunay@st.com>,
+        linux-usb@vger.kernel.org,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 658/849] ASoC: rsnd: Fix an error handling path in rsnd_node_count()
+Subject: [PATCH 5.15 646/917] usb: typec: STUSB160X should select REGMAP_I2C
 Date:   Mon, 15 Nov 2021 18:02:21 +0100
-Message-Id: <20211115165442.522891861@linuxfoundation.org>
+Message-Id: <20211115165450.758514061@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 173632358fde7a567f28e07c4549b959ee857986 ]
+[ Upstream commit 8ef1e58783b9f55daa4a865c7801dc75cbeb8260 ]
 
-If we return before the end of the 'for_each_child_of_node()' iterator, the
-reference taken on 'np' must be released.
+REGMAP_I2C is not a user visible kconfig symbol so driver configs
+should not "depend on" it. They should depend on I2C and then
+select REGMAP_I2C.
 
-Add the missing 'of_node_put()' call.
+If this worked, it was only because some other driver had set/enabled
+REGMAP_I2C.
 
-Fixes: c413983eb66a ("ASoC: rsnd: adjust disabled module")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/4c0e893cbfa21dc76c1ede0b6f4f8cff42209299.1634586167.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: da0cb6310094 ("usb: typec: add support for STUSB160x Type-C controller family")
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org
+Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20211015013609.7300-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/typec/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/sh/rcar/core.c b/sound/soc/sh/rcar/core.c
-index 5e382b5c9d457..ece9b58ab52d3 100644
---- a/sound/soc/sh/rcar/core.c
-+++ b/sound/soc/sh/rcar/core.c
-@@ -1225,6 +1225,7 @@ int rsnd_node_count(struct rsnd_priv *priv, struct device_node *node, char *name
- 		if (i < 0) {
- 			dev_err(dev, "strange node numbering (%s)",
- 				of_node_full_name(node));
-+			of_node_put(np);
- 			return 0;
- 		}
- 		i++;
+diff --git a/drivers/usb/typec/Kconfig b/drivers/usb/typec/Kconfig
+index a0418f23b4aae..ab480f38523aa 100644
+--- a/drivers/usb/typec/Kconfig
++++ b/drivers/usb/typec/Kconfig
+@@ -65,9 +65,9 @@ config TYPEC_HD3SS3220
+ 
+ config TYPEC_STUSB160X
+ 	tristate "STMicroelectronics STUSB160x Type-C controller driver"
+-	depends on I2C
+-	depends on REGMAP_I2C
+ 	depends on USB_ROLE_SWITCH || !USB_ROLE_SWITCH
++	depends on I2C
++	select REGMAP_I2C
+ 	help
+ 	  Say Y or M here if your system has STMicroelectronics STUSB160x
+ 	  Type-C port controller.
 -- 
 2.33.0
 
