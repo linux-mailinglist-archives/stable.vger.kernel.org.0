@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F855451384
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42EE545138F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348318AbhKOTwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:52:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
+        id S1348418AbhKOTwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:52:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343639AbhKOTVc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5969D61175;
-        Mon, 15 Nov 2021 18:43:48 +0000 (UTC)
+        id S1343657AbhKOTVd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A4C661B73;
+        Mon, 15 Nov 2021 18:43:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001828;
-        bh=rD1Lnm8JyQPC7TaO76H8MUnMWyQalTtxd5XqIYQHdZU=;
+        s=korg; t=1637001831;
+        bh=jgtdFHWad0yJAjM7WHVurYxDgjs3ar6sNYcAa6QGDec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fapvaO5WGgS3zmFU4wwTPcVRGe9GBHFZGmVZaTyFarmnqsNH0fMoynRFJolnmj5Bq
-         tSEQksPeD7GeVLP08mjqkwl9gw2xl+GQ+iSXdFt/5Q9T6MDCAd/6TTxR7lnq5AtLse
-         g5gQuZOdEJZwlN7ur48idQyf9toPePdCJmNmllEk=
+        b=R4dgVx57DMFfIupaV68wjD2GXX+OA+dMs59KpT8HoxBu0cQ7bMO79sR/neKCT8GNN
+         EeVH69gU6vPXAlFlmTdse1lMls05amKyG1dE/jSq4mX3QxNOM365hLn88ege9NvSaQ
+         bEBWuWesrC9eC4Twa4URWDntmdr9I1Qprgpi7UUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Marco Elver <elver@google.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 335/917] objtool: Handle __sanitize_cov*() tail calls
-Date:   Mon, 15 Nov 2021 17:57:10 +0100
-Message-Id: <20211115165440.115882461@linuxfoundation.org>
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 336/917] net/mlx5: Publish and unpublish all devlink parameters at once
+Date:   Mon, 15 Nov 2021 17:57:11 +0100
+Message-Id: <20211115165440.148870423@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,293 +40,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit f56dae88a81fded66adf2bea9922d1d98d1da14f ]
+[ Upstream commit e9310aed8e6a5003abb2aa6b9229d2fb9ceb9e85 ]
 
-Turns out the compilers also generate tail calls to __sanitize_cov*(),
-make sure to also patch those out in noinstr code.
+The devlink parameters were published in two steps despite being static
+and known in advance.
 
-Fixes: 0f1441b44e82 ("objtool: Fix noinstr vs KCOV")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Marco Elver <elver@google.com>
-Link: https://lore.kernel.org/r/20210624095147.818783799@infradead.org
+First step was to use devlink_params_publish() which iterated over all
+known up to that point parameters and sent notification messages.
+In second step, the call was devlink_param_publish() that looped over
+same parameters list and sent notification for new parameters.
+
+In order to simplify the API, move devlink_params_publish() to be called
+when all parameters were already added and save the need to iterate over
+parameters list again.
+
+As a side effect, this change fixes the error unwind flow in which
+parameters were not marked as unpublished.
+
+Fixes: 82e6c96f04e1 ("net/mlx5: Register to devlink ingress VLAN filter trap")
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/arch/x86/decode.c      |  20 ++++
- tools/objtool/check.c                | 158 ++++++++++++++-------------
- tools/objtool/include/objtool/arch.h |   1 +
- 3 files changed, 105 insertions(+), 74 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/devlink.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/tools/objtool/arch/x86/decode.c b/tools/objtool/arch/x86/decode.c
-index 0893436cc09f8..77b51600e3e94 100644
---- a/tools/objtool/arch/x86/decode.c
-+++ b/tools/objtool/arch/x86/decode.c
-@@ -659,6 +659,26 @@ const char *arch_nop_insn(int len)
- 	return nops[len-1];
- }
- 
-+#define BYTE_RET	0xC3
-+
-+const char *arch_ret_insn(int len)
-+{
-+	static const char ret[5][5] = {
-+		{ BYTE_RET },
-+		{ BYTE_RET, BYTES_NOP1 },
-+		{ BYTE_RET, BYTES_NOP2 },
-+		{ BYTE_RET, BYTES_NOP3 },
-+		{ BYTE_RET, BYTES_NOP4 },
-+	};
-+
-+	if (len < 1 || len > 5) {
-+		WARN("invalid RET size: %d\n", len);
-+		return NULL;
-+	}
-+
-+	return ret[len-1];
-+}
-+
- /* asm/alternative.h ? */
- 
- #define ALTINSTR_FLAG_INV	(1 << 15)
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 8bffc004f4e53..81982948f981d 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -829,6 +829,79 @@ static struct reloc *insn_reloc(struct objtool_file *file, struct instruction *i
- 	return insn->reloc;
- }
- 
-+static void remove_insn_ops(struct instruction *insn)
-+{
-+	struct stack_op *op, *tmp;
-+
-+	list_for_each_entry_safe(op, tmp, &insn->stack_ops, list) {
-+		list_del(&op->list);
-+		free(op);
-+	}
-+}
-+
-+static void add_call_dest(struct objtool_file *file, struct instruction *insn,
-+			  struct symbol *dest, bool sibling)
-+{
-+	struct reloc *reloc = insn_reloc(file, insn);
-+
-+	insn->call_dest = dest;
-+	if (!dest)
-+		return;
-+
-+	if (insn->call_dest->static_call_tramp) {
-+		list_add_tail(&insn->call_node,
-+			      &file->static_call_list);
-+	}
-+
-+	/*
-+	 * Many compilers cannot disable KCOV with a function attribute
-+	 * so they need a little help, NOP out any KCOV calls from noinstr
-+	 * text.
-+	 */
-+	if (insn->sec->noinstr &&
-+	    !strncmp(insn->call_dest->name, "__sanitizer_cov_", 16)) {
-+		if (reloc) {
-+			reloc->type = R_NONE;
-+			elf_write_reloc(file->elf, reloc);
-+		}
-+
-+		elf_write_insn(file->elf, insn->sec,
-+			       insn->offset, insn->len,
-+			       sibling ? arch_ret_insn(insn->len)
-+			               : arch_nop_insn(insn->len));
-+
-+		insn->type = sibling ? INSN_RETURN : INSN_NOP;
-+	}
-+
-+	if (mcount && !strcmp(insn->call_dest->name, "__fentry__")) {
-+		if (sibling)
-+			WARN_FUNC("Tail call to __fentry__ !?!?", insn->sec, insn->offset);
-+
-+		if (reloc) {
-+			reloc->type = R_NONE;
-+			elf_write_reloc(file->elf, reloc);
-+		}
-+
-+		elf_write_insn(file->elf, insn->sec,
-+			       insn->offset, insn->len,
-+			       arch_nop_insn(insn->len));
-+
-+		insn->type = INSN_NOP;
-+
-+		list_add_tail(&insn->mcount_loc_node,
-+			      &file->mcount_loc_list);
-+	}
-+
-+	/*
-+	 * Whatever stack impact regular CALLs have, should be undone
-+	 * by the RETURN of the called function.
-+	 *
-+	 * Annotated intra-function calls retain the stack_ops but
-+	 * are converted to JUMP, see read_intra_function_calls().
-+	 */
-+	remove_insn_ops(insn);
-+}
-+
- /*
-  * Find the destination instructions for all jumps.
-  */
-@@ -867,11 +940,7 @@ static int add_jump_destinations(struct objtool_file *file)
- 			continue;
- 		} else if (insn->func) {
- 			/* internal or external sibling call (with reloc) */
--			insn->call_dest = reloc->sym;
--			if (insn->call_dest->static_call_tramp) {
--				list_add_tail(&insn->call_node,
--					      &file->static_call_list);
--			}
-+			add_call_dest(file, insn, reloc->sym, true);
- 			continue;
- 		} else if (reloc->sym->sec->idx) {
- 			dest_sec = reloc->sym->sec;
-@@ -927,13 +996,8 @@ static int add_jump_destinations(struct objtool_file *file)
- 
- 			} else if (insn->jump_dest->func->pfunc != insn->func->pfunc &&
- 				   insn->jump_dest->offset == insn->jump_dest->func->offset) {
--
- 				/* internal sibling call (without reloc) */
--				insn->call_dest = insn->jump_dest->func;
--				if (insn->call_dest->static_call_tramp) {
--					list_add_tail(&insn->call_node,
--						      &file->static_call_list);
--				}
-+				add_call_dest(file, insn, insn->jump_dest->func, true);
- 			}
- 		}
- 	}
-@@ -941,16 +1005,6 @@ static int add_jump_destinations(struct objtool_file *file)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
+index dcf9f27ba2efd..7d56a927081d0 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
+@@ -625,7 +625,6 @@ static int mlx5_devlink_eth_param_register(struct devlink *devlink)
+ 	devlink_param_driverinit_value_set(devlink,
+ 					   DEVLINK_PARAM_GENERIC_ID_ENABLE_ETH,
+ 					   value);
+-	devlink_param_publish(devlink, &enable_eth_param);
  	return 0;
  }
  
--static void remove_insn_ops(struct instruction *insn)
--{
--	struct stack_op *op, *tmp;
--
--	list_for_each_entry_safe(op, tmp, &insn->stack_ops, list) {
--		list_del(&op->list);
--		free(op);
--	}
--}
--
- static struct symbol *find_call_destination(struct section *sec, unsigned long offset)
- {
- 	struct symbol *call_dest;
-@@ -969,6 +1023,7 @@ static int add_call_destinations(struct objtool_file *file)
- {
- 	struct instruction *insn;
- 	unsigned long dest_off;
-+	struct symbol *dest;
- 	struct reloc *reloc;
+@@ -636,7 +635,6 @@ static void mlx5_devlink_eth_param_unregister(struct devlink *devlink)
+ 	if (!mlx5_eth_supported(dev))
+ 		return;
  
- 	for_each_insn(file, insn) {
-@@ -978,7 +1033,9 @@ static int add_call_destinations(struct objtool_file *file)
- 		reloc = insn_reloc(file, insn);
- 		if (!reloc) {
- 			dest_off = arch_jump_destination(insn);
--			insn->call_dest = find_call_destination(insn->sec, dest_off);
-+			dest = find_call_destination(insn->sec, dest_off);
-+
-+			add_call_dest(file, insn, dest, false);
+-	devlink_param_unpublish(devlink, &enable_eth_param);
+ 	devlink_param_unregister(devlink, &enable_eth_param);
+ }
  
- 			if (insn->ignore)
- 				continue;
-@@ -996,9 +1053,8 @@ static int add_call_destinations(struct objtool_file *file)
- 
- 		} else if (reloc->sym->type == STT_SECTION) {
- 			dest_off = arch_dest_reloc_offset(reloc->addend);
--			insn->call_dest = find_call_destination(reloc->sym->sec,
--								dest_off);
--			if (!insn->call_dest) {
-+			dest = find_call_destination(reloc->sym->sec, dest_off);
-+			if (!dest) {
- 				WARN_FUNC("can't find call dest symbol at %s+0x%lx",
- 					  insn->sec, insn->offset,
- 					  reloc->sym->sec->name,
-@@ -1006,6 +1062,8 @@ static int add_call_destinations(struct objtool_file *file)
- 				return -1;
- 			}
- 
-+			add_call_dest(file, insn, dest, false);
-+
- 		} else if (arch_is_retpoline(reloc->sym)) {
- 			/*
- 			 * Retpoline calls are really dynamic calls in
-@@ -1021,55 +1079,7 @@ static int add_call_destinations(struct objtool_file *file)
- 			continue;
- 
- 		} else
--			insn->call_dest = reloc->sym;
--
--		if (insn->call_dest && insn->call_dest->static_call_tramp) {
--			list_add_tail(&insn->call_node,
--				      &file->static_call_list);
--		}
--
--		/*
--		 * Many compilers cannot disable KCOV with a function attribute
--		 * so they need a little help, NOP out any KCOV calls from noinstr
--		 * text.
--		 */
--		if (insn->sec->noinstr &&
--		    !strncmp(insn->call_dest->name, "__sanitizer_cov_", 16)) {
--			if (reloc) {
--				reloc->type = R_NONE;
--				elf_write_reloc(file->elf, reloc);
--			}
--
--			elf_write_insn(file->elf, insn->sec,
--				       insn->offset, insn->len,
--				       arch_nop_insn(insn->len));
--			insn->type = INSN_NOP;
--		}
--
--		if (mcount && !strcmp(insn->call_dest->name, "__fentry__")) {
--			if (reloc) {
--				reloc->type = R_NONE;
--				elf_write_reloc(file->elf, reloc);
--			}
--
--			elf_write_insn(file->elf, insn->sec,
--				       insn->offset, insn->len,
--				       arch_nop_insn(insn->len));
--
--			insn->type = INSN_NOP;
--
--			list_add_tail(&insn->mcount_loc_node,
--				      &file->mcount_loc_list);
--		}
--
--		/*
--		 * Whatever stack impact regular CALLs have, should be undone
--		 * by the RETURN of the called function.
--		 *
--		 * Annotated intra-function calls retain the stack_ops but
--		 * are converted to JUMP, see read_intra_function_calls().
--		 */
--		remove_insn_ops(insn);
-+			add_call_dest(file, insn, reloc->sym, false);
- 	}
- 
+@@ -672,7 +670,6 @@ static int mlx5_devlink_rdma_param_register(struct devlink *devlink)
+ 	devlink_param_driverinit_value_set(devlink,
+ 					   DEVLINK_PARAM_GENERIC_ID_ENABLE_RDMA,
+ 					   value);
+-	devlink_param_publish(devlink, &enable_rdma_param);
  	return 0;
-diff --git a/tools/objtool/include/objtool/arch.h b/tools/objtool/include/objtool/arch.h
-index 062bb6e9b8658..478e054fcdf71 100644
---- a/tools/objtool/include/objtool/arch.h
-+++ b/tools/objtool/include/objtool/arch.h
-@@ -82,6 +82,7 @@ unsigned long arch_jump_destination(struct instruction *insn);
- unsigned long arch_dest_reloc_offset(int addend);
+ }
  
- const char *arch_nop_insn(int len);
-+const char *arch_ret_insn(int len);
+@@ -681,7 +678,6 @@ static void mlx5_devlink_rdma_param_unregister(struct devlink *devlink)
+ 	if (!IS_ENABLED(CONFIG_MLX5_INFINIBAND))
+ 		return;
  
- int arch_decode_hint_reg(struct instruction *insn, u8 sp_reg);
+-	devlink_param_unpublish(devlink, &enable_rdma_param);
+ 	devlink_param_unregister(devlink, &enable_rdma_param);
+ }
  
+@@ -706,7 +702,6 @@ static int mlx5_devlink_vnet_param_register(struct devlink *devlink)
+ 	devlink_param_driverinit_value_set(devlink,
+ 					   DEVLINK_PARAM_GENERIC_ID_ENABLE_VNET,
+ 					   value);
+-	devlink_param_publish(devlink, &enable_rdma_param);
+ 	return 0;
+ }
+ 
+@@ -717,7 +712,6 @@ static void mlx5_devlink_vnet_param_unregister(struct devlink *devlink)
+ 	if (!mlx5_vnet_supported(dev))
+ 		return;
+ 
+-	devlink_param_unpublish(devlink, &enable_vnet_param);
+ 	devlink_param_unregister(devlink, &enable_vnet_param);
+ }
+ 
+@@ -808,7 +802,6 @@ int mlx5_devlink_register(struct devlink *devlink)
+ 	if (err)
+ 		goto params_reg_err;
+ 	mlx5_devlink_set_params_init_values(devlink);
+-	devlink_params_publish(devlink);
+ 
+ 	err = mlx5_devlink_auxdev_params_register(devlink);
+ 	if (err)
+@@ -818,6 +811,7 @@ int mlx5_devlink_register(struct devlink *devlink)
+ 	if (err)
+ 		goto traps_reg_err;
+ 
++	devlink_params_publish(devlink);
+ 	return 0;
+ 
+ traps_reg_err:
+@@ -832,9 +826,9 @@ params_reg_err:
+ 
+ void mlx5_devlink_unregister(struct devlink *devlink)
+ {
++	devlink_params_unpublish(devlink);
+ 	mlx5_devlink_traps_unregister(devlink);
+ 	mlx5_devlink_auxdev_params_unregister(devlink);
+-	devlink_params_unpublish(devlink);
+ 	devlink_params_unregister(devlink, mlx5_devlink_params,
+ 				  ARRAY_SIZE(mlx5_devlink_params));
+ 	devlink_unregister(devlink);
 -- 
 2.33.0
 
