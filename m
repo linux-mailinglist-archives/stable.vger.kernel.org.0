@@ -2,36 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39CF74514B7
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:10:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4C3B4514B6
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:10:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345831AbhKOUMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:12:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S1345755AbhKOUMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:12:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344906AbhKOTZm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344908AbhKOTZm (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F4059636EB;
-        Mon, 15 Nov 2021 19:06:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0B0C636E9;
+        Mon, 15 Nov 2021 19:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003199;
-        bh=Ng46LKe/Z8bgw3kPd/kpqNG8NVKBNjbT94Qex4KdQcA=;
+        s=korg; t=1637003202;
+        bh=pppEKA1xdqr9mZaw9WCFjTzjBBLvrCTXY22vIoJ0THM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXhG4FwfpYgBqv+xhoQu/jiEn6O2qF8+T1e5fH+YB4PlI/Snh4tlAIiJdoDIUg8h3
-         v8fBH7ypqIC7cdUInCSZhoppchZvV5PSZdaiC+f1OyphF8f4lkZ6Vm2lLH/LyShs0q
-         rk09mNNf+B+pBa7KlwPZUclDKrLTeVyIXditSWig=
+        b=AbUAYk+fkSZ1sQs2GP4Hfhb+M2himCo+SxJa1MNMmIi26FTBlApHnDb0IrYbLNkq+
+         0m/vIEVSvCGmORJBh++T4O/bg1etgzHhMv15jHINkCaCugk5QHlWvM3SZzAGT+4swv
+         5OTTAGVYo6yKRSwF1XLsgT1IGdOqTAliFeGKBQwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@redhat.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 814/917] zram: off by one in read_block_state()
-Date:   Mon, 15 Nov 2021 18:05:09 +0100
-Message-Id: <20211115165456.626982163@linuxfoundation.org>
+Subject: [PATCH 5.15 815/917] perf bpf: Add missing free to bpf_event__print_bpf_prog_info()
+Date:   Mon, 15 Nov 2021 18:05:10 +0100
+Message-Id: <20211115165456.664905447@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,42 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit a88e03cf3d190cf46bc4063a9b7efe87590de5f4 ]
+[ Upstream commit 88c42f4d6cb249eb68524282f8d4cc32f9059984 ]
 
-snprintf() returns the number of bytes it would have printed if there
-were space.  But it does not count the NUL terminator.  So that means
-that if "count == copied" then this has already overflowed by one
-character.
+If btf__new() is called then there needs to be a corresponding btf__free().
 
-This bug likely isn't super harmful in real life.
-
-Link: https://lkml.kernel.org/r/20210916130404.GA25094@kili
-Fixes: c0265342bff4 ("zram: introduce zram memory tracking")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f8dfeae009effc0b ("perf bpf: Show more BPF program info in print_bpf_prog_info()")
+Signed-off-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20211106053733.3580931-2-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/zram/zram_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/bpf-event.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
-index fcaf2750f68f7..6383c81ac5b37 100644
---- a/drivers/block/zram/zram_drv.c
-+++ b/drivers/block/zram/zram_drv.c
-@@ -910,7 +910,7 @@ static ssize_t read_block_state(struct file *file, char __user *buf,
- 			zram_test_flag(zram, index, ZRAM_HUGE) ? 'h' : '.',
- 			zram_test_flag(zram, index, ZRAM_IDLE) ? 'i' : '.');
+diff --git a/tools/perf/util/bpf-event.c b/tools/perf/util/bpf-event.c
+index 1a7112a87736a..a410b3968b3af 100644
+--- a/tools/perf/util/bpf-event.c
++++ b/tools/perf/util/bpf-event.c
+@@ -576,7 +576,7 @@ void bpf_event__print_bpf_prog_info(struct bpf_prog_info *info,
+ 		synthesize_bpf_prog_name(name, KSYM_NAME_LEN, info, btf, 0);
+ 		fprintf(fp, "# bpf_prog_info %u: %s addr 0x%llx size %u\n",
+ 			info->id, name, prog_addrs[0], prog_lens[0]);
+-		return;
++		goto out;
+ 	}
  
--		if (count < copied) {
-+		if (count <= copied) {
- 			zram_slot_unlock(zram, index);
- 			break;
- 		}
+ 	fprintf(fp, "# bpf_prog_info %u:\n", info->id);
+@@ -586,4 +586,6 @@ void bpf_event__print_bpf_prog_info(struct bpf_prog_info *info,
+ 		fprintf(fp, "# \tsub_prog %u: %s addr 0x%llx size %u\n",
+ 			i, name, prog_addrs[i], prog_lens[i]);
+ 	}
++out:
++	btf__free(btf);
+ }
 -- 
 2.33.0
 
