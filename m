@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86151451457
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06C4E45147C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344328AbhKOUHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:07:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45392 "EHLO mail.kernel.org"
+        id S1344884AbhKOUIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:08:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344616AbhKOTZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344619AbhKOTZH (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE275636A0;
-        Mon, 15 Nov 2021 19:01:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 966C1636A1;
+        Mon, 15 Nov 2021 19:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002864;
-        bh=auBu0jp0iJM/luzw/iW2euL71+yda9g79kLhEQn1A9c=;
+        s=korg; t=1637002867;
+        bh=I8+lQ5Z1q2APXXHJT9NnaBLx4LcYgZQhXPDpEFdAGRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MbSphe2WS/RwAaOc7ehEl0mVrCWg/od1UcxUGis4iNxT3PkkcS0Kw5TbLkjGkYRpL
-         3DfPwUPrcYea47uKtineRp7HWyXcGQeGVb5rzEV4Hm94tdBlffWNXAgzgBC01rX0PX
-         3I6PtLB9NNhyjbWkZcLIu3dw3Nc/hdESLSGeMO28=
+        b=Cs1I69RLItfRCmnHrk86Sjf/jwWhEYxitHBgnfZeFVPk23oQIUXRVHNgeeKfOv9mP
+         vz40F5nQK3FmLg8ksB3v2s3f3eym0KTGktccrg8HK/aIctDQADyn8+14Zcj1X7laoR
+         GF/zbGlpnimJA82/zfp1KnfTC0Ees3Rnwyyaz1m8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jim Quinlan <james.quinlan@broadcom.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 724/917] mtd: core: dont remove debugfs directory if device is in use
-Date:   Mon, 15 Nov 2021 18:03:39 +0100
-Message-Id: <20211115165453.460676357@linuxfoundation.org>
+Subject: [PATCH 5.15 725/917] remoteproc: Fix a memory leak in an error handling path in rproc_handle_vdev()
+Date:   Mon, 15 Nov 2021 18:03:40 +0100
+Message-Id: <20211115165453.500155753@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,46 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zev Weiss <zev@bewilderbeest.net>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit c13de2386c78e890d4ae6f01a85eefd0b293fb08 ]
+[ Upstream commit 0374a4ea7269645c46c3eb288526ea072fa19e79 ]
 
-Previously, if del_mtd_device() failed with -EBUSY due to a non-zero
-usecount, a subsequent call to attempt the deletion again would try to
-remove a debugfs directory that had already been removed and panic.
-With this change the second call can instead proceed safely.
+If 'copy_dma_range_map() fails, the memory allocated for 'rvdev' will leak.
+Move the 'copy_dma_range_map()' call after the device registration so
+that 'rproc_rvdev_release()' can be called to free some resources.
 
-Fixes: e8e3edb95ce6 ("mtd: create per-device and module-scope debugfs entries")
-Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20211014203953.5424-1-zev@bewilderbeest.net
+Also, branch to the error handling path if 'copy_dma_range_map()' instead
+of a direct return to avoid some other leaks.
+
+Fixes: e0d072782c73 ("dma-mapping: introduce DMA range map, supplanting dma_pfn_offset")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Jim Quinlan <james.quinlan@broadcom.com>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/e6d0dad6620da4fdf847faa903f79b735d35f262.1630755377.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdcore.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/remoteproc/remoteproc_core.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
-index c8fd7f758938b..1532291989471 100644
---- a/drivers/mtd/mtdcore.c
-+++ b/drivers/mtd/mtdcore.c
-@@ -724,8 +724,6 @@ int del_mtd_device(struct mtd_info *mtd)
- 
- 	mutex_lock(&mtd_table_mutex);
- 
--	debugfs_remove_recursive(mtd->dbg.dfs_dir);
--
- 	if (idr_find(&mtd_idr, mtd->index) != mtd) {
- 		ret = -ENODEV;
- 		goto out_error;
-@@ -741,6 +739,8 @@ int del_mtd_device(struct mtd_info *mtd)
- 		       mtd->index, mtd->name, mtd->usecount);
- 		ret = -EBUSY;
- 	} else {
-+		debugfs_remove_recursive(mtd->dbg.dfs_dir);
+diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
+index 502b6604b757b..775df165eb450 100644
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -556,9 +556,6 @@ static int rproc_handle_vdev(struct rproc *rproc, void *ptr,
+ 	/* Initialise vdev subdevice */
+ 	snprintf(name, sizeof(name), "vdev%dbuffer", rvdev->index);
+ 	rvdev->dev.parent = &rproc->dev;
+-	ret = copy_dma_range_map(&rvdev->dev, rproc->dev.parent);
+-	if (ret)
+-		return ret;
+ 	rvdev->dev.release = rproc_rvdev_release;
+ 	dev_set_name(&rvdev->dev, "%s#%s", dev_name(rvdev->dev.parent), name);
+ 	dev_set_drvdata(&rvdev->dev, rvdev);
+@@ -568,6 +565,11 @@ static int rproc_handle_vdev(struct rproc *rproc, void *ptr,
+ 		put_device(&rvdev->dev);
+ 		return ret;
+ 	}
 +
- 		/* Try to remove the NVMEM provider */
- 		if (mtd->nvmem)
- 			nvmem_unregister(mtd->nvmem);
++	ret = copy_dma_range_map(&rvdev->dev, rproc->dev.parent);
++	if (ret)
++		goto free_rvdev;
++
+ 	/* Make device dma capable by inheriting from parent's capabilities */
+ 	set_dma_ops(&rvdev->dev, get_dma_ops(rproc->dev.parent));
+ 
 -- 
 2.33.0
 
