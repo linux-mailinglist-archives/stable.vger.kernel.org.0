@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97FA74523E7
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:32:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1003F452195
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242156AbhKPBfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:35:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42246 "EHLO mail.kernel.org"
+        id S244304AbhKPBFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:05:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242050AbhKOSdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:33:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 206FC6345E;
-        Mon, 15 Nov 2021 18:00:07 +0000 (UTC)
+        id S245503AbhKOTUk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB03B63244;
+        Mon, 15 Nov 2021 18:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999208;
-        bh=g4NJTNerBoEZwFfv92TKPtyb5oRRHk+lF7F1AaKRcKE=;
+        s=korg; t=1637001363;
+        bh=C9uQHME2H372VngYuYoy6qwHXHWamBb+ovEHyIbUGv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWS23MLe/aJfhSbRasx3Yj08YLv9iK9+7/inO3Prwm4diTb0Q1n442PrmqLhS6gSA
-         y4/omVrVIKyGIbWyZvWSMS6EpIpdQH5Kj6dm1kQpetLqsv5j9ws0EkTImrKGdCLnCV
-         oN0Xw8ymMRd0dPt2A7wEqyuac5GY/7KBzDhWuO8Q=
+        b=Znuf655GEq7A/hxaQ+jiNbAvY43QJjA7vVCZ5BaLRdKNCzXdJ7O1p1jIdLZISevV6
+         wQp6P7g3LUfIS2bAD9/tFTVm1AbQdCRfJhid3j+zy6u7ViEchPOyv8/H+ldq9SlfLU
+         26YIKbVeec0h1a8j1vpt50rUuVTlFESonTCeb83Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.14 173/849] PCI: aardvark: Do not unmask unused interrupts
+        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 5.15 161/917] coresight: trbe: Fix incorrect access of the sink specific data
 Date:   Mon, 15 Nov 2021 17:54:16 +0100
-Message-Id: <20211115165426.034181959@linuxfoundation.org>
+Message-Id: <20211115165434.228054166@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit 1fb95d7d3c7a926b002fe8a6bd27a1cb428b46dc upstream.
+commit bb5293e334af51b19b62d8bef1852ea13e935e9b upstream.
 
-There are lot of undocumented interrupt bits. To prevent unwanted
-spurious interrupts, fix all *_ALL_MASK macros to define all interrupt
-bits, so that driver can properly mask all interrupts, including those
-which are undocumented.
+The TRBE driver wrongly treats the aux private data as the TRBE driver
+specific buffer for a given perf handle, while it is the ETM PMU's
+event specific data. Fix this by correcting the instance to use
+appropriate helper.
 
-Link: https://lore.kernel.org/r/20211005180952.6812-8-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org
+Cc: stable <stable@vger.kernel.org>
+Fixes: 3fbf7f011f24 ("coresight: sink: Add TRBE driver")
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Link: https://lore.kernel.org/r/20210921134121.2423546-2-suzuki.poulose@arm.com
+[Fixed 13 character SHA down to 12]
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hwtracing/coresight/coresight-trbe.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -106,13 +106,13 @@
- #define     PCIE_ISR0_MSI_INT_PENDING		BIT(24)
- #define     PCIE_ISR0_INTX_ASSERT(val)		BIT(16 + (val))
- #define     PCIE_ISR0_INTX_DEASSERT(val)	BIT(20 + (val))
--#define	    PCIE_ISR0_ALL_MASK			GENMASK(26, 0)
-+#define     PCIE_ISR0_ALL_MASK			GENMASK(31, 0)
- #define PCIE_ISR1_REG				(CONTROL_BASE_ADDR + 0x48)
- #define PCIE_ISR1_MASK_REG			(CONTROL_BASE_ADDR + 0x4C)
- #define     PCIE_ISR1_POWER_STATE_CHANGE	BIT(4)
- #define     PCIE_ISR1_FLUSH			BIT(5)
- #define     PCIE_ISR1_INTX_ASSERT(val)		BIT(8 + (val))
--#define     PCIE_ISR1_ALL_MASK			GENMASK(11, 4)
-+#define     PCIE_ISR1_ALL_MASK			GENMASK(31, 0)
- #define PCIE_MSI_ADDR_LOW_REG			(CONTROL_BASE_ADDR + 0x50)
- #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
- #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
-@@ -240,7 +240,7 @@ enum {
- #define     PCIE_IRQ_MSI_INT2_DET		BIT(21)
- #define     PCIE_IRQ_RC_DBELL_DET		BIT(22)
- #define     PCIE_IRQ_EP_STATUS			BIT(23)
--#define     PCIE_IRQ_ALL_MASK			0xfff0fb
-+#define     PCIE_IRQ_ALL_MASK			GENMASK(31, 0)
- #define     PCIE_IRQ_ENABLE_INTS_MASK		PCIE_IRQ_CORE_INT
+--- a/drivers/hwtracing/coresight/coresight-trbe.c
++++ b/drivers/hwtracing/coresight/coresight-trbe.c
+@@ -366,7 +366,7 @@ static unsigned long __trbe_normal_offse
  
- /* Transaction types */
+ static unsigned long trbe_normal_offset(struct perf_output_handle *handle)
+ {
+-	struct trbe_buf *buf = perf_get_aux(handle);
++	struct trbe_buf *buf = etm_perf_sink_config(handle);
+ 	u64 limit = __trbe_normal_offset(handle);
+ 	u64 head = PERF_IDX2OFF(handle->head, buf);
+ 
 
 
