@@ -2,102 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50DB1450559
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:24:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79B0B4505A1
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:36:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231571AbhKON1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 08:27:31 -0500
-Received: from mga05.intel.com ([192.55.52.43]:46256 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231627AbhKON12 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 08:27:28 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10168"; a="319647404"
-X-IronPort-AV: E=Sophos;i="5.87,236,1631602800"; 
-   d="scan'208";a="319647404"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2021 05:23:08 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,236,1631602800"; 
-   d="scan'208";a="734981986"
-Received: from spandruv-desk.jf.intel.com ([10.54.75.21])
-  by fmsmga005.fm.intel.com with ESMTP; 15 Nov 2021 05:23:08 -0800
-From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-To:     rafael@kernel.org, viresh.kumar@linaro.org
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] cpufreq: intel_pstate: Fix EPP restore after offline/online
-Date:   Mon, 15 Nov 2021 05:23:02 -0800
-Message-Id: <20211115132302.1257642-1-srinivas.pandruvada@linux.intel.com>
-X-Mailer: git-send-email 2.31.1
+        id S231669AbhKONjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 08:39:23 -0500
+Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:60436
+        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234526AbhKONel (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 08:34:41 -0500
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com [209.85.208.200])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 43E2C3F19A
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 13:31:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1636983105;
+        bh=ojqXvdJwzGTTkyeWkIs8mxvrFI+WspsP1IO2MdAm86c=;
+        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+         In-Reply-To:Content-Type;
+        b=hfC9fRwGFv9emmeFqqm3yxIEZ7IXO9j8oEJ20y7cgRBQFa8hu6+HkZ6eN9N1WDYfL
+         afI5PuGPy8pzAXX0jKU7fC+hmIZcmiMu/on5Bk6iG8mWg/RYm38bmWb/mPS6a0kIvh
+         0gt4XPpY83ukS9MOCZSU560SHXtyYkMhvnKN/93d/pILJkIMDODQTkWf5XIja0Fl1S
+         eJZcIMjIkcIyipw/+So6IRb/1XLa4tkNTmmXmiHbsX5XX+KInsUYJA1KeWQd571VT/
+         gzNLSskMlcKg1Etv6WUd6gYzyxv/u1P2eODpIC/43JVRvpEz9ScprAzohEW9UuJUeB
+         xU5LxhqkptUHg==
+Received: by mail-lj1-f200.google.com with SMTP id j11-20020a2ea90b000000b00218c174bb5dso5096547ljq.22
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 05:31:45 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=ojqXvdJwzGTTkyeWkIs8mxvrFI+WspsP1IO2MdAm86c=;
+        b=ywrAd9BHI7V80CsmxxrUOoTXl5+v56xlEyHkAcr7t8cB8iLPV9njtjctO4/+XCVh6p
+         DbP4QYyo6tBdsuLG9uEQFwqiRVWk9m3SrrwkQMOxYcJbfjiv395xjI1JneXwZ3PnyS0n
+         hLmbmcTPWyO3PkD73oHoEjWc5gsIzzmOWM1yrFfubCpjwZr1ZdSUUc9UTUCH54i/2z1V
+         HdBWJPGc8gI6CGg05d1C9ofdR8YBcCpX51dsSpTn/wHtAfJrDXTTDoTxobfiM/CRPIsY
+         TdgHp9CVKCE8/SAZl94Zwx5y4TAELvyuTcxCQSwGQb8ilOYUuq39ibTzE4k8H4M3kJj8
+         loKw==
+X-Gm-Message-State: AOAM530cAirEj8acZ7tQhLz4/els7K3XtegljCIWNapTVwTUJ/GSZ9A5
+        uYovQOE63y125hTB1ViaIWhWN8RgQI5buN+MkVw1fNu3kDBFYXkB7HqrKD/acklWtlLW8FadmYt
+        ofVp/wAPd/VzNdBkHPjSdDAX8kNKEM9RhgA==
+X-Received: by 2002:a05:6512:12d3:: with SMTP id p19mr25334047lfg.53.1636983104674;
+        Mon, 15 Nov 2021 05:31:44 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxqp5859FRwLs3vmdFsfbBUc9BqBiGXS88gVU5mPrJzcrErPFY4HeUhmswDPzB6Oz2RO38LAA==
+X-Received: by 2002:a05:6512:12d3:: with SMTP id p19mr25334026lfg.53.1636983104533;
+        Mon, 15 Nov 2021 05:31:44 -0800 (PST)
+Received: from [192.168.3.67] (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
+        by smtp.gmail.com with ESMTPSA id z12sm1421048lfs.101.2021.11.15.05.31.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 15 Nov 2021 05:31:44 -0800 (PST)
+Message-ID: <d1786910-6bf7-9aa5-296d-a467e41fe861@canonical.com>
+Date:   Mon, 15 Nov 2021 14:31:43 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.1
+Subject: Re: [PATCH v2 1/2] ARM: dts: exynos/i9100: Fix BCM4330 Bluetooth
+ reset polarity
+Content-Language: en-US
+To:     Rob Herring <robh+dt@kernel.org>,
+        Paul Cercueil <paul@crapouillou.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org
+References: <20211031234137.87070-1-paul@crapouillou.net>
+ <163698188786.128367.17376497674811914207.b4-ty@canonical.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+In-Reply-To: <163698188786.128367.17376497674811914207.b4-ty@canonical.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When using performance policy, EPP value is restored to non "performance"
-mode EPP after offline and online.
+On 15/11/2021 14:11, Krzysztof Kozlowski wrote:
+> On Sun, 31 Oct 2021 23:41:36 +0000, Paul Cercueil wrote:
+>> The reset GPIO was marked active-high, which is against what's specified
+>> in the documentation. Mark the reset GPIO as active-low. With this
+>> change, Bluetooth can now be used on the i9100.
+>>
+>>
+> 
+> Applied, thanks!
+> 
+> [1/2] ARM: dts: exynos/i9100: Fix BCM4330 Bluetooth reset polarity
+>       commit: 9cb6de45a006a9799ec399bce60d64b6d4fcc4af
+> [2/2] ARM: dts: exynos/i9100: Use interrupt for BCM4330 host wakeup
+>       commit: 8e14b530f8c90346eab43c7b59b03ff9fec7d171
+> 
 
-For example:
-cat /sys/devices/system/cpu/cpu1/cpufreq/energy_performance_preference
-performance
-echo 0 > /sys/devices/system/cpu/cpu1/online
-echo 1 > /sys/devices/system/cpu/cpu1/online
-cat /sys/devices/system/cpu/cpu1/cpufreq/energy_performance_preference
-balance_performance
+Applied with fixed title. Please use prefix matching history (git log
+--oneline).
 
-The commit 4adcf2e5829f ("cpufreq: intel_pstate: Add ->offline and ->online callbacks")
-optimized save restore path of the HWP request MSR, when there is no
-change in the policy. Also added special processing for performance mode
-EPP. If EPP has been set to "performance" by the active mode "performance"
-scaling algorithm, replace that value with the cached EPP. This ends up
-replacing with cached EPP during offline, which is restored during online
-again.
 
-So add a change which will set cpu_data->epp_policy to zero, when in
-performance policy and has non zero epp. In this way EPP is set to zero
-again.
-
-Fixes: 4adcf2e5829f ("cpufreq: intel_pstate: Add ->offline and ->online callbacks")
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: stable@vger.kernel.org # v5.9+
----
- drivers/cpufreq/intel_pstate.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index 815df3daae9d..49ff24d2b0ea 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -930,17 +930,23 @@ static void intel_pstate_hwp_set(unsigned int cpu)
- {
- 	struct cpudata *cpu_data = all_cpu_data[cpu];
- 	int max, min;
-+	s16 epp = 0;
- 	u64 value;
--	s16 epp;
- 
- 	max = cpu_data->max_perf_ratio;
- 	min = cpu_data->min_perf_ratio;
- 
--	if (cpu_data->policy == CPUFREQ_POLICY_PERFORMANCE)
--		min = max;
--
- 	rdmsrl_on_cpu(cpu, MSR_HWP_REQUEST, &value);
- 
-+	if (boot_cpu_has(X86_FEATURE_HWP_EPP))
-+		epp = (value >> 24) & 0xff;
-+
-+	if (cpu_data->policy == CPUFREQ_POLICY_PERFORMANCE) {
-+		min = max;
-+		if (epp)
-+			cpu_data->epp_policy = 0;
-+	}
-+
- 	value &= ~HWP_MIN_PERF(~0L);
- 	value |= HWP_MIN_PERF(min);
- 
--- 
-2.17.1
-
+Best regards,
+Krzysztof
