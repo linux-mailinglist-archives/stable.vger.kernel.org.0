@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A419451497
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7E1F4512C3
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345346AbhKOUKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:10:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
+        id S1347343AbhKOTjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344772AbhKOTZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C09E632B9;
-        Mon, 15 Nov 2021 19:03:59 +0000 (UTC)
+        id S245009AbhKOTSV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 938896343A;
+        Mon, 15 Nov 2021 18:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003040;
-        bh=W2pqnV68uo4/wfN9nz7mHqc+qopwdKzxPPz2SukoCuI=;
+        s=korg; t=1637000815;
+        bh=f5sBHD256VAoyIEQDueybkX0f1CgCHoWj5BiHd5mBBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=asu5rF/pTi+xwo+FHZR5pV0xi3LzRT/WerNnGpZDybNEai4tvgMqJHQXFOjbQbm09
-         OIwgEIo7Z4YFf4geAA8aQZfBrKx9UxRPHk7/rCEnFTTeBRVRB6dk4WRtpB9t7Do4Ox
-         IWRf9VBt8izNoFKPb3D14OHnp6/UJ3Gmc3x6Cs3Y=
+        b=Ii/01UpOoKtrHWK4NCzqv2Aoj1BHS4jklMhM2hSTOLlS7p9ESz8o9USQnNqao1Vno
+         kZULpV8Q4aSi506wGwH73dLQP8BO2MLKPBILMXDBEM9j0rAilBr79Xjxii8pZYFo0r
+         Mn5OZJfrBPEpHHaMh7Khrzq/qwbNIU06XeOsrJWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 789/917] ataflop: remove ataflop_probe_lock mutex
-Date:   Mon, 15 Nov 2021 18:04:44 +0100
-Message-Id: <20211115165455.717780442@linuxfoundation.org>
+        stable@vger.kernel.org, Anatolij Gustschin <agust@denx.de>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.14 802/849] dmaengine: bestcomm: fix system boot lockups
+Date:   Mon, 15 Nov 2021 18:04:45 +0100
+Message-Id: <20211115165447.366730941@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,144 +39,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Anatolij Gustschin <agust@denx.de>
 
-[ Upstream commit 4ddb85d36613c45bde00d368bf9f357bd0708a0c ]
+commit adec566b05288f2787a1f88dbaf77ed8b0c644fa upstream.
 
-Commit bf9c0538e485b591 ("ataflop: use a separate gendisk for each media
-format") introduced ataflop_probe_lock mutex, but forgot to unlock the
-mutex when atari_floppy_init() (i.e. module loading) succeeded. This will
-result in double lock deadlock if ataflop_probe() is called. Also,
-unregister_blkdev() must not be called from atari_floppy_init() with
-ataflop_probe_lock held when atari_floppy_init() failed, for
-ataflop_probe() waits for ataflop_probe_lock with major_names_lock held
-(i.e. AB-BA deadlock).
+memset() and memcpy() on an MMIO region like here results in a
+lockup at startup on mpc5200 platform (since this first happens
+during probing of the ATA and Ethernet drivers). Use memset_io()
+and memcpy_toio() instead.
 
-__register_blkdev() needs to be called last in order to avoid calling
-ataflop_probe() when atari_floppy_init() is about to fail, for memory for
-completing already-started ataflop_probe() safely will be released as soon
-as atari_floppy_init() released ataflop_probe_lock mutex.
-
-As with commit 8b52d8be86d72308 ("loop: reorder loop_exit"),
-unregister_blkdev() needs to be called first in order to avoid calling
-ataflop_alloc_disk() from ataflop_probe() after del_gendisk() from
-atari_floppy_exit().
-
-By relocating __register_blkdev() / unregister_blkdev() as explained above,
-we can remove ataflop_probe_lock mutex, for probe function and __exit
-function are serialized by major_names_lock mutex.
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: bf9c0538e485b591 ("ataflop: use a separate gendisk for each media format")
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Link: https://lore.kernel.org/r/20211103230437.1639990-11-mcgrof@kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2f9ea1bde0d1 ("bestcomm: core bestcomm support for Freescale MPC5200")
+Cc: stable@vger.kernel.org # v5.14+
+Signed-off-by: Anatolij Gustschin <agust@denx.de>
+Link: https://lore.kernel.org/r/20211014094012.21286-1-agust@denx.de
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/ataflop.c | 47 +++++++++++++++++++++++------------------
- 1 file changed, 27 insertions(+), 20 deletions(-)
+ drivers/dma/bestcomm/ata.c      |    2 +-
+ drivers/dma/bestcomm/bestcomm.c |   22 +++++++++++-----------
+ drivers/dma/bestcomm/fec.c      |    4 ++--
+ drivers/dma/bestcomm/gen_bd.c   |    4 ++--
+ 4 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
-index 123ad58193098..aab48b292a3bb 100644
---- a/drivers/block/ataflop.c
-+++ b/drivers/block/ataflop.c
-@@ -2008,8 +2008,6 @@ static int ataflop_alloc_disk(unsigned int drive, unsigned int type)
+--- a/drivers/dma/bestcomm/ata.c
++++ b/drivers/dma/bestcomm/ata.c
+@@ -133,7 +133,7 @@ void bcom_ata_reset_bd(struct bcom_task
+ 	struct bcom_ata_var *var;
+ 
+ 	/* Reset all BD */
+-	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
++	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+ 
+ 	tsk->index = 0;
+ 	tsk->outdex = 0;
+--- a/drivers/dma/bestcomm/bestcomm.c
++++ b/drivers/dma/bestcomm/bestcomm.c
+@@ -95,7 +95,7 @@ bcom_task_alloc(int bd_count, int bd_siz
+ 		tsk->bd = bcom_sram_alloc(bd_count * bd_size, 4, &tsk->bd_pa);
+ 		if (!tsk->bd)
+ 			goto error;
+-		memset(tsk->bd, 0x00, bd_count * bd_size);
++		memset_io(tsk->bd, 0x00, bd_count * bd_size);
+ 
+ 		tsk->num_bd = bd_count;
+ 		tsk->bd_size = bd_size;
+@@ -186,16 +186,16 @@ bcom_load_image(int task, u32 *task_imag
+ 	inc = bcom_task_inc(task);
+ 
+ 	/* Clear & copy */
+-	memset(var, 0x00, BCOM_VAR_SIZE);
+-	memset(inc, 0x00, BCOM_INC_SIZE);
++	memset_io(var, 0x00, BCOM_VAR_SIZE);
++	memset_io(inc, 0x00, BCOM_INC_SIZE);
+ 
+ 	desc_src = (u32 *)(hdr + 1);
+ 	var_src = desc_src + hdr->desc_size;
+ 	inc_src = var_src + hdr->var_size;
+ 
+-	memcpy(desc, desc_src, hdr->desc_size * sizeof(u32));
+-	memcpy(var + hdr->first_var, var_src, hdr->var_size * sizeof(u32));
+-	memcpy(inc, inc_src, hdr->inc_size * sizeof(u32));
++	memcpy_toio(desc, desc_src, hdr->desc_size * sizeof(u32));
++	memcpy_toio(var + hdr->first_var, var_src, hdr->var_size * sizeof(u32));
++	memcpy_toio(inc, inc_src, hdr->inc_size * sizeof(u32));
+ 
  	return 0;
  }
- 
--static DEFINE_MUTEX(ataflop_probe_lock);
--
- static void ataflop_probe(dev_t dev)
- {
- 	int drive = MINOR(dev) & 3;
-@@ -2020,14 +2018,32 @@ static void ataflop_probe(dev_t dev)
- 
- 	if (drive >= FD_MAX_UNITS || type >= NUM_DISK_MINORS)
- 		return;
--	mutex_lock(&ataflop_probe_lock);
- 	if (!unit[drive].disk[type]) {
- 		if (ataflop_alloc_disk(drive, type) == 0) {
- 			add_disk(unit[drive].disk[type]);
- 			unit[drive].registered[type] = true;
- 		}
+@@ -302,13 +302,13 @@ static int bcom_engine_init(void)
+ 		return -ENOMEM;
  	}
--	mutex_unlock(&ataflop_probe_lock);
-+}
-+
-+static void atari_floppy_cleanup(void)
-+{
-+	int i;
-+	int type;
-+
-+	for (i = 0; i < FD_MAX_UNITS; i++) {
-+		for (type = 0; type < NUM_DISK_MINORS; type++) {
-+			if (!unit[i].disk[type])
-+				continue;
-+			del_gendisk(unit[i].disk[type]);
-+			blk_cleanup_queue(unit[i].disk[type]->queue);
-+			put_disk(unit[i].disk[type]);
-+		}
-+		blk_mq_free_tag_set(&unit[i].tag_set);
-+	}
-+
-+	del_timer_sync(&fd_timer);
-+	atari_stram_free(DMABuffer);
- }
  
- static void atari_cleanup_floppy_disk(struct atari_floppy_struct *fs)
-@@ -2053,11 +2069,6 @@ static int __init atari_floppy_init (void)
- 		/* Amiga, Mac, ... don't have Atari-compatible floppy :-) */
- 		return -ENODEV;
+-	memset(bcom_eng->tdt, 0x00, tdt_size);
+-	memset(bcom_eng->ctx, 0x00, ctx_size);
+-	memset(bcom_eng->var, 0x00, var_size);
+-	memset(bcom_eng->fdt, 0x00, fdt_size);
++	memset_io(bcom_eng->tdt, 0x00, tdt_size);
++	memset_io(bcom_eng->ctx, 0x00, ctx_size);
++	memset_io(bcom_eng->var, 0x00, var_size);
++	memset_io(bcom_eng->fdt, 0x00, fdt_size);
  
--	mutex_lock(&ataflop_probe_lock);
--	ret = __register_blkdev(FLOPPY_MAJOR, "fd", ataflop_probe);
--	if (ret)
--		goto out_unlock;
--
- 	for (i = 0; i < FD_MAX_UNITS; i++) {
- 		memset(&unit[i].tag_set, 0, sizeof(unit[i].tag_set));
- 		unit[i].tag_set.ops = &ataflop_mq_ops;
-@@ -2111,15 +2122,17 @@ static int __init atari_floppy_init (void)
- 	       UseTrackbuffer ? "" : "no ");
- 	config_types();
+ 	/* Copy the FDT for the EU#3 */
+-	memcpy(&bcom_eng->fdt[48], fdt_ops, sizeof(fdt_ops));
++	memcpy_toio(&bcom_eng->fdt[48], fdt_ops, sizeof(fdt_ops));
  
--	return 0;
-+	ret = __register_blkdev(FLOPPY_MAJOR, "fd", ataflop_probe);
-+	if (ret) {
-+		printk(KERN_ERR "atari_floppy_init: cannot register block device\n");
-+		atari_floppy_cleanup();
-+	}
-+	return ret;
+ 	/* Initialize Task base structure */
+ 	for (task=0; task<BCOM_MAX_TASKS; task++)
+--- a/drivers/dma/bestcomm/fec.c
++++ b/drivers/dma/bestcomm/fec.c
+@@ -140,7 +140,7 @@ bcom_fec_rx_reset(struct bcom_task *tsk)
+ 	tsk->index = 0;
+ 	tsk->outdex = 0;
  
- err:
- 	while (--i >= 0)
- 		atari_cleanup_floppy_disk(&unit[i]);
+-	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
++	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
  
--	unregister_blkdev(FLOPPY_MAJOR, "fd");
--out_unlock:
--	mutex_unlock(&ataflop_probe_lock);
- 	return ret;
- }
+ 	/* Configure some stuff */
+ 	bcom_set_task_pragma(tsk->tasknum, BCOM_FEC_RX_BD_PRAGMA);
+@@ -241,7 +241,7 @@ bcom_fec_tx_reset(struct bcom_task *tsk)
+ 	tsk->index = 0;
+ 	tsk->outdex = 0;
  
-@@ -2164,14 +2177,8 @@ __setup("floppy=", atari_floppy_setup);
+-	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
++	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
  
- static void __exit atari_floppy_exit(void)
- {
--	int i;
--
--	for (i = 0; i < FD_MAX_UNITS; i++)
--		atari_cleanup_floppy_disk(&unit[i]);
- 	unregister_blkdev(FLOPPY_MAJOR, "fd");
--
--	del_timer_sync(&fd_timer);
--	atari_stram_free( DMABuffer );
-+	atari_floppy_cleanup();
- }
+ 	/* Configure some stuff */
+ 	bcom_set_task_pragma(tsk->tasknum, BCOM_FEC_TX_BD_PRAGMA);
+--- a/drivers/dma/bestcomm/gen_bd.c
++++ b/drivers/dma/bestcomm/gen_bd.c
+@@ -142,7 +142,7 @@ bcom_gen_bd_rx_reset(struct bcom_task *t
+ 	tsk->index = 0;
+ 	tsk->outdex = 0;
  
- module_init(atari_floppy_init)
--- 
-2.33.0
-
+-	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
++	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+ 
+ 	/* Configure some stuff */
+ 	bcom_set_task_pragma(tsk->tasknum, BCOM_GEN_RX_BD_PRAGMA);
+@@ -226,7 +226,7 @@ bcom_gen_bd_tx_reset(struct bcom_task *t
+ 	tsk->index = 0;
+ 	tsk->outdex = 0;
+ 
+-	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
++	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+ 
+ 	/* Configure some stuff */
+ 	bcom_set_task_pragma(tsk->tasknum, BCOM_GEN_TX_BD_PRAGMA);
 
 
