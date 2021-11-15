@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09665450B55
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:19:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BE1450E1C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232435AbhKORVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:21:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38928 "EHLO mail.kernel.org"
+        id S240605AbhKOSKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:10:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236948AbhKORTw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:19:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E2A163231;
-        Mon, 15 Nov 2021 17:14:52 +0000 (UTC)
+        id S240009AbhKOSF3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D96236337B;
+        Mon, 15 Nov 2021 17:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996493;
-        bh=BGDNT5BNG8+JfEt8R+bfpD7rMkJCywA5cFQjaYYDBAQ=;
+        s=korg; t=1636998097;
+        bh=MwbZVDPdGRfxkLUSKP+bP0+bZv0GRE6qJPEW+sMlwHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mOQjSYFJ3dFpNGmFN90XdBP9GFKzX6J4B93wlQ6OFxerSrAwuKNlxUMbx5NLQVoqO
-         o7cjuvtV+spyXVDMmPg8o4j1D/fHukNfhRLwJx+X8hTK9cplqaeoBeTcIYb6WZd9eN
-         lus9WejwSWnbYxRb4DMa1j4uyAvrqKxXC/o0nymY=
+        b=Va2eTlTGljkYE0kOCc8DVA3+SX1zMA/npJq80IPzsl7j5VVnRbQqvYNL8S2EOC4/L
+         9Pca7YGYSc011Ub9baJ3cUyrvi0TaDrDrHA9MbhMXSH29oSbQWEXwT/xUbtbQsw41S
+         yZmA6352u1gCEH6yd/3RfeLOiKTVAmBTcaxoI/vA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 159/355] block: remove inaccurate requeue check
-Date:   Mon, 15 Nov 2021 18:01:23 +0100
-Message-Id: <20211115165318.926823814@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 359/575] ataflop: potential out of bounds in do_format()
+Date:   Mon, 15 Nov 2021 18:01:24 +0100
+Message-Id: <20211115165356.225040124@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 037057a5a979c7eeb2ee5d12cf4c24b805192c75 ]
+[ Upstream commit 1ffec389a6431782a8a28805830b6fae9bf00af1 ]
 
-This check is meant to catch cases where a requeue is attempted on a
-request that is still inserted. It's never really been useful to catch any
-misuse, and now it's actively wrong. Outside of that, this should not be a
-BUG_ON() to begin with.
+The function uses "type" as an array index:
 
-Remove the check as it's now causing active harm, as requeue off the plug
-path will trigger it even though the request state is just fine.
+	q = unit[drive].disk[type]->queue;
 
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Link: https://lore.kernel.org/linux-block/CAHj4cs80zAUc2grnCZ015-2Rvd-=gXRfB_dFKy=RTm+wRo09HQ@mail.gmail.com/
+Unfortunately the bounds check on "type" isn't done until later in the
+function.  Fix this by moving the bounds check to the start.
+
+Fixes: bf9c0538e485 ("ataflop: use a separate gendisk for each media format")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/block/ataflop.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 0674f53c60528..84798d09ca464 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -733,7 +733,6 @@ void blk_mq_requeue_request(struct request *rq, bool kick_requeue_list)
- 	/* this request will be re-inserted to io scheduler queue */
- 	blk_mq_sched_requeue_request(rq);
+diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
+index e6264db11e415..0a86f9d3a3798 100644
+--- a/drivers/block/ataflop.c
++++ b/drivers/block/ataflop.c
+@@ -726,8 +726,12 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
+ 	unsigned long	flags;
+ 	int ret;
  
--	BUG_ON(!list_empty(&rq->queuelist));
- 	blk_mq_add_to_requeue_list(rq, true, kick_requeue_list);
- }
- EXPORT_SYMBOL(blk_mq_requeue_request);
+-	if (type)
++	if (type) {
+ 		type--;
++		if (type >= NUM_DISK_MINORS ||
++		    minor2disktype[type].drive_types > DriveType)
++			return -EINVAL;
++	}
+ 
+ 	q = unit[drive].disk[type]->queue;
+ 	blk_mq_freeze_queue(q);
+@@ -739,11 +743,6 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
+ 	local_irq_restore(flags);
+ 
+ 	if (type) {
+-		if (type >= NUM_DISK_MINORS ||
+-		    minor2disktype[type].drive_types > DriveType) {
+-			ret = -EINVAL;
+-			goto out;
+-		}
+ 		type = minor2disktype[type].index;
+ 		UDT = &atari_disk_type[type];
+ 	}
 -- 
 2.33.0
 
