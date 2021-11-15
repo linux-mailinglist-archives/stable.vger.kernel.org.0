@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C585F45271F
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:14:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BAA8452441
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:34:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244502AbhKPCQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:16:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34776 "EHLO mail.kernel.org"
+        id S242887AbhKPBgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:36:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238831AbhKORrl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:47:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 215F2632A2;
-        Mon, 15 Nov 2021 17:29:56 +0000 (UTC)
+        id S242852AbhKOSq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:46:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C8B963392;
+        Mon, 15 Nov 2021 18:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997397;
-        bh=mopvfgDoJ9t5syKO0l0QLONLtr5UPWSCeUTEAmFJlxo=;
+        s=korg; t=1636999653;
+        bh=Djosf74jsueH7VUcEdzjJ5J+PIfJsUN+bo3L+bf7ndM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICoFslTuAV7idNF5nDycIcKkSzVXp+PNLj2kMP3vPZlLuBLU96fUA5eFTpy85IzA2
-         dnoLBbssdrexfe5IGa7EQwUPm6A3C7s6HzPgUd+SZbbZB4JqbEQH9OIOaIxN6QzH6M
-         aQ941yCFGax0eSQfNr0zUs8GJWu57vfLUuN7wZwA=
+        b=qnXU7KPQTA3/HAEGTtGpRF9trYsNVuo5rTmpuFbQmbNEcgttALAoJubUSTPp4leXP
+         AP/E/sVfmDZT39cqAW5fuuMEQJE7X2lfe0fXDS4uJswkVr/VOS82xMHXkm4rLd2E62
+         1TGK/s2ZC91tUWWXeOVxsgFsXss5dkyRwFyAk48A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 133/575] ifb: fix building without CONFIG_NET_CLS_ACT
+        stable@vger.kernel.org,
+        Sudarshan Rajagopalan <quic_sudaraja@quicinc.com>,
+        Chris Goldsworthy <quic_cgoldswo@quicinc.com>,
+        David Hildenbrand <david@redhat.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Georgi Djakov <quic_c_gdjako@quicinc.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 375/849] arm64: mm: update max_pfn after memory hotplug
 Date:   Mon, 15 Nov 2021 17:57:38 +0100
-Message-Id: <20211115165348.307387055@linuxfoundation.org>
+Message-Id: <20211115165432.917639986@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sudarshan Rajagopalan <quic_sudaraja@quicinc.com>
 
-commit 7444d706be31753f65052c7f6325fc8470cc1789 upstream.
+[ Upstream commit 8fac67ca236b961b573355e203dbaf62a706a2e5 ]
 
-The driver no longer depends on this option, but it fails to
-build if it's disabled because the skb->tc_skip_classify is
-hidden behind an #ifdef:
+After new memory blocks have been hotplugged, max_pfn and max_low_pfn
+needs updating to reflect on new PFNs being hot added to system.
+Without this patch, debug-related functions that use max_pfn such as
+get_max_dump_pfn() or read_page_owner() will not work with any page in
+memory that is hot-added after boot.
 
-drivers/net/ifb.c:81:8: error: no member named 'tc_skip_classify' in 'struct sk_buff'
-                skb->tc_skip_classify = 1;
-
-Use the same #ifdef around the assignment.
-
-Fixes: 046178e726c2 ("ifb: Depend on netfilter alternatively to tc")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4ab215061554 ("arm64: Add memory hotplug support")
+Signed-off-by: Sudarshan Rajagopalan <quic_sudaraja@quicinc.com>
+Signed-off-by: Chris Goldsworthy <quic_cgoldswo@quicinc.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Georgi Djakov <quic_c_gdjako@quicinc.com>
+Tested-by: Georgi Djakov <quic_c_gdjako@quicinc.com>
+Link: https://lore.kernel.org/r/a51a27ee7be66024b5ce626310d673f24107bcb8.1632853776.git.quic_cgoldswo@quicinc.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ifb.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/mm/mmu.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/ifb.c
-+++ b/drivers/net/ifb.c
-@@ -76,7 +76,9 @@ static void ifb_ri_tasklet(unsigned long
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 9ff0de1b2b93c..90d185853e341 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -1499,6 +1499,11 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ 	if (ret)
+ 		__remove_pgd_mapping(swapper_pg_dir,
+ 				     __phys_to_virt(start), size);
++	else {
++		max_pfn = PFN_UP(start + size);
++		max_low_pfn = max_pfn;
++	}
++
+ 	return ret;
+ }
  
- 	while ((skb = __skb_dequeue(&txp->tq)) != NULL) {
- 		skb->redirected = 0;
-+#ifdef CONFIG_NET_CLS_ACT
- 		skb->tc_skip_classify = 1;
-+#endif
- 
- 		u64_stats_update_begin(&txp->tsync);
- 		txp->tx_packets++;
+-- 
+2.33.0
+
 
 
