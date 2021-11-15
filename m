@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B53F4510AA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:49:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D16C74510B1
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:50:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238274AbhKOSwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:52:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54418 "EHLO mail.kernel.org"
+        id S242727AbhKOSww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:52:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242814AbhKOSuT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:50:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F390D613A7;
-        Mon, 15 Nov 2021 18:08:53 +0000 (UTC)
+        id S242969AbhKOSuY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:50:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBA03613AD;
+        Mon, 15 Nov 2021 18:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999734;
-        bh=VtYf4l5+U5cuDlxkGU8QcXdHIFxr3Cd/T9k8AacZ7so=;
+        s=korg; t=1636999737;
+        bh=8MOknCI3Q51ZK45i0idc77rwU8b434/eQpZypidtLe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EiCa7GChcuMdPvwMr2ebRMa+AqxZPnlSDKSJxxqKkvY7TIdl4GJLXVD8I5PXWQ4z7
-         ss9YL2ueermssSpx1z74SUKKaec9Wfg2cvdSEep5FyBwllG7TDLwdeok10lwUaPZEN
-         5pBwE0P2nUTmCO18PmbyA8G326+aNNkx7c/uxX9I=
+        b=IwVzoAwx71nE1qAqiFf2vO3UT55BOOp41CNZ9u0HI7ukJNwDryYd9aYpJK18wJu8J
+         vrdHKNNTPtFvf6uWTQb4umpUOui52MQHo/S9wHYwe93qh6MNCpdtK+Xg5YMtaxGzBl
+         c2SURjJLk0QOI7sEOAKYc21TSSjz7IK0WVUkPnlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Borislav Petkov <bp@suse.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 405/849] x86/insn: Use get_unaligned() instead of memcpy()
-Date:   Mon, 15 Nov 2021 17:58:08 +0100
-Message-Id: <20211115165433.962955229@linuxfoundation.org>
+        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 406/849] EDAC/amd64: Handle three rank interleaving mode
+Date:   Mon, 15 Nov 2021 17:58:09 +0100
+Message-Id: <20211115165434.000851646@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -43,135 +39,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Yazen Ghannam <yazen.ghannam@amd.com>
 
-[ Upstream commit f96b4675839b66168f5a07bf964dde6c2f1c4885 ]
+[ Upstream commit 9f4873fb6af7966de8fcbd95c36b61351c1c4b1f ]
 
-Use get_unaligned() instead of memcpy() to access potentially unaligned
-memory, which, when accessed through a pointer, leads to undefined
-behavior. get_unaligned() describes much better what is happening there
-anyway even if memcpy() does the job.
+AMD Rome systems and later support interleaving between three identical
+ranks within a channel.
 
-In addition, since perf tool builds with -Werror, it would fire with:
+Check for this mode by counting the number of enabled chip selects and
+comparing their masks. If there are exactly three enabled chip selects
+and their masks are identical, then three rank interleaving is enabled.
 
-  util/intel-pt-decoder/../../../arch/x86/lib/insn.c: In function '__insn_get_emulate_prefix':
-  tools/include/../include/asm-generic/unaligned.h:10:15: error: packed attribute is unnecessary [-Werror=packed]
-     10 |  const struct { type x; } __packed *__pptr = (typeof(__pptr))(ptr); \
+The size of a rank is determined from its mask value. However, three
+rank interleaving doesn't follow the method of swapping an interleave
+bit with the most significant bit. Rather, the interleave bit is flipped
+and the most significant bit remains the same. There is only a single
+interleave bit in this case.
 
-because -Werror=packed would complain if the packed attribute would have
-no effect on the layout of the structure.
+Account for this when determining the chip select size by keeping the
+most significant bit at its original value and ignoring any zero bits.
+This will return a full bitmask in [MSB:1].
 
-In this case, that is intentional so disable the warning only for that
-compilation unit.
-
-That part is Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-
-No functional changes.
-
-Fixes: 5ba1071f7554 ("x86/insn, tools/x86: Fix undefined behavior due to potential unaligned accesses")
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: e53a3b267fb0 ("EDAC/amd64: Find Chip Select memory size using Address Mask")
+Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Link: https://lkml.kernel.org/r/YVSsIkj9Z29TyUjE@zn.tnic
+Link: https://lkml.kernel.org/r/20211005154419.2060504-1-yazen.ghannam@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/insn.c                    |  5 +++--
- tools/arch/x86/lib/insn.c              |  5 +++--
- tools/include/asm-generic/unaligned.h  | 23 +++++++++++++++++++++++
- tools/perf/util/intel-pt-decoder/Build |  2 ++
- 4 files changed, 31 insertions(+), 4 deletions(-)
- create mode 100644 tools/include/asm-generic/unaligned.h
+ drivers/edac/amd64_edac.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/lib/insn.c b/arch/x86/lib/insn.c
-index c565def611e24..55e371cc69fd5 100644
---- a/arch/x86/lib/insn.c
-+++ b/arch/x86/lib/insn.c
-@@ -13,6 +13,7 @@
- #endif
- #include <asm/inat.h> /*__ignore_sync_check__ */
- #include <asm/insn.h> /* __ignore_sync_check__ */
-+#include <asm/unaligned.h> /* __ignore_sync_check__ */
+diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
+index f0d8f60acee10..b31ee9b0d2c03 100644
+--- a/drivers/edac/amd64_edac.c
++++ b/drivers/edac/amd64_edac.c
+@@ -1070,12 +1070,14 @@ static void debug_dump_dramcfg_low(struct amd64_pvt *pvt, u32 dclr, int chan)
+ #define CS_ODD_PRIMARY		BIT(1)
+ #define CS_EVEN_SECONDARY	BIT(2)
+ #define CS_ODD_SECONDARY	BIT(3)
++#define CS_3R_INTERLEAVE	BIT(4)
  
- #include <linux/errno.h>
- #include <linux/kconfig.h>
-@@ -37,10 +38,10 @@
- 	((insn)->next_byte + sizeof(t) + n <= (insn)->end_kaddr)
+ #define CS_EVEN			(CS_EVEN_PRIMARY | CS_EVEN_SECONDARY)
+ #define CS_ODD			(CS_ODD_PRIMARY | CS_ODD_SECONDARY)
  
- #define __get_next(t, insn)	\
--	({ t r; memcpy(&r, insn->next_byte, sizeof(t)); insn->next_byte += sizeof(t); leXX_to_cpu(t, r); })
-+	({ t r = get_unaligned((t *)(insn)->next_byte); (insn)->next_byte += sizeof(t); leXX_to_cpu(t, r); })
+ static int f17_get_cs_mode(int dimm, u8 ctrl, struct amd64_pvt *pvt)
+ {
++	u8 base, count = 0;
+ 	int cs_mode = 0;
  
- #define __peek_nbyte_next(t, insn, n)	\
--	({ t r; memcpy(&r, (insn)->next_byte + n, sizeof(t)); leXX_to_cpu(t, r); })
-+	({ t r = get_unaligned((t *)(insn)->next_byte + n); leXX_to_cpu(t, r); })
+ 	if (csrow_enabled(2 * dimm, ctrl, pvt))
+@@ -1088,6 +1090,20 @@ static int f17_get_cs_mode(int dimm, u8 ctrl, struct amd64_pvt *pvt)
+ 	if (csrow_sec_enabled(2 * dimm + 1, ctrl, pvt))
+ 		cs_mode |= CS_ODD_SECONDARY;
  
- #define get_next(t, insn)	\
- 	({ if (unlikely(!validate_next(t, insn, 0))) goto err_out; __get_next(t, insn); })
-diff --git a/tools/arch/x86/lib/insn.c b/tools/arch/x86/lib/insn.c
-index 797699462cd8e..8fd63a067308a 100644
---- a/tools/arch/x86/lib/insn.c
-+++ b/tools/arch/x86/lib/insn.c
-@@ -13,6 +13,7 @@
- #endif
- #include "../include/asm/inat.h" /* __ignore_sync_check__ */
- #include "../include/asm/insn.h" /* __ignore_sync_check__ */
-+#include "../include/asm-generic/unaligned.h" /* __ignore_sync_check__ */
- 
- #include <linux/errno.h>
- #include <linux/kconfig.h>
-@@ -37,10 +38,10 @@
- 	((insn)->next_byte + sizeof(t) + n <= (insn)->end_kaddr)
- 
- #define __get_next(t, insn)	\
--	({ t r; memcpy(&r, insn->next_byte, sizeof(t)); insn->next_byte += sizeof(t); leXX_to_cpu(t, r); })
-+	({ t r = get_unaligned((t *)(insn)->next_byte); (insn)->next_byte += sizeof(t); leXX_to_cpu(t, r); })
- 
- #define __peek_nbyte_next(t, insn, n)	\
--	({ t r; memcpy(&r, (insn)->next_byte + n, sizeof(t)); leXX_to_cpu(t, r); })
-+	({ t r = get_unaligned((t *)(insn)->next_byte + n); leXX_to_cpu(t, r); })
- 
- #define get_next(t, insn)	\
- 	({ if (unlikely(!validate_next(t, insn, 0))) goto err_out; __get_next(t, insn); })
-diff --git a/tools/include/asm-generic/unaligned.h b/tools/include/asm-generic/unaligned.h
-new file mode 100644
-index 0000000000000..47387c607035e
---- /dev/null
-+++ b/tools/include/asm-generic/unaligned.h
-@@ -0,0 +1,23 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later */
-+/*
-+ * Copied from the kernel sources to tools/perf/:
-+ */
++	/*
++	 * 3 Rank inteleaving support.
++	 * There should be only three bases enabled and their two masks should
++	 * be equal.
++	 */
++	for_each_chip_select(base, ctrl, pvt)
++		count += csrow_enabled(base, ctrl, pvt);
 +
-+#ifndef __TOOLS_LINUX_ASM_GENERIC_UNALIGNED_H
-+#define __TOOLS_LINUX_ASM_GENERIC_UNALIGNED_H
++	if (count == 3 &&
++	    pvt->csels[ctrl].csmasks[0] == pvt->csels[ctrl].csmasks[1]) {
++		edac_dbg(1, "3R interleaving in use.\n");
++		cs_mode |= CS_3R_INTERLEAVE;
++	}
 +
-+#define __get_unaligned_t(type, ptr) ({						\
-+	const struct { type x; } __packed *__pptr = (typeof(__pptr))(ptr);	\
-+	__pptr->x;								\
-+})
-+
-+#define __put_unaligned_t(type, val, ptr) do {					\
-+	struct { type x; } __packed *__pptr = (typeof(__pptr))(ptr);		\
-+	__pptr->x = (val);							\
-+} while (0)
-+
-+#define get_unaligned(ptr)	__get_unaligned_t(typeof(*(ptr)), (ptr))
-+#define put_unaligned(val, ptr) __put_unaligned_t(typeof(*(ptr)), (val), (ptr))
-+
-+#endif /* __TOOLS_LINUX_ASM_GENERIC_UNALIGNED_H */
-+
-diff --git a/tools/perf/util/intel-pt-decoder/Build b/tools/perf/util/intel-pt-decoder/Build
-index bc629359826fb..b41c2e9c6f887 100644
---- a/tools/perf/util/intel-pt-decoder/Build
-+++ b/tools/perf/util/intel-pt-decoder/Build
-@@ -18,3 +18,5 @@ CFLAGS_intel-pt-insn-decoder.o += -I$(OUTPUT)util/intel-pt-decoder
- ifeq ($(CC_NO_CLANG), 1)
-   CFLAGS_intel-pt-insn-decoder.o += -Wno-override-init
- endif
-+
-+CFLAGS_intel-pt-insn-decoder.o += -Wno-packed
+ 	return cs_mode;
+ }
+ 
+@@ -1896,10 +1912,14 @@ static int f17_addr_mask_to_cs_size(struct amd64_pvt *pvt, u8 umc,
+ 	 *
+ 	 * The MSB is the number of bits in the full mask because BIT[0] is
+ 	 * always 0.
++	 *
++	 * In the special 3 Rank interleaving case, a single bit is flipped
++	 * without swapping with the most significant bit. This can be handled
++	 * by keeping the MSB where it is and ignoring the single zero bit.
+ 	 */
+ 	msb = fls(addr_mask_orig) - 1;
+ 	weight = hweight_long(addr_mask_orig);
+-	num_zero_bits = msb - weight;
++	num_zero_bits = msb - weight - !!(cs_mode & CS_3R_INTERLEAVE);
+ 
+ 	/* Take the number of zero bits off from the top of the mask. */
+ 	addr_mask_deinterleaved = GENMASK_ULL(msb - num_zero_bits, 1);
 -- 
 2.33.0
 
