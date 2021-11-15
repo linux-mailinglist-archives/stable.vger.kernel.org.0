@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 136414520A4
+	by mail.lfdr.de (Postfix) with ESMTP id 5DD9B4520A5
 	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351915AbhKPAzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:55:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
+        id S1349112AbhKPAz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:55:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343498AbhKOTVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343499AbhKOTVN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4023863595;
-        Mon, 15 Nov 2021 18:40:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 893FD63599;
+        Mon, 15 Nov 2021 18:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001647;
-        bh=tL3cNx9DGLvWMHPkZ+/58zXhibgTw22YvZCOTbdVdyg=;
+        s=korg; t=1637001658;
+        bh=2KsCdy46GOl1H7sN1S6wO20LLFY/Q6iyRChgBeGPtx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0mWgTq6gTuwnxBhp84MIY8FItuGiH4b/tPvLO4GInR8Pz7aT8qu3rlyQDYwpF9DH+
-         lSuk8ymwtfAyPWcj85f8OZEpOsvO8daXuljoaQ34jw3n/WYtTceA5F+Syekqxufw/k
-         2Vhq+AXc/AR+qxPLY5CLddJ0JF1s/5Vr8qdTLuEE=
+        b=G0oKhCFUPii1/N5pBcRM5DTYV/fiXPRFzAMkKEkWeHPYySMwCGuUWFCiCpgbsZsAB
+         nIf6UIpIjjk1iJTllRZ00IsuhYS9J6OSnVA9Vooctbcs7XzOD2yFdiFO7bFRGFwR5V
+         Dqh0ixPXVb5abikGRS5f+5MkyYDiObdvlLMU0wXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luigi Rizzo <lrizzo@google.com>,
-        Josh Don <joshdon@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Reik Keutterling <spielkind@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 237/917] fs/proc/uptime.c: Fix idle time reporting in /proc/uptime
-Date:   Mon, 15 Nov 2021 17:55:32 +0100
-Message-Id: <20211115165436.830659169@linuxfoundation.org>
+Subject: [PATCH 5.15 239/917] ACPICA: Avoid evaluating methods too early during system resume
+Date:   Mon, 15 Nov 2021 17:55:34 +0100
+Message-Id: <20211115165436.902036965@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,102 +40,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Don <joshdon@google.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit a130e8fbc7de796eb6e680724d87f4737a26d0ac ]
+[ Upstream commit d3c4b6f64ad356c0d9ddbcf73fa471e6a841cc5c ]
 
-/proc/uptime reports idle time by reading the CPUTIME_IDLE field from
-the per-cpu kcpustats. However, on NO_HZ systems, idle time is not
-continually updated on idle cpus, leading this value to appear
-incorrectly small.
+ACPICA commit 0762982923f95eb652cf7ded27356b247c9774de
 
-/proc/stat performs an accounting update when reading idle time; we
-can use the same approach for uptime.
+During wakeup from system-wide sleep states, acpi_get_sleep_type_data()
+is called and it tries to get memory from the slab allocator in order
+to evaluate a control method, but if KFENCE is enabled in the kernel,
+the memory allocation attempt causes an IRQ work to be queued and a
+self-IPI to be sent to the CPU running the code which requires the
+memory controller to be ready, so if that happens too early in the
+wakeup path, it doesn't work.
 
-With this patch, /proc/stat and /proc/uptime now agree on idle time.
-Additionally, the following shows idle time tick up consistently on an
-idle machine:
+Prevent that from taking place by calling acpi_get_sleep_type_data()
+for S0 upfront, when preparing to enter a given sleep state, and
+saving the data obtained by it for later use during system wakeup.
 
-  (while true; do cat /proc/uptime; sleep 1; done) | awk '{print $2-prev; prev=$2}'
-
-Reported-by: Luigi Rizzo <lrizzo@google.com>
-Signed-off-by: Josh Don <joshdon@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lkml.kernel.org/r/20210827165438.3280779-1-joshdon@google.com
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214271
+Reported-by: Reik Keutterling <spielkind@gmail.com>
+Tested-by: Reik Keutterling <spielkind@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/stat.c              |  4 ++--
- fs/proc/uptime.c            | 14 +++++++++-----
- include/linux/kernel_stat.h |  1 +
- 3 files changed, 12 insertions(+), 7 deletions(-)
+ drivers/acpi/acpica/acglobal.h  |  2 ++
+ drivers/acpi/acpica/hwesleep.c  |  8 ++------
+ drivers/acpi/acpica/hwsleep.c   | 11 ++++-------
+ drivers/acpi/acpica/hwxfsleep.c |  7 +++++++
+ 4 files changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/fs/proc/stat.c b/fs/proc/stat.c
-index 6561a06ef9059..4fb8729a68d4e 100644
---- a/fs/proc/stat.c
-+++ b/fs/proc/stat.c
-@@ -24,7 +24,7 @@
+diff --git a/drivers/acpi/acpica/acglobal.h b/drivers/acpi/acpica/acglobal.h
+index d41b810e367c4..4366d36ef1198 100644
+--- a/drivers/acpi/acpica/acglobal.h
++++ b/drivers/acpi/acpica/acglobal.h
+@@ -226,6 +226,8 @@ extern struct acpi_bit_register_info
+     acpi_gbl_bit_register_info[ACPI_NUM_BITREG];
+ ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a);
+ ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b);
++ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a_s0);
++ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b_s0);
  
- #ifdef arch_idle_time
+ /*****************************************************************************
+  *
+diff --git a/drivers/acpi/acpica/hwesleep.c b/drivers/acpi/acpica/hwesleep.c
+index 803402aefaeb6..808fdf54aeebf 100644
+--- a/drivers/acpi/acpica/hwesleep.c
++++ b/drivers/acpi/acpica/hwesleep.c
+@@ -147,17 +147,13 @@ acpi_status acpi_hw_extended_sleep(u8 sleep_state)
  
--static u64 get_idle_time(struct kernel_cpustat *kcs, int cpu)
-+u64 get_idle_time(struct kernel_cpustat *kcs, int cpu)
+ acpi_status acpi_hw_extended_wake_prep(u8 sleep_state)
  {
- 	u64 idle;
+-	acpi_status status;
+ 	u8 sleep_type_value;
  
-@@ -46,7 +46,7 @@ static u64 get_iowait_time(struct kernel_cpustat *kcs, int cpu)
+ 	ACPI_FUNCTION_TRACE(hw_extended_wake_prep);
  
- #else
+-	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
+-					  &acpi_gbl_sleep_type_a,
+-					  &acpi_gbl_sleep_type_b);
+-	if (ACPI_SUCCESS(status)) {
++	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
+ 		sleep_type_value =
+-		    ((acpi_gbl_sleep_type_a << ACPI_X_SLEEP_TYPE_POSITION) &
++		    ((acpi_gbl_sleep_type_a_s0 << ACPI_X_SLEEP_TYPE_POSITION) &
+ 		     ACPI_X_SLEEP_TYPE_MASK);
  
--static u64 get_idle_time(struct kernel_cpustat *kcs, int cpu)
-+u64 get_idle_time(struct kernel_cpustat *kcs, int cpu)
+ 		(void)acpi_write((u64)(sleep_type_value | ACPI_X_SLEEP_ENABLE),
+diff --git a/drivers/acpi/acpica/hwsleep.c b/drivers/acpi/acpica/hwsleep.c
+index 14baa13bf8482..34a3825f25d37 100644
+--- a/drivers/acpi/acpica/hwsleep.c
++++ b/drivers/acpi/acpica/hwsleep.c
+@@ -179,7 +179,7 @@ acpi_status acpi_hw_legacy_sleep(u8 sleep_state)
+ 
+ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
  {
- 	u64 idle, idle_usecs = -1ULL;
+-	acpi_status status;
++	acpi_status status = AE_OK;
+ 	struct acpi_bit_register_info *sleep_type_reg_info;
+ 	struct acpi_bit_register_info *sleep_enable_reg_info;
+ 	u32 pm1a_control;
+@@ -192,10 +192,7 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
+ 	 * This is unclear from the ACPI Spec, but it is required
+ 	 * by some machines.
+ 	 */
+-	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
+-					  &acpi_gbl_sleep_type_a,
+-					  &acpi_gbl_sleep_type_b);
+-	if (ACPI_SUCCESS(status)) {
++	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
+ 		sleep_type_reg_info =
+ 		    acpi_hw_get_bit_register_info(ACPI_BITREG_SLEEP_TYPE);
+ 		sleep_enable_reg_info =
+@@ -216,9 +213,9 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
  
-diff --git a/fs/proc/uptime.c b/fs/proc/uptime.c
-index 5a1b228964fb7..deb99bc9b7e6b 100644
---- a/fs/proc/uptime.c
-+++ b/fs/proc/uptime.c
-@@ -12,18 +12,22 @@ static int uptime_proc_show(struct seq_file *m, void *v)
- {
- 	struct timespec64 uptime;
- 	struct timespec64 idle;
--	u64 nsec;
-+	u64 idle_nsec;
- 	u32 rem;
- 	int i;
+ 			/* Insert the SLP_TYP bits */
  
--	nsec = 0;
--	for_each_possible_cpu(i)
--		nsec += (__force u64) kcpustat_cpu(i).cpustat[CPUTIME_IDLE];
-+	idle_nsec = 0;
-+	for_each_possible_cpu(i) {
-+		struct kernel_cpustat kcs;
-+
-+		kcpustat_cpu_fetch(&kcs, i);
-+		idle_nsec += get_idle_time(&kcs, i);
+-			pm1a_control |= (acpi_gbl_sleep_type_a <<
++			pm1a_control |= (acpi_gbl_sleep_type_a_s0 <<
+ 					 sleep_type_reg_info->bit_position);
+-			pm1b_control |= (acpi_gbl_sleep_type_b <<
++			pm1b_control |= (acpi_gbl_sleep_type_b_s0 <<
+ 					 sleep_type_reg_info->bit_position);
+ 
+ 			/* Write the control registers and ignore any errors */
+diff --git a/drivers/acpi/acpica/hwxfsleep.c b/drivers/acpi/acpica/hwxfsleep.c
+index 89b12afed564e..e4cde23a29061 100644
+--- a/drivers/acpi/acpica/hwxfsleep.c
++++ b/drivers/acpi/acpica/hwxfsleep.c
+@@ -217,6 +217,13 @@ acpi_status acpi_enter_sleep_state_prep(u8 sleep_state)
+ 		return_ACPI_STATUS(status);
+ 	}
+ 
++	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
++					  &acpi_gbl_sleep_type_a_s0,
++					  &acpi_gbl_sleep_type_b_s0);
++	if (ACPI_FAILURE(status)) {
++		acpi_gbl_sleep_type_a_s0 = ACPI_SLEEP_TYPE_INVALID;
 +	}
++
+ 	/* Execute the _PTS method (Prepare To Sleep) */
  
- 	ktime_get_boottime_ts64(&uptime);
- 	timens_add_boottime(&uptime);
- 
--	idle.tv_sec = div_u64_rem(nsec, NSEC_PER_SEC, &rem);
-+	idle.tv_sec = div_u64_rem(idle_nsec, NSEC_PER_SEC, &rem);
- 	idle.tv_nsec = rem;
- 	seq_printf(m, "%lu.%02lu %lu.%02lu\n",
- 			(unsigned long) uptime.tv_sec,
-diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
-index 44ae1a7eb9e39..69ae6b2784645 100644
---- a/include/linux/kernel_stat.h
-+++ b/include/linux/kernel_stat.h
-@@ -102,6 +102,7 @@ extern void account_system_index_time(struct task_struct *, u64,
- 				      enum cpu_usage_stat);
- extern void account_steal_time(u64);
- extern void account_idle_time(u64);
-+extern u64 get_idle_time(struct kernel_cpustat *kcs, int cpu);
- 
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
- static inline void account_process_tick(struct task_struct *tsk, int user)
+ 	arg_list.count = 1;
 -- 
 2.33.0
 
