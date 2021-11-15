@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F41445142C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BDF545123A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:31:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349328AbhKOUG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:06:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
+        id S1346158AbhKOTbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:31:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344425AbhKOTYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 496626348D;
-        Mon, 15 Nov 2021 18:57:31 +0000 (UTC)
+        id S244392AbhKOTOE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:14:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3B896340F;
+        Mon, 15 Nov 2021 18:20:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002651;
-        bh=kdebkL3yJWAURCXWKPh9zP1gx264ri6FnPV749kAbf0=;
+        s=korg; t=1637000440;
+        bh=bvl7/2cFgDMnUQLxmYAhY/q5K98jcp/7S1Giu9g6djs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2PUpJ7Za+HzrtKzlAuR0QNtzQzU1PA9XsAs1V0qmKhY1uNDrHwE/KzIm8hqT1lDzz
-         gafruFZoZozjUNXvk18sduHdIbXcVgVXtYudrEdNNXENtDXw3S4fVa19hl7W+r6mkP
-         ldksQvn9Yt9p4Mq+VXrAKrmMU3otOUZlxs2zH4h8=
+        b=SweXJLz4aoY89G9aDH2yS8G3/IvJulerL8TG7Iw+Y9N0K0I7jYo1VpZnIUi6nWUn9
+         OCKYumyzzlCQnw4Fo6cWNsViYSuyVWxkA84DNfV+Tmbm2DSknUrLtDCxyWXyG9VeGQ
+         RRRArRdZveCA69s+UcV4GCmIA3ZVFBALsbRGR5WM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 647/917] iio: adis: do not disabe IRQs in adis_init()
-Date:   Mon, 15 Nov 2021 18:02:22 +0100
-Message-Id: <20211115165450.797779699@linuxfoundation.org>
+Subject: [PATCH 5.14 660/849] virtio_ring: check desc == NULL when using indirect with packed
+Date:   Mon, 15 Nov 2021 18:02:23 +0100
+Message-Id: <20211115165442.591358969@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-[ Upstream commit b600bd7eb333554518b4dd36b882b2ae58a5149e ]
+[ Upstream commit fc6d70f40b3d0b3219e2026d05be0409695f620d ]
 
-With commit ecb010d441088 ("iio: imu: adis: Refactor adis_initial_startup")
-we are doing a HW or SW reset to the device which means that we'll get
-the default state of the data ready pin (which is enabled). Hence there's
-no point in disabling the IRQ in the init function. Moreover, this
-function is intended to initialize internal data structures and not
-really do anything on the device.
+When using indirect with packed, we don't check for allocation failures.
+This patch checks that and fall back on direct.
 
-As a result of this, some devices were left with the data ready pin enabled
-after probe which was not the desired behavior. Thus, we move the call to
-'adis_enable_irq()' to the initial startup function where it makes more
-sense for it to be.
-
-Note that for devices that cannot mask/unmask the pin, it makes no sense
-to call the function at this point since the IRQ should not have been
-yet requested. This will be improved in a follow up change.
-
-Fixes: ecb010d441088 ("iio: imu: adis: Refactor adis_initial_startup")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210903141423.517028-2-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 1ce9e6055fa0 ("virtio_ring: introduce packed ring support")
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20211020112323.67466-3-xuanzhuo@linux.alibaba.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/adis.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_ring.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/imu/adis.c b/drivers/iio/imu/adis.c
-index b9a06ca29beec..d4e692b187cda 100644
---- a/drivers/iio/imu/adis.c
-+++ b/drivers/iio/imu/adis.c
-@@ -430,6 +430,8 @@ int __adis_initial_startup(struct adis *adis)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 3035bb6f54585..d1f47327f6cfe 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1065,6 +1065,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
  
-+	adis_enable_irq(adis, false);
+ 	head = vq->packed.next_avail_idx;
+ 	desc = alloc_indirect_packed(total_sg, gfp);
++	if (!desc)
++		return -ENOMEM;
+ 
+ 	if (unlikely(vq->vq.num_free < 1)) {
+ 		pr_debug("Can't add buf len 1 - avail = 0\n");
+@@ -1176,6 +1178,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+ 	unsigned int i, n, c, descs_used, err_idx;
+ 	__le16 head_flags, flags;
+ 	u16 head, id, prev, curr, avail_used_flags;
++	int err;
+ 
+ 	START_USE(vq);
+ 
+@@ -1191,9 +1194,14 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+ 
+ 	BUG_ON(total_sg == 0);
+ 
+-	if (virtqueue_use_indirect(_vq, total_sg))
+-		return virtqueue_add_indirect_packed(vq, sgs, total_sg,
+-				out_sgs, in_sgs, data, gfp);
++	if (virtqueue_use_indirect(_vq, total_sg)) {
++		err = virtqueue_add_indirect_packed(vq, sgs, total_sg, out_sgs,
++						    in_sgs, data, gfp);
++		if (err != -ENOMEM)
++			return err;
 +
- 	if (!adis->data->prod_id_reg)
- 		return 0;
++		/* fall back on direct */
++	}
  
-@@ -526,7 +528,7 @@ int adis_init(struct adis *adis, struct iio_dev *indio_dev,
- 		adis->current_page = 0;
- 	}
- 
--	return adis_enable_irq(adis, false);
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(adis_init);
- 
+ 	head = vq->packed.next_avail_idx;
+ 	avail_used_flags = vq->packed.avail_used_flags;
 -- 
 2.33.0
 
