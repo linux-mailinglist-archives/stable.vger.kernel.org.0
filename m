@@ -2,125 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1F1E4516B4
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 22:38:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98FE4451672
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 22:22:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350892AbhKOVkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 16:40:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36482 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347690AbhKOVbk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 16:31:40 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61A7FC07978C;
-        Mon, 15 Nov 2021 13:16:10 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id gx15-20020a17090b124f00b001a695f3734aso966742pjb.0;
-        Mon, 15 Nov 2021 13:16:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=A2H9eWpu5XFGIj2LpL3XWrpar0ldad6fVGKZSwsPS8U=;
-        b=ecBgsbCyP4rLezyg8ifBkDr4A2MT3nuunKNaswUoz7NLtAASDeH+xP27ABxc0vYgOs
-         9xVNW7taSVEq1LCJnqLIwl+Ume8HcL2CLv4LbI7OqUbYSGGPGWkYljQhR4im9BEf9Wdm
-         +2vNgD87JkQ8ehimWBd+/Dljgv/LCKtaGWFLgzwuz7H5BVtXRBVeLSZSptytyYkbFdNf
-         h9SuJI2Z7IIg9Dnmz3k+PhSPjCzEtcl1mLRizs+Xto6BONEQlBUDzV1yZC1hSM7EvKdU
-         CMvtJcnGxIfbEkKyeTw48LN0HevtYdIu7lB9w6Z9cAqqMTHTpyMsbgCaLpMTcukXPFUc
-         SLkw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=A2H9eWpu5XFGIj2LpL3XWrpar0ldad6fVGKZSwsPS8U=;
-        b=yAYfM7bAacu6PDJ9nX9TxBg8P6KqNX/hWLT7PG4hMFd4yY9Rto70HPEuQzmK5Z2eS4
-         S9iCVuDtCHgpMXxjSAFjCCD05ZDWfSULwCD/yFTEZ08RJTNnqItBYnp6x3kNz6WFHRLx
-         O3Zsa1ROuoO+GeH1l/onuYq1ilCNpayaNULAGmgrTMDscj15dzhUh9gE2pL+Zr+VzoHW
-         N7uS73AJBds9s7vlaKNe8lqvphJbdetRhDhmW4h3Vt8ljuCS1PjzozlBbooeYsRjL59V
-         3MT71sFoAOrLZ03YDLT54L/zMYkQig6xd4p3MaduFOaGZsUFZ3in+V9NnJ3UtJJs4xuB
-         PZ6g==
-X-Gm-Message-State: AOAM5319QjUlQtlQHPjEBFsARkGceFWba0DkCS2x87v0hZIiFFvDl+tg
-        gcfw6Z5tBm8N1sRMJ6XCVYo=
-X-Google-Smtp-Source: ABdhPJzCVvr66gTRauRC3FvA3vNC+EUo3/WhpTrRao7Y0rDoVxmWRgXrwi5qjC3Ea8dNyOsSg1r7cw==
-X-Received: by 2002:a17:90b:33d0:: with SMTP id lk16mr2065531pjb.66.1637010969952;
-        Mon, 15 Nov 2021 13:16:09 -0800 (PST)
-Received: from localhost ([2409:10:24a0:4700:e8ad:216a:2a9d:6d0c])
-        by smtp.gmail.com with ESMTPSA id u38sm17125234pfg.0.2021.11.15.13.16.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Nov 2021 13:16:09 -0800 (PST)
-Date:   Tue, 16 Nov 2021 06:16:07 +0900
-From:   Stafford Horne <shorne@gmail.com>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ilia Sergachev <silia@ethz.ch>,
-        Karol Gugala <kgugala@antmicro.com>,
-        Mateusz Holenko <mholenko@antmicro.com>,
-        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Filip Kokosinski <fkokosinski@antmicro.com>
-Subject: Re: [PATCH 3/3] serial: liteuart: fix minor-number leak on probe
- errors
-Message-ID: <YZLOF2g8DBllJg2l@antec>
-References: <20211115133745.11445-1-johan@kernel.org>
- <20211115133745.11445-4-johan@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211115133745.11445-4-johan@kernel.org>
+        id S1348171AbhKOVY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 16:24:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59866 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1349124AbhKOVTk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 16:19:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B17EA61B4D;
+        Mon, 15 Nov 2021 21:16:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1637011004;
+        bh=hgzrC7OEfGSSU+nQUoU344E+z12K9c++EYEMrg7yjgY=;
+        h=Date:From:To:Subject:From;
+        b=R5nyCyyHawJa+jw08hmQeOShB7YiuRINDvHhEIgRvPW9exVi9QI6UQ6CtiN04gK+d
+         w2/BHhFPih5U4cZi67Tr70c0SjMC0nOhBmii3PsdBrPJKmUvBZZCW9NwDQlyOiv8wZ
+         MO8v9jcAf8lw7YIKCdCKnFcpRfU+GJeZbkLPTFvY=
+Date:   Mon, 15 Nov 2021 13:16:43 -0800
+From:   akpm@linux-foundation.org
+To:     almasrymina@google.com, linmiaohe@huawei.com, mhocko@suse.com,
+        mike.kravetz@oracle.com, minhquangbui99@gmail.com,
+        mm-commits@vger.kernel.org, songmuchun@bytedance.com,
+        stable@vger.kernel.org
+Subject:  +
+ hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap.patch added to -mm
+ tree
+Message-ID: <20211115211643.woJFRjTCW%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 15, 2021 at 02:37:45PM +0100, Johan Hovold wrote:
-> Make sure to release the allocated minor number before returning on
-> probe errors.
-> 
-> Fixes: 1da81e5562fa ("drivers/tty/serial: add LiteUART driver")
-> Cc: stable@vger.kernel.org      # 5.11
-> Cc: Filip Kokosinski <fkokosinski@antmicro.com>
-> Cc: Mateusz Holenko <mholenko@antmicro.com>
-> Cc: Stafford Horne <shorne@gmail.com>
-> Signed-off-by: Johan Hovold <johan@kernel.org>
 
-Reviewed-by: Stafford Horne <shorne@gmail.com>
+The patch titled
+     Subject: hugetlb: fix hugetlb cgroup refcounting during mremap
+has been added to the -mm tree.  Its filename is
+     hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap.patch
 
-> ---
->  drivers/tty/serial/liteuart.c | 17 ++++++++++++++---
->  1 file changed, 14 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/tty/serial/liteuart.c b/drivers/tty/serial/liteuart.c
-> index da792d0df790..2941659e5274 100644
-> --- a/drivers/tty/serial/liteuart.c
-> +++ b/drivers/tty/serial/liteuart.c
-> @@ -270,8 +270,10 @@ static int liteuart_probe(struct platform_device *pdev)
->  
->  	/* get membase */
->  	port->membase = devm_platform_get_and_ioremap_resource(pdev, 0, NULL);
-> -	if (IS_ERR(port->membase))
-> -		return PTR_ERR(port->membase);
-> +	if (IS_ERR(port->membase)) {
-> +		ret = PTR_ERR(port->membase);
-> +		goto err_erase_id;
-> +	}
->  
->  	/* values not from device tree */
->  	port->dev = &pdev->dev;
-> @@ -287,7 +289,16 @@ static int liteuart_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, port);
->  
-> -	return uart_add_one_port(&liteuart_driver, &uart->port);
-> +	ret = uart_add_one_port(&liteuart_driver, &uart->port);
-> +	if (ret)
-> +		goto err_erase_id;
-> +
-> +	return 0;
-> +
-> +err_erase_id:
-> +	xa_erase(&liteuart_array, uart->id);
-> +
-> +	return ret;
->  }
->  
->  static int liteuart_remove(struct platform_device *pdev)
-> -- 
-> 2.32.0
-> 
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: hugetlb: fix hugetlb cgroup refcounting during mremap
+
+When hugetlb_vm_op_open() is called during copy_vma(), we may take the
+reference to resv_map->css.  Later, when clearing the reservation pointer
+of old_vma after transferring it to new_vma, we forget to drop the
+reference to resv_map->css.  This leads to a reference leak of css.
+
+Fixes this by adding a check to drop reservation css reference in
+clear_vma_resv_huge_pages()
+
+Link: https://lkml.kernel.org/r/20211113154412.91134-1-minhquangbui99@gmail.com
+Fixes: 550a7d60bd5e35 ("mm, hugepages: add mremap() support for hugepage backed vma")
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Mina Almasry <almasrymina@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/hugetlb_cgroup.h |   12 ++++++++++++
+ mm/hugetlb.c                   |    4 +++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
+
+--- a/include/linux/hugetlb_cgroup.h~hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap
++++ a/include/linux/hugetlb_cgroup.h
+@@ -128,6 +128,13 @@ static inline void resv_map_dup_hugetlb_
+ 		css_get(resv_map->css);
+ }
+ 
++static inline void resv_map_put_hugetlb_cgroup_uncharge_info(
++						struct resv_map *resv_map)
++{
++	if (resv_map->css)
++		css_put(resv_map->css);
++}
++
+ extern int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
+ 					struct hugetlb_cgroup **ptr);
+ extern int hugetlb_cgroup_charge_cgroup_rsvd(int idx, unsigned long nr_pages,
+@@ -210,6 +217,11 @@ static inline void resv_map_dup_hugetlb_
+ 						struct resv_map *resv_map)
+ {
+ }
++
++static inline void resv_map_put_hugetlb_cgroup_uncharge_info(
++						struct resv_map *resv_map)
++{
++}
+ 
+ static inline int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
+ 					       struct hugetlb_cgroup **ptr)
+--- a/mm/hugetlb.c~hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap
++++ a/mm/hugetlb.c
+@@ -1037,8 +1037,10 @@ void clear_vma_resv_huge_pages(struct vm
+ 	 */
+ 	struct resv_map *reservations = vma_resv_map(vma);
+ 
+-	if (reservations && is_vma_resv_set(vma, HPAGE_RESV_OWNER))
++	if (reservations && is_vma_resv_set(vma, HPAGE_RESV_OWNER)) {
++		resv_map_put_hugetlb_cgroup_uncharge_info(reservations);
+ 		kref_put(&reservations->refs, resv_map_release);
++	}
+ 
+ 	reset_vma_resv_huge_pages(vma);
+ }
+_
+
+Patches currently in -mm which might be from minhquangbui99@gmail.com are
+
+hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap.patch
+
