@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C2FB451028
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:40:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07E2F450CBE
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:40:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239461AbhKOSmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:42:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47398 "EHLO mail.kernel.org"
+        id S237079AbhKORmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:42:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242152AbhKOSkq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:40:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55EFF63287;
-        Mon, 15 Nov 2021 18:04:24 +0000 (UTC)
+        id S238296AbhKORkW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:40:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDE09632E4;
+        Mon, 15 Nov 2021 17:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999464;
-        bh=W2sKdewyPV9PQP86V6nhGK2UK6pyfd0OTLNFLBB7VoU=;
+        s=korg; t=1636997209;
+        bh=KgNYs70AqdvifhnDfLu/6gP4SPOTkLTRF+1SM1Y2Zpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qevMDw8sUWqPhWrjmg60eiCKmy7wInnDxxVgeqAFMKCSb5C+VOuvaXGejqyTKXeJo
-         38e8iLou6HWK+FzugkC0JiPLXtNRHTJt91oV8aYbaYNQ8FtoxSlcN18lgNOiVcEtyN
-         M7oto5qN3LUEHXCpluVN5UCbrtaXNwc4/epsWEGQ=
+        b=VGK23llekEPaWZF+8Vn+nZ1HKkSskdGr2eIgwsvkQBIXK+OmfJNHio0IsWXV/nB+X
+         1T9cpqRo/ECAXl6ptKvS7TA+wJAgKa/JqOZc6TH5MQIhGNCE0oRceKp9fnOSe+DoKi
+         K2EpIA+lDTDV/viLPD9H4XO8nzMZF/b54NqKgn9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Casey Schaufler <casey@schaufler-ca.com>,
+        stable@vger.kernel.org, Bryant Mairs <bryant@mai.rs>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 306/849] smackfs: use __GFP_NOFAIL for smk_cipso_doi()
+Subject: [PATCH 5.10 064/575] drm: panel-orientation-quirks: Add quirk for Aya Neo 2021
 Date:   Mon, 15 Nov 2021 17:56:29 +0100
-Message-Id: <20211115165430.601134964@linuxfoundation.org>
+Message-Id: <20211115165345.858420924@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Bryant Mairs <bryant@mai.rs>
 
-[ Upstream commit f91488ee15bd3cac467e2d6a361fc2d34d1052ae ]
+[ Upstream commit def0c3697287f6e85d5ac68b21302966c95474f9 ]
 
-syzbot is reporting kernel panic at smk_cipso_doi() due to memory
-allocation fault injection [1]. The reason for need to use panic() was
-not explained. But since no fix was proposed for 18 months, for now
-let's use __GFP_NOFAIL for utilizing syzbot resource on other bugs.
+Fixes screen orientation for the Aya Neo 2021 handheld gaming console.
 
-Link: https://syzkaller.appspot.com/bug?extid=89731ccb6fec15ce1c22 [1]
-Reported-by: syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Bryant Mairs <bryant@mai.rs>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211019142433.4295-1-bryant@mai.rs
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smackfs.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index 9d853c0e55b84..89989d28ffc55 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -693,9 +693,7 @@ static void smk_cipso_doi(void)
- 		printk(KERN_WARNING "%s:%d remove rc = %d\n",
- 		       __func__, __LINE__, rc);
- 
--	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL);
--	if (doip == NULL)
--		panic("smack:  Failed to initialize cipso DOI.\n");
-+	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL | __GFP_NOFAIL);
- 	doip->map.std = NULL;
- 	doip->doi = smk_cipso_doi_value;
- 	doip->type = CIPSO_V4_MAP_PASS;
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index f6bdec7fa9253..30c17a76f49ae 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -134,6 +134,12 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T103HAF"),
+ 		},
+ 		.driver_data = (void *)&lcd800x1280_rightside_up,
++	}, {	/* AYA NEO 2021 */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "AYADEVICE"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "AYA NEO 2021"),
++		},
++		.driver_data = (void *)&lcd800x1280_rightside_up,
+ 	}, {	/* GPD MicroPC (generic strings, also match on bios date) */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
 -- 
 2.33.0
 
