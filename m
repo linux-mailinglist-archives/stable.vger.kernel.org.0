@@ -2,110 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D877E450A71
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:03:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D44E450C1C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231824AbhKORGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:06:43 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:53871 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231336AbhKORGl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 12:06:41 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id A0CF73201C6E;
-        Mon, 15 Nov 2021 12:03:43 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Mon, 15 Nov 2021 12:03:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=2FmVt9Ku6/tnTvyQMVVjbvP8jFg
-        7pXKV68FsjSNZg50=; b=RF8Ar/6evi3hrseMOIFRt9TU7Hr0CTVQDLnqxVkURzL
-        +0QopBWHzPoFXRlduysGtyv7uXr6PiSf/jVPIV/283TgfLduPWaM5KytpK72wkwF
-        ix2+DLc8RYtKKMNxWkLpVtTyYelEIOXh2prEeXsF1GX+gd2j4DKmowR6J6enXEgA
-        eG1PbIN5hHvmpn4+kWIoFVlJk7yMdENseG3rg3+/Hd/huUdV9hwzbnTVUJ4A7omv
-        3FhEY5ojiueVTdJH51qux5PU4aIuh/B35VOeIEzxxKlbmvKLCNH6Hx4J6xfTG898
-        kFdgryFm0OEK0v9r1ULJLpY0Wdjtd4ZN8UXThjI50iA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=2FmVt9
-        Ku6/tnTvyQMVVjbvP8jFg7pXKV68FsjSNZg50=; b=Ps6ZUCm9LALRISZB05C1SD
-        EFD0FzKII5PVHHBaxiHRDzar3u25U9KnL4OIwygOlKIy82/whT/a7vv9YgOKniLU
-        kdLvOQrsEigNLgA1kEB388Z7OK6HTElSIeaayGYgDZkKxWa4Ej5sMMRc7B0KxoJa
-        JcnaR3DICAu/9fnjaodv7lGmydK+hceo2li2XjIQ7ojpibGjDLMYOP1wRbQYo2vC
-        CfQXV4SWdQ6hHCgVIyVl814Z4hAIHhKxtRMAQqDZU3rFIE0R7aQDqJr++gaYQTMV
-        Ymnh7D2CeGvXCARE/14rX4n4qffEFduvPpz86KYz+gZML8ip4TKBxdPiVcersIGw
-        ==
-X-ME-Sender: <xms:7pKSYcmAA-Ewfoe2xiAryIzFEbe9nJ_pOsiY_6fdEku6yHggxgEWsQ>
-    <xme:7pKSYb2HdEPEW6r6P5N8mdhDP7FfOjqYD8YSJ8P1xx2SqgkXHA4KLoNhLp5Jqgmcb
-    rQpHJnOSzZUCg>
-X-ME-Received: <xmr:7pKSYarxLWqUR__LHbskE4mGQdJ5qBiDZ1XmXy7Byt42HJVLailLtN3dOvUQYOSIWqzpXW4qGoDkfRSLmyYHGhKj-ypxB1B1>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrfedtgdeilecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
-    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:7pKSYYkNSvbbIWjxBQqyiMYx1VsWVrKnAVpokqVUQb0T2Lk3mol7FQ>
-    <xmx:7pKSYa2dQOocY1D7_ox7XAG0X1ulQbawQFmJwK00-wh9DDq5bshmqw>
-    <xmx:7pKSYfssj61d0eTmPrSH0stmAXaEfG6412rI14UCPiYNt-qiHyM09w>
-    <xmx:7pKSYUqqZo90RHorSLPR9z7yV53CzTrb47xPi6aQvbGQie5tcCoTZw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 15 Nov 2021 12:03:41 -0500 (EST)
-Date:   Mon, 15 Nov 2021 18:03:39 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Jane Malalane <jane.malalane@citrix.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, Borislav Petkov <bp@suse.de>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH for 4.19] x86/cpu: Fix migration safety with
- X86_BUG_NULL_SEL
-Message-ID: <YZKS63HXBGrcMj10@kroah.com>
-References: <20211115163020.16672-1-jane.malalane@citrix.com>
+        id S237742AbhKORey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:34:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46732 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238078AbhKORcf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:32:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13A93632B2;
+        Mon, 15 Nov 2021 17:21:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1636996868;
+        bh=ceL5HOAaiE44dOKsxywXux6asqahSoPHQnK7RwAX4Jk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=gHEkTAulyAjQGGIuWsTw7M/h6b7O9m2ye+iJpobLS6Cip29w03hcQelb3ogyirg4X
+         JOMc0fLENCB24Deiv4SGQqVSI0iPnftLtnsLF8hPsvN1JYncCfpL/yVGYrlRUbQ0ZK
+         0dDNWQH9MLpQGTytXfNv7psLrt3wgE8ScZOlBp2c=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 296/355] NFS: Fix deadlocks in nfs_scan_commit_list()
+Date:   Mon, 15 Nov 2021 18:03:40 +0100
+Message-Id: <20211115165323.298788788@linuxfoundation.org>
+X-Mailer: git-send-email 2.33.1
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211115163020.16672-1-jane.malalane@citrix.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 15, 2021 at 04:30:20PM +0000, Jane Malalane wrote:
-> commit 415de44076640483648d6c0f6d645a9ee61328ad upstream.
-> 
-> Currently, Linux probes for X86_BUG_NULL_SEL unconditionally which
-> makes it unsafe to migrate in a virtualised environment as the
-> properties across the migration pool might differ.
-> 
-> To be specific, the case which goes wrong is:
-> 
-> 1. Zen1 (or earlier) and Zen2 (or later) in a migration pool
-> 2. Linux boots on Zen2, probes and finds the absence of X86_BUG_NULL_SEL
-> 3. Linux is then migrated to Zen1
-> 
-> Linux is now running on a X86_BUG_NULL_SEL-impacted CPU while believing
-> that the bug is fixed.
-> 
-> The only way to address the problem is to fully trust the "no longer
-> affected" CPUID bit when virtualised, because in the above case it would
-> be clear deliberately to indicate the fact "you might migrate to
-> somewhere which has this behaviour".
-> 
-> Zen3 adds the NullSelectorClearsBase CPUID bit to indicate that loading
-> a NULL segment selector zeroes the base and limit fields, as well as
-> just attributes. Zen2 also has this behaviour but doesn't have the NSCB
-> bit.
-> 
->  [ bp: Minor touchups. ]
-> 
-> Signed-off-by: Jane Malalane <jane.malalane@citrix.com>
-> Signed-off-by: Borislav Petkov <bp@suse.de>
-> CC: <stable@vger.kernel.org>
-> Link: https://lkml.kernel.org/r/20211021104744.24126-1-jane.malalane@citrix.com
-> ---
-> Backport to 4.19.  Drop Hygon modifications.
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-Now queued up, thanks.
+[ Upstream commit 64a93dbf25d3a1368bb58ddf0f61d0a92d7479e3 ]
 
-greg k-h
+Partially revert commit 2ce209c42c01 ("NFS: Wait for requests that are
+locked on the commit list"), since it can lead to deadlocks between
+commit requests and nfs_join_page_group().
+For now we should assume that any locked requests on the commit list are
+either about to be removed and committed by another task, or the writes
+they describe are about to be retransmitted. In either case, we should
+not need to worry.
+
+Fixes: 2ce209c42c01 ("NFS: Wait for requests that are locked on the commit list")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/nfs/write.c | 17 ++---------------
+ 1 file changed, 2 insertions(+), 15 deletions(-)
+
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 613c3ef23e07b..30d8e7bc1cef3 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -1050,25 +1050,11 @@ nfs_scan_commit_list(struct list_head *src, struct list_head *dst,
+ 	struct nfs_page *req, *tmp;
+ 	int ret = 0;
+ 
+-restart:
+ 	list_for_each_entry_safe(req, tmp, src, wb_list) {
+ 		kref_get(&req->wb_kref);
+ 		if (!nfs_lock_request(req)) {
+-			int status;
+-
+-			/* Prevent deadlock with nfs_lock_and_join_requests */
+-			if (!list_empty(dst)) {
+-				nfs_release_request(req);
+-				continue;
+-			}
+-			/* Ensure we make progress to prevent livelock */
+-			mutex_unlock(&NFS_I(cinfo->inode)->commit_mutex);
+-			status = nfs_wait_on_request(req);
+ 			nfs_release_request(req);
+-			mutex_lock(&NFS_I(cinfo->inode)->commit_mutex);
+-			if (status < 0)
+-				break;
+-			goto restart;
++			continue;
+ 		}
+ 		nfs_request_remove_commit_list(req, cinfo);
+ 		clear_bit(PG_COMMIT_TO_DS, &req->wb_flags);
+@@ -1935,6 +1921,7 @@ static int __nfs_commit_inode(struct inode *inode, int how,
+ 	int may_wait = how & FLUSH_SYNC;
+ 	int ret, nscan;
+ 
++	how &= ~FLUSH_SYNC;
+ 	nfs_init_cinfo_from_inode(&cinfo, inode);
+ 	nfs_commit_begin(cinfo.mds);
+ 	for (;;) {
+-- 
+2.33.0
+
+
+
