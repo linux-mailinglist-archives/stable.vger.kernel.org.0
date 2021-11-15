@@ -2,134 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98FE4451672
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 22:22:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D744516B5
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 22:38:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348171AbhKOVY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 16:24:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59866 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349124AbhKOVTk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 16:19:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B17EA61B4D;
-        Mon, 15 Nov 2021 21:16:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1637011004;
-        bh=hgzrC7OEfGSSU+nQUoU344E+z12K9c++EYEMrg7yjgY=;
-        h=Date:From:To:Subject:From;
-        b=R5nyCyyHawJa+jw08hmQeOShB7YiuRINDvHhEIgRvPW9exVi9QI6UQ6CtiN04gK+d
-         w2/BHhFPih5U4cZi67Tr70c0SjMC0nOhBmii3PsdBrPJKmUvBZZCW9NwDQlyOiv8wZ
-         MO8v9jcAf8lw7YIKCdCKnFcpRfU+GJeZbkLPTFvY=
-Date:   Mon, 15 Nov 2021 13:16:43 -0800
-From:   akpm@linux-foundation.org
-To:     almasrymina@google.com, linmiaohe@huawei.com, mhocko@suse.com,
-        mike.kravetz@oracle.com, minhquangbui99@gmail.com,
-        mm-commits@vger.kernel.org, songmuchun@bytedance.com,
-        stable@vger.kernel.org
-Subject:  +
- hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap.patch added to -mm
- tree
-Message-ID: <20211115211643.woJFRjTCW%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1350899AbhKOVkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 16:40:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36226 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347991AbhKOVbk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 16:31:40 -0500
+Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADED7C07978E
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 13:17:12 -0800 (PST)
+Received: by mail-pj1-x104a.google.com with SMTP id mn13-20020a17090b188d00b001a64f277c1eso202438pjb.2
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 13:17:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=XKLWlLaz9dMMXpY7vqrKj+gJX43hfIjMlaR58B8E1J0=;
+        b=KsbuBZr2cvOp1RXmqbysm7ST4ITB8FxHBMsGtm6YNxN6qNLWMEjiO3fgxBW7T2fuv4
+         7iJeku2Ir8e2JTr4OPAr1j4Ovv+xija18RivWUEOeuJJKhLPD/Ys550gcBWPOonQ6w1T
+         4xaz5cR0/TJOC1yErdqvrcQMRK2lfJhAaQYBPwFC+7XNBvSmjWCIDuc3tn+8KFC7mina
+         0dMMy7Y6WktLt9+4K4yQWlwu6v4lJyuml23ipqIYwoxNgAvZax9JCHtJv1zjD+tJo3Pj
+         /WyCiKmyHOknsqo6r9ZmReSL4jbzbRjhUYUUVD6poQ0JtGG5mL4n5IQ9u8Ieul542ckd
+         4IsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=XKLWlLaz9dMMXpY7vqrKj+gJX43hfIjMlaR58B8E1J0=;
+        b=fridMb7+raaZBFz612yz96C92DIWU2vtdGzHBUZT8ir8FmByq/6bpLn8BOLhfSnpig
+         wIrDDRBBI7kBGL4ymGvqYX//m4+NTkMiYE14O2MlrtJ3BdGm6HFyajtvkMKSlV1I45zo
+         vZLYywj51bInJgl8pKgBjajn9URkoTdnzASovUUFeh0U7yTS5udbX+u7tgq0cKPl5i4N
+         tLp+IqcbeNzUa5LL0A0pDU+AoM5DruLJaVdG4g6cV5SSYCunDXDFW7aHs0PX0Wm6bqqo
+         7TVDf8QeUCYTs8dkC/VpVUWGoeUEUnEWNOuONEhxYd4/pNEzJYjLp0WW60h3z2ne/g8/
+         rwbw==
+X-Gm-Message-State: AOAM532L5kaAPqb9Llne9J32EzIsNEkyRjXBTcuYmbq7sNJmNH1xrlBB
+        iCZY2IPrj3IqyimdCItb9wiHHe9tIUnw
+X-Google-Smtp-Source: ABdhPJzTHdkyhPUStS6JfR8W1Vb+jz+OWtaRuA2J8PFkGBP9eQbWPebsjSpHeALvCb1Vqmgfk70L/+Rp81kD
+X-Received: from bgardon.sea.corp.google.com ([2620:15c:100:202:916d:2253:5849:9965])
+ (user=bgardon job=sendgmr) by 2002:a17:902:ba84:b0:142:5514:8dd7 with SMTP id
+ k4-20020a170902ba8400b0014255148dd7mr39012600pls.87.1637011032196; Mon, 15
+ Nov 2021 13:17:12 -0800 (PST)
+Date:   Mon, 15 Nov 2021 13:17:04 -0800
+Message-Id: <20211115211704.2621644-1-bgardon@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.34.0.rc1.387.gb447b232ab-goog
+Subject: [PATCH 1/1] KVM: x86/mmu: Fix TLB flush range when handling
+ disconnected pt
+From:   Ben Gardon <bgardon@google.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Peter Shier <pshier@google.com>,
+        David Matlack <dmatlack@google.com>,
+        Mingwei Zhang <mizhang@google.com>,
+        Yulei Zhang <yulei.kernel@gmail.com>,
+        Wanpeng Li <kernellwp@gmail.com>,
+        Xiao Guangrong <xiaoguangrong.eric@gmail.com>,
+        Kai Huang <kai.huang@intel.com>,
+        Keqian Zhu <zhukeqian1@huawei.com>,
+        David Hildenbrand <david@redhat.com>,
+        Ben Gardon <bgardon@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+When recursively clearing out disconnected pts, the range based TLB
+flush in handle_removed_tdp_mmu_page uses the wrong starting GFN,
+resulting in the flush mostly missing the affected range. Fix this by
+using base_gfn for the flush.
 
-The patch titled
-     Subject: hugetlb: fix hugetlb cgroup refcounting during mremap
-has been added to the -mm tree.  Its filename is
-     hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap.patch
+In response to feedback from David Matlack on the RFC version of this
+patch, also move a few definitions into the for loop in the function to
+prevent unintended references to them in the future.
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap.patch
+Fixes: a066e61f13cf ("KVM: x86/mmu: Factor out handling of removed page tables")
+CC: stable@vger.kernel.org
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-Subject: hugetlb: fix hugetlb cgroup refcounting during mremap
-
-When hugetlb_vm_op_open() is called during copy_vma(), we may take the
-reference to resv_map->css.  Later, when clearing the reservation pointer
-of old_vma after transferring it to new_vma, we forget to drop the
-reference to resv_map->css.  This leads to a reference leak of css.
-
-Fixes this by adding a check to drop reservation css reference in
-clear_vma_resv_huge_pages()
-
-Link: https://lkml.kernel.org/r/20211113154412.91134-1-minhquangbui99@gmail.com
-Fixes: 550a7d60bd5e35 ("mm, hugepages: add mremap() support for hugepage backed vma")
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Ben Gardon <bgardon@google.com>
 ---
+ arch/x86/kvm/mmu/tdp_mmu.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
- include/linux/hugetlb_cgroup.h |   12 ++++++++++++
- mm/hugetlb.c                   |    4 +++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
-
---- a/include/linux/hugetlb_cgroup.h~hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap
-+++ a/include/linux/hugetlb_cgroup.h
-@@ -128,6 +128,13 @@ static inline void resv_map_dup_hugetlb_
- 		css_get(resv_map->css);
- }
+diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+index 7c5dd83e52de..4bd541050d21 100644
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -317,9 +317,6 @@ static void handle_removed_tdp_mmu_page(struct kvm *kvm, tdp_ptep_t pt,
+ 	struct kvm_mmu_page *sp = sptep_to_sp(rcu_dereference(pt));
+ 	int level = sp->role.level;
+ 	gfn_t base_gfn = sp->gfn;
+-	u64 old_child_spte;
+-	u64 *sptep;
+-	gfn_t gfn;
+ 	int i;
  
-+static inline void resv_map_put_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+	if (resv_map->css)
-+		css_put(resv_map->css);
-+}
-+
- extern int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					struct hugetlb_cgroup **ptr);
- extern int hugetlb_cgroup_charge_cgroup_rsvd(int idx, unsigned long nr_pages,
-@@ -210,6 +217,11 @@ static inline void resv_map_dup_hugetlb_
- 						struct resv_map *resv_map)
- {
- }
-+
-+static inline void resv_map_put_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+}
+ 	trace_kvm_mmu_prepare_zap_page(sp);
+@@ -327,8 +324,9 @@ static void handle_removed_tdp_mmu_page(struct kvm *kvm, tdp_ptep_t pt,
+ 	tdp_mmu_unlink_page(kvm, sp, shared);
  
- static inline int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					       struct hugetlb_cgroup **ptr)
---- a/mm/hugetlb.c~hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap
-+++ a/mm/hugetlb.c
-@@ -1037,8 +1037,10 @@ void clear_vma_resv_huge_pages(struct vm
- 	 */
- 	struct resv_map *reservations = vma_resv_map(vma);
+ 	for (i = 0; i < PT64_ENT_PER_PAGE; i++) {
+-		sptep = rcu_dereference(pt) + i;
+-		gfn = base_gfn + i * KVM_PAGES_PER_HPAGE(level);
++		u64 *sptep = rcu_dereference(pt) + i;
++		gfn_t gfn = base_gfn + i * KVM_PAGES_PER_HPAGE(level);
++		u64 old_child_spte;
  
--	if (reservations && is_vma_resv_set(vma, HPAGE_RESV_OWNER))
-+	if (reservations && is_vma_resv_set(vma, HPAGE_RESV_OWNER)) {
-+		resv_map_put_hugetlb_cgroup_uncharge_info(reservations);
- 		kref_put(&reservations->refs, resv_map_release);
-+	}
+ 		if (shared) {
+ 			/*
+@@ -374,7 +372,7 @@ static void handle_removed_tdp_mmu_page(struct kvm *kvm, tdp_ptep_t pt,
+ 				    shared);
+ 	}
  
- 	reset_vma_resv_huge_pages(vma);
- }
-_
-
-Patches currently in -mm which might be from minhquangbui99@gmail.com are
-
-hugetlb-fix-hugetlb-cgroup-refcounting-during-mremap.patch
+-	kvm_flush_remote_tlbs_with_address(kvm, gfn,
++	kvm_flush_remote_tlbs_with_address(kvm, base_gfn,
+ 					   KVM_PAGES_PER_HPAGE(level + 1));
+ 
+ 	call_rcu(&sp->rcu_head, tdp_mmu_free_sp_rcu_callback);
+-- 
+2.34.0.rc1.387.gb447b232ab-goog
 
